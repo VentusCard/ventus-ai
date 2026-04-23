@@ -1,67 +1,139 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
-const lifeEvents = [
+type Product = {
+  title: string;
+  reason: string;
+  cta: string;
+  ctaColor: string;
+  icon: string;
+};
+
+type EventData = {
+  id: string;
+  color: string;
+  name: string;
+  confidence: string;
+  txnCount: string;
+  topSignals: string;
+  evidence: { merchant: string; amount: string }[];
+  products: Product[];
+};
+
+const events: EventData[] = [
   {
+    id: "new-parent",
     color: "#22C55E",
     name: "New Parent",
     confidence: "95%",
+    txnCount: "8 transactions detected",
     topSignals: "Buy Buy Baby, Pottery Barn Kids, Carter's",
     evidence: [
       { merchant: "Buy Buy Baby", amount: "$234.50" },
       { merchant: "Pottery Barn Kids", amount: "$189.00" },
       { merchant: "Carter's", amount: "$124.50" },
     ],
-    products: ["Family Rewards Card", "Life Insurance Review", "529 Plan"],
+    products: [
+      {
+        icon: "👶",
+        title: "Family Rewards Card",
+        reason: "Earn 3% on baby essentials · Based on 8 purchases at baby retailers",
+        cta: "Apply Now →",
+        ctaColor: "#16A34A",
+      },
+      {
+        icon: "🎓",
+        title: "529 College Plan",
+        reason: "Start saving from day one · $2,450 detected in baby spend suggests planning mindset",
+        cta: "Open Plan →",
+        ctaColor: "#2563EB",
+      },
+      {
+        icon: "🛡",
+        title: "Life Insurance Review",
+        reason: "Protect what matters most",
+        cta: "Schedule Review →",
+        ctaColor: "#6B7280",
+      },
+    ],
   },
   {
+    id: "college",
     color: "#F59E0B",
     name: "College-Bound Child",
     confidence: "91%",
+    txnCount: "6 transactions detected",
     topSignals: "Princeton Review, Yale Admissions, College Essay Advisor",
     evidence: [
       { merchant: "Princeton Review", amount: "$1,299.00" },
       { merchant: "Yale Admissions", amount: "$32.00" },
       { merchant: "College Essay Advisor", amount: "$850.00" },
     ],
-    products: ["529 College Savings Plan", "Student Loan Planning"],
+    products: [
+      {
+        icon: "🎓",
+        title: "529 College Savings Plan",
+        reason: "Tax-advantaged growth · $3,000+ already invested in admissions prep",
+        cta: "Open Plan →",
+        ctaColor: "#16A34A",
+      },
+      {
+        icon: "💰",
+        title: "Student Loan Planning",
+        reason: "Compare federal and private options before tuition is due",
+        cta: "Get Started →",
+        ctaColor: "#2563EB",
+      },
+      {
+        icon: "📊",
+        title: "Tuition Payment Strategy",
+        reason: "Optimize cash flow across four years",
+        cta: "Schedule Review →",
+        ctaColor: "#6B7280",
+      },
+    ],
   },
   {
+    id: "home",
     color: "#3B82F6",
     name: "Home Purchase",
     confidence: "87%",
+    txnCount: "9 transactions detected",
     topSignals: "Chicago Title, Home Depot, Lowe's",
     evidence: [
       { merchant: "Chicago Title Company", amount: "$1,200" },
       { merchant: "Home Depot", amount: "$847" },
       { merchant: "Lowe's", amount: "$623" },
     ],
-    products: ["Home Equity Line", "Homeowners Insurance", "Mortgage Review"],
-  },
-  {
-    color: "#8B5CF6",
-    name: "Retirement Planning",
-    confidence: "84%",
-    topSignals: "Fidelity, AARP, Estate Attorney",
-    evidence: [
-      { merchant: "Fidelity", amount: "$2,400" },
-      { merchant: "AARP", amount: "$45" },
-      { merchant: "Estate Attorney", amount: "$800" },
+    products: [
+      {
+        icon: "🏠",
+        title: "Home Equity Line",
+        reason: "Tap into new equity for renovations · $2,670 in home improvement spend detected",
+        cta: "Apply Now →",
+        ctaColor: "#16A34A",
+      },
+      {
+        icon: "🛡",
+        title: "Homeowners Insurance",
+        reason: "Protect your largest asset with bundled coverage",
+        cta: "Get Quote →",
+        ctaColor: "#2563EB",
+      },
+      {
+        icon: "📋",
+        title: "Mortgage Review",
+        reason: "Refinance options when rates move",
+        cta: "Schedule Review →",
+        ctaColor: "#6B7280",
+      },
     ],
-    products: ["IRA Rollover", "Wealth Management Consultation"],
   },
 ];
-
-// Small upward-trending sparkline
-const Sparkline = ({ color }: { color: string }) => (
-  <svg width="80" height="24" viewBox="0 0 80 24" fill="none">
-    <path d="M2 20 Q 18 19, 28 16 T 50 10 T 72 4" stroke={color} strokeWidth="1.5" fill="none" strokeLinecap="round" />
-    <circle cx="72" cy="4" r="2.5" fill={color} />
-  </svg>
-);
 
 const flowSteps = [
   { label: "Detect", desc: "Identify spending signals" },
@@ -77,9 +149,11 @@ const stats = [
 
 const NextProductPage = () => {
   const hero = useSectionReveal();
-  const events = useSectionReveal();
+  const tabs = useSectionReveal();
   const flow = useSectionReveal();
   const statsSection = useSectionReveal();
+  const [activeId, setActiveId] = useState(events[0].id);
+  const active = events.find((e) => e.id === activeId)!;
 
   return (
     <main className="bg-white min-h-screen">
@@ -101,86 +175,111 @@ const NextProductPage = () => {
         </div>
       </section>
 
-      {/* Life events */}
-      <section ref={events.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
-        <div className="max-w-7xl mx-auto">
-          <h2 style={{ ...revealStyle(events.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
+      {/* Tabbed life events */}
+      <section ref={tabs.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
+        <div className="max-w-6xl mx-auto">
+          <h2 style={{ ...revealStyle(tabs.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
             Every life event is a product opportunity.
           </h2>
-          <p style={{ ...revealStyle(events.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-10">
+          <p style={{ ...revealStyle(tabs.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-8">
             20+ life events detected from transaction patterns alone.
           </p>
 
-          {/* Behavioral signal summary */}
-          <div
-            className="rounded-xl bg-white p-6 mb-10 mx-auto max-w-5xl"
-            style={{ ...revealStyle(events.visible, 150), border: "1px solid #E5E7EB", boxShadow: "0 2px 12px rgba(0,0,0,0.05)" }}
-          >
-            <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-4 text-center">
-              From these transactions, Ventus detected:
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              {lifeEvents.map((evt) => (
-                <span
-                  key={evt.name}
-                  className="inline-flex items-center gap-2 text-sm font-semibold px-4 py-2 rounded-full"
-                  style={{ background: `${evt.color}15`, color: evt.color, border: `1px solid ${evt.color}30` }}
+          {/* Tab pills */}
+          <div style={revealStyle(tabs.visible, 200)} className="flex justify-center flex-wrap gap-3 mb-10">
+            {events.map((e) => {
+              const isActive = e.id === activeId;
+              return (
+                <button
+                  key={e.id}
+                  onClick={() => setActiveId(e.id)}
+                  className="text-sm font-semibold px-5 py-2.5 rounded-full transition-all"
+                  style={
+                    isActive
+                      ? { backgroundColor: "#0A1628", color: "#FFFFFF", border: "1px solid #0A1628" }
+                      : { backgroundColor: "transparent", color: "#374151", border: "1px solid #D1D5DB" }
+                  }
                 >
-                  <span className="w-2 h-2 rounded-full" style={{ backgroundColor: evt.color }} />
-                  {evt.name}
-                  <span className="text-xs font-bold opacity-80">{evt.confidence}</span>
-                </span>
-              ))}
-            </div>
+                  {e.name}
+                </button>
+              );
+            })}
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6">
-            {lifeEvents.map((evt, i) => (
-              <div
-                key={evt.name}
-                className="rounded-xl p-7 bg-white"
-                style={{
-                  ...revealStyle(events.visible, 250 + i * 150),
-                  border: "1.5px solid #E5E7EB",
-                  borderLeft: `3px solid ${evt.color}`,
-                  boxShadow: "0 2px 10px rgba(0,0,0,0.04)",
-                }}
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: evt.color }} />
-                    <p className="font-bold text-gray-900 text-sm">{evt.name}</p>
-                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: `${evt.color}15`, color: evt.color }}>
-                      {evt.confidence} confidence
-                    </span>
-                  </div>
-                  <Sparkline color={evt.color} />
-                </div>
-
-                <p className="text-xs text-gray-500 mb-4">
-                  <span className="font-semibold text-gray-700">Top signals:</span> {evt.topSignals}
-                </p>
-
-                <div className="space-y-1 mb-5">
-                  {evt.evidence.map((e) => (
-                    <p key={e.merchant} className="text-xs font-mono text-gray-500">
-                      {e.merchant} · <span className="text-gray-900 font-semibold">{e.amount}</span>
-                    </p>
-                  ))}
-                </div>
-
-                <div className="border-t border-gray-200 pt-4">
-                  <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600 mb-3">Recommended Products</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {evt.products.map((p) => (
-                      <span key={p} className="text-xs text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
-                        → {p}
-                      </span>
-                    ))}
-                  </div>
-                </div>
+          {/* Two column: detection card + recommended products */}
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            {/* Left — detection card (static) */}
+            <div
+              className="rounded-xl p-7 bg-white"
+              style={{
+                border: "1.5px solid #E5E7EB",
+                borderLeft: `3px solid ${active.color}`,
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: active.color }} />
+                <p className="font-bold text-gray-900 text-base">{active.name}</p>
+                <span
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+                  style={{ background: `${active.color}15`, color: active.color }}
+                >
+                  {active.confidence} confidence
+                </span>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-600">
+                  {active.txnCount}
+                </span>
               </div>
-            ))}
+
+              <p className="text-xs text-gray-500 mb-4">
+                <span className="font-semibold text-gray-700">Top signals:</span> {active.topSignals}
+              </p>
+
+              <div className="space-y-1 mb-2">
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-2">Evidence transactions</p>
+                {active.evidence.map((e) => (
+                  <p key={e.merchant} className="text-xs font-mono text-gray-500">
+                    {e.merchant} · <span className="text-gray-900 font-semibold">{e.amount}</span>
+                  </p>
+                ))}
+              </div>
+            </div>
+
+            {/* Right — Recommended products (animated on tab change) */}
+            <div key={active.id} className="space-y-4 animate-fade-in">
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600 mb-1">
+                Recommended Products
+              </p>
+              {active.products.map((p, i) => (
+                <div
+                  key={p.title}
+                  className="rounded-xl p-5 bg-white flex gap-4 items-start"
+                  style={{
+                    border: "1.5px solid #E5E7EB",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                    animation: `fade-in 0.4s ease-out both`,
+                    animationDelay: `${i * 80}ms`,
+                  }}
+                >
+                  <div
+                    className="w-10 h-10 rounded-lg flex items-center justify-center text-lg flex-shrink-0"
+                    style={{ background: `${active.color}10` }}
+                  >
+                    {p.icon}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold text-gray-900 mb-1">{p.title}</p>
+                    <p className="text-xs text-gray-500 leading-relaxed mb-3">{p.reason}</p>
+                    <button
+                      className="text-xs font-semibold text-white px-3 py-2 rounded-lg transition-colors"
+                      style={{ backgroundColor: p.ctaColor }}
+                    >
+                      {p.cta}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
