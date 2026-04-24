@@ -247,7 +247,7 @@ const SolutionSections = () => {
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div>
                 <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
-                  Customer intelligence at every layer.
+                  Powering customer intelligence at every layer.
                 </h2>
                 <p className="mt-3 text-base text-gray-500 leading-relaxed max-w-2xl">
                   A guided walkthrough of the core solution set — auto-advancing like Platform, with controls when you want to pause and inspect.
