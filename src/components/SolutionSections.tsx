@@ -145,7 +145,7 @@ const SolutionSections = () => {
       },
       {
         id: "portfolio-intelligence",
-        label: "Portfolio Intelligence",
+        label: "Customer Intelligence",
         labelColor: "text-blue-600",
         headline: "See your entire customer base in one view.",
         body: "Bank-wide behavioral intelligence for executive teams — lifestyle distribution, life event frequency, and spending patterns, all queryable via API.",
