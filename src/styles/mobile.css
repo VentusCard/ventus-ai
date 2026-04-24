@@ -255,6 +255,13 @@
       flex-shrink: 0;
     }
 
+    @media (min-width: 640px) {
+      .solution-carousel-dot {
+        width: auto !important;
+        height: auto !important;
+      }
+    }
+
     /* Partner tools section cards - reduce vertical white space */
     
     /* Reduce CardHeader padding */
