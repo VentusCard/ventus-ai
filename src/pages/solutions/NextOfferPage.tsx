@@ -166,7 +166,7 @@ const NextOfferPage = () => {
 
           {/* Behavioral Based Deal Collection */}
           <div className="flex items-center gap-3 mb-5">
-            <h3 className="text-lg font-bold text-gray-900">Behavioral Based Deal Collection</h3>
+            <h3 className="text-lg font-bold text-gray-900">Offer Intelligence Collection</h3>
             <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#22C55E15", color: "#15803D" }}>
               Frequent Traveler
             </span>
