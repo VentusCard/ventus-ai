@@ -1,5 +1,5 @@
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Layers, Heart, Plane, Search } from "lucide-react";
-import ScrollReveal from "@/components/ScrollReveal";
 
 const cardAnimationOffsets = [
   { x: -220, y: -90 },
@@ -8,38 +8,53 @@ const cardAnimationOffsets = [
   { x: 220, y: 110 },
 ];
 
-const explosionMotion = (index: number) => ({
-  opacity: 1,
-  transform: "translate3d(0, 0, 0) scale(1)",
-  animation: `capability-card-burst 820ms cubic-bezier(0.18, 0.9, 0.2, 1) ${index * 90}ms both`,
-  transformOrigin: "center center",
-  ["--burst-x" as string]: `${cardAnimationOffsets[index].x}px`,
-  ["--burst-y" as string]: `${cardAnimationOffsets[index].y}px`,
-});
+const BurstCard = ({ children, index }: { children: ReactNode; index: number }) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div
+      ref={ref}
+      className="h-full"
+      style={{
+        opacity: visible ? 1 : 0,
+        transform: visible
+          ? "translate3d(0, 0, 0) scale(1)"
+          : `translate3d(${cardAnimationOffsets[index].x * -1}px, ${cardAnimationOffsets[index].y * -1}px, 0) scale(0.18)`,
+        transition: `opacity 220ms ease-out ${index * 70}ms, transform 900ms cubic-bezier(0.16, 1, 0.3, 1) ${index * 90}ms`,
+        transformOrigin: "center center",
+        willChange: "transform, opacity",
+      }}
+    >
+      {children}
+    </div>
+  );
+};
 
 const CapabilityCards = () => {
   return (
-    <>
-      <style>{`
-        @keyframes capability-card-burst {
-          0% {
-            opacity: 0;
-            transform: translate3d(calc(var(--burst-x) * -1), calc(var(--burst-y) * -1), 0) scale(0.22);
-          }
-          58% {
-            opacity: 1;
-            transform: translate3d(10px, -8px, 0) scale(1.03);
-          }
-          100% {
-            opacity: 1;
-            transform: translate3d(0, 0, 0) scale(1);
-          }
-        }
-      `}</style>
-      <div className="grid md:grid-cols-2 gap-6 auto-rows-fr overflow-hidden">
+    <div className="grid md:grid-cols-2 gap-6 auto-rows-fr overflow-hidden">
       {/* 1 — Lifestyle Pillars */}
-      <ScrollReveal className="h-full">
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6", ...explosionMotion(0) }}>
+      <BurstCard index={0}>
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Layers className="w-5 h-5 text-blue-600" />
             <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wide">Lifestyle Pillars</h3>
@@ -67,11 +82,11 @@ const CapabilityCards = () => {
           </div>
           <p className="text-xs mt-4" style={{ color: "#6B7280" }}>12 behavioral categories extracted from spending patterns.</p>
         </div>
-      </ScrollReveal>
+      </BurstCard>
 
       {/* 2 — Life Event Detection */}
-      <ScrollReveal delay={0.1} className="h-full">
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6", ...explosionMotion(1) }}>
+      <BurstCard index={1}>
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Heart className="w-5 h-5 text-green-600" />
             <h3 className="text-sm font-bold text-green-600 uppercase tracking-wide">Life Event Detection</h3>
@@ -95,11 +110,11 @@ const CapabilityCards = () => {
           </div>
           <p className="text-xs mt-4" style={{ color: "#6B7280" }}>20+ life events detected in real time from transaction patterns.</p>
         </div>
-      </ScrollReveal>
+      </BurstCard>
 
       {/* 3 — Travel Detection */}
-      <ScrollReveal delay={0.2} className="h-full">
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6", ...explosionMotion(2) }}>
+      <BurstCard index={2}>
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Plane className="w-5 h-5 text-purple-600" />
             <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Travel Detection</h3>
@@ -126,11 +141,11 @@ const CapabilityCards = () => {
           </div>
           <p className="text-xs mt-4" style={{ color: "#6B7280" }}>Trips inferred from transaction location and timing patterns.</p>
         </div>
-      </ScrollReveal>
+      </BurstCard>
 
       {/* 4 — Purchase Cycle Intel */}
-      <ScrollReveal delay={0.3} className="h-full">
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6", ...explosionMotion(3) }}>
+      <BurstCard index={3}>
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Search className="w-5 h-5 text-orange-500" />
             <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wide">Purchase Cycle Intel</h3>
@@ -178,9 +193,8 @@ const CapabilityCards = () => {
 
           <p className="text-xs mt-3" style={{ color: "#6B7280" }}>Predict what customers need next from seasonal spending rhythms.</p>
         </div>
-      </ScrollReveal>
-      </div>
-    </>
+      </BurstCard>
+    </div>
   );
 };
 
