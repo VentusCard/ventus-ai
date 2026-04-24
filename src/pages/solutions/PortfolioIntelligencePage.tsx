@@ -218,6 +218,7 @@ const PortfolioIntelligencePage = () => {
               </div>
             </div>
           </div>
+        </div>
       </section>
 
       {/* Flow steps */}
