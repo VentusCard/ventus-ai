@@ -220,10 +220,13 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,2024-11-03,94102,Cashback Card
 txn_002,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-11-08,94102,Cashback Card
+txn_056,EPIC PASS VAIL RESORTS,Annual ski season pass,7941,1089.00,2024-10-28,81657,Premium Card
 txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium Card
 txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
+txn_057,CHRISTY SPORTS DENVER,Ski jacket and pants,5941,685.00,2024-11-15,80202,Premium Card
 txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
 txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
+txn_058,EVO.COM,All-mountain skis with bindings,5941,1249.00,2024-12-09,98101,Premium Card
 txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
 txn_008,PALISADES TAHOE Ski LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
 txn_009,MARIA G,Dogsitting,,150.00,2024-12-18,94102,Zelle
