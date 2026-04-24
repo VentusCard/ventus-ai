@@ -26,8 +26,7 @@ const ProblemStatementSection = () => {
     const updateHeadlineColor = () => {
       const rect = el.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const sectionCenter = rect.top + rect.height / 2;
-      const startPoint = viewportHeight * 0.78;
+      const startPoint = viewportHeight * 0.62;
       const endCenter = viewportHeight / 2;
       const progress = (startPoint - rect.top) / (startPoint - endCenter);
 
