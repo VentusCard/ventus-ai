@@ -152,9 +152,6 @@ const NextOfferPage = () => {
                   </div>
                 ))}
               </div>
-              <p className="text-[11px] text-gray-500 mt-3 italic">
-                The amber gap above is what triggered the Away Luggage offer below.
-              </p>
             </div>
           </div>
 
