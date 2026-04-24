@@ -43,7 +43,7 @@ const flowSteps = [
 const stats = [
   { value: "50+", label: "Lifestyle dimensions" },
   { value: "20+", label: "Life events monitored" },
-  { value: "Real-time", label: "Portfolio Intelligence updates" },
+  { value: "Real-time", label: "Customer Intelligence updates" },
 ];
 
 const PortfolioIntelligencePage = () => {
@@ -57,7 +57,7 @@ const PortfolioIntelligencePage = () => {
       {/* Hero */}
       <section ref={hero.ref} className="pt-32 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[70vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
-          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Portfolio Intelligence</p>
+          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Customer Intelligence</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
             Know what's happening across your customer base before anyone asks.
           </h1>
@@ -77,7 +77,7 @@ const PortfolioIntelligencePage = () => {
         <div className="max-w-6xl mx-auto" style={revealStyle(dashboard.visible, 0)}>
           <div className="mb-8" style={{ paddingTop: 48 }}>
             <h2 className="font-bold text-gray-900 text-2xl sm:text-[32px] leading-tight mb-2">
-              A live view of your Portfolio Intelligence layer.
+              A live view of your Customer Intelligence layer.
             </h2>
             <p className="text-gray-500 text-base sm:text-[16px] leading-relaxed">
               Real-time aggregate intelligence, ready for your analytics stack.
@@ -102,7 +102,7 @@ const PortfolioIntelligencePage = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
                 </span>
-                <p className="text-[11px] font-mono text-gray-700">Portfolio Intelligence · Live</p>
+                <p className="text-[11px] font-mono text-gray-700">Customer Intelligence · Live</p>
               </div>
               <p className="text-[10px] font-mono text-gray-500">Powered by Ventus</p>
             </div>
@@ -224,7 +224,7 @@ const PortfolioIntelligencePage = () => {
       {/* Flow steps */}
       <section ref={flow.ref} className="bg-white px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div style={revealStyle(flow.visible, 0)}>
-          <StepFlow steps={flowSteps} title="From transaction to Portfolio Intelligence." />
+          <StepFlow steps={flowSteps} title="From transaction to Customer Intelligence." />
         </div>
       </section>
 
