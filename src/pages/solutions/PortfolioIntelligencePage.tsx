@@ -224,7 +224,7 @@ const PortfolioIntelligencePage = () => {
       {/* Flow steps */}
       <section ref={flow.ref} className="bg-white px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div style={revealStyle(flow.visible, 0)}>
-          <StepFlow steps={flowSteps} title="From transaction to Portfolio Intelligence." />
+          <StepFlow steps={flowSteps} title="From transaction to Customer Intelligence." />
         </div>
       </section>
 
