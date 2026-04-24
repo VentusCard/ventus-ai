@@ -276,10 +276,6 @@ const NextProductPage = () => {
               ))}
             </div>
           </div>
-
-          <p className="text-xs italic text-gray-400 text-center mt-8">
-            Product recommendations powered by Ventus life event detection. Actioned through your existing advisor or digital tools.
-          </p>
         </div>
       </section>
 
