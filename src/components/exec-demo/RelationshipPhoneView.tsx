@@ -54,7 +54,7 @@ function getAdvisor(customerId: string) {
 }
 
 export default function RelationshipPhoneView({ customer, detectedLifeEvents, productCards, onGoToAI }: Props) {
-  const firstName = customer.profile.name.split(" ")[0];
+  const firstName = "{firstname}";
   const holdings = customer.profile.holdings ?? {};
   const eventName = detectedLifeEvents?.[0]?.event_name ?? "financial goals";
 
