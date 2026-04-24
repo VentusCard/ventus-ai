@@ -18,7 +18,7 @@ serve(async (req) => {
       const grouped = new Map<string, { category_group: string; category_label: string; evidence: string[] }>();
       for (const f of risk_flags as any[]) {
         const label = String(f.category_label || "Risk");
-        const ex = grouped.get(label) || { category_group: f.category_group || "aml", category_label: label, evidence: [] };
+        const ex = grouped.get(label) || { category_group: f.category_group || "aml", category_label: label, evidence: [] as string[] };
         const ev = String(f.merchant_name || f.description || "").trim();
         if (ev && !ex.evidence.includes(ev)) ex.evidence.push(ev);
         grouped.set(label, ex);

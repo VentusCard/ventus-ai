@@ -157,7 +157,7 @@ Context:${ctx ? JSON.stringify(ctx) : "none"}`;
   } catch (error) {
     console.error("[deal-personalization] Error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Failed", recs: [] }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Failed", recs: [] }),
       { headers: { ...getCorsHeaders(req.headers.get("origin")), "Content-Type": "application/json" }, status: 500 }
     );
   }
