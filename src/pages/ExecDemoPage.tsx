@@ -52,14 +52,14 @@ export default function ExecDemoPage() {
   const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [aiTabTrigger, setAiTabTrigger] = useState(0);
-  const [pendingAIPrompt, setPendingAIPrompt] = useState<{ text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk" } | null>(null);
+  const [pendingAIPrompt, setPendingAIPrompt] = useState<{ text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null>(null);
 
   const handleOpenAIAssistant = useCallback(() => {
     setAiTabTrigger((n) => n + 1);
   }, []);
 
-  const dispatchAIPrompt = useCallback((text: string, kind?: "lifestyle" | "lifeEvent" | "risk") => {
-    setPendingAIPrompt({ text, nonce: Date.now(), kind });
+  const dispatchAIPrompt = useCallback((text: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => {
+    setPendingAIPrompt({ text, nonce: Date.now(), kind, signalContext });
     setAiTabTrigger((n) => n + 1);
   }, []);
 

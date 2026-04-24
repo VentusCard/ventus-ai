@@ -54,7 +54,7 @@ interface Props {
   riskLoading?: boolean;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
-  onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk") => void;
+  onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
 }
 
@@ -395,9 +395,10 @@ export default function ExecDemoIntelPanel({
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
                       if (assistantOpen) {
-                        // Bake ground-truth totals into the prompt so the AI doesn't have
-                        // to recompute from pillar/category aggregates (which don't know
-                        // about sub-cluster rollups like "Seasonal Ski Trips").
+                        // Visible chat bubble stays short and natural; the merchant
+                        // breakdown is forwarded as hidden signal context so the AI
+                        // can answer with ground-truth aggregates without the user
+                        // having to type or see them.
                         const totalSpend = Math.round(r.totalSpend ?? 0);
                         const totalCount = r.totalCount ?? 0;
                         let merchantBreakdown = "";
@@ -418,10 +419,11 @@ export default function ExecDemoIntelPanel({
                             .sort((a, b) => b[1].total - a[1].total)
                             .slice(0, 5)
                             .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
-                          if (top.length) merchantBreakdown = ` Breakdown: ${top.join("; ")}.`;
+                          if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
                         }
-                        const prompt = `How much do I typically spend on ${r.label.toLowerCase()}? (Use these exact figures from my account: total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""} tagged "${r.label}".${merchantBreakdown})`;
-                        onAIPromptDispatch?.(prompt, "lifestyle");
+                        const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
+                        const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
+                        onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
                       }
                     }
                   };

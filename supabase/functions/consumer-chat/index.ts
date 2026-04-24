@@ -173,6 +173,12 @@ function buildContextPrompt(context: any): string {
     if (context.customerResponse) prompt += `- Customer Response Type: ${context.customerResponse}\n`;
   }
 
+  // Hidden signal context attached to a specific user question (e.g. lifestyle pill click).
+  // Provides ground-truth aggregates the user did not type out loud.
+  if (context.signalContext) {
+    prompt += `\n## Signal Context (ground-truth aggregates for the user's current question — use these exact figures, do not recompute)\n${context.signalContext}\n`;
+  }
+
   return prompt;
 }
 

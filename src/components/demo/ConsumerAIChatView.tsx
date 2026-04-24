@@ -30,6 +30,7 @@ interface Props {
   initialMessage?: string | null;
   messageNonce?: number;
   initialMessageKind?: "lifestyle" | "lifeEvent" | "risk";
+  initialMessageContext?: string;
   onInitialMessageConsumed?: () => void;
 }
 
@@ -177,7 +178,7 @@ function buildContext(
   return { demographics, spendingSummary, lifeEvents, deals, dealGroups, productRecommendations: productRecs };
 }
 
-export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, onInitialMessageConsumed }: Props) {
+export default function ConsumerAIChatView({ customer, enriched, detectedEvents, personalizedDeals, offerGroups, productRecommendations, riskFlags, initialMessage, messageNonce, initialMessageKind, initialMessageContext, onInitialMessageConsumed }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -204,7 +205,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
-      sendMessage(initialMessage, initialMessageKind);
+      sendMessage(initialMessage, initialMessageKind, initialMessageContext);
       onInitialMessageConsumed?.();
     }
   }, [initialMessage, messageNonce]);
@@ -251,7 +252,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     return md;
   };
 
-  const sendMessage = async (text: string, kind?: "lifestyle" | "lifeEvent" | "risk" | "general") => {
+  const sendMessage = async (text: string, kind?: "lifestyle" | "lifeEvent" | "risk" | "general", extraContext?: string) => {
     if (!text.trim() || isLoading) return;
     const userMsg: ChatMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
@@ -290,7 +291,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
           body: {
             message: text,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
-            context,
+            context: extraContext ? { ...context, signalContext: extraContext } : context,
             kind: effectiveKind,
           },
         });
