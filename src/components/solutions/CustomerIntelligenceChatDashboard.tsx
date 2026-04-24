@@ -187,53 +187,86 @@ const CustomerIntelligenceChatDashboard = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[35fr_65fr]">
-        {/* Left: Chat */}
-        <div className="lg:pr-6">
+        {/* Left: Chat phone mockup */}
+        <div className="lg:pr-6 flex justify-center">
           <div
-            ref={scrollRef}
-            className="rounded-xl p-4 h-[520px] overflow-y-auto scroll-smooth"
+            className="relative bg-white overflow-hidden phone-mockup-frame"
             style={{
-              backgroundColor: "#F9FAFB",
-              border: "1px solid #E5E7EB",
+              width: 300,
+              height: 560,
+              borderRadius: 38,
+              border: "8px solid #1F2937",
+              boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
             }}
           >
-            <div className="flex flex-col gap-3">
+            {/* Notch */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-gray-900 rounded-b-2xl z-10" />
+
+            {/* Bank header */}
+            <div className="absolute top-0 left-0 right-0 pt-8 pb-3 px-4 bg-white border-b border-gray-100 z-[5]">
+              <p className="text-sm font-bold text-gray-900 leading-tight">Your Bank AI Assistant</p>
+              <p className="text-[10px] text-gray-400 leading-tight mt-0.5">Powered by Ventus</p>
+            </div>
+
+            {/* Chat scroll area */}
+            <div
+              ref={scrollRef}
+              className="h-full overflow-y-auto pt-[64px] pb-4 px-3.5 space-y-3 scroll-smooth"
+              style={{ backgroundColor: "#F9FAFB" }}
+            >
               {visibleTurns.map((item) => (
                 <div key={item.key} className="flex flex-col gap-2">
                   {item.showQuestion && (
-                    <div
-                      className="self-end max-w-[88%] px-3.5 py-2 rounded-2xl rounded-tr-sm text-white text-[12.5px] leading-snug"
-                      style={{
-                        backgroundColor: "#2563EB",
-                        animation: "ci-fade-up 320ms ease-out both",
-                      }}
-                    >
-                      {item.turn.question}
+                    <div className="flex justify-end">
+                      <div
+                        className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-white text-[12px] leading-snug"
+                        style={{
+                          backgroundColor: "#2563EB",
+                          animation: "ci-fade-up 320ms ease-out both",
+                        }}
+                      >
+                        {item.turn.question}
+                      </div>
                     </div>
                   )}
 
                   {item.showTyping && (
                     <div
-                      className="self-start"
+                      className="flex items-start gap-1.5"
                       style={{ animation: "ci-fade-up 200ms ease-out both" }}
                     >
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                        style={{ backgroundColor: "#2563EB" }}
+                      >
+                        AI
+                      </div>
                       <TypingDots />
                     </div>
                   )}
 
                   {item.showAnswer && (
                     <div
-                      className="self-start max-w-[92%] px-3.5 py-2.5 rounded-2xl rounded-tl-sm text-gray-800 text-[12.5px] leading-snug bg-white"
-                      style={{
-                        border: "1px solid #E5E7EB",
-                        animation: "ci-fade-up 320ms ease-out both",
-                      }}
+                      className="flex items-start gap-1.5"
+                      style={{ animation: "ci-fade-up 320ms ease-out both" }}
                     >
-                      {item.turn.answer}
+                      <div
+                        className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0"
+                        style={{ backgroundColor: "#2563EB" }}
+                      >
+                        AI
+                      </div>
+                      <div
+                        className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tl-sm text-gray-800 text-[12px] leading-snug bg-white shadow-sm"
+                        style={{ border: "1px solid #E5E7EB" }}
+                      >
+                        {item.turn.answer}
+                      </div>
                     </div>
                   )}
                 </div>
               ))}
+              <div className="h-2" />
             </div>
           </div>
         </div>
