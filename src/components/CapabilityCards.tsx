@@ -11,6 +11,15 @@ const cardAnimationOffsets = [
 const BurstCard = ({ children, index }: { children: ReactNode; index: number }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
 
   useEffect(() => {
     const el = ref.current;
@@ -29,6 +38,21 @@ const BurstCard = ({ children, index }: { children: ReactNode; index: number }) 
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  if (isMobile) {
+    return (
+      <div
+        ref={ref}
+        className="h-full"
+        style={{
+          opacity: visible ? 1 : 0,
+          transition: `opacity 400ms ease-out ${index * 80}ms`,
+        }}
+      >
+        {children}
+      </div>
+    );
+  }
 
   return (
     <div
