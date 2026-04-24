@@ -46,6 +46,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
+  const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
   
 
   // Sync with external activeTab changes
