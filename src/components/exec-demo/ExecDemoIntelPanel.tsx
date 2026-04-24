@@ -54,7 +54,7 @@ interface Props {
   riskLoading?: boolean;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
-  onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk") => void;
+  onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
 }
 
