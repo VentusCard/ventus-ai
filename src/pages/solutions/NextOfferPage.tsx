@@ -194,6 +194,10 @@ const NextOfferPage = () => {
               </div>
             ))}
           </div>
+
+          <p className="text-xs italic text-gray-400 text-center mt-6">
+            Offers powered by Ventus behavioral intelligence. Delivered through your existing rewards engine.
+          </p>
         </div>
       </section>
 

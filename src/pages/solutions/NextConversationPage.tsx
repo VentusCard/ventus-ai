@@ -34,7 +34,7 @@ const NextConversationPage = () => {
             Every signal becomes the right conversation.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects life events in transaction data and triggers the right response — whether that's an advisor prep brief, a personalized email, or an AI-powered chat.
+            Ventus detects life events in transaction data and delivers the intelligence advisors and digital teams need to act — who to reach, why it matters, and what to say.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
@@ -145,7 +145,7 @@ const NextConversationPage = () => {
           <div className="grid md:grid-cols-2 gap-16 items-start">
             <div style={revealStyle(alert.visible, 100)}>
               <p className="text-gray-500 leading-relaxed mb-6" style={{ fontSize: 18 }}>
-                Every alert includes everything an advisor needs to have a meaningful conversation — before they pick up the phone.
+                When Ventus detects a life event, your CRM receives a structured intelligence payload — talking points, evidence transactions, and recommended next steps included.
               </p>
               <div className="space-y-3 text-gray-600" style={{ fontSize: 18 }}>
                 <p>● Life event detected with confidence score and evidence</p>
@@ -221,10 +221,10 @@ const NextConversationPage = () => {
               A conversation, not a campaign.
             </h2>
             <p className="text-gray-500 leading-relaxed mb-3" style={{ fontSize: 18 }}>
-              The AI assistant turns detected signals into a real-time dialogue with your customer.
+              Ventus surfaces the signal. Your bank's AI assistant turns it into a real-time dialogue with your customer.
             </p>
             <p className="text-gray-500 leading-relaxed" style={{ fontSize: 16 }}>
-              It knows their spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, the assistant answers, and the right product surfaces in the moment.
+              Powered by Ventus intelligence, your assistant knows the customer's spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, your assistant answers, and the right product surfaces in the moment.
             </p>
           </div>
 
