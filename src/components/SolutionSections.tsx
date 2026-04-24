@@ -2,8 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
-import { Progress } from "@/components/ui/progress";
-import { Pause, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 /* ─── Section 1: Next Offer ─── */
@@ -111,7 +109,7 @@ const PortfolioVisual = () => (
   </div>
 );
 
-const ROTATE_INTERVAL = 7000;
+const ROTATE_INTERVAL = 2500;
 
 /* ─── Main Component ─── */
 const SolutionSections = () => {
@@ -159,16 +157,11 @@ const SolutionSections = () => {
 
   const [api, setApi] = useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [paused, setPaused] = useState(false);
   const startTimeRef = useRef(Date.now());
-  const pausedElapsedRef = useRef(0);
   const rafRef = useRef<number>();
 
   const resetTimer = useCallback(() => {
-    setProgress(0);
     startTimeRef.current = Date.now();
-    pausedElapsedRef.current = 0;
   }, []);
 
   const handleSelectCard = useCallback(
@@ -179,18 +172,6 @@ const SolutionSections = () => {
     },
     [api, resetTimer]
   );
-
-  const togglePause = useCallback(() => {
-    setPaused((prev) => {
-      if (!prev) {
-        pausedElapsedRef.current = Date.now() - startTimeRef.current;
-      } else {
-        startTimeRef.current = Date.now() - pausedElapsedRef.current;
-      }
-
-      return !prev;
-    });
-  }, []);
 
   useEffect(() => {
     if (!api) return;
@@ -212,10 +193,8 @@ const SolutionSections = () => {
 
   useEffect(() => {
     const tick = () => {
-      if (!paused && api) {
+      if (api) {
         const elapsed = Date.now() - startTimeRef.current;
-        const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
-        setProgress(pct);
 
         if (elapsed >= ROTATE_INTERVAL) {
           if (api.canScrollNext()) {
@@ -236,7 +215,7 @@ const SolutionSections = () => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [api, paused]);
+  }, [api]);
 
   return (
     <section className="bg-white py-20">
@@ -249,9 +228,6 @@ const SolutionSections = () => {
                 <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
                   Powering customer intelligence at every layer.
                 </h2>
-                <p className="mt-3 max-w-[56ch] text-base text-gray-500 leading-relaxed">
-                  A guided walkthrough of the core solution set — auto-advancing like Platform, with controls when you want to pause and inspect.
-                </p>
               </div>
             </div>
           </div>
@@ -326,13 +302,6 @@ const SolutionSections = () => {
             </Carousel>
 
             <div className="border-t border-gray-200 bg-white px-5 py-4 sm:px-6">
-              <div className="flex items-center gap-4">
-                <Progress value={progress} className="h-1.5 bg-gray-100" />
-                <span className="hidden sm:block min-w-fit text-[11px] font-medium text-gray-400">
-                  {String(activeIndex + 1).padStart(2, "0")} / {String(sections.length).padStart(2, "0")}
-                </span>
-              </div>
-
               <div className="mt-4 flex items-center justify-center gap-2">
                 {sections.map((section, index) => (
                   <button
