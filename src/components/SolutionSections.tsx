@@ -258,7 +258,7 @@ const SolutionSections = () => {
   }, [api, paused, hasEnteredView]);
 
   return (
-    <section className="bg-white py-20">
+    <section ref={sectionRef} className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <ScrollReveal>
           <div className="mb-12 max-w-4xl">
