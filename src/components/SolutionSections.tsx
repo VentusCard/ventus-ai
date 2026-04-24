@@ -159,6 +159,8 @@ const SolutionSections = () => {
   const [api, setApi] = useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [hasEnteredView, setHasEnteredView] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
   const startTimeRef = useRef(Date.now());
   const pausedElapsedRef = useRef(0);
   const rafRef = useRef<number>();
@@ -206,9 +208,32 @@ const SolutionSections = () => {
     };
   }, [api, resetTimer]);
 
+  // Wait until the section enters the viewport before starting the rotation
+  // so users always see "Next Offer" first when they scroll down.
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || hasEnteredView) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          api?.scrollTo(0);
+          setActiveIndex(0);
+          resetTimer();
+          setHasEnteredView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, [api, hasEnteredView, resetTimer]);
+
   useEffect(() => {
     const tick = () => {
-      if (api && !paused) {
+      if (api && !paused && hasEnteredView) {
         const elapsed = Date.now() - startTimeRef.current;
 
         if (elapsed >= ROTATE_INTERVAL) {
@@ -230,7 +255,7 @@ const SolutionSections = () => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [api, paused]);
+  }, [api, paused, hasEnteredView]);
 
   return (
     <section className="bg-white py-20">
