@@ -350,7 +350,7 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
     const origTx = originalTransactions.find((t) => t.id === u.transaction_id);
     const txDate = origTx ? new Date(origTx.date).getTime() : 0;
 
-    let bestTrip: (typeof trips)[0] | null = null;
+    let bestTrip: Trip | null = null;
     let bestScore = -Infinity;
     let bestReason = "";
 
