@@ -87,6 +87,26 @@ const NextConversationVisual = () => (
   </div>
 );
 
+/* ─── Section 4: Portfolio ─── */
+const PortfolioVisual = () => (
+  <div className="space-y-2">
+    {[
+      { label: "Travel & Exploration", stat: "26.9% · 14 customers", color: "#3B82F6" },
+      { label: "New Parent detected", stat: "847 customers · 94% confidence", color: "#22C55E" },
+      { label: "Delta Air Lines", stat: "$8,860 total spend · 13 customers", color: "#F59E0B" },
+    ].map((row) => (
+      <div
+        key={row.label}
+        className="rounded-lg p-3 flex items-center justify-between gap-2 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
+        style={{ borderLeft: `3px solid ${row.color}` }}
+      >
+        <p className="text-gray-900 font-semibold truncate" style={{ fontSize: "13px" }}>{row.label}</p>
+        <p className="font-mono text-gray-500 text-[11px] whitespace-nowrap shrink-0">{row.stat}</p>
+      </div>
+    ))}
+  </div>
+);
+
 /* ─── Main Component ─── */
 const SolutionSections = () => {
   const sections = [
@@ -123,6 +143,17 @@ const SolutionSections = () => {
       reverse: false,
       link: "/solutions/conversation-intelligence",
     },
+    {
+      id: "portfolio-intelligence",
+      bg: "bg-white",
+      label: "PORTFOLIO",
+      labelColor: "text-blue-600",
+      headline: "See your entire customer base in one view.",
+      body: "Bank-wide behavioral intelligence for executive teams — lifestyle distribution, life event frequency, and spending patterns, all queryable via API.",
+      card: <PortfolioVisual />,
+      reverse: false,
+      link: "/solutions/portfolio-intelligence",
+    },
   ];
 
   return (
@@ -132,10 +163,10 @@ const SolutionSections = () => {
           <div className="mb-12 max-w-2xl">
             <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
             <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
-              Intelligence at every layer.
+              Power every customer touchpoint.
             </h2>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 lg:gap-8 items-stretch">
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6 items-stretch">
             {sections.map((s) => (
               <div
                 key={s.id}
@@ -159,34 +190,6 @@ const SolutionSections = () => {
               </div>
             ))}
           </div>
-
-          {/* Portfolio Intelligence strip */}
-          <Link
-            to="/solutions/portfolio-intelligence"
-            className="mt-8 flex items-center justify-between gap-4 rounded-lg px-6 animate-fade-in"
-            style={{
-              minHeight: 64,
-              backgroundColor: "#EFF6FF",
-              borderTop: "1px solid #BFDBFE",
-              borderBottom: "1px solid #BFDBFE",
-            }}
-          >
-            <div className="flex items-center gap-4 flex-wrap">
-              <span className="text-[11px] font-semibold tracking-widest uppercase text-blue-600 whitespace-nowrap">
-                Portfolio
-              </span>
-              <span className="text-sm md:text-base font-bold text-gray-900">
-                Bank-wide behavioral intelligence for executive teams.
-              </span>
-            </div>
-            <Button
-              variant="outline"
-              size="sm"
-              className="border-blue-300 text-blue-700 hover:bg-blue-100 bg-white flex-shrink-0"
-            >
-              Learn more →
-            </Button>
-          </Link>
         </ScrollReveal>
       </div>
     </section>
