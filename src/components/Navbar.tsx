@@ -8,10 +8,10 @@ import AnnouncementBar from "./AnnouncementBar";
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
 const solutionsItems = [
-  { to: "/solutions/offer-intelligence", title: "Offer Intelligence", desc: "Serve personalized offers before customers go looking", Icon: Gift },
-  { to: "/solutions/product-intelligence", title: "Product Intelligence", desc: "Surface the right product at the right moment", Icon: Package },
-  { to: "/solutions/conversation-intelligence", title: "Conversation Intelligence", desc: "Surface the right conversation at the right moment.", Icon: MessageCircle },
-  { to: "/solutions/portfolio-intelligence", title: "Portfolio Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
+  { to: "/solutions/offer-intelligence", title: "Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
+  { to: "/solutions/product-intelligence", title: "Product", desc: "Surface the right product at the right moment", Icon: Package },
+  { to: "/solutions/conversation-intelligence", title: "Conversation", desc: "Surface the right conversation at the right moment.", Icon: MessageCircle },
+  { to: "/solutions/portfolio-intelligence", title: "Portfolio", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
 ];
 
 const Navbar = () => {

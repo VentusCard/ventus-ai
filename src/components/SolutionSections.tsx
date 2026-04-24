@@ -93,7 +93,7 @@ const SolutionSections = () => {
     {
       id: "offer-intelligence",
       bg: "bg-white",
-      label: "OFFER INTELLIGENCE",
+      label: "OFFER",
       labelColor: "text-blue-600",
       headline: "Serve the right offer before they go looking.",
       body: "Ventus detects purchase intent from spending patterns — giving your team the signal to serve the right offer at exactly the right moment.",
@@ -104,7 +104,7 @@ const SolutionSections = () => {
     {
       id: "product-intelligence",
       bg: "bg-white",
-      label: "PRODUCT INTELLIGENCE",
+      label: "PRODUCT",
       labelColor: "text-blue-600",
       headline: "Know what your customer needs before they ask.",
       body: "Life event detection gives your team the intelligence to surface the right product at the right moment.",
@@ -115,7 +115,7 @@ const SolutionSections = () => {
     {
       id: "conversation-intelligence",
       bg: "bg-white",
-      label: "CONVERSATION INTELLIGENCE",
+      label: "CONVERSATION",
       labelColor: "text-blue-600",
       headline: "Turn every life event into an advisor conversation.",
       body: "Ventus detects life events in your customers transaction data and delivers structured intelligence to your CRM — who to call, why it matters, and exactly what to say.",
@@ -173,7 +173,7 @@ const SolutionSections = () => {
           >
             <div className="flex items-center gap-4 flex-wrap">
               <span className="text-[11px] font-semibold tracking-widest uppercase text-blue-600 whitespace-nowrap">
-                Portfolio Intelligence
+                Portfolio
               </span>
               <span className="text-sm md:text-base font-bold text-gray-900">
                 Bank-wide behavioral intelligence for executive teams.
