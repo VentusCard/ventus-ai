@@ -27,9 +27,9 @@ const ProblemStatementSection = () => {
       const rect = el.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
       const sectionCenter = rect.top + rect.height / 2;
-      const startCenter = viewportHeight + rect.height / 2;
+      const startPoint = viewportHeight * 0.78;
       const endCenter = viewportHeight / 2;
-      const progress = (startCenter - sectionCenter) / (startCenter - endCenter);
+      const progress = (startPoint - rect.top) / (startPoint - endCenter);
 
       setHeadlineColor(interpolateColor(progress));
       frame = 0;
@@ -66,7 +66,7 @@ const ProblemStatementSection = () => {
   }, []);
 
   return (
-    <section ref={ref} style={{ paddingTop: 120, paddingBottom: 120 }} className="bg-white">
+    <section ref={ref} style={{ paddingTop: 160, paddingBottom: 160 }} className="bg-white">
       <div className="max-w-7xl mx-auto px-6 md:px-8 text-center">
         <div>
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 max-w-4xl mx-auto leading-tight">
