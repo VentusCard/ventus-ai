@@ -291,7 +291,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
           body: {
             message: text,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
-            context,
+            context: extraContext ? { ...context, signalContext: extraContext } : context,
             kind: effectiveKind,
           },
         });
