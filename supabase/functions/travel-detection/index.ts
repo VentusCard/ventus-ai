@@ -302,13 +302,14 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
     txMerchantMap.set(t.id, (t.merchant || "").toLowerCase());
   });
 
-  const trips: Array<{
+  type Trip = {
     destination: string;
     start: string;
     end: string;
     tripLabel: string;
     isInternational: boolean;
-  }> = [];
+  };
+  const trips: Trip[] = [];
 
   const seenTrips = new Set<string>();
   updates.forEach((u) => {
@@ -349,7 +350,7 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
     const origTx = originalTransactions.find((t) => t.id === u.transaction_id);
     const txDate = origTx ? new Date(origTx.date).getTime() : 0;
 
-    let bestTrip: (typeof trips)[0] | null = null;
+    let bestTrip: Trip | null = null;
     let bestScore = -Infinity;
     let bestReason = "";
 
@@ -394,17 +395,18 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
     });
 
     if (bestTrip && bestScore > 0) {
+      const matched = bestTrip as Trip;
       const confidence = bestScore >= 5 ? "high" : bestScore >= 3 ? "medium" : "low";
       return {
         ...u,
         is_travel_related: true,
-        travel_destination: bestTrip.destination,
-        travel_period_start: bestTrip.start,
-        travel_period_end: bestTrip.end,
+        travel_destination: matched.destination,
+        travel_period_start: matched.start,
+        travel_period_end: matched.end,
         fare_match_confidence: u.fare_match_confidence || confidence,
         fare_match_reason: u.fare_match_reason || `Reconciled: ${bestReason}`,
         third_party_likely: false,
-        reclassification_reason: u.reclassification_reason || `Flight matched to ${bestTrip.destination} trip`,
+        reclassification_reason: u.reclassification_reason || `Flight matched to ${matched.destination} trip`,
       };
     }
 

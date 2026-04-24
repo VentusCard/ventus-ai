@@ -39,13 +39,14 @@ interface Props {
   enrichedTxs?: EnrichedTransaction[] | null;
   riskFlags?: { flags: any[]; summary: string } | null;
   aiTabTrigger?: number;
-  pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk" } | null;
+  pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
 }
 
 export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
+  const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
   
 
   // Sync with external activeTab changes
@@ -111,6 +112,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             initialMessage={pendingAIMessage}
             messageNonce={pendingAIPrompt?.nonce}
             initialMessageKind={pendingAIPrompt?.kind}
+            initialMessageContext={pendingAIPrompt?.signalContext}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
@@ -147,7 +149,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
             </span>
             <span className="text-[10px] font-semibold text-slate-600 tracking-wide leading-tight">
-              TCBY Bank · {"{firstname}"}
+              TCBY Bank · {firstName}
             </span>
           </div>
           {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="block text-[8px] text-slate-400 px-1 leading-tight">Using Bank of America product information as reference.</span>}

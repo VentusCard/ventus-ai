@@ -1,55 +1,64 @@
+## Issue
 
+When a user clicks a lifestyle rollup pill (e.g. "Seasonal Ski Trips") in the Relationship tab while the AI assistant is open, the auto-dispatched prompt currently shows the merchant breakdown inline in the chat bubble:
 
-## Anonymize sample customer names → 9-digit User IDs + literal `{firstname}` placeholder
+> How much do I typically spend on seasonal ski trips? (Use these exact figures from my account: total $6,308 across 10 transactions tagged "Seasonal Ski Trips". Breakdown: EPIC PASS VAIL RESORTS $2238 (2x); EVO.COM $1249 (1x); ...)
 
-Replace each sample customer's full name with a random 9-digit user ID, and use the literal string `{firstname}` (curly braces included) wherever consumer-facing UI currently shows a first-name greeting.
+Real users would just type the short question. The breakdown was added so the AI doesn't recompute aggregates — but it should be hidden context, not visible chat content.
 
-### Changes
+## Fix
 
-**1. `src/lib/sampleData.ts`** — rename all 6 sample profiles:
+Split the prompt into a **visible** short question and a **hidden** signal context that travels alongside it through the existing pipeline.
 
-| Old name | New `name` |
-|---|---|
-| Sarah Mitchell | `User #482719356` |
-| James Rodriguez | `User #519384207` |
-| Emily Chen | `User #264158093` |
-| Michael Thompson | `User #730895142` |
-| Amanda Williams | `User #395672481` |
-| Robert Garcia | `User #847203615` |
+### Pipeline changes
 
-(IDs are random, fixed 9-digit numbers — no `firstName` field needed.)
+1. **`onAIPromptDispatch` signature** (`ExecDemoIntelPanel.tsx`)
+   Add an optional 3rd argument `signalContext?: string`.
+   ```ts
+   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
+   ```
 
-**2. Replace consumer-facing first-name greetings with the literal string `{firstname}`** in these files. In every case, swap `customer.profile.name.split(" ")[0]` (or equivalent) for the literal `"{firstname}"`:
+2. **`ExecDemoIntelPanel.tsx` (line ~423)** — keep the merchant rollup math, but split:
+   ```ts
+   const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
+   const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
+   onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
+   ```
 
-- `src/components/exec-demo/RelationshipPhoneView.tsx` line 57 → `Welcome, {firstname}`
-- `src/components/exec-demo/ExecDemoPhoneView.tsx` line 150 → `TCBY Bank · {firstname}`
-- `src/components/demo/DemoEngagementView.tsx` line 110
-- `src/components/demo/DemoRewardsView.tsx` line 440
-- `src/components/demo/DemoWealthView.tsx` line 92
-- `src/components/demo/ConsumerAIChatView.tsx` line 336 → `Hi {firstname}! 👋`
+3. **`ExecDemoPage.tsx`** — extend `pendingAIPrompt` state and `dispatchAIPrompt` to carry the optional `signalContext`:
+   ```ts
+   const [pendingAIPrompt, setPendingAIPrompt] = useState<{
+     text: string; nonce: number;
+     kind?: "lifestyle" | "lifeEvent" | "risk";
+     signalContext?: string;
+   } | null>(null);
 
-Also update the inline quoted string in `RelationshipPhoneView.tsx` (line ~125) — `"Major milestone ahead? Let's plan together, {firstname}."` (replace `${firstName}` interpolation with the literal token).
+   const dispatchAIPrompt = useCallback((text, kind, signalContext) => {
+     setPendingAIPrompt({ text, nonce: Date.now(), kind, signalContext });
+   }, []);
+   ```
 
-**3. Update hard-coded literal labels** that currently embed the old names:
+4. **`ExecDemoPhoneView.tsx`** — propagate `pendingAIPrompt.signalContext` into `ConsumerAIChatView` via a new prop `initialMessageContext` (and update the `pendingAIPrompt` Props type to include `signalContext?: string`).
 
-- `src/components/tepilot/ComparisonSetup.tsx` lines 22-27 — change dropdown labels to `"User #482719356 (1 mo)"`, `"User #519384207 (1 mo)"`, etc.
-- `src/components/technology/demos/VentusWealthDemo.tsx` lines 42-43 — change the two hard-coded `name:` values to the matching new IDs.
+5. **`ConsumerAIChatView.tsx`**
+   - Accept new optional prop `initialMessageContext?: string`.
+   - In `sendMessage`, accept an optional 3rd arg `extraContext?: string`.
+   - When set, include it in the `consumer-chat` invoke body as `context.signalContext` (without putting it in the rendered user message).
+   - The initial-message effect passes `initialMessageContext` through to `sendMessage`.
 
-**4. Leave `name` (the 9-digit ID) as-is everywhere else** — operator-facing surfaces (network diagram, engine profile, customer dropdown, selection dialog, left panel, detail overlay, advisor console, life-event PDF/toasts) will display `User #482719356`, which is the desired anonymized label.
+6. **`supabase/functions/consumer-chat/index.ts`** — extend `buildContextPrompt` to append the signal context block when present:
+   ```ts
+   if (context.signalContext) {
+     prompt += `\n## Signal Context (ground-truth aggregates for the user's current question)\n${context.signalContext}\n`;
+   }
+   ```
+   No changes to schema/tools — purely additive system-context text.
 
-**5. Out of scope** (unchanged):
-- Edge function prompts — the LLM will receive `User #482719356` as the customer identifier.
-- Merchant names, transaction descriptors, ZIPs in CSVs.
-- Advisor persona "Emily Chen" in `RelationshipPhoneView.tsx` (bank employee, not a customer).
+### Out of scope
 
-### Files touched
-- `src/lib/sampleData.ts`
-- `src/components/exec-demo/RelationshipPhoneView.tsx`
-- `src/components/exec-demo/ExecDemoPhoneView.tsx`
-- `src/components/demo/DemoEngagementView.tsx`
-- `src/components/demo/DemoRewardsView.tsx`
-- `src/components/demo/DemoWealthView.tsx`
-- `src/components/demo/ConsumerAIChatView.tsx`
-- `src/components/tepilot/ComparisonSetup.tsx`
-- `src/components/technology/demos/VentusWealthDemo.tsx`
+- Life-event and risk pill prompts (lines 433, 446) are already short and natural — no changes there.
+- No model swap, no rate-limit work.
 
+### User-visible result
+
+The chat bubble shows just `"How much do I typically spend on seasonal ski trips?"`. The AI still answers with the correct totals because the merchant breakdown reaches the model via hidden context.
