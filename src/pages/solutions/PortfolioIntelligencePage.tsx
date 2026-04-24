@@ -59,7 +59,7 @@ const PortfolioIntelligencePage = () => {
         <div className="max-w-3xl mx-auto text-center">
           <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Portfolio Intelligence</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
-            Bank-wide behavioral intelligence.
+            Know what's happening across your customer base before anyone asks.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
             Ventus surfaces aggregate intelligence across your entire customer base — lifestyle distribution, life event frequency, and spending patterns, all queryable via API.
