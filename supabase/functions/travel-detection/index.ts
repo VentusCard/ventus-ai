@@ -302,13 +302,14 @@ function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]):
     txMerchantMap.set(t.id, (t.merchant || "").toLowerCase());
   });
 
-  const trips: Array<{
+  type Trip = {
     destination: string;
     start: string;
     end: string;
     tripLabel: string;
     isInternational: boolean;
-  }> = [];
+  };
+  const trips: Trip[] = [];
 
   const seenTrips = new Set<string>();
   updates.forEach((u) => {
