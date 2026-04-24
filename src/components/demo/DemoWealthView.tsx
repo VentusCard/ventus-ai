@@ -89,7 +89,7 @@ const WELLNESS_ITEMS = [
 export default function DemoWealthView({ customer, detectedEvents }: Props) {
   const holdings = customer.profile.holdings;
   const events = detectedEvents ?? [];
-  const firstName = customer.profile.name.split(" ")[0];
+  const firstName = "{firstname}";
   const tenureYears = parseInt(customer.profile.tenure) || 8;
   const sinceYear = new Date().getFullYear() - tenureYears;
   const milestones = customer.profile.milestones ?? [];

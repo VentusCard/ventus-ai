@@ -107,7 +107,7 @@ function computeTripRows(customer: DemoCustomer, enriched?: EnrichedTransaction[
 }
 
 function PhoneMockup({ customer, color, enrichedTransactions, prefetchedTip }: { customer: DemoCustomer; color: string; enrichedTransactions?: EnrichedTransaction[]; prefetchedTip?: FinancialTip | null }) {
-  const firstName = customer.profile.name.split(" ")[0];
+  const firstName = "{firstname}";
   const spending = computeSpending(customer, enrichedTransactions);
   const tripRows = computeTripRows(customer, enrichedTransactions);
   const hasTravel = spending.some((b) => b.name === "Travel");
