@@ -252,7 +252,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     return md;
   };
 
-  const sendMessage = async (text: string, kind?: "lifestyle" | "lifeEvent" | "risk" | "general") => {
+  const sendMessage = async (text: string, kind?: "lifestyle" | "lifeEvent" | "risk" | "general", extraContext?: string) => {
     if (!text.trim() || isLoading) return;
     const userMsg: ChatMessage = { role: "user", content: text };
     setMessages((prev) => [...prev, userMsg]);
