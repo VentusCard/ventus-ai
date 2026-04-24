@@ -79,7 +79,7 @@ const NextOfferPage = () => {
             Serve the right offer before they go looking.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects purchase intent from spending patterns and lifestyle signals — surfacing personalized offers at exactly the moment a customer is ready to act.
+            Ventus detects purchase intent and lifestyle patterns from transaction data — giving your rewards engine the signal it needs to serve the right offer at the right moment.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
