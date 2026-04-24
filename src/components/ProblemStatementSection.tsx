@@ -1,29 +1,44 @@
 import { useEffect, useRef, useState } from "react";
 
-const headlineWords = [
-  "Behind",
-  "every",
-  "customer's",
-  "transaction",
-  "history",
-  "is",
-  "a",
-  "person.",
-  "The",
-  "data",
-  "just",
-  "doesn't",
-  "show",
-  "it.",
-];
+const interpolateColor = (progress: number) => {
+  const clamped = Math.max(0, Math.min(1, progress));
+  const start = { r: 17, g: 24, b: 39 };
+  const end = { r: 37, g: 99, b: 235 };
+
+  const r = Math.round(start.r + (end.r - start.r) * clamped);
+  const g = Math.round(start.g + (end.g - start.g) * clamped);
+  const b = Math.round(start.b + (end.b - start.b) * clamped);
+
+  return `rgb(${r}, ${g}, ${b})`;
+};
 
 const ProblemStatementSection = () => {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
+  const [headlineColor, setHeadlineColor] = useState("rgb(17, 24, 39)");
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    let frame = 0;
+
+    const updateHeadlineColor = () => {
+      const rect = el.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const sectionCenter = rect.top + rect.height / 2;
+      const startCenter = viewportHeight + rect.height / 2;
+      const endCenter = viewportHeight / 2;
+      const progress = (startCenter - sectionCenter) / (startCenter - endCenter);
+
+      setHeadlineColor(interpolateColor(progress));
+      frame = 0;
+    };
+
+    const requestUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(updateHeadlineColor);
+    };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -36,8 +51,18 @@ const ProblemStatementSection = () => {
     );
 
     observer.observe(el);
+    requestUpdate();
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      window.removeEventListener("scroll", requestUpdate);
+      window.removeEventListener("resize", requestUpdate);
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+      }
+    };
   }, []);
 
   return (
@@ -49,23 +74,12 @@ const ProblemStatementSection = () => {
               className="block"
               style={{
                 opacity: visible ? 1 : 0,
+                color: headlineColor,
                 transform: visible ? "translateY(0)" : "translateY(30px)",
                 transition: "opacity 600ms ease-out, transform 600ms ease-out",
               }}
             >
-              {headlineWords.map((word, index) => (
-                <span
-                  key={`${word}-${index}`}
-                  className="inline-block"
-                  style={{
-                    color: visible ? "#2563EB" : undefined,
-                    transition: `color 800ms ease-out ${index * 55}ms`,
-                    marginRight: index === headlineWords.length - 1 ? 0 : "0.28em",
-                  }}
-                >
-                  {word}
-                </span>
-              ))}
+              Behind every customer's transaction history is a person. The data just doesn't show it.
             </span>
           </h2>
           <p
