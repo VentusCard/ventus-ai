@@ -29,7 +29,7 @@ const PortfolioIntelligencePage = () => {
       {/* Hero */}
       <section ref={hero.ref} className="pt-32 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[70vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
-          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Customer Intelligence</p>
+          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">CUSTOMER INTELLIGENCE</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
             Know what's happening across your customer base before anyone asks.
           </h1>
