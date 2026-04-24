@@ -242,7 +242,7 @@ const SolutionSections = () => {
     <section className="bg-white py-20">
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <ScrollReveal>
-          <div className="mb-12 max-w-3xl">
+          <div className="mb-12 max-w-4xl">
             <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
             <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
               <div>
