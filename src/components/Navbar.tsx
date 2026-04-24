@@ -10,7 +10,7 @@ const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics"
 const solutionsItems = [
   { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
   { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
-  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning", Icon: MessageCircle },
+  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Every signal becomes the right conversation.", Icon: MessageCircle },
 ];
 
 const Navbar = () => {
