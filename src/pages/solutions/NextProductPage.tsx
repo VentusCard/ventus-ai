@@ -166,7 +166,7 @@ const NextProductPage = () => {
             Know what your customer needs before they ask.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects life events from transaction patterns and surfaces the intelligence your teams need to recommend the right product — automatically.
+            Ventus detects life events from transaction patterns and surfaces the intelligence your teams need to recommend the right product.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
