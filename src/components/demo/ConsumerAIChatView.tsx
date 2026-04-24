@@ -205,7 +205,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
   useEffect(() => {
     if (initialMessage && !initialMessageSentRef.current) {
       initialMessageSentRef.current = true;
-      sendMessage(initialMessage, initialMessageKind);
+      sendMessage(initialMessage, initialMessageKind, initialMessageContext);
       onInitialMessageConsumed?.();
     }
   }, [initialMessage, messageNonce]);
