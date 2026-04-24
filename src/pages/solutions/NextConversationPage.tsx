@@ -166,10 +166,10 @@ const NextConversationPage = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <p className="text-xs font-mono" style={{ color: "#111827" }}>
-                  Advisor Alert · <span className="font-semibold">cust_013</span>
+                  CRM Intelligence Payload · <span className="font-semibold">cust_013</span>
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px]" style={{ color: "#9CA3AF" }}>Powered by Ventus AI</span>
+                  <span className="text-[10px]" style={{ color: "#9CA3AF" }}>Powered by Ventus</span>
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
@@ -241,7 +241,13 @@ const NextConversationPage = () => {
             >
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-gray-900 rounded-b-2xl z-10" />
 
-              <div className="h-full overflow-y-auto px-3 pt-9 pb-4 space-y-3 text-left">
+              {/* Bank-branded chat header */}
+              <div className="absolute top-0 left-0 right-0 pt-7 pb-2 px-3 bg-white border-b border-gray-100 z-[5]">
+                <p className="text-[10px] font-bold text-gray-900 leading-tight">Your Bank AI Assistant</p>
+                <p className="text-[8px] text-gray-400 leading-tight">Powered by Ventus</p>
+              </div>
+
+              <div className="h-full overflow-y-auto px-3 pt-[52px] pb-4 space-y-3 text-left">
                 <div className="flex justify-end">
                   <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
                     What products fit my situation?
@@ -249,7 +255,7 @@ const NextConversationPage = () => {
                 </div>
 
                 <div className="flex items-start gap-1.5">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>AI</div>
                   <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
                     Based on your spending, you have strong fitness habits and travel regularly. You might benefit from a travel rewards card — you have 8 Delta purchases this year with no travel card detected. Want me to show you options?
                   </div>
@@ -262,7 +268,7 @@ const NextConversationPage = () => {
                 </div>
 
                 <div className="flex items-start gap-1.5">
-                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>V</div>
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>AI</div>
                   <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
                     Here are 3 cards matched to your profile...
                   </div>
