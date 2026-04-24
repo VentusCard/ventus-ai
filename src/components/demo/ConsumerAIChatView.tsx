@@ -30,6 +30,7 @@ interface Props {
   initialMessage?: string | null;
   messageNonce?: number;
   initialMessageKind?: "lifestyle" | "lifeEvent" | "risk";
+  initialMessageContext?: string;
   onInitialMessageConsumed?: () => void;
 }
 
