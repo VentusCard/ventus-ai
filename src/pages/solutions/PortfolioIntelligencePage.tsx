@@ -102,7 +102,7 @@ const PortfolioIntelligencePage = () => {
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
                 </span>
-                <p className="text-[11px] font-mono text-gray-700">Portfolio Intelligence · Live</p>
+                <p className="text-[11px] font-mono text-gray-700">Customer Intelligence · Live</p>
               </div>
               <p className="text-[10px] font-mono text-gray-500">Powered by Ventus</p>
             </div>
