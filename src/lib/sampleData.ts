@@ -2,7 +2,7 @@ import { ClientProfileData } from "@/types/clientProfile";
 
 // Sample customer profiles for each dataset
 export const SAMPLE_CUSTOMER_1: ClientProfileData = {
-  name: "Sarah Mitchell",
+  name: "User #482719356",
   segment: "Preferred",
   aum: "$650K",
   tenure: "2.5 years",
@@ -37,7 +37,7 @@ export const SAMPLE_CUSTOMER_1: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_2: ClientProfileData = {
-  name: "James Rodriguez",
+  name: "User #519384207",
   segment: "Preferred",
   aum: "$420K",
   tenure: "1.8 years",
@@ -72,7 +72,7 @@ export const SAMPLE_CUSTOMER_2: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_3: ClientProfileData = {
-  name: "Emily Chen",
+  name: "User #264158093",
   segment: "Private",
   aum: "$1.2M",
   tenure: "4.5 years",
@@ -108,7 +108,7 @@ export const SAMPLE_CUSTOMER_3: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_4: ClientProfileData = {
-  name: "Michael Thompson",
+  name: "User #730895142",
   segment: "Premium",
   aum: "$2.8M",
   tenure: "8.2 years",
@@ -145,7 +145,7 @@ export const SAMPLE_CUSTOMER_4: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_5: ClientProfileData = {
-  name: "Amanda Williams",
+  name: "User #395672481",
   segment: "Private",
   aum: "$1.5M",
   tenure: "5.5 years",
@@ -181,7 +181,7 @@ export const SAMPLE_CUSTOMER_5: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_6: ClientProfileData = {
-  name: "Robert Garcia",
+  name: "User #847203615",
   segment: "Premium",
   aum: "$3.2M",
   tenure: "10.3 years",
@@ -220,10 +220,13 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,2024-11-03,94102,Cashback Card
 txn_002,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-11-08,94102,Cashback Card
+txn_056,EPIC PASS VAIL RESORTS,Annual ski season pass,7941,1089.00,2024-10-28,81657,Premium Card
 txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium Card
 txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
+txn_057,CHRISTY SPORTS DENVER,Ski jacket and pants,5941,685.00,2024-11-15,80202,Premium Card
 txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
 txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
+txn_058,EVO.COM,All-mountain skis with bindings,5941,1249.00,2024-12-09,98101,Premium Card
 txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
 txn_008,PALISADES TAHOE Ski LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
 txn_009,MARIA G,Dogsitting,,150.00,2024-12-18,94102,Zelle
@@ -262,10 +265,13 @@ txn_041,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback C
 txn_042,STAKE.COM*PROC LV,Online wager processor,6051,185.00,2025-09-13,,Premium Card
 txn_043,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback Card
 txn_044,ADMISSIONS CONSULTING GRP,College admissions package,,2500.00,2025-10-05,94102,Checks
+txn_059,EPIC PASS VAIL RESORTS,Annual ski season pass renewal,7941,1149.00,2025-10-12,81657,Premium Card
 txn_045,PETCO,Dog treats and toys,5995,42.00,2025-10-18,94103,Cashback Card
 txn_046,PORTFOLIO RECOVERY ASSOC,Past-due account payment,6012,325.00,2025-10-25,,Checks
+txn_060,BACKCOUNTRY.COM,Ski helmet and goggles,5941,389.00,2025-11-20,84097,Premium Card
 txn_047,ZILLOW MORTGAGE APP FEE,Mortgage application,,500.00,2026-01-10,94102,Checks
 txn_048,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium Card
+txn_061,REI CO-OP SF,Ski boots and base layers,5941,725.00,2026-01-22,94102,Premium Card
 txn_049,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback Card
 txn_050,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,94102,Checks
 txn_051,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,94102,Checks

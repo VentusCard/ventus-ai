@@ -31,6 +31,7 @@ import Platform from "./pages/Platform";
 import NextOfferPage from "./pages/solutions/NextOfferPage";
 import NextProductPage from "./pages/solutions/NextProductPage";
 import NextConversationPage from "./pages/solutions/NextConversationPage";
+import PortfolioIntelligencePage from "./pages/solutions/PortfolioIntelligencePage";
 
 const queryClient = new QueryClient();
 
@@ -60,6 +61,11 @@ const AppLayout = () => {
       <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
       <Route path="/demo" element={<ExecDemoPage />} />
       <Route path="/deckmo" element={<DemoPage />} />
+      <Route path="/solutions/offer-intelligence" element={<NextOfferPage />} />
+      <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
+      <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />
+      <Route path="/solutions/portfolio-intelligence" element={<PortfolioIntelligencePage />} />
+      {/* Legacy redirects */}
       <Route path="/solutions/next-offer" element={<NextOfferPage />} />
       <Route path="/solutions/next-product" element={<NextProductPage />} />
       <Route path="/solutions/next-conversation" element={<NextConversationPage />} />

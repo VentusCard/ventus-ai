@@ -252,7 +252,7 @@ const ScrollDrivenHero = () => {
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}>
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-28 md:pt-36 overflow-visible">
+      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-24 md:pt-28 overflow-visible">
         {/* Centered Headline */}
         <h1
           className="font-bold tracking-tight text-gray-900 leading-[1.1] text-center mb-6 md:mb-10 px-6 max-w-4xl transition-all duration-700 ease-out text-4xl md:text-6xl"
@@ -278,33 +278,66 @@ const ScrollDrivenHero = () => {
 
             const emoji = p.id === "travel" ? "✈" : p.id === "parent" ? "👶" : "🎓";
 
-            const action =
+            const actionTitle =
               p.id === "travel"
-                ? "Curate leisure travel deal collection: noise-cancelling headphones, lounge pass, premium rental car..."
+                ? "Curate travel deal collection"
                 : p.id === "parent"
-                  ? "Activate family planning flow: Financial planning nudge, life insurance review, wealth management invite..."
-                  : "Standard clients: automated 529 / HYSA flow. Wealth clients: automated flow + Advisor notified with AI-assisted meeting prep";
+                  ? "Activate family planning flow"
+                  : "Trigger college savings outreach";
+
+            const actionItems =
+              p.id === "travel"
+                ? ["Noise-cancelling headphones", "Airport lounge pass", "Premium rental car"]
+                : p.id === "parent"
+                  ? ["Financial planning nudge", "Life insurance review", "Wealth management invite"]
+                  : ["Standard: automated 529 / HYSA flow", "Wealth: advisor notified", "AI-assisted meeting prep"];
 
             const Stack = (
-              <div className="flex flex-col items-stretch" style={{ width: 210 }}>
-                {/* Action bubble — single callout */}
+              <div className="flex flex-col items-stretch" style={{ width: 240 }}>
+                {/* Action bubble — clean, premium callout */}
                 <div
-                  className="rounded-xl px-3 py-2.5"
+                  className="rounded-xl bg-white overflow-hidden"
                   style={{
-                    background: `${p.color}08`,
-                    border: `1px dashed ${p.color}55`,
+                    border: "1px solid rgba(15,23,42,0.08)",
+                    boxShadow: "0 8px 24px -8px rgba(15,23,42,0.18), 0 2px 4px rgba(15,23,42,0.04)",
                   }}
                 >
+                  {/* Header strip */}
                   <div
-                    className="flex items-center gap-1.5 font-semibold text-[10px] uppercase tracking-wide mb-1"
-                    style={{ color: p.color }}
+                    className="flex items-center gap-2 px-3 py-2"
+                    style={{
+                      background: `linear-gradient(135deg, ${p.color}0D, ${p.color}05)`,
+                      borderBottom: `1px solid ${p.color}1A`,
+                    }}
                   >
-                    <span className="flex items-center justify-center w-3.5 h-3.5 rounded-[3px] bg-blue-600 text-white font-black text-[9px] leading-none">
+                    <span className="flex items-center justify-center w-4 h-4 rounded bg-blue-600 text-white font-black text-[9px] leading-none">
                       V
                     </span>
-                    <span>Orchestration</span>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-gray-900">
+                      Ventus Orchestration
+                    </span>
+                    <span
+                      className="ml-auto w-1.5 h-1.5 rounded-full"
+                      style={{ background: p.color, boxShadow: `0 0 6px ${p.color}` }}
+                    />
                   </div>
-                  <div className="text-[11px] leading-snug text-gray-700">{action}</div>
+                  {/* Body */}
+                  <div className="px-3 py-2.5">
+                    <div className="text-[11px] font-semibold text-gray-900 mb-1.5 leading-snug">
+                      {actionTitle}
+                    </div>
+                    <ul className="space-y-1">
+                      {actionItems.map((item) => (
+                        <li key={item} className="flex items-start gap-1.5 text-[10.5px] leading-snug text-gray-600">
+                          <span
+                            className="mt-1 w-1 h-1 rounded-full flex-shrink-0"
+                            style={{ background: p.color }}
+                          />
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </div>
               </div>
             );
@@ -424,7 +457,7 @@ const ScrollDrivenHero = () => {
 
             {/* Persona pills — Stage 2+ */}
             <div
-              className="flex gap-1.5 px-5 pt-3 transition-all duration-[400ms]"
+              className="flex gap-1 md:gap-1.5 px-3 md:px-5 pt-3 transition-all duration-[400ms]"
               style={{
                 maxHeight: stage >= 2 ? 80 : 0,
                 opacity: stage >= 2 ? 1 : 0,
@@ -437,7 +470,7 @@ const ScrollDrivenHero = () => {
                 return (
                   <span
                     key={p.id}
-                    className="inline-flex items-center rounded-full px-3 py-1 text-[11px] font-semibold transition-all duration-[400ms]"
+                    className="inline-flex items-center rounded-full px-1.5 md:px-3 py-0.5 md:py-1 text-[9px] md:text-[11px] font-semibold transition-all duration-[400ms]"
                     style={{
                       background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                       color: p.color,

@@ -3,6 +3,7 @@ import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
 import ScrollReveal from "@/components/ScrollReveal";
 import CapabilityCards from "@/components/CapabilityCards";
+import ProblemStatementSection from "@/components/ProblemStatementSection";
 import SolutionSections from "@/components/SolutionSections";
 
 import {
@@ -25,6 +26,7 @@ const Index = () => {
     <div>
       <main className="flex flex-col">
         <ScrollDrivenHero />
+        <ProblemStatementSection />
 
         {/* Capabilities — Four Signal Layers */}
         <section style={{ paddingTop: 80, paddingBottom: 80 }} className="bg-white relative z-10">

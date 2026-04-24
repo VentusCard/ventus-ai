@@ -1,41 +1,55 @@
 
 
-## Collapse persona callouts to a single "V Orchestration" bubble
+## Anonymize sample customer names → 9-digit User IDs + literal `{firstname}` placeholder
 
-Remove the top label bubble (e.g. "✈ Leisure Traveler") and the vertical dashed connector that links it to the action bubble below. Each persona callout becomes a single bubble — the V Orchestration action bubble — anchored to its rows in the card by the existing horizontal dashed line.
+Replace each sample customer's full name with a random 9-digit user ID, and use the literal string `{firstname}` (curly braces included) wherever consumer-facing UI currently shows a first-name greeting.
 
-The persona name is already visible as a highlighted pill inside the dark card during Stage 3, so repeating it in the callout was redundant.
+### Changes
 
-### Visual change
+**1. `src/lib/sampleData.ts`** — rename all 6 sample profiles:
 
-**Before** (per persona):
-```text
-┌──────────────────────────┐
-│ ✈ Leisure Traveler        │   ← removed
-└────────────┬─────────────┘
-             ┊                     ← removed
-┌────────────┴─────────────┐
-│ [V] ORCHESTRATION         │   ← kept (only bubble)
-│ Curate leisure travel…    │
-└──────────────────────────┘
-```
+| Old name | New `name` |
+|---|---|
+| Sarah Mitchell | `User #482719356` |
+| James Rodriguez | `User #519384207` |
+| Emily Chen | `User #264158093` |
+| Michael Thompson | `User #730895142` |
+| Amanda Williams | `User #395672481` |
+| Robert Garcia | `User #847203615` |
 
-**After**:
-```text
-┌──────────────────────────┐
-│ [V] ORCHESTRATION         │
-│ Curate leisure travel…    │
-└──────────────────────────┘
-```
+(IDs are random, fixed 9-digit numbers — no `firstName` field needed.)
 
-### File touched
+**2. Replace consumer-facing first-name greetings with the literal string `{firstname}`** in these files. In every case, swap `customer.profile.name.split(" ")[0]` (or equivalent) for the literal `"{firstname}"`:
 
-- `src/components/ScrollDrivenHero.tsx` (lines ~288–344)
-  - Delete the top label bubble (`rounded-xl` with emoji + persona name)
-  - Delete the vertical dashed `<svg>` connector
-  - Keep the action bubble exactly as-is — V block, "Orchestration" label, action copy
-  - The wrapping `<div className="flex flex-col items-stretch">` becomes a single child; that's fine, no further restructuring needed
-  - The horizontal connector line + pulsing endpoint that anchors the callout to the card stays unchanged
+- `src/components/exec-demo/RelationshipPhoneView.tsx` line 57 → `Welcome, {firstname}`
+- `src/components/exec-demo/ExecDemoPhoneView.tsx` line 150 → `TCBY Bank · {firstname}`
+- `src/components/demo/DemoEngagementView.tsx` line 110
+- `src/components/demo/DemoRewardsView.tsx` line 440
+- `src/components/demo/DemoWealthView.tsx` line 92
+- `src/components/demo/ConsumerAIChatView.tsx` line 336 → `Hi {firstname}! 👋`
 
-No layout, color, or animation changes beyond removing the two elements. The remaining bubble keeps its persona-tinted text, dashed border, and Ventus blue V block.
+Also update the inline quoted string in `RelationshipPhoneView.tsx` (line ~125) — `"Major milestone ahead? Let's plan together, {firstname}."` (replace `${firstName}` interpolation with the literal token).
+
+**3. Update hard-coded literal labels** that currently embed the old names:
+
+- `src/components/tepilot/ComparisonSetup.tsx` lines 22-27 — change dropdown labels to `"User #482719356 (1 mo)"`, `"User #519384207 (1 mo)"`, etc.
+- `src/components/technology/demos/VentusWealthDemo.tsx` lines 42-43 — change the two hard-coded `name:` values to the matching new IDs.
+
+**4. Leave `name` (the 9-digit ID) as-is everywhere else** — operator-facing surfaces (network diagram, engine profile, customer dropdown, selection dialog, left panel, detail overlay, advisor console, life-event PDF/toasts) will display `User #482719356`, which is the desired anonymized label.
+
+**5. Out of scope** (unchanged):
+- Edge function prompts — the LLM will receive `User #482719356` as the customer identifier.
+- Merchant names, transaction descriptors, ZIPs in CSVs.
+- Advisor persona "Emily Chen" in `RelationshipPhoneView.tsx` (bank employee, not a customer).
+
+### Files touched
+- `src/lib/sampleData.ts`
+- `src/components/exec-demo/RelationshipPhoneView.tsx`
+- `src/components/exec-demo/ExecDemoPhoneView.tsx`
+- `src/components/demo/DemoEngagementView.tsx`
+- `src/components/demo/DemoRewardsView.tsx`
+- `src/components/demo/DemoWealthView.tsx`
+- `src/components/demo/ConsumerAIChatView.tsx`
+- `src/components/tepilot/ComparisonSetup.tsx`
+- `src/components/technology/demos/VentusWealthDemo.tsx`
 

@@ -5,7 +5,7 @@ import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
 const stats = [
-  { value: "Daily", label: "Advisor briefings generated" },
+  { value: "Event-driven", label: "Alerts triggered by detected life events." },
   { value: "20+", label: "Life events that trigger alerts" },
   { value: "Zero PII", label: "Transaction signals only" },
 ];
@@ -19,7 +19,8 @@ const flowSteps = [
 const NextConversationPage = () => {
   const hero = useSectionReveal();
   const alert = useSectionReveal();
-  
+  const conversation = useSectionReveal();
+  const segments = useSectionReveal();
   const flow = useSectionReveal();
   const statsSection = useSectionReveal();
 
@@ -28,17 +29,109 @@ const NextConversationPage = () => {
       {/* Hero */}
       <section ref={hero.ref} className="pt-32 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[70vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
-          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Next Conversation</p>
+          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Conversation Intelligence</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
-            Give every advisor a warm lead every morning.
+            Every signal becomes the right conversation.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects life events in your customers' transaction data and alerts advisors instantly — who to call, why it matters, and exactly what to say.
+            Ventus detects life events in transaction data and delivers the intelligence advisors and digital teams need to act — who to reach, why it matters, and what to say.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
               <Button className="bg-blue-600 hover:bg-blue-700 text-white">Schedule a Demo</Button>
             </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Regular vs Wealth Client */}
+      <section ref={segments.ref} className="bg-white px-6" style={{ paddingTop: 60, paddingBottom: 80 }}>
+        <div className="max-w-7xl mx-auto">
+          <h2 style={{ ...revealStyle(segments.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
+            Tailored to every relationship.
+          </h2>
+          <p style={{ ...revealStyle(segments.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-12">
+            The same signal triggers different journeys based on customer tier.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-6 items-stretch">
+            {/* Regular Client card */}
+            <div
+              style={{
+                ...revealStyle(segments.visible, 200),
+                border: "1px solid #E5E7EB",
+                borderLeft: "4px solid #2563EB",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+              }}
+              className="rounded-xl bg-white p-7 flex flex-col"
+            >
+              <p className="text-xs font-bold tracking-widest uppercase text-blue-600 mb-4">Regular Client</p>
+
+              <p className="text-base font-bold text-gray-900 mb-1">Automated email flow</p>
+              <p className="text-xs text-gray-500 mb-5">Signal detected → 24h delay → delivered</p>
+
+              <div className="space-y-3 mb-6">
+                {[
+                  { n: "1", label: "Educational nudge about the life event" },
+                  { n: "2", label: "Personalized product spotlight" },
+                  { n: "3", label: "Soft conversion CTA" },
+                ].map((s) => (
+                  <div key={s.n} className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-blue-50 text-blue-600 text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      {s.n}
+                    </span>
+                    <p className="text-sm text-gray-700 leading-relaxed pt-0.5">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border-t border-gray-200 pt-5 mt-auto">
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-3">AI Assistant Context</p>
+                <div className="space-y-1.5 text-sm text-gray-600">
+                  <p>● Knows recent spending pattern</p>
+                  <p>● Knows account holdings</p>
+                  <p>● Can answer product questions in real time</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Wealth Client card */}
+            <div
+              style={{
+                ...revealStyle(segments.visible, 350),
+                border: "1px solid #E5E7EB",
+                borderLeft: "4px solid #16A34A",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+              }}
+              className="rounded-xl bg-white p-7 flex flex-col"
+            >
+              <p className="text-xs font-bold tracking-widest uppercase text-green-600 mb-4">Wealth Client</p>
+
+              <p className="text-base font-bold text-gray-900 mb-1">Advisor prep brief</p>
+              <p className="text-xs text-gray-500 mb-5">Sent to assigned relationship manager within 24h</p>
+
+              <div className="space-y-2 text-sm text-gray-700 mb-4">
+                <p>● Suggested talking points based on signal</p>
+                <p>● Cross-sell opportunities aligned to behavior</p>
+                <p>● Recent activity summary</p>
+              </div>
+
+              <p className="text-sm font-semibold mb-6" style={{ color: "#D97706" }}>
+                Suggested outreach: Within 5 business days
+              </p>
+
+              <div className="border-t border-gray-200 pt-5 mt-auto">
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-3">Concierge Options</p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="text-xs font-semibold px-4 py-2 rounded-full bg-white text-green-700 border border-green-200">
+                    Schedule private review
+                  </span>
+                  <span className="text-xs font-semibold px-4 py-2 rounded-full bg-white text-green-700 border border-green-200">
+                    Send curated insights
+                  </span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -52,7 +145,7 @@ const NextConversationPage = () => {
           <div className="grid md:grid-cols-2 gap-16 items-start">
             <div style={revealStyle(alert.visible, 100)}>
               <p className="text-gray-500 leading-relaxed mb-6" style={{ fontSize: 18 }}>
-                Every alert includes everything an advisor needs to have a meaningful conversation — before they pick up the phone.
+                When Ventus detects a life event, your CRM receives a structured intelligence payload — talking points, evidence transactions, and recommended next steps included.
               </p>
               <div className="space-y-3 text-gray-600" style={{ fontSize: 18 }}>
                 <p>● Life event detected with confidence score and evidence</p>
@@ -73,10 +166,10 @@ const NextConversationPage = () => {
             >
               <div className="flex items-center justify-between mb-4">
                 <p className="text-xs font-mono" style={{ color: "#111827" }}>
-                  Advisor Alert · <span className="font-semibold">cust_013</span>
+                  CRM Intelligence Payload · <span className="font-semibold">cust_013</span>
                 </p>
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px]" style={{ color: "#9CA3AF" }}>Powered by Ventus AI</span>
+                  <span className="text-[10px]" style={{ color: "#9CA3AF" }}>Powered by Ventus</span>
                   <span className="relative flex h-2.5 w-2.5">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                     <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
@@ -114,6 +207,78 @@ const NextConversationPage = () => {
                 <p className="text-xs mt-3" style={{ color: "#6B7280" }}>
                   Estimated cost: $240,000 over 4 years · Suggested monthly contribution: $2,500
                 </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Conversation block — text + phone */}
+      <section ref={conversation.ref} className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 60 }}>
+        <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
+          <div style={revealStyle(conversation.visible, 0)}>
+            <h2 className="font-bold text-gray-900 mb-4" style={{ fontSize: 36 }}>
+              A conversation, not a campaign.
+            </h2>
+            <p className="text-gray-500 leading-relaxed mb-3" style={{ fontSize: 18 }}>
+              Ventus surfaces the signal. Your bank's AI assistant turns it into a real-time dialogue with your customer.
+            </p>
+            <p className="text-gray-500 leading-relaxed" style={{ fontSize: 16 }}>
+              Powered by Ventus intelligence, your bank's assistant can surface the customer's spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, your assistant answers, and the right product surfaces in the moment.
+            </p>
+          </div>
+
+          <div style={revealStyle(conversation.visible, 150)} className="flex justify-center w-full">
+            <div
+              className="relative overflow-hidden flex flex-col w-full max-w-md"
+              style={{
+                height: 520,
+                borderRadius: 16,
+                border: "1px solid #E5E7EB",
+                backgroundColor: "#F9FAFB",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
+              }}
+            >
+              {/* Header */}
+              <div className="px-4 py-3 bg-white border-b border-gray-200">
+                <p className="text-sm font-bold text-gray-900 leading-tight">Your Bank AI Assistant</p>
+                <p className="text-[11px] leading-tight mt-0.5" style={{ color: "#9CA3AF" }}>Powered by Ventus</p>
+              </div>
+
+              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-left">
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
+                    What products fit my situation?
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-1.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>AI</div>
+                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
+                    Based on your spending, you have strong fitness habits and travel regularly. You might benefit from a travel rewards card — you have 8 Delta purchases this year with no travel card detected. Want me to show you options?
+                  </div>
+                </div>
+
+                <div className="flex justify-end">
+                  <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
+                    Yes show me
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-1.5">
+                  <div className="w-6 h-6 rounded-full flex items-center justify-center text-white text-[10px] font-bold flex-shrink-0" style={{ backgroundColor: "#2563EB" }}>AI</div>
+                  <div className="max-w-[85%] bg-white px-3 py-2 rounded-2xl rounded-tl-sm text-xs text-gray-800 shadow-sm border border-gray-100 leading-relaxed">
+                    Here are 3 cards matched to your profile...
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-1.5 pl-7">
+                  {["Delta SkyMiles · 60k bonus miles", "Chase Sapphire · 3x travel pts", "Amex Gold · 4x dining"].map((c) => (
+                    <div key={c} className="bg-white px-2.5 py-2 rounded-lg border border-gray-200 text-[10px] font-semibold text-gray-800 shadow-sm">
+                      {c}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

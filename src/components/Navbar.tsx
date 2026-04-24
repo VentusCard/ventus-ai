@@ -1,16 +1,20 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Gift, Package, MessageCircle } from "lucide-react";
+import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import AnnouncementBar from "./AnnouncementBar";
 
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
-const solutionsItems = [
-  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
-  { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
-  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Give every advisor a warm lead every morning", Icon: MessageCircle },
+const behavioralIntelligenceItems = [
+  { to: "/solutions/offer-intelligence", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
+  { to: "/solutions/product-intelligence", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
+  { to: "/solutions/conversation-intelligence", title: "Next Conversation", desc: "Surface the right conversation at the right moment.", Icon: MessageCircle },
+];
+
+const analyticsItems = [
+  { to: "/solutions/portfolio-intelligence", title: "Customer Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
 ];
 
 const Navbar = () => {
@@ -66,7 +70,26 @@ const Navbar = () => {
             {solutionsOpen && (
               <div className="absolute top-full left-0 pt-2" onMouseEnter={() => setSolutionsOpen(true)}>
                 <div className="bg-white rounded-lg shadow-lg border border-gray-100 py-2 w-80">
-                  {solutionsItems.map((item) => (
+                  <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BEHAVIORAL INTELLIGENCE</div>
+                  {behavioralIntelligenceItems.map((item) => (
+                    <Link
+                      key={item.to}
+                      to={item.to}
+                      onClick={() => setSolutionsOpen(false)}
+                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
+                        <item.Icon size={16} />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                        <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                      </div>
+                    </Link>
+                  ))}
+                  <div className="mx-4 my-1 border-t border-gray-200" />
+                  <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">ANALYTICS</div>
+                  {analyticsItems.map((item) => (
                     <Link
                       key={item.to}
                       to={item.to}
@@ -128,13 +151,22 @@ const Navbar = () => {
             Solutions <ChevronDown size={16} className={`transition-transform ${mobileSolutionsOpen ? "rotate-180" : ""}`} />
           </button>
           {mobileSolutionsOpen && (
-            <div className="pl-4 border-b border-gray-100">
-              {solutionsItems.map((item) => (
-                <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
-                  <item.Icon size={14} className="text-blue-600" />
-                  {item.title}
-                </Link>
-              ))}
+              <div className="pl-4 border-b border-gray-100 pb-2">
+                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BEHAVIORAL INTELLIGENCE</div>
+                {behavioralIntelligenceItems.map((item) => (
+                  <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                    <item.Icon size={14} className="text-blue-600" />
+                    {item.title}
+                  </Link>
+                ))}
+                <div className="mr-4 my-1 border-t border-gray-200" />
+                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">ANALYTICS</div>
+                {analyticsItems.map((item) => (
+                  <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
+                    <item.Icon size={14} className="text-blue-600" />
+                    {item.title}
+                  </Link>
+                ))}
             </div>
           )}
           <Link to="/insights" onClick={closeMobileMenu} className="flex items-center w-full text-gray-700 hover:text-gray-900 font-medium text-base py-3 border-b border-gray-100 text-left">Insights</Link>
