@@ -5,7 +5,7 @@ import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
 const stats = [
-  { value: "Daily", label: "Advisor briefings generated" },
+  { value: "Event-driven", label: "Alerts triggered by detected life events." },
   { value: "20+", label: "Life events that trigger alerts" },
   { value: "Zero PII", label: "Transaction signals only" },
 ];
@@ -224,7 +224,7 @@ const NextConversationPage = () => {
               Ventus surfaces the signal. Your bank's AI assistant turns it into a real-time dialogue with your customer.
             </p>
             <p className="text-gray-500 leading-relaxed" style={{ fontSize: 16 }}>
-              Powered by Ventus intelligence, your assistant knows the customer's spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, your assistant answers, and the right product surfaces in the moment.
+              Powered by Ventus intelligence, your bank's assistant can surface the customer's spending pattern, holdings, and recent product interactions — so every reply feels personal, not promotional. Customers ask, your assistant answers, and the right product surfaces in the moment.
             </p>
           </div>
 
