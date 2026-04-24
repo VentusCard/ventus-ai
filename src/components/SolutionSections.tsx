@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
+import { Pause, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 /* ─── Section 1: Next Offer ─── */
@@ -157,7 +158,9 @@ const SolutionSections = () => {
 
   const [api, setApi] = useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = useState(0);
+  const [paused, setPaused] = useState(false);
   const startTimeRef = useRef(Date.now());
+  const pausedElapsedRef = useRef(0);
   const rafRef = useRef<number>();
 
   const resetTimer = useCallback(() => {
@@ -172,6 +175,18 @@ const SolutionSections = () => {
     },
     [api, resetTimer]
   );
+
+  const togglePause = useCallback(() => {
+    setPaused((prev) => {
+      if (!prev) {
+        pausedElapsedRef.current = Date.now() - startTimeRef.current;
+      } else {
+        startTimeRef.current = Date.now() - pausedElapsedRef.current;
+      }
+
+      return !prev;
+    });
+  }, []);
 
   useEffect(() => {
     if (!api) return;
@@ -193,7 +208,7 @@ const SolutionSections = () => {
 
   useEffect(() => {
     const tick = () => {
-      if (api) {
+      if (api && !paused) {
         const elapsed = Date.now() - startTimeRef.current;
 
         if (elapsed >= ROTATE_INTERVAL) {
@@ -215,7 +230,7 @@ const SolutionSections = () => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [api]);
+  }, [api, paused]);
 
   return (
     <section className="bg-white py-20">
@@ -314,6 +329,20 @@ const SolutionSections = () => {
                     aria-label={`Go to ${section.label.toLowerCase()} card`}
                   />
                 ))}
+              </div>
+
+              <div className="mt-4 flex justify-center">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={togglePause}
+                  className="w-fit"
+                  aria-label={paused ? "Resume solution carousel" : "Pause solution carousel"}
+                >
+                  {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                  {paused ? "Resume" : "Pause"}
+                </Button>
               </div>
 
             </div>
