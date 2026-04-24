@@ -138,7 +138,7 @@ const SolutionSections = () => {
         id: "conversation-intelligence",
         label: "Next Conversation",
         labelColor: "text-blue-600",
-        headline: "Turn every life event into an advisor conversation.",
+        headline: "Turn every life event into the right conversation.",
         body: "Ventus detects life events in your customers transaction data and delivers structured intelligence to your CRM — who to call, why it matters, and exactly what to say.",
         card: <NextConversationVisual />,
         link: "/solutions/conversation-intelligence",
