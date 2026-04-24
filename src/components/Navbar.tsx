@@ -14,7 +14,7 @@ const behavioralIntelligenceItems = [
 ];
 
 const analyticsItems = [
-  { to: "/solutions/portfolio-intelligence", title: "Portfolio Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
+  { to: "/solutions/portfolio-intelligence", title: "Customer Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
 ];
 
 const Navbar = () => {
