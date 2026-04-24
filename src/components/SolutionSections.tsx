@@ -109,7 +109,7 @@ const PortfolioVisual = () => (
   </div>
 );
 
-const ROTATE_INTERVAL = 2500;
+const ROTATE_INTERVAL = 3500;
 
 /* ─── Main Component ─── */
 const SolutionSections = () => {
