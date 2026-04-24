@@ -244,12 +244,12 @@ const SolutionSections = () => {
         <ScrollReveal>
           <div className="mb-12 max-w-4xl">
             <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
-            <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
-              <div>
-                <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
+            <div className="flex flex-col gap-6">
+              <div className="max-w-3xl">
+                <h2 className="max-w-[16ch] text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
                   Powering customer intelligence at every layer.
                 </h2>
-                <p className="mt-3 text-base text-gray-500 leading-relaxed max-w-2xl">
+                <p className="mt-3 max-w-[56ch] text-base text-gray-500 leading-relaxed">
                   A guided walkthrough of the core solution set — auto-advancing like Platform, with controls when you want to pause and inspect.
                 </p>
               </div>
@@ -258,7 +258,7 @@ const SolutionSections = () => {
                 variant="outline"
                 size="sm"
                 onClick={togglePause}
-                className="shrink-0"
+                className="w-fit"
                 aria-label={paused ? "Resume solution carousel" : "Pause solution carousel"}
               >
                 {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
