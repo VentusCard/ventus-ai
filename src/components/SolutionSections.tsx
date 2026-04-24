@@ -163,10 +163,10 @@ const SolutionSections = () => {
           <div className="mb-12 max-w-2xl">
             <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
             <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
-              Power every customer touchpoint.
+              Customer intelligence at every layer.
             </h2>
           </div>
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-6 items-stretch">
+          <div className="grid md:grid-cols-2 gap-6 lg:gap-6 items-stretch">
             {sections.map((s) => (
               <div
                 key={s.id}
