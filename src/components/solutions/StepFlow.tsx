@@ -45,8 +45,8 @@ const StepFlow = ({ steps, title }: StepFlowProps) => {
                   }}
                 >
                   <span
-                    className="inline-flex items-center justify-center bg-blue-600 text-white text-xs font-bold mb-2"
-                    style={{ width: 32, height: 32, borderRadius: "50%" }}
+                    className="inline-flex items-center justify-center bg-blue-600 text-white text-xs font-bold mb-2 flex-shrink-0 leading-none"
+                    style={{ width: 32, height: 32, minWidth: 32, minHeight: 32, borderRadius: 9999, aspectRatio: "1 / 1" }}
                   >
                   {String(i + 1).padStart(2, "0")}
                 </span>
