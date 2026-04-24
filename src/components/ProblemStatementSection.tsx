@@ -26,8 +26,8 @@ const ProblemStatementSection = () => {
     const updateHeadlineColor = () => {
       const rect = el.getBoundingClientRect();
       const viewportHeight = window.innerHeight;
-      const startPoint = viewportHeight * 0.84;
-      const endPoint = viewportHeight * 0.04;
+      const startPoint = viewportHeight * 1.02;
+      const endPoint = viewportHeight * 0.32;
       const progress = (startPoint - rect.top) / (startPoint - endPoint);
 
       setHeadlineColor(interpolateColor(progress));
@@ -75,7 +75,7 @@ const ProblemStatementSection = () => {
                 opacity: visible ? 1 : 0,
                 color: headlineColor,
                 transform: visible ? "translateY(0)" : "translateY(30px)",
-                transition: "opacity 600ms ease-out, transform 600ms ease-out, color 500ms ease-out",
+                transition: "opacity 600ms ease-out, transform 600ms ease-out, color 320ms ease-out",
               }}
             >
               Behind every customer's transaction history is a person. The data just doesn't show it.
