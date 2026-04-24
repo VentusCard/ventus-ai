@@ -112,6 +112,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             initialMessage={pendingAIMessage}
             messageNonce={pendingAIPrompt?.nonce}
             initialMessageKind={pendingAIPrompt?.kind}
+            initialMessageContext={pendingAIPrompt?.signalContext}
             onInitialMessageConsumed={() => setPendingAIMessage(null)}
           />
         );
