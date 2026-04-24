@@ -84,24 +84,27 @@ const PortfolioIntelligencePage = () => {
             </p>
           </div>
 
-          {/* Dark dashboard card */}
+          {/* Light dashboard card */}
           <div
-            className="rounded-2xl p-6 sm:p-8"
+            className="rounded-2xl p-6 sm:p-8 bg-white"
             style={{
-              backgroundColor: "#0A1628",
-              boxShadow: "0 12px 40px rgba(10,22,40,0.25)",
+              border: "1px solid #E5E7EB",
+              boxShadow: "0 12px 40px rgba(15,23,42,0.06)",
             }}
           >
             {/* Header bar */}
-            <div className="flex items-center justify-between mb-6 pb-4" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+            <div
+              className="flex items-center justify-between mb-6 px-4 py-2.5 rounded-lg"
+              style={{ backgroundColor: "#F3F4F6" }}
+            >
               <div className="flex items-center gap-2">
                 <span className="relative flex h-2.5 w-2.5">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75" />
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
                 </span>
-                <p className="text-[11px] font-mono text-white/60">Portfolio Intelligence · Live</p>
+                <p className="text-[11px] font-mono text-gray-700">Portfolio Intelligence · Live</p>
               </div>
-              <p className="text-[10px] font-mono text-white/40">Powered by Ventus</p>
+              <p className="text-[10px] font-mono text-gray-500">Powered by Ventus</p>
             </div>
 
             {/* Top stats row */}
@@ -111,14 +114,14 @@ const PortfolioIntelligencePage = () => {
                   key={s.label}
                   className="rounded-lg p-4"
                   style={{
-                    backgroundColor: "rgba(255,255,255,0.04)",
-                    border: "1px solid rgba(255,255,255,0.08)",
+                    backgroundColor: "#F9FAFB",
+                    border: "1px solid #E5E7EB",
                     animation: dashboard.visible ? "fade-in 0.5s ease-out both" : "none",
                     animationDelay: `${i * 80}ms`,
                   }}
                 >
-                  <p className="text-2xl sm:text-[28px] font-bold text-white leading-tight">{s.value}</p>
-                  <p className="text-[11px] text-white/50 mt-1 leading-snug">{s.label}</p>
+                  <p className="text-2xl sm:text-[28px] font-bold text-gray-900 leading-tight">{s.value}</p>
+                  <p className="text-[11px] text-gray-500 mt-1 leading-snug">{s.label}</p>
                 </div>
               ))}
             </div>
@@ -127,23 +130,22 @@ const PortfolioIntelligencePage = () => {
             <div className="grid md:grid-cols-3 gap-5">
               {/* Lifestyle pillar distribution */}
               <div
-                className="rounded-lg p-5"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
+                className="rounded-lg bg-white overflow-hidden"
+                style={{ border: "1px solid #E5E7EB" }}
               >
-                <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-400 mb-4">
-                  Lifestyle Pillar Distribution
-                </p>
-                <div className="space-y-3">
+                <div className="px-5 py-3" style={{ backgroundColor: "#F3F4F6" }}>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600">
+                    Lifestyle Pillar Distribution
+                  </p>
+                </div>
+                <div className="p-5 space-y-3">
                   {pillarDistribution.map((p, i) => (
                     <div key={p.name}>
                       <div className="flex items-center justify-between mb-1.5">
-                        <p className="text-[11px] text-white/80 font-medium">{p.name}</p>
-                        <p className="text-[11px] font-mono font-semibold text-white">{p.pct}%</p>
+                        <p className="text-[11px] text-gray-700 font-medium">{p.name}</p>
+                        <p className="text-[11px] font-mono font-semibold text-gray-900">{p.pct}%</p>
                       </div>
-                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "rgba(255,255,255,0.08)" }}>
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{ backgroundColor: "#F3F4F6" }}>
                         <div
                           className="h-full rounded-full"
                           style={{
@@ -160,28 +162,27 @@ const PortfolioIntelligencePage = () => {
 
               {/* Top merchants */}
               <div
-                className="rounded-lg p-5"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
+                className="rounded-lg bg-white overflow-hidden"
+                style={{ border: "1px solid #E5E7EB" }}
               >
-                <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-400 mb-4">
-                  Top Merchants by Spend
-                </p>
-                <div className="space-y-2.5">
+                <div className="px-5 py-3" style={{ backgroundColor: "#F3F4F6" }}>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600">
+                    Top Merchants by Spend
+                  </p>
+                </div>
+                <div className="p-5 space-y-2.5">
                   {topMerchants.map((m, i) => (
                     <div
                       key={m.name}
                       className="flex items-center justify-between py-1.5"
                       style={{
-                        borderBottom: i < topMerchants.length - 1 ? "1px solid rgba(255,255,255,0.06)" : "none",
+                        borderBottom: i < topMerchants.length - 1 ? "1px solid #F3F4F6" : "none",
                         animation: dashboard.visible ? "fade-in 0.4s ease-out both" : "none",
                         animationDelay: `${300 + i * 70}ms`,
                       }}
                     >
-                      <p className="text-[12px] text-white/85 font-medium truncate">{m.name}</p>
-                      <p className="text-[12px] font-mono font-semibold text-white flex-shrink-0 ml-2">{m.spend}</p>
+                      <p className="text-[12px] text-gray-700 font-medium truncate">{m.name}</p>
+                      <p className="text-[12px] font-mono font-semibold text-gray-900 flex-shrink-0 ml-2">{m.spend}</p>
                     </div>
                   ))}
                 </div>
@@ -189,29 +190,28 @@ const PortfolioIntelligencePage = () => {
 
               {/* Customer segments */}
               <div
-                className="rounded-lg p-5"
-                style={{
-                  backgroundColor: "rgba(255,255,255,0.03)",
-                  border: "1px solid rgba(255,255,255,0.08)",
-                }}
+                className="rounded-lg bg-white overflow-hidden"
+                style={{ border: "1px solid #E5E7EB" }}
               >
-                <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-400 mb-4">
-                  Customer Segments
-                </p>
-                <div className="flex flex-wrap gap-2">
+                <div className="px-5 py-3" style={{ backgroundColor: "#F3F4F6" }}>
+                  <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600">
+                    Customer Segments
+                  </p>
+                </div>
+                <div className="p-5 flex flex-wrap gap-2">
                   {segments.map((s, i) => (
                     <div
                       key={s.name}
                       className="rounded-full px-3 py-1.5 flex items-center gap-2"
                       style={{
-                        backgroundColor: "rgba(59,130,246,0.12)",
-                        border: "1px solid rgba(59,130,246,0.3)",
+                        backgroundColor: "#EFF6FF",
+                        border: "1px solid #BFDBFE",
                         animation: dashboard.visible ? "fade-in 0.4s ease-out both" : "none",
                         animationDelay: `${500 + i * 80}ms`,
                       }}
                     >
-                      <p className="text-[11px] font-semibold text-white">{s.name}</p>
-                      <p className="text-[10px] text-white/60 font-mono">{s.count}</p>
+                      <p className="text-[11px] font-semibold text-gray-900">{s.name}</p>
+                      <p className="text-[10px] text-gray-500 font-mono">{s.count}</p>
                     </div>
                   ))}
                 </div>
