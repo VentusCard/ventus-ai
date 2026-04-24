@@ -166,7 +166,7 @@ const NextProductPage = () => {
             Know what your customer needs before they ask.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Life event detection surfaces the right product at the right moment — automatically. No surveys, no guesswork, just transaction signals.
+            Ventus detects life events from transaction patterns and surfaces the intelligence your teams need to recommend the right product — automatically.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
@@ -180,7 +180,7 @@ const NextProductPage = () => {
       <section ref={tabs.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-6xl mx-auto">
           <h2 style={{ ...revealStyle(tabs.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
-            Every life event is a product opportunity.
+            Ventus surfaces the signal. Your team acts on it.
           </h2>
           <p style={{ ...revealStyle(tabs.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-8">
             20+ life events detected from transaction patterns alone.
@@ -276,6 +276,10 @@ const NextProductPage = () => {
               ))}
             </div>
           </div>
+
+          <p className="text-xs italic text-gray-400 text-center mt-8">
+            Product recommendations powered by Ventus life event detection. Actioned through your existing advisor or digital tools.
+          </p>
         </div>
       </section>
 
