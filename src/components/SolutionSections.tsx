@@ -330,22 +330,21 @@ const SolutionSections = () => {
                   />
                 ))}
               </div>
-
-              <div className="mt-4 flex justify-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={togglePause}
-                  className="w-fit"
-                  aria-label={paused ? "Resume solution carousel" : "Pause solution carousel"}
-                >
-                  {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                  {paused ? "Resume" : "Pause"}
-                </Button>
-              </div>
-
             </div>
+          </div>
+
+          <div className="mt-4 flex justify-center">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={togglePause}
+              className="w-fit"
+              aria-label={paused ? "Resume solution carousel" : "Pause solution carousel"}
+            >
+              {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+              {paused ? "Resume" : "Pause"}
+            </Button>
           </div>
         </ScrollReveal>
       </div>
