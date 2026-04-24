@@ -323,10 +323,10 @@ const SolutionSections = () => {
                     key={section.id}
                     type="button"
                     onClick={() => handleSelectCard(index)}
-                    className={`rounded-full transition-all duration-300 ${
+                    className={`solution-carousel-dot rounded-full transition-all duration-300 ${
                       index === activeIndex
-                        ? "h-2.5 w-6 sm:h-3 sm:w-8 bg-blue-600"
-                        : "h-2.5 w-2.5 sm:h-3 sm:w-3 bg-gray-300 hover:bg-gray-400"
+                        ? "solution-carousel-dot--active h-2 w-4 sm:h-3 sm:w-8 bg-blue-600"
+                        : "h-2 w-2 sm:h-3 sm:w-3 bg-gray-300 hover:bg-gray-400"
                     }`}
                     aria-label={`Go to ${section.label.toLowerCase()} card`}
                   />

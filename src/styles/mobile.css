@@ -248,6 +248,13 @@
       display: none !important;
     }
 
+    .solution-carousel-dot {
+      display: inline-flex !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      flex-shrink: 0;
+    }
+
     /* Partner tools section cards - reduce vertical white space */
     
     /* Reduce CardHeader padding */
