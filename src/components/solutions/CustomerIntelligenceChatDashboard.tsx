@@ -1,52 +1,77 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
+type HighlightTarget = "pillars" | "lifeEvents" | "segments";
+
 type ChatTurn = {
   id: string;
   question: string;
   typingMs: number;
   answer: string;
-  highlight: "genz" | "pickleball" | "churn";
+  highlight: HighlightTarget;
 };
 
 const CONVERSATION: ChatTurn[] = [
   {
-    id: "genz",
-    question: "What are Gen Z customers spending on?",
+    id: "spend",
+    question: "What are customers spending the most on?",
     typingMs: 800,
     answer:
-      "Gen Z customers are concentrated in Food & Dining (34%), Entertainment (22%), and Health & Wellness (18%). Spending is heavily skewed toward delivery, streaming, and boutique fitness — with a notable spike in travel bookings this quarter.",
-    highlight: "genz",
+      "Travel & Exploration leads at 26.9% of total spend — $33,980 across 14 customers. Financial & Aspirational follows at 26.4% with $33,329.",
+    highlight: "pillars",
   },
   {
-    id: "pickleball",
-    question: "How much was spent on pickleball last quarter?",
+    id: "life-events",
+    question: "What life events are we seeing?",
     typingMs: 600,
     answer:
-      "$284,000 across 1,240 transactions — up 47% from last quarter. Concentrated in customers aged 35-55 with a Sports & Active Living pillar score above 0.7.",
-    highlight: "pickleball",
+      "21 life events detected this period — 14 Notable at 83.9% confidence and 7 Opportunity signals at 81.4%. Top signals include real estate activity, travel patterns, and family formation.",
+    highlight: "lifeEvents",
   },
   {
-    id: "churn",
-    question: "Which customers are most likely to churn?",
-    typingMs: 800,
+    id: "segments",
+    question: "Who are our highest value segments?",
+    typingMs: 700,
     answer:
-      "34 customers show declining engagement — reduced transaction frequency over 60 days, no new product adoption, and decreasing average spend. Recommended: proactive outreach within 14 days.",
-    highlight: "churn",
+      "Retired customers average $2,650 in spend — the highest of any segment. New and expecting parents follow at $1,105 average across 2 customers.",
+    highlight: "segments",
   },
 ];
 
+const HEADER_STATS = [
+  { value: "22", label: "customers enriched" },
+  { value: "218", label: "transactions analyzed" },
+  { value: "$126k", label: "total spend" },
+  { value: "90%", label: "avg confidence" },
+];
+
 const PILLARS = [
-  { name: "Food & Dining", pct: 28.4, key: "food" },
-  { name: "Entertainment", pct: 19.7, key: "entertainment" },
-  { name: "Sports & Active Living", pct: 16.2, key: "sports" },
-  { name: "Travel & Exploration", pct: 14.8, key: "travel" },
-  { name: "Health & Wellness", pct: 12.1, key: "health" },
+  { name: "Travel & Exploration", pct: 26.9, key: "travel" },
+  { name: "Financial & Aspirational", pct: 26.4, key: "financial" },
+  { name: "Home & Living", pct: 15.4, key: "home" },
+  { name: "Family & Community", pct: 12.8, key: "family" },
+  { name: "Style & Beauty", pct: 11.9, key: "style" },
+  { name: "Food & Dining", pct: 2.8, key: "food" },
+];
+
+const TOP_MERCHANTS = [
+  { name: "Real Estate Attorney", spend: "$15,300" },
+  { name: "Delta Air Lines", spend: "$8,860" },
+  { name: "The Plaza Hotel", spend: "$8,500" },
+  { name: "Home Depot", spend: "$7,847" },
+  { name: "Marriott", spend: "$7,206" },
+];
+
+const SEGMENTS = [
+  { name: "Family-oriented", count: "4 customers", glow: false },
+  { name: "Frequent Traveler", count: "3", glow: false },
+  { name: "New/Expecting Parent", count: "2", glow: true },
+  { name: "Retired", count: "1", glow: true },
 ];
 
 const QUESTION_READ_MS = 900;
 const ANSWER_READ_MS = 4200;
 const PAUSE_BETWEEN_TURNS_MS = 2000;
-const PAUSE_BETWEEN_CYCLES_MS = 3000;
+const PAUSE_BETWEEN_CYCLES_MS = 2000;
 
 type Phase = "question" | "typing" | "answer" | "pause";
 
@@ -101,7 +126,6 @@ const CustomerIntelligenceChatDashboard = () => {
     };
   }, [phase, turnIndex, turn.typingMs]);
 
-  // Build visible chat history: previous turns of the current cycle plus the active one.
   const visibleTurns = useMemo(() => {
     const items: Array<{
       turn: ChatTurn;
@@ -116,7 +140,7 @@ const CustomerIntelligenceChatDashboard = () => {
       const isActive = i === turnIndex;
       items.push({
         turn: t,
-        showQuestion: isActive ? phase !== "question" || true : true,
+        showQuestion: true,
         showTyping: isActive && phase === "typing",
         showAnswer: isActive ? phase === "answer" || phase === "pause" : true,
         key: `${cycleKey}-${i}`,
@@ -125,7 +149,6 @@ const CustomerIntelligenceChatDashboard = () => {
     return items;
   }, [turnIndex, phase, cycleKey]);
 
-  // Auto-scroll chat to bottom whenever phase or turn changes.
   const scrollRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     const el = scrollRef.current;
@@ -133,16 +156,15 @@ const CustomerIntelligenceChatDashboard = () => {
     el.scrollTo({ top: el.scrollHeight, behavior: "smooth" });
   }, [phase, turnIndex, cycleKey]);
 
-  // Determine highlight state for the dashboard.
-  // Highlight is "active" once the answer starts and remains until the next question.
-  const activeHighlight: ChatTurn["highlight"] | null =
+  // Active highlight only while answer is on screen
+  const activeHighlight: HighlightTarget | null =
     phase === "answer" || phase === "pause" ? turn.highlight : null;
 
-  const isPillarHighlighted = (key: string) => {
-    if (activeHighlight === "genz") return key === "food" || key === "entertainment";
-    if (activeHighlight === "pickleball") return key === "sports";
-    return false;
-  };
+  const isPillarHighlighted = (key: string) =>
+    activeHighlight === "pillars" && (key === "travel" || key === "financial");
+
+  const lifeEventsHighlighted = activeHighlight === "lifeEvents";
+  const segmentsHighlighted = activeHighlight === "segments";
 
   return (
     <div
@@ -164,12 +186,12 @@ const CustomerIntelligenceChatDashboard = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] gap-0 lg:gap-0">
-        {/* Left: Chat (40%) */}
+      <div className="grid grid-cols-1 lg:grid-cols-[35fr_65fr]">
+        {/* Left: Chat */}
         <div className="lg:pr-6">
           <div
             ref={scrollRef}
-            className="rounded-xl p-4 h-[420px] overflow-y-auto scroll-smooth"
+            className="rounded-xl p-4 h-[520px] overflow-y-auto scroll-smooth"
             style={{
               backgroundColor: "#F9FAFB",
               border: "1px solid #E5E7EB",
@@ -178,10 +200,9 @@ const CustomerIntelligenceChatDashboard = () => {
             <div className="flex flex-col gap-3">
               {visibleTurns.map((item) => (
                 <div key={item.key} className="flex flex-col gap-2">
-                  {/* User question (right) */}
                   {item.showQuestion && (
                     <div
-                      className="self-end max-w-[85%] px-3.5 py-2 rounded-2xl rounded-tr-sm text-white text-[12.5px] leading-snug"
+                      className="self-end max-w-[88%] px-3.5 py-2 rounded-2xl rounded-tr-sm text-white text-[12.5px] leading-snug"
                       style={{
                         backgroundColor: "#2563EB",
                         animation: "ci-fade-up 320ms ease-out both",
@@ -191,7 +212,6 @@ const CustomerIntelligenceChatDashboard = () => {
                     </div>
                   )}
 
-                  {/* Typing */}
                   {item.showTyping && (
                     <div
                       className="self-start"
@@ -201,10 +221,9 @@ const CustomerIntelligenceChatDashboard = () => {
                     </div>
                   )}
 
-                  {/* AI answer (left) */}
                   {item.showAnswer && (
                     <div
-                      className="self-start max-w-[90%] px-3.5 py-2.5 rounded-2xl rounded-tl-sm text-gray-800 text-[12.5px] leading-snug bg-white"
+                      className="self-start max-w-[92%] px-3.5 py-2.5 rounded-2xl rounded-tl-sm text-gray-800 text-[12.5px] leading-snug bg-white"
                       style={{
                         border: "1px solid #E5E7EB",
                         animation: "ci-fade-up 320ms ease-out both",
@@ -219,70 +238,52 @@ const CustomerIntelligenceChatDashboard = () => {
           </div>
         </div>
 
-        {/* Vertical divider */}
-        <div className="hidden lg:block absolute" />
-
-        {/* Right: Mini dashboard (60%) */}
+        {/* Right: Dashboard */}
         <div
-          className="lg:pl-6 mt-6 lg:mt-0"
-          style={{
-            borderLeft: undefined,
-          }}
+          className="mt-6 lg:mt-0 lg:border-l lg:border-gray-200 lg:pl-6"
+          style={{ borderColor: "#E5E7EB" }}
         >
-          <div className="hidden lg:block" />
-          <div
-            className="lg:border-l lg:border-gray-200 lg:-ml-6 lg:pl-6 h-full"
-            style={{ borderColor: "#E5E7EB" }}
-          >
-            {/* Top stats */}
-            <div className="grid grid-cols-3 gap-3 mb-5">
-              {[
-                { value: "22", label: "customers enriched" },
-                { value: "218", label: "transactions analyzed" },
-                { value: "90%", label: "avg confidence" },
-              ].map((s) => (
-                <div
-                  key={s.label}
-                  className="rounded-lg p-3"
-                  style={{ backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB" }}
-                >
-                  <p className="text-[22px] font-bold text-gray-900 leading-tight">
-                    {s.value}
-                  </p>
-                  <p className="text-[10.5px] text-gray-500 mt-0.5 leading-snug">
-                    {s.label}
-                  </p>
-                </div>
-              ))}
-            </div>
+          {/* Top stats */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            {HEADER_STATS.map((s) => (
+              <div
+                key={s.label}
+                className="rounded-lg p-3"
+                style={{ backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB" }}
+              >
+                <p className="text-[22px] font-bold text-gray-900 leading-tight">
+                  {s.value}
+                </p>
+                <p className="text-[10.5px] text-gray-500 mt-0.5 leading-snug">
+                  {s.label}
+                </p>
+              </div>
+            ))}
+          </div>
 
+          {/* Three side-by-side panels */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Pillar distribution */}
             <div
-              className="rounded-lg bg-white overflow-hidden"
-              style={{ border: "1px solid #E5E7EB" }}
+              className="rounded-lg bg-white overflow-hidden transition-all duration-300"
+              style={{
+                border:
+                  activeHighlight === "pillars"
+                    ? "1px solid #93C5FD"
+                    : "1px solid #E5E7EB",
+                boxShadow:
+                  activeHighlight === "pillars"
+                    ? "0 0 0 3px rgba(59,130,246,0.10)"
+                    : "none",
+              }}
             >
               <div
-                className="px-4 py-2.5 flex items-center justify-between"
+                className="px-4 py-2.5"
                 style={{ backgroundColor: "#F3F4F6" }}
               >
                 <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600">
                   Lifestyle Pillar Distribution
                 </p>
-                {activeHighlight === "churn" && (
-                  <div
-                    className="flex items-center gap-1.5 px-2 py-0.5 rounded-full"
-                    style={{
-                      backgroundColor: "#FEE2E2",
-                      border: "1px solid #FCA5A5",
-                      animation: "ci-fade-up 320ms ease-out both",
-                    }}
-                  >
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <p className="text-[10px] font-semibold text-red-700">
-                      34 at-risk customers
-                    </p>
-                  </div>
-                )}
               </div>
               <div className="p-4 space-y-2.5">
                 {PILLARS.map((p) => {
@@ -290,12 +291,15 @@ const CustomerIntelligenceChatDashboard = () => {
                   return (
                     <div
                       key={p.key}
-                      className="rounded-md px-2 py-1.5 transition-all duration-300"
+                      className="rounded-md pl-2 pr-2 py-1.5 transition-all duration-300"
                       style={{
-                        border: highlighted
-                          ? "1px solid #3B82F6"
-                          : "1px solid transparent",
+                        borderLeft: highlighted
+                          ? "3px solid #2563EB"
+                          : "3px solid transparent",
                         backgroundColor: highlighted ? "#EFF6FF" : "transparent",
+                        boxShadow: highlighted
+                          ? "0 0 12px rgba(37,99,235,0.15)"
+                          : "none",
                       }}
                     >
                       <div className="flex items-center justify-between mb-1">
@@ -329,11 +333,147 @@ const CustomerIntelligenceChatDashboard = () => {
                 })}
               </div>
             </div>
+
+            {/* Top merchants */}
+            <div
+              className="rounded-lg bg-white overflow-hidden"
+              style={{ border: "1px solid #E5E7EB" }}
+            >
+              <div
+                className="px-4 py-2.5"
+                style={{ backgroundColor: "#F3F4F6" }}
+              >
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600">
+                  Top Merchants by Spend
+                </p>
+              </div>
+              <div className="p-4 space-y-2">
+                {TOP_MERCHANTS.map((m, i) => (
+                  <div
+                    key={m.name}
+                    className="flex items-center justify-between py-1.5"
+                    style={{
+                      borderBottom:
+                        i < TOP_MERCHANTS.length - 1
+                          ? "1px solid #F3F4F6"
+                          : "none",
+                    }}
+                  >
+                    <p className="text-[11.5px] text-gray-700 font-medium truncate">
+                      {m.name}
+                    </p>
+                    <p className="text-[11.5px] font-mono font-semibold text-gray-900 flex-shrink-0 ml-2">
+                      {m.spend}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Customer segments */}
+            <div
+              className="rounded-lg bg-white overflow-hidden transition-all duration-300"
+              style={{
+                border: segmentsHighlighted
+                  ? "1px solid #93C5FD"
+                  : "1px solid #E5E7EB",
+                boxShadow: segmentsHighlighted
+                  ? "0 0 0 3px rgba(59,130,246,0.10)"
+                  : "none",
+              }}
+            >
+              <div
+                className="px-4 py-2.5"
+                style={{ backgroundColor: "#F3F4F6" }}
+              >
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600">
+                  Customer Segments
+                </p>
+              </div>
+              <div className="p-4 flex flex-wrap gap-2">
+                {SEGMENTS.map((s) => {
+                  const glow = segmentsHighlighted && s.glow;
+                  return (
+                    <div
+                      key={s.name}
+                      className="rounded-full px-3 py-1.5 flex items-center gap-2 transition-all duration-300"
+                      style={{
+                        backgroundColor: glow ? "#DBEAFE" : "#EFF6FF",
+                        border: glow
+                          ? "1px solid #60A5FA"
+                          : "1px solid #BFDBFE",
+                        boxShadow: glow
+                          ? "0 0 10px rgba(37,99,235,0.25)"
+                          : "none",
+                      }}
+                    >
+                      <p className="text-[11px] font-semibold text-gray-900">
+                        {s.name}
+                      </p>
+                      <p className="text-[10px] text-gray-500 font-mono">
+                        {s.count}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Life events summary */}
+          <div
+            className="mt-4 rounded-lg bg-white overflow-hidden transition-all duration-300"
+            style={{
+              border: lifeEventsHighlighted
+                ? "1px solid #93C5FD"
+                : "1px solid #E5E7EB",
+              boxShadow: lifeEventsHighlighted
+                ? "0 0 0 3px rgba(59,130,246,0.10)"
+                : "none",
+            }}
+          >
+            <div
+              className="px-4 py-2.5"
+              style={{ backgroundColor: "#F3F4F6" }}
+            >
+              <p className="text-[10px] font-semibold tracking-widest uppercase text-blue-600">
+                Life Events Detected
+              </p>
+            </div>
+            <div className="p-4 grid grid-cols-3 gap-3">
+              {[
+                { value: "21", label: "events this period", tone: "neutral" },
+                { value: "14", label: "Notable · 83.9% confidence", tone: "blue" },
+                { value: "7", label: "Opportunity · 81.4% confidence", tone: "amber" },
+              ].map((e) => (
+                <div
+                  key={e.label}
+                  className="rounded-md p-3"
+                  style={{ backgroundColor: "#F9FAFB", border: "1px solid #E5E7EB" }}
+                >
+                  <p
+                    className="text-[18px] font-bold leading-tight"
+                    style={{
+                      color:
+                        e.tone === "blue"
+                          ? "#2563EB"
+                          : e.tone === "amber"
+                          ? "#D97706"
+                          : "#111827",
+                    }}
+                  >
+                    {e.value}
+                  </p>
+                  <p className="text-[10.5px] text-gray-500 mt-0.5 leading-snug">
+                    {e.label}
+                  </p>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Animations */}
       <style>{`
         @keyframes ci-fade-up {
           0% { opacity: 0; transform: translateY(6px); }
