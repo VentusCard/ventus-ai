@@ -1,33 +1,33 @@
 ## Issue
 
-In the executive demo (`/demo`), the rolled-up lifestyle pills in the Intelligence Panel are not explicitly sorted by total spend. Today their display order comes from whatever order the LLM (`synthesize-persona`) emits them in — which often correlates loosely with transaction count rather than dollar value. The result feels inconsistent and de-emphasizes high-dollar lifestyle behaviors.
+The phone mockup in the executive demo (`/demo`) renders the literal text `{firstname}` in two spots — the top status header ("TCBY Bank · {firstname}") and the Membership tab welcome line / advisor quote ("Welcome, {firstname}", "Let's plan together, {firstname}."). Both components already receive the `customer` prop, so we can resolve the actual first name from `customer.profile.name`.
 
 ## Fix
 
-Sort `rollupStats` by `totalSpend` descending in `src/components/exec-demo/ExecDemoIntelPanel.tsx` so the highest-spend lifestyle rollups always render first.
+### 1. `src/components/exec-demo/ExecDemoPhoneView.tsx`
 
-### Change
+Derive the first name from `customer.profile.name` and inject it into the header (line 150).
 
-In `ExecDemoIntelPanel.tsx` (~line 226), update the `rollupStats` memo:
+```tsx
+// near top of component body
+const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
 
-```ts
-const rollupStats = useMemo(() => {
-  return rollups
-    .filter(r => (r.totalCount ?? 0) > 0)
-    .slice()
-    .sort((a, b) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0));
-}, [rollups]);
+// line 150
+<span className="text-[10px] font-semibold text-slate-600 tracking-wide leading-tight">
+  TCBY Bank · {firstName}
+</span>
 ```
 
-This is the single source feeding:
-- The pill row (`rollupPills` mapped from `rollupStats`)
-- Auto-selection of the first rollup on the Next-Offer tab
-- The lifestyle entries in `availableSignals` for the Relationship tab
-- The `pillarRollups` prop passed to `NextProductRationale`
+### 2. `src/components/exec-demo/RelationshipPhoneView.tsx`
 
-All downstream consumers will inherit the new spend-ranked order automatically.
+Replace the placeholder constant on line 57 with the real first name.
+
+```tsx
+const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
+```
+
+The existing `{firstName}` interpolations on lines 69 and 134 will then render the real name automatically.
 
 ### Out of scope
 
-- Life-event pills and risk pills keep their existing ordering (life events by detection order, risks by a fixed `ORDER` array). Only the lifestyle/behavioral rollups change.
-- No edge-function changes needed; sorting stays client-side so it doesn't depend on a re-synthesis.
+`ProductRecommendationPhoneView` and `GeneratedOffersPhoneView` already derive `firstName` correctly from `customerName` — no change needed.
