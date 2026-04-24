@@ -1,31 +1,55 @@
 
 
-## Add ski gear & season pass transactions to Sarah Mitchell
+## Anonymize sample customer names → 9-digit User IDs + literal `{firstname}` placeholder
 
-Sarah's CSV (`SAMPLE_CSV` in `src/lib/sampleData.ts`) feeds the /demo executive demo for customer #1. It currently spans Nov 2024 → Jul 2026 — covering two ski seasons (2024-25 and 2025-26). I'll add **2 annual season passes + 4 ski gear purchases** (2 per year), interspersed in chronological order to match the existing date flow.
+Replace each sample customer's full name with a random 9-digit user ID, and use the literal string `{firstname}` (curly braces included) wherever consumer-facing UI currently shows a first-name greeting.
 
-### New transactions (6 total)
+### Changes
 
-**Season 2024-25** (added before existing Nov 2024 ski entries):
-- `EPIC PASS VAIL RESORTS` — Annual ski season pass — MCC 7941 — $1,089.00 — 2024-10-28 — 81657 — Premium Card
-- `CHRISTY SPORTS DENVER` — Ski jacket and pants — MCC 5941 — $685.00 — 2024-11-15 — 80202 — Premium Card
-- `EVO.COM` — All-mountain skis with bindings — MCC 5941 — $1,249.00 — 2024-12-09 — 98101 — Premium Card
+**1. `src/lib/sampleData.ts`** — rename all 6 sample profiles:
 
-**Season 2025-26** (added in fall 2025 → winter 2026 window):
-- `EPIC PASS VAIL RESORTS` — Annual ski season pass renewal — MCC 7941 — $1,149.00 — 2025-10-12 — 81657 — Premium Card
-- `BACKCOUNTRY.COM` — Ski helmet and goggles — MCC 5941 — $389.00 — 2025-11-20 — 84097 — Premium Card
-- `REI CO-OP SF` — Ski boots and base layers — MCC 5941 — $725.00 — 2026-01-22 — 94102 — Premium Card
+| Old name | New `name` |
+|---|---|
+| Sarah Mitchell | `User #482719356` |
+| James Rodriguez | `User #519384207` |
+| Emily Chen | `User #264158093` |
+| Michael Thompson | `User #730895142` |
+| Amanda Williams | `User #395672481` |
+| Robert Garcia | `User #847203615` |
 
-Transaction IDs will use unused slots / sequential numbering (`txn_056`–`txn_061`) appended logically; rows inserted in date order so the existing chronological flow is preserved.
+(IDs are random, fixed 9-digit numbers — no `firstName` field needed.)
 
-### Why these choices
-- **MCC 7941** (Commercial Sports) for season passes — matches existing `VAIL RESORTS LIFT TKT` / `PALISADES TAHOE LIFT` rows.
-- **MCC 5941** (Sporting Goods) for gear — matches the existing `WILSON SPORTING GOODS` row.
-- **Premium Card** source for high-ticket discretionary purchases — consistent with [Transaction Sources memory](mem://technical/data-processing/transaction-source-logic).
-- Realistic merchants (Epic Pass, evo, Backcountry, Christy Sports, REI) reinforce the existing "Wellness Explorer / ski enthusiast" lifestyle signal already showing in Sarah's Sports pillar.
+**2. Replace consumer-facing first-name greetings with the literal string `{firstname}`** in these files. In every case, swap `customer.profile.name.split(" ")[0]` (or equivalent) for the literal `"{firstname}"`:
+
+- `src/components/exec-demo/RelationshipPhoneView.tsx` line 57 → `Welcome, {firstname}`
+- `src/components/exec-demo/ExecDemoPhoneView.tsx` line 150 → `TCBY Bank · {firstname}`
+- `src/components/demo/DemoEngagementView.tsx` line 110
+- `src/components/demo/DemoRewardsView.tsx` line 440
+- `src/components/demo/DemoWealthView.tsx` line 92
+- `src/components/demo/ConsumerAIChatView.tsx` line 336 → `Hi {firstname}! 👋`
+
+Also update the inline quoted string in `RelationshipPhoneView.tsx` (line ~125) — `"Major milestone ahead? Let's plan together, {firstname}."` (replace `${firstName}` interpolation with the literal token).
+
+**3. Update hard-coded literal labels** that currently embed the old names:
+
+- `src/components/tepilot/ComparisonSetup.tsx` lines 22-27 — change dropdown labels to `"User #482719356 (1 mo)"`, `"User #519384207 (1 mo)"`, etc.
+- `src/components/technology/demos/VentusWealthDemo.tsx` lines 42-43 — change the two hard-coded `name:` values to the matching new IDs.
+
+**4. Leave `name` (the 9-digit ID) as-is everywhere else** — operator-facing surfaces (network diagram, engine profile, customer dropdown, selection dialog, left panel, detail overlay, advisor console, life-event PDF/toasts) will display `User #482719356`, which is the desired anonymized label.
+
+**5. Out of scope** (unchanged):
+- Edge function prompts — the LLM will receive `User #482719356` as the customer identifier.
+- Merchant names, transaction descriptors, ZIPs in CSVs.
+- Advisor persona "Emily Chen" in `RelationshipPhoneView.tsx` (bank employee, not a customer).
 
 ### Files touched
-- `src/lib/sampleData.ts` — insert 6 rows into `SAMPLE_CSV` template literal in chronological order.
-
-No other changes — `summarizeCsv()` in `demoData.ts` recomputes spend/counts automatically, and the enrichment pipeline will pick up the new rows for the Sports pillar, deals, and lifestyle persona output.
+- `src/lib/sampleData.ts`
+- `src/components/exec-demo/RelationshipPhoneView.tsx`
+- `src/components/exec-demo/ExecDemoPhoneView.tsx`
+- `src/components/demo/DemoEngagementView.tsx`
+- `src/components/demo/DemoRewardsView.tsx`
+- `src/components/demo/DemoWealthView.tsx`
+- `src/components/demo/ConsumerAIChatView.tsx`
+- `src/components/tepilot/ComparisonSetup.tsx`
+- `src/components/technology/demos/VentusWealthDemo.tsx`
 
