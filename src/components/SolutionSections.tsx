@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Button } from "@/components/ui/button";
 import { Carousel, CarouselContent, CarouselItem, type CarouselApi } from "@/components/ui/carousel";
-import { Pause, Play } from "lucide-react";
 import { Link } from "react-router-dom";
 
 /* ─── Section 1: Next Offer ─── */
@@ -158,16 +157,11 @@ const SolutionSections = () => {
 
   const [api, setApi] = useState<CarouselApi>();
   const [activeIndex, setActiveIndex] = useState(0);
-  const [progress, setProgress] = useState(0);
-  const [paused, setPaused] = useState(false);
   const startTimeRef = useRef(Date.now());
-  const pausedElapsedRef = useRef(0);
   const rafRef = useRef<number>();
 
   const resetTimer = useCallback(() => {
-    setProgress(0);
     startTimeRef.current = Date.now();
-    pausedElapsedRef.current = 0;
   }, []);
 
   const handleSelectCard = useCallback(
@@ -178,18 +172,6 @@ const SolutionSections = () => {
     },
     [api, resetTimer]
   );
-
-  const togglePause = useCallback(() => {
-    setPaused((prev) => {
-      if (!prev) {
-        pausedElapsedRef.current = Date.now() - startTimeRef.current;
-      } else {
-        startTimeRef.current = Date.now() - pausedElapsedRef.current;
-      }
-
-      return !prev;
-    });
-  }, []);
 
   useEffect(() => {
     if (!api) return;
@@ -211,10 +193,8 @@ const SolutionSections = () => {
 
   useEffect(() => {
     const tick = () => {
-      if (!paused && api) {
+      if (api) {
         const elapsed = Date.now() - startTimeRef.current;
-        const pct = Math.min((elapsed / ROTATE_INTERVAL) * 100, 100);
-        setProgress(pct);
 
         if (elapsed >= ROTATE_INTERVAL) {
           if (api.canScrollNext()) {
@@ -235,7 +215,7 @@ const SolutionSections = () => {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
-  }, [api, paused]);
+  }, [api]);
 
   return (
     <section className="bg-white py-20">
