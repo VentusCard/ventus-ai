@@ -100,11 +100,11 @@ const PortfolioVisual = () => (
     ].map((row) => (
       <div
         key={row.label}
-        className="rounded-lg p-3 flex items-center justify-between gap-2 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
+        className="rounded-lg px-2.5 py-2 sm:p-3 flex items-center justify-between gap-2 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
         style={{ borderLeft: `3px solid ${row.color}` }}
       >
-        <p className="text-gray-900 font-semibold truncate" style={{ fontSize: "13px" }}>{row.label}</p>
-        <p className="font-mono text-gray-500 text-[11px] whitespace-nowrap shrink-0">{row.stat}</p>
+        <p className="text-gray-900 font-semibold truncate text-[11px] sm:text-[13px]">{row.label}</p>
+        <p className="font-mono text-gray-500 text-[9px] sm:text-[11px] whitespace-nowrap shrink-0">{row.stat}</p>
       </div>
     ))}
   </div>
