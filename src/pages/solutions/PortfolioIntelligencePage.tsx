@@ -77,7 +77,7 @@ const PortfolioIntelligencePage = () => {
         <div className="max-w-6xl mx-auto" style={revealStyle(dashboard.visible, 0)}>
           <div className="mb-8" style={{ paddingTop: 48 }}>
             <h2 className="font-bold text-gray-900 text-2xl sm:text-[32px] leading-tight mb-2">
-              A live view of your Portfolio Intelligence layer.
+              A live view of your Customer Intelligence layer.
             </h2>
             <p className="text-gray-500 text-base sm:text-[16px] leading-relaxed">
               Real-time aggregate intelligence, ready for your analytics stack.
