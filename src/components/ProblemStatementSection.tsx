@@ -75,7 +75,7 @@ const ProblemStatementSection = () => {
                 opacity: visible ? 1 : 0,
                 color: headlineColor,
                 transform: visible ? "translateY(0)" : "translateY(30px)",
-                transition: "opacity 600ms ease-out, transform 600ms ease-out",
+                transition: "opacity 600ms ease-out, transform 600ms ease-out, color 1200ms ease-out",
               }}
             >
               Behind every customer's transaction history is a person. The data just doesn't show it.
