@@ -241,7 +241,7 @@ const SolutionSections = () => {
             <div className="flex flex-col gap-6">
               <div className="max-w-4xl">
                 <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
-                  Powering customer intelligence at every layer.
+                  Powering personalized banking at every layer.
                 </h2>
               </div>
             </div>
