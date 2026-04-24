@@ -90,7 +90,7 @@ const NextConversationVisual = () => (
   </div>
 );
 
-/* ─── Section 4: Portfolio ─── */
+/* ─── Section 4: Portfolio Intelligence ─── */
 const PortfolioVisual = () => (
   <div className="space-y-2">
     {[
@@ -118,7 +118,7 @@ const SolutionSections = () => {
     () => [
       {
         id: "offer-intelligence",
-        label: "OFFER",
+        label: "Next Offer",
         labelColor: "text-blue-600",
         headline: "Serve the right offer before they go looking.",
         body: "Ventus detects purchase intent from spending patterns — giving your team the signal to serve the right offer at exactly the right moment.",
@@ -127,7 +127,7 @@ const SolutionSections = () => {
       },
       {
         id: "product-intelligence",
-        label: "PRODUCT",
+        label: "Next Product",
         labelColor: "text-blue-600",
         headline: "Know what your customer needs before they ask.",
         body: "Life event detection gives your team the intelligence to surface the right product at the right moment.",
@@ -136,7 +136,7 @@ const SolutionSections = () => {
       },
       {
         id: "conversation-intelligence",
-        label: "CONVERSATION",
+        label: "Next Conversation",
         labelColor: "text-blue-600",
         headline: "Turn every life event into an advisor conversation.",
         body: "Ventus detects life events in your customers transaction data and delivers structured intelligence to your CRM — who to call, why it matters, and exactly what to say.",
@@ -145,7 +145,7 @@ const SolutionSections = () => {
       },
       {
         id: "portfolio-intelligence",
-        label: "PORTFOLIO",
+        label: "Portfolio Intelligence",
         labelColor: "text-blue-600",
         headline: "See your entire customer base in one view.",
         body: "Bank-wide behavioral intelligence for executive teams — lifestyle distribution, life event frequency, and spending patterns, all queryable via API.",

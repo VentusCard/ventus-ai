@@ -43,7 +43,7 @@ const flowSteps = [
 const stats = [
   { value: "50+", label: "Lifestyle dimensions" },
   { value: "20+", label: "Life events monitored" },
-  { value: "Real-time", label: "Portfolio updates" },
+  { value: "Real-time", label: "Portfolio Intelligence updates" },
 ];
 
 const PortfolioIntelligencePage = () => {
@@ -77,7 +77,7 @@ const PortfolioIntelligencePage = () => {
         <div className="max-w-6xl mx-auto" style={revealStyle(dashboard.visible, 0)}>
           <div className="mb-8" style={{ paddingTop: 48 }}>
             <h2 className="font-bold text-gray-900 text-2xl sm:text-[32px] leading-tight mb-2">
-              A live view of your portfolio.
+              A live view of your Portfolio Intelligence layer.
             </h2>
             <p className="text-gray-500 text-base sm:text-[16px] leading-relaxed">
               Real-time aggregate intelligence, ready for your analytics stack.
@@ -224,7 +224,7 @@ const PortfolioIntelligencePage = () => {
       {/* Flow steps */}
       <section ref={flow.ref} className="bg-white px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div style={revealStyle(flow.visible, 0)}>
-          <StepFlow steps={flowSteps} title="From transaction to portfolio intelligence." />
+          <StepFlow steps={flowSteps} title="From transaction to Portfolio Intelligence." />
         </div>
       </section>
 
