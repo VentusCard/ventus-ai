@@ -272,13 +272,13 @@ const SolutionSections = () => {
             </div>
           </div>
 
-          <div className="mb-6 flex flex-wrap gap-2">
+          <div className="mb-6 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
             {sections.map((item, index) => (
               <button
                 key={item.id}
                 type="button"
                 onClick={() => handleSelectCard(index)}
-                className={`rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-all duration-200 ${
+                className={`rounded-full px-4 py-2 text-[13px] sm:px-3 sm:py-1.5 sm:text-[11px] font-semibold tracking-wide transition-all duration-200 ${
                   index === activeIndex
                     ? "bg-blue-600 text-white shadow-md"
                     : "bg-gray-100 text-gray-600 hover:bg-gray-200"
