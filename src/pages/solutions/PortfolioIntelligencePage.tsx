@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
+import CustomerIntelligenceChatDashboard from "@/components/solutions/CustomerIntelligenceChatDashboard";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
 const headerStats = [
