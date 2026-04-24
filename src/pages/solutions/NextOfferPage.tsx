@@ -74,7 +74,7 @@ const NextOfferPage = () => {
       {/* Hero */}
       <section ref={hero.ref} className="pt-32 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[70vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
-          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">Offer Intelligence</p>
+          <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">NEXT OFFER</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
             Serve the right offer before they go looking.
           </h1>
@@ -166,7 +166,7 @@ const NextOfferPage = () => {
 
           {/* Behavioral Based Deal Collection */}
           <div className="flex items-center gap-3 mb-5">
-            <h3 className="text-lg font-bold text-gray-900">Offer Intelligence Collection</h3>
+            <h3 className="text-lg font-bold text-gray-900">NEXT OFFER Collection</h3>
             <span className="text-xs font-semibold px-3 py-1 rounded-full" style={{ background: "#22C55E15", color: "#15803D" }}>
               Frequent Traveler
             </span>
