@@ -90,7 +90,7 @@ const NextConversationVisual = () => (
   </div>
 );
 
-/* ─── Section 4: Portfolio ─── */
+/* ─── Section 4: Portfolio Intelligence ─── */
 const PortfolioVisual = () => (
   <div className="space-y-2">
     {[
@@ -145,7 +145,7 @@ const SolutionSections = () => {
       },
       {
         id: "portfolio-intelligence",
-        label: "PORTFOLIO",
+        label: "PORTFOLIO INTELLIGENCE",
         labelColor: "text-blue-600",
         headline: "See your entire customer base in one view.",
         body: "Bank-wide behavioral intelligence for executive teams — lifestyle distribution, life event frequency, and spending patterns, all queryable via API.",
