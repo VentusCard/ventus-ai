@@ -256,6 +256,24 @@ const SolutionSections = () => {
             </div>
           </div>
 
+          <div className="mb-6 flex flex-wrap gap-2">
+            {sections.map((item, index) => (
+              <button
+                key={item.id}
+                type="button"
+                onClick={() => handleSelectCard(index)}
+                className={`rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-all duration-200 ${
+                  index === activeIndex
+                    ? "bg-blue-600 text-white shadow-md"
+                    : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                }`}
+                aria-label={`Show ${item.label.toLowerCase()} solution`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
           <div className="rounded-[24px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden">
             <Carousel
               opts={{ align: "start", loop: false }}
@@ -277,24 +295,6 @@ const SolutionSections = () => {
                           <p className="text-base text-gray-500 leading-relaxed max-w-xl">
                             {section.body}
                           </p>
-                        </div>
-
-                        <div className="mt-8 flex flex-wrap gap-2">
-                          {sections.map((item, index) => (
-                            <button
-                              key={item.id}
-                              type="button"
-                              onClick={() => handleSelectCard(index)}
-                              className={`rounded-full px-3 py-1.5 text-[11px] font-semibold tracking-wide transition-all duration-200 ${
-                                index === activeIndex
-                                  ? "bg-blue-600 text-white shadow-md"
-                                  : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-                              }`}
-                              aria-label={`Show ${item.label.toLowerCase()} solution`}
-                            >
-                              {item.label}
-                            </button>
-                          ))}
                         </div>
 
                         <div className="mt-8">
@@ -347,19 +347,6 @@ const SolutionSections = () => {
                 ))}
               </div>
 
-              <div className="mt-4 flex justify-center">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={togglePause}
-                  className="w-fit"
-                  aria-label={paused ? "Resume solution carousel" : "Pause solution carousel"}
-                >
-                  {paused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
-                  {paused ? "Resume" : "Pause"}
-                </Button>
-              </div>
             </div>
           </div>
         </ScrollReveal>
