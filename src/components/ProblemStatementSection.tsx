@@ -1,5 +1,22 @@
 import { useEffect, useRef, useState } from "react";
 
+const headlineWords = [
+  "Behind",
+  "every",
+  "customer's",
+  "transaction",
+  "history",
+  "is",
+  "a",
+  "person.",
+  "The",
+  "data",
+  "just",
+  "doesn't",
+  "show",
+  "it.",
+];
+
 const ProblemStatementSection = () => {
   const ref = useRef<HTMLElement>(null);
   const [visible, setVisible] = useState(false);
@@ -15,7 +32,7 @@ const ProblemStatementSection = () => {
           observer.disconnect();
         }
       },
-      { threshold: 0.2 }
+      { threshold: 0.45, rootMargin: "-15% 0px -15% 0px" }
     );
 
     observer.observe(el);
@@ -36,7 +53,19 @@ const ProblemStatementSection = () => {
                 transition: "opacity 600ms ease-out, transform 600ms ease-out",
               }}
             >
-              Behind every customer's transaction history is a person. The data just doesn't show it.
+              {headlineWords.map((word, index) => (
+                <span
+                  key={`${word}-${index}`}
+                  className="inline-block"
+                  style={{
+                    color: visible ? "#2563EB" : undefined,
+                    transition: `color 800ms ease-out ${index * 55}ms`,
+                    marginRight: index === headlineWords.length - 1 ? 0 : "0.28em",
+                  }}
+                >
+                  {word}
+                </span>
+              ))}
             </span>
           </h2>
           <p
@@ -48,6 +77,19 @@ const ProblemStatementSection = () => {
             }}
           >
             Fragmented rails, vague MCCs, and no behavioral layer — that's why banking personalization fails.
+          </p>
+          <p
+            className="mt-5 max-w-4xl mx-auto text-center italic"
+            style={{
+              color: "#2563EB",
+              fontSize: 18,
+              fontWeight: 500,
+              opacity: visible ? 1 : 0,
+              transform: visible ? "translateY(0)" : "translateY(20px)",
+              transition: "opacity 400ms ease-out 1200ms, transform 400ms ease-out 1200ms",
+            }}
+          >
+            Ventus is the behavioral intelligence layer that bridges the gap.
           </p>
         </div>
       </div>
