@@ -18,9 +18,11 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Solutions</h4>
             <nav className="flex flex-col gap-2.5">
+              <p className="text-[11px] uppercase tracking-wider text-white/40">Behavioral Intelligence</p>
               <Link to="/solutions/offer-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Next Offer</Link>
               <Link to="/solutions/product-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Next Product</Link>
               <Link to="/solutions/conversation-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Next Conversation</Link>
+              <p className="text-[11px] uppercase tracking-wider text-white/40 mt-3">Analytics</p>
               <Link to="/solutions/portfolio-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Customer Intelligence</Link>
             </nav>
           </div>
