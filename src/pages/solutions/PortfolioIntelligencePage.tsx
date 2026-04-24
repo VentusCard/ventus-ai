@@ -5,35 +5,6 @@ import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import CustomerIntelligenceChatDashboard from "@/components/solutions/CustomerIntelligenceChatDashboard";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
-const headerStats = [
-  { value: "22", label: "customers enriched" },
-  { value: "218", label: "transactions analyzed" },
-  { value: "$126k", label: "total spend tracked" },
-  { value: "90%", label: "avg confidence" },
-];
-
-const pillarDistribution = [
-  { name: "Travel & Exploration", pct: 26.9 },
-  { name: "Financial & Aspirational", pct: 26.4 },
-  { name: "Home & Living", pct: 15.4 },
-  { name: "Family & Community", pct: 12.8 },
-  { name: "Style & Beauty", pct: 11.9 },
-];
-
-const topMerchants = [
-  { name: "Real Estate Attorney", spend: "$15,300" },
-  { name: "Delta Air Lines", spend: "$8,860" },
-  { name: "The Plaza Hotel", spend: "$8,500" },
-  { name: "Home Depot", spend: "$7,847" },
-  { name: "Marriott", spend: "$7,206" },
-];
-
-const segments = [
-  { name: "Family-oriented", count: "4 customers" },
-  { name: "Frequent Traveler", count: "3" },
-  { name: "New Parent", count: "2" },
-  { name: "Retired", count: "1" },
-];
 
 const flowSteps = [
   { label: "Enrich", desc: "Every transaction enriched in real time" },
