@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Gift, Package, MessageCircle } from "lucide-react";
+import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import AnnouncementBar from "./AnnouncementBar";
@@ -8,9 +8,10 @@ import AnnouncementBar from "./AnnouncementBar";
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
 const solutionsItems = [
-  { to: "/solutions/next-offer", title: "Next Offer", desc: "Serve personalized offers before customers go looking", Icon: Gift },
-  { to: "/solutions/next-product", title: "Next Product", desc: "Surface the right product at the right moment", Icon: Package },
-  { to: "/solutions/next-conversation", title: "Next Conversation", desc: "Surface the right conversation at the right moment.", Icon: MessageCircle },
+  { to: "/solutions/offer-intelligence", title: "Offer Intelligence", desc: "Serve personalized offers before customers go looking", Icon: Gift },
+  { to: "/solutions/product-intelligence", title: "Product Intelligence", desc: "Surface the right product at the right moment", Icon: Package },
+  { to: "/solutions/conversation-intelligence", title: "Conversation Intelligence", desc: "Surface the right conversation at the right moment.", Icon: MessageCircle },
+  { to: "/solutions/portfolio-intelligence", title: "Portfolio Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
 ];
 
 const Navbar = () => {
