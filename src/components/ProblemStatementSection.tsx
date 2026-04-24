@@ -36,7 +36,7 @@ const ProblemStatementSection = () => {
                 transition: "opacity 600ms ease-out, transform 600ms ease-out",
               }}
             >
-              Behind every transaction is a person. The data just doesn't show it.
+              Behind every customer's transaction history is a person. The data just doesn't show it.
             </span>
           </h2>
           <p
