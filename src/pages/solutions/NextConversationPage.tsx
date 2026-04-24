@@ -230,24 +230,24 @@ const NextConversationPage = () => {
 
           <div style={revealStyle(conversation.visible, 150)} className="flex justify-center">
             <div
-              className="relative bg-gray-50 overflow-hidden"
+              className="relative bg-gray-50 overflow-hidden phone-mockup-frame"
               style={{
-                width: 240,
-                height: 480,
-                borderRadius: 32,
-                border: "7px solid #1F2937",
+                width: 300,
+                height: 580,
+                borderRadius: 38,
+                border: "8px solid #1F2937",
                 boxShadow: "0 18px 40px rgba(0,0,0,0.16)",
               }}
             >
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-gray-900 rounded-b-2xl z-10" />
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-5 bg-gray-900 rounded-b-2xl z-10" />
 
               {/* Bank-branded chat header */}
-              <div className="absolute top-0 left-0 right-0 pt-7 pb-2 px-3 bg-white border-b border-gray-100 z-[5]">
-                <p className="text-[10px] font-bold text-gray-900 leading-tight">Your Bank AI Assistant</p>
-                <p className="text-[8px] text-gray-400 leading-tight">Powered by Ventus</p>
+              <div className="absolute top-0 left-0 right-0 pt-8 pb-3 px-4 bg-white border-b border-gray-100 z-[5]">
+                <p className="text-sm font-bold text-gray-900 leading-tight">Your Bank AI Assistant</p>
+                <p className="text-[10px] text-gray-400 leading-tight mt-0.5">Powered by Ventus</p>
               </div>
 
-              <div className="h-full overflow-y-auto px-3 pt-[52px] pb-4 space-y-3 text-left">
+              <div className="h-full overflow-y-auto px-3.5 pt-[64px] pb-4 space-y-3 text-left" style={{ backgroundColor: "#F9FAFB" }}>
                 <div className="flex justify-end">
                   <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
                     What products fit my situation?
