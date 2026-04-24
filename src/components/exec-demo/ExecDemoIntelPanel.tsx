@@ -222,9 +222,13 @@ export default function ExecDemoIntelPanel({
     [chips, rollups]
   );
 
-  // Use pre-computed stats from rollups directly — no re-derivation from chips
+  // Use pre-computed stats from rollups directly — no re-derivation from chips.
+  // Sort by total spend (descending) so highest-dollar lifestyle behaviors lead.
   const rollupStats = useMemo(() => {
-    return rollups.filter(r => (r.totalCount ?? 0) > 0);
+    return rollups
+      .filter(r => (r.totalCount ?? 0) > 0)
+      .slice()
+      .sort((a, b) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0));
   }, [rollups]);
 
 
