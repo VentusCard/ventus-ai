@@ -111,7 +111,7 @@ const PortfolioVisual = () => (
   </div>
 );
 
-const ROTATE_INTERVAL = 10000;
+const ROTATE_INTERVAL = 7000;
 
 /* ─── Main Component ─── */
 const SolutionSections = () => {
@@ -245,8 +245,8 @@ const SolutionSections = () => {
           <div className="mb-12 max-w-4xl">
             <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
             <div className="flex flex-col gap-6">
-              <div className="max-w-3xl">
-                <h2 className="max-w-[16ch] text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
+              <div className="max-w-4xl">
+                <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
                   Powering customer intelligence at every layer.
                 </h2>
                 <p className="mt-3 max-w-[56ch] text-base text-gray-500 leading-relaxed">
