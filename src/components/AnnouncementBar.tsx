@@ -5,7 +5,7 @@ const AnnouncementBar = ({ onDismiss }: {onDismiss: () => void;}) =>
 <div className="bg-blue-600 text-white text-center text-xs sm:text-sm py-1.5 px-8 sm:px-4 flex items-center justify-center gap-1 sm:gap-2 animate-slideDown relative">
     <span className="hidden sm:inline">🎉</span>
     <span className="hidden sm:inline">
-      Ventus AI in the demoing lineup at <strong>Finovate Spring —</strong> May 5–7
+      Ventus AI is in the demoing lineup at <strong>Finovate Spring —</strong> May 5–7
     </span>
     <span className="sm:hidden">
       <Link to="/contact" className="underline underline-offset-2 font-semibold hover:text-white/90 text-sm">
