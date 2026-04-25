@@ -266,54 +266,103 @@ const ScrollDrivenHero = () => {
 
         {/* Card + Callout wrapper */}
         <div className="relative flex items-start justify-center gap-6">
-          {/* Mobile-only floating Ventus Orchestration callout — overlays dark card */}
-          {stage === 3 && activePersona && (
-            <div
-              className="lg:hidden absolute z-20 pointer-events-none"
-              style={{
-                bottom: 12,
-                right: 12,
-                width: 180,
-                transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
-              }}
-            >
+          {/* Mobile-only floating Ventus Orchestration callout — overlays dark card, alternates sides */}
+          {stage === 3 && activePersona && (() => {
+            const side: "left" | "right" =
+              activePersona.id === "parent" ? "left" : "right";
+            const actionTitle =
+              activePersona.id === "travel"
+                ? "Curate travel deal collection"
+                : activePersona.id === "parent"
+                  ? "Activate family planning flow"
+                  : "Trigger college savings outreach";
+
+            return (
               <div
-                className="rounded-lg bg-white overflow-hidden"
+                key={activePersona.id}
+                className="lg:hidden absolute z-20 pointer-events-none"
                 style={{
-                  border: "1px solid rgba(15,23,42,0.08)",
-                  boxShadow: "0 8px 24px -4px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)",
+                  top: -8,
+                  ...(side === "right" ? { right: 8 } : { left: 8 }),
+                  width: 168,
+                  animation: "fade-in 0.5s ease-out",
                 }}
               >
                 <div
-                  className="flex items-center gap-1.5 px-2 py-1.5"
+                  className="rounded-lg bg-white overflow-hidden"
                   style={{
-                    background: `linear-gradient(135deg, ${activePersona.color}14, ${activePersona.color}08)`,
-                    borderBottom: `1px solid ${activePersona.color}1A`,
+                    border: "1px solid rgba(15,23,42,0.08)",
+                    boxShadow: "0 8px 24px -4px rgba(0,0,0,0.45), 0 2px 4px rgba(0,0,0,0.2)",
                   }}
                 >
-                  <span className="flex items-center justify-center w-3 h-3 rounded bg-blue-600 text-white font-black text-[8px] leading-none">
-                    V
-                  </span>
-                  <span className="text-[8px] font-bold uppercase tracking-wider text-gray-900">
-                    Ventus Orchestration
-                  </span>
-                  <span
-                    className="ml-auto w-1 h-1 rounded-full"
-                    style={{ background: activePersona.color, boxShadow: `0 0 4px ${activePersona.color}` }}
-                  />
-                </div>
-                <div className="px-2 py-1.5">
-                  <div className="text-[9.5px] font-semibold text-gray-900 leading-snug">
-                    {activePersona.id === "travel"
-                      ? "Curate travel deal collection"
-                      : activePersona.id === "parent"
-                        ? "Activate family planning flow"
-                        : "Trigger college savings outreach"}
+                  <div
+                    className="flex items-center gap-1.5 px-2 py-1.5"
+                    style={{
+                      background: `linear-gradient(135deg, ${activePersona.color}14, ${activePersona.color}08)`,
+                      borderBottom: `1px solid ${activePersona.color}1A`,
+                    }}
+                  >
+                    <span className="flex items-center justify-center w-3 h-3 rounded bg-blue-600 text-white font-black text-[8px] leading-none">
+                      V
+                    </span>
+                    <span className="text-[8px] font-bold uppercase tracking-wider text-gray-900">
+                      Ventus Orchestration
+                    </span>
+                    <span
+                      className="ml-auto w-1 h-1 rounded-full"
+                      style={{ background: activePersona.color, boxShadow: `0 0 4px ${activePersona.color}` }}
+                    />
+                  </div>
+                  <div className="px-2 py-1.5">
+                    <div className="text-[9.5px] font-semibold text-gray-900 leading-snug">
+                      {actionTitle}
+                    </div>
                   </div>
                 </div>
+
+                {/* Connecting line down to persona pill area */}
+                <svg
+                  width="60"
+                  height="56"
+                  className="absolute"
+                  style={{
+                    [side === "right" ? "right" : "left"]: 12,
+                    top: "100%",
+                    overflow: "visible",
+                  }}
+                >
+                  <line
+                    x1={side === "right" ? 50 : 10}
+                    y1="0"
+                    x2={side === "right" ? 10 : 50}
+                    y2="50"
+                    stroke={activePersona.color}
+                    strokeWidth="1.5"
+                    strokeDasharray="4 3"
+                    opacity="0.6"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to={side === "right" ? "-14" : "14"}
+                      dur="1.5s"
+                      repeatCount="indefinite"
+                    />
+                  </line>
+                  <circle
+                    cx={side === "right" ? 10 : 50}
+                    cy="50"
+                    r="3"
+                    fill={activePersona.color}
+                    opacity="0.8"
+                  >
+                    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                  </circle>
+                </svg>
               </div>
-            </div>
-          )}
+            );
+          })()}
+
 
           {/* Floating callouts — only visible when persona is active in stage 3 */}
           {personas.map((p) => {
