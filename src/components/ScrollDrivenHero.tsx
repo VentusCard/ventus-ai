@@ -266,6 +266,55 @@ const ScrollDrivenHero = () => {
 
         {/* Card + Callout wrapper */}
         <div className="relative flex items-start justify-center gap-6">
+          {/* Mobile-only floating Ventus Orchestration callout — overlays dark card */}
+          {stage === 3 && activePersona && (
+            <div
+              className="lg:hidden absolute z-20 pointer-events-none"
+              style={{
+                bottom: 12,
+                right: 12,
+                width: 180,
+                transition: "all 0.5s cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+            >
+              <div
+                className="rounded-lg bg-white overflow-hidden"
+                style={{
+                  border: "1px solid rgba(15,23,42,0.08)",
+                  boxShadow: "0 8px 24px -4px rgba(0,0,0,0.4), 0 2px 4px rgba(0,0,0,0.2)",
+                }}
+              >
+                <div
+                  className="flex items-center gap-1.5 px-2 py-1.5"
+                  style={{
+                    background: `linear-gradient(135deg, ${activePersona.color}14, ${activePersona.color}08)`,
+                    borderBottom: `1px solid ${activePersona.color}1A`,
+                  }}
+                >
+                  <span className="flex items-center justify-center w-3 h-3 rounded bg-blue-600 text-white font-black text-[8px] leading-none">
+                    V
+                  </span>
+                  <span className="text-[8px] font-bold uppercase tracking-wider text-gray-900">
+                    Ventus Orchestration
+                  </span>
+                  <span
+                    className="ml-auto w-1 h-1 rounded-full"
+                    style={{ background: activePersona.color, boxShadow: `0 0 4px ${activePersona.color}` }}
+                  />
+                </div>
+                <div className="px-2 py-1.5">
+                  <div className="text-[9.5px] font-semibold text-gray-900 leading-snug">
+                    {activePersona.id === "travel"
+                      ? "Curate travel deal collection"
+                      : activePersona.id === "parent"
+                        ? "Activate family planning flow"
+                        : "Trigger college savings outreach"}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Floating callouts — only visible when persona is active in stage 3 */}
           {personas.map((p) => {
             const isActive = stage === 3 && activePersona?.id === p.id;
