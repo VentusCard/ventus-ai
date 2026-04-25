@@ -229,23 +229,27 @@ const NextConversationPage = () => {
           </div>
 
           <div style={revealStyle(conversation.visible, 150)} className="flex justify-center w-full">
+            {/* iPhone frame */}
             <div
-              className="relative overflow-hidden flex flex-col w-full max-w-md"
-              style={{
-                height: 520,
-                borderRadius: 16,
-                border: "1px solid #E5E7EB",
-                backgroundColor: "#F9FAFB",
-                boxShadow: "0 4px 24px rgba(0,0,0,0.06)",
-              }}
+              className="phone-mockup-frame relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
+              style={{ width: 320, height: 640 }}
             >
+              {/* Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-200 rounded-b-2xl z-10" />
+
+              {/* Status bar */}
+              <div className="h-8 bg-white flex items-end justify-between px-6 pb-1 text-[9px] text-slate-400 font-medium shrink-0">
+                <span>9:41</span>
+                <span>●●●</span>
+              </div>
+
               {/* Header */}
-              <div className="px-4 py-3 bg-white border-b border-gray-200">
+              <div className="px-4 py-2 bg-white border-b border-gray-200 shrink-0">
                 <p className="text-sm font-bold text-gray-900 leading-tight">Your Bank AI Assistant</p>
                 <p className="text-[11px] leading-tight mt-0.5" style={{ color: "#9CA3AF" }}>Powered by Ventus</p>
               </div>
 
-              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-left">
+              <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3 text-left bg-[#F9FAFB]">
                 <div className="flex justify-end">
                   <div className="max-w-[85%] px-3 py-2 rounded-2xl rounded-tr-sm text-xs text-white" style={{ backgroundColor: "#2563EB" }}>
                     What products fit my situation?
