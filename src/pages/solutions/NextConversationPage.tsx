@@ -34,7 +34,7 @@ const NextConversationPage = () => {
             Every signal becomes the right conversation.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects life events in transaction data and delivers the intelligence advisors and digital teams need to act — who to reach, why it matters, and what to say.
+            Ventus detects life events in your customers' transaction data and delivers structured intelligence to your advisors and digital channels — so every customer gets the right conversation at exactly the right moment.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
