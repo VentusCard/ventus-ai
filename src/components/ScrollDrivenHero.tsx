@@ -320,44 +320,46 @@ const ScrollDrivenHero = () => {
                   </div>
                 </div>
 
-                {/* Connecting line down to persona pill area */}
+                {/* Connecting line from callout down to active persona pill (top-left of card) */}
                 <svg
-                  width="60"
-                  height="56"
                   className="absolute"
                   style={{
-                    [side === "right" ? "right" : "left"]: 12,
                     top: "100%",
+                    ...(side === "right" ? { right: 20 } : { left: 20 }),
+                    width: side === "right" ? 220 : 140,
+                    height: 70,
                     overflow: "visible",
                   }}
                 >
-                  <line
-                    x1={side === "right" ? 50 : 10}
-                    y1="0"
-                    x2={side === "right" ? 10 : 50}
-                    y2="50"
-                    stroke={activePersona.color}
-                    strokeWidth="1.5"
-                    strokeDasharray="4 3"
-                    opacity="0.6"
-                  >
-                    <animate
-                      attributeName="stroke-dashoffset"
-                      from="0"
-                      to={side === "right" ? "-14" : "14"}
-                      dur="1.5s"
-                      repeatCount="indefinite"
-                    />
-                  </line>
-                  <circle
-                    cx={side === "right" ? 10 : 50}
-                    cy="50"
-                    r="3"
-                    fill={activePersona.color}
-                    opacity="0.8"
-                  >
-                    <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
-                  </circle>
+                  {(() => {
+                    const startX = side === "right" ? 210 : 0;
+                    const endX = side === "right" ? 0 : 130;
+                    return (
+                      <>
+                        <line
+                          x1={startX}
+                          y1={0}
+                          x2={endX}
+                          y2={60}
+                          stroke={activePersona.color}
+                          strokeWidth="1.5"
+                          strokeDasharray="4 3"
+                          opacity="0.65"
+                        >
+                          <animate
+                            attributeName="stroke-dashoffset"
+                            from="0"
+                            to={side === "right" ? "14" : "-14"}
+                            dur="1.5s"
+                            repeatCount="indefinite"
+                          />
+                        </line>
+                        <circle cx={endX} cy={60} r="3" fill={activePersona.color} opacity="0.9">
+                          <animate attributeName="r" values="2;4;2" dur="2s" repeatCount="indefinite" />
+                        </circle>
+                      </>
+                    );
+                  })()}
                 </svg>
               </div>
             );
