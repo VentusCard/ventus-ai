@@ -11,9 +11,9 @@ const stats = [
 ];
 
 const flowSteps = [
-  { label: "Detect", desc: "Life event identified" },
-  { label: "Compile", desc: "Briefing generated" },
-  { label: "Alert", desc: "Pushed to advisor CRM" },
+  { label: "Detect", desc: "Signal identified." },
+  { label: "Compile", desc: "Intelligence prepared." },
+  { label: "Deliver", desc: "Right conversation triggered." },
 ];
 
 const NextConversationPage = () => {
@@ -34,7 +34,7 @@ const NextConversationPage = () => {
             Every signal becomes the right conversation.
           </h1>
           <p style={revealStyle(hero.visible, 200)} className="text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed text-base sm:text-lg">
-            Ventus detects life events in transaction data and delivers the intelligence advisors and digital teams need to act — who to reach, why it matters, and what to say.
+            Ventus detects life events in your customers' transaction data and delivers structured intelligence to your advisors and digital channels — so every customer gets the right conversation at exactly the right moment.
           </p>
           <div style={revealStyle(hero.visible, 300)}>
             <Link to="/contact">
@@ -297,7 +297,7 @@ const NextConversationPage = () => {
       {/* Flow steps */}
       <section ref={flow.ref} className="bg-white px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div style={revealStyle(flow.visible, 0)}>
-          <StepFlow steps={flowSteps} title="Works inside the tools advisors already use." />
+          <StepFlow steps={flowSteps} title="Works inside the tools your advisors and digital teams already use." />
         </div>
       </section>
 
