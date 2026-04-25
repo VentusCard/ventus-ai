@@ -11,9 +11,9 @@ const stats = [
 ];
 
 const flowSteps = [
-  { label: "Detect", desc: "Life event identified" },
-  { label: "Compile", desc: "Briefing generated" },
-  { label: "Alert", desc: "Pushed to advisor CRM" },
+  { label: "Detect", desc: "Signal identified." },
+  { label: "Compile", desc: "Intelligence prepared." },
+  { label: "Deliver", desc: "Right conversation triggered." },
 ];
 
 const NextConversationPage = () => {
@@ -297,7 +297,7 @@ const NextConversationPage = () => {
       {/* Flow steps */}
       <section ref={flow.ref} className="bg-white px-6" style={{ paddingTop: 48, paddingBottom: 48 }}>
         <div style={revealStyle(flow.visible, 0)}>
-          <StepFlow steps={flowSteps} title="Works inside the tools advisors already use." />
+          <StepFlow steps={flowSteps} title="Works inside the tools your advisors and digital teams already use." />
         </div>
       </section>
 
