@@ -284,6 +284,11 @@ const NextConversationPage = () => {
                   ))}
                 </div>
               </div>
+
+              {/* Home indicator */}
+              <div className="h-5 flex items-center justify-center shrink-0 bg-white">
+                <div className="w-24 h-1 rounded-full bg-slate-200" />
+              </div>
             </div>
           </div>
         </div>
