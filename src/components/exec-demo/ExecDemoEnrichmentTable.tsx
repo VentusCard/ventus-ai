@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
@@ -86,18 +86,26 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
 );
 
 export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight }: Props) {
-  // One-shot cascade: only animate enriched cells on the initial reveal,
-  // not when pill clicks reorder/rehighlight rows later.
-  const [animateReveal, setAnimateReveal] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setAnimateReveal(false), 4000);
-    return () => clearTimeout(t);
-  }, []);
-
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
   const enrichedCount = transactions.length;
+
+  // One-shot cascade: only animate enriched cells when AI results FIRST arrive,
+  // not on mount (shimmer phase) and not on pill clicks/re-sorts later.
+  const [animateReveal, setAnimateReveal] = useState(false);
+  const [revealKey, setRevealKey] = useState(0);
+  const prevEnrichedCount = useRef(0);
+  useEffect(() => {
+    if (prevEnrichedCount.current === 0 && enrichedCount > 0) {
+      setRevealKey((k) => k + 1);
+      setAnimateReveal(true);
+      const t = setTimeout(() => setAnimateReveal(false), 4000);
+      prevEnrichedCount.current = enrichedCount;
+      return () => clearTimeout(t);
+    }
+    prevEnrichedCount.current = enrichedCount;
+  }, [enrichedCount]);
   const rawCount = rawRows?.length ?? 0;
   const totalRows = Math.max(enrichedCount, rawCount);
 
