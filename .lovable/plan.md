@@ -1,49 +1,51 @@
 ## Goal
 
-Make the row-by-row reveal of the enriched cells in the transaction table much more obvious — clearly cascading top-to-bottom one row at a time, with a visible "highlight pulse" so a viewer can follow the wave of enrichment.
+The cascading reveal animation on enriched cells should only fire on the **initial reveal** (when the AI enrichment first lands), not when the user clicks a persona/lifestyle pill that reorders or re-highlights rows.
 
-## Change
+## Root cause
 
-**File:** `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` (style block, lines 319–333)
+The `td.exec-enriched-cell` class always carries the keyframe animation. When a pill is clicked, the row order changes (matched rows are sorted to the top) and React's reconciler ends up moving DOM nodes; combined with the `--enrich-row-i` delay variable, the cascade visually replays.
 
-Update the `td.exec-enriched-cell` animation by:
+## Fix
 
-1. **Slowing the per-row stagger** from `45ms` to `110ms` so consecutive rows clearly fire one after another.
-2. **Lengthening the duration** from `0.55s` to `0.7s`.
-3. **Beefing up the keyframes** — start with a larger vertical drop (`translateY(-14px)`) and a vertical squash (`scaleY(0.85)`), plus a strong blue background flash (`rgba(59,130,246,0.28)`), an underline glow, and a brightness lift, then settle back to the resting blue gradient by 100%.
-4. Keep the existing rules that strip the gradient on highlighted/dimmed rows.
+Gate the animation behind a one-shot CSS class that is only applied on the first render of the table. After the initial reveal, the class is removed so any subsequent re-renders (pill clicks, sort changes, highlight toggles) don't re-trigger the cascade.
 
-```css
-td.exec-enriched-cell {
-  background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
-  animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-  animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
-  transform-origin: top center;
-}
-@keyframes exec-enriched-row-reveal {
-  0% {
-    opacity: 0;
-    transform: translateY(-14px) scaleY(0.85);
-    background-color: rgba(59, 130, 246, 0.28);
-    box-shadow: inset 0 -1px 0 0 rgba(59, 130, 246, 0.55);
-    filter: brightness(1.12);
-  }
-  55% {
-    opacity: 1;
-    transform: translateY(0) scaleY(1);
-    background-color: rgba(59, 130, 246, 0.16);
-    box-shadow: inset 0 -1px 0 0 rgba(59, 130, 246, 0.35);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0) scaleY(1);
-    background-color: transparent;
-    box-shadow: inset 0 0 0 0 transparent;
-    filter: brightness(1);
-  }
-}
-```
+### Change
 
-The existing per-row CSS variable `--enrich-row-i` (clamped at 24) drives the cascade, so up to ~25 rows participate, and rows beyond that animate together at the tail.
+**File:** `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
 
-No JSX changes.
+1. Add a `useState` + `useEffect` near the top of the component:
+   ```tsx
+   const [animateReveal, setAnimateReveal] = useState(true);
+   useEffect(() => {
+     // Allow the cascade to play once on mount, then disable so pill clicks
+     // and re-sorts don't replay the animation.
+     const t = setTimeout(() => setAnimateReveal(false), 4000);
+     return () => clearTimeout(t);
+   }, []);
+   ```
+   (4000ms covers the 24 × 110ms stagger + 700ms duration with margin.)
+
+2. In the wrapper `<div>`, conditionally add a scoping class:
+   ```tsx
+   <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} ...>
+   ```
+
+3. In the `<style>` block, scope the cascade animation under that class so it ONLY runs while present:
+   ```css
+   .exec-cascade-on td.exec-enriched-cell {
+     animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+     animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
+     transform-origin: top center;
+   }
+   /* Resting gradient applies to every enriched cell, always. */
+   td.exec-enriched-cell {
+     background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
+   }
+   ```
+
+The keyframe definition itself (`@keyframes exec-enriched-row-reveal`) and the highlighted/dimmed rules stay unchanged.
+
+Add the `useState`/`useEffect` imports at the top of the file if not already present.
+
+No JSX structural changes beyond the wrapper className addition.

@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
