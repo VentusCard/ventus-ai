@@ -140,13 +140,25 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             </th>
             <th
               colSpan={5}
-              className="bg-blue-50 text-blue-700 text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2"
+              className="relative overflow-hidden text-white text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.7s_ease-out_both]"
+              style={{
+                background: "linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)",
+              }}
             >
-              <span className="inline-flex items-center gap-2">
-                Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background: "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)",
+                  animation: "ventus-enriched-shimmer 1.6s ease-out 0.4s 1 both",
+                  transform: "translateX(-100%)",
+                }}
+              />
+              <span className="relative inline-flex items-center gap-2">
+                Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-100/90">· AI-labeled semantic intelligence</span>
                 {hasPending && (
-                  <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 normal-case tracking-normal">
-                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                  <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-white normal-case tracking-normal">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
                     Enriching…
                   </span>
                 )}
@@ -300,6 +312,14 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         }
         tr.exec-row-dimmed > td {
           opacity: 0.32;
+        }
+        @keyframes ventus-enriched-reveal {
+          0% { opacity: 0; transform: translateY(-6px); filter: brightness(1.15); }
+          100% { opacity: 1; transform: translateY(0); filter: brightness(1); }
+        }
+        @keyframes ventus-enriched-shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(120%); }
         }
       `}</style>
     </div>
