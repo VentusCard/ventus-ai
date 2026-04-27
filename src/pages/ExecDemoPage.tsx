@@ -722,6 +722,7 @@ export default function ExecDemoPage() {
     setCollectedIndices([]);
     setActivePillFilter(null);
     setActiveRollup(null);
+    setSynthesisTriggered(false);
     setProfile(buildLocalProfile(csv, 0, name));
     // Preload classification for custom CSV
     fireClassification(csv);
