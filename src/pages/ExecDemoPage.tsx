@@ -104,6 +104,7 @@ export default function ExecDemoPage() {
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
   const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
+  const [synthesisTriggered, setSynthesisTriggered] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const detectLifeEventsOnlyRef = useRef<() => Promise<LifeEvent[]>>(async () => []);
@@ -697,6 +698,7 @@ export default function ExecDemoPage() {
       setProductCardsLoading(false);
       setProductActions(null);
       setActionsLoading(false);
+      setSynthesisTriggered(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
@@ -720,6 +722,7 @@ export default function ExecDemoPage() {
     setCollectedIndices([]);
     setActivePillFilter(null);
     setActiveRollup(null);
+    setSynthesisTriggered(false);
     setProfile(buildLocalProfile(csv, 0, name));
     // Preload classification for custom CSV
     fireClassification(csv);
@@ -941,9 +944,12 @@ export default function ExecDemoPage() {
       {/* Main content — 3 columns with animated collapse */}
       {(() => {
         const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
+        const showEnrichmentFullScreen =
+          phase === "hold" && !synthesisTriggered && (enrichedTxs?.length ?? 0) > 0;
         return (
       <div className="flex-1 min-h-0 flex">
-        {/* Col 1 — Transaction feed (collapses to sliver only when phone is shown) */}
+        {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view) */}
+        {!showEnrichmentFullScreen && (
         <div
           className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
@@ -1010,6 +1016,7 @@ export default function ExecDemoPage() {
             </div>
           )}
         </div>
+        )}
 
         {/* Col 2 — Intelligence panel (always visible, fills remaining space) */}
         <div className="flex-1 border-r border-slate-200 bg-white overflow-hidden min-w-0">
@@ -1045,6 +1052,8 @@ export default function ExecDemoPage() {
             onOpenAIAssistant={handleOpenAIAssistant}
             onAIPromptDispatch={dispatchAIPrompt}
             assistantOpen={aiTabTrigger > 0}
+            synthesisTriggered={synthesisTriggered}
+            onSynthesisChange={setSynthesisTriggered}
           />
         </div>
 

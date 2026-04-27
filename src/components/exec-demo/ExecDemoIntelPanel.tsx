@@ -58,6 +58,8 @@ interface Props {
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
+  synthesisTriggered?: boolean;
+  onSynthesisChange?: (triggered: boolean) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -177,6 +179,8 @@ export default function ExecDemoIntelPanel({
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
+  synthesisTriggered: synthesisTriggeredProp,
+  onSynthesisChange,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -194,7 +198,12 @@ export default function ExecDemoIntelPanel({
     }
     return map;
   }, [chips]);
-  const [synthesisTriggered, setSynthesisTriggered] = useState(false);
+  const [synthesisTriggeredInternal, setSynthesisTriggeredInternal] = useState(false);
+  const synthesisTriggered = synthesisTriggeredProp ?? synthesisTriggeredInternal;
+  const setSynthesisTriggered = (v: boolean) => {
+    setSynthesisTriggeredInternal(v);
+    onSynthesisChange?.(v);
+  };
 
   // Determine which pillars have AI rollups
   const rollups = personaSynthesis?.pillarRollups || [];
@@ -695,8 +704,8 @@ export default function ExecDemoIntelPanel({
 
             {(pillsExpanded || !synthesisTriggered || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
-                style={{ maxHeight: pillsExpanded ? undefined : 360 }}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
+                style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
               >
                 {enrichedTransactions && enrichedTransactions.length > 0 ? (
                   <ExecDemoEnrichmentTable transactions={enrichedTransactions} />
