@@ -281,6 +281,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           })}
         </tbody>
       </table>
+      <style>{`
+        tr.exec-row-highlighted > td {
+          background-color: color-mix(in srgb, var(--exec-hl) 12%, transparent);
+        }
+        tr.exec-row-highlighted > td:first-child {
+          box-shadow: inset 3px 0 0 0 var(--exec-hl);
+        }
+        tr.exec-row-dimmed > td {
+          opacity: 0.32;
+        }
+      `}</style>
     </div>
   );
 }
