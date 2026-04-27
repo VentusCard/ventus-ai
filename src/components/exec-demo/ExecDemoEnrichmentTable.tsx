@@ -52,6 +52,10 @@ interface Props {
   rawRows?: RawRow[];
   /** When true, drops the outer rounded border so the table sits flush with its parent. */
   flush?: boolean;
+  /** Row indices to highlight (matches an active pill upstream). When set, non-matching rows dim. */
+  highlightIndices?: number[] | null;
+  /** Color (hex/css) used for the highlighted row tint + left border. */
+  highlightColor?: string;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
