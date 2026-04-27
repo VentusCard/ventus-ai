@@ -103,6 +103,7 @@ export default function ExecDemoPage() {
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
+  const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const detectLifeEventsOnlyRef = useRef<() => Promise<LifeEvent[]>>(async () => []);
@@ -162,7 +163,19 @@ export default function ExecDemoPage() {
             if (eventMatch[1] === "done") {
               try {
                 const parsed = JSON.parse(dataMatch[1]);
-                classifiedRef.current = parsed.enriched_transactions || [];
+                const enriched: EnrichedTransaction[] = parsed.enriched_transactions || [];
+                // Merge `source` from the raw transactions (matched by index/order) so
+                // the enriched table can render the source chip per row.
+                const rawTxs = profileRef.current?.transactions || [];
+                const merged = enriched.map((etx, i) => {
+                  const raw: any = rawTxs[i];
+                  if (raw && raw.source && !(etx as any).source) {
+                    return { ...etx, source: raw.source };
+                  }
+                  return etx;
+                });
+                classifiedRef.current = merged;
+                setEnrichedTxs(merged);
                 console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
                 // Update signal map in-flight if animation already started
                 onClassifiedCallbackRef.current?.(classifiedRef.current!);
