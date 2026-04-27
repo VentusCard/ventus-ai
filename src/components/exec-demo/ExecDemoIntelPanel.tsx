@@ -8,6 +8,7 @@ import NextConversationRationale, { type SelectedSignal } from "./NextConversati
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
+import ExecDemoEnrichmentTable from "./ExecDemoEnrichmentTable";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 
@@ -40,6 +41,7 @@ interface Props {
   onRollupClick?: (rollup: PillarRollup) => void;
   personaSynthesis?: PersonaSynthesis | null;
   transactions?: import("./execDemoData").Transaction[];
+  enrichedTransactions?: import("./execDemoData").EnrichedTransaction[] | null;
   generatedOffers?: RollupOfferGroup[] | null;
   offersLoading?: boolean;
   detectedLifeEvents?: LifeEvent[] | null;
@@ -56,6 +58,18 @@ interface Props {
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
+  synthesisTriggered?: boolean;
+  onSynthesisChange?: (triggered: boolean) => void;
+  /** When true, renders the enrichment table edge-to-edge (no card chrome / outer padding). */
+  fullWidthEnrichment?: boolean;
+  /** Indices to highlight inside the enrichment table. */
+  highlightedIndices?: number[] | null;
+  /** Accent color for highlighted rows. */
+  highlightColor?: string;
+  /** Active pill label shown in the table's "Showing N of M" strip. */
+  activePillLabel?: string | null;
+  /** Clear-highlight callback wired to the strip's Clear button. */
+  onClearHighlight?: () => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -158,6 +172,7 @@ export default function ExecDemoIntelPanel({
   onRollupClick,
   personaSynthesis,
   transactions,
+  enrichedTransactions,
   generatedOffers,
   offersLoading,
   detectedLifeEvents,
@@ -174,24 +189,25 @@ export default function ExecDemoIntelPanel({
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
+  synthesisTriggered: synthesisTriggeredProp,
+  onSynthesisChange,
+  fullWidthEnrichment = false,
+  highlightedIndices,
+  highlightColor,
+  activePillLabel,
+  onClearHighlight,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
 
-  // Group chips by pillar → category → subcategory chips
-  const chipsByPillarCategory = useMemo(() => {
-    const map = new Map<string, Map<string, ChipData[]>>();
-    for (const chip of chips) {
-      if (!map.has(chip.pillar)) map.set(chip.pillar, new Map());
-      const catMap = map.get(chip.pillar)!;
-      if (!catMap.has(chip.category)) catMap.set(chip.category, []);
-      catMap.get(chip.category)!.push(chip);
-    }
-    return map;
-  }, [chips]);
-  const [synthesisTriggered, setSynthesisTriggered] = useState(false);
+  const [synthesisTriggeredInternal, setSynthesisTriggeredInternal] = useState(false);
+  const synthesisTriggered = synthesisTriggeredProp ?? synthesisTriggeredInternal;
+  const setSynthesisTriggered = (v: boolean) => {
+    setSynthesisTriggeredInternal(v);
+    onSynthesisChange?.(v);
+  };
 
   // Determine which pillars have AI rollups
   const rollups = personaSynthesis?.pillarRollups || [];
@@ -336,13 +352,17 @@ export default function ExecDemoIntelPanel({
 
 
   return (
-    <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
+    <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-3.5 mb-2.5 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""}`}
+        className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
+          fullWidthEnrichment
+            ? "pt-3.5 pb-0"
+            : "rounded-2xl px-4 py-3.5 mb-2.5"
+        }`}
         style={{
-          background: "rgba(11,26,58,.022)",
-          border: "1px solid rgba(11,26,58,.14)",
+          background: fullWidthEnrichment ? undefined : "rgba(11,26,58,.022)",
+          border: fullWidthEnrichment ? undefined : "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
           maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
@@ -366,19 +386,19 @@ export default function ExecDemoIntelPanel({
           <div>
             {/* Header text - always visible */}
             {synthesisTriggered && rollupStats.length > 0 ? (
-              <div className="mb-2.5">
+              <div className="mb-2">
                 <div className="flex items-start justify-between">
                   {(() => {
                     const headerCopy =
                       activeTab === "analytics"
-                        ? { title: "Curated Deal Collections", sub: "Persona-fit deals lift engagement and grow customer LTV" }
+                        ? { title: "3.1 Curated Deal Collections", sub: "Persona-fit deals lift engagement and grow customer LTV" }
                         : activeTab === "product"
-                        ? { title: "Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
+                        ? { title: "3.2 Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
                         : activeTab === "relationship"
-                        ? { title: "Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
-                        : { title: "Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
+                        ? { title: "3.3 Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
+                        : { title: "2. Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
                     return (
-                      <p className="font-bold text-slate-800 mb-1.5 text-lg">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
+                      <p className="font-bold text-slate-800 mb-1 text-xl">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
                     );
                   })()}
                   <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
@@ -479,7 +499,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -493,7 +513,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
-                          <span className="text-[10px] opacity-60 tabular-nums font-normal">
+                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
                             {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
                           </span>
                         </span>
@@ -602,7 +622,7 @@ export default function ExecDemoIntelPanel({
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
                           title={isOfferTab ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: isOfferTab
                               ? "#e2e8f0"
@@ -627,7 +647,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: isOfferTab ? "#94a3b8" : dotColor, textDecoration: "none" }}>{isOfferTab ? "✕" : "⚠"}</span>
                           {flagLabel}
-                          <span className="text-[10px] opacity-60 tabular-nums font-normal">
+                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
                           </span>
                         </span>
@@ -635,7 +655,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full"
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -661,16 +681,16 @@ export default function ExecDemoIntelPanel({
 
                   return (
                     <>
-                       <div className="mb-1.5">
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Habits</p>
+                       <div className="mb-1">
+                        <p className="text-[12px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Habits</p>
                         <div className="flex flex-wrap gap-2">{rollupPills}</div>
                       </div>
-                      <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600/70 mb-1.5">Life Event Detection</p>
+                      <div className="mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
+                        <p className="text-[12px] font-bold uppercase tracking-wider text-amber-600/70 mb-1.5">Life Event Detection</p>
                         <div className="flex flex-wrap gap-2">{lifeEventPills}</div>
                       </div>
-                      <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className="text-[11px] font-bold uppercase tracking-wider text-red-500/70 mb-1.5">Risk Factors</p>
+                      <div className="mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
+                        <p className="text-[12px] font-bold uppercase tracking-wider text-red-500/70 mb-1.5">Risk Factors</p>
                         <div className="flex flex-wrap gap-2">{riskPills}</div>
                       </div>
                     </>
@@ -682,7 +702,7 @@ export default function ExecDemoIntelPanel({
             ) : (
               <>
               <div className="flex items-start justify-between">
-                <p className="font-bold text-slate-800 mb-1.5 text-lg">Semantic Enrichment: <span className="text-slate-500 font-semibold">Reveal behavioral signals hidden by MCCs</span></p>
+                <p className="font-bold text-slate-800 mb-1.5 text-lg">1. Semantic Enrichment: <span className="text-slate-500 font-semibold">Source and format agnostic enrichment to gain a full picture</span></p>
                 <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                 </button>
@@ -690,87 +710,30 @@ export default function ExecDemoIntelPanel({
               </>
             )}
 
-            {(pillsExpanded || !synthesisTriggered || !activeTab) && (
+            {(pillsExpanded || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!activeTab || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
+                style={{ maxHeight: (!activeTab || pillsExpanded) ? undefined : 360 }}
               >
-                {/* Header row */}
-                <div className="flex items-center py-2 px-2 border-b border-slate-300 sticky top-0 bg-slate-100 z-10 rounded-t-md">
-                  <div className="w-[115px] shrink-0 pr-2 text-[12px] font-bold uppercase tracking-wider text-slate-900">
-                    Pillar
-                  </div>
-                  <div className="flex-1 text-[12px] font-bold uppercase tracking-wider text-slate-900">
-                    (Category) Subcategory, Amount
-                  </div>
-                  <div className="w-[70px] shrink-0 pl-2 text-right text-[12px] font-bold uppercase tracking-wider text-slate-900">
-                    Total
-                  </div>
-                </div>
-                {(() => {
-                  const entries = Array.from(chipsByPillarCategory.entries());
-                  return entries.map(([pillar, categoriesMap], pillarIdx) => {
-                    const c = getColor(pillar);
-                    const pillarTotal = Array.from(categoriesMap.values())
-                      .flat()
-                      .reduce((sum, chip) => sum + chip.totalSpend, 0);
-                    return (
-                      <div
-                        key={pillar}
-                        className={`flex py-2 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
-                      >
-                        {/* Left column — pillar name */}
-                        <div className="w-[115px] shrink-0 flex items-start gap-1.5 pt-[3px] pr-2">
-                          <span className="w-2 h-2 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
-                          <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
-                        </div>
-                        {/* Middle column — categories + subcategory pills */}
-                        <div className="flex-1 flex flex-wrap items-center gap-1.5">
-                          {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
-                            <React.Fragment key={category}>
-                              <span
-                                onClick={() => onPillClick?.(pillar, category, true)}
-                                className={`inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
-                                  activePillFilter?.pillar === pillar && activePillFilter?.label === category && activePillFilter?.isCategory
-                                    ? "ring-1 ring-offset-1 shadow-sm"
-                                    : ""
-                                }`}
-                                style={{
-                                  background: c.bg,
-                                  color: c.text,
-                                  border: `1px solid ${c.border}`,
-                                }}
-                              >
-                                {category}
-                              </span>
-                              {catChips.map((chip, idx) => {
-                                const isActive = activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label;
-                                return (
-                                  <span
-                                    key={`${chip.pillar}::${chip.category}::${chip.label}`}
-                                    onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                                    className={`inline-flex items-center gap-0.5 text-[12.5px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
-                                    style={{ color: c.text }}
-                                  >
-                                    {chip.label}
-                                    {chip.count > 1 && (
-                                      <span className="text-[11.5px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
-                                    )}
-                                    <span className="text-[11.5px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
-                                    {idx < catChips.length - 1 && <span className="text-slate-300 mx-0.5">·</span>}
-                                  </span>
-                                );
-                              })}
-                            </React.Fragment>
-                          ))}
-                        </div>
-                        {/* Right column — pillar total */}
-                        <div className="w-[70px] shrink-0 pl-2 pt-[3px] text-right text-[12px] font-semibold tabular-nums" style={{ color: c.text }}>
-                          {formatSpend(pillarTotal)}
-                        </div>
-                      </div>
-                    );
-                  });
-                })()}
+                {!activeTab ? (
+                  <ExecDemoEnrichmentTable
+                    transactions={enrichedTransactions || []}
+                    rawRows={(transactions || []).map((t, i) => ({
+                      transaction_id: `tx-${i}`,
+                      source: t.source,
+                      date: t.date,
+                      merchant_name: t.merchant,
+                      description: (t as any).description,
+                      mcc: (t as any).mcc,
+                      amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
+                    }))}
+                    flush={fullWidthEnrichment}
+                    highlightedIndices={synthesisTriggered ? highlightedIndices : null}
+                    highlightColor={highlightColor}
+                    activePillLabel={synthesisTriggered ? activePillLabel : null}
+                    onClearHighlight={onClearHighlight}
+                  />
+                ) : null}
               </div>
             )}
           </div>
@@ -989,7 +952,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
@@ -1003,7 +966,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className="text-[10px] opacity-60 tabular-nums font-normal">
+      <span className="text-[11px] opacity-60 tabular-nums font-normal">
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>

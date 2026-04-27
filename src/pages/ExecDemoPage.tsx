@@ -103,6 +103,8 @@ export default function ExecDemoPage() {
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
+  const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
+  const [synthesisTriggered, setSynthesisTriggered] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const detectLifeEventsOnlyRef = useRef<() => Promise<LifeEvent[]>>(async () => []);
@@ -120,6 +122,7 @@ export default function ExecDemoPage() {
     classifiedRef.current = null;
     personaSynthesisRef.current = null;
     setPersonaSynthesis(null);
+    setEnrichedTxs(null);
 
     const abort = new AbortController();
     classifyAbortRef.current = abort;
@@ -162,7 +165,21 @@ export default function ExecDemoPage() {
             if (eventMatch[1] === "done") {
               try {
                 const parsed = JSON.parse(dataMatch[1]);
-                classifiedRef.current = parsed.enriched_transactions || [];
+                const enriched: EnrichedTransaction[] = parsed.enriched_transactions || [];
+                // Merge `source` from the raw transactions (matched by index/order) so
+                // the enriched table can render the source chip per row.
+                const rawTxs = profileRef.current?.transactions || [];
+                const merged = enriched.map((etx, i) => {
+                  const raw: any = rawTxs[i];
+                  return {
+                    ...etx,
+                    ...(raw?.source && !(etx as any).source ? { source: raw.source } : {}),
+                    ...(raw?.description ? { description: raw.description } : {}),
+                    ...(raw?.mcc ? { mcc: raw.mcc } : {}),
+                  };
+                });
+                classifiedRef.current = merged;
+                setEnrichedTxs(merged);
                 console.log(`[PRELOAD] Classification ready: ${classifiedRef.current?.length} transactions`);
                 // Update signal map in-flight if animation already started
                 onClassifiedCallbackRef.current?.(classifiedRef.current!);
@@ -683,6 +700,7 @@ export default function ExecDemoPage() {
       setProductCardsLoading(false);
       setProductActions(null);
       setActionsLoading(false);
+      setSynthesisTriggered(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
@@ -706,6 +724,7 @@ export default function ExecDemoPage() {
     setCollectedIndices([]);
     setActivePillFilter(null);
     setActiveRollup(null);
+    setSynthesisTriggered(false);
     setProfile(buildLocalProfile(csv, 0, name));
     // Preload classification for custom CSV
     fireClassification(csv);
@@ -751,7 +770,6 @@ export default function ExecDemoPage() {
   }, [phase, activeTab, revealStep]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
-    setPhase("scroll");
     setProcessedIndices([]);
     setRevealedTabs([]);
     setActiveTab(null);
@@ -759,25 +777,13 @@ export default function ExecDemoPage() {
     setCollectedIndices([]);
     profileRef.current = p;
 
+    // Skip the scroll/cardScan animation — go straight to the full-width
+    // enrichment table view. Mark all transactions as "processed" so any
+    // downstream consumers of processedSignals stay in sync.
     const txCount = p.transactions.length;
-    const signalInterval = TIMINGS.scroll / (txCount + 1);
-
-    for (let i = 0; i < txCount; i++) {
-      const signal = p.persona.signalMap[i];
-      if (signal) {
-        schedule(() => {
-          setProcessedIndices((prev) => [...prev, i]);
-        }, (i + 1) * signalInterval);
-      }
-    }
-
-    const elapsed = TIMINGS.scroll + TIMINGS.personaPause;
-
-    schedule(() => {
-      setPhase("hold");
-      // Don't auto-select any tab — let user click an action button first
-      setCurrentCardColor(p.intelligence.analytics.accent);
-    }, elapsed);
+    setProcessedIndices(Array.from({ length: txCount }, (_, i) => i));
+    setPhase("hold");
+    setCurrentCardColor(p.intelligence.analytics.accent);
   }, [schedule, revealStep]);
 
   const handleRunAnalysis = useCallback(async () => {
@@ -898,7 +904,7 @@ export default function ExecDemoPage() {
   }, [activePillFilter, activeRollup, activeTriggerPill, execProfile.persona.signalMap]);
 
   return (
-    <SimplePasswordGate bullets={["Semantic Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}>
+    <SimplePasswordGate tagline="AI Native Customer Intelligence Infrastructure for Banks" bullets={["Semantic Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}>
     <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
       {/* Top bar */}
       <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
@@ -927,9 +933,12 @@ export default function ExecDemoPage() {
       {/* Main content — 3 columns with animated collapse */}
       {(() => {
         const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
+        const showEnrichmentFullScreen =
+          phase === "hold" && !activeTab;
         return (
       <div className="flex-1 min-h-0 flex">
-        {/* Col 1 — Transaction feed (collapses to sliver only when phone is shown) */}
+        {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view) */}
+        {!showEnrichmentFullScreen && (
         <div
           className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
@@ -996,6 +1005,7 @@ export default function ExecDemoPage() {
             </div>
           )}
         </div>
+        )}
 
         {/* Col 2 — Intelligence panel (always visible, fills remaining space) */}
         <div className="flex-1 border-r border-slate-200 bg-white overflow-hidden min-w-0">
@@ -1014,6 +1024,7 @@ export default function ExecDemoPage() {
             onRollupClick={handleRollupClick}
             personaSynthesis={personaSynthesis}
             transactions={execProfile.transactions}
+            enrichedTransactions={enrichedTxs}
             generatedOffers={generatedOffers}
             offersLoading={offersLoading}
             detectedLifeEvents={detectedLifeEvents}
@@ -1030,6 +1041,21 @@ export default function ExecDemoPage() {
             onOpenAIAssistant={handleOpenAIAssistant}
             onAIPromptDispatch={dispatchAIPrompt}
             assistantOpen={aiTabTrigger > 0}
+            synthesisTriggered={synthesisTriggered}
+            onSynthesisChange={setSynthesisTriggered}
+            fullWidthEnrichment={showEnrichmentFullScreen}
+            highlightedIndices={filteredIndices}
+            highlightColor={
+              activeTriggerPill
+                ? activeTriggerPill.color
+                : activeRollup
+                  ? getColor(activeRollup.pillar).dot
+                  : activePillFilter
+                    ? getColor(activePillFilter.pillar).dot
+                    : "#0ea5e9"
+            }
+            activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
+            onClearHighlight={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
           />
         </div>
 

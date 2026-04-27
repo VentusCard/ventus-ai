@@ -15,6 +15,8 @@ export interface Transaction {
   merchant: string;
   amount: string;
   source?: string;
+  description?: string;
+  mcc?: string;
 }
 
 export interface IntelCard {
@@ -70,6 +72,8 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
   const amountIdx = header.indexOf("amount");
   const dateIdx = header.indexOf("date");
   const sourceIdx = header.indexOf("source");
+  const descIdx = header.indexOf("description");
+  const mccIdx = header.indexOf("mcc");
 
   return lines.slice(1).filter((l) => l.trim()).map((line) => {
     const cols = line.split(",").map((c) => c.trim());
@@ -85,6 +89,8 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
       merchant: cols[merchantIdx] || "Unknown",
       amount: fmt,
       source: sourceIdx >= 0 ? (cols[sourceIdx] || undefined) : undefined,
+      description: descIdx >= 0 ? (cols[descIdx] || undefined) : undefined,
+      mcc: mccIdx >= 0 ? (cols[mccIdx] || undefined) : undefined,
     };
   });
 }
@@ -448,6 +454,10 @@ export interface EnrichedTransaction {
   spending_tier: string;
   purchase_frequency?: string;
   confidence?: number;
+  // Raw fields preserved from the source CSV for the "before → after" view
+  description?: string;
+  mcc?: string;
+  source?: string;
 }
 
 /** Build signal map from AI-classified enriched transactions, preserving MCC data from raw CSV */

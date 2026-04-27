@@ -1,64 +1,51 @@
-## Issue
+## Goal
 
-When a user clicks a lifestyle rollup pill (e.g. "Seasonal Ski Trips") in the Relationship tab while the AI assistant is open, the auto-dispatched prompt currently shows the merchant breakdown inline in the chat bubble:
+The cascading reveal animation on enriched cells should only fire on the **initial reveal** (when the AI enrichment first lands), not when the user clicks a persona/lifestyle pill that reorders or re-highlights rows.
 
-> How much do I typically spend on seasonal ski trips? (Use these exact figures from my account: total $6,308 across 10 transactions tagged "Seasonal Ski Trips". Breakdown: EPIC PASS VAIL RESORTS $2238 (2x); EVO.COM $1249 (1x); ...)
+## Root cause
 
-Real users would just type the short question. The breakdown was added so the AI doesn't recompute aggregates — but it should be hidden context, not visible chat content.
+The `td.exec-enriched-cell` class always carries the keyframe animation. When a pill is clicked, the row order changes (matched rows are sorted to the top) and React's reconciler ends up moving DOM nodes; combined with the `--enrich-row-i` delay variable, the cascade visually replays.
 
 ## Fix
 
-Split the prompt into a **visible** short question and a **hidden** signal context that travels alongside it through the existing pipeline.
+Gate the animation behind a one-shot CSS class that is only applied on the first render of the table. After the initial reveal, the class is removed so any subsequent re-renders (pill clicks, sort changes, highlight toggles) don't re-trigger the cascade.
 
-### Pipeline changes
+### Change
 
-1. **`onAIPromptDispatch` signature** (`ExecDemoIntelPanel.tsx`)
-   Add an optional 3rd argument `signalContext?: string`.
-   ```ts
-   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
-   ```
+**File:** `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
 
-2. **`ExecDemoIntelPanel.tsx` (line ~423)** — keep the merchant rollup math, but split:
-   ```ts
-   const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
-   const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
-   onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
-   ```
-
-3. **`ExecDemoPage.tsx`** — extend `pendingAIPrompt` state and `dispatchAIPrompt` to carry the optional `signalContext`:
-   ```ts
-   const [pendingAIPrompt, setPendingAIPrompt] = useState<{
-     text: string; nonce: number;
-     kind?: "lifestyle" | "lifeEvent" | "risk";
-     signalContext?: string;
-   } | null>(null);
-
-   const dispatchAIPrompt = useCallback((text, kind, signalContext) => {
-     setPendingAIPrompt({ text, nonce: Date.now(), kind, signalContext });
+1. Add a `useState` + `useEffect` near the top of the component:
+   ```tsx
+   const [animateReveal, setAnimateReveal] = useState(true);
+   useEffect(() => {
+     // Allow the cascade to play once on mount, then disable so pill clicks
+     // and re-sorts don't replay the animation.
+     const t = setTimeout(() => setAnimateReveal(false), 4000);
+     return () => clearTimeout(t);
    }, []);
    ```
+   (4000ms covers the 24 × 110ms stagger + 700ms duration with margin.)
 
-4. **`ExecDemoPhoneView.tsx`** — propagate `pendingAIPrompt.signalContext` into `ConsumerAIChatView` via a new prop `initialMessageContext` (and update the `pendingAIPrompt` Props type to include `signalContext?: string`).
+2. In the wrapper `<div>`, conditionally add a scoping class:
+   ```tsx
+   <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} ...>
+   ```
 
-5. **`ConsumerAIChatView.tsx`**
-   - Accept new optional prop `initialMessageContext?: string`.
-   - In `sendMessage`, accept an optional 3rd arg `extraContext?: string`.
-   - When set, include it in the `consumer-chat` invoke body as `context.signalContext` (without putting it in the rendered user message).
-   - The initial-message effect passes `initialMessageContext` through to `sendMessage`.
-
-6. **`supabase/functions/consumer-chat/index.ts`** — extend `buildContextPrompt` to append the signal context block when present:
-   ```ts
-   if (context.signalContext) {
-     prompt += `\n## Signal Context (ground-truth aggregates for the user's current question)\n${context.signalContext}\n`;
+3. In the `<style>` block, scope the cascade animation under that class so it ONLY runs while present:
+   ```css
+   .exec-cascade-on td.exec-enriched-cell {
+     animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+     animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
+     transform-origin: top center;
+   }
+   /* Resting gradient applies to every enriched cell, always. */
+   td.exec-enriched-cell {
+     background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
    }
    ```
-   No changes to schema/tools — purely additive system-context text.
 
-### Out of scope
+The keyframe definition itself (`@keyframes exec-enriched-row-reveal`) and the highlighted/dimmed rules stay unchanged.
 
-- Life-event and risk pill prompts (lines 433, 446) are already short and natural — no changes there.
-- No model swap, no rate-limit work.
+Add the `useState`/`useEffect` imports at the top of the file if not already present.
 
-### User-visible result
-
-The chat bubble shows just `"How much do I typically spend on seasonal ski trips?"`. The AI still answers with the correct totals because the merchant breakdown reaches the model via hidden context.
+No JSX structural changes beyond the wrapper className addition.

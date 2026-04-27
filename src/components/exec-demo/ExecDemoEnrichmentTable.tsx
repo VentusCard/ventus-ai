@@ -1,0 +1,375 @@
+import { useEffect, useState } from "react";
+import { getColor } from "./ExecDemoIntelPanel";
+import type { EnrichedTransaction } from "./execDemoData";
+import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
+
+const SOURCE_COLORS: Record<string, string> = {
+  "Checking": "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-rose-50 text-rose-700",
+  "HSA": "bg-amber-50 text-amber-700",
+  "ACH": "bg-slate-100 text-slate-600",
+  "Wire": "bg-red-50 text-red-700",
+  "Zelle": "bg-purple-50 text-purple-700",
+  "Checks": "bg-orange-50 text-orange-700",
+};
+
+const getTierColor = (t: string) => {
+  switch (t) {
+    case "Premium": return "bg-amber-50 text-amber-700 border-amber-200";
+    case "Standard": return "bg-blue-50 text-blue-700 border-blue-200";
+    case "Budget": return "bg-teal-50 text-teal-700 border-teal-200";
+    default: return "bg-slate-50 text-slate-500 border-slate-200";
+  }
+};
+
+const getFrequencyColor = (f: string) => {
+  switch (f) {
+    case "Weekly": return "bg-indigo-50 text-indigo-700 border-indigo-200";
+    case "Monthly": return "bg-violet-50 text-violet-700 border-violet-200";
+    case "Occasional": return "bg-cyan-50 text-cyan-700 border-cyan-200";
+    case "Annually": return "bg-orange-50 text-orange-700 border-orange-200";
+    case "One-Time": return "bg-slate-50 text-slate-600 border-slate-200";
+    default: return "bg-slate-50 text-slate-500 border-slate-200";
+  }
+};
+
+/** Raw row used while AI enrichment is still pending */
+export interface RawRow {
+  transaction_id?: string;
+  source?: string;
+  date?: string;
+  merchant_name: string;
+  description?: string;
+  mcc?: string;
+  amount: number;
+}
+
+interface Props {
+  /** Enriched transactions (final state). Render takes precedence over rawRows. */
+  transactions: EnrichedTransaction[];
+  /** Raw rows shown while waiting for AI. If provided, missing-enriched rows render as shimmers. */
+  rawRows?: RawRow[];
+  /** When true, drops the outer rounded border so the table sits flush with its parent. */
+  flush?: boolean;
+  /** When provided, rows at these indices are highlighted; others are dimmed. */
+  highlightedIndices?: number[] | null;
+  /** Accent color used for the highlight border / tint. */
+  highlightColor?: string;
+  /** Active pill label (used in the "Showing N of M" strip). */
+  activePillLabel?: string | null;
+  /** Called when the user clicks Clear in the highlight strip. */
+  onClearHighlight?: () => void;
+}
+
+// Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
+const COL = {
+  date: "w-[90px]",
+  merchant: "w-[170px]",
+  description: "w-[220px]",
+  mcc: "w-[65px]",
+  amount: "w-[75px]",
+  source: "w-[110px]",
+  pillar: "w-[150px]",
+  category: "w-[140px]",
+  subs: "w-[160px]",
+  tier: "w-[90px]",
+  freq: "w-[95px]",
+};
+
+const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (
+  <span
+    className={`inline-block bg-slate-200/70 animate-pulse ${rounded}`}
+    style={{ width, height }}
+  />
+);
+
+export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight }: Props) {
+  // One-shot cascade: only animate enriched cells on the initial reveal,
+  // not when pill clicks reorder/rehighlight rows later.
+  const [animateReveal, setAnimateReveal] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateReveal(false), 4000);
+    return () => clearTimeout(t);
+  }, []);
+
+  // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
+  // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
+  // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
+  const enrichedCount = transactions.length;
+  const rawCount = rawRows?.length ?? 0;
+  const totalRows = Math.max(enrichedCount, rawCount);
+
+  if (totalRows === 0) {
+    return (
+      <p className="text-[11px] text-slate-400 italic py-4 text-center">
+        Awaiting enriched transactions…
+      </p>
+    );
+  }
+
+  const wrapperCls = flush
+    ? "border border-slate-200 rounded-xl overflow-auto exec-light-scroll bg-white h-full"
+    : "border border-slate-200 rounded-xl overflow-auto exec-light-scroll bg-white";
+
+  const hasPending = rawCount > 0 && enrichedCount < rawCount;
+  const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
+  const matchedCount = highlightSet ? highlightSet.size : 0;
+
+  return (
+    <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} style={{ maxHeight: "100%" }}>
+      {highlightSet && activePillLabel && (
+        <div
+          className="flex items-center justify-between px-3 py-2 border-b"
+          style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
+        >
+          <span className="text-[12px] font-semibold" style={{ color: highlightColor }}>
+            Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"
+          </span>
+          {onClearHighlight && (
+            <button
+              onClick={onClearHighlight}
+              className="text-[12px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
+      <table className="w-full text-left border-collapse min-w-[1480px]">
+        <thead className="sticky top-0 z-10">
+          {/* Tier 1 — Raw vs Enriched grouping */}
+          <tr className="border-b border-slate-200">
+            <th
+              colSpan={6}
+              className="bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2 border-r-2 border-slate-300"
+            >
+              Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
+            </th>
+            <th
+              colSpan={5}
+              className="relative overflow-hidden text-white text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.7s_ease-out_both]"
+              style={{
+                background: "linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)",
+              }}
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background: "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)",
+                  animation: "ventus-enriched-shimmer 1.6s ease-out 0.4s 1 both",
+                  transform: "translateX(-100%)",
+                }}
+              />
+              <span className="relative inline-flex items-center gap-2">
+                Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-100/90">· AI-labeled semantic intelligence</span>
+                {hasPending && (
+                  <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-white normal-case tracking-normal">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    Enriching…
+                  </span>
+                )}
+              </span>
+            </th>
+          </tr>
+          {/* Tier 2 — Column headers */}
+          <tr className="bg-slate-50/80 border-b border-slate-200">
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.source}`}>Source</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.date}`}>Date</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.description}`}>Description</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.tier}`}>Tier</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
+          </tr>
+        </thead>
+        <tbody>
+          {(() => {
+            const order = Array.from({ length: totalRows }, (_, i) => i);
+            if (highlightSet) {
+              order.sort((a, b) => {
+                const aHi = highlightSet.has(a) ? 0 : 1;
+                const bHi = highlightSet.has(b) ? 0 : 1;
+                return aHi - bHi;
+              });
+            }
+            return order.map((idx) => {
+            const tx = transactions[idx] as EnrichedTransaction | undefined;
+            const raw = rawRows?.[idx];
+            // Prefer enriched values; fall back to raw fields when AI hasn't returned yet.
+            const merchantRaw = tx?.merchant_name || raw?.merchant_name || "—";
+            const merchantDisplay = (tx as any)?.normalized_merchant || merchantRaw;
+            const subs: string[] = (tx as any)?.subcategories ?? ((tx as any)?.subcategory ? [(tx as any).subcategory] : []);
+            const mcc = ((tx as any)?.mcc as string | undefined) ?? raw?.mcc;
+            const rawDesc = ((tx as any)?.description as string | undefined) ?? raw?.description;
+            const description = (mcc && MCC_DESCRIPTIONS[mcc]) || rawDesc;
+            const source = (tx as any)?.source ?? raw?.source;
+            const date = tx?.date ?? raw?.date;
+            const amount = tx?.amount ?? raw?.amount ?? 0;
+            const isEnriched = !!tx;
+            const c = isEnriched ? getColor(tx!.pillar) : null;
+            const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
+            const isDimmed = highlightSet ? !isHighlighted : false;
+            return (
+              <tr
+                key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
+                className={`border-b border-slate-100 transition-all duration-200 ${isHighlighted ? "exec-row-highlighted" : isDimmed ? "exec-row-dimmed" : "hover:bg-slate-50/60"}`}
+                style={{
+                  ...(isHighlighted ? ({ ["--exec-hl" as any]: highlightColor } as React.CSSProperties) : {}),
+                  ["--enrich-row-i" as any]: Math.min(idx, 24),
+                } as React.CSSProperties}
+              >
+                {/* ===== RAW SIDE ===== */}
+                <td className={`px-2 py-1.5 ${COL.source}`}>
+                  {source ? (
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-[10.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
+                      {source}
+                    </span>
+                  ) : <span className="text-[11px] text-slate-400">—</span>}
+                </td>
+                <td className={`text-[12px] text-slate-600 whitespace-nowrap px-2 py-1.5 ${COL.date} tabular-nums`}>
+                  {date || "—"}
+                </td>
+                <td className={`px-2 py-1.5 ${COL.merchant}`}>
+                  <div className="text-[12px] font-medium text-slate-900 truncate max-w-[160px]" title={merchantRaw}>
+                    {merchantRaw}
+                  </div>
+                </td>
+                <td className={`px-2 py-1.5 ${COL.mcc}`}>
+                  {mcc ? (
+                    <span className="inline-block bg-slate-100 text-slate-600 text-[11px] font-mono px-1.5 py-0.5 rounded">
+                      {mcc}
+                    </span>
+                  ) : (
+                    <span className="text-[11px] text-slate-300">—</span>
+                  )}
+                </td>
+                <td className={`px-2 py-1.5 ${COL.description}`}>
+                  {description ? (
+                    <div className="text-[11.5px] font-mono text-slate-500 truncate max-w-[210px]" title={description}>
+                      {description}
+                    </div>
+                  ) : (
+                    <span className="text-[11px] text-slate-300">—</span>
+                  )}
+                </td>
+                <td className={`font-mono text-[12px] text-slate-900 px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
+                  ${Math.round(Math.abs(Number(amount) || 0))}
+                </td>
+
+                {/* ===== ENRICHED SIDE ===== */}
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.pillar}`}>
+                  {isEnriched && c ? (
+                    <span
+                      className="inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight"
+                      style={{ background: c.bg, color: c.text, borderColor: c.border }}
+                      title={merchantDisplay !== merchantRaw ? `Normalized: ${merchantDisplay}` : undefined}
+                    >
+                      {tx!.pillar}
+                    </span>
+                  ) : (
+                    <ShimmerCell width="120px" height={18} rounded="rounded" />
+                  )}
+                </td>
+                <td className={`exec-enriched-cell text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
+                  {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="90px" height={12} />}
+                </td>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.subs}`}>
+                  {isEnriched ? (
+                    <div className="flex flex-nowrap gap-0.5 overflow-hidden whitespace-nowrap" title={subs.join(", ")}>
+                      {subs.length > 0 ? subs.map((sub, i) => (
+                        <span key={i} className="inline-block shrink-0 bg-slate-100 text-slate-600 text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap">{sub}</span>
+                      )) : <span className="text-[11px] text-slate-400">—</span>}
+                    </div>
+                  ) : (
+                    <ShimmerCell width="120px" height={14} />
+                  )}
+                </td>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.tier}`}>
+                  {isEnriched ? (
+                    <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
+                      {(tx as any).spending_tier || "—"}
+                    </span>
+                  ) : (
+                    <ShimmerCell width="65px" height={16} />
+                  )}
+                </td>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.freq}`}>
+                  {isEnriched ? (
+                    <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
+                      {(tx as any).purchase_frequency || "—"}
+                    </span>
+                  ) : (
+                    <ShimmerCell width="70px" height={16} />
+                  )}
+                </td>
+              </tr>
+            );
+            });
+          })()}
+        </tbody>
+      </table>
+      <style>{`
+        tr.exec-row-highlighted > td {
+          background-color: color-mix(in srgb, var(--exec-hl) 12%, transparent);
+        }
+        tr.exec-row-highlighted > td:first-child {
+          box-shadow: inset 3px 0 0 0 var(--exec-hl);
+        }
+        tr.exec-row-dimmed > td {
+          opacity: 0.32;
+        }
+        td.exec-enriched-cell {
+          background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
+        }
+        .exec-cascade-on td.exec-enriched-cell {
+          animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
+          transform-origin: top center;
+        }
+        tr.exec-row-highlighted > td.exec-enriched-cell {
+          background-image: none;
+        }
+        tr.exec-row-dimmed > td.exec-enriched-cell {
+          background-image: none;
+        }
+        @keyframes exec-enriched-row-reveal {
+          0% {
+            opacity: 0;
+            transform: translateY(-14px) scaleY(0.85);
+            background-color: rgba(59, 130, 246, 0.28);
+            box-shadow: inset 0 -1px 0 0 rgba(59, 130, 246, 0.55);
+            filter: brightness(1.12);
+          }
+          55% {
+            opacity: 1;
+            transform: translateY(0) scaleY(1);
+            background-color: rgba(59, 130, 246, 0.16);
+            box-shadow: inset 0 -1px 0 0 rgba(59, 130, 246, 0.35);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scaleY(1);
+            background-color: transparent;
+            box-shadow: inset 0 0 0 0 transparent;
+            filter: brightness(1);
+          }
+        }
+        @keyframes ventus-enriched-reveal {
+          0% { opacity: 0; transform: translateY(-6px); filter: brightness(1.15); }
+          100% { opacity: 1; transform: translateY(0); filter: brightness(1); }
+        }
+        @keyframes ventus-enriched-shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(120%); }
+        }
+      `}</style>
+    </div>
+  );
+}
