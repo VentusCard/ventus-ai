@@ -40,6 +40,7 @@ interface Props {
   onRollupClick?: (rollup: PillarRollup) => void;
   personaSynthesis?: PersonaSynthesis | null;
   transactions?: import("./execDemoData").Transaction[];
+  enrichedTransactions?: import("./execDemoData").EnrichedTransaction[] | null;
   generatedOffers?: RollupOfferGroup[] | null;
   offersLoading?: boolean;
   detectedLifeEvents?: LifeEvent[] | null;
