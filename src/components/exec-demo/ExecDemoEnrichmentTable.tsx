@@ -255,7 +255,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td className={`px-2 py-1.5 ${COL.pillar}`}>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.pillar}`}>
                   {isEnriched && c ? (
                     <span
                       className="inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight"
