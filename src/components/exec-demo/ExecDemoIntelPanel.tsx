@@ -391,12 +391,12 @@ export default function ExecDemoIntelPanel({
                   {(() => {
                     const headerCopy =
                       activeTab === "analytics"
-                        ? { title: "Curated Deal Collections", sub: "Persona-fit deals lift engagement and grow customer LTV" }
+                        ? { title: "3.1 Curated Deal Collections", sub: "Persona-fit deals lift engagement and grow customer LTV" }
                         : activeTab === "product"
-                        ? { title: "Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
+                        ? { title: "3.2 Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
                         : activeTab === "relationship"
-                        ? { title: "Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
-                        : { title: "Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
+                        ? { title: "3.3 Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
+                        : { title: "2. Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
                     return (
                       <p className="font-bold text-slate-800 mb-1 text-xl">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
                     );
