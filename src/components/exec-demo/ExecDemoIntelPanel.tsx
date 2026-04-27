@@ -704,8 +704,8 @@ export default function ExecDemoIntelPanel({
 
             {(pillsExpanded || !synthesisTriggered || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
-                style={{ maxHeight: pillsExpanded ? undefined : 360 }}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
+                style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
               >
                 {enrichedTransactions && enrichedTransactions.length > 0 ? (
                   <ExecDemoEnrichmentTable transactions={enrichedTransactions} />
