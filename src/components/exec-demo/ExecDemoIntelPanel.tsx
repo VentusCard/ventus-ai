@@ -714,7 +714,7 @@ export default function ExecDemoIntelPanel({
                 className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
                 style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
               >
-                {enrichedTransactions && enrichedTransactions.length > 0 ? (
+                {!synthesisTriggered && enrichedTransactions && enrichedTransactions.length > 0 ? (
                   <ExecDemoEnrichmentTable transactions={enrichedTransactions} flush={fullWidthEnrichment} />
                 ) : !synthesisTriggered ? (
                   <div className={`flex-1 min-h-0 flex flex-col bg-white ${fullWidthEnrichment ? "" : "border border-slate-200 rounded-lg overflow-hidden"}`}>
