@@ -291,7 +291,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="65px" height={16} />
                   )}
                 </td>
-                <td className={`px-2 py-1.5 ${COL.freq}`}>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.freq}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
                       {(tx as any).purchase_frequency || "—"}
