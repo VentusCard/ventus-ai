@@ -64,17 +64,17 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[70px]",
-  merchant: "w-[130px]",
-  description: "w-[170px]",
-  mcc: "w-[55px]",
-  amount: "w-[60px]",
-  source: "w-[95px]",
-  pillar: "w-[130px]",
-  category: "w-[110px]",
-  subs: "w-[130px]",
-  tier: "w-[75px]",
-  freq: "w-[80px]",
+  date: "w-[90px]",
+  merchant: "w-[170px]",
+  description: "w-[220px]",
+  mcc: "w-[65px]",
+  amount: "w-[75px]",
+  source: "w-[110px]",
+  pillar: "w-[150px]",
+  category: "w-[140px]",
+  subs: "w-[160px]",
+  tier: "w-[90px]",
+  freq: "w-[95px]",
 };
 
 const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (
@@ -112,35 +112,35 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
     <div className={wrapperCls} style={{ maxHeight: "100%" }}>
       {highlightSet && activePillLabel && (
         <div
-          className="flex items-center justify-between px-3 py-1.5 border-b"
+          className="flex items-center justify-between px-3 py-2 border-b"
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
-          <span className="text-[11px] font-semibold" style={{ color: highlightColor }}>
+          <span className="text-[12px] font-semibold" style={{ color: highlightColor }}>
             Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"
           </span>
           {onClearHighlight && (
             <button
               onClick={onClearHighlight}
-              className="text-[11px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
+              className="text-[12px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
             >
               Clear
             </button>
           )}
         </div>
       )}
-      <table className="w-full text-left border-collapse min-w-[1180px]">
+      <table className="w-full text-left border-collapse min-w-[1480px]">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
             <th
               colSpan={6}
-              className="bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-r-2 border-slate-300"
+              className="bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2 border-r-2 border-slate-300"
             >
               Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
             </th>
             <th
               colSpan={5}
-              className="bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5"
+              className="bg-blue-50 text-blue-700 text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2"
             >
               <span className="inline-flex items-center gap-2">
                 Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
@@ -155,17 +155,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           </tr>
           {/* Tier 2 — Column headers */}
           <tr className="bg-slate-50/80 border-b border-slate-200">
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.source}`}>Source</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.date}`}>Date</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.mcc}`}>MCC</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.description}`}>Description</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.category}`}>Category</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.tier}`}>Tier</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.freq}`}>Freq</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.source}`}>Source</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.date}`}>Date</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.description}`}>Description</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.tier}`}>Tier</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
         <tbody>
@@ -202,87 +202,87 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 style={isHighlighted ? ({ ["--exec-hl" as any]: highlightColor } as React.CSSProperties) : undefined}
               >
                 {/* ===== RAW SIDE ===== */}
-                <td className={`px-2 py-1 ${COL.source}`}>
+                <td className={`px-2 py-1.5 ${COL.source}`}>
                   {source ? (
-                    <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
+                    <span className={`inline-block px-1.5 py-0.5 rounded text-[10.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
                       {source}
                     </span>
-                  ) : <span className="text-[10px] text-slate-400">—</span>}
+                  ) : <span className="text-[11px] text-slate-400">—</span>}
                 </td>
-                <td className={`text-[10.5px] text-slate-600 whitespace-nowrap px-2 py-1 ${COL.date} tabular-nums`}>
+                <td className={`text-[12px] text-slate-600 whitespace-nowrap px-2 py-1.5 ${COL.date} tabular-nums`}>
                   {date || "—"}
                 </td>
-                <td className={`px-2 py-1 ${COL.merchant}`}>
-                  <div className="text-[10.5px] font-medium text-slate-900 truncate max-w-[120px]" title={merchantRaw}>
+                <td className={`px-2 py-1.5 ${COL.merchant}`}>
+                  <div className="text-[12px] font-medium text-slate-900 truncate max-w-[160px]" title={merchantRaw}>
                     {merchantRaw}
                   </div>
                 </td>
-                <td className={`px-2 py-1 ${COL.mcc}`}>
+                <td className={`px-2 py-1.5 ${COL.mcc}`}>
                   {mcc ? (
-                    <span className="inline-block bg-slate-100 text-slate-600 text-[9.5px] font-mono px-1.5 py-px rounded">
+                    <span className="inline-block bg-slate-100 text-slate-600 text-[11px] font-mono px-1.5 py-0.5 rounded">
                       {mcc}
                     </span>
                   ) : (
-                    <span className="text-[10px] text-slate-300">—</span>
+                    <span className="text-[11px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`px-2 py-1 ${COL.description}`}>
+                <td className={`px-2 py-1.5 ${COL.description}`}>
                   {description ? (
-                    <div className="text-[10px] font-mono text-slate-500 truncate max-w-[160px]" title={description}>
+                    <div className="text-[11.5px] font-mono text-slate-500 truncate max-w-[210px]" title={description}>
                       {description}
                     </div>
                   ) : (
-                    <span className="text-[10px] text-slate-300">—</span>
+                    <span className="text-[11px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`font-mono text-[10.5px] text-slate-900 px-2 py-1 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
+                <td className={`font-mono text-[12px] text-slate-900 px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
                   ${Math.round(Math.abs(Number(amount) || 0))}
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td className={`px-2 py-1 ${COL.pillar}`}>
+                <td className={`px-2 py-1.5 ${COL.pillar}`}>
                   {isEnriched && c ? (
                     <span
-                      className="inline-block border text-[9.5px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap leading-tight"
+                      className="inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight"
                       style={{ background: c.bg, color: c.text, borderColor: c.border }}
                       title={merchantDisplay !== merchantRaw ? `Normalized: ${merchantDisplay}` : undefined}
                     >
                       {tx!.pillar}
                     </span>
                   ) : (
-                    <ShimmerCell width="100px" height={16} rounded="rounded" />
+                    <ShimmerCell width="120px" height={18} rounded="rounded" />
                   )}
                 </td>
-                <td className={`text-[10.5px] text-slate-700 px-2 py-1 truncate max-w-[110px] ${COL.category}`} title={(tx as any)?.category}>
-                  {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="80px" height={10} />}
+                <td className={`text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
+                  {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="90px" height={12} />}
                 </td>
-                <td className={`px-2 py-1 ${COL.subs}`}>
+                <td className={`px-2 py-1.5 ${COL.subs}`}>
                   {isEnriched ? (
                     <div className="flex flex-wrap gap-0.5">
                       {subs.length > 0 ? subs.map((sub, i) => (
-                        <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded">{sub}</span>
-                      )) : <span className="text-[10px] text-slate-400">—</span>}
+                        <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[10.5px] px-1.5 py-0.5 rounded">{sub}</span>
+                      )) : <span className="text-[11px] text-slate-400">—</span>}
                     </div>
                   ) : (
-                    <ShimmerCell width="100px" height={12} />
+                    <ShimmerCell width="120px" height={14} />
                   )}
                 </td>
-                <td className={`px-2 py-1 ${COL.tier}`}>
+                <td className={`px-2 py-1.5 ${COL.tier}`}>
                   {isEnriched ? (
-                    <span className={`inline-block border text-[9px] px-1.5 py-px rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
+                    <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
                       {(tx as any).spending_tier || "—"}
                     </span>
                   ) : (
-                    <ShimmerCell width="55px" height={14} />
+                    <ShimmerCell width="65px" height={16} />
                   )}
                 </td>
-                <td className={`px-2 py-1 ${COL.freq}`}>
+                <td className={`px-2 py-1.5 ${COL.freq}`}>
                   {isEnriched ? (
-                    <span className={`inline-block border text-[9px] px-1.5 py-px rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
+                    <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
                       {(tx as any).purchase_frequency || "—"}
                     </span>
                   ) : (
-                    <ShimmerCell width="60px" height={14} />
+                    <ShimmerCell width="70px" height={16} />
                   )}
                 </td>
               </tr>
