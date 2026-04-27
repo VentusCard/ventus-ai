@@ -15,6 +15,8 @@ export interface Transaction {
   merchant: string;
   amount: string;
   source?: string;
+  description?: string;
+  mcc?: string;
 }
 
 export interface IntelCard {
