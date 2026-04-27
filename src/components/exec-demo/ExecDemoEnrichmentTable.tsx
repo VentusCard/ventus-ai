@@ -169,7 +169,16 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           </tr>
         </thead>
         <tbody>
-          {Array.from({ length: totalRows }).map((_, idx) => {
+          {(() => {
+            const order = Array.from({ length: totalRows }, (_, i) => i);
+            if (highlightSet) {
+              order.sort((a, b) => {
+                const aHi = highlightSet.has(a) ? 0 : 1;
+                const bHi = highlightSet.has(b) ? 0 : 1;
+                return aHi - bHi;
+              });
+            }
+            return order.map((idx) => {
             const tx = transactions[idx] as EnrichedTransaction | undefined;
             const raw = rawRows?.[idx];
             // Prefer enriched values; fall back to raw fields when AI hasn't returned yet.
