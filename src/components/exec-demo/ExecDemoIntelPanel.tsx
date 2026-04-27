@@ -701,7 +701,7 @@ export default function ExecDemoIntelPanel({
               </div>
             ) : (
               <>
-              <div className={`flex items-start justify-between ${fullWidthEnrichment ? "px-5" : ""}`}>
+              <div className="flex items-start justify-between">
                 <p className="font-bold text-slate-800 mb-1.5 text-lg">Semantic Enrichment: <span className="text-slate-500 font-semibold">Reveal behavioral signals hidden by MCCs</span></p>
                 <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
