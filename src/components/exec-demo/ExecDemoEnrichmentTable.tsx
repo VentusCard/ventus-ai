@@ -52,6 +52,14 @@ interface Props {
   rawRows?: RawRow[];
   /** When true, drops the outer rounded border so the table sits flush with its parent. */
   flush?: boolean;
+  /** When provided, rows at these indices are highlighted; others are dimmed. */
+  highlightedIndices?: number[] | null;
+  /** Accent color used for the highlight border / tint. */
+  highlightColor?: string;
+  /** Active pill label (used in the "Showing N of M" strip). */
+  activePillLabel?: string | null;
+  /** Called when the user clicks Clear in the highlight strip. */
+  onClearHighlight?: () => void;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
@@ -76,7 +84,7 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
   />
 );
 
-export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }: Props) {
+export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight }: Props) {
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
@@ -97,9 +105,29 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }
     : "border border-slate-200 rounded-lg overflow-auto exec-light-scroll bg-white";
 
   const hasPending = rawCount > 0 && enrichedCount < rawCount;
+  const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
+  const matchedCount = highlightSet ? highlightSet.size : 0;
 
   return (
     <div className={wrapperCls} style={{ maxHeight: "100%" }}>
+      {highlightSet && activePillLabel && (
+        <div
+          className="flex items-center justify-between px-3 py-1.5 border-b"
+          style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
+        >
+          <span className="text-[11px] font-semibold" style={{ color: highlightColor }}>
+            Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"
+          </span>
+          {onClearHighlight && (
+            <button
+              onClick={onClearHighlight}
+              className="text-[11px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
       <table className="w-full text-left border-collapse min-w-[1180px]">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
@@ -157,7 +185,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
             return (
-              <tr key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`} className="border-b border-slate-100 hover:bg-slate-50/60">
+              <tr
+                key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
+                className="border-b border-slate-100 hover:bg-slate-50/60 transition-all duration-200"
+                style={
+                  highlightSet
+                    ? highlightSet.has(idx)
+                      ? { background: `${highlightColor}10`, boxShadow: `inset 3px 0 0 0 ${highlightColor}` }
+                      : { opacity: 0.32 }
+                    : undefined
+                }
+              >
                 {/* ===== RAW SIDE ===== */}
                 <td className={`px-2 py-1 ${COL.source}`}>
                   {source ? (

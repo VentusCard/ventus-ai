@@ -934,7 +934,7 @@ export default function ExecDemoPage() {
       {(() => {
         const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
         const showEnrichmentFullScreen =
-          phase === "hold" && !synthesisTriggered;
+          phase === "hold" && !activeTab;
         return (
       <div className="flex-1 min-h-0 flex">
         {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view) */}
@@ -1044,6 +1044,18 @@ export default function ExecDemoPage() {
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
             fullWidthEnrichment={showEnrichmentFullScreen}
+            highlightedIndices={filteredIndices}
+            highlightColor={
+              activeTriggerPill
+                ? activeTriggerPill.color
+                : activeRollup
+                  ? getColor(activeRollup.pillar).dot
+                  : activePillFilter
+                    ? getColor(activePillFilter.pillar).dot
+                    : "#0ea5e9"
+            }
+            activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
+            onClearHighlight={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
           />
         </div>
 

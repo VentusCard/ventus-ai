@@ -62,6 +62,14 @@ interface Props {
   onSynthesisChange?: (triggered: boolean) => void;
   /** When true, renders the enrichment table edge-to-edge (no card chrome / outer padding). */
   fullWidthEnrichment?: boolean;
+  /** Indices to highlight inside the enrichment table. */
+  highlightedIndices?: number[] | null;
+  /** Accent color for highlighted rows. */
+  highlightColor?: string;
+  /** Active pill label shown in the table's "Showing N of M" strip. */
+  activePillLabel?: string | null;
+  /** Clear-highlight callback wired to the strip's Clear button. */
+  onClearHighlight?: () => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -184,6 +192,10 @@ export default function ExecDemoIntelPanel({
   synthesisTriggered: synthesisTriggeredProp,
   onSynthesisChange,
   fullWidthEnrichment = false,
+  highlightedIndices,
+  highlightColor,
+  activePillLabel,
+  onClearHighlight,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -698,12 +710,12 @@ export default function ExecDemoIntelPanel({
               </>
             )}
 
-            {(pillsExpanded || !synthesisTriggered || !activeTab) && (
+            {(pillsExpanded || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
-                style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!activeTab || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
+                style={{ maxHeight: (!activeTab || pillsExpanded) ? undefined : 360 }}
               >
-                {!synthesisTriggered ? (
+                {!activeTab ? (
                   <ExecDemoEnrichmentTable
                     transactions={enrichedTransactions || []}
                     rawRows={(transactions || []).map((t, i) => ({
@@ -716,6 +728,10 @@ export default function ExecDemoIntelPanel({
                       amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
                     }))}
                     flush={fullWidthEnrichment}
+                    highlightedIndices={synthesisTriggered ? highlightedIndices : null}
+                    highlightColor={highlightColor}
+                    activePillLabel={synthesisTriggered ? activePillLabel : null}
+                    onClearHighlight={onClearHighlight}
                   />
                 ) : null}
               </div>
