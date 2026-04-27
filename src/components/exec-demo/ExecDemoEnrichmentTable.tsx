@@ -119,6 +119,13 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
             return (
               <tr key={(tx as any).transaction_id || `tx-${idx}`} className="border-b border-slate-100 hover:bg-slate-50/60">
                 {/* ===== RAW SIDE ===== */}
+                <td className={`px-2 py-1 ${COL.source}`}>
+                  {(tx as any).source ? (
+                    <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium whitespace-nowrap ${SOURCE_COLORS[(tx as any).source] ?? "bg-slate-50 text-slate-500"}`}>
+                      {(tx as any).source}
+                    </span>
+                  ) : <span className="text-[10px] text-slate-400">—</span>}
+                </td>
                 <td className={`text-[10.5px] text-slate-600 whitespace-nowrap px-2 py-1 ${COL.date} tabular-nums`}>
                   {tx.date || "—"}
                 </td>
@@ -155,13 +162,6 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td className={`px-2 py-1 ${COL.source}`}>
-                  {(tx as any).source ? (
-                    <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium whitespace-nowrap ${SOURCE_COLORS[(tx as any).source] ?? "bg-slate-50 text-slate-500"}`}>
-                      {(tx as any).source}
-                    </span>
-                  ) : <span className="text-[10px] text-slate-400">—</span>}
-                </td>
                 <td className={`px-2 py-1 ${COL.pillar}`}>
                   <span
                     className="inline-block border text-[9.5px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap leading-tight"
