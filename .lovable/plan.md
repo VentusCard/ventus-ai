@@ -1,16 +1,15 @@
-# Update /demo password gate copy and bullet sizing
+# Add horizontal padding to /demo intelligence panel and enrichment table
 
-## Changes
+The Behavioral Intelligence section and the Semantic Enrichment transaction table currently sit flush against the left and right viewport edges in the full-width enrichment view (when no tab is selected after synthesis). Add consistent horizontal breathing room.
 
-### 1. `src/pages/ExecDemoPage.tsx` (line 907)
-Update the tagline prop value:
-- From: `"AI Customer Intelligence for Banks"`
-- To: `"AI Native Customer Intelligence Infrastructure for Banks"`
+## Change
 
-### 2. `src/components/demo/SimplePasswordGate.tsx` (lines 43-54)
-Shrink the three bullets so the tagline becomes the dominant headline:
-- Bullet dot size: `w-2 h-2` → `w-1.5 h-1.5`
-- Gap between dot and label: `gap-3` → `gap-2`
-- Label text: `text-[18px] md:text-[20px] font-semibold text-slate-700` → `text-[13px] md:text-[14px] font-medium text-slate-600`
+### `src/components/exec-demo/ExecDemoIntelPanel.tsx` (line 355)
 
-Tagline styling and all other elements remain unchanged.
+Update the root container's `fullWidthEnrichment` padding:
+- From: `pt-2 pb-1 px-0`
+- To: `pt-2 pb-1 px-6`
+
+This single change adds ~24px of horizontal padding on both sides for both the Behavioral Intelligence header/pills section AND the enrichment table beneath it (since both render inside this container in full-width mode). The redundant `px-5` on the header row (line 704) can stay — it will just nest harmlessly within the new outer padding, but does not need removal.
+
+The non-full-width branch (when a tab is selected) already has `px-5` and is unchanged.
