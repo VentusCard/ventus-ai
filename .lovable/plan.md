@@ -1,51 +1,34 @@
-## Goal
+## Problem
 
-When the executive demo is in the **pre-synthesis enrichment-table state** (right after "Semantic Enrichment" finishes, before "Behavioral Intelligence" is clicked), hide the **left transactions panel** entirely and let the enriched transactions table fill the full available width and height of the workspace.
+When the user clicks "Semantic Enrichment", they briefly see the OLD split view (left transactions panel + right pill grid) before the `classify-transactions` edge function returns. Once enriched data arrives, the layout swaps to the full-screen enrichment table. The flash of the old layout is unwanted.
 
-After the user clicks **"Behavioral Intelligence"**, the layout returns to the current 3-column behavior (left transactions panel reappears alongside the intel panel and phone view).
+## Root cause
 
-## Trigger condition
+The `showEnrichmentFullScreen` flag in `ExecDemoPage.tsx` requires `enrichedTxs.length > 0`. While the edge function is still running, the flag is false, so the left panel renders and the IntelPanel falls back to the legacy pill grid (`chipsByPillarCategory` view in `ExecDemoIntelPanel.tsx` lines 712–800).
 
-Hide left panel + expand table to full height when ALL of:
-- `phase === "hold"` (analysis completed)
-- `synthesisTriggered === false` (Behavioral Intelligence not yet clicked)
-- `enrichedTxs?.length > 0` (we actually have an enriched table to show)
+## Fix
 
-## Implementation
+Make the full-screen enrichment view the only view shown during the pre-synthesis hold phase — show a loading skeleton in the table area while waiting for the edge function instead of the legacy pill grid.
 
-1. **Lift `synthesisTriggered` state** from `ExecDemoIntelPanel.tsx` to `ExecDemoPage.tsx` so the page can react to it for layout decisions.
-   - Add `synthesisTriggered` state + setter in `ExecDemoPage.tsx`.
-   - Pass `synthesisTriggered` and `onTriggerSynthesis` (or `onSynthesisChange`) as props to `ExecDemoIntelPanel`.
-   - Reset to `false` when phase becomes `idle` (already handled inside the panel; move that effect up).
+### 1. `src/pages/ExecDemoPage.tsx`
+Drop the `enrichedTxs.length > 0` requirement so the left panel hides as soon as we enter `hold` (pre-synthesis):
+```ts
+const showEnrichmentFullScreen = phase === "hold" && !synthesisTriggered;
+```
 
-2. **In `ExecDemoPage.tsx`**, compute a derived flag:
-   ```
-   const showEnrichmentFullScreen =
-     phase === "hold" && !synthesisTriggered && (enrichedTxs?.length ?? 0) > 0;
-   ```
-   - When true, do NOT render the left `ExecDemoLeftPanel` column (skip the entire `<div className="w-[400px] h-full relative">` block).
-   - The intel panel column (`flex-1`) already expands to fill remaining width via flex, so removing the left column makes the table take the full width automatically.
+### 2. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+In the table container (around line 710), replace the legacy pill-grid fallback with a lightweight loading skeleton when `enrichedTransactions` isn't ready yet AND we're in the pre-synthesis state (`!synthesisTriggered`). Keep the legacy pill grid as a fallback only for the post-synthesis collapsed view (where it's still used when `pillsExpanded` is toggled).
 
-3. **In `ExecDemoIntelPanel.tsx`**, when in this same full-screen enrichment state, let the table fill 100% height of the panel:
-   - Remove the `maxHeight: 360` cap currently on the wrapper that holds `ExecDemoEnrichmentTable`.
-   - Use `flex-1 min-h-0` so the table container stretches to fill the available vertical space (the panel itself is already a flex column).
-   - Hide the section header "Semantic Enrichment: Reveal behavioral signals…" caption above the table only in this full-screen state, OR keep it but make it compact — keep it for context.
+Logic:
+- If `enrichedTransactions?.length > 0` → render `ExecDemoEnrichmentTable` (unchanged)
+- Else if `!synthesisTriggered` → render a simple skeleton (header row + 6–8 shimmer rows matching the table layout) with a small "Enriching transactions..." label
+- Else → keep existing legacy pill grid (unchanged, only relevant for synthesized state)
 
-4. **Behavioral Intelligence button placement**: stays anchored at the bottom of the intel panel (no change). Clicking it sets `synthesisTriggered = true` in the parent, which:
-   - Re-shows the left panel.
-   - Collapses the table back to its in-panel size.
-   - Triggers the existing rollup pills + tabs flow.
+The skeleton uses the same column structure as `ExecDemoEnrichmentTable` so the layout doesn't jump when data arrives.
 
-## What stays the same
+## Files
 
-- `ExecDemoEnrichmentTable.tsx` itself — unchanged.
-- "Semantic Enrichment" button on the left panel during `idle` and `scroll` phases — unchanged (left panel still shown then).
-- Persona synthesis, rollups, Next-Offer/Next-Product/Next-Conversation tabs, phone mockups — unchanged.
-- All styling, animations, color tokens — unchanged.
+- `src/pages/ExecDemoPage.tsx` (1 line condition change)
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` (wrap the fallback branch with skeleton-vs-legacy logic)
 
-## Files touched
-
-- `src/pages/ExecDemoPage.tsx` — add `synthesisTriggered` state, conditionally hide the left panel column, pass new props.
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — accept `synthesisTriggered` + `onSynthesisChange` props (replacing internal state), make the enrichment table wrapper `flex-1 min-h-0` (removing the 360px cap) when pre-synthesis full-screen.
-
-No backend, DB, or new component files needed.
+No new components, no behavior change after enrichment completes or after "Behavioral Intelligence" is clicked.
