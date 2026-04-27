@@ -287,7 +287,8 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
               </tr>
             );
-          })}
+            });
+          })()}
         </tbody>
       </table>
       <style>{`
