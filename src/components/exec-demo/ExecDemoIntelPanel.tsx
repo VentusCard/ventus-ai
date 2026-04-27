@@ -62,6 +62,14 @@ interface Props {
   onSynthesisChange?: (triggered: boolean) => void;
   /** When true, renders the enrichment table edge-to-edge (no card chrome / outer padding). */
   fullWidthEnrichment?: boolean;
+  /** Indices to highlight inside the enrichment table. */
+  highlightedIndices?: number[] | null;
+  /** Accent color for highlighted rows. */
+  highlightColor?: string;
+  /** Active pill label shown in the table's "Showing N of M" strip. */
+  activePillLabel?: string | null;
+  /** Clear-highlight callback wired to the strip's Clear button. */
+  onClearHighlight?: () => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
