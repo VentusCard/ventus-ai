@@ -352,7 +352,7 @@ export default function ExecDemoIntelPanel({
 
 
   return (
-    <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-0" : "py-3 px-5"}`}>
+    <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
       {/* Persona section */}
       <div
         className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
