@@ -118,7 +118,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
   const matchedCount = highlightSet ? highlightSet.size : 0;
 
   return (
-    <div className={wrapperCls} style={{ maxHeight: "100%" }}>
+    <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} style={{ maxHeight: "100%" }}>
       {highlightSet && activePillLabel && (
         <div
           className="flex items-center justify-between px-3 py-2 border-b"
