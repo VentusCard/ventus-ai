@@ -104,6 +104,7 @@ export default function ExecDemoPage() {
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
   const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
+  const [synthesisTriggered, setSynthesisTriggered] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const detectLifeEventsOnlyRef = useRef<() => Promise<LifeEvent[]>>(async () => []);
