@@ -396,7 +396,7 @@ export default function ExecDemoIntelPanel({
                         ? { title: "3.2 Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
                         : activeTab === "relationship"
                         ? { title: "3.3 Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
-                        : { title: "2. AI Customer Intelligence", sub: "Personas = Multi-category spending patterns" };
+                        : { title: "2. AI Customer Intelligence for Banks", sub: "Personas = Multi-category spending patterns" };
                     return (
                       <p className="font-bold text-slate-800 mb-1 text-xl">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
                     );
