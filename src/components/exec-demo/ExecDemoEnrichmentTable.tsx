@@ -112,35 +112,35 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
     <div className={wrapperCls} style={{ maxHeight: "100%" }}>
       {highlightSet && activePillLabel && (
         <div
-          className="flex items-center justify-between px-3 py-1.5 border-b"
+          className="flex items-center justify-between px-3 py-2 border-b"
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
-          <span className="text-[11px] font-semibold" style={{ color: highlightColor }}>
+          <span className="text-[12px] font-semibold" style={{ color: highlightColor }}>
             Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"
           </span>
           {onClearHighlight && (
             <button
               onClick={onClearHighlight}
-              className="text-[11px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
+              className="text-[12px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
             >
               Clear
             </button>
           )}
         </div>
       )}
-      <table className="w-full text-left border-collapse min-w-[1180px]">
+      <table className="w-full text-left border-collapse min-w-[1480px]">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
             <th
               colSpan={6}
-              className="bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-r-2 border-slate-300"
+              className="bg-slate-100 text-slate-600 text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2 border-r-2 border-slate-300"
             >
               Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
             </th>
             <th
               colSpan={5}
-              className="bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5"
+              className="bg-blue-50 text-blue-700 text-[11px] font-bold uppercase tracking-[0.12em] px-3 py-2"
             >
               <span className="inline-flex items-center gap-2">
                 Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
@@ -155,17 +155,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           </tr>
           {/* Tier 2 — Column headers */}
           <tr className="bg-slate-50/80 border-b border-slate-200">
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.source}`}>Source</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.date}`}>Date</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.mcc}`}>MCC</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.description}`}>Description</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.category}`}>Category</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.tier}`}>Tier</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.freq}`}>Freq</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.source}`}>Source</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.date}`}>Date</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.description}`}>Description</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.tier}`}>Tier</th>
+            <th className={`text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
         <tbody>
