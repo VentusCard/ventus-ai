@@ -130,8 +130,8 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.source}`}>Source</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.date}`}>Date</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.description}`}>Description</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.description}`}>Description</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.category}`}>Category</th>
@@ -174,20 +174,20 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }
                     {merchantRaw}
                   </div>
                 </td>
-                <td className={`px-2 py-1 ${COL.description}`}>
-                  {description ? (
-                    <div className="text-[10px] font-mono text-slate-500 truncate max-w-[160px]" title={description}>
-                      {description}
-                    </div>
-                  ) : (
-                    <span className="text-[10px] text-slate-300">—</span>
-                  )}
-                </td>
                 <td className={`px-2 py-1 ${COL.mcc}`}>
                   {mcc ? (
                     <span className="inline-block bg-slate-100 text-slate-600 text-[9.5px] font-mono px-1.5 py-px rounded">
                       {mcc}
                     </span>
+                  ) : (
+                    <span className="text-[10px] text-slate-300">—</span>
+                  )}
+                </td>
+                <td className={`px-2 py-1 ${COL.description}`}>
+                  {description ? (
+                    <div className="text-[10px] font-mono text-slate-500 truncate max-w-[160px]" title={description}>
+                      {description}
+                    </div>
                   ) : (
                     <span className="text-[10px] text-slate-300">—</span>
                   )}
