@@ -1,64 +1,73 @@
-## Issue
+## Goal
 
-When a user clicks a lifestyle rollup pill (e.g. "Seasonal Ski Trips") in the Relationship tab while the AI assistant is open, the auto-dispatched prompt currently shows the merchant breakdown inline in the chat bubble:
+On `/demo`, after the user clicks **"Semantic Enrichment"** and the analysis completes (`phase === "hold"`), the right-side Intel Panel currently shows a divided pill view (Pillar column + Category/Subcategory pill rows) along with the "Behavioral Intelligence: Ready" button.
 
-> How much do I typically spend on seasonal ski trips? (Use these exact figures from my account: total $6,308 across 10 transactions tagged "Seasonal Ski Trips". Breakdown: EPIC PASS VAIL RESORTS $2238 (2x); EVO.COM $1249 (1x); ...)
+Replace that pill view with an **enriched transaction table** — same row-by-row format as the `/tepilot` enrichment results table — so prospects see the actual labeling of each transaction (raw input → enriched columns). Keep the **"Behavioral Intelligence" button** and everything that happens after clicking it (persona synthesis, rollup pills, tabs) exactly as-is.
 
-Real users would just type the short question. The breakdown was added so the AI doesn't recompute aggregates — but it should be hidden context, not visible chat content.
+## Scope
 
-## Fix
+Only the **pre-synthesis state** on the right Intel Panel changes. Specifically the block in `src/components/exec-demo/ExecDemoIntelPanel.tsx` rendered when:
+- `synthesisTriggered === false`
+- `phase === "hold"`
+- `chips.length > 0`
 
-Split the prompt into a **visible** short question and a **hidden** signal context that travels alongside it through the existing pipeline.
+This is currently the "Pillar | (Category) Subcategory, Amount | Total" header and grouped pillar rows (lines ~693–775).
 
-### Pipeline changes
+The left transaction panel, the Behavioral Intelligence button, the post-synthesis rollups/tabs, and the Next-Offer/Next-Product/Next-Conversation flows all stay unchanged.
 
-1. **`onAIPromptDispatch` signature** (`ExecDemoIntelPanel.tsx`)
-   Add an optional 3rd argument `signalContext?: string`.
-   ```ts
-   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
-   ```
+## What the new view shows
 
-2. **`ExecDemoIntelPanel.tsx` (line ~423)** — keep the merchant rollup math, but split:
-   ```ts
-   const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
-   const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
-   onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
-   ```
+A scrollable enriched transaction table, one row per transaction. Columns (matching the visual language of `DemoEnrichmentTableView` / tepilot's `ResultsTable`, scaled to fit the panel):
 
-3. **`ExecDemoPage.tsx`** — extend `pendingAIPrompt` state and `dispatchAIPrompt` to carry the optional `signalContext`:
-   ```ts
-   const [pendingAIPrompt, setPendingAIPrompt] = useState<{
-     text: string; nonce: number;
-     kind?: "lifestyle" | "lifeEvent" | "risk";
-     signalContext?: string;
-   } | null>(null);
+- **Merchant** (normalized merchant name)
+- **Amount** (right-aligned, mono)
+- **Date**
+- **Source** (colored chip: Checking / Cashback Card / Travel Card / Premium Card / HSA / etc.)
+- **→** arrow column (visual cue of "enrichment in/out")
+- **Pillar** (colored badge using existing `PILLAR_COLORS` / `getColor`)
+- **Category**
+- **Subcategories** (small chips)
+- **Tier** (Budget / Standard / Premium badge)
+- **Frequency** (Weekly / Monthly / Occasional / Annually / One-Time badge)
+- **Confidence** (% badge, green/yellow/red threshold)
 
-   const dispatchAIPrompt = useCallback((text, kind, signalContext) => {
-     setPendingAIPrompt({ text, nonce: Date.now(), kind, signalContext });
-   }, []);
-   ```
+Header row sticky at the top. Rows lightly striped on hover. Light-theme styling consistent with the existing panel (`exec-light-scroll`, slate borders, no dark surfaces).
 
-4. **`ExecDemoPhoneView.tsx`** — propagate `pendingAIPrompt.signalContext` into `ConsumerAIChatView` via a new prop `initialMessageContext` (and update the `pendingAIPrompt` Props type to include `signalContext?: string`).
+A short caption above the table:
+> "Semantic Enrichment: Every transaction labeled across pillar, category, subcategory, spend tier, frequency, and confidence."
 
-5. **`ConsumerAIChatView.tsx`**
-   - Accept new optional prop `initialMessageContext?: string`.
-   - In `sendMessage`, accept an optional 3rd arg `extraContext?: string`.
-   - When set, include it in the `consumer-chat` invoke body as `context.signalContext` (without putting it in the rendered user message).
-   - The initial-message effect passes `initialMessageContext` through to `sendMessage`.
+The collapse chevron currently next to "Semantic Enrichment" is preserved so the user can still hide/show the table.
 
-6. **`supabase/functions/consumer-chat/index.ts`** — extend `buildContextPrompt` to append the signal context block when present:
-   ```ts
-   if (context.signalContext) {
-     prompt += `\n## Signal Context (ground-truth aggregates for the user's current question)\n${context.signalContext}\n`;
-   }
-   ```
-   No changes to schema/tools — purely additive system-context text.
+## Data source
 
-### Out of scope
+The enriched per-transaction data is already present on the page — it's built from the `classify-transactions` SSE response and stored as `EnrichedTransaction[]` on `ExecDemoPage` (`classifiedRef.current`). Today it's only consumed indirectly via `processedSignals` / `chips`.
 
-- Life-event and risk pill prompts (lines 433, 446) are already short and natural — no changes there.
-- No model swap, no rate-limit work.
+Plan:
+1. Surface the enriched transaction list to `ExecDemoIntelPanel` as a new optional prop `enrichedTransactions?: EnrichedTransaction[]`.
+2. In `ExecDemoPage.tsx`, store `classifiedRef.current` into a state (e.g. `enrichedTxs`) on the SSE `done` event so React re-renders, and pass it down.
+3. In the panel's pre-synthesis block, render the new table when `enrichedTransactions?.length > 0`; fall back to the current pill view if for some reason enrichment data isn't available yet (defensive).
 
-### User-visible result
+## New component
 
-The chat bubble shows just `"How much do I typically spend on seasonal ski trips?"`. The AI still answers with the correct totals because the merchant breakdown reaches the model via hidden context.
+Create `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` — a slimmed-down adaptation of `src/components/demo/DemoEnrichmentTableView.tsx` tailored to the panel width, accepting `transactions: EnrichedTransaction[]`. Reuse:
+- `PILLAR_COLORS` color logic (via `getColor` already exported from `ExecDemoIntelPanel`)
+- Existing `SOURCE_COLORS`, `getTierColor`, `getFrequencyColor`, `getConfidenceColor` styling patterns from `DemoEnrichmentTableView`
+- Light enterprise theme tokens already used in the panel
+
+This keeps the change localized and avoids touching the heavier tepilot ResultsTable.
+
+## What stays the same
+
+- Left panel (`ExecDemoLeftPanel`) — unchanged.
+- "Semantic Enrichment" run button — unchanged.
+- "Behavioral Intelligence: Ready" pulsing button at the bottom of the panel — unchanged.
+- Post-click flow: persona synthesis, rollup pills, Next-Offer / Next-Product / Next-Conversation tabs, phone mockups, AI assistant — all unchanged.
+- Animations, color tokens, scrollbar styling — unchanged.
+
+## Files touched
+
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — replace the pre-synthesis pill block (~lines 693–775) with the new enriched table component; add `enrichedTransactions` prop.
+- `src/pages/ExecDemoPage.tsx` — add `enrichedTxs` state, set it from the classify SSE `done` handler, pass to the panel.
+- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` — **new** file containing the table.
+
+No DB, edge function, or backend changes.
