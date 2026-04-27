@@ -112,7 +112,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
     <div className={wrapperCls} style={{ maxHeight: "100%" }}>
       {highlightSet && activePillLabel && (
         <div
-          className="sticky top-0 z-20 flex items-center justify-between px-3 py-1.5 border-b"
+          className="flex items-center justify-between px-3 py-1.5 border-b"
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
           <span className="text-[11px] font-semibold" style={{ color: highlightColor }}>
