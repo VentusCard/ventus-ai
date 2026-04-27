@@ -671,15 +671,15 @@ export default function ExecDemoIntelPanel({
                     <>
                        <div className="mb-1.5">
                         <p className="text-[11px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Habits</p>
-                        <div className="flex flex-col items-start gap-1.5">{rollupPills}</div>
+                        <div className="flex flex-wrap gap-2">{rollupPills}</div>
                       </div>
                       <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
                         <p className="text-[11px] font-bold uppercase tracking-wider text-amber-600/70 mb-1.5">Life Event Detection</p>
-                        <div className="flex flex-col items-start gap-1.5">{lifeEventPills}</div>
+                        <div className="flex flex-wrap gap-2">{lifeEventPills}</div>
                       </div>
                       <div className="mt-3" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
                         <p className="text-[11px] font-bold uppercase tracking-wider text-red-500/70 mb-1.5">Risk Factors</p>
-                        <div className="flex flex-col items-start gap-1.5">{riskPills}</div>
+                        <div className="flex flex-wrap gap-2">{riskPills}</div>
                       </div>
                     </>
                   );
