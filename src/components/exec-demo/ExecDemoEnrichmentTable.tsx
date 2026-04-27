@@ -184,17 +184,13 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             const amount = tx?.amount ?? raw?.amount ?? 0;
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
+            const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
+            const isDimmed = highlightSet ? !isHighlighted : false;
             return (
               <tr
                 key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
-                className="border-b border-slate-100 hover:bg-slate-50/60 transition-all duration-200"
-                style={
-                  highlightSet
-                    ? highlightSet.has(idx)
-                      ? { background: `${highlightColor}10`, boxShadow: `inset 3px 0 0 0 ${highlightColor}` }
-                      : { opacity: 0.32 }
-                    : undefined
-                }
+                className={`border-b border-slate-100 transition-all duration-200 ${isHighlighted ? "exec-row-highlighted" : isDimmed ? "exec-row-dimmed" : "hover:bg-slate-50/60"}`}
+                style={isHighlighted ? ({ ["--exec-hl" as any]: highlightColor } as React.CSSProperties) : undefined}
               >
                 {/* ===== RAW SIDE ===== */}
                 <td className={`px-2 py-1 ${COL.source}`}>
