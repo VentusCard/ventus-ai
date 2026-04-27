@@ -101,8 +101,8 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
   }
 
   const wrapperCls = flush
-    ? "overflow-auto exec-light-scroll bg-white h-full"
-    : "border border-slate-200 rounded-lg overflow-auto exec-light-scroll bg-white";
+    ? "border border-slate-200 rounded-xl overflow-auto exec-light-scroll bg-white h-full"
+    : "border border-slate-200 rounded-xl overflow-auto exec-light-scroll bg-white";
 
   const hasPending = rawCount > 0 && enrichedCount < rawCount;
   const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;

@@ -1,29 +1,27 @@
 ## Goal
 
-When a pill (e.g., "Annual Hawaiian Vacations") is active in the enrichment table, suppress the blue gradient highlight on enriched cells of all non-matching (dimmed) rows. Only the matched rows should retain visual emphasis, making the selection result much clearer.
+Give the transaction enrichment table a visible rounded-corner border in all states, including when it's rendered in full-width ("flush") mode where the border/rounding is currently stripped.
 
 ## Change
 
 **File:** `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
 
-Today, every enriched cell carries the subtle blue gradient via `td.exec-enriched-cell`. When a pill is selected, dimmed rows keep that gradient (just at 32% opacity), which competes visually with the highlighted matches.
+The wrapper currently strips the border and rounded corners when `flush` is true:
 
-Update the styles so that when a pill is active, the gradient is removed from the dimmed rows' enriched cells — leaving them as plain neutral cells while the matched rows keep their accent treatment.
-
-### Specifically
-
-In the `<style>` block at the bottom of the file, add a rule:
-
-```css
-tr.exec-row-dimmed > td.exec-enriched-cell {
-  background-image: none;
-}
+```tsx
+const wrapperCls = flush
+  ? "overflow-auto exec-light-scroll bg-white h-full"
+  : "border border-slate-200 rounded-lg overflow-auto exec-light-scroll bg-white";
 ```
 
-This pairs with the existing rules:
-- `tr.exec-row-highlighted > td` already gets the accent tint (`--exec-hl` at 12%)
-- `tr.exec-row-highlighted > td.exec-enriched-cell` already removes the blue gradient so the accent shows cleanly
+Update both branches to apply `border border-slate-200 rounded-xl`, so the table always has a soft rounded border (slightly larger radius than before for a more polished feel):
 
-After the change, when no pill is active, all enriched cells show the blue gradient as before. When a pill is active, only the matched rows are visually emphasized; the rest are flat and dimmed.
+```tsx
+const wrapperCls = flush
+  ? "border border-slate-200 rounded-xl overflow-auto exec-light-scroll bg-white h-full"
+  : "border border-slate-200 rounded-xl overflow-auto exec-light-scroll bg-white";
+```
 
-No JSX/structural changes. No animation changes.
+The wrapper already has `overflow-auto`, so the rounded corners will correctly clip the inner sticky header and rows.
+
+No other files or structural changes.
