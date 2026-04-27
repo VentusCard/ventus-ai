@@ -324,6 +324,9 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         tr.exec-row-highlighted > td.exec-enriched-cell {
           background-image: none;
         }
+        tr.exec-row-dimmed > td.exec-enriched-cell {
+          background-image: none;
+        }
         @keyframes exec-enriched-row-reveal {
           0%   { opacity: 0; transform: translateY(-6px); }
           100% { opacity: 1; transform: translateY(0); }
