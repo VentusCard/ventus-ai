@@ -89,9 +89,9 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
                 </td>
                 <td className="text-[10.5px] text-slate-600 whitespace-nowrap px-2 py-1 w-[70px] tabular-nums">{tx.date}</td>
                 <td className="px-2 py-1 w-[90px]">
-                  {tx.source ? (
-                    <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium whitespace-nowrap ${SOURCE_COLORS[tx.source] ?? "bg-slate-50 text-slate-500"}`}>
-                      {tx.source}
+                  {(tx as any).source ? (
+                    <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium whitespace-nowrap ${SOURCE_COLORS[(tx as any).source] ?? "bg-slate-50 text-slate-500"}`}>
+                      {(tx as any).source}
                     </span>
                   ) : <span className="text-[10px] text-slate-400">—</span>}
                 </td>
