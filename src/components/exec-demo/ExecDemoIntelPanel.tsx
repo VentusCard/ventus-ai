@@ -60,6 +60,8 @@ interface Props {
   assistantOpen?: boolean;
   synthesisTriggered?: boolean;
   onSynthesisChange?: (triggered: boolean) => void;
+  /** When true, renders the enrichment table edge-to-edge (no card chrome / outer padding). */
+  fullWidthEnrichment?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
