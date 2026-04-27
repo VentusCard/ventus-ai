@@ -1,5 +1,6 @@
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
+import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
