@@ -1,80 +1,45 @@
 ## Goal
 
-Show the "raw" transaction columns (description + MCC) inside the enrichment table, so the executive demo visually communicates the transformation from raw bank-statement format → enriched semantic labels.
+Two refinements to the executive demo's pre-synthesis enrichment view:
 
-The new structure mirrors `/tepilot`'s enrichment view but is tailored for the executive demo: raw input on the left of the arrow, enriched output on the right.
+1. Remove the arrow column and the Confidence column from the table.
+2. Make the enrichment table use the **full width** of the surrounding panel — currently the inner persona card (padding, rounded background, border) plus the outer panel padding constrain it to a narrow column.
 
 ## Changes
 
-### 1. `src/pages/ExecDemoPage.tsx` — pass raw `description` + `mcc` through
+### A. `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
 
-Where we merge `source` from raw txs onto enriched txs (around lines 169–178), also merge `description` and `mcc`:
+- Remove `arrow` and `conf` keys from the `COL` width map. Tier/freq widths stay as-is.
+- Drop the `ArrowRight` import and the `getConfidenceColor` helper (unused).
+- Tier-1 grouping header: Raw `colSpan` stays 6, drop the spacer arrow `<th>`, Enriched `colSpan` becomes 5. Replace the spacer column with a `border-r-2 border-slate-300` on the rightmost raw column (Amt) for the visual divide.
+- Tier-2 column header row: remove the arrow `<th>` and the Confidence `<th>`. Add `border-r-2 border-slate-300` to the Amt header.
+- Each `<tbody>` row: remove the arrow `<td>` and the confidence `<td>`. Add `border-r-2 border-slate-200` to the Amt `<td>`.
+- Drop the table `min-w-[1340px]` to `min-w-[1180px]` since two columns are gone.
+- Add an optional `flush?: boolean` prop. When true, drop the wrapping div's `border border-slate-200 rounded-lg` so the table sits flush against the surrounding panel edges.
 
-```ts
-const merged = enriched.map((etx, i) => {
-  const raw: any = rawTxs[i];
-  return {
-    ...etx,
-    ...(raw?.source && !(etx as any).source ? { source: raw.source } : {}),
-    ...(raw?.description ? { description: raw.description } : {}),
-    ...(raw?.mcc ? { mcc: raw.mcc } : {}),
-  };
-});
-```
+### B. `src/components/exec-demo/ExecDemoIntelPanel.tsx` — full-width enrichment view
 
-### 2. `src/components/exec-demo/execDemoData.ts` — extend type
+Add a new prop `fullWidthEnrichment?: boolean` (true when `phase === "hold" && !synthesisTriggered`). When true:
 
-Add the optional raw fields to `EnrichedTransaction`:
+- Outer panel wrapper (line 351, currently `px-5 py-3`): switch to `px-0 py-3` so the table reaches the panel edges.
+- Persona-section wrapper (line 353, currently `rounded-2xl px-4 py-3.5 ... border ... background`): when `fullWidthEnrichment` is true, drop the rounded background, border, and horizontal padding (use `px-5 pt-3.5 pb-0` so only the title block has horizontal breathing room). The table block below the title should render edge-to-edge.
+- Title row ("Semantic Enrichment: Reveal behavioral signals…", line 696–701): keep its existing horizontal padding so it's still aligned with the rest of the persona content.
+- Table container (line 706): when `fullWidthEnrichment` is true, drop `mb-2.5` constraint and stretch it to `flex-1`. The existing skeleton/table already use `flex-1 min-h-0`.
+- Pass `flush={fullWidthEnrichment}` into `<ExecDemoEnrichmentTable />`. For the skeleton wrapper in IntelPanel, conditionally drop `border border-slate-200 rounded-lg` for the same edge-to-edge effect.
 
-```ts
-export interface EnrichedTransaction {
-  // ...existing
-  description?: string;
-  mcc?: string;
-  source?: string;
-}
-```
+Skeleton tweaks to match the new column set:
+- Remove the `w-[16px]` arrow placeholder cell from the header row and each row.
+- Remove the rightmost `w-[40px]` confidence chip placeholder from each row + matching header placeholder.
+- In the tier-1 raw-vs-enriched group bar: drop the 24px arrow gap div; raw side width ~580px, enriched fills the remainder, with a 2px right border on raw.
 
-Also ensure `csvToClassifyPayload` passes through `description` and `mcc` (it already does). No edge-function changes needed — these fields just ride alongside on the client.
+### C. `src/pages/ExecDemoPage.tsx` (1 line)
 
-### 3. `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` — add raw columns
-
-Restructure the table into two visual halves separated by the existing arrow column:
-
-**Left (raw / "as received"):**
-- Date
-- Merchant (raw `merchant_name`)
-- Description (raw, truncated, `title=` for full text)
-- MCC (mono, small chip)
-- Amount
-
-**→ arrow column**
-
-**Right (enriched / "AI-labeled"):**
-- Source (chip)
-- Pillar (colored chip)
-- Category
-- Subcategories (chips)
-- Tier
-- Frequency
-- Confidence
-
-Header treatment:
-- Add a two-tier `<thead>`: top row spans "Raw Transaction" (5 cols) | spacer | "Enriched (AI)" (7 cols), with subtle background tints (slate-50 vs blue-50) so the before/after split reads at a glance.
-- Keep existing per-column header row underneath.
-- Make the table `min-w-[1280px]` to accommodate the extra columns; container stays `overflow-auto`.
-
-Empty/missing values render as "—". Description column is the widest text cell (`max-w-[160px] truncate`), MCC renders as a slate mono chip.
-
-### 4. `src/components/exec-demo/ExecDemoIntelPanel.tsx` — update skeleton
-
-The pre-data skeleton (around line 714) currently mirrors the old single-section table. Update its column count / widths so the layout doesn't jump when real data arrives — add placeholder cells for the new Description and MCC columns and the "Raw / Enriched" two-tier header.
+Pass `fullWidthEnrichment={showEnrichmentFullScreen}` to `<ExecDemoIntelPanel />` (around line 1025). The flag is already computed.
 
 ## Files
 
-- `src/pages/ExecDemoPage.tsx` (merge raw fields onto enriched txs)
-- `src/components/exec-demo/execDemoData.ts` (extend `EnrichedTransaction` type)
-- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` (add raw columns + two-tier header)
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` (skeleton matches new layout)
+- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- `src/pages/ExecDemoPage.tsx`
 
-No changes to the edge function, no behavioral changes to "Behavioral Intelligence" trigger or post-synthesis flow.
+No data, edge function, or post-synthesis behavior changes.
