@@ -318,8 +318,9 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         }
         td.exec-enriched-cell {
           background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
-          animation: exec-enriched-row-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
-          animation-delay: calc(var(--enrich-row-i, 0) * 45ms);
+          animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
+          transform-origin: top center;
         }
         tr.exec-row-highlighted > td.exec-enriched-cell {
           background-image: none;
@@ -328,8 +329,26 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           background-image: none;
         }
         @keyframes exec-enriched-row-reveal {
-          0%   { opacity: 0; transform: translateY(-6px); }
-          100% { opacity: 1; transform: translateY(0); }
+          0% {
+            opacity: 0;
+            transform: translateY(-14px) scaleY(0.85);
+            background-color: rgba(59, 130, 246, 0.28);
+            box-shadow: inset 0 -1px 0 0 rgba(59, 130, 246, 0.55);
+            filter: brightness(1.12);
+          }
+          55% {
+            opacity: 1;
+            transform: translateY(0) scaleY(1);
+            background-color: rgba(59, 130, 246, 0.16);
+            box-shadow: inset 0 -1px 0 0 rgba(59, 130, 246, 0.35);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0) scaleY(1);
+            background-color: transparent;
+            box-shadow: inset 0 0 0 0 transparent;
+            filter: brightness(1);
+          }
         }
         @keyframes ventus-enriched-reveal {
           0% { opacity: 0; transform: translateY(-6px); filter: brightness(1.15); }
