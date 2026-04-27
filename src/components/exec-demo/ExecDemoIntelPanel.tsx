@@ -351,13 +351,17 @@ export default function ExecDemoIntelPanel({
 
 
   return (
-    <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
+    <div className={`flex flex-col h-full overflow-hidden py-3 ${fullWidthEnrichment ? "px-0" : "px-5"}`}>
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-3.5 mb-2.5 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""}`}
+        className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
+          fullWidthEnrichment
+            ? "pt-3.5 pb-0"
+            : "rounded-2xl px-4 py-3.5 mb-2.5"
+        }`}
         style={{
-          background: "rgba(11,26,58,.022)",
-          border: "1px solid rgba(11,26,58,.14)",
+          background: fullWidthEnrichment ? undefined : "rgba(11,26,58,.022)",
+          border: fullWidthEnrichment ? undefined : "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
           maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
