@@ -316,6 +316,18 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         tr.exec-row-dimmed > td {
           opacity: 0.32;
         }
+        td.exec-enriched-cell {
+          background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
+          animation: exec-enriched-row-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation-delay: calc(var(--enrich-row-i, 0) * 45ms);
+        }
+        tr.exec-row-highlighted > td.exec-enriched-cell {
+          background-image: none;
+        }
+        @keyframes exec-enriched-row-reveal {
+          0%   { opacity: 0; transform: translateY(-6px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
         @keyframes ventus-enriched-reveal {
           0% { opacity: 0; transform: translateY(-6px); filter: brightness(1.15); }
           100% { opacity: 1; transform: translateY(0); filter: brightness(1); }
