@@ -52,10 +52,6 @@ interface Props {
   rawRows?: RawRow[];
   /** When true, drops the outer rounded border so the table sits flush with its parent. */
   flush?: boolean;
-  /** Row indices to highlight (matches an active pill upstream). When set, non-matching rows dim. */
-  highlightIndices?: number[] | null;
-  /** Color (hex/css) used for the highlighted row tint + left border. */
-  highlightColor?: string;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
@@ -80,19 +76,7 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
   />
 );
 
-export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightIndices, highlightColor }: Props) {
-  const highlightSet = highlightIndices && highlightIndices.length > 0 ? new Set(highlightIndices) : null;
-  const hlColor = highlightColor || "#0ea5e9";
-  // Convert hex to rgba helper for tint background
-  const hexToRgba = (hex: string, alpha: number) => {
-    const h = hex.replace("#", "");
-    const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
-    const r = parseInt(full.slice(0, 2), 16);
-    const g = parseInt(full.slice(2, 4), 16);
-    const b = parseInt(full.slice(4, 6), 16);
-    return `rgba(${r},${g},${b},${alpha})`;
-  };
-  const tintBg = hlColor.startsWith("#") ? hexToRgba(hlColor, 0.12) : hlColor;
+export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }: Props) {
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
@@ -172,14 +156,8 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             const amount = tx?.amount ?? raw?.amount ?? 0;
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
-            const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
-            const isDimmed = !!highlightSet && !isHighlighted;
             return (
-              <tr
-                key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
-                className={`border-b border-slate-100 transition-all duration-200 ${isDimmed ? "opacity-30" : ""} ${isHighlighted ? "" : "hover:bg-slate-50/60"}`}
-                style={isHighlighted ? { background: tintBg, boxShadow: `inset 3px 0 0 0 ${hlColor}` } : undefined}
-              >
+              <tr key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`} className="border-b border-slate-100 hover:bg-slate-50/60">
                 {/* ===== RAW SIDE ===== */}
                 <td className={`px-2 py-1 ${COL.source}`}>
                   {source ? (
