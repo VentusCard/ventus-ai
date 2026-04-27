@@ -211,7 +211,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
               <tr
                 key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
                 className={`border-b border-slate-100 transition-all duration-200 ${isHighlighted ? "exec-row-highlighted" : isDimmed ? "exec-row-dimmed" : "hover:bg-slate-50/60"}`}
-                style={isHighlighted ? ({ ["--exec-hl" as any]: highlightColor } as React.CSSProperties) : undefined}
+                style={{
+                  ...(isHighlighted ? ({ ["--exec-hl" as any]: highlightColor } as React.CSSProperties) : {}),
+                  ["--enrich-row-i" as any]: Math.min(idx, 24),
+                } as React.CSSProperties}
               >
                 {/* ===== RAW SIDE ===== */}
                 <td className={`px-2 py-1.5 ${COL.source}`}>
