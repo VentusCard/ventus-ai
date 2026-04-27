@@ -513,7 +513,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
-                          <span className="text-[10px] opacity-60 tabular-nums font-normal">
+                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
                             {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
                           </span>
                         </span>
@@ -647,7 +647,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: isOfferTab ? "#94a3b8" : dotColor, textDecoration: "none" }}>{isOfferTab ? "✕" : "⚠"}</span>
                           {flagLabel}
-                          <span className="text-[10px] opacity-60 tabular-nums font-normal">
+                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
                           </span>
                         </span>
@@ -966,7 +966,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className="text-[10px] opacity-60 tabular-nums font-normal">
+      <span className="text-[11px] opacity-60 tabular-nums font-normal">
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>
