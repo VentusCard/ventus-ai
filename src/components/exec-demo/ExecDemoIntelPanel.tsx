@@ -386,7 +386,7 @@ export default function ExecDemoIntelPanel({
           <div>
             {/* Header text - always visible */}
             {synthesisTriggered && rollupStats.length > 0 ? (
-              <div className="mb-2.5">
+              <div className="mb-2">
                 <div className="flex items-start justify-between">
                   {(() => {
                     const headerCopy =
@@ -398,7 +398,7 @@ export default function ExecDemoIntelPanel({
                         ? { title: "Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
                         : { title: "Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
                     return (
-                      <p className="font-bold text-slate-800 mb-1.5 text-lg">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
+                      <p className="font-bold text-slate-800 mb-1 text-xl">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
                     );
                   })()}
                   <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
