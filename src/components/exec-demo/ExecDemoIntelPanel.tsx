@@ -190,17 +190,6 @@ export default function ExecDemoIntelPanel({
   const showTabs = phase === "cardCycle" || phase === "cardScan" || phase === "hold";
   const chips = useMemo(() => deriveChips(processedSignals), [processedSignals]);
 
-  // Group chips by pillar → category → subcategory chips
-  const chipsByPillarCategory = useMemo(() => {
-    const map = new Map<string, Map<string, ChipData[]>>();
-    for (const chip of chips) {
-      if (!map.has(chip.pillar)) map.set(chip.pillar, new Map());
-      const catMap = map.get(chip.pillar)!;
-      if (!catMap.has(chip.category)) catMap.set(chip.category, []);
-      catMap.get(chip.category)!.push(chip);
-    }
-    return map;
-  }, [chips]);
   const [synthesisTriggeredInternal, setSynthesisTriggeredInternal] = useState(false);
   const synthesisTriggered = synthesisTriggeredProp ?? synthesisTriggeredInternal;
   const setSynthesisTriggered = (v: boolean) => {
