@@ -1052,6 +1052,8 @@ export default function ExecDemoPage() {
             onOpenAIAssistant={handleOpenAIAssistant}
             onAIPromptDispatch={dispatchAIPrompt}
             assistantOpen={aiTabTrigger > 0}
+            synthesisTriggered={synthesisTriggered}
+            onSynthesisChange={setSynthesisTriggered}
           />
         </div>
 
