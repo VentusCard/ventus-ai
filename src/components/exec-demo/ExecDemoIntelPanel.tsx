@@ -710,35 +710,58 @@ export default function ExecDemoIntelPanel({
                 {enrichedTransactions && enrichedTransactions.length > 0 ? (
                   <ExecDemoEnrichmentTable transactions={enrichedTransactions} />
                 ) : !synthesisTriggered ? (
-                  <div className="flex-1 min-h-0 flex flex-col">
-                    {/* Skeleton header — mirrors ExecDemoEnrichmentTable layout */}
-                    <div className="flex items-center gap-3 px-3 py-2 border-b border-slate-200 bg-slate-50 sticky top-0 z-10">
-                      <div className="w-[140px] h-3 rounded bg-slate-200" />
-                      <div className="w-[70px] h-3 rounded bg-slate-200" />
-                      <div className="w-[70px] h-3 rounded bg-slate-200" />
-                      <div className="w-[90px] h-3 rounded bg-slate-200" />
-                      <div className="w-[80px] h-3 rounded bg-slate-200" />
-                      <div className="w-[110px] h-3 rounded bg-slate-200" />
-                      <div className="flex-1 h-3 rounded bg-slate-200" />
-                      <div className="w-[70px] h-3 rounded bg-slate-200" />
-                      <div className="w-[70px] h-3 rounded bg-slate-200" />
+                  <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg overflow-hidden bg-white">
+                    {/* Skeleton header — mirrors ExecDemoEnrichmentTable two-tier layout */}
+                    <div className="sticky top-0 z-10">
+                      {/* Tier 1: Raw vs Enriched grouping */}
+                      <div className="flex items-stretch border-b border-slate-200">
+                        <div className="flex items-center gap-2 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-r border-slate-200" style={{ width: 485 }}>
+                          Raw Transaction
+                          <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
+                        </div>
+                        <div className="bg-slate-50" style={{ width: 24 }} />
+                        <div className="flex-1 flex items-center gap-2 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-l border-slate-200">
+                          Ventus Enriched
+                          <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
+                        </div>
+                      </div>
+                      {/* Tier 2: column header skeleton */}
+                      <div className="flex items-center gap-2 px-3 py-2 border-b border-slate-200 bg-slate-50/80">
+                        <div className="w-[60px] h-3 rounded bg-slate-200" />
+                        <div className="w-[110px] h-3 rounded bg-slate-200" />
+                        <div className="w-[150px] h-3 rounded bg-slate-200" />
+                        <div className="w-[40px] h-3 rounded bg-slate-200" />
+                        <div className="w-[50px] h-3 rounded bg-slate-200" />
+                        <div className="w-[16px]" />
+                        <div className="w-[80px] h-3 rounded bg-slate-200" />
+                        <div className="w-[110px] h-3 rounded bg-slate-200" />
+                        <div className="w-[90px] h-3 rounded bg-slate-200" />
+                        <div className="w-[110px] h-3 rounded bg-slate-200" />
+                        <div className="w-[60px] h-3 rounded bg-slate-200" />
+                        <div className="w-[65px] h-3 rounded bg-slate-200" />
+                        <div className="w-[40px] h-3 rounded bg-slate-200" />
+                      </div>
                     </div>
                     <div className="flex-1 overflow-hidden">
                       {Array.from({ length: 12 }).map((_, i) => (
                         <div
                           key={i}
-                          className="flex items-center gap-3 px-3 py-2.5 border-b border-slate-100 animate-pulse"
+                          className="flex items-center gap-2 px-3 py-2.5 border-b border-slate-100 animate-pulse"
                           style={{ animationDelay: `${i * 60}ms` }}
                         >
-                          <div className="w-[140px] h-3 rounded bg-slate-200/80" />
-                          <div className="w-[70px] h-3 rounded bg-slate-200/70" />
-                          <div className="w-[70px] h-3 rounded bg-slate-200/70" />
-                          <div className="w-[90px] h-4 rounded-full bg-slate-200/70" />
+                          <div className="w-[60px] h-3 rounded bg-slate-200/70" />
+                          <div className="w-[110px] h-3 rounded bg-slate-200/80" />
+                          <div className="w-[150px] h-3 rounded bg-slate-200/60" />
+                          <div className="w-[40px] h-4 rounded bg-slate-200/70" />
+                          <div className="w-[50px] h-3 rounded bg-slate-200/70" />
+                          <div className="w-[16px] h-3 rounded bg-blue-200/60" />
                           <div className="w-[80px] h-4 rounded-full bg-slate-200/70" />
-                          <div className="w-[110px] h-3 rounded bg-slate-200/70" />
-                          <div className="flex-1 h-3 rounded bg-slate-200/60" />
-                          <div className="w-[70px] h-3 rounded bg-slate-200/70" />
-                          <div className="w-[70px] h-3 rounded bg-slate-200/70" />
+                          <div className="w-[110px] h-4 rounded-full bg-slate-200/70" />
+                          <div className="w-[90px] h-3 rounded bg-slate-200/70" />
+                          <div className="w-[110px] h-3 rounded bg-slate-200/60" />
+                          <div className="w-[60px] h-4 rounded-full bg-slate-200/70" />
+                          <div className="w-[65px] h-4 rounded-full bg-slate-200/70" />
+                          <div className="w-[40px] h-4 rounded-full bg-slate-200/70" />
                         </div>
                       ))}
                     </div>
