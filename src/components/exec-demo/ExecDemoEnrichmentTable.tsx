@@ -52,6 +52,14 @@ interface Props {
   rawRows?: RawRow[];
   /** When true, drops the outer rounded border so the table sits flush with its parent. */
   flush?: boolean;
+  /** When provided, rows at these indices are highlighted; others are dimmed. */
+  highlightedIndices?: number[] | null;
+  /** Accent color used for the highlight border / tint. */
+  highlightColor?: string;
+  /** Active pill label (used in the "Showing N of M" strip). */
+  activePillLabel?: string | null;
+  /** Called when the user clicks Clear in the highlight strip. */
+  onClearHighlight?: () => void;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
