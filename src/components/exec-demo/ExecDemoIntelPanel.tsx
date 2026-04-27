@@ -695,85 +695,89 @@ export default function ExecDemoIntelPanel({
 
             {(pillsExpanded || !synthesisTriggered || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-y-auto ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${pillsExpanded ? "flex-1 min-h-0" : ""}`}
+                style={{ maxHeight: pillsExpanded ? undefined : 360 }}
               >
-                {/* Header row */}
-                <div className="flex items-center py-2 px-2 border-b border-slate-300 sticky top-0 bg-slate-100 z-10 rounded-t-md">
-                  <div className="w-[115px] shrink-0 pr-2 text-[12px] font-bold uppercase tracking-wider text-slate-900">
-                    Pillar
-                  </div>
-                  <div className="flex-1 text-[12px] font-bold uppercase tracking-wider text-slate-900">
-                    (Category) Subcategory, Amount
-                  </div>
-                  <div className="w-[70px] shrink-0 pl-2 text-right text-[12px] font-bold uppercase tracking-wider text-slate-900">
-                    Total
-                  </div>
-                </div>
-                {(() => {
-                  const entries = Array.from(chipsByPillarCategory.entries());
-                  return entries.map(([pillar, categoriesMap], pillarIdx) => {
-                    const c = getColor(pillar);
-                    const pillarTotal = Array.from(categoriesMap.values())
-                      .flat()
-                      .reduce((sum, chip) => sum + chip.totalSpend, 0);
-                    return (
-                      <div
-                        key={pillar}
-                        className={`flex py-2 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
-                      >
-                        {/* Left column — pillar name */}
-                        <div className="w-[115px] shrink-0 flex items-start gap-1.5 pt-[3px] pr-2">
-                          <span className="w-2 h-2 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
-                          <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
-                        </div>
-                        {/* Middle column — categories + subcategory pills */}
-                        <div className="flex-1 flex flex-wrap items-center gap-1.5">
-                          {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
-                            <React.Fragment key={category}>
-                              <span
-                                onClick={() => onPillClick?.(pillar, category, true)}
-                                className={`inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
-                                  activePillFilter?.pillar === pillar && activePillFilter?.label === category && activePillFilter?.isCategory
-                                    ? "ring-1 ring-offset-1 shadow-sm"
-                                    : ""
-                                }`}
-                                style={{
-                                  background: c.bg,
-                                  color: c.text,
-                                  border: `1px solid ${c.border}`,
-                                }}
-                              >
-                                {category}
-                              </span>
-                              {catChips.map((chip, idx) => {
-                                const isActive = activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label;
-                                return (
-                                  <span
-                                    key={`${chip.pillar}::${chip.category}::${chip.label}`}
-                                    onClick={() => onPillClick?.(chip.pillar, chip.label)}
-                                    className={`inline-flex items-center gap-0.5 text-[12.5px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
-                                    style={{ color: c.text }}
-                                  >
-                                    {chip.label}
-                                    {chip.count > 1 && (
-                                      <span className="text-[11.5px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
-                                    )}
-                                    <span className="text-[11.5px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
-                                    {idx < catChips.length - 1 && <span className="text-slate-300 mx-0.5">·</span>}
-                                  </span>
-                                );
-                              })}
-                            </React.Fragment>
-                          ))}
-                        </div>
-                        {/* Right column — pillar total */}
-                        <div className="w-[70px] shrink-0 pl-2 pt-[3px] text-right text-[12px] font-semibold tabular-nums" style={{ color: c.text }}>
-                          {formatSpend(pillarTotal)}
-                        </div>
+                {enrichedTransactions && enrichedTransactions.length > 0 ? (
+                  <ExecDemoEnrichmentTable transactions={enrichedTransactions} />
+                ) : (
+                  <div className="overflow-y-auto exec-light-scroll">
+                    {/* Header row */}
+                    <div className="flex items-center py-2 px-2 border-b border-slate-300 sticky top-0 bg-slate-100 z-10 rounded-t-md">
+                      <div className="w-[115px] shrink-0 pr-2 text-[12px] font-bold uppercase tracking-wider text-slate-900">
+                        Pillar
                       </div>
-                    );
-                  });
-                })()}
+                      <div className="flex-1 text-[12px] font-bold uppercase tracking-wider text-slate-900">
+                        (Category) Subcategory, Amount
+                      </div>
+                      <div className="w-[70px] shrink-0 pl-2 text-right text-[12px] font-bold uppercase tracking-wider text-slate-900">
+                        Total
+                      </div>
+                    </div>
+                    {(() => {
+                      const entries = Array.from(chipsByPillarCategory.entries());
+                      return entries.map(([pillar, categoriesMap], pillarIdx) => {
+                        const c = getColor(pillar);
+                        const pillarTotal = Array.from(categoriesMap.values())
+                          .flat()
+                          .reduce((sum, chip) => sum + chip.totalSpend, 0);
+                        return (
+                          <div
+                            key={pillar}
+                            className={`flex py-2 ${pillarIdx < entries.length - 1 ? "border-b border-slate-200/40" : ""}`}
+                          >
+                            <div className="w-[115px] shrink-0 flex items-start gap-1.5 pt-[3px] pr-2">
+                              <span className="w-2 h-2 rounded-full shrink-0 mt-[3px]" style={{ background: c.dot }} />
+                              <span className="text-[12px] font-semibold leading-tight" style={{ color: c.text }}>{pillar}</span>
+                            </div>
+                            <div className="flex-1 flex flex-wrap items-center gap-1.5">
+                              {Array.from(categoriesMap.entries()).map(([category, catChips]) => (
+                                <React.Fragment key={category}>
+                                  <span
+                                    onClick={() => onPillClick?.(pillar, category, true)}
+                                    className={`inline-flex items-center text-[12px] font-semibold px-2.5 py-1 rounded-full whitespace-nowrap cursor-pointer transition-all duration-200 hover:brightness-95 ${
+                                      activePillFilter?.pillar === pillar && activePillFilter?.label === category && activePillFilter?.isCategory
+                                        ? "ring-1 ring-offset-1 shadow-sm"
+                                        : ""
+                                    }`}
+                                    style={{
+                                      background: c.bg,
+                                      color: c.text,
+                                      border: `1px solid ${c.border}`,
+                                    }}
+                                  >
+                                    {category}
+                                  </span>
+                                  {catChips.map((chip, idx) => {
+                                    const isActive = activePillFilter?.pillar === chip.pillar && activePillFilter?.label === chip.label;
+                                    return (
+                                      <span
+                                        key={`${chip.pillar}::${chip.category}::${chip.label}`}
+                                        onClick={() => onPillClick?.(chip.pillar, chip.label)}
+                                        className={`inline-flex items-center gap-0.5 text-[12.5px] cursor-pointer transition-opacity duration-200 ${isActive ? "font-semibold" : "opacity-80 hover:opacity-100"}`}
+                                        style={{ color: c.text }}
+                                      >
+                                        {chip.label}
+                                        {chip.count > 1 && (
+                                          <span className="text-[11.5px] tabular-nums" style={{ color: c.dot }}>{chip.count}×</span>
+                                        )}
+                                        <span className="text-[11.5px] opacity-60 tabular-nums">{formatSpend(chip.totalSpend)}</span>
+                                        {idx < catChips.length - 1 && <span className="text-slate-300 mx-0.5">·</span>}
+                                      </span>
+                                    );
+                                  })}
+                                </React.Fragment>
+                              ))}
+                            </div>
+                            <div className="w-[70px] shrink-0 pl-2 pt-[3px] text-right text-[12px] font-semibold tabular-nums" style={{ color: c.text }}>
+                              {formatSpend(pillarTotal)}
+                            </div>
+                          </div>
+                        );
+                      });
+                    })()}
+                  </div>
+                )}
               </div>
             )}
           </div>
