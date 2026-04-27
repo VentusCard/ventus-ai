@@ -171,10 +171,12 @@ export default function ExecDemoPage() {
                 const rawTxs = profileRef.current?.transactions || [];
                 const merged = enriched.map((etx, i) => {
                   const raw: any = rawTxs[i];
-                  if (raw && raw.source && !(etx as any).source) {
-                    return { ...etx, source: raw.source };
-                  }
-                  return etx;
+                  return {
+                    ...etx,
+                    ...(raw?.source && !(etx as any).source ? { source: raw.source } : {}),
+                    ...(raw?.description ? { description: raw.description } : {}),
+                    ...(raw?.mcc ? { mcc: raw.mcc } : {}),
+                  };
                 });
                 classifiedRef.current = merged;
                 setEnrichedTxs(merged);

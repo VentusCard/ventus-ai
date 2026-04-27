@@ -448,6 +448,10 @@ export interface EnrichedTransaction {
   spending_tier: string;
   purchase_frequency?: string;
   confidence?: number;
+  // Raw fields preserved from the source CSV for the "before → after" view
+  description?: string;
+  mcc?: string;
+  source?: string;
 }
 
 /** Build signal map from AI-classified enriched transactions, preserving MCC data from raw CSV */
