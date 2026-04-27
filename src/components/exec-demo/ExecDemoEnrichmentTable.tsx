@@ -273,9 +273,9 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
                 <td className={`exec-enriched-cell px-2 py-1.5 ${COL.subs}`}>
                   {isEnriched ? (
-                    <div className="flex flex-wrap gap-0.5">
+                    <div className="flex flex-nowrap gap-0.5 overflow-hidden whitespace-nowrap" title={subs.join(", ")}>
                       {subs.length > 0 ? subs.map((sub, i) => (
-                        <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[10.5px] px-1.5 py-0.5 rounded">{sub}</span>
+                        <span key={i} className="inline-block shrink-0 bg-slate-100 text-slate-600 text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap">{sub}</span>
                       )) : <span className="text-[11px] text-slate-400">—</span>}
                     </div>
                   ) : (
