@@ -1,37 +1,37 @@
 ## Goal
 
-After clicking "Behavioral Intelligence: Ready" and then expanding the rolled-up pills via the chevron, the enrichment table should NOT appear. Only the legacy pill grid should be shown for the expanded post-synthesis view.
+Permanently remove the "initial pill compilations" — the legacy Pillar / Category / Subcategory chip grid (the table-like rows of colored category pills with subcategory dots and dollar amounts) from the intelligence panel.
 
-## Root cause
+## What stays (rolled-up pills functionality — fully preserved)
 
-In `src/components/exec-demo/ExecDemoIntelPanel.tsx` (line 717), the render branch shows the enrichment table whenever `enrichedTransactions` is populated — regardless of whether synthesis has been triggered. So once the user clicks Behavioral Intelligence and later expands the pills, the table still wins over the pill grid.
+- **Spending Habits rollup pills** (`PillarRollupChip` from `rollupStats`)
+- **Life Event Detection pills** (amber pills from `detectedLifeEvents`)
+- **Risk Factors pills** (gambling, financial vulnerability, etc.)
+- Collapse/expand chevron behavior for the rollup pill cluster
+- All click handlers driving Next-Offer / Next-Product / Next-Conversation tabs
+- Auto-selection of first rollup when entering a tab
+- Header text variations per active tab
 
-## Fix
+## What gets removed
 
-One-line change: gate the enrichment-table branch on `!synthesisTriggered` so it only shows during the pre-synthesis hold phase. After synthesis, expanding pills falls through to the legacy pill-grid branch (the existing `else` already handles that path).
+The legacy pill grid renderer in `ExecDemoIntelPanel.tsx` — the `else` branch (~lines 776–852) that maps over `chipsByPillarCategory` and renders the "Pillar / (Category) Subcategory, Amount / Total" rows.
 
-```tsx
-// Before
-{enrichedTransactions && enrichedTransactions.length > 0 ? (
-  <ExecDemoEnrichmentTable transactions={enrichedTransactions} flush={fullWidthEnrichment} />
-) : !synthesisTriggered ? (
-  /* skeleton */
-) : (
-  /* legacy pill grid */
-)}
+## Changes
 
-// After
-{!synthesisTriggered && enrichedTransactions && enrichedTransactions.length > 0 ? (
-  <ExecDemoEnrichmentTable transactions={enrichedTransactions} flush={fullWidthEnrichment} />
-) : !synthesisTriggered ? (
-  /* skeleton (unchanged) */
-) : (
-  /* legacy pill grid (unchanged) */
-)}
-```
+### `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-No other behavior changes — the pre-synthesis full-screen enrichment view, skeleton loader, and Behavioral Intelligence button flow stay exactly as they are.
+1. **Remove the legacy pill grid `else` branch** entirely.
 
-## Files
+2. **Simplify the conditional inside the expanded section** to two states only:
+   - `enrichedTransactions` available → `ExecDemoEnrichmentTable`
+   - Otherwise → loading skeleton
 
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` (1 line)
+3. **Remove the now-unused `chipsByPillarCategory` `useMemo`**. Keep `chips` / `deriveChips` since `chips.length > 0` still gates the section header.
+
+4. **Behavior after synthesis + re-expand**: clicking the chevron to expand shows the enrichment table (or skeleton if data isn't ready). The legacy pill compilation never appears again.
+
+## Files touched
+
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+
+No other files need changes. `ExecDemoEnrichmentTable` and all synthesis/rollup pill logic remain intact.
