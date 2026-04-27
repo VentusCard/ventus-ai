@@ -211,7 +211,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
               <tr
                 key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
                 className={`border-b border-slate-100 transition-all duration-200 ${isHighlighted ? "exec-row-highlighted" : isDimmed ? "exec-row-dimmed" : "hover:bg-slate-50/60"}`}
-                style={isHighlighted ? ({ ["--exec-hl" as any]: highlightColor } as React.CSSProperties) : undefined}
+                style={{
+                  ...(isHighlighted ? ({ ["--exec-hl" as any]: highlightColor } as React.CSSProperties) : {}),
+                  ["--enrich-row-i" as any]: Math.min(idx, 24),
+                } as React.CSSProperties}
               >
                 {/* ===== RAW SIDE ===== */}
                 <td className={`px-2 py-1.5 ${COL.source}`}>
@@ -252,7 +255,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td className={`px-2 py-1.5 ${COL.pillar}`}>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.pillar}`}>
                   {isEnriched && c ? (
                     <span
                       className="inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight"
@@ -265,10 +268,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={18} rounded="rounded" />
                   )}
                 </td>
-                <td className={`text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
+                <td className={`exec-enriched-cell text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
                   {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="90px" height={12} />}
                 </td>
-                <td className={`px-2 py-1.5 ${COL.subs}`}>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.subs}`}>
                   {isEnriched ? (
                     <div className="flex flex-wrap gap-0.5">
                       {subs.length > 0 ? subs.map((sub, i) => (
@@ -279,7 +282,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={14} />
                   )}
                 </td>
-                <td className={`px-2 py-1.5 ${COL.tier}`}>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.tier}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
                       {(tx as any).spending_tier || "—"}
@@ -288,7 +291,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="65px" height={16} />
                   )}
                 </td>
-                <td className={`px-2 py-1.5 ${COL.freq}`}>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.freq}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
                       {(tx as any).purchase_frequency || "—"}
@@ -312,6 +315,18 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         }
         tr.exec-row-dimmed > td {
           opacity: 0.32;
+        }
+        td.exec-enriched-cell {
+          background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
+          animation: exec-enriched-row-reveal 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+          animation-delay: calc(var(--enrich-row-i, 0) * 45ms);
+        }
+        tr.exec-row-highlighted > td.exec-enriched-cell {
+          background-image: none;
+        }
+        @keyframes exec-enriched-row-reveal {
+          0%   { opacity: 0; transform: translateY(-6px); }
+          100% { opacity: 1; transform: translateY(0); }
         }
         @keyframes ventus-enriched-reveal {
           0% { opacity: 0; transform: translateY(-6px); filter: brightness(1.15); }
