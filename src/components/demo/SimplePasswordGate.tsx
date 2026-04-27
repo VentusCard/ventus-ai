@@ -7,9 +7,10 @@ const SESSION_KEY = "demo_password_access";
 interface Props {
   children: ReactNode;
   bullets?: string[];
+  tagline?: string;
 }
 
-export default function SimplePasswordGate({ children, bullets }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
