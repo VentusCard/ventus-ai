@@ -174,20 +174,20 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }
                     {merchantRaw}
                   </div>
                 </td>
-                <td className={`px-2 py-1 ${COL.description}`}>
-                  {description ? (
-                    <div className="text-[10px] font-mono text-slate-500 truncate max-w-[160px]" title={description}>
-                      {description}
-                    </div>
-                  ) : (
-                    <span className="text-[10px] text-slate-300">—</span>
-                  )}
-                </td>
                 <td className={`px-2 py-1 ${COL.mcc}`}>
                   {mcc ? (
                     <span className="inline-block bg-slate-100 text-slate-600 text-[9.5px] font-mono px-1.5 py-px rounded">
                       {mcc}
                     </span>
+                  ) : (
+                    <span className="text-[10px] text-slate-300">—</span>
+                  )}
+                </td>
+                <td className={`px-2 py-1 ${COL.description}`}>
+                  {description ? (
+                    <div className="text-[10px] font-mono text-slate-500 truncate max-w-[160px]" title={description}>
+                      {description}
+                    </div>
                   ) : (
                     <span className="text-[10px] text-slate-300">—</span>
                   )}
