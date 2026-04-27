@@ -698,25 +698,44 @@ export default function ExecDemoIntelPanel({
               </>
             )}
 
-            {(pillsExpanded || !synthesisTriggered || !activeTab) && (
+            {(pillsExpanded || !synthesisTriggered || !activeTab || activeTab === "analytics") && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
-                style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded || activeTab === "analytics") ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
+                style={{ maxHeight: (!synthesisTriggered || pillsExpanded || activeTab === "analytics") ? undefined : 360 }}
               >
-                {!synthesisTriggered ? (
-                  <ExecDemoEnrichmentTable
-                    transactions={enrichedTransactions || []}
-                    rawRows={(transactions || []).map((t, i) => ({
-                      transaction_id: `tx-${i}`,
-                      source: t.source,
-                      date: t.date,
-                      merchant_name: t.merchant,
-                      description: (t as any).description,
-                      mcc: (t as any).mcc,
-                      amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
-                    }))}
-                    flush={fullWidthEnrichment}
-                  />
+                {(!synthesisTriggered || activeTab === "analytics") ? (
+                  (() => {
+                    // When the analytics (Behavioral Intelligence) tab is active, highlight rows
+                    // that match the currently-selected pill (rollup, life-event, or risk).
+                    let highlightIndices: number[] | null = null;
+                    let highlightColor: string | undefined;
+                    if (activeTab === "analytics") {
+                      if (activeRollup?.txIndices && activeRollup.txIndices.length > 0) {
+                        highlightIndices = activeRollup.txIndices;
+                        highlightColor = getColor(activeRollup.pillar).dot;
+                      } else if (activeTrigger?.indices && activeTrigger.indices.length > 0) {
+                        highlightIndices = activeTrigger.indices;
+                        highlightColor = activeTrigger.color;
+                      }
+                    }
+                    return (
+                      <ExecDemoEnrichmentTable
+                        transactions={enrichedTransactions || []}
+                        rawRows={(transactions || []).map((t, i) => ({
+                          transaction_id: `tx-${i}`,
+                          source: t.source,
+                          date: t.date,
+                          merchant_name: t.merchant,
+                          description: (t as any).description,
+                          mcc: (t as any).mcc,
+                          amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
+                        }))}
+                        flush={fullWidthEnrichment}
+                        highlightIndices={highlightIndices}
+                        highlightColor={highlightColor}
+                      />
+                    );
+                  })()
                 ) : null}
               </div>
             )}
