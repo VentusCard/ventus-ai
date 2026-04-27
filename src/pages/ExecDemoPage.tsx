@@ -944,9 +944,12 @@ export default function ExecDemoPage() {
       {/* Main content — 3 columns with animated collapse */}
       {(() => {
         const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
+        const showEnrichmentFullScreen =
+          phase === "hold" && !synthesisTriggered && (enrichedTxs?.length ?? 0) > 0;
         return (
       <div className="flex-1 min-h-0 flex">
-        {/* Col 1 — Transaction feed (collapses to sliver only when phone is shown) */}
+        {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view) */}
+        {!showEnrichmentFullScreen && (
         <div
           className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
