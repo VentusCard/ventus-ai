@@ -327,6 +327,8 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         }
         td.exec-enriched-cell {
           background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
+        }
+        .exec-cascade-on td.exec-enriched-cell {
           animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
           animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
           transform-origin: top center;
