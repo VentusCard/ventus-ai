@@ -33,8 +33,22 @@ const getFrequencyColor = (f: string) => {
   }
 };
 
+/** Raw row used while AI enrichment is still pending */
+export interface RawRow {
+  transaction_id?: string;
+  source?: string;
+  date?: string;
+  merchant_name: string;
+  description?: string;
+  mcc?: string;
+  amount: number;
+}
+
 interface Props {
+  /** Enriched transactions (final state). Render takes precedence over rawRows. */
   transactions: EnrichedTransaction[];
+  /** Raw rows shown while waiting for AI. If provided, missing-enriched rows render as shimmers. */
+  rawRows?: RawRow[];
   /** When true, drops the outer rounded border so the table sits flush with its parent. */
   flush?: boolean;
 }
@@ -54,8 +68,22 @@ const COL = {
   freq: "w-[80px]",
 };
 
-export default function ExecDemoEnrichmentTable({ transactions, flush }: Props) {
-  if (!transactions.length) {
+const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (
+  <span
+    className={`inline-block bg-slate-200/70 animate-pulse ${rounded}`}
+    style={{ width, height }}
+  />
+);
+
+export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }: Props) {
+  // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
+  // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
+  // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
+  const enrichedCount = transactions.length;
+  const rawCount = rawRows?.length ?? 0;
+  const totalRows = Math.max(enrichedCount, rawCount);
+
+  if (totalRows === 0) {
     return (
       <p className="text-[11px] text-slate-400 italic py-4 text-center">
         Awaiting enriched transactions…
@@ -66,6 +94,8 @@ export default function ExecDemoEnrichmentTable({ transactions, flush }: Props) 
   const wrapperCls = flush
     ? "overflow-auto exec-light-scroll bg-white h-full"
     : "border border-slate-200 rounded-lg overflow-auto exec-light-scroll bg-white";
+
+  const hasPending = rawCount > 0 && enrichedCount < rawCount;
 
   return (
     <div className={wrapperCls} style={{ maxHeight: "100%" }}>
@@ -83,7 +113,15 @@ export default function ExecDemoEnrichmentTable({ transactions, flush }: Props) 
               colSpan={5}
               className="bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5"
             >
-              Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
+              <span className="inline-flex items-center gap-2">
+                Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
+                {hasPending && (
+                  <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-700 normal-case tracking-normal">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
+                    Enriching…
+                  </span>
+                )}
+              </span>
             </th>
           </tr>
           {/* Tier 2 — Column headers */}
@@ -102,25 +140,32 @@ export default function ExecDemoEnrichmentTable({ transactions, flush }: Props) 
           </tr>
         </thead>
         <tbody>
-          {transactions.map((tx, idx) => {
-            const c = getColor(tx.pillar);
-            const merchantRaw = tx.merchant_name || "—";
-            const merchantDisplay = (tx as any).normalized_merchant || merchantRaw;
-            const subs: string[] = (tx as any).subcategories ?? ((tx as any).subcategory ? [(tx as any).subcategory] : []);
-            const description = (tx as any).description as string | undefined;
-            const mcc = (tx as any).mcc as string | undefined;
+          {Array.from({ length: totalRows }).map((_, idx) => {
+            const tx = transactions[idx] as EnrichedTransaction | undefined;
+            const raw = rawRows?.[idx];
+            // Prefer enriched values; fall back to raw fields when AI hasn't returned yet.
+            const merchantRaw = tx?.merchant_name || raw?.merchant_name || "—";
+            const merchantDisplay = (tx as any)?.normalized_merchant || merchantRaw;
+            const subs: string[] = (tx as any)?.subcategories ?? ((tx as any)?.subcategory ? [(tx as any).subcategory] : []);
+            const description = ((tx as any)?.description as string | undefined) ?? raw?.description;
+            const mcc = ((tx as any)?.mcc as string | undefined) ?? raw?.mcc;
+            const source = (tx as any)?.source ?? raw?.source;
+            const date = tx?.date ?? raw?.date;
+            const amount = tx?.amount ?? raw?.amount ?? 0;
+            const isEnriched = !!tx;
+            const c = isEnriched ? getColor(tx!.pillar) : null;
             return (
-              <tr key={(tx as any).transaction_id || `tx-${idx}`} className="border-b border-slate-100 hover:bg-slate-50/60">
+              <tr key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`} className="border-b border-slate-100 hover:bg-slate-50/60">
                 {/* ===== RAW SIDE ===== */}
                 <td className={`px-2 py-1 ${COL.source}`}>
-                  {(tx as any).source ? (
-                    <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium whitespace-nowrap ${SOURCE_COLORS[(tx as any).source] ?? "bg-slate-50 text-slate-500"}`}>
-                      {(tx as any).source}
+                  {source ? (
+                    <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
+                      {source}
                     </span>
                   ) : <span className="text-[10px] text-slate-400">—</span>}
                 </td>
                 <td className={`text-[10.5px] text-slate-600 whitespace-nowrap px-2 py-1 ${COL.date} tabular-nums`}>
-                  {tx.date || "—"}
+                  {date || "—"}
                 </td>
                 <td className={`px-2 py-1 ${COL.merchant}`}>
                   <div className="text-[10.5px] font-medium text-slate-900 truncate max-w-[120px]" title={merchantRaw}>
@@ -146,38 +191,54 @@ export default function ExecDemoEnrichmentTable({ transactions, flush }: Props) 
                   )}
                 </td>
                 <td className={`font-mono text-[10.5px] text-slate-900 px-2 py-1 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
-                  ${Math.round(Math.abs(Number(tx.amount) || 0))}
+                  ${Math.round(Math.abs(Number(amount) || 0))}
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
                 <td className={`px-2 py-1 ${COL.pillar}`}>
-                  <span
-                    className="inline-block border text-[9.5px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap leading-tight"
-                    style={{ background: c.bg, color: c.text, borderColor: c.border }}
-                    title={merchantDisplay !== merchantRaw ? `Normalized: ${merchantDisplay}` : undefined}
-                  >
-                    {tx.pillar}
-                  </span>
+                  {isEnriched && c ? (
+                    <span
+                      className="inline-block border text-[9.5px] font-semibold px-1.5 py-0.5 rounded whitespace-nowrap leading-tight"
+                      style={{ background: c.bg, color: c.text, borderColor: c.border }}
+                      title={merchantDisplay !== merchantRaw ? `Normalized: ${merchantDisplay}` : undefined}
+                    >
+                      {tx!.pillar}
+                    </span>
+                  ) : (
+                    <ShimmerCell width="100px" height={16} rounded="rounded" />
+                  )}
                 </td>
-                <td className={`text-[10.5px] text-slate-700 px-2 py-1 truncate max-w-[110px] ${COL.category}`} title={(tx as any).category}>
-                  {(tx as any).category || "—"}
+                <td className={`text-[10.5px] text-slate-700 px-2 py-1 truncate max-w-[110px] ${COL.category}`} title={(tx as any)?.category}>
+                  {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="80px" height={10} />}
                 </td>
                 <td className={`px-2 py-1 ${COL.subs}`}>
-                  <div className="flex flex-wrap gap-0.5">
-                    {subs.length > 0 ? subs.map((sub, i) => (
-                      <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded">{sub}</span>
-                    )) : <span className="text-[10px] text-slate-400">—</span>}
-                  </div>
+                  {isEnriched ? (
+                    <div className="flex flex-wrap gap-0.5">
+                      {subs.length > 0 ? subs.map((sub, i) => (
+                        <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded">{sub}</span>
+                      )) : <span className="text-[10px] text-slate-400">—</span>}
+                    </div>
+                  ) : (
+                    <ShimmerCell width="100px" height={12} />
+                  )}
                 </td>
                 <td className={`px-2 py-1 ${COL.tier}`}>
-                  <span className={`inline-block border text-[9px] px-1.5 py-px rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
-                    {(tx as any).spending_tier || "—"}
-                  </span>
+                  {isEnriched ? (
+                    <span className={`inline-block border text-[9px] px-1.5 py-px rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
+                      {(tx as any).spending_tier || "—"}
+                    </span>
+                  ) : (
+                    <ShimmerCell width="55px" height={14} />
+                  )}
                 </td>
                 <td className={`px-2 py-1 ${COL.freq}`}>
-                  <span className={`inline-block border text-[9px] px-1.5 py-px rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
-                    {(tx as any).purchase_frequency || "—"}
-                  </span>
+                  {isEnriched ? (
+                    <span className={`inline-block border text-[9px] px-1.5 py-px rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
+                      {(tx as any).purchase_frequency || "—"}
+                    </span>
+                  ) : (
+                    <ShimmerCell width="60px" height={14} />
+                  )}
                 </td>
               </tr>
             );
