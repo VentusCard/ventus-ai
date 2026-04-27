@@ -105,9 +105,29 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
     : "border border-slate-200 rounded-lg overflow-auto exec-light-scroll bg-white";
 
   const hasPending = rawCount > 0 && enrichedCount < rawCount;
+  const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
+  const matchedCount = highlightSet ? highlightSet.size : 0;
 
   return (
     <div className={wrapperCls} style={{ maxHeight: "100%" }}>
+      {highlightSet && activePillLabel && (
+        <div
+          className="sticky top-0 z-20 flex items-center justify-between px-3 py-1.5 border-b"
+          style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
+        >
+          <span className="text-[11px] font-semibold" style={{ color: highlightColor }}>
+            Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"
+          </span>
+          {onClearHighlight && (
+            <button
+              onClick={onClearHighlight}
+              className="text-[11px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      )}
       <table className="w-full text-left border-collapse min-w-[1180px]">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
