@@ -1,46 +1,44 @@
 ## Goal
 
-Eliminate the rolling-scroll animation on the left during initial semantic enrichment. Instead, immediately show the full-width enrichment table with the **Raw Transaction** columns populated from the CSV and the **Ventus Enriched** columns rendered as per-row loading shimmers until the AI returns.
+Fix the enrichment table's "Description" column so it shows the same value as the selection page (e.g. `Grocery Stores, Supermarkets` for MCC 5411), instead of the raw CSV note column ("Weekly grocery run").
 
-## Behavior change
+**The selection page will not change.** It is already correct and is the source of truth.
 
-**Today**
-1. User clicks "Semantic Enrichment" → `phase = "scroll"` for ~9s with the left transaction feed rapid-scrolling.
-2. After scroll completes → `phase = "hold"` → left panel hides, enrichment table fades in (already populated if AI finished, otherwise an animated skeleton table renders).
+## Root cause
 
-**After change**
-1. User clicks "Semantic Enrichment" → immediately `phase = "hold"` (skip the `scroll`/`cardScan` phases).
-2. Layout switches to full-width enrichment table right away.
-3. Enrichment table renders one row per raw CSV transaction:
-   - **Raw side** (Source, Date, Merchant, Description, MCC, Amt) — real values from CSV.
-   - **Enriched side** (Pillar, Category, Subcategories, Tier, Freq) — small shimmer placeholders per cell.
-4. As AI rows stream back, each row's enriched cells fill in (smooth fade swap, no layout shift).
-5. Once all rows are enriched + persona synthesis finishes, the existing "Behavioral Intelligence: Ready" affordance appears (unchanged).
+The CSV has a free-text `description` field with editorial notes like `"Weekly grocery run"`:
+```
+txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,...
+```
 
-## Changes
+- **Selection dialog** correctly ignores that field and resolves the description from the MCC code:
+  ```ts
+  mcc_description: MCC_DESCRIPTIONS[mcc] || get("description") || "—"
+  ```
+  → renders `Grocery Stores, Supermarkets`.
+- **Enrichment table** (`ExecDemoEnrichmentTable.tsx`, line 150) reads the raw CSV `description` directly:
+  ```ts
+  const description = ((tx as any)?.description as string | undefined) ?? raw?.description;
+  ```
+  → renders `Weekly grocery run` (wrong).
 
-### `src/pages/ExecDemoPage.tsx`
-- **`runAnimationWithProfile`**: drop the `setPhase("scroll")` + scroll/timing scaffolding for the initial enrichment run. Set `phase = "hold"` immediately, populate `processedIndices` with all transaction indices in one go (so downstream consumers stay consistent), and clear `collectedIndices`. The card-scan / cycle phases used for tab reveals are untouched.
+## Fix
 
 ### `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
-- Accept a new optional prop `pendingRows?: Array<{ source?, date, merchant_name, description?, mcc?, amount }>` representing raw rows whose enriched values are not yet available.
-- When the component receives **only raw rows** (initial state) or a **mix of raw + enriched rows**, render every row using the same column structure. For rows lacking enrichment data, replace the right-side cells (Pillar / Category / Subcategories / Tier / Freq) with subtle shimmer placeholders (small rounded `bg-slate-100 animate-pulse` blocks sized to match each column width).
-- Add a tiny "Enriching…" indicator pill in the table header's "Ventus Enriched" cell while any rows are still pending (small pulsing blue dot + label, matches existing footer style).
-
-### `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-- Replace the existing skeleton-table fallback (the block that renders fake skeleton rows when `enrichedTransactions` is empty/null pre-synthesis) with a render of `ExecDemoEnrichmentTable` driven by raw transactions passed in as `pendingRows`.
-- When `enrichedTransactions` arrives partially or fully, pass the enriched array so per-row swap happens naturally.
-- Pass raw transactions through from props (already available as `transactions`) so the table can build its raw row list immediately.
-
-### Data flow
-- Raw rows are derived from the same CSV currently parsed by `csvToClassifyPayload` — reuse that parser (or the already-parsed `profile.transactions` enriched with the raw CSV's `description`/`mcc`/`source` fields). No new fetches; data is already in memory when the user clicks "Semantic Enrichment".
+- Add `import { MCC_DESCRIPTIONS } from "@/lib/sampleData";`.
+- Move the existing `mcc` resolution (currently line 151) above the description line so it's available, then replace the description line with the same precedence used by the selection dialog:
+  ```ts
+  const mcc = ((tx as any)?.mcc as string | undefined) ?? raw?.mcc;
+  const rawDesc = ((tx as any)?.description as string | undefined) ?? raw?.description;
+  const description = (mcc && MCC_DESCRIPTIONS[mcc]) || rawDesc;
+  ```
+- Keep the column width, font, truncation, and `title={description}` tooltip exactly as they are.
 
 ## What stays the same
-- The full-width enrichment-table layout, chevron toggle, "Behavioral Intelligence: Ready" affordance, and post-synthesis pill rollups.
-- The left transaction feed (it just no longer animates during initial enrichment — and continues to be hidden in the full-width state).
-- All later phase transitions (`cardScan`, `cardCycle`) for tab reveals after the user picks an action.
+- `ExecDemoSelectionDialog.tsx` — untouched.
+- All other enrichment-table columns (Source, Date, Merchant, MCC, Amount, enriched cells).
+- CSV / sample data — untouched (the editorial `description` field still exists in the CSV; we just stop displaying it in this table).
+- Left-panel transaction tooltip — already uses `mccDescription` from the parsed signal map.
 
 ## Files touched
-- `src/pages/ExecDemoPage.tsx`
 - `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx`

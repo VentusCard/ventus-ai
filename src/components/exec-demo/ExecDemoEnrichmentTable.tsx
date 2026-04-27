@@ -1,5 +1,6 @@
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
+import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
@@ -147,8 +148,9 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }
             const merchantRaw = tx?.merchant_name || raw?.merchant_name || "—";
             const merchantDisplay = (tx as any)?.normalized_merchant || merchantRaw;
             const subs: string[] = (tx as any)?.subcategories ?? ((tx as any)?.subcategory ? [(tx as any).subcategory] : []);
-            const description = ((tx as any)?.description as string | undefined) ?? raw?.description;
             const mcc = ((tx as any)?.mcc as string | undefined) ?? raw?.mcc;
+            const rawDesc = ((tx as any)?.description as string | undefined) ?? raw?.description;
+            const description = (mcc && MCC_DESCRIPTIONS[mcc]) || rawDesc;
             const source = (tx as any)?.source ?? raw?.source;
             const date = tx?.date ?? raw?.date;
             const amount = tx?.amount ?? raw?.amount ?? 0;
