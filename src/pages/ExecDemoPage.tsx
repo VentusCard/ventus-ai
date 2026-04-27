@@ -1044,6 +1044,18 @@ export default function ExecDemoPage() {
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
             fullWidthEnrichment={showEnrichmentFullScreen}
+            highlightedIndices={filteredIndices}
+            highlightColor={
+              activeTriggerPill
+                ? activeTriggerPill.color
+                : activeRollup
+                  ? getColor(activeRollup.pillar).dot
+                  : activePillFilter
+                    ? getColor(activePillFilter.pillar).dot
+                    : "#0ea5e9"
+            }
+            activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
+            onClearHighlight={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
           />
         </div>
 
