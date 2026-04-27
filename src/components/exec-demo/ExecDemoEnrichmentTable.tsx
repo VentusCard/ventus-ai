@@ -313,6 +313,14 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         tr.exec-row-dimmed > td {
           opacity: 0.32;
         }
+        @keyframes ventus-enriched-reveal {
+          0% { opacity: 0; transform: translateY(-6px); filter: brightness(1.15); }
+          100% { opacity: 1; transform: translateY(0); filter: brightness(1); }
+        }
+        @keyframes ventus-enriched-shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(120%); }
+        }
       `}</style>
     </div>
   );
