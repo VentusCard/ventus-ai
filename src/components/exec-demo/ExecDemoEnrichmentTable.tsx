@@ -80,7 +80,19 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
   />
 );
 
-export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }: Props) {
+export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightIndices, highlightColor }: Props) {
+  const highlightSet = highlightIndices && highlightIndices.length > 0 ? new Set(highlightIndices) : null;
+  const hlColor = highlightColor || "#0ea5e9";
+  // Convert hex to rgba helper for tint background
+  const hexToRgba = (hex: string, alpha: number) => {
+    const h = hex.replace("#", "");
+    const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
+    const r = parseInt(full.slice(0, 2), 16);
+    const g = parseInt(full.slice(2, 4), 16);
+    const b = parseInt(full.slice(4, 6), 16);
+    return `rgba(${r},${g},${b},${alpha})`;
+  };
+  const tintBg = hlColor.startsWith("#") ? hexToRgba(hlColor, 0.12) : hlColor;
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
