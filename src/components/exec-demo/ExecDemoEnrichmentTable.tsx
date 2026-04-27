@@ -282,7 +282,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={14} />
                   )}
                 </td>
-                <td className={`px-2 py-1.5 ${COL.tier}`}>
+                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.tier}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
                       {(tx as any).spending_tier || "—"}
