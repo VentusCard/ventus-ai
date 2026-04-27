@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
@@ -85,6 +86,14 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
 );
 
 export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight }: Props) {
+  // One-shot cascade: only animate enriched cells on the initial reveal,
+  // not when pill clicks reorder/rehighlight rows later.
+  const [animateReveal, setAnimateReveal] = useState(true);
+  useEffect(() => {
+    const t = setTimeout(() => setAnimateReveal(false), 4000);
+    return () => clearTimeout(t);
+  }, []);
+
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
@@ -109,7 +118,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
   const matchedCount = highlightSet ? highlightSet.size : 0;
 
   return (
-    <div className={wrapperCls} style={{ maxHeight: "100%" }}>
+    <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} style={{ maxHeight: "100%" }}>
       {highlightSet && activePillLabel && (
         <div
           className="flex items-center justify-between px-3 py-2 border-b"
@@ -318,6 +327,8 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         }
         td.exec-enriched-cell {
           background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
+        }
+        .exec-cascade-on td.exec-enriched-cell {
           animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
           animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
           transform-origin: top center;
