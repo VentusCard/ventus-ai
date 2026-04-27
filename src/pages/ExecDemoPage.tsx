@@ -1016,6 +1016,7 @@ export default function ExecDemoPage() {
             </div>
           )}
         </div>
+        )}
 
         {/* Col 2 — Intelligence panel (always visible, fills remaining space) */}
         <div className="flex-1 border-r border-slate-200 bg-white overflow-hidden min-w-0">
