@@ -934,7 +934,7 @@ export default function ExecDemoPage() {
       {(() => {
         const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
         const showEnrichmentFullScreen =
-          phase === "hold" && !synthesisTriggered;
+          phase === "hold" && !activeTab;
         return (
       <div className="flex-1 min-h-0 flex">
         {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view) */}
