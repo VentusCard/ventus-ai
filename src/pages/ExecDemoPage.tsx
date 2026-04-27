@@ -121,6 +121,7 @@ export default function ExecDemoPage() {
     classifiedRef.current = null;
     personaSynthesisRef.current = null;
     setPersonaSynthesis(null);
+    setEnrichedTxs(null);
 
     const abort = new AbortController();
     classifyAbortRef.current = abort;
@@ -1027,6 +1028,7 @@ export default function ExecDemoPage() {
             onRollupClick={handleRollupClick}
             personaSynthesis={personaSynthesis}
             transactions={execProfile.transactions}
+            enrichedTransactions={enrichedTxs}
             generatedOffers={generatedOffers}
             offersLoading={offersLoading}
             detectedLifeEvents={detectedLifeEvents}
