@@ -183,6 +183,7 @@ export default function ExecDemoIntelPanel({
   assistantOpen = false,
   synthesisTriggered: synthesisTriggeredProp,
   onSynthesisChange,
+  fullWidthEnrichment = false,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
