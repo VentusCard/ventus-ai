@@ -40,17 +40,17 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
         </div>
         {bullets && bullets.length === 3 && (
           <div className="grid grid-cols-3 items-center gap-x-6 whitespace-nowrap w-full">
-            <div className="flex items-center gap-3 justify-end">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{bullets[0]}</span>
+            <div className="flex items-center gap-2 justify-end">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[13px] md:text-[14px] font-medium text-slate-600 tracking-tight">{bullets[0]}</span>
             </div>
-            <div className="flex items-center gap-3 justify-center">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{bullets[1]}</span>
+            <div className="flex items-center gap-2 justify-center">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[13px] md:text-[14px] font-medium text-slate-600 tracking-tight">{bullets[1]}</span>
             </div>
-            <div className="flex items-center gap-3 justify-start">
-              <span className="w-2 h-2 rounded-full bg-blue-500" />
-              <span className="text-[18px] md:text-[20px] font-semibold text-slate-700 tracking-tight">{bullets[2]}</span>
+            <div className="flex items-center gap-2 justify-start">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[13px] md:text-[14px] font-medium text-slate-600 tracking-tight">{bullets[2]}</span>
             </div>
           </div>
         )}
