@@ -172,8 +172,14 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             const amount = tx?.amount ?? raw?.amount ?? 0;
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
+            const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
+            const isDimmed = !!highlightSet && !isHighlighted;
             return (
-              <tr key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`} className="border-b border-slate-100 hover:bg-slate-50/60">
+              <tr
+                key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
+                className={`border-b border-slate-100 transition-all duration-200 ${isDimmed ? "opacity-30" : ""} ${isHighlighted ? "" : "hover:bg-slate-50/60"}`}
+                style={isHighlighted ? { background: tintBg, boxShadow: `inset 3px 0 0 0 ${hlColor}` } : undefined}
+              >
                 {/* ===== RAW SIDE ===== */}
                 <td className={`px-2 py-1 ${COL.source}`}>
                   {source ? (
