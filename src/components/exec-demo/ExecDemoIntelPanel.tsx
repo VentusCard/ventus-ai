@@ -60,6 +60,8 @@ interface Props {
   assistantOpen?: boolean;
   synthesisTriggered?: boolean;
   onSynthesisChange?: (triggered: boolean) => void;
+  /** When true, renders the enrichment table edge-to-edge (no card chrome / outer padding). */
+  fullWidthEnrichment?: boolean;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -181,6 +183,7 @@ export default function ExecDemoIntelPanel({
   assistantOpen = false,
   synthesisTriggered: synthesisTriggeredProp,
   onSynthesisChange,
+  fullWidthEnrichment = false,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -348,13 +351,17 @@ export default function ExecDemoIntelPanel({
 
 
   return (
-    <div className="flex flex-col h-full px-5 py-3 overflow-hidden">
+    <div className={`flex flex-col h-full overflow-hidden py-3 ${fullWidthEnrichment ? "px-0" : "px-5"}`}>
       {/* Persona section */}
       <div
-        className={`rounded-2xl px-4 py-3.5 mb-2.5 transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""}`}
+        className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
+          fullWidthEnrichment
+            ? "pt-3.5 pb-0"
+            : "rounded-2xl px-4 py-3.5 mb-2.5"
+        }`}
         style={{
-          background: "rgba(11,26,58,.022)",
-          border: "1px solid rgba(11,26,58,.14)",
+          background: fullWidthEnrichment ? undefined : "rgba(11,26,58,.022)",
+          border: fullWidthEnrichment ? undefined : "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
           maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
@@ -693,7 +700,7 @@ export default function ExecDemoIntelPanel({
               </div>
             ) : (
               <>
-              <div className="flex items-start justify-between">
+              <div className={`flex items-start justify-between ${fullWidthEnrichment ? "px-5" : ""}`}>
                 <p className="font-bold text-slate-800 mb-1.5 text-lg">Semantic Enrichment: <span className="text-slate-500 font-semibold">Reveal behavioral signals hidden by MCCs</span></p>
                 <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
@@ -704,23 +711,22 @@ export default function ExecDemoIntelPanel({
 
             {(pillsExpanded || !synthesisTriggered || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""}`}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
                 style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
               >
                 {enrichedTransactions && enrichedTransactions.length > 0 ? (
-                  <ExecDemoEnrichmentTable transactions={enrichedTransactions} />
+                  <ExecDemoEnrichmentTable transactions={enrichedTransactions} flush={fullWidthEnrichment} />
                 ) : !synthesisTriggered ? (
-                  <div className="flex-1 min-h-0 flex flex-col border border-slate-200 rounded-lg overflow-hidden bg-white">
+                  <div className={`flex-1 min-h-0 flex flex-col bg-white ${fullWidthEnrichment ? "" : "border border-slate-200 rounded-lg overflow-hidden"}`}>
                     {/* Skeleton header — mirrors ExecDemoEnrichmentTable two-tier layout */}
                     <div className="sticky top-0 z-10">
                       {/* Tier 1: Raw vs Enriched grouping */}
                       <div className="flex items-stretch border-b border-slate-200">
-                        <div className="flex items-center gap-2 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-r border-slate-200" style={{ width: 580 }}>
+                        <div className="flex items-center gap-2 bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-r-2 border-slate-300" style={{ width: 580 }}>
                           Raw Transaction
                           <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
                         </div>
-                        <div className="bg-slate-50" style={{ width: 24 }} />
-                        <div className="flex-1 flex items-center gap-2 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-l border-slate-200">
+                        <div className="flex-1 flex items-center gap-2 bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5">
                           Ventus Enriched
                           <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
                         </div>
@@ -733,13 +739,11 @@ export default function ExecDemoIntelPanel({
                         <div className="w-[150px] h-3 rounded bg-slate-200" />
                         <div className="w-[40px] h-3 rounded bg-slate-200" />
                         <div className="w-[50px] h-3 rounded bg-slate-200" />
-                        <div className="w-[16px]" />
                         <div className="w-[110px] h-3 rounded bg-slate-200" />
                         <div className="w-[90px] h-3 rounded bg-slate-200" />
                         <div className="w-[110px] h-3 rounded bg-slate-200" />
                         <div className="w-[60px] h-3 rounded bg-slate-200" />
                         <div className="w-[65px] h-3 rounded bg-slate-200" />
-                        <div className="w-[40px] h-3 rounded bg-slate-200" />
                       </div>
                     </div>
                     <div className="flex-1 overflow-hidden">
@@ -755,13 +759,11 @@ export default function ExecDemoIntelPanel({
                           <div className="w-[150px] h-3 rounded bg-slate-200/60" />
                           <div className="w-[40px] h-4 rounded bg-slate-200/70" />
                           <div className="w-[50px] h-3 rounded bg-slate-200/70" />
-                          <div className="w-[16px] h-3 rounded bg-blue-200/60" />
                           <div className="w-[110px] h-4 rounded-full bg-slate-200/70" />
                           <div className="w-[90px] h-3 rounded bg-slate-200/70" />
                           <div className="w-[110px] h-3 rounded bg-slate-200/60" />
                           <div className="w-[60px] h-4 rounded-full bg-slate-200/70" />
                           <div className="w-[65px] h-4 rounded-full bg-slate-200/70" />
-                          <div className="w-[40px] h-4 rounded-full bg-slate-200/70" />
                         </div>
                       ))}
                     </div>

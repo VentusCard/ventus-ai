@@ -1,4 +1,3 @@
-import { ArrowRight } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 
@@ -12,12 +11,6 @@ const SOURCE_COLORS: Record<string, string> = {
   "Wire": "bg-red-50 text-red-700",
   "Zelle": "bg-purple-50 text-purple-700",
   "Checks": "bg-orange-50 text-orange-700",
-};
-
-const getConfidenceColor = (c: number) => {
-  if (c >= 0.8) return "bg-emerald-50 text-emerald-700 border-emerald-200";
-  if (c >= 0.5) return "bg-yellow-50 text-yellow-700 border-yellow-200";
-  return "bg-red-50 text-red-700 border-red-200";
 };
 
 const getTierColor = (t: string) => {
@@ -42,6 +35,8 @@ const getFrequencyColor = (f: string) => {
 
 interface Props {
   transactions: EnrichedTransaction[];
+  /** When true, drops the outer rounded border so the table sits flush with its parent. */
+  flush?: boolean;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
@@ -51,17 +46,15 @@ const COL = {
   description: "w-[170px]",
   mcc: "w-[55px]",
   amount: "w-[60px]",
-  arrow: "w-[24px]",
   source: "w-[95px]",
   pillar: "w-[130px]",
   category: "w-[110px]",
   subs: "w-[130px]",
   tier: "w-[75px]",
   freq: "w-[80px]",
-  conf: "w-[55px]",
 };
 
-export default function ExecDemoEnrichmentTable({ transactions }: Props) {
+export default function ExecDemoEnrichmentTable({ transactions, flush }: Props) {
   if (!transactions.length) {
     return (
       <p className="text-[11px] text-slate-400 italic py-4 text-center">
@@ -70,22 +63,25 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
     );
   }
 
+  const wrapperCls = flush
+    ? "overflow-auto exec-light-scroll bg-white h-full"
+    : "border border-slate-200 rounded-lg overflow-auto exec-light-scroll bg-white";
+
   return (
-    <div className="border border-slate-200 rounded-lg overflow-auto exec-light-scroll bg-white" style={{ maxHeight: "100%" }}>
-      <table className="w-full text-left border-collapse min-w-[1340px]">
+    <div className={wrapperCls} style={{ maxHeight: "100%" }}>
+      <table className="w-full text-left border-collapse min-w-[1180px]">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
             <th
               colSpan={6}
-              className="bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-r border-slate-200"
+              className="bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-r-2 border-slate-300"
             >
               Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
             </th>
-            <th className="bg-slate-50 px-0.5" />
             <th
-              colSpan={6}
-              className="bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5 border-l border-slate-200"
+              colSpan={5}
+              className="bg-blue-50 text-blue-700 text-[10px] font-bold uppercase tracking-[0.12em] px-3 py-1.5"
             >
               Ventus Enriched <span className="font-normal normal-case tracking-normal text-blue-500/80">· AI-labeled semantic intelligence</span>
             </th>
@@ -97,14 +93,12 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.description}`}>Description</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.mcc}`}>MCC</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right border-r border-slate-200`}>Amt</th>
-            <th className={`${COL.arrow} px-0.5`}><span className="sr-only">→</span></th>
+            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.category}`}>Category</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.tier}`}>Tier</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.freq}`}>Freq</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.conf}`}>Conf</th>
           </tr>
         </thead>
         <tbody>
@@ -113,7 +107,6 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
             const merchantRaw = tx.merchant_name || "—";
             const merchantDisplay = (tx as any).normalized_merchant || merchantRaw;
             const subs: string[] = (tx as any).subcategories ?? ((tx as any).subcategory ? [(tx as any).subcategory] : []);
-            const conf: number = typeof (tx as any).confidence === "number" ? (tx as any).confidence : 0;
             const description = (tx as any).description as string | undefined;
             const mcc = (tx as any).mcc as string | undefined;
             return (
@@ -152,13 +145,8 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
                     <span className="text-[10px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`font-mono text-[10.5px] text-slate-900 px-2 py-1 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r border-slate-100`}>
+                <td className={`font-mono text-[10.5px] text-slate-900 px-2 py-1 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
                   ${Math.round(Math.abs(Number(tx.amount) || 0))}
-                </td>
-
-                {/* ===== ARROW ===== */}
-                <td className={`px-0.5 py-1 ${COL.arrow}`}>
-                  <ArrowRight className="w-3 h-3 text-blue-500 mx-auto" />
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
@@ -189,11 +177,6 @@ export default function ExecDemoEnrichmentTable({ transactions }: Props) {
                 <td className={`px-2 py-1 ${COL.freq}`}>
                   <span className={`inline-block border text-[9px] px-1.5 py-px rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
                     {(tx as any).purchase_frequency || "—"}
-                  </span>
-                </td>
-                <td className={`px-2 py-1 ${COL.conf}`}>
-                  <span className={`inline-block border text-[9px] px-1.5 py-px rounded leading-tight tabular-nums ${getConfidenceColor(conf)}`}>
-                    {Math.round(conf * 100)}%
                   </span>
                 </td>
               </tr>
