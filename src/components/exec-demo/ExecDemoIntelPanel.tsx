@@ -8,6 +8,7 @@ import NextConversationRationale, { type SelectedSignal } from "./NextConversati
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
+import ExecDemoEnrichmentTable from "./ExecDemoEnrichmentTable";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 
@@ -159,6 +160,7 @@ export default function ExecDemoIntelPanel({
   onRollupClick,
   personaSynthesis,
   transactions,
+  enrichedTransactions,
   generatedOffers,
   offersLoading,
   detectedLifeEvents,
