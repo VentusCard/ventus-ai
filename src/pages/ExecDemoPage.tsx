@@ -1056,6 +1056,7 @@ export default function ExecDemoPage() {
             assistantOpen={aiTabTrigger > 0}
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
+            fullWidthEnrichment={showEnrichmentFullScreen}
           />
         </div>
 
