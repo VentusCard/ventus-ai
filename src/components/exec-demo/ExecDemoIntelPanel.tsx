@@ -343,7 +343,7 @@ export default function ExecDemoIntelPanel({
     <div className={`flex flex-col h-full overflow-hidden py-3 ${fullWidthEnrichment ? "px-0" : "px-5"}`}>
       {/* Persona section */}
       <div
-        className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
+        className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab || activeTab === "analytics") ? "flex-1 min-h-0" : ""} ${
           fullWidthEnrichment
             ? "pt-3.5 pb-0"
             : "rounded-2xl px-4 py-3.5 mb-2.5"
@@ -353,7 +353,7 @@ export default function ExecDemoIntelPanel({
           border: fullWidthEnrichment ? undefined : "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
-          maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
+          maxHeight: synthesisTriggered && !pillsExpanded && activeTab && activeTab !== "analytics" ? "45vh" : undefined,
         }}
       >
 
@@ -698,25 +698,44 @@ export default function ExecDemoIntelPanel({
               </>
             )}
 
-            {(pillsExpanded || !synthesisTriggered || !activeTab) && (
+            {(pillsExpanded || !synthesisTriggered || !activeTab || activeTab === "analytics") && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
-                style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded || activeTab === "analytics") ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
+                style={{ maxHeight: (!synthesisTriggered || pillsExpanded || activeTab === "analytics") ? undefined : 360 }}
               >
-                {!synthesisTriggered ? (
-                  <ExecDemoEnrichmentTable
-                    transactions={enrichedTransactions || []}
-                    rawRows={(transactions || []).map((t, i) => ({
-                      transaction_id: `tx-${i}`,
-                      source: t.source,
-                      date: t.date,
-                      merchant_name: t.merchant,
-                      description: (t as any).description,
-                      mcc: (t as any).mcc,
-                      amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
-                    }))}
-                    flush={fullWidthEnrichment}
-                  />
+                {(!synthesisTriggered || activeTab === "analytics") ? (
+                  (() => {
+                    // When the analytics (Behavioral Intelligence) tab is active, highlight rows
+                    // that match the currently-selected pill (rollup, life-event, or risk).
+                    let highlightIndices: number[] | null = null;
+                    let highlightColor: string | undefined;
+                    if (activeTab === "analytics") {
+                      if (activeRollup?.txIndices && activeRollup.txIndices.length > 0) {
+                        highlightIndices = activeRollup.txIndices;
+                        highlightColor = getColor(activeRollup.pillar).dot;
+                      } else if (activeTrigger?.indices && activeTrigger.indices.length > 0) {
+                        highlightIndices = activeTrigger.indices;
+                        highlightColor = activeTrigger.color;
+                      }
+                    }
+                    return (
+                      <ExecDemoEnrichmentTable
+                        transactions={enrichedTransactions || []}
+                        rawRows={(transactions || []).map((t, i) => ({
+                          transaction_id: `tx-${i}`,
+                          source: t.source,
+                          date: t.date,
+                          merchant_name: t.merchant,
+                          description: (t as any).description,
+                          mcc: (t as any).mcc,
+                          amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
+                        }))}
+                        flush={fullWidthEnrichment}
+                        highlightIndices={highlightIndices}
+                        highlightColor={highlightColor}
+                      />
+                    );
+                  })()
                 ) : null}
               </div>
             )}
@@ -779,12 +798,10 @@ export default function ExecDemoIntelPanel({
       )}
 
       {/* Tab content — only after synthesis, hidden when evidence expanded */}
-      {showTabs && !pillsExpanded && activeTab && (
+      {showTabs && !pillsExpanded && activeTab && activeTab !== "analytics" && (
         <div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
           <div className="flex-1 min-h-0 overflow-auto scrollbar-light">
-            {activeTab === "analytics" && synthesisTriggered ? (
-              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} activeRollup={activeRollup} activeTriggerLabel={activeTriggerLabel} activeTrigger={activeTrigger} />
-            ) : activeTab === "product" ? (
+            {activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} pillarRollups={rollupStats} />
             ) : activeTab === "relationship" ? (
               <NextConversationRationale
