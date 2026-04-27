@@ -710,12 +710,12 @@ export default function ExecDemoIntelPanel({
               </>
             )}
 
-            {(pillsExpanded || !synthesisTriggered || !activeTab) && (
+            {(pillsExpanded || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!synthesisTriggered || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
-                style={{ maxHeight: (!synthesisTriggered || pillsExpanded) ? undefined : 360 }}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!activeTab || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
+                style={{ maxHeight: (!activeTab || pillsExpanded) ? undefined : 360 }}
               >
-                {!synthesisTriggered ? (
+                {!activeTab ? (
                   <ExecDemoEnrichmentTable
                     transactions={enrichedTransactions || []}
                     rawRows={(transactions || []).map((t, i) => ({
@@ -728,6 +728,10 @@ export default function ExecDemoIntelPanel({
                       amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
                     }))}
                     flush={fullWidthEnrichment}
+                    highlightedIndices={synthesisTriggered ? highlightedIndices : null}
+                    highlightColor={highlightColor}
+                    activePillLabel={synthesisTriggered ? activePillLabel : null}
+                    onClearHighlight={onClearHighlight}
                   />
                 ) : null}
               </div>
