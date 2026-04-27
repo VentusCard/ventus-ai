@@ -770,7 +770,6 @@ export default function ExecDemoPage() {
   }, [phase, activeTab, revealStep]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
-    setPhase("scroll");
     setProcessedIndices([]);
     setRevealedTabs([]);
     setActiveTab(null);
@@ -778,25 +777,13 @@ export default function ExecDemoPage() {
     setCollectedIndices([]);
     profileRef.current = p;
 
+    // Skip the scroll/cardScan animation — go straight to the full-width
+    // enrichment table view. Mark all transactions as "processed" so any
+    // downstream consumers of processedSignals stay in sync.
     const txCount = p.transactions.length;
-    const signalInterval = TIMINGS.scroll / (txCount + 1);
-
-    for (let i = 0; i < txCount; i++) {
-      const signal = p.persona.signalMap[i];
-      if (signal) {
-        schedule(() => {
-          setProcessedIndices((prev) => [...prev, i]);
-        }, (i + 1) * signalInterval);
-      }
-    }
-
-    const elapsed = TIMINGS.scroll + TIMINGS.personaPause;
-
-    schedule(() => {
-      setPhase("hold");
-      // Don't auto-select any tab — let user click an action button first
-      setCurrentCardColor(p.intelligence.analytics.accent);
-    }, elapsed);
+    setProcessedIndices(Array.from({ length: txCount }, (_, i) => i));
+    setPhase("hold");
+    setCurrentCardColor(p.intelligence.analytics.accent);
   }, [schedule, revealStep]);
 
   const handleRunAnalysis = useCallback(async () => {
