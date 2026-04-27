@@ -268,7 +268,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={18} rounded="rounded" />
                   )}
                 </td>
-                <td className={`text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
+                <td className={`exec-enriched-cell text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
                   {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="90px" height={12} />}
                 </td>
                 <td className={`px-2 py-1.5 ${COL.subs}`}>
