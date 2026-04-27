@@ -130,8 +130,8 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush }
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.source}`}>Source</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.date}`}>Date</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
-            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.description}`}>Description</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.description}`}>Description</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
             <th className={`text-slate-600 text-[10px] font-semibold uppercase tracking-wider px-2 py-1.5 whitespace-nowrap ${COL.category}`}>Category</th>
