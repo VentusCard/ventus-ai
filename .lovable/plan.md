@@ -1,15 +1,21 @@
-# Add horizontal padding to /demo intelligence panel and enrichment table
+# Bold blue background + smooth reveal for "Ventus Enriched" header
 
-The Behavioral Intelligence section and the Semantic Enrichment transaction table currently sit flush against the left and right viewport edges in the full-width enrichment view (when no tab is selected after synthesis). Add consistent horizontal breathing room.
+Restyle the right-side group header in the enrichment table (`Ventus Enriched · AI-labeled semantic intelligence`) from a soft `bg-blue-50` band into a richer, branded blue band with a smooth fade-up reveal and a one-time shimmer sweep.
 
-## Change
+## Change in `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
 
-### `src/components/exec-demo/ExecDemoIntelPanel.tsx` (line 355)
+### 1. Header `<th>` (lines 141–154)
+Replace the existing cell with a deeper blue gradient cell, white text, a positioned shimmer overlay span, and a one-shot reveal animation class. Specifically:
+- Background: `linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)` (vivid Ventus blue → deeper blue).
+- Text color: white. Subtitle (`· AI-labeled semantic intelligence`) softens to `text-blue-100/90`.
+- The `Enriching…` pill becomes `bg-white/20 text-white` with a white pulse dot for contrast on the blue.
+- Cell uses `relative overflow-hidden` and an `animate-[ventus-enriched-reveal_0.7s_ease-out_both]` reveal animation.
+- A single absolutely-positioned `<span aria-hidden>` overlays the cell to render a left-to-right shimmer sweep using `ventus-enriched-shimmer` (1.6s, runs once 0.4s after mount).
+- Inner content is wrapped in a `relative` span so it sits above the shimmer.
 
-Update the root container's `fullWidthEnrichment` padding:
-- From: `pt-2 pb-1 px-0`
-- To: `pt-2 pb-1 px-6`
+### 2. Extend the existing `<style>` block (lines 294–304)
+Append two `@keyframes` so the animations defined above resolve:
+- `ventus-enriched-reveal`: from `opacity: 0; transform: translateY(-6px); filter: brightness(1.15);` to `opacity: 1; transform: translateY(0); filter: brightness(1);`.
+- `ventus-enriched-shimmer`: from `transform: translateX(-100%);` to `transform: translateX(120%);`.
 
-This single change adds ~24px of horizontal padding on both sides for both the Behavioral Intelligence header/pills section AND the enrichment table beneath it (since both render inside this container in full-width mode). The redundant `px-5` on the header row (line 704) can stay — it will just nest harmlessly within the new outer padding, but does not need removal.
-
-The non-full-width branch (when a tab is selected) already has `px-5` and is unchanged.
+No other markup, columns, sticky behavior, or row logic changes.
