@@ -1,51 +1,49 @@
-## Goal
+## Problem
 
-The cascading reveal animation on enriched cells should only fire on the **initial reveal** (when the AI enrichment first lands), not when the user clicks a persona/lifestyle pill that reorders or re-highlights rows.
+The cascade animation on enriched cells currently starts a 4-second one-shot timer on **component mount**. But on mount the table is showing shimmer placeholders — enrichment hasn't arrived yet. By the time the AI returns results and the cells swap from `<ShimmerCell />` to real content, the CSS keyframe has already played on the same `<td>` DOM nodes (or is mid-stagger), so the user never sees a clean cascade reveal of the actual data.
 
-## Root cause
-
-The `td.exec-enriched-cell` class always carries the keyframe animation. When a pill is clicked, the row order changes (matched rows are sorted to the top) and React's reconciler ends up moving DOM nodes; combined with the `--enrich-row-i` delay variable, the cascade visually replays.
+We want: shimmer/loading state plays normally → AI returns → THEN the cascade animation fires, row by row, on the enriched cells.
 
 ## Fix
 
-Gate the animation behind a one-shot CSS class that is only applied on the first render of the table. After the initial reveal, the class is removed so any subsequent re-renders (pill clicks, sort changes, highlight toggles) don't re-trigger the cascade.
+Edit `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`:
 
-### Change
+1. **Don't start the reveal timer on mount.** Initialize `animateReveal` to `false`.
 
-**File:** `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
+2. **Detect the moment enrichment first lands.** Track the previous `enrichedCount` in a ref. When it transitions from `0` to `>0` (first enriched row arrives), start a one-shot reveal session:
+   - Bump a `revealKey` counter (state).
+   - Set `animateReveal = true`.
+   - Schedule a `setTimeout(..., 4000)` to set `animateReveal = false` so subsequent pill clicks don't replay it.
 
-1. Add a `useState` + `useEffect` near the top of the component:
-   ```tsx
-   const [animateReveal, setAnimateReveal] = useState(true);
-   useEffect(() => {
-     // Allow the cascade to play once on mount, then disable so pill clicks
-     // and re-sorts don't replay the animation.
-     const t = setTimeout(() => setAnimateReveal(false), 4000);
-     return () => clearTimeout(t);
-   }, []);
-   ```
-   (4000ms covers the 24 × 110ms stagger + 700ms duration with margin.)
+3. **Force the enriched `<td>`s to remount so the CSS keyframe plays from frame 0.** Currently the same `<td>` node persists across the shimmer→real swap, which means re-applying the `.exec-cascade-on` class won't restart the animation. Fix by including `revealKey` in the enriched cell rendering — wrap each enriched cell's content in a fragment keyed by `revealKey-${idx}`, OR simpler: change the row's `key` to include `revealKey` only once per row when that row first becomes enriched. Cleanest implementation: give each enriched `<td>` a unique React `key` via wrapping spans, e.g. render the enriched-side cells as `<td key={\`enr-${idx}-${tx ? revealKey : 'pending'}\`} ...>` — when a row swaps from pending to enriched, the td remounts and the keyframe animation plays fresh with its staggered delay.
 
-2. In the wrapper `<div>`, conditionally add a scoping class:
-   ```tsx
-   <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} ...>
-   ```
+4. **Keep the existing `.exec-cascade-on` scoping** so the cascade only applies during the reveal window.
 
-3. In the `<style>` block, scope the cascade animation under that class so it ONLY runs while present:
-   ```css
-   .exec-cascade-on td.exec-enriched-cell {
-     animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-     animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
-     transform-origin: top center;
-   }
-   /* Resting gradient applies to every enriched cell, always. */
-   td.exec-enriched-cell {
-     background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
-   }
-   ```
+### Pseudocode
 
-The keyframe definition itself (`@keyframes exec-enriched-row-reveal`) and the highlighted/dimmed rules stay unchanged.
+```tsx
+const [animateReveal, setAnimateReveal] = useState(false);
+const [revealKey, setRevealKey] = useState(0);
+const prevEnrichedCount = useRef(0);
 
-Add the `useState`/`useEffect` imports at the top of the file if not already present.
+useEffect(() => {
+  if (prevEnrichedCount.current === 0 && enrichedCount > 0) {
+    setRevealKey(k => k + 1);
+    setAnimateReveal(true);
+    const t = setTimeout(() => setAnimateReveal(false), 4000);
+    return () => clearTimeout(t);
+  }
+  prevEnrichedCount.current = enrichedCount;
+}, [enrichedCount]);
+```
 
-No JSX structural changes beyond the wrapper className addition.
+And on each enriched `<td>`:
+```tsx
+<td key={`enr-${idx}-${isEnriched ? revealKey : 'pending'}`} className="exec-enriched-cell ..." >
+```
+
+This ensures the cascade plays exactly once, when the first batch of enriched rows lands, and never again on pill clicks or re-sorts.
+
+## Files changed
+
+- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` — replace mount-based timer with first-enrichment-arrival trigger; add `revealKey` to enriched `<td>` keys to force remount and restart the CSS keyframe.

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
@@ -86,18 +86,26 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
 );
 
 export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight }: Props) {
-  // One-shot cascade: only animate enriched cells on the initial reveal,
-  // not when pill clicks reorder/rehighlight rows later.
-  const [animateReveal, setAnimateReveal] = useState(true);
-  useEffect(() => {
-    const t = setTimeout(() => setAnimateReveal(false), 4000);
-    return () => clearTimeout(t);
-  }, []);
-
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
   const enrichedCount = transactions.length;
+
+  // One-shot cascade: only animate enriched cells when AI results FIRST arrive,
+  // not on mount (shimmer phase) and not on pill clicks/re-sorts later.
+  const [animateReveal, setAnimateReveal] = useState(false);
+  const [revealKey, setRevealKey] = useState(0);
+  const prevEnrichedCount = useRef(0);
+  useEffect(() => {
+    if (prevEnrichedCount.current === 0 && enrichedCount > 0) {
+      setRevealKey((k) => k + 1);
+      setAnimateReveal(true);
+      const t = setTimeout(() => setAnimateReveal(false), 4000);
+      prevEnrichedCount.current = enrichedCount;
+      return () => clearTimeout(t);
+    }
+    prevEnrichedCount.current = enrichedCount;
+  }, [enrichedCount]);
   const rawCount = rawRows?.length ?? 0;
   const totalRows = Math.max(enrichedCount, rawCount);
 
@@ -264,7 +272,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.pillar}`}>
+                <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-1.5 ${COL.pillar}`}>
                   {isEnriched && c ? (
                     <span
                       className="inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight"
@@ -277,10 +285,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={18} rounded="rounded" />
                   )}
                 </td>
-                <td className={`exec-enriched-cell text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
+                <td key={`enr-cat-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell text-[12px] text-slate-700 px-2 py-1.5 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
                   {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="90px" height={12} />}
                 </td>
-                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.subs}`}>
+                <td key={`enr-subs-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-1.5 ${COL.subs}`}>
                   {isEnriched ? (
                     <div className="flex flex-nowrap gap-0.5 overflow-hidden whitespace-nowrap" title={subs.join(", ")}>
                       {subs.length > 0 ? subs.map((sub, i) => (
@@ -291,7 +299,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={14} />
                   )}
                 </td>
-                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.tier}`}>
+                <td key={`enr-tier-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-1.5 ${COL.tier}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
                       {(tx as any).spending_tier || "—"}
@@ -300,7 +308,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="65px" height={16} />
                   )}
                 </td>
-                <td className={`exec-enriched-cell px-2 py-1.5 ${COL.freq}`}>
+                <td key={`enr-freq-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-1.5 ${COL.freq}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[10.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
                       {(tx as any).purchase_frequency || "—"}
