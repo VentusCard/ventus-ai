@@ -7,9 +7,10 @@ const SESSION_KEY = "demo_password_access";
 interface Props {
   children: ReactNode;
   bullets?: string[];
+  tagline?: string;
 }
 
-export default function SimplePasswordGate({ children, bullets }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
@@ -29,8 +30,14 @@ export default function SimplePasswordGate({ children, bullets }: Props) {
   return (
     <div className="h-screen w-screen flex items-center justify-center bg-white px-6" style={{ fontFamily: "Manrope, sans-serif" }}>
       <div className="flex flex-col items-center gap-8 w-full max-w-5xl">
-        <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
-
+        <div className="flex flex-col items-center gap-4">
+          <img src={ventusLogo} alt="Ventus AI" className="h-16 md:h-20 w-auto" />
+          {tagline && (
+            <p className="text-[22px] md:text-[26px] font-semibold text-slate-600 tracking-tight text-center">
+              {tagline}
+            </p>
+          )}
+        </div>
         {bullets && bullets.length === 3 && (
           <div className="grid grid-cols-3 items-center gap-x-6 whitespace-nowrap w-full">
             <div className="flex items-center gap-3 justify-end">
