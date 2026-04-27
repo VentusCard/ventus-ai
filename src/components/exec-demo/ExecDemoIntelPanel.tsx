@@ -179,6 +179,8 @@ export default function ExecDemoIntelPanel({
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
+  synthesisTriggered: synthesisTriggeredProp,
+  onSynthesisChange,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -196,7 +198,12 @@ export default function ExecDemoIntelPanel({
     }
     return map;
   }, [chips]);
-  const [synthesisTriggered, setSynthesisTriggered] = useState(false);
+  const [synthesisTriggeredInternal, setSynthesisTriggeredInternal] = useState(false);
+  const synthesisTriggered = synthesisTriggeredProp ?? synthesisTriggeredInternal;
+  const setSynthesisTriggered = (v: boolean) => {
+    setSynthesisTriggeredInternal(v);
+    onSynthesisChange?.(v);
+  };
 
   // Determine which pillars have AI rollups
   const rollups = personaSynthesis?.pillarRollups || [];
