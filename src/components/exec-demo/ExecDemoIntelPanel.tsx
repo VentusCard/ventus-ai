@@ -846,7 +846,7 @@ export default function ExecDemoIntelPanel({
             }}
           >
             <Cpu className="w-4 h-4 text-white" />
-            <span>AI Customer Intelligence:</span>
+            <span>AI Customer Intelligence for Banks:</span>
             <span className="text-cyan-200">Ready</span>
             <span className="relative flex h-2 w-2 ml-1">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70 bg-cyan-300" />
