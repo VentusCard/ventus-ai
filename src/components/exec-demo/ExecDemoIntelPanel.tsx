@@ -396,7 +396,7 @@ export default function ExecDemoIntelPanel({
                         ? { title: "3.2 Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
                         : activeTab === "relationship"
                         ? { title: "3.3 Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
-                        : { title: "2. AI Customer Intelligence for Banks", sub: "Personas = Multi-category spending patterns" };
+                        : { title: "2. Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
                     return (
                       <p className="font-bold text-slate-800 mb-1 text-xl">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
                     );
@@ -702,7 +702,7 @@ export default function ExecDemoIntelPanel({
             ) : (
               <>
               <div className="flex items-start justify-between">
-                <p className="font-bold text-slate-800 mb-1.5 text-lg">1. AI Customer Intelligence for Banks: <span className="text-slate-500 font-semibold">Source and format agnostic enrichment to gain a full picture</span></p>
+                <p className="font-bold text-slate-800 mb-1.5 text-lg">1. Semantic Enrichment: <span className="text-slate-500 font-semibold">Source and format agnostic enrichment to gain a full picture</span></p>
                 <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                 </button>
@@ -846,7 +846,7 @@ export default function ExecDemoIntelPanel({
             }}
           >
             <Cpu className="w-4 h-4 text-white" />
-            <span>AI Customer Intelligence for Banks:</span>
+            <span>Semantic Enrichment:</span>
             <span className="text-cyan-200">Ready</span>
             <span className="relative flex h-2 w-2 ml-1">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-70 bg-cyan-300" />
