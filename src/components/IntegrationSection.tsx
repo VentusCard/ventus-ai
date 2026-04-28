@@ -19,8 +19,8 @@ const partners = [
 ];
 
 const statsData: { target: number | null; suffix: string; label: string; display?: string }[] = [
-  { target: null, suffix: "", label: "Dynamic labels", display: "Dynamic" },
-  { target: 12, suffix: "", label: "Lifestyle dimensions" },
+  { target: null, suffix: "", label: "Behavioral labels", display: "Dynamic" },
+  { target: 12, suffix: "", label: "Lifestyle categories" },
   { target: 20, suffix: "+", label: "Life events detected" },
 ];
 
