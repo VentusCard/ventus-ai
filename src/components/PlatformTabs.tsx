@@ -234,7 +234,7 @@ const EngagementPreview = () => {
             <p className="text-[10px] font-bold text-slate-900">Savings Streak</p>
             <span className="text-[7px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700">Saver Pro</span>
           </div>
-          <p className="text-[8px] text-slate-500 mb-1.5">12/16 weeks of saving $50+</p>
+          <p className="text-[8px] text-slate-500 mb-1.5">12/16 weeks of saving $12+</p>
           <div className="w-full h-1.5 rounded-full bg-slate-200">
             <div className="h-full rounded-full bg-amber-400" style={{ width: "75%" }} />
           </div>
