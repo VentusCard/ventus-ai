@@ -72,7 +72,7 @@ const events: EventData[] = [
     products: [
       {
         title: "529 College Savings Plan",
-        reason: "Tax-advantaged growth · $3,000+ already invested in admissions prep",
+        reason: "Tax-advantaged growth · Dynamic amount already invested in admissions prep",
         cta: "Open Plan →",
         ctaColor: "#16A34A",
       },
