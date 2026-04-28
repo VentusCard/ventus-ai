@@ -164,7 +164,7 @@ const TxRow = ({
                 <span className="text-slate-200">{signalEntry.mccDescription || "Unknown"}</span>
               </div>
               <div className="text-[10px] text-cyan-400 font-semibold tracking-wide border-t border-slate-700 pt-1">
-                Behavioral Intelligence
+                Ventus Semantic Enrichment:
               </div>
               <div className="flex items-center gap-1.5 text-[11px] flex-wrap">
                 <span className="text-slate-400">Pillar:</span>
@@ -401,7 +401,7 @@ export default function ExecDemoLeftPanel({
             }`}
           >
             <Play className="w-4 h-4" />
-            {isRunning ? "Analyzing..." : "Behavioral Intelligence"}
+            {isRunning ? "Analyzing..." : "Semantic Enrichment"}
           </button>
         </div>
       )}
