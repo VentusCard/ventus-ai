@@ -45,7 +45,7 @@ const DEAL_LIBRARY = {
     { brand: "GoPro", tags: ["Snow Sports", "Technology"], standard: "15% off GoPro HERO12" },
     { brand: "Smith", tags: ["Snow Sports", "Goggles"], standard: "25% off Smith 4D MAG goggles" },
     { brand: "The North Face", tags: ["Snow Sports", "Apparel"], standard: "30% off winter jackets" },
-    { brand: "Ikon Pass", tags: ["Snow Sports", "Passes"], standard: "Family season pass with 50+ destinations" },
+    { brand: "Ikon Pass", tags: ["Snow Sports", "Passes"], standard: "Family season pass with 12 destinations" },
     { brand: "REI", tags: ["Snow Sports", "Retail"], standard: "20% off member dividend on winter gear" },
     { brand: "Rossignol", tags: ["Snow Sports", "Equipment"], standard: "Free tune-up with ski purchase" },
     { brand: "Arc'teryx", tags: ["Snow Sports", "Apparel"], standard: "$50 off orders over $300" },
