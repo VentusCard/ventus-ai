@@ -56,7 +56,7 @@ export function TaxAdvantagedAccountsSection({
           <div className="flex items-center gap-2">
             {isCatchUpEligible && (
               <Badge variant="secondary" className="text-xs">
-                Catch-up Eligible (50+)
+                Catch-up Eligible (12+)
               </Badge>
             )}
             {capturingFullMatch ? (
