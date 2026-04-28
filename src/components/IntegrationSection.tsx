@@ -18,9 +18,9 @@ const partners = [
   { name: "Snowflake", src: snowflakeLogo, height: "h-6" },
 ];
 
-const statsData = [
-  { target: 3000, suffix: "+", label: "Dynamic labels" },
-  { target: 50, suffix: "+", label: "Lifestyle dimensions" },
+const statsData: { target: number | null; suffix: string; label: string; display?: string }[] = [
+  { target: null, suffix: "", label: "Dynamic labels", display: "Dynamic" },
+  { target: 12, suffix: "", label: "Lifestyle dimensions" },
   { target: 20, suffix: "+", label: "Life events detected" },
 ];
 
