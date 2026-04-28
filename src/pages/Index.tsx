@@ -38,6 +38,21 @@ const Index = () => {
               </h2>
             </ScrollReveal>
             <CapabilityCards />
+            <div className="mt-16 max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+              {[
+                { value: "Dynamic", label: "Behavioral labels" },
+                { value: "12", label: "Lifestyle categories" },
+                { value: "20+", label: "Life events detected" },
+              ].map((s) => {
+                const isLong = s.value.length > 6;
+                return (
+                  <div key={s.label}>
+                    <p className={`font-bold text-gray-900 whitespace-nowrap ${isLong ? "text-2xl sm:text-[32px]" : "text-3xl sm:text-[52px]"}`}>{s.value}</p>
+                    <p className="text-gray-500 mt-1 text-sm sm:text-lg">{s.label}</p>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         </section>
 
