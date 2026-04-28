@@ -1,51 +1,49 @@
 ## Goal
 
-The cascading reveal animation on enriched cells should only fire on the **initial reveal** (when the AI enrichment first lands), not when the user clicks a persona/lifestyle pill that reorders or re-highlights rows.
+When the user is on any of the three "Next" tabs in the executive demo (`rewards` = Next-Offer, `product` = Next-Product, `relationship` = Next-Conversation), the layout should show the **middle Intelligence panel + right Phone mockup**, and hide the **left Transaction feed panel**.
 
-## Root cause
+Currently the left panel is always visible on these tabs, and the phone only appears for `relationship` after the AI Assistant button is clicked.
 
-The `td.exec-enriched-cell` class always carries the keyframe animation. When a pill is clicked, the row order changes (matched rows are sorted to the top) and React's reconciler ends up moving DOM nodes; combined with the `--enrich-row-i` delay variable, the cascade visually replays.
+## Change
 
-## Fix
+Edit `src/pages/ExecDemoPage.tsx` only. No other files need changes.
 
-Gate the animation behind a one-shot CSS class that is only applied on the first render of the table. After the initial reveal, the class is removed so any subsequent re-renders (pill clicks, sort changes, highlight toggles) don't re-trigger the cascade.
+### 1. Broaden `phoneVisible` to all three "Next" tabs
 
-### Change
+Replace the two existing definitions:
+```ts
+const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
+```
+with:
+```ts
+const isNextTab = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
+const phoneVisible = isNextTab;
+```
 
-**File:** `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
+This makes the phone show automatically whenever the user is on any of the three Next tabs, no longer gated on the AI Assistant button. (The AI Assistant button still works — `aiTabTrigger` continues to drive which tab inside the phone is active via `ExecDemoPhoneView`.)
 
-1. Add a `useState` + `useEffect` near the top of the component:
-   ```tsx
-   const [animateReveal, setAnimateReveal] = useState(true);
-   useEffect(() => {
-     // Allow the cascade to play once on mount, then disable so pill clicks
-     // and re-sorts don't replay the animation.
-     const t = setTimeout(() => setAnimateReveal(false), 4000);
-     return () => clearTimeout(t);
-   }, []);
-   ```
-   (4000ms covers the 24 × 110ms stagger + 700ms duration with margin.)
+### 2. Hide the left Transaction panel on Next tabs
 
-2. In the wrapper `<div>`, conditionally add a scoping class:
-   ```tsx
-   <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} ...>
-   ```
+In the Col 1 wrapper (currently around line 941), change the visibility condition so the column collapses entirely on Next tabs instead of becoming a 40px sliver:
 
-3. In the `<style>` block, scope the cascade animation under that class so it ONLY runs while present:
-   ```css
-   .exec-cascade-on td.exec-enriched-cell {
-     animation: exec-enriched-row-reveal 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
-     animation-delay: calc(var(--enrich-row-i, 0) * 110ms);
-     transform-origin: top center;
-   }
-   /* Resting gradient applies to every enriched cell, always. */
-   td.exec-enriched-cell {
-     background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
-   }
-   ```
+- When `isNextTab` is true → render nothing for Col 1 (panel hidden, no sliver, no expand affordance).
+- Otherwise (Persona / pre-Next phases, full-screen enrichment, etc.) → keep current behavior.
 
-The keyframe definition itself (`@keyframes exec-enriched-row-reveal`) and the highlighted/dimmed rules stay unchanged.
+Concretely, wrap the existing Col 1 block with `{!isNextTab && !showEnrichmentFullScreen && (...)}` and remove the `phoneVisible ? ... : 400` width math inside, since when the panel renders it always renders at full 400px now. Drop the sliver/expand UI (the `txPanelExpanded` toggle becomes unused on Next tabs — leave the state in place for safety but it no longer affects layout).
 
-Add the `useState`/`useEffect` imports at the top of the file if not already present.
+### 3. Keep phone-collapse behavior
 
-No JSX structural changes beyond the wrapper className addition.
+Leave Col 3's collapse-to-sliver (`phoneCollapsed`) behavior intact — users can still collapse the phone to a 40px strip via the chevron if they want more room for the middle panel.
+
+## Resulting layout per tab
+
+| Tab | Left (Tx feed) | Middle (Intel) | Right (Phone) |
+|---|---|---|---|
+| Persona / no tab | shown (400px) | shown | hidden |
+| `analytics` (Next-Purchase) | shown (400px) | shown | hidden |
+| `rewards` (Next-Offer) | **hidden** | shown (expanded) | **shown** |
+| `product` (Next-Product) | **hidden** | shown (expanded) | **shown** |
+| `relationship` (Next-Conversation) | **hidden** | shown (expanded) | **shown** |
+| Pre-synthesis enrichment full-screen | hidden (existing) | full-width | hidden |
+
+Note: `analytics` (Next-Purchase) is one of the four tabs but is the "purchase intelligence" view, not one of the three Next-action tabs. Per your message ("3 next tabs"), it is excluded — it keeps the current left+middle layout. If you also want the phone on Next-Purchase, say so and I'll include it.

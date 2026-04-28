@@ -52,8 +52,8 @@ const dealCards = [
 ];
 
 const stats = [
-  { value: "3,000+", label: "Dynamic reward labels" },
-  { value: "12", label: "Behavioral lifestyle categories" },
+  { value: "Dynamic", label: "Reward labels" },
+  { value: "12", label: "Lifestyle categories" },
   { value: "<200ms", label: "Time to surface an offer" },
 ];
 
@@ -72,7 +72,7 @@ const NextOfferPage = () => {
   return (
     <main className="bg-white min-h-screen">
       {/* Hero */}
-      <section ref={hero.ref} className="pt-32 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[70vh] sm:min-h-screen flex items-center">
+      <section ref={hero.ref} className="pt-40 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[80vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
           <p style={revealStyle(hero.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-blue-600 mb-4">NEXT OFFER</p>
           <h1 style={revealStyle(hero.visible, 100)} className="font-bold text-gray-900 leading-tight mb-6 text-3xl sm:text-[56px]">
@@ -93,7 +93,7 @@ const NextOfferPage = () => {
       <section ref={proof.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-6xl mx-auto" style={revealStyle(proof.visible, 0)}>
           <div className="mb-8" style={{ paddingTop: 48 }}>
-            <h2 className="font-bold text-gray-900 text-2xl sm:text-[32px] leading-tight mb-2">
+            <h2 className="font-bold text-gray-900 text-3xl md:text-4xl leading-tight mb-2">
               A Frequent Traveler profile — detected from transaction patterns.
             </h2>
             <p className="text-gray-500 text-base sm:text-[16px] leading-relaxed">
@@ -214,12 +214,15 @@ const NextOfferPage = () => {
       {/* Stats */}
       <section ref={statsSection.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-4xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
-          {stats.map((s, i) => (
-            <div key={s.label} style={revealStyle(statsSection.visible, i * 100)}>
-              <p className="font-bold text-gray-900 text-3xl sm:text-[52px]">{s.value}</p>
-              <p className="text-gray-500 mt-1 text-sm sm:text-lg">{s.label}</p>
-            </div>
-          ))}
+          {stats.map((s, i) => {
+            const isLong = s.value.length > 6;
+            return (
+              <div key={s.label} style={revealStyle(statsSection.visible, i * 100)}>
+                <p className={`font-bold text-gray-900 whitespace-nowrap ${isLong ? "text-2xl sm:text-[32px]" : "text-3xl sm:text-[52px]"}`}>{s.value}</p>
+                <p className="text-gray-500 mt-1 text-sm sm:text-lg">{s.label}</p>
+              </div>
+            );
+          })}
         </div>
       </section>
 

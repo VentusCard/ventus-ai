@@ -299,7 +299,7 @@ const SolutionSections = () => {
               <CarouselContent className="ml-0">
                 {sections.map((section) => (
                   <CarouselItem key={section.id} className="pl-0 basis-full">
-                    <div className="grid min-h-[560px] lg:min-h-[520px] lg:grid-cols-[1.05fr_1.2fr]">
+                    <div className="grid lg:min-h-[520px] lg:grid-cols-[1.05fr_1.2fr]">
                       <div className="flex flex-col justify-between border-b border-gray-200 p-6 sm:p-8 lg:border-b-0 lg:border-r lg:p-10">
                         <div>
                           <p className={`text-[11px] font-semibold tracking-widest uppercase mb-3 ${section.labelColor}`}>
@@ -313,7 +313,7 @@ const SolutionSections = () => {
                           </p>
                         </div>
 
-                        <div className="mt-8">
+                        <div className="mt-8 hidden lg:block">
                           <Link to={section.link}>
                             <Button variant="outline" className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50">
                               Learn more
@@ -322,17 +322,24 @@ const SolutionSections = () => {
                         </div>
                       </div>
 
-                      <div className="bg-gray-50 p-5 sm:p-6 lg:p-8">
-                        <div className="h-full rounded-[20px] border border-gray-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden">
+                      <div className="flex flex-col bg-gray-50 p-5 sm:p-6 lg:p-8">
+                        <div className="rounded-[20px] border border-gray-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden lg:h-full">
                           <div className="flex items-center gap-1.5 px-4 py-3 bg-gray-100 border-b border-gray-200">
                             <span className="w-3 h-3 rounded-full bg-red-400" />
                             <span className="w-3 h-3 rounded-full bg-yellow-400" />
                             <span className="w-3 h-3 rounded-full bg-green-400" />
                             <span className="ml-3 text-[11px] text-gray-400 font-mono">ventusai.com/solutions</span>
                           </div>
-                          <div className="p-4 sm:p-5 lg:p-6 min-h-[340px]">
+                          <div className="p-4 sm:p-5 lg:p-6 lg:min-h-[340px]">
                             {section.card}
                           </div>
+                        </div>
+                        <div className="mt-6 lg:hidden">
+                          <Link to={section.link}>
+                            <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
+                              Learn more
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>

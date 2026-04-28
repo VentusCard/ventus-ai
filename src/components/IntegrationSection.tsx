@@ -18,9 +18,9 @@ const partners = [
   { name: "Snowflake", src: snowflakeLogo, height: "h-6" },
 ];
 
-const statsData = [
-  { target: 3000, suffix: "+", label: "Dynamic labels" },
-  { target: 50, suffix: "+", label: "Lifestyle dimensions" },
+const statsData: { target: number | null; suffix: string; label: string; display?: string }[] = [
+  { target: null, suffix: "", label: "Behavioral labels", display: "Dynamic" },
+  { target: 12, suffix: "", label: "Lifestyle categories" },
   { target: 20, suffix: "+", label: "Life events detected" },
 ];
 
@@ -133,8 +133,7 @@ const IntegrationSection = () => {
                 {statsData.map((stat, index) => (
                   <div key={stat.label}>
                     <p className="font-bold text-gray-900 tabular-nums" style={{ fontSize: "40px", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
-                      {sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
-                      {stat.suffix}
+                      {stat.display ?? `${sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}${stat.suffix}`}
                     </p>
                     <p className="mt-1 text-sm text-gray-500">{stat.label}</p>
                   </div>
