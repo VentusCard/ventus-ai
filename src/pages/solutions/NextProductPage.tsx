@@ -179,7 +179,7 @@ const NextProductPage = () => {
       {/* Tabbed life events */}
       <section ref={tabs.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-6xl mx-auto">
-          <h2 style={{ ...revealStyle(tabs.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
+          <h2 style={revealStyle(tabs.visible, 0)} className="font-bold text-gray-900 mb-3 text-center text-2xl sm:text-[36px]">
             Ventus surfaces the signal. Your team acts on it.
           </h2>
           <p style={{ ...revealStyle(tabs.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-8">
