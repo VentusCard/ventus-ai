@@ -313,7 +313,7 @@ const SolutionSections = () => {
                           </p>
                         </div>
 
-                        <div className="mt-8">
+                        <div className="mt-8 hidden lg:block">
                           <Link to={section.link}>
                             <Button variant="outline" className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50">
                               Learn more
@@ -333,6 +333,13 @@ const SolutionSections = () => {
                           <div className="p-4 sm:p-5 lg:p-6 min-h-[340px]">
                             {section.card}
                           </div>
+                        </div>
+                        <div className="mt-6 lg:hidden">
+                          <Link to={section.link}>
+                            <Button variant="outline" className="w-full border-gray-300 text-gray-700 hover:bg-gray-50">
+                              Learn more
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </div>
