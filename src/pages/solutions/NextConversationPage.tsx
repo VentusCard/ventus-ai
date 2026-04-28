@@ -217,7 +217,7 @@ const NextConversationPage = () => {
       <section ref={conversation.ref} className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 60 }}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div style={revealStyle(conversation.visible, 0)}>
-            <h2 className="font-bold text-gray-900 mb-4 text-2xl sm:text-[36px]">
+            <h2 className="font-bold text-gray-900 mb-4 text-3xl md:text-4xl">
               A conversation, not a campaign.
             </h2>
             <p className="text-gray-500 leading-relaxed mb-3" style={{ fontSize: 18 }}>
