@@ -1,49 +1,28 @@
-## Problem
+## Revert panel titles and button to original semantic names
 
-The cascade animation on enriched cells currently starts a 4-second one-shot timer on **component mount**. But on mount the table is showing shimmer placeholders — enrichment hasn't arrived yet. By the time the AI returns results and the cells swap from `<ShimmerCell />` to real content, the CSS keyframe has already played on the same `<td>` DOM nodes (or is mid-stagger), so the user never sees a clean cascade reveal of the actual data.
+The recent edits replaced "Semantic Enrichment" / "Behavioral Intelligence" with "AI Customer Intelligence for Banks" in the executive demo's Intelligence Panel and Ready button. Revert each occurrence to its original phrasing.
 
-We want: shimmer/loading state plays normally → AI returns → THEN the cascade animation fires, row by row, on the enriched cells.
+### Changes
 
-## Fix
+**1. `src/components/exec-demo/ExecDemoIntelPanel.tsx`**
 
-Edit `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`:
+- Line 399 — Panel 2 header (persona view default):
+  - From: `{ title: "2. AI Customer Intelligence for Banks", sub: "Personas = Multi-category spending patterns" }`
+  - To: `{ title: "2. Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" }`
 
-1. **Don't start the reveal timer on mount.** Initialize `animateReveal` to `false`.
+- Line 705 — Panel 1 header (enrichment view):
+  - From: `1. AI Customer Intelligence for Banks: <span ...>Source and format agnostic enrichment to gain a full picture</span>`
+  - To: `1. Semantic Enrichment: <span ...>Source and format agnostic enrichment to gain a full picture</span>`
 
-2. **Detect the moment enrichment first lands.** Track the previous `enrichedCount` in a ref. When it transitions from `0` to `>0` (first enriched row arrives), start a one-shot reveal session:
-   - Bump a `revealKey` counter (state).
-   - Set `animateReveal = true`.
-   - Schedule a `setTimeout(..., 4000)` to set `animateReveal = false` so subsequent pill clicks don't replay it.
+- Line 849 — "Ready" CTA button label:
+  - From: `<span>AI Customer Intelligence for Banks:</span>`
+  - To: `<span>Semantic Enrichment:</span>`
 
-3. **Force the enriched `<td>`s to remount so the CSS keyframe plays from frame 0.** Currently the same `<td>` node persists across the shimmer→real swap, which means re-applying the `.exec-cascade-on` class won't restart the animation. Fix by including `revealKey` in the enriched cell rendering — wrap each enriched cell's content in a fragment keyed by `revealKey-${idx}`, OR simpler: change the row's `key` to include `revealKey` only once per row when that row first becomes enriched. Cleanest implementation: give each enriched `<td>` a unique React `key` via wrapping spans, e.g. render the enriched-side cells as `<td key={\`enr-${idx}-${tx ? revealKey : 'pending'}\`} ...>` — when a row swaps from pending to enriched, the td remounts and the keyframe animation plays fresh with its staggered delay.
+**2. `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`** (line 175 — table header that mirrors panel 1)
 
-4. **Keep the existing `.exec-cascade-on` scoping** so the cascade only applies during the reveal window.
+- From: `AI Customer Intelligence Infrastructure for Banks <span ...>· AI-labeled semantic intelligence</span>`
+- To: `Semantic Enrichment <span ...>· AI-labeled semantic intelligence</span>`
 
-### Pseudocode
+### Not changed
 
-```tsx
-const [animateReveal, setAnimateReveal] = useState(false);
-const [revealKey, setRevealKey] = useState(0);
-const prevEnrichedCount = useRef(0);
-
-useEffect(() => {
-  if (prevEnrichedCount.current === 0 && enrichedCount > 0) {
-    setRevealKey(k => k + 1);
-    setAnimateReveal(true);
-    const t = setTimeout(() => setAnimateReveal(false), 4000);
-    return () => clearTimeout(t);
-  }
-  prevEnrichedCount.current = enrichedCount;
-}, [enrichedCount]);
-```
-
-And on each enriched `<td>`:
-```tsx
-<td key={`enr-${idx}-${isEnriched ? revealKey : 'pending'}`} className="exec-enriched-cell ..." >
-```
-
-This ensures the cascade plays exactly once, when the first batch of enriched rows lands, and never again on pill clicks or re-sorts.
-
-## Files changed
-
-- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` — replace mount-based timer with first-enrichment-arrival trigger; add `revealKey` to enriched `<td>` keys to force remount and restart the CSS keyframe.
+- `src/pages/ExecDemoPage.tsx` (gate tagline + bullets) and `ExecDemoSelectionDialog.tsx` / `ExecDemoLeftPanel.tsx` already say "Semantic Enrichment" / "Behavioral Intelligence" — no change needed.
