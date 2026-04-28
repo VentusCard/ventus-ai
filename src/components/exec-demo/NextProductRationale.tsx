@@ -413,7 +413,7 @@ function deriveOfferDetails(card: ProductCard, isBehavioral: boolean): {
     return {
       headline: "Tax-advantaged retirement account",
       benefits: [
-        "Up to $7,000 annual contribution ($8,000 if 12+)",
+        "Up to $7,000 annual contribution ($8,000 if 50+)",
         "Choice of Traditional (tax-deferred) or Roth (tax-free growth)",
         "Wide selection of mutual funds, ETFs & target-date options",
       ],

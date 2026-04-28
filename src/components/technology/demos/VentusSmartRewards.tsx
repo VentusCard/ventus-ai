@@ -45,7 +45,7 @@ const DEAL_LIBRARY = {
     { brand: "GoPro", tags: ["Snow Sports", "Technology"], standard: "15% off GoPro HERO12" },
     { brand: "Smith", tags: ["Snow Sports", "Goggles"], standard: "25% off Smith 4D MAG goggles" },
     { brand: "The North Face", tags: ["Snow Sports", "Apparel"], standard: "30% off winter jackets" },
-    { brand: "Ikon Pass", tags: ["Snow Sports", "Passes"], standard: "Family season pass with 12 destinations" },
+    { brand: "Ikon Pass", tags: ["Snow Sports", "Passes"], standard: "Family season pass with 50+ destinations" },
     { brand: "REI", tags: ["Snow Sports", "Retail"], standard: "20% off member dividend on winter gear" },
     { brand: "Rossignol", tags: ["Snow Sports", "Equipment"], standard: "Free tune-up with ski purchase" },
     { brand: "Arc'teryx", tags: ["Snow Sports", "Apparel"], standard: "$50 off orders over $300" },
@@ -137,7 +137,7 @@ const PILL_DATA = {
     deals: [
       { brand: "Smith", value: 125, standard: "25% off Smith 4D MAG goggles", personalized: "Upgrade your vision with Smith 4D MAG goggles at 25% off for Epic Pass holders. Quick-swap ChromaPop lenses enhance visibility across all conditions — perfect for your frequent mountain visits throughout the season." },
       { brand: "GoPro", value: 85, standard: "15% off GoPro HERO12", personalized: "Capture precious family memories with GoPro at 15% off. Waterproof design with easy mounts. Your family visits Loon Mountain regularly with kids — capture those moments on the slopes before they outgrow this phase." },
-      { brand: "Ikon Pass", value: 1200, lowPriority: true, suppressionReason: "Competing product: Customer purchased Epic Pass for $1,129", standard: "Family season pass with 12 destinations", personalized: "Expand access to 12 mountains with Ikon Pass family plans. Your $1,129 Epic Pass covers limited resorts — Ikon offers similar pricing with better New England access including Loon Mountain where you already spend $312 on day passes." },
+      { brand: "Ikon Pass", value: 1200, lowPriority: true, suppressionReason: "Competing product: Customer purchased Epic Pass for $1,129", standard: "Family season pass with 50+ destinations", personalized: "Expand access to 50+ mountains with Ikon Pass family plans. Your $1,129 Epic Pass covers limited resorts — Ikon offers similar pricing with better New England access including Loon Mountain where you already spend $312 on day passes." },
       { brand: "Burton", value: 200, lowPriority: true, suppressionReason: "Recent purchase: $214.50 spent 3 weeks ago", standard: "25% off bindings with board purchase", personalized: "Upgrade your board setup with Burton bindings at 25% off with any board purchase. Your recent $214.50 kids outerwear buy shows family commitment to the sport — quality bindings enhance safety and performance." },
     ],
   },
@@ -161,7 +161,7 @@ const PILL_DATA = {
     ],
     deals: [
       { brand: "Hilton", value: 400, standard: "Instant status match + 80K bonus points", personalized: "Match your Marriott status instantly with Hilton and earn 80K bonus points on first stay. You spend $600+ per hotel stay — enough points for two free weekend nights on your future Denver trips where you're already traveling regularly." },
-      { brand: "Clear", value: 189, standard: "Clear Plus family membership for faster TSA", personalized: "Breeze through security in minutes at Boston Logan and 12 airports with Clear family plan at $189/year. Flying from BOS 4-6 times annually with family means saving 20+ minutes per trip with kids in tow." },
+      { brand: "Clear", value: 189, standard: "Clear Plus family membership for faster TSA", personalized: "Breeze through security in minutes at Boston Logan and 50+ airports with Clear family plan at $189/year. Flying from BOS 4-6 times annually with family means saving 20+ minutes per trip with kids in tow." },
       { brand: "Turo", value: 100, standard: "30% savings on car rentals", personalized: "Skip rental counters and save 30% with Turo delivered to your hotel. Your $287 Hertz rental becomes $200 with better vehicle selection — hotel delivery eliminates airport counter waits for family of 4 with luggage." },
       { brand: "Airbnb", value: 100, lowPriority: true, suppressionReason: "Recent booking: $845 spent 2 weeks ago", standard: "$100 off first booking over $500", personalized: "Save $100 on your next mountain getaway with Airbnb. Your recent $845 5-night booking shows preference for spacious family accommodations — new user offer doesn't apply but Superhost properties ensure quality stays." },
       { brand: "TSA PreCheck", value: 85, lowPriority: true, suppressionReason: "Lower value vs Clear — both offer TSA benefits", standard: "$20 off 5-year membership", personalized: "Save time at security with TSA PreCheck at $85 for 5 years. Your 4-6 BOS trips annually mean faster screening — though Clear offers family plans, PreCheck works across all airlines and costs less long-term." },
