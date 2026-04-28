@@ -932,19 +932,20 @@ export default function ExecDemoPage() {
 
       {/* Main content — 3 columns with animated collapse */}
       {(() => {
-        const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
+        const isNextTab = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
+        const phoneVisible = isNextTab;
         const showEnrichmentFullScreen =
           phase === "hold" && !activeTab;
         return (
       <div className="flex-1 min-h-0 flex">
-        {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view) */}
-        {!showEnrichmentFullScreen && (
+        {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view AND on Next tabs) */}
+        {!showEnrichmentFullScreen && !isNextTab && (
         <div
           className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
-            width: phoneVisible ? (txPanelExpanded ? 400 : 40) : 400,
-            minWidth: phoneVisible ? (txPanelExpanded ? 400 : 40) : 400,
-            overflow: phoneVisible && !txPanelExpanded ? "visible" : "hidden",
+            width: 400,
+            minWidth: 400,
+            overflow: "hidden",
           }}
         >
           {/* Sliver state — narrow strip with expand button */}
