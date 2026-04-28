@@ -401,7 +401,7 @@ export default function ExecDemoLeftPanel({
             }`}
           >
             <Play className="w-4 h-4" />
-            {isRunning ? "Analyzing..." : "Semantic Enrichment"}
+            {isRunning ? "Analyzing..." : "Behavioral Intelligence"}
           </button>
         </div>
       )}
