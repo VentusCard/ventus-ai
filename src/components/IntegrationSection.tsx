@@ -133,8 +133,7 @@ const IntegrationSection = () => {
                 {statsData.map((stat, index) => (
                   <div key={stat.label}>
                     <p className="font-bold text-gray-900 tabular-nums" style={{ fontSize: "40px", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
-                      {sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}
-                      {stat.suffix}
+                      {stat.display ?? `${sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}${stat.suffix}`}
                     </p>
                     <p className="mt-1 text-sm text-gray-500">{stat.label}</p>
                   </div>
