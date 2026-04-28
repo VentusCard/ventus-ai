@@ -52,8 +52,8 @@ const dealCards = [
 ];
 
 const stats = [
-  { value: "3,000+", label: "Dynamic reward labels" },
-  { value: "12", label: "Behavioral lifestyle categories" },
+  { value: "Dynamic", label: "Reward labels" },
+  { value: "12", label: "Lifestyle categories" },
   { value: "<200ms", label: "Time to surface an offer" },
 ];
 

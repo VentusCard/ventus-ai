@@ -173,6 +173,24 @@ const Enrichment = () => {
           </div>
         </section>
 
+        {/* SECTION 6.5 — STATS */}
+        <ScrollReveal>
+          <section className="py-20 bg-white">
+            <div className="max-w-4xl mx-auto px-6 md:px-8 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+              {[
+                { value: "Dynamic", label: "Behavioral labels" },
+                { value: "12", label: "Lifestyle categories" },
+                { value: "20+", label: "Life events detected" },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="font-bold text-gray-900 text-3xl sm:text-[52px]">{s.value}</p>
+                  <p className="text-gray-500 mt-1 text-sm sm:text-lg">{s.label}</p>
+                </div>
+              ))}
+            </div>
+          </section>
+        </ScrollReveal>
+
         {/* SECTION 7 — CTA */}
         <ScrollReveal>
           <section className="py-24 bg-white">

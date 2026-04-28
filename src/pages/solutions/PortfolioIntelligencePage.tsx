@@ -13,9 +13,9 @@ const flowSteps = [
 ];
 
 const stats = [
-  { value: "50+", label: "Lifestyle dimensions" },
-  { value: "20+", label: "Life events monitored" },
-  { value: "Real-time", label: "Customer Intelligence updates" },
+  { value: "Dynamic", label: "Behavioral labels" },
+  { value: "12", label: "Lifestyle categories" },
+  { value: "<200ms", label: "Time to surface an insight" },
 ];
 
 const PortfolioIntelligencePage = () => {

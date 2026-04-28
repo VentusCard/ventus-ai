@@ -5,8 +5,8 @@ import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
 const stats = [
-  { value: "Event-driven", label: "Alerts triggered by detected life events." },
   { value: "20+", label: "Life events that trigger alerts" },
+  { value: "Event-driven", label: "Alerts triggered in real time" },
   { value: "Zero PII", label: "Transaction signals only" },
 ];
 
