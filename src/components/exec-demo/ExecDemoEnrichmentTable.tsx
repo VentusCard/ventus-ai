@@ -172,7 +172,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 }}
               />
               <span className="relative inline-flex items-center gap-2">
-                AI Customer Intelligence for Banks <span className="font-normal normal-case tracking-normal text-blue-100/90">· AI-labeled semantic intelligence</span>
+                AI Customer Intelligence Infrastructure for Banks <span className="font-normal normal-case tracking-normal text-blue-100/90">· AI-labeled semantic intelligence</span>
                 {hasPending && (
                   <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-white normal-case tracking-normal">
                     <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
