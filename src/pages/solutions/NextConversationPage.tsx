@@ -47,7 +47,7 @@ const NextConversationPage = () => {
       {/* Regular vs Wealth Client */}
       <section ref={segments.ref} className="bg-white px-6" style={{ paddingTop: 60, paddingBottom: 80 }}>
         <div className="max-w-7xl mx-auto">
-          <h2 style={revealStyle(segments.visible, 0)} className="font-bold text-gray-900 mb-3 text-center text-2xl sm:text-[36px]">
+          <h2 style={revealStyle(segments.visible, 0)} className="font-bold text-gray-900 mb-3 text-3xl md:text-4xl">
             Tailored to every relationship.
           </h2>
           <p style={{ ...revealStyle(segments.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-12">
@@ -139,7 +139,7 @@ const NextConversationPage = () => {
       {/* Advisor alert */}
       <section ref={alert.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-7xl mx-auto">
-          <h2 style={revealStyle(alert.visible, 0)} className="font-bold text-gray-900 mb-12 text-center text-2xl sm:text-[36px]">
+          <h2 style={revealStyle(alert.visible, 0)} className="font-bold text-gray-900 mb-12 text-3xl md:text-4xl">
             What an advisor sees.
           </h2>
           <div className="grid md:grid-cols-2 gap-16 items-start">
@@ -217,7 +217,7 @@ const NextConversationPage = () => {
       <section ref={conversation.ref} className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 60 }}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
           <div style={revealStyle(conversation.visible, 0)}>
-            <h2 className="font-bold text-gray-900 mb-4 text-2xl sm:text-[36px]">
+            <h2 className="font-bold text-gray-900 mb-4 text-3xl md:text-4xl">
               A conversation, not a campaign.
             </h2>
             <p className="text-gray-500 leading-relaxed mb-3" style={{ fontSize: 18 }}>

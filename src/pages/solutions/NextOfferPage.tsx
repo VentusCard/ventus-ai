@@ -93,7 +93,7 @@ const NextOfferPage = () => {
       <section ref={proof.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-6xl mx-auto" style={revealStyle(proof.visible, 0)}>
           <div className="mb-8" style={{ paddingTop: 48 }}>
-            <h2 className="font-bold text-gray-900 text-2xl sm:text-[32px] leading-tight mb-2">
+            <h2 className="font-bold text-gray-900 text-3xl md:text-4xl leading-tight mb-2">
               A Frequent Traveler profile — detected from transaction patterns.
             </h2>
             <p className="text-gray-500 text-base sm:text-[16px] leading-relaxed">
