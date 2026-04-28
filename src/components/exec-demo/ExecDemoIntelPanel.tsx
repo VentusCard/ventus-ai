@@ -702,7 +702,7 @@ export default function ExecDemoIntelPanel({
             ) : (
               <>
               <div className="flex items-start justify-between">
-                <p className="font-bold text-slate-800 mb-1.5 text-lg">1. Semantic Enrichment: <span className="text-slate-500 font-semibold">Source and format agnostic enrichment to gain a full picture</span></p>
+                <p className="font-bold text-slate-800 mb-1.5 text-lg">1. Behavioral Intelligence <span className="text-slate-500 font-semibold">Source and format agnostic enrichment to gain a full picture</span></p>
                 <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
                   <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
                 </button>
