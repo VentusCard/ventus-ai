@@ -139,7 +139,7 @@ const NextConversationPage = () => {
       {/* Advisor alert */}
       <section ref={alert.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-7xl mx-auto">
-          <h2 style={{ ...revealStyle(alert.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-12 text-center">
+          <h2 style={revealStyle(alert.visible, 0)} className="font-bold text-gray-900 mb-12 text-center text-2xl sm:text-[36px]">
             What an advisor sees.
           </h2>
           <div className="grid md:grid-cols-2 gap-16 items-start">
