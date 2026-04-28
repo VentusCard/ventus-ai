@@ -948,63 +948,38 @@ export default function ExecDemoPage() {
             overflow: "hidden",
           }}
         >
-          {/* Sliver state — narrow strip with expand button */}
-          {phoneVisible && !txPanelExpanded && (
-            <div
-              className="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-50 transition-colors"
-              onClick={() => setTxPanelExpanded(true)}
-            >
-              <ChevronRight className="w-4 h-4 text-slate-400 mb-2" />
-              <span className="text-[10px] text-slate-400 font-medium tracking-wider"
-                style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
-              >
-                Transactions
-              </span>
-            </div>
-          )}
-          {/* Full panel — with optional collapse button when re-expanded */}
-          {(!phoneVisible || txPanelExpanded) && (
-            <div className="w-[400px] h-full relative">
-              {phoneVisible && txPanelExpanded && (
-              <button
-                  onClick={() => setTxPanelExpanded(false)}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
-                >
-                  <ChevronLeft className="w-3.5 h-3.5 text-slate-400" />
-                </button>
-              )}
-              <ExecDemoLeftPanel
-                selectedIdx={selectedIdx}
-                onSelectCustomer={handleSelectCustomer}
-                onRunAnalysis={handleRunAnalysis}
-                onLoadCustomCsv={handleLoadCustomCsv}
-                onChangeCustomer={handleChangeCustomer}
-                isRunning={isRunning}
-                phase={phase}
-                collectedIndices={collectedIndices}
-                currentCardColor={currentCardColor}
-                isCustomMode={!!customCsv}
-                customName={customName || undefined}
-                customTransactions={profile?.transactions}
-                personaIcon={execProfile.persona.icon}
-                personaTitle={execProfile.persona.title}
-                filteredIndices={filteredIndices}
-                signalMap={execProfile.persona.signalMap}
-                activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
-                activePillColor={
-                  activeTriggerPill
-                    ? activeTriggerPill.color
-                    : activeRollup
-                      ? getColor(activeRollup.pillar).dot
-                      : activePillFilter
-                        ? getColor(activePillFilter.pillar).dot
-                        : "#10b981"
-                }
-                onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
-                enriched={phase === "cardCycle" || phase === "hold"}
-              />
-            </div>
-          )}
+          <div className="w-[400px] h-full relative">
+            <ExecDemoLeftPanel
+              selectedIdx={selectedIdx}
+              onSelectCustomer={handleSelectCustomer}
+              onRunAnalysis={handleRunAnalysis}
+              onLoadCustomCsv={handleLoadCustomCsv}
+              onChangeCustomer={handleChangeCustomer}
+              isRunning={isRunning}
+              phase={phase}
+              collectedIndices={collectedIndices}
+              currentCardColor={currentCardColor}
+              isCustomMode={!!customCsv}
+              customName={customName || undefined}
+              customTransactions={profile?.transactions}
+              personaIcon={execProfile.persona.icon}
+              personaTitle={execProfile.persona.title}
+              filteredIndices={filteredIndices}
+              signalMap={execProfile.persona.signalMap}
+              activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
+              activePillColor={
+                activeTriggerPill
+                  ? activeTriggerPill.color
+                  : activeRollup
+                    ? getColor(activeRollup.pillar).dot
+                    : activePillFilter
+                      ? getColor(activePillFilter.pillar).dot
+                      : "#10b981"
+              }
+              onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
+              enriched={phase === "cardCycle" || phase === "hold"}
+            />
+          </div>
         </div>
         )}
 
