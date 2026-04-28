@@ -47,7 +47,7 @@ const NextConversationPage = () => {
       {/* Regular vs Wealth Client */}
       <section ref={segments.ref} className="bg-white px-6" style={{ paddingTop: 60, paddingBottom: 80 }}>
         <div className="max-w-7xl mx-auto">
-          <h2 style={{ ...revealStyle(segments.visible, 0), fontSize: 36 }} className="font-bold text-gray-900 mb-3 text-center">
+          <h2 style={revealStyle(segments.visible, 0)} className="font-bold text-gray-900 mb-3 text-center text-2xl sm:text-[36px]">
             Tailored to every relationship.
           </h2>
           <p style={{ ...revealStyle(segments.visible, 100), fontSize: 18 }} className="text-gray-500 text-center mb-12">
