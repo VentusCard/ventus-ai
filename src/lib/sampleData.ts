@@ -220,7 +220,7 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_h15,SUNBUM REEF SAFE SPF,Reef-safe sunscreen pre-trip,5912,64.00,2024-06-20,94102,Cashback Card
 txn_h16,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23,94102,Premium Card
-txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH,4511,865.00,2024-07-02,94102,Premium Card
+txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
 txn_h18,KOA KEA HOTEL KAUAI,Poipu beachfront 5 nights,7011,2290.00,2024-07-03,96756,Premium Card
 txn_h19,BUDGET RENT-A-CAR LIH,Jeep rental Lihue airport,7512,578.00,2024-07-03,96766,Premium Card
 txn_h20,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2024-07-05,96714,Cashback Card
@@ -263,7 +263,7 @@ txn_030,VETERINARY CLINIC,Annual wellness exam,,185.00,2025-05-18,94103,Checks
 txn_031,WESTERN UNION*MTO 8821,Money transfer fee,4829,400.00,2025-05-28,,Cashback Card
 txn_032,SF TENNIS CLUB,Court rental fee,7941,45.00,2025-06-07,94102,Cashback Card
 txn_033,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-06-14,94102,Cashback Card
-txn_034,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG,4511,892.00,2025-07-01,94102,Premium Card
+txn_034,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG (advance booking),4511,892.00,2025-04-01,94102,Premium Card
 txn_035,GRAND WAILEA RESORT,Maui resort 5 nights,7011,2450.00,2025-07-02,96753,Premium Card
 txn_036,BOSS FROG SNORKEL TOUR,Molokini snorkel excursion,7999,189.00,2025-07-04,96753,Cashback Card
 txn_037,MAMA'S FISH HOUSE MAUI,Beachside dinner,5812,215.00,2025-07-05,96779,Premium Card
@@ -285,7 +285,7 @@ txn_049,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback
 txn_050,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,94102,Checks
 txn_051,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,94102,Checks
 txn_053,JANE DOE,Kitchen remodel deposit,,5000.00,2026-05-01,94102,Zelle
-txn_054,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA,4511,948.00,2026-07-05,94102,Premium Card
+txn_054,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA (advance booking),4511,948.00,2026-04-05,94102,Premium Card
 txn_055,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
 `;
 
