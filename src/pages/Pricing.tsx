@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Settings, Check, Mail } from "lucide-react";
+import { Settings, Check, Mail, Zap } from "lucide-react";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { Input } from "@/components/ui/input";
@@ -13,17 +13,19 @@ import { toast } from "sonner";
 const LIGHT_INPUT = "bg-white text-slate-900 border-slate-200 placeholder:text-slate-400";
 
 function PricingInner() {
-  const { catalog, updateModule, resetToDefaults } = usePricingCatalog();
+  const { catalog, updateModule, resetToDefaults, pilot, updatePilot } = usePricingCatalog();
   const [bankName, setBankName] = useState("");
   const [customers, setCustomers] = useState<number>(1_000_000);
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [pilotMode, setPilotMode] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
 
   const enabledCatalog = useMemo(() => catalog.filter((m) => m.enabled), [catalog]);
+  const pilotPerModule = enabledCatalog.length > 0 ? pilot.flatFee / enabledCatalog.length : 0;
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -60,6 +62,14 @@ function PricingInner() {
     lines.push(`Per-user fees:        ${formatCurrency(totalVariable)}`);
     lines.push(`Total / year:         ${formatCurrency(grandTotal)}`);
     lines.push(`Effective $/customer: $${perCustomer.toFixed(2)}`);
+    if (pilotMode) {
+      lines.push("");
+      lines.push(
+        `Pilot option: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
+          pilot.flatFee
+        )} / yr flat`
+      );
+    }
     if (notes.trim()) {
       lines.push("");
       lines.push("Notes:");
