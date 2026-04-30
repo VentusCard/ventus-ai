@@ -286,6 +286,14 @@ function PricingInner() {
           {/* Totals strip */}
           <div className="px-5 py-2.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-6 shrink-0">
             <div className="flex items-center gap-6 text-[14px]">
+              {pilotMode && (
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[11px] uppercase tracking-wider text-emerald-600 font-semibold">
+                    Pilot
+                  </span>
+                  <span className="text-emerald-700 font-semibold">{formatCurrency(pilot.flatFee)}</span>
+                </div>
+              )}
               <div className="flex items-baseline gap-1.5">
                 <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                   Fixed
