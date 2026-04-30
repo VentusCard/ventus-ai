@@ -487,47 +487,20 @@ txn_h233,KLARNA*WAYFAIR,BNPL installment Wayfair,6051,112.00,2025-08-12,,Cashbac
 txn_h240,MARGARET S,"Mom's grocery help",,300.00,2025-08-02,,Zelle
 `;
 
-// Source labels are styled with two visual axes:
-//  1. Bracket prefix in monospace ([CARD] Cashback, [ACH], [WIRE]) — semantic group cue
-//  2. Color tint — Cards keep a subtle product color; direct-funds rails stay neutral slate
-// This frees red/saturated colors for risk pills only.
 export const SOURCE_COLORS: Record<string, string> = {
-  // Cards — light tint, color identifies the product
-  "Cashback Card": "bg-emerald-50 text-emerald-700 border-emerald-200",
-  "Travel Card":   "bg-sky-50 text-sky-700 border-sky-200",
-  "Premium Card":  "bg-violet-50 text-violet-700 border-violet-200",
-  // Direct funds — neutral slate, prefix carries the meaning
-  Checking: "bg-slate-100 text-slate-700 border-slate-200",
-  Checks:   "bg-slate-100 text-slate-700 border-slate-200",
-  ACH:      "bg-slate-100 text-slate-700 border-slate-200",
-  Wire:     "bg-slate-100 text-slate-700 border-slate-200",
-  Zelle:    "bg-slate-100 text-slate-700 border-slate-200",
-  HSA:      "bg-slate-100 text-slate-700 border-slate-200",
+  "Cashback Card": "bg-emerald-500/10 text-emerald-700 border-emerald-500/20",
+  "Travel Card": "bg-blue-500/10 text-blue-700 border-blue-500/20",
+  "Premium Card": "bg-rose-500/10 text-rose-700 border-rose-500/20",
+  Checking: "bg-slate-500/10 text-slate-700 border-slate-500/20",
+  Checks: "bg-orange-500/10 text-orange-700 border-orange-500/20",
+  ACH: "bg-slate-500/10 text-slate-600 border-slate-500/20",
+  Wire: "bg-red-500/10 text-red-700 border-red-500/20",
+  Zelle: "bg-purple-500/10 text-purple-700 border-purple-500/20",
+  HSA: "bg-amber-500/10 text-amber-700 border-amber-500/20",
 };
 
 export const getSourceColor = (source: string) =>
-  SOURCE_COLORS[source] ?? "bg-slate-100 text-slate-600 border-slate-200";
-
-/**
- * Bracket-prefix label for a transaction source.
- * Cards → [CARD] + product name (e.g. "[CARD] Cashback")
- * Direct funds → bracket-only rail tag (e.g. "[ACH]", "[WIRE]")
- */
-export const SOURCE_LABELS: Record<string, { prefix: string; name?: string; isCard: boolean }> = {
-  "Cashback Card": { prefix: "CARD", name: "Cashback", isCard: true },
-  "Travel Card":   { prefix: "CARD", name: "Travel",   isCard: true },
-  "Premium Card":  { prefix: "CARD", name: "Premium",  isCard: true },
-  Checking: { prefix: "CHK",   isCard: false },
-  Checks:   { prefix: "CHECK", isCard: false },
-  ACH:      { prefix: "ACH",   isCard: false },
-  Wire:     { prefix: "WIRE",  isCard: false },
-  Zelle:    { prefix: "ZELLE", isCard: false },
-  HSA:      { prefix: "HSA",   isCard: false },
-};
-
-export const getSourceLabel = (source: string) =>
-  SOURCE_LABELS[source] ?? { prefix: (source || "").toUpperCase().slice(0, 6), isCard: false };
-
+  SOURCE_COLORS[source] ?? "bg-slate-100 text-slate-600 border-slate-300";
 
 export const PILLAR_COLORS: Record<string, string> = {
   "Sports & Active Living": "#3b82f6",
