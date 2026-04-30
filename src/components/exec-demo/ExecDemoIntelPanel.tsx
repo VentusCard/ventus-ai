@@ -490,7 +490,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
