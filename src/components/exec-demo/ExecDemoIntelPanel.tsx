@@ -607,7 +607,7 @@ export default function ExecDemoIntelPanel({
                           if (mname && merchantSet.has(mname)) matchedIndices.push(idx);
                         });
                       }
-                      const isClickable = matchedIndices.length > 0 && !isOfferTab;
+                      const isClickable = matchedIndices.length > 0 && !riskPillsMuted;
                       const pillKey = `rollup::${rollup.key}::${i}`;
                       return (
                         <span
@@ -620,31 +620,31 @@ export default function ExecDemoIntelPanel({
                               : rollup.sampleMerchant;
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
-                          title={isOfferTab ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          title={riskPillsMuted ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
-                            background: isOfferTab
+                            background: riskPillsMuted
                               ? "#e2e8f0"
                               : isActive
                               ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
                               : `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"}, ${isHigh ? "rgba(239,68,68,.08)" : "rgba(245,158,11,.08)"})`,
-                            color: isOfferTab ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
-                            border: isOfferTab
+                            color: riskPillsMuted ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
+                            border: riskPillsMuted
                               ? "1.5px solid #cbd5e1"
                               : isActive
                               ? `2px solid ${dotColor}`
                               : `1.5px solid ${dotColor}`,
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
-                            boxShadow: isOfferTab ? "none" : isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
-                            transform: isActive && !isOfferTab ? "scale(1.08)" : "scale(1)",
-                            opacity: isOfferTab ? 0.65 : 1,
-                            filter: isOfferTab ? "grayscale(1)" : "none",
-                            textDecoration: isOfferTab ? "line-through" : "none",
-                            textDecorationColor: isOfferTab ? "#94a3b8" : undefined,
-                            textDecorationThickness: isOfferTab ? "1.5px" : undefined,
+                            boxShadow: riskPillsMuted ? "none" : isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
+                            transform: isActive && !riskPillsMuted ? "scale(1.08)" : "scale(1)",
+                            opacity: riskPillsMuted ? 0.65 : 1,
+                            filter: riskPillsMuted ? "grayscale(1)" : "none",
+                            textDecoration: riskPillsMuted ? "line-through" : "none",
+                            textDecorationColor: riskPillsMuted ? "#94a3b8" : undefined,
+                            textDecorationThickness: riskPillsMuted ? "1.5px" : undefined,
                           }}
                         >
-                          <span style={{ color: isOfferTab ? "#94a3b8" : dotColor, textDecoration: "none" }}>{isOfferTab ? "✕" : "⚠"}</span>
+                          <span style={{ color: riskPillsMuted ? "#94a3b8" : dotColor, textDecoration: "none" }}>{riskPillsMuted ? "✕" : "⚠"}</span>
                           {flagLabel}
                           <span className="text-[11px] opacity-60 tabular-nums font-normal">
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
