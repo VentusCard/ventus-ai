@@ -326,7 +326,7 @@ function PricingInner() {
               {pilotMode && (
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-[11px] uppercase tracking-wider text-emerald-600 font-semibold">
-                    Pilot
+                    Pilot (6mo)
                   </span>
                   <span className="text-emerald-700 font-semibold">{formatCurrency(pilot.flatFee)}</span>
                 </div>
