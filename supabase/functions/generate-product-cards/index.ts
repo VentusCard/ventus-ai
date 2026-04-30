@@ -214,7 +214,7 @@ Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the 
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return up to 4 consumer product recommendation cards in strict interleaved order: life_event_1, behavioral_1, life_event_2, behavioral_2",
+              description: "Return up to 2 consumer product recommendation cards in strict interleaved order: life_event_1, behavioral_1 (plus optional risk card as 3rd)",
               parameters: {
                 type: "object",
                 properties: {
