@@ -646,7 +646,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full"
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
