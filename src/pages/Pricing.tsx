@@ -115,7 +115,7 @@ function PricingInner() {
     >
       {/* Top bar */}
       <header className="bg-white border-b border-slate-200 shrink-0">
-        <div className="max-w-[1400px] mx-auto px-8 h-12 flex items-center justify-between">
+        <div className="max-w-[1180px] mx-auto px-8 h-12 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
             <span className="text-slate-300">|</span>
@@ -132,11 +132,11 @@ function PricingInner() {
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 max-w-[1400px] w-full mx-auto px-8 py-3 flex flex-col gap-3">
+      <main className="flex-1 min-h-0 max-w-[1180px] w-full mx-auto px-8 py-3 flex flex-col gap-3">
         {/* Section 1: Prospect basics */}
         <section className="rounded-xl border border-slate-200 bg-white px-5 py-3 shrink-0">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
               Step 1 · Prospect
             </span>
             
@@ -172,7 +172,7 @@ function PricingInner() {
         <section className="rounded-xl border border-slate-200 bg-white overflow-hidden flex-1 min-h-0 flex flex-col">
           <div className="px-5 pt-3 pb-2 flex items-center justify-between gap-3 shrink-0">
             <div className="flex items-center gap-3">
-              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                 Step 2 · Modules
               </span>
               
@@ -183,7 +183,7 @@ function PricingInner() {
           </div>
 
           {/* Header row */}
-          <div className="grid grid-cols-12 gap-3 px-5 py-2 border-y border-slate-200 bg-slate-50 text-[10px] uppercase tracking-wider text-slate-400 font-semibold shrink-0">
+          <div className="grid grid-cols-12 gap-3 px-5 py-2 border-y border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wider text-slate-400 font-semibold shrink-0">
             <div className="col-span-3">Function</div>
             <div className="col-span-4">Description</div>
             <div className="col-span-1 text-right">Fixed/yr</div>
@@ -206,22 +206,22 @@ function PricingInner() {
                     }`}
                   >
                     <div className="col-span-3">
-                      <p className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
+                      <p className="text-[14px] font-semibold text-slate-900 leading-tight truncate">
                         {m.name}
                       </p>
                     </div>
-                    <div className="col-span-4 text-[12px] text-slate-500 leading-snug truncate">
+                    <div className="col-span-4 text-[14px] text-slate-500 leading-snug truncate">
                       {m.description}
                     </div>
-                    <div className="col-span-1 text-right text-[12px] font-semibold text-slate-800">
+                    <div className="col-span-1 text-right text-[14px] font-semibold text-slate-800">
                       {formatCurrency(m.fixedFee)}
                     </div>
-                    <div className="col-span-2 text-right text-[12px] font-semibold text-slate-800">
+                    <div className="col-span-2 text-right text-[14px] font-semibold text-slate-800">
                       ${m.perUserFee.toFixed(2)}
                     </div>
                     <div className="col-span-1 text-right">
                       <span
-                        className={`text-[13px] font-bold ${
+                        className={`text-[14px] font-bold ${
                           isSel ? "text-blue-700" : "text-slate-500"
                         }`}
                       >
@@ -247,28 +247,28 @@ function PricingInner() {
 
           {/* Totals strip */}
           <div className="px-5 py-2.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-6 shrink-0">
-            <div className="flex items-center gap-6 text-[12px]">
+            <div className="flex items-center gap-6 text-[14px]">
               <div className="flex items-baseline gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                   Fixed
                 </span>
                 <span className="text-slate-900 font-semibold">{formatCurrency(totalFixed)}</span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                   Per-user
                 </span>
                 <span className="text-slate-900 font-semibold">{formatCurrency(totalVariable)}</span>
               </div>
               <div className="flex items-baseline gap-1.5">
-                <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+                <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                   $/cust
                 </span>
                 <span className="text-slate-900 font-semibold">${perCustomer.toFixed(2)}</span>
               </div>
             </div>
             <div className="flex items-baseline gap-2">
-              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+              <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                 Total / year
               </span>
               <span className="text-xl font-bold text-slate-900">{formatCurrency(grandTotal)}</span>
@@ -279,7 +279,7 @@ function PricingInner() {
         {/* Section 3: Contact + send */}
         <section className="rounded-xl border border-slate-200 bg-white px-5 py-3 shrink-0">
           <div className="flex items-center gap-3 mb-2">
-            <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
+            <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
               Step 3 · Send draft
             </span>
             
