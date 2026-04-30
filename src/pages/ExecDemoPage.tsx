@@ -979,7 +979,7 @@ export default function ExecDemoPage() {
 
       {/* Main content — 3 columns with animated collapse */}
       {(() => {
-        const isNextTab = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
+        const isNextTab = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
         const phoneVisible = isNextTab;
         const showEnrichmentFullScreen =
           phase === "hold" && !activeTab;
