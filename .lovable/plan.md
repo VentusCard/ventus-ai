@@ -1,21 +1,31 @@
-## Step 3 layout updates
+## Sample data formatting changes for executive demo
 
-### Row 1 — Contact (3 columns)
-Switch the first row from `grid-cols-2` to `grid-cols-3`:
-- Contact name (existing)
-- Contact email (existing)
-- **Contact phone (new)** — `Input type="tel"`, placeholder `+1 (555) 123-4567`, bound to new `contactPhone` state (session-only, like other inputs).
+Update `src/lib/sampleData.ts` to adjust how non-card payment rows display in the Selection Dialog raw transaction table.
 
-### Row 2 — Notes + Send (3 columns)
-Switch from `grid-cols-2` to `grid-cols-3`:
-- **Notes (optional)**: `col-span-2` so it visually matches the two fields above (name + email).
-- **Email button**: 1 column wide, matching the phone field above. Rename label from `Email draft to prospect` → **`Email proposal`**.
+### Rules
+- **ACH rows**: clear the `description` field (leave empty between the two commas).
+- **Checks, Zelle, Wire rows**: wrap the existing `description` field in literal double-quote characters so they render as `"…"` in the description column.
 
-### State + summary
-- Add `const [contactPhone, setContactPhone] = useState("")` near the other Step 3 fields (no localStorage — clears each session, consistent with the existing inputs).
-- Append phone to `buildSummaryText` / email payload when present, so it flows into the admin-defined email body alongside name/email/notes.
+### Affected rows (14 total in `src/lib/sampleData.ts`)
 
-### Files
-- `src/pages/Pricing.tsx` — JSX grid changes, new state, phone wiring into summary builder and `EmailDraftDialog` props if a phone field is surfaced there (otherwise just included in body text).
+| Line | Source | Change |
+|------|--------|--------|
+| 224 | Checks | `Annual membership dues` → `"Annual membership dues"` |
+| 225 | ACH | `Monthly rent payment` → *(empty)* |
+| 226 | Zelle | `Dogsitting` → `"Dogsitting"` |
+| 227 | Wire | `Home down payment` → `"Home down payment"` |
+| 248 | Checks | `SAT registration fee` → `"SAT registration fee"` |
+| 252 | Checks | `SAT prep course` → `"SAT prep course"` |
+| 256 | Checks | `Spring membership renewal` → `"Spring membership renewal"` |
+| 262 | Checks | `Annual wellness exam` → `"Annual wellness exam"` |
+| 276 | Checks | `College admissions package` → `"College admissions package"` |
+| 279 | Checks | `Past-due account payment` → `"Past-due account payment"` |
+| 281 | Checks | `Mortgage application` → `"Mortgage application"` |
+| 285 | Checks | `Pre-purchase inspection` → `"Pre-purchase inspection"` |
+| 286 | Checks | `Title and escrow fees` → `"Title and escrow fees"` |
+| 287 | Zelle | `Kitchen remodel deposit` → `"Kitchen remodel deposit"` |
 
-No changes to admin console, catalog, or pilot logic.
+### Technical note
+The CSV parser in `ExecDemoSelectionDialog.tsx` uses naive `split(",")`, so the literal `"` characters become part of the description string and render as visible quotes — exactly the intent. None of the affected descriptions contain commas, so the split won't break.
+
+No other files need changes.
