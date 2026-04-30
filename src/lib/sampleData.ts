@@ -424,7 +424,7 @@ txn_h034,BP,Gas station,5541,48.70,2025-04-10,60614,Cashback Card
 txn_h035,HOMEGOODS,Bathroom accessories,5714,89.50,2025-04-15,60614,Cashback Card
 txn_h036,MARIANO'S,Weekly grocery run,5411,187.34,2025-04-19,60614,Cashback Card
 txn_h037,PEOPLES GAS,Gas utility bill,4900,89.45,2025-04-23,60614,Checking
-txn_h076,GUARANTEED RATE MORTGAGE,Mortgage application fee,6163,500.00,2025-04-25,60601,Checking
+txn_h076,GUARANTEED RATE MORTGAGE,"Mortgage refi application fee",,500.00,2025-04-25,,Checks
 txn_h038,PANERA BREAD,Breakfast and coffee,5814,13.60,2025-04-27,60614,Cashback Card
 txn_h039,BEST BUY,Kitchen appliances,5722,567.89,2025-05-06,60614,Checking
 txn_h040,UBER EATS,Dinner delivery,5814,42.30,2025-05-11,60614,Cashback Card
@@ -441,7 +441,7 @@ txn_h050,CB2,Modern furniture pieces,5712,389.00,2025-06-27,60614,Premium Card
 txn_h051,MARIANO'S,Weekly groceries,5411,167.89,2025-07-02,60614,Cashback Card
 txn_h052,DOORDASH,Lunch delivery,5814,32.75,2025-07-05,60614,Cashback Card
 txn_h053,SPOTIFY,Premium subscription,4899,10.99,2025-07-09,,Cashback Card
-txn_h077,CHICAGO HOME INSPECTIONS,Home inspection service,7389,450.00,2025-07-12,60614,Checking
+txn_h077,CHICAGO HOME INSPECTIONS,"Home inspection service",,450.00,2025-07-12,,Checks
 txn_h054,LOWE'S,Outdoor patio furniture,5211,678.90,2025-07-13,60657,Checking
 txn_h055,PORTILLOS,Quick dinner,5814,24.50,2025-07-17,60614,Cashback Card
 txn_h056,TRADER JOES,Specialty groceries,5411,102.34,2025-07-21,60614,Cashback Card
@@ -460,7 +460,7 @@ txn_h068,STARBUCKS COFFEE,Coffee and pastry,5814,9.45,2025-09-23,60614,Cashback 
 txn_h069,MARIANO'S,Weekly grocery shopping,5411,189.56,2025-09-27,60614,Cashback Card
 txn_h070,GRUBHUB,Dinner delivery,5814,51.30,2025-10-06,60614,Cashback Card
 txn_h071,WALGREENS,Pharmacy and sundries,5912,28.90,2025-10-10,60614,HSA
-txn_h078,CHICAGO TITLE COMPANY,Title search and escrow,6411,1200.00,2025-10-12,60601,Checking
+txn_h078,CHICAGO TITLE COMPANY,"Title search and escrow",,1200.00,2025-10-12,,Checks
 txn_h072,AMC THEATRES,Movie night,7832,42.00,2025-10-15,60610,Cashback Card
 txn_h073,MUSIC BOX THEATRE,Indie film tickets,7832,28.00,2025-10-19,60614,Cashback Card
 txn_h074,WHOLE FOODS MARKET,Final weekly groceries,5411,167.34,2025-10-23,60614,Cashback Card
