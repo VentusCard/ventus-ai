@@ -102,7 +102,7 @@ const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; 
   "Travel & Exploration":       { bg: "rgba(59,130,246,.12)",  border: "rgba(59,130,246,.35)",  text: "#1e40af", dot: "#3b82f6" },
   "Health & Wellness":          { bg: "rgba(16,185,129,.12)",  border: "rgba(16,185,129,.35)",  text: "#065f46", dot: "#10b981" },
   "Sports & Active Living":     { bg: "rgba(34,197,94,.12)",   border: "rgba(34,197,94,.35)",   text: "#166534", dot: "#22c55e" },
-  "Style & Beauty":             { bg: "rgba(132,204,22,.12)",  border: "rgba(132,204,22,.35)",  text: "#3f6212", dot: "#84cc16" }, // lime — distinct from pets
+  "Style & Beauty":             { bg: "rgba(180,83,9,.12)",    border: "rgba(180,83,9,.35)",    text: "#7c2d12", dot: "#b45309" }, // copper — distinct from pets/food/lime
   "Pets":                       { bg: "rgba(236,72,153,.12)",  border: "rgba(236,72,153,.35)",  text: "#9d174d", dot: "#ec4899" },
   "Entertainment & Culture":    { bg: "rgba(217,70,239,.12)",  border: "rgba(217,70,239,.35)",  text: "#86198f", dot: "#d946ef" },
   "Technology & Digital Life":  { bg: "rgba(2,132,199,.12)",   border: "rgba(2,132,199,.35)",   text: "#0c4a6e", dot: "#0284c7" },
