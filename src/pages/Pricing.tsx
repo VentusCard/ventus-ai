@@ -386,6 +386,8 @@ function PricingInner() {
         catalog={catalog}
         updateModule={updateModule}
         resetToDefaults={resetToDefaults}
+        pilot={pilot}
+        updatePilot={updatePilot}
       />
       <EmailDraftDialog
         open={emailOpen}
