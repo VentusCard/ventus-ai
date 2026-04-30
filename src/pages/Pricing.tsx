@@ -18,6 +18,7 @@ function PricingInner() {
   const [customers, setCustomers] = useState<number>(1_000_000);
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pilotMode, setPilotMode] = useState(false);
