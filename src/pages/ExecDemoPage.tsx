@@ -342,6 +342,15 @@ export default function ExecDemoPage() {
               for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
             }
           }
+          // RISK GUARD: any transaction owned by a risk flag (gambling, BNPL, payday, collections,
+          // adult, offshore, etc.) is the exclusive property of the Risk pill — never let it appear
+          // inside a lifestyle rollup, no matter what the LLM said.
+          if (riskTxIdSet.size > 0) {
+            for (const ti of Array.from(txIndicesSet)) {
+              const txId = (enrichedTxs[ti] as any)?.transaction_id;
+              if (txId && riskTxIdSet.has(txId)) txIndicesSet.delete(ti);
+            }
+          }
           const txIndices = Array.from(txIndicesSet);
 
           // Re-derive categoryIndices from the actual selected transactions so the rollup-level
