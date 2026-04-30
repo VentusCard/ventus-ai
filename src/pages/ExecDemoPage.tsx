@@ -497,9 +497,9 @@ export default function ExecDemoPage() {
       }
       const mergedEvents: LifeEvent[] = [...detectedEvents, ...promotedEvents];
 
-      // Fire life event detection with the merged set (will reuse — no extra API call), risk in parallel.
+      // Fire life event detection with the merged set (will reuse — no extra API call).
+      // Risk detection was already kicked off from fireClassification and awaited above.
       fireLifeEventDetection(synthesis, pillars, mergedEvents);
-      fireRiskDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
