@@ -715,6 +715,7 @@ export default function ExecDemoPage() {
   }, [selectedIdx]);
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
+  fireRiskDetectionRef.current = fireRiskDetection;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
     timeoutsRef.current.push(setTimeout(fn, ms));
