@@ -490,7 +490,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -613,7 +613,7 @@ export default function ExecDemoIntelPanel({
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
                           title={isOfferTab ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: isOfferTab
                               ? "#e2e8f0"
@@ -646,7 +646,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full"
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -673,15 +673,15 @@ export default function ExecDemoIntelPanel({
                   return (
                     <>
                       <div className="flex items-center gap-3 mb-1">
-                        <p className="shrink-0 w-[170px] text-[12px] font-bold uppercase tracking-wider text-cyan-600/70">Spending Habits:</p>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-cyan-600/70">Spending Habits:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
                       <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className="shrink-0 w-[170px] text-[12px] font-bold uppercase tracking-wider text-amber-600/70">Life Event Detection:</p>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-amber-600/70">Life Event Detection:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{lifeEventPills}</div>
                       </div>
                       <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className="shrink-0 w-[170px] text-[12px] font-bold uppercase tracking-wider text-red-500/70">Risk Factors:</p>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-red-500/70">Risk Factors:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{riskPills}</div>
                       </div>
                     </>
@@ -943,7 +943,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
