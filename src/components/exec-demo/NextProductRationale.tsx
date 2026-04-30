@@ -796,13 +796,14 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Two products side-by-side with vertical divider */}
-        <div className="flex items-stretch gap-4">
-          {pickedCards[0] && renderColumn(pickedCards[0], 0)}
-          {pickedCards.length === 2 && (
-            <div className="w-px bg-slate-200 self-stretch shrink-0" />
-          )}
-          {pickedCards[1] && renderColumn(pickedCards[1], 1)}
+        {/* Up to 3 products side-by-side with vertical dividers */}
+        <div className="flex items-stretch gap-3">
+          {pickedCards.map((c, i) => (
+            <Fragment key={i}>
+              {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
+              {renderColumn(c, i)}
+            </Fragment>
+          ))}
         </div>
 
         <style>{`
