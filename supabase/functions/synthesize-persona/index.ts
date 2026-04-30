@@ -391,6 +391,13 @@ For each canonical life event below, check whether the per-transaction list meet
         category_indices: r.category_indices || [],
         transaction_indices: r.transaction_indices || [],
       })),
+      detected_life_events: (raw.detected_life_events || []).map((e: any) => ({
+        event_name: e.event_name,
+        confidence: typeof e.confidence === "number" ? e.confidence : 70,
+        evidence: Array.isArray(e.evidence) ? e.evidence : [],
+        talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+        transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
+      })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
