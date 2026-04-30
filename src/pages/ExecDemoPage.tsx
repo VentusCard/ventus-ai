@@ -1192,8 +1192,8 @@ export default function ExecDemoPage() {
                     generatedOffers={generatedOffers}
                     detectedLifeEvents={detectedLifeEvents}
                     productCards={productCards}
-                    activeRollupLabel={activeRollup?.label || null}
-                    activeRollupPillar={activeRollup?.pillar || null}
+                    activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
+                    activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
                     enrichedTxs={classifiedRef.current}
                     riskFlags={riskFlags}
                     aiTabTrigger={aiTabTrigger}

@@ -1,32 +1,38 @@
 ## Problem
 
-In the Next-Offer tab (and Next-Product tab), clicking pills currently triggers chat messages in the phone mockup and force-switches the phone to the AI tab. This shouldn't happen — pill clicks in Next-Offer should only filter the deal collection shown on the phone. AI chat dispatch should be reserved for the Next-Conversation tab.
+On the Next-Offer tab, clicking a **lifestyle pillar pill** correctly filters the offer collection in the phone mockup, but clicking a **life event pill** (or risk pill) does nothing — the phone keeps showing the default carousel.
 
 ## Root cause
 
-In `src/components/exec-demo/ExecDemoIntelPanel.tsx` (lines ~414–466), the pill click handlers `handleRollupForRel`, `handleLifeEventForRel`, and `handleRiskForRel` always call `onAIPromptDispatch?.(...)` regardless of `activeTab`. The handlers were originally written for the Relationship/Next-Conversation tab but are reused across all three tabs — and the AI dispatch was never gated.
+There are two distinct selection states in `src/pages/ExecDemoPage.tsx`:
 
-The comment on line 419 even acknowledges this:  
-*"Always dispatch the scripted AI prompt — phone auto-switches to AI tab."*
+- `activeRollup` — set by lifestyle **pillar** pill clicks
+- `activeTriggerPill` — set by **life event** and **risk** pill clicks
 
-That dispatch updates `pendingAIPrompt` in `ExecDemoPage.tsx`, which `ExecDemoPhoneView.tsx` watches via `useEffect` and uses to switch `consumerTab` to `"ai"` and inject a chat message.
+The phone view (`GeneratedOffersPhoneView`) only receives `activeRollupLabel` / `activeRollupPillar`, which are derived only from `activeRollup`. So when a life-event pill sets `activeTriggerPill`, the phone never learns about the selection and `expandedGroup` stays null.
+
+The matcher inside the phone view (`findGroupForLabel`) already supports a `"Life Event"` pillar scope — it just never receives that input.
+
+```text
+Pillar pill click   → activeRollup        → phone receives label ✓
+Life event pill     → activeTriggerPill   → phone receives nothing ✗
+Risk pill           → activeTriggerPill   → phone receives nothing ✗
+```
 
 ## Fix
 
-In `src/components/exec-demo/ExecDemoIntelPanel.tsx`, gate the three `onAIPromptDispatch?.(...)` calls so they only fire when `activeTab === "relationship"` (Next-Conversation).
+In `src/pages/ExecDemoPage.tsx` (lines 1195–1196), make `activeTriggerPill` take precedence when passing the label/pillar down to `ExecDemoPhoneView`. When a trigger pill is active, pass its label with pillar scope `"Life Event"` so the matcher locks onto the Life Event group of offers.
 
-Specifically, in each of the three handlers:
-- `handleRollupForRel` (line ~444)
-- `handleLifeEventForRel` (line ~451)
-- `handleRiskForRel` (line ~462)
+```tsx
+activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
+activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
+```
 
-…wrap the `onAIPromptDispatch` call in `if (isRelTab) { ... }`. The pillar/life-event filtering side-effects (`onRollupClick`, `onTriggerPillClick`, `setSelectedSignal`) remain unchanged so Next-Offer still updates its filtered deal collection.
-
-Also rename the handlers to drop the misleading `ForRel` suffix (they handle all tabs now) — purely cosmetic, but reduces future confusion.
+That's the only change needed — the matcher and offer-group rendering already handle the rest.
 
 ## Verification
 
-After change:
-- Next-Offer tab → click pillar pill → phone stays on rewards/offers tab, deal collection re-filters. No chat triggered.
-- Next-Product tab → same, no chat triggered.
-- Next-Conversation tab → click pill → phone switches to AI tab and shows scripted message (existing behavior preserved).
+- Next-Offer tab → click life-event pill → phone expands the matching Life Event collection.
+- Next-Offer tab → click pillar pill → still expands the matching pillar collection (unchanged).
+- Next-Offer tab → click risk pill → phone tries to match against Life Event scope; if no match, falls back to closed state (acceptable since risk pills don't have associated offers anyway).
+- Next-Conversation tab → behavior unchanged (chat dispatch still gated to that tab).
