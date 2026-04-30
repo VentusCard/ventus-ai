@@ -124,18 +124,18 @@ function PricingInner() {
     <div className="min-h-screen bg-slate-50" style={{ fontFamily: "Manrope, sans-serif" }}>
       {/* Top bar */}
       <header className="sticky top-0 z-20 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+        <div className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img src={ventusLogo} alt="Ventus AI" className="h-7 w-auto" />
+            <img src={ventusLogo} alt="Ventus AI" className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-7 w-auto" />
             <span className="text-slate-300">|</span>
             <span className="text-sm font-semibold text-slate-700">Pricing Builder</span>
           </div>
           <button
             onClick={() => setAdminOpen(true)}
-            className="inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm"
+            className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 inline-flex items-center gap-2 h-9 px-3 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-sm"
             title="Edit module pricing"
           >
-            <Settings className="w-4 h-4" />
+            <Settings className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 w-4 h-4" />
             Admin
           </button>
         </div>
@@ -152,7 +152,7 @@ function PricingInner() {
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
                 placeholder="e.g. First National Bank"
-                className="mt-1"
+                className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1"
               />
             </div>
             <div>
@@ -162,9 +162,9 @@ function PricingInner() {
                 min={0}
                 value={customers}
                 onChange={(e) => setCustomers(Number(e.target.value) || 0)}
-                className="mt-1"
+                className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1"
               />
-              <p className="text-[11px] text-slate-400 mt-1">{formatNumber(customers)} customers</p>
+              <p className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 text-[11px] text-slate-400 mt-1">{formatNumber(customers)} customers</p>
             </div>
             <div className="grid grid-cols-1 gap-3">
               <div>
@@ -173,7 +173,7 @@ function PricingInner() {
                   value={contactName}
                   onChange={(e) => setContactName(e.target.value)}
                   placeholder="e.g. Sarah Chen"
-                  className="mt-1"
+                  className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1"
                 />
               </div>
               <div>
@@ -183,7 +183,7 @@ function PricingInner() {
                   value={contactEmail}
                   onChange={(e) => setContactEmail(e.target.value)}
                   placeholder="sarah@bank.com"
-                  className="mt-1"
+                  className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1"
                 />
               </div>
             </div>
@@ -193,7 +193,7 @@ function PricingInner() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Procurement notes, scope caveats, timing…"
-                className="mt-1 min-h-[80px] text-sm"
+                className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1 min-h-[80px] text-sm"
               />
             </div>
           </div>
