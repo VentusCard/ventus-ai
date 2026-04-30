@@ -1,25 +1,33 @@
-# Move Hawaiian Airlines bookings 3 months before each trip
+# Restore source variety in top 10 rows of selection dialog
 
-Realistic booking behavior: a traveler buys flights well in advance of the actual trip dates, not the day before. Right now all three Hawaiian Airlines transactions sit alongside the resort/snorkel/dinner rows on trip-day. I'll shift each flight purchase to **~3 months before** its trip so the data matches normal advance-booking patterns and gives the engine a clearer "planning ahead" signal.
+After removing the suspicious `INTL PAYMENT PROC` row and adding the 2024 Kauai trip, the top of `SAMPLE_CSV` is now dominated by Cashback Card and Premium Card. The other four sources (Checks, ACH, Zelle, Wire) don't appear until much later, so the selection dialog's preview no longer showcases the full payment-source palette in its first viewport.
+
+I'll re-promote the four "rare source" rows into the top 10 by reordering — no rows added, no data changed.
 
 ## Changes — `src/lib/sampleData.ts` (`SAMPLE_CSV` only)
 
-Update the `date` field on three rows (no other fields change, no row reordering needed — the persona engine sorts by date internally):
+Reorder so the first 10 rows cover all 6 sources:
 
-| txn_id | Trip | Old flight date | New flight date |
-|---|---|---|---|
-| `txn_h17` | 2024 Kauai (Jul 2–7) | 2024-07-02 | **2024-04-02** |
-| `txn_034` | 2025 Maui (Jul 1–6) | 2025-07-01 | **2025-04-01** |
-| `txn_054` | 2026 Big Island (Jul 5–10) | 2026-07-05 | **2026-04-05** |
+| # | txn_id | Source |
+|---|---|---|
+| 1 | `txn_h15` SUNBUM | Cashback Card |
+| 2 | `txn_h16` OLUKAI | Premium Card |
+| 3 | `txn_h17` HAWAIIAN AIRLINES | Premium Card |
+| 4 | `txn_004` SF TENNIS CLUB | **Checks** |
+| 5 | `txn_007` PACIFIC HEIGHTS APT | **ACH** |
+| 6 | `txn_009` MARIA G dogsitting | **Zelle** |
+| 7 | `txn_052` DOWN PAYMENT TRANSFER | **Wire** |
+| 8 | `txn_h18` KOA KEA HOTEL | Premium Card |
+| 9 | `txn_h19` BUDGET RENT-A-CAR | Premium Card |
+| 10 | `txn_h20` NA PALI CATAMARAN | Cashback Card |
 
-All other Hawaii transactions (resorts, rental cars, snorkel sails, luaus, dinners, sunscreen prep) keep their existing dates — those are correctly tied to the actual travel window.
+Slots 4–7 are simply moved up from their current positions (lines 231–234); the remaining Hawaii and SF rows shift down by 4 to fill the gap. No row content or dates change.
 
 ## Out of scope
 
-- Resort bookings stay on trip-day (they hit the card at check-in, not at booking).
-- Pre-trip prep (Sunbum, Olukai, Quiksilver) keeps its existing 2–4 week pre-trip dates.
-- No changes to other personas or the classifier.
+- No new transactions, no edits to merchant/amount/date/source fields.
+- Sort order remains by row position (the persona engine sorts by date internally so analytics aren't affected).
 
 ## Result
 
-The engine will now see a clean **"book in April → travel in July"** pattern across three consecutive years, which is the realistic shape for an annual vacation ritual and gives the offer rationale a stronger booking-window signal.
+The selection dialog's preview viewport once again shows one transaction from every payment source (Cashback Card, Premium Card, Checks, ACH, Zelle, Wire) within the first 10 rows.
