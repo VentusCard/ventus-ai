@@ -229,9 +229,9 @@ function PricingInner() {
             <div className={pilotMode ? "col-span-3" : "col-span-4"}>Description</div>
             {pilotMode && (
               <div className="col-span-1 text-right">
-                Pilot/yr
+                Pilot (6mo)
                 <div className="text-[9px] normal-case tracking-normal text-slate-400 font-normal">
-                  6 Month
+                  Flat fee
                 </div>
               </div>
             )}
