@@ -673,15 +673,15 @@ export default function ExecDemoIntelPanel({
                   return (
                     <>
                       <div className="flex items-center gap-3 mb-1">
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-cyan-600/70">Spending Habits:</p>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-cyan-700">Spending Habits:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
                       <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-amber-600/70">Life Event Detection:</p>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-amber-700">Life Event Detection:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{lifeEventPills}</div>
                       </div>
                       <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-red-500/70">Risk Factors:</p>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-red-600">Risk Factors:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{riskPills}</div>
                       </div>
                     </>
