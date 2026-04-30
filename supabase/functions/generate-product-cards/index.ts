@@ -30,19 +30,17 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a consumer banking product recommendation copywriter for "TCBY Bank". You generate UP TO FOUR product recommendation cards (or up to FIVE if a RISK CARD is appended) that appear as notifications in a mobile banking app.
+    const systemPrompt = `You are a consumer banking product recommendation copywriter for "TCBY Bank". You generate UP TO TWO product recommendation cards (or up to THREE if a RISK CARD is appended) that appear as notifications in a mobile banking app.
 
 CARD ORDER (STRICT INTERLEAVING):
 Emit cards in exactly this order, skipping a slot only if the source doesn't exist:
   1. Life Event card based on life_events[0] (first detected life event)
   2. Behavioral card based on persona_rollups[0] (first behavioral habit)
-  3. Life Event card based on life_events[1] (second detected life event, if present)
-  4. Behavioral card based on persona_rollups[1] (second behavioral habit, if present)
-  5. RISK CARD — ONLY if risk_signal is provided in the user prompt. Always last.
+  3. RISK CARD — ONLY if risk_signal is provided in the user prompt. Always last.
 
-If only 1 life event exists → emit 3 cards (life_event_1, behavioral_1, behavioral_2).
-If only 1 rollup exists → emit 3 cards (life_event_1, behavioral_1, life_event_2).
-Always emit at least 1 card if any source exists.
+If no life events exist → emit 1 behavioral card (behavioral_1) only.
+If no rollups exist → emit 1 life event card (life_event_1) only.
+Always emit at least 1 card if any source exists. NEVER emit more than 2 non-risk cards.
 
 CRITICAL — signal_label must match source verbatim:
 - Behavioral card: signal_label = persona_rollups[i].label EXACTLY (character-for-character, including capitalization)
