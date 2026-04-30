@@ -173,10 +173,13 @@ function PricingInner() {
                 Customers
               </label>
               <Input
-                type="number"
-                min={0}
-                value={customers}
-                onChange={(e) => setCustomers(Number(e.target.value) || 0)}
+                type="text"
+                inputMode="numeric"
+                value={customers ? customers.toLocaleString("en-US") : ""}
+                onChange={(e) => {
+                  const digits = e.target.value.replace(/[^\d]/g, "");
+                  setCustomers(digits ? Number(digits) : 0);
+                }}
                 className={`h-10 text-base ${LIGHT_INPUT}`}
               />
               <button
