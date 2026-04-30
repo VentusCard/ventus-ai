@@ -66,9 +66,9 @@ function PricingInner() {
     if (pilotMode) {
       lines.push("");
       lines.push(
-        `Pilot option: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
+        `6-month pilot: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
           pilot.flatFee
-        )} / yr flat`
+        )} flat (6 months)`
       );
     }
     if (contactPhone.trim()) {
