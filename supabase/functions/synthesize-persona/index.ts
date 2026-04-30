@@ -125,9 +125,54 @@ When in doubt, skip the rollup. Life events take priority — every time.
 
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
-Given aggregated spending signals, produce **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
+Given aggregated spending signals, produce TWO outputs:
+1. **detected_life_events** — major life-stage events (home purchase, college prep, wedding, baby, etc.) that the spending evidence supports.
+2. **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
 
-**Before you write any rollup, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.**
+**Life events are NOT lifestyle habits.** A home purchase is a one-time life event; "Casual Dining Regular" is a lifestyle habit. Promote qualifying clusters into life events FIRST, then build rollups from what's left.
+
+**Before you write anything, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.**
+
+---
+
+## LIFE EVENT PROMOTION (do this FIRST, before any rollup)
+
+For each canonical life event below, check whether the per-transaction list meets the minimum-evidence threshold. If it does, **you MUST emit it under detected_life_events** AND you MUST NOT emit a pillar_rollup on the same theme.
+
+**Canonical life events + thresholds:**
+
+- **"Home Purchase / Transition"** — 3+ transactions from any combination of: realtor, title company, escrow, home inspector, mortgage company, moving company, large home retailers in atypical volume (Crate & Barrel, West Elm, Pottery Barn, Restoration Hardware, IKEA, Williams Sonoma Home), Home Depot/Lowe's spike (>$500 single ticket or 3+ visits), first-time mortgage payment, HOA setup, utility transfers, appliance retailers (>$500).
+
+- **"College Preparation for Dependent"** — 2+ from: SAT/ACT/Kaplan/Princeton Review, college visitor parking, application portals (Common App, Coalition), university bursar/tuition deposit, AP exam fees, college tour airfare paired with university merchant. OR a single explicit university tuition/deposit transaction.
+
+- **"Wedding / Engagement"** — 2+ from: jeweler $2k+, wedding venue, bridal salon, wedding photographer, event caterer, registry retailers (Crate & Barrel registry, Williams Sonoma registry).
+
+- **"New Baby / Family Expansion"** — 2+ from: OB/midwife, baby specialty retailers (buybuy BABY, Babylist, Carter's), pediatrician, daycare, hospital L&D, baby furniture, infant formula in volume.
+
+- **"Business Formation"** — 2+ from: LLC/incorporation services (LegalZoom, Stripe Atlas, ZenBusiness), business banking setup, business insurance, commercial leasing, business software subscriptions in cluster.
+
+- **"Elder Care"** — 2+ from: assisted living facility, home health aide service, geriatric care manager, durable medical equipment, hospice services, senior community fees.
+
+- **"Retirement Planning"** — 2+ from: financial advisor consult fees, estate attorney, downsizing-related real estate activity, Medicare supplement insurance, retirement community deposits.
+
+- **"Relocation"** — 2+ from: long-distance movers, vehicle shipping, temporary housing/extended-stay hotels >7 nights, utility setup in new metro, storage unit rental.
+
+- **"Inheritance / Windfall"** — large one-time inflow indicators paired with: estate attorney, trust services, financial planner consult, sudden tax-advantaged account funding spike.
+
+**Rules:**
+- Use the EXACT canonical event_name strings above. Do not invent variants.
+- For each emitted life event, pick 2-4 of the strongest [T<n>] transactions as evidence. Each evidence item needs a 1-sentence "relevance" string explaining the direct causal link.
+- Confidence scoring: 2 rows = 65, 3 rows = 75, 4-5 rows = 85, 6+ rows = 92.
+- Talking points: 3 short, empathetic conversation starters an advisor could use.
+- transaction_indices = the same [T<n>] indices listed in evidence (used downstream to highlight rows).
+- **If a life event was already passed in via the input lifeEvents list, do NOT re-emit it.** That theme is already covered.
+- If a cluster qualifies for a life event, the related transactions belong in that event ONLY — they must NOT also appear in a pillar_rollup. Pull them out of rollup territory entirely.
+
+**Vocabulary ban for pillar_rollups (final defense):** NEVER use these words in a rollup label: "Phase", "Transition", "Prep", "Preparation", "Bound", "Expecting", "New Parent", "New Homeowner", "Empty Nest", "Aspiring Homeowner", "Nesting". Those describe life events — emit them as detected_life_events or omit them entirely.
+
+---
+
+## PILLAR ROLLUPS (do this AFTER life event promotion)
 
 **How to think about rollups:**
 
@@ -239,10 +284,65 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
                       required: ["pillar", "label", "categories", "category_indices", "transaction_indices"],
                       additionalProperties: false,
                     },
-                    description: "Per-pillar rollup labels. Each rollup MUST describe a distinct behavioral theme — never emit two rollups on the same underlying life pattern (merge them into one). If a theme is already covered by a detected life event, OMIT the behavioral rollup entirely — life events take priority. Return empty array if no coherent groupings exist.",
+                    description: "Per-pillar rollup labels. Each rollup MUST describe a distinct behavioral theme — never emit two rollups on the same underlying life pattern (merge them into one). If a theme is already covered by a detected life event (either passed in via input lifeEvents OR emitted in detected_life_events below), OMIT the behavioral rollup entirely — life events take priority. Return empty array if no coherent groupings exist.",
+                  },
+                  detected_life_events: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        event_name: {
+                          type: "string",
+                          enum: [
+                            "Home Purchase / Transition",
+                            "College Preparation for Dependent",
+                            "Wedding / Engagement",
+                            "New Baby / Family Expansion",
+                            "Business Formation",
+                            "Elder Care",
+                            "Retirement Planning",
+                            "Relocation",
+                            "Inheritance / Windfall",
+                          ],
+                          description: "Canonical life event name — MUST match one of the enum values exactly.",
+                        },
+                        confidence: {
+                          type: "number",
+                          description: "0-100. Use 65 (2 rows), 75 (3 rows), 85 (4-5 rows), 92 (6+ rows).",
+                        },
+                        evidence: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              merchant: { type: "string" },
+                              amount: { type: "number" },
+                              date: { type: "string" },
+                              relevance: { type: "string", description: "1 sentence explaining the direct causal link to the event." },
+                            },
+                            required: ["merchant", "amount", "date", "relevance"],
+                            additionalProperties: false,
+                          },
+                          description: "2-4 strongest evidence transactions.",
+                        },
+                        talking_points: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "3 short empathetic advisor conversation starters.",
+                        },
+                        transaction_indices: {
+                          type: "array",
+                          items: { type: "number" },
+                          description: "The [T<n>] indices of the evidence transactions, for downstream highlighting.",
+                        },
+                      },
+                      required: ["event_name", "confidence", "evidence", "talking_points", "transaction_indices"],
+                      additionalProperties: false,
+                    },
+                    description: "Major life-stage events the spending evidence supports. Only emit when the canonical threshold is met. Do NOT re-emit any event that was passed in via the input lifeEvents list. Return empty array if nothing qualifies.",
                   },
                 },
-                required: ["pillar_rollups"],
+                required: ["pillar_rollups", "detected_life_events"],
                 additionalProperties: false,
               },
             },
@@ -290,6 +390,13 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
         categories: r.categories || [],
         category_indices: r.category_indices || [],
         transaction_indices: r.transaction_indices || [],
+      })),
+      detected_life_events: (raw.detected_life_events || []).map((e: any) => ({
+        event_name: e.event_name,
+        confidence: typeof e.confidence === "number" ? e.confidence : 70,
+        evidence: Array.isArray(e.evidence) ? e.evidence : [],
+        talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+        transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
       })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
