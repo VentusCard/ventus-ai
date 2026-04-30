@@ -742,7 +742,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
     const labelFor = (resolved: ResolvedCard, idx: number): string => {
       const theme = (resolved.card.theme || "").toLowerCase();
       if (RISK_THEMES.has(theme)) return "Account Care";
-      if (idx >= 2) return "Additional Offer";
+      if (idx >= 2) return "Additional Tools";
       return resolved.isBehavioral ? "Shopping Habit" : "Life Event";
     };
 
