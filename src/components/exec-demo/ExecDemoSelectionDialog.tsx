@@ -250,7 +250,7 @@ export default function ExecDemoSelectionDialog({
                           )}
                         </td>
                         <td className="px-2 py-1.5 text-[11.5px] font-mono text-slate-500 max-w-[220px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
-                        <td className="px-2 py-1.5 text-right font-mono text-[12px] font-semibold text-slate-900 tabular-nums whitespace-nowrap">{fmtAmt}</td>
+                        <td className="px-2 py-1.5 text-right font-mono text-[12px] text-slate-900 tabular-nums whitespace-nowrap font-normal">{fmtAmt}</td>
                         <td className="px-2 py-1.5 text-slate-500 text-[11px]">{row.zip_code || "—"}</td>
                       </tr>
                     );
