@@ -276,7 +276,7 @@ txn_043,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback
 txn_044,ADMISSIONS CONSULTING GRP,"College admissions package",,2500.00,2025-10-05,94102,Checks
 txn_059,EPIC PASS VAIL RESORTS,Annual ski season pass renewal,7941,1149.00,2025-10-12,81657,Premium Card
 txn_045,PETCO,Dog treats and toys,5995,42.00,2025-10-18,94103,Cashback Card
-txn_046,PORTFOLIO RECOVERY ASSOC,Past-due account payment,6012,325.00,2025-10-25,,Checks
+txn_046,PORTFOLIO RECOVERY ASSOC,"Past-due account payment",6012,325.00,2025-10-25,,Checks
 txn_060,BACKCOUNTRY.COM,Ski helmet and goggles,5941,389.00,2025-11-20,84097,Premium Card
 txn_047,ZILLOW MORTGAGE APP FEE,Mortgage application,,500.00,2026-01-10,94102,Checks
 txn_048,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium Card
