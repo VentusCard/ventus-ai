@@ -219,7 +219,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   // ── Deal Detail View ──
   if (expandedGroup) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
-    const imgSrc = getCollectionImage(expandedGroup.rollup, expandedGroup.pillar);
+    const imgSrc = getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
 
     return (
