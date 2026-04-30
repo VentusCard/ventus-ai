@@ -218,14 +218,14 @@ export default function ExecDemoSelectionDialog({
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-white z-10">
                   <tr className="text-left text-[9px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
+                    <th className="pb-2 pr-3 pt-1">Source</th>
                     <th className="pb-2 pr-3 pt-1">ID</th>
                     <th className="pb-2 pr-3 pt-1">Date</th>
                     <th className="pb-2 pr-3 pt-1">Merchant Name</th>
                     <th className="pb-2 pr-3 pt-1">MCC</th>
                     <th className="pb-2 pr-3 pt-1">MCC Description / Note</th>
                     <th className="pb-2 pr-3 pt-1 text-right">Amount</th>
-                    <th className="pb-2 pr-3 pt-1">Zip</th>
-                    <th className="pb-2 pt-1">Source</th>
+                    <th className="pb-2 pt-1">Zip</th>
                   </tr>
                 </thead>
                 <tbody>
