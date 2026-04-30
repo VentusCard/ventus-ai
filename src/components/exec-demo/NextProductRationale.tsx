@@ -790,34 +790,47 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
       return resolved.isBehavioral ? "Shopping Habit" : "Life Event";
     };
 
+    const firstRisk = getFirstRiskRollup(riskFlags);
+    const RISK_RED = { dot: "#ef4444", text: "#991b1b" };
+
     const renderColumn = (resolved: ResolvedCard, idx: number) => {
-      const isActive = activeTriggerLabel === resolved.resolvedLabel;
+      const useRiskPill = idx >= 2 && firstRisk;
+      const pillLabel = useRiskPill ? firstRisk!.label : resolved.resolvedLabel;
+      const pillColor = useRiskPill ? RISK_RED : { dot: resolved.color.dot, text: resolved.color.text };
+      const isActive = !useRiskPill && activeTriggerLabel === resolved.resolvedLabel;
+      const clickable = !useRiskPill && resolved.isClickable;
       return (
         <div className="flex-1 min-w-0 flex flex-col gap-2.5">
           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
             {labelFor(resolved, idx)}
           </div>
           <div
-            className={`self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${resolved.isClickable ? "cursor-pointer" : ""}`}
+            className={`self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${clickable ? "cursor-pointer" : ""}`}
             style={{
-              background: `linear-gradient(135deg, ${resolved.color.dot}10, ${resolved.color.dot}20)`,
-              color: resolved.color.text,
-              border: isActive ? `2px solid ${resolved.color.dot}` : `1.5px solid ${resolved.color.dot}80`,
-              boxShadow: isActive ? `0 0 14px ${resolved.color.dot}30` : `0 2px 8px ${resolved.color.dot}15`,
+              background: `linear-gradient(135deg, ${pillColor.dot}10, ${pillColor.dot}20)`,
+              color: pillColor.text,
+              border: isActive ? `2px solid ${pillColor.dot}` : `1.5px solid ${pillColor.dot}80`,
+              boxShadow: isActive ? `0 0 14px ${pillColor.dot}30` : `0 2px 8px ${pillColor.dot}15`,
               transition: "all 0.2s ease",
             }}
             onClick={() => {
-              if (resolved.isClickable && onTriggerPillClick) {
+              if (clickable && onTriggerPillClick) {
                 onTriggerPillClick(resolved.resolvedLabel, resolved.matchedIndices, resolved.color.dot, resolved.matchedKind);
               }
             }}
           >
-            <span style={{ color: resolved.color.dot }}>✦</span>
-            {resolved.resolvedLabel}
-            {resolved.resolvedCount > 0 && (
+            <span style={{ color: pillColor.dot }}>✦</span>
+            {pillLabel}
+            {useRiskPill ? (
               <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
-                {resolved.resolvedCount} txns · {formatSpend(resolved.resolvedSpend)}
+                {firstRisk!.count} txns · {firstRisk!.severity}
               </span>
+            ) : (
+              resolved.resolvedCount > 0 && (
+                <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
+                  {resolved.resolvedCount} txns · {formatSpend(resolved.resolvedSpend)}
+                </span>
+              )
             )}
           </div>
           <div className="flex-1 flex">
