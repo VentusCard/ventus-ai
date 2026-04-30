@@ -136,6 +136,39 @@ When in doubt, skip the rollup. Life events take priority — every time.
 `
       : "";
 
+    // ---- Risk suppression: keep gambling, vice, BNPL, payday, collections, adult, offshore
+    // out of customer-facing lifestyle rollups. The risk engine owns these themes and surfaces
+    // them in its own dedicated Risk panel — so any overlap here would double-show transactions.
+    const riskSuppressionBlock = `
+
+**CRITICAL — RISK SIGNALS WIN OVER LIFESTYLE PILLS:**
+${presentRiskCategories.length > 0
+  ? `The following risk categories have already been detected for this customer and will be shown in a separate Risk panel: ${presentRiskCategories.map(n => `"${n}"`).join(", ")}.
+
+When a behavioral pattern thematically overlaps with one of these risk categories, **DROP the behavioral rollup entirely** — do NOT package vice/financial-distress activity as a customer-facing lifestyle habit. The Risk panel handles it; your job is to describe lifestyle.
+
+Examples of forbidden overlaps:
+- If "Sports Betting", "Casino & Table Games", "Gambling", or "High-Risk / Offshore Gambling" is present → do NOT produce "Sports Betting", "Casino", "Gambler", "Sportsbook", "High Roller", "Wagering", "Vegas Trips" (when the Vegas spend is gambling-driven), or any rollup that bundles those merchants.
+- If "BNPL Activity", "Payday Advance", or "Overdraft & NSF Activity" is present → do NOT produce "Smart Borrower", "Buy-Now-Pay-Later Shopper", "Cash Flow Manager", or similar money-management rollups built on those rows.
+- If "Adult Entertainment" is present → do NOT produce "Nightlife Regular" or any rollup built on those merchants.
+- If "Collections" is present → do NOT produce any debt-themed rollup; that's risk territory.
+- If "High-Risk / Offshore Gambling" or unusual cross-border wires are flagged → do NOT produce "Crypto Trader", "Global Money Mover", or similar rollup built on flagged rows.
+
+`
+  : ""
+}**PERMANENT VOCABULARY BAN (always enforced, even when no risk categories are listed above):**
+NEVER use any of these tokens in a pillar_rollup label: "Betting", "Sportsbook", "Casino", "Wager", "Wagering", "Gambler", "Gambling", "High Roller", "Cash Advance", "Payday", "BNPL", "Buy Now Pay Later", "Collections", "Adult", "Vice". These concepts belong exclusively to the Risk surface — restating them as a celebrated lifestyle habit creates conflicting tone and double-shows the same transactions.
+
+${flaggedTxIds.length > 0
+  ? `**FORBIDDEN TRANSACTION INDICES:** The transactions corresponding to these merchant IDs have been flagged by the risk engine: they are owned exclusively by the Risk panel. NEVER include any of these rows in transaction_indices for any pillar_rollup, regardless of how attractive a lifestyle theme might appear: ${flaggedTxIds.slice(0, 50).map(id => `"${id}"`).join(", ")}.
+
+When you build transaction_indices, you must check each candidate [T<n>] row against the merchant context — if its merchant is one of the flagged IDs above (the [T<n>] line will let you cross-reference by merchant name), exclude it.
+
+`
+  : ""
+}When in doubt, skip the rollup. Risk signals take priority — every time.
+`;
+
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
 Given aggregated spending signals, produce TWO outputs:
