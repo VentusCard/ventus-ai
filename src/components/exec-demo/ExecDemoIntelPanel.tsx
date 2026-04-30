@@ -416,7 +416,7 @@ export default function ExecDemoIntelPanel({
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
                     }
-                    // Always dispatch the scripted AI prompt — phone auto-switches to AI tab.
+                    // AI prompt dispatch is gated below to the Next-Conversation (relationship) tab only.
                     const totalSpend = Math.round(r.totalSpend ?? 0);
                     const totalCount = r.totalCount ?? 0;
                     let merchantBreakdown = "";
