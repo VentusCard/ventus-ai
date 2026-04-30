@@ -414,63 +414,54 @@ export default function ExecDemoIntelPanel({
                     onRollupClick?.(r);
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
-                      if (assistantOpen) {
-                        // Visible chat bubble stays short and natural; the merchant
-                        // breakdown is forwarded as hidden signal context so the AI
-                        // can answer with ground-truth aggregates without the user
-                        // having to type or see them.
-                        const totalSpend = Math.round(r.totalSpend ?? 0);
-                        const totalCount = r.totalCount ?? 0;
-                        let merchantBreakdown = "";
-                        if (transactions && r.txIndices && r.txIndices.length > 0) {
-                          const mMap: Record<string, { total: number; count: number }> = {};
-                          for (const idx of r.txIndices) {
-                            const tx: any = transactions[idx];
-                            if (!tx) continue;
-                            const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
-                            const amt = typeof tx.amount === "number"
-                              ? Math.abs(tx.amount)
-                              : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
-                            if (!mMap[name]) mMap[name] = { total: 0, count: 0 };
-                            mMap[name].total += amt;
-                            mMap[name].count += 1;
-                          }
-                          const top = Object.entries(mMap)
-                            .sort((a, b) => b[1].total - a[1].total)
-                            .slice(0, 5)
-                            .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
-                          if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
-                        }
-                        const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
-                        const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
-                        onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
-                      }
                     }
+                    // Always dispatch the scripted AI prompt — phone auto-switches to AI tab.
+                    const totalSpend = Math.round(r.totalSpend ?? 0);
+                    const totalCount = r.totalCount ?? 0;
+                    let merchantBreakdown = "";
+                    if (transactions && r.txIndices && r.txIndices.length > 0) {
+                      const mMap: Record<string, { total: number; count: number }> = {};
+                      for (const idx of r.txIndices) {
+                        const tx: any = transactions[idx];
+                        if (!tx) continue;
+                        const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
+                        const amt = typeof tx.amount === "number"
+                          ? Math.abs(tx.amount)
+                          : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                        if (!mMap[name]) mMap[name] = { total: 0, count: 0 };
+                        mMap[name].total += amt;
+                        mMap[name].count += 1;
+                      }
+                      const top = Object.entries(mMap)
+                        .sort((a, b) => b[1].total - a[1].total)
+                        .slice(0, 5)
+                        .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
+                      if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
+                    }
+                    const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
+                    const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
+                    onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
                   };
                   const handleLifeEventForRel = (label: string, indices: number[]) => {
                     onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifeEvent", label });
-                      if (assistantOpen) {
-                        onAIPromptDispatch?.(
-                          `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
-                          "lifeEvent"
-                        );
-                      }
                     }
+                    onAIPromptDispatch?.(
+                      `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
+                      "lifeEvent"
+                    );
                   };
                   const handleRiskForRel = (label: string, indices: number[], color: string, merchant?: string) => {
                     onTriggerPillClick?.(label, indices, color, "risk");
                     if (isRelTab) {
                       setSelectedSignal({ kind: "risk", label });
-                      const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
-                      if (assistantOpen) {
-                        onAIPromptDispatch?.(
-                          `What is this transaction ${subject}? What is it typically associated with statistically?`,
-                          "risk"
-                        );
-                      }
                     }
+                    const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
+                    onAIPromptDispatch?.(
+                      `What is this transaction ${subject}? What is it typically associated with statistically?`,
+                      "risk"
+                    );
                   };
 
                   // Shared pill renderers
