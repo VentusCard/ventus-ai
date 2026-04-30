@@ -1,75 +1,77 @@
-## Mirror SAMPLE_CSV's signal richness across the other five datasets
+## Coordinate persona pill rollups with risk pills
 
-The "Wellness Explorer / SF" dataset (`SAMPLE_CSV`) is uniquely rich: it interleaves recurring rhythms (CHEWY monthly, SF Tennis renewals, Vail ski pass), one-off life events across non-card rails (SAT registration → Kaplan → admissions consulting via Checks; mortgage app → home inspection → title escrow via Checks; down-payment Wire; Zelle to dog-sitter and contractor), and risk/vice signals (DraftKings, Stake.com, EarnIn payday advance, Bellagio Casino, Western Union, Portfolio Recovery collections). The other five CSVs are essentially flat card-and-Checking activity.
+### The bug
 
-This plan injects the same pattern — **recurring + non-recurring behavioral signals + life events + risk indicators across multiple payment rails** — into each of the other five sample sets, tuned to that customer's persona.
+When the SF customer's CSV contains DraftKings, Stake.com, Bellagio, etc., the persona LLM (`synthesize-persona`) emits a **lifestyle rollup pill** like *"Occasional Sports Betting & Casino"* — surfacing gambling as if it were a hobby (Tennis, Skiing, Hawaiian vacations).
 
-### Signal categories to inject per dataset
+In parallel, `detect-risk-transactions` already classifies the same merchants under proper risk labels (`Sports Betting`, `Casino & Table Games`, `High-Risk / Offshore Gambling`, `BNPL`, `Payday Advance`, `Adult Entertainment`, etc.) which render in the Risk section of `ExecDemoIntelPanel`.
 
-Each dataset gets ~12–18 new rows total spread across the date range, in four buckets:
+Result: the same transactions appear twice — once celebrated as a lifestyle, once flagged as a vice — with conflicting tone (violates our "avoid stress/risk terminology in customer copy; frame opportunity not risk" rule, while *also* breaking the inverse — risk content showing up as a customer-facing lifestyle).
 
-1. **Recurring behavioral rhythm** (1–3 rows) — a sticky monthly habit not yet visible (e.g. subscription, gym, music lessons), often on the lowest-friction rail (ACH or Cashback Card).
-2. **Life-event progression** (3–6 rows) — a multi-step arc spanning ≥2 quarters using Checks/ACH/Wire, ending in a major outflow. The arc must match the persona's `lifeEvents` declared in `demoData.ts`.
-3. **Risk / vulnerability indicator** (1–3 rows) — gambling, payday advance, collections, BNPL, crypto, or unusual wire — on a deliberately mixed rail (Premium Card for gambling, Checks for collections, Cashback for cash-advance apps).
-4. **Cross-rail diversity** (1–2 rows) — a Zelle to a person and at least one Wire or HSA where it makes sense, so each dataset shows ≥4 distinct sources.
+### Root cause
 
-### Per-dataset injections
+`synthesize-persona` already defers to **detected_life_events** when there's a thematic overlap, but it has no knowledge of **risk_flags**. Categories the risk engine owns (gambling, vice, payday/BNPL, collections, offshore wires, adult) are free game for the persona LLM to package as cute lifestyle habits.
 
-#### `SAMPLE_CSV_SPORTS_WELLNESS` — Austin "Wellness Explorer", lifeEvents: Home Purchase + Family Formation
-Already has 2 HSA + a Buy Buy Baby + Pottery Barn Kids + OB-GYN + Chiropractic.
-Add:
-- **Recurring**: PELOTON ALL-ACCESS monthly (ACH, $44, x3 dates), MINDBODY YOGA APP subscription (Cashback, $19, x2).
-- **Life event — Home Purchase**: AUSTIN MORTGAGE BROKERS app fee (Checks, $450, Mar 2025) → AUSTIN HOME INSPECT (Checks, $575, Apr 2025) → STEWART TITLE TX (Checks, $1,650, May 2025) → DOWN PAYMENT TRANSFER (Wire, $62,000, May 2025).
-- **Life event — Family Formation**: AUSTIN OB GYN follow-up (HSA, already there) → BABYLIST REGISTRY (Cashback, $89) → CORD BLOOD REGISTRY (Checks, $1,495) → MATERNITY NURSE (Zelle, "Doula deposit", $1,200).
-- **Risk**: DRAFTKINGS SPORTSBOOK TX deposit (Premium Card, $200) → AFFIRM*PELOTON BNPL (Cashback, $58/mo x2).
-- **Cross-rail**: Zelle to "JAMES K" labeled "Personal trainer" $400.
+The orchestrator (`ExecDemoPage.firePersonaSynthesis`) currently fires `detect-risk-transactions` *after* persona synthesis completes (line 441), so even if the prompt accepted risk hints, none would be available yet.
 
-#### `SAMPLE_CSV_FOOD_HOME` — Chicago "Family Planner", lifeEvents: Wealth Transfer + Elder Care
-Already has Guaranteed Rate mortgage fee + Chicago Title escrow on Checking.
-Reclassify those two to **Checks** for consistency, then add:
-- **Recurring**: PEAPOD GROCERY DELIVERY weekly (ACH, $145 x4), MUSIC TOGETHER kids' class (ACH, $185/mo x3).
-- **Life event — Elder Care arc**: SUNRISE SENIOR LIVING tour deposit (Checks, $250, Jun 2025) → AARP MEDICARE SUPPLEMENT (Checks, $189, Jul) → IN-HOME CARE CHICAGO (Zelle, "Caregiver weekly", $850 x2 in Aug/Sep) → MEDICAL EQUIPMENT CO (HSA, $445).
-- **Life event — Wealth Transfer**: NORTHWESTERN TRUST CONSULT (Checks, $1,200, Sep) → ESTATE ATTORNEY RETAINER (Wire, $7,500, Oct) → CHARITABLE GIFT FUND (ACH, $5,000, Oct).
-- **Risk**: PORTFOLIO RECOVERY ASSOC past-due collections (Checks, $415, May), KLARNA*WAYFAIR BNPL installment (Cashback, $112 x3).
-- **Cross-rail**: Zelle to "MARGARET S" "Mom's grocery help" $300.
+### Fix — three coordinated changes
 
-#### `SAMPLE_CSV_TRAVEL_FAMILY_12` — SF "Golf & Leisure", lifeEvents: Retirement Planning + Estate Planning
-Loaded with after-school care, parking garage, summer camp on Checking — already shows recurring family ops. The dataset already hints at Princeton Review (ACT prep), UC Berkeley parking, Del Webb retirement community, estate attorney, Keller Williams realty (all on Checking). Add:
-- **Recurring**: GOLF CLUB DUES monthly (ACH, $385 x4), WSJ DIGITAL SUBSCRIPTION (Cashback, $39 x2).
-- **Life event — College-Bound (already started with ACT)**: COLLEGE BOARD SAT (Checks, $68) → KAPLAN ACT PREP TUTOR (Zelle, "Weekly tutor", $200 x4) → COMMON APP FEES (Checks, $385) → COLLEGE TOUR FLIGHTS UA (Travel Card, $1,840).
-- **Life event — Retirement progression**: SCHWAB ROLLOVER FEE (Checks, $250) → FIDELITY ANNUITY DEPOSIT (Wire, $50,000, Q3 2025) → MEDICARE PART B SETUP (Checks, $186).
-- **Life event — Estate**: MORRISON & FOERSTER LLP (Wire, "Estate planning retainer", $12,500) → GIFT TO DAUGHTER (Zelle, $15,000, Dec 2025).
-- **Risk**: BELLAGIO CASINO LV (Premium Card, $750), STAKE.COM*PROC (Premium Card, $320), WESTERN UNION MTO (Cashback, $600 — possible elder fraud signal).
+**1. `src/pages/ExecDemoPage.tsx` — fire risk detection in parallel with classification, gate persona synthesis on it**
 
-#### `SAMPLE_CSV_NYC_SPORTS_HOME_12` — NYC "Urban Professional", lifeEvents: Education Funding + Career Change
-Already has MTA monthly, ConEd, LinkedIn Premium, E*TRADE option exercise, Weil Gotshal estate attorney, etc. Add:
-- **Recurring**: SOULCYCLE UNLIMITED (Cashback monthly, $215 x3), NEW YORK TIMES DIGITAL (Cashback, $25 x3).
-- **Life event — Education Funding (529)**: VANGUARD 529 CONTRIBUTION (ACH, $5,000 x2 across Q3/Q4), DALTON SCHOOL TOUR FEE (Checks, $150), TEST PREP NYC TUTOR (Zelle, "SHSAT tutor weekly", $250 x4).
-- **Life event — Career Change**: WHARTON EMBA APPLICATION (Checks, $275) → GMAT VOUCHER (Checks, $275) → EXEC RECRUITER RETAINER (Wire, "Korn Ferry retainer", $5,000) → LINKEDIN LEARNING (Cashback, $39 x2).
-- **Risk**: DRAFTKINGS NJ (Premium Card, $400), ROBINHOOD CRYPTO BUY (Cashback, $1,200), AFFIRM*PELOTON BNPL ($58 x3).
-- **Cross-rail**: Zelle "NANNY M — weekly" $650 x4 (childcare signal), Wire to parents "Annual gift" $18,000.
+`detect-risk-transactions` runs against the **raw CSV** (not enriched output), so it has no dependency on classification. Today it's gated behind persona synthesis for no real reason — it can start much earlier.
 
-#### `SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12` — Chicago "Adventurer & Investor", lifeEvents: Retirement Planning + Wealth Transfer
-Already has dining, golf, fitness, fashion. Add:
-- **Recurring**: EAST BANK CLUB DUES (ACH monthly, $295 x4), BARRON'S SUBSCRIPTION (Cashback, $52 x2), TENNIS COACH PRIVATE (Zelle, "Coach weekly", $120 x6).
-- **Life event — Retirement**: SCHWAB IRA MAX CONTRIBUTION (Wire, $7,000, Apr 2025), AARP ENROLLMENT (Checks, $16), VANGUARD ROLLOVER FEE (Checks, $250), FIDELITY PENSION INQUIRY (Checks, $0 admin).
-- **Life event — Wealth Transfer (dynasty trust)**: SIDLEY AUSTIN LLP (Wire, "Trust formation retainer", $25,000), CHICAGO COMMUNITY TRUST (ACH, "DAF contribution", $50,000), GIFT TO GRANDCHILD 529 (ACH, $17,000).
-- **Risk**: BELLAGIO CASINO LV (Premium Card, $1,200), BET365 EU PROC (Premium Card, $400 — offshore signal), KRAKEN CRYPTO BUY (Cashback, $5,000 — concentrated risk).
-- **Cross-rail**: Zelle "HOUSEKEEPER L" "Bi-weekly $400 x4".
+Restructure:
+- In `fireClassification` (line 120), kick off `fireRiskDetection()` immediately alongside the SSE classification request — both run from the raw CSV in parallel.
+- Change `firePersonaSynthesis` (line 202) to **await** the risk result before calling the `synthesize-persona` edge function. Use a small promise that resolves when `riskFlagsRef.current` is populated (or when `riskLoading` flips false with no flags). Add a 6-second timeout fallback so a slow risk call never blocks the demo entirely.
+- Pass two new fields into the `synthesize-persona` body:
+  - `riskCategoriesPresent: string[]` — distinct `category_label` values from `riskFlags.flags` (e.g. `["Sports Betting", "Casino & Table Games", "BNPL Activity"]`).
+  - `riskTransactionIds: string[]` — the `transaction_id`s of every flagged transaction, so the LLM knows exactly which rows to keep out of any lifestyle rollup.
+- Remove the duplicate `fireRiskDetection()` call at line 441 (it's now already in flight from `fireClassification`).
 
-### Format rules (already established)
-- Card rows: zip kept, plain description.
-- Checks / ACH / Wire / Zelle: zip empty, description wrapped in literal `"…"`.
-- HSA: zip kept, plain description (medical debit card).
-- MCC left blank for non-card transfers (matches existing pattern in `SAMPLE_CSV`).
+**2. `supabase/functions/synthesize-persona/index.ts` — accept and enforce risk awareness**
+
+Mirror the existing `lifeEventSuppressionBlock` pattern with a new `riskSuppressionBlock`. When `riskCategoriesPresent` is non-empty, inject a `**CRITICAL — RISK SIGNALS WIN OVER LIFESTYLE PILLS:**` section listing the categories in scope and instructing:
+
+- DROP any pillar_rollup that thematically maps to a present risk category. Examples:
+  - Sports Betting / Casino / Gambling present → no `*Betting*`, `*Casino*`, `*Gambler*`, `*Sportsbook*`, `*Vegas Trips*` (when Vegas activity is gambling-driven), `*High Roller*`, `*Wagering*` rollups.
+  - Adult Entertainment → no `*Adult*` or nightlife rollup built on those merchants.
+  - BNPL / Payday Advance / Collections → no `*Smart Borrower*`, `*Buy-Now-Pay-Later Shopper*`, `*Cash Flow Manager*` rollups.
+  - High-Risk / Offshore → no `*Crypto Trader*`, `*Global Money Mover*` rollup built on flagged rows.
+- Add a permanent vocabulary ban (always enforced, regardless of whether risk fired this run) for these tokens in rollup labels: `Betting`, `Sportsbook`, `Casino`, `Wager`, `Wagering`, `Gambler`, `Gambling`, `High Roller`, `Cash Advance`, `Payday`, `BNPL`, `Collections`, `Adult`, `Vice`. These belong exclusively to the Risk surface.
+- Forbid the LLM from including any transaction whose ID appears in `riskTransactionIds` inside `transaction_indices` for any lifestyle rollup. Those rows are owned by the Risk pill.
+
+Add the new fields to the request schema, default them to empty arrays, and document them in the function header comments.
+
+**3. `src/components/exec-demo/ExecDemoIntelPanel.tsx` — defensive client-side filter**
+
+Even with prompt hardening, models drift. Add a final filter when assembling `rollupStats` and `availableSignals`:
+- Build `riskTxIdSet = Set<string>` from `riskFlags.flags.map(f => f.transaction_id)`.
+- For each persona `pillarRollup`, drop any `txIndex` whose underlying `enrichedTxs[idx].transaction_id` is in `riskTxIdSet`.
+- If after filtering a rollup has < 2 remaining transactions, drop the rollup entirely.
+- Additionally, regex-strip any rollup whose `label` matches `/betting|sportsbook|casino|wager|gambl|payday|bnpl|cash advance|adult/i`. Log a `console.warn` so we notice if it ever fires (the prompt should have caught it upstream).
+
+This guarantees the UI never double-shows a transaction under both a lifestyle pill and a risk pill, regardless of LLM output.
+
+### Tradeoff acknowledged
+
+Gating persona synthesis on risk detection adds a small amount of perceived latency (whichever of the two LLM calls is slower becomes the critical path instead of just classification + persona). The 6-second timeout fallback bounds the worst case — if risk detection is slow or fails, persona still ships, just without the suppression hint, and the client-side filter (change #3) still prevents the double-display.
 
 ### Files affected
-- `src/lib/sampleData.ts` — only file. Each of the five CSV constants gets new rows inserted in date-sorted order so the table renders chronologically clean.
 
-### Out of scope
-- `demoData.ts` lifeEvents / topPillars / pillarBreakdown / sampleTransactions arrays. These already declare what each persona "should" show; the data injection brings the CSV evidence into alignment with what's already advertised. No edits to `demoData.ts` unless the user wants the labels updated too — flag if so.
+- `src/pages/ExecDemoPage.tsx` — kick off risk detection from `fireClassification`; await it in `firePersonaSynthesis`; pass `riskCategoriesPresent` + `riskTransactionIds`; remove duplicate post-synthesis risk call.
+- `supabase/functions/synthesize-persona/index.ts` — accept the two new fields, build `riskSuppressionBlock`, append permanent vocabulary ban.
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — defensive filter on `rollupStats` / `availableSignals` against `riskFlags`.
 
 ### Validation
-- `rg ",Checks$|,ACH$|,Wire$|,Zelle$" src/lib/sampleData.ts | wc -l` should jump from 14 to ~80+.
-- For each CSV, `awk` block + `grep` to confirm at least 4 distinct sources.
-- Visual QA in `/demo` Selection Dialog for each customer.
+
+- Re-run executive demo with the SF customer (`SAMPLE_CSV` has DraftKings + Stake.com + Bellagio + Western Union) and the Chicago "Adventurer & Investor" set (BELLAGIO + BET365 + KRAKEN). Confirm:
+  - "Occasional Sports Betting & Casino" no longer appears as a lifestyle pill.
+  - The same transactions show up only under the Risk section.
+  - No lifestyle rollup contains a flagged-risk `transaction_id` (verifiable via the rollup-click highlight strip — count should match risk-free filtered total).
+- Console warning fires zero times across all six demo customers under normal LLM output.
+
+### Out of scope
+
+- Restructuring `detect-risk-transactions` output (categories already correct).
+- Visual redesign of risk pills.
+- Changing `generate-product-cards` risk handling (already accepts `risk_flags`).

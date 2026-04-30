@@ -108,6 +108,9 @@ export default function ExecDemoPage() {
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const detectLifeEventsOnlyRef = useRef<() => Promise<LifeEvent[]>>(async () => []);
+  const fireRiskDetectionRef = useRef<() => Promise<void>>(async () => {});
+  /** Promise resolved once risk detection finishes (success or failure) for the current CSV. */
+  const riskReadyRef = useRef<Promise<void> | null>(null);
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
   const offersInFlightRef = useRef<boolean>(false);
 
@@ -129,6 +132,13 @@ export default function ExecDemoPage() {
 
     const payload = csvToClassifyPayload(csv);
     if (payload.length === 0) return;
+
+    // Kick off risk detection in PARALLEL with classification.
+    // detect-risk-transactions runs against the raw CSV (no dependency on classification),
+    // so persona synthesis can later await this promise to suppress overlapping lifestyle pills.
+    riskReadyRef.current = fireRiskDetectionRef.current().catch((e) => {
+      console.warn("[PRELOAD] Risk detection promise rejected:", e);
+    });
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -250,6 +260,31 @@ export default function ExecDemoPage() {
       console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
     }
 
+    // Await risk detection (started in parallel from fireClassification) so we can pass
+    // risk categories + flagged transaction IDs into synthesize-persona for vice/gambling
+    // theme suppression. Bound to 6s so a slow risk call never blocks the demo.
+    if (riskReadyRef.current) {
+      try {
+        await Promise.race([
+          riskReadyRef.current,
+          new Promise<void>((resolve) => setTimeout(resolve, 6000)),
+        ]);
+      } catch { /* swallow — defensive UI filter still applies */ }
+    }
+    const riskFlagsForPersona = riskFlagsRef.current?.flags || [];
+    const riskCategoriesPresent = Array.from(new Set(
+      riskFlagsForPersona
+        .map((f: any) => String(f.category_label || f.category_group || "").trim())
+        .filter((s: string) => s.length > 0)
+    ));
+    const riskTransactionIds = Array.from(new Set(
+      riskFlagsForPersona
+        .map((f: any) => String(f.transaction_id || "").trim())
+        .filter((s: string) => s.length > 0)
+    ));
+    const riskTxIdSet = new Set(riskTransactionIds);
+    console.log(`[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`);
+
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
         body: {
@@ -267,6 +302,8 @@ export default function ExecDemoPage() {
             spending_tier: t.spending_tier,
           })),
           lifeEvents: detectedEvents.map(e => ({ event_name: e.event_name })),
+          riskCategoriesPresent,
+          riskTransactionIds,
         },
       });
       if (error) throw error;
@@ -303,6 +340,15 @@ export default function ExecDemoPage() {
           } else {
             for (const gi of matchedGroupIndices) {
               for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
+            }
+          }
+          // RISK GUARD: any transaction owned by a risk flag (gambling, BNPL, payday, collections,
+          // adult, offshore, etc.) is the exclusive property of the Risk pill — never let it appear
+          // inside a lifestyle rollup, no matter what the LLM said.
+          if (riskTxIdSet.size > 0) {
+            for (const ti of Array.from(txIndicesSet)) {
+              const txId = (enrichedTxs[ti] as any)?.transaction_id;
+              if (txId && riskTxIdSet.has(txId)) txIndicesSet.delete(ti);
             }
           }
           const txIndices = Array.from(txIndicesSet);
@@ -381,6 +427,21 @@ export default function ExecDemoPage() {
             }
           }
 
+          // Rule 4: Reject rollups whose label uses risk-domain vocabulary. Those concepts
+          // belong exclusively to the Risk surface — never restate them as a customer-facing lifestyle.
+          const riskVocab = /betting|sportsbook|casino|wager|gambl|payday|bnpl|cash advance|adult|vice|high roller/i;
+          if (riskVocab.test(r.label)) {
+            console.warn(`[ROLLUP-REJECT] "${r.label}" — uses risk-domain vocabulary; coordinate via Risk pill`);
+            return false;
+          }
+
+          // Rule 5: After the risk-id guard above stripped risk-owned txns, the rollup may
+          // have collapsed below the meaningful-evidence threshold. Drop it.
+          if (r.totalCount < 2) {
+            console.log(`[ROLLUP-REJECT] "${r.label}" — fewer than 2 transactions after risk filtering`);
+            return false;
+          }
+
           return true;
         })
         .map(({ _resolvedCategories, ...rest }: any) => rest),
@@ -436,9 +497,9 @@ export default function ExecDemoPage() {
       }
       const mergedEvents: LifeEvent[] = [...detectedEvents, ...promotedEvents];
 
-      // Fire life event detection with the merged set (will reuse — no extra API call), risk in parallel.
+      // Fire life event detection with the merged set (will reuse — no extra API call).
+      // Risk detection was already kicked off from fireClassification and awaited above.
       fireLifeEventDetection(synthesis, pillars, mergedEvents);
-      fireRiskDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
@@ -712,6 +773,7 @@ export default function ExecDemoPage() {
   }, [selectedIdx]);
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
+  fireRiskDetectionRef.current = fireRiskDetection;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
     timeoutsRef.current.push(setTimeout(fn, ms));

@@ -53,10 +53,17 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars, lifeEvents, transactions } = await req.json() as {
+    const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds } = await req.json() as {
       pillars: any[];
       lifeEvents?: { event_name?: string }[];
       transactions?: IncomingTxn[];
+      // Distinct risk-engine category labels detected on this customer
+      // (e.g. ["Sports Betting", "Casino & Table Games", "BNPL Activity"]).
+      riskCategoriesPresent?: string[];
+      // transaction_id values flagged by detect-risk-transactions. The persona LLM must NOT
+      // include any of these IDs in transaction_indices for any lifestyle rollup — those rows
+      // are owned by the Risk pill.
+      riskTransactionIds?: string[];
     };
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
@@ -67,6 +74,12 @@ serve(async (req) => {
 
     const detectedEventNames: string[] = Array.isArray(lifeEvents)
       ? lifeEvents.map((e: { event_name?: string }) => e?.event_name).filter((n): n is string => !!n)
+      : [];
+    const presentRiskCategories: string[] = Array.isArray(riskCategoriesPresent)
+      ? Array.from(new Set(riskCategoriesPresent.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
+      : [];
+    const flaggedTxIds: string[] = Array.isArray(riskTransactionIds)
+      ? Array.from(new Set(riskTransactionIds.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
       : [];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -122,6 +135,39 @@ Examples of forbidden overlaps:
 When in doubt, skip the rollup. Life events take priority — every time.
 `
       : "";
+
+    // ---- Risk suppression: keep gambling, vice, BNPL, payday, collections, adult, offshore
+    // out of customer-facing lifestyle rollups. The risk engine owns these themes and surfaces
+    // them in its own dedicated Risk panel — so any overlap here would double-show transactions.
+    const riskSuppressionBlock = `
+
+**CRITICAL — RISK SIGNALS WIN OVER LIFESTYLE PILLS:**
+${presentRiskCategories.length > 0
+  ? `The following risk categories have already been detected for this customer and will be shown in a separate Risk panel: ${presentRiskCategories.map(n => `"${n}"`).join(", ")}.
+
+When a behavioral pattern thematically overlaps with one of these risk categories, **DROP the behavioral rollup entirely** — do NOT package vice/financial-distress activity as a customer-facing lifestyle habit. The Risk panel handles it; your job is to describe lifestyle.
+
+Examples of forbidden overlaps:
+- If "Sports Betting", "Casino & Table Games", "Gambling", or "High-Risk / Offshore Gambling" is present → do NOT produce "Sports Betting", "Casino", "Gambler", "Sportsbook", "High Roller", "Wagering", "Vegas Trips" (when the Vegas spend is gambling-driven), or any rollup that bundles those merchants.
+- If "BNPL Activity", "Payday Advance", or "Overdraft & NSF Activity" is present → do NOT produce "Smart Borrower", "Buy-Now-Pay-Later Shopper", "Cash Flow Manager", or similar money-management rollups built on those rows.
+- If "Adult Entertainment" is present → do NOT produce "Nightlife Regular" or any rollup built on those merchants.
+- If "Collections" is present → do NOT produce any debt-themed rollup; that's risk territory.
+- If "High-Risk / Offshore Gambling" or unusual cross-border wires are flagged → do NOT produce "Crypto Trader", "Global Money Mover", or similar rollup built on flagged rows.
+
+`
+  : ""
+}**PERMANENT VOCABULARY BAN (always enforced, even when no risk categories are listed above):**
+NEVER use any of these tokens in a pillar_rollup label: "Betting", "Sportsbook", "Casino", "Wager", "Wagering", "Gambler", "Gambling", "High Roller", "Cash Advance", "Payday", "BNPL", "Buy Now Pay Later", "Collections", "Adult", "Vice". These concepts belong exclusively to the Risk surface — restating them as a celebrated lifestyle habit creates conflicting tone and double-shows the same transactions.
+
+${flaggedTxIds.length > 0
+  ? `**FORBIDDEN TRANSACTION INDICES:** The transactions corresponding to these merchant IDs have been flagged by the risk engine: they are owned exclusively by the Risk panel. NEVER include any of these rows in transaction_indices for any pillar_rollup, regardless of how attractive a lifestyle theme might appear: ${flaggedTxIds.slice(0, 50).map(id => `"${id}"`).join(", ")}.
+
+When you build transaction_indices, you must check each candidate [T<n>] row against the merchant context — if its merchant is one of the flagged IDs above (the [T<n>] line will let you cross-reference by merchant name), exclude it.
+
+`
+  : ""
+}When in doubt, skip the rollup. Risk signals take priority — every time.
+`;
 
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
@@ -256,7 +302,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - Always include the exact category names combined and the [N] row indices from the per-category input. For lifestyle-prone pillars also include the [T<n>] transaction_indices from the per-transaction list.
 
-- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}`;
+- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
 
     const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}`;
 
