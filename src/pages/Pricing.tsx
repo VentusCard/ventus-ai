@@ -150,7 +150,7 @@ function PricingInner() {
                 value={bankName}
                 onChange={(e) => setBankName(e.target.value)}
                 placeholder="e.g. First National Bank"
-                className={`h-9 text-sm ${LIGHT_INPUT}`}
+                className={`h-10 text-base ${LIGHT_INPUT}`}
               />
             </div>
             <div className="flex items-center gap-3">
@@ -162,7 +162,7 @@ function PricingInner() {
                 min={0}
                 value={customers}
                 onChange={(e) => setCustomers(Number(e.target.value) || 0)}
-                className={`h-9 text-sm ${LIGHT_INPUT}`}
+                className={`h-10 text-base ${LIGHT_INPUT}`}
               />
             </div>
           </div>
@@ -201,7 +201,7 @@ function PricingInner() {
                   <button
                     type="button"
                     onClick={() => toggle(m.id)}
-                    className={`w-full text-left px-5 py-2 grid grid-cols-12 gap-3 items-center transition-colors ${
+                    className={`w-full text-left px-5 py-2.5 grid grid-cols-12 gap-3 items-center transition-colors ${
                       isSel ? "bg-blue-50/40" : "bg-white hover:bg-slate-50"
                     }`}
                   >
@@ -271,7 +271,7 @@ function PricingInner() {
               <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                 Total / year
               </span>
-              <span className="text-xl font-bold text-slate-900">{formatCurrency(grandTotal)}</span>
+              <span className="text-2xl font-bold text-slate-900">{formatCurrency(grandTotal)}</span>
             </div>
           </div>
         </section>
@@ -295,7 +295,7 @@ function PricingInner() {
                 value={contactName}
                 onChange={(e) => setContactName(e.target.value)}
                 placeholder="e.g. Sarah Chen"
-                className={`h-9 text-sm ${LIGHT_INPUT}`}
+                className={`h-10 text-base ${LIGHT_INPUT}`}
               />
             </div>
             <div className="col-span-3">
@@ -307,7 +307,7 @@ function PricingInner() {
                 value={contactEmail}
                 onChange={(e) => setContactEmail(e.target.value)}
                 placeholder="sarah@bank.com"
-                className={`h-9 text-sm ${LIGHT_INPUT}`}
+                className={`h-10 text-base ${LIGHT_INPUT}`}
               />
             </div>
             <div className="col-span-6">
@@ -318,7 +318,7 @@ function PricingInner() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Procurement notes, scope caveats, timing…"
-                className={`min-h-[36px] h-9 py-2 text-sm resize-none ${LIGHT_INPUT}`}
+                className={`min-h-[40px] h-10 py-2 text-base resize-none ${LIGHT_INPUT}`}
               />
             </div>
           </div>
@@ -327,7 +327,7 @@ function PricingInner() {
         <div className="flex items-center justify-end shrink-0">
           <button
             onClick={handleEmail}
-            className="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+            className="inline-flex items-center justify-center gap-2 h-11 px-7 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
           >
             <Mail className="w-4 h-4" /> Email draft to prospect
           </button>
