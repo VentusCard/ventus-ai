@@ -224,9 +224,7 @@ export default function ExecDemoSelectionDialog({
                     return (
                       <tr key={i} className="border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
                         <td className="px-2 py-1.5">
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
-                            {row.source || "—"}
-                          </span>
+                          <SourceTag source={row.source} size="sm" />
                         </td>
                         <td className="px-2 py-1.5 text-slate-400 font-mono text-[11px]">{row.transaction_id || i + 1}</td>
                         <td className="px-2 py-1.5 text-[12px] text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
