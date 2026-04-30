@@ -321,12 +321,12 @@ function PricingInner() {
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
                 placeholder="Procurement notes, scope caveats, timing…"
-                className={`min-h-[60px] py-2 text-base resize-none ${LIGHT_INPUT}`}
+                className={`min-h-[40px] h-10 py-2 text-base resize-none ${LIGHT_INPUT}`}
               />
             </div>
             <button
               onClick={handleEmail}
-              className="inline-flex items-center justify-center gap-2 h-[60px] w-full rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+              className="inline-flex items-center justify-center gap-2 h-10 w-full rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
             >
               <Mail className="w-4 h-4" /> Email draft to prospect
             </button>
