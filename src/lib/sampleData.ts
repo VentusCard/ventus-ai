@@ -221,6 +221,10 @@ export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,d
 txn_h15,SUNBUM REEF SAFE SPF,Reef-safe sunscreen pre-trip,5912,64.00,2024-06-20,94102,Cashback Card
 txn_h16,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23,94102,Premium Card
 txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
+txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
+txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
+txn_009,MARIA G,Dogsitting,,150.00,2024-12-18,94102,Zelle
+txn_052,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,94102,Wire
 txn_h18,KOA KEA HOTEL KAUAI,Poipu beachfront 5 nights,7011,2290.00,2024-07-03,96756,Premium Card
 txn_h19,BUDGET RENT-A-CAR LIH,Jeep rental Lihue airport,7512,578.00,2024-07-03,96766,Premium Card
 txn_h20,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2024-07-05,96714,Cashback Card
@@ -228,10 +232,6 @@ txn_h21,BEACH HOUSE RESTAURANT KAUAI,Sunset oceanfront dinner,5812,228.00,2024-0
 txn_h22,LUAU KALAMAKU KAUAI,Traditional luau for two,5812,358.00,2024-07-07,96766,Premium Card
 txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,2024-11-03,94102,Cashback Card
 txn_056,EPIC PASS VAIL RESORTS,Annual ski season pass,7941,1089.00,2024-10-28,81657,Premium Card
-txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
-txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
-txn_009,MARIA G,Dogsitting,,150.00,2024-12-18,94102,Zelle
-txn_052,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,94102,Wire
 txn_002,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-11-08,94102,Cashback Card
 txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium Card
 txn_057,CHRISTY SPORTS DENVER,Ski jacket and pants,5941,685.00,2024-11-15,80202,Premium Card
