@@ -465,6 +465,26 @@ txn_h072,AMC THEATRES,Movie night,7832,42.00,2025-10-15,60610,Cashback Card
 txn_h073,MUSIC BOX THEATRE,Indie film tickets,7832,28.00,2025-10-19,60614,Cashback Card
 txn_h074,WHOLE FOODS MARKET,Final weekly groceries,5411,167.34,2025-10-23,60614,Cashback Card
 txn_h075,ETSY,Handmade home décor,5969,78.25,2025-10-27,,Cashback Card
+txn_h200,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,145.00,2025-03-08,,ACH
+txn_h201,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,148.00,2025-04-12,,ACH
+txn_h202,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,142.00,2025-05-10,,ACH
+txn_h203,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,151.00,2025-06-07,,ACH
+txn_h204,MUSIC TOGETHER CHICAGO,"Kids music class tuition",,185.00,2025-03-04,,ACH
+txn_h205,MUSIC TOGETHER CHICAGO,"Kids music class tuition",,185.00,2025-04-04,,ACH
+txn_h206,MUSIC TOGETHER CHICAGO,"Kids music class tuition",,185.00,2025-05-04,,ACH
+txn_h210,SUNRISE SENIOR LIVING,"Tour and reservation deposit",,250.00,2025-06-14,,Checks
+txn_h211,AARP MEDICARE SUPPLEMENT,"Medicare supplement application",,189.00,2025-07-08,,Checks
+txn_h212,IN HOME CARE CHICAGO,"Caregiver weekly",,850.00,2025-08-09,,Zelle
+txn_h213,IN HOME CARE CHICAGO,"Caregiver weekly",,850.00,2025-09-13,,Zelle
+txn_h214,WALGREENS DURABLE MED,Mobility equipment for parent,5047,445.00,2025-09-24,60614,HSA
+txn_h220,NORTHWESTERN TRUST CONSULT,"Trust planning consultation",,1200.00,2025-09-18,,Checks
+txn_h221,ESTATE ATTORNEY RETAINER,"Estate attorney retainer",,7500.00,2025-10-03,,Wire
+txn_h222,FIDELITY CHARITABLE GIFT,"Donor advised fund contribution",,5000.00,2025-10-22,,ACH
+txn_h230,PORTFOLIO RECOVERY ASSOC,"Past-due account payment",,415.00,2025-05-29,,Checks
+txn_h231,KLARNA*WAYFAIR,BNPL installment Wayfair,6051,112.00,2025-06-12,,Cashback Card
+txn_h232,KLARNA*WAYFAIR,BNPL installment Wayfair,6051,112.00,2025-07-12,,Cashback Card
+txn_h233,KLARNA*WAYFAIR,BNPL installment Wayfair,6051,112.00,2025-08-12,,Cashback Card
+txn_h240,MARGARET S,"Mom's grocery help",,300.00,2025-08-02,,Zelle
 `;
 
 export const SOURCE_COLORS: Record<string, string> = {
