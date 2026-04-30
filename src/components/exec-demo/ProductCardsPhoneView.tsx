@@ -127,21 +127,30 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
               const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
               const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
+              const ThemeIcon = style.icon;
 
               return (
                 <div key={i} className="w-full shrink-0 px-1">
                   <div
-                    className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col"
-                    style={{ borderTop: `3px solid ${style.accent}` }}
+                    className={`rounded-2xl shadow-md overflow-hidden h-full flex flex-col ${compact ? "min-h-[260px]" : ""}`}
+                    style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
                   >
-                    <div className={`${compact ? "p-2.5" : "p-3"} flex flex-col flex-1`}>
-                      <p className="text-[12px] font-bold text-slate-800 leading-tight mb-1 line-clamp-2">{card.product_name}</p>
-                      <p className="text-[10px] text-slate-500 italic leading-snug mb-2 line-clamp-3">"{card.quote}"</p>
+                    <div className={`${compact ? "p-3.5" : "p-4"} flex flex-col flex-1`}>
+                      <div className="flex items-start gap-2 mb-1.5">
+                        <div
+                          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
+                          style={{ background: "rgba(255,255,255,0.7)", color: style.accent }}
+                        >
+                          <ThemeIcon className="w-4 h-4" />
+                        </div>
+                        <p className="text-[13px] font-bold text-slate-800 leading-tight line-clamp-2 flex-1">{card.product_name}</p>
+                      </div>
+                      <p className="text-[10px] text-slate-600 italic leading-snug mb-2 line-clamp-3">"{card.quote}"</p>
                       <div className="space-y-1 mb-2 flex-1">
                         {benefits.map((b, bi) => (
                           <div key={bi} className="flex items-start gap-1.5">
                             <Check className="w-3 h-3 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                            <span className="text-[10px] text-slate-600 leading-snug">{b}</span>
+                            <span className="text-[10px] text-slate-700 leading-snug">{b}</span>
                           </div>
                         ))}
                       </div>
@@ -149,7 +158,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                         Est. {value}
                       </p>
                       <button
-                        className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5"
+                        className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5 shadow-sm"
                         style={{ background: style.accent }}
                       >
                         Learn More <ChevronRight className="w-3 h-3" />
