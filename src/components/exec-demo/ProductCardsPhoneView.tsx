@@ -132,7 +132,7 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
               return (
                 <div key={i} className="w-full shrink-0 px-1">
                   <div
-                    className={`rounded-2xl shadow-md overflow-hidden h-full flex flex-col ${compact ? "min-h-[260px]" : ""}`}
+                    className={`rounded-2xl shadow-md overflow-hidden h-full flex flex-col ${compact ? "min-h-[300px]" : ""}`}
                     style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
                   >
                     <div className={`${compact ? "p-4" : "p-5"} flex flex-col flex-1 gap-2.5`}>
