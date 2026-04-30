@@ -128,9 +128,7 @@ const TxRow = ({
               Transaction{typeof txIndex === "number" ? ` #${txIndex + 1}` : ""}
             </span>
             {tx.source && (
-              <span className={`inline-block px-1.5 py-px rounded text-[9px] font-semibold ${SOURCE_COLORS[tx.source] || "bg-slate-100 text-slate-600"}`}>
-                {tx.source}
-              </span>
+              <SourceTag source={tx.source} size="xs" />
             )}
           </div>
           <div className="flex items-center gap-1.5 text-[11px] flex-wrap">
