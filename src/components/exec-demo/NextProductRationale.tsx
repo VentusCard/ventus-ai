@@ -493,7 +493,7 @@ function ProductCardBody({
         animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
       }}
     >
-      <div className="px-4 py-3.5 space-y-3 flex flex-col flex-1">
+      <div className="px-3 py-3 space-y-3 flex flex-col flex-1">
         {/* Product name + quote */}
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
