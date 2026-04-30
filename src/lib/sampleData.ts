@@ -273,7 +273,7 @@ txn_040,LULULEMON,Tennis skirt and top,5655,134.00,2025-08-18,94102,Premium Card
 txn_041,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback Card
 txn_042,STAKE.COM*PROC LV,Online wager processor,6051,185.00,2025-09-13,,Premium Card
 txn_043,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback Card
-txn_044,ADMISSIONS CONSULTING GRP,"College admissions package",,2500.00,2025-10-05,94102,Checks
+txn_044,ADMISSIONS CONSULTING GRP,"College admissions package",,2500.00,2025-10-05,,Checks
 txn_059,EPIC PASS VAIL RESORTS,Annual ski season pass renewal,7941,1149.00,2025-10-12,81657,Premium Card
 txn_045,PETCO,Dog treats and toys,5995,42.00,2025-10-18,94103,Cashback Card
 txn_046,PORTFOLIO RECOVERY ASSOC,"Past-due account payment",6012,325.00,2025-10-25,,Checks
