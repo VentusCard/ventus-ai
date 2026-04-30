@@ -309,7 +309,7 @@ function PricingInner() {
                     {formatCurrency(pilot.flatFee)}
                   </span>
                   <span className="text-[9px] uppercase tracking-wider text-emerald-600/80 font-semibold mt-0.5">
-                    Flat · all modules
+                    Flat · 6 months · all modules
                   </span>
                 </div>
                 <div className="col-span-1" />
