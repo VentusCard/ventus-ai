@@ -286,7 +286,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   const safeIdx = current % Math.max(groups.length, 1);
   const active = groups[safeIdx];
   const activeDeals = active ? active.deals.filter(d => d.signal !== "suppress") : [];
-  const imgSrc = active ? getCollectionImage(active.rollup, active.pillar) : DEFAULT_IMAGE;
+  const imgSrc = active ? getCollectionImage(active) : DEFAULT_IMAGE;
 
   return (
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
