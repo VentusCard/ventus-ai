@@ -1,60 +1,21 @@
-## Pilot toggle (Step 1 button → Step 2 column)
+## Step 3 layout updates
 
-### Step 1 (Prospect)
+### Row 1 — Contact (3 columns)
+Switch the first row from `grid-cols-2` to `grid-cols-3`:
+- Contact name (existing)
+- Contact email (existing)
+- **Contact phone (new)** — `Input type="tel"`, placeholder `+1 (555) 123-4567`, bound to new `contactPhone` state (session-only, like other inputs).
 
-Add a "Pilot" toggle button to the right of the Customers field:
+### Row 2 — Notes + Send (3 columns)
+Switch from `grid-cols-2` to `grid-cols-3`:
+- **Notes (optional)**: `col-span-2` so it visually matches the two fields above (name + email).
+- **Email button**: 1 column wide, matching the phone field above. Rename label from `Email draft to prospect` → **`Email proposal`**.
 
-```
-Bank [______________]    Customers [_______]   [⚡ Pilot]
-```
-
-- Off (default): Step 2 looks exactly like today.
-- On: a new "Pilot/yr" column is inserted before "Fixed/yr" in Step 2; all rows are pre-checked under it.
-- Toggling on **does not** auto-fill the customers field — it just exposes the pilot column so the user can compare side-by-side.
-
-Active state: filled blue pill; inactive: white outline pill.
-
-### Step 2 (Modules) — conditional Pilot/yr column
-
-Only renders when pilot is on:
-
-```
-| Function | Description | Pilot/yr | Fixed/yr | Per user/yr | Line/yr | Add |
-```
-
-- Header label: `Pilot/yr` (sub-label: `<pilotCustomers> · all in`).
-- Row cell: small green check + per-module pilot share (`flatFee / enabledModules.length`, rounded). The check signals "included".
-- Totals strip gets an extra metric on the left: `Pilot · $200,000 / yr`.
-
-When pilot is off, the column, sub-label, and totals metric are all hidden — column widths revert to the current layout.
-
-Pilot config is read-only here; admin sets the values.
-
-### Admin Console
-
-New "Pilot package" panel above the module table with two inputs:
-- Pilot customer count (default 100,000)
-- Pilot flat fee / yr (default 200,000)
-
-Persisted under `ventus_pricing_pilot_v1`. "Reset to defaults" restores both.
-
-### Email draft
-
-When pilot toggle is on, append one line below the à la carte summary:
-
-```
-Pilot option: 100,000 customers · all modules · $200,000 / yr flat
-```
-
-When off, email is unchanged.
+### State + summary
+- Add `const [contactPhone, setContactPhone] = useState("")` near the other Step 3 fields (no localStorage — clears each session, consistent with the existing inputs).
+- Append phone to `buildSummaryText` / email payload when present, so it flows into the admin-defined email body alongside name/email/notes.
 
 ### Files
+- `src/pages/Pricing.tsx` — JSX grid changes, new state, phone wiring into summary builder and `EmailDraftDialog` props if a phone field is surfaced there (otherwise just included in body text).
 
-- `src/lib/pricingCatalog.ts` — add `PilotConfig`, `DEFAULT_PILOT_CONFIG`, persist pilot config under `ventus_pricing_pilot_v1`, expose `pilot` + `updatePilot`, include pilot in `resetToDefaults`.
-- `src/pages/Pricing.tsx` — add `pilotMode` state, "Pilot" pill button in Step 1, conditional Pilot/yr column in Step 2 (header + rows + totals strip), pilot line in `buildSummaryText`/`buildEmailBody`.
-- `src/components/pricing/AdminFeeEditorDialog.tsx` — accept `pilot` + `updatePilot`, render Pilot package panel above the module table.
-
-### Notes
-
-- `pilotMode` is local component state, not persisted (resets on page load like the other inputs).
-- Column widths when pilot is on: function `col-span-3 → col-span-3`, description `col-span-4 → col-span-3`, new Pilot/yr `col-span-1`. Other columns unchanged.
+No changes to admin console, catalog, or pilot logic.
