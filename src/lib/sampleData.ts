@@ -282,9 +282,9 @@ txn_047,ZILLOW MORTGAGE APP FEE,"Mortgage application",,500.00,2026-01-10,,Check
 txn_048,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium Card
 txn_061,REI CO-OP SF,Ski boots and base layers,5941,725.00,2026-01-22,94102,Premium Card
 txn_049,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback Card
-txn_050,BAY AREA HOME INSPECT,"Pre-purchase inspection",,650.00,2026-03-15,94102,Checks
-txn_051,FIRST AMERICAN TITLE,"Title and escrow fees",,1850.00,2026-04-02,94102,Checks
-txn_053,JANE DOE,"Kitchen remodel deposit",,5000.00,2026-05-01,94102,Zelle
+txn_050,BAY AREA HOME INSPECT,"Pre-purchase inspection",,650.00,2026-03-15,,Checks
+txn_051,FIRST AMERICAN TITLE,"Title and escrow fees",,1850.00,2026-04-02,,Checks
+txn_053,JANE DOE,"Kitchen remodel deposit",,5000.00,2026-05-01,,Zelle
 txn_054,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA (advance booking),4511,948.00,2026-04-05,94102,Premium Card
 txn_055,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
 `;
