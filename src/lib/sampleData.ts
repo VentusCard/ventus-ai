@@ -368,6 +368,22 @@ txn_s072,LULULEMON ATHLETICA,Workout jacket,5655,148.00,2025-10-12,,Premium Card
 txn_s073,PICNIK AUSTIN,Breakfast and coffee,5814,16.90,2025-10-17,,Cashback Card
 txn_s074,ATHLETA,Yoga pants and bra,5655,134.50,2025-10-22,,Premium Card
 txn_s075,WHOLE FOODS MARKET,Final weekly groceries,5411,145.23,2025-10-27,78701,Cashback Card
+txn_s100,PELOTON ALL ACCESS,"Monthly all-access membership",,44.00,2024-12-12,,ACH
+txn_s101,PELOTON ALL ACCESS,"Monthly all-access membership",,44.00,2025-01-12,,ACH
+txn_s102,PELOTON ALL ACCESS,"Monthly all-access membership",,44.00,2025-02-12,,ACH
+txn_s103,MINDBODY YOGA APP,Studio class subscription,4899,19.00,2025-01-08,,Cashback Card
+txn_s104,MINDBODY YOGA APP,Studio class subscription,4899,19.00,2025-02-08,,Cashback Card
+txn_s110,AUSTIN MORTGAGE BROKERS,"Mortgage application fee",,450.00,2025-03-12,,Checks
+txn_s111,AUSTIN HOME INSPECT LLC,"Pre-purchase inspection",,575.00,2025-04-18,,Checks
+txn_s112,STEWART TITLE OF TEXAS,"Title and escrow fees",,1650.00,2025-05-09,,Checks
+txn_s113,DOWN PAYMENT TRANSFER,"Home down payment",,62000.00,2025-05-22,,Wire
+txn_s120,BABYLIST REGISTRY,Baby registry essentials,5641,89.00,2025-04-10,78701,Cashback Card
+txn_s121,CORD BLOOD REGISTRY,"Cord blood banking enrollment",,1495.00,2025-05-15,,Checks
+txn_s122,DOULA SUPPORT AUSTIN,"Doula deposit",,1200.00,2025-06-02,,Zelle
+txn_s130,DRAFTKINGS SPORTSBOOK,Sportsbook deposit,7995,200.00,2025-02-28,,Premium Card
+txn_s131,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-03-16,,Cashback Card
+txn_s132,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-04-16,,Cashback Card
+txn_s140,JAMES K,"Personal trainer",,400.00,2025-06-20,,Zelle
 `;
 
 export const SAMPLE_CSV_FOOD_HOME = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
