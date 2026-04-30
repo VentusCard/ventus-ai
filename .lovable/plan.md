@@ -1,38 +1,27 @@
-## Problem
+## Goal
+Make the recommended product card taller and visually prominent with a **light theme-tinted gradient covering the entire card** (not a dark gradient hero header).
 
-On the Next-Offer tab, clicking a **lifestyle pillar pill** correctly filters the offer collection in the phone mockup, but clicking a **life event pill** (or risk pill) does nothing — the phone keeps showing the default carousel.
+## Changes
 
-## Root cause
+**`src/components/exec-demo/ProductCardsPhoneView.tsx`**
 
-There are two distinct selection states in `src/pages/ExecDemoPage.tsx`:
+1. Extend `THEME_STYLES` with a `gradient` field — a soft, light, three-stop diagonal gradient per theme (e.g. travel: `#eff6ff → #dbeafe → #e0f2fe`; dining: cream → light amber; fitness: pale mint, etc.). All stops in the 50–100 Tailwind weight range so text stays readable in slate/dark.
 
-- `activeRollup` — set by lifestyle **pillar** pill clicks
-- `activeTriggerPill` — set by **life event** and **risk** pill clicks
+2. Update the card container (around line 134):
+   - Replace `bg-white` with `style.gradient` as inline `background`.
+   - Keep the thin top accent border (`borderTop: 3px solid style.accent`) for theme cue.
+   - Bump shadow from `shadow-sm` to `shadow-md`, slightly larger rounded corners.
+   - Add a subtle white inner panel only behind the CTA region is NOT needed — text already reads on the light tint.
 
-The phone view (`GeneratedOffersPhoneView`) only receives `activeRollupLabel` / `activeRollupPillar`, which are derived only from `activeRollup`. So when a life-event pill sets `activeTriggerPill`, the phone never learns about the selection and `expandedGroup` stays null.
+3. Make the card taller in compact mode:
+   - Add `min-h-[260px]` to the inner card div (currently ~200px).
+   - Increase compact inner padding from `p-2.5` to `p-3.5`.
+   - Bump `product_name` from `text-[12px]` to `text-[13px]` and add a small theme icon chip next to it for prominence.
 
-The matcher inside the phone view (`findGroupForLabel`) already supports a `"Life Event"` pillar scope — it just never receives that input.
+4. CTA button: keep flat `style.accent` background (high contrast against the light tinted card).
 
-```text
-Pillar pill click   → activeRollup        → phone receives label ✓
-Life event pill     → activeTriggerPill   → phone receives nothing ✗
-Risk pill           → activeTriggerPill   → phone receives nothing ✗
-```
+No changes to `RelationshipPhoneView.tsx` — it already passes `compact`.
 
-## Fix
-
-In `src/pages/ExecDemoPage.tsx` (lines 1195–1196), make `activeTriggerPill` take precedence when passing the label/pillar down to `ExecDemoPhoneView`. When a trigger pill is active, pass its label with pillar scope `"Life Event"` so the matcher locks onto the Life Event group of offers.
-
-```tsx
-activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
-activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
-```
-
-That's the only change needed — the matcher and offer-group rendering already handle the rest.
-
-## Verification
-
-- Next-Offer tab → click life-event pill → phone expands the matching Life Event collection.
-- Next-Offer tab → click pillar pill → still expands the matching pillar collection (unchanged).
-- Next-Offer tab → click risk pill → phone tries to match against Life Event scope; if no match, falls back to closed state (acceptable since risk pills don't have associated offers anyway).
-- Next-Conversation tab → behavior unchanged (chat dispatch still gated to that tab).
+## Notes
+- Strict light theme respected: gradients use only very light pastel tones; all text remains slate-600/800.
+- Non-compact branch inherits the same styling automatically.
