@@ -139,7 +139,6 @@ function PricingInner() {
             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
               Step 1 · Prospect
             </span>
-            <span className="text-slate-200">|</span>
             
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -176,7 +175,6 @@ function PricingInner() {
               <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
                 Step 2 · Modules
               </span>
-              <span className="text-slate-200">|</span>
               
             </div>
             <p className="text-[11px] text-slate-400">
@@ -284,7 +282,7 @@ function PricingInner() {
             <span className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">
               Step 3 · Send draft
             </span>
-            <span className="text-slate-200">|</span>
+            
             
           </div>
 
