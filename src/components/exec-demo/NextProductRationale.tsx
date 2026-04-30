@@ -49,6 +49,50 @@ interface Props {
   productActions?: CardActions[] | null;
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
+  riskFlags?: { flags: any[]; summary: string } | null;
+}
+
+/** Compute the first risk rollup pill (mirrors logic in ExecDemoIntelPanel) */
+function getFirstRiskRollup(riskFlags?: { flags: any[]; summary: string } | null): { label: string; severity: "low" | "medium" | "high"; count: number } | null {
+  if (!riskFlags || !riskFlags.flags || riskFlags.flags.length === 0) return null;
+  const SEV_RANK: Record<string, number> = { low: 1, medium: 2, high: 3 };
+  const groupKeyFor = (f: any): { key: string; label: string } => {
+    const grp = String(f.category_group || f.category || "").toLowerCase();
+    const lbl = String(f.category_label || "").toLowerCase();
+    if (grp === "vice" && lbl.includes("adult")) return { key: "adult", label: "Adult Entertainment" };
+    if (grp === "vice") return { key: "gambling", label: "Gambling" };
+    if (grp === "financial_distress") return { key: "financial_vulnerability", label: "Financial Vulnerability" };
+    if (grp === "suspicious_international") return { key: "suspicious_international", label: "Suspicious International" };
+    if (grp === "aml") return { key: "aml", label: "AML" };
+    const raw = f.category_label || f.category_group || f.category || "Risk";
+    return { key: String(raw).toLowerCase(), label: String(raw) };
+  };
+  type R = { key: string; label: string; severity: "low" | "medium" | "high"; txIds: Set<string> };
+  const map = new Map<string, R>();
+  const seen = new Set<string>();
+  riskFlags.flags.forEach((f: any) => {
+    const { key, label } = groupKeyFor(f);
+    const txId = f.transaction_id || `pattern::${key}`;
+    const dedupeKey = `${txId}::${key}`;
+    if (seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
+    let r = map.get(key);
+    if (!r) { r = { key, label, severity: "low", txIds: new Set() }; map.set(key, r); }
+    const sev = (f.severity || "low") as "low" | "medium" | "high";
+    if ((SEV_RANK[sev] || 1) > (SEV_RANK[r.severity] || 1)) r.severity = sev;
+    r.txIds.add(txId);
+  });
+  const ORDER = ["gambling", "financial_vulnerability", "adult", "suspicious_international", "aml"];
+  const sorted = Array.from(map.values()).sort((a, b) => {
+    const ai = ORDER.indexOf(a.key); const bi = ORDER.indexOf(b.key);
+    if (ai === -1 && bi === -1) return a.label.localeCompare(b.label);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+  const first = sorted[0];
+  if (!first) return null;
+  return { label: first.label, severity: first.severity, count: first.txIds.size };
 }
 
 /* ─── Current holdings pill row ─── */
