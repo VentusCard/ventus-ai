@@ -1,10 +1,9 @@
-## Step 3 polish
+## Step 3 layout tweak
 
-Two tweaks to `src/pages/Pricing.tsx`:
+In `src/pages/Pricing.tsx`, restructure Step 3 only:
 
-1. **Add field labels** above each Step 3 input (Contact name, Contact email, Notes (optional)) — same `text-[11px] uppercase tracking-wide` style used in Step 1.
-2. **Move the primary CTA out of the card.** Remove the "Copy summary" button entirely. Render a single "Email draft to prospect" button as a row *below* the Step 3 card, right-aligned, slightly larger (h-10).
+1. Row 1: Contact name + Contact email side-by-side (2-column grid).
+2. Row 2: Notes (optional) full-width below, ~60px tall.
+3. Move the "Email draft to prospect" button back inside the Step 3 card, right-aligned at the bottom. Remove the separate button row that currently sits below the card.
 
-`handleCopy` and the `Copy` icon import become unused — remove them.
-
-No layout, logic, or other section changes.
+No other changes.
