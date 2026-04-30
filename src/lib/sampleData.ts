@@ -253,7 +253,7 @@ txn_020,KAPLAN TEST PREP,"SAT prep course",,1299.00,2025-03-08,,Checks
 
 txn_022,CHEWY.COM,Monthly dog food delivery,5995,71.50,2025-03-22,94102,Cashback Card
 txn_023,PETCO,Flea and tick prevention,5995,45.99,2025-04-05,94103,Cashback Card
-txn_024,SF TENNIS CLUB,"Spring membership renewal",,350.00,2025-04-10,94102,Checks
+txn_024,SF TENNIS CLUB,"Spring membership renewal",,350.00,2025-04-10,,Checks
 txn_025,WILSON SPORTING GOODS,Tennis racket purchase,5941,229.00,2025-04-15,94102,Premium Card
 txn_026,BELLAGIO CASINO LV,Casino floor charge,7995,480.00,2025-04-19,89109,Premium Card
 txn_027,CVS PHARMACY,Prescription refill,5912,28.50,2025-04-22,94102,Cashback Card
