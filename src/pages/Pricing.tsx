@@ -286,8 +286,8 @@ function PricingInner() {
             
           </div>
 
-          <div className="grid grid-cols-12 gap-3 items-end">
-            <div className="col-span-3">
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                 Contact name
               </label>
@@ -298,7 +298,7 @@ function PricingInner() {
                 className={`h-10 text-base ${LIGHT_INPUT}`}
               />
             </div>
-            <div className="col-span-3">
+            <div>
               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                 Contact email
               </label>
@@ -310,28 +310,29 @@ function PricingInner() {
                 className={`h-10 text-base ${LIGHT_INPUT}`}
               />
             </div>
-            <div className="col-span-6">
-              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
-                Notes (optional)
-              </label>
-              <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder="Procurement notes, scope caveats, timing…"
-                className={`min-h-[40px] h-10 py-2 text-base resize-none ${LIGHT_INPUT}`}
-              />
-            </div>
+          </div>
+
+          <div className="mb-3">
+            <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+              Notes (optional)
+            </label>
+            <Textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Procurement notes, scope caveats, timing…"
+              className={`min-h-[60px] py-2 text-base resize-none ${LIGHT_INPUT}`}
+            />
+          </div>
+
+          <div className="flex items-center justify-end">
+            <button
+              onClick={handleEmail}
+              className="inline-flex items-center justify-center gap-2 h-11 px-7 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+            >
+              <Mail className="w-4 h-4" /> Email draft to prospect
+            </button>
           </div>
         </section>
-
-        <div className="flex items-center justify-end shrink-0">
-          <button
-            onClick={handleEmail}
-            className="inline-flex items-center justify-center gap-2 h-11 px-7 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
-          >
-            <Mail className="w-4 h-4" /> Email draft to prospect
-          </button>
-        </div>
       </main>
 
       <AdminFeeEditorDialog
