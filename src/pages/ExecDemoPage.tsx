@@ -427,6 +427,21 @@ export default function ExecDemoPage() {
             }
           }
 
+          // Rule 4: Reject rollups whose label uses risk-domain vocabulary. Those concepts
+          // belong exclusively to the Risk surface — never restate them as a customer-facing lifestyle.
+          const riskVocab = /betting|sportsbook|casino|wager|gambl|payday|bnpl|cash advance|adult|vice|high roller/i;
+          if (riskVocab.test(r.label)) {
+            console.warn(`[ROLLUP-REJECT] "${r.label}" — uses risk-domain vocabulary; coordinate via Risk pill`);
+            return false;
+          }
+
+          // Rule 5: After the risk-id guard above stripped risk-owned txns, the rollup may
+          // have collapsed below the meaningful-evidence threshold. Drop it.
+          if (r.totalCount < 2) {
+            console.log(`[ROLLUP-REJECT] "${r.label}" — fewer than 2 transactions after risk filtering`);
+            return false;
+          }
+
           return true;
         })
         .map(({ _resolvedCategories, ...rest }: any) => rest),
