@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Fragment } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
@@ -493,7 +493,7 @@ function ProductCardBody({
         animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
       }}
     >
-      <div className="px-4 py-3.5 space-y-3 flex flex-col flex-1">
+      <div className="px-3 py-3 space-y-3 flex flex-col flex-1">
         {/* Product name + quote */}
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
@@ -722,7 +722,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   );
 
   if (productCards && productCards.length > 0) {
-    // Resolve all cards, then pick exactly 2 — prefer one life-event + one behavioral
+    // Resolve all cards and show up to 3 — interleave life-event, behavioral, then any extras (e.g. risk)
     const resolvedAll = productCards.map((card, origIdx) =>
       resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
     );
@@ -732,18 +732,26 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
     const pickedCards: ResolvedCard[] = [];
     if (lifeEventResolved[0]) pickedCards.push(lifeEventResolved[0]);
     if (behavioralResolved[0]) pickedCards.push(behavioralResolved[0]);
-    // Fill from whichever group has remaining if we have <2
-    if (pickedCards.length < 2) {
-      const remaining = resolvedAll.filter(r => !pickedCards.includes(r));
-      if (remaining[0]) pickedCards.push(remaining[0]);
+    // Fill remaining slots up to 3 from any leftover cards (third is typically the risk card)
+    for (const r of resolvedAll) {
+      if (pickedCards.length >= 3) break;
+      if (!pickedCards.includes(r)) pickedCards.push(r);
     }
+
+    const RISK_THEMES = new Set(["risk", "account_care", "wellness_finance", "hardship", "support"]);
+    const labelFor = (resolved: ResolvedCard, idx: number): string => {
+      const theme = (resolved.card.theme || "").toLowerCase();
+      if (RISK_THEMES.has(theme)) return "Account Care";
+      if (idx >= 2) return "Additional Offer";
+      return resolved.isBehavioral ? "Shopping Habit" : "Life Event";
+    };
 
     const renderColumn = (resolved: ResolvedCard, idx: number) => {
       const isActive = activeTriggerLabel === resolved.resolvedLabel;
       return (
         <div className="flex-1 min-w-0 flex flex-col gap-2.5">
           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-            {resolved.isBehavioral ? "Shopping Habit" : "Life Event"}
+            {labelFor(resolved, idx)}
           </div>
           <div
             className={`self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${resolved.isClickable ? "cursor-pointer" : ""}`}
@@ -788,13 +796,14 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Two products side-by-side with vertical divider */}
-        <div className="flex items-stretch gap-4">
-          {pickedCards[0] && renderColumn(pickedCards[0], 0)}
-          {pickedCards.length === 2 && (
-            <div className="w-px bg-slate-200 self-stretch shrink-0" />
-          )}
-          {pickedCards[1] && renderColumn(pickedCards[1], 1)}
+        {/* Up to 3 products side-by-side with vertical dividers */}
+        <div className="flex items-stretch gap-3">
+          {pickedCards.map((c, i) => (
+            <Fragment key={i}>
+              {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
+              {renderColumn(c, i)}
+            </Fragment>
+          ))}
         </div>
 
         <style>{`
