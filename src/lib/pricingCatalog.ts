@@ -76,7 +76,18 @@ export const DEFAULT_PRICING_CATALOG: PricingModule[] = [
   },
 ];
 
+export interface PilotConfig {
+  customers: number;
+  flatFee: number;
+}
+
+export const DEFAULT_PILOT_CONFIG: PilotConfig = {
+  customers: 100_000,
+  flatFee: 200_000,
+};
+
 const STORAGE_KEY = "ventus_pricing_catalog_v1";
+const PILOT_STORAGE_KEY = "ventus_pricing_pilot_v1";
 
 export function usePricingCatalog() {
   const [catalog, setCatalog] = useState<PricingModule[]>(() => {
@@ -92,6 +103,20 @@ export function usePricingCatalog() {
     }
   });
 
+  const [pilot, setPilot] = useState<PilotConfig>(() => {
+    try {
+      const raw = localStorage.getItem(PILOT_STORAGE_KEY);
+      if (!raw) return DEFAULT_PILOT_CONFIG;
+      const parsed = JSON.parse(raw) as Partial<PilotConfig>;
+      return {
+        customers: parsed.customers ?? DEFAULT_PILOT_CONFIG.customers,
+        flatFee: parsed.flatFee ?? DEFAULT_PILOT_CONFIG.flatFee,
+      };
+    } catch {
+      return DEFAULT_PILOT_CONFIG;
+    }
+  });
+
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(catalog));
@@ -100,13 +125,26 @@ export function usePricingCatalog() {
     }
   }, [catalog]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem(PILOT_STORAGE_KEY, JSON.stringify(pilot));
+    } catch {
+      // ignore
+    }
+  }, [pilot]);
+
   const updateModule = useCallback((id: string, patch: Partial<PricingModule>) => {
     setCatalog((prev) => prev.map((m) => (m.id === id ? { ...m, ...patch } : m)));
   }, []);
 
-  const resetToDefaults = useCallback(() => {
-    setCatalog(DEFAULT_PRICING_CATALOG);
+  const updatePilot = useCallback((patch: Partial<PilotConfig>) => {
+    setPilot((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  return { catalog, setCatalog, updateModule, resetToDefaults };
+  const resetToDefaults = useCallback(() => {
+    setCatalog(DEFAULT_PRICING_CATALOG);
+    setPilot(DEFAULT_PILOT_CONFIG);
+  }, []);
+
+  return { catalog, setCatalog, updateModule, resetToDefaults, pilot, updatePilot };
 }
