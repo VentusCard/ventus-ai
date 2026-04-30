@@ -1,33 +1,28 @@
 ## Goal
+Two refinements to `/pricing` when **Pilot** is toggled on in Step 1:
 
-Restore the full-color (red/amber, ⚠ icon, no line-through) styling for the risk rollup pills in the customer profile header when the user is on the **Next-Product** tab. Keep the existing greyed-out treatment for the **Next-Offer** (analytics) tab where risk truly isn't actionable.
+1. **Step 1 — show a fixed pilot customer-size field next to the Pilot button.**
+2. **Step 2 — collapse the per-row Pilot column into one merged cell** showing the total pilot fee spanning all module rows (instead of a value repeated on every row).
 
-## Why
+## Changes (all in `src/pages/Pricing.tsx`)
 
-The risk pills already get cross-referenced inside the Next-Product rationale (third column shows the first risk rollup). It's inconsistent for the source pills above to be greyed out / line-through / disabled while the Next-Product panel is actively surfacing that same risk data as an "Additional Tools" recommendation. On the Next-Offer tab, greying still makes sense (offers don't target risk), so we leave that alone.
+### 1. Step 1: Pilot customers field
+When `pilotMode` is true, render a read-only/static field directly after the Pilot button showing `pilot.customers` (e.g. `100,000 pilot customers`). Styled as a soft emerald pill to match the pilot accent already used elsewhere. Value comes from the existing `pilot.customers` (configurable via Admin dialog), so no new state needed.
 
-## Change
+### 2. Step 2: Merge the Pilot column
+Currently the "Pilot/yr" column renders `pilotPerModule` (flatFee ÷ moduleCount) on every row — visually noisy and arithmetically arbitrary. Replace with a single merged cell:
 
-File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- Keep the column header `Pilot/yr` with subtitle `{customers} · all-in`.
+- Remove the per-row pilot cell from the module `<li>` rows.
+- Render ONE absolutely-positioned overlay cell spanning the full module list height in that column, vertically centered, displaying `formatCurrency(pilot.flatFee)` with the green check icon and a small `flat / yr · all modules` caption.
 
-Currently (line 352):
-```ts
-const isOfferTab = activeTab === "analytics" || activeTab === "product";
-```
+Implementation approach: wrap the `<ul>` of modules in a `relative` container. When `pilotMode` is on, render a sibling `<div>` positioned `absolute` over the pilot column (using the same 12-col grid math: `left` and `width` matching `col-span-1` at the pilot column's position) with `inset-y-0`, `flex items-center justify-end`, and a subtle left/right border to visually read as a merged cell.
 
-This single flag drives both the click-disable behavior AND the greyed visual treatment on the risk pills (lines ~607–644). Splitting the concern:
+Module rows keep their existing grid but the pilot col-span slot becomes empty (renders nothing) so the overlay sits cleanly on top without affecting row hover/click.
 
-- Introduce a `riskPillsMuted` flag that is `true` only for the Next-Offer tab (`activeTab === "analytics"`), and use it for the visual greying / line-through / ✕ icon / `pointer-events-none` styling.
-- Keep `isOfferTab` (or rename locally) only where it affects offer-targeting click semantics — but for the risk pill block specifically, gate visual muting on `riskPillsMuted` instead of `isOfferTab` so the Next-Product tab keeps the pills colored AND clickable (they cross-link to transactions, which is useful while reviewing recommended products).
+### Totals strip
+No change — already shows a single Pilot total.
 
-Concretely, in the risk pill render block (~lines 607–644), replace each `isOfferTab` reference used for visuals/clickability with `riskPillsMuted`:
-- `isClickable = matchedIndices.length > 0 && !riskPillsMuted`
-- `title`, `className` (cursor states), `background`, `color`, `border`, `boxShadow`, `transform`, `opacity`, `filter`, `textDecoration*`, and the `✕`/`⚠` icon switch all key off `riskPillsMuted`.
-
-No other files need changes — `NextProductRationale` already mirrors the first risk rollup in red, and that behavior stays the same.
-
-## Result
-
-- Next-Offer tab: risk pills remain greyed out and non-actionable (unchanged).
-- Next-Product tab: risk pills appear in their normal red/amber color with the ⚠ icon, are clickable to highlight matching transactions, and visually align with the red risk pill shown in the third Next-Product column.
-- Next-Conversation (relationship) tab: unchanged (already colored).
+## Out of scope
+- No changes to `pricingCatalog.ts`, Admin dialog, email/copy text builders, or PricingSummary.
+- Pilot customer count remains admin-editable only (not editable from Step 1).
