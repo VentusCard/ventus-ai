@@ -260,6 +260,31 @@ export default function ExecDemoPage() {
       console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
     }
 
+    // Await risk detection (started in parallel from fireClassification) so we can pass
+    // risk categories + flagged transaction IDs into synthesize-persona for vice/gambling
+    // theme suppression. Bound to 6s so a slow risk call never blocks the demo.
+    if (riskReadyRef.current) {
+      try {
+        await Promise.race([
+          riskReadyRef.current,
+          new Promise<void>((resolve) => setTimeout(resolve, 6000)),
+        ]);
+      } catch { /* swallow — defensive UI filter still applies */ }
+    }
+    const riskFlagsForPersona = riskFlagsRef.current?.flags || [];
+    const riskCategoriesPresent = Array.from(new Set(
+      riskFlagsForPersona
+        .map((f: any) => String(f.category_label || f.category_group || "").trim())
+        .filter((s: string) => s.length > 0)
+    ));
+    const riskTransactionIds = Array.from(new Set(
+      riskFlagsForPersona
+        .map((f: any) => String(f.transaction_id || "").trim())
+        .filter((s: string) => s.length > 0)
+    ));
+    const riskTxIdSet = new Set(riskTransactionIds);
+    console.log(`[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`);
+
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
         body: {
@@ -277,6 +302,8 @@ export default function ExecDemoPage() {
             spending_tier: t.spending_tier,
           })),
           lifeEvents: detectedEvents.map(e => ({ event_name: e.event_name })),
+          riskCategoriesPresent,
+          riskTransactionIds,
         },
       });
       if (error) throw error;
