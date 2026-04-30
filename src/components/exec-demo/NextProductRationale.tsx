@@ -722,7 +722,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   );
 
   if (productCards && productCards.length > 0) {
-    // Resolve all cards, then pick exactly 2 — prefer one life-event + one behavioral
+    // Resolve all cards and show up to 3 — interleave life-event, behavioral, then any extras (e.g. risk)
     const resolvedAll = productCards.map((card, origIdx) =>
       resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
     );
@@ -732,11 +732,19 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
     const pickedCards: ResolvedCard[] = [];
     if (lifeEventResolved[0]) pickedCards.push(lifeEventResolved[0]);
     if (behavioralResolved[0]) pickedCards.push(behavioralResolved[0]);
-    // Fill from whichever group has remaining if we have <2
-    if (pickedCards.length < 2) {
-      const remaining = resolvedAll.filter(r => !pickedCards.includes(r));
-      if (remaining[0]) pickedCards.push(remaining[0]);
+    // Fill remaining slots up to 3 from any leftover cards (third is typically the risk card)
+    for (const r of resolvedAll) {
+      if (pickedCards.length >= 3) break;
+      if (!pickedCards.includes(r)) pickedCards.push(r);
     }
+
+    const RISK_THEMES = new Set(["risk", "account_care", "wellness_finance", "hardship", "support"]);
+    const labelFor = (resolved: ResolvedCard, idx: number): string => {
+      const theme = (resolved.card.theme || "").toLowerCase();
+      if (RISK_THEMES.has(theme)) return "Account Care";
+      if (idx >= 2) return "Additional Offer";
+      return resolved.isBehavioral ? "Shopping Habit" : "Life Event";
+    };
 
     const renderColumn = (resolved: ResolvedCard, idx: number) => {
       const isActive = activeTriggerLabel === resolved.resolvedLabel;
