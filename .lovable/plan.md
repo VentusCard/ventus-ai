@@ -1,33 +1,43 @@
-# Restore source variety in top 10 rows of selection dialog
+## Problem
 
-After removing the suspicious `INTL PAYMENT PROC` row and adding the 2024 Kauai trip, the top of `SAMPLE_CSV` is now dominated by Cashback Card and Premium Card. The other four sources (Checks, ACH, Zelle, Wire) don't appear until much later, so the selection dialog's preview no longer showcases the full payment-source palette in its first viewport.
+On `/demo`, clicking the signal pills above the phone (lifestyle rollups, life events, risk) is supposed to send a scripted prompt into the AI chatbot:
 
-I'll re-promote the four "rare source" rows into the top 10 by reordering — no rows added, no data changed.
+- **Lifestyle rollup pill** → "How much do I typically spend on {label}?" (with hidden merchant breakdown as `signalContext`)
+- **Life event pill** → "I'm preparing for {event}. What financial resources and products should I consider for this?"
+- **Risk pill** → "What is this transaction at {merchant} / flagged as {label}? What is it typically associated with statistically?"
 
-## Changes — `src/lib/sampleData.ts` (`SAMPLE_CSV` only)
+These scripts already exist in `src/components/exec-demo/ExecDemoIntelPanel.tsx` (lines ~444, ~456, ~469), but they only fire under two combined guards:
 
-Reorder so the first 10 rows cover all 6 sources:
+```ts
+if (isRelTab) {            // activeTab === "relationship"
+  ...
+  if (assistantOpen) {     // AI tab already showing
+    onAIPromptDispatch?.(...)
+  }
+}
+```
 
-| # | txn_id | Source |
-|---|---|---|
-| 1 | `txn_h15` SUNBUM | Cashback Card |
-| 2 | `txn_h16` OLUKAI | Premium Card |
-| 3 | `txn_h17` HAWAIIAN AIRLINES | Premium Card |
-| 4 | `txn_004` SF TENNIS CLUB | **Checks** |
-| 5 | `txn_007` PACIFIC HEIGHTS APT | **ACH** |
-| 6 | `txn_009` MARIA G dogsitting | **Zelle** |
-| 7 | `txn_052` DOWN PAYMENT TRANSFER | **Wire** |
-| 8 | `txn_h18` KOA KEA HOTEL | Premium Card |
-| 9 | `txn_h19` BUDGET RENT-A-CAR | Premium Card |
-| 10 | `txn_h20` NA PALI CATAMARAN | Cashback Card |
+So if the user is on Rewards or Analytics, or the AI tab isn't already open, clicking a pill does nothing in the chat. That matches what the user is reporting.
 
-Slots 4–7 are simply moved up from their current positions (lines 231–234); the remaining Hawaii and SF rows shift down by 4 to fill the gap. No row content or dates change.
+## Fix
 
-## Out of scope
+Drop the gating so every pill click dispatches its scripted prompt, switches the phone to the AI tab, and renders the response. The existing `pendingAIPrompt` → `ExecDemoPhoneView` → `ConsumerAIChatView` plumbing already auto-switches to the AI tab on dispatch, so no new wiring is needed.
 
-- No new transactions, no edits to merchant/amount/date/source fields.
-- Sort order remains by row position (the persona engine sorts by date internally so analytics aren't affected).
+### File changes
 
-## Result
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`** — three edits, mirroring each other:
 
-The selection dialog's preview viewport once again shows one transaction from every payment source (Cashback Card, Premium Card, Checks, ACH, Zelle, Wire) within the first 10 rows.
+1. `handleRollupForRel` (~lines 413–449): keep `onRollupClick?.(r)` and the `isRelTab` selection update, but move the `onAIPromptDispatch?.(...)` call out of the `if (isRelTab)` / `if (assistantOpen)` guards so it always fires on click. Keep the existing merchant-breakdown computation that builds `signalContext`.
+2. `handleLifeEventForRel` (~lines 450–461): same — always dispatch `"I'm preparing for {label}. What financial resources and products should I consider for this?"` with `kind: "lifeEvent"`.
+3. `handleRiskForRel` (~lines 462–474): same — always dispatch `"What is this transaction {subject}? What is it typically associated with statistically?"` with `kind: "risk"`.
+
+The `setSelectedSignal({...})` calls remain inside `if (isRelTab)` so they only update the in-tab signal selection when the Membership tab is active (current behavior).
+
+No changes to `ConsumerAIChatView`, `ExecDemoPhoneView`, or any edge function — they already handle `pendingAIPrompt` and switch the phone to the AI tab on receipt.
+
+## Verification
+
+On `/demo`:
+1. From any phone tab (Rewards / Membership / AI), click a **lifestyle** pill → phone jumps to AI tab, user bubble shows "How much do I typically spend on …?", AI replies with merchant-aware spend.
+2. Click a **life event** pill → user bubble asks for resources/products for that event, AI replies.
+3. Click a **risk** pill → user bubble asks what the transaction is and what it's statistically associated with, AI replies.
