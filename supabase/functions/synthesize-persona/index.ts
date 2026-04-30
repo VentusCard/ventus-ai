@@ -53,10 +53,17 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars, lifeEvents, transactions } = await req.json() as {
+    const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds } = await req.json() as {
       pillars: any[];
       lifeEvents?: { event_name?: string }[];
       transactions?: IncomingTxn[];
+      // Distinct risk-engine category labels detected on this customer
+      // (e.g. ["Sports Betting", "Casino & Table Games", "BNPL Activity"]).
+      riskCategoriesPresent?: string[];
+      // transaction_id values flagged by detect-risk-transactions. The persona LLM must NOT
+      // include any of these IDs in transaction_indices for any lifestyle rollup — those rows
+      // are owned by the Risk pill.
+      riskTransactionIds?: string[];
     };
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
@@ -67,6 +74,12 @@ serve(async (req) => {
 
     const detectedEventNames: string[] = Array.isArray(lifeEvents)
       ? lifeEvents.map((e: { event_name?: string }) => e?.event_name).filter((n): n is string => !!n)
+      : [];
+    const presentRiskCategories: string[] = Array.isArray(riskCategoriesPresent)
+      ? Array.from(new Set(riskCategoriesPresent.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
+      : [];
+    const flaggedTxIds: string[] = Array.isArray(riskTransactionIds)
+      ? Array.from(new Set(riskTransactionIds.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
       : [];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
