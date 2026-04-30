@@ -71,6 +71,10 @@ function PricingInner() {
         )} / yr flat`
       );
     }
+    if (contactPhone.trim()) {
+      lines.push("");
+      lines.push(`Contact phone: ${contactPhone.trim()}`);
+    }
     if (notes.trim()) {
       lines.push("");
       lines.push("Notes:");
