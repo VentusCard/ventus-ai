@@ -249,7 +249,7 @@ txn_016,COLLEGEBOARD SAT,"SAT registration fee",,68.00,2025-02-15,,Checks
 txn_017,PETCO,Pet grooming supplies,5995,38.50,2025-02-22,94103,Cashback Card
 txn_018,SPOTIFY PREMIUM,Music subscription,4899,10.99,2025-03-01,,Cashback Card
 txn_019,EARNIN ACTIVEHOURS,Early wage access advance,6051,100.00,2025-03-05,,Cashback Card
-txn_020,KAPLAN TEST PREP,"SAT prep course",,1299.00,2025-03-08,94102,Checks
+txn_020,KAPLAN TEST PREP,"SAT prep course",,1299.00,2025-03-08,,Checks
 
 txn_022,CHEWY.COM,Monthly dog food delivery,5995,71.50,2025-03-22,94102,Cashback Card
 txn_023,PETCO,Flea and tick prevention,5995,45.99,2025-04-05,94103,Cashback Card
