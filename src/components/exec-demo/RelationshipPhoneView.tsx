@@ -112,39 +112,6 @@ export default function RelationshipPhoneView({ customer, detectedLifeEvents, pr
           )}
         </div>
 
-        {/* Your Local Branch */}
-        <div className="rounded-xl bg-slate-50 border border-slate-100 p-3">
-          <div className="flex items-center gap-1.5 mb-2">
-            <MapPin className="w-3.5 h-3.5 text-blue-600" />
-            <span className="text-[10px] font-bold text-slate-700">Your Local Branch</span>
-            <div className="ml-auto flex items-center gap-1">
-              <Clock className="w-2.5 h-2.5 text-emerald-500" />
-              <span className="text-[7px] font-medium text-emerald-600">Open til 6 PM</span>
-            </div>
-          </div>
-          <p className="text-[8px] text-slate-400 mb-2">Main St Branch · Downtown</p>
-          <div className="flex items-center gap-2.5">
-            <img src={advisor.photo} alt={advisor.name} className="w-9 h-9 rounded-full object-cover border border-blue-200 flex-shrink-0" />
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] font-semibold text-slate-800">{advisor.name}</p>
-              <p className="text-[8px] text-slate-400">{advisor.title}</p>
-            </div>
-          </div>
-          <p className="text-[10px] text-slate-500 italic mt-2 leading-snug">
-            "Major milestone ahead? Let's plan together, {firstName}."
-          </p>
-          <div className="flex gap-2 mt-2.5">
-            <button className="flex items-center gap-1 text-[9px] font-semibold text-white bg-blue-600 rounded-lg px-2.5 py-1.5 hover:bg-blue-700 transition-colors">
-              <Calendar className="w-2.5 h-2.5" /> Schedule
-            </button>
-            <button
-              onClick={() => onGoToAI(`Hi, I'd like to discuss my ${eventName.toLowerCase()} plans`)}
-              className="flex items-center gap-1 text-[9px] font-semibold text-blue-600 bg-blue-50 border border-blue-100 rounded-lg px-2.5 py-1.5 hover:bg-blue-100 transition-colors"
-            >
-              <MessageCircle className="w-2.5 h-2.5" /> Message
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );
