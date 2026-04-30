@@ -133,6 +133,13 @@ export default function ExecDemoPage() {
     const payload = csvToClassifyPayload(csv);
     if (payload.length === 0) return;
 
+    // Kick off risk detection in PARALLEL with classification.
+    // detect-risk-transactions runs against the raw CSV (no dependency on classification),
+    // so persona synthesis can later await this promise to suppress overlapping lifestyle pills.
+    riskReadyRef.current = fireRiskDetectionRef.current().catch((e) => {
+      console.warn("[PRELOAD] Risk detection promise rejected:", e);
+    });
+
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
