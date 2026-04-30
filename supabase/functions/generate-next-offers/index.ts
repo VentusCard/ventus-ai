@@ -298,6 +298,8 @@ serve(async (req) => {
           rollupRaw: g.rollup || g.event_name || g.eventName || g.label || "",
           collectionMessage: g.collectionMessage || g.collection_message,
           suppressedCategories: g.suppressedCategories || g.suppressed_categories || [],
+          imageCategory: g.imageCategory || g.image_category,
+          imageQuery: g.imageQuery || g.image_query,
           deals: normalizedDeals,
         };
       });
@@ -328,6 +330,8 @@ serve(async (req) => {
             pillar: "Life Event",
             collectionMessage: match.collectionMessage,
             suppressedCategories: match.suppressedCategories,
+            imageCategory: match.imageCategory,
+            imageQuery: match.imageQuery,
             deals: match.deals,
           });
         } else {
