@@ -1,127 +1,45 @@
-## /pricing — Internal Sales Pricing Builder
+## Redesign /pricing as a vertical 3-step flow
 
-A password-gated (`ventus2026`) interactive pricing page used in client conversations. Sales rep enters bank info, toggles Ventus modules à la carte, the page computes a hybrid cost (fixed platform fee + per-user/year), and emails a draft proposal to the prospect via the existing email function.
+Replace the current 2-column layout with a single-column, top-to-bottom flow inside a max-w-5xl container. Strict light theme preserved.
 
----
+### Section 1 — Prospect (Step 1)
 
-### 1. Route + Gate
+White card. Two large inputs side-by-side:
 
-- Add `/pricing` route in `src/App.tsx` (treat it like `/demo` — no Navbar/Footer chrome) pointing to a new `src/pages/Pricing.tsx`.
-- Wrap the page in the existing `SimplePasswordGate` (`src/components/demo/SimplePasswordGate.tsx`) — same `ventus2026` password and shared `sessionStorage` access used for `/deckmo`. No new gate component needed.
+- **Bank name**
+- **Number of customers** (with formatted "1,000,000 customers" helper text below)
 
----
+### Section 2 — À la carte menu (Step 2, main section)
 
-### 2. Page Layout (`src/pages/Pricing.tsx`)
+White card containing a table-style list. Each module is a clickable row with columns:
 
-Single-screen, light-theme, Manrope, white bg / slate-200 borders (per project core memory). Three regions:
+Function | Description | Fixed / yr | Per user / yr | Line total / yr | Add | 
 
-**Top bar**
-- Left: Ventus wordmark + "Pricing Builder" label.
-- Right: Admin gear icon (opens fee editor dialog).
+- Column header strip (slate-50, uppercase tiny labels).
+- Click a row to toggle inclusion (checkbox right, blue tint when selected, blue line total).
+- Sticky totals strip at the bottom of the card: Fixed fees · Per-user fees · $/customer/yr · **Total / year** (large, right-aligned).
+- Mobile fallback: rows collapse, labels prefix the numbers.
 
-**Left column — Inputs (≈40% width)**
-- "Bank name" text input
-- "Number of customers" numeric input (with thousands formatting)
-- "Prospect contact name" + "Prospect email" (used for the draft email)
-- Optional: "Notes for proposal" textarea
+### Section 3 — Send draft (Step 3)
 
-**Center column — Module à la carte grid (≈60%)**
-Each module is a clickable card (toggle selected/unselected with a check + ring). Cards show: module name, 1-line value prop, fixed fee, per-user/year fee, and computed line total for the entered customer count.
+White card with:
 
-Default module catalog (editable via admin panel):
+- Contact name + Contact email (side-by-side)
+- Notes textarea (full width)
+- Footer row: "Copy summary" (outline) on the left, **"Email draft to prospect"** as a prominent **blue** primary CTA (`bg-blue-600`) on the right.
 
-| Module | Default fixed fee | Default per-user/yr |
-|---|---|---|
-| Transaction Enrichment Engine | $250,000 | $0.40 |
-| Smart Rewards / Deal Personalization | $150,000 | $0.30 |
-| Wealth Copilot (Advisor Console) | $200,000 | $1.20 |
-| Travel Experience | $100,000 | $0.20 |
-| Bank-Wide Analytics | $180,000 | $0.25 |
-| Life Event Detection | $120,000 | $0.35 |
-| Risk / FVI Intelligence | $160,000 | $0.30 |
-| Conversational AI (Consumer + Banker) | $140,000 | $0.50 |
+### Top bar (unchanged)
 
-(These are placeholders — sales can override per-deal in the admin panel.)
+Ventus wordmark + "Pricing Builder" label + Admin gear button (top-right).
 
-**Right strip / sticky footer — Total summary**
-- Sum of fixed fees of selected modules
-- Sum of (per-user fee × customers) of selected modules
-- Grand total / year (large)
-- Effective $/customer/year (small)
-- Buttons: "Copy summary", "Email draft to prospect"
+### Removed / repurposed
 
----
+- `PricingSummary` component is no longer used on the page (totals now live inline in Section 2 footer). File can be left in place but unimported.
+- `ModuleCard` component is no longer used (replaced by inline table rows). File can be left in place.
 
-### 3. Calculations
+### Files
 
-For each selected module:
-- `lineTotal = fixedFee + perUserFee * numCustomers`
+- **Edit**: `src/pages/Pricing.tsx` — rewrite layout to vertical 3-section flow.
+- No other files change. `AdminFeeEditorDialog` and `EmailDraftDialog` stay as-is.
 
-Totals:
-- `totalFixed = Σ fixedFee(selected)`
-- `totalVariable = Σ perUserFee(selected) * numCustomers`
-- `grandTotal = totalFixed + totalVariable`
-- `perCustomer = grandTotal / numCustomers` (guard div/0)
-
-All currency formatted via existing `src/lib/formatHelper.ts` (`formatCurrency`, `formatNumber`).
-
----
-
-### 4. Admin Fee Editor
-
-- Gear icon in top-right opens a `Dialog` with a table: Module | Fixed Fee | Per-User/Yr | Enabled.
-- Inline editable inputs; "Save" persists to `localStorage` under key `ventus_pricing_catalog_v1`.
-- "Reset to defaults" button restores baked-in defaults.
-- No additional auth — page is already password-gated.
-
-Catalog state lives in a small hook (`usePricingCatalog`) that hydrates from `localStorage` on mount and writes back on save. Default catalog is a constant exported from `src/lib/pricingCatalog.ts`.
-
----
-
-### 5. Email Draft Sending
-
-Reuse the existing `send-follow-up-email` edge function (already deployed, uses `RESEND_API_KEY`, sends from `marco@ventusai.com`). No new edge function or secret required.
-
-Flow on "Email draft to prospect":
-1. Validate prospect email + at least 1 module selected.
-2. Build a plain-text proposal body:
-   - Greeting with prospect name + bank name
-   - Short intro paragraph
-   - Itemized list: each selected module with fixed + per-user line + line total
-   - Totals block (fixed, variable, grand total, $/customer/yr)
-   - Sign-off
-3. Show a preview `Dialog` with editable subject + body (Textarea) before send (so sales can tweak).
-4. On confirm, call:
-   ```ts
-   supabase.functions.invoke('send-follow-up-email', {
-     body: { to, subject, body, advisorName: 'Ventus AI Team' }
-   })
-   ```
-5. Toast success/failure via `sonner`.
-
-No attachments in v1 (edge function supports them but not needed yet).
-
----
-
-### 6. Files to create / edit
-
-**Create**
-- `src/pages/Pricing.tsx` — main page (gated wrapper + layout)
-- `src/components/pricing/ModuleCard.tsx` — toggleable module card
-- `src/components/pricing/PricingSummary.tsx` — totals + actions
-- `src/components/pricing/AdminFeeEditorDialog.tsx` — gear-icon dialog
-- `src/components/pricing/EmailDraftDialog.tsx` — preview + send dialog
-- `src/lib/pricingCatalog.ts` — default catalog + types + localStorage hook
-
-**Edit**
-- `src/App.tsx` — add `/pricing` route; add `/pricing` to the `isDemo`-style chrome-hiding check so Navbar/Footer don't render.
-
-**No backend changes** — reuses existing `send-follow-up-email` function.
-
----
-
-### 7. Out of scope (v1)
-
-- No persistence of proposals across users/devices (admin overrides are per-browser via localStorage).
-- No PDF export (can add later via existing pdf export helpers).
-- No multi-currency, no discount tiers, no contract length selector — keep simple, can iterate after first client demo.
+All inputs/textareas keep the explicit light styling (`bg-white text-slate-900 border-slate-200 placeholder:text-slate-400`) per the pricing light-theme rule.
