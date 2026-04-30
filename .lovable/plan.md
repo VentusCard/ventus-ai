@@ -1,30 +1,33 @@
 ## Goal
-The third column's pill in Next-Product currently says "✦ Sports Betting" (an auto-matched behavioral pillar). Replace it with the first **risk rollup** pill that's already shown in the rollup row above (e.g. "Gambling 3 txns · high").
 
-## Changes
+Restore the full-color (red/amber, ⚠ icon, no line-through) styling for the risk rollup pills in the customer profile header when the user is on the **Next-Product** tab. Keep the existing greyed-out treatment for the **Next-Offer** (analytics) tab where risk truly isn't actionable.
 
-**`src/components/exec-demo/NextProductRationale.tsx`**
+## Why
 
-1. Add `riskFlags?: { flags: any[]; summary: string } | null` to `Props`; destructure in the component.
+The risk pills already get cross-referenced inside the Next-Product rationale (third column shows the first risk rollup). It's inconsistent for the source pills above to be greyed out / line-through / disabled while the Next-Product panel is actively surfacing that same risk data as an "Additional Tools" recommendation. On the Next-Offer tab, greying still makes sense (offers don't target risk), so we leave that alone.
 
-2. Add a small helper `getFirstRiskRollup(riskFlags)` that mirrors the existing rollup logic in `ExecDemoIntelPanel.tsx` (lines 535–582):
-   - Group flags by category_group (vice→gambling/adult, financial_distress→financial_vulnerability, suspicious_international, aml, fallback to raw label).
-   - Dedupe by `transaction_id::key`.
-   - Severity = max in group; count = unique tx count.
-   - Sort by `ORDER` then return the first `{ label, severity, count }`.
+## Change
 
-3. In `renderColumn` for `idx >= 2` only:
-   - Compute `firstRisk = getFirstRiskRollup(riskFlags)` once outside `renderColumn`.
-   - When `firstRisk` exists, render the third column's pill with:
-     - Label: `firstRisk.label` (e.g. "Gambling")
-     - Suffix: `{firstRisk.count} txns · {firstRisk.severity}` (e.g. "3 txns · high"), formatted identically to the rollup row.
-     - Red color tokens (use `getColor("Risk")` or hardcode `#ef4444` family — same red palette as the rollup pill).
-     - Click handler: skip click since we don't have a tx-index list to drive a phone overlay.
-   - If `firstRisk` is null, fall back to current behavior.
+File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-**`src/components/exec-demo/ExecDemoIntelPanel.tsx`** (line 800)
-- Pass `riskFlags={riskFlags}` to `<NextProductRationale ... />`.
+Currently (line 352):
+```ts
+const isOfferTab = activeTab === "analytics" || activeTab === "product";
+```
 
-## Notes
-- Reuses existing risk rollup data — no new API calls.
-- Strict light theme preserved; red is reserved for risk per existing palette rule.
+This single flag drives both the click-disable behavior AND the greyed visual treatment on the risk pills (lines ~607–644). Splitting the concern:
+
+- Introduce a `riskPillsMuted` flag that is `true` only for the Next-Offer tab (`activeTab === "analytics"`), and use it for the visual greying / line-through / ✕ icon / `pointer-events-none` styling.
+- Keep `isOfferTab` (or rename locally) only where it affects offer-targeting click semantics — but for the risk pill block specifically, gate visual muting on `riskPillsMuted` instead of `isOfferTab` so the Next-Product tab keeps the pills colored AND clickable (they cross-link to transactions, which is useful while reviewing recommended products).
+
+Concretely, in the risk pill render block (~lines 607–644), replace each `isOfferTab` reference used for visuals/clickability with `riskPillsMuted`:
+- `isClickable = matchedIndices.length > 0 && !riskPillsMuted`
+- `title`, `className` (cursor states), `background`, `color`, `border`, `boxShadow`, `transform`, `opacity`, `filter`, `textDecoration*`, and the `✕`/`⚠` icon switch all key off `riskPillsMuted`.
+
+No other files need changes — `NextProductRationale` already mirrors the first risk rollup in red, and that behavior stays the same.
+
+## Result
+
+- Next-Offer tab: risk pills remain greyed out and non-actionable (unchanged).
+- Next-Product tab: risk pills appear in their normal red/amber color with the ⚠ icon, are clickable to highlight matching transactions, and visually align with the red risk pill shown in the third Next-Product column.
+- Next-Conversation (relationship) tab: unchanged (already colored).

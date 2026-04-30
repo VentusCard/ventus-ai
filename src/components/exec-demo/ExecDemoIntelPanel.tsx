@@ -350,6 +350,9 @@ export default function ExecDemoIntelPanel({
   }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick, personaSynthesis]);
 
   const isOfferTab = activeTab === "analytics" || activeTab === "product";
+  // Risk pills should only be visually muted on the Next-Offer tab.
+  // On Next-Product, keep them colored & clickable since the rationale panel surfaces risk as "Additional Tools".
+  const riskPillsMuted = activeTab === "analytics";
 
 
   return (
