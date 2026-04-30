@@ -1,28 +1,18 @@
 ## Goal
-Two refinements to `/pricing` when **Pilot** is toggled on in Step 1:
+Make it explicit across `/pricing` that the Pilot package is a **6-month** engagement (currently labeled "/yr" or unlabeled).
 
-1. **Step 1 — show a fixed pilot customer-size field next to the Pilot button.**
-2. **Step 2 — collapse the per-row Pilot column into one merged cell** showing the total pilot fee spanning all module rows (instead of a value repeated on every row).
+## Changes — `src/pages/Pricing.tsx`
 
-## Changes (all in `src/pages/Pricing.tsx`)
+1. **Step 1 pilot pill** (line ~197–207): change suffix from `customers` → `customers · 6 months`. Add an `6-month pilot` eyebrow label instead of `Pilot size`.
 
-### 1. Step 1: Pilot customers field
-When `pilotMode` is true, render a read-only/static field directly after the Pilot button showing `pilot.customers` (e.g. `100,000 pilot customers`). Styled as a soft emerald pill to match the pilot accent already used elsewhere. Value comes from the existing `pilot.customers` (configurable via Admin dialog), so no new state needed.
+2. **Pilot button tooltip** (line 188): change `${formatCurrency(pilot.flatFee)} / yr` → `${formatCurrency(pilot.flatFee)} flat for 6 months`.
 
-### 2. Step 2: Merge the Pilot column
-Currently the "Pilot/yr" column renders `pilotPerModule` (flatFee ÷ moduleCount) on every row — visually noisy and arithmetically arbitrary. Replace with a single merged cell:
+3. **Step 2 column header** (line ~231–236): change header `Pilot/yr` → `Pilot (6mo)`. Subtitle stays `6 Month`.
 
-- Keep the column header `Pilot/yr` with subtitle `{customers} · all-in`.
-- Remove the per-row pilot cell from the module `<li>` rows.
-- Render ONE absolutely-positioned overlay cell spanning the full module list height in that column, vertically centered, displaying `formatCurrency(pilot.flatFee)` with the green check icon and a small `flat / yr · all modules` caption.
+4. **Merged pilot cell** (line ~311–313): change subtitle `Flat · all modules` → `Flat · 6 months · all modules`.
 
-Implementation approach: wrap the `<ul>` of modules in a `relative` container. When `pilotMode` is on, render a sibling `<div>` positioned `absolute` over the pilot column (using the same 12-col grid math: `left` and `width` matching `col-span-1` at the pilot column's position) with `inset-y-0`, `flex items-center justify-end`, and a subtle left/right border to visually read as a merged cell.
+5. **Totals strip pilot label** (line ~327–333): change visible label from `Pilot` → `Pilot (6mo)`.
 
-Module rows keep their existing grid but the pilot col-span slot becomes empty (renders nothing) so the overlay sits cleanly on top without affecting row hover/click.
+6. **Email/copy summary text** (line ~66–73): change `Pilot option: … / yr flat` → `6-month pilot: {customers} customers · all modules · {flatFee} flat (6 months)`.
 
-### Totals strip
-No change — already shows a single Pilot total.
-
-## Out of scope
-- No changes to `pricingCatalog.ts`, Admin dialog, email/copy text builders, or PricingSummary.
-- Pilot customer count remains admin-editable only (not editable from Step 1).
+No changes to `pricingCatalog.ts` (the `flatFee` value is already conceptually the 6-month price — we are only relabeling, not recomputing). No structural/layout changes.

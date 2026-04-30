@@ -66,9 +66,9 @@ function PricingInner() {
     if (pilotMode) {
       lines.push("");
       lines.push(
-        `Pilot option: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
+        `6-month pilot: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
           pilot.flatFee
-        )} / yr flat`
+        )} flat (6 months)`
       );
     }
     if (contactPhone.trim()) {
@@ -185,24 +185,24 @@ function PricingInner() {
               <button
                 type="button"
                 onClick={() => setPilotMode((v) => !v)}
-                title={`Pilot: ${formatNumber(pilot.customers)} customers · ${formatCurrency(pilot.flatFee)} / yr`}
+                title={`6-month pilot: ${formatNumber(pilot.customers)} customers · ${formatCurrency(pilot.flatFee)} flat for 6 months`}
                 className={`shrink-0 inline-flex items-center gap-1.5 h-10 px-3 rounded-md text-sm font-semibold border transition-colors ${
                   pilotMode
                     ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
                     : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                 }`}
               >
-                <Zap className="w-4 h-4" /> Pilot
+                <Zap className="w-4 h-4" /> 6-Month Pilot
               </button>
               {pilotMode && (
                 <div className="shrink-0 inline-flex items-center gap-2 h-10 px-3 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">
                   <span className="text-[10px] uppercase tracking-wider font-semibold text-emerald-600">
-                    Pilot size
+                    6-month pilot
                   </span>
                   <span className="text-sm font-bold tabular-nums">
                     {formatNumber(pilot.customers)}
                   </span>
-                  <span className="text-[11px] text-emerald-700/70">customers</span>
+                  <span className="text-[11px] text-emerald-700/70">customers · 6 months</span>
                 </div>
               )}
             </div>
@@ -229,9 +229,9 @@ function PricingInner() {
             <div className={pilotMode ? "col-span-3" : "col-span-4"}>Description</div>
             {pilotMode && (
               <div className="col-span-1 text-right">
-                Pilot/yr
+                Pilot (6mo)
                 <div className="text-[9px] normal-case tracking-normal text-slate-400 font-normal">
-                  6 Month
+                  Flat fee
                 </div>
               </div>
             )}
@@ -309,7 +309,7 @@ function PricingInner() {
                     {formatCurrency(pilot.flatFee)}
                   </span>
                   <span className="text-[9px] uppercase tracking-wider text-emerald-600/80 font-semibold mt-0.5">
-                    Flat · all modules
+                    Flat · 6 months · all modules
                   </span>
                 </div>
                 <div className="col-span-1" />
@@ -326,7 +326,7 @@ function PricingInner() {
               {pilotMode && (
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-[11px] uppercase tracking-wider text-emerald-600 font-semibold">
-                    Pilot
+                    Pilot (6mo)
                   </span>
                   <span className="text-emerald-700 font-semibold">{formatCurrency(pilot.flatFee)}</span>
                 </div>
