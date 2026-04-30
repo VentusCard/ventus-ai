@@ -751,7 +751,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
       return (
         <div className="flex-1 min-w-0 flex flex-col gap-2.5">
           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-            {resolved.isBehavioral ? "Shopping Habit" : "Life Event"}
+            {labelFor(resolved, idx)}
           </div>
           <div
             className={`self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${resolved.isClickable ? "cursor-pointer" : ""}`}
