@@ -65,18 +65,18 @@ export default function EmailDraftDialog({
         <div className="space-y-3">
           <div>
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">To</label>
-            <Input value={to} onChange={(e) => setTo(e.target.value)} className="mt-1" />
+            <Input value={to} onChange={(e) => setTo(e.target.value)} className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1" />
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Subject</label>
-            <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="mt-1" />
+            <Input value={subject} onChange={(e) => setSubject(e.target.value)} className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1" />
           </div>
           <div>
             <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide">Body</label>
             <Textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
-              className="mt-1 min-h-[280px] font-mono text-xs"
+              className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 mt-1 min-h-[280px] font-mono text-xs"
             />
           </div>
         </div>
@@ -84,16 +84,16 @@ export default function EmailDraftDialog({
         <DialogFooter>
           <button
             onClick={() => onOpenChange(false)}
-            className="h-9 px-4 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
+            className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-9 px-4 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
           >
             Cancel
           </button>
           <button
             onClick={handleSend}
             disabled={sending}
-            className="h-9 px-4 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 inline-flex items-center gap-2 disabled:opacity-60"
+            className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-9 px-4 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800 inline-flex items-center gap-2 disabled:opacity-60"
           >
-            {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            {sending ? <Loader2 className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 w-4 h-4 animate-spin" /> : <Send className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 w-4 h-4" />}
             Send draft
           </button>
         </DialogFooter>

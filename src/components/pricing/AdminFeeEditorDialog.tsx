@@ -54,7 +54,7 @@ export default function AdminFeeEditorDialog({
           <>
             <DialogHeader>
               <DialogTitle className="text-slate-900 flex items-center gap-2">
-                <Lock className="w-4 h-4" /> Admin access
+                <Lock className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 w-4 h-4" /> Admin access
               </DialogTitle>
               <p className="text-xs text-slate-500">
                 Enter the admin password to edit module pricing.
@@ -70,20 +70,20 @@ export default function AdminFeeEditorDialog({
                   setError(false);
                 }}
                 placeholder="Admin password"
-                className="h-10"
+                className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-10"
               />
               {error && <p className="text-xs text-red-500">Incorrect password</p>}
               <DialogFooter>
                 <button
                   type="button"
                   onClick={() => onOpenChange(false)}
-                  className="h-9 px-4 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
+                  className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-9 px-4 rounded-lg border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="h-9 px-4 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
+                  className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-9 px-4 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
                 >
                   Unlock
                 </button>
@@ -116,12 +116,12 @@ export default function AdminFeeEditorDialog({
                         <Input
                           value={m.name}
                           onChange={(e) => updateModule(m.id, { name: e.target.value })}
-                          className="h-8 text-sm"
+                          className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-8 text-sm"
                         />
                         <Input
                           value={m.description}
                           onChange={(e) => updateModule(m.id, { description: e.target.value })}
-                          className="h-7 mt-1 text-xs text-slate-500"
+                          className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-7 mt-1 text-xs text-slate-500"
                         />
                       </td>
                       <td className="py-2 pr-2 align-top">
@@ -131,7 +131,7 @@ export default function AdminFeeEditorDialog({
                           onChange={(e) =>
                             updateModule(m.id, { fixedFee: Number(e.target.value) || 0 })
                           }
-                          className="h-8 text-sm"
+                          className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-8 text-sm"
                         />
                       </td>
                       <td className="py-2 pr-2 align-top">
@@ -142,7 +142,7 @@ export default function AdminFeeEditorDialog({
                           onChange={(e) =>
                             updateModule(m.id, { perUserFee: Number(e.target.value) || 0 })
                           }
-                          className="h-8 text-sm"
+                          className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-8 text-sm"
                         />
                       </td>
                       <td className="py-2 text-center align-top">
@@ -166,7 +166,7 @@ export default function AdminFeeEditorDialog({
               </button>
               <button
                 onClick={() => onOpenChange(false)}
-                className="h-9 px-4 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
+                className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-9 px-4 rounded-lg bg-slate-900 text-white text-sm font-medium hover:bg-slate-800"
               >
                 Done
               </button>
