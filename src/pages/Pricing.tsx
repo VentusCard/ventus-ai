@@ -206,8 +206,16 @@ function PricingInner() {
 
           {/* Header row */}
           <div className="grid grid-cols-12 gap-3 px-5 py-2 border-y border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wider text-slate-400 font-semibold shrink-0">
-            <div className="col-span-3">Function</div>
-            <div className="col-span-4">Description</div>
+            <div className={pilotMode ? "col-span-3" : "col-span-3"}>Function</div>
+            <div className={pilotMode ? "col-span-3" : "col-span-4"}>Description</div>
+            {pilotMode && (
+              <div className="col-span-1 text-right">
+                Pilot/yr
+                <div className="text-[9px] normal-case tracking-normal text-slate-400 font-normal">
+                  {formatNumber(pilot.customers)} · all in
+                </div>
+              </div>
+            )}
             <div className="col-span-1 text-right">Fixed/yr</div>
             <div className="col-span-2 text-right">Per user/yr</div>
             <div className="col-span-1 text-right">Line/yr</div>
@@ -232,9 +240,17 @@ function PricingInner() {
                         {m.name}
                       </p>
                     </div>
-                    <div className="col-span-4 text-[14px] text-slate-500 leading-snug truncate">
+                    <div className={`${pilotMode ? "col-span-3" : "col-span-4"} text-[14px] text-slate-500 leading-snug truncate`}>
                       {m.description}
                     </div>
+                    {pilotMode && (
+                      <div className="col-span-1 text-right">
+                        <span className="inline-flex items-center justify-end gap-1 text-[14px] font-semibold text-emerald-700">
+                          <Check className="w-3 h-3" strokeWidth={3} />
+                          {formatCurrency(Math.round(pilotPerModule))}
+                        </span>
+                      </div>
+                    )}
                     <div className="col-span-1 text-right text-[14px] font-semibold text-slate-800">
                       {formatCurrency(m.fixedFee)}
                     </div>
