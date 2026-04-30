@@ -14,19 +14,19 @@ export interface ProductCard {
   cta_sub?: string;
 }
 
-const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane }> = {
-  travel: { accent: "#3b82f6", text: "#1e3a5f", icon: Plane },
-  dining: { accent: "#f59e0b", text: "#92400e", icon: Utensils },
-  fitness: { accent: "#10b981", text: "#065f46", icon: Dumbbell },
-  shopping: { accent: "#ec4899", text: "#9d174d", icon: ShoppingBag },
-  entertainment: { accent: "#8b5cf6", text: "#4c1d95", icon: Music },
-  home: { accent: "#10b981", text: "#065f46", icon: Home },
-  education: { accent: "#6366f1", text: "#3730a3", icon: GraduationCap },
-  retirement: { accent: "#f59e0b", text: "#92400e", icon: TrendingUp },
-  family: { accent: "#f472b6", text: "#9d174d", icon: Heart },
-  business: { accent: "#0ea5e9", text: "#0c4a6e", icon: Briefcase },
-  wellness: { accent: "#14b8a6", text: "#115e59", icon: Leaf },
-  lifestyle: { accent: "#64748b", text: "#334155", icon: Star },
+const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane; gradient: string }> = {
+  travel: { accent: "#3b82f6", text: "#1e3a5f", icon: Plane, gradient: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%)" },
+  dining: { accent: "#f59e0b", text: "#92400e", icon: Utensils, gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%)" },
+  fitness: { accent: "#10b981", text: "#065f46", icon: Dumbbell, gradient: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdfa 100%)" },
+  shopping: { accent: "#ec4899", text: "#9d174d", icon: ShoppingBag, gradient: "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fff1f2 100%)" },
+  entertainment: { accent: "#8b5cf6", text: "#4c1d95", icon: Music, gradient: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #faf5ff 100%)" },
+  home: { accent: "#10b981", text: "#065f46", icon: Home, gradient: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdf4 100%)" },
+  education: { accent: "#6366f1", text: "#3730a3", icon: GraduationCap, gradient: "linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f5f3ff 100%)" },
+  retirement: { accent: "#f59e0b", text: "#92400e", icon: TrendingUp, gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fefce8 100%)" },
+  family: { accent: "#f472b6", text: "#9d174d", icon: Heart, gradient: "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fff1f2 100%)" },
+  business: { accent: "#0ea5e9", text: "#0c4a6e", icon: Briefcase, gradient: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ecfeff 100%)" },
+  wellness: { accent: "#14b8a6", text: "#115e59", icon: Leaf, gradient: "linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #ecfdf5 100%)" },
+  lifestyle: { accent: "#64748b", text: "#334155", icon: Star, gradient: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f9fafb 100%)" },
 };
 
 const THEME_BENEFITS: Record<string, string[]> = {
@@ -127,32 +127,41 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
               const style = THEME_STYLES[card.theme] || THEME_STYLES.lifestyle;
               const benefits = (THEME_BENEFITS[card.theme] || THEME_BENEFITS.lifestyle).slice(0, 3);
               const value = THEME_VALUE[card.theme] || THEME_VALUE.lifestyle;
+              const ThemeIcon = style.icon;
 
               return (
                 <div key={i} className="w-full shrink-0 px-1">
                   <div
-                    className="bg-white rounded-xl shadow-sm overflow-hidden h-full flex flex-col"
-                    style={{ borderTop: `3px solid ${style.accent}` }}
+                    className={`rounded-2xl shadow-md overflow-hidden h-full flex flex-col ${compact ? "min-h-[300px]" : ""}`}
+                    style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
                   >
-                    <div className={`${compact ? "p-2.5" : "p-3"} flex flex-col flex-1`}>
-                      <p className="text-[12px] font-bold text-slate-800 leading-tight mb-1 line-clamp-2">{card.product_name}</p>
-                      <p className="text-[10px] text-slate-500 italic leading-snug mb-2 line-clamp-3">"{card.quote}"</p>
-                      <div className="space-y-1 mb-2 flex-1">
+                    <div className={`${compact ? "p-4" : "p-5"} flex flex-col flex-1 gap-2.5`}>
+                      <div className="flex items-start gap-2.5">
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+                          style={{ background: "rgba(255,255,255,0.75)", color: style.accent }}
+                        >
+                          <ThemeIcon className="w-5 h-5" />
+                        </div>
+                        <p className="text-[15px] font-bold text-slate-800 leading-tight line-clamp-2 flex-1">{card.product_name}</p>
+                      </div>
+                      <p className="text-[12px] text-slate-600 italic leading-snug line-clamp-3">"{card.quote}"</p>
+                      <div className="space-y-1.5 flex-1">
                         {benefits.map((b, bi) => (
-                          <div key={bi} className="flex items-start gap-1.5">
-                            <Check className="w-3 h-3 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                            <span className="text-[10px] text-slate-600 leading-snug">{b}</span>
+                          <div key={bi} className="flex items-start gap-2">
+                            <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
+                            <span className="text-[12px] text-slate-700 leading-snug font-medium">{b}</span>
                           </div>
                         ))}
                       </div>
-                      <p className="text-[10px] font-bold mb-1.5 leading-tight" style={{ color: style.accent }}>
+                      <p className="text-[12px] font-bold leading-tight" style={{ color: style.accent }}>
                         Est. {value}
                       </p>
                       <button
-                        className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5"
+                        className="w-full py-2.5 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1 shadow-sm"
                         style={{ background: style.accent }}
                       >
-                        Learn More <ChevronRight className="w-3 h-3" />
+                        Learn More <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>

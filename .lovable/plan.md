@@ -1,49 +1,33 @@
 ## Goal
 
-When the user is on any of the three "Next" tabs in the executive demo (`rewards` = Next-Offer, `product` = Next-Product, `relationship` = Next-Conversation), the layout should show the **middle Intelligence panel + right Phone mockup**, and hide the **left Transaction feed panel**.
+Restore the full-color (red/amber, ⚠ icon, no line-through) styling for the risk rollup pills in the customer profile header when the user is on the **Next-Product** tab. Keep the existing greyed-out treatment for the **Next-Offer** (analytics) tab where risk truly isn't actionable.
 
-Currently the left panel is always visible on these tabs, and the phone only appears for `relationship` after the AI Assistant button is clicked.
+## Why
+
+The risk pills already get cross-referenced inside the Next-Product rationale (third column shows the first risk rollup). It's inconsistent for the source pills above to be greyed out / line-through / disabled while the Next-Product panel is actively surfacing that same risk data as an "Additional Tools" recommendation. On the Next-Offer tab, greying still makes sense (offers don't target risk), so we leave that alone.
 
 ## Change
 
-Edit `src/pages/ExecDemoPage.tsx` only. No other files need changes.
+File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
 
-### 1. Broaden `phoneVisible` to all three "Next" tabs
-
-Replace the two existing definitions:
+Currently (line 352):
 ```ts
-const phoneVisible = activeTab === "relationship" && aiTabTrigger > 0;
-```
-with:
-```ts
-const isNextTab = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
-const phoneVisible = isNextTab;
+const isOfferTab = activeTab === "analytics" || activeTab === "product";
 ```
 
-This makes the phone show automatically whenever the user is on any of the three Next tabs, no longer gated on the AI Assistant button. (The AI Assistant button still works — `aiTabTrigger` continues to drive which tab inside the phone is active via `ExecDemoPhoneView`.)
+This single flag drives both the click-disable behavior AND the greyed visual treatment on the risk pills (lines ~607–644). Splitting the concern:
 
-### 2. Hide the left Transaction panel on Next tabs
+- Introduce a `riskPillsMuted` flag that is `true` only for the Next-Offer tab (`activeTab === "analytics"`), and use it for the visual greying / line-through / ✕ icon / `pointer-events-none` styling.
+- Keep `isOfferTab` (or rename locally) only where it affects offer-targeting click semantics — but for the risk pill block specifically, gate visual muting on `riskPillsMuted` instead of `isOfferTab` so the Next-Product tab keeps the pills colored AND clickable (they cross-link to transactions, which is useful while reviewing recommended products).
 
-In the Col 1 wrapper (currently around line 941), change the visibility condition so the column collapses entirely on Next tabs instead of becoming a 40px sliver:
+Concretely, in the risk pill render block (~lines 607–644), replace each `isOfferTab` reference used for visuals/clickability with `riskPillsMuted`:
+- `isClickable = matchedIndices.length > 0 && !riskPillsMuted`
+- `title`, `className` (cursor states), `background`, `color`, `border`, `boxShadow`, `transform`, `opacity`, `filter`, `textDecoration*`, and the `✕`/`⚠` icon switch all key off `riskPillsMuted`.
 
-- When `isNextTab` is true → render nothing for Col 1 (panel hidden, no sliver, no expand affordance).
-- Otherwise (Persona / pre-Next phases, full-screen enrichment, etc.) → keep current behavior.
+No other files need changes — `NextProductRationale` already mirrors the first risk rollup in red, and that behavior stays the same.
 
-Concretely, wrap the existing Col 1 block with `{!isNextTab && !showEnrichmentFullScreen && (...)}` and remove the `phoneVisible ? ... : 400` width math inside, since when the panel renders it always renders at full 400px now. Drop the sliver/expand UI (the `txPanelExpanded` toggle becomes unused on Next tabs — leave the state in place for safety but it no longer affects layout).
+## Result
 
-### 3. Keep phone-collapse behavior
-
-Leave Col 3's collapse-to-sliver (`phoneCollapsed`) behavior intact — users can still collapse the phone to a 40px strip via the chevron if they want more room for the middle panel.
-
-## Resulting layout per tab
-
-| Tab | Left (Tx feed) | Middle (Intel) | Right (Phone) |
-|---|---|---|---|
-| Persona / no tab | shown (400px) | shown | hidden |
-| `analytics` (Next-Purchase) | shown (400px) | shown | hidden |
-| `rewards` (Next-Offer) | **hidden** | shown (expanded) | **shown** |
-| `product` (Next-Product) | **hidden** | shown (expanded) | **shown** |
-| `relationship` (Next-Conversation) | **hidden** | shown (expanded) | **shown** |
-| Pre-synthesis enrichment full-screen | hidden (existing) | full-width | hidden |
-
-Note: `analytics` (Next-Purchase) is one of the four tabs but is the "purchase intelligence" view, not one of the three Next-action tabs. Per your message ("3 next tabs"), it is excluded — it keeps the current left+middle layout. If you also want the phone on Next-Purchase, say so and I'll include it.
+- Next-Offer tab: risk pills remain greyed out and non-actionable (unchanged).
+- Next-Product tab: risk pills appear in their normal red/amber color with the ⚠ icon, are clickable to highlight matching transactions, and visually align with the red risk pill shown in the third Next-Product column.
+- Next-Conversation (relationship) tab: unchanged (already colored).

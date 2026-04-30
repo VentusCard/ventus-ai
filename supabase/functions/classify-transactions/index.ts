@@ -11,7 +11,7 @@ const FAST_MODEL = "google/gemini-2.5-flash";
 const FALLBACK_MODEL = "openai/gpt-5-mini";
 
 // Concurrency configuration
-const CONCURRENCY_LIMIT = 2;
+const CONCURRENCY_LIMIT = 4;
 const BATCH_SIZE = 24;
 const SUB_BATCH_SIZE = 8;
 
@@ -75,9 +75,20 @@ async function runWithConcurrency<T, R>(
 // ============================================================
 
 const NON_CARD_SOURCES = new Set([
-  "ach", "zelle", "venmo", "cash app", "cashapp", "paypal",
-  "wire", "check", "checks", "bill pay", "billpay",
-  "transfer", "direct deposit", "directdeposit",
+  "ach",
+  "zelle",
+  "venmo",
+  "cash app",
+  "cashapp",
+  "paypal",
+  "wire",
+  "check",
+  "checks",
+  "bill pay",
+  "billpay",
+  "transfer",
+  "direct deposit",
+  "directdeposit",
 ]);
 
 function isNonCardSource(source?: string): boolean {
@@ -403,14 +414,16 @@ const CLASSIFICATION_TOOL = [
                 },
                 category: {
                   type: "string",
-                  description: "Primary behavioral identifier within the pillar (e.g. Golf, Grocery, Coffee & Cafes, Flights)",
+                  description:
+                    "Primary behavioral identifier within the pillar (e.g. Golf, Grocery, Coffee & Cafes, Flights)",
                 },
                 subcategories: {
                   type: "array",
                   items: { type: "string" },
                   minItems: 1,
                   maxItems: 3,
-                  description: "1-3 labels describing what can be inferred from the merchant name. Only tag what is obvious — do not guess.",
+                  description:
+                    "1-3 labels describing what can be inferred from the merchant name. Only tag what is obvious — do not guess.",
                 },
                 confidence: {
                   type: "number",
@@ -422,7 +435,8 @@ const CLASSIFICATION_TOOL = [
                 spending_tier: {
                   type: "string",
                   enum: ["Budget", "Standard", "Premium", "N/A"],
-                  description: "Merchant market positioning: Premium (luxury/high-end), Standard (mid-range), Budget (discount/value), N/A (utilities/insurance/medical)",
+                  description:
+                    "Merchant market positioning: Premium (luxury/high-end), Standard (mid-range), Budget (discount/value), N/A (utilities/insurance/medical)",
                 },
                 purchase_frequency: {
                   type: "string",
@@ -430,7 +444,15 @@ const CLASSIFICATION_TOOL = [
                   description: "How often a typical customer transacts with this merchant type",
                 },
               },
-              required: ["transaction_id", "pillar", "category", "subcategories", "confidence", "spending_tier", "purchase_frequency"],
+              required: [
+                "transaction_id",
+                "pillar",
+                "category",
+                "subcategories",
+                "confidence",
+                "spending_tier",
+                "purchase_frequency",
+              ],
             },
           },
         },
@@ -779,15 +801,17 @@ Deno.serve(async (req) => {
             let confidence = classification.confidence || 0.8;
             let explanation = classification.explanation || "";
 
-            const looksMisc = /miscellaneous|unclassified/i.test(pillar || "") ||
-              /unclear|unknown|^general$/i.test(category || "");
+            const looksMisc =
+              /miscellaneous|unclassified/i.test(pillar || "") || /unclear|unknown|^general$/i.test(category || "");
             if (descOverride && looksMisc) {
               pillar = descOverride.pillar;
               category = descOverride.category;
               finalSubs = [descOverride.subcategory];
               confidence = 0.85;
               explanation = `Description-driven override for non-card (${(original as any).source || "transfer"}) transaction.`;
-              console.log(`[OVERRIDE] ${original.merchant_name} + "${desc}" (${(original as any).source}) → ${pillar}/${category}`);
+              console.log(
+                `[OVERRIDE] ${original.merchant_name} + "${desc}" (${(original as any).source}) → ${pillar}/${category}`,
+              );
             }
 
             return {

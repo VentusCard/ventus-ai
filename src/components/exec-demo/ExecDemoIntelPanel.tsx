@@ -81,32 +81,33 @@ const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
 
 const TAB_ORDER: TabKey[] = ["analytics", "product", "relationship"];
 
-// Color palette per pillar
+// Color palette per pillar — 12 distinct hues, NO red (reserved for risk pills).
+// Each pillar gets a unique color family so adjacent pills are easy to distinguish.
 const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
   // MCC fallback names
-  "Travel & Transport": { bg: "rgba(96,165,250,.12)", border: "rgba(96,165,250,.35)", text: "#1e40af", dot: "#60a5fa" },
-  "Food & Dining": { bg: "rgba(251,191,36,.12)", border: "rgba(251,191,36,.35)", text: "#92400e", dot: "#fbbf24" },
-  "Wellness & Fitness": { bg: "rgba(52,211,153,.12)", border: "rgba(52,211,153,.35)", text: "#065f46", dot: "#34d399" },
-  "Shopping": { bg: "rgba(167,139,250,.12)", border: "rgba(167,139,250,.35)", text: "#5b21b6", dot: "#a78bfa" },
-  "Entertainment": { bg: "rgba(251,113,133,.12)", border: "rgba(251,113,133,.35)", text: "#9f1239", dot: "#fb7185" },
-  "Home & Living": { bg: "rgba(45,212,191,.12)", border: "rgba(45,212,191,.35)", text: "#115e59", dot: "#2dd4bf" },
-  "Education & Family": { bg: "rgba(129,140,248,.12)", border: "rgba(129,140,248,.35)", text: "#3730a3", dot: "#818cf8" },
-  "Healthcare": { bg: "rgba(248,113,113,.12)", border: "rgba(248,113,113,.35)", text: "#991b1b", dot: "#f87171" },
-  "Technology": { bg: "rgba(56,189,248,.12)", border: "rgba(56,189,248,.35)", text: "#0c4a6e", dot: "#38bdf8" },
-  "Pets & Care": { bg: "rgba(244,114,182,.12)", border: "rgba(244,114,182,.35)", text: "#9d174d", dot: "#f472b6" },
-  "Financial Planning": { bg: "rgba(250,204,21,.12)", border: "rgba(250,204,21,.35)", text: "#854d0e", dot: "#facc15" },
-  "Sports & Active": { bg: "rgba(74,222,128,.12)", border: "rgba(74,222,128,.35)", text: "#166534", dot: "#4ade80" },
-  "Miscellaneous": { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" },
-  // AI classifier pillar names
-  "Sports & Active Living": { bg: "rgba(74,222,128,.12)", border: "rgba(74,222,128,.35)", text: "#166534", dot: "#4ade80" },
-  "Health & Wellness": { bg: "rgba(52,211,153,.12)", border: "rgba(52,211,153,.35)", text: "#065f46", dot: "#34d399" },
-  "Travel & Exploration": { bg: "rgba(96,165,250,.12)", border: "rgba(96,165,250,.35)", text: "#1e40af", dot: "#60a5fa" },
-  "Style & Beauty": { bg: "rgba(244,114,182,.12)", border: "rgba(244,114,182,.35)", text: "#9d174d", dot: "#f472b6" },
-  "Pets": { bg: "rgba(244,114,182,.12)", border: "rgba(244,114,182,.35)", text: "#9d174d", dot: "#f472b6" },
-  "Entertainment & Culture": { bg: "rgba(251,113,133,.12)", border: "rgba(251,113,133,.35)", text: "#9f1239", dot: "#fb7185" },
-  "Technology & Digital Life": { bg: "rgba(56,189,248,.12)", border: "rgba(56,189,248,.35)", text: "#0c4a6e", dot: "#38bdf8" },
-  "Family & Community": { bg: "rgba(129,140,248,.12)", border: "rgba(129,140,248,.35)", text: "#3730a3", dot: "#818cf8" },
-  "Financial & Aspirational": { bg: "rgba(250,204,21,.12)", border: "rgba(250,204,21,.35)", text: "#854d0e", dot: "#facc15" },
+  "Travel & Transport":     { bg: "rgba(59,130,246,.12)",  border: "rgba(59,130,246,.35)",  text: "#1e40af", dot: "#3b82f6" }, // blue
+  "Food & Dining":          { bg: "rgba(245,158,11,.12)",  border: "rgba(245,158,11,.35)",  text: "#92400e", dot: "#f59e0b" }, // amber
+  "Wellness & Fitness":     { bg: "rgba(16,185,129,.12)",  border: "rgba(16,185,129,.35)",  text: "#065f46", dot: "#10b981" }, // emerald
+  "Shopping":               { bg: "rgba(139,92,246,.12)",  border: "rgba(139,92,246,.35)",  text: "#5b21b6", dot: "#8b5cf6" }, // violet
+  "Entertainment":          { bg: "rgba(217,70,239,.12)",  border: "rgba(217,70,239,.35)",  text: "#86198f", dot: "#d946ef" }, // fuchsia
+  "Home & Living":          { bg: "rgba(20,184,166,.12)",  border: "rgba(20,184,166,.35)",  text: "#115e59", dot: "#14b8a6" }, // teal
+  "Education & Family":     { bg: "rgba(99,102,241,.12)",  border: "rgba(99,102,241,.35)",  text: "#3730a3", dot: "#6366f1" }, // indigo
+  "Healthcare":             { bg: "rgba(6,182,212,.12)",   border: "rgba(6,182,212,.35)",   text: "#155e75", dot: "#06b6d4" }, // cyan (was red)
+  "Technology":             { bg: "rgba(2,132,199,.12)",   border: "rgba(2,132,199,.35)",   text: "#0c4a6e", dot: "#0284c7" }, // deep sky
+  "Pets & Care":            { bg: "rgba(236,72,153,.12)",  border: "rgba(236,72,153,.35)",  text: "#9d174d", dot: "#ec4899" }, // pink
+  "Financial Planning":     { bg: "rgba(234,179,8,.12)",   border: "rgba(234,179,8,.35)",   text: "#854d0e", dot: "#eab308" }, // yellow
+  "Sports & Active":        { bg: "rgba(34,197,94,.12)",   border: "rgba(34,197,94,.35)",   text: "#166534", dot: "#22c55e" }, // green
+  "Miscellaneous":          { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" }, // slate
+  // AI classifier pillar names (mirror MCC mappings)
+  "Travel & Exploration":       { bg: "rgba(59,130,246,.12)",  border: "rgba(59,130,246,.35)",  text: "#1e40af", dot: "#3b82f6" },
+  "Health & Wellness":          { bg: "rgba(16,185,129,.12)",  border: "rgba(16,185,129,.35)",  text: "#065f46", dot: "#10b981" },
+  "Sports & Active Living":     { bg: "rgba(34,197,94,.12)",   border: "rgba(34,197,94,.35)",   text: "#166534", dot: "#22c55e" },
+  "Style & Beauty":             { bg: "rgba(180,83,9,.12)",    border: "rgba(180,83,9,.35)",    text: "#7c2d12", dot: "#b45309" }, // copper — distinct from pets/food/lime
+  "Pets":                       { bg: "rgba(236,72,153,.12)",  border: "rgba(236,72,153,.35)",  text: "#9d174d", dot: "#ec4899" },
+  "Entertainment & Culture":    { bg: "rgba(217,70,239,.12)",  border: "rgba(217,70,239,.35)",  text: "#86198f", dot: "#d946ef" },
+  "Technology & Digital Life":  { bg: "rgba(2,132,199,.12)",   border: "rgba(2,132,199,.35)",   text: "#0c4a6e", dot: "#0284c7" },
+  "Family & Community":         { bg: "rgba(99,102,241,.12)",  border: "rgba(99,102,241,.35)",  text: "#3730a3", dot: "#6366f1" },
+  "Financial & Aspirational":   { bg: "rgba(234,179,8,.12)",   border: "rgba(234,179,8,.35)",   text: "#854d0e", dot: "#eab308" },
   "Miscellaneous & Unclassified": { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" },
 };
 
@@ -349,6 +350,9 @@ export default function ExecDemoIntelPanel({
   }, [activeTab, activeRollup, activeTriggerLabel, rollupStats, onRollupClick, personaSynthesis]);
 
   const isOfferTab = activeTab === "analytics" || activeTab === "product";
+  // Risk pills should only be visually muted on the Next-Offer tab.
+  // On Next-Product, keep them colored & clickable since the rationale panel surfaces risk as "Additional Tools".
+  const riskPillsMuted = activeTab === "analytics";
 
 
   return (
@@ -395,7 +399,7 @@ export default function ExecDemoIntelPanel({
                         : activeTab === "product"
                         ? { title: "3.2 Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
                         : activeTab === "relationship"
-                        ? { title: "3.3 Shared Customer Intelligence", sub: "Retail insights empower wealth managers to boost retention" }
+                        ? { title: "3.3 Shared Customer Intelligence", sub: "One shared intelligence layer that elevates everyday clients and powers wealth advisors alike" }
                         : { title: "2. Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
                     return (
                       <p className="font-bold text-slate-800 mb-1 text-xl">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
@@ -414,49 +418,46 @@ export default function ExecDemoIntelPanel({
                     onRollupClick?.(r);
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
-                      if (assistantOpen) {
-                        // Visible chat bubble stays short and natural; the merchant
-                        // breakdown is forwarded as hidden signal context so the AI
-                        // can answer with ground-truth aggregates without the user
-                        // having to type or see them.
-                        const totalSpend = Math.round(r.totalSpend ?? 0);
-                        const totalCount = r.totalCount ?? 0;
-                        let merchantBreakdown = "";
-                        if (transactions && r.txIndices && r.txIndices.length > 0) {
-                          const mMap: Record<string, { total: number; count: number }> = {};
-                          for (const idx of r.txIndices) {
-                            const tx: any = transactions[idx];
-                            if (!tx) continue;
-                            const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
-                            const amt = typeof tx.amount === "number"
-                              ? Math.abs(tx.amount)
-                              : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
-                            if (!mMap[name]) mMap[name] = { total: 0, count: 0 };
-                            mMap[name].total += amt;
-                            mMap[name].count += 1;
-                          }
-                          const top = Object.entries(mMap)
-                            .sort((a, b) => b[1].total - a[1].total)
-                            .slice(0, 5)
-                            .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
-                          if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
-                        }
-                        const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
-                        const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
-                        onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
+                    }
+                    // AI prompt dispatch is gated below to the Next-Conversation (relationship) tab only.
+                    const totalSpend = Math.round(r.totalSpend ?? 0);
+                    const totalCount = r.totalCount ?? 0;
+                    let merchantBreakdown = "";
+                    if (transactions && r.txIndices && r.txIndices.length > 0) {
+                      const mMap: Record<string, { total: number; count: number }> = {};
+                      for (const idx of r.txIndices) {
+                        const tx: any = transactions[idx];
+                        if (!tx) continue;
+                        const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
+                        const amt = typeof tx.amount === "number"
+                          ? Math.abs(tx.amount)
+                          : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                        if (!mMap[name]) mMap[name] = { total: 0, count: 0 };
+                        mMap[name].total += amt;
+                        mMap[name].count += 1;
                       }
+                      const top = Object.entries(mMap)
+                        .sort((a, b) => b[1].total - a[1].total)
+                        .slice(0, 5)
+                        .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
+                      if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
+                    }
+                    // Only dispatch AI chat prompts on the Next-Conversation (relationship) tab.
+                    // On Next-Offer / Next-Product, pill clicks should only filter the deal/product collection.
+                    if (isRelTab) {
+                      const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
+                      const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
+                      onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
                     }
                   };
                   const handleLifeEventForRel = (label: string, indices: number[]) => {
                     onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifeEvent", label });
-                      if (assistantOpen) {
-                        onAIPromptDispatch?.(
-                          `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
-                          "lifeEvent"
-                        );
-                      }
+                      onAIPromptDispatch?.(
+                        `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
+                        "lifeEvent"
+                      );
                     }
                   };
                   const handleRiskForRel = (label: string, indices: number[], color: string, merchant?: string) => {
@@ -464,12 +465,10 @@ export default function ExecDemoIntelPanel({
                     if (isRelTab) {
                       setSelectedSignal({ kind: "risk", label });
                       const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
-                      if (assistantOpen) {
-                        onAIPromptDispatch?.(
-                          `What is this transaction ${subject}? What is it typically associated with statistically?`,
-                          "risk"
-                        );
-                      }
+                      onAIPromptDispatch?.(
+                        `What is this transaction ${subject}? What is it typically associated with statistically?`,
+                        "risk"
+                      );
                     }
                   };
 
@@ -499,7 +498,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -608,7 +607,7 @@ export default function ExecDemoIntelPanel({
                           if (mname && merchantSet.has(mname)) matchedIndices.push(idx);
                         });
                       }
-                      const isClickable = matchedIndices.length > 0 && !isOfferTab;
+                      const isClickable = matchedIndices.length > 0 && !riskPillsMuted;
                       const pillKey = `rollup::${rollup.key}::${i}`;
                       return (
                         <span
@@ -621,31 +620,31 @@ export default function ExecDemoIntelPanel({
                               : rollup.sampleMerchant;
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
-                          title={isOfferTab ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full ${isClickable ? "cursor-pointer" : isOfferTab ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          title={riskPillsMuted ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
-                            background: isOfferTab
+                            background: riskPillsMuted
                               ? "#e2e8f0"
                               : isActive
                               ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
                               : `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"}, ${isHigh ? "rgba(239,68,68,.08)" : "rgba(245,158,11,.08)"})`,
-                            color: isOfferTab ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
-                            border: isOfferTab
+                            color: riskPillsMuted ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
+                            border: riskPillsMuted
                               ? "1.5px solid #cbd5e1"
                               : isActive
                               ? `2px solid ${dotColor}`
                               : `1.5px solid ${dotColor}`,
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
-                            boxShadow: isOfferTab ? "none" : isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
-                            transform: isActive && !isOfferTab ? "scale(1.08)" : "scale(1)",
-                            opacity: isOfferTab ? 0.65 : 1,
-                            filter: isOfferTab ? "grayscale(1)" : "none",
-                            textDecoration: isOfferTab ? "line-through" : "none",
-                            textDecorationColor: isOfferTab ? "#94a3b8" : undefined,
-                            textDecorationThickness: isOfferTab ? "1.5px" : undefined,
+                            boxShadow: riskPillsMuted ? "none" : isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
+                            transform: isActive && !riskPillsMuted ? "scale(1.08)" : "scale(1)",
+                            opacity: riskPillsMuted ? 0.65 : 1,
+                            filter: riskPillsMuted ? "grayscale(1)" : "none",
+                            textDecoration: riskPillsMuted ? "line-through" : "none",
+                            textDecorationColor: riskPillsMuted ? "#94a3b8" : undefined,
+                            textDecorationThickness: riskPillsMuted ? "1.5px" : undefined,
                           }}
                         >
-                          <span style={{ color: isOfferTab ? "#94a3b8" : dotColor, textDecoration: "none" }}>{isOfferTab ? "✕" : "⚠"}</span>
+                          <span style={{ color: riskPillsMuted ? "#94a3b8" : dotColor, textDecoration: "none" }}>{riskPillsMuted ? "✕" : "⚠"}</span>
                           {flagLabel}
                           <span className="text-[11px] opacity-60 tabular-nums font-normal">
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
@@ -655,7 +654,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full"
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -681,17 +680,17 @@ export default function ExecDemoIntelPanel({
 
                   return (
                     <>
-                       <div className="mb-1">
-                        <p className="text-[12px] font-bold uppercase tracking-wider text-cyan-600/70 mb-1.5">Spending Habits</p>
-                        <div className="flex flex-wrap gap-2">{rollupPills}</div>
+                      <div className="flex items-center gap-3 mb-1">
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-cyan-700">Spending Habits:</p>
+                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
-                      <div className="mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className="text-[12px] font-bold uppercase tracking-wider text-amber-600/70 mb-1.5">Life Event Detection</p>
-                        <div className="flex flex-wrap gap-2">{lifeEventPills}</div>
+                      <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-amber-700">Life Event Detection:</p>
+                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{lifeEventPills}</div>
                       </div>
-                      <div className="mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className="text-[12px] font-bold uppercase tracking-wider text-red-500/70 mb-1.5">Risk Factors</p>
-                        <div className="flex flex-wrap gap-2">{riskPills}</div>
+                      <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
+                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-red-600">Risk Factors:</p>
+                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{riskPills}</div>
                       </div>
                     </>
                   );
@@ -801,7 +800,7 @@ export default function ExecDemoIntelPanel({
             {activeTab === "analytics" && synthesisTriggered ? (
               <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} activeRollup={activeRollup} activeTriggerLabel={activeTriggerLabel} activeTrigger={activeTrigger} />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} pillarRollups={rollupStats} />
+              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} pillarRollups={rollupStats} riskFlags={riskFlags} />
             ) : activeTab === "relationship" ? (
               <NextConversationRationale
                 selectedSignal={selectedSignal}
@@ -952,7 +951,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-1.5 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`

@@ -53,10 +53,17 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars, lifeEvents, transactions } = await req.json() as {
+    const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds } = await req.json() as {
       pillars: any[];
       lifeEvents?: { event_name?: string }[];
       transactions?: IncomingTxn[];
+      // Distinct risk-engine category labels detected on this customer
+      // (e.g. ["Sports Betting", "Casino & Table Games", "BNPL Activity"]).
+      riskCategoriesPresent?: string[];
+      // transaction_id values flagged by detect-risk-transactions. The persona LLM must NOT
+      // include any of these IDs in transaction_indices for any lifestyle rollup — those rows
+      // are owned by the Risk pill.
+      riskTransactionIds?: string[];
     };
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
@@ -67,6 +74,12 @@ serve(async (req) => {
 
     const detectedEventNames: string[] = Array.isArray(lifeEvents)
       ? lifeEvents.map((e: { event_name?: string }) => e?.event_name).filter((n): n is string => !!n)
+      : [];
+    const presentRiskCategories: string[] = Array.isArray(riskCategoriesPresent)
+      ? Array.from(new Set(riskCategoriesPresent.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
+      : [];
+    const flaggedTxIds: string[] = Array.isArray(riskTransactionIds)
+      ? Array.from(new Set(riskTransactionIds.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
       : [];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -123,11 +136,89 @@ When in doubt, skip the rollup. Life events take priority — every time.
 `
       : "";
 
+    // ---- Risk suppression: keep gambling, vice, BNPL, payday, collections, adult, offshore
+    // out of customer-facing lifestyle rollups. The risk engine owns these themes and surfaces
+    // them in its own dedicated Risk panel — so any overlap here would double-show transactions.
+    const riskSuppressionBlock = `
+
+**CRITICAL — RISK SIGNALS WIN OVER LIFESTYLE PILLS:**
+${presentRiskCategories.length > 0
+  ? `The following risk categories have already been detected for this customer and will be shown in a separate Risk panel: ${presentRiskCategories.map(n => `"${n}"`).join(", ")}.
+
+When a behavioral pattern thematically overlaps with one of these risk categories, **DROP the behavioral rollup entirely** — do NOT package vice/financial-distress activity as a customer-facing lifestyle habit. The Risk panel handles it; your job is to describe lifestyle.
+
+Examples of forbidden overlaps:
+- If "Sports Betting", "Casino & Table Games", "Gambling", or "High-Risk / Offshore Gambling" is present → do NOT produce "Sports Betting", "Casino", "Gambler", "Sportsbook", "High Roller", "Wagering", "Vegas Trips" (when the Vegas spend is gambling-driven), or any rollup that bundles those merchants.
+- If "BNPL Activity", "Payday Advance", or "Overdraft & NSF Activity" is present → do NOT produce "Smart Borrower", "Buy-Now-Pay-Later Shopper", "Cash Flow Manager", or similar money-management rollups built on those rows.
+- If "Adult Entertainment" is present → do NOT produce "Nightlife Regular" or any rollup built on those merchants.
+- If "Collections" is present → do NOT produce any debt-themed rollup; that's risk territory.
+- If "High-Risk / Offshore Gambling" or unusual cross-border wires are flagged → do NOT produce "Crypto Trader", "Global Money Mover", or similar rollup built on flagged rows.
+
+`
+  : ""
+}**PERMANENT VOCABULARY BAN (always enforced, even when no risk categories are listed above):**
+NEVER use any of these tokens in a pillar_rollup label: "Betting", "Sportsbook", "Casino", "Wager", "Wagering", "Gambler", "Gambling", "High Roller", "Cash Advance", "Payday", "BNPL", "Buy Now Pay Later", "Collections", "Adult", "Vice". These concepts belong exclusively to the Risk surface — restating them as a celebrated lifestyle habit creates conflicting tone and double-shows the same transactions.
+
+${flaggedTxIds.length > 0
+  ? `**FORBIDDEN TRANSACTION INDICES:** The transactions corresponding to these merchant IDs have been flagged by the risk engine: they are owned exclusively by the Risk panel. NEVER include any of these rows in transaction_indices for any pillar_rollup, regardless of how attractive a lifestyle theme might appear: ${flaggedTxIds.slice(0, 50).map(id => `"${id}"`).join(", ")}.
+
+When you build transaction_indices, you must check each candidate [T<n>] row against the merchant context — if its merchant is one of the flagged IDs above (the [T<n>] line will let you cross-reference by merchant name), exclude it.
+
+`
+  : ""
+}When in doubt, skip the rollup. Risk signals take priority — every time.
+`;
+
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
-Given aggregated spending signals, produce **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
+Given aggregated spending signals, produce TWO outputs:
+1. **detected_life_events** — major life-stage events (home purchase, college prep, wedding, baby, etc.) that the spending evidence supports.
+2. **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
 
-**Before you write any rollup, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.**
+**Life events are NOT lifestyle habits.** A home purchase is a one-time life event; "Casual Dining Regular" is a lifestyle habit. Promote qualifying clusters into life events FIRST, then build rollups from what's left.
+
+**Before you write anything, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.**
+
+---
+
+## LIFE EVENT PROMOTION (do this FIRST, before any rollup)
+
+For each canonical life event below, check whether the per-transaction list meets the minimum-evidence threshold. If it does, **you MUST emit it under detected_life_events** AND you MUST NOT emit a pillar_rollup on the same theme.
+
+**Canonical life events + thresholds:**
+
+- **"Home Purchase / Transition"** — 3+ transactions from any combination of: realtor, title company, escrow, home inspector, mortgage company, moving company, large home retailers in atypical volume (Crate & Barrel, West Elm, Pottery Barn, Restoration Hardware, IKEA, Williams Sonoma Home), Home Depot/Lowe's spike (>$500 single ticket or 3+ visits), first-time mortgage payment, HOA setup, utility transfers, appliance retailers (>$500).
+
+- **"College Preparation for Dependent"** — 2+ from: SAT/ACT/Kaplan/Princeton Review, college visitor parking, application portals (Common App, Coalition), university bursar/tuition deposit, AP exam fees, college tour airfare paired with university merchant. OR a single explicit university tuition/deposit transaction.
+
+- **"Wedding / Engagement"** — 2+ from: jeweler $2k+, wedding venue, bridal salon, wedding photographer, event caterer, registry retailers (Crate & Barrel registry, Williams Sonoma registry).
+
+- **"New Baby / Family Expansion"** — 2+ from: OB/midwife, baby specialty retailers (buybuy BABY, Babylist, Carter's), pediatrician, daycare, hospital L&D, baby furniture, infant formula in volume.
+
+- **"Business Formation"** — 2+ from: LLC/incorporation services (LegalZoom, Stripe Atlas, ZenBusiness), business banking setup, business insurance, commercial leasing, business software subscriptions in cluster.
+
+- **"Elder Care"** — 2+ from: assisted living facility, home health aide service, geriatric care manager, durable medical equipment, hospice services, senior community fees.
+
+- **"Retirement Planning"** — 2+ from: financial advisor consult fees, estate attorney, downsizing-related real estate activity, Medicare supplement insurance, retirement community deposits.
+
+- **"Relocation"** — 2+ from: long-distance movers, vehicle shipping, temporary housing/extended-stay hotels >7 nights, utility setup in new metro, storage unit rental.
+
+- **"Inheritance / Windfall"** — large one-time inflow indicators paired with: estate attorney, trust services, financial planner consult, sudden tax-advantaged account funding spike.
+
+**Rules:**
+- Use the EXACT canonical event_name strings above. Do not invent variants.
+- For each emitted life event, pick 2-4 of the strongest [T<n>] transactions as evidence. Each evidence item needs a 1-sentence "relevance" string explaining the direct causal link.
+- Confidence scoring: 2 rows = 65, 3 rows = 75, 4-5 rows = 85, 6+ rows = 92.
+- Talking points: 3 short, empathetic conversation starters an advisor could use.
+- transaction_indices = the same [T<n>] indices listed in evidence (used downstream to highlight rows).
+- **If a life event was already passed in via the input lifeEvents list, do NOT re-emit it.** That theme is already covered.
+- If a cluster qualifies for a life event, the related transactions belong in that event ONLY — they must NOT also appear in a pillar_rollup. Pull them out of rollup territory entirely.
+
+**Vocabulary ban for pillar_rollups (final defense):** NEVER use these words in a rollup label: "Phase", "Transition", "Prep", "Preparation", "Bound", "Expecting", "New Parent", "New Homeowner", "Empty Nest", "Aspiring Homeowner", "Nesting". Those describe life events — emit them as detected_life_events or omit them entirely.
+
+---
+
+## PILLAR ROLLUPS (do this AFTER life event promotion)
 
 **How to think about rollups:**
 
@@ -176,7 +267,30 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 
 - **For pillars NOT in the lifestyle-relevant transactions list** (Home & Living utilities, Financial Services, Technology subscriptions, Pets, Transportation, etc.), you don't need transaction_indices — just provide \`category_indices\` from the per-category summary. Use \`transaction_indices: []\` for those rollups.
 
-- Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
+- Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle. **A coherent individual identity is the only justification for a rollup. Timing patterns alone (weekend / evening / morning) and price-tier alone (premium / luxury / big-ticket) are not identities — they're descriptors. If no underlying identity holds the transactions together, drop the rollup.**
+
+- **THE IDENTITY TEST — RUN THIS BEFORE EMITTING ANY ROLLUP.** Every candidate rollup must pass BOTH questions below. If either fails, drop the rollup entirely.
+
+  **Q1 — Fill in the blank:** Complete this sentence using the rollup as the noun: *"This person is the kind of person who ___."*
+  - PASS examples: "...takes annual Hawaii trips", "...plays tennis every week", "...eats at casual spots constantly", "...buys premium athleisure", "...stocks up at warehouse clubs", "...keeps an organic-grocery routine".
+  - FAIL examples: "...shops on weekends", "...spends premium amounts", "...has runs of purchases", "...goes on outings", "...makes big-ticket buys".
+  - If the only honest completion describes *when* (weekend / evening / morning) or *how much* (premium / luxury / big-ticket) the spending happened — not *what activity or lifestyle* — there is no identity. Drop it.
+
+  **Q2 — Single activity / lifestyle:** Name in 1–3 words the ONE activity, hobby, lifestyle, or merchant category at the heart of this rollup.
+  - PASS examples: golf, coffee, Hawaii travel, fine dining, athleisure, organic groceries, skincare, ski trips, warehouse-club bulk shopping.
+  - FAIL examples: "shopping" (too generic), "spending" (not an activity), "outings" / "runs" (too generic), "lifestyle" (circular), "errands", "weekend stuff".
+  - If you can't name a concrete activity or lifestyle, the transactions don't actually share an identity. Drop the rollup.
+
+  **Worked failure example — DO NOT EMIT THIS:**
+  ❌ "Premium Weekend Shopping Runs" covering Whole Foods + Starbucks + Costco + Nordstrom + Lululemon.
+  - Q1: "...shops on weekends." → Everyone shops on weekends. No identity.
+  - Q2: Single activity? "Shopping." → Too generic; this lumps groceries, coffee, warehouse club, department store, and athleisure into one bucket.
+  - Cross-pillar red flag: the transactions span Food & Dining AND Style & Beauty — that alone is a structural sign there's no shared identity.
+  - Correct response: drop this rollup. If the athleisure repeats elsewhere, emit something like "Athleisure Wardrobe" instead. If the organic / specialty grocery repeats, emit "Organic Grocery Routine". Otherwise, emit nothing for these transactions.
+
+  **Cross-pillar guard:** If your candidate rollup pulls transactions from more than one pillar (e.g. groceries + clothing, or coffee + cosmetics), that's a structural sign there's no shared identity. Either split into separate per-pillar rollups (each of which must independently pass the Identity Test) or drop entirely.
+
+  Neutral words like "Weekend", "Premium", "Weekly" are NOT banned — they're fine when paired with a real activity ("Weekend Golfer", "Premium Hawaii Vacations", "Weekly Coffee Runs"). They are forbidden only when they ARE the theme.
 
 - **THEMATIC UNIQUENESS — ONE ROLLUP PER THEME:** Each rollup must cover a *distinct* behavioral theme. NEVER emit two rollups that describe the same underlying life pattern under different names. Forbidden duplicate pairs include (but are not limited to):
   - "Aspiring Homeowner" + "New Home Transition" / "Home Buyer" / "Nesting Phase"
@@ -188,7 +302,7 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
 
 - Always include the exact category names combined and the [N] row indices from the per-category input. For lifestyle-prone pillars also include the [T<n>] transaction_indices from the per-transaction list.
 
-- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}`;
+- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
 
     const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}`;
 
@@ -239,10 +353,65 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
                       required: ["pillar", "label", "categories", "category_indices", "transaction_indices"],
                       additionalProperties: false,
                     },
-                    description: "Per-pillar rollup labels. Each rollup MUST describe a distinct behavioral theme — never emit two rollups on the same underlying life pattern (merge them into one). If a theme is already covered by a detected life event, OMIT the behavioral rollup entirely — life events take priority. Return empty array if no coherent groupings exist.",
+                    description: "Per-pillar rollup labels. Each rollup MUST describe a distinct behavioral theme — never emit two rollups on the same underlying life pattern (merge them into one). If a theme is already covered by a detected life event (either passed in via input lifeEvents OR emitted in detected_life_events below), OMIT the behavioral rollup entirely — life events take priority. Return empty array if no coherent groupings exist.",
+                  },
+                  detected_life_events: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        event_name: {
+                          type: "string",
+                          enum: [
+                            "Home Purchase / Transition",
+                            "College Preparation for Dependent",
+                            "Wedding / Engagement",
+                            "New Baby / Family Expansion",
+                            "Business Formation",
+                            "Elder Care",
+                            "Retirement Planning",
+                            "Relocation",
+                            "Inheritance / Windfall",
+                          ],
+                          description: "Canonical life event name — MUST match one of the enum values exactly.",
+                        },
+                        confidence: {
+                          type: "number",
+                          description: "0-100. Use 65 (2 rows), 75 (3 rows), 85 (4-5 rows), 92 (6+ rows).",
+                        },
+                        evidence: {
+                          type: "array",
+                          items: {
+                            type: "object",
+                            properties: {
+                              merchant: { type: "string" },
+                              amount: { type: "number" },
+                              date: { type: "string" },
+                              relevance: { type: "string", description: "1 sentence explaining the direct causal link to the event." },
+                            },
+                            required: ["merchant", "amount", "date", "relevance"],
+                            additionalProperties: false,
+                          },
+                          description: "2-4 strongest evidence transactions.",
+                        },
+                        talking_points: {
+                          type: "array",
+                          items: { type: "string" },
+                          description: "3 short empathetic advisor conversation starters.",
+                        },
+                        transaction_indices: {
+                          type: "array",
+                          items: { type: "number" },
+                          description: "The [T<n>] indices of the evidence transactions, for downstream highlighting.",
+                        },
+                      },
+                      required: ["event_name", "confidence", "evidence", "talking_points", "transaction_indices"],
+                      additionalProperties: false,
+                    },
+                    description: "Major life-stage events the spending evidence supports. Only emit when the canonical threshold is met. Do NOT re-emit any event that was passed in via the input lifeEvents list. Return empty array if nothing qualifies.",
                   },
                 },
-                required: ["pillar_rollups"],
+                required: ["pillar_rollups", "detected_life_events"],
                 additionalProperties: false,
               },
             },
@@ -290,6 +459,13 @@ Given aggregated spending signals, produce **pillar_rollups** — vivid behavior
         categories: r.categories || [],
         category_indices: r.category_indices || [],
         transaction_indices: r.transaction_indices || [],
+      })),
+      detected_life_events: (raw.detected_life_events || []).map((e: any) => ({
+        event_name: e.event_name,
+        confidence: typeof e.confidence === "number" ? e.confidence : 70,
+        evidence: Array.isArray(e.evidence) ? e.evidence : [],
+        talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+        transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
       })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

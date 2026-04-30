@@ -32,6 +32,7 @@ import NextOfferPage from "./pages/solutions/NextOfferPage";
 import NextProductPage from "./pages/solutions/NextProductPage";
 import NextConversationPage from "./pages/solutions/NextConversationPage";
 import PortfolioIntelligencePage from "./pages/solutions/PortfolioIntelligencePage";
+import Pricing from "./pages/Pricing";
 
 const queryClient = new QueryClient();
 
@@ -39,8 +40,9 @@ const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
   const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
+  const isPricing = location.pathname === "/pricing";
 
-  const showChrome = !isTepilot && !isDemo;
+  const showChrome = !isTepilot && !isDemo && !isPricing;
 
   const routes = (
     <Routes>
@@ -61,6 +63,7 @@ const AppLayout = () => {
       <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
       <Route path="/demo" element={<ExecDemoPage />} />
       <Route path="/deckmo" element={<DemoPage />} />
+      <Route path="/pricing" element={<Pricing />} />
       <Route path="/solutions/offer-intelligence" element={<NextOfferPage />} />
       <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
       <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />

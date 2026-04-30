@@ -218,43 +218,52 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 };
 
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
+txn_h15,SUNBUM REEF SAFE SPF,Reef-safe sunscreen pre-trip,5912,64.00,2024-06-20,94102,Cashback Card
+txn_h16,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23,94102,Premium Card
+txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
+txn_004,SF TENNIS CLUB,"Annual membership dues",,350.00,2024-11-25,,Checks
+txn_007,PACIFIC HEIGHTS APT,,,2800.00,2024-12-10,,ACH
+txn_009,MARIA G,"Dogsitting",,150.00,2024-12-18,,Zelle
+txn_052,DOWN PAYMENT TRANSFER,"Home down payment",,85000.00,2026-04-10,,Wire
+txn_h18,KOA KEA HOTEL KAUAI,Poipu beachfront 5 nights,7011,2290.00,2024-07-03,96756,Premium Card
+txn_h19,BUDGET RENT-A-CAR LIH,Jeep rental Lihue airport,7512,578.00,2024-07-03,96766,Premium Card
+txn_h20,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2024-07-05,96714,Cashback Card
+txn_h21,BEACH HOUSE RESTAURANT KAUAI,Sunset oceanfront dinner,5812,228.00,2024-07-06,96756,Premium Card
+txn_h22,LUAU KALAMAKU KAUAI,Traditional luau for two,5812,358.00,2024-07-07,96766,Premium Card
 txn_001,WHOLE FOODS MARKET,Weekly grocery run,5411,162.45,2024-11-03,94102,Cashback Card
-txn_002,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-11-08,94102,Cashback Card
 txn_056,EPIC PASS VAIL RESORTS,Annual ski season pass,7941,1089.00,2024-10-28,81657,Premium Card
+txn_002,CHEWY.COM,Monthly dog food delivery,5995,67.89,2024-11-08,94102,Cashback Card
 txn_003,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2024-11-23,81657,Premium Card
-txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2024-11-25,94102,Checks
 txn_057,CHRISTY SPORTS DENVER,Ski jacket and pants,5941,685.00,2024-11-15,80202,Premium Card
 txn_005,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2024-12-02,94102,Cashback Card
 txn_006,PETCO,Dog food and treats,5995,43.20,2024-12-05,94103,Cashback Card
 txn_058,EVO.COM,All-mountain skis with bindings,5941,1249.00,2024-12-09,98101,Premium Card
-txn_007,PACIFIC HEIGHTS APT,Monthly rent payment,,2800.00,2024-12-10,94102,ACH
 txn_008,PALISADES TAHOE Ski LODGE,Ski weekend lodge stay,7011,485.00,2024-12-14,96146,Premium Card
-txn_009,MARIA G,Dogsitting,,150.00,2024-12-18,94102,Zelle
 txn_010,TARGET STORES,Holiday gifts and groceries,5411,214.56,2024-12-22,94103,Cashback Card
 txn_011,DRAFTKINGS SPORTSBOOK,Sportsbook deposit,7995,250.00,2025-01-04,,Premium Card
 txn_012,COSTCO WHOLESALE,Bulk household shopping,5411,198.76,2025-01-11,94102,Cashback Card
 txn_013,PALISADES TAHOE LIFT,New Year ski day,7941,169.00,2025-01-18,96146,Premium Card
 txn_014,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-01-25,94102,Cashback Card
 txn_015,UBER TRIP,Ride to downtown,4121,23.50,2025-02-07,94102,Cashback Card
-txn_016,COLLEGEBOARD SAT,SAT registration fee,,68.00,2025-02-15,,Checks
+txn_016,COLLEGEBOARD SAT,"SAT registration fee",,68.00,2025-02-15,,Checks
 txn_017,PETCO,Pet grooming supplies,5995,38.50,2025-02-22,94103,Cashback Card
 txn_018,SPOTIFY PREMIUM,Music subscription,4899,10.99,2025-03-01,,Cashback Card
 txn_019,EARNIN ACTIVEHOURS,Early wage access advance,6051,100.00,2025-03-05,,Cashback Card
-txn_020,KAPLAN TEST PREP,SAT prep course,,1299.00,2025-03-08,94102,Checks
-txn_021,INTL PAYMENT PROC 8742,International digital service,7801,175.00,2025-03-15,,Premium Card
+txn_020,KAPLAN TEST PREP,"SAT prep course",,1299.00,2025-03-08,,Checks
+
 txn_022,CHEWY.COM,Monthly dog food delivery,5995,71.50,2025-03-22,94102,Cashback Card
 txn_023,PETCO,Flea and tick prevention,5995,45.99,2025-04-05,94103,Cashback Card
-txn_024,SF TENNIS CLUB,Spring membership renewal,,350.00,2025-04-10,94102,Checks
+txn_024,SF TENNIS CLUB,"Spring membership renewal",,350.00,2025-04-10,,Checks
 txn_025,WILSON SPORTING GOODS,Tennis racket purchase,5941,229.00,2025-04-15,94102,Premium Card
 txn_026,BELLAGIO CASINO LV,Casino floor charge,7995,480.00,2025-04-19,89109,Premium Card
 txn_027,CVS PHARMACY,Prescription refill,5912,28.50,2025-04-22,94102,Cashback Card
 txn_028,STANFORD VISITOR PARKING,College campus tour,7523,25.00,2025-05-03,94305,Cashback Card
 txn_029,NORDSTROM,Spring clothing,5651,178.90,2025-05-10,94102,Premium Card
-txn_030,VETERINARY CLINIC,Annual wellness exam,,185.00,2025-05-18,94103,Checks
+txn_030,VETERINARY CLINIC,"Annual wellness exam",,185.00,2025-05-18,,Checks
 txn_031,WESTERN UNION*MTO 8821,Money transfer fee,4829,400.00,2025-05-28,,Cashback Card
 txn_032,SF TENNIS CLUB,Court rental fee,7941,45.00,2025-06-07,94102,Cashback Card
 txn_033,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-06-14,94102,Cashback Card
-txn_034,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG,4511,892.00,2025-07-01,94102,Premium Card
+txn_034,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG (advance booking),4511,892.00,2025-04-01,94102,Premium Card
 txn_035,GRAND WAILEA RESORT,Maui resort 5 nights,7011,2450.00,2025-07-02,96753,Premium Card
 txn_036,BOSS FROG SNORKEL TOUR,Molokini snorkel excursion,7999,189.00,2025-07-04,96753,Cashback Card
 txn_037,MAMA'S FISH HOUSE MAUI,Beachside dinner,5812,215.00,2025-07-05,96779,Premium Card
@@ -264,20 +273,19 @@ txn_040,LULULEMON,Tennis skirt and top,5655,134.00,2025-08-18,94102,Premium Card
 txn_041,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback Card
 txn_042,STAKE.COM*PROC LV,Online wager processor,6051,185.00,2025-09-13,,Premium Card
 txn_043,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback Card
-txn_044,ADMISSIONS CONSULTING GRP,College admissions package,,2500.00,2025-10-05,94102,Checks
+txn_044,ADMISSIONS CONSULTING GRP,"College admissions package",,2500.00,2025-10-05,,Checks
 txn_059,EPIC PASS VAIL RESORTS,Annual ski season pass renewal,7941,1149.00,2025-10-12,81657,Premium Card
 txn_045,PETCO,Dog treats and toys,5995,42.00,2025-10-18,94103,Cashback Card
-txn_046,PORTFOLIO RECOVERY ASSOC,Past-due account payment,6012,325.00,2025-10-25,,Checks
+txn_046,PORTFOLIO RECOVERY ASSOC,"Past-due account payment",6012,325.00,2025-10-25,,Checks
 txn_060,BACKCOUNTRY.COM,Ski helmet and goggles,5941,389.00,2025-11-20,84097,Premium Card
-txn_047,ZILLOW MORTGAGE APP FEE,Mortgage application,,500.00,2026-01-10,94102,Checks
+txn_047,ZILLOW MORTGAGE APP FEE,"Mortgage application",,500.00,2026-01-10,,Checks
 txn_048,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium Card
 txn_061,REI CO-OP SF,Ski boots and base layers,5941,725.00,2026-01-22,94102,Premium Card
 txn_049,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback Card
-txn_050,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,94102,Checks
-txn_051,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,94102,Checks
-txn_052,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,94102,Wire
-txn_053,JANE DOE,Kitchen remodel deposit,,5000.00,2026-05-01,94102,Zelle
-txn_054,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA,4511,948.00,2026-07-05,94102,Premium Card
+txn_050,BAY AREA HOME INSPECT,"Pre-purchase inspection",,650.00,2026-03-15,,Checks
+txn_051,FIRST AMERICAN TITLE,"Title and escrow fees",,1850.00,2026-04-02,,Checks
+txn_053,JANE DOE,"Kitchen remodel deposit",,5000.00,2026-05-01,,Zelle
+txn_054,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA (advance booking),4511,948.00,2026-04-05,94102,Premium Card
 txn_055,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
 `;
 
@@ -360,6 +368,22 @@ txn_s072,LULULEMON ATHLETICA,Workout jacket,5655,148.00,2025-10-12,,Premium Card
 txn_s073,PICNIK AUSTIN,Breakfast and coffee,5814,16.90,2025-10-17,,Cashback Card
 txn_s074,ATHLETA,Yoga pants and bra,5655,134.50,2025-10-22,,Premium Card
 txn_s075,WHOLE FOODS MARKET,Final weekly groceries,5411,145.23,2025-10-27,78701,Cashback Card
+txn_s100,PELOTON ALL ACCESS,"Monthly all-access membership",,44.00,2024-12-12,,ACH
+txn_s101,PELOTON ALL ACCESS,"Monthly all-access membership",,44.00,2025-01-12,,ACH
+txn_s102,PELOTON ALL ACCESS,"Monthly all-access membership",,44.00,2025-02-12,,ACH
+txn_s103,MINDBODY YOGA APP,Studio class subscription,4899,19.00,2025-01-08,,Cashback Card
+txn_s104,MINDBODY YOGA APP,Studio class subscription,4899,19.00,2025-02-08,,Cashback Card
+txn_s110,AUSTIN MORTGAGE BROKERS,"Mortgage application fee",,450.00,2025-03-12,,Checks
+txn_s111,AUSTIN HOME INSPECT LLC,"Pre-purchase inspection",,575.00,2025-04-18,,Checks
+txn_s112,STEWART TITLE OF TEXAS,"Title and escrow fees",,1650.00,2025-05-09,,Checks
+txn_s113,DOWN PAYMENT TRANSFER,"Home down payment",,62000.00,2025-05-22,,Wire
+txn_s120,BABYLIST REGISTRY,Baby registry essentials,5641,89.00,2025-04-10,78701,Cashback Card
+txn_s121,CORD BLOOD REGISTRY,"Cord blood banking enrollment",,1495.00,2025-05-15,,Checks
+txn_s122,DOULA SUPPORT AUSTIN,"Doula deposit",,1200.00,2025-06-02,,Zelle
+txn_s130,DRAFTKINGS SPORTSBOOK,Sportsbook deposit,7995,200.00,2025-02-28,,Premium Card
+txn_s131,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-03-16,,Cashback Card
+txn_s132,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-04-16,,Cashback Card
+txn_s140,JAMES K,"Personal trainer",,400.00,2025-06-20,,Zelle
 `;
 
 export const SAMPLE_CSV_FOOD_HOME = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
@@ -400,7 +424,7 @@ txn_h034,BP,Gas station,5541,48.70,2025-04-10,60614,Cashback Card
 txn_h035,HOMEGOODS,Bathroom accessories,5714,89.50,2025-04-15,60614,Cashback Card
 txn_h036,MARIANO'S,Weekly grocery run,5411,187.34,2025-04-19,60614,Cashback Card
 txn_h037,PEOPLES GAS,Gas utility bill,4900,89.45,2025-04-23,60614,Checking
-txn_h076,GUARANTEED RATE MORTGAGE,Mortgage application fee,6163,500.00,2025-04-25,60601,Checking
+txn_h076,GUARANTEED RATE MORTGAGE,"Mortgage refi application fee",,500.00,2025-04-25,,Checks
 txn_h038,PANERA BREAD,Breakfast and coffee,5814,13.60,2025-04-27,60614,Cashback Card
 txn_h039,BEST BUY,Kitchen appliances,5722,567.89,2025-05-06,60614,Checking
 txn_h040,UBER EATS,Dinner delivery,5814,42.30,2025-05-11,60614,Cashback Card
@@ -417,7 +441,7 @@ txn_h050,CB2,Modern furniture pieces,5712,389.00,2025-06-27,60614,Premium Card
 txn_h051,MARIANO'S,Weekly groceries,5411,167.89,2025-07-02,60614,Cashback Card
 txn_h052,DOORDASH,Lunch delivery,5814,32.75,2025-07-05,60614,Cashback Card
 txn_h053,SPOTIFY,Premium subscription,4899,10.99,2025-07-09,,Cashback Card
-txn_h077,CHICAGO HOME INSPECTIONS,Home inspection service,7389,450.00,2025-07-12,60614,Checking
+txn_h077,CHICAGO HOME INSPECTIONS,"Home inspection service",,450.00,2025-07-12,,Checks
 txn_h054,LOWE'S,Outdoor patio furniture,5211,678.90,2025-07-13,60657,Checking
 txn_h055,PORTILLOS,Quick dinner,5814,24.50,2025-07-17,60614,Cashback Card
 txn_h056,TRADER JOES,Specialty groceries,5411,102.34,2025-07-21,60614,Cashback Card
@@ -436,11 +460,31 @@ txn_h068,STARBUCKS COFFEE,Coffee and pastry,5814,9.45,2025-09-23,60614,Cashback 
 txn_h069,MARIANO'S,Weekly grocery shopping,5411,189.56,2025-09-27,60614,Cashback Card
 txn_h070,GRUBHUB,Dinner delivery,5814,51.30,2025-10-06,60614,Cashback Card
 txn_h071,WALGREENS,Pharmacy and sundries,5912,28.90,2025-10-10,60614,HSA
-txn_h078,CHICAGO TITLE COMPANY,Title search and escrow,6411,1200.00,2025-10-12,60601,Checking
+txn_h078,CHICAGO TITLE COMPANY,"Title search and escrow",,1200.00,2025-10-12,,Checks
 txn_h072,AMC THEATRES,Movie night,7832,42.00,2025-10-15,60610,Cashback Card
 txn_h073,MUSIC BOX THEATRE,Indie film tickets,7832,28.00,2025-10-19,60614,Cashback Card
 txn_h074,WHOLE FOODS MARKET,Final weekly groceries,5411,167.34,2025-10-23,60614,Cashback Card
 txn_h075,ETSY,Handmade home décor,5969,78.25,2025-10-27,,Cashback Card
+txn_h200,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,145.00,2025-03-08,,ACH
+txn_h201,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,148.00,2025-04-12,,ACH
+txn_h202,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,142.00,2025-05-10,,ACH
+txn_h203,PEAPOD GROCERY DELIVERY,"Weekly grocery delivery",,151.00,2025-06-07,,ACH
+txn_h204,MUSIC TOGETHER CHICAGO,"Kids music class tuition",,185.00,2025-03-04,,ACH
+txn_h205,MUSIC TOGETHER CHICAGO,"Kids music class tuition",,185.00,2025-04-04,,ACH
+txn_h206,MUSIC TOGETHER CHICAGO,"Kids music class tuition",,185.00,2025-05-04,,ACH
+txn_h210,SUNRISE SENIOR LIVING,"Tour and reservation deposit",,250.00,2025-06-14,,Checks
+txn_h211,AARP MEDICARE SUPPLEMENT,"Medicare supplement application",,189.00,2025-07-08,,Checks
+txn_h212,IN HOME CARE CHICAGO,"Caregiver weekly",,850.00,2025-08-09,,Zelle
+txn_h213,IN HOME CARE CHICAGO,"Caregiver weekly",,850.00,2025-09-13,,Zelle
+txn_h214,WALGREENS DURABLE MED,Mobility equipment for parent,5047,445.00,2025-09-24,60614,HSA
+txn_h220,NORTHWESTERN TRUST CONSULT,"Trust planning consultation",,1200.00,2025-09-18,,Checks
+txn_h221,ESTATE ATTORNEY RETAINER,"Estate attorney retainer",,7500.00,2025-10-03,,Wire
+txn_h222,FIDELITY CHARITABLE GIFT,"Donor advised fund contribution",,5000.00,2025-10-22,,ACH
+txn_h230,PORTFOLIO RECOVERY ASSOC,"Past-due account payment",,415.00,2025-05-29,,Checks
+txn_h231,KLARNA*WAYFAIR,BNPL installment Wayfair,6051,112.00,2025-06-12,,Cashback Card
+txn_h232,KLARNA*WAYFAIR,BNPL installment Wayfair,6051,112.00,2025-07-12,,Cashback Card
+txn_h233,KLARNA*WAYFAIR,BNPL installment Wayfair,6051,112.00,2025-08-12,,Cashback Card
+txn_h240,MARGARET S,"Mom's grocery help",,300.00,2025-08-02,,Zelle
 `;
 
 export const SOURCE_COLORS: Record<string, string> = {
@@ -694,6 +738,27 @@ txn_sf197,WHOLE FOODS MARKET,Organic groceries,5411,234.67,2025-10-27,94102,Cash
 txn_sf198,AMAZON.COM,Halloween costumes,5999,102.50,2025-10-25,,Cashback Card
 txn_sf199,SAFEWAY,Final October groceries,5411,189.45,2025-10-30,94102,Cashback Card
 txn_sf205,KELLER WILLIAMS REALTY,Home valuation consultation,6531,0.00,2025-11-16,94102,Checking
+txn_sf300,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-03-05,,ACH
+txn_sf301,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-04-05,,ACH
+txn_sf302,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-05-05,,ACH
+txn_sf303,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-06-05,,ACH
+txn_sf304,WSJ DIGITAL,Wall Street Journal subscription,4899,39.00,2025-04-02,,Cashback Card
+txn_sf305,WSJ DIGITAL,Wall Street Journal subscription,4899,39.00,2025-05-02,,Cashback Card
+txn_sf310,COLLEGE BOARD SAT,"SAT registration fee",,68.00,2025-02-15,,Checks
+txn_sf311,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-08,,Zelle
+txn_sf312,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-15,,Zelle
+txn_sf313,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-22,,Zelle
+txn_sf314,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-29,,Zelle
+txn_sf315,COMMON APP FEES,"College application fees",,385.00,2025-09-12,,Checks
+txn_sf316,UNITED AIRLINES,College tour flights East Coast,4511,1840.00,2025-09-20,94102,Travel Card
+txn_sf320,SCHWAB ROLLOVER FEE,"401k rollover processing fee",,250.00,2025-04-18,,Checks
+txn_sf321,FIDELITY ANNUITY DEPOSIT,"Fixed annuity initial deposit",,50000.00,2025-08-14,,Wire
+txn_sf322,MEDICARE PART B SETUP,"Medicare Part B premium setup",,186.00,2025-09-05,,Checks
+txn_sf330,MORRISON & FOERSTER LLP,"Estate planning retainer",,12500.00,2025-07-22,,Wire
+txn_sf331,GIFT TO DAUGHTER,"Annual family gift",,15000.00,2025-12-18,,Zelle
+txn_sf340,BELLAGIO CASINO LV,Casino floor charge,7995,750.00,2025-05-11,89109,Premium Card
+txn_sf341,STAKE.COM*PROC LV,Online wager processor,6051,320.00,2025-06-17,,Premium Card
+txn_sf342,WESTERN UNION*MTO 8821,Money transfer outbound,4829,600.00,2025-08-25,,Cashback Card
 `;
 
 export const SAMPLE_CSV_NYC_SPORTS_HOME_12 = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
@@ -938,6 +1003,34 @@ txn_ny233,WHOLE FOODS UNION SQ,Final October groceries,5411,134.56,2025-10-27,10
 txn_ny234,SOULCYCLE FLATIRON,Class pack,7997,175.00,2025-10-28,10010,Premium Card
 txn_ny235,AMAZON.COM,Home office supplies,5999,98.70,2025-10-29,,Cashback Card
 txn_ny241,FIDELITY TRUST SERVICES,Trust account setup fee,6211,250.00,2025-11-14,,Checking
+txn_ny300,SOULCYCLE UNLIMITED,Monthly unlimited rides,7997,215.00,2025-04-03,10003,Cashback Card
+txn_ny301,SOULCYCLE UNLIMITED,Monthly unlimited rides,7997,215.00,2025-05-03,10003,Cashback Card
+txn_ny302,SOULCYCLE UNLIMITED,Monthly unlimited rides,7997,215.00,2025-06-03,10003,Cashback Card
+txn_ny303,NEW YORK TIMES DIGITAL,Digital news subscription,4899,25.00,2025-04-09,,Cashback Card
+txn_ny304,NEW YORK TIMES DIGITAL,Digital news subscription,4899,25.00,2025-05-09,,Cashback Card
+txn_ny305,NEW YORK TIMES DIGITAL,Digital news subscription,4899,25.00,2025-06-09,,Cashback Card
+txn_ny310,VANGUARD 529 PLAN,"529 college savings contribution",,5000.00,2025-07-15,,ACH
+txn_ny311,VANGUARD 529 PLAN,"529 college savings contribution",,5000.00,2025-10-15,,ACH
+txn_ny312,DALTON SCHOOL TOUR FEE,"Private school tour fee",,150.00,2025-09-08,,Checks
+txn_ny313,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-09-12,,Zelle
+txn_ny314,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-09-19,,Zelle
+txn_ny315,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-09-26,,Zelle
+txn_ny316,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-10-03,,Zelle
+txn_ny320,WHARTON EMBA APPLICATION,"Wharton EMBA application fee",,275.00,2025-06-22,,Checks
+txn_ny321,GMAT VOUCHER,"GMAT exam registration",,275.00,2025-07-09,,Checks
+txn_ny322,KORN FERRY RETAINER,"Executive recruiter retainer",,5000.00,2025-08-19,,Wire
+txn_ny323,LINKEDIN LEARNING,Online courses subscription,4899,39.00,2025-08-02,,Cashback Card
+txn_ny324,LINKEDIN LEARNING,Online courses subscription,4899,39.00,2025-09-02,,Cashback Card
+txn_ny330,DRAFTKINGS NJ,Sportsbook deposit,7995,400.00,2025-05-18,,Premium Card
+txn_ny331,ROBINHOOD CRYPTO,Crypto purchase,6051,1200.00,2025-07-04,,Cashback Card
+txn_ny332,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-06-14,,Cashback Card
+txn_ny333,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-07-14,,Cashback Card
+txn_ny334,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-08-14,,Cashback Card
+txn_ny340,NANNY M,"Nanny weekly",,650.00,2025-09-05,,Zelle
+txn_ny341,NANNY M,"Nanny weekly",,650.00,2025-09-12,,Zelle
+txn_ny342,NANNY M,"Nanny weekly",,650.00,2025-09-19,,Zelle
+txn_ny343,NANNY M,"Nanny weekly",,650.00,2025-09-26,,Zelle
+txn_ny344,GIFT TO PARENTS,"Annual family gift",,18000.00,2025-12-15,,Wire
 `;
 
 export const SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12 = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
@@ -1189,6 +1282,31 @@ txn_ch240,TRADER JOES,Final October shopping,5411,87.45,2025-10-27,60610,Cashbac
 txn_ch241,LULULEMON CHICAGO,Winter workout preview,5655,178.00,2025-10-28,60610,Premium Card
 txn_ch242,TENNIS LESSONS,Private coaching,7999,120.00,2025-10-29,60610,Checking
 txn_ch248,SIDLEY AUSTIN LLP,Legal services,8111,1200.00,2025-11-22,60603,Checking
+txn_ch300,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-03-04,,ACH
+txn_ch301,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-04-04,,ACH
+txn_ch302,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-05-04,,ACH
+txn_ch303,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-06-04,,ACH
+txn_ch304,BARRONS SUBSCRIPTION,Investing weekly subscription,4899,52.00,2025-04-08,,Cashback Card
+txn_ch305,BARRONS SUBSCRIPTION,Investing weekly subscription,4899,52.00,2025-05-08,,Cashback Card
+txn_ch306,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-04-12,,Zelle
+txn_ch307,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-04-19,,Zelle
+txn_ch308,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-04-26,,Zelle
+txn_ch309,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-05-03,,Zelle
+txn_ch310,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-05-10,,Zelle
+txn_ch311,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-05-17,,Zelle
+txn_ch320,SCHWAB IRA MAX CONTRIB,"IRA max annual contribution",,7000.00,2025-04-14,,Wire
+txn_ch321,AARP ENROLLMENT,"AARP membership enrollment",,16.00,2025-05-22,,Checks
+txn_ch322,VANGUARD ROLLOVER FEE,"401k rollover processing fee",,250.00,2025-06-30,,Checks
+txn_ch330,SIDLEY AUSTIN TRUST,"Dynasty trust formation retainer",,25000.00,2025-08-12,,Wire
+txn_ch331,CHICAGO COMMUNITY TRUST,"Donor advised fund contribution",,50000.00,2025-09-09,,ACH
+txn_ch332,GIFT TO GRANDCHILD 529,"Annual 529 gift contribution",,17000.00,2025-10-20,,ACH
+txn_ch340,BELLAGIO CASINO LV,Casino floor charge,7995,1200.00,2025-06-21,89109,Premium Card
+txn_ch341,BET365 EU PROC,Offshore wager processor,6051,400.00,2025-07-18,,Premium Card
+txn_ch342,KRAKEN CRYPTO BUY,Crypto exchange purchase,6051,5000.00,2025-08-26,,Cashback Card
+txn_ch350,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-04-05,,Zelle
+txn_ch351,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-04-19,,Zelle
+txn_ch352,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-05-03,,Zelle
+txn_ch353,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-05-17,,Zelle
 `;
 
 export const MCC_DESCRIPTIONS: Record<string, string> = {

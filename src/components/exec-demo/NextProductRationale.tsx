@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, Fragment } from "react";
 import useEmblaCarousel from "embla-carousel-react";
 import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
@@ -49,6 +49,50 @@ interface Props {
   productActions?: CardActions[] | null;
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
+  riskFlags?: { flags: any[]; summary: string } | null;
+}
+
+/** Compute the first risk rollup pill (mirrors logic in ExecDemoIntelPanel) */
+function getFirstRiskRollup(riskFlags?: { flags: any[]; summary: string } | null): { label: string; severity: "low" | "medium" | "high"; count: number } | null {
+  if (!riskFlags || !riskFlags.flags || riskFlags.flags.length === 0) return null;
+  const SEV_RANK: Record<string, number> = { low: 1, medium: 2, high: 3 };
+  const groupKeyFor = (f: any): { key: string; label: string } => {
+    const grp = String(f.category_group || f.category || "").toLowerCase();
+    const lbl = String(f.category_label || "").toLowerCase();
+    if (grp === "vice" && lbl.includes("adult")) return { key: "adult", label: "Adult Entertainment" };
+    if (grp === "vice") return { key: "gambling", label: "Gambling" };
+    if (grp === "financial_distress") return { key: "financial_vulnerability", label: "Financial Vulnerability" };
+    if (grp === "suspicious_international") return { key: "suspicious_international", label: "Suspicious International" };
+    if (grp === "aml") return { key: "aml", label: "AML" };
+    const raw = f.category_label || f.category_group || f.category || "Risk";
+    return { key: String(raw).toLowerCase(), label: String(raw) };
+  };
+  type R = { key: string; label: string; severity: "low" | "medium" | "high"; txIds: Set<string> };
+  const map = new Map<string, R>();
+  const seen = new Set<string>();
+  riskFlags.flags.forEach((f: any) => {
+    const { key, label } = groupKeyFor(f);
+    const txId = f.transaction_id || `pattern::${key}`;
+    const dedupeKey = `${txId}::${key}`;
+    if (seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
+    let r = map.get(key);
+    if (!r) { r = { key, label, severity: "low", txIds: new Set() }; map.set(key, r); }
+    const sev = (f.severity || "low") as "low" | "medium" | "high";
+    if ((SEV_RANK[sev] || 1) > (SEV_RANK[r.severity] || 1)) r.severity = sev;
+    r.txIds.add(txId);
+  });
+  const ORDER = ["gambling", "financial_vulnerability", "adult", "suspicious_international", "aml"];
+  const sorted = Array.from(map.values()).sort((a, b) => {
+    const ai = ORDER.indexOf(a.key); const bi = ORDER.indexOf(b.key);
+    if (ai === -1 && bi === -1) return a.label.localeCompare(b.label);
+    if (ai === -1) return 1;
+    if (bi === -1) return -1;
+    return ai - bi;
+  });
+  const first = sorted[0];
+  if (!first) return null;
+  return { label: first.label, severity: first.severity, count: first.txIds.size };
 }
 
 /* ─── Current holdings pill row ─── */
@@ -493,7 +537,7 @@ function ProductCardBody({
         animation: `exec-product-reveal 0.4s ease-out ${index * 0.05}s both`,
       }}
     >
-      <div className="px-4 py-3.5 space-y-3 flex flex-col flex-1">
+      <div className="px-3 py-3 space-y-3 flex flex-col flex-1">
         {/* Product name + quote */}
         <div>
           <div className="flex items-center gap-1.5 mb-1.5">
@@ -697,7 +741,7 @@ function GroupSlideshow({
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -722,7 +766,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   );
 
   if (productCards && productCards.length > 0) {
-    // Resolve all cards, then pick exactly 2 — prefer one life-event + one behavioral
+    // Resolve all cards and show up to 3 — interleave life-event, behavioral, then any extras (e.g. risk)
     const resolvedAll = productCards.map((card, origIdx) =>
       resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
     );
@@ -732,40 +776,61 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
     const pickedCards: ResolvedCard[] = [];
     if (lifeEventResolved[0]) pickedCards.push(lifeEventResolved[0]);
     if (behavioralResolved[0]) pickedCards.push(behavioralResolved[0]);
-    // Fill from whichever group has remaining if we have <2
-    if (pickedCards.length < 2) {
-      const remaining = resolvedAll.filter(r => !pickedCards.includes(r));
-      if (remaining[0]) pickedCards.push(remaining[0]);
+    // Fill remaining slots up to 3 from any leftover cards (third is typically the risk card)
+    for (const r of resolvedAll) {
+      if (pickedCards.length >= 3) break;
+      if (!pickedCards.includes(r)) pickedCards.push(r);
     }
 
+    const RISK_THEMES = new Set(["risk", "account_care", "wellness_finance", "hardship", "support"]);
+    const labelFor = (resolved: ResolvedCard, idx: number): string => {
+      const theme = (resolved.card.theme || "").toLowerCase();
+      if (RISK_THEMES.has(theme)) return "Account Care";
+      if (idx >= 2) return "Additional Tools";
+      return resolved.isBehavioral ? "Shopping Habit" : "Life Event";
+    };
+
+    const firstRisk = getFirstRiskRollup(riskFlags);
+    const RISK_RED = { dot: "#ef4444", text: "#991b1b" };
+
     const renderColumn = (resolved: ResolvedCard, idx: number) => {
-      const isActive = activeTriggerLabel === resolved.resolvedLabel;
+      const useRiskPill = idx >= 2 && firstRisk;
+      const pillLabel = useRiskPill ? firstRisk!.label : resolved.resolvedLabel;
+      const pillColor = useRiskPill ? RISK_RED : { dot: resolved.color.dot, text: resolved.color.text };
+      const isActive = !useRiskPill && activeTriggerLabel === resolved.resolvedLabel;
+      const clickable = !useRiskPill && resolved.isClickable;
       return (
         <div className="flex-1 min-w-0 flex flex-col gap-2.5">
           <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-            {resolved.isBehavioral ? "Shopping Habit" : "Life Event"}
+            {labelFor(resolved, idx)}
           </div>
           <div
-            className={`self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${resolved.isClickable ? "cursor-pointer" : ""}`}
+            className={`self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full ${clickable ? "cursor-pointer" : ""}`}
             style={{
-              background: `linear-gradient(135deg, ${resolved.color.dot}10, ${resolved.color.dot}20)`,
-              color: resolved.color.text,
-              border: isActive ? `2px solid ${resolved.color.dot}` : `1.5px solid ${resolved.color.dot}80`,
-              boxShadow: isActive ? `0 0 14px ${resolved.color.dot}30` : `0 2px 8px ${resolved.color.dot}15`,
+              background: `linear-gradient(135deg, ${pillColor.dot}10, ${pillColor.dot}20)`,
+              color: pillColor.text,
+              border: isActive ? `2px solid ${pillColor.dot}` : `1.5px solid ${pillColor.dot}80`,
+              boxShadow: isActive ? `0 0 14px ${pillColor.dot}30` : `0 2px 8px ${pillColor.dot}15`,
               transition: "all 0.2s ease",
             }}
             onClick={() => {
-              if (resolved.isClickable && onTriggerPillClick) {
+              if (clickable && onTriggerPillClick) {
                 onTriggerPillClick(resolved.resolvedLabel, resolved.matchedIndices, resolved.color.dot, resolved.matchedKind);
               }
             }}
           >
-            <span style={{ color: resolved.color.dot }}>✦</span>
-            {resolved.resolvedLabel}
-            {resolved.resolvedCount > 0 && (
+            <span style={{ color: pillColor.dot }}>✦</span>
+            {pillLabel}
+            {useRiskPill ? (
               <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
-                {resolved.resolvedCount} txns · {formatSpend(resolved.resolvedSpend)}
+                {firstRisk!.count} txns · {firstRisk!.severity}
               </span>
+            ) : (
+              resolved.resolvedCount > 0 && (
+                <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
+                  {resolved.resolvedCount} txns · {formatSpend(resolved.resolvedSpend)}
+                </span>
+              )
             )}
           </div>
           <div className="flex-1 flex">
@@ -788,13 +853,14 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Two products side-by-side with vertical divider */}
-        <div className="flex items-stretch gap-4">
-          {pickedCards[0] && renderColumn(pickedCards[0], 0)}
-          {pickedCards.length === 2 && (
-            <div className="w-px bg-slate-200 self-stretch shrink-0" />
-          )}
-          {pickedCards[1] && renderColumn(pickedCards[1], 1)}
+        {/* Up to 3 products side-by-side with vertical dividers */}
+        <div className="flex items-stretch gap-3">
+          {pickedCards.map((c, i) => (
+            <Fragment key={i}>
+              {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
+              {renderColumn(c, i)}
+            </Fragment>
+          ))}
         </div>
 
         <style>{`

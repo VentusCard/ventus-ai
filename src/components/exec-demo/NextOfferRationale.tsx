@@ -21,6 +21,8 @@ export interface RollupOfferGroup {
   deals: GeneratedOffer[];
   collectionMessage?: string;
   suppressedCategories?: string[];
+  imageCategory?: string;
+  imageQuery?: string;
 }
 
 interface Props {
@@ -65,7 +67,7 @@ function RollupCard({ group, index, colorOverride, kindOverride }: { group: Roll
       {/* Card header */}
       <div className="px-4 pt-3 pb-2">
         <div className="font-bold text-base text-slate-900 mb-2">
-          Behavioral Based Deal Collection
+          Dynamic Collection:{group.collectionMessage ? ` ${group.collectionMessage}` : ""}
         </div>
         <div className="flex items-center gap-1.5 flex-wrap">
         {typeLabel && (

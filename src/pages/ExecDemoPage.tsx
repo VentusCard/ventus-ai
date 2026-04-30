@@ -108,6 +108,9 @@ export default function ExecDemoPage() {
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
   const firePersonaSynthesisRef = useRef<(txs: EnrichedTransaction[]) => void>(() => {});
   const detectLifeEventsOnlyRef = useRef<() => Promise<LifeEvent[]>>(async () => []);
+  const fireRiskDetectionRef = useRef<() => Promise<void>>(async () => {});
+  /** Promise resolved once risk detection finishes (success or failure) for the current CSV. */
+  const riskReadyRef = useRef<Promise<void> | null>(null);
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
   const offersInFlightRef = useRef<boolean>(false);
 
@@ -129,6 +132,13 @@ export default function ExecDemoPage() {
 
     const payload = csvToClassifyPayload(csv);
     if (payload.length === 0) return;
+
+    // Kick off risk detection in PARALLEL with classification.
+    // detect-risk-transactions runs against the raw CSV (no dependency on classification),
+    // so persona synthesis can later await this promise to suppress overlapping lifestyle pills.
+    riskReadyRef.current = fireRiskDetectionRef.current().catch((e) => {
+      console.warn("[PRELOAD] Risk detection promise rejected:", e);
+    });
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
@@ -250,6 +260,31 @@ export default function ExecDemoPage() {
       console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
     }
 
+    // Await risk detection (started in parallel from fireClassification) so we can pass
+    // risk categories + flagged transaction IDs into synthesize-persona for vice/gambling
+    // theme suppression. Bound to 6s so a slow risk call never blocks the demo.
+    if (riskReadyRef.current) {
+      try {
+        await Promise.race([
+          riskReadyRef.current,
+          new Promise<void>((resolve) => setTimeout(resolve, 6000)),
+        ]);
+      } catch { /* swallow — defensive UI filter still applies */ }
+    }
+    const riskFlagsForPersona = riskFlagsRef.current?.flags || [];
+    const riskCategoriesPresent = Array.from(new Set(
+      riskFlagsForPersona
+        .map((f: any) => String(f.category_label || f.category_group || "").trim())
+        .filter((s: string) => s.length > 0)
+    ));
+    const riskTransactionIds = Array.from(new Set(
+      riskFlagsForPersona
+        .map((f: any) => String(f.transaction_id || "").trim())
+        .filter((s: string) => s.length > 0)
+    ));
+    const riskTxIdSet = new Set(riskTransactionIds);
+    console.log(`[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`);
+
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
         body: {
@@ -267,6 +302,8 @@ export default function ExecDemoPage() {
             spending_tier: t.spending_tier,
           })),
           lifeEvents: detectedEvents.map(e => ({ event_name: e.event_name })),
+          riskCategoriesPresent,
+          riskTransactionIds,
         },
       });
       if (error) throw error;
@@ -303,6 +340,15 @@ export default function ExecDemoPage() {
           } else {
             for (const gi of matchedGroupIndices) {
               for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
+            }
+          }
+          // RISK GUARD: any transaction owned by a risk flag (gambling, BNPL, payday, collections,
+          // adult, offshore, etc.) is the exclusive property of the Risk pill — never let it appear
+          // inside a lifestyle rollup, no matter what the LLM said.
+          if (riskTxIdSet.size > 0) {
+            for (const ti of Array.from(txIndicesSet)) {
+              const txId = (enrichedTxs[ti] as any)?.transaction_id;
+              if (txId && riskTxIdSet.has(txId)) txIndicesSet.delete(ti);
             }
           }
           const txIndices = Array.from(txIndicesSet);
@@ -381,6 +427,21 @@ export default function ExecDemoPage() {
             }
           }
 
+          // Rule 4: Reject rollups whose label uses risk-domain vocabulary. Those concepts
+          // belong exclusively to the Risk surface — never restate them as a customer-facing lifestyle.
+          const riskVocab = /betting|sportsbook|casino|wager|gambl|payday|bnpl|cash advance|adult|vice|high roller/i;
+          if (riskVocab.test(r.label)) {
+            console.warn(`[ROLLUP-REJECT] "${r.label}" — uses risk-domain vocabulary; coordinate via Risk pill`);
+            return false;
+          }
+
+          // Rule 5: After the risk-id guard above stripped risk-owned txns, the rollup may
+          // have collapsed below the meaningful-evidence threshold. Drop it.
+          if (r.totalCount < 2) {
+            console.log(`[ROLLUP-REJECT] "${r.label}" — fewer than 2 transactions after risk filtering`);
+            return false;
+          }
+
           return true;
         })
         .map(({ _resolvedCategories, ...rest }: any) => rest),
@@ -388,10 +449,57 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
-      // Fire life event detection (will reuse the events already detected pre-synthesis,
-      // so it just hydrates UI state and triggers downstream cards/offers), risk in parallel.
-      fireLifeEventDetection(synthesis, pillars, detectedEvents);
-      fireRiskDetection();
+
+      // --- Merge life events: upstream (analyze-lifestyle-signals) + promoted (synthesize-persona) ---
+      // synthesize-persona now also returns detected_life_events when canonical thresholds are met,
+      // so themes like "Home Purchase / Transition" surface even if upstream detection missed them.
+      const promotedRaw = Array.isArray(data?.detected_life_events) ? data.detected_life_events : [];
+      const normalizeName = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+      const themeKey = (s: string) => {
+        const n = normalizeName(s);
+        if (/\b(home|house|mortgage|nesting|relocation|moving)\b/.test(n)) return "home";
+        if (/\b(college|university|tuition|education|sat|act|kaplan)\b/.test(n)) return "college";
+        if (/\b(wedding|engagement|bridal)\b/.test(n)) return "wedding";
+        if (/\b(baby|infant|pregnan|expecting|family expansion|new parent)\b/.test(n)) return "baby";
+        if (/\b(business|llc|incorporation|startup formation)\b/.test(n)) return "business";
+        if (/\b(elder|senior|hospice|assisted living)\b/.test(n)) return "elder";
+        if (/\b(retire|retirement|empty nest)\b/.test(n)) return "retirement";
+        if (/\b(inherit|windfall|estate)\b/.test(n)) return "windfall";
+        return n;
+      };
+      const upstreamThemes = new Set(detectedEvents.map(e => themeKey(e.event_name || "")));
+      const promotedEvents: LifeEvent[] = promotedRaw
+        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)))
+        .map((e: any) => {
+          // Hydrate evidence from transaction_indices when the model gave indices but thin evidence.
+          const txIdx: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
+          const hydratedEvidence = (e.evidence && e.evidence.length > 0)
+            ? e.evidence
+            : txIdx.slice(0, 4).map((ti: number) => {
+                const t: any = enrichedTxs[ti];
+                if (!t) return null;
+                return {
+                  merchant: t.normalized_merchant || t.merchant_name || "Unknown",
+                  amount: typeof t.amount === "number" ? t.amount : 0,
+                  date: t.date || "",
+                  relevance: `Cluster evidence for ${e.event_name}`,
+                };
+              }).filter(Boolean);
+          return {
+            event_name: e.event_name,
+            confidence: typeof e.confidence === "number" ? e.confidence : 70,
+            evidence: hydratedEvidence,
+            talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+          } as LifeEvent;
+        });
+      if (promotedEvents.length > 0) {
+        console.log("[PRELOAD] Promoted life events from persona:", promotedEvents.map(e => e.event_name));
+      }
+      const mergedEvents: LifeEvent[] = [...detectedEvents, ...promotedEvents];
+
+      // Fire life event detection with the merged set (will reuse — no extra API call).
+      // Risk detection was already kicked off from fireClassification and awaited above.
+      fireLifeEventDetection(synthesis, pillars, mergedEvents);
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
@@ -665,6 +773,7 @@ export default function ExecDemoPage() {
   }, [selectedIdx]);
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
+  fireRiskDetectionRef.current = fireRiskDetection;
 
   const schedule = useCallback((fn: () => void, ms: number) => {
     timeoutsRef.current.push(setTimeout(fn, ms));
@@ -932,7 +1041,7 @@ export default function ExecDemoPage() {
 
       {/* Main content — 3 columns with animated collapse */}
       {(() => {
-        const isNextTab = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
+        const isNextTab = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
         const phoneVisible = isNextTab;
         const showEnrichmentFullScreen =
           phase === "hold" && !activeTab;
@@ -1037,7 +1146,7 @@ export default function ExecDemoPage() {
 
         {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
         {(() => {
-          const phoneVisible = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
+          const phoneVisible = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
           const expandedW = 360;
           const collapsedW = 40;
           const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
@@ -1083,8 +1192,8 @@ export default function ExecDemoPage() {
                     generatedOffers={generatedOffers}
                     detectedLifeEvents={detectedLifeEvents}
                     productCards={productCards}
-                    activeRollupLabel={activeRollup?.label || null}
-                    activeRollupPillar={activeRollup?.pillar || null}
+                    activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
+                    activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
                     enrichedTxs={classifiedRef.current}
                     riskFlags={riskFlags}
                     aiTabTrigger={aiTabTrigger}

@@ -55,38 +55,50 @@ const MERCHANT_LOOKUP: Record<string, string> = {
   "deal-199":"Firestone","deal-200":"Discount Tire",
 };
 
-const COLLECTION_IMAGES: { keywords: string[]; url: string }[] = [
-  { keywords: ["travel", "flight", "airline", "airport", "luggage", "vacation"], url: "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=200&fit=crop" },
-  { keywords: ["coffee", "cafe", "latte", "espresso"], url: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=200&fit=crop" },
-  { keywords: ["dining", "restaurant", "food", "culinary", "brunch"], url: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=200&fit=crop" },
-  { keywords: ["fitness", "gym", "workout", "exercise", "athletic"], url: "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=400&h=200&fit=crop" },
-  { keywords: ["outdoor", "hiking", "adventure", "nature", "camping"], url: "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=400&h=200&fit=crop" },
-  { keywords: ["tech", "gadget", "electronic", "device", "digital"], url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop" },
-  { keywords: ["fashion", "clothing", "style", "apparel", "luxury"], url: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=200&fit=crop" },
-  { keywords: ["wellness", "spa", "health", "meditation", "yoga"], url: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=200&fit=crop" },
-  { keywords: ["pet", "dog", "cat", "animal"], url: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=200&fit=crop" },
-  { keywords: ["home", "furniture", "decor", "interior"], url: "https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=400&h=200&fit=crop" },
-  { keywords: ["grocery", "organic", "market", "fresh"], url: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=200&fit=crop" },
-  { keywords: ["entertainment", "music", "streaming", "concert"], url: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop" },
-  { keywords: ["auto", "car", "vehicle", "driving"], url: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=200&fit=crop" },
-  { keywords: ["beauty", "skincare", "cosmetic", "makeup"], url: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=200&fit=crop" },
-  { keywords: ["education", "learning", "book", "study"], url: "https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=200&fit=crop" },
-  { keywords: ["wine", "beer", "cocktail", "drink", "bar"], url: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=200&fit=crop" },
-  { keywords: ["golf", "sport", "tennis", "running"], url: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=400&h=200&fit=crop" },
-  { keywords: ["garden", "plant", "flower", "nursery"], url: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=200&fit=crop" },
-  { keywords: ["subscription", "box", "delivery", "streaming"], url: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=200&fit=crop" },
-  { keywords: ["invest", "finance", "wealth", "saving"], url: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=200&fit=crop" },
-];
+// Curated image bank — keys must match the imageCategory enum returned by generate-next-offers.
+// LLM picks the closest category from the rollup label; we hand-pick a vetted Unsplash photo per key.
+const COLLECTION_IMAGE_BANK: Record<string, string> = {
+  ski: "https://images.unsplash.com/photo-1551524559-8af4e6624178?w=400&h=200&fit=crop",
+  beach: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=400&h=200&fit=crop",
+  tennis: "https://images.unsplash.com/photo-1542144582-1ba00456b5e3?w=400&h=200&fit=crop",
+  golf: "https://images.unsplash.com/photo-1535131749006-b7f58c99034b?w=400&h=200&fit=crop",
+  cycling: "https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&h=200&fit=crop",
+  running: "https://images.unsplash.com/photo-1486218119243-13883505764c?w=400&h=200&fit=crop",
+  yoga: "https://images.unsplash.com/photo-1545205597-3d9d02c29597?w=400&h=200&fit=crop",
+  hiking: "https://images.unsplash.com/photo-1501555088652-021faa106b9b?w=400&h=200&fit=crop",
+  camping: "https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?w=400&h=200&fit=crop",
+  boating: "https://images.unsplash.com/photo-1502209524164-acea936639a2?w=400&h=200&fit=crop",
+  wine: "https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=400&h=200&fit=crop",
+  coffee: "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=400&h=200&fit=crop",
+  dining: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=400&h=200&fit=crop",
+  wedding: "https://images.unsplash.com/photo-1519225421980-715cb0215aed?w=400&h=200&fit=crop",
+  baby: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&h=200&fit=crop",
+  kids: "https://images.unsplash.com/photo-1503919545889-aef636e10ad4?w=400&h=200&fit=crop",
+  pet: "https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=400&h=200&fit=crop",
+  fashion: "https://images.unsplash.com/photo-1483985988355-763728e1935b?w=400&h=200&fit=crop",
+  beauty: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=400&h=200&fit=crop",
+  wellness: "https://images.unsplash.com/photo-1544161515-4ab6ce6db874?w=400&h=200&fit=crop",
+  tech: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=400&h=200&fit=crop",
+  home: "https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=400&h=200&fit=crop",
+  garden: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=400&h=200&fit=crop",
+  auto: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?w=400&h=200&fit=crop",
+  "travel-urban": "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=400&h=200&fit=crop",
+  "travel-generic": "https://images.unsplash.com/photo-1436491865332-7a61a109cc05?w=400&h=200&fit=crop",
+  finance: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=400&h=200&fit=crop",
+  entertainment: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=400&h=200&fit=crop",
+  grocery: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=200&fit=crop",
+};
 
 const DEFAULT_IMAGE = "https://images.unsplash.com/photo-1557683316-973673baf926?w=400&h=200&fit=crop";
 
-function getCollectionImage(rollup: string, pillar?: string): string {
-  const theme = (rollup + " " + (pillar || "")).toLowerCase();
-  const buster = `&t=${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-  for (const entry of COLLECTION_IMAGES) {
-    if (entry.keywords.some(k => theme.includes(k))) return entry.url + buster;
+function getCollectionImage(group: { imageCategory?: string; imageQuery?: string } | null | undefined): string {
+  if (!group) return DEFAULT_IMAGE;
+  const cat = (group.imageCategory || "").toLowerCase().trim();
+  if (cat && cat !== "other" && COLLECTION_IMAGE_BANK[cat]) return COLLECTION_IMAGE_BANK[cat];
+  if (group.imageQuery && group.imageQuery.trim()) {
+    return `https://source.unsplash.com/400x200/?${encodeURIComponent(group.imageQuery.trim())}`;
   }
-  return DEFAULT_IMAGE + buster;
+  return DEFAULT_IMAGE;
 }
 
 interface Props {
@@ -207,7 +219,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   // ── Deal Detail View ──
   if (expandedGroup) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
-    const imgSrc = getCollectionImage(expandedGroup.rollup, expandedGroup.pillar);
+    const imgSrc = getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
 
     return (
@@ -274,7 +286,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   const safeIdx = current % Math.max(groups.length, 1);
   const active = groups[safeIdx];
   const activeDeals = active ? active.deals.filter(d => d.signal !== "suppress") : [];
-  const imgSrc = active ? getCollectionImage(active.rollup, active.pillar) : DEFAULT_IMAGE;
+  const imgSrc = active ? getCollectionImage(active) : DEFAULT_IMAGE;
 
   return (
     <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
