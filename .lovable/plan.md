@@ -1,27 +1,32 @@
 ## Goal
-Make the recommended product card taller and visually prominent with a **light theme-tinted gradient covering the entire card** (not a dark gradient hero header).
+Show all 3 generated products in the Next-Product section, not just 2.
+
+## Context
+The `generate-product-cards` edge function returns up to 3 cards (1 life-event + 1 behavioral + optional 1 risk). The Next-Product UI currently caps display at 2.
 
 ## Changes
 
-**`src/components/exec-demo/ProductCardsPhoneView.tsx`**
+**`src/components/exec-demo/NextProductRationale.tsx`**
 
-1. Extend `THEME_STYLES` with a `gradient` field — a soft, light, three-stop diagonal gradient per theme (e.g. travel: `#eff6ff → #dbeafe → #e0f2fe`; dining: cream → light amber; fitness: pale mint, etc.). All stops in the 50–100 Tailwind weight range so text stays readable in slate/dark.
+1. In the `productCards && productCards.length > 0` branch (line ~724):
+   - Update the picker to select up to 3 cards: first life-event, first behavioral, then any remaining (e.g. risk) until 3.
+   - Update the layout from a 2-column flex with single divider to a 3-column flex with dividers between each filled column.
+   - Update the labels: keep "Life Event" / "Shopping Habit"; add "Account Care" (or similar) for the 3rd slot when it's a risk-themed card. Detect via `pickedCards[2]` being neither the life-event nor behavioral first picks — label it based on its theme/origin (use "Account Care" for risk-themed, otherwise "Additional Offer").
 
-2. Update the card container (around line 134):
-   - Replace `bg-white` with `style.gradient` as inline `background`.
-   - Keep the thin top accent border (`borderTop: 3px solid style.accent`) for theme cue.
-   - Bump shadow from `shadow-sm` to `shadow-md`, slightly larger rounded corners.
-   - Add a subtle white inner panel only behind the CTA region is NOT needed — text already reads on the light tint.
+2. Adjust the columns container around line 792:
+   ```tsx
+   <div className="flex items-stretch gap-3">
+     {pickedCards.map((c, i) => (
+       <Fragment key={i}>
+         {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
+         {renderColumn(c, i)}
+       </Fragment>
+     ))}
+   </div>
+   ```
 
-3. Make the card taller in compact mode:
-   - Add `min-h-[260px]` to the inner card div (currently ~200px).
-   - Increase compact inner padding from `p-2.5` to `p-3.5`.
-   - Bump `product_name` from `text-[12px]` to `text-[13px]` and add a small theme icon chip next to it for prominence.
-
-4. CTA button: keep flat `style.accent` background (high contrast against the light tinted card).
-
-No changes to `RelationshipPhoneView.tsx` — it already passes `compact`.
+3. Tighten `renderColumn` slightly (gap `gap-3` → `gap-2` already set, reduce horizontal padding inside `ProductCardBody` from `px-4` to `px-3`) so 3 columns fit comfortably in the available width without text getting cramped.
 
 ## Notes
-- Strict light theme respected: gradients use only very light pastel tones; all text remains slate-600/800.
-- Non-compact branch inherits the same styling automatically.
+- Keep light theme + existing color/border styling.
+- No changes to the edge function or other tabs (Next-Conversation / Next-Offer remain unchanged).
