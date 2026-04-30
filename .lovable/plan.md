@@ -1,21 +1,36 @@
 ## Goal
 
-Slightly enlarge the Behavioral Intelligence section header labels and slightly increase the pill height so the row reads with a bit more presence — without disrupting layout balance.
+Redesign the 12-pillar color palette so each pillar is visually distinct and **no pillar uses red** (red is reserved for Risk pills). Today, Healthcare is red, Entertainment leans pink-red, and Pets / Pets & Care / Style & Beauty all share the same pink — creating confusion.
+
+## New palette
+
+| Pillar (AI + MCC alias) | Hue | Dot hex |
+|---|---|---|
+| Travel & Exploration / Travel & Transport | Blue | `#3b82f6` |
+| Food & Dining | Amber | `#f59e0b` |
+| Health & Wellness / Wellness & Fitness | Emerald | `#10b981` |
+| Sports & Active Living / Sports & Active | Green | `#22c55e` |
+| Shopping | Violet | `#8b5cf6` |
+| Entertainment & Culture / Entertainment | Fuchsia | `#d946ef` |
+| Home & Living | Teal | `#14b8a6` |
+| Family & Community / Education & Family | Indigo | `#6366f1` |
+| Healthcare | Cyan (was red) | `#06b6d4` |
+| Technology & Digital Life / Technology | Deep sky | `#0284c7` |
+| Pets / Pets & Care | Pink | `#ec4899` |
+| Style & Beauty | Lime (was pink) | `#84cc16` |
+| Financial & Aspirational / Financial Planning | Yellow | `#eab308` |
+| Miscellaneous | Slate | `#94a3b8` |
+
+Key disambiguations:
+- Healthcare moves off red → **cyan**.
+- Style & Beauty moves off pink (was identical to Pets) → **lime**.
+- Travel vs Technology now use clearly different blue values (mid blue vs deep sky).
+- Health & Wellness (emerald) vs Sports & Active (green) — kept both green-family but distinct values.
 
 ## Changes
 
-**File:** `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+**File:** `src/components/exec-demo/ExecDemoIntelPanel.tsx`, lines 84–111 (`PILLAR_COLORS` map):
 
-1. **Header labels** (lines 676, 680, 684 — Spending Habits / Life Event Detection / Risk Factors):
-   - Font size: `text-[12px]` → `text-[13px]`
-   - Reserved label width: `w-[170px]` → `w-[180px]` (to accommodate the slightly larger text without wrapping)
+Update each pillar entry's `bg` (rgba @ .12), `border` (rgba @ .35), `text` (deep tone for accessibility), and `dot` (the bright accent) to the new palette above. Keep both the MCC fallback names and the AI classifier names in sync (mirror entries so identical pillars resolve to the same color regardless of source).
 
-2. **Pill height** — increase vertical padding from `py-1.5` to `py-2` on all pill spans in the expanded Behavioral Intelligence row:
-   - Life event pill (line 493)
-   - Risk rollup pill (line 616)
-   - "No Risk Factors Detected" fallback pill (line 649)
-   - Lifestyle rollup chip definitions (lines 911 and 946 — `PillarRollupChip` internal styles)
-
-   Text size stays `text-[12px]` so only the chip silhouette grows a hair.
-
-No other changes (colors, animations, behavior, ordering, content all unchanged).
+No other files change. No structural/logic change — only the color values inside `PILLAR_COLORS`.

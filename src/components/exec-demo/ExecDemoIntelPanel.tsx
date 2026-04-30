@@ -81,32 +81,33 @@ const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
 
 const TAB_ORDER: TabKey[] = ["analytics", "product", "relationship"];
 
-// Color palette per pillar
+// Color palette per pillar — 12 distinct hues, NO red (reserved for risk pills).
+// Each pillar gets a unique color family so adjacent pills are easy to distinguish.
 const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
   // MCC fallback names
-  "Travel & Transport": { bg: "rgba(96,165,250,.12)", border: "rgba(96,165,250,.35)", text: "#1e40af", dot: "#60a5fa" },
-  "Food & Dining": { bg: "rgba(251,191,36,.12)", border: "rgba(251,191,36,.35)", text: "#92400e", dot: "#fbbf24" },
-  "Wellness & Fitness": { bg: "rgba(52,211,153,.12)", border: "rgba(52,211,153,.35)", text: "#065f46", dot: "#34d399" },
-  "Shopping": { bg: "rgba(167,139,250,.12)", border: "rgba(167,139,250,.35)", text: "#5b21b6", dot: "#a78bfa" },
-  "Entertainment": { bg: "rgba(251,113,133,.12)", border: "rgba(251,113,133,.35)", text: "#9f1239", dot: "#fb7185" },
-  "Home & Living": { bg: "rgba(45,212,191,.12)", border: "rgba(45,212,191,.35)", text: "#115e59", dot: "#2dd4bf" },
-  "Education & Family": { bg: "rgba(129,140,248,.12)", border: "rgba(129,140,248,.35)", text: "#3730a3", dot: "#818cf8" },
-  "Healthcare": { bg: "rgba(248,113,113,.12)", border: "rgba(248,113,113,.35)", text: "#991b1b", dot: "#f87171" },
-  "Technology": { bg: "rgba(56,189,248,.12)", border: "rgba(56,189,248,.35)", text: "#0c4a6e", dot: "#38bdf8" },
-  "Pets & Care": { bg: "rgba(244,114,182,.12)", border: "rgba(244,114,182,.35)", text: "#9d174d", dot: "#f472b6" },
-  "Financial Planning": { bg: "rgba(250,204,21,.12)", border: "rgba(250,204,21,.35)", text: "#854d0e", dot: "#facc15" },
-  "Sports & Active": { bg: "rgba(74,222,128,.12)", border: "rgba(74,222,128,.35)", text: "#166534", dot: "#4ade80" },
-  "Miscellaneous": { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" },
-  // AI classifier pillar names
-  "Sports & Active Living": { bg: "rgba(74,222,128,.12)", border: "rgba(74,222,128,.35)", text: "#166534", dot: "#4ade80" },
-  "Health & Wellness": { bg: "rgba(52,211,153,.12)", border: "rgba(52,211,153,.35)", text: "#065f46", dot: "#34d399" },
-  "Travel & Exploration": { bg: "rgba(96,165,250,.12)", border: "rgba(96,165,250,.35)", text: "#1e40af", dot: "#60a5fa" },
-  "Style & Beauty": { bg: "rgba(244,114,182,.12)", border: "rgba(244,114,182,.35)", text: "#9d174d", dot: "#f472b6" },
-  "Pets": { bg: "rgba(244,114,182,.12)", border: "rgba(244,114,182,.35)", text: "#9d174d", dot: "#f472b6" },
-  "Entertainment & Culture": { bg: "rgba(251,113,133,.12)", border: "rgba(251,113,133,.35)", text: "#9f1239", dot: "#fb7185" },
-  "Technology & Digital Life": { bg: "rgba(56,189,248,.12)", border: "rgba(56,189,248,.35)", text: "#0c4a6e", dot: "#38bdf8" },
-  "Family & Community": { bg: "rgba(129,140,248,.12)", border: "rgba(129,140,248,.35)", text: "#3730a3", dot: "#818cf8" },
-  "Financial & Aspirational": { bg: "rgba(250,204,21,.12)", border: "rgba(250,204,21,.35)", text: "#854d0e", dot: "#facc15" },
+  "Travel & Transport":     { bg: "rgba(59,130,246,.12)",  border: "rgba(59,130,246,.35)",  text: "#1e40af", dot: "#3b82f6" }, // blue
+  "Food & Dining":          { bg: "rgba(245,158,11,.12)",  border: "rgba(245,158,11,.35)",  text: "#92400e", dot: "#f59e0b" }, // amber
+  "Wellness & Fitness":     { bg: "rgba(16,185,129,.12)",  border: "rgba(16,185,129,.35)",  text: "#065f46", dot: "#10b981" }, // emerald
+  "Shopping":               { bg: "rgba(139,92,246,.12)",  border: "rgba(139,92,246,.35)",  text: "#5b21b6", dot: "#8b5cf6" }, // violet
+  "Entertainment":          { bg: "rgba(217,70,239,.12)",  border: "rgba(217,70,239,.35)",  text: "#86198f", dot: "#d946ef" }, // fuchsia
+  "Home & Living":          { bg: "rgba(20,184,166,.12)",  border: "rgba(20,184,166,.35)",  text: "#115e59", dot: "#14b8a6" }, // teal
+  "Education & Family":     { bg: "rgba(99,102,241,.12)",  border: "rgba(99,102,241,.35)",  text: "#3730a3", dot: "#6366f1" }, // indigo
+  "Healthcare":             { bg: "rgba(6,182,212,.12)",   border: "rgba(6,182,212,.35)",   text: "#155e75", dot: "#06b6d4" }, // cyan (was red)
+  "Technology":             { bg: "rgba(2,132,199,.12)",   border: "rgba(2,132,199,.35)",   text: "#0c4a6e", dot: "#0284c7" }, // deep sky
+  "Pets & Care":            { bg: "rgba(236,72,153,.12)",  border: "rgba(236,72,153,.35)",  text: "#9d174d", dot: "#ec4899" }, // pink
+  "Financial Planning":     { bg: "rgba(234,179,8,.12)",   border: "rgba(234,179,8,.35)",   text: "#854d0e", dot: "#eab308" }, // yellow
+  "Sports & Active":        { bg: "rgba(34,197,94,.12)",   border: "rgba(34,197,94,.35)",   text: "#166534", dot: "#22c55e" }, // green
+  "Miscellaneous":          { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" }, // slate
+  // AI classifier pillar names (mirror MCC mappings)
+  "Travel & Exploration":       { bg: "rgba(59,130,246,.12)",  border: "rgba(59,130,246,.35)",  text: "#1e40af", dot: "#3b82f6" },
+  "Health & Wellness":          { bg: "rgba(16,185,129,.12)",  border: "rgba(16,185,129,.35)",  text: "#065f46", dot: "#10b981" },
+  "Sports & Active Living":     { bg: "rgba(34,197,94,.12)",   border: "rgba(34,197,94,.35)",   text: "#166534", dot: "#22c55e" },
+  "Style & Beauty":             { bg: "rgba(132,204,22,.12)",  border: "rgba(132,204,22,.35)",  text: "#3f6212", dot: "#84cc16" }, // lime — distinct from pets
+  "Pets":                       { bg: "rgba(236,72,153,.12)",  border: "rgba(236,72,153,.35)",  text: "#9d174d", dot: "#ec4899" },
+  "Entertainment & Culture":    { bg: "rgba(217,70,239,.12)",  border: "rgba(217,70,239,.35)",  text: "#86198f", dot: "#d946ef" },
+  "Technology & Digital Life":  { bg: "rgba(2,132,199,.12)",   border: "rgba(2,132,199,.35)",   text: "#0c4a6e", dot: "#0284c7" },
+  "Family & Community":         { bg: "rgba(99,102,241,.12)",  border: "rgba(99,102,241,.35)",  text: "#3730a3", dot: "#6366f1" },
+  "Financial & Aspirational":   { bg: "rgba(234,179,8,.12)",   border: "rgba(234,179,8,.35)",   text: "#854d0e", dot: "#eab308" },
   "Miscellaneous & Unclassified": { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" },
 };
 
