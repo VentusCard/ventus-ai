@@ -6,7 +6,18 @@ import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
-import { SourceTag } from "./SourceTag";
+
+const SOURCE_COLORS: Record<string, string> = {
+  "Checking": "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-rose-50 text-rose-700",
+  "Checks": "bg-orange-50 text-orange-700",
+  "ACH": "bg-slate-100 text-slate-600",
+  "Wire": "bg-red-50 text-red-700",
+  "Zelle": "bg-purple-50 text-purple-700",
+  "HSA": "bg-amber-50 text-amber-700",
+};
 
 interface RawRow {
   transaction_id: string;
@@ -224,7 +235,9 @@ export default function ExecDemoSelectionDialog({
                     return (
                       <tr key={i} className="border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
                         <td className="px-2 py-1.5">
-                          <SourceTag source={row.source} size="sm" />
+                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                            {row.source || "—"}
+                          </span>
                         </td>
                         <td className="px-2 py-1.5 text-slate-400 font-mono text-[11px]">{row.transaction_id || i + 1}</td>
                         <td className="px-2 py-1.5 text-[12px] text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
