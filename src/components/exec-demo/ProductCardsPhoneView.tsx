@@ -14,19 +14,19 @@ export interface ProductCard {
   cta_sub?: string;
 }
 
-const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane }> = {
-  travel: { accent: "#3b82f6", text: "#1e3a5f", icon: Plane },
-  dining: { accent: "#f59e0b", text: "#92400e", icon: Utensils },
-  fitness: { accent: "#10b981", text: "#065f46", icon: Dumbbell },
-  shopping: { accent: "#ec4899", text: "#9d174d", icon: ShoppingBag },
-  entertainment: { accent: "#8b5cf6", text: "#4c1d95", icon: Music },
-  home: { accent: "#10b981", text: "#065f46", icon: Home },
-  education: { accent: "#6366f1", text: "#3730a3", icon: GraduationCap },
-  retirement: { accent: "#f59e0b", text: "#92400e", icon: TrendingUp },
-  family: { accent: "#f472b6", text: "#9d174d", icon: Heart },
-  business: { accent: "#0ea5e9", text: "#0c4a6e", icon: Briefcase },
-  wellness: { accent: "#14b8a6", text: "#115e59", icon: Leaf },
-  lifestyle: { accent: "#64748b", text: "#334155", icon: Star },
+const THEME_STYLES: Record<string, { accent: string; text: string; icon: typeof Plane; gradient: string }> = {
+  travel: { accent: "#3b82f6", text: "#1e3a5f", icon: Plane, gradient: "linear-gradient(135deg, #eff6ff 0%, #dbeafe 50%, #e0f2fe 100%)" },
+  dining: { accent: "#f59e0b", text: "#92400e", icon: Utensils, gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fff7ed 100%)" },
+  fitness: { accent: "#10b981", text: "#065f46", icon: Dumbbell, gradient: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdfa 100%)" },
+  shopping: { accent: "#ec4899", text: "#9d174d", icon: ShoppingBag, gradient: "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fff1f2 100%)" },
+  entertainment: { accent: "#8b5cf6", text: "#4c1d95", icon: Music, gradient: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 50%, #faf5ff 100%)" },
+  home: { accent: "#10b981", text: "#065f46", icon: Home, gradient: "linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdf4 100%)" },
+  education: { accent: "#6366f1", text: "#3730a3", icon: GraduationCap, gradient: "linear-gradient(135deg, #eef2ff 0%, #e0e7ff 50%, #f5f3ff 100%)" },
+  retirement: { accent: "#f59e0b", text: "#92400e", icon: TrendingUp, gradient: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 50%, #fefce8 100%)" },
+  family: { accent: "#f472b6", text: "#9d174d", icon: Heart, gradient: "linear-gradient(135deg, #fdf2f8 0%, #fce7f3 50%, #fff1f2 100%)" },
+  business: { accent: "#0ea5e9", text: "#0c4a6e", icon: Briefcase, gradient: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #ecfeff 100%)" },
+  wellness: { accent: "#14b8a6", text: "#115e59", icon: Leaf, gradient: "linear-gradient(135deg, #f0fdfa 0%, #ccfbf1 50%, #ecfdf5 100%)" },
+  lifestyle: { accent: "#64748b", text: "#334155", icon: Star, gradient: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #f9fafb 100%)" },
 };
 
 const THEME_BENEFITS: Record<string, string[]> = {
