@@ -221,7 +221,30 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - **For pillars NOT in the lifestyle-relevant transactions list** (Home & Living utilities, Financial Services, Technology subscriptions, Pets, Transportation, etc.), you don't need transaction_indices — just provide \`category_indices\` from the per-category summary. Use \`transaction_indices: []\` for those rollups.
 
-- Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle.
+- Rollups are optional. If categories don't share a clear habit, leave them ungrouped. One thoughtful rollup is better than three forced ones. A single purchase at one merchant doesn't define a lifestyle. **A coherent individual identity is the only justification for a rollup. Timing patterns alone (weekend / evening / morning) and price-tier alone (premium / luxury / big-ticket) are not identities — they're descriptors. If no underlying identity holds the transactions together, drop the rollup.**
+
+- **THE IDENTITY TEST — RUN THIS BEFORE EMITTING ANY ROLLUP.** Every candidate rollup must pass BOTH questions below. If either fails, drop the rollup entirely.
+
+  **Q1 — Fill in the blank:** Complete this sentence using the rollup as the noun: *"This person is the kind of person who ___."*
+  - PASS examples: "...takes annual Hawaii trips", "...plays tennis every week", "...eats at casual spots constantly", "...buys premium athleisure", "...stocks up at warehouse clubs", "...keeps an organic-grocery routine".
+  - FAIL examples: "...shops on weekends", "...spends premium amounts", "...has runs of purchases", "...goes on outings", "...makes big-ticket buys".
+  - If the only honest completion describes *when* (weekend / evening / morning) or *how much* (premium / luxury / big-ticket) the spending happened — not *what activity or lifestyle* — there is no identity. Drop it.
+
+  **Q2 — Single activity / lifestyle:** Name in 1–3 words the ONE activity, hobby, lifestyle, or merchant category at the heart of this rollup.
+  - PASS examples: golf, coffee, Hawaii travel, fine dining, athleisure, organic groceries, skincare, ski trips, warehouse-club bulk shopping.
+  - FAIL examples: "shopping" (too generic), "spending" (not an activity), "outings" / "runs" (too generic), "lifestyle" (circular), "errands", "weekend stuff".
+  - If you can't name a concrete activity or lifestyle, the transactions don't actually share an identity. Drop the rollup.
+
+  **Worked failure example — DO NOT EMIT THIS:**
+  ❌ "Premium Weekend Shopping Runs" covering Whole Foods + Starbucks + Costco + Nordstrom + Lululemon.
+  - Q1: "...shops on weekends." → Everyone shops on weekends. No identity.
+  - Q2: Single activity? "Shopping." → Too generic; this lumps groceries, coffee, warehouse club, department store, and athleisure into one bucket.
+  - Cross-pillar red flag: the transactions span Food & Dining AND Style & Beauty — that alone is a structural sign there's no shared identity.
+  - Correct response: drop this rollup. If the athleisure repeats elsewhere, emit something like "Athleisure Wardrobe" instead. If the organic / specialty grocery repeats, emit "Organic Grocery Routine". Otherwise, emit nothing for these transactions.
+
+  **Cross-pillar guard:** If your candidate rollup pulls transactions from more than one pillar (e.g. groceries + clothing, or coffee + cosmetics), that's a structural sign there's no shared identity. Either split into separate per-pillar rollups (each of which must independently pass the Identity Test) or drop entirely.
+
+  Neutral words like "Weekend", "Premium", "Weekly" are NOT banned — they're fine when paired with a real activity ("Weekend Golfer", "Premium Hawaii Vacations", "Weekly Coffee Runs"). They are forbidden only when they ARE the theme.
 
 - **THEMATIC UNIQUENESS — ONE ROLLUP PER THEME:** Each rollup must cover a *distinct* behavioral theme. NEVER emit two rollups that describe the same underlying life pattern under different names. Forbidden duplicate pairs include (but are not limited to):
   - "Aspiring Homeowner" + "New Home Transition" / "Home Buyer" / "Nesting Phase"

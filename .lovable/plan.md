@@ -1,93 +1,59 @@
-# Make `synthesize-persona` populate life events when fitting
+## Problem
 
-Today, `synthesize-persona` only returns `pillar_rollups` (Spending Habits pills). Life events come exclusively from `analyze-lifestyle-signals`, which runs first and feeds detected events in for dedup. When detection misses (e.g. tool call skipped or evidence rules too strict), home/college clusters leak into Spending Habits as "New Home Transition Phase", "College Prep Phase", etc.
+Persona synthesizer occasionally returns rollups like **"Premium Weekend Shopping Runs"** that bundle Whole Foods + Starbucks + Costco + Nordstrom + Lululemon. The unifying theme is just *"weekend"* + *"premium-ish"* — not an identity. A friend wouldn't describe this person as "a weekend shopper"; they'd say "she cares about food quality" or "she's into athleisure" — or nothing at all.
 
-Fix: let `synthesize-persona` itself **promote** any cluster that fits a canonical life event into a life event, and return both arrays. The orchestrator merges these with whatever `analyze-lifestyle-signals` already produced.
+Hard regex bans are wrong here — phrases like "Weekend Golfer" or "Weekly Coffee Runs" are GOOD because the activity (golf, coffee) is the anchor. The fix has to operate at the **semantic** level inside the prompt.
 
-## 1. `supabase/functions/synthesize-persona/index.ts`
+## Fix — prompt-only, semantic guardrails in `supabase/functions/synthesize-persona/index.ts`
 
-### Tool schema — add `detected_life_events`
+Add a new section **"THE IDENTITY TEST"** to the system prompt that forces the model to validate each candidate rollup against an individual-identity criterion before emitting it. No client-side regex, no enum bans on neutral words.
 
-Extend the `return_persona` tool to return two arrays:
+### 1. The Identity Test (new section, placed right before "RECURRING SPORT / FITNESS" rule)
 
-```text
-{
-  pillar_rollups: [...],          // unchanged shape
-  detected_life_events: [
-    {
-      event_name: string,         // canonical: "Home Purchase / Transition",
-                                  // "College Preparation for Dependent",
-                                  // "Wedding / Engagement", "New Baby / Family Expansion",
-                                  // "Business Formation", "Elder Care", "Retirement Planning",
-                                  // "Relocation", "Inheritance / Windfall"
-      confidence: number,         // 60-95
-      evidence: [
-        { merchant: string, amount: number, date: string, relevance: string }
-      ],
-      talking_points: string[],   // 3-5 short advisor prompts
-      transaction_indices: number[] // [T<n>] indices, same convention as rollups
-    }
-  ]
-}
-```
+The model must answer two questions for every candidate rollup. If either fails, drop the rollup.
 
-`detected_life_events` is required but may be empty. Both arrays use the same `[T<n>]` index space already passed to the model.
+**Q1 — The "fill in the blank" test:**
+Complete this sentence using the rollup as the noun: *"This person is the kind of person who ___."*
+- PASS: "...takes annual Hawaii trips", "...plays tennis every week", "...eats out at casual spots constantly", "...buys premium athleisure"
+- FAIL: "...shops on weekends", "...spends premium amounts", "...has runs of purchases", "...goes on outings"
 
-### System prompt — add a "LIFE EVENT PROMOTION" section
+If the only honest completion is about *when* (weekend/evening/morning) or *how much* (premium/luxury/big-ticket) the spending happened, the rollup has no identity. Drop it.
 
-Insert before the existing rollup rules:
+**Q2 — The "single activity" test:**
+Name the ONE activity, hobby, lifestyle, or merchant category at the heart of this rollup.
+- PASS: golf, coffee, Hawaii travel, fine dining, athleisure, organic groceries, skincare
+- FAIL: "shopping" (too generic), "spending" (not an activity), "outings" (too generic), "lifestyle" (circular), "errands"
 
-- **Canonical life events** with minimum-evidence thresholds:
-  - **Home Purchase / Transition** — 3+ from {realtor, title company, escrow, home inspector, mortgage co., moving company, large home retailers in atypical volume (Crate & Barrel, West Elm, Pottery Barn, Restoration Hardware, IKEA), Home Depot/Lowe's spike, first-time mortgage payment, HOA setup, utility transfers}.
-  - **College Preparation for Dependent** — 2+ from {SAT/ACT/Kaplan/Princeton Review, college visitor parking, application portals (Common App/Coalition), university bursar/tuition deposit, AP exam fees, college tour airfare paired with university merchant} OR 1 explicit university tuition/deposit.
-  - **Wedding / Engagement** — 2+ from {jeweler $2k+, wedding venue, bridal salon, wedding photographer, event caterer, registry retailers}.
-  - **New Baby / Family Expansion** — 2+ from {OB/midwife, baby specialty retailers, pediatrician, daycare, hospital L&D, baby furniture}.
-  - **Business Formation, Elder Care, Retirement Planning, Relocation, Inheritance / Windfall** — same pattern, defined briefly.
-- Hard rule: **"If a cluster meets a canonical threshold above, you MUST emit it under `detected_life_events`. Do NOT also emit it as a `pillar_rollup`. Life events take priority."**
-- Vocabulary ban for rollup labels (final defense): **"NEVER use 'Phase', 'Transition', 'Prep', 'Preparation', 'Bound', 'Expecting', 'New Parent', 'New Homeowner', 'Empty Nest', 'Aspiring Homeowner' in a rollup label. Those describe life events — emit them under `detected_life_events` or omit them."**
-- Pre-existing dedup block stays: if `lifeEvents` were passed in from `analyze-lifestyle-signals`, treat them as already detected — do NOT re-emit the same theme in `detected_life_events` either.
-- For each promoted event: pick 2-4 strongest transactions from the [T<n>] list as `evidence`, write 3 short advisor `talking_points`, set confidence by evidence count (3 rows = 70, 4-5 = 80, 6+ = 90).
+If you can't name a concrete activity/lifestyle/category in 1–3 words, the transactions don't actually share an identity. Drop the rollup.
 
-### Force tool use & model
+### 2. Worked failure example (added to the prompt)
 
-- Set `tool_choice: { type: "function", function: { name: "return_persona" } }` — already correct, keep.
-- Keep `google/gemini-3-flash-preview`. (No change needed; promotion is a structural add, not a reasoning bottleneck.)
+Show the exact failure case the user reported, and explain *why* it fails the Identity Test:
 
-### Response shape
+> ❌ **"Premium Weekend Shopping Runs"** covering Whole Foods + Starbucks + Costco + Nordstrom + Lululemon.
+> - Identity test Q1: "This person is the kind of person who shops on weekends." → Everyone shops on weekends. No identity.
+> - Identity test Q2: Single activity? "Shopping." → Too generic; this lumps groceries, coffee, warehouse club, department store, and athleisure into one bucket.
+> - Correct response: drop this rollup. If Lululemon + similar athleisure repeats elsewhere, emit "Athleisure Wardrobe" instead. If Whole Foods + organic markets repeats, emit "Organic Grocery Routine". Otherwise, emit nothing for these transactions.
 
-Update the response to forward both arrays:
+### 3. Reinforce "when in doubt, emit fewer"
 
-```text
-{
-  pillar_rollups: [...],
-  detected_life_events: [...]   // NEW
-}
-```
+Add one line to the existing optionality guidance: *"A coherent individual identity is the only justification for a rollup. Timing patterns alone (weekend/evening) and price-tier alone (premium/luxury) are not identities — they're descriptors. Drop the rollup if no underlying identity holds the transactions together."*
 
-Each detected event maps `transaction_indices` → resolves to merchant/amount/date the same way `analyze-lifestyle-signals` does (the function does this client-side already; no extra resolution needed here since indices reference rows the caller sent in).
+### 4. Tighten cross-pillar guard with a concrete example
 
-## 2. `src/pages/ExecDemoPage.tsx` — merge promoted events into UI state
+The prompt already says "only group categories within the SAME pillar," but the failure case crossed Food & Dining + Style & Beauty. Add: *"If your candidate rollup pulls transactions from more than one pillar (e.g. groceries + clothing), that's a structural sign there's no shared identity — split or drop."*
 
-In the persona-synthesis success branch (around the existing `setPersonaSynthesis(synthesis)` call), after parsing the response:
+## What's NOT changing
 
-- Read `data.detected_life_events` (default `[]`).
-- Map each promoted event to the `LifeEvent` shape used by the UI (same fields the `analyze-lifestyle-signals` consumer already accepts: `event_name`, `confidence`, `evidence`, `talking_points`).
-- Resolve `transaction_indices` against the same `enrichedTxs` array passed into the function so `evidence` items have real merchant/amount/date.
-- **Merge with the events from `analyze-lifestyle-signals`**, deduping by normalized `event_name` (lowercase, strip punctuation, drop common words). When two sources fire on the same theme, prefer the one with higher confidence; if tied, prefer the `analyze-lifestyle-signals` one (richer financial projection).
-- Pass the merged list into `setDetectedLifeEvents(...)` and downstream consumers (`fireProductCards`, `fireNextOffers`).
+- No regex blocklist on the client.
+- No enum changes to allowed labels.
+- No banning of neutral words like "Weekend" or "Premium" — they're fine when paired with a real activity ("Weekend Golfer", "Premium Hawaii Vacations").
+- No model swap.
+- No schema changes.
+- Life event detection unchanged (working correctly).
 
-No UI structure change — both columns render exactly as today; only what populates them changes.
+## File changes
 
-## 3. Files touched
+- `supabase/functions/synthesize-persona/index.ts` — system prompt edits only (sections 1–4 above).
 
-- `supabase/functions/synthesize-persona/index.ts` — tool schema + system prompt + response shape.
-- `src/pages/ExecDemoPage.tsx` — merge `detected_life_events` from persona response with events from `analyze-lifestyle-signals` before setting state.
-
-## Resulting behavior
-
-For the failing case (home + college clusters present, `analyze-lifestyle-signals` returned `[]`):
-
-- `synthesize-persona` now emits **`detected_life_events: ["Home Purchase / Transition", "College Preparation for Dependent"]`** with transaction-level evidence.
-- Those two themes are absent from `pillar_rollups`.
-- UI shows them under **Life Event Detection**; **Spending Habits** keeps lifestyle pills only ("Annual Hawaiian Vacations", "Seasonal Ski Trips", "Dedicated Pet Owner").
-- When `analyze-lifestyle-signals` *does* fire correctly, dedup keeps the richer event (with financial projection) and discards the persona-promoted duplicate.
+Then redeploy `synthesize-persona`.
