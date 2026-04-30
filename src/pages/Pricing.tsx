@@ -140,7 +140,7 @@ function PricingInner() {
               Step 1 · Prospect
             </span>
             <span className="text-slate-200">|</span>
-            <h2 className="text-sm font-bold text-slate-900">Who are we pricing for?</h2>
+            
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div className="flex items-center gap-3">
@@ -177,7 +177,7 @@ function PricingInner() {
                 Step 2 · Modules
               </span>
               <span className="text-slate-200">|</span>
-              <h2 className="text-sm font-bold text-slate-900">À la carte menu</h2>
+              
             </div>
             <p className="text-[11px] text-slate-400">
               {selectedModules.length} of {enabledCatalog.length} selected
@@ -285,7 +285,7 @@ function PricingInner() {
               Step 3 · Send draft
             </span>
             <span className="text-slate-200">|</span>
-            <h2 className="text-sm font-bold text-slate-900">Email this proposal</h2>
+            
           </div>
 
           <div className="grid grid-cols-12 gap-3 items-end">
