@@ -174,6 +174,18 @@ function PricingInner() {
                 onChange={(e) => setCustomers(Number(e.target.value) || 0)}
                 className={`h-10 text-base ${LIGHT_INPUT}`}
               />
+              <button
+                type="button"
+                onClick={() => setPilotMode((v) => !v)}
+                title={`Pilot: ${formatNumber(pilot.customers)} customers · ${formatCurrency(pilot.flatFee)} / yr`}
+                className={`shrink-0 inline-flex items-center gap-1.5 h-10 px-3 rounded-md text-sm font-semibold border transition-colors ${
+                  pilotMode
+                    ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <Zap className="w-4 h-4" /> Pilot
+              </button>
             </div>
           </div>
         </section>
