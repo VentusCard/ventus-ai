@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Settings, Check, Mail } from "lucide-react";
+import { Settings, Check, Mail, Zap } from "lucide-react";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { Input } from "@/components/ui/input";
@@ -13,17 +13,19 @@ import { toast } from "sonner";
 const LIGHT_INPUT = "bg-white text-slate-900 border-slate-200 placeholder:text-slate-400";
 
 function PricingInner() {
-  const { catalog, updateModule, resetToDefaults } = usePricingCatalog();
+  const { catalog, updateModule, resetToDefaults, pilot, updatePilot } = usePricingCatalog();
   const [bankName, setBankName] = useState("");
   const [customers, setCustomers] = useState<number>(1_000_000);
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
   const [notes, setNotes] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [pilotMode, setPilotMode] = useState(false);
   const [adminOpen, setAdminOpen] = useState(false);
   const [emailOpen, setEmailOpen] = useState(false);
 
   const enabledCatalog = useMemo(() => catalog.filter((m) => m.enabled), [catalog]);
+  const pilotPerModule = enabledCatalog.length > 0 ? pilot.flatFee / enabledCatalog.length : 0;
 
   const toggle = (id: string) => {
     setSelected((prev) => {
@@ -60,6 +62,14 @@ function PricingInner() {
     lines.push(`Per-user fees:        ${formatCurrency(totalVariable)}`);
     lines.push(`Total / year:         ${formatCurrency(grandTotal)}`);
     lines.push(`Effective $/customer: $${perCustomer.toFixed(2)}`);
+    if (pilotMode) {
+      lines.push("");
+      lines.push(
+        `Pilot option: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
+          pilot.flatFee
+        )} / yr flat`
+      );
+    }
     if (notes.trim()) {
       lines.push("");
       lines.push("Notes:");
@@ -164,6 +174,18 @@ function PricingInner() {
                 onChange={(e) => setCustomers(Number(e.target.value) || 0)}
                 className={`h-10 text-base ${LIGHT_INPUT}`}
               />
+              <button
+                type="button"
+                onClick={() => setPilotMode((v) => !v)}
+                title={`Pilot: ${formatNumber(pilot.customers)} customers · ${formatCurrency(pilot.flatFee)} / yr`}
+                className={`shrink-0 inline-flex items-center gap-1.5 h-10 px-3 rounded-md text-sm font-semibold border transition-colors ${
+                  pilotMode
+                    ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
+                    : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
+                }`}
+              >
+                <Zap className="w-4 h-4" /> Pilot
+              </button>
             </div>
           </div>
         </section>
@@ -184,8 +206,16 @@ function PricingInner() {
 
           {/* Header row */}
           <div className="grid grid-cols-12 gap-3 px-5 py-2 border-y border-slate-200 bg-slate-50 text-[11px] uppercase tracking-wider text-slate-400 font-semibold shrink-0">
-            <div className="col-span-3">Function</div>
-            <div className="col-span-4">Description</div>
+            <div className={pilotMode ? "col-span-3" : "col-span-3"}>Function</div>
+            <div className={pilotMode ? "col-span-3" : "col-span-4"}>Description</div>
+            {pilotMode && (
+              <div className="col-span-1 text-right">
+                Pilot/yr
+                <div className="text-[9px] normal-case tracking-normal text-slate-400 font-normal">
+                  {formatNumber(pilot.customers)} · all in
+                </div>
+              </div>
+            )}
             <div className="col-span-1 text-right">Fixed/yr</div>
             <div className="col-span-2 text-right">Per user/yr</div>
             <div className="col-span-1 text-right">Line/yr</div>
@@ -210,9 +240,17 @@ function PricingInner() {
                         {m.name}
                       </p>
                     </div>
-                    <div className="col-span-4 text-[14px] text-slate-500 leading-snug truncate">
+                    <div className={`${pilotMode ? "col-span-3" : "col-span-4"} text-[14px] text-slate-500 leading-snug truncate`}>
                       {m.description}
                     </div>
+                    {pilotMode && (
+                      <div className="col-span-1 text-right">
+                        <span className="inline-flex items-center justify-end gap-1 text-[14px] font-semibold text-emerald-700">
+                          <Check className="w-3 h-3" strokeWidth={3} />
+                          {formatCurrency(Math.round(pilotPerModule))}
+                        </span>
+                      </div>
+                    )}
                     <div className="col-span-1 text-right text-[14px] font-semibold text-slate-800">
                       {formatCurrency(m.fixedFee)}
                     </div>
@@ -248,6 +286,14 @@ function PricingInner() {
           {/* Totals strip */}
           <div className="px-5 py-2.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-6 shrink-0">
             <div className="flex items-center gap-6 text-[14px]">
+              {pilotMode && (
+                <div className="flex items-baseline gap-1.5">
+                  <span className="text-[11px] uppercase tracking-wider text-emerald-600 font-semibold">
+                    Pilot
+                  </span>
+                  <span className="text-emerald-700 font-semibold">{formatCurrency(pilot.flatFee)}</span>
+                </div>
+              )}
               <div className="flex items-baseline gap-1.5">
                 <span className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
                   Fixed
@@ -340,6 +386,8 @@ function PricingInner() {
         catalog={catalog}
         updateModule={updateModule}
         resetToDefaults={resetToDefaults}
+        pilot={pilot}
+        updatePilot={updatePilot}
       />
       <EmailDraftDialog
         open={emailOpen}

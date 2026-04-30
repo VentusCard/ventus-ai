@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { PricingModule } from "@/lib/pricingCatalog";
+import { PricingModule, PilotConfig } from "@/lib/pricingCatalog";
 import { Lock } from "lucide-react";
 
 const ADMIN_PASSWORD = "ventus2026";
@@ -14,6 +14,8 @@ interface Props {
   catalog: PricingModule[];
   updateModule: (id: string, patch: Partial<PricingModule>) => void;
   resetToDefaults: () => void;
+  pilot: PilotConfig;
+  updatePilot: (patch: Partial<PilotConfig>) => void;
 }
 
 export default function AdminFeeEditorDialog({
@@ -22,6 +24,8 @@ export default function AdminFeeEditorDialog({
   catalog,
   updateModule,
   resetToDefaults,
+  pilot,
+  updatePilot,
 }: Props) {
   const [unlocked, setUnlocked] = useState(
     () => sessionStorage.getItem(ADMIN_SESSION_KEY) === "true"
@@ -98,6 +102,38 @@ export default function AdminFeeEditorDialog({
                 Changes are saved locally to this browser. Use "Reset" to restore defaults.
               </p>
             </DialogHeader>
+
+            <div className="rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5 mb-3">
+              <p className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
+                Pilot package
+              </p>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Customers</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={pilot.customers}
+                    onChange={(e) =>
+                      updatePilot({ customers: Number(e.target.value) || 0 })
+                    }
+                    className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-8 text-sm"
+                  />
+                </div>
+                <div>
+                  <label className="text-[11px] text-slate-500 block mb-1">Flat fee / yr ($)</label>
+                  <Input
+                    type="number"
+                    min={0}
+                    value={pilot.flatFee}
+                    onChange={(e) =>
+                      updatePilot({ flatFee: Number(e.target.value) || 0 })
+                    }
+                    className="bg-white text-slate-900 border-slate-200 placeholder:text-slate-400 h-8 text-sm"
+                  />
+                </div>
+              </div>
+            </div>
 
             <div className="max-h-[60vh] overflow-y-auto -mx-2 px-2">
               <table className="w-full text-sm">
