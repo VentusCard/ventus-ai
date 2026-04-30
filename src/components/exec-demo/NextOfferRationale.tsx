@@ -21,6 +21,8 @@ export interface RollupOfferGroup {
   deals: GeneratedOffer[];
   collectionMessage?: string;
   suppressedCategories?: string[];
+  imageCategory?: string;
+  imageQuery?: string;
 }
 
 interface Props {

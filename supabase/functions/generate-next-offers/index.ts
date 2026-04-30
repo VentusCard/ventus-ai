@@ -52,8 +52,15 @@ FEW-SHOT EXAMPLES (match this tone exactly):
 - "Tennis & Ski Seasonal Sports" → "Gear that keeps your seasons sharp." (Patagonia/Burton appropriate here)
 - "Weekly Workday Coffee Runs" → "Small upgrades for your morning ritual."
 
+IMAGE SELECTION — REQUIRED on every rollup group:
+- "imageCategory": pick ONE from this fixed enum that best matches the LITERAL subject of the rollup label, NOT the pillar:
+  ski | beach | tennis | golf | cycling | running | yoga | hiking | camping | boating | wine | coffee | dining | wedding | baby | kids | pet | fashion | beauty | wellness | tech | home | garden | auto | travel-urban | travel-generic | finance | entertainment | grocery | other
+- For "Seasonal Ski Trips" use "ski" (NOT "golf", NOT "other"). For "Annual Hawaiian Vacations" use "beach". For "Tennis & Court Sports" use "tennis". For "Weekend Golfer" use "golf". For "Weekly Workday Coffee Runs" use "coffee". For NYC/Paris/Tokyo trips use "travel-urban". For generic flights/luggage rollups use "travel-generic".
+- Use "other" ONLY when no listed category fits.
+- "imageQuery": 2-4 word visual subject in plain English, used only when imageCategory is "other" (e.g. "pickleball court outdoor", "rock climbing gym"). Always include it as a fallback even when imageCategory is set.
+
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
+{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
 const LIFE_EVENT_SYSTEM_PROMPT = `You generate retail deal recommendations for customers going through specific life events.
 
@@ -105,8 +112,15 @@ FEW-SHOT EXAMPLES (match this tone exactly):
 - "Home Purchase" → "Small touches to make your new place yours."
 - "New Baby" → "Little things that make those first months smoother."
 
+IMAGE SELECTION — REQUIRED on every rollup group:
+- "imageCategory": pick ONE from this enum that best matches the LITERAL subject of the event:
+  ski | beach | tennis | golf | cycling | running | yoga | hiking | camping | boating | wine | coffee | dining | wedding | baby | kids | pet | fashion | beauty | wellness | tech | home | garden | auto | travel-urban | travel-generic | finance | entertainment | grocery | other
+- For "New Baby" use "baby". For "Home Purchase" use "home". For "Wedding Planning" use "wedding". For "College Preparation for Dependent" use "kids". For "New Pet" use "pet". For "Retirement Planning" use "finance".
+- Use "other" only when no listed category fits.
+- "imageQuery": 2-4 word visual subject in plain English, always include as a fallback (e.g. "newborn nursery", "house keys handover").
+
 Output valid JSON only, no markdown:
-{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
+{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","imageCategory":"baby","imageQuery":"newborn nursery","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -284,6 +298,8 @@ serve(async (req) => {
           rollupRaw: g.rollup || g.event_name || g.eventName || g.label || "",
           collectionMessage: g.collectionMessage || g.collection_message,
           suppressedCategories: g.suppressedCategories || g.suppressed_categories || [],
+          imageCategory: g.imageCategory || g.image_category,
+          imageQuery: g.imageQuery || g.image_query,
           deals: normalizedDeals,
         };
       });
@@ -314,6 +330,8 @@ serve(async (req) => {
             pillar: "Life Event",
             collectionMessage: match.collectionMessage,
             suppressedCategories: match.suppressedCategories,
+            imageCategory: match.imageCategory,
+            imageQuery: match.imageQuery,
             deals: match.deals,
           });
         } else {
