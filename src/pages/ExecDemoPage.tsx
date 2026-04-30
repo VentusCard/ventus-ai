@@ -388,9 +388,56 @@ export default function ExecDemoPage() {
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
-      // Fire life event detection (will reuse the events already detected pre-synthesis,
-      // so it just hydrates UI state and triggers downstream cards/offers), risk in parallel.
-      fireLifeEventDetection(synthesis, pillars, detectedEvents);
+
+      // --- Merge life events: upstream (analyze-lifestyle-signals) + promoted (synthesize-persona) ---
+      // synthesize-persona now also returns detected_life_events when canonical thresholds are met,
+      // so themes like "Home Purchase / Transition" surface even if upstream detection missed them.
+      const promotedRaw = Array.isArray(data?.detected_life_events) ? data.detected_life_events : [];
+      const normalizeName = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+      const themeKey = (s: string) => {
+        const n = normalizeName(s);
+        if (/\b(home|house|mortgage|nesting|relocation|moving)\b/.test(n)) return "home";
+        if (/\b(college|university|tuition|education|sat|act|kaplan)\b/.test(n)) return "college";
+        if (/\b(wedding|engagement|bridal)\b/.test(n)) return "wedding";
+        if (/\b(baby|infant|pregnan|expecting|family expansion|new parent)\b/.test(n)) return "baby";
+        if (/\b(business|llc|incorporation|startup formation)\b/.test(n)) return "business";
+        if (/\b(elder|senior|hospice|assisted living)\b/.test(n)) return "elder";
+        if (/\b(retire|retirement|empty nest)\b/.test(n)) return "retirement";
+        if (/\b(inherit|windfall|estate)\b/.test(n)) return "windfall";
+        return n;
+      };
+      const upstreamThemes = new Set(detectedEvents.map(e => themeKey(e.event_name || "")));
+      const promotedEvents: LifeEvent[] = promotedRaw
+        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)))
+        .map((e: any) => {
+          // Hydrate evidence from transaction_indices when the model gave indices but thin evidence.
+          const txIdx: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
+          const hydratedEvidence = (e.evidence && e.evidence.length > 0)
+            ? e.evidence
+            : txIdx.slice(0, 4).map((ti: number) => {
+                const t: any = enrichedTxs[ti];
+                if (!t) return null;
+                return {
+                  merchant: t.normalized_merchant || t.merchant_name || "Unknown",
+                  amount: typeof t.amount === "number" ? t.amount : 0,
+                  date: t.date || "",
+                  relevance: `Cluster evidence for ${e.event_name}`,
+                };
+              }).filter(Boolean);
+          return {
+            event_name: e.event_name,
+            confidence: typeof e.confidence === "number" ? e.confidence : 70,
+            evidence: hydratedEvidence,
+            talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+          } as LifeEvent;
+        });
+      if (promotedEvents.length > 0) {
+        console.log("[PRELOAD] Promoted life events from persona:", promotedEvents.map(e => e.event_name));
+      }
+      const mergedEvents: LifeEvent[] = [...detectedEvents, ...promotedEvents];
+
+      // Fire life event detection with the merged set (will reuse — no extra API call), risk in parallel.
+      fireLifeEventDetection(synthesis, pillars, mergedEvents);
       fireRiskDetection();
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
