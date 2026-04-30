@@ -18,6 +18,7 @@ function PricingInner() {
   const [customers, setCustomers] = useState<number>(1_000_000);
   const [contactName, setContactName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
+  const [contactPhone, setContactPhone] = useState("");
   const [notes, setNotes] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [pilotMode, setPilotMode] = useState(false);
@@ -69,6 +70,10 @@ function PricingInner() {
           pilot.flatFee
         )} / yr flat`
       );
+    }
+    if (contactPhone.trim()) {
+      lines.push("");
+      lines.push(`Contact phone: ${contactPhone.trim()}`);
     }
     if (notes.trim()) {
       lines.push("");
@@ -332,7 +337,7 @@ function PricingInner() {
             
           </div>
 
-          <div className="grid grid-cols-2 gap-3 mb-3">
+          <div className="grid grid-cols-3 gap-3 mb-3">
             <div>
               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                 Contact name
@@ -356,10 +361,22 @@ function PricingInner() {
                 className={`h-10 text-base ${LIGHT_INPUT}`}
               />
             </div>
+            <div>
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                Contact phone
+              </label>
+              <Input
+                type="tel"
+                value={contactPhone}
+                onChange={(e) => setContactPhone(e.target.value)}
+                placeholder="+1 (555) 123-4567"
+                className={`h-10 text-base ${LIGHT_INPUT}`}
+              />
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 items-end">
-            <div>
+          <div className="grid grid-cols-3 gap-3 items-end">
+            <div className="col-span-2">
               <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
                 Notes (optional)
               </label>
@@ -374,7 +391,7 @@ function PricingInner() {
               onClick={handleEmail}
               className="inline-flex items-center justify-center gap-2 h-10 w-full rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
             >
-              <Mail className="w-4 h-4" /> Email draft to prospect
+              <Mail className="w-4 h-4" /> Email proposal
             </button>
           </div>
         </section>
