@@ -202,7 +202,7 @@ function PricingInner() {
                   <span className="text-sm font-bold tabular-nums">
                     {formatNumber(pilot.customers)}
                   </span>
-                  <span className="text-[11px] text-emerald-700/70">customers · 6 months</span>
+                  <span className="text-[11px] text-emerald-700/70">customers</span>
                 </div>
               )}
             </div>
