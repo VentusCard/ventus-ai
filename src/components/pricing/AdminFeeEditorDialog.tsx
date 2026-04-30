@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { PricingModule } from "@/lib/pricingCatalog";
 import { Lock } from "lucide-react";
 
-const ADMIN_PASSWORD = "ventusadmin2026";
+const ADMIN_PASSWORD = "ventus2026";
 const ADMIN_SESSION_KEY = "pricing_admin_access";
 
 interface Props {
