@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { PricingModule } from "@/lib/pricingCatalog";
+import { PricingModule, PilotConfig } from "@/lib/pricingCatalog";
 import { Lock } from "lucide-react";
 
 const ADMIN_PASSWORD = "ventus2026";
@@ -14,6 +14,8 @@ interface Props {
   catalog: PricingModule[];
   updateModule: (id: string, patch: Partial<PricingModule>) => void;
   resetToDefaults: () => void;
+  pilot: PilotConfig;
+  updatePilot: (patch: Partial<PilotConfig>) => void;
 }
 
 export default function AdminFeeEditorDialog({
@@ -22,6 +24,8 @@ export default function AdminFeeEditorDialog({
   catalog,
   updateModule,
   resetToDefaults,
+  pilot,
+  updatePilot,
 }: Props) {
   const [unlocked, setUnlocked] = useState(
     () => sessionStorage.getItem(ADMIN_SESSION_KEY) === "true"
