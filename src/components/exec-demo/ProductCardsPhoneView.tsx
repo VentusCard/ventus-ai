@@ -135,33 +135,33 @@ export default function ProductCardsPhoneView({ cards, compact = false }: Props)
                     className={`rounded-2xl shadow-md overflow-hidden h-full flex flex-col ${compact ? "min-h-[260px]" : ""}`}
                     style={{ background: style.gradient, borderTop: `3px solid ${style.accent}` }}
                   >
-                    <div className={`${compact ? "p-3.5" : "p-4"} flex flex-col flex-1`}>
-                      <div className="flex items-start gap-2 mb-1.5">
+                    <div className={`${compact ? "p-4" : "p-5"} flex flex-col flex-1 gap-2.5`}>
+                      <div className="flex items-start gap-2.5">
                         <div
-                          className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 shadow-sm"
-                          style={{ background: "rgba(255,255,255,0.7)", color: style.accent }}
+                          className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 shadow-sm"
+                          style={{ background: "rgba(255,255,255,0.75)", color: style.accent }}
                         >
-                          <ThemeIcon className="w-4 h-4" />
+                          <ThemeIcon className="w-5 h-5" />
                         </div>
-                        <p className="text-[13px] font-bold text-slate-800 leading-tight line-clamp-2 flex-1">{card.product_name}</p>
+                        <p className="text-[15px] font-bold text-slate-800 leading-tight line-clamp-2 flex-1">{card.product_name}</p>
                       </div>
-                      <p className="text-[10px] text-slate-600 italic leading-snug mb-2 line-clamp-3">"{card.quote}"</p>
-                      <div className="space-y-1 mb-2 flex-1">
+                      <p className="text-[12px] text-slate-600 italic leading-snug line-clamp-3">"{card.quote}"</p>
+                      <div className="space-y-1.5 flex-1">
                         {benefits.map((b, bi) => (
-                          <div key={bi} className="flex items-start gap-1.5">
-                            <Check className="w-3 h-3 mt-0.5 shrink-0" style={{ color: style.accent }} />
-                            <span className="text-[10px] text-slate-700 leading-snug">{b}</span>
+                          <div key={bi} className="flex items-start gap-2">
+                            <Check className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: style.accent }} />
+                            <span className="text-[12px] text-slate-700 leading-snug font-medium">{b}</span>
                           </div>
                         ))}
                       </div>
-                      <p className="text-[10px] font-bold mb-1.5 leading-tight" style={{ color: style.accent }}>
+                      <p className="text-[12px] font-bold leading-tight" style={{ color: style.accent }}>
                         Est. {value}
                       </p>
                       <button
-                        className="w-full py-1.5 rounded-lg text-[10px] font-bold text-white flex items-center justify-center gap-0.5 shadow-sm"
+                        className="w-full py-2.5 rounded-xl text-[12px] font-bold text-white flex items-center justify-center gap-1 shadow-sm"
                         style={{ background: style.accent }}
                       >
-                        Learn More <ChevronRight className="w-3 h-3" />
+                        Learn More <ChevronRight className="w-3.5 h-3.5" />
                       </button>
                     </div>
                   </div>
