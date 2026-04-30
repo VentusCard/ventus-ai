@@ -285,7 +285,7 @@ txn_049,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback
 txn_050,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,94102,Checks
 txn_051,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,94102,Checks
 txn_053,JANE DOE,Kitchen remodel deposit,,5000.00,2026-05-01,94102,Zelle
-txn_054,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA,4511,948.00,2026-07-05,94102,Premium Card
+txn_054,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA (advance booking),4511,948.00,2026-04-05,94102,Premium Card
 txn_055,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
 `;
 
