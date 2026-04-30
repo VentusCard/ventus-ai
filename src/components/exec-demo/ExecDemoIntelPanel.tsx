@@ -439,30 +439,34 @@ export default function ExecDemoIntelPanel({
                         .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
                       if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
                     }
-                    const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
-                    const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
-                    onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
+                    // Only dispatch AI chat prompts on the Next-Conversation (relationship) tab.
+                    // On Next-Offer / Next-Product, pill clicks should only filter the deal/product collection.
+                    if (isRelTab) {
+                      const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
+                      const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
+                      onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
+                    }
                   };
                   const handleLifeEventForRel = (label: string, indices: number[]) => {
                     onTriggerPillClick?.(label, indices, "#f59e0b", "lifeEvent");
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifeEvent", label });
+                      onAIPromptDispatch?.(
+                        `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
+                        "lifeEvent"
+                      );
                     }
-                    onAIPromptDispatch?.(
-                      `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
-                      "lifeEvent"
-                    );
                   };
                   const handleRiskForRel = (label: string, indices: number[], color: string, merchant?: string) => {
                     onTriggerPillClick?.(label, indices, color, "risk");
                     if (isRelTab) {
                       setSelectedSignal({ kind: "risk", label });
+                      const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
+                      onAIPromptDispatch?.(
+                        `What is this transaction ${subject}? What is it typically associated with statistically?`,
+                        "risk"
+                      );
                     }
-                    const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
-                    onAIPromptDispatch?.(
-                      `What is this transaction ${subject}? What is it typically associated with statistically?`,
-                      "risk"
-                    );
                   };
 
                   // Shared pill renderers
