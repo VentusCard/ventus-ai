@@ -115,11 +115,11 @@ export default function ExecDemoSelectionDialog({
           <div className="flex items-center gap-2">
             <img src={ventusLogo} alt="Ventus AI" className="h-7 w-auto" />
             <span className="text-[13px] text-slate-400">·</span>
-            <h2 className="text-[14px] font-bold text-slate-800 tracking-tight">
+            <h2 className="text-[15px] font-bold text-slate-800 tracking-tight">
               Select a Customer Profile
             </h2>
           </div>
-          <p className="text-[11px] text-slate-400 mt-0.5">
+          <p className="text-[12px] text-slate-400 mt-0.5">
             Choose a sample customer to explore semantic enrichment
           </p>
         </div>
