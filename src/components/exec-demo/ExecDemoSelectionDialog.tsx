@@ -218,14 +218,14 @@ export default function ExecDemoSelectionDialog({
               <table className="w-full text-[11px]">
                 <thead className="sticky top-0 bg-white z-10">
                   <tr className="text-left text-[9px] font-semibold uppercase tracking-wider text-slate-400 border-b border-slate-200">
+                    <th className="pb-2 pr-3 pt-1">Source</th>
                     <th className="pb-2 pr-3 pt-1">ID</th>
                     <th className="pb-2 pr-3 pt-1">Date</th>
                     <th className="pb-2 pr-3 pt-1">Merchant Name</th>
                     <th className="pb-2 pr-3 pt-1">MCC</th>
                     <th className="pb-2 pr-3 pt-1">MCC Description / Note</th>
                     <th className="pb-2 pr-3 pt-1 text-right">Amount</th>
-                    <th className="pb-2 pr-3 pt-1">Zip</th>
-                    <th className="pb-2 pt-1">Source</th>
+                    <th className="pb-2 pt-1">Zip</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -234,18 +234,18 @@ export default function ExecDemoSelectionDialog({
                     const fmtAmt = isNaN(amt) ? row.amount : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                     return (
                       <tr key={i} className="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
+                        <td className="py-1.5 pr-3">
+                          <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                            {row.source || "—"}
+                          </span>
+                        </td>
                         <td className="py-1.5 pr-3 text-slate-400 font-mono text-[10px]">{row.transaction_id || i + 1}</td>
                         <td className="py-1.5 pr-3 text-slate-500 tabular-nums whitespace-nowrap">{row.date}</td>
                         <td className="py-1.5 pr-3 font-medium text-slate-800 max-w-[220px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
                         <td className="py-1.5 pr-3 text-slate-400 font-mono text-[10px]">{row.mcc || "—"}</td>
                         <td className="py-1.5 pr-3 text-slate-500 max-w-[220px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
                         <td className="py-1.5 pr-3 text-right font-semibold text-slate-700 tabular-nums whitespace-nowrap">{fmtAmt}</td>
-                        <td className="py-1.5 pr-3 text-slate-400 text-[10px]">{row.zip_code || "—"}</td>
-                        <td className="py-1.5">
-                          <span className={`inline-block px-1.5 py-px rounded text-[9px] font-medium ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
-                            {row.source || "—"}
-                          </span>
-                        </td>
+                        <td className="py-1.5 text-slate-400 text-[10px]">{row.zip_code || "—"}</td>
                       </tr>
                     );
                   })}
