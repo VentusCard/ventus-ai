@@ -194,6 +194,17 @@ function PricingInner() {
               >
                 <Zap className="w-4 h-4" /> Pilot
               </button>
+              {pilotMode && (
+                <div className="shrink-0 inline-flex items-center gap-2 h-10 px-3 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-emerald-600">
+                    Pilot size
+                  </span>
+                  <span className="text-sm font-bold tabular-nums">
+                    {formatNumber(pilot.customers)}
+                  </span>
+                  <span className="text-[11px] text-emerald-700/70">customers</span>
+                </div>
+              )}
             </div>
           </div>
         </section>
