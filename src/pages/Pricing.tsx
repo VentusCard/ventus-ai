@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Settings, Check, Mail, Copy } from "lucide-react";
+import { Settings, Check, Mail } from "lucide-react";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { Input } from "@/components/ui/input";
@@ -91,18 +91,6 @@ function PricingInner() {
     ].join("\n");
   };
 
-  const handleCopy = async () => {
-    if (selectedModules.length === 0) {
-      toast.error("Select at least one module");
-      return;
-    }
-    try {
-      await navigator.clipboard.writeText(buildSummaryText());
-      toast.success("Summary copied");
-    } catch {
-      toast.error("Could not copy");
-    }
-  };
 
   const handleEmail = () => {
     if (selectedModules.length === 0) {
@@ -300,43 +288,52 @@ function PricingInner() {
             <h2 className="text-sm font-bold text-slate-900">Email this proposal</h2>
           </div>
 
-          <div className="grid grid-cols-12 gap-3 items-center">
-            <Input
-              value={contactName}
-              onChange={(e) => setContactName(e.target.value)}
-              placeholder="Contact name"
-              className={`col-span-3 h-9 text-sm ${LIGHT_INPUT}`}
-            />
-            <Input
-              type="email"
-              value={contactEmail}
-              onChange={(e) => setContactEmail(e.target.value)}
-              placeholder="sarah@bank.com"
-              className={`col-span-3 h-9 text-sm ${LIGHT_INPUT}`}
-            />
-            <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="Notes (optional)…"
-              className={`col-span-6 min-h-[36px] h-9 py-2 text-sm resize-none ${LIGHT_INPUT}`}
-            />
-          </div>
-
-          <div className="mt-3 flex items-center justify-end gap-2">
-            <button
-              onClick={handleCopy}
-              className="inline-flex items-center justify-center gap-2 h-9 px-4 rounded-md border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50"
-            >
-              <Copy className="w-3.5 h-3.5" /> Copy summary
-            </button>
-            <button
-              onClick={handleEmail}
-              className="inline-flex items-center justify-center gap-2 h-9 px-5 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
-            >
-              <Mail className="w-3.5 h-3.5" /> Email draft to prospect
-            </button>
+          <div className="grid grid-cols-12 gap-3 items-end">
+            <div className="col-span-3">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                Contact name
+              </label>
+              <Input
+                value={contactName}
+                onChange={(e) => setContactName(e.target.value)}
+                placeholder="e.g. Sarah Chen"
+                className={`h-9 text-sm ${LIGHT_INPUT}`}
+              />
+            </div>
+            <div className="col-span-3">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                Contact email
+              </label>
+              <Input
+                type="email"
+                value={contactEmail}
+                onChange={(e) => setContactEmail(e.target.value)}
+                placeholder="sarah@bank.com"
+                className={`h-9 text-sm ${LIGHT_INPUT}`}
+              />
+            </div>
+            <div className="col-span-6">
+              <label className="text-[11px] font-semibold text-slate-500 uppercase tracking-wide block mb-1">
+                Notes (optional)
+              </label>
+              <Textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Procurement notes, scope caveats, timing…"
+                className={`min-h-[36px] h-9 py-2 text-sm resize-none ${LIGHT_INPUT}`}
+              />
+            </div>
           </div>
         </section>
+
+        <div className="flex items-center justify-end shrink-0">
+          <button
+            onClick={handleEmail}
+            className="inline-flex items-center justify-center gap-2 h-10 px-6 rounded-md bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <Mail className="w-4 h-4" /> Email draft to prospect
+          </button>
+        </div>
       </main>
 
       <AdminFeeEditorDialog
