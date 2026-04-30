@@ -1084,7 +1084,7 @@ export default function ExecDemoPage() {
 
         {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
         {(() => {
-          const phoneVisible = activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
+          const phoneVisible = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
           const expandedW = 360;
           const collapsedW = 40;
           const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
