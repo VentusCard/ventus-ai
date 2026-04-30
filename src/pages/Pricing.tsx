@@ -231,7 +231,7 @@ function PricingInner() {
               <div className="col-span-1 text-right">
                 Pilot/yr
                 <div className="text-[9px] normal-case tracking-normal text-slate-400 font-normal">
-                  {formatNumber(pilot.customers)} · all in
+                  6 Month
                 </div>
               </div>
             )}
