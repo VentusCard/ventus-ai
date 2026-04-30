@@ -259,7 +259,7 @@ txn_026,BELLAGIO CASINO LV,Casino floor charge,7995,480.00,2025-04-19,89109,Prem
 txn_027,CVS PHARMACY,Prescription refill,5912,28.50,2025-04-22,94102,Cashback Card
 txn_028,STANFORD VISITOR PARKING,College campus tour,7523,25.00,2025-05-03,94305,Cashback Card
 txn_029,NORDSTROM,Spring clothing,5651,178.90,2025-05-10,94102,Premium Card
-txn_030,VETERINARY CLINIC,"Annual wellness exam",,185.00,2025-05-18,94103,Checks
+txn_030,VETERINARY CLINIC,"Annual wellness exam",,185.00,2025-05-18,,Checks
 txn_031,WESTERN UNION*MTO 8821,Money transfer fee,4829,400.00,2025-05-28,,Cashback Card
 txn_032,SF TENNIS CLUB,Court rental fee,7941,45.00,2025-06-07,94102,Cashback Card
 txn_033,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-06-14,94102,Cashback Card
