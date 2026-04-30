@@ -245,7 +245,7 @@ txn_012,COSTCO WHOLESALE,Bulk household shopping,5411,198.76,2025-01-11,94102,Ca
 txn_013,PALISADES TAHOE LIFT,New Year ski day,7941,169.00,2025-01-18,96146,Premium Card
 txn_014,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-01-25,94102,Cashback Card
 txn_015,UBER TRIP,Ride to downtown,4121,23.50,2025-02-07,94102,Cashback Card
-txn_016,COLLEGEBOARD SAT,SAT registration fee,,68.00,2025-02-15,,Checks
+txn_016,COLLEGEBOARD SAT,"SAT registration fee",,68.00,2025-02-15,,Checks
 txn_017,PETCO,Pet grooming supplies,5995,38.50,2025-02-22,94103,Cashback Card
 txn_018,SPOTIFY PREMIUM,Music subscription,4899,10.99,2025-03-01,,Cashback Card
 txn_019,EARNIN ACTIVEHOURS,Early wage access advance,6051,100.00,2025-03-05,,Cashback Card
