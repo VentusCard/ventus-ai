@@ -738,6 +738,27 @@ txn_sf197,WHOLE FOODS MARKET,Organic groceries,5411,234.67,2025-10-27,94102,Cash
 txn_sf198,AMAZON.COM,Halloween costumes,5999,102.50,2025-10-25,,Cashback Card
 txn_sf199,SAFEWAY,Final October groceries,5411,189.45,2025-10-30,94102,Cashback Card
 txn_sf205,KELLER WILLIAMS REALTY,Home valuation consultation,6531,0.00,2025-11-16,94102,Checking
+txn_sf300,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-03-05,,ACH
+txn_sf301,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-04-05,,ACH
+txn_sf302,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-05-05,,ACH
+txn_sf303,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-06-05,,ACH
+txn_sf304,WSJ DIGITAL,Wall Street Journal subscription,4899,39.00,2025-04-02,,Cashback Card
+txn_sf305,WSJ DIGITAL,Wall Street Journal subscription,4899,39.00,2025-05-02,,Cashback Card
+txn_sf310,COLLEGE BOARD SAT,"SAT registration fee",,68.00,2025-02-15,,Checks
+txn_sf311,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-08,,Zelle
+txn_sf312,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-15,,Zelle
+txn_sf313,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-22,,Zelle
+txn_sf314,KAPLAN ACT PREP TUTOR,"Weekly tutor",,200.00,2025-03-29,,Zelle
+txn_sf315,COMMON APP FEES,"College application fees",,385.00,2025-09-12,,Checks
+txn_sf316,UNITED AIRLINES,College tour flights East Coast,4511,1840.00,2025-09-20,94102,Travel Card
+txn_sf320,SCHWAB ROLLOVER FEE,"401k rollover processing fee",,250.00,2025-04-18,,Checks
+txn_sf321,FIDELITY ANNUITY DEPOSIT,"Fixed annuity initial deposit",,50000.00,2025-08-14,,Wire
+txn_sf322,MEDICARE PART B SETUP,"Medicare Part B premium setup",,186.00,2025-09-05,,Checks
+txn_sf330,MORRISON & FOERSTER LLP,"Estate planning retainer",,12500.00,2025-07-22,,Wire
+txn_sf331,GIFT TO DAUGHTER,"Annual family gift",,15000.00,2025-12-18,,Zelle
+txn_sf340,BELLAGIO CASINO LV,Casino floor charge,7995,750.00,2025-05-11,89109,Premium Card
+txn_sf341,STAKE.COM*PROC LV,Online wager processor,6051,320.00,2025-06-17,,Premium Card
+txn_sf342,WESTERN UNION*MTO 8821,Money transfer outbound,4829,600.00,2025-08-25,,Cashback Card
 `;
 
 export const SAMPLE_CSV_NYC_SPORTS_HOME_12 = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
@@ -982,6 +1003,34 @@ txn_ny233,WHOLE FOODS UNION SQ,Final October groceries,5411,134.56,2025-10-27,10
 txn_ny234,SOULCYCLE FLATIRON,Class pack,7997,175.00,2025-10-28,10010,Premium Card
 txn_ny235,AMAZON.COM,Home office supplies,5999,98.70,2025-10-29,,Cashback Card
 txn_ny241,FIDELITY TRUST SERVICES,Trust account setup fee,6211,250.00,2025-11-14,,Checking
+txn_ny300,SOULCYCLE UNLIMITED,Monthly unlimited rides,7997,215.00,2025-04-03,10003,Cashback Card
+txn_ny301,SOULCYCLE UNLIMITED,Monthly unlimited rides,7997,215.00,2025-05-03,10003,Cashback Card
+txn_ny302,SOULCYCLE UNLIMITED,Monthly unlimited rides,7997,215.00,2025-06-03,10003,Cashback Card
+txn_ny303,NEW YORK TIMES DIGITAL,Digital news subscription,4899,25.00,2025-04-09,,Cashback Card
+txn_ny304,NEW YORK TIMES DIGITAL,Digital news subscription,4899,25.00,2025-05-09,,Cashback Card
+txn_ny305,NEW YORK TIMES DIGITAL,Digital news subscription,4899,25.00,2025-06-09,,Cashback Card
+txn_ny310,VANGUARD 529 PLAN,"529 college savings contribution",,5000.00,2025-07-15,,ACH
+txn_ny311,VANGUARD 529 PLAN,"529 college savings contribution",,5000.00,2025-10-15,,ACH
+txn_ny312,DALTON SCHOOL TOUR FEE,"Private school tour fee",,150.00,2025-09-08,,Checks
+txn_ny313,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-09-12,,Zelle
+txn_ny314,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-09-19,,Zelle
+txn_ny315,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-09-26,,Zelle
+txn_ny316,TEST PREP NYC TUTOR,"SHSAT tutor weekly",,250.00,2025-10-03,,Zelle
+txn_ny320,WHARTON EMBA APPLICATION,"Wharton EMBA application fee",,275.00,2025-06-22,,Checks
+txn_ny321,GMAT VOUCHER,"GMAT exam registration",,275.00,2025-07-09,,Checks
+txn_ny322,KORN FERRY RETAINER,"Executive recruiter retainer",,5000.00,2025-08-19,,Wire
+txn_ny323,LINKEDIN LEARNING,Online courses subscription,4899,39.00,2025-08-02,,Cashback Card
+txn_ny324,LINKEDIN LEARNING,Online courses subscription,4899,39.00,2025-09-02,,Cashback Card
+txn_ny330,DRAFTKINGS NJ,Sportsbook deposit,7995,400.00,2025-05-18,,Premium Card
+txn_ny331,ROBINHOOD CRYPTO,Crypto purchase,6051,1200.00,2025-07-04,,Cashback Card
+txn_ny332,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-06-14,,Cashback Card
+txn_ny333,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-07-14,,Cashback Card
+txn_ny334,AFFIRM*PELOTON,BNPL installment Peloton,6051,58.00,2025-08-14,,Cashback Card
+txn_ny340,NANNY M,"Nanny weekly",,650.00,2025-09-05,,Zelle
+txn_ny341,NANNY M,"Nanny weekly",,650.00,2025-09-12,,Zelle
+txn_ny342,NANNY M,"Nanny weekly",,650.00,2025-09-19,,Zelle
+txn_ny343,NANNY M,"Nanny weekly",,650.00,2025-09-26,,Zelle
+txn_ny344,GIFT TO PARENTS,"Annual family gift",,18000.00,2025-12-15,,Wire
 `;
 
 export const SAMPLE_CSV_CHICAGO_TENNIS_WELLNESS_12 = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
@@ -1233,6 +1282,31 @@ txn_ch240,TRADER JOES,Final October shopping,5411,87.45,2025-10-27,60610,Cashbac
 txn_ch241,LULULEMON CHICAGO,Winter workout preview,5655,178.00,2025-10-28,60610,Premium Card
 txn_ch242,TENNIS LESSONS,Private coaching,7999,120.00,2025-10-29,60610,Checking
 txn_ch248,SIDLEY AUSTIN LLP,Legal services,8111,1200.00,2025-11-22,60603,Checking
+txn_ch300,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-03-04,,ACH
+txn_ch301,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-04-04,,ACH
+txn_ch302,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-05-04,,ACH
+txn_ch303,EAST BANK CLUB DUES,"Monthly club dues",,295.00,2025-06-04,,ACH
+txn_ch304,BARRONS SUBSCRIPTION,Investing weekly subscription,4899,52.00,2025-04-08,,Cashback Card
+txn_ch305,BARRONS SUBSCRIPTION,Investing weekly subscription,4899,52.00,2025-05-08,,Cashback Card
+txn_ch306,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-04-12,,Zelle
+txn_ch307,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-04-19,,Zelle
+txn_ch308,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-04-26,,Zelle
+txn_ch309,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-05-03,,Zelle
+txn_ch310,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-05-10,,Zelle
+txn_ch311,TENNIS COACH PRIVATE,"Coach weekly",,120.00,2025-05-17,,Zelle
+txn_ch320,SCHWAB IRA MAX CONTRIB,"IRA max annual contribution",,7000.00,2025-04-14,,Wire
+txn_ch321,AARP ENROLLMENT,"AARP membership enrollment",,16.00,2025-05-22,,Checks
+txn_ch322,VANGUARD ROLLOVER FEE,"401k rollover processing fee",,250.00,2025-06-30,,Checks
+txn_ch330,SIDLEY AUSTIN TRUST,"Dynasty trust formation retainer",,25000.00,2025-08-12,,Wire
+txn_ch331,CHICAGO COMMUNITY TRUST,"Donor advised fund contribution",,50000.00,2025-09-09,,ACH
+txn_ch332,GIFT TO GRANDCHILD 529,"Annual 529 gift contribution",,17000.00,2025-10-20,,ACH
+txn_ch340,BELLAGIO CASINO LV,Casino floor charge,7995,1200.00,2025-06-21,89109,Premium Card
+txn_ch341,BET365 EU PROC,Offshore wager processor,6051,400.00,2025-07-18,,Premium Card
+txn_ch342,KRAKEN CRYPTO BUY,Crypto exchange purchase,6051,5000.00,2025-08-26,,Cashback Card
+txn_ch350,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-04-05,,Zelle
+txn_ch351,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-04-19,,Zelle
+txn_ch352,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-05-03,,Zelle
+txn_ch353,HOUSEKEEPER L,"Bi-weekly housekeeping",,400.00,2025-05-17,,Zelle
 `;
 
 export const MCC_DESCRIPTIONS: Record<string, string> = {
