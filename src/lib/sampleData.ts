@@ -221,10 +221,10 @@ export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,d
 txn_h15,SUNBUM REEF SAFE SPF,Reef-safe sunscreen pre-trip,5912,64.00,2024-06-20,94102,Cashback Card
 txn_h16,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23,94102,Premium Card
 txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
-txn_004,SF TENNIS CLUB,"Annual membership dues",,350.00,2024-11-25,94102,Checks
-txn_007,PACIFIC HEIGHTS APT,,,2800.00,2024-12-10,94102,ACH
-txn_009,MARIA G,"Dogsitting",,150.00,2024-12-18,94102,Zelle
-txn_052,DOWN PAYMENT TRANSFER,"Home down payment",,85000.00,2026-04-10,94102,Wire
+txn_004,SF TENNIS CLUB,"Annual membership dues",,350.00,2024-11-25,,Checks
+txn_007,PACIFIC HEIGHTS APT,,,2800.00,2024-12-10,,ACH
+txn_009,MARIA G,"Dogsitting",,150.00,2024-12-18,,Zelle
+txn_052,DOWN PAYMENT TRANSFER,"Home down payment",,85000.00,2026-04-10,,Wire
 txn_h18,KOA KEA HOTEL KAUAI,Poipu beachfront 5 nights,7011,2290.00,2024-07-03,96756,Premium Card
 txn_h19,BUDGET RENT-A-CAR LIH,Jeep rental Lihue airport,7512,578.00,2024-07-03,96766,Premium Card
 txn_h20,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2024-07-05,96714,Cashback Card

@@ -1,31 +1,27 @@
-## Sample data formatting changes for executive demo
+## Strip zip codes from non-card transactions
 
-Update `src/lib/sampleData.ts` to adjust how non-card payment rows display in the Selection Dialog raw transaction table.
+Update `src/lib/sampleData.ts` so only card-based transactions (Premium Card, Cashback Card, Travel Card, Checking-card, etc.) carry a `zip_code` value. ACH, Wire, Zelle, and Checks rows should have an empty `zip_code` field.
 
-### Rules
-- **ACH rows**: clear the `description` field (leave empty between the two commas).
-- **Checks, Zelle, Wire rows**: wrap the existing `description` field in literal double-quote characters so they render as `"…"` in the description column.
+### Affected rows (12 of 14 non-card rows currently have zips)
 
-### Affected rows (14 total in `src/lib/sampleData.ts`)
+| Line | Source | zip_code change |
+|------|--------|-----------------|
+| 224 | Checks | `94102` → empty |
+| 225 | ACH | `94102` → empty |
+| 226 | Zelle | `94102` → empty |
+| 227 | Wire | `94102` → empty |
+| 252 | Checks | `94102` → empty |
+| 256 | Checks | `94102` → empty |
+| 262 | Checks | `94103` → empty |
+| 276 | Checks | `94102` → empty |
+| 281 | Checks | `94102` → empty |
+| 285 | Checks | `94102` → empty |
+| 286 | Checks | `94102` → empty |
+| 287 | Zelle | `94102` → empty |
 
-| Line | Source | Change |
-|------|--------|--------|
-| 224 | Checks | `Annual membership dues` → `"Annual membership dues"` |
-| 225 | ACH | `Monthly rent payment` → *(empty)* |
-| 226 | Zelle | `Dogsitting` → `"Dogsitting"` |
-| 227 | Wire | `Home down payment` → `"Home down payment"` |
-| 248 | Checks | `SAT registration fee` → `"SAT registration fee"` |
-| 252 | Checks | `SAT prep course` → `"SAT prep course"` |
-| 256 | Checks | `Spring membership renewal` → `"Spring membership renewal"` |
-| 262 | Checks | `Annual wellness exam` → `"Annual wellness exam"` |
-| 276 | Checks | `College admissions package` → `"College admissions package"` |
-| 279 | Checks | `Past-due account payment` → `"Past-due account payment"` |
-| 281 | Checks | `Mortgage application` → `"Mortgage application"` |
-| 285 | Checks | `Pre-purchase inspection` → `"Pre-purchase inspection"` |
-| 286 | Checks | `Title and escrow fees` → `"Title and escrow fees"` |
-| 287 | Zelle | `Kitchen remodel deposit` → `"Kitchen remodel deposit"` |
+Lines 248 and 279 already have empty zip codes — no change needed.
 
-### Technical note
-The CSV parser in `ExecDemoSelectionDialog.tsx` uses naive `split(",")`, so the literal `"` characters become part of the description string and render as visible quotes — exactly the intent. None of the affected descriptions contain commas, so the split won't break.
-
-No other files need changes.
+### Scope
+- Only `src/lib/sampleData.ts` is touched.
+- All other CSV columns (description, mcc, amount, date, source) are preserved as-is from the prior change.
+- Card transactions retain their existing zip codes.
