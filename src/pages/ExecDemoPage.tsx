@@ -1018,6 +1018,13 @@ export default function ExecDemoPage() {
 
   }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
 
+  // Keep the forward-ref in sync so stage navigation can call analysis from
+  // earlier in the file without TDZ issues.
+  useEffect(() => {
+    runAnalysisRef.current = handleRunAnalysis;
+  }, [handleRunAnalysis]);
+
+
   const handleTabClick = useCallback((tab: TabKey) => {
     // Always clear pill selections when switching between the three "Next-..." tabs
     // so each tab starts fresh.
