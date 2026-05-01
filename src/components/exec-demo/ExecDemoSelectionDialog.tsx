@@ -111,7 +111,7 @@ export default function ExecDemoSelectionDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-[85vw] w-[85vw] h-[85vh] max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl border-slate-200 bg-white flex flex-col">
         {/* Header */}
-        <div className="px-8 py-5 border-b border-slate-100 shrink-0">
+        <div className="px-8 py-3 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
             <img src={ventusLogo} alt="Ventus AI" className="h-9 w-auto" />
             <span className="text-sm text-slate-400">·</span>
@@ -125,7 +125,7 @@ export default function ExecDemoSelectionDialog({
         </div>
 
         {/* Pills row */}
-        <div className="px-8 py-5 border-b border-slate-100 shrink-0">
+        <div className="px-8 py-3 border-b border-slate-100 shrink-0">
           <div className="flex flex-wrap items-center gap-2">
             {DEMO_CUSTOMERS.map((c, i) => (
               <button
@@ -156,7 +156,7 @@ export default function ExecDemoSelectionDialog({
 
         {/* Custom flow (inline, between pills and table) */}
         {showCustomFlow && (
-          <div className="px-8 py-5 border-b border-slate-100 shrink-0">
+          <div className="px-8 py-3 border-b border-slate-100 shrink-0">
             <div className="max-w-2xl space-y-3">
               <button
                 onClick={() => setShowCustomFlow(false)}
@@ -268,7 +268,7 @@ export default function ExecDemoSelectionDialog({
         )}
 
         {/* Footer */}
-        <div className="px-8 py-5 border-t border-slate-100 shrink-0">
+        <div className="px-8 py-3 border-t border-slate-100 shrink-0">
           <button
             onClick={handleRun}
             className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
