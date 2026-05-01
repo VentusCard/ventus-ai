@@ -1,18 +1,16 @@
 ## Goal
-Make it explicit across `/pricing` that the Pilot package is a **6-month** engagement (currently labeled "/yr" or unlabeled).
+On `/demo` (Executive Demo), make the **third transaction row** of the **first demo customer** an MCC 5999 (Miscellaneous & Specialty Retail) transaction by **moving an existing MCC 5999 row up to position 3** — not editing or replacing the current third row.
 
-## Changes — `src/pages/Pricing.tsx`
+## Context
+- The first demo customer (`DEMO_CUSTOMERS[0]`, id `c1`) sources its raw transactions from `SAMPLE_CSV` in `src/lib/sampleData.ts` (starts line 220).
+- The selection dialog and feed render rows in CSV order.
+- Need to find an existing MCC 5999 row in `SAMPLE_CSV` and relocate it to be the 3rd data row (line 222 in current file). If none exists, find the closest miscellaneous-retail row already present and move it up; only as a last resort add a new row.
 
-1. **Step 1 pilot pill** (line ~197–207): change suffix from `customers` → `customers · 6 months`. Add an `6-month pilot` eyebrow label instead of `Pilot size`.
+## Steps
+1. Scan `SAMPLE_CSV` (lines 220–end of block) for any row with `,5999,` and pick the most plausible candidate.
+2. If found: cut that row from its current position and re-insert it as the 3rd data row (immediately after the header and the first two existing rows). All other rows preserve their order.
+3. If no MCC 5999 row exists in `SAMPLE_CSV`: report back to the user before changing anything, since the request is explicitly a move (not a create/edit).
 
-2. **Pilot button tooltip** (line 188): change `${formatCurrency(pilot.flatFee)} / yr` → `${formatCurrency(pilot.flatFee)} flat for 6 months`.
-
-3. **Step 2 column header** (line ~231–236): change header `Pilot/yr` → `Pilot (6mo)`. Subtitle stays `6 Month`.
-
-4. **Merged pilot cell** (line ~311–313): change subtitle `Flat · all modules` → `Flat · 6 months · all modules`.
-
-5. **Totals strip pilot label** (line ~327–333): change visible label from `Pilot` → `Pilot (6mo)`.
-
-6. **Email/copy summary text** (line ~66–73): change `Pilot option: … / yr flat` → `6-month pilot: {customers} customers · all modules · {flatFee} flat (6 months)`.
-
-No changes to `pricingCatalog.ts` (the `flatFee` value is already conceptually the 6-month price — we are only relabeling, not recomputing). No structural/layout changes.
+## Out of scope
+- No edits to row contents (merchant, amount, date, source, zip).
+- No changes to other customers or to deals/pillars/persona summaries.
