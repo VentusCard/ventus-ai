@@ -1,68 +1,81 @@
-## Arrow navigation across the entire /demo flow
+# Restructure Wealth column on Next-Conversation into 3 stacked sections
 
-Today the `/demo` page already supports `←` / `→` arrow keys, but only for stepping between the **3 final tabs** (Next-Offer → Next-Product → Next-Conversation), and only after one of those tabs is open (`phase === "hold" && activeTab`). You want the arrows to walk the *whole* journey end-to-end and let you go back at any point.
+In `src/components/exec-demo/NextConversationRationale.tsx`, replace the right-hand "Wealth Client" column body with three equally-tall stacked sections (each ~1/3 of the available column height). This applies to **all pills** (life event, lifestyle, risk, segment, all) — content adapts to the selected signal but the layout stays the same.
 
-### The 6 stages of the flow
+## Layout (right column)
 
-| # | Stage | State signature |
-|---|---|---|
-| 1 | **Data Selection dialog** | `selectionDialogOpen === true` |
-| 2 | **Enrichment** (full-width transaction table being classified) | `phase === "hold" && !synthesisTriggered && !activeTab` |
-| 3 | **Behavioral Intelligence** (persona synthesis + signal pills, action buttons visible) | `synthesisTriggered === true && !activeTab` |
-| 4 | **Next-Offer** | `activeTab === "analytics"` |
-| 5 | **Next-Product** | `activeTab === "product"` |
-| 6 | **Next-Conversation** | `activeTab === "relationship"` |
-
-### What changes
-
-**1. Replace the existing keyboard handler in `src/pages/ExecDemoPage.tsx` (lines 854–879)** with a single global stage controller. Compute the current stage index from the existing state (no new source of truth — just a derived value), then handle `→` / `←` / `Backspace` as transitions between adjacent stages.
-
-Forward (`→`) transitions:
-- Stage 1 → 2: close selection dialog *and* call `handleRunAnalysis()` if no profile is loaded yet; if a profile is already loaded, just close the dialog.
-- Stage 2 → 3: set `synthesisTriggered = true` (mirrors clicking the existing "Synthesize Behavioral Intelligence" CTA).
-- Stage 3 → 4: `setActiveTab("analytics")` via the existing `handleTabClick`.
-- Stage 4 → 5 → 6: walk `TAB_ORDER` (already implemented logic, kept).
-- Stage 6: no-op (end of flow).
-
-Backward (`←`) transitions are the inverse:
-- Stage 6 → 5 → 4: walk back through `TAB_ORDER`.
-- Stage 4 → 3: `setActiveTab(null)` (returns to the Behavioral Intelligence view with action buttons).
-- Stage 3 → 2: `setSynthesisTriggered(false)` (back to the enrichment view).
-- Stage 2 → 1: `setSelectionDialogOpen(true)` (re-opens the selection dialog without wiping the loaded profile).
-- Stage 1: no-op.
-
-**Backspace = jump back one stage** (same as `←`). `Alt+ArrowLeft` does the same — kept as an alias.
-
-Guard rails:
-- Ignore the keystroke when the event target is an `<input>`, `<textarea>`, or `[contenteditable]` so typing in the selection dialog isn't hijacked.
-- Disable forward from Stage 1 if no profile is selected/loaded (i.e., user must pick a customer or paste a CSV first — the "Run Analysis" button already enforces this; we just call it).
-
-**2. Visible UI affordance — floating bottom-center pill** in `src/pages/ExecDemoPage.tsx`, rendered alongside the existing demo chrome:
+The column wrapper stays as-is (`pl-3 border-l border-slate-200 flex flex-col h-full`), keeping the existing purple header label at top and the "Open WM CoPilot" CTA at the bottom. The middle content area becomes a `flex-1 flex flex-col gap-2 min-h-0` container with three children, each `flex-1 basis-0 min-h-0 overflow-hidden` so they share height equally.
 
 ```text
-   ┌────────────────────────────────────────────┐
-   │  ◀  Back     [ Stage 4 of 6 · Next-Offer ]     Next  ▶  │
-   └────────────────────────────────────────────┘
+┌─ Wealth Client ──────────────┐
+│ [signal cards]      1/3      │
+├──────────────────────────────┤
+│ [prepped content]   1/3      │
+├──────────────────────────────┤
+│ [WM copilot chat]   1/3      │
+├──────────────────────────────┤
+│ [Open WM CoPilot button]     │
+└──────────────────────────────┘
 ```
 
-- Three controls: `Back` button, current stage label + dot indicator (6 dots, current one filled), `Next` button.
-- Buttons disabled at the ends of the flow; reuse the same handlers as the keyboard shortcuts.
-- Lucide icons: `ChevronLeft`, `ChevronRight`. Light theme only (white bg, `border-slate-200`, `text-slate-700`, hover `bg-slate-50`) — no `dark:` utilities.
-- Hidden entirely until the user has done *something* (i.e., `selectionDialogOpen === false || phase !== "idle"`), so it doesn't sit on top of the empty start state. Actually keep it visible from the start with the dialog open so users discover it — the dialog is modal and overlays the pill, which is fine.
-- Position: `fixed bottom-4 left-1/2 -translate-x-1/2 z-40`, rounded-full, subtle shadow.
+### 1. Signals (top 1/3)
 
-### Why no separate "history stack"
+Compact cards derived from the currently selected pill. Two cards per pill: a primary signal card + a corroborating card. Each card is a purple-bordered rounded-lg, `px-2 py-1.5`, with:
+- Tiny icon (Lucide, mapped per signal kind: `Home`, `Baby`, `PiggyBank`, `Landmark` for life events; `Sparkles` for lifestyle; `ShieldAlert` for risk; `Users` for segment)
+- Signal label (e.g. "Home Buyer", "Premium Traveler", "Liquidity Stress")
+- Confidence % pill + urgency badge (Urgent=rose, Soon=amber, Upcoming=slate)
+- One-line evidence in `text-[11px] italic text-slate-500`
 
-The flow is linear and reversible (each backward transition is just the inverse of the forward one). A history stack would let the user jump non-adjacent (e.g., Stage 6 → Stage 2 in one click), but you described a left/right swap with "go back to previous view if needed", which one-step-back already covers. If you later want a free jump, we can layer a stack on top — but starting simple keeps the affordance obvious.
+Stacked vertically inside a `flex flex-col gap-1.5 overflow-y-auto h-full pr-1`.
 
-### Files touched
+### 2. Prepped Content (middle 1/3)
 
-- `src/pages/ExecDemoPage.tsx` — replace the keyboard handler (lines 854–879), add stage-derivation helper + `goNext` / `goBack` callbacks, render the floating navigator pill in the JSX tree near the existing fixed UI (around the `<ExecDemoSelectionDialog>` mount).
+Two side-by-side sub-blocks inside `grid grid-cols-2 gap-2 h-full`, both internally scrollable:
 
-No changes to `ExecDemoIntelPanel.tsx` — it already exposes everything we need via the props the page passes in.
+- **Talking Points** — header `MessageSquare` + "Talking Points" (text-[11px] uppercase bold purple). 3 rows in `bg-slate-50 rounded-md px-2 py-1 text-xs text-slate-700`.
+- **Next Steps Timeline** — header `CalendarCheck` + "Next Steps". Vertical dot-and-line timeline (read-only), 4 items: small purple dot + connector line, `when` in `text-[10px] font-semibold text-purple-700`, `action` in `text-xs text-slate-700`.
 
-### Out of scope
+### 3. WM Copilot Chat (bottom 1/3)
 
-- No URL/router changes; browser back/forward stays untouched.
-- No animation between stages beyond what already exists.
-- No mobile/touch swipe gestures (demo is desktop-only per project rules).
+Static, non-functional chat preview styled to mirror `VentusAIChatPanel`:
+- Header row: small purple "V" avatar + "WM Copilot" (text-xs font-semibold text-purple-900) + "AI" pill
+- Two stacked mock messages (signal-aware content):
+  - Assistant bubble (left, `bg-purple-50 border border-purple-100 rounded-lg px-2 py-1.5 text-xs text-slate-700`)
+  - User bubble (right, `bg-slate-100 rounded-lg px-2 py-1.5 text-xs text-slate-600 ml-auto max-w-[85%]`)
+- Disabled-look input row at bottom: `border border-slate-200 rounded-lg px-2 py-1.5 text-[11px] text-slate-400 italic` showing "Ask WM Copilot…" + tiny send icon. Not interactive.
+
+The existing "Open WM CoPilot" gradient button stays beneath this section as the actionable CTA (clicking it opens the real copilot).
+
+## Static data per pill
+
+A single `STATIC_WEALTH_PREVIEW` map keyed by playbook key (lowercased). Each entry contains:
+
+```ts
+{
+  signals: [{ icon, label, confidence, urgency, evidence }, ...2],
+  talkingPoints: [string, string, string],
+  nextSteps: [{ when, action }, ...4],
+  chatPreview: { assistant: string, user: string },
+}
+```
+
+Authored entries cover the existing playbook keys used by the rationale view (home buyer, new parent, retirement, wealth transfer, premium traveler, dining enthusiast, liquidity risk, gambling risk, mass affluent, etc.) plus a generic fallback used when no key matches. Selection logic mirrors the existing `playbook` lookup already in this file — no new prop wiring.
+
+## Behavior
+
+- Layout is identical for every pill; only the populated content changes.
+- Switching pills swaps all three sections at once.
+- Left "Regular Client" column is unchanged.
+- The current dynamic `Advisor brief` paragraph and `matchedActions` action pills in the right column are removed (replaced by the three new sections). Helper logic that derived `matchedActions`, `wowActions`, `standardActions` from the playbook is removed if no longer used elsewhere in this file.
+- No new props, no parent rewiring, no backend calls. Chat is purely visual mock.
+
+## Files to change
+
+- `src/components/exec-demo/NextConversationRationale.tsx` — add `STATIC_WEALTH_PREVIEW` map, replace right-column body with the 3-section equal-height layout, remove the now-unused advisor-brief block and action-pill derivation.
+
+## Out of scope
+
+- Wiring the chat input to a real LLM.
+- Changes to the left "Regular Client" column.
+- Changes to other tabs (Next-Offer, Next-Product) or to `ExecDemoIntelPanel`.
+- New files or parent component changes.
