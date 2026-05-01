@@ -668,28 +668,25 @@ export default function ExecDemoIntelPanel({
                     </span>
                   );
 
-                  if (isCollapsed) {
-                    return (
-                      <div className="flex flex-wrap gap-2">
-                        {rollupPills}
-                        {lifeEventPills}
-                        {riskPills}
-                      </div>
-                    );
-                  }
+                  // Always render the three labeled rows so headers are retained
+                  // on Next-Offer / Next-Product / Next-Conversation tabs. When a
+                  // tab is active (collapsed), use tighter dimensions to fit.
+                  const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
+                  const labelTextSize = isCollapsed ? "text-[11px]" : "text-[13px]";
+                  const rowGap = isCollapsed ? "mt-1.5" : "mt-2.5";
 
                   return (
                     <>
                       <div className="flex items-center gap-3 mb-1">
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-cyan-700">Spending Habits:</p>
+                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}>Spending Habits:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
-                      <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-amber-700">Life Event Detection:</p>
+                      <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
+                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}>Life Event Detection:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{lifeEventPills}</div>
                       </div>
-                      <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-red-600">Risk Factors:</p>
+                      <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
+                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600`}>Risk Factors:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{riskPills}</div>
                       </div>
                     </>
