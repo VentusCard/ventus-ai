@@ -268,12 +268,12 @@ export default function ExecDemoSelectionDialog({
         )}
 
         {/* Footer */}
-        <div className="px-6 py-4 border-t border-slate-100 shrink-0">
+        <div className="px-8 py-5 border-t border-slate-100 shrink-0">
           <button
             onClick={handleRun}
-            className="w-full flex items-center justify-center gap-2 rounded-full py-3 text-[13px] font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
+            className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
           >
-            <Play className="w-4 h-4" />
+            <Play className="w-5 h-5" />
             Ventus AI Semantic Enrichment
           </button>
         </div>
