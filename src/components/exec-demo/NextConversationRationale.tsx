@@ -320,6 +320,270 @@ function findPlaybook(label: string): Playbook {
   return { ...FALLBACK_PLAYBOOK, signalSource: `detected from ${label.toLowerCase()} signal` };
 }
 
+// ─── Static Wealth Copilot preview content keyed by playbook key ───
+interface WealthSignalCard {
+  icon: LucideIcon;
+  label: string;
+  confidence: number;
+  urgency: "Urgent" | "Soon" | "Upcoming";
+  evidence: string;
+}
+interface WealthPreview {
+  signals: WealthSignalCard[];
+  talkingPoints: [string, string, string];
+  nextSteps: { when: string; action: string }[];
+  chatPreview: { assistant: string; user: string };
+}
+
+const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
+  "home buyer": {
+    signals: [
+      { icon: Home, label: "Home Purchase", confidence: 92, urgency: "Urgent", evidence: "Escrow deposit + title insurance fees this week" },
+      { icon: Briefcase, label: "Liquidity Shift", confidence: 78, urgency: "Soon", evidence: "Brokerage drawdown matches down-payment range" },
+    ],
+    talkingPoints: [
+      "Congratulate on the home and offer a jumbo vs portfolio loan walkthrough.",
+      "Suggest revisiting the estate plan to add the new property.",
+      "Tee up HELOC eligibility for post-close liquidity.",
+    ],
+    nextSteps: [
+      { when: "Today", action: "Review prep brief + closing timeline" },
+      { when: "Tomorrow", action: "Send personal congratulations note" },
+      { when: "This week", action: "Schedule mortgage strategy call" },
+      { when: "Post-close", action: "Trigger HELOC eligibility review" },
+    ],
+    chatPreview: {
+      assistant: "I've prepped a brief on the home-purchase signal — want me to draft a personal note and a jumbo vs portfolio loan one-pager?",
+      user: "Yes, draft both.",
+    },
+  },
+  "new parent": {
+    signals: [
+      { icon: Baby, label: "New Parent", confidence: 88, urgency: "Soon", evidence: "Hospital + pediatric + baby retailer activity" },
+      { icon: Shield, label: "Coverage Gap", confidence: 71, urgency: "Soon", evidence: "Term life policy below recommended household ratio" },
+    ],
+    talkingPoints: [
+      "Open the 529 conversation framed around projected tuition.",
+      "Walk through guardianship + beneficiary updates on the estate plan.",
+      "Quantify the term life coverage gap with a quick scenario.",
+    ],
+    nextSteps: [
+      { when: "Today", action: "Review family + coverage prep brief" },
+      { when: "This week", action: "Send congratulations + 529 primer" },
+      { when: "Next 10 days", action: "Schedule estate doc refresh" },
+      { when: "Within 30 days", action: "Present term life options" },
+    ],
+    chatPreview: {
+      assistant: "New parent signal detected. Want me to model a 529 contribution plan against their tax bracket?",
+      user: "Yes, and add a coverage scenario.",
+    },
+  },
+  "retirement": {
+    signals: [
+      { icon: PiggyBank, label: "Pre-Retirement", confidence: 84, urgency: "Upcoming", evidence: "Catch-up 401k contributions + planning searches" },
+      { icon: Landmark, label: "Roth Window", confidence: 69, urgency: "Soon", evidence: "Income dip creates favorable conversion year" },
+    ],
+    talkingPoints: [
+      "Frame a glide-path rebalance for the next 5 years.",
+      "Walk through a Roth conversion ladder with tax modeling.",
+      "Confirm Medicare timing and Social Security election plan.",
+    ],
+    nextSteps: [
+      { when: "This week", action: "Review retirement readiness brief" },
+      { when: "Next 2 weeks", action: "Schedule annual planning review" },
+      { when: "Before year-end", action: "Execute Roth conversion ladder" },
+      { when: "Q1", action: "Coordinate Medicare enrollment timeline" },
+    ],
+    chatPreview: {
+      assistant: "Their income dip opens a Roth conversion window. Want me to draft a 3-year ladder?",
+      user: "Yes, model it through year-end.",
+    },
+  },
+  "wealth transfer": {
+    signals: [
+      { icon: Landmark, label: "Estate Inflow", confidence: 95, urgency: "Urgent", evidence: "Large inflow + estate attorney payments" },
+      { icon: Briefcase, label: "Trust Need", confidence: 82, urgency: "Soon", evidence: "No existing trust structure on file" },
+    ],
+    talkingPoints: [
+      "Open a discreet generational wealth strategy conversation.",
+      "Walk through trust structuring and beneficiary alignment.",
+      "Cover step-up basis and tax-loss harvesting opportunities.",
+    ],
+    nextSteps: [
+      { when: "Within 24h", action: "Send discreet outreach + brief" },
+      { when: "This week", action: "Co-meeting with estate specialist" },
+      { when: "Next 2 weeks", action: "Draft investment policy statement" },
+      { when: "30 days", action: "Family governance kick-off" },
+    ],
+    chatPreview: {
+      assistant: "Large inflow detected — I've prepped trust + IPS materials. Want me to loop in the estate specialist?",
+      user: "Yes, schedule a joint call.",
+    },
+  },
+  "travel": {
+    signals: [
+      { icon: Plane, label: "Premium Traveler", confidence: 81, urgency: "Soon", evidence: "Airline + lodging + FX activity this quarter" },
+      { icon: Star, label: "Upgrade Eligible", confidence: 64, urgency: "Upcoming", evidence: "Spend pattern qualifies for concierge tier" },
+    ],
+    talkingPoints: [
+      "Offer a pre-trip courtesy call and travel-ready toolkit.",
+      "Discuss premium card upgrade with concierge benefits.",
+      "Confirm international account access and travel notice.",
+    ],
+    nextSteps: [
+      { when: "Pre-trip", action: "Send travel-ready toolkit" },
+      { when: "This week", action: "Courtesy call on upcoming trip" },
+      { when: "Post-trip", action: "Review premium card upgrade" },
+      { when: "Quarterly", action: "Liquidity check for travel cadence" },
+    ],
+    chatPreview: {
+      assistant: "Travel pattern suggests concierge-tier eligibility. Want a one-pager on the upgrade benefits?",
+      user: "Yes, send it over.",
+    },
+  },
+  "luxury": {
+    signals: [
+      { icon: Sparkles, label: "Luxury Spender", confidence: 86, urgency: "Soon", evidence: "Premium retailer + high-ticket discretionary spend" },
+      { icon: Star, label: "Private Banking Fit", confidence: 73, urgency: "Upcoming", evidence: "Asset profile crosses private-bank threshold" },
+    ],
+    talkingPoints: [
+      "Review private banking eligibility and onboarding.",
+      "Introduce lifestyle financing options (art, auto, jewelry).",
+      "Showcase concierge and exclusive access perks.",
+    ],
+    nextSteps: [
+      { when: "This week", action: "Send private banking invitation" },
+      { when: "Next 10 days", action: "Schedule lifestyle financing review" },
+      { when: "Within 30 days", action: "Concierge onboarding session" },
+      { when: "Quarterly", action: "Curated exclusive access drop" },
+    ],
+    chatPreview: {
+      assistant: "Spend profile fits private banking. Want me to prep the invitation and benefits one-pager?",
+      user: "Yes, draft both.",
+    },
+  },
+  "health": {
+    signals: [
+      { icon: Heart, label: "Wellness Engaged", confidence: 77, urgency: "Upcoming", evidence: "Recurring fitness + wellness merchant activity" },
+      { icon: PiggyBank, label: "HSA Underused", confidence: 68, urgency: "Soon", evidence: "Contributing below annual maximum" },
+    ],
+    talkingPoints: [
+      "Frame HSA as a long-term tax-advantaged vehicle.",
+      "Open the long-term care planning conversation.",
+      "Discuss health-aligned investment themes.",
+    ],
+    nextSteps: [
+      { when: "Next review", action: "Walk through HSA maximization" },
+      { when: "This quarter", action: "Long-term care planning intro" },
+      { when: "Annual review", action: "Add health-aligned themes" },
+      { when: "Ongoing", action: "Surface wellness partner perks" },
+    ],
+    chatPreview: {
+      assistant: "Their HSA is underused — want a model showing 20-year compounding vs current path?",
+      user: "Yes, run the comparison.",
+    },
+  },
+  "gambling": {
+    signals: [
+      { icon: ShieldAlert, label: "Vice Risk", confidence: 89, urgency: "Urgent", evidence: "Repeat gambling-MCC activity above threshold" },
+      { icon: Shield, label: "Control Gap", confidence: 72, urgency: "Soon", evidence: "No spending limits or merchant blocks set" },
+    ],
+    talkingPoints: [
+      "Lead with a discreet, non-judgmental wellness check-in.",
+      "Walk through optional spending limits and merchant blocks.",
+      "Share confidential support resources, no marketing.",
+    ],
+    nextSteps: [
+      { when: "Within 24h", action: "Compliance escalation per policy" },
+      { when: "This week", action: "Discreet advisor wellness check-in" },
+      { when: "On request", action: "Activate spending controls" },
+      { when: "Ongoing", action: "Suppress related marketing" },
+    ],
+    chatPreview: {
+      assistant: "Sensitive signal flagged. Want a discreet talking-points script (no marketing) for the check-in?",
+      user: "Yes, keep it gentle.",
+    },
+  },
+  "suspicious": {
+    signals: [
+      { icon: ShieldAlert, label: "Anomalous Activity", confidence: 91, urgency: "Urgent", evidence: "International + high-risk merchant anomalies" },
+      { icon: Shield, label: "Verification Pending", confidence: 80, urgency: "Urgent", evidence: "No travel notice on file for region" },
+    ],
+    talkingPoints: [
+      "Confirm recent activity through coordinated client outreach.",
+      "Walk through card-freeze and quick controls if needed.",
+      "Reset travel notice and account monitoring preferences.",
+    ],
+    nextSteps: [
+      { when: "Within 24h", action: "AML/KYC compliance review" },
+      { when: "Today", action: "Coordinated client verification call" },
+      { when: "Same day", action: "Update travel notice + monitoring" },
+      { when: "This week", action: "Document outcome per policy" },
+    ],
+    chatPreview: {
+      assistant: "Anomaly flagged. Want a verification call script aligned with compliance policy?",
+      user: "Yes, send it.",
+    },
+  },
+  "adult": {
+    signals: [
+      { icon: Shield, label: "Privacy-Sensitive", confidence: 70, urgency: "Upcoming", evidence: "Adult-content merchant activity" },
+      { icon: Bell, label: "No Outreach", confidence: 100, urgency: "Upcoming", evidence: "Privacy-first policy applies" },
+    ],
+    talkingPoints: [
+      "No proactive outreach — privacy-first policy.",
+      "If client raises it, offer statement-detail preferences.",
+      "Confirm marketing suppression on the category.",
+    ],
+    nextSteps: [
+      { when: "Today", action: "Log per compliance policy" },
+      { when: "Ongoing", action: "Suppress related marketing" },
+      { when: "On request", action: "Adjust statement preferences" },
+      { when: "On request", action: "Apply merchant controls" },
+    ],
+    chatPreview: {
+      assistant: "Privacy-sensitive signal — no outreach. Want me to confirm marketing suppression is active?",
+      user: "Yes, please confirm.",
+    },
+  },
+};
+
+const FALLBACK_WEALTH_PREVIEW: WealthPreview = {
+  signals: [
+    { icon: Sparkles, label: "Behavioral Signal", confidence: 70, urgency: "Soon", evidence: "Pattern detected from recent transaction history" },
+    { icon: Users, label: "Segment Match", confidence: 62, urgency: "Upcoming", evidence: "Aligns with high-value advisor cohort" },
+  ],
+  talkingPoints: [
+    "Acknowledge the recent behavior with a relevant talking point.",
+    "Surface a cross-sell opportunity aligned to the signal.",
+    "Confirm next planning checkpoint on the calendar.",
+  ],
+  nextSteps: [
+    { when: "This week", action: "Review prep brief" },
+    { when: "Within 5 days", action: "Send personalized outreach" },
+    { when: "Next 2 weeks", action: "Schedule planning conversation" },
+    { when: "Ongoing", action: "Monitor signal evolution" },
+  ],
+  chatPreview: {
+    assistant: "I've prepped a brief on this signal. Want me to draft the outreach?",
+    user: "Yes, draft it.",
+  },
+};
+
+function findWealthPreview(label: string): WealthPreview {
+  const key = label.toLowerCase();
+  for (const k of Object.keys(STATIC_WEALTH_PREVIEW)) {
+    if (key.includes(k)) return STATIC_WEALTH_PREVIEW[k];
+  }
+  return FALLBACK_WEALTH_PREVIEW;
+}
+
+const URGENCY_STYLES: Record<WealthSignalCard["urgency"], string> = {
+  Urgent: "bg-rose-50 text-rose-700 border-rose-200",
+  Soon: "bg-amber-50 text-amber-700 border-amber-200",
+  Upcoming: "bg-slate-50 text-slate-600 border-slate-200",
+};
+
 const KIND_META: Record<SignalKind, { label: string; color: string; bg: string; border: string }> = {
   lifeEvent: { label: "Life Event", color: "#92400e", bg: "rgba(245,158,11,.10)", border: "rgba(245,158,11,.35)" },
   lifestyle: { label: "Spending Habit", color: "#0e7490", bg: "rgba(6,182,212,.10)", border: "rgba(6,182,212,.32)" },
