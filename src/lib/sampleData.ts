@@ -219,15 +219,15 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_msc1,HAYES VALLEY GENERAL STORE,Assorted home and gift goods,5999,84.00,2024-05-12,94102,Cashback Card
-txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
 txn_004,SF TENNIS CLUB,"Annual membership dues",,350.00,2024-11-25,,Checks
+txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
 txn_007,PACIFIC HEIGHTS APT,,,2800.00,2024-12-10,,ACH
-txn_009,MARIA G,"Dogsitting",,150.00,2024-12-18,,Zelle
-txn_052,DOWN PAYMENT TRANSFER,"Home down payment",,85000.00,2026-04-10,,Wire
 txn_h15,SUNBUM REEF SAFE SPF,Reef-safe sunscreen pre-trip,5912,64.00,2024-06-20,94102,Cashback Card
-txn_h16,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23,94102,Premium Card
-txn_h20,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2024-07-05,96714,Cashback Card
+txn_009,MARIA G,"Dogsitting",,150.00,2024-12-18,,Zelle
 txn_h18,KOA KEA HOTEL KAUAI,Poipu beachfront 5 nights,7011,2290.00,2024-07-03,96756,Premium Card
+txn_052,DOWN PAYMENT TRANSFER,"Home down payment",,85000.00,2026-04-10,,Wire
+txn_h20,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2024-07-05,96714,Cashback Card
+txn_h16,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23,94102,Premium Card
 txn_h19,BUDGET RENT-A-CAR LIH,Jeep rental Lihue airport,7512,578.00,2024-07-03,96766,Premium Card
 txn_h21,BEACH HOUSE RESTAURANT KAUAI,Sunset oceanfront dinner,5812,228.00,2024-07-06,96756,Premium Card
 txn_h22,LUAU KALAMAKU KAUAI,Traditional luau for two,5812,358.00,2024-07-07,96766,Premium Card
