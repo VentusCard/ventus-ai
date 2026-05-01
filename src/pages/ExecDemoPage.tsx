@@ -851,32 +851,116 @@ export default function ExecDemoPage() {
     setStepIndex(idx);
   }, []);
 
-  // Arrow key navigation — only works after user has selected an action tab
+  // ============================================================================
+  // Global stage navigation: ◀ / ▶ / Backspace step through the entire /demo flow
+  // Stages: 1 Selection → 2 Enrichment → 3 Behavioral Intelligence → 4 Next-Offer
+  //         → 5 Next-Product → 6 Next-Conversation
+  // ============================================================================
+  const NAV_TAB_ORDER: TabKey[] = useMemo(() => ["analytics", "product", "relationship"], []);
+  const STAGE_LABELS = useMemo(
+    () => [
+      "Data Selection",
+      "Enrichment",
+      "Behavioral Intelligence",
+      "Next-Offer",
+      "Next-Product",
+      "Next-Conversation",
+    ],
+    []
+  );
+
+  const currentStage = useMemo<number>(() => {
+    if (selectionDialogOpen) return 1;
+    if (activeTab === "analytics") return 4;
+    if (activeTab === "product") return 5;
+    if (activeTab === "relationship") return 6;
+    if (synthesisTriggered) return 3;
+    if (phase === "hold" || phase === "cardCycle") return 2;
+    return 1;
+  }, [selectionDialogOpen, activeTab, synthesisTriggered, phase]);
+
+  // Forward-ref to handleRunAnalysis so we can invoke it before its declaration below.
+  const runAnalysisRef = useRef<(() => void) | null>(null);
+
+  const goToStage = useCallback(
+    (target: number) => {
+      const t = Math.max(1, Math.min(6, target));
+      switch (t) {
+        case 1:
+          setSelectionDialogOpen(true);
+          return;
+        case 2:
+          setSelectionDialogOpen(false);
+          setActiveTab(null);
+          setSynthesisTriggered(false);
+          if (!profileRef.current) {
+            runAnalysisRef.current?.();
+          }
+          return;
+        case 3:
+          setSelectionDialogOpen(false);
+          setActiveTab(null);
+          if (!profileRef.current) {
+            runAnalysisRef.current?.();
+          }
+          setSynthesisTriggered(true);
+          return;
+        case 4:
+        case 5:
+        case 6: {
+          setSelectionDialogOpen(false);
+          if (!profileRef.current) {
+            runAnalysisRef.current?.();
+          }
+          setSynthesisTriggered(true);
+          const tabKey = NAV_TAB_ORDER[t - 4];
+          setActivePillFilter(null);
+          setActiveRollup(null);
+          setActiveTriggerPill(null);
+          setActiveTab(tabKey);
+          return;
+        }
+      }
+    },
+    [NAV_TAB_ORDER]
+  );
+
+  const goNext = useCallback(() => {
+    if (currentStage >= 6) return;
+    goToStage(currentStage + 1);
+  }, [currentStage, goToStage]);
+
+  const goBack = useCallback(() => {
+    if (currentStage <= 1) return;
+    goToStage(currentStage - 1);
+  }, [currentStage, goToStage]);
+
+  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (phase !== "hold" || !activeTab) return;
-      const p = profileRef.current;
-      if (!p) return;
-
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const tag = target.tagName;
+        if (
+          tag === "INPUT" ||
+          tag === "TEXTAREA" ||
+          tag === "SELECT" ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+      }
       if (e.key === "ArrowRight") {
         e.preventDefault();
-        setStepIndex((prev) => {
-          const next = Math.min(prev + 1, TAB_ORDER.length - 1);
-          revealStep(next, p);
-          return next;
-        });
-      } else if (e.key === "ArrowLeft") {
+        goNext();
+      } else if (e.key === "ArrowLeft" || e.key === "Backspace") {
         e.preventDefault();
-        setStepIndex((prev) => {
-          const next = Math.max(prev - 1, 0);
-          revealStep(next, p);
-          return next;
-        });
+        goBack();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [phase, activeTab, revealStep]);
+  }, [goNext, goBack]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setProcessedIndices([]);
@@ -933,6 +1017,13 @@ export default function ExecDemoPage() {
     runAnimationWithProfile(localProfile);
 
   }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
+
+  // Keep the forward-ref in sync so stage navigation can call analysis from
+  // earlier in the file without TDZ issues.
+  useEffect(() => {
+    runAnalysisRef.current = handleRunAnalysis;
+  }, [handleRunAnalysis]);
+
 
   const handleTabClick = useCallback((tab: TabKey) => {
     // Always clear pill selections when switching between the three "Next-..." tabs
@@ -1207,6 +1298,52 @@ export default function ExecDemoPage() {
       </div>
         );
       })()}
+
+      {/* Stage navigator — walks the entire /demo flow */}
+      <div
+        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 bg-white border border-slate-200 rounded-full shadow-lg px-2 py-1.5"
+        style={{ fontFamily: "'Manrope', sans-serif" }}
+      >
+        <button
+          type="button"
+          onClick={goBack}
+          disabled={currentStage <= 1}
+          title="Previous view (← / Backspace)"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
+        <div className="flex items-center gap-2 px-3 py-1 border-l border-r border-slate-200">
+          <div className="flex items-center gap-1">
+            {STAGE_LABELS.map((_, i) => (
+              <span
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                  i + 1 === currentStage
+                    ? "bg-slate-900"
+                    : i + 1 < currentStage
+                    ? "bg-slate-400"
+                    : "bg-slate-200"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-[11.5px] font-semibold text-slate-700 tabular-nums">
+            {currentStage}/6 · {STAGE_LABELS[currentStage - 1]}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={currentStage >= 6}
+          title="Next view (→)"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
 
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
       <ExecDemoSelectionDialog
