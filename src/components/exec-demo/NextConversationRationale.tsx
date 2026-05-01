@@ -869,75 +869,108 @@ export default function NextConversationRationale({
             </span>
           </div>
 
-          <div className="flex-1 space-y-2.5 min-h-0">
-            {/* Advisor brief */}
-            <div
-              className="rounded-lg px-3 py-2.5"
-              style={{
-                background: "rgba(139,92,246,.05)",
-                border: "1px dashed rgba(139,92,246,.32)",
-              }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <Bell className="w-3.5 h-3.5" style={{ color: "#8b5cf6" }} />
-                <span className="text-sm font-semibold text-purple-900">
-                  Advisor notification + prep brief
-                </span>
-              </div>
-              <div className="text-sm text-slate-600 mb-2">
-                <span className="font-semibold">Sent to:</span> {playbook.advisorBrief.recipient}
-              </div>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                Personalized prep brief includes
-              </div>
-              <ul className="space-y-1 mb-2">
-                {playbook.advisorBrief.briefBullets.map((b) => (
-                  <li key={b} className="text-sm text-slate-600 leading-snug flex items-start gap-1.5">
-                    <span className="mt-[6px] w-1.5 h-1.5 rounded-full shrink-0 bg-purple-400" />
-                    {b}
-                  </li>
-                ))}
-              </ul>
-              <div className="text-sm text-slate-600">
-                <span className="font-semibold">Suggested outreach:</span>{" "}
-                <span className="text-purple-700 font-semibold">{playbook.advisorBrief.suggestedOutreach}</span>
-              </div>
-            </div>
+          {(() => {
+            const wp = findWealthPreview(effectiveSignal.label);
+            return (
+              <div className="flex-1 flex flex-col gap-2 min-h-0">
+                {/* 1) Signal cards */}
+                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
+                  <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
+                    <Sparkles className="w-2.5 h-2.5" /> Signals
+                  </div>
+                  <div className="flex flex-col gap-1.5 overflow-y-auto h-[calc(100%-1.25rem)] pr-1">
+                    {wp.signals.map((sig) => {
+                      const Icon = sig.icon;
+                      return (
+                        <div
+                          key={sig.label}
+                          className="rounded-lg px-2 py-1.5 border border-purple-200 bg-purple-50/40"
+                        >
+                          <div className="flex items-center gap-1.5 mb-0.5">
+                            <Icon className="w-3 h-3 text-purple-600 shrink-0" />
+                            <span className="text-xs font-semibold text-slate-800 truncate">{sig.label}</span>
+                            <span className="ml-auto inline-flex items-center gap-1 shrink-0">
+                              <span className="text-[10px] font-semibold text-purple-700 tabular-nums">{sig.confidence}%</span>
+                              <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded border ${URGENCY_STYLES[sig.urgency]}`}>
+                                {sig.urgency}
+                              </span>
+                            </span>
+                          </div>
+                          <div className="text-[11px] italic text-slate-500 leading-snug">{sig.evidence}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
 
-            {/* Concierge / Standard action pills (from generate-product-actions) */}
-            {actionsLoading && matchedActions.length === 0 ? (
-              <div className="rounded-lg px-3 py-2.5 border border-purple-100 bg-purple-50/40">
-                <div className="text-[11px] text-purple-400 italic flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 animate-pulse" /> Generating advisor actions…
+                {/* 2) Prepped content */}
+                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
+                  <div className="grid grid-cols-2 gap-2 h-full">
+                    {/* Talking points */}
+                    <div className="flex flex-col min-h-0">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
+                        <MessageSquare className="w-2.5 h-2.5" /> Talking Points
+                      </div>
+                      <div className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1">
+                        {wp.talkingPoints.map((tp, i) => (
+                          <div key={i} className="bg-slate-50 rounded-md px-2 py-1 text-xs text-slate-700 leading-snug">
+                            {tp}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    {/* Next steps timeline */}
+                    <div className="flex flex-col min-h-0">
+                      <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
+                        <CalendarCheck className="w-2.5 h-2.5" /> Next Steps
+                      </div>
+                      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                        <ol className="relative">
+                          {wp.nextSteps.map((step, i) => (
+                            <li key={i} className="relative pl-4 pb-2 last:pb-0">
+                              {i < wp.nextSteps.length - 1 && (
+                                <span className="absolute left-[3px] top-2 bottom-0 w-px bg-purple-200" />
+                              )}
+                              <span className="absolute left-0 top-1 w-1.5 h-1.5 rounded-full bg-purple-500" />
+                              <div className="text-[10px] font-semibold text-purple-700 leading-tight">{step.when}</div>
+                              <div className="text-xs text-slate-700 leading-snug">{step.action}</div>
+                            </li>
+                          ))}
+                        </ol>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 3) WM Copilot mock chat */}
+                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
+                  <div className="h-full flex flex-col rounded-lg border border-purple-200 bg-white overflow-hidden">
+                    <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-purple-100 bg-purple-50/60 shrink-0">
+                      <span className="flex items-center justify-center w-4 h-4 rounded-md bg-purple-600">
+                        <span className="text-[9px] font-black text-white leading-none">V</span>
+                      </span>
+                      <span className="text-xs font-semibold text-purple-900">WM Copilot</span>
+                      <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded bg-purple-100 text-purple-700 border border-purple-200">AI</span>
+                    </div>
+                    <div className="flex-1 min-h-0 overflow-y-auto px-2 py-1.5 space-y-1.5">
+                      <div className="bg-purple-50 border border-purple-100 rounded-lg px-2 py-1.5 text-xs text-slate-700 leading-snug max-w-[90%]">
+                        {wp.chatPreview.assistant}
+                      </div>
+                      <div className="bg-slate-100 rounded-lg px-2 py-1.5 text-xs text-slate-600 leading-snug ml-auto max-w-[85%] w-fit">
+                        {wp.chatPreview.user}
+                      </div>
+                    </div>
+                    <div className="border-t border-slate-200 p-1.5 shrink-0">
+                      <div className="flex items-center gap-1.5 border border-slate-200 rounded-lg px-2 py-1 bg-slate-50">
+                        <span className="flex-1 text-[11px] text-slate-400 italic truncate">Ask WM Copilot…</span>
+                        <Send className="w-3 h-3 text-slate-300 shrink-0" />
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
-            ) : matchedActions.length > 0 ? (
-              <div className="rounded-lg px-3 py-2.5 space-y-2"
-                style={{ background: "rgba(139,92,246,.04)", border: "1px solid rgba(139,92,246,.20)" }}
-              >
-                {wowActions.length > 0 && (
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-                      <Sparkles className="w-2.5 h-2.5" /> Concierge Touch
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {wowActions.map((a, i) => renderActionPill(a, `wow-${i}`))}
-                    </div>
-                  </div>
-                )}
-                {standardActions.length > 0 && (
-                  <div>
-                    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                      Standard Response
-                    </div>
-                    <div className="flex flex-wrap gap-1">
-                      {standardActions.map((a, i) => renderActionPill(a, `std-${i}`))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            ) : null}
-          </div>
+            );
+          })()}
 
           {/* Open WM Copilot button */}
           <button
