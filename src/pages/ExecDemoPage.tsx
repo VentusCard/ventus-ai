@@ -1299,6 +1299,52 @@ export default function ExecDemoPage() {
         );
       })()}
 
+      {/* Stage navigator — walks the entire /demo flow */}
+      <div
+        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2 bg-white border border-slate-200 rounded-full shadow-lg px-2 py-1.5"
+        style={{ fontFamily: "'Manrope', sans-serif" }}
+      >
+        <button
+          type="button"
+          onClick={goBack}
+          disabled={currentStage <= 1}
+          title="Previous view (← / Backspace)"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
+        <div className="flex items-center gap-2 px-3 py-1 border-l border-r border-slate-200">
+          <div className="flex items-center gap-1">
+            {STAGE_LABELS.map((_, i) => (
+              <span
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                  i + 1 === currentStage
+                    ? "bg-slate-900"
+                    : i + 1 < currentStage
+                    ? "bg-slate-400"
+                    : "bg-slate-200"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-[11.5px] font-semibold text-slate-700 tabular-nums">
+            {currentStage}/6 · {STAGE_LABELS[currentStage - 1]}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={goNext}
+          disabled={currentStage >= 6}
+          title="Next view (→)"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-full text-[12px] font-semibold text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+        >
+          Next
+          <ChevronRight className="w-4 h-4" />
+        </button>
+      </div>
+
       <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
       <ExecDemoSelectionDialog
         open={selectionDialogOpen}
