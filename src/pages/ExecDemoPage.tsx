@@ -879,6 +879,9 @@ export default function ExecDemoPage() {
     return 1;
   }, [selectionDialogOpen, activeTab, synthesisTriggered, phase]);
 
+  // Forward-ref to handleRunAnalysis so we can invoke it before its declaration below.
+  const runAnalysisRef = useRef<(() => void) | null>(null);
+
   const goToStage = useCallback(
     (target: number) => {
       const t = Math.max(1, Math.min(6, target));
@@ -891,15 +894,14 @@ export default function ExecDemoPage() {
           setActiveTab(null);
           setSynthesisTriggered(false);
           if (!profileRef.current) {
-            // Need to actually run analysis to populate the enrichment view
-            handleRunAnalysis();
+            runAnalysisRef.current?.();
           }
           return;
         case 3:
           setSelectionDialogOpen(false);
           setActiveTab(null);
           if (!profileRef.current) {
-            handleRunAnalysis();
+            runAnalysisRef.current?.();
           }
           setSynthesisTriggered(true);
           return;
@@ -908,11 +910,10 @@ export default function ExecDemoPage() {
         case 6: {
           setSelectionDialogOpen(false);
           if (!profileRef.current) {
-            handleRunAnalysis();
+            runAnalysisRef.current?.();
           }
           setSynthesisTriggered(true);
           const tabKey = NAV_TAB_ORDER[t - 4];
-          // mirror handleTabClick's side-effects (clear filters when changing tab)
           setActivePillFilter(null);
           setActiveRollup(null);
           setActiveTriggerPill(null);
@@ -921,7 +922,7 @@ export default function ExecDemoPage() {
         }
       }
     },
-    [handleRunAnalysis, NAV_TAB_ORDER]
+    [NAV_TAB_ORDER]
   );
 
   const goNext = useCallback(() => {
