@@ -1,28 +1,12 @@
 ## Goal
-
-Re-sort the first 10 rows of `SAMPLE_CSV` so MCC and no-MCC rows alternate (no-MCC rows are no longer clustered together). Still includes one of each source (Cashback Card, Premium Card, Checks, ACH, Zelle, Wire) and one MCC 5999. No row contents change.
-
-## New first 10 rows
-
-
-| #   | txn_id   | Merchant                   | MCC      | Source        |
-| --- | -------- | -------------------------- | -------- | ------------- |
-| 1   | txn_msc1 | HAYES VALLEY GENERAL STORE | **5999** | Cashback Card |
-| 2   | txn_004  | SF TENNIS CLUB             | —        | Checks        |
-| 3   | txn_h17  | HAWAIIAN AIRLINES HNL      | 4511     | Premium Card  |
-| 4   | txn_007  | PACIFIC HEIGHTS APT        | —        | ACH           |
-| 5   | txn_h15  | SUNBUM REEF SAFE SPF       | 5912     | Cashback Card |
-| 6   | txn_009  | MARIA G                    | —        | Zelle         |
-| 7   | txn_h18  | KOA KEA HOTEL KAUAI        | 7011     | Premium Card  |
-| 8   | txn_052  | DOWN PAYMENT TRANSFER      | —        | Wire          |
-| 9   | txn_h20  | NA PALI CATAMARAN TOUR     | 7999     | Cashback Card |
-| 10  | txn_h16  | OLUKAI SANDALS             | 5661     | Premium Card  |
-
-
-No-MCC rows now sit at positions 2, 4, 6, 8 — interleaved with MCC rows.
+Renumber all `transaction_id` values in `SAMPLE_CSV` (first /demo customer) sequentially `txn_001` → `txn_068`, in the order they currently appear, so IDs match the row order.
 
 ## Implementation
+- Edit lines 221–290 of `src/lib/sampleData.ts`.
+- Replace each row's first column (txn_id) with `txn_001`, `txn_002`, ... `txn_068` based on its current position.
+- Also drop the two blank lines (currently 254 and 271) so numbering is contiguous.
+- All other columns (merchant, description, mcc, amount, date, zip, source) remain untouched.
 
-- Reorder lines 221–233 of `src/lib/sampleData.ts` to the sequence above.
-- Rows 11+ stay in current order.
-- No edits to row contents.
+## Out of scope
+- No reordering of rows.
+- No changes to other customers' CSVs or any other file.
