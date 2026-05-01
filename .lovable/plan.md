@@ -1,16 +1,28 @@
 ## Goal
-On `/demo` (Executive Demo), make the **third transaction row** of the **first demo customer** an MCC 5999 (Miscellaneous & Specialty Retail) transaction by **moving an existing MCC 5999 row up to position 3** — not editing or replacing the current third row.
+Re-sort the first 10 rows of `SAMPLE_CSV` (first /demo customer) so they include **one transaction from each source** (Cashback Card, Premium Card, Checks, ACH, Zelle, Wire) **and one MCC 5999** transaction. No row contents change — only order.
 
-## Context
-- The first demo customer (`DEMO_CUSTOMERS[0]`, id `c1`) sources its raw transactions from `SAMPLE_CSV` in `src/lib/sampleData.ts` (starts line 220).
-- The selection dialog and feed render rows in CSV order.
-- Need to find an existing MCC 5999 row in `SAMPLE_CSV` and relocate it to be the 3rd data row (line 222 in current file). If none exists, find the closest miscellaneous-retail row already present and move it up; only as a last resort add a new row.
+## New first 10 rows (all already exist in SAMPLE_CSV)
 
-## Steps
-1. Scan `SAMPLE_CSV` (lines 220–end of block) for any row with `,5999,` and pick the most plausible candidate.
-2. If found: cut that row from its current position and re-insert it as the 3rd data row (immediately after the header and the first two existing rows). All other rows preserve their order.
-3. If no MCC 5999 row exists in `SAMPLE_CSV`: report back to the user before changing anything, since the request is explicitly a move (not a create/edit).
+| # | txn_id | Merchant | MCC | Source |
+|---|---|---|---|---|
+| 1 | txn_msc1 | HAYES VALLEY GENERAL STORE | **5999** | Cashback Card |
+| 2 | txn_h17 | HAWAIIAN AIRLINES HNL | 4511 | Premium Card |
+| 3 | txn_004 | SF TENNIS CLUB | — | Checks |
+| 4 | txn_007 | PACIFIC HEIGHTS APT | — | ACH |
+| 5 | txn_009 | MARIA G (dogsitting) | — | Zelle |
+| 6 | txn_052 | DOWN PAYMENT TRANSFER | — | Wire |
+| 7 | txn_h15 | SUNBUM REEF SAFE SPF | 5912 | Cashback Card |
+| 8 | txn_h16 | OLUKAI SANDALS | 5661 | Premium Card |
+| 9 | txn_h20 | NA PALI CATAMARAN TOUR | 7999 | Cashback Card |
+| 10 | txn_h18 | KOA KEA HOTEL KAUAI | 7011 | Premium Card |
+
+Row 1 covers both requirements (Cashback Card + MCC 5999). Rows 2–6 cover the remaining 5 sources. Rows 7–10 fill out the top of the feed with existing variety rows.
+
+## Implementation
+- Reorder lines 221–233 of `src/lib/sampleData.ts` to the sequence above.
+- All other rows (currently lines 234+) stay in their existing order.
+- No edits to merchant names, amounts, dates, MCCs, or sources.
 
 ## Out of scope
-- No edits to row contents (merchant, amount, date, source, zip).
-- No changes to other customers or to deals/pillars/persona summaries.
+- No changes to other customers, deals, or persona summaries.
+- No new transactions added.
