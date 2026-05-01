@@ -220,6 +220,7 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_h15,SUNBUM REEF SAFE SPF,Reef-safe sunscreen pre-trip,5912,64.00,2024-06-20,94102,Cashback Card
 txn_h16,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23,94102,Premium Card
+txn_msc1,HAYES VALLEY GENERAL STORE,Assorted home and gift goods,5999,84.00,2024-05-12,94102,Cashback Card
 txn_h17,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
 txn_004,SF TENNIS CLUB,"Annual membership dues",,350.00,2024-11-25,,Checks
 txn_007,PACIFIC HEIGHTS APT,,,2800.00,2024-12-10,,ACH
