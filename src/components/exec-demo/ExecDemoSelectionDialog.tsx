@@ -214,18 +214,18 @@ export default function ExecDemoSelectionDialog({
           <div className="flex-1 min-h-0 flex flex-col">
 
             {/* Scrollable table */}
-            <ScrollArea className="flex-1 min-h-0 px-6 pb-2">
+            <ScrollArea className="flex-1 min-h-0 px-8 pb-2">
               <table className="w-full text-left border-collapse">
                 <thead className="sticky top-0 z-10">
                   <tr className="bg-slate-50/80 border-b border-slate-200">
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Source</th>
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">ID</th>
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Date</th>
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Merchant</th>
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">MCC</th>
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Description</th>
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap text-right">Amount</th>
-                    <th className="text-slate-600 text-[11px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Zip</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap">Source</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap">ID</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap">Date</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap">Merchant</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap">MCC</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap">Description</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap text-right">Amount</th>
+                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-3 whitespace-nowrap">Zip</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -234,24 +234,24 @@ export default function ExecDemoSelectionDialog({
                     const fmtAmt = isNaN(amt) ? row.amount : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                     return (
                       <tr key={i} className="border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
-                        <td className="px-2 py-1.5">
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-[10.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                        <td className="px-3 py-2.5">
+                          <span className={`inline-block px-2 py-1 rounded text-xs font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
                             {row.source || "—"}
                           </span>
                         </td>
-                        <td className="px-2 py-1.5 text-slate-400 font-mono text-[11px]">{row.transaction_id || i + 1}</td>
-                        <td className="px-2 py-1.5 text-[12px] text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
-                        <td className="px-2 py-1.5 text-[12px] font-medium text-slate-900 max-w-[220px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
-                        <td className="px-2 py-1.5">
+                        <td className="px-3 py-2.5 text-slate-400 font-mono text-xs">{row.transaction_id || i + 1}</td>
+                        <td className="px-3 py-2.5 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
+                        <td className="px-3 py-2.5 text-sm font-medium text-slate-900 max-w-[260px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
+                        <td className="px-3 py-2.5">
                           {row.mcc ? (
-                            <span className="inline-block bg-slate-100 text-slate-600 text-[11px] font-mono px-1.5 py-0.5 rounded">{row.mcc}</span>
+                            <span className="inline-block bg-slate-100 text-slate-600 text-xs font-mono px-2 py-1 rounded">{row.mcc}</span>
                           ) : (
-                            <span className="text-[11px] text-slate-300">—</span>
+                            <span className="text-xs text-slate-300">—</span>
                           )}
                         </td>
-                        <td className="px-2 py-1.5 text-[11.5px] font-mono text-slate-500 max-w-[220px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
-                        <td className="px-2 py-1.5 text-right font-mono text-[12px] text-slate-900 tabular-nums whitespace-nowrap font-normal">{fmtAmt}</td>
-                        <td className="px-2 py-1.5 text-slate-500 text-[11px]">{row.zip_code || "—"}</td>
+                        <td className="px-3 py-2.5 text-sm font-mono text-slate-500 max-w-[260px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
+                        <td className="px-3 py-2.5 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">{fmtAmt}</td>
+                        <td className="px-3 py-2.5 text-slate-500 text-xs">{row.zip_code || "—"}</td>
                       </tr>
                     );
                   })}
@@ -259,7 +259,7 @@ export default function ExecDemoSelectionDialog({
               </table>
 
               {rawRows.length === 0 && (
-                <div className="text-center text-[11px] text-slate-300 py-12">
+                <div className="text-center text-sm text-slate-300 py-16">
                   No transactions available
                 </div>
               )}
