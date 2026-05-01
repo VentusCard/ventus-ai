@@ -222,6 +222,12 @@ Ask: "Would an objective, skeptical observer AGREE this transaction proves the e
 - If the transaction could plausibly be for 3+ unrelated purposes → EXCLUDE
 - When in doubt → EXCLUDE. Fewer strong evidence items beat many weak ones.
 
+### MONEY MOVEMENT EXCLUSION (CRITICAL)
+Money-transfer, remittance, and P2P rails are NEVER evidence of a life event on their own. The merchant name tells you the *rail*, not the *purpose*.
+- ❌ ALWAYS EXCLUDE by default: Western Union, MoneyGram, Ria, Wise, Xoom, Remitly, WorldRemit, Zelle, Venmo, Cash App, PayPal, generic ACH, generic Wire Transfer, Bill Pay, "Money transfer fee", "Outbound transfer", bank-to-bank transfers.
+- ✅ ONLY INCLUDE if the transaction's \`description\` field contains an explicit, event-specific phrase that names the institution or purpose (e.g. "Stanford tuition fall semester", "Down payment closing", "Wedding venue deposit", "529 contribution", "Mortgage escrow"). The merchant name alone — even with a large amount — is never sufficient.
+- A $400 Western Union transfer with description "Money transfer fee" is NOT evidence of college prep, baby prep, home purchase, or any other event. It is a generic outbound transfer.
+
 ### RELEVANCE JUSTIFICATION REQUIREMENT
 For every evidence transaction you include, you MUST be able to complete this sentence:
 "This transaction is evidence of [EVENT] because [DIRECT CAUSAL EXPLANATION]"
@@ -229,12 +235,16 @@ For every evidence transaction you include, you MUST be able to complete this se
 BAD: "Delta Airlines is evidence of college prep because the client might have flown to visit a campus"
 GOOD: "Stanford Visitor Parking is evidence of college prep because it's a payment directly to Stanford's campus parking system during a college visit"
 
+BAD: "Western Union $400 is evidence of college prep because the client may be wiring tuition to a dependent"
+GOOD: "Wire Transfer $25,000 with description 'Stanford tuition fall semester' is evidence of college prep because the description directly names the institution"
+
 ## FINAL EVIDENCE QUALITY CHECK
 
 Before finalizing each detected event, review your evidence list:
 1. Remove any transaction where the connection requires speculation about intent
 2. Remove generic travel (airlines, hotels, car rentals) unless the merchant name explicitly contains the destination/purpose
-3. Ask: "If I showed only this evidence to an advisor, would they immediately understand why each transaction matters?"
+3. Remove any money-transfer / remittance / P2P transaction (Western Union, MoneyGram, Wise, Remitly, Xoom, WorldRemit, Zelle, Venmo, Cash App, PayPal, generic Wire/ACH, Bill Pay) unless its description contains an explicit, event-specific phrase naming the institution or purpose.
+4. Ask: "If I showed only this evidence to an advisor, would they immediately understand why each transaction matters?"
 
 PRECISION OVER RECALL: Missing a weak signal is acceptable. Including irrelevant transactions damages advisor trust.
 
