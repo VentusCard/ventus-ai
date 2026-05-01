@@ -1,12 +1,20 @@
-## Goal
-Renumber all `transaction_id` values in `SAMPLE_CSV` (first /demo customer) sequentially `txn_001` → `txn_068`, in the order they currently appear, so IDs match the row order.
+## Problem
+On the **Next-Offer**, **Next-Product**, and **Next-Conversation (relationship)** tabs, the three pill rows (Spending Habits, Life Event Detection, Risk Factors) get flattened into a single wrap-row with no labels. Users lose the context of what each pill represents.
 
-## Implementation
-- Edit lines 221–290 of `src/lib/sampleData.ts`.
-- Replace each row's first column (txn_id) with `txn_001`, `txn_002`, ... `txn_068` based on its current position.
-- Also drop the two blank lines (currently 254 and 271) so numbering is contiguous.
-- All other columns (merchant, description, mcc, amount, date, zip, source) remain untouched.
+## Root cause
+In `src/components/exec-demo/ExecDemoIntelPanel.tsx` (around lines 671–679), when `isCollapsed` is true (i.e. a tab is active and the pills aren't expanded), the code returns one combined `flex flex-wrap` div containing all three pill arrays — dropping the labeled rows entirely.
+
+## Fix
+Remove the `isCollapsed` early-return branch and always render the three labeled rows ("Spending Habits:", "Life Event Detection:", "Risk Factors:"). When collapsed, use slightly tighter dimensions so the rows still fit comfortably above the tab content:
+- Label width: `w-[140px]` (vs `w-[185px]` expanded)
+- Label text size: `text-[11px]` (vs `text-[13px]`)
+- Row gap: `mt-1.5` (vs `mt-2.5`)
+
+Each row keeps its existing horizontal scroll for pill overflow.
+
+## Files
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — replace the `if (isCollapsed) { ... }` block with the unified labeled-rows render that adapts label width/text-size based on `isCollapsed`.
 
 ## Out of scope
-- No reordering of rows.
-- No changes to other customers' CSVs or any other file.
+- No changes to pill content, colors, click behavior, or animations.
+- No changes to the expanded view layout other than sharing the same render path.
