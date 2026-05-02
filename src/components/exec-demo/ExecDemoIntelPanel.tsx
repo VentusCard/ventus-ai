@@ -467,11 +467,33 @@ export default function ExecDemoIntelPanel({
                         .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
                       if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
                     }
+                    // Build subcategory breakdown from enriched transactions (the data is already there)
+                    let categoryBreakdown = "";
+                    if (enrichedTransactions && r.txIndices && r.txIndices.length > 0) {
+                      const catMap: Record<string, { total: number; count: number; merchants: Set<string> }> = {};
+                      for (const idx of r.txIndices) {
+                        const tx: any = enrichedTransactions[idx];
+                        if (!tx) continue;
+                        const bucket = tx.subcategory || tx.category || "Other";
+                        const amt = typeof tx.amount === "number"
+                          ? Math.abs(tx.amount)
+                          : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                        if (!catMap[bucket]) catMap[bucket] = { total: 0, count: 0, merchants: new Set() };
+                        catMap[bucket].total += amt;
+                        catMap[bucket].count += 1;
+                        const m = tx.normalized_merchant || tx.merchant_name || tx.merchant;
+                        if (m) catMap[bucket].merchants.add(m);
+                      }
+                      const buckets = Object.entries(catMap)
+                        .sort((a, b) => b[1].total - a[1].total)
+                        .map(([name, v]) => `${name} $${Math.round(v.total)} (${v.count}x, ${[...v.merchants].slice(0, 3).join(", ")})`);
+                      if (buckets.length) categoryBreakdown = ` Breakdown by enriched subcategory: ${buckets.join("; ")}.`;
+                    }
                     // Only dispatch AI chat prompts on the Next-Conversation (relationship) tab.
                     // On Next-Offer / Next-Product, pill clicks should only filter the deal/product collection.
                     if (isRelTab) {
                       const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
-                      const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
+                      const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${categoryBreakdown}${merchantBreakdown}`;
                       onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
                     }
                   };
