@@ -1,15 +1,12 @@
 ## Goal
-Make the 3 next- tab buttons lighter and more refined so they fit cleanly on the white background.
+Make the /demo top bar slightly bigger.
 
 ## Change
-File: `src/components/exec-demo/ExecDemoIntelPanel.tsx` (the tab bar block, ~lines 362–382)
+File: `src/pages/ExecDemoPage.tsx` (lines 1109-1131)
+- Bar height `h-14` → `h-16`
+- Logo `h-7` → `h-8`
+- Tagline text `text-[14px]` → `text-[15px]`
+- "Next Step →" button `text-[12px]` → `text-[13px]`
+- Close icon button `w-8 h-8` → `w-9 h-9`, icon `w-4 h-4` → `w-[18px] h-[18px]`
 
-Replace the heavy blue pill container with outlined "ghost" buttons:
-- Remove the `bg-blue-50` wrapper background and inner padding container — use a simple gap row instead.
-- Inactive: white background, thin `border-blue-200` border, `text-blue-600`, hover `bg-blue-50` + `border-blue-300`.
-- Active: solid `bg-blue-600`, white text, matching `border-blue-600`, subtle `shadow-sm`.
-
-This produces a lighter, smarter look that sits naturally on white while keeping the blue accent and a clear active state.
-
-## Educate user about Visual Edits
-After applying, mention that color tweaks like this can be done instantly via Visual Edits.
+Subtle scale-up across the whole header.

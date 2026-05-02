@@ -1107,25 +1107,25 @@ export default function ExecDemoPage() {
     <SimplePasswordGate tagline="AI Native Customer Intelligence Infrastructure for Banks" bullets={["Semantic Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}>
     <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
       {/* Top bar */}
-      <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
+      <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-3">
-          <img src={ventusLogo} alt="Ventus AI" className="h-7 w-auto" />
-          <span className="text-[14px] font-semibold text-slate-700 hidden sm:inline">
+          <img src={ventusLogo} alt="Ventus AI" className="h-8 w-auto" />
+          <span className="text-[15px] font-semibold text-slate-700 hidden sm:inline">
             Semantic Enrichment - Behavioral Intelligence - Personalization Orchestration
           </span>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setContactOpen(true)}
-            className="text-[12px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            className="text-[13px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
             Next Step →
           </button>
           <Link
             to="/"
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
           >
-            <X className="w-4 h-4" />
+            <X className="w-[18px] h-[18px]" />
           </Link>
         </div>
       </div>
