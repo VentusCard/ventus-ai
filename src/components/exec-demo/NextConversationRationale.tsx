@@ -898,11 +898,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Behavior → playbook</div>
               </div>
-              <ul className="space-y-0.5 mt-1">
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-300 shrink-0" /><span>Transaction pattern detected</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-300 shrink-0" /><span>Mapped to playbook</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-300 shrink-0" /><span>Confidence scored, trigger fires</span></li>
-              </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-blue-200" /></div>
 
@@ -915,11 +910,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Message generated</div>
               </div>
-              <ul className="space-y-0.5 mt-1">
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-300 shrink-0" /><span>Channel selected</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-300 shrink-0" /><span>Subject + body crafted</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-300 shrink-0" /><span>Tuned to customer</span></li>
-              </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-blue-300" /></div>
 
@@ -932,11 +922,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Automated delivery</div>
               </div>
-              <ul className="space-y-0.5 mt-1 flex-1 min-h-0 overflow-hidden">
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-500 shrink-0" /><span>Multi-step sequence</span></li>
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-500 shrink-0" /><span>AI chatbot on standby</span></li>
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-500 shrink-0" /><span>Zero advisor time</span></li>
-              </ul>
             </div>
 
             {/* spacer */}
@@ -982,11 +967,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Multi-signal synthesis</div>
               </div>
-              <ul className="space-y-0.5 mt-1">
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Primary + secondary triggers</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Cross-pillar correlation</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Urgency + confidence scored</span></li>
-              </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
 
@@ -999,11 +979,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Brief built for advisor</div>
               </div>
-              <ul className="space-y-0.5 mt-1">
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Talking points</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Risk &amp; opportunity framing</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Tailored to advisor</span></li>
-              </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-300" /></div>
 
@@ -1016,11 +991,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Conversation scheduled</div>
               </div>
-              <ul className="space-y-0.5 mt-1 flex-1 min-h-0 overflow-hidden">
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Next-step timeline</span></li>
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>WM Copilot prepped</span></li>
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Advisor in the loop</span></li>
-              </ul>
             </div>
 
             {/* spacer */}
