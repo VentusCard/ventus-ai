@@ -61,6 +61,8 @@ interface Props {
   activePillLabel?: string | null;
   /** Called when the user clicks Clear in the highlight strip. */
   onClearHighlight?: () => void;
+  /** Called when the user clicks a Pillar pill inside the table to filter by that pillar. */
+  onPillarClick?: (pillar: string) => void;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
