@@ -897,12 +897,12 @@ export default function NextConversationRationale({
       </div>
 
       {/* Two journeys — stacked 50/50, each is a single horizontal flow: SIGNAL → INTENT → PERSONALIZE → ORCHESTRATE */}
-      <div className="flex flex-col gap-1 flex-1 min-h-0">
+      <div className="flex flex-col gap-2 shrink-0">
         <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 shrink-0">Personalized Engagement Orchestration</h3>
         {/* ───────── REGULAR CLIENT — automated machine ───────── */}
-        <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden bg-white flex flex-col">
+        <article className="rounded-xl border border-slate-200 overflow-hidden bg-white">
           {/* Brand strip */}
-          <div className="h-[6px] shrink-0" style={{ background: "linear-gradient(90deg,#3b82f6,#1d4ed8)" }} />
+          <div className="h-[4px]" style={{ background: "linear-gradient(90deg,#3b82f6,#1d4ed8)" }} />
 
           {/* Eyebrow */}
           <div className="px-3.5 pt-2 pb-1.5 flex items-center gap-2 shrink-0">
@@ -914,11 +914,11 @@ export default function NextConversationRationale({
           </div>
 
           {/* Horizontal flow — workflow showcase, signal-agnostic */}
-          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-3 flex-1 min-h-0">
+          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-2.5 pt-1">
             {/* 1. SIGNAL → INTENT (merged) */}
-            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1 shrink-0">Signal → Intent</div>
-              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1">Signal → Intent</div>
+              <div className="flex items-center gap-1.5">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-blue-200 shrink-0">
                   <Brain className="w-3 h-3 text-blue-600" />
                 </span>
@@ -928,9 +928,9 @@ export default function NextConversationRationale({
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-blue-200" /></div>
 
             {/* 3. PERSONALIZE */}
-            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1 shrink-0">Personalize</div>
-              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1">Personalize</div>
+              <div className="flex items-center gap-1.5">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-blue-200 shrink-0">
                   <Sparkles className="w-3 h-3 text-blue-600" />
                 </span>
@@ -940,9 +940,9 @@ export default function NextConversationRationale({
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-blue-300" /></div>
 
             {/* 4. ORCHESTRATE — accented, content only */}
-            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-blue-300 bg-blue-50/70 px-2.5 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-700 mb-1 shrink-0">Orchestrate</div>
-              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+            <div className="min-w-0 rounded-md border border-blue-300 bg-blue-50/70 px-2.5 py-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-700 mb-1">Orchestrate</div>
+              <div className="flex items-center gap-1.5">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-blue-300 shrink-0">
                   <Send className="w-3 h-3 text-blue-700" />
                 </span>
@@ -957,7 +957,7 @@ export default function NextConversationRationale({
             <div className="min-w-0 flex items-stretch">
               <button
                 onClick={onOpenAIAssistant}
-                className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+                className="w-full h-9 inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <span className="inline-flex items-center gap-1.5 text-left">
                   Open AI Assistant
@@ -975,9 +975,9 @@ export default function NextConversationRationale({
         </article>
 
         {/* ───────── WEALTH CLIENT — AI-prepped human conversation ───────── */}
-        <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden bg-white flex flex-col">
+        <article className="rounded-xl border border-slate-200 overflow-hidden bg-white">
           {/* Brand strip */}
-          <div className="h-[6px] shrink-0" style={{ background: "linear-gradient(90deg,#8b5cf6,#6d28d9)" }} />
+          <div className="h-[4px]" style={{ background: "linear-gradient(90deg,#8b5cf6,#6d28d9)" }} />
 
           {/* Eyebrow */}
           <div className="px-3.5 pt-2 pb-1.5 flex items-center gap-2 shrink-0">
@@ -991,11 +991,11 @@ export default function NextConversationRationale({
           </div>
 
           {/* Horizontal flow — workflow showcase, signal-agnostic */}
-          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-3 flex-1 min-h-0">
+          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-2.5 pt-1">
             {/* 1. SIGNAL → INTENT (merged) */}
-            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Signal → Intent</div>
-              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1">Signal → Intent</div>
+              <div className="flex items-center gap-1.5">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
                   <Sparkles className="w-3 h-3 text-purple-600" />
                 </span>
@@ -1005,9 +1005,9 @@ export default function NextConversationRationale({
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
 
             {/* 3. PERSONALIZE */}
-            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Personalize</div>
-              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1">Personalize</div>
+              <div className="flex items-center gap-1.5">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
                   <FileText className="w-3 h-3 text-purple-600" />
                 </span>
@@ -1017,9 +1017,9 @@ export default function NextConversationRationale({
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-300" /></div>
 
             {/* 4. ORCHESTRATE — accented, content only */}
-            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-purple-300 bg-purple-50/70 px-2.5 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-700 mb-1 shrink-0">Orchestrate</div>
-              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+            <div className="min-w-0 rounded-md border border-purple-300 bg-purple-50/70 px-2.5 py-2">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-700 mb-1">Orchestrate</div>
+              <div className="flex items-center gap-1.5">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-300 shrink-0">
                   <CalendarCheck className="w-3 h-3 text-purple-700" />
                 </span>
@@ -1034,7 +1034,7 @@ export default function NextConversationRationale({
             <div className="min-w-0 flex items-stretch">
               <button
                 onClick={onOpenWMCopilot}
-                className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-sm"
+                className="w-full h-9 inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-sm"
               >
                 <span className="inline-flex items-center gap-1.5 text-left">
                   Open WM Copilot
