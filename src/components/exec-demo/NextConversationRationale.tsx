@@ -22,6 +22,8 @@ const CONTEXT_ROWS: Array<{
       "Loans & credit",
       "KYC records",
       "Digital telemetry",
+      "Card & merchant signals",
+      "Geo & travel context",
     ],
   },
   {
@@ -37,6 +39,8 @@ const CONTEXT_ROWS: Array<{
       "Recommend bank products",
       "Plan major purchases",
       "Coach on goals & savings",
+      "Detect life events early",
+      "Flag fraud & unusual activity",
     ],
   },
   {
@@ -52,6 +56,25 @@ const CONTEXT_ROWS: Array<{
       "Business banking",
       "Fraud operations",
       "Branch staff",
+      "Card services",
+      "Customer support",
+    ],
+  },
+  {
+    label: "Out of Scope",
+    icon: ShieldAlert,
+    accent: "bg-rose-500",
+    labelClass: "text-rose-700",
+    pillClass: "border-rose-200 bg-white text-rose-700",
+    pills: [
+      "Move money or pay bills",
+      "Approve loans or credit lines",
+      "Give legal or tax advice",
+      "Trade securities",
+      "Open or close accounts",
+      "Negotiate fees",
+      "Replace human advisors",
+      "Make binding commitments",
     ],
   },
 ];
