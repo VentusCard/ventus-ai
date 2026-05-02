@@ -39,7 +39,6 @@ const CONTEXT_ROWS: Array<{
       "Recommend bank products",
       "Plan major purchases",
       "Coach on goals & savings",
-      "Detect life events early",
       "Flag fraud & unusual activity",
     ],
   },
