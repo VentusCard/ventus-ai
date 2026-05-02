@@ -1,4 +1,78 @@
-import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, type LucideIcon } from "lucide-react";
+import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, type LucideIcon } from "lucide-react";
+
+/* ─── Context band: 3 pill rows describing what the AI assistant has + can do ─── */
+const CONTEXT_ROWS: Array<{
+  label: string;
+  icon: LucideIcon;
+  pills: string[];
+  pillClass: string;
+}> = [
+  {
+    label: "Data Ingestion",
+    icon: Database,
+    pills: [
+      "Transaction streams",
+      "Account holdings",
+      "Demographics",
+      "Loans & credit",
+      "KYC records",
+      "Digital telemetry",
+    ],
+    pillClass: "text-slate-700 bg-slate-50 border-slate-200",
+  },
+  {
+    label: "Capabilities",
+    icon: Zap,
+    pills: [
+      "Check balances & transactions",
+      "Track spending & subscriptions",
+      "Surface offers & deals",
+      "Recommend bank products",
+      "Plan major purchases",
+      "Coach on goals & savings",
+    ],
+    pillClass: "text-blue-700 bg-blue-50 border-blue-100",
+  },
+  {
+    label: "Routes To",
+    icon: Send,
+    pills: [
+      "Wealth advisors",
+      "Insurance specialists",
+      "Mortgage team",
+      "Business banking",
+      "Fraud operations",
+      "Branch staff",
+    ],
+    pillClass: "text-violet-700 bg-violet-50 border-violet-100",
+  },
+];
+
+function ContextPillRows() {
+  return (
+    <div className="space-y-1 pb-2 border-b border-slate-200">
+      {CONTEXT_ROWS.map((row) => {
+        const Icon = row.icon;
+        return (
+          <div key={row.label} className="flex flex-wrap items-center gap-1.5">
+            <span className="inline-flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0 w-[110px]">
+              <Icon className="w-2.5 h-2.5" />
+              {row.label}
+            </span>
+            {row.pills.map((p) => (
+              <span
+                key={p}
+                className={`inline-flex items-center text-[10px] font-medium rounded-full px-2 py-0.5 border shrink-0 ${row.pillClass}`}
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
 import type { CardActions, CardAction } from "./NextProductRationale";
 import type { ProductCard } from "./ProductCardsPhoneView";
 
@@ -768,6 +842,8 @@ export default function NextConversationRationale({
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
+      {/* Context band — pinned at top */}
+      <ContextPillRows />
       {/* Stacked: Regular (top) over Wealth (bottom) */}
       <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto exec-light-scroll pr-1">
         {/* REGULAR CLIENT — TOP */}
