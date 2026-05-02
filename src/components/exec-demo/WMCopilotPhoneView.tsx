@@ -10,10 +10,8 @@ interface Props {
 }
 
 export default function WMCopilotPhoneView({ customerName, selectedSignal, secondarySignalLabel, onClose }: Props) {
-  // Derive a stable 4-digit user number from the customer name
-  const seed = (customerName || "Client").split("").reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0);
-  const userNumber = 1000 + Math.abs(seed) % 9000;
-  const displayName = `User #${userNumber}`;
+  // Use the actual customer name (already in "User #..." format) so the advisor view matches the selected user
+  const displayName = customerName || "Client";
 
   const fallbackSignal: SelectedSignal = selectedSignal ?? { kind: "lifeEvent", label: "College Preparation for Dependent" };
   const brief = resolveBrief(fallbackSignal);
