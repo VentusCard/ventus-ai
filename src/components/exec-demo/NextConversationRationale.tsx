@@ -730,6 +730,8 @@ interface Props {
   onSelectSignal?: (s: SelectedSignal) => void;
   onOpenWMCopilot?: () => void;
   onOpenAIAssistant?: () => void;
+  assistantOpen?: boolean;
+  wmCopilotOpen?: boolean;
 }
 
 export default function NextConversationRationale({
@@ -742,6 +744,8 @@ export default function NextConversationRationale({
   onSelectSignal,
   onOpenWMCopilot,
   onOpenAIAssistant,
+  assistantOpen = false,
+  wmCopilotOpen = false,
 }: Props) {
   const effectiveSignal: SelectedSignal =
     selectedSignal ?? availableSignals[0] ?? { kind: "all", label: "All Signals" };
