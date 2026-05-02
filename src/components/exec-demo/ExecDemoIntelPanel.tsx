@@ -70,6 +70,8 @@ interface Props {
   activePillLabel?: string | null;
   /** Clear-highlight callback wired to the strip's Clear button. */
   onClearHighlight?: () => void;
+  /** Called when a Pillar pill inside the enrichment table is clicked. */
+  onEnrichmentPillarClick?: (pillar: string) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
