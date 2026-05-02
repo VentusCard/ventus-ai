@@ -960,7 +960,7 @@ export default function NextConversationRationale({
                 className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <span className="inline-flex items-center gap-1.5 text-left">
-                  Open AI Assistant
+                  {assistantOpen ? "View AI Assistant" : "Open AI Assistant"}
                   {assistantOpen && (
                     <span className="inline-flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-white/20 border border-white/40 px-1.5 py-0.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
