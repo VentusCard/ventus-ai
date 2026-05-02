@@ -256,7 +256,7 @@ Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the 
                           minItems: 3,
                           maxItems: 3,
                           items: { type: "string" },
-                          description: "Exactly 3 concrete BoA-style product features specific to the actual product",
+                          description: "Exactly 3 concrete bank-grade product features specific to the actual product",
                         },
                         eligibility: {
                           type: "string",
