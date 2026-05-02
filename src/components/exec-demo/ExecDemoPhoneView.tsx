@@ -153,7 +153,9 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
               </span>
-              <span className="font-semibold text-slate-600 text-[11px]">Our Bank · {firstName}</span>
+              <span className="font-semibold text-slate-600 text-[11px]">
+                {wmCopilotMode ? `Our Bank · Advisor` : `Our Bank · ${firstName}`}
+              </span>
             </div>
             <div className="flex items-center gap-1.5">
               <Wifi className="w-3 h-3" />
@@ -162,8 +164,15 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           </div>
 
           {/* Content */}
-          <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
-            {showContent ? (
+          <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || wmCopilotMode) ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
+            {wmCopilotMode ? (
+              <WMCopilotPhoneView
+                customerName={customer.profile?.name ?? firstName}
+                selectedSignal={wmCopilotSignal}
+                secondarySignalLabel={wmCopilotSecondarySignal}
+                onClose={() => onCloseWMCopilot?.()}
+              />
+            ) : showContent ? (
               renderContent()
             ) : (
               <div className="flex items-center justify-center h-full">
@@ -172,28 +181,30 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             )}
           </div>
 
-          {/* Bottom Tab Bar */}
-          <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-            {CONSUMER_TABS.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = consumerTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setConsumerTab(tab.key)}
-                  className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
-                >
-                  <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                  <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
-                    {tab.label}
-                  </span>
-                  {isActive && (
-                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {/* Bottom Tab Bar — hidden in WM CoPilot mode */}
+          {!wmCopilotMode && (
+            <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+              {CONSUMER_TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = consumerTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setConsumerTab(tab.key)}
+                    className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
+                  >
+                    <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                    <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                      {tab.label}
+                    </span>
+                    {isActive && (
+                      <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>
