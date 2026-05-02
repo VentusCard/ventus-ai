@@ -133,31 +133,57 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           <div className="w-2 h-2 rounded-full bg-slate-300" />
         </div>
 
-        {/* Status bar */}
-        <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
-          <span>9:41 AM</span>
-          <div className="flex items-center gap-1.5">
-            <span className="relative flex h-1.5 w-1.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-            </span>
-            <span className="font-semibold text-slate-600 text-[11px]">Our Bank · {firstName}</span>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <Wifi className="w-3 h-3" />
-            <Battery className="w-3.5 h-3.5" />
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
-          {showContent ? (
-            renderContent()
-          ) : (
-            <div className="flex items-center justify-center h-full">
-              <span className="text-[11px] text-slate-300">Waiting for analysis...</span>
+        {/* Zoomed inner stack */}
+        <div className="flex-1 min-h-0 flex flex-col" style={{ zoom: 1.1 }}>
+          {/* Status bar */}
+          <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
+            <span>9:41 AM</span>
+            <div className="flex items-center gap-1.5">
+              <span className="relative flex h-1.5 w-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
+              </span>
+              <span className="font-semibold text-slate-600 text-[11px]">Our Bank · {firstName}</span>
             </div>
-          )}
+            <div className="flex items-center gap-1.5">
+              <Wifi className="w-3 h-3" />
+              <Battery className="w-3.5 h-3.5" />
+            </div>
+          </div>
+
+          {/* Content */}
+          <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
+            {showContent ? (
+              renderContent()
+            ) : (
+              <div className="flex items-center justify-center h-full">
+                <span className="text-[11px] text-slate-300">Waiting for analysis...</span>
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Tab Bar */}
+          <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+            {CONSUMER_TABS.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = consumerTab === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setConsumerTab(tab.key)}
+                  className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
+                >
+                  <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                  <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                    {tab.label}
+                  </span>
+                  {isActive && (
+                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Bottom Tab Bar */}
