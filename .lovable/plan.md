@@ -1,15 +1,9 @@
-Update the two subheaders in `src/components/exec-demo/NextConversationRationale.tsx` to enterprise-style copy that ties the section to Ventus AI:
+Tighten and darken the two new subheaders in `src/components/exec-demo/NextConversationRationale.tsx`:
 
-- Above the context band (Inputs / Capabilities / Routes To): `**AI Native Intelligence Layer**`
-- Above the Regular + Wealth client cards: `**Personalized Client Engagement Orchestration**`
+- Color: `text-slate-700` → `text-slate-900` (both headers)
+- Spacing tweaks:
+  - Outer container vertical rhythm `space-y-2.5` → `space-y-1.5` (reduces gap between context band and the two-cards block)
+  - Context-band header bottom margin `mb-1.5` → `mb-1`
+  - Two-cards inner gap `gap-2` → `gap-1` (tightens space between the orchestration header and the first client card)
 
-Style (both headers, identical):
-
-- Two-line layout — small uppercased "Ventus AI" eyebrow in slate-400 above the bold slate-700 section title.
-- `text-[10px] font-bold uppercase tracking-[0.14em]` for the eyebrow.
-- `text-[12px] font-semibold uppercase tracking-wider text-slate-700` for the title.
-- Light theme only, no `dark:` utilities, no emoji.
-
-This frames the executive view as: top = how Ventus AI understands the customer, bottom = how Ventus AI acts on that understanding across client tiers.
-
-If you'd prefer different wording (e.g. swap "Client Engagement Orchestration" for "Per-Client Action Layer" or "Customer Activation"), say the word before approval and I'll fold it in.
+Font size, weight, casing and tracking stay the same.

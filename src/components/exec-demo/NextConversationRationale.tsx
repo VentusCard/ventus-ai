@@ -863,16 +863,16 @@ export default function NextConversationRationale({
   const SecondaryIcon = secondarySignal?.icon;
 
   return (
-    <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
+    <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-1.5 flex flex-col h-full min-h-0">
       {/* Context band — pinned at top */}
       <div className="shrink-0">
-        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-700 mb-1.5">AI Native Intelligence Layer</h3>
+        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 mb-1">AI Native Intelligence Layer</h3>
         <ContextPillRows />
       </div>
 
       {/* Two journeys — stacked 50/50, each is a single horizontal flow: SIGNAL → INTENT → PERSONALIZE → ORCHESTRATE */}
-      <div className="flex flex-col gap-2 flex-1 min-h-0">
-        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-700 shrink-0">Personalized Client Engagement Orchestration</h3>
+      <div className="flex flex-col gap-1 flex-1 min-h-0">
+        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 shrink-0">Personalized Client Engagement Orchestration</h3>
         {/* ───────── REGULAR CLIENT — automated machine ───────── */}
         <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden bg-white flex flex-col">
           {/* Brand strip */}
