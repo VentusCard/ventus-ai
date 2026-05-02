@@ -1,6 +1,6 @@
-import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, Activity, Brain, Radar, FileText, type LucideIcon } from "lucide-react";
+import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, Activity, Brain, Radar, FileText, Ban, type LucideIcon } from "lucide-react";
 
-/* ─── Context band: 3 rows describing the AI assistant ─── */
+/* ─── Context band: rows describing the AI assistant ─── */
 const CONTEXT_ROWS: Array<{
   label: string;
   icon: LucideIcon;
@@ -22,6 +22,12 @@ const CONTEXT_ROWS: Array<{
       "Loans & credit",
       "KYC records",
       "Digital telemetry",
+      "Card & payment activity",
+      "Statement history",
+      "Channel interactions",
+      "Geo & device signals",
+      "Bill pay & payee list",
+      "Rewards & offers history",
     ],
   },
   {
@@ -37,6 +43,12 @@ const CONTEXT_ROWS: Array<{
       "Recommend bank products",
       "Plan major purchases",
       "Coach on goals & savings",
+      "Explain a charge or fee",
+      "Forecast cash flow",
+      "Detect duplicate subscriptions",
+      "Compare card rewards",
+      "Set savings rules & alerts",
+      "Prep for advisor meetings",
     ],
   },
   {
@@ -52,6 +64,33 @@ const CONTEXT_ROWS: Array<{
       "Business banking",
       "Fraud operations",
       "Branch staff",
+      "Card services",
+      "Disputes & chargebacks",
+      "Lending officers",
+      "Retirement planners",
+      "Estate & trust desk",
+      "Client service center",
+    ],
+  },
+  {
+    label: "Out of Scope",
+    icon: Ban,
+    accent: "bg-rose-400",
+    labelClass: "text-rose-700",
+    pillClass: "border-rose-200 bg-rose-50/60 text-rose-700 line-through decoration-rose-300/70",
+    pills: [
+      "Give tax or legal advice",
+      "Pick individual stocks",
+      "Move money without confirmation",
+      "Open accounts unattended",
+      "Override compliance rules",
+      "Share data with third parties",
+      "Discuss other clients",
+      "Predict market direction",
+      "Approve loans or credit lines",
+      "Process disputes end-to-end",
+      "Replace a licensed advisor",
+      "Make medical or life decisions",
     ],
   },
 ];
