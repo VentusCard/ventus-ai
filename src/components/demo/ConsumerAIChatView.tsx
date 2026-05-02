@@ -363,7 +363,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                     <Bot className="h-3 w-3 text-blue-600" />
                   </div>
                 )}
-                <div className={cn("flex flex-col gap-1.5 max-w-[88%]", msg.role === "user" ? "items-end" : "items-start")}>
+                <div className={cn("flex flex-col gap-1.5 max-w-[85%]", msg.role === "user" ? "items-end" : "items-start")}>
                   <div
                     className={cn(
                       "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",
