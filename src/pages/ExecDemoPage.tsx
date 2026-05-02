@@ -1308,6 +1308,10 @@ export default function ExecDemoPage() {
                       riskFlags={riskFlags}
                       aiTabTrigger={aiTabTrigger}
                       pendingAIPrompt={pendingAIPrompt}
+                      wmCopilotMode={wmCopilotOpen && activeTab === "relationship"}
+                      wmCopilotSignal={wmCopilotSignal}
+                      wmCopilotSecondarySignal={wmCopilotSignal && /college/i.test(wmCopilotSignal.label) ? "Home Purchase" : null}
+                      onCloseWMCopilot={handleCloseWMCopilot}
                     />
                   </div>
                 </div>
