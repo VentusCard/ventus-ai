@@ -856,231 +856,228 @@ export default function NextConversationRationale({
   const wowActions = matchedActions.filter(a => a.tone === "wow");
   const standardActions = matchedActions.filter(a => a.tone === "standard");
 
+  const wp = findWealthPreview(effectiveSignal.label);
+  const primarySignal = wp.signals[0];
+  const PrimaryIcon = primarySignal?.icon;
+  const secondarySignal = wp.signals[1];
+  const SecondaryIcon = secondarySignal?.icon;
+
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
       {/* Context band — pinned at top */}
       <ContextPillRows />
-      {/* Stacked 50/50: Regular (top) over Wealth (bottom), each scrolls inside */}
+
+      {/* Two journeys — stacked 50/50, each is one cohesive card with hero + dark rail */}
       <div className="flex flex-col gap-3 flex-1 min-h-0">
-        {/* REGULAR CLIENT — TOP HALF */}
-        <section className="flex-1 basis-0 min-h-0 flex flex-col">
-          <div className="flex items-center gap-1.5 mb-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-            <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
-              Regular Client
-            </span>
+        {/* ───────── REGULAR CLIENT — automated machine ───────── */}
+        <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden grid grid-cols-[minmax(0,1fr)_240px] bg-white">
+          {/* Brand strip */}
+          <div className="col-span-2 h-[6px]" style={{ background: "linear-gradient(90deg,#3b82f6,#1d4ed8)" }} />
+
+          {/* HERO — automated email pipeline */}
+          <div className="min-h-0 flex flex-col p-3.5 bg-gradient-to-br from-blue-50/70 to-white">
+            <div className="flex items-center gap-1.5 mb-2 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Regular Client</span>
+              <span className="ml-auto text-[10px] font-semibold text-blue-700 bg-blue-100/80 border border-blue-200 rounded-full px-2 py-0.5">
+                Automated · 0 advisor time
+              </span>
+            </div>
+
+            <div className="flex items-start gap-2 shrink-0">
+              <span className="flex items-center justify-center w-7 h-7 rounded-md bg-white border border-blue-200 shrink-0">
+                <ChannelIcon channel={playbook.automatedFlow.channel} color="#2563eb" />
+              </span>
+              <div className="min-w-0">
+                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-600 leading-tight">
+                  {playbook.automatedFlow.channel} flow
+                </div>
+                <div className="text-sm font-semibold text-slate-900 leading-snug truncate">
+                  {playbook.automatedFlow.subject}
+                </div>
+              </div>
+            </div>
+
+            <div className="text-[11px] text-slate-500 italic mt-1.5 leading-snug shrink-0">
+              {playbook.automatedFlow.triggerLogic}
+            </div>
+
+            {/* Sequence pipeline — horizontal connected steps */}
+            <div className="mt-3 flex-1 min-h-0 overflow-y-auto exec-light-scroll">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">Sequence</div>
+              <div className="flex items-stretch gap-0">
+                {playbook.automatedFlow.sequence.map((step, i) => (
+                  <div key={step} className="flex items-stretch flex-1 min-w-0">
+                    <div className="flex flex-col items-center min-w-0 flex-1">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 text-white text-[10px] font-bold shrink-0">
+                        {i + 1}
+                      </div>
+                      <div className="text-[11px] text-slate-700 leading-snug text-center mt-1.5 px-1">
+                        {step}
+                      </div>
+                    </div>
+                    {i < playbook.automatedFlow.sequence.length - 1 && (
+                      <div className="flex items-start pt-3 shrink-0">
+                        <div className="w-4 h-px bg-blue-200" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
 
-          <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2.5">
-            {/* Automated flow */}
-            <div
-              className="rounded-lg px-3 py-2.5 flex flex-col min-h-0 overflow-y-auto exec-light-scroll"
-              style={{
-                background: "rgba(59,130,246,.05)",
-                border: "1px solid rgba(59,130,246,.18)",
-              }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <ChannelIcon channel={playbook.automatedFlow.channel} color="#3b82f6" />
-                <span className="text-sm font-semibold text-blue-900">
-                  {playbook.automatedFlow.channel} flow
-                </span>
-              </div>
-              <div className="text-sm font-medium text-slate-700 mb-1 leading-snug">
-                {playbook.automatedFlow.subject}
-              </div>
-              <div className="text-xs text-slate-500 italic mb-1.5 leading-snug">
-                {playbook.automatedFlow.triggerLogic}
-              </div>
-              <ul className="space-y-1">
-                {playbook.automatedFlow.sequence.map((step, i) => (
-                  <li key={step} className="text-sm text-slate-600 leading-snug flex items-start gap-1.5">
-                    <span className="text-xs tabular-nums text-blue-400 font-bold mt-[2px]">
-                      {i + 1}.
+          {/* RAIL — AI Chatbot context + CTA */}
+          <div className="min-h-0 flex flex-col p-3.5 text-white" style={{ background: "linear-gradient(180deg,#1d4ed8,#1e3a8a)" }}>
+            <div className="flex items-center gap-1.5 mb-2 shrink-0">
+              <MessageSquare className="w-3.5 h-3.5 text-blue-200" />
+              <span className="text-[11px] font-bold uppercase tracking-wider text-white">AI Chatbot</span>
+            </div>
+
+            <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll space-y-2">
+              <div>
+                <div className="text-[9px] font-bold uppercase tracking-wider text-blue-300 mb-1">Knows</div>
+                <div className="flex flex-wrap gap-1">
+                  {playbook.chatbotContext.knows.map((k) => (
+                    <span key={k} className="text-[10px] leading-none bg-white/10 border border-white/20 text-blue-50 rounded-full px-2 py-1">
+                      {k}
                     </span>
-                    <span>{step}</span>
-                  </li>
-                ))}
-              </ul>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <div className="text-[9px] font-bold uppercase tracking-wider text-blue-300 mb-1">Can answer</div>
+                <div className="flex flex-col gap-1">
+                  {playbook.chatbotContext.canAnswer.map((q) => (
+                    <span key={q} className="text-[10px] italic leading-snug bg-white/5 border border-white/10 text-blue-50 rounded-md px-2 py-1">
+                      {q}
+                    </span>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Chatbot context */}
-            <div
-              className="rounded-lg px-3 py-2.5 flex flex-col min-h-0 overflow-y-auto exec-light-scroll"
-              style={{
-                background: "rgba(59,130,246,.05)",
-                border: "1px solid rgba(59,130,246,.18)",
-              }}
-            >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <MessageSquare className="w-3.5 h-3.5" style={{ color: "#3b82f6" }} />
-                <span className="text-sm font-semibold text-blue-900">AI Chatbot context</span>
-              </div>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                Knows
-              </div>
-              <ul className="space-y-1 mb-2">
-                {playbook.chatbotContext.knows.map((k) => (
-                  <li key={k} className="text-sm text-slate-600 leading-snug flex items-start gap-1.5">
-                    <span className="mt-[6px] w-1.5 h-1.5 rounded-full shrink-0 bg-blue-400" />
-                    {k}
-                  </li>
-                ))}
-              </ul>
-              <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                Can answer
-              </div>
-              <ul className="space-y-1">
-                {playbook.chatbotContext.canAnswer.map((q) => (
-                  <li key={q} className="text-sm text-slate-600 leading-snug italic">
-                    {q}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Vertical CTA — Open AI Banking Assistant */}
             <button
               onClick={onOpenAIAssistant}
-              className="w-12 inline-flex flex-col items-center justify-center gap-2 text-[11px] font-bold rounded-lg px-2 py-3 text-white transition-all hover:scale-[1.02] hover:shadow-md shrink-0"
-              style={{
-                background: "linear-gradient(180deg, #3b82f6, #1d4ed8)",
-                boxShadow: "0 2px 8px rgba(59,130,246,.35)",
-              }}
+              className="mt-3 inline-flex items-center justify-between gap-1.5 text-[12px] font-bold rounded-lg px-3 py-2 bg-white text-blue-700 hover:bg-blue-50 transition-colors shrink-0"
             >
-              <MessageSquare className="w-4 h-4" />
-              <span
-                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-                className="tracking-wide leading-none"
-              >
-                Open AI Banking Assistant
-              </span>
+              Open AI Assistant
+              <ArrowUpRight className="w-3.5 h-3.5" />
             </button>
           </div>
-        </section>
+        </article>
 
-        {/* WEALTH CLIENT — BOTTOM HALF */}
-        <section className="flex-1 basis-0 min-h-0 flex flex-col pt-3 border-t border-slate-200">
-          <div className="flex items-center gap-1.5 mb-2.5">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
-            <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
-              Wealth Client <span className="text-purple-400">(+)</span>
-            </span>
+        {/* ───────── WEALTH CLIENT — AI-prepped human conversation ───────── */}
+        <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden grid grid-cols-[minmax(0,1fr)_240px] bg-white">
+          {/* Brand strip */}
+          <div className="col-span-2 h-[6px]" style={{ background: "linear-gradient(90deg,#8b5cf6,#6d28d9)" }} />
+
+          {/* HERO — advisor brief */}
+          <div className="min-h-0 flex flex-col p-3.5 bg-gradient-to-br from-purple-50/70 to-white">
+            <div className="flex items-center gap-1.5 mb-2 shrink-0">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+              <span className="text-[11px] font-bold text-purple-700 uppercase tracking-wider">
+                Wealth Client <span className="text-purple-400">(+)</span>
+              </span>
+              <span className="ml-auto text-[10px] font-semibold text-purple-700 bg-purple-100/80 border border-purple-200 rounded-full px-2 py-0.5">
+                Advisor-led · AI prepped
+              </span>
+            </div>
+
+            {/* Featured signal banner */}
+            {primarySignal && PrimaryIcon && (
+              <div className="rounded-lg border border-purple-200 bg-white px-2.5 py-2 shrink-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-md bg-purple-600 text-white shrink-0">
+                    <PrimaryIcon className="w-3.5 h-3.5" />
+                  </span>
+                  <span className="text-xs font-semibold text-slate-900 truncate">{primarySignal.label}</span>
+                  <span className="ml-auto inline-flex items-center gap-1 shrink-0">
+                    <span className="text-[10px] font-bold text-purple-700 tabular-nums">{primarySignal.confidence}%</span>
+                    <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded border ${URGENCY_STYLES[primarySignal.urgency]}`}>
+                      {primarySignal.urgency}
+                    </span>
+                  </span>
+                </div>
+                <div className="text-[11px] italic text-slate-500 leading-snug mt-1">{primarySignal.evidence}</div>
+                {secondarySignal && SecondaryIcon && (
+                  <div className="flex items-center gap-1.5 mt-1.5 pt-1.5 border-t border-purple-100">
+                    <SecondaryIcon className="w-3 h-3 text-purple-500 shrink-0" />
+                    <span className="text-[11px] text-slate-700 truncate">{secondarySignal.label}</span>
+                    <span className="ml-auto text-[10px] font-semibold text-purple-600 tabular-nums shrink-0">{secondarySignal.confidence}%</span>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Briefing body — talking points + next steps side by side */}
+            <div className="grid grid-cols-2 gap-3 mt-3 flex-1 min-h-0">
+              <div className="flex flex-col min-h-0">
+                <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1 shrink-0">
+                  <MessageSquare className="w-2.5 h-2.5" /> Talking Points
+                </div>
+                <ul className="space-y-1 min-h-0 overflow-y-auto exec-light-scroll pr-1">
+                  {wp.talkingPoints.map((tp, i) => (
+                    <li key={i} className="text-[11px] text-slate-700 leading-snug flex items-start gap-1.5">
+                      <span className="mt-[5px] w-1 h-1 rounded-full shrink-0 bg-purple-500" />
+                      <span>{tp}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="flex flex-col min-h-0">
+                <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1 shrink-0">
+                  <CalendarCheck className="w-2.5 h-2.5" /> Next Steps
+                </div>
+                <ol className="relative min-h-0 overflow-y-auto exec-light-scroll pr-1">
+                  {wp.nextSteps.map((step, i) => (
+                    <li key={i} className="relative pl-3.5 pb-1.5 last:pb-0">
+                      {i < wp.nextSteps.length - 1 && (
+                        <span className="absolute left-[3px] top-2 bottom-0 w-px bg-purple-200" />
+                      )}
+                      <span className="absolute left-0 top-[5px] w-1.5 h-1.5 rounded-full bg-purple-500" />
+                      <div className="text-[10px] font-bold text-purple-700 leading-tight uppercase tracking-wide">{step.when}</div>
+                      <div className="text-[11px] text-slate-700 leading-snug">{step.action}</div>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            </div>
           </div>
 
-          {(() => {
-            const wp = findWealthPreview(effectiveSignal.label);
-            return (
-              <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto] gap-2">
-                {/* Col 1 — Signals */}
-                <div className="flex flex-col min-h-0 overflow-y-auto exec-light-scroll pr-1">
-                  <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-                    <Sparkles className="w-2.5 h-2.5" /> Signals
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    {wp.signals.map((sig) => {
-                      const Icon = sig.icon;
-                      return (
-                        <div
-                          key={sig.label}
-                          className="rounded-lg px-2 py-1.5 border border-purple-200 bg-purple-50/40"
-                        >
-                          <div className="flex items-center gap-1.5 mb-0.5">
-                            <Icon className="w-3 h-3 text-purple-600 shrink-0" />
-                            <span className="text-xs font-semibold text-slate-800 truncate">{sig.label}</span>
-                            <span className="ml-auto inline-flex items-center gap-1 shrink-0">
-                              <span className="text-[10px] font-semibold text-purple-700 tabular-nums">{sig.confidence}%</span>
-                              <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded border ${URGENCY_STYLES[sig.urgency]}`}>
-                                {sig.urgency}
-                              </span>
-                            </span>
-                          </div>
-                          <div className="text-[11px] italic text-slate-500 leading-snug">{sig.evidence}</div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+          {/* RAIL — WM Copilot mock + CTA */}
+          <div className="min-h-0 flex flex-col p-3.5 text-white" style={{ background: "linear-gradient(180deg,#6d28d9,#4c1d95)" }}>
+            <div className="flex items-center gap-1.5 mb-2 shrink-0">
+              <span className="flex items-center justify-center w-4 h-4 rounded-md bg-white">
+                <span className="text-[9px] font-black text-purple-700 leading-none">V</span>
+              </span>
+              <span className="text-[11px] font-bold uppercase tracking-wider text-white">WM Copilot</span>
+              <span className="ml-auto text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded bg-white/15 text-purple-100 border border-white/20">AI</span>
+            </div>
 
-                {/* Col 2 — Talking Points + Next Steps */}
-                <div className="flex flex-col gap-2 min-h-0 overflow-y-auto exec-light-scroll pr-1">
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-                      <MessageSquare className="w-2.5 h-2.5" /> Talking Points
-                    </div>
-                    <div className="space-y-1">
-                      {wp.talkingPoints.map((tp, i) => (
-                        <div key={i} className="bg-slate-50 rounded-md px-2 py-1 text-xs text-slate-700 leading-snug">
-                          {tp}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                  <div>
-                    <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-                      <CalendarCheck className="w-2.5 h-2.5" /> Next Steps
-                    </div>
-                    <ol className="relative">
-                      {wp.nextSteps.map((step, i) => (
-                        <li key={i} className="relative pl-4 pb-2 last:pb-0">
-                          {i < wp.nextSteps.length - 1 && (
-                            <span className="absolute left-[3px] top-2 bottom-0 w-px bg-purple-200" />
-                          )}
-                          <span className="absolute left-0 top-1 w-1.5 h-1.5 rounded-full bg-purple-500" />
-                          <div className="text-[10px] font-semibold text-purple-700 leading-tight">{step.when}</div>
-                          <div className="text-xs text-slate-700 leading-snug">{step.action}</div>
-                        </li>
-                      ))}
-                    </ol>
-                  </div>
-                </div>
-
-                {/* Col 3 — WM Copilot mock chat */}
-                <div className="flex flex-col min-h-0 rounded-lg border border-purple-200 bg-white overflow-hidden">
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-purple-100 bg-purple-50/60 shrink-0">
-                    <span className="flex items-center justify-center w-4 h-4 rounded-md bg-purple-600">
-                      <span className="text-[9px] font-black text-white leading-none">V</span>
-                    </span>
-                    <span className="text-xs font-semibold text-purple-900">WM Copilot</span>
-                    <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded bg-purple-100 text-purple-700 border border-purple-200">AI</span>
-                  </div>
-                  <div className="px-2 py-1.5 space-y-1.5 flex-1 min-h-0 overflow-y-auto exec-light-scroll">
-                    <div className="bg-purple-50 border border-purple-100 rounded-lg px-2 py-1.5 text-xs text-slate-700 leading-snug max-w-[90%]">
-                      {wp.chatPreview.assistant}
-                    </div>
-                    <div className="bg-slate-100 rounded-lg px-2 py-1.5 text-xs text-slate-600 leading-snug ml-auto max-w-[85%] w-fit">
-                      {wp.chatPreview.user}
-                    </div>
-                  </div>
-                  <div className="border-t border-slate-200 p-1.5 shrink-0">
-                    <div className="flex items-center gap-1.5 border border-slate-200 rounded-lg px-2 py-1 bg-slate-50">
-                      <span className="flex-1 text-[11px] text-slate-400 italic truncate">Ask WM Copilot…</span>
-                      <Send className="w-3 h-3 text-slate-300 shrink-0" />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Col 4 — Vertical CTA: Open WM CoPilot */}
-                <button
-                  onClick={onOpenWMCopilot}
-                  className="w-12 inline-flex flex-col items-center justify-center gap-2 text-[11px] font-bold rounded-lg px-2 py-3 text-white transition-all hover:scale-[1.02] hover:shadow-md shrink-0"
-                  style={{
-                    background: "linear-gradient(180deg, #8b5cf6, #6d28d9)",
-                    boxShadow: "0 2px 8px rgba(139,92,246,.35)",
-                  }}
-                >
-                  <ArrowUpRight className="w-4 h-4" />
-                  <span
-                    style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-                    className="tracking-wide leading-none"
-                  >
-                    Open WM CoPilot
-                  </span>
-                </button>
+            <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll space-y-1.5">
+              <div className="bg-white/10 border border-white/20 text-purple-50 rounded-xl rounded-bl-sm px-2.5 py-1.5 text-[11px] leading-snug max-w-[92%]">
+                {wp.chatPreview.assistant}
               </div>
-            );
-          })()}
-        </section>
+              <div className="bg-white text-purple-900 rounded-xl rounded-br-sm px-2.5 py-1.5 text-[11px] leading-snug ml-auto max-w-[88%] w-fit">
+                {wp.chatPreview.user}
+              </div>
+            </div>
+
+            <div className="mt-2 flex items-center gap-1.5 border border-white/20 rounded-md px-2 py-1 bg-white/5 shrink-0">
+              <span className="flex-1 text-[10px] text-purple-200 italic truncate">Ask WM Copilot…</span>
+              <Send className="w-3 h-3 text-purple-200 shrink-0" />
+            </div>
+
+            <button
+              onClick={onOpenWMCopilot}
+              className="mt-2 inline-flex items-center justify-between gap-1.5 text-[12px] font-bold rounded-lg px-3 py-2 bg-white text-purple-700 hover:bg-purple-50 transition-colors shrink-0"
+            >
+              Open WM Copilot
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </article>
       </div>
     </div>
   );
