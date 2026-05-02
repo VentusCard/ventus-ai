@@ -127,7 +127,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
       {/* iPhone frame */}
       <div
         className="phone-mockup-frame relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
-        style={{ width: 340, height: 740 }}
+        style={{ width: 420, height: 740 }}
       >
         {/* Notch */}
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-200 rounded-b-2xl z-10" />
