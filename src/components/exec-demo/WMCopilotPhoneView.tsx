@@ -10,9 +10,10 @@ interface Props {
 }
 
 export default function WMCopilotPhoneView({ customerName, selectedSignal, secondarySignalLabel, onClose }: Props) {
-  const firstName = (customerName || "").split(" ")[0] || "Client";
-  const lastInitial = (customerName || "").split(" ")[1]?.[0] || "";
-  const displayName = lastInitial ? `${firstName} ${lastInitial}.` : firstName;
+  // Derive a stable 4-digit user number from the customer name
+  const seed = (customerName || "Client").split("").reduce((h, c) => ((h << 5) - h + c.charCodeAt(0)) | 0, 0);
+  const userNumber = 1000 + Math.abs(seed) % 9000;
+  const displayName = `User #${userNumber}`;
 
   const fallbackSignal: SelectedSignal = selectedSignal ?? { kind: "lifeEvent", label: "College Preparation for Dependent" };
   const brief = resolveBrief(fallbackSignal);
