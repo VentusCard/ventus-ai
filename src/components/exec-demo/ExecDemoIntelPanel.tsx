@@ -809,6 +809,7 @@ export default function ExecDemoIntelPanel({
                 onSelectSignal={(s) => setSelectedSignal(s)}
                 onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
                 onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
+                assistantOpen={assistantOpen}
               />
             ) : (
               <div className="flex items-center justify-center h-full">
