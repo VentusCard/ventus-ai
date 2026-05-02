@@ -872,13 +872,13 @@ export default function NextConversationRationale({
           {(() => {
             const wp = findWealthPreview(effectiveSignal.label);
             return (
-              <div className="flex-1 flex flex-col gap-2 min-h-0">
+              <div className="flex flex-col gap-2">
                 {/* 1) Signal cards */}
-                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
+                <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
                     <Sparkles className="w-2.5 h-2.5" /> Signals
                   </div>
-                  <div className="flex flex-col gap-1.5 overflow-y-auto h-[calc(100%-1.25rem)] pr-1">
+                  <div className="flex flex-col gap-1.5 pr-1">
                     {wp.signals.map((sig) => {
                       const Icon = sig.icon;
                       return (
