@@ -943,8 +943,8 @@ export default function NextConversationRationale({
                 </div>
 
                 {/* 3) WM Copilot mock chat */}
-                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
-                  <div className="h-full flex flex-col rounded-lg border border-purple-200 bg-white overflow-hidden">
+                <div>
+                  <div className="flex flex-col rounded-lg border border-purple-200 bg-white overflow-hidden">
                     <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-purple-100 bg-purple-50/60 shrink-0">
                       <span className="flex items-center justify-center w-4 h-4 rounded-md bg-purple-600">
                         <span className="text-[9px] font-black text-white leading-none">V</span>
