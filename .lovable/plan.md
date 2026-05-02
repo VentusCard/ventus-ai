@@ -1,24 +1,33 @@
-I’ll tighten the layout specifically for the Orchestrate cards so the “Open AI Assistant” and “Open WM Copilot” buttons cannot overlap with the orchestration bullets.
+I’ll update `src/components/exec-demo/NextConversationRationale.tsx` so the Orchestrate content cards and CTA buttons are not part of the same card at all.
 
-Planned changes:
+Plan:
 
-1. In `src/components/exec-demo/NextConversationRationale.tsx`, restructure both Orchestrate cards into a strict 3-part vertical layout:
-   - Fixed header/label area
-   - Flexible workflow/bullet area
-   - Fixed CTA footer area
+1. Change each journey row from a 3-card flow to a 4-content-column layout:
 
-2. Replace the current `mt-auto` footer approach with an explicit reserved footer row:
-   - Add a dedicated `shrink-0` footer with its own top border and spacing.
-   - Keep the CTA button inside that footer only.
-   - Ensure the bullet list cannot render underneath the footer.
+```text
+Signal → Intent   >   Personalize   >   Orchestrate card   CTA button
+```
 
-3. Make the orchestration content area shorter and safer:
-   - Wrap the title + bullets in a `flex-1 min-h-0 overflow-hidden` body.
-   - Reduce vertical padding slightly inside the Orchestrate cards if needed.
-   - Keep button height consistent and full-width.
+2. Keep the Orchestrate card as a standalone informational card containing only:
+- the `Orchestrate` label
+- the icon/title
+- the three bullet points
 
-4. Apply the exact same pattern to both cards:
-   - Regular Client: “Open AI Assistant”
-   - Wealth Client: “Open WM Copilot”
+3. Move the CTA into its own horizontally separate button column to the right of the Orchestrate card:
+- `Open AI Assistant` for Regular Client
+- `Open WM Copilot` for Wealth Client
 
-5. After implementation, visually verify the `/demo` layout at the current desktop viewport so the Orchestrate text and buttons are separated with no overlap.
+4. Give the CTA column fixed/dedicated width and vertical centering so it cannot overlap or be visually contained by the Orchestrate card.
+
+5. Preserve the existing light theme and brand colors:
+- blue for Regular Client
+- purple for Wealth Client
+- no dark-mode utilities
+
+Technical details:
+- Replace the current grid column definition with one that includes an additional CTA column, for example:
+  `grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1fr)_132px]`
+- Remove the CTA footer from inside both Orchestrate cards.
+- Add a new sibling `<div>` after each Orchestrate card for the CTA button.
+- Keep `min-w-0`, `min-h-0`, and `overflow-hidden` on cards so text remains contained.
+- Add a small horizontal gap before the CTA column so the button reads as a separate action zone, not part of the Orchestrate card.
