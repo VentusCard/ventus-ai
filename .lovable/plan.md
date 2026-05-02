@@ -1,39 +1,15 @@
 ## Goal
+Make the 3 next- tab buttons lighter and more refined so they fit cleanly on the white background.
 
-On `/demo`, when a user has entered any of the 3 next- tabs (Next-Offer / Next-Product / Next-Conversation), move the 3-button tab switcher to sit ABOVE the persona/pills card instead of below it.
+## Change
+File: `src/components/exec-demo/ExecDemoIntelPanel.tsx` (the tab bar block, ~lines 362–382)
 
-## Current Layout (within a selected tab)
+Replace the heavy blue pill container with outlined "ghost" buttons:
+- Remove the `bg-blue-50` wrapper background and inner padding container — use a simple gap row instead.
+- Inactive: white background, thin `border-blue-200` border, `text-blue-600`, hover `bg-blue-50` + `border-blue-300`.
+- Active: solid `bg-blue-600`, white text, matching `border-blue-600`, subtle `shadow-sm`.
 
-```text
-┌─────────────────────────────────────┐
-│ Persona + Rollup/Trigger Pills card │  ← scrollable, ~45vh max
-├─────────────────────────────────────┤
-│ [Next-Offer] [Next-Product] [Next-C]│  ← tab switcher (3 buttons)
-├─────────────────────────────────────┤
-│ Tab content (rationale view)        │
-└─────────────────────────────────────┘
-```
+This produces a lighter, smarter look that sits naturally on white while keeping the blue accent and a clear active state.
 
-## Target Layout
-
-```text
-┌─────────────────────────────────────┐
-│ [Next-Offer] [Next-Product] [Next-C]│  ← moved up
-├─────────────────────────────────────┤
-│ Persona + Rollup/Trigger Pills card │
-├─────────────────────────────────────┤
-│ Tab content (rationale view)        │
-└─────────────────────────────────────┘
-```
-
-The pre-tab state (the row of 3 large action buttons shown before any tab is selected, lines 740-764) is unchanged.
-
-## Implementation
-
-File: `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-
-1. Move the tab-bar block (currently lines 766-791, the `{showProfile && phase !== "idle" && activeTab && (...)}` segment) to render BEFORE the persona/pills card container (currently starting at line 361).
-2. Keep all behavior, styling, and conditions identical — only the DOM order changes.
-3. Leave the unselected-state action buttons (lines 740-764) and tab content block (794+) where they are.
-
-No other files need changes.
+## Educate user about Visual Edits
+After applying, mention that color tweaks like this can be done instantly via Visual Edits.
