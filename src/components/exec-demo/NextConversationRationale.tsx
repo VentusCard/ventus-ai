@@ -1,4 +1,39 @@
-import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, Activity, Brain, Radar, FileText, type LucideIcon } from "lucide-react";
+import {
+  Mail,
+  MessageSquare,
+  Bell,
+  Sparkles,
+  ChevronRight,
+  ArrowUpRight,
+  Smartphone,
+  UserCheck,
+  CalendarCheck,
+  Heart,
+  Gift,
+  Shield,
+  Lightbulb,
+  Star,
+  Compass,
+  Flower,
+  PenLine,
+  Cake,
+  Plane,
+  Home,
+  Briefcase,
+  Baby,
+  PiggyBank,
+  Landmark,
+  ShieldAlert,
+  Users,
+  Send,
+  Database,
+  Zap,
+  Activity,
+  Brain,
+  Radar,
+  FileText,
+  type LucideIcon,
+} from "lucide-react";
 
 /* ─── Context band: 3 rows describing the AI assistant ─── */
 const CONTEXT_ROWS: Array<{
@@ -38,7 +73,6 @@ const CONTEXT_ROWS: Array<{
       "Surface offers & deals",
       "Recommend bank products",
       "Plan major purchases",
-      "Coach on goals & savings",
       "Flag fraud & unusual activity",
     ],
   },
@@ -56,7 +90,6 @@ const CONTEXT_ROWS: Array<{
       "Open or close accounts",
       "Negotiate fees",
       "Underwrite or price products",
-      "Make binding commitments",
     ],
   },
   {
@@ -66,13 +99,13 @@ const CONTEXT_ROWS: Array<{
     labelClass: "text-violet-700",
     pillClass: "border-violet-300 bg-white text-violet-700",
     pills: [
-      "Account opening flows",
-      "Loan & card application portals",
       "Wealth advisors",
-      "Mortgage specialists",
+      "Insurance specialists",
+      "Mortgage team",
+      "Business banking",
       "Fraud operations",
-      "Perks & benefits pages",
-      "Branch appointment booking",
+      "Branch staff",
+      "Card services",
       "Customer support",
     ],
   },
@@ -84,10 +117,7 @@ function ContextPillRows() {
       {CONTEXT_ROWS.map((row, idx) => {
         const Icon = row.icon;
         return (
-          <div
-            key={row.label}
-            className={`flex items-stretch gap-2.5 ${idx > 0 ? "pt-2" : ""}`}
-          >
+          <div key={row.label} className={`flex items-stretch gap-2.5 ${idx > 0 ? "pt-2" : ""}`}>
             <div className={`w-0.5 rounded-sm ${row.accent} shrink-0`} />
             <span
               className={`inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider shrink-0 w-[110px] ${row.labelClass}`}
@@ -246,7 +276,7 @@ const PLAYBOOKS: Record<string, Playbook> = {
       suggestedOutreach: "Within 1 week",
     },
   },
-  "retirement": {
+  retirement: {
     signalSource: "detected from age cohort + 401k contribution shifts + planning searches",
     automatedFlow: {
       channel: "Email",
@@ -290,7 +320,7 @@ const PLAYBOOKS: Record<string, Playbook> = {
       suggestedOutreach: "Within 24 hours",
     },
   },
-  "travel": {
+  travel: {
     signalSource: "detected from airline + lodging + foreign currency activity",
     automatedFlow: {
       channel: "Push",
@@ -312,7 +342,7 @@ const PLAYBOOKS: Record<string, Playbook> = {
       suggestedOutreach: "Pre-trip courtesy call",
     },
   },
-  "luxury": {
+  luxury: {
     signalSource: "detected from premium retailer + high-ticket discretionary spend",
     automatedFlow: {
       channel: "Email",
@@ -334,7 +364,7 @@ const PLAYBOOKS: Record<string, Playbook> = {
       suggestedOutreach: "Within 1 week",
     },
   },
-  "health": {
+  health: {
     signalSource: "detected from gym, wellness, and healthy retailer activity",
     automatedFlow: {
       channel: "Push",
@@ -344,7 +374,11 @@ const PLAYBOOKS: Record<string, Playbook> = {
     },
     chatbotContext: {
       knows: ["Wellness category spend", "HSA contribution status", "Recurring gym/wellness subs"],
-      canAnswer: ['"Should I contribute more to my HSA?"', '"Any wellness cashback?"', '"Best card for fitness spend?"'],
+      canAnswer: [
+        '"Should I contribute more to my HSA?"',
+        '"Any wellness cashback?"',
+        '"Best card for fitness spend?"',
+      ],
     },
     advisorBrief: {
       recipient: "Wealth advisor",
@@ -356,7 +390,7 @@ const PLAYBOOKS: Record<string, Playbook> = {
       suggestedOutreach: "Next scheduled review",
     },
   },
-  "gambling": {
+  gambling: {
     signalSource: "detected from gambling MCC transactions",
     automatedFlow: {
       channel: "Push",
@@ -378,7 +412,7 @@ const PLAYBOOKS: Record<string, Playbook> = {
       suggestedOutreach: "Compliance review within 24 hours",
     },
   },
-  "suspicious": {
+  suspicious: {
     signalSource: "detected from anomalous international or high-risk activity",
     automatedFlow: {
       channel: "SMS",
@@ -400,7 +434,7 @@ const PLAYBOOKS: Record<string, Playbook> = {
       suggestedOutreach: "Compliance review within 24 hours",
     },
   },
-  "adult": {
+  adult: {
     signalSource: "detected from adult-content merchant activity",
     automatedFlow: {
       channel: "Push",
@@ -450,8 +484,20 @@ interface WealthPreview {
 const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
   "home buyer": {
     signals: [
-      { icon: Home, label: "Home Purchase", confidence: 92, urgency: "Urgent", evidence: "Escrow deposit + title insurance fees this week" },
-      { icon: Briefcase, label: "Liquidity Shift", confidence: 78, urgency: "Soon", evidence: "Brokerage drawdown matches down-payment range" },
+      {
+        icon: Home,
+        label: "Home Purchase",
+        confidence: 92,
+        urgency: "Urgent",
+        evidence: "Escrow deposit + title insurance fees this week",
+      },
+      {
+        icon: Briefcase,
+        label: "Liquidity Shift",
+        confidence: 78,
+        urgency: "Soon",
+        evidence: "Brokerage drawdown matches down-payment range",
+      },
     ],
     talkingPoints: [
       "Congratulate on the home and offer a jumbo vs portfolio loan walkthrough.",
@@ -465,14 +511,27 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       { when: "Post-close", action: "Trigger HELOC eligibility review" },
     ],
     chatPreview: {
-      assistant: "I've prepped a brief on the home-purchase signal — want me to draft a personal note and a jumbo vs portfolio loan one-pager?",
+      assistant:
+        "I've prepped a brief on the home-purchase signal — want me to draft a personal note and a jumbo vs portfolio loan one-pager?",
       user: "Yes, draft both.",
     },
   },
   "new parent": {
     signals: [
-      { icon: Baby, label: "New Parent", confidence: 88, urgency: "Soon", evidence: "Hospital + pediatric + baby retailer activity" },
-      { icon: Shield, label: "Coverage Gap", confidence: 71, urgency: "Soon", evidence: "Term life policy below recommended household ratio" },
+      {
+        icon: Baby,
+        label: "New Parent",
+        confidence: 88,
+        urgency: "Soon",
+        evidence: "Hospital + pediatric + baby retailer activity",
+      },
+      {
+        icon: Shield,
+        label: "Coverage Gap",
+        confidence: 71,
+        urgency: "Soon",
+        evidence: "Term life policy below recommended household ratio",
+      },
     ],
     talkingPoints: [
       "Open the 529 conversation framed around projected tuition.",
@@ -490,10 +549,22 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       user: "Yes, and add a coverage scenario.",
     },
   },
-  "retirement": {
+  retirement: {
     signals: [
-      { icon: PiggyBank, label: "Pre-Retirement", confidence: 84, urgency: "Upcoming", evidence: "Catch-up 401k contributions + planning searches" },
-      { icon: Landmark, label: "Roth Window", confidence: 69, urgency: "Soon", evidence: "Income dip creates favorable conversion year" },
+      {
+        icon: PiggyBank,
+        label: "Pre-Retirement",
+        confidence: 84,
+        urgency: "Upcoming",
+        evidence: "Catch-up 401k contributions + planning searches",
+      },
+      {
+        icon: Landmark,
+        label: "Roth Window",
+        confidence: 69,
+        urgency: "Soon",
+        evidence: "Income dip creates favorable conversion year",
+      },
     ],
     talkingPoints: [
       "Frame a glide-path rebalance for the next 5 years.",
@@ -513,8 +584,20 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
   },
   "wealth transfer": {
     signals: [
-      { icon: Landmark, label: "Estate Inflow", confidence: 95, urgency: "Urgent", evidence: "Large inflow + estate attorney payments" },
-      { icon: Briefcase, label: "Trust Need", confidence: 82, urgency: "Soon", evidence: "No existing trust structure on file" },
+      {
+        icon: Landmark,
+        label: "Estate Inflow",
+        confidence: 95,
+        urgency: "Urgent",
+        evidence: "Large inflow + estate attorney payments",
+      },
+      {
+        icon: Briefcase,
+        label: "Trust Need",
+        confidence: 82,
+        urgency: "Soon",
+        evidence: "No existing trust structure on file",
+      },
     ],
     talkingPoints: [
       "Open a discreet generational wealth strategy conversation.",
@@ -528,14 +611,27 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       { when: "30 days", action: "Family governance kick-off" },
     ],
     chatPreview: {
-      assistant: "Large inflow detected — I've prepped trust + IPS materials. Want me to loop in the estate specialist?",
+      assistant:
+        "Large inflow detected — I've prepped trust + IPS materials. Want me to loop in the estate specialist?",
       user: "Yes, schedule a joint call.",
     },
   },
-  "travel": {
+  travel: {
     signals: [
-      { icon: Plane, label: "Premium Traveler", confidence: 81, urgency: "Soon", evidence: "Airline + lodging + FX activity this quarter" },
-      { icon: Star, label: "Upgrade Eligible", confidence: 64, urgency: "Upcoming", evidence: "Spend pattern qualifies for concierge tier" },
+      {
+        icon: Plane,
+        label: "Premium Traveler",
+        confidence: 81,
+        urgency: "Soon",
+        evidence: "Airline + lodging + FX activity this quarter",
+      },
+      {
+        icon: Star,
+        label: "Upgrade Eligible",
+        confidence: 64,
+        urgency: "Upcoming",
+        evidence: "Spend pattern qualifies for concierge tier",
+      },
     ],
     talkingPoints: [
       "Offer a pre-trip courtesy call and travel-ready toolkit.",
@@ -553,10 +649,22 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       user: "Yes, send it over.",
     },
   },
-  "luxury": {
+  luxury: {
     signals: [
-      { icon: Sparkles, label: "Luxury Spender", confidence: 86, urgency: "Soon", evidence: "Premium retailer + high-ticket discretionary spend" },
-      { icon: Star, label: "Private Banking Fit", confidence: 73, urgency: "Upcoming", evidence: "Asset profile crosses private-bank threshold" },
+      {
+        icon: Sparkles,
+        label: "Luxury Spender",
+        confidence: 86,
+        urgency: "Soon",
+        evidence: "Premium retailer + high-ticket discretionary spend",
+      },
+      {
+        icon: Star,
+        label: "Private Banking Fit",
+        confidence: 73,
+        urgency: "Upcoming",
+        evidence: "Asset profile crosses private-bank threshold",
+      },
     ],
     talkingPoints: [
       "Review private banking eligibility and onboarding.",
@@ -574,10 +682,22 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       user: "Yes, draft both.",
     },
   },
-  "health": {
+  health: {
     signals: [
-      { icon: Heart, label: "Wellness Engaged", confidence: 77, urgency: "Upcoming", evidence: "Recurring fitness + wellness merchant activity" },
-      { icon: PiggyBank, label: "HSA Underused", confidence: 68, urgency: "Soon", evidence: "Contributing below annual maximum" },
+      {
+        icon: Heart,
+        label: "Wellness Engaged",
+        confidence: 77,
+        urgency: "Upcoming",
+        evidence: "Recurring fitness + wellness merchant activity",
+      },
+      {
+        icon: PiggyBank,
+        label: "HSA Underused",
+        confidence: 68,
+        urgency: "Soon",
+        evidence: "Contributing below annual maximum",
+      },
     ],
     talkingPoints: [
       "Frame HSA as a long-term tax-advantaged vehicle.",
@@ -595,10 +715,22 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       user: "Yes, run the comparison.",
     },
   },
-  "gambling": {
+  gambling: {
     signals: [
-      { icon: ShieldAlert, label: "Vice Risk", confidence: 89, urgency: "Urgent", evidence: "Repeat gambling-MCC activity above threshold" },
-      { icon: Shield, label: "Control Gap", confidence: 72, urgency: "Soon", evidence: "No spending limits or merchant blocks set" },
+      {
+        icon: ShieldAlert,
+        label: "Vice Risk",
+        confidence: 89,
+        urgency: "Urgent",
+        evidence: "Repeat gambling-MCC activity above threshold",
+      },
+      {
+        icon: Shield,
+        label: "Control Gap",
+        confidence: 72,
+        urgency: "Soon",
+        evidence: "No spending limits or merchant blocks set",
+      },
     ],
     talkingPoints: [
       "Lead with a discreet, non-judgmental wellness check-in.",
@@ -616,10 +748,22 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       user: "Yes, keep it gentle.",
     },
   },
-  "suspicious": {
+  suspicious: {
     signals: [
-      { icon: ShieldAlert, label: "Anomalous Activity", confidence: 91, urgency: "Urgent", evidence: "International + high-risk merchant anomalies" },
-      { icon: Shield, label: "Verification Pending", confidence: 80, urgency: "Urgent", evidence: "No travel notice on file for region" },
+      {
+        icon: ShieldAlert,
+        label: "Anomalous Activity",
+        confidence: 91,
+        urgency: "Urgent",
+        evidence: "International + high-risk merchant anomalies",
+      },
+      {
+        icon: Shield,
+        label: "Verification Pending",
+        confidence: 80,
+        urgency: "Urgent",
+        evidence: "No travel notice on file for region",
+      },
     ],
     talkingPoints: [
       "Confirm recent activity through coordinated client outreach.",
@@ -637,10 +781,22 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
       user: "Yes, send it.",
     },
   },
-  "adult": {
+  adult: {
     signals: [
-      { icon: Shield, label: "Privacy-Sensitive", confidence: 70, urgency: "Upcoming", evidence: "Adult-content merchant activity" },
-      { icon: Bell, label: "No Outreach", confidence: 100, urgency: "Upcoming", evidence: "Privacy-first policy applies" },
+      {
+        icon: Shield,
+        label: "Privacy-Sensitive",
+        confidence: 70,
+        urgency: "Upcoming",
+        evidence: "Adult-content merchant activity",
+      },
+      {
+        icon: Bell,
+        label: "No Outreach",
+        confidence: 100,
+        urgency: "Upcoming",
+        evidence: "Privacy-first policy applies",
+      },
     ],
     talkingPoints: [
       "No proactive outreach — privacy-first policy.",
@@ -662,8 +818,20 @@ const STATIC_WEALTH_PREVIEW: Record<string, WealthPreview> = {
 
 const FALLBACK_WEALTH_PREVIEW: WealthPreview = {
   signals: [
-    { icon: Sparkles, label: "Behavioral Signal", confidence: 70, urgency: "Soon", evidence: "Pattern detected from recent transaction history" },
-    { icon: Users, label: "Segment Match", confidence: 62, urgency: "Upcoming", evidence: "Aligns with high-value advisor cohort" },
+    {
+      icon: Sparkles,
+      label: "Behavioral Signal",
+      confidence: 70,
+      urgency: "Soon",
+      evidence: "Pattern detected from recent transaction history",
+    },
+    {
+      icon: Users,
+      label: "Segment Match",
+      confidence: 62,
+      urgency: "Upcoming",
+      evidence: "Aligns with high-value advisor cohort",
+    },
   ],
   talkingPoints: [
     "Acknowledge the recent behavior with a relevant talking point.",
@@ -706,10 +874,23 @@ const KIND_META: Record<SignalKind, { label: string; color: string; bg: string; 
 
 // Local action pill icon/color maps (mirror NextProductRationale)
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
-  smartphone: Smartphone, mail: Mail, "user-check": UserCheck, calendar: CalendarCheck,
-  heart: Heart, gift: Gift, shield: Shield, lightbulb: Lightbulb, star: Star,
-  compass: Compass, flower: Flower, "pen-line": PenLine, cake: Cake, plane: Plane,
-  home: Home, briefcase: Briefcase, bell: Bell,
+  smartphone: Smartphone,
+  mail: Mail,
+  "user-check": UserCheck,
+  calendar: CalendarCheck,
+  heart: Heart,
+  gift: Gift,
+  shield: Shield,
+  lightbulb: Lightbulb,
+  star: Star,
+  compass: Compass,
+  flower: Flower,
+  "pen-line": PenLine,
+  cake: Cake,
+  plane: Plane,
+  home: Home,
+  briefcase: Briefcase,
+  bell: Bell,
 };
 const COLOR_MAP: Record<string, { text: string; bg: string; border: string }> = {
   blue: { text: "text-blue-600", bg: "bg-blue-50", border: "border-blue-100" },
@@ -769,8 +950,8 @@ export default function NextConversationRationale({
   assistantOpen = false,
   wmCopilotOpen = false,
 }: Props) {
-  const effectiveSignal: SelectedSignal =
-    selectedSignal ?? availableSignals[0] ?? { kind: "all", label: "All Signals" };
+  const effectiveSignal: SelectedSignal = selectedSignal ??
+    availableSignals[0] ?? { kind: "all", label: "All Signals" };
 
   // ALL SIGNALS view — compact roll-up
   if (effectiveSignal.kind === "all") {
@@ -801,7 +982,10 @@ export default function NextConversationRationale({
                 <span className="text-[11px] font-semibold text-slate-700">{s.label}</span>
                 <span className="text-[10px] text-slate-400 ml-auto flex items-center gap-1">
                   <ChannelIcon channel={pb.automatedFlow.channel} /> {pb.automatedFlow.channel}
-                  <> · <Bell className="w-2.5 h-2.5 inline" /> Advisor</>
+                  <>
+                    {" "}
+                    · <Bell className="w-2.5 h-2.5 inline" /> Advisor
+                  </>
                 </span>
                 <ChevronRight className="w-3 h-3 text-slate-300" />
               </button>
@@ -827,21 +1011,45 @@ export default function NextConversationRationale({
     const sigLower = effectiveSignal.label.toLowerCase();
 
     // Tier 1
-    let matchIdx = cards.findIndex(c => {
+    let matchIdx = cards.findIndex((c) => {
       const cl = (c.signal_label || "").toLowerCase();
       return !!cl && (cl.includes(sigLower) || sigLower.includes(cl));
     });
 
     // Tier 2 — token overlap
     if (matchIdx === -1) {
-      const STOP = new Set(["the","and","for","with","your","you","are","from","this","that","into","over","under","new","high","low"]);
-      const tokenize = (s: string) => s.toLowerCase().split(/[\s,&/-]+/).filter(w => w.length > 2 && !STOP.has(w));
+      const STOP = new Set([
+        "the",
+        "and",
+        "for",
+        "with",
+        "your",
+        "you",
+        "are",
+        "from",
+        "this",
+        "that",
+        "into",
+        "over",
+        "under",
+        "new",
+        "high",
+        "low",
+      ]);
+      const tokenize = (s: string) =>
+        s
+          .toLowerCase()
+          .split(/[\s,&/-]+/)
+          .filter((w) => w.length > 2 && !STOP.has(w));
       const sigTokens = new Set(tokenize(effectiveSignal.label));
       let bestScore = 0;
       cards.forEach((c, i) => {
         const cTokens = [...tokenize(c.signal_label || ""), ...tokenize(c.theme || "")];
-        const score = cTokens.filter(t => sigTokens.has(t)).length;
-        if (score > bestScore) { bestScore = score; matchIdx = i; }
+        const score = cTokens.filter((t) => sigTokens.has(t)).length;
+        if (score > bestScore) {
+          bestScore = score;
+          matchIdx = i;
+        }
       });
       if (bestScore < 1) matchIdx = -1;
     }
@@ -849,16 +1057,16 @@ export default function NextConversationRationale({
     // Tier 3 — kind-aware fallback
     if (matchIdx === -1) {
       if (effectiveSignal.kind === "risk") {
-        const riskIdx = cards.findIndex(c => c.type === "risk");
+        const riskIdx = cards.findIndex((c) => c.type === "risk");
         if (riskIdx === -1) return synthesizeRiskActions(effectiveSignal.label);
         matchIdx = riskIdx;
       } else if (effectiveSignal.kind === "lifeEvent") {
-        matchIdx = cards.findIndex(c => c.type === "life_event");
-        if (matchIdx === -1) matchIdx = cards.findIndex(c => c.type !== "risk");
+        matchIdx = cards.findIndex((c) => c.type === "life_event");
+        if (matchIdx === -1) matchIdx = cards.findIndex((c) => c.type !== "risk");
       } else {
         // lifestyle / segment / all
-        matchIdx = cards.findIndex(c => c.type === "behavioral");
-        if (matchIdx === -1) matchIdx = cards.findIndex(c => c.type !== "risk");
+        matchIdx = cards.findIndex((c) => c.type === "behavioral");
+        if (matchIdx === -1) matchIdx = cards.findIndex((c) => c.type !== "risk");
       }
     }
 
@@ -870,7 +1078,7 @@ export default function NextConversationRationale({
         ? synthesizeRiskActions(effectiveSignal.label)
         : [];
     }
-    const found = productActions.find(a => a.card_index === matchIdx);
+    const found = productActions.find((a) => a.card_index === matchIdx);
     const actions = found?.actions || [];
     // If we ended up on a non-risk card for a risk signal, ignore those marketing actions.
     if (effectiveSignal.kind === "risk" && cards[matchIdx]?.type !== "risk") {
@@ -879,8 +1087,8 @@ export default function NextConversationRationale({
     return actions;
   })();
 
-  const wowActions = matchedActions.filter(a => a.tone === "wow");
-  const standardActions = matchedActions.filter(a => a.tone === "standard");
+  const wowActions = matchedActions.filter((a) => a.tone === "wow");
+  const standardActions = matchedActions.filter((a) => a.tone === "standard");
 
   const wp = findWealthPreview(effectiveSignal.label);
   const primarySignal = wp.signals[0];
@@ -892,17 +1100,21 @@ export default function NextConversationRationale({
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-1.5 flex flex-col h-full min-h-0">
       {/* Context band — pinned at top */}
       <div className="shrink-0">
-        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 mb-1">AI Native Intelligence Layer</h3>
+        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 mb-1">
+          AI Native Intelligence Layer
+        </h3>
         <ContextPillRows />
       </div>
 
       {/* Two journeys — stacked 50/50, each is a single horizontal flow: SIGNAL → INTENT → PERSONALIZE → ORCHESTRATE */}
-      <div className="flex flex-col gap-2 shrink-0">
-        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 shrink-0">Personalized Engagement Orchestration</h3>
+      <div className="flex flex-col gap-1 flex-1 min-h-0">
+        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 shrink-0">
+          Personalized Engagement Orchestration
+        </h3>
         {/* ───────── REGULAR CLIENT — automated machine ───────── */}
-        <article className="rounded-xl border border-slate-200 overflow-hidden bg-white">
+        <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden bg-white flex flex-col">
           {/* Brand strip */}
-          <div className="h-[4px]" style={{ background: "linear-gradient(90deg,#3b82f6,#1d4ed8)" }} />
+          <div className="h-[6px] shrink-0" style={{ background: "linear-gradient(90deg,#3b82f6,#1d4ed8)" }} />
 
           {/* Eyebrow */}
           <div className="px-3.5 pt-2 pb-1.5 flex items-center gap-2 shrink-0">
@@ -914,39 +1126,49 @@ export default function NextConversationRationale({
           </div>
 
           {/* Horizontal flow — workflow showcase, signal-agnostic */}
-          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-2.5 pt-1">
+          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-3 flex-1 min-h-0">
             {/* 1. SIGNAL → INTENT (merged) */}
-            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1">Signal Detected</div>
-              <div className="flex items-center gap-1.5">
+            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1 shrink-0">
+                Signal → Intent
+              </div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-blue-200 shrink-0">
                   <Brain className="w-3 h-3 text-blue-600" />
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Behavior decoded</div>
               </div>
             </div>
-            <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-blue-200" /></div>
+            <div className="flex items-center justify-center">
+              <ChevronRight className="w-3.5 h-3.5 text-blue-200" />
+            </div>
 
             {/* 3. PERSONALIZE */}
-            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1">Personalize</div>
-              <div className="flex items-center gap-1.5">
+            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-500 mb-1 shrink-0">
+                Personalize
+              </div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-blue-200 shrink-0">
                   <Sparkles className="w-3 h-3 text-blue-600" />
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Message crafted</div>
               </div>
             </div>
-            <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-blue-300" /></div>
+            <div className="flex items-center justify-center">
+              <ChevronRight className="w-3.5 h-3.5 text-blue-300" />
+            </div>
 
             {/* 4. ORCHESTRATE — accented, content only */}
-            <div className="min-w-0 rounded-md border border-blue-300 bg-blue-50/70 px-2.5 py-2">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-700 mb-1">Orchestrate</div>
-              <div className="flex items-center gap-1.5">
+            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-blue-300 bg-blue-50/70 px-2.5 py-1.5 overflow-hidden">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-blue-700 mb-1 shrink-0">
+                Orchestrate
+              </div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-blue-300 shrink-0">
                   <Send className="w-3 h-3 text-blue-700" />
                 </span>
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Email Flow Sent</div>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Delivered automatically</div>
               </div>
             </div>
 
@@ -960,7 +1182,7 @@ export default function NextConversationRationale({
                 className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <span className="inline-flex items-center gap-1.5 text-left">
-                  {assistantOpen ? "View AI Assistant" : "Open AI Assistant"}
+                  Open AI Assistant
                   {assistantOpen && (
                     <span className="inline-flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-white/20 border border-white/40 px-1.5 py-0.5">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
@@ -975,9 +1197,9 @@ export default function NextConversationRationale({
         </article>
 
         {/* ───────── WEALTH CLIENT — AI-prepped human conversation ───────── */}
-        <article className="rounded-xl border border-slate-200 overflow-hidden bg-white">
+        <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden bg-white flex flex-col">
           {/* Brand strip */}
-          <div className="h-[4px]" style={{ background: "linear-gradient(90deg,#8b5cf6,#6d28d9)" }} />
+          <div className="h-[6px] shrink-0" style={{ background: "linear-gradient(90deg,#8b5cf6,#6d28d9)" }} />
 
           {/* Eyebrow */}
           <div className="px-3.5 pt-2 pb-1.5 flex items-center gap-2 shrink-0">
@@ -991,35 +1213,45 @@ export default function NextConversationRationale({
           </div>
 
           {/* Horizontal flow — workflow showcase, signal-agnostic */}
-          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-2.5 pt-1">
+          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-3 flex-1 min-h-0">
             {/* 1. SIGNAL → INTENT (merged) */}
-            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1">Advisor Notified</div>
-              <div className="flex items-center gap-1.5">
+            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">
+                Signal → Intent
+              </div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
                   <Sparkles className="w-3 h-3 text-purple-600" />
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Signals synthesized</div>
               </div>
             </div>
-            <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
+            <div className="flex items-center justify-center">
+              <ChevronRight className="w-3.5 h-3.5 text-purple-200" />
+            </div>
 
             {/* 3. PERSONALIZE */}
-            <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1">Personalize</div>
-              <div className="flex items-center gap-1.5">
+            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">
+                Personalize
+              </div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
                   <FileText className="w-3 h-3 text-purple-600" />
                 </span>
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Brief tailored, tasks prepared</div>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Brief tailored</div>
               </div>
             </div>
-            <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-300" /></div>
+            <div className="flex items-center justify-center">
+              <ChevronRight className="w-3.5 h-3.5 text-purple-300" />
+            </div>
 
             {/* 4. ORCHESTRATE — accented, content only */}
-            <div className="min-w-0 rounded-md border border-purple-300 bg-purple-50/70 px-2.5 py-2">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-700 mb-1">Orchestrate</div>
-              <div className="flex items-center gap-1.5">
+            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-purple-300 bg-purple-50/70 px-2.5 py-1.5 overflow-hidden">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-700 mb-1 shrink-0">
+                Orchestrate
+              </div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-300 shrink-0">
                   <CalendarCheck className="w-3 h-3 text-purple-700" />
                 </span>
