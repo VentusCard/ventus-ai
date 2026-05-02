@@ -183,7 +183,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
               <Building2 className="w-4 h-4 text-white" />
             </div>
             <div>
-              <h1 className="text-sm font-bold text-slate-900 leading-tight">TCBY Bank (This Could Be Your Bank)</h1>
+              <h1 className="text-sm font-bold text-slate-900 leading-tight">Our Bank</h1>
               <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
             </div>
           </div>
