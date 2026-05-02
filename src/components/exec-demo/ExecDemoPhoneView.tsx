@@ -6,9 +6,11 @@ import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import RelationshipPhoneView from "./RelationshipPhoneView";
+import WMCopilotPhoneView from "./WMCopilotPhoneView";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
+import type { SelectedSignal } from "./NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type ConsumerTab = "rewards" | "relationship" | "ai";
