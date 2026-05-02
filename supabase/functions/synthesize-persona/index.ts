@@ -237,7 +237,7 @@ For each canonical life event below, check whether the per-transaction list meet
 - **Pattern-forward naming (REQUIRED when cadence is clear):** Labels must explicitly state the behavioral pattern. Use one of these formats:
   - "[Frequency] [Activity]" → "Annual Hawaiian Vacations", "Weekly Workday Coffee Runs", "Monthly Fine Dining Nights"
   - "[Activity] [Pattern]" → "Tennis & Ski Seasonal Sports", "Casual Dining Regular", "Grocery Run Weekly"
-  - "[Season] [Activity]" → "Winter Ski Trips", "Summer Coastal Travel"
+  - "[Season] [Activity]" → "Seasonal Ski Trips", "Summer Coastal Travel" (use "Seasonal Ski Trips" — never "Winter Ski Seasons" / "Winter Ski Trips")
 - **FORBIDDEN abstract descriptors:** Never use "Enthusiast", "Fan", "Lover", "Buff", "Aspirant", "Devotee", "Vacationer", "Junkie", "Aficionado", "Connoisseur". Use concrete activity + cadence terms instead. "Premium Hawaii Vacationer" → "Premium Annual Hawaiian Vacations". "Active Alpine & Court Enthusiast" → "Tennis & Ski Seasonal Sports".
 
 - **SEMANTIC COHERENCE — TRANSACTIONS INSIDE A ROLLUP MUST MATCH ITS MEANING.**
