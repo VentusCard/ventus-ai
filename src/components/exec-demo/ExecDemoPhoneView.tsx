@@ -123,36 +123,30 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   };
 
   return (
-    <div className="relative flex items-center justify-center h-full py-4">
-      {/* iPhone frame */}
+    <div className="relative flex items-center justify-center h-full p-3">
+      {/* iPad frame */}
       <div
-        className="phone-mockup-frame relative rounded-[40px] bg-white shadow-2xl border-[6px] border-slate-200 overflow-hidden flex flex-col"
-        style={{ width: 420, height: 740 }}
+        className="phone-mockup-frame relative rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col w-full h-full"
       >
-        {/* Notch */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-28 h-6 bg-slate-200 rounded-b-2xl z-10" />
-
-        {/* Status bar */}
-        <div className="h-10 bg-white flex items-end justify-between px-6 pb-1 text-[9px] text-slate-400 font-medium shrink-0">
-          <span>9:41</span>
-          <span className="flex items-center gap-1">
-            <Wifi className="w-2.5 h-2.5" />
-            <Battery className="w-3 h-3" />
-          </span>
+        {/* Camera dot */}
+        <div className="flex justify-center pt-1.5 pb-0.5 bg-white shrink-0">
+          <div className="w-2 h-2 rounded-full bg-slate-300" />
         </div>
 
-        {/* Header */}
-        <div className="px-4 py-0.5 border-b border-slate-100 shrink-0 leading-tight">
+        {/* Status bar */}
+        <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
+          <span>9:41 AM</span>
           <div className="flex items-center gap-1.5">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
             </span>
-            <span className="text-[10px] font-semibold text-slate-600 tracking-wide leading-tight">
-              Our Bank · {firstName}
-            </span>
+            <span className="font-semibold text-slate-600 text-[11px]">Our Bank · {firstName}</span>
           </div>
-          {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="block text-[8px] text-slate-400 px-1 leading-tight"></span>}
+          <div className="flex items-center gap-1.5">
+            <Wifi className="w-3 h-3" />
+            <Battery className="w-3.5 h-3.5" />
+          </div>
         </div>
 
         {/* Content */}
@@ -188,13 +182,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             );
           })}
         </div>
-
-        {/* Home indicator */}
-        <div className="h-5 flex items-center justify-center shrink-0">
-          <div className="w-24 h-1 rounded-full bg-slate-200" />
-        </div>
       </div>
-
     </div>
   );
 }
