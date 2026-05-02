@@ -1,7 +1,8 @@
+import { useState, useMemo, useRef, useEffect } from "react";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X } from "lucide-react";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 
 const getConfidenceColor = (c: number) => {
@@ -38,13 +39,38 @@ const SOURCE_COLORS: Record<string, string> = {
   "HSA": "bg-amber-50 text-amber-700",
 };
 
-function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }) {
+function CustomerTable({
+  transactions,
+  activePillar,
+  onPillarClick,
+}: {
+  transactions: EnrichedTransaction[];
+  activePillar: string | null;
+  onPillarClick: (pillar: string) => void;
+}) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
+  const sorted = useMemo(() => {
+    if (!activePillar) return transactions;
+    const match: EnrichedTransaction[] = [];
+    const rest: EnrichedTransaction[] = [];
+    for (const tx of transactions) {
+      if (tx.pillar === activePillar) match.push(tx);
+      else rest.push(tx);
+    }
+    return [...match, ...rest];
+  }, [transactions, activePillar]);
+
+  useEffect(() => {
+    if (scrollRef.current) scrollRef.current.scrollTop = 0;
+  }, [activePillar]);
+
   if (!transactions.length) {
     return <p className="text-sm text-slate-400 py-8 text-center">No enriched data yet</p>;
   }
 
   return (
-    <div className="flex-1 min-h-0 overflow-auto border border-slate-200 rounded-lg">
+    <div ref={scrollRef} className="flex-1 min-h-0 overflow-auto border border-slate-200 rounded-lg">
       <table className="w-full text-left border-collapse min-w-[1050px]">
         <thead className="sticky top-0 bg-white z-10 border-b border-slate-200">
           <tr>
@@ -63,8 +89,11 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
           </tr>
         </thead>
         <tbody>
-          {transactions.map((tx) => (
-            <tr key={tx.transaction_id} className="border-b border-slate-100 hover:bg-slate-50/50">
+          {sorted.map((tx) => {
+            const isActive = activePillar === tx.pillar;
+            const isDimmed = activePillar !== null && !isActive;
+            return (
+            <tr key={tx.transaction_id} className={`border-b border-slate-100 hover:bg-slate-50/50 transition-opacity ${isDimmed ? "opacity-40" : ""}`}>
               <td className="px-2 py-1 w-[110px] min-w-[110px]">
                 <div className="text-[10px] font-medium text-slate-900 truncate max-w-[100px]" title={tx.normalized_merchant}>{tx.normalized_merchant}</div>
               </td>
@@ -79,17 +108,25 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
               </td>
               <td className="px-0.5 py-1 w-[20px]"><ArrowRight className="w-2.5 h-2.5 text-primary mx-auto" /></td>
               <td className="px-2 py-1 w-[130px] min-w-[130px]">
-                <Badge
-                  variant="outline"
-                  className="border text-[9px] px-1 py-0 whitespace-nowrap leading-tight"
-                  style={{
-                    backgroundColor: `${PILLAR_COLORS[tx.pillar]}20`,
-                    color: PILLAR_COLORS[tx.pillar],
-                    borderColor: `${PILLAR_COLORS[tx.pillar]}40`,
-                  }}
+                <button
+                  type="button"
+                  onClick={() => onPillarClick(tx.pillar)}
+                  className={`rounded transition-all cursor-pointer hover:ring-2 hover:ring-offset-1 ${isActive ? "ring-2 ring-offset-1" : ""}`}
+                  style={isActive ? { boxShadow: `0 0 0 2px ${PILLAR_COLORS[tx.pillar]}` } : undefined}
+                  title={`Show all ${tx.pillar} transactions`}
                 >
-                  {tx.pillar}
-                </Badge>
+                  <Badge
+                    variant="outline"
+                    className="border text-[9px] px-1 py-0 whitespace-nowrap leading-tight"
+                    style={{
+                      backgroundColor: `${PILLAR_COLORS[tx.pillar]}20`,
+                      color: PILLAR_COLORS[tx.pillar],
+                      borderColor: `${PILLAR_COLORS[tx.pillar]}40`,
+                    }}
+                  >
+                    {tx.pillar}
+                  </Badge>
+                </button>
               </td>
               <td className="text-[10px] text-slate-700 px-2 py-1 truncate max-w-[100px] w-[100px] min-w-[100px]" title={tx.category}>{tx.category}</td>
               <td className="px-2 py-1 w-[110px] min-w-[110px]">
@@ -124,7 +161,8 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                 </Badge>
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>
@@ -168,12 +206,44 @@ interface Props {
 }
 
 export default function DemoEnrichmentTableView({ customer, enriched }: Props) {
+  const [activePillar, setActivePillar] = useState<string | null>(null);
+  const txs = enriched ?? [];
+  const matchCount = activePillar ? txs.filter(t => t.pillar === activePillar).length : 0;
+
+  const handlePillarClick = (pillar: string) => {
+    setActivePillar(prev => (prev === pillar ? null : pillar));
+  };
+
   return (
     <div className="flex flex-col gap-3 h-full">
       {customer && (
         <div className="flex-1 min-h-0 flex flex-col">
           <CustomerHeader customer={customer} color="blue" />
-          <CustomerTable transactions={enriched ?? []} />
+          {activePillar && (
+            <div className="flex items-center gap-2 px-2 py-1.5 bg-slate-50 border-x border-slate-200 text-[10px] shrink-0">
+              <span className="text-slate-500">Showing:</span>
+              <button
+                type="button"
+                onClick={() => setActivePillar(null)}
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded border text-[10px] font-medium hover:opacity-80"
+                style={{
+                  backgroundColor: `${PILLAR_COLORS[activePillar]}20`,
+                  color: PILLAR_COLORS[activePillar],
+                  borderColor: `${PILLAR_COLORS[activePillar]}40`,
+                }}
+              >
+                {activePillar}
+                <span className="opacity-70">· {matchCount}</span>
+                <X className="w-2.5 h-2.5" />
+              </button>
+              <span className="text-slate-400">click any pillar pill to filter</span>
+            </div>
+          )}
+          <CustomerTable
+            transactions={txs}
+            activePillar={activePillar}
+            onPillarClick={handlePillarClick}
+          />
         </div>
       )}
     </div>
