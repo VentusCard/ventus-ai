@@ -334,7 +334,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
               <Bot className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-base font-bold text-slate-900 mb-1">
-              Hi {"{firstname}"}! 👋
+              How can I help today?
             </h3>
             <p className="text-xs text-slate-500 mb-4 max-w-[260px]">
               I can help you understand your spending, find subscriptions, and recommend products.
@@ -350,9 +350,6 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                 </button>
               ))}
             </div>
-            <p className="text-[9px] text-slate-400 mt-4 max-w-[280px]">
-              This chatbot is not connected to a bank. Bank of America product info is used as reference.
-            </p>
           </div>
         ) : (
           <div className="space-y-3">
@@ -366,7 +363,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
                     <Bot className="h-3 w-3 text-blue-600" />
                   </div>
                 )}
-                <div className={cn("flex flex-col gap-1.5 max-w-[80%]", msg.role === "user" ? "items-end" : "items-start")}>
+                <div className={cn("flex flex-col gap-1.5 max-w-[85%]", msg.role === "user" ? "items-end" : "items-start")}>
                   <div
                     className={cn(
                       "rounded-2xl px-3 py-2 text-[13px] overflow-hidden break-words",

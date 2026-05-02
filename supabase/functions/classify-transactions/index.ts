@@ -269,9 +269,25 @@ Home & Living:
 - "HOME DEPOT" → Home Improvement / ["Renovation", "Tools"]
 - "LOWES" → Home Improvement / ["Renovation", "Tools"]
 - "IKEA" → Furniture & Decor / ["Furniture", "Self-Assembly"]
+- "TARGET" → General / ["Department Store", "Big Box"]
+- "TARGET STORES" → General / ["Department Store", "Big Box"]
+- "WALMART" → General / ["Big Box", "Discount"]
+- "WALMART SUPERCENTER" → General / ["Big Box", "Discount"]
+- "AMAZON" → General / ["Online Marketplace"]
+- "AMAZON.COM" → General / ["Online Marketplace"]
+- "AMZN MKTP" → General / ["Online Marketplace"]
+- "COSTCO" → General / ["Warehouse Club"]
+- "COSTCO WHOLESALE" → General / ["Warehouse Club"]
+- "SAMS CLUB" → General / ["Warehouse Club"]
+- "BJ'S WHOLESALE" → General / ["Warehouse Club"]
+- "KOHLS" → General / ["Department Store"]
+- "MACYS" → General / ["Department Store"]
 - "SHELL" → Local Commuting / ["Gas"]
 - "CHEVRON" → Local Commuting / ["Gas"]
 - "PG&E" → Utilities / ["Electric", "Gas"]
+
+NOTE on big-box / general merchandise retailers (TARGET, WALMART, AMAZON, COSTCO, SAMS CLUB, KOHLS, MACYS):
+These merchants sell a broad mix (groceries, household supplies, clothing, electronics, toys). When the merchant string alone does NOT specify what was purchased, classify them as Home & Living → General with a "Department Store", "Big Box", "Warehouse Club", or "Online Marketplace" facet. Do NOT route them to Grocery, Clothing, or Electronics unless the description/MCC explicitly indicates that subset.
 
 Style & Beauty:
 - "ZARA" → Clothing / ["Fast Fashion"]

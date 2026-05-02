@@ -66,9 +66,9 @@ function PricingInner() {
     if (pilotMode) {
       lines.push("");
       lines.push(
-        `Pilot option: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
+        `6-month pilot: ${formatNumber(pilot.customers)} customers · all modules · ${formatCurrency(
           pilot.flatFee
-        )} / yr flat`
+        )} flat (6 months)`
       );
     }
     if (contactPhone.trim()) {
@@ -130,7 +130,7 @@ function PricingInner() {
     >
       {/* Top bar */}
       <header className="bg-white border-b border-slate-200 shrink-0">
-        <div className="max-w-[1180px] mx-auto px-8 h-12 flex items-center justify-between">
+        <div className="max-w-[1480px] mx-auto px-8 h-12 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={ventusLogo} alt="Ventus AI" className="h-6 w-auto" />
             <span className="text-slate-300">|</span>
@@ -147,7 +147,7 @@ function PricingInner() {
         </div>
       </header>
 
-      <main className="flex-1 min-h-0 max-w-[1180px] w-full mx-auto px-8 py-3 flex flex-col gap-3">
+      <main className="flex-1 min-h-0 max-w-[1480px] w-full mx-auto px-8 py-3 flex flex-col gap-3">
         {/* Section 1: Prospect basics */}
         <section className="rounded-xl border border-slate-200 bg-white px-5 py-3 shrink-0">
           <div className="flex items-center gap-3 mb-2">
@@ -185,15 +185,26 @@ function PricingInner() {
               <button
                 type="button"
                 onClick={() => setPilotMode((v) => !v)}
-                title={`Pilot: ${formatNumber(pilot.customers)} customers · ${formatCurrency(pilot.flatFee)} / yr`}
+                title={`6-month pilot: ${formatNumber(pilot.customers)} customers · ${formatCurrency(pilot.flatFee)} flat for 6 months`}
                 className={`shrink-0 inline-flex items-center gap-1.5 h-10 px-3 rounded-md text-sm font-semibold border transition-colors ${
                   pilotMode
                     ? "bg-blue-600 text-white border-blue-600 hover:bg-blue-700"
                     : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
                 }`}
               >
-                <Zap className="w-4 h-4" /> Pilot
+                <Zap className="w-4 h-4" /> 6-Month Pilot
               </button>
+              {pilotMode && (
+                <div className="shrink-0 inline-flex items-center gap-2 h-10 px-3 rounded-md border border-emerald-200 bg-emerald-50 text-emerald-800">
+                  <span className="text-[10px] uppercase tracking-wider font-semibold text-emerald-600">
+                    6-month pilot
+                  </span>
+                  <span className="text-sm font-bold tabular-nums">
+                    {formatNumber(pilot.customers)}
+                  </span>
+                  <span className="text-[11px] text-emerald-700/70">customers</span>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -218,9 +229,9 @@ function PricingInner() {
             <div className={pilotMode ? "col-span-3" : "col-span-4"}>Description</div>
             {pilotMode && (
               <div className="col-span-1 text-right">
-                Pilot/yr
+                Pilot (6mo)
                 <div className="text-[9px] normal-case tracking-normal text-slate-400 font-normal">
-                  {formatNumber(pilot.customers)} · all in
+                  Flat fee
                 </div>
               </div>
             )}
@@ -230,66 +241,84 @@ function PricingInner() {
             <div className="col-span-1 text-right">Add</div>
           </div>
 
-          <ul className="divide-y divide-slate-100 flex-1 min-h-0 overflow-y-auto">
-            {enabledCatalog.map((m) => {
-              const isSel = selected.has(m.id);
-              const lineTotal = m.fixedFee + m.perUserFee * customers;
-              return (
-                <li key={m.id}>
-                  <button
-                    type="button"
-                    onClick={() => toggle(m.id)}
-                    className={`w-full text-left px-5 py-2.5 grid grid-cols-12 gap-3 items-center transition-colors ${
-                      isSel ? "bg-blue-50/40" : "bg-white hover:bg-slate-50"
-                    }`}
-                  >
-                    <div className="col-span-3">
-                      <p className="text-[14px] font-semibold text-slate-900 leading-tight truncate">
-                        {m.name}
-                      </p>
-                    </div>
-                    <div className={`${pilotMode ? "col-span-3" : "col-span-4"} text-[14px] text-slate-500 leading-snug truncate`}>
-                      {m.description}
-                    </div>
-                    {pilotMode && (
+          <div className="relative flex-1 min-h-0">
+            <ul className="divide-y divide-slate-100 h-full overflow-y-auto">
+              {enabledCatalog.map((m) => {
+                const isSel = selected.has(m.id);
+                const lineTotal = m.fixedFee + m.perUserFee * customers;
+                return (
+                  <li key={m.id}>
+                    <button
+                      type="button"
+                      onClick={() => toggle(m.id)}
+                      className={`w-full text-left px-5 py-2.5 grid grid-cols-12 gap-3 items-center transition-colors ${
+                        isSel ? "bg-blue-50/40" : "bg-white hover:bg-slate-50"
+                      }`}
+                    >
+                      <div className="col-span-3">
+                        <p className="text-[14px] font-semibold text-slate-900 leading-tight truncate">
+                          {m.name}
+                        </p>
+                      </div>
+                      <div className={`${pilotMode ? "col-span-3" : "col-span-4"} text-[14px] text-slate-500 leading-snug truncate`}>
+                        {m.description}
+                      </div>
+                      {pilotMode && <div className="col-span-1" />}
+                      <div className="col-span-1 text-right text-[14px] font-semibold text-slate-800">
+                        {formatCurrency(m.fixedFee)}
+                      </div>
+                      <div className="col-span-2 text-right text-[14px] font-semibold text-slate-800">
+                        ${m.perUserFee.toFixed(2)}
+                      </div>
                       <div className="col-span-1 text-right">
-                        <span className="inline-flex items-center justify-end gap-1 text-[14px] font-semibold text-emerald-700">
-                          <Check className="w-3 h-3" strokeWidth={3} />
-                          {formatCurrency(Math.round(pilotPerModule))}
+                        <span
+                          className={`text-[14px] font-bold ${
+                            isSel ? "text-blue-700" : "text-slate-500"
+                          }`}
+                        >
+                          {formatCurrency(lineTotal)}
                         </span>
                       </div>
-                    )}
-                    <div className="col-span-1 text-right text-[14px] font-semibold text-slate-800">
-                      {formatCurrency(m.fixedFee)}
-                    </div>
-                    <div className="col-span-2 text-right text-[14px] font-semibold text-slate-800">
-                      ${m.perUserFee.toFixed(2)}
-                    </div>
-                    <div className="col-span-1 text-right">
-                      <span
-                        className={`text-[14px] font-bold ${
-                          isSel ? "text-blue-700" : "text-slate-500"
-                        }`}
-                      >
-                        {formatCurrency(lineTotal)}
-                      </span>
-                    </div>
-                    <div className="col-span-1 flex justify-end">
-                      <div
-                        className={`w-4 h-4 rounded border flex items-center justify-center ${
-                          isSel
-                            ? "bg-blue-600 border-blue-600 text-white"
-                            : "border-slate-300 bg-white"
-                        }`}
-                      >
-                        {isSel && <Check className="w-3 h-3" strokeWidth={3} />}
+                      <div className="col-span-1 flex justify-end">
+                        <div
+                          className={`w-4 h-4 rounded border flex items-center justify-center ${
+                            isSel
+                              ? "bg-blue-600 border-blue-600 text-white"
+                              : "border-slate-300 bg-white"
+                          }`}
+                        >
+                          {isSel && <Check className="w-3 h-3" strokeWidth={3} />}
+                        </div>
                       </div>
-                    </div>
-                  </button>
-                </li>
-              );
-            })}
-          </ul>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+
+            {pilotMode && (
+              <div
+                className="pointer-events-none absolute inset-0 px-5 py-2.5 grid grid-cols-12 gap-3"
+                aria-hidden="true"
+              >
+                <div className="col-span-3" />
+                <div className="col-span-3" />
+                <div className="col-span-1 -my-2.5 flex flex-col items-center justify-center text-center border-x border-emerald-200 bg-emerald-50/70">
+                  <Check className="w-3.5 h-3.5 text-emerald-700" strokeWidth={3} />
+                  <span className="text-[14px] font-bold text-emerald-700 leading-tight tabular-nums mt-0.5">
+                    {formatCurrency(pilot.flatFee)}
+                  </span>
+                  <span className="text-[9px] uppercase tracking-wider text-emerald-600/80 font-semibold mt-0.5">
+                    Flat · 6 months · all modules
+                  </span>
+                </div>
+                <div className="col-span-1" />
+                <div className="col-span-2" />
+                <div className="col-span-1" />
+                <div className="col-span-1" />
+              </div>
+            )}
+          </div>
 
           {/* Totals strip */}
           <div className="px-5 py-2.5 border-t border-slate-200 bg-slate-50 flex items-center justify-between gap-6 shrink-0">
@@ -297,7 +326,7 @@ function PricingInner() {
               {pilotMode && (
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-[11px] uppercase tracking-wider text-emerald-600 font-semibold">
-                    Pilot
+                    Pilot (6mo)
                   </span>
                   <span className="text-emerald-700 font-semibold">{formatCurrency(pilot.flatFee)}</span>
                 </div>

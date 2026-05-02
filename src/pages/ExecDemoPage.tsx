@@ -851,32 +851,116 @@ export default function ExecDemoPage() {
     setStepIndex(idx);
   }, []);
 
-  // Arrow key navigation — only works after user has selected an action tab
+  // ============================================================================
+  // Global stage navigation: ◀ / ▶ / Backspace step through the entire /demo flow
+  // Stages: 1 Selection → 2 Enrichment → 3 Behavioral Intelligence → 4 Next-Offer
+  //         → 5 Next-Product → 6 Next-Conversation
+  // ============================================================================
+  const NAV_TAB_ORDER: TabKey[] = useMemo(() => ["analytics", "product", "relationship"], []);
+  const STAGE_LABELS = useMemo(
+    () => [
+      "Data Selection",
+      "Enrichment",
+      "Behavioral Intelligence",
+      "Next-Offer",
+      "Next-Product",
+      "Next-Conversation",
+    ],
+    []
+  );
+
+  const currentStage = useMemo<number>(() => {
+    if (selectionDialogOpen) return 1;
+    if (activeTab === "analytics") return 4;
+    if (activeTab === "product") return 5;
+    if (activeTab === "relationship") return 6;
+    if (synthesisTriggered) return 3;
+    if (phase === "hold" || phase === "cardCycle") return 2;
+    return 1;
+  }, [selectionDialogOpen, activeTab, synthesisTriggered, phase]);
+
+  // Forward-ref to handleRunAnalysis so we can invoke it before its declaration below.
+  const runAnalysisRef = useRef<(() => void) | null>(null);
+
+  const goToStage = useCallback(
+    (target: number) => {
+      const t = Math.max(1, Math.min(6, target));
+      switch (t) {
+        case 1:
+          setSelectionDialogOpen(true);
+          return;
+        case 2:
+          setSelectionDialogOpen(false);
+          setActiveTab(null);
+          setSynthesisTriggered(false);
+          if (!profileRef.current) {
+            runAnalysisRef.current?.();
+          }
+          return;
+        case 3:
+          setSelectionDialogOpen(false);
+          setActiveTab(null);
+          if (!profileRef.current) {
+            runAnalysisRef.current?.();
+          }
+          setSynthesisTriggered(true);
+          return;
+        case 4:
+        case 5:
+        case 6: {
+          setSelectionDialogOpen(false);
+          if (!profileRef.current) {
+            runAnalysisRef.current?.();
+          }
+          setSynthesisTriggered(true);
+          const tabKey = NAV_TAB_ORDER[t - 4];
+          setActivePillFilter(null);
+          setActiveRollup(null);
+          setActiveTriggerPill(null);
+          setActiveTab(tabKey);
+          return;
+        }
+      }
+    },
+    [NAV_TAB_ORDER]
+  );
+
+  const goNext = useCallback(() => {
+    if (currentStage >= 6) return;
+    goToStage(currentStage + 1);
+  }, [currentStage, goToStage]);
+
+  const goBack = useCallback(() => {
+    if (currentStage <= 1) return;
+    goToStage(currentStage - 1);
+  }, [currentStage, goToStage]);
+
+  // Keyboard shortcuts
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
-      if (phase !== "hold" || !activeTab) return;
-      const p = profileRef.current;
-      if (!p) return;
-
+      const target = e.target as HTMLElement | null;
+      if (target) {
+        const tag = target.tagName;
+        if (
+          tag === "INPUT" ||
+          tag === "TEXTAREA" ||
+          tag === "SELECT" ||
+          target.isContentEditable
+        ) {
+          return;
+        }
+      }
       if (e.key === "ArrowRight") {
         e.preventDefault();
-        setStepIndex((prev) => {
-          const next = Math.min(prev + 1, TAB_ORDER.length - 1);
-          revealStep(next, p);
-          return next;
-        });
-      } else if (e.key === "ArrowLeft") {
+        goNext();
+      } else if (e.key === "ArrowLeft" || e.key === "Backspace") {
         e.preventDefault();
-        setStepIndex((prev) => {
-          const next = Math.max(prev - 1, 0);
-          revealStep(next, p);
-          return next;
-        });
+        goBack();
       }
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [phase, activeTab, revealStep]);
+  }, [goNext, goBack]);
 
   const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
     setProcessedIndices([]);
@@ -933,6 +1017,13 @@ export default function ExecDemoPage() {
     runAnimationWithProfile(localProfile);
 
   }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
+
+  // Keep the forward-ref in sync so stage navigation can call analysis from
+  // earlier in the file without TDZ issues.
+  useEffect(() => {
+    runAnalysisRef.current = handleRunAnalysis;
+  }, [handleRunAnalysis]);
+
 
   const handleTabClick = useCallback((tab: TabKey) => {
     // Always clear pill selections when switching between the three "Next-..." tabs
@@ -1016,25 +1107,25 @@ export default function ExecDemoPage() {
     <SimplePasswordGate tagline="AI Native Customer Intelligence Infrastructure for Banks" bullets={["Semantic Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}>
     <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
       {/* Top bar */}
-      <div className="h-14 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
+      <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
         <div className="flex items-center gap-3">
-          <img src={ventusLogo} alt="Ventus AI" className="h-7 w-auto" />
-          <span className="text-[14px] font-semibold text-slate-700 hidden sm:inline">
+          <img src={ventusLogo} alt="Ventus AI" className="h-8 w-auto" />
+          <span className="text-[15px] font-semibold text-slate-700 hidden sm:inline">
             Semantic Enrichment - Behavioral Intelligence - Personalization Orchestration
           </span>
         </div>
         <div className="flex items-center gap-3">
           <button
             onClick={() => setContactOpen(true)}
-            className="text-[12px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            className="text-[13px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
           >
             Next Step →
           </button>
           <Link
             to="/"
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
+            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
           >
-            <X className="w-4 h-4" />
+            <X className="w-[18px] h-[18px]" />
           </Link>
         </div>
       </div>
@@ -1125,7 +1216,7 @@ export default function ExecDemoPage() {
             onOpenWMCopilot={handleOpenWMCopilot}
             onOpenAIAssistant={handleOpenAIAssistant}
             onAIPromptDispatch={dispatchAIPrompt}
-            assistantOpen={aiTabTrigger > 0}
+            assistantOpen={true}
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
             fullWidthEnrichment={showEnrichmentFullScreen}
@@ -1147,7 +1238,7 @@ export default function ExecDemoPage() {
         {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
         {(() => {
           const phoneVisible = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
-          const expandedW = 360;
+          const expandedW = 560;
           const collapsedW = 40;
           const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
           return (
@@ -1177,7 +1268,7 @@ export default function ExecDemoPage() {
 
               {/* Full phone — with collapse button */}
               {phoneVisible && !phoneCollapsed && (
-                <div className="w-[360px] h-full relative">
+                <div className="w-[560px] h-full relative">
                   <button
                     onClick={() => setPhoneCollapsed(true)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"

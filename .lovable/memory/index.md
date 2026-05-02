@@ -68,7 +68,7 @@ Updated: 3h ago
 - [MCC Standards](mem://technical/data-processing/mcc-standards) — Hardcoded ISO overrides for specific merchants
 - [Next-Product Intel](mem://features/executive-demo/next-product-intelligence) — Layout for product catalog and behavioral triggers
 - [Product Personalization](mem://strategy/product-personalization-thesis) — Vaguely specific messaging vs creepy tracking
-- [Product Cards Engine](mem://technical/edge-functions/product-card-generation) — BoA reference products mapping
+- [Product Cards Engine](mem://technical/edge-functions/product-card-generation) — Generic "Our Bank" product naming (no real brands)
 - [Risk Detection](mem://technical/edge-functions/risk-detection-logic) — Categories for Fraud/AML/Vice analysis
 - [Landing Page Structure](mem://site/landing-page-structure) — Section order and CTA standardization
 - [Phone Mockup Rewards](mem://features/executive-demo/phone-mockup-rewards) — Auto-rotating collection cards design

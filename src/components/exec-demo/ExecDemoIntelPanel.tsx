@@ -357,6 +357,31 @@ export default function ExecDemoIntelPanel({
 
   return (
     <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
+      {/* Tab bar — moved ABOVE persona/pills card when a tab is active */}
+      {showProfile && phase !== "idle" && activeTab && (
+        <div className="flex gap-1.5 mb-2 shrink-0">
+          {TAB_ORDER.map((key) => {
+            const meta = TAB_META[key];
+            const Icon = meta.icon;
+            const isActive = activeTab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => onTabClick(key)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11.5px] font-semibold transition-all duration-200 border ${
+                  isActive
+                    ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                    : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 cursor-pointer"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {meta.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Persona section */}
       <div
         className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
@@ -442,11 +467,33 @@ export default function ExecDemoIntelPanel({
                         .map(([n, v]) => `${n} $${Math.round(v.total)} (${v.count}x)`);
                       if (top.length) merchantBreakdown = ` Top merchants: ${top.join("; ")}.`;
                     }
+                    // Build subcategory breakdown from enriched transactions (the data is already there)
+                    let categoryBreakdown = "";
+                    if (enrichedTransactions && r.txIndices && r.txIndices.length > 0) {
+                      const catMap: Record<string, { total: number; count: number; merchants: Set<string> }> = {};
+                      for (const idx of r.txIndices) {
+                        const tx: any = enrichedTransactions[idx];
+                        if (!tx) continue;
+                        const bucket = tx.subcategory || tx.category || "Other";
+                        const amt = typeof tx.amount === "number"
+                          ? Math.abs(tx.amount)
+                          : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                        if (!catMap[bucket]) catMap[bucket] = { total: 0, count: 0, merchants: new Set() };
+                        catMap[bucket].total += amt;
+                        catMap[bucket].count += 1;
+                        const m = tx.normalized_merchant || tx.merchant_name || tx.merchant;
+                        if (m) catMap[bucket].merchants.add(m);
+                      }
+                      const buckets = Object.entries(catMap)
+                        .sort((a, b) => b[1].total - a[1].total)
+                        .map(([name, v]) => `${name} $${Math.round(v.total)} (${v.count}x, ${[...v.merchants].slice(0, 3).join(", ")})`);
+                      if (buckets.length) categoryBreakdown = ` Breakdown by enriched subcategory: ${buckets.join("; ")}.`;
+                    }
                     // Only dispatch AI chat prompts on the Next-Conversation (relationship) tab.
                     // On Next-Offer / Next-Product, pill clicks should only filter the deal/product collection.
                     if (isRelTab) {
                       const visiblePrompt = `How much do I typically spend on ${r.label.toLowerCase()}?`;
-                      const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${merchantBreakdown}`;
+                      const signalContext = `Lifestyle rollup "${r.label}": total $${totalSpend.toLocaleString()} across ${totalCount} transaction${totalCount !== 1 ? "s" : ""}.${categoryBreakdown}${merchantBreakdown}`;
                       onAIPromptDispatch?.(visiblePrompt, "lifestyle", signalContext);
                     }
                   };
@@ -668,28 +715,25 @@ export default function ExecDemoIntelPanel({
                     </span>
                   );
 
-                  if (isCollapsed) {
-                    return (
-                      <div className="flex flex-wrap gap-2">
-                        {rollupPills}
-                        {lifeEventPills}
-                        {riskPills}
-                      </div>
-                    );
-                  }
+                  // Always render the three labeled rows so headers are retained
+                  // on Next-Offer / Next-Product / Next-Conversation tabs. When a
+                  // tab is active (collapsed), use tighter dimensions to fit.
+                  const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
+                  const labelTextSize = isCollapsed ? "text-[11px]" : "text-[13px]";
+                  const rowGap = isCollapsed ? "mt-1.5" : "mt-2.5";
 
                   return (
                     <>
                       <div className="flex items-center gap-3 mb-1">
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-cyan-700">Spending Habits:</p>
+                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}>Spending Habits:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
-                      <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-amber-700">Life Event Detection:</p>
+                      <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
+                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}>Life Event Detection:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{lifeEventPills}</div>
                       </div>
-                      <div className="flex items-center gap-3 mt-2.5" style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className="shrink-0 w-[185px] text-[13px] font-bold uppercase tracking-wider text-red-600">Risk Factors:</p>
+                      <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
+                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600`}>Risk Factors:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{riskPills}</div>
                       </div>
                     </>
@@ -766,32 +810,7 @@ export default function ExecDemoIntelPanel({
         </div>
       )}
 
-      {/* Tab bar — visible when enrichment active AND a tab has been selected */}
-      {showProfile && phase !== "idle" && activeTab && (
-        <>
-          <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1.5 shrink-0">
-            {TAB_ORDER.map((key) => {
-              const meta = TAB_META[key];
-              const Icon = meta.icon;
-              const isActive = activeTab === key;
-              return (
-                <button
-                  key={key}
-                  onClick={() => onTabClick(key)}
-                  className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11.5px] font-semibold transition-all duration-200 ${
-                    isActive
-                      ? "bg-white text-slate-800 shadow-sm"
-                      : "text-slate-500 hover:text-slate-700 cursor-pointer"
-                  }`}
-                >
-                  <Icon className="w-3.5 h-3.5" />
-                  {meta.label}
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
+      {/* Tab bar moved above persona/pills card */}
 
       {/* Tab content — only after synthesis, hidden when evidence expanded */}
       {showTabs && !pillsExpanded && activeTab && (
@@ -812,6 +831,7 @@ export default function ExecDemoIntelPanel({
                 onSelectSignal={(s) => setSelectedSignal(s)}
                 onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
                 onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
+                assistantOpen={assistantOpen}
               />
             ) : (
               <div className="flex items-center justify-center h-full">
