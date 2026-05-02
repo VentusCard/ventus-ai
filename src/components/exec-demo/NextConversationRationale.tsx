@@ -979,11 +979,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Brief built for advisor</div>
               </div>
-              <ul className="space-y-0.5 mt-1">
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Talking points</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Risk &amp; opportunity framing</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Tailored to advisor</span></li>
-              </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-300" /></div>
 
