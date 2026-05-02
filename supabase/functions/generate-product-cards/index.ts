@@ -128,7 +128,7 @@ OFFER DETAIL FIELDS (REQUIRED — must be personalized to THIS customer's signal
    - Examples: "Earn 2x miles on every purchase", "4.50% APY — 10x the national average", "Tax-free growth on qualified education expenses"
 
 2. benefits (array, EXACTLY 3 strings, each 6-14 words):
-   - Concrete, BoA-style product features specific to the actual product
+   - Concrete, bank-grade product features specific to the actual product
    - Mix economics + qualitative perks (e.g., "75,000 bonus miles after $4K spend in 3 months", "No foreign transaction fees", "Priority Pass lounge access")
    - For 529: tax growth + state deduction + flexibility
    - For HYSA: APY + FDIC + no fees
