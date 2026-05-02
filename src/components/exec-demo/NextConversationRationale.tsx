@@ -1,15 +1,22 @@
 import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, type LucideIcon } from "lucide-react";
 
-/* ─── Context band: 3 pill rows describing what the AI assistant has + can do ─── */
+/* ─── Context band: 3 visually-distinct rows describing the AI assistant ─── */
+type PillVariant = "tag" | "solid" | "route";
+
 const CONTEXT_ROWS: Array<{
   label: string;
   icon: LucideIcon;
+  accent: string;
+  labelClass: string;
+  pillVariant: PillVariant;
   pills: string[];
-  pillClass: string;
 }> = [
   {
-    label: "Data Ingestion",
+    label: "Inputs",
     icon: Database,
+    accent: "bg-slate-400",
+    labelClass: "text-slate-600",
+    pillVariant: "tag",
     pills: [
       "Transaction streams",
       "Account holdings",
@@ -18,11 +25,13 @@ const CONTEXT_ROWS: Array<{
       "KYC records",
       "Digital telemetry",
     ],
-    pillClass: "text-slate-700 bg-slate-50 border-slate-200",
   },
   {
     label: "Capabilities",
     icon: Zap,
+    accent: "bg-blue-500",
+    labelClass: "text-blue-700",
+    pillVariant: "solid",
     pills: [
       "Check balances & transactions",
       "Track spending & subscriptions",
@@ -31,11 +40,13 @@ const CONTEXT_ROWS: Array<{
       "Plan major purchases",
       "Coach on goals & savings",
     ],
-    pillClass: "text-blue-700 bg-blue-50 border-blue-100",
   },
   {
     label: "Routes To",
     icon: Send,
+    accent: "bg-violet-500",
+    labelClass: "text-violet-700",
+    pillVariant: "route",
     pills: [
       "Wealth advisors",
       "Insurance specialists",
@@ -44,29 +55,61 @@ const CONTEXT_ROWS: Array<{
       "Fraud operations",
       "Branch staff",
     ],
-    pillClass: "text-violet-700 bg-violet-50 border-violet-100",
   },
 ];
 
+function renderPill(variant: PillVariant, text: string) {
+  if (variant === "tag") {
+    return (
+      <span
+        key={text}
+        className="inline-flex items-center text-[10px] font-medium rounded-sm px-1.5 py-0.5 border border-slate-300 bg-white text-slate-700 shrink-0"
+      >
+        {text}
+      </span>
+    );
+  }
+  if (variant === "solid") {
+    return (
+      <span
+        key={text}
+        className="inline-flex items-center text-[10px] font-medium rounded-md px-2 py-0.5 bg-blue-600 text-white shrink-0"
+      >
+        {text}
+      </span>
+    );
+  }
+  return (
+    <span
+      key={text}
+      className="inline-flex items-center gap-0.5 text-[10px] font-medium rounded-full px-2 py-0.5 border border-dashed border-violet-300 bg-white text-violet-700 shrink-0"
+    >
+      {text}
+      <span className="text-violet-400">›</span>
+    </span>
+  );
+}
+
 function ContextPillRows() {
   return (
-    <div className="space-y-1 pb-2 border-b border-slate-200">
-      {CONTEXT_ROWS.map((row) => {
+    <div className="rounded-md border border-slate-200 bg-white p-2 space-y-1.5 divide-y divide-slate-100">
+      {CONTEXT_ROWS.map((row, idx) => {
         const Icon = row.icon;
         return (
-          <div key={row.label} className="flex flex-wrap items-center gap-1.5">
-            <span className="inline-flex items-center gap-1 text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0 w-[110px]">
+          <div
+            key={row.label}
+            className={`flex items-stretch gap-2 ${idx > 0 ? "pt-1.5" : ""}`}
+          >
+            <div className={`w-0.5 rounded-sm ${row.accent} shrink-0`} />
+            <span
+              className={`inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider shrink-0 w-[96px] ${row.labelClass}`}
+            >
               <Icon className="w-2.5 h-2.5" />
               {row.label}
             </span>
-            {row.pills.map((p) => (
-              <span
-                key={p}
-                className={`inline-flex items-center text-[10px] font-medium rounded-full px-2 py-0.5 border shrink-0 ${row.pillClass}`}
-              >
-                {p}
-              </span>
-            ))}
+            <div className="flex flex-wrap items-center gap-1.5 flex-1">
+              {row.pills.map((p) => renderPill(row.pillVariant, p))}
+            </div>
           </div>
         );
       })}
