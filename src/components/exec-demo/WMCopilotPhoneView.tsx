@@ -28,7 +28,7 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
   return (
     <div className="flex flex-col h-full bg-white">
       {/* Header */}
-      <div className="shrink-0 px-3 py-2.5 border-b border-purple-200 bg-purple-50 flex items-center justify-between">
+      <div className="shrink-0 px-3 py-1.5 border-b border-purple-200 bg-purple-50 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
           <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-purple-700">WM CoPilot</span>
@@ -36,23 +36,23 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
         <button
           onClick={onClose}
           aria-label="Close WM CoPilot"
-          className="w-6 h-6 rounded-full hover:bg-purple-100 flex items-center justify-center text-purple-600 transition-colors"
+          className="w-5 h-5 rounded-full hover:bg-purple-100 flex items-center justify-center text-purple-600 transition-colors"
         >
           <X className="w-3.5 h-3.5" />
         </button>
       </div>
 
       {/* Customer summary line */}
-      <div className="shrink-0 px-3 py-2.5 border-b border-slate-100">
-        <p className="text-[12.5px] font-bold text-slate-900">{displayName}</p>
-        <p className="text-[11px] text-slate-600 mt-0.5">{summary}</p>
+      <div className="shrink-0 px-3 py-1.5 border-b border-slate-100">
+        <p className="text-[12.5px] font-bold text-slate-900 leading-tight">{displayName}</p>
+        <p className="text-[11px] text-slate-600 leading-tight">{summary}</p>
       </div>
 
       {/* Scrollable brief content */}
-      <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-3 space-y-3">
+      <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-2 space-y-2">
         {/* INSIGHT */}
         <section>
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1.5 mb-0.5">
             <Sparkles className="w-3 h-3 text-slate-500" />
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Ventus AI Insight</h4>
           </div>
@@ -61,11 +61,11 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
         {/* TALKING POINTS */}
         <section>
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1.5 mb-0.5">
             <MessageSquare className="w-3 h-3 text-slate-500" />
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Talking Points</h4>
           </div>
-          <ul className="space-y-1">
+          <ul className="space-y-0.5">
             {brief.talkingPoints.map((p, i) => (
               <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-purple-400"}`} />
@@ -77,11 +77,11 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
         {/* NEXT STEPS */}
         <section>
-          <div className="flex items-center gap-1.5 mb-1">
+          <div className="flex items-center gap-1.5 mb-0.5">
             <ListChecks className="w-3 h-3 text-slate-500" />
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Next Steps</h4>
           </div>
-          <ul className="space-y-1">
+          <ul className="space-y-0.5">
             {brief.nextSteps.map((s, i) => (
               <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-purple-400"}`} />
@@ -93,18 +93,18 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
         {/* RECOMMENDED PRODUCTS — chips */}
         <section>
-          <div className="flex items-center gap-1.5 mb-1.5">
+          <div className="flex items-center gap-1.5 mb-1">
             <Package className="w-3 h-3 text-slate-500" />
             <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               {brief.sensitive ? "Recommended Resources" : "Recommended Products"}
             </h4>
           </div>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-1">
             {brief.products.map((p, i) => (
               <span
                 key={i}
                 title={p.description}
-                className={`inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-full px-2.5 py-1.5 border ${
+                className={`inline-flex items-center gap-1 text-[11px] font-semibold rounded-full px-2 py-1 border ${
                   brief.sensitive
                     ? "bg-rose-50 border-rose-200 text-rose-700"
                     : "bg-purple-50 border-purple-200 text-purple-700"

@@ -729,11 +729,11 @@ export default function ExecDemoIntelPanel({
                   // tab is active (collapsed), use tighter dimensions to fit.
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
                   const labelTextSize = isCollapsed ? "text-[11px]" : "text-[13px]";
-                  const rowGap = isCollapsed ? "mt-1.5" : "mt-2.5";
+                  const rowGap = isCollapsed ? "mt-0.5" : "mt-2.5";
 
                   return (
                     <>
-                      <div className="flex items-center gap-3 mb-1">
+                      <div className="flex items-center gap-3">
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}>Spending Habits:</p>
                         <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
