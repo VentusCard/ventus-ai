@@ -1,103 +1,97 @@
 ## Goal
 
-Rebuild the Regular Client and Wealth Client cards from scratch, telling **two distinct journeys** with a **hero + supporting** layout. Each card is one cohesive object — not a row of tiles.
-
-- **Regular Client**: an **automated machine** that runs without humans. Hero = the live nurture flow. Supporting (right rail) = the AI chatbot the customer talks to + an "Open" CTA.
-- **Wealth Client**: an **AI-prepped human conversation**. Hero = the brief the advisor walks into a meeting with. Supporting (right rail) = the WM Copilot mock + an "Open" CTA.
-
-Same skeleton (`hero left, dark accent rail right`) so the eye instantly compares the two journeys, but the **content metaphor is different** — Regular feels like a pipeline; Wealth feels like a briefing.
+Inside each of the two cards (Regular Client and Wealth Client) in `NextConversationRationale.tsx`, replace the current hero-left / dark-rail-right split with a **single horizontal flow** that reads left → right as:
 
 ```text
-┌─ Context (3 pill rows) ──────────────────────────────────────────┐
-├──────────────────────────────────────────────────────────────────┤
-│  ┌─ REGULAR CLIENT ─────────────────────────────────────────────┐│
-│  │ HERO (light gradient)              │ RAIL (deep blue)        ││
-│  │ ─────────────────────────          │ ─────────────────────   ││
-│  │  Email flow                        │  AI Chatbot             ││
-│  │  "Your home journey…"              │  knows: pill·pill·pill  ││
-│  │  trigger  → 1·2·3 sequence         │  asks: pill·pill        ││
-│  │  channel chip + step rail          │  ──────────────         ││
-│  │                                    │  [Open Assistant →]     ││
-│  └────────────────────────────────────┴─────────────────────────┘│
-├──────────────────────────────────────────────────────────────────┤
-│  ┌─ WEALTH CLIENT (+) ──────────────────────────────────────────┐│
-│  │ HERO (light purple gradient)       │ RAIL (deep purple)      ││
-│  │ ─────────────────────────          │ ─────────────────────   ││
-│  │  Advisor brief                     │  WM Copilot             ││
-│  │  Signal pill · 92% Urgent          │  miniature chat bubble  ││
-│  │  • Talking point #1                │  user reply             ││
-│  │  ●─ next step today                │  ──────────────         ││
-│  │  ●─ next step tomorrow             │  [Open Copilot →]       ││
-│  └────────────────────────────────────┴─────────────────────────┘│
-└──────────────────────────────────────────────────────────────────┘
+SIGNAL  →  ENRICHMENT / INTENT  →  PERSONALIZATION  →  ORCHESTRATION
 ```
+
+So each card becomes one continuous pipeline that visualizes how a raw signal turns into a customer-facing action — instead of two unrelated panels (hero + AI rail).
+
+```text
+┌─ Context (3 pill rows) ──────────────────────────────────────────────┐
+├──────────────────────────────────────────────────────────────────────┤
+│  REGULAR CLIENT — automated machine                                  │
+│  ┌─ SIGNAL ──┐→┌─ INTENT / ENRICH ─┐→┌─ PERSONALIZE ─┐→┌─ ORCHESTRATE ─┐ │
+│  │ icon      │ │ "Home buyer"       │ │ Email flow    │ │ 1·2·3 sequence │ │
+│  │ label     │ │ trigger logic      │ │ Subject line  │ │ + AI Chatbot   │ │
+│  │ evidence  │ │ chatbot knows…     │ │ channel chip  │ │ [Open AI →]    │ │
+│  └───────────┘ └───────────────────┘ └───────────────┘ └────────────────┘ │
+├──────────────────────────────────────────────────────────────────────┤
+│  WEALTH CLIENT (+) — AI-prepped human conversation                   │
+│  ┌─ SIGNAL ──┐→┌─ INTENT / ENRICH ─┐→┌─ PERSONALIZE ─┐→┌─ ORCHESTRATE ─┐ │
+│  │ primary   │ │ confidence + 2nd   │ │ Talking pts   │ │ Next-step       │ │
+│  │ signal    │ │ signal + evidence  │ │ for advisor   │ │ timeline +      │ │
+│  │ icon/lbl  │ │                    │ │               │ │ WM Copilot CTA  │ │
+│  └───────────┘ └───────────────────┘ └───────────────┘ └────────────────┘ │
+└──────────────────────────────────────────────────────────────────────┘
+```
+
+The dark "rail" disappears as a vertical column. The orchestration step (chatbot for Regular, Copilot + CTA for Wealth) becomes the **last stage of the flow**, accented by the brand color so it still reads as the activation moment, just oriented horizontally like every other stage.
 
 ## File
 
-`src/components/exec-demo/NextConversationRationale.tsx` — replace the JSX from the wrapper at line ~860 down through the end of the bottom `</section>` (~line 1095). Keep `ContextPillRows`, all data structures (`PLAYBOOKS`, `STATIC_WEALTH_PREVIEW`, `findPlaybook`, `findWealthPreview`), `KIND_META`, and `ChannelIcon` exactly as they are. No edge-function or data work.
+`src/components/exec-demo/NextConversationRationale.tsx`, lines ~865–1083 (the JSX returned for a single selected signal). Keep `ContextPillRows`, all data structures (`PLAYBOOKS`, `STATIC_WEALTH_PREVIEW`, `findPlaybook`, `findWealthPreview`), `KIND_META`, `URGENCY_STYLES`, and `ChannelIcon` exactly as-is. Keep the "All Signals" branch and props unchanged.
 
-## Content kept (everything stays — just re-presented)
+## Layout per card
 
-**Regular hero:** automated flow channel + subject + trigger logic + numbered sequence (1·2·3).
-**Regular rail:** chatbot "Knows" + "Can answer" — both rendered as compact pills (no bullet lists).
+Each card becomes a single horizontal grid:
 
-**Wealth hero:** primary signal card (icon + label + confidence + urgency + evidence), then talking points as bullets, then next steps as a 4-step timeline.
-**Wealth rail:** WM Copilot mock chat (assistant bubble + user reply + faux input).
+```tsx
+<article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden bg-white">
+  {/* Brand strip stays on top */}
+  <div className="h-[6px]" style={{ background: regularGradient }} />
 
-Nothing is dropped — but the chatbot lists become inline pills (each "Knows" item is a small chip; "Can answer" is one chip per question).
+  {/* Eyebrow row — client type + automation chip */}
+  <div className="px-3.5 pt-2 pb-1.5 flex items-center gap-2">…</div>
 
-## Layout & visual rules
+  {/* Horizontal flow — 4 stages with arrow connectors */}
+  <div className="grid grid-cols-[minmax(0,1fr)_12px_minmax(0,1fr)_12px_minmax(0,1fr)_12px_minmax(0,1.05fr)] gap-0 px-3.5 pb-3 flex-1 min-h-0">
+    <Stage label="SIGNAL">…</Stage>
+    <Arrow />
+    <Stage label="INTENT">…</Stage>
+    <Arrow />
+    <Stage label="PERSONALIZE">…</Stage>
+    <Arrow />
+    <Stage label="ORCHESTRATE" accent>…</Stage>
+  </div>
+</article>
+```
 
-### Outer container
-- Two rows in a column flex (`gap-3`), each row `flex-1 basis-0 min-h-0` → equal vertical halves.
-- Each row is its own card: `rounded-xl border border-slate-200 overflow-hidden` (one object per journey).
-- Internal split per card: `grid grid-cols-[minmax(0,1fr)_240px]` — hero left, rail right (fixed-width rail keeps both cards visually identical and prevents the rail from collapsing on narrower viewports).
+- 4 equal-width stages separated by 12 px arrow columns (`→` chevron in slate-300, vertically centered).
+- Each stage is `flex flex-col min-w-0 min-h-0`; an uppercase eyebrow at top, content scrolls inside if it overflows (`overflow-y-auto exec-light-scroll`).
+- Last stage is the **Orchestrate** stage; it gets the brand-colored treatment (light tinted background + colored border, e.g. `bg-blue-50/70 border border-blue-200` for Regular, `bg-purple-50/70 border border-purple-200` for Wealth) and contains the CTA pinned at its bottom via `mt-auto`.
+- Card outer: same `flex-1 basis-0 min-h-0` so both cards stay 50/50 vertically.
+- No more deep blue/purple rail. The journey contrast comes from the **content** in each stage, not from a dark column.
 
-### Regular card
+### Regular Client stage contents
 
-- **Top edge strip** (8 px tall) — gradient from `#3b82f6` to `#1d4ed8`. Acts as a colored brand bar.
-- **Hero (left)** — `bg-gradient-to-br from-blue-50/60 to-white p-3.5 flex flex-col min-h-0`:
-  - Tiny eyebrow row: dot + `Regular Client` + `Automated · 0 advisor time` chip on the right.
-  - Title block: `Email flow` (text-base bold) with channel icon as a small square badge to the left.
-  - Subject in slate-700 medium, italic trigger logic below.
-  - **Sequence rail** — horizontal connected pills: `(1)─Educational nudge─(2)─Product spotlight─(3)─Soft CTA`, with thin connector lines between numbered circles and step labels under them. This is the visual hook — looks like a real pipeline.
-  - Inner scroll only on the sequence rail if it overflows; rest is fit-to-space.
-- **Rail (right)** — `bg-gradient-to-b from-blue-700 to-blue-900 text-white p-3.5 flex flex-col`:
-  - Header: `MessageSquare` icon + `AI Chatbot` (text-xs bold, white).
-  - "Knows" section: tiny uppercase `KNOWS` label + chips (`bg-white/10 border border-white/20 text-blue-50 text-[10px] rounded-full px-2 py-0.5`).
-  - "Can answer" section: same chip style but italic.
-  - Push-down spacer, then the CTA button at the bottom: `bg-white text-blue-700 rounded-lg font-bold flex items-center justify-between px-3 py-2`, label `Open AI Assistant`, trailing `→`.
-  - Rail content scrolls if it overflows (`min-h-0 overflow-y-auto`), CTA stays pinned via `mt-auto`.
+1. **SIGNAL** — small colored icon badge (using `KIND_META[effectiveSignal.kind]`) + `effectiveSignal.label` (sm semibold) + `playbook.signalSource` as italic evidence underneath.
+2. **INTENT / ENRICH** — eyebrow "Detected intent" + bold playbook key (e.g. `Home buyer`) + `playbook.automatedFlow.triggerLogic` italic + 2–3 chatbot `knows` items as small chips (`bg-slate-100 text-slate-700`). This is what the engine learned from the signal.
+3. **PERSONALIZE** — eyebrow "Message crafted" + channel icon badge + `playbook.automatedFlow.channel` chip + `playbook.automatedFlow.subject` quoted in semibold slate-900 + 1 line "Personalized to {customerFirstName}".
+4. **ORCHESTRATE** (accented blue) — eyebrow "Activated" + horizontal mini-sequence: numbered circles `(1)→(2)→(3)` with step labels under them, compactly stacked. Below: tiny `MessageSquare` icon + "AI Chatbot ready" line + the existing **Open AI Assistant** button pinned at bottom (`bg-blue-600 text-white`).
 
-### Wealth card
+### Wealth Client stage contents
 
-- **Top edge strip** — gradient from `#8b5cf6` to `#6d28d9`.
-- **Hero (left)** — `bg-gradient-to-br from-purple-50/60 to-white p-3.5 flex flex-col min-h-0`:
-  - Eyebrow: dot + `Wealth Client (+)` + `Advisor-led · AI prepped` chip.
-  - Featured signal pill row — first signal as a banner: icon · label · confidence% · urgency badge · italic evidence underneath. If 2+ signals, second signal compact below.
-  - Divider line.
-  - **Briefing body** in two stacked mini-sections:
-    - `TALKING POINTS` (eyebrow) → 3 bullets, each `· point` in slate-700.
-    - `NEXT STEPS` (eyebrow) → vertical purple timeline with `when` (purple-700 semibold) + action.
-  - This whole area is `min-h-0 overflow-y-auto exec-light-scroll pr-1`.
-- **Rail (right)** — `bg-gradient-to-b from-purple-700 to-purple-900 text-white p-3.5 flex flex-col`:
-  - Header: white V-mark badge + `WM Copilot` + tiny `AI` chip.
-  - One assistant chat bubble (`bg-white/10 border border-white/20 text-purple-50 rounded-xl rounded-bl-sm px-2.5 py-1.5 text-[11px]`) and one user reply (`bg-white text-purple-900 rounded-xl rounded-br-sm self-end`).
-  - Faux input row: `bg-white/5 border border-white/15 rounded-md px-2 py-1` with placeholder + Send icon.
-  - CTA at the bottom: `bg-white text-purple-700` button, `Open WM Copilot` + `↗`.
+1. **SIGNAL** — primary signal icon badge (purple) + `primarySignal.label` semibold + `primarySignal.evidence` italic.
+2. **INTENT / ENRICH** — eyebrow "AI prepped" + confidence row (`{primarySignal.confidence}%` + urgency badge using `URGENCY_STYLES`) + secondary signal compact line (icon + label + `{secondary.confidence}%`) if present.
+3. **PERSONALIZE** — eyebrow "Advisor brief" + bullet list of `wp.talkingPoints` (purple dots, slate-700 text). Scrolls internally.
+4. **ORCHESTRATE** (accented purple) — eyebrow "Conversation queued" + vertical `wp.nextSteps` timeline (compact: `when` purple-700 bold + `action` slate-700, with the existing left-bordered timeline). Pinned at bottom: the **Open WM Copilot** button (`bg-purple-600 text-white`). The faux chat input and assistant/user bubble mock are dropped — they were rail decoration and don't fit a horizontal stage. The Copilot is represented by the eyebrow + CTA.
 
-### Shared design tokens
+## Visual rules
 
-- All copy stays Manrope (project default).
-- White text on rail uses `text-white`, secondary uses `text-blue-100` / `text-purple-100`.
-- Light theme rule preserved: hero side stays white-on-light; rails are the only saturated areas.
-- No new shadcn dependencies. No emojis. No `dark:` utilities.
-- Vertical-text buttons removed — buttons live inside the rail and read normally.
+- Light theme preserved. No `dark:` utilities. No saturated dark columns.
+- Manrope everywhere (project default), italic only for evidence/trigger text.
+- Arrow connector: simple `ChevronRight` in `text-slate-300 w-3 h-3` centered vertically; on the Wealth card use `text-purple-200`, on Regular use `text-blue-200` so the flow direction reads as branded.
+- Stage eyebrow: `text-[9px] font-bold uppercase tracking-wider`, color = brand-500 for the matching card.
+- Stage body: `text-[11px]` slate-700 default, `text-sm` semibold slate-900 for the one headline element per stage (signal label / playbook key / subject / first next-step time).
+- Stage internal padding: `px-2 py-1.5` for non-accented, `p-2.5` for the accented Orchestrate stage so the CTA gets breathing room.
+- Each stage is `min-h-0 overflow-hidden flex flex-col`; only the densest sub-list inside (chatbot knows, talking points, next steps) gets `overflow-y-auto exec-light-scroll`.
 
 ## Out of scope
 
-- No changes to Next-Offer or Next-Product tabs.
-- No changes to `ContextPillRows` (the 3-row context band stays as-is).
-- No data or copy edits — purely a presentation rebuild.
+- No content rewrites — same data, just laid out as 4 horizontal stages.
+- No changes to the All Signals roll-up branch, `ContextPillRows`, `Next-Offer`, or `Next-Product` tabs.
+- No new dependencies; reuse `ChevronRight`, `MessageSquare`, `ArrowUpRight`, `Mail`, `Bell` from existing `lucide-react` imports already in the file.
 
 Approve and I'll switch to build mode and apply it.
