@@ -47,17 +47,17 @@ CRITICAL — signal_label must match source verbatim:
 - Life event card: signal_label = life_events[i].event_name EXACTLY
 This enables downstream pill matching. Do NOT paraphrase, shorten, or rewrite the label.
 
-Use real Bank of America products as reference for recommendations. Examples:
-- Travel: Bank of America® Travel Rewards credit card, Bank of America® Premium Rewards® credit card
-- Cash back: Bank of America® Customized Cash Rewards credit card, Bank of America® Unlimited Cash Rewards credit card
-- Savings: Bank of America Advantage Savings, Bank of America Advantage SafePass® Savings
-- Investing: Merrill Edge® Self-Directed, Merrill Guided Investing
-- Home: Bank of America home equity line of credit, Bank of America mortgage
-- Education: Merrill 529 College Savings Plan
-- Retirement: Merrill IRA, Merrill Roth IRA
-- Business: Bank of America® Business Advantage credit cards
+Use generic "Our Bank"-prefixed products for ALL recommendations. Never use real bank brand names (no "Bank of America", "Chase", "Merrill", "Wells Fargo", etc.). Examples:
+- Travel: Our Bank Travel Rewards Card, Our Bank Premium Rewards Card
+- Cash back: Our Bank Customized Cash Rewards Card, Our Bank Unlimited Cash Rewards Card
+- Savings: Our Bank Advantage Savings, Our Bank SafePass Savings
+- Investing: Our Bank Self-Directed Investing, Our Bank Guided Investing
+- Home: Our Bank Home Equity Line of Credit, Our Bank Mortgage
+- Education: Our Bank 529 College Savings Plan
+- Retirement: Our Bank IRA, Our Bank Roth IRA
+- Business: Our Bank Business Advantage Card
 
-Adapt the product name to match what Bank of America actually offers. Use their real product naming conventions.
+Every product_name MUST start with or include "Our Bank". Keep naming clean and consumer-friendly — no ® or ™ symbols.
 
 VENTUS THESIS — THE GOLDEN RULE:
 The customer should read the card and think "huh, that's actually relevant to me right now" — never "the bank is watching my transactions." It should feel like good timing, not surveillance.
@@ -91,11 +91,11 @@ CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
 - Tone: caring, calm, non-judgmental, never alarming. Like a trusted advisor quietly checking in.
 - type: must be "risk"
 - product_name: a non-credit, wellness/safety-themed product. Examples:
-   - "Bank of America SafeBalance® Account Controls"
-   - "Bank of America Account Wellness Tools"
-   - "Bank of America Spending Limits & Merchant Controls"
-   - "Bank of America Confidential Customer Care"
-   - For financial-distress signals, prefer hardship-themed products such as: "Bank of America Hardship Assistance Program", "Bank of America Overdraft Protection & Fee Waivers", "Bank of America Confidential Financial Coaching", "Bank of America Balance Assist™ Short-Term Loan", "Bank of America Customized Cash Wellness Plan"
+   - "Our Bank SafeBalance Account Controls"
+   - "Our Bank Account Wellness Tools"
+   - "Our Bank Spending Limits & Merchant Controls"
+   - "Our Bank Confidential Customer Care"
+   - For financial-distress signals, prefer hardship-themed products such as: "Our Bank Hardship Assistance Program", "Our Bank Overdraft Protection & Fee Waivers", "Our Bank Confidential Financial Coaching", "Our Bank Balance Assist Short-Term Loan", "Our Bank Customized Cash Wellness Plan"
 - signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Sports Betting", "High-Risk / Offshore Gambling", "Casino & Table Games", "Lottery & Raffles", "Casual / Social Gaming", "Horse Racing & Pari-mutuel", "Gambling", "Suspicious International", "Adult Entertainment", "AML", "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress")
 - theme: use "wellness"
 - quote: 1-2 sentences framed as care/transparency. Examples:
@@ -128,7 +128,7 @@ OFFER DETAIL FIELDS (REQUIRED — must be personalized to THIS customer's signal
    - Examples: "Earn 2x miles on every purchase", "4.50% APY — 10x the national average", "Tax-free growth on qualified education expenses"
 
 2. benefits (array, EXACTLY 3 strings, each 6-14 words):
-   - Concrete, BoA-style product features specific to the actual product
+   - Concrete, bank-grade product features specific to the actual product
    - Mix economics + qualitative perks (e.g., "75,000 bonus miles after $4K spend in 3 months", "No foreign transaction fees", "Priority Pass lounge access")
    - For 529: tax growth + state deduction + flexibility
    - For HYSA: APY + FDIC + no fees
@@ -256,7 +256,7 @@ Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the 
                           minItems: 3,
                           maxItems: 3,
                           items: { type: "string" },
-                          description: "Exactly 3 concrete BoA-style product features specific to the actual product",
+                          description: "Exactly 3 concrete bank-grade product features specific to the actual product",
                         },
                         eligibility: {
                           type: "string",
