@@ -1238,7 +1238,7 @@ export default function ExecDemoPage() {
         {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
         {(() => {
           const phoneVisible = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
-          const expandedW = 440;
+          const expandedW = 560;
           const collapsedW = 40;
           const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
           return (
@@ -1268,7 +1268,7 @@ export default function ExecDemoPage() {
 
               {/* Full phone — with collapse button */}
               {phoneVisible && !phoneCollapsed && (
-                <div className="w-[440px] h-full relative">
+                <div className="w-[560px] h-full relative">
                   <button
                     onClick={() => setPhoneCollapsed(true)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
