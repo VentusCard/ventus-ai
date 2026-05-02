@@ -401,28 +401,36 @@ export default function NextConversationRationale({
                 <Sparkles className="w-3 h-3 text-purple-600" />
                 <span className="text-[9px] font-semibold tracking-wide text-purple-700">Actions</span>
               </div>
-              <div className="grid grid-cols-2 gap-1.5">
-                <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                  <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Notify Wealth Advisor</span>
-                </button>
-                <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                  <Send className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Triggered Email Campaign</span>
-                </button>
-                {brief.conciergeActions.slice(0, 2).map((a, i) => (
-                  <button
-                    key={i}
-                    className={`text-left text-[10.5px] font-semibold rounded-md border px-2 py-1.5 inline-flex items-center gap-1 ${
-                      brief.sensitive
-                        ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
-                        : i === 0
-                        ? "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100"
-                        : "bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100"
-                    }`}
-                  >
-                    <Sparkles className="w-3 h-3 shrink-0 opacity-70" /> <span className="truncate">{a}</span>
-                  </button>
-                ))}
-              </div>
+              {(() => {
+                const l = (effectiveSignal.label || "").toLowerCase();
+                let consultLabel = "Schedule Lifestyle Consultation";
+                if (/college/.test(l)) consultLabel = "Schedule 529 Consultation";
+                else if (/home|mortgage|down ?payment|house/.test(l)) consultLabel = "Schedule Mortgage Consultation";
+                else if (/gambl|vulnerab|hardship|stress/.test(l) || brief.sensitive) consultLabel = "Schedule Wellness Check-in";
+                const consultStyle = brief.sensitive
+                  ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
+                  : "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100";
+                return (
+                  <div className="grid grid-cols-2 gap-1.5">
+                    <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
+                      <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Notify Wealth Advisor</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={onOpenWMCopilot}
+                      className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1"
+                    >
+                      <FileText className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Open Full Intelligence Brief</span>
+                    </button>
+                    <button className={`text-left text-[10.5px] font-semibold rounded-md border px-2 py-1.5 inline-flex items-center gap-1 ${consultStyle}`}>
+                      <Sparkles className="w-3 h-3 shrink-0 opacity-70" /> <span className="truncate">{consultLabel}</span>
+                    </button>
+                    <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
+                      <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Flag for Follow-up</span>
+                    </button>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>
