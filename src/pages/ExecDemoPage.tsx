@@ -1223,7 +1223,8 @@ export default function ExecDemoPage() {
             onOpenWMCopilot={handleOpenWMCopilot}
             onOpenAIAssistant={handleOpenAIAssistantWrapper}
             onAIPromptDispatch={dispatchAIPrompt}
-            assistantOpen={true}
+            assistantOpen={!wmCopilotOpen}
+            wmCopilotOpen={wmCopilotOpen}
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
             fullWidthEnrichment={showEnrichmentFullScreen}
