@@ -977,84 +977,73 @@ export default function NextConversationRationale({
             </span>
           </div>
 
-          {/* Horizontal flow */}
+          {/* Horizontal flow — workflow showcase, signal-agnostic */}
           <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)] gap-0 px-3.5 pb-3 flex-1 min-h-0">
             {/* 1. SIGNAL */}
             <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
               <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Signal</div>
-              {primarySignal && PrimaryIcon ? (
-                <>
-                  <div className="flex items-center gap-1.5 shrink-0">
-                    <span className="flex items-center justify-center w-5 h-5 rounded-md bg-purple-600 text-white shrink-0">
-                      <PrimaryIcon className="w-3 h-3" />
-                    </span>
-                  </div>
-                  <div className="text-sm font-semibold text-slate-900 leading-snug mt-1">{primarySignal.label}</div>
-                  <div className="text-[10px] italic text-slate-500 leading-snug mt-1 overflow-hidden">
-                    {primarySignal.evidence}
-                  </div>
-                </>
-              ) : (
-                <div className="text-[11px] text-slate-400 italic">No primary signal</div>
-              )}
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
+                  <Radar className="w-3 h-3 text-purple-600" />
+                </span>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Multi-signal detected</div>
+              </div>
+              <ul className="space-y-0.5 mt-1">
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Primary + secondary triggers</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Cross-pillar evidence</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Time horizon</span></li>
+              </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
 
-            {/* 2. INTENT / ENRICH */}
+            {/* 2. INTENT */}
             <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">AI prepped</div>
-              {primarySignal && (
-                <div className="flex items-center gap-1.5 shrink-0">
-                  <span className="text-sm font-bold text-purple-700 tabular-nums">{primarySignal.confidence}%</span>
-                  <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded border ${URGENCY_STYLES[primarySignal.urgency]}`}>
-                    {primarySignal.urgency}
-                  </span>
-                </div>
-              )}
-              <div className="text-[10px] text-slate-500 leading-snug mt-1 shrink-0">Confidence in detected intent</div>
-              {secondarySignal && SecondaryIcon && (
-                <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-slate-200 shrink-0">
-                  <SecondaryIcon className="w-3 h-3 text-purple-500 shrink-0" />
-                  <span className="text-[10px] text-slate-700 truncate">{secondarySignal.label}</span>
-                  <span className="ml-auto text-[10px] font-semibold text-purple-600 tabular-nums shrink-0">{secondarySignal.confidence}%</span>
-                </div>
-              )}
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Intent</div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
+                  <Sparkles className="w-3 h-3 text-purple-600" />
+                </span>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">AI synthesis</div>
+              </div>
+              <ul className="space-y-0.5 mt-1">
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Cross-signal correlation</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Urgency + confidence</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Wealth context layered</span></li>
+              </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
 
             {/* 3. PERSONALIZE */}
             <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0 flex items-center gap-1">
-                <MessageSquare className="w-2.5 h-2.5" /> Advisor brief
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Personalize</div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
+                  <FileText className="w-3 h-3 text-purple-600" />
+                </span>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Brief built for advisor</div>
               </div>
-              <ul className="space-y-1 min-h-0 overflow-y-auto exec-light-scroll pr-1">
-                {wp.talkingPoints.map((tp, i) => (
-                  <li key={i} className="text-[11px] text-slate-700 leading-snug flex items-start gap-1.5">
-                    <span className="mt-[5px] w-1 h-1 rounded-full shrink-0 bg-purple-500" />
-                    <span>{tp}</span>
-                  </li>
-                ))}
+              <ul className="space-y-0.5 mt-1">
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Talking points</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Risk &amp; opportunity framing</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Tailored to advisor</span></li>
               </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-300" /></div>
 
             {/* 4. ORCHESTRATE — accented */}
             <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-purple-300 bg-purple-50/70 p-2.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-700 mb-1.5 shrink-0 flex items-center gap-1">
-                <CalendarCheck className="w-2.5 h-2.5" /> Conversation queued
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-700 mb-1 shrink-0">Orchestrate</div>
+              <div className="flex items-center gap-1.5 mb-1 shrink-0">
+                <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-300 shrink-0">
+                  <CalendarCheck className="w-3 h-3 text-purple-700" />
+                </span>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Conversation scheduled</div>
               </div>
-              <ol className="relative min-h-0 overflow-y-auto exec-light-scroll pr-1">
-                {wp.nextSteps.map((step, i) => (
-                  <li key={i} className="relative pl-3.5 pb-1.5 last:pb-0">
-                    {i < wp.nextSteps.length - 1 && (
-                      <span className="absolute left-[3px] top-2 bottom-0 w-px bg-purple-200" />
-                    )}
-                    <span className="absolute left-0 top-[5px] w-1.5 h-1.5 rounded-full bg-purple-500" />
-                    <div className="text-[10px] font-bold text-purple-700 leading-tight uppercase tracking-wide">{step.when}</div>
-                    <div className="text-[11px] text-slate-700 leading-snug">{step.action}</div>
-                  </li>
-                ))}
-              </ol>
+              <ul className="space-y-0.5 mt-1">
+                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Next-step timeline</span></li>
+                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>WM Copilot prepped</span></li>
+                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Advisor in the loop</span></li>
+              </ul>
               <button
                 onClick={onOpenWMCopilot}
                 className="mt-auto inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-1.5 bg-purple-600 text-white hover:bg-purple-700 transition-colors shrink-0"
