@@ -1242,6 +1242,7 @@ export default function ExecDemoPage() {
             }
             activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
             onClearHighlight={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
+            onEnrichmentPillarClick={handleEnrichmentPillarClick}
           />
         </div>
 
