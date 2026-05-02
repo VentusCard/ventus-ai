@@ -904,14 +904,14 @@ export default function NextConversationRationale({
                 </div>
 
                 {/* 2) Prepped content */}
-                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
-                  <div className="grid grid-cols-2 gap-2 h-full">
+                <div>
+                  <div className="grid grid-cols-2 gap-2">
                     {/* Talking points */}
-                    <div className="flex flex-col min-h-0">
+                    <div className="flex flex-col">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
                         <MessageSquare className="w-2.5 h-2.5" /> Talking Points
                       </div>
-                      <div className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1">
+                      <div className="space-y-1 pr-1">
                         {wp.talkingPoints.map((tp, i) => (
                           <div key={i} className="bg-slate-50 rounded-md px-2 py-1 text-xs text-slate-700 leading-snug">
                             {tp}
