@@ -931,14 +931,22 @@ export default function NextConversationRationale({
             {/* spacer */}
             <div />
 
-            {/* 5. CTA — separate column, vertically centered */}
-            <div className="min-w-0 flex items-center">
+            {/* 5. CTA — separate column, fills row height */}
+            <div className="min-w-0 flex items-stretch">
               <button
                 onClick={onOpenAIAssistant}
-                className="w-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+                className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
-                Open AI Assistant
-                <ArrowUpRight className="w-3.5 h-3.5" />
+                <span className="inline-flex items-center gap-1.5 text-left">
+                  Open AI Assistant
+                  {assistantOpen && (
+                    <span className="inline-flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-white/20 border border-white/40 px-1.5 py-0.5">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+                      Open
+                    </span>
+                  )}
+                </span>
+                <ArrowUpRight className="w-3.5 h-3.5 shrink-0" />
               </button>
             </div>
           </div>
