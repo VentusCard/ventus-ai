@@ -774,9 +774,9 @@ export default function ExecDemoIntelPanel({
                       amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
                     }))}
                     flush={fullWidthEnrichment}
-                    highlightedIndices={synthesisTriggered ? highlightedIndices : null}
+                    highlightedIndices={highlightedIndices}
                     highlightColor={highlightColor}
-                    activePillLabel={synthesisTriggered ? activePillLabel : null}
+                    activePillLabel={activePillLabel}
                     onClearHighlight={onClearHighlight}
                     onPillarClick={onEnrichmentPillarClick}
                   />
