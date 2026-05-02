@@ -768,10 +768,10 @@ export default function NextConversationRationale({
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
-      {/* Vertical split: Regular (left) | Wealth (right) */}
-      <div className="grid grid-cols-2 gap-0 flex-1 min-h-0">
-        {/* REGULAR CLIENT — LEFT */}
-        <div className="pr-3 flex flex-col h-full">
+      {/* Stacked: Regular (top) over Wealth (bottom) */}
+      <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto exec-light-scroll pr-1">
+        {/* REGULAR CLIENT — TOP */}
+        <div className="flex flex-col">
           <div className="flex items-center gap-1.5 mb-2.5">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
             <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
@@ -861,7 +861,7 @@ export default function NextConversationRationale({
             <MessageSquare className="w-3.5 h-3.5" />
           </button>
         </div>
-        <div className="pl-3 border-l border-slate-200 flex flex-col h-full">
+        <div className="pt-4 border-t border-slate-200 flex flex-col">
           <div className="flex items-center gap-1.5 mb-2.5">
             <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
             <span className="text-xs font-bold text-purple-700 uppercase tracking-wider">
@@ -872,13 +872,13 @@ export default function NextConversationRationale({
           {(() => {
             const wp = findWealthPreview(effectiveSignal.label);
             return (
-              <div className="flex-1 flex flex-col gap-2 min-h-0">
+              <div className="flex flex-col gap-2">
                 {/* 1) Signal cards */}
-                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
+                <div>
                   <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
                     <Sparkles className="w-2.5 h-2.5" /> Signals
                   </div>
-                  <div className="flex flex-col gap-1.5 overflow-y-auto h-[calc(100%-1.25rem)] pr-1">
+                  <div className="flex flex-col gap-1.5 pr-1">
                     {wp.signals.map((sig) => {
                       const Icon = sig.icon;
                       return (
@@ -904,14 +904,14 @@ export default function NextConversationRationale({
                 </div>
 
                 {/* 2) Prepped content */}
-                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
-                  <div className="grid grid-cols-2 gap-2 h-full">
+                <div>
+                  <div className="grid grid-cols-2 gap-2">
                     {/* Talking points */}
-                    <div className="flex flex-col min-h-0">
+                    <div className="flex flex-col">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
                         <MessageSquare className="w-2.5 h-2.5" /> Talking Points
                       </div>
-                      <div className="flex-1 min-h-0 overflow-y-auto space-y-1 pr-1">
+                      <div className="space-y-1 pr-1">
                         {wp.talkingPoints.map((tp, i) => (
                           <div key={i} className="bg-slate-50 rounded-md px-2 py-1 text-xs text-slate-700 leading-snug">
                             {tp}
@@ -920,11 +920,11 @@ export default function NextConversationRationale({
                       </div>
                     </div>
                     {/* Next steps timeline */}
-                    <div className="flex flex-col min-h-0">
+                    <div className="flex flex-col">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
                         <CalendarCheck className="w-2.5 h-2.5" /> Next Steps
                       </div>
-                      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                      <div className="pr-1">
                         <ol className="relative">
                           {wp.nextSteps.map((step, i) => (
                             <li key={i} className="relative pl-4 pb-2 last:pb-0">
@@ -943,8 +943,8 @@ export default function NextConversationRationale({
                 </div>
 
                 {/* 3) WM Copilot mock chat */}
-                <div className="flex-1 basis-0 min-h-0 overflow-hidden">
-                  <div className="h-full flex flex-col rounded-lg border border-purple-200 bg-white overflow-hidden">
+                <div>
+                  <div className="flex flex-col rounded-lg border border-purple-200 bg-white overflow-hidden">
                     <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-purple-100 bg-purple-50/60 shrink-0">
                       <span className="flex items-center justify-center w-4 h-4 rounded-md bg-purple-600">
                         <span className="text-[9px] font-black text-white leading-none">V</span>
@@ -952,7 +952,7 @@ export default function NextConversationRationale({
                       <span className="text-xs font-semibold text-purple-900">WM Copilot</span>
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded bg-purple-100 text-purple-700 border border-purple-200">AI</span>
                     </div>
-                    <div className="flex-1 min-h-0 overflow-y-auto px-2 py-1.5 space-y-1.5">
+                    <div className="px-2 py-1.5 space-y-1.5">
                       <div className="bg-purple-50 border border-purple-100 rounded-lg px-2 py-1.5 text-xs text-slate-700 leading-snug max-w-[90%]">
                         {wp.chatPreview.assistant}
                       </div>
