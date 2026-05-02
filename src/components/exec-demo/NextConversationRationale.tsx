@@ -55,7 +55,7 @@ const CONTEXT_ROWS: Array<{
       "Trade securities",
       "Open or close accounts",
       "Negotiate fees",
-      "Replace human advisors",
+      "Underwrite or price products",
       "Make binding commitments",
     ],
   },
