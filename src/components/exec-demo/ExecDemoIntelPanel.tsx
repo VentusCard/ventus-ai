@@ -552,7 +552,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -675,7 +675,7 @@ export default function ExecDemoIntelPanel({
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
                           title={riskPillsMuted ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
@@ -829,18 +829,29 @@ export default function ExecDemoIntelPanel({
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} pillarRollups={rollupStats} riskFlags={riskFlags} />
             ) : activeTab === "relationship" ? (
-              <NextConversationRationale
-                selectedSignal={selectedSignal}
-                availableSignals={availableSignals}
-                customerFirstName={customerFirstName}
-                productActions={productActions}
-                actionsLoading={actionsLoading}
-                productCards={productCards}
-                onSelectSignal={(s) => setSelectedSignal(s)}
-                onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
-                onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
-                assistantOpen={assistantOpen}
-              />
+              <div className="h-full flex flex-col min-h-0">
+                <div className="shrink-0 flex items-center gap-2 px-1 pb-2">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-purple-700 bg-purple-50 border border-purple-200 rounded-full px-2.5 py-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
+                    Wealth Advisor View
+                  </span>
+                  <span className="text-[10px] text-slate-400">Briefing prepared from selected signal</span>
+                </div>
+                <div className="flex-1 min-h-0">
+                  <NextConversationRationale
+                    selectedSignal={selectedSignal}
+                    availableSignals={availableSignals}
+                    customerFirstName={customerFirstName}
+                    productActions={productActions}
+                    actionsLoading={actionsLoading}
+                    productCards={productCards}
+                    onSelectSignal={(s) => setSelectedSignal(s)}
+                    onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
+                    onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
+                    assistantOpen={assistantOpen}
+                  />
+                </div>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-[11px] text-slate-300 font-mono">
@@ -979,7 +990,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`

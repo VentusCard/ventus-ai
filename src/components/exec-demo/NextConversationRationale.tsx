@@ -1,4 +1,4 @@
-import { GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Sparkles, MessageSquare, ListChecks, Package, ArrowRight } from "lucide-react";
+import { GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Sparkles, MessageSquare, ListChecks, Package } from "lucide-react";
 import type { CardActions } from "./NextProductRationale";
 import type { ProductCard } from "./ProductCardsPhoneView";
 
@@ -27,58 +27,58 @@ interface Brief {
 const BRIEF_LIBRARY: Record<string, Brief> = {
   "College Preparation for Dependent": {
     insight:
-      "This customer is actively preparing for a child's college education based on recent test prep, campus visit, and application fee transactions. This is a high-confidence signal with an estimated 2-4 year runway before enrollment. Immediate outreach recommended to begin education savings planning.",
+      "Recent test prep, campus visit, and application fee transactions point to active college preparation for a dependent. High-confidence signal with an estimated 2–4 year runway — ideal moment to begin education savings planning.",
     talkingPoints: [
-      "We noticed some activity around college prep — have you started thinking about a 529 plan for your child?",
-      "With college potentially 2-4 years away, now is a great time to start building an education savings strategy.",
-      "We can model out what monthly contributions would look like to hit your target college savings goal.",
+      "Have you started thinking about a 529 plan for your child?",
+      "With college 2–4 years out, now is a great time to build an education savings strategy.",
+      "We can model what monthly contributions hit your savings goal.",
     ],
     nextSteps: [
       "Schedule 529 college savings consultation within 30 days",
-      "Review and update life insurance coverage — new dependent costs likely increasing",
-      "Update beneficiary designations on all investment and retirement accounts",
+      "Review and update life insurance for new dependent costs",
+      "Update beneficiaries on investment & retirement accounts",
     ],
     products: [
-      { name: "529 Education Savings Plan", description: "Tax-advantaged savings for future education costs" },
-      { name: "Term Life Insurance Review", description: "Ensure adequate coverage for growing family expenses" },
-      { name: "College Planning Consultation", description: "Model education costs and savings milestones" },
+      { name: "529 Education Plan", description: "Tax-advantaged savings for future education costs" },
+      { name: "Term Life Review", description: "Ensure adequate coverage for growing family expenses" },
+      { name: "College Planning", description: "Model education costs and savings milestones" },
     ],
   },
   "Home Purchase Planning": {
     insight:
-      "This customer is showing early home purchase signals including mortgage research and down payment activity. High confidence detection with an estimated 3-6 month purchase timeline. Proactive outreach now positions your bank as the mortgage partner before they shop elsewhere.",
+      "Mortgage research and down payment activity suggest an early home purchase — estimated 3–6 month timeline. Proactive outreach now positions your bank as the mortgage partner before they shop elsewhere.",
     talkingPoints: [
-      "We noticed some activity that looks like home purchase planning — are you working with anyone on a mortgage yet?",
-      "We can lock in a pre-approval now so you're ready to move fast when you find the right home.",
-      "Have you thought about what your ideal monthly payment looks like?",
+      "Are you working with anyone on a mortgage yet?",
+      "We can lock in a pre-approval so you're ready to move fast.",
+      "Have you thought about your ideal monthly payment?",
     ],
     nextSteps: [
       "Schedule mortgage pre-approval consultation",
-      "Review current savings for down payment gap analysis",
+      "Run down payment gap analysis on current savings",
       "Discuss homeowners insurance options",
     ],
     products: [
       { name: "Mortgage Pre-Approval", description: "Lock in rates and shop with confidence" },
       { name: "Home Equity Planning", description: "Map out down payment and equity strategy" },
-      { name: "Homeowners Insurance Review", description: "Coverage tailored to your future home" },
+      { name: "Homeowners Insurance", description: "Coverage tailored to your future home" },
     ],
   },
   Gambling: {
     sensitive: true,
     insight:
-      "This customer has multiple high-severity gambling transactions detected in the past 30 days totaling significant spend. This signal warrants a sensitive financial wellness conversation rather than product promotion. Handle with care.",
+      "Multiple high-severity gambling transactions detected in the past 30 days totaling significant spend. Warrants a sensitive financial wellness conversation rather than product promotion.",
     talkingPoints: [
-      "We noticed some changes in your spending patterns recently — how are things going financially?",
-      "We have some tools that can help you track and manage discretionary spending if that would be useful.",
-      "Our financial wellness team is available for a confidential conversation anytime.",
+      "We noticed some changes in your spending — how are things going?",
+      "We have tools to help track and manage discretionary spending.",
+      "Our financial wellness team is available for a confidential chat.",
     ],
     nextSteps: [
       "Flag account for financial wellness outreach",
-      "Do not surface gambling-adjacent product offers",
-      "Schedule confidential financial wellness check-in",
+      "Suppress gambling-adjacent product offers",
+      "Schedule confidential wellness check-in",
     ],
     products: [
-      { name: "Financial Wellness Consultation", description: "Confidential 1:1 with our wellness team" },
+      { name: "Wellness Consultation", description: "Confidential 1:1 with our wellness team" },
       { name: "Budgeting Tools", description: "Track and manage discretionary spending" },
       { name: "Savings Goal Setup", description: "Build a structured plan for the months ahead" },
     ],
@@ -86,78 +86,78 @@ const BRIEF_LIBRARY: Record<string, Brief> = {
   "Financial Vulnerability": {
     sensitive: true,
     insight:
-      "This customer is showing early signals of financial strain across multiple categories. Approach with care — this is a wellness conversation, not a product pitch. The right outreach now can build trust and prevent escalation.",
+      "Early signals of financial strain across multiple categories. The right outreach now builds trust and prevents escalation — wellness conversation, not a product pitch.",
     talkingPoints: [
-      "How are things going financially right now? We're here to help, not to sell.",
-      "We have tools and people who can help you think through cash flow and upcoming bills.",
-      "Would a quick confidential check-in with our wellness team be useful?",
+      "How are things going financially right now? We're here to help.",
+      "We can help you think through cash flow and upcoming bills.",
+      "Would a confidential wellness check-in be useful?",
     ],
     nextSteps: [
       "Flag account for financial wellness outreach",
-      "Pause non-essential marketing campaigns for this customer",
-      "Schedule confidential financial wellness check-in",
+      "Pause non-essential marketing campaigns",
+      "Offer confidential wellness consultation",
     ],
     products: [
-      { name: "Financial Wellness Consultation", description: "Confidential support, no products pitched" },
+      { name: "Wellness Consultation", description: "Confidential support, no products pitched" },
       { name: "Cash Flow Coaching", description: "Build a clear picture of monthly inflows and outflows" },
       { name: "Hardship Resources", description: "Programs and tools for short-term relief" },
     ],
   },
   "Annual Hawaiian Vacations": {
     insight:
-      "This customer takes annual Hawaiian vacations and has already begun planning for this year based on recent flight and hotel transactions. Travel rewards and lifestyle products are highly relevant right now.",
+      "Annual Hawaiian vacation pattern with recent flight and hotel transactions for this year's trip already on the books. Travel rewards and lifestyle products are highly relevant right now.",
     talkingPoints: [
-      "Looks like you're planning another Hawaiian trip — have you looked at our travel rewards card?",
-      "We can help maximize your rewards on flights and hotels so your trip costs less.",
-      "Are you interested in travel insurance for your upcoming trip?",
+      "Planning another Hawaiian trip — have you seen our travel rewards card?",
+      "We can help maximize rewards on flights and hotels.",
+      "Interested in trip insurance for your upcoming travel?",
     ],
     nextSteps: [
       "Surface travel rewards card offer",
-      "Send Hawaiian hotel and activity deals through rewards engine",
-      "Follow up post-trip for vacation financing options",
+      "Push Hawaiian hotel & activity deals",
+      "Follow up post-trip with vacation financing",
     ],
     products: [
-      { name: "Travel Rewards Card", description: "Earn premium points on flights and hotels" },
+      { name: "Travel Rewards Card", description: "Premium points on flights and hotels" },
       { name: "Trip Insurance", description: "Protect upcoming travel against the unexpected" },
-      { name: "Vacation Savings Account", description: "Set aside funds for next year's trip automatically" },
+      { name: "Vacation Savings", description: "Auto-save for next year's trip" },
     ],
   },
   "Seasonal Ski Trips": {
     insight:
-      "This customer takes recurring ski trips each season based on lift ticket, lodging, and gear transactions. Lifestyle and travel rewards are well-aligned right now.",
+      "Recurring seasonal ski activity across lift tickets, lodging, and gear. Lifestyle travel rewards and seasonal savings products are well-aligned right now.",
     talkingPoints: [
-      "Looks like ski season is on your mind — our travel rewards card earns extra on lodging and lift tickets.",
-      "We can help you set up a dedicated savings bucket for next season's trip.",
-      "Have you looked at trip insurance for the gear and travel costs?",
+      "Our travel card earns extra on lodging and lift tickets.",
+      "We can set up a savings bucket for next season's trip.",
+      "Have you looked at trip insurance for gear and travel?",
     ],
     nextSteps: [
       "Surface travel rewards card offer",
-      "Push curated mountain-resort and gear partner deals",
+      "Push mountain-resort and gear partner deals",
       "Offer seasonal savings sub-account",
     ],
     products: [
-      { name: "Travel Rewards Card", description: "Earn boosted points on travel and lodging" },
+      { name: "Travel Rewards Card", description: "Boosted points on travel and lodging" },
       { name: "Trip Insurance", description: "Coverage for travel disruption and gear" },
-      { name: "Seasonal Savings Account", description: "Auto-save for the next ski season" },
+      { name: "Seasonal Savings", description: "Auto-save for the next ski season" },
     ],
   },
   "Subscription Pet Care Routine": {
     insight:
-      "This customer has a steady cadence of pet care subscriptions and recurring vet visits. Pet ownership is a strong loyalty and cross-sell anchor — great context for everyday rewards and pet-adjacent benefits.",
+      "Steady cadence of pet care subscriptions and recurring vet visits. Pet ownership is a strong loyalty anchor — great context for everyday rewards and pet-adjacent benefits.",
     talkingPoints: [
-      "We noticed regular pet care spend — would extra rewards on those categories be useful?",
-      "Some customers love pairing pet expenses with a dedicated rewards card.",
-      "Are you covered for unexpected vet costs? We can walk through pet insurance options.",
+      "Would extra rewards on pet care categories be useful?",
+      "Many pet owners pair expenses with a dedicated rewards card.",
+      "Are you covered for unexpected vet costs?",
     ],
     nextSteps: [
-      "Surface everyday rewards card with pet-category boost",
-      "Push partner deals from pet retailers and vet networks",
+      "Surface everyday rewards card with pet boost",
+      "Push partner deals from pet retailers & vets",
       "Offer pet insurance referral",
     ],
     products: [
-      { name: "Everyday Rewards Card", description: "Boosted earnings on pet and household categories" },
-      { name: "Pet Care Partner Deals", description: "Curated offers from vet and retail partners" },
-      { name: "Pet Insurance Referral", description: "Coverage for unexpected vet expenses" },
+      { name: "Everyday Rewards", description: "Boosted earnings on pet and household categories" },
+      { name: "Pet Partner Deals", description: "Curated offers from vet and retail partners" },
+      { name: "Pet Insurance", description: "Coverage for unexpected vet expenses" },
     ],
   },
 };
@@ -308,97 +308,96 @@ export default function NextConversationRationale({
 
   return (
     <div
-      className="h-full overflow-auto scrollbar-light animate-in fade-in slide-in-from-bottom-1 duration-300"
+      className="h-full min-h-0 flex flex-col animate-in fade-in slide-in-from-bottom-1 duration-300"
       key={effectiveSignal.label}
     >
-      <article className="rounded-xl border border-slate-200 bg-white p-5 space-y-5">
-        {/* Header — selected signal + detection time */}
-        <header className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-          <span className={`flex items-center justify-center w-7 h-7 rounded-md ${a.iconBg}`}>
-            <SignalIcon className={`w-3.5 h-3.5 ${a.iconText}`} />
+      <article className="flex-1 min-h-0 rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col gap-3 overflow-hidden">
+        {/* Header */}
+        <header className="shrink-0 flex items-center gap-2 pb-2.5 border-b border-slate-100">
+          <span className={`flex items-center justify-center w-6 h-6 rounded-md ${a.iconBg}`}>
+            <SignalIcon className={`w-3 h-3 ${a.iconText}`} />
           </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-semibold text-slate-900 truncate">
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="text-[12.5px] font-semibold text-slate-900 truncate">
               {effectiveSignal.label}
+              <span className="text-slate-400 font-normal"> — detected today</span>
             </div>
-            <div className="text-[11px] text-slate-500">detected today</div>
           </div>
-          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${a.chipBg} ${a.chipText} ${a.chipBorder}`}>
+          <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${a.chipBg} ${a.chipText} ${a.chipBorder} whitespace-nowrap`}>
             {effectiveSignal.kind === "lifeEvent" ? "Life Event" : effectiveSignal.kind === "risk" ? "Risk Signal" : "Lifestyle"}
           </span>
         </header>
 
-        {/* VENTUS AI INSIGHT */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        {/* INSIGHT */}
+        <section className="shrink-0">
+          <div className="flex items-center gap-1.5 mb-1">
             <Sparkles className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Ventus AI Insight
             </h4>
           </div>
-          <p className="text-[13px] leading-relaxed text-slate-700">{brief.insight}</p>
+          <p className="text-[12px] leading-snug text-slate-700">{brief.insight}</p>
         </section>
 
         {/* TALKING POINTS */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        <section className="shrink-0">
+          <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Talking Points
             </h4>
           </div>
-          <ul className="space-y-1.5">
+          <ul className="space-y-0.5">
             {brief.talkingPoints.map((p, i) => (
-              <li key={i} className="flex gap-2 text-[13px] leading-relaxed text-slate-700">
+              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-slate-400"}`} />
-                <span>{p}</span>
+                <span className="truncate" title={p}>{p}</span>
               </li>
             ))}
           </ul>
         </section>
 
         {/* NEXT STEPS */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        <section className="shrink-0">
+          <div className="flex items-center gap-1.5 mb-1">
             <ListChecks className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Next Steps
             </h4>
           </div>
-          <ul className="space-y-1.5">
+          <ul className="space-y-0.5">
             {brief.nextSteps.map((s, i) => (
-              <li key={i} className="flex gap-2 text-[13px] leading-relaxed text-slate-700">
+              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-slate-400"}`} />
-                <span>{s}</span>
+                <span className="truncate" title={s}>{s}</span>
               </li>
             ))}
           </ul>
         </section>
 
-        {/* RECOMMENDED PRODUCTS */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        {/* RECOMMENDED PRODUCTS — pill-shaped chips, single row */}
+        <section className="shrink-0 mt-auto">
+          <div className="flex items-center gap-1.5 mb-1.5">
             <Package className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               {brief.sensitive ? "Recommended Resources" : "Recommended Products"}
             </h4>
           </div>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="flex flex-nowrap gap-1.5 overflow-hidden">
             {brief.products.map((p, i) => (
-              <div
+              <button
                 key={i}
-                className="rounded-lg border border-slate-200 bg-white p-3 flex flex-col gap-1.5 hover:border-slate-300 hover:shadow-sm transition-all"
+                type="button"
+                title={p.description}
+                className={`min-w-0 flex-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-semibold rounded-full px-2.5 py-1.5 border transition-colors whitespace-nowrap overflow-hidden ${
+                  brief.sensitive
+                    ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
+                    : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                }`}
               >
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">{p.name}</div>
-                <div className="text-[11px] text-slate-500 leading-snug flex-1">{p.description}</div>
-                <button
-                  type="button"
-                  className="mt-1 inline-flex items-center justify-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-md px-2 py-1 transition-colors"
-                >
-                  Learn More
-                  <ArrowRight className="w-2.5 h-2.5" />
-                </button>
-              </div>
+                <Package className="w-3 h-3 shrink-0 opacity-70" />
+                <span className="truncate">{p.name}</span>
+              </button>
             ))}
           </div>
         </section>

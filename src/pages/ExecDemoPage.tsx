@@ -1249,7 +1249,8 @@ export default function ExecDemoPage() {
         {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
         {(() => {
           const phoneVisible = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
-          const expandedW = 560;
+          const isRelTab = activeTab === "relationship";
+          const expandedW = isRelTab ? 520 : 560;
           const collapsedW = 40;
           const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
           return (
@@ -1279,28 +1280,39 @@ export default function ExecDemoPage() {
 
               {/* Full phone — with collapse button */}
               {phoneVisible && !phoneCollapsed && (
-                <div className="w-[560px] h-full relative">
+                <div className="h-full relative flex flex-col" style={{ width: expandedW }}>
                   <button
                     onClick={() => setPhoneCollapsed(true)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
                   >
                     <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                   </button>
-                  <ExecDemoPhoneView
-                    customer={demoCustomer}
-                    activeTab={activeTab}
-                    phase={phase}
-                    showContent={phoneVisible && phase !== "idle"}
-                    generatedOffers={generatedOffers}
-                    detectedLifeEvents={detectedLifeEvents}
-                    productCards={productCards}
-                    activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
-                    activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
-                    enrichedTxs={classifiedRef.current}
-                    riskFlags={riskFlags}
-                    aiTabTrigger={aiTabTrigger}
-                    pendingAIPrompt={pendingAIPrompt}
-                  />
+                  {isRelTab && (
+                    <div className="shrink-0 flex items-center gap-2 px-3 pt-3 pb-1">
+                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                        Retail Customer View
+                      </span>
+                      <span className="text-[10px] text-slate-400">Live AI assistant in the customer app</span>
+                    </div>
+                  )}
+                  <div className="flex-1 min-h-0">
+                    <ExecDemoPhoneView
+                      customer={demoCustomer}
+                      activeTab={activeTab}
+                      phase={phase}
+                      showContent={phoneVisible && phase !== "idle"}
+                      generatedOffers={generatedOffers}
+                      detectedLifeEvents={detectedLifeEvents}
+                      productCards={productCards}
+                      activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
+                      activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
+                      enrichedTxs={classifiedRef.current}
+                      riskFlags={riskFlags}
+                      aiTabTrigger={aiTabTrigger}
+                      pendingAIPrompt={pendingAIPrompt}
+                    />
+                  </div>
                 </div>
               )}
             </div>
