@@ -768,10 +768,10 @@ export default function NextConversationRationale({
 
   return (
     <div className="animate-in fade-in slide-in-from-bottom-2 duration-400 space-y-2.5 flex flex-col h-full min-h-0">
-      {/* Vertical split: Regular (left) | Wealth (right) */}
-      <div className="grid grid-cols-2 gap-0 flex-1 min-h-0">
-        {/* REGULAR CLIENT — LEFT */}
-        <div className="pr-3 flex flex-col h-full">
+      {/* Stacked: Regular (top) over Wealth (bottom) */}
+      <div className="flex flex-col gap-4 flex-1 min-h-0 overflow-y-auto exec-light-scroll pr-1">
+        {/* REGULAR CLIENT — TOP */}
+        <div className="flex flex-col">
           <div className="flex items-center gap-1.5 mb-2.5">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
             <span className="text-xs font-bold text-blue-700 uppercase tracking-wider">
