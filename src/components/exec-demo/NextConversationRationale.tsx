@@ -1,4 +1,4 @@
-import { GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Sparkles, MessageSquare, ListChecks, Package } from "lucide-react";
+import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint } from "lucide-react";
 import type { CardActions } from "./NextProductRationale";
 import type { ProductCard } from "./ProductCardsPhoneView";
 
@@ -15,11 +15,12 @@ interface ProductSpec {
   description: string;
 }
 
-interface Brief {
+export interface Brief {
   insight: string;
   talkingPoints: string[];
   nextSteps: string[];
   products: ProductSpec[];
+  conciergeActions: string[]; // 2 personalized concierge actions for the WEALTH CLIENT column
   /** When true, render with a sensitive/wellness tone (no marketing accents). */
   sensitive?: boolean;
 }
@@ -27,22 +28,23 @@ interface Brief {
 const BRIEF_LIBRARY: Record<string, Brief> = {
   "College Preparation for Dependent": {
     insight:
-      "Recent test prep, campus visit, and application fee transactions point to active college preparation for a dependent. High-confidence signal with an estimated 2–4 year runway — ideal moment to begin education savings planning.",
+      "This customer is actively preparing for a child's college education while showing early home purchase signals. Two major life events in parallel represent a significant wealth planning opportunity. Immediate outreach recommended to begin coordinated education and home savings planning.",
     talkingPoints: [
-      "Have you started thinking about a 529 plan for your child?",
-      "With college 2–4 years out, now is a great time to build an education savings strategy.",
-      "We can model what monthly contributions hit your savings goal.",
+      "We noticed activity around college prep — have you started thinking about a 529 plan?",
+      "It looks like you may also be in early home purchase planning — would a mortgage consultation be helpful?",
+      "With two major financial milestones on the horizon, now is a great time to build a coordinated financial plan.",
     ],
     nextSteps: [
       "Schedule 529 college savings consultation within 30 days",
-      "Review and update life insurance for new dependent costs",
-      "Update beneficiaries on investment & retirement accounts",
+      "Begin mortgage pre-approval process to understand borrowing capacity",
+      "Review and update life insurance coverage for growing family needs",
     ],
     products: [
-      { name: "529 Education Plan", description: "Tax-advantaged savings for future education costs" },
-      { name: "Term Life Review", description: "Ensure adequate coverage for growing family expenses" },
-      { name: "College Planning", description: "Model education costs and savings milestones" },
+      { name: "529 Education Savings Plan", description: "Tax-advantaged college savings" },
+      { name: "Mortgage Pre-Approval", description: "Lock in rates and shop with confidence" },
+      { name: "Family Protection Review", description: "Coverage for the next chapter" },
     ],
+    conciergeActions: ["Personalized 529 Consultation", "College Planning Outreach"],
   },
   "Home Purchase Planning": {
     insight:
@@ -59,14 +61,15 @@ const BRIEF_LIBRARY: Record<string, Brief> = {
     ],
     products: [
       { name: "Mortgage Pre-Approval", description: "Lock in rates and shop with confidence" },
-      { name: "Home Equity Planning", description: "Map out down payment and equity strategy" },
+      { name: "Home Equity Planning", description: "Map out down payment strategy" },
       { name: "Homeowners Insurance", description: "Coverage tailored to your future home" },
     ],
+    conciergeActions: ["Personalized Home Improvement Consultation", "Curated Mortgage Options"],
   },
   Gambling: {
     sensitive: true,
     insight:
-      "Multiple high-severity gambling transactions detected in the past 30 days totaling significant spend. Warrants a sensitive financial wellness conversation rather than product promotion.",
+      "Multiple high-severity gambling transactions detected in the past 30 days. Warrants a sensitive financial wellness conversation rather than product promotion.",
     talkingPoints: [
       "We noticed some changes in your spending — how are things going?",
       "We have tools to help track and manage discretionary spending.",
@@ -80,8 +83,9 @@ const BRIEF_LIBRARY: Record<string, Brief> = {
     products: [
       { name: "Wellness Consultation", description: "Confidential 1:1 with our wellness team" },
       { name: "Budgeting Tools", description: "Track and manage discretionary spending" },
-      { name: "Savings Goal Setup", description: "Build a structured plan for the months ahead" },
+      { name: "Savings Goal Setup", description: "Build a structured plan" },
     ],
+    conciergeActions: ["Financial Wellness Check-in", "Confidential Support Outreach"],
   },
   "Financial Vulnerability": {
     sensitive: true,
@@ -99,13 +103,14 @@ const BRIEF_LIBRARY: Record<string, Brief> = {
     ],
     products: [
       { name: "Wellness Consultation", description: "Confidential support, no products pitched" },
-      { name: "Cash Flow Coaching", description: "Build a clear picture of monthly inflows and outflows" },
-      { name: "Hardship Resources", description: "Programs and tools for short-term relief" },
+      { name: "Cash Flow Coaching", description: "Build a clear picture of monthly inflows" },
+      { name: "Hardship Resources", description: "Programs and tools for relief" },
     ],
+    conciergeActions: ["Financial Wellness Check-in", "Confidential Support Outreach"],
   },
   "Annual Hawaiian Vacations": {
     insight:
-      "Annual Hawaiian vacation pattern with recent flight and hotel transactions for this year's trip already on the books. Travel rewards and lifestyle products are highly relevant right now.",
+      "Annual Hawaiian vacation pattern with recent flight and hotel transactions. Travel rewards and lifestyle products are highly relevant right now.",
     talkingPoints: [
       "Planning another Hawaiian trip — have you seen our travel rewards card?",
       "We can help maximize rewards on flights and hotels.",
@@ -118,13 +123,14 @@ const BRIEF_LIBRARY: Record<string, Brief> = {
     ],
     products: [
       { name: "Travel Rewards Card", description: "Premium points on flights and hotels" },
-      { name: "Trip Insurance", description: "Protect upcoming travel against the unexpected" },
+      { name: "Trip Insurance", description: "Protect upcoming travel" },
       { name: "Vacation Savings", description: "Auto-save for next year's trip" },
     ],
+    conciergeActions: ["Curated Hawaii Itinerary Concierge", "Travel Rewards Upgrade Outreach"],
   },
   "Seasonal Ski Trips": {
     insight:
-      "Recurring seasonal ski activity across lift tickets, lodging, and gear. Lifestyle travel rewards and seasonal savings products are well-aligned right now.",
+      "Recurring seasonal ski activity across lift tickets, lodging, and gear. Lifestyle travel rewards and seasonal savings products are well-aligned.",
     talkingPoints: [
       "Our travel card earns extra on lodging and lift tickets.",
       "We can set up a savings bucket for next season's trip.",
@@ -137,13 +143,14 @@ const BRIEF_LIBRARY: Record<string, Brief> = {
     ],
     products: [
       { name: "Travel Rewards Card", description: "Boosted points on travel and lodging" },
-      { name: "Trip Insurance", description: "Coverage for travel disruption and gear" },
-      { name: "Seasonal Savings", description: "Auto-save for the next ski season" },
+      { name: "Trip Insurance", description: "Coverage for travel disruption" },
+      { name: "Seasonal Savings", description: "Auto-save for next ski season" },
     ],
+    conciergeActions: ["Premium Ski Trip Planning", "Mountain Resort Partner Perks"],
   },
   "Subscription Pet Care Routine": {
     insight:
-      "Steady cadence of pet care subscriptions and recurring vet visits. Pet ownership is a strong loyalty anchor — great context for everyday rewards and pet-adjacent benefits.",
+      "Steady cadence of pet care subscriptions and recurring vet visits. Pet ownership is a strong loyalty anchor — great context for everyday rewards.",
     talkingPoints: [
       "Would extra rewards on pet care categories be useful?",
       "Many pet owners pair expenses with a dedicated rewards card.",
@@ -155,16 +162,17 @@ const BRIEF_LIBRARY: Record<string, Brief> = {
       "Offer pet insurance referral",
     ],
     products: [
-      { name: "Everyday Rewards", description: "Boosted earnings on pet and household categories" },
-      { name: "Pet Partner Deals", description: "Curated offers from vet and retail partners" },
+      { name: "Everyday Rewards", description: "Boosted earnings on pet categories" },
+      { name: "Pet Partner Deals", description: "Curated offers from vet & retail partners" },
       { name: "Pet Insurance", description: "Coverage for unexpected vet expenses" },
     ],
+    conciergeActions: ["Pet Care Premium Membership", "Curated Vet Partner Network"],
   },
 };
 
 const GENERIC_LIFE_EVENT_BRIEF: Brief = {
   insight:
-    "An emerging life event signal has been detected for this customer based on recent transaction patterns. Early outreach positions your bank as a trusted partner before competing institutions reach them.",
+    "An emerging life event signal has been detected for this customer based on recent transaction patterns. Early outreach positions your bank as a trusted partner.",
   talkingPoints: [
     "We noticed some recent activity that suggests something new is happening — how can we help?",
     "We'd love to walk through your goals and make sure your accounts are set up to support them.",
@@ -176,16 +184,17 @@ const GENERIC_LIFE_EVENT_BRIEF: Brief = {
     "Align product mix with the detected life-stage shift",
   ],
   products: [
-    { name: "Relationship Review", description: "Re-baseline goals and recommended products" },
-    { name: "Goal Planning Consultation", description: "Map detected life event to financial milestones" },
-    { name: "Insurance & Beneficiary Review", description: "Ensure coverage matches the new chapter" },
+    { name: "Relationship Review", description: "Re-baseline goals and products" },
+    { name: "Goal Planning Consultation", description: "Map life event to milestones" },
+    { name: "Insurance Review", description: "Ensure coverage matches the new chapter" },
   ],
+  conciergeActions: ["Personalized Goal Consultation", "Relationship Review Outreach"],
 };
 
 const GENERIC_RISK_BRIEF: Brief = {
   sensitive: true,
   insight:
-    "Behavioral signals suggest this customer may be navigating financial stress. Approach with care — prioritize wellness and trust over product promotion. The right tone now protects the long-term relationship.",
+    "Behavioral signals suggest this customer may be navigating financial stress. Approach with care — prioritize wellness and trust over product promotion.",
   talkingPoints: [
     "How are things going financially right now? We're here to help.",
     "We have tools and people who can help you think through your cash flow.",
@@ -197,17 +206,18 @@ const GENERIC_RISK_BRIEF: Brief = {
     "Offer a confidential wellness consultation",
   ],
   products: [
-    { name: "Financial Wellness Consultation", description: "Confidential support with no product pitch" },
+    { name: "Financial Wellness Consultation", description: "Confidential support" },
     { name: "Budgeting Tools", description: "Track and plan around upcoming bills" },
-    { name: "Hardship Resources", description: "Short-term programs and relief options" },
+    { name: "Hardship Resources", description: "Short-term programs and relief" },
   ],
+  conciergeActions: ["Financial Wellness Check-in", "Confidential Support Outreach"],
 };
 
 function buildLifestyleBrief(label: string): Brief {
   return {
-    insight: `This customer shows a clear behavioral pattern around ${label.toLowerCase()}. Lifestyle-aligned rewards and curated partner offers will resonate strongly. Use this signal to deepen everyday engagement and reinforce why your bank fits their life.`,
+    insight: `This customer shows a clear behavioral pattern around ${label.toLowerCase()}. Lifestyle-aligned rewards and curated partner offers will resonate strongly.`,
     talkingPoints: [
-      `We noticed a recurring pattern around ${label.toLowerCase()} — would tailored rewards in that area be useful?`,
+      `We noticed a recurring pattern around ${label.toLowerCase()} — would tailored rewards be useful?`,
       "We can curate partner deals so your everyday spend earns more.",
       "Want to set up a dedicated savings bucket for this part of your life?",
     ],
@@ -217,23 +227,19 @@ function buildLifestyleBrief(label: string): Brief {
       "Offer dedicated savings sub-account",
     ],
     products: [
-      { name: "Lifestyle Rewards Card", description: `Boosted earnings on ${label.toLowerCase()} categories` },
-      { name: "Curated Partner Deals", description: "Hand-picked offers from relevant merchants" },
-      { name: "Dedicated Savings Account", description: "Automatic set-aside for what matters most to you" },
+      { name: "Lifestyle Rewards Card", description: `Boosted earnings on ${label.toLowerCase()}` },
+      { name: "Curated Partner Deals", description: "Hand-picked offers from merchants" },
+      { name: "Dedicated Savings", description: "Automatic set-aside for what matters" },
     ],
+    conciergeActions: [`Personalized ${label} Concierge`, `${label} Partner Perks Outreach`],
   };
 }
 
-function resolveBrief(signal: SelectedSignal): Brief {
-  // Tier 1 — exact label match
+export function resolveBrief(signal: SelectedSignal): Brief {
   const exact = BRIEF_LIBRARY[signal.label];
   if (exact) return exact;
 
-  // Tier 2 — case-insensitive substring match
   const l = (signal.label || "").toLowerCase();
-  const findKey = (needle: RegExp) =>
-    Object.keys(BRIEF_LIBRARY).find((k) => needle.test(k.toLowerCase()) || needle.test(l));
-
   if (/college/.test(l)) return BRIEF_LIBRARY["College Preparation for Dependent"];
   if (/home|mortgage|down ?payment|house/.test(l)) return BRIEF_LIBRARY["Home Purchase Planning"];
   if (/gambl/.test(l)) return BRIEF_LIBRARY.Gambling;
@@ -242,24 +248,9 @@ function resolveBrief(signal: SelectedSignal): Brief {
   if (/ski|snowboard|mountain/.test(l)) return BRIEF_LIBRARY["Seasonal Ski Trips"];
   if (/pet|dog|cat|vet/.test(l)) return BRIEF_LIBRARY["Subscription Pet Care Routine"];
 
-  // Tier 3 — kind-aware fallback
   if (signal.kind === "risk") return GENERIC_RISK_BRIEF;
   if (signal.kind === "lifeEvent") return GENERIC_LIFE_EVENT_BRIEF;
   return buildLifestyleBrief(signal.label);
-}
-
-function getSignalIcon(signal: SelectedSignal): typeof GraduationCap {
-  const l = (signal.label || "").toLowerCase();
-  if (/college/.test(l)) return GraduationCap;
-  if (/home|mortgage|house/.test(l)) return Home;
-  if (/gambl/.test(l)) return AlertTriangle;
-  if (/vulnerab|hardship|stress/.test(l)) return ShieldAlert;
-  if (/hawaii|vacation|beach/.test(l)) return Plane;
-  if (/ski|snow|mountain/.test(l)) return Snowflake;
-  if (/pet|dog|cat|vet/.test(l)) return PawPrint;
-  if (signal.kind === "risk") return ShieldAlert;
-  if (signal.kind === "lifeEvent") return Sparkles;
-  return Sparkles;
 }
 
 interface Props {
@@ -272,136 +263,189 @@ interface Props {
   onSelectSignal?: (s: SelectedSignal) => void;
   onOpenWMCopilot?: () => void;
   onOpenAIAssistant?: () => void;
+  /** True when right-side phone panel is showing the AI Banking Assistant chat. */
   assistantOpen?: boolean;
+  /** True when right-side phone panel is showing the WM CoPilot view. */
   wmCopilotOpen?: boolean;
 }
 
 export default function NextConversationRationale({
   selectedSignal,
   availableSignals = [],
+  onOpenWMCopilot,
+  onOpenAIAssistant,
+  assistantOpen = false,
+  wmCopilotOpen = false,
 }: Props) {
   const effectiveSignal: SelectedSignal | null =
-    selectedSignal ??
-    (availableSignals.length > 0 ? availableSignals[0] : null);
+    selectedSignal ?? (availableSignals.length > 0 ? availableSignals[0] : null);
 
   if (!effectiveSignal || effectiveSignal.kind === "all") {
     return (
       <div className="h-full flex items-center justify-center px-6">
         <div className="max-w-sm text-center text-[12px] text-slate-400">
-          Select a signal pill above to see the advisor brief.
+          Select a signal pill above to see the engagement plan.
         </div>
       </div>
     );
   }
 
   const brief = resolveBrief(effectiveSignal);
-  const SignalIcon = getSignalIcon(effectiveSignal);
-  const accent = brief.sensitive ? "rose" : effectiveSignal.kind === "lifeEvent" ? "indigo" : "blue";
-
-  // Tailwind-safe accent classes
-  const accentMap = {
-    blue:   { iconBg: "bg-blue-50",   iconText: "text-blue-600",   chipBg: "bg-blue-50",   chipText: "text-blue-700",   chipBorder: "border-blue-200" },
-    indigo: { iconBg: "bg-indigo-50", iconText: "text-indigo-600", chipBg: "bg-indigo-50", chipText: "text-indigo-700", chipBorder: "border-indigo-200" },
-    rose:   { iconBg: "bg-rose-50",   iconText: "text-rose-600",   chipBg: "bg-rose-50",   chipText: "text-rose-700",   chipBorder: "border-rose-200" },
-  } as const;
-  const a = accentMap[accent];
 
   return (
-    <div
-      className="h-full min-h-0 flex flex-col animate-in fade-in slide-in-from-bottom-1 duration-300"
-      key={effectiveSignal.label}
-    >
-      <article className="flex-1 min-h-0 rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col gap-3 overflow-hidden">
-        {/* Header */}
-        <header className="shrink-0 flex items-center gap-2 pb-2.5 border-b border-slate-100">
-          <span className={`flex items-center justify-center w-6 h-6 rounded-md ${a.iconBg}`}>
-            <SignalIcon className={`w-3 h-3 ${a.iconText}`} />
-          </span>
-          <div className="min-w-0 flex-1 leading-tight">
-            <div className="text-[12.5px] font-semibold text-slate-900 truncate">
-              {effectiveSignal.label}
-              <span className="text-slate-400 font-normal"> — detected today</span>
+    <div className="h-full min-h-0 grid grid-cols-2 gap-3 animate-in fade-in duration-300" key={effectiveSignal.label}>
+      {/* ============ LEFT: REGULAR CLIENT ============ */}
+      <div className="flex flex-col min-h-0 rounded-xl border border-slate-200 bg-white overflow-hidden">
+        <div className="shrink-0 px-3.5 pt-3 pb-2 border-b border-slate-100 flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-blue-600">Regular Client</span>
+        </div>
+
+        <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3.5 py-3 space-y-3">
+          {/* Email Flow Card */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Mail className="w-3.5 h-3.5 text-blue-600" />
+              <span className="text-[11px] font-bold text-slate-800">A personalized recommendation for you</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mb-2.5">
+              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">Signal detected</span>
+              <span>→</span>
+              <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">24h delay</span>
+              <span>→</span>
+              <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Send</span>
+            </div>
+            <ol className="space-y-1 text-[11px] text-slate-700">
+              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">1.</span> Educational nudge</li>
+              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">2.</span> Product spotlight</li>
+              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">3.</span> Soft conversion CTA</li>
+            </ol>
+          </div>
+
+          {/* AI Chatbot Context Card */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Bot className="w-3.5 h-3.5 text-blue-600" />
+              <span className="text-[11px] font-bold text-slate-800">AI Banking Assistant Context</span>
+            </div>
+            <div className="mb-2">
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1">Knows</p>
+              <ul className="space-y-0.5 text-[11px] text-slate-700">
+                <li className="flex gap-1.5"><span className="text-blue-400">•</span> Recent spending pattern</li>
+                <li className="flex gap-1.5"><span className="text-blue-400">•</span> Account holdings</li>
+                <li className="flex gap-1.5"><span className="text-blue-400">•</span> Recent product interactions</li>
+              </ul>
+            </div>
+            <div>
+              <p className="text-[9px] font-bold uppercase tracking-wider text-slate-500 mb-1">Can Answer</p>
+              <ul className="space-y-0.5 text-[11px] text-slate-700">
+                <li className="flex gap-1.5"><MessageCircle className="w-2.5 h-2.5 text-blue-400 mt-0.5 shrink-0" /> "What products fit my situation?"</li>
+                <li className="flex gap-1.5"><MessageCircle className="w-2.5 h-2.5 text-blue-400 mt-0.5 shrink-0" /> "Show me relevant offers"</li>
+              </ul>
             </div>
           </div>
-          <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${a.chipBg} ${a.chipText} ${a.chipBorder} whitespace-nowrap`}>
-            {effectiveSignal.kind === "lifeEvent" ? "Life Event" : effectiveSignal.kind === "risk" ? "Risk Signal" : "Lifestyle"}
-          </span>
-        </header>
+        </div>
 
-        {/* INSIGHT */}
-        <section className="shrink-0">
-          <div className="flex items-center gap-1.5 mb-1">
-            <Sparkles className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              Ventus AI Insight
-            </h4>
-          </div>
-          <p className="text-[12px] leading-snug text-slate-700">{brief.insight}</p>
-        </section>
+        <div className="shrink-0 p-3 border-t border-slate-100">
+          <button
+            type="button"
+            onClick={onOpenAIAssistant}
+            className={`w-full inline-flex items-center justify-center gap-1.5 text-[11.5px] font-bold rounded-lg px-3 py-2.5 transition-all border-2 ${
+              assistantOpen && !wmCopilotOpen
+                ? "bg-blue-600 text-white border-blue-600 shadow-md"
+                : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-300"
+            }`}
+          >
+            <Bot className="w-3.5 h-3.5" />
+            Open AI Banking Assistant
+          </button>
+        </div>
+      </div>
 
-        {/* TALKING POINTS */}
-        <section className="shrink-0">
-          <div className="flex items-center gap-1.5 mb-1">
-            <MessageSquare className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              Talking Points
-            </h4>
-          </div>
-          <ul className="space-y-0.5">
-            {brief.talkingPoints.map((p, i) => (
-              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
-                <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-slate-400"}`} />
-                <span className="truncate" title={p}>{p}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+      {/* ============ RIGHT: WEALTH CLIENT ============ */}
+      <div className="flex flex-col min-h-0 rounded-xl border border-purple-200 bg-white overflow-hidden">
+        <div className="shrink-0 px-3.5 pt-3 pb-2 border-b border-purple-100 flex items-center gap-1.5">
+          <Plus className="w-3 h-3 text-purple-600" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-purple-600">Wealth Client</span>
+        </div>
 
-        {/* NEXT STEPS */}
-        <section className="shrink-0">
-          <div className="flex items-center gap-1.5 mb-1">
-            <ListChecks className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              Next Steps
-            </h4>
-          </div>
-          <ul className="space-y-0.5">
-            {brief.nextSteps.map((s, i) => (
-              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
-                <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-slate-400"}`} />
-                <span className="truncate" title={s}>{s}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3.5 py-3 space-y-2.5">
+          {/* Advisor notification & prep brief */}
+          <div className="rounded-lg border border-purple-200 bg-purple-50/40 p-3">
+            <div className="flex items-center gap-1.5 mb-1.5">
+              <Bell className="w-3.5 h-3.5 text-purple-600" />
+              <span className="text-[11px] font-bold text-slate-800">Advisor Notification</span>
+            </div>
+            <p className="text-[10px] text-slate-500 mb-2">Sent to: <span className="font-semibold text-slate-700">Assigned relationship manager</span></p>
 
-        {/* RECOMMENDED PRODUCTS — pill-shaped chips, single row */}
-        <section className="shrink-0 mt-auto">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Package className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              {brief.sensitive ? "Recommended Resources" : "Recommended Products"}
-            </h4>
+            <div className="rounded-md border border-purple-200/60 bg-white p-2.5">
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <FileText className="w-3 h-3 text-purple-600" />
+                <span className="text-[9px] font-bold uppercase tracking-wider text-purple-700">Personalized Prep Brief Includes</span>
+              </div>
+              <ul className="space-y-1 text-[11px] text-slate-700">
+                <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Suggested talking points based on detected signal</span></li>
+                <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Cross-sell opportunities aligned to behavior</span></li>
+                <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Recent activity summary</span></li>
+              </ul>
+              <p className="text-[10px] text-purple-700 mt-2 font-semibold">Suggested outreach: Within 5 business days</p>
+            </div>
           </div>
-          <div className="flex flex-nowrap gap-1.5 overflow-hidden">
-            {brief.products.map((p, i) => (
-              <button
-                key={i}
-                type="button"
-                title={p.description}
-                className={`min-w-0 flex-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-semibold rounded-full px-2.5 py-1.5 border transition-colors whitespace-nowrap overflow-hidden ${
-                  brief.sensitive
-                    ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
-                    : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
-                }`}
-              >
-                <Package className="w-3 h-3 shrink-0 opacity-70" />
-                <span className="truncate">{p.name}</span>
+
+          {/* Concierge Touch */}
+          <div className="rounded-lg border border-purple-200 bg-purple-50/40 p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+              <span className="text-[11px] font-bold text-slate-800">Concierge Touch</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {brief.conciergeActions.map((a, i) => (
+                <span
+                  key={i}
+                  className={`inline-flex items-center gap-1 text-[10.5px] font-semibold rounded-full px-2.5 py-1 border ${
+                    i === 0
+                      ? "bg-purple-100 text-purple-700 border-purple-300"
+                      : "bg-indigo-100 text-indigo-700 border-indigo-300"
+                  }`}
+                >
+                  {a}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Standard Response */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Briefcase className="w-3.5 h-3.5 text-slate-600" />
+              <span className="text-[11px] font-bold text-slate-800">Standard Response</span>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              <button className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1.5">
+                <Bell className="w-3 h-3 text-slate-500" /> Notify Wealth Advisor
               </button>
-            ))}
+              <button className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2.5 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1.5">
+                <Send className="w-3 h-3 text-slate-500" /> Triggered Email Campaign
+              </button>
+            </div>
           </div>
-        </section>
-      </article>
+        </div>
+
+        <div className="shrink-0 p-3 border-t border-purple-100">
+          <button
+            type="button"
+            onClick={onOpenWMCopilot}
+            className={`w-full inline-flex items-center justify-center gap-1.5 text-[11.5px] font-bold rounded-lg px-3 py-2.5 transition-all border-2 ${
+              wmCopilotOpen
+                ? "bg-purple-600 text-white border-purple-600 shadow-md"
+                : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 hover:border-purple-300"
+            }`}
+          >
+            <Briefcase className="w-3.5 h-3.5" />
+            Open WM CoPilot
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
