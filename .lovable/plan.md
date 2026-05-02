@@ -1,26 +1,60 @@
 ## Goal
 
-Trim each of the 4 context rows in `NextConversationRationale.tsx` from 12 pills down to **10 short pills** that fit on a single line, and force the row layout to no-wrap so it never spills onto a second line.
+In `NextConversationRationale` (the Relationship tab of the exec demo's right panel), the two CTA cells — **Open AI Assistant** (Regular Client row) and **Open WM Copilot** (Wealth Client row) — currently sit shorter than the neighboring Signal → Intent / Personalize / Orchestrate cards because the button has fixed `py-2` padding inside a vertically-centered cell. They should fill the row height. They should also reflect when their target assistant is already shown by displaying a subtle 'Open' badge while remaining clickable.
 
 ## Changes
 
-### `src/components/exec-demo/NextConversationRationale.tsx`
+### 1. `src/components/exec-demo/NextConversationRationale.tsx`
 
-**1. Replace the 4 pill arrays** (lines 18–94) — 10 short labels each:
+**a. Add new prop** to the component's props interface (around line 731):
 
-- **Inputs** (10): `Transactions`, `Holdings`, `Demographics`, `Loans`, `Credit`, `KYC`, `Statements`, `Bill pay`, `Channel telemetry`, `Rewards history`
-- **Capabilities** (10): `Balances`, `Spend tracking`, `Subscriptions`, `Offers`, `Product fit`, `Goals`, `Cash flow`, `Charge lookup`, `Card rewards`, `Advisor prep`
-- **Routes To** (10): `Wealth advisors`, `Mortgage`, `Insurance`, `Business banking`, `Card services`, `Disputes`, `Lending`, `Retirement`, `Trust desk`, `Branch`
-- **Out of Scope** (10): `Tax advice`, `Legal advice`, `Stock picks`, `Market calls`, `Silent transfers`, `Auto account opens`, `Compliance overrides`, `Credit approvals`, `Replace advisor`, `Third-party sharing`
+```ts
+assistantOpen?: boolean;       // AI Banking Assistant currently visible
+wmCopilotOpen?: boolean;       // WM Copilot currently visible
+```
 
-**2. Force single-line layout** in `ContextPillRows` (line 115):
-Change `flex flex-wrap items-center gap-1.5 flex-1` to `flex flex-nowrap items-center gap-1.5 flex-1 min-w-0 overflow-hidden`. Each row stays strictly on one line; if the panel ever narrows below the row width, the right-most pills are clipped rather than wrapping.
+Default both to `false` in the destructured args. (We'll wire `wmCopilotOpen` later if needed; for now `assistantOpen` is the one available.)
+
+**b. Make CTA cells stretch to row height** — change the wrapper from `flex items-center` to `flex items-stretch` and make the button `h-full` so it visually matches the neighboring rounded cards' height. Apply at both call sites (lines ~931 and ~1000).
+
+```tsx
+<div className="min-w-0 flex items-stretch">
+  <button
+    onClick={onOpenAIAssistant}
+    className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+  >
+    <span className="inline-flex items-center gap-1.5">
+      Open AI Assistant
+      {assistantOpen && (
+        <span className="inline-flex items-center gap-1 text-[9px] font-semibold uppercase tracking-wider rounded-full bg-white/20 border border-white/40 px-1.5 py-0.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" />
+          Open
+        </span>
+      )}
+    </span>
+    <ArrowUpRight className="w-3.5 h-3.5" />
+  </button>
+</div>
+```
+
+Same pattern for the purple **Open WM Copilot** button, gated on `wmCopilotOpen`.
+
+### 2. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+
+- Add `assistantOpen?: boolean` and `wmCopilotOpen?: boolean` to `ExecDemoIntelPanelProps` (near line 60 where `assistantOpen` is already declared — it's currently unused, just pass it through).
+- In the `<NextConversationRationale ... />` render (line ~802), forward both: `assistantOpen={assistantOpen}` and `wmCopilotOpen={wmCopilotOpen}`.
+
+### 3. `src/pages/ExecDemoPage.tsx`
+
+- `assistantOpen={aiTabTrigger > 0}` is already passed (line 1219). Add a sibling prop `wmCopilotOpen={...}` if a similar piece of state exists for the WM Copilot overlay; if not, leave it `false` for now (the wealth CTA simply won't show the badge until that state lands).
 
 ## Visual result
 
-Each of Inputs / Capabilities / Routes To / Out of Scope shows exactly 10 compact pills in a single horizontal line. Out of Scope keeps its rose strikethrough styling.
+- Both CTA buttons grow to span the full vertical height of their grid row, visually matching the three neighbor cards.
+- When the Banking Assistant tab is currently being shown in the phone mockup, the blue **Open AI Assistant** button gains a small white-translucent pill containing a pulsing emerald dot and the word **Open**. The button remains fully clickable (clicking it still re-focuses the AI tab in the phone view).
+- Same treatment for the purple WM Copilot button once its open-state signal is available.
 
 ## Out of scope
 
-- Layout/style changes beyond no-wrap.
-- Adding ellipsis to individual pills.
+- Changing button colors, copy beyond adding the badge, or icon swaps.
+- Restructuring the grid columns.

@@ -1,6 +1,6 @@
-import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, Activity, Brain, Radar, FileText, Ban, type LucideIcon } from "lucide-react";
+import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, Activity, Brain, Radar, FileText, type LucideIcon } from "lucide-react";
 
-/* ─── Context band: rows describing the AI assistant ─── */
+/* ─── Context band: 3 rows describing the AI assistant ─── */
 const CONTEXT_ROWS: Array<{
   label: string;
   icon: LucideIcon;
@@ -16,16 +16,12 @@ const CONTEXT_ROWS: Array<{
     labelClass: "text-slate-600",
     pillClass: "border-slate-300 bg-white text-slate-700",
     pills: [
-      "Transactions",
-      "Holdings",
+      "Transaction streams",
+      "Account holdings",
       "Demographics",
-      "Loans",
-      "Credit",
-      "KYC",
-      "Statements",
-      "Bill pay",
-      "Channel telemetry",
-      "Rewards history",
+      "Loans & credit",
+      "KYC records",
+      "Digital telemetry",
     ],
   },
   {
@@ -35,16 +31,12 @@ const CONTEXT_ROWS: Array<{
     labelClass: "text-blue-700",
     pillClass: "border-blue-300 bg-white text-blue-700",
     pills: [
-      "Balances",
-      "Spend tracking",
-      "Subscriptions",
-      "Offers",
-      "Product fit",
-      "Goals",
-      "Cash flow",
-      "Charge lookup",
-      "Card rewards",
-      "Advisor prep",
+      "Check balances & transactions",
+      "Track spending & subscriptions",
+      "Surface offers & deals",
+      "Recommend bank products",
+      "Plan major purchases",
+      "Coach on goals & savings",
     ],
   },
   {
@@ -55,34 +47,11 @@ const CONTEXT_ROWS: Array<{
     pillClass: "border-violet-300 bg-white text-violet-700",
     pills: [
       "Wealth advisors",
-      "Mortgage",
-      "Insurance",
+      "Insurance specialists",
+      "Mortgage team",
       "Business banking",
-      "Card services",
-      "Disputes",
-      "Lending",
-      "Retirement",
-      "Trust desk",
-      "Branch",
-    ],
-  },
-  {
-    label: "Out of Scope",
-    icon: Ban,
-    accent: "bg-rose-400",
-    labelClass: "text-rose-700",
-    pillClass: "border-rose-200 bg-rose-50/60 text-rose-700 line-through decoration-rose-300/70",
-    pills: [
-      "Tax advice",
-      "Legal advice",
-      "Stock picks",
-      "Market calls",
-      "Silent transfers",
-      "Auto account opens",
-      "Compliance overrides",
-      "Credit approvals",
-      "Replace advisor",
-      "Third-party sharing",
+      "Fraud operations",
+      "Branch staff",
     ],
   },
 ];
@@ -104,7 +73,7 @@ function ContextPillRows() {
               <Icon className="w-3 h-3" />
               {row.label}
             </span>
-            <div className="flex flex-nowrap items-center gap-1.5 flex-1 min-w-0 overflow-hidden">
+            <div className="flex flex-wrap items-center gap-1.5 flex-1">
               {row.pills.map((p) => (
                 <span
                   key={p}
