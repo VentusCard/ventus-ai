@@ -928,18 +928,20 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Automated delivery</div>
               </div>
-              <ul className="space-y-0.5 mt-1">
+              <ul className="space-y-0.5 mt-1 min-h-0 overflow-hidden">
                 <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-500 shrink-0" /><span>Multi-step sequence</span></li>
                 <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-500 shrink-0" /><span>AI chatbot on standby</span></li>
                 <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-blue-500 shrink-0" /><span>Zero advisor time</span></li>
               </ul>
-              <button
-                onClick={onOpenAIAssistant}
-                className="mt-auto inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-1.5 bg-blue-600 text-white hover:bg-blue-700 transition-colors shrink-0"
-              >
-                Open AI Assistant
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="mt-auto pt-2 border-t border-blue-200/70 shrink-0">
+                <button
+                  onClick={onOpenAIAssistant}
+                  className="w-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-1.5 bg-blue-600 text-white hover:bg-blue-700 transition-colors"
+                >
+                  Open AI Assistant
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </article>
@@ -1005,18 +1007,20 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Conversation scheduled</div>
               </div>
-              <ul className="space-y-0.5 mt-1">
+              <ul className="space-y-0.5 mt-1 min-h-0 overflow-hidden">
                 <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Next-step timeline</span></li>
                 <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>WM Copilot prepped</span></li>
                 <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Advisor in the loop</span></li>
               </ul>
-              <button
-                onClick={onOpenWMCopilot}
-                className="mt-auto inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-1.5 bg-purple-600 text-white hover:bg-purple-700 transition-colors shrink-0"
-              >
-                Open WM Copilot
-                <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
+              <div className="mt-auto pt-2 border-t border-purple-200/70 shrink-0">
+                <button
+                  onClick={onOpenWMCopilot}
+                  className="w-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-1.5 bg-purple-600 text-white hover:bg-purple-700 transition-colors"
+                >
+                  Open WM Copilot
+                  <ArrowUpRight className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
           </div>
         </article>
