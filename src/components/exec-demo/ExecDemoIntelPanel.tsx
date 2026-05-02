@@ -778,6 +778,7 @@ export default function ExecDemoIntelPanel({
                     highlightColor={highlightColor}
                     activePillLabel={synthesisTriggered ? activePillLabel : null}
                     onClearHighlight={onClearHighlight}
+                    onPillarClick={onEnrichmentPillarClick}
                   />
                 ) : null}
               </div>
