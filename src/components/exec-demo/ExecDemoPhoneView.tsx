@@ -126,7 +126,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
     <div className="relative flex items-center justify-center h-full p-3">
       {/* iPad frame */}
       <div
-        className="phone-mockup-frame relative rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col w-full h-full"
+        className="phone-mockup-frame relative rounded-[20px] border-[12px] border-slate-600 bg-white shadow-2xl overflow-hidden flex flex-col w-full h-full"
       >
         {/* Camera dot */}
         <div className="flex justify-center pt-1.5 pb-0.5 bg-white shrink-0">
