@@ -47,17 +47,17 @@ CRITICAL — signal_label must match source verbatim:
 - Life event card: signal_label = life_events[i].event_name EXACTLY
 This enables downstream pill matching. Do NOT paraphrase, shorten, or rewrite the label.
 
-Use real Bank of America products as reference for recommendations. Examples:
-- Travel: Bank of America® Travel Rewards credit card, Bank of America® Premium Rewards® credit card
-- Cash back: Bank of America® Customized Cash Rewards credit card, Bank of America® Unlimited Cash Rewards credit card
-- Savings: Bank of America Advantage Savings, Bank of America Advantage SafePass® Savings
-- Investing: Merrill Edge® Self-Directed, Merrill Guided Investing
-- Home: Bank of America home equity line of credit, Bank of America mortgage
-- Education: Merrill 529 College Savings Plan
-- Retirement: Merrill IRA, Merrill Roth IRA
-- Business: Bank of America® Business Advantage credit cards
+Use generic "Our Bank"-prefixed products for ALL recommendations. Never use real bank brand names (no "Bank of America", "Chase", "Merrill", "Wells Fargo", etc.). Examples:
+- Travel: Our Bank Travel Rewards Card, Our Bank Premium Rewards Card
+- Cash back: Our Bank Customized Cash Rewards Card, Our Bank Unlimited Cash Rewards Card
+- Savings: Our Bank Advantage Savings, Our Bank SafePass Savings
+- Investing: Our Bank Self-Directed Investing, Our Bank Guided Investing
+- Home: Our Bank Home Equity Line of Credit, Our Bank Mortgage
+- Education: Our Bank 529 College Savings Plan
+- Retirement: Our Bank IRA, Our Bank Roth IRA
+- Business: Our Bank Business Advantage Card
 
-Adapt the product name to match what Bank of America actually offers. Use their real product naming conventions.
+Every product_name MUST start with or include "Our Bank". Keep naming clean and consumer-friendly — no ® or ™ symbols.
 
 VENTUS THESIS — THE GOLDEN RULE:
 The customer should read the card and think "huh, that's actually relevant to me right now" — never "the bank is watching my transactions." It should feel like good timing, not surveillance.
