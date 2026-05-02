@@ -395,7 +395,7 @@ export default function NextConversationRationale({
               </ul>
             </div>
 
-            {/* Actions 2x2 grid */}
+            {/* Actions — two labeled rows */}
             <div>
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Sparkles className="w-3 h-3 text-purple-600" />
@@ -411,23 +411,33 @@ export default function NextConversationRationale({
                   ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
                   : "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100";
                 return (
-                  <div className="grid grid-cols-2 gap-1.5">
-                    <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                      <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Notify Wealth Advisor</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={onOpenWMCopilot}
-                      className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1"
-                    >
-                      <FileText className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Open Full Intelligence Brief</span>
-                    </button>
-                    <button className={`text-left text-[10.5px] font-semibold rounded-md border px-2 py-1.5 inline-flex items-center gap-1 ${consultStyle}`}>
-                      <Sparkles className="w-3 h-3 shrink-0 opacity-70" /> <span className="truncate">{consultLabel}</span>
-                    </button>
-                    <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                      <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Flag for Follow-up</span>
-                    </button>
+                  <div className="space-y-2">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-wider text-slate-400 mb-1">Automated</p>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
+                          <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Notify Wealth Advisor</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={onOpenWMCopilot}
+                          className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1"
+                        >
+                          <FileText className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Open Full Intelligence Brief</span>
+                        </button>
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-wider text-slate-400 mb-1">Advisor Actions</p>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button className={`text-left text-[10.5px] font-semibold rounded-md border px-2 py-1.5 inline-flex items-center gap-1 ${consultStyle}`}>
+                          <Sparkles className="w-3 h-3 shrink-0 opacity-70" /> <span className="truncate">{consultLabel}</span>
+                        </button>
+                        <button className="text-left text-[10.5px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
+                          <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Flag for Follow-up</span>
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 );
               })()}
