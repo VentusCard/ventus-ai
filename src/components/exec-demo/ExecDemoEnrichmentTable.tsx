@@ -61,6 +61,8 @@ interface Props {
   activePillLabel?: string | null;
   /** Called when the user clicks Clear in the highlight strip. */
   onClearHighlight?: () => void;
+  /** Called when the user clicks a Pillar pill inside the table to filter by that pillar. */
+  onPillarClick?: (pillar: string) => void;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
@@ -85,7 +87,7 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
   />
 );
 
-export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight }: Props) {
+export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight, onPillarClick }: Props) {
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
@@ -274,13 +276,35 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 {/* ===== ENRICHED SIDE ===== */}
                 <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-1.5 ${COL.pillar}`}>
                   {isEnriched && c ? (
-                    <span
-                      className="inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight"
-                      style={{ background: c.bg, color: c.text, borderColor: c.border }}
-                      title={merchantDisplay !== merchantRaw ? `Normalized: ${merchantDisplay}` : undefined}
-                    >
-                      {tx!.pillar}
-                    </span>
+                    onPillarClick ? (
+                      <button
+                        type="button"
+                        onClick={() => onPillarClick(tx!.pillar)}
+                        className="inline-block rounded transition-all cursor-pointer hover:brightness-95 hover:-translate-y-px focus:outline-none focus:ring-2 focus:ring-offset-1"
+                        style={{ ['--tw-ring-color' as any]: c.border }}
+                        title={`Show all "${tx!.pillar}" transactions`}
+                      >
+                        <span
+                          className={`inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight ${activePillLabel === tx!.pillar ? "ring-2 ring-offset-1" : ""}`}
+                          style={{
+                            background: c.bg,
+                            color: c.text,
+                            borderColor: c.border,
+                            ...(activePillLabel === tx!.pillar ? { ['--tw-ring-color' as any]: c.dot, boxShadow: `0 0 0 2px ${c.dot}` } : {}),
+                          }}
+                        >
+                          {tx!.pillar}
+                        </span>
+                      </button>
+                    ) : (
+                      <span
+                        className="inline-block border text-[11px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight"
+                        style={{ background: c.bg, color: c.text, borderColor: c.border }}
+                        title={merchantDisplay !== merchantRaw ? `Normalized: ${merchantDisplay}` : undefined}
+                      >
+                        {tx!.pillar}
+                      </span>
+                    )
                   ) : (
                     <ShimmerCell width="120px" height={18} rounded="rounded" />
                   )}

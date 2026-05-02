@@ -70,6 +70,8 @@ interface Props {
   activePillLabel?: string | null;
   /** Clear-highlight callback wired to the strip's Clear button. */
   onClearHighlight?: () => void;
+  /** Called when a Pillar pill inside the enrichment table is clicked. */
+  onEnrichmentPillarClick?: (pillar: string) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -197,6 +199,7 @@ export default function ExecDemoIntelPanel({
   highlightColor,
   activePillLabel,
   onClearHighlight,
+  onEnrichmentPillarClick,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -775,6 +778,7 @@ export default function ExecDemoIntelPanel({
                     highlightColor={highlightColor}
                     activePillLabel={synthesisTriggered ? activePillLabel : null}
                     onClearHighlight={onClearHighlight}
+                    onPillarClick={onEnrichmentPillarClick}
                   />
                 ) : null}
               </div>
