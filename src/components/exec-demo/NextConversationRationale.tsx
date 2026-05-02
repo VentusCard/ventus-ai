@@ -965,7 +965,7 @@ export default function NextConversationRationale({
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
                   <Sparkles className="w-3 h-3 text-purple-600" />
                 </span>
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Multi-signal synthesis</div>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Signals synthesized</div>
               </div>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
