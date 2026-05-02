@@ -63,26 +63,23 @@ export default function ExecDemoPage() {
     setAiTabTrigger((n) => n + 1);
   }, []);
 
-  const handleOpenWMCopilot = useCallback((firstName: string, signal: SelectedSignal | null) => {
-    // Skip login — launch the Advisor Console directly with the full client profile pre-loaded.
-    const demo = DEMO_CUSTOMERS[selectedIdx];
-    const baseProfile: import("@/types/clientProfile").ClientProfileData | null = demo?.profile
-      ? { ...demo.profile }
-      : null;
+  const [wmCopilotOpen, setWmCopilotOpen] = useState(false);
+  const [wmCopilotSignal, setWmCopilotSignal] = useState<SelectedSignal | null>(null);
 
-    if (!baseProfile) {
-      toast.error("No client profile available. Run the analysis first.");
-      return;
-    }
+  const handleOpenWMCopilot = useCallback((_firstName: string, signal: SelectedSignal | null) => {
+    setWmCopilotSignal(signal);
+    setWmCopilotOpen(true);
+  }, []);
 
-    if (signal) {
-      const evt = { event: signal.label, date: new Date().toISOString().slice(0, 10) };
-      baseProfile.milestones = [evt, ...(baseProfile.milestones || [])].slice(0, 6);
-    }
+  const handleCloseWMCopilot = useCallback(() => {
+    setWmCopilotOpen(false);
+  }, []);
 
-    sessionStorage.setItem("wm_copilot_launch_client", JSON.stringify(baseProfile));
-    window.open("/tepilot/advisor-console", "_blank");
-  }, [selectedIdx]);
+  // When the AI Banking Assistant is opened, ensure the WM CoPilot is closed.
+  const handleOpenAIAssistantWrapper = useCallback(() => {
+    setWmCopilotOpen(false);
+    setAiTabTrigger((n) => n + 1);
+  }, []);
   const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
@@ -1224,9 +1221,10 @@ export default function ExecDemoPage() {
             productActions={productActions}
             actionsLoading={actionsLoading}
             onOpenWMCopilot={handleOpenWMCopilot}
-            onOpenAIAssistant={handleOpenAIAssistant}
+            onOpenAIAssistant={handleOpenAIAssistantWrapper}
             onAIPromptDispatch={dispatchAIPrompt}
-            assistantOpen={true}
+            assistantOpen={!wmCopilotOpen}
+            wmCopilotOpen={wmCopilotOpen}
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
             fullWidthEnrichment={showEnrichmentFullScreen}
@@ -1311,6 +1309,10 @@ export default function ExecDemoPage() {
                       riskFlags={riskFlags}
                       aiTabTrigger={aiTabTrigger}
                       pendingAIPrompt={pendingAIPrompt}
+                      wmCopilotMode={wmCopilotOpen && activeTab === "relationship"}
+                      wmCopilotSignal={wmCopilotSignal}
+                      wmCopilotSecondarySignal={wmCopilotSignal && /college/i.test(wmCopilotSignal.label) ? "Home Purchase" : null}
+                      onCloseWMCopilot={handleCloseWMCopilot}
                     />
                   </div>
                 </div>

@@ -58,6 +58,7 @@ interface Props {
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
+  wmCopilotOpen?: boolean;
   synthesisTriggered?: boolean;
   onSynthesisChange?: (triggered: boolean) => void;
   /** When true, renders the enrichment table edge-to-edge (no card chrome / outer padding). */
@@ -192,6 +193,7 @@ export default function ExecDemoIntelPanel({
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
+  wmCopilotOpen = false,
   synthesisTriggered: synthesisTriggeredProp,
   onSynthesisChange,
   fullWidthEnrichment = false,
@@ -849,6 +851,7 @@ export default function ExecDemoIntelPanel({
                     onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
                     onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
                     assistantOpen={assistantOpen}
+                    wmCopilotOpen={wmCopilotOpen}
                   />
                 </div>
               </div>
