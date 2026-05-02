@@ -1268,7 +1268,7 @@ export default function ExecDemoPage() {
 
               {/* Full phone — with collapse button */}
               {phoneVisible && !phoneCollapsed && (
-                <div className="w-[440px] h-full relative">
+                <div className="w-[560px] h-full relative">
                   <button
                     onClick={() => setPhoneCollapsed(true)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
