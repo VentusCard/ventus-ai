@@ -308,97 +308,96 @@ export default function NextConversationRationale({
 
   return (
     <div
-      className="h-full overflow-auto scrollbar-light animate-in fade-in slide-in-from-bottom-1 duration-300"
+      className="h-full min-h-0 flex flex-col animate-in fade-in slide-in-from-bottom-1 duration-300"
       key={effectiveSignal.label}
     >
-      <article className="rounded-xl border border-slate-200 bg-white p-5 space-y-5">
-        {/* Header — selected signal + detection time */}
-        <header className="flex items-center gap-2.5 pb-3 border-b border-slate-100">
-          <span className={`flex items-center justify-center w-7 h-7 rounded-md ${a.iconBg}`}>
-            <SignalIcon className={`w-3.5 h-3.5 ${a.iconText}`} />
+      <article className="flex-1 min-h-0 rounded-xl border border-slate-200 bg-white p-3.5 flex flex-col gap-3 overflow-hidden">
+        {/* Header */}
+        <header className="shrink-0 flex items-center gap-2 pb-2.5 border-b border-slate-100">
+          <span className={`flex items-center justify-center w-6 h-6 rounded-md ${a.iconBg}`}>
+            <SignalIcon className={`w-3 h-3 ${a.iconText}`} />
           </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-semibold text-slate-900 truncate">
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="text-[12.5px] font-semibold text-slate-900 truncate">
               {effectiveSignal.label}
+              <span className="text-slate-400 font-normal"> — detected today</span>
             </div>
-            <div className="text-[11px] text-slate-500">detected today</div>
           </div>
-          <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${a.chipBg} ${a.chipText} ${a.chipBorder}`}>
+          <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full border ${a.chipBg} ${a.chipText} ${a.chipBorder} whitespace-nowrap`}>
             {effectiveSignal.kind === "lifeEvent" ? "Life Event" : effectiveSignal.kind === "risk" ? "Risk Signal" : "Lifestyle"}
           </span>
         </header>
 
-        {/* VENTUS AI INSIGHT */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        {/* INSIGHT */}
+        <section className="shrink-0">
+          <div className="flex items-center gap-1.5 mb-1">
             <Sparkles className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Ventus AI Insight
             </h4>
           </div>
-          <p className="text-[13px] leading-relaxed text-slate-700">{brief.insight}</p>
+          <p className="text-[12px] leading-snug text-slate-700">{brief.insight}</p>
         </section>
 
         {/* TALKING POINTS */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        <section className="shrink-0">
+          <div className="flex items-center gap-1.5 mb-1">
             <MessageSquare className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Talking Points
             </h4>
           </div>
-          <ul className="space-y-1.5">
+          <ul className="space-y-0.5">
             {brief.talkingPoints.map((p, i) => (
-              <li key={i} className="flex gap-2 text-[13px] leading-relaxed text-slate-700">
+              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-slate-400"}`} />
-                <span>{p}</span>
+                <span className="truncate" title={p}>{p}</span>
               </li>
             ))}
           </ul>
         </section>
 
         {/* NEXT STEPS */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        <section className="shrink-0">
+          <div className="flex items-center gap-1.5 mb-1">
             <ListChecks className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               Next Steps
             </h4>
           </div>
-          <ul className="space-y-1.5">
+          <ul className="space-y-0.5">
             {brief.nextSteps.map((s, i) => (
-              <li key={i} className="flex gap-2 text-[13px] leading-relaxed text-slate-700">
+              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-slate-400"}`} />
-                <span>{s}</span>
+                <span className="truncate" title={s}>{s}</span>
               </li>
             ))}
           </ul>
         </section>
 
-        {/* RECOMMENDED PRODUCTS */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-2">
+        {/* RECOMMENDED PRODUCTS — pill-shaped chips, single row */}
+        <section className="shrink-0 mt-auto">
+          <div className="flex items-center gap-1.5 mb-1.5">
             <Package className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
               {brief.sensitive ? "Recommended Resources" : "Recommended Products"}
             </h4>
           </div>
-          <div className="grid grid-cols-3 gap-2.5">
+          <div className="flex flex-nowrap gap-1.5 overflow-hidden">
             {brief.products.map((p, i) => (
-              <div
+              <button
                 key={i}
-                className="rounded-lg border border-slate-200 bg-white p-3 flex flex-col gap-1.5 hover:border-slate-300 hover:shadow-sm transition-all"
+                type="button"
+                title={p.description}
+                className={`min-w-0 flex-1 inline-flex items-center justify-center gap-1.5 text-[11px] font-semibold rounded-full px-2.5 py-1.5 border transition-colors whitespace-nowrap overflow-hidden ${
+                  brief.sensitive
+                    ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
+                    : "bg-slate-50 border-slate-200 text-slate-700 hover:bg-slate-100"
+                }`}
               >
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">{p.name}</div>
-                <div className="text-[11px] text-slate-500 leading-snug flex-1">{p.description}</div>
-                <button
-                  type="button"
-                  className="mt-1 inline-flex items-center justify-center gap-1 text-[10px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300 rounded-md px-2 py-1 transition-colors"
-                >
-                  Learn More
-                  <ArrowRight className="w-2.5 h-2.5" />
-                </button>
-              </div>
+                <Package className="w-3 h-3 shrink-0 opacity-70" />
+                <span className="truncate">{p.name}</span>
+              </button>
             ))}
           </div>
         </section>
