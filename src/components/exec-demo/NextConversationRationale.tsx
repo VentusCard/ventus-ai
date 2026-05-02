@@ -961,37 +961,20 @@ export default function NextConversationRationale({
           </div>
 
           {/* Horizontal flow — workflow showcase, signal-agnostic */}
-          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)] gap-0 px-3.5 pb-3 flex-1 min-h-0">
-            {/* 1. SIGNAL */}
+          <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)] gap-0 px-3.5 pb-3 flex-1 min-h-0">
+            {/* 1. SIGNAL → INTENT (merged) */}
             <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Signal</div>
-              <div className="flex items-center gap-1.5 mb-1 shrink-0">
-                <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
-                  <Radar className="w-3 h-3 text-purple-600" />
-                </span>
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Multi-signal detected</div>
-              </div>
-              <ul className="space-y-0.5 mt-1">
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Primary + secondary triggers</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Cross-pillar evidence</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Time horizon</span></li>
-              </ul>
-            </div>
-            <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
-
-            {/* 2. INTENT */}
-            <div className="min-h-0 min-w-0 flex flex-col rounded-md border border-slate-200 bg-slate-50/50 px-2 py-1.5 overflow-hidden">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Intent</div>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1 shrink-0">Signal → Intent</div>
               <div className="flex items-center gap-1.5 mb-1 shrink-0">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
                   <Sparkles className="w-3 h-3 text-purple-600" />
                 </span>
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">AI synthesis</div>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Multi-signal synthesis</div>
               </div>
               <ul className="space-y-0.5 mt-1">
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Cross-signal correlation</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Urgency + confidence</span></li>
-                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Wealth context layered</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Primary + secondary triggers</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Cross-pillar correlation</span></li>
+                <li className="text-[10.5px] text-slate-600 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-300 shrink-0" /><span>Urgency + confidence scored</span></li>
               </ul>
             </div>
             <div className="flex items-center justify-center"><ChevronRight className="w-3.5 h-3.5 text-purple-200" /></div>
