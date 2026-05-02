@@ -1062,6 +1062,16 @@ export default function ExecDemoPage() {
     );
   }, []);
 
+  // Click any Pillar pill inside the enrichment table → bring all txns in that pillar to the top.
+  const handleEnrichmentPillarClick = useCallback((pillar: string) => {
+    const sm = execProfile.persona.signalMap;
+    const indices = Object.entries(sm)
+      .filter(([, s]) => s.pillar === pillar)
+      .map(([idx]) => Number(idx));
+    const color = getColor(pillar).dot;
+    handleTriggerPillClick(pillar, indices, color, "lifeEvent");
+  }, [execProfile.persona.signalMap, handleTriggerPillClick]);
+
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
