@@ -445,7 +445,7 @@ export default function NextConversationRationale({
           <button
             type="button"
             onClick={onOpenWMCopilot}
-            className={`w-full inline-flex items-center justify-center gap-1.5 text-[11.5px] font-bold rounded-lg px-3 py-2.5 transition-all border-2 ${
+            className={`w-full inline-flex items-center justify-center gap-1.5 text-[11.5px] font-bold rounded-lg px-3 py-1.5 transition-all border-2 ${
               wmCopilotOpen
                 ? "bg-purple-600 text-white border-purple-600 shadow-md"
                 : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 hover:border-purple-300"
