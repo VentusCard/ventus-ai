@@ -871,10 +871,10 @@ export default function NextConversationRationale({
             </span>
           </div>
 
-          <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll pr-1 space-y-2.5">
+          <div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2.5">
             {/* Automated flow */}
             <div
-              className="rounded-lg px-3 py-2.5"
+              className="rounded-lg px-3 py-2.5 flex flex-col min-h-0 overflow-y-auto exec-light-scroll"
               style={{
                 background: "rgba(59,130,246,.05)",
                 border: "1px solid rgba(59,130,246,.18)",
@@ -906,7 +906,7 @@ export default function NextConversationRationale({
 
             {/* Chatbot context */}
             <div
-              className="rounded-lg px-3 py-2.5"
+              className="rounded-lg px-3 py-2.5 flex flex-col min-h-0 overflow-y-auto exec-light-scroll"
               style={{
                 background: "rgba(59,130,246,.05)",
                 border: "1px solid rgba(59,130,246,.18)",
@@ -938,20 +938,25 @@ export default function NextConversationRationale({
                 ))}
               </ul>
             </div>
-          </div>
 
-          {/* Open AI Banking Assistant button — pinned at bottom of half */}
-          <button
-            onClick={onOpenAIAssistant}
-            className="w-full mt-3 inline-flex items-center justify-center gap-1.5 text-sm font-bold rounded-lg px-3 py-2.5 text-white transition-all hover:scale-[1.02] hover:shadow-md shrink-0"
-            style={{
-              background: "linear-gradient(135deg, #3b82f6, #1d4ed8)",
-              boxShadow: "0 2px 8px rgba(59,130,246,.35)",
-            }}
-          >
-            Open AI Banking Assistant
-            <MessageSquare className="w-3.5 h-3.5" />
-          </button>
+            {/* Vertical CTA — Open AI Banking Assistant */}
+            <button
+              onClick={onOpenAIAssistant}
+              className="w-12 inline-flex flex-col items-center justify-center gap-2 text-[11px] font-bold rounded-lg px-2 py-3 text-white transition-all hover:scale-[1.02] hover:shadow-md shrink-0"
+              style={{
+                background: "linear-gradient(180deg, #3b82f6, #1d4ed8)",
+                boxShadow: "0 2px 8px rgba(59,130,246,.35)",
+              }}
+            >
+              <MessageSquare className="w-4 h-4" />
+              <span
+                style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
+                className="tracking-wide leading-none"
+              >
+                Open AI Banking Assistant
+              </span>
+            </button>
+          </div>
         </section>
 
         {/* WEALTH CLIENT — BOTTOM HALF */}
