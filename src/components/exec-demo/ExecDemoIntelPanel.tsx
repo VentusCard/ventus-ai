@@ -368,13 +368,13 @@ export default function ExecDemoIntelPanel({
               <button
                 key={key}
                 onClick={() => onTabClick(key)}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11.5px] font-semibold transition-all duration-200 border ${
+                className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[14px] font-semibold transition-all duration-200 border ${
                   isActive
                     ? "bg-blue-600 text-white border-blue-600 shadow-sm"
                     : "bg-white text-blue-600 border-blue-200 hover:bg-blue-50 hover:border-blue-300 cursor-pointer"
                 }`}
               >
-                <Icon className="w-3.5 h-3.5" />
+                <Icon className="w-4 h-4" />
                 {meta.label}
               </button>
             );
