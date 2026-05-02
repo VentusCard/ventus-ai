@@ -91,11 +91,11 @@ CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
 - Tone: caring, calm, non-judgmental, never alarming. Like a trusted advisor quietly checking in.
 - type: must be "risk"
 - product_name: a non-credit, wellness/safety-themed product. Examples:
-   - "Bank of America SafeBalance® Account Controls"
-   - "Bank of America Account Wellness Tools"
-   - "Bank of America Spending Limits & Merchant Controls"
-   - "Bank of America Confidential Customer Care"
-   - For financial-distress signals, prefer hardship-themed products such as: "Bank of America Hardship Assistance Program", "Bank of America Overdraft Protection & Fee Waivers", "Bank of America Confidential Financial Coaching", "Bank of America Balance Assist™ Short-Term Loan", "Bank of America Customized Cash Wellness Plan"
+   - "Our Bank SafeBalance Account Controls"
+   - "Our Bank Account Wellness Tools"
+   - "Our Bank Spending Limits & Merchant Controls"
+   - "Our Bank Confidential Customer Care"
+   - For financial-distress signals, prefer hardship-themed products such as: "Our Bank Hardship Assistance Program", "Our Bank Overdraft Protection & Fee Waivers", "Our Bank Confidential Financial Coaching", "Our Bank Balance Assist Short-Term Loan", "Our Bank Customized Cash Wellness Plan"
 - signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Sports Betting", "High-Risk / Offshore Gambling", "Casino & Table Games", "Lottery & Raffles", "Casual / Social Gaming", "Horse Racing & Pari-mutuel", "Gambling", "Suspicious International", "Adult Entertainment", "AML", "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress")
 - theme: use "wellness"
 - quote: 1-2 sentences framed as care/transparency. Examples:
