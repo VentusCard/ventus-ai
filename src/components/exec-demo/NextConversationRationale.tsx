@@ -991,11 +991,6 @@ export default function NextConversationRationale({
                 </span>
                 <div className="text-[12px] font-semibold text-slate-900 leading-tight">Conversation scheduled</div>
               </div>
-              <ul className="space-y-0.5 mt-1 flex-1 min-h-0 overflow-hidden">
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Next-step timeline</span></li>
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>WM Copilot prepped</span></li>
-                <li className="text-[10.5px] text-slate-700 leading-snug flex gap-1.5"><span className="mt-[5px] w-1 h-1 rounded-full bg-purple-500 shrink-0" /><span>Advisor in the loop</span></li>
-              </ul>
             </div>
 
             {/* spacer */}
