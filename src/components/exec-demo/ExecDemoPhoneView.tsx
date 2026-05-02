@@ -185,29 +185,6 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             })}
           </div>
         </div>
-
-        {/* Bottom Tab Bar */}
-        <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-          {CONSUMER_TABS.map((tab) => {
-            const Icon = tab.icon;
-            const isActive = consumerTab === tab.key;
-            return (
-              <button
-                key={tab.key}
-                onClick={() => setConsumerTab(tab.key)}
-                className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
-              >
-                <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
-                  {tab.label}
-                </span>
-                {isActive && (
-                  <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
-                )}
-              </button>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
