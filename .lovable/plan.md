@@ -1,30 +1,28 @@
 ## Goal
 
-Replace the vague `"Replace human advisors"` pill in the **Out of Scope** row with a concrete, feature-oriented capability the AI Banking Assistant intentionally does not perform — keeping the same short, parallel verb-led wording as the other Out of Scope pills.
+Broaden the **Routes To** row so it reflects that the AI assistant can hand off not only to people but also to digital destinations (application portals, account opening flows, etc.).
 
 ## Change
 
-In `src/components/exec-demo/NextConversationRationale.tsx`, inside the `Out of Scope` row of `CONTEXT_ROWS` (line ~59), swap one pill:
+In `src/components/exec-demo/NextConversationRationale.tsx`, replace the `pills` array on the **Routes To** row (currently all human teams) with a mix of human teams and digital/system destinations, kept short and parallel in wording to the other rows.
 
-- Remove: `"Replace human advisors"`
-- Add: `"Underwrite or price products"`
+Proposed new pills (8 total, same count as today):
 
-This keeps the row at 8 pills and stays feature-specific (underwriting / pricing is a real banking function the AI does not do), while still reading in parallel to neighbors like "Approve loans or credit lines", "Trade securities", "Open or close accounts".
+- `Account opening flows`
+- `Loan & card application portals`
+- `Wealth advisors`
+- `Mortgage specialists`
+- `Fraud operations`
+- `Perks and Benefits Pages`
+- `Branch appointment booking`
+- `Customer support`
 
-## Alternatives (pick one if you prefer something else)
+Notes:
 
-If you'd rather highlight a different missing feature, swap to one of:
-
-- `"Underwrite or price products"` ← proposed default
-- `"Issue cards or credentials"`
-- `"File disputes or chargebacks"`
-- `"Sign contracts on your behalf"`
-- `"Execute trades or orders"`
-- `"Disclose other customers' data"`
-
-Tell me which one (or your own) and I'll apply it.
+- Mixes human routes (Wealth advisors, Mortgage specialists, Fraud operations, Customer support) with digital routes (Account opening flows, Application portals, Appointment booking, Document upload).
+- Drops some redundancies (Insurance specialists, Business banking, Branch staff, Card services) to make room without growing the row. Happy to keep any of these — just say which.
 
 ## Out of scope
 
-- No layout, color, or icon changes.
-- No changes to the other three rows or to the journey cards below.
+- No layout, color, icon, or styling changes.
+- No changes to Inputs / Capabilities / Out of Scope rows or to anything below the context band.
