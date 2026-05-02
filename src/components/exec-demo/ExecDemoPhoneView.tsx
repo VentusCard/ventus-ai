@@ -152,7 +152,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
               TCBY Bank · {firstName}
             </span>
           </div>
-          {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="block text-[8px] text-slate-400 px-1 leading-tight">Using Bank of America product information as reference.</span>}
+          {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="block text-[8px] text-slate-400 px-1 leading-tight"></span>}
         </div>
 
         {/* Content */}
