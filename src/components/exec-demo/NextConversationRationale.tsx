@@ -1,14 +1,12 @@
 import { Mail, MessageSquare, Bell, Sparkles, ChevronRight, ArrowUpRight, Smartphone, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Star, Compass, Flower, PenLine, Cake, Plane, Home, Briefcase, Baby, PiggyBank, Landmark, ShieldAlert, Users, Send, Database, Zap, type LucideIcon } from "lucide-react";
 
-/* ─── Context band: 3 visually-distinct rows describing the AI assistant ─── */
-type PillVariant = "tag" | "solid" | "route";
-
+/* ─── Context band: 3 rows describing the AI assistant ─── */
 const CONTEXT_ROWS: Array<{
   label: string;
   icon: LucideIcon;
   accent: string;
   labelClass: string;
-  pillVariant: PillVariant;
+  pillClass: string;
   pills: string[];
 }> = [
   {
@@ -16,7 +14,7 @@ const CONTEXT_ROWS: Array<{
     icon: Database,
     accent: "bg-slate-400",
     labelClass: "text-slate-600",
-    pillVariant: "tag",
+    pillClass: "border-slate-300 bg-white text-slate-700",
     pills: [
       "Transaction streams",
       "Account holdings",
@@ -31,7 +29,7 @@ const CONTEXT_ROWS: Array<{
     icon: Zap,
     accent: "bg-blue-500",
     labelClass: "text-blue-700",
-    pillVariant: "solid",
+    pillClass: "border-blue-300 bg-white text-blue-700",
     pills: [
       "Check balances & transactions",
       "Track spending & subscriptions",
@@ -46,7 +44,7 @@ const CONTEXT_ROWS: Array<{
     icon: Send,
     accent: "bg-violet-500",
     labelClass: "text-violet-700",
-    pillVariant: "route",
+    pillClass: "border-violet-300 bg-white text-violet-700",
     pills: [
       "Wealth advisors",
       "Insurance specialists",
@@ -58,57 +56,32 @@ const CONTEXT_ROWS: Array<{
   },
 ];
 
-function renderPill(variant: PillVariant, text: string) {
-  if (variant === "tag") {
-    return (
-      <span
-        key={text}
-        className="inline-flex items-center text-[10px] font-medium rounded-sm px-1.5 py-0.5 border border-slate-300 bg-white text-slate-700 shrink-0"
-      >
-        {text}
-      </span>
-    );
-  }
-  if (variant === "solid") {
-    return (
-      <span
-        key={text}
-        className="inline-flex items-center text-[10px] font-medium rounded-md px-2 py-0.5 bg-blue-600 text-white shrink-0"
-      >
-        {text}
-      </span>
-    );
-  }
-  return (
-    <span
-      key={text}
-      className="inline-flex items-center gap-0.5 text-[10px] font-medium rounded-full px-2 py-0.5 border border-dashed border-violet-300 bg-white text-violet-700 shrink-0"
-    >
-      {text}
-      <span className="text-violet-400">›</span>
-    </span>
-  );
-}
-
 function ContextPillRows() {
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-2 space-y-1.5 divide-y divide-slate-100">
+    <div className="rounded-md border border-slate-200 bg-white p-2.5 space-y-2 divide-y divide-slate-100">
       {CONTEXT_ROWS.map((row, idx) => {
         const Icon = row.icon;
         return (
           <div
             key={row.label}
-            className={`flex items-stretch gap-2 ${idx > 0 ? "pt-1.5" : ""}`}
+            className={`flex items-stretch gap-2.5 ${idx > 0 ? "pt-2" : ""}`}
           >
             <div className={`w-0.5 rounded-sm ${row.accent} shrink-0`} />
             <span
-              className={`inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-wider shrink-0 w-[96px] ${row.labelClass}`}
+              className={`inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wider shrink-0 w-[110px] ${row.labelClass}`}
             >
-              <Icon className="w-2.5 h-2.5" />
+              <Icon className="w-3 h-3" />
               {row.label}
             </span>
             <div className="flex flex-wrap items-center gap-1.5 flex-1">
-              {row.pills.map((p) => renderPill(row.pillVariant, p))}
+              {row.pills.map((p) => (
+                <span
+                  key={p}
+                  className={`inline-flex items-center text-[12px] font-medium rounded-sm px-2 py-1 border shrink-0 ${row.pillClass}`}
+                >
+                  {p}
+                </span>
+              ))}
             </div>
           </div>
         );
