@@ -42,9 +42,17 @@ interface Props {
   riskFlags?: { flags: any[]; summary: string } | null;
   aiTabTrigger?: number;
   pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
+  /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
+  wmCopilotMode?: boolean;
+  /** Currently selected signal driving the WM CoPilot brief. */
+  wmCopilotSignal?: SelectedSignal | null;
+  /** Optional secondary signal label (e.g., "Home Purchase Planning") combined into the customer summary. */
+  wmCopilotSecondarySignal?: string | null;
+  /** Called when the user closes the WM CoPilot view from inside the phone. */
+  onCloseWMCopilot?: () => void;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, onCloseWMCopilot }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
