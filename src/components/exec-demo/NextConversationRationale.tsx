@@ -920,7 +920,7 @@ export default function NextConversationRationale({
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-blue-300 shrink-0">
                   <Send className="w-3 h-3 text-blue-700" />
                 </span>
-                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Automated delivery</div>
+                <div className="text-[12px] font-semibold text-slate-900 leading-tight">Delivered automatically</div>
               </div>
             </div>
 
