@@ -1,129 +1,103 @@
 ## Goal
 
-Inside each of the two stacked halves, lay sub-cards out **horizontally** AND move the CTA button into the row as the rightmost column (narrow vertical button), so each half is a single horizontal strip ending in its action button.
+Rebuild the Regular Client and Wealth Client cards from scratch, telling **two distinct journeys** with a **hero + supporting** layout. Each card is one cohesive object — not a row of tiles.
+
+- **Regular Client**: an **automated machine** that runs without humans. Hero = the live nurture flow. Supporting (right rail) = the AI chatbot the customer talks to + an "Open" CTA.
+- **Wealth Client**: an **AI-prepped human conversation**. Hero = the brief the advisor walks into a meeting with. Supporting (right rail) = the WM Copilot mock + an "Open" CTA.
+
+Same skeleton (`hero left, dark accent rail right`) so the eye instantly compares the two journeys, but the **content metaphor is different** — Regular feels like a pipeline; Wealth feels like a briefing.
 
 ```text
-┌─ Context (3 pill rows) ────────────────────────────────────────────┐
-├────────────────────────────────────────────────────────────────────┤
-│ Regular Client                                                     │
-│  ┌─ Email flow ─────┬─ AI Chatbot context ──┬─[Open AI Banking]─┐  │
-│  │ subject          │ Knows: …              │       (vertical    │  │
-│  │ trigger logic    │ Can answer: …         │        button)     │  │
-│  │ 1.  2.  3.       │                       │                    │  │
-│  └──────────────────┴───────────────────────┴────────────────────┘  │
-├────────────────────────────────────────────────────────────────────┤
-│ Wealth Client (+)                                                  │
-│  ┌─ Signals ──┬─ TalkPts/Steps ─┬─ WM Copilot ──┬─[Open WM CoP.]─┐ │
-│  │ sig card   │ • point         │ chat header   │   (vertical    │ │
-│  │ sig card   │ • point ●─when  │ chat bubbles  │    button)     │ │
-│  │            │ • point ●─when  │ input mock    │                │ │
-│  └────────────┴─────────────────┴───────────────┴────────────────┘ │
-└────────────────────────────────────────────────────────────────────┘
+┌─ Context (3 pill rows) ──────────────────────────────────────────┐
+├──────────────────────────────────────────────────────────────────┤
+│  ┌─ REGULAR CLIENT ─────────────────────────────────────────────┐│
+│  │ HERO (light gradient)              │ RAIL (deep blue)        ││
+│  │ ─────────────────────────          │ ─────────────────────   ││
+│  │  Email flow                        │  AI Chatbot             ││
+│  │  "Your home journey…"              │  knows: pill·pill·pill  ││
+│  │  trigger  → 1·2·3 sequence         │  asks: pill·pill        ││
+│  │  channel chip + step rail          │  ──────────────         ││
+│  │                                    │  [Open Assistant →]     ││
+│  └────────────────────────────────────┴─────────────────────────┘│
+├──────────────────────────────────────────────────────────────────┤
+│  ┌─ WEALTH CLIENT (+) ──────────────────────────────────────────┐│
+│  │ HERO (light purple gradient)       │ RAIL (deep purple)      ││
+│  │ ─────────────────────────          │ ─────────────────────   ││
+│  │  Advisor brief                     │  WM Copilot             ││
+│  │  Signal pill · 92% Urgent          │  miniature chat bubble  ││
+│  │  • Talking point #1                │  user reply             ││
+│  │  ●─ next step today                │  ──────────────         ││
+│  │  ●─ next step tomorrow             │  [Open Copilot →]       ││
+│  └────────────────────────────────────┴─────────────────────────┘│
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ## File
 
-`src/components/exec-demo/NextConversationRationale.tsx` — JSX between lines ~866–1083 only. No data, copy, or playbook changes.
+`src/components/exec-demo/NextConversationRationale.tsx` — replace the JSX from the wrapper at line ~860 down through the end of the bottom `</section>` (~line 1095). Keep `ContextPillRows`, all data structures (`PLAYBOOKS`, `STATIC_WEALTH_PREVIEW`, `findPlaybook`, `findWealthPreview`), `KIND_META`, and `ChannelIcon` exactly as they are. No edge-function or data work.
 
-## Changes
+## Content kept (everything stays — just re-presented)
 
-### 1. Regular Client half — single horizontal row with button as last column
+**Regular hero:** automated flow channel + subject + trigger logic + numbered sequence (1·2·3).
+**Regular rail:** chatbot "Knows" + "Can answer" — both rendered as compact pills (no bullet lists).
 
-Replace lines 874–954 (the old vertical scroll container + the full-width button below it) with one grid:
+**Wealth hero:** primary signal card (icon + label + confidence + urgency + evidence), then talking points as bullets, then next steps as a 4-step timeline.
+**Wealth rail:** WM Copilot mock chat (assistant bubble + user reply + faux input).
 
-```tsx
-<div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] gap-2.5">
-  {/* Email flow card — column-scrolls */}
-  <div className="rounded-lg px-3 py-2.5 flex flex-col min-h-0 overflow-y-auto exec-light-scroll" style={{…blue tint…}}>
-    …existing channel header + subject + trigger + numbered sequence…
-  </div>
-  {/* Chatbot context card */}
-  <div className="rounded-lg px-3 py-2.5 flex flex-col min-h-0 overflow-y-auto exec-light-scroll" style={{…blue tint…}}>
-    …existing Knows + Can answer lists…
-  </div>
-  {/* Vertical CTA button */}
-  <button
-    onClick={onOpenAIAssistant}
-    className="w-12 inline-flex flex-col items-center justify-center gap-2 text-[11px] font-bold rounded-lg px-2 py-3 text-white transition-all hover:scale-[1.02] hover:shadow-md shrink-0"
-    style={{ background: "linear-gradient(180deg, #3b82f6, #1d4ed8)", boxShadow: "0 2px 8px rgba(59,130,246,.35)" }}
-  >
-    <MessageSquare className="w-4 h-4" />
-    <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }} className="tracking-wide leading-none">
-      Open AI Banking Assistant
-    </span>
-  </button>
-</div>
-```
+Nothing is dropped — but the chatbot lists become inline pills (each "Knows" item is a small chip; "Can answer" is one chip per question).
 
-- `grid-cols-[1fr_1fr_auto]` keeps both content cards equal-wide and the button column tight (`w-12`).
-- The button label is rendered top-to-bottom using `writing-mode: vertical-rl` + `rotate(180deg)` (reads bottom-to-top — standard pattern). Icon sits on top.
-- Removes the old full-width button and the `mt-3` margin.
+## Layout & visual rules
 
-### 2. Wealth Client half — same pattern with 3 content columns + button column
+### Outer container
+- Two rows in a column flex (`gap-3`), each row `flex-1 basis-0 min-h-0` → equal vertical halves.
+- Each row is its own card: `rounded-xl border border-slate-200 overflow-hidden` (one object per journey).
+- Internal split per card: `grid grid-cols-[minmax(0,1fr)_240px]` — hero left, rail right (fixed-width rail keeps both cards visually identical and prevents the rail from collapsing on narrower viewports).
 
-Replace lines 966–1082 (the inner content scroll wrapper + full-width WM button) with:
+### Regular card
 
-```tsx
-<div className="flex-1 min-h-0 grid grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)_minmax(0,1fr)_auto] gap-2">
-  {/* Col 1 — Signals (scrolls) */}
-  <div className="flex flex-col min-h-0 overflow-y-auto exec-light-scroll pr-1">
-    <div className="text-[10px] uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-      <Sparkles className="w-2.5 h-2.5" /> Signals
-    </div>
-    <div className="flex flex-col gap-1.5">
-      {wp.signals.map(…existing signal cards…)}
-    </div>
-  </div>
+- **Top edge strip** (8 px tall) — gradient from `#3b82f6` to `#1d4ed8`. Acts as a colored brand bar.
+- **Hero (left)** — `bg-gradient-to-br from-blue-50/60 to-white p-3.5 flex flex-col min-h-0`:
+  - Tiny eyebrow row: dot + `Regular Client` + `Automated · 0 advisor time` chip on the right.
+  - Title block: `Email flow` (text-base bold) with channel icon as a small square badge to the left.
+  - Subject in slate-700 medium, italic trigger logic below.
+  - **Sequence rail** — horizontal connected pills: `(1)─Educational nudge─(2)─Product spotlight─(3)─Soft CTA`, with thin connector lines between numbered circles and step labels under them. This is the visual hook — looks like a real pipeline.
+  - Inner scroll only on the sequence rail if it overflows; rest is fit-to-space.
+- **Rail (right)** — `bg-gradient-to-b from-blue-700 to-blue-900 text-white p-3.5 flex flex-col`:
+  - Header: `MessageSquare` icon + `AI Chatbot` (text-xs bold, white).
+  - "Knows" section: tiny uppercase `KNOWS` label + chips (`bg-white/10 border border-white/20 text-blue-50 text-[10px] rounded-full px-2 py-0.5`).
+  - "Can answer" section: same chip style but italic.
+  - Push-down spacer, then the CTA button at the bottom: `bg-white text-blue-700 rounded-lg font-bold flex items-center justify-between px-3 py-2`, label `Open AI Assistant`, trailing `→`.
+  - Rail content scrolls if it overflows (`min-h-0 overflow-y-auto`), CTA stays pinned via `mt-auto`.
 
-  {/* Col 2 — Talking Points + Next Steps (scrolls) */}
-  <div className="flex flex-col gap-2 min-h-0 overflow-y-auto exec-light-scroll pr-1">
-    <div>
-      <div className="text-[10px] uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-        <MessageSquare className="w-2.5 h-2.5" /> Talking Points
-      </div>
-      <div className="space-y-1">…existing pills…</div>
-    </div>
-    <div>
-      <div className="text-[10px] uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
-        <CalendarCheck className="w-2.5 h-2.5" /> Next Steps
-      </div>
-      <ol className="relative">…existing timeline…</ol>
-    </div>
-  </div>
+### Wealth card
 
-  {/* Col 3 — WM Copilot mock chat */}
-  <div className="flex flex-col min-h-0 rounded-lg border border-purple-200 bg-white overflow-hidden">
-    …existing header (shrink-0)…
-    <div className="px-2 py-1.5 space-y-1.5 flex-1 min-h-0 overflow-y-auto">…bubbles…</div>
-    …existing input mock (shrink-0)…
-  </div>
+- **Top edge strip** — gradient from `#8b5cf6` to `#6d28d9`.
+- **Hero (left)** — `bg-gradient-to-br from-purple-50/60 to-white p-3.5 flex flex-col min-h-0`:
+  - Eyebrow: dot + `Wealth Client (+)` + `Advisor-led · AI prepped` chip.
+  - Featured signal pill row — first signal as a banner: icon · label · confidence% · urgency badge · italic evidence underneath. If 2+ signals, second signal compact below.
+  - Divider line.
+  - **Briefing body** in two stacked mini-sections:
+    - `TALKING POINTS` (eyebrow) → 3 bullets, each `· point` in slate-700.
+    - `NEXT STEPS` (eyebrow) → vertical purple timeline with `when` (purple-700 semibold) + action.
+  - This whole area is `min-h-0 overflow-y-auto exec-light-scroll pr-1`.
+- **Rail (right)** — `bg-gradient-to-b from-purple-700 to-purple-900 text-white p-3.5 flex flex-col`:
+  - Header: white V-mark badge + `WM Copilot` + tiny `AI` chip.
+  - One assistant chat bubble (`bg-white/10 border border-white/20 text-purple-50 rounded-xl rounded-bl-sm px-2.5 py-1.5 text-[11px]`) and one user reply (`bg-white text-purple-900 rounded-xl rounded-br-sm self-end`).
+  - Faux input row: `bg-white/5 border border-white/15 rounded-md px-2 py-1` with placeholder + Send icon.
+  - CTA at the bottom: `bg-white text-purple-700` button, `Open WM Copilot` + `↗`.
 
-  {/* Col 4 — Vertical CTA button */}
-  <button
-    onClick={onOpenWMCopilot}
-    className="w-12 inline-flex flex-col items-center justify-center gap-2 text-[11px] font-bold rounded-lg px-2 py-3 text-white transition-all hover:scale-[1.02] hover:shadow-md shrink-0"
-    style={{ background: "linear-gradient(180deg, #8b5cf6, #6d28d9)", boxShadow: "0 2px 8px rgba(139,92,246,.35)" }}
-  >
-    <ArrowUpRight className="w-4 h-4" />
-    <span style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }} className="tracking-wide leading-none">
-      Open WM CoPilot
-    </span>
-  </button>
-</div>
-```
+### Shared design tokens
 
-- Center column `1.2fr` (densest content); side content columns `1fr`; button column `auto` (`w-12`).
-- WM Copilot mock chat now flexes to fill its column with internal scroll on bubbles.
-
-### 3. Keep these untouched
-
-- The 50/50 outer split between Regular and Wealth halves.
-- `ContextPillRows` band, all data, copy, and the inner content of every sub-card (signal cards, chat bubbles, etc.).
+- All copy stays Manrope (project default).
+- White text on rail uses `text-white`, secondary uses `text-blue-100` / `text-purple-100`.
+- Light theme rule preserved: hero side stays white-on-light; rails are the only saturated areas.
+- No new shadcn dependencies. No emojis. No `dark:` utilities.
+- Vertical-text buttons removed — buttons live inside the rail and read normally.
 
 ## Out of scope
 
 - No changes to Next-Offer or Next-Product tabs.
-- No copy or data changes.
-- No font-size changes inside the content cards.
+- No changes to `ContextPillRows` (the 3-row context band stays as-is).
+- No data or copy edits — purely a presentation rebuild.
 
 Approve and I'll switch to build mode and apply it.
