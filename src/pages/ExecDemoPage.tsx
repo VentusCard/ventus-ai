@@ -1216,7 +1216,7 @@ export default function ExecDemoPage() {
             onOpenWMCopilot={handleOpenWMCopilot}
             onOpenAIAssistant={handleOpenAIAssistant}
             onAIPromptDispatch={dispatchAIPrompt}
-            assistantOpen={aiTabTrigger > 0}
+            assistantOpen={true}
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
             fullWidthEnrichment={showEnrichmentFullScreen}
