@@ -357,6 +357,31 @@ export default function ExecDemoIntelPanel({
 
   return (
     <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
+      {/* Tab bar — moved ABOVE persona/pills card when a tab is active */}
+      {showProfile && phase !== "idle" && activeTab && (
+        <div className="flex rounded-lg bg-slate-100 p-0.5 mb-1.5 shrink-0">
+          {TAB_ORDER.map((key) => {
+            const meta = TAB_META[key];
+            const Icon = meta.icon;
+            const isActive = activeTab === key;
+            return (
+              <button
+                key={key}
+                onClick={() => onTabClick(key)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-md text-[11.5px] font-semibold transition-all duration-200 ${
+                  isActive
+                    ? "bg-white text-slate-800 shadow-sm"
+                    : "text-slate-500 hover:text-slate-700 cursor-pointer"
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {meta.label}
+              </button>
+            );
+          })}
+        </div>
+      )}
+
       {/* Persona section */}
       <div
         className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
