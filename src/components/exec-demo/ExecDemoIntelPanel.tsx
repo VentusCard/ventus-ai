@@ -320,7 +320,11 @@ export default function ExecDemoIntelPanel({
 
   useEffect(() => {
     if (activeTab === "relationship" && !selectedSignal && availableSignals.length > 0) {
-      setSelectedSignal(availableSignals[0]);
+      // Prefer College Preparation life event as default; fall back to first available signal
+      const college = availableSignals.find(
+        (s) => s.kind === "lifeEvent" && /college/i.test(s.label)
+      );
+      setSelectedSignal(college ?? availableSignals[0]);
     }
     if (activeTab !== "relationship") {
       setSelectedSignal(null);
