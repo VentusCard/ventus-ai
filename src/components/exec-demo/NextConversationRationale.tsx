@@ -994,7 +994,7 @@ export default function NextConversationRationale({
           <div className="grid grid-cols-[minmax(0,1fr)_14px_minmax(0,1fr)_14px_minmax(0,1.05fr)_12px_140px] gap-0 px-3.5 pb-2.5 pt-1">
             {/* 1. SIGNAL → INTENT (merged) */}
             <div className="min-w-0 rounded-md border border-slate-200 bg-slate-50/50 px-2 py-2">
-              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1">Signal → Intent</div>
+              <div className="text-[9px] font-bold uppercase tracking-wider text-purple-500 mb-1">Advisor Notified</div>
               <div className="flex items-center gap-1.5">
                 <span className="flex items-center justify-center w-5 h-5 rounded-md bg-white border border-purple-200 shrink-0">
                   <Sparkles className="w-3 h-3 text-purple-600" />
