@@ -147,7 +147,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         <div className="flex-1 min-h-0 flex flex-col" style={{ zoom: 1.1 }}>
           {/* Status bar */}
           <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
-            <span>9:41 AM</span>
+            {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
             <div className="flex items-center gap-1.5">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
@@ -157,10 +157,14 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
                 {wmCopilotMode ? `Our Bank · Advisor` : `Our Bank · ${firstName}`}
               </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Wifi className="w-3 h-3" />
-              <Battery className="w-3.5 h-3.5" />
-            </div>
+            {wmCopilotMode ? (
+              <span />
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <Wifi className="w-3 h-3" />
+                <Battery className="w-3.5 h-3.5" />
+              </div>
+            )}
           </div>
 
           {/* Content */}
