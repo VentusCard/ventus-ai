@@ -920,11 +920,11 @@ export default function NextConversationRationale({
                       </div>
                     </div>
                     {/* Next steps timeline */}
-                    <div className="flex flex-col min-h-0">
+                    <div className="flex flex-col">
                       <div className="text-[10px] font-bold uppercase tracking-wider text-purple-500 mb-1 flex items-center gap-1">
                         <CalendarCheck className="w-2.5 h-2.5" /> Next Steps
                       </div>
-                      <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                      <div className="pr-1">
                         <ol className="relative">
                           {wp.nextSteps.map((step, i) => (
                             <li key={i} className="relative pl-4 pb-2 last:pb-0">
