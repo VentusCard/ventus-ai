@@ -1062,6 +1062,9 @@ export default function ExecDemoPage() {
     );
   }, []);
 
+  const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
+  const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+
   // Click any Pillar pill inside the enrichment table → bring all txns in that pillar to the top.
   const handleEnrichmentPillarClick = useCallback((pillar: string) => {
     const sm = execProfile.persona.signalMap;
@@ -1071,9 +1074,6 @@ export default function ExecDemoPage() {
     const color = getColor(pillar).dot;
     handleTriggerPillClick(pillar, indices, color, "lifeEvent");
   }, [execProfile.persona.signalMap, handleTriggerPillClick]);
-
-  const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
-  const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
   // Derive processedSignals from indices + current signalMap (auto-syncs on AI upgrade)
   const processedSignals = useMemo(() =>
