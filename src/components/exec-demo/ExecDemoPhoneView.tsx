@@ -149,7 +149,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
             </span>
             <span className="text-[10px] font-semibold text-slate-600 tracking-wide leading-tight">
-              TCBY Bank · {firstName}
+              Our Bank · {firstName}
             </span>
           </div>
           {(consumerTab === 'relationship' || consumerTab === 'ai') && <span className="block text-[8px] text-slate-400 px-1 leading-tight"></span>}
