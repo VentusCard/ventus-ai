@@ -957,7 +957,7 @@ export default function NextConversationRationale({
             <div className="min-w-0 flex items-stretch">
               <button
                 onClick={onOpenAIAssistant}
-                className="w-full h-9 inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
+                className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
               >
                 <span className="inline-flex items-center gap-1.5 text-left">
                   Open AI Assistant
@@ -1034,7 +1034,7 @@ export default function NextConversationRationale({
             <div className="min-w-0 flex items-stretch">
               <button
                 onClick={onOpenWMCopilot}
-                className="w-full h-9 inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-sm"
+                className="w-full h-full inline-flex items-center justify-between gap-1.5 text-[11px] font-bold rounded-lg px-2.5 py-2 bg-purple-600 text-white hover:bg-purple-700 transition-colors shadow-sm"
               >
                 <span className="inline-flex items-center gap-1.5 text-left">
                   Open WM Copilot
