@@ -1,4 +1,4 @@
-import { GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Sparkles, MessageSquare, ListChecks, Package, ArrowRight } from "lucide-react";
+import { GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Sparkles, MessageSquare, ListChecks, Package } from "lucide-react";
 import type { CardActions } from "./NextProductRationale";
 import type { ProductCard } from "./ProductCardsPhoneView";
 
