@@ -302,26 +302,6 @@ export default function NextConversationRationale({
         </div>
 
         <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3.5 py-3 space-y-3">
-          {/* Email Flow Card */}
-          <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
-            <div className="flex items-center gap-1.5 mb-2">
-              <Mail className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-[11px] font-bold text-slate-800">A personalized recommendation for you</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mb-2.5">
-              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">Signal detected</span>
-              <span>→</span>
-              <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">24h delay</span>
-              <span>→</span>
-              <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Send</span>
-            </div>
-            <ol className="space-y-1 text-[11px] text-slate-700">
-              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">1.</span> Educational nudge</li>
-              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">2.</span> Product spotlight</li>
-              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">3.</span> Soft conversion CTA</li>
-            </ol>
-          </div>
-
           {/* AI Chatbot Context Card */}
           <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
             <div className="flex items-center gap-1.5 mb-2">
@@ -343,6 +323,26 @@ export default function NextConversationRationale({
                 <li className="flex gap-1.5"><MessageCircle className="w-2.5 h-2.5 text-blue-400 mt-0.5 shrink-0" /> "Show me relevant offers"</li>
               </ul>
             </div>
+          </div>
+
+          {/* Personalized Outreach Card */}
+          <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-3">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Mail className="w-3.5 h-3.5 text-blue-600" />
+              <span className="text-[11px] font-bold text-slate-800">Personalized Outreach</span>
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mb-2.5">
+              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">Signal detected</span>
+              <span>→</span>
+              <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">24h delay</span>
+              <span>→</span>
+              <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Send</span>
+            </div>
+            <ol className="space-y-1 text-[11px] text-slate-700">
+              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">1.</span> Educational nudge</li>
+              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">2.</span> Product spotlight</li>
+              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">3.</span> Soft conversion CTA</li>
+            </ol>
           </div>
         </div>
 

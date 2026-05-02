@@ -1285,15 +1285,6 @@ export default function ExecDemoPage() {
                   >
                     <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                   </button>
-                  {isRelTab && (
-                    <div className="shrink-0 flex items-center gap-2 px-3 pt-3 pb-1">
-                      <span className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-blue-700 bg-blue-50 border border-blue-200 rounded-full px-2.5 py-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                        Retail Customer View
-                      </span>
-                      <span className="text-[10px] text-slate-400">Live AI assistant in the customer app</span>
-                    </div>
-                  )}
                   <div className="flex-1 min-h-0">
                     <ExecDemoPhoneView
                       customer={demoCustomer}
