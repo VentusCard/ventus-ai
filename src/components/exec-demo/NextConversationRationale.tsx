@@ -872,7 +872,7 @@ export default function NextConversationRationale({
 
       {/* Two journeys — stacked 50/50, each is a single horizontal flow: SIGNAL → INTENT → PERSONALIZE → ORCHESTRATE */}
       <div className="flex flex-col gap-1 flex-1 min-h-0">
-        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 shrink-0">Personalized Client Engagement Orchestration</h3>
+        <h3 className="text-[12px] font-semibold uppercase tracking-wider text-slate-900 shrink-0">Personalized Engagement Orchestration</h3>
         {/* ───────── REGULAR CLIENT — automated machine ───────── */}
         <article className="flex-1 basis-0 min-h-0 rounded-xl border border-slate-200 overflow-hidden bg-white flex flex-col">
           {/* Brand strip */}
