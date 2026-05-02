@@ -952,7 +952,7 @@ export default function NextConversationRationale({
                       <span className="text-xs font-semibold text-purple-900">WM Copilot</span>
                       <span className="text-[9px] font-bold uppercase tracking-wider px-1.5 py-[1px] rounded bg-purple-100 text-purple-700 border border-purple-200">AI</span>
                     </div>
-                    <div className="flex-1 min-h-0 overflow-y-auto px-2 py-1.5 space-y-1.5">
+                    <div className="px-2 py-1.5 space-y-1.5">
                       <div className="bg-purple-50 border border-purple-100 rounded-lg px-2 py-1.5 text-xs text-slate-700 leading-snug max-w-[90%]">
                         {wp.chatPreview.assistant}
                       </div>
