@@ -509,6 +509,7 @@ export default function NextConversationRationale({
           </button>
         </div>
       </div>
+      </div>
     </div>
   );
 }
