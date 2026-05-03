@@ -326,9 +326,12 @@ export default function NextConversationRationale({
 
   if (!effectiveSignal || effectiveSignal.kind === "all") {
     return (
-      <div className="h-full flex items-center justify-center px-6">
-        <div className="max-w-sm text-center text-[12px] text-slate-400">
-          Select a signal pill above to see the engagement plan.
+      <div className="h-full flex flex-col gap-3">
+        <PipelineSliver />
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="max-w-sm text-center text-[12px] text-slate-400">
+            Select a signal pill above to see the engagement plan.
+          </div>
         </div>
       </div>
     );
