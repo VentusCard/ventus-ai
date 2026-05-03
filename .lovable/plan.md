@@ -1,17 +1,16 @@
-## Update "Hands Off To" chips to consumer-facing handoffs
+## Update Ingest chips
 
-In `src/components/exec-demo/NextConversationRationale.tsx`, replace the `HANDOFF_ITEMS` array with consumer-facing destinations (people/teams a customer would actually be routed to), instead of internal channels.
-
-### New chips
+Replace `INGEST_ITEMS` in `src/components/exec-demo/NextConversationRationale.tsx`:
 
 ```ts
-const HANDOFF_ITEMS = [
-  "Wealth Advisor",
-  "Account Opening",
-  "Customer Service",
-  "Branch Banker",
-  "Mortgage Specialist",
+const INGEST_ITEMS = [
+  "Enriched Transactions",
+  "Behavioral Intelligence",
+  "KYC & Demographics",
+  "Account Holdings",
+  "Product Tenure",
+  "Channel Engagement",
 ];
 ```
 
-No other changes. `INGEST_ITEMS` and layout remain as-is.
+No other changes.
