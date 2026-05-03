@@ -9,11 +9,11 @@ const INGEST_ITEMS = [
 ];
 
 const HANDOFF_ITEMS = [
-  "AI Banking Assistant",
-  "Personalized email",
-  "Wealth Advisor alert",
-  "WM CoPilot brief",
-  "CRM follow-up task",
+  "Wealth Advisor",
+  "Account Opening",
+  "Customer Service",
+  "Branch Banker",
+  "Mortgage Specialist",
 ];
 
 function PipelineSliver() {
