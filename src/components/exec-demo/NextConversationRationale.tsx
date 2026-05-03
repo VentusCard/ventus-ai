@@ -1,4 +1,48 @@
-import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint } from "lucide-react";
+import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox } from "lucide-react";
+
+const INGEST_ITEMS = [
+  "Card & ACH transactions",
+  "Merchant + MCC enrichment",
+  "Life event signals",
+  "Risk & wellness flags",
+  "Account & product holdings",
+];
+
+const HANDOFF_ITEMS = [
+  "AI Banking Assistant",
+  "Personalized email",
+  "Wealth Advisor alert",
+  "WM CoPilot brief",
+  "CRM follow-up task",
+];
+
+function PipelineSliver() {
+  return (
+    <div className="shrink-0 rounded-xl border border-slate-200 bg-white grid grid-cols-2 divide-x divide-slate-200">
+      {[
+        { label: "Ingest", Icon: Inbox, items: INGEST_ITEMS },
+        { label: "Hands Off To", Icon: Send, items: HANDOFF_ITEMS },
+      ].map(({ label, Icon, items }) => (
+        <div key={label} className="flex items-center gap-3 px-4 py-2 overflow-hidden min-w-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Icon className="w-3 h-3 text-slate-400" />
+            <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">{label}</span>
+          </div>
+          <div className="flex items-center gap-1.5 overflow-hidden min-w-0 flex-nowrap">
+            {items.map((item) => (
+              <span
+                key={item}
+                className="shrink-0 whitespace-nowrap text-[11px] text-slate-700 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 import type { CardActions } from "./NextProductRationale";
 import type { ProductCard } from "./ProductCardsPhoneView";
 
