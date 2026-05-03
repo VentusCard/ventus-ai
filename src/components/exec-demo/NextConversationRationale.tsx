@@ -1,11 +1,12 @@
 import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox } from "lucide-react";
 
 const INGEST_ITEMS = [
-  "Card & ACH transactions",
-  "Merchant + MCC enrichment",
-  "Life event signals",
-  "Risk & wellness flags",
-  "Account & product holdings",
+  "Enriched Transactions",
+  "Behavioral Intelligence",
+  "KYC & Demographics",
+  "Account Holdings",
+  "Product Tenure",
+  "Channel Engagement",
 ];
 
 const HANDOFF_ITEMS = [
