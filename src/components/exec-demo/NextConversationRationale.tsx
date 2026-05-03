@@ -1,4 +1,48 @@
-import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint } from "lucide-react";
+import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox } from "lucide-react";
+
+const INGEST_ITEMS = [
+  "Card & ACH transactions",
+  "Merchant + MCC enrichment",
+  "Life event signals",
+  "Risk & wellness flags",
+  "Account & product holdings",
+];
+
+const HANDOFF_ITEMS = [
+  "AI Banking Assistant",
+  "Personalized email",
+  "Wealth Advisor alert",
+  "WM CoPilot brief",
+  "CRM follow-up task",
+];
+
+function PipelineSliver() {
+  return (
+    <div className="shrink-0 rounded-xl border border-slate-200 bg-white grid grid-cols-2 divide-x divide-slate-200">
+      {[
+        { label: "Ingest", Icon: Inbox, items: INGEST_ITEMS },
+        { label: "Hands Off To", Icon: Send, items: HANDOFF_ITEMS },
+      ].map(({ label, Icon, items }) => (
+        <div key={label} className="flex items-center gap-3 px-4 py-2 overflow-hidden min-w-0">
+          <div className="flex items-center gap-1.5 shrink-0">
+            <Icon className="w-3 h-3 text-slate-400" />
+            <span className="text-[10px] font-semibold tracking-wider text-slate-500 uppercase">{label}</span>
+          </div>
+          <div className="flex items-center gap-1.5 overflow-hidden min-w-0 flex-nowrap">
+            {items.map((item) => (
+              <span
+                key={item}
+                className="shrink-0 whitespace-nowrap text-[11px] text-slate-700 bg-slate-50 border border-slate-200 rounded-full px-2 py-0.5"
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
 import type { CardActions } from "./NextProductRationale";
 import type { ProductCard } from "./ProductCardsPhoneView";
 
@@ -282,9 +326,12 @@ export default function NextConversationRationale({
 
   if (!effectiveSignal || effectiveSignal.kind === "all") {
     return (
-      <div className="h-full flex items-center justify-center px-6">
-        <div className="max-w-sm text-center text-[12px] text-slate-400">
-          Select a signal pill above to see the engagement plan.
+      <div className="h-full flex flex-col gap-3">
+        <PipelineSliver />
+        <div className="flex-1 flex items-center justify-center px-6">
+          <div className="max-w-sm text-center text-[12px] text-slate-400">
+            Select a signal pill above to see the engagement plan.
+          </div>
         </div>
       </div>
     );
@@ -293,7 +340,9 @@ export default function NextConversationRationale({
   const brief = resolveBrief(effectiveSignal);
 
   return (
-    <div className="h-full min-h-0 grid grid-cols-2 gap-3 animate-in fade-in duration-300" key={effectiveSignal.label}>
+    <div className="h-full min-h-0 flex flex-col gap-3 animate-in fade-in duration-300" key={effectiveSignal.label}>
+      <PipelineSliver />
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-3">
       {/* ============ LEFT: REGULAR CLIENT ============ */}
       <div className="flex flex-col min-h-0 rounded-xl border border-slate-200 bg-white overflow-hidden">
         <div className="shrink-0 px-3.5 pt-3 pb-2 border-b border-slate-100 flex items-center gap-1.5">
@@ -459,6 +508,7 @@ export default function NextConversationRationale({
             Open WM CoPilot
           </button>
         </div>
+      </div>
       </div>
     </div>
   );
