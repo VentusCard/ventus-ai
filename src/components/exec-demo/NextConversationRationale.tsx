@@ -340,7 +340,9 @@ export default function NextConversationRationale({
   const brief = resolveBrief(effectiveSignal);
 
   return (
-    <div className="h-full min-h-0 grid grid-cols-2 gap-3 animate-in fade-in duration-300" key={effectiveSignal.label}>
+    <div className="h-full min-h-0 flex flex-col gap-3 animate-in fade-in duration-300" key={effectiveSignal.label}>
+      <PipelineSliver />
+      <div className="flex-1 min-h-0 grid grid-cols-2 gap-3">
       {/* ============ LEFT: REGULAR CLIENT ============ */}
       <div className="flex flex-col min-h-0 rounded-xl border border-slate-200 bg-white overflow-hidden">
         <div className="shrink-0 px-3.5 pt-3 pb-2 border-b border-slate-100 flex items-center gap-1.5">
