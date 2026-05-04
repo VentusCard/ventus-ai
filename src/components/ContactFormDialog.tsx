@@ -44,7 +44,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           {/* Bottom */}
           <div className="text-center">
             <p className="text-2xl font-medium text-blue-600 mb-3">
-              Come find us in the networking hall.
+              Let's make banking smarter together.
             </p>
             <p className="text-lg font-light text-primary-foreground">www.ventusai.com</p>
           </div>
