@@ -17,7 +17,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
         <div className="px-12 py-16 flex flex-col">
           {/* Header */}
           <div className="flex items-center gap-5 mb-16 pb-6 border-b border-slate-200">
-            <img src={ventusLogo} alt="Ventus AI" className="w-32 shrink-0 pr-5 border-r border-slate-200" />
+            <img src={ventusLogo} alt="Ventus AI" className="w-52 shrink-0 pr-6 border-r border-slate-200" />
             <p className="text-xl font-semibold text-slate-800 leading-snug whitespace-nowrap">
               Future of banking should be both smart and personal
             </p>
