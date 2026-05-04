@@ -67,17 +67,17 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[90px]",
-  merchant: "w-[170px]",
-  description: "w-[220px]",
-  mcc: "w-[65px]",
-  amount: "w-[75px]",
-  source: "w-[110px]",
-  pillar: "w-[150px]",
-  category: "w-[140px]",
-  subs: "w-[160px]",
-  tier: "w-[90px]",
-  freq: "w-[95px]",
+  date: "w-[70px]",
+  merchant: "w-[110px]",
+  description: "w-[110px]",
+  mcc: "w-[50px]",
+  amount: "w-[60px]",
+  source: "w-[80px]",
+  pillar: "w-[170px]",
+  category: "w-[160px]",
+  subs: "w-[200px]",
+  tier: "w-[110px]",
+  freq: "w-[120px]",
 };
 
 const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (

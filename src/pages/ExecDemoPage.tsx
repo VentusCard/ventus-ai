@@ -1150,13 +1150,12 @@ export default function ExecDemoPage() {
         <div
           className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
-            width: "20%",
-            minWidth: 260,
-            maxWidth: 340,
+            width: 400,
+            minWidth: 400,
             overflow: "hidden",
           }}
         >
-          <div className="w-full h-full relative">
+          <div className="w-[400px] h-full relative">
             <ExecDemoLeftPanel
               selectedIdx={selectedIdx}
               onSelectCustomer={handleSelectCustomer}
