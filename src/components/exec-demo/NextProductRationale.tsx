@@ -563,30 +563,8 @@ function ProductCardBody({
             {offer.headline}
           </p>
         </div>
-
-        {/* Benefits */}
-        <div>
-          <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">
-            What's Included
-          </div>
-          <ul className="space-y-1">
-            {offer.benefits.map((b, i) => (
-              <li key={i} className="flex items-start gap-1.5 text-[11px] text-slate-600 leading-snug">
-                <CheckCircle2 className="w-3 h-3 mt-0.5 shrink-0" style={{ color: c.dot }} />
-                <span>{b}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
         {/* Spacer pushes eligibility + CTA to the bottom so CTAs align across cards */}
         <div className="flex-1" />
-
-        {/* Eligibility */}
-        <div className="flex items-start gap-1.5 text-[10px] text-slate-500 leading-snug">
-          <Shield className="w-3 h-3 mt-0.5 shrink-0 text-slate-400" />
-          <span>{offer.eligibility}</span>
-        </div>
 
         {/* CTA */}
         <div className="pt-1">
@@ -597,7 +575,6 @@ function ProductCardBody({
             {offer.cta}
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
-          <p className="text-[10px] text-slate-400 text-center mt-1.5">{offer.ctaSub}</p>
         </div>
       </div>
     </div>
