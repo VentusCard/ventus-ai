@@ -13,15 +13,17 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
         className="sm:max-w-2xl bg-white p-0 overflow-hidden rounded-2xl border-none shadow-2xl [&>button]:opacity-30 [&>button]:hover:opacity-60 [&>button]:border-0 [&>button]:bg-transparent [&>button]:shadow-none [&>button]:ring-0"
         style={{ fontFamily: "Manrope, sans-serif" }}
       >
-        <div className="px-12 py-16 flex flex-col items-center text-center">
+        <div className="px-12 py-16 flex flex-col">
           {/* Header */}
-          <img src={ventusLogo} alt="Ventus AI" className="w-32 mb-3" />
-          <p className="text-sm text-slate-400 mb-16">
-            Future of banking should be both smart and personal
-          </p>
+          <div className="flex items-center gap-5 mb-16">
+            <img src={ventusLogo} alt="Ventus AI" className="w-36 shrink-0" />
+            <p className="text-xl font-semibold text-slate-800 leading-snug">
+              Future of banking should be both smart and personal
+            </p>
+          </div>
 
           {/* Middle */}
-          <div className="w-full space-y-12 mb-20">
+          <div className="w-full space-y-12 mb-20 text-center">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-2">
                 Banking Today
@@ -49,10 +51,12 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           </div>
 
           {/* Bottom */}
-          <p className="text-2xl font-medium text-blue-600 mb-3">
-            Come find us in the networking hall.
-          </p>
-          <p className="text-xs text-slate-400">ventusai.com</p>
+          <div className="text-center">
+            <p className="text-2xl font-medium text-blue-600 mb-3">
+              Come find us in the networking hall.
+            </p>
+            <p className="text-xs text-slate-400">ventusai.com</p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
