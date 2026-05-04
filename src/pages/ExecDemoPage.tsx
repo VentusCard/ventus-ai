@@ -1145,17 +1145,17 @@ export default function ExecDemoPage() {
           phase === "hold" && !activeTab;
         return (
       <div className="flex-1 min-h-0 flex">
-        {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view AND on Next tabs) */}
-        {!showEnrichmentFullScreen && !isNextTab && (
+        {/* Col 1 — Transaction feed (hidden on Next tabs; compact when enrichment table is up) */}
+        {!isNextTab && (
         <div
           className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
           style={{
-            width: 400,
-            minWidth: 400,
+            width: showEnrichmentFullScreen ? "20%" : 400,
+            minWidth: showEnrichmentFullScreen ? 220 : 400,
             overflow: "hidden",
           }}
         >
-          <div className="w-[400px] h-full relative">
+          <div className="w-full h-full relative">
             <ExecDemoLeftPanel
               selectedIdx={selectedIdx}
               onSelectCustomer={handleSelectCustomer}
