@@ -260,11 +260,11 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`px-2.5 py-2 ${COL.description}`}>
+                <td className={`px-1 py-2 ${COL.description} text-center`}>
                   {description ? (
-                    <div className="text-[12.5px] font-mono text-slate-500 truncate max-w-[210px]" title={description}>
-                      {description}
-                    </div>
+                    <span className="text-[13px] font-mono text-slate-400" title={description}>
+                      …
+                    </span>
                   ) : (
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
