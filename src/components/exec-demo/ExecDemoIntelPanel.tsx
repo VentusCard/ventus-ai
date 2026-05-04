@@ -730,9 +730,7 @@ export default function ExecDemoIntelPanel({
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
                   const labelTextSize = isCollapsed ? "text-[11px]" : "text-[13px]";
                   const rowGap = isCollapsed ? "mt-1.5" : "mt-2.5";
-                  const pillRowClass = isCollapsed
-                    ? "flex-1 min-w-0 flex flex-wrap gap-x-2 gap-y-1 max-h-[52px] overflow-hidden py-0"
-                    : "flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5";
+                  const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5";
 
                   return (
                     <>
