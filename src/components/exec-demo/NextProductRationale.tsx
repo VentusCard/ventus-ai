@@ -563,7 +563,8 @@ function ProductCardBody({
             {offer.headline}
           </p>
         </div>
-
+        {/* Spacer pushes eligibility + CTA to the bottom so CTAs align across cards */}
+        <div className="flex-1" />
 
         {/* Eligibility */}
         <div className="flex items-start gap-1.5 text-[10px] text-slate-500 leading-snug">
