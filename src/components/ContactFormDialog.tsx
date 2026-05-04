@@ -51,10 +51,12 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           </div>
 
           {/* Bottom */}
-          <p className="text-2xl font-medium text-blue-600 mb-3">
-            Come find us in the networking hall.
-          </p>
-          <p className="text-xs text-slate-400">ventusai.com</p>
+          <div className="text-center">
+            <p className="text-2xl font-medium text-blue-600 mb-3">
+              Come find us in the networking hall.
+            </p>
+            <p className="text-xs text-slate-400">ventusai.com</p>
+          </div>
         </div>
       </DialogContent>
     </Dialog>
