@@ -1,28 +1,22 @@
-## Update `ContactFormDialog` (the "Next Step" modal)
+## Goal
+In `ExecDemoIntelPanel.tsx`, when one of the three tabs (Next-Offer, Next-Product, Next-Conversation) is active — i.e. the pill rows are in their collapsed/compact form — allow the Spending Habits / Life Event Detection / Risk Factors pills to wrap onto a maximum of **two rows** instead of horizontally scrolling. Keep the overall row height unchanged. The default (no active tab) view keeps its current single-row scrolling behavior.
 
-Replace the current two-column layout with a single, centered, breathable slide. No cards, borders, or shadows.
+## File
+`src/components/exec-demo/ExecDemoIntelPanel.tsx` — the three sibling rows around lines 736–747.
 
-### Layout (top → bottom)
+## Changes
 
-1. **Header** — Ventus logo centered, with the existing tagline ("Future of banking should be both smart and personal") below it in muted slate. Remove the divider bar and bottom border line for a cleaner look.
+1. Define a tab-aware container class string near the existing `labelWidth` / `labelTextSize` / `rowGap` constants (~line 730):
+   - When `isCollapsed` (active tab on): `flex flex-wrap gap-x-2 gap-y-1 max-h-[44px] overflow-hidden py-0`
+   - Otherwise: keep current `flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5`
 
-2. **Middle section** — three stacked blocks, generous vertical spacing (`space-y-10` or `space-y-12`), centered:
-   - `BANKING TODAY` (xs, uppercase, tracking-widest, slate-400) → "Generic. Static. The same for everyone." (lg, regular, slate-800)
-   - `WITH VENTUS AI` (xs, uppercase, tracking-widest, blue-600) → "Personalized. Intelligent. Built for each customer." (lg, regular, slate-800)
-   - `WHAT'S NEXT` (xs, uppercase, tracking-widest, slate-900) → "Autonomous with warmth — banks that know their customers, serve them better." (lg, medium, blue-600)
+2. Apply that class to all three pill containers (lines 738, 742, 746) replacing the hard-coded class string.
 
-3. **Bottom section** — large centered navy line (text-2xl, medium, slate-900): "Come find us in the networking hall." Below it, small grey text (text-xs, slate-400): "ventusai.com".
+3. To make sure two rows fit inside `max-h-[44px]` only in collapsed mode, conditionally tighten pill vertical padding:
+   - Life-event pill (line 557): `py-1.5` → `py-1` when `isCollapsed`.
+   - Risk-factor pills (line 680) and the "No Risk Factors Detected" pill (line 713): same conditional.
+   - Rollup pills are produced by `PillarRollupChip`; if they visually overflow we'll pass an `isCollapsed` prop to that component in a follow-up. For now leave it; behavior is OK because rollup pills already use compact sizing.
 
-### Structural changes
-- Remove the entire right "Learn More" column and the two-column grid.
-- Remove the left "Mission" panel chrome (`bg-slate-50`, border, MISSION header).
-- Replace `DialogContent` inner with a single padded centered container (e.g., `px-16 py-16` or similar), white background.
-- Make the default Radix close button subtle: pass a custom close via styling or hide it (Radix `DialogContent` renders an X by default; override with custom subtle X using `text-slate-300 hover:text-slate-500`, no border/circle). Simplest: rely on default but soften via dialog content child styling, or pass `[&>button]:opacity-30 [&>button]:hover:opacity-60` utility on `DialogContent`.
-
-### File touched
-- `src/components/ContactFormDialog.tsx` — replace body content per above. No other files need changes.
-
-### Visual notes
-- Manrope font (already inherited via demo page).
-- Strict light theme; only blue accents are the `WITH VENTUS AI` label and the `WHAT'S NEXT` value line.
-- Keep dialog max width around `sm:max-w-2xl` (narrower than current 5xl) to enforce the airy single-column feel.
+## Result
+- In Next-Offer / Next-Product / Next-Conversation views, pills wrap onto up to two rows; nothing scrolls horizontally; overall row height stays the same as today (the previous single row reserved enough vertical space with `py-0.5` + scrollbar that two compressed pill rows now fit).
+- Default enrichment view (no active tab) is untouched.
