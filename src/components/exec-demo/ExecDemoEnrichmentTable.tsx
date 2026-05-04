@@ -75,7 +75,7 @@ const COL = {
   source: "w-[76px]",
   pillar: "w-[170px]",
   category: "w-[160px]",
-  subs: "w-[210px]",
+  subs: "w-[150px]",
   tier: "w-[110px]",
   freq: "w-[120px]",
 };
