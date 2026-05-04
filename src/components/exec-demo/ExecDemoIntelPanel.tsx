@@ -1000,7 +1000,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className="text-[11px] opacity-60 tabular-nums font-normal">
+      <span className="text-[9.5px] opacity-60 tabular-nums font-normal">
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>
