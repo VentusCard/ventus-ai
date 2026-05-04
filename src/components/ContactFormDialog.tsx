@@ -32,7 +32,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             </div>
             <ArrowRight className="w-8 h-8 text-blue-600 shrink-0" strokeWidth={1.5} />
             <div className="flex-1 text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-blue-600 mb-3">
+              <p className="text-[11px] uppercase tracking-[0.2em] text-blue-600 mb-3 font-extrabold">
                 With Ventus AI
               </p>
               <p className="text-lg font-normal text-slate-800">
@@ -44,9 +44,9 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           {/* Bottom */}
           <div className="text-center">
             <p className="text-2xl font-medium text-blue-600 mb-3">
-              Come find us in the networking hall.
+              Let's make banking smarter together.
             </p>
-            <p className="text-sm text-slate-400">ventusai.com</p>
+            <p className="text-lg font-light text-primary-foreground">www.ventusai.com</p>
           </div>
         </div>
       </DialogContent>
