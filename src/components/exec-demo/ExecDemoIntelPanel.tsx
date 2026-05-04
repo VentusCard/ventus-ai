@@ -554,7 +554,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -677,7 +677,7 @@ export default function ExecDemoIntelPanel({
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
                           title={riskPillsMuted ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
@@ -710,7 +710,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
+                      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full`}
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -730,20 +730,23 @@ export default function ExecDemoIntelPanel({
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
                   const labelTextSize = isCollapsed ? "text-[11px]" : "text-[13px]";
                   const rowGap = isCollapsed ? "mt-1.5" : "mt-2.5";
+                  const pillRowClass = isCollapsed
+                    ? "flex-1 min-w-0 flex flex-wrap gap-x-2 gap-y-1 max-h-[52px] overflow-hidden py-0"
+                    : "flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5";
 
                   return (
                     <>
                       <div className="flex items-center gap-3 mb-1">
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}>Spending Habits:</p>
-                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
+                        <div className={pillRowClass}>{rollupPills}</div>
                       </div>
                       <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}>Life Event Detection:</p>
-                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{lifeEventPills}</div>
+                        <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
                       <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600`}>Risk Factors:</p>
-                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{riskPills}</div>
+                        <div className={pillRowClass}>{riskPills}</div>
                       </div>
                     </>
                   );
