@@ -735,7 +735,7 @@ export default function ExecDemoIntelPanel({
                     <>
                       <div className="flex items-center gap-3 mb-1">
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}>Spending Habits:</p>
-                        <div className="flex-1 min-w-0 flex flex-wrap gap-1.5 py-0.5">{rollupPills}</div>
+                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
                       <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}>Life Event Detection:</p>
