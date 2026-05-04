@@ -986,7 +986,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+      className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2.5 py-1 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
