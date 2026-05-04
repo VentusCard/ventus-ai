@@ -1,6 +1,6 @@
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ArrowRight } from "lucide-react";
-import ventusLogo from "@/assets/ventus-logo-blue.png";
+import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 
 interface ContactFormDialogProps {
   open: boolean;
@@ -16,11 +16,8 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
       >
         <div className="px-12 py-16 flex flex-col">
           {/* Header */}
-          <div className="flex items-stretch gap-4 mb-16 pb-5 border-b border-slate-200">
-            <img src={ventusLogo} alt="Ventus AI" className="w-40 shrink-0 pr-4 border-r border-slate-200 self-stretch object-contain py-1" />
-            <p className="text-xl font-semibold text-slate-800 leading-snug whitespace-nowrap self-center">
-              Future of banking should be both smart and personal
-            </p>
+          <div className="flex justify-center mb-16 pb-5 border-b border-slate-200">
+            <img src={ventusLogo} alt="Ventus AI" className="w-48 object-contain" />
           </div>
 
           {/* Middle - side-by-side comparison */}
@@ -49,7 +46,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             <p className="text-2xl font-medium text-blue-600 mb-3">
               Come find us in the networking hall.
             </p>
-            <p className="text-xs text-slate-400">ventusai.com</p>
+            <p className="text-sm text-slate-400">ventusai.com</p>
           </div>
         </div>
       </DialogContent>
