@@ -195,7 +195,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.tier}`}>Tier</th>
+            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider pl-5 pr-2 py-2 whitespace-nowrap ${COL.tier}`}>Tier</th>
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
@@ -323,7 +323,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={14} />
                   )}
                 </td>
-                <td key={`enr-tier-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.tier}`}>
+                <td key={`enr-tier-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell pl-5 pr-2.5 py-2 ${COL.tier}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
                       {(tx as any).spending_tier || "—"}
