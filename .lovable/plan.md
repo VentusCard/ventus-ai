@@ -1,27 +1,28 @@
-## Trim spacing & normalize font sizes — Regular & Wealth Client columns
+## Update `ContactFormDialog` (the "Next Step" modal)
 
-In `src/components/exec-demo/NextConversationRationale.tsx` (lines ~347–512), tighten paddings and unify type sizes inside both columns. Right phone panel, sliver, and pills are unchanged.
+Replace the current two-column layout with a single, centered, breathable slide. No cards, borders, or shadows.
 
-### Type scale (consistent across both columns)
+### Layout (top → bottom)
 
-- Column header label: `text-[11px] font-semibold` (was 10px on left, 10px on right).
-- Card title (e.g., "AI Banking Assistant Context", "Personalized Outreach", "Advisor Notification"): `text-[11px] font-bold`.
-- Subsection label (e.g., "Knows", "Can Answer", "Prep Brief Includes", "Actions", "Automated", "Advisor Actions"): `text-[10px] font-semibold uppercase tracking-wide` (was a mix of 9px / 10px).
-- Body bullets and metadata lines: `text-[11px]` (was a mix of 10/11px).
-- Action buttons: `text-[11px] font-semibold` (was 10.5px).
-- CTA buttons at footer: `text-[11px] font-bold`, `py-2` (was 11.5px / py-2.5).
+1. **Header** — Ventus logo centered, with the existing tagline ("Future of banking should be both smart and personal") below it in muted slate. Remove the divider bar and bottom border line for a cleaner look.
 
-### Spacing trims
+2. **Middle section** — three stacked blocks, generous vertical spacing (`space-y-10` or `space-y-12`), centered:
+   - `BANKING TODAY` (xs, uppercase, tracking-widest, slate-400) → "Generic. Static. The same for everyone." (lg, regular, slate-800)
+   - `WITH VENTUS AI` (xs, uppercase, tracking-widest, blue-600) → "Personalized. Intelligent. Built for each customer." (lg, regular, slate-800)
+   - `WHAT'S NEXT` (xs, uppercase, tracking-widest, slate-900) → "Autonomous with warmth — banks that know their customers, serve them better." (lg, medium, blue-600)
 
-- Column header bar: `px-3 pt-2 pb-1.5` (was `px-3.5 pt-3 pb-2`).
-- Scroll area: `px-3 py-2 space-y-2` (was `px-3.5 py-3 space-y-3` / `space-y-2.5`).
-- Cards: `p-2.5` (was `p-3`).
-- Card section margins: `mb-1.5` (was `mb-2` / `mb-2.5`).
-- Prep brief inner card: `p-2 mb-2` (was `p-2.5 mb-2.5`).
-- Notification meta block: `mb-2` (was `mb-2.5`).
-- Actions row spacing: `space-y-1.5` (was `space-y-2`).
-- Footer button container: `p-2` (was `p-3`).
+3. **Bottom section** — large centered navy line (text-2xl, medium, slate-900): "Come find us in the networking hall." Below it, small grey text (text-xs, slate-400): "ventusai.com".
 
-### Out of scope
+### Structural changes
+- Remove the entire right "Learn More" column and the two-column grid.
+- Remove the left "Mission" panel chrome (`bg-slate-50`, border, MISSION header).
+- Replace `DialogContent` inner with a single padded centered container (e.g., `px-16 py-16` or similar), white background.
+- Make the default Radix close button subtle: pass a custom close via styling or hide it (Radix `DialogContent` renders an X by default; override with custom subtle X using `text-slate-300 hover:text-slate-500`, no border/circle). Simplest: rely on default but soften via dialog content child styling, or pass `[&>button]:opacity-30 [&>button]:hover:opacity-60` utility on `DialogContent`.
 
-No content/copy changes, no color changes, no behavior changes. Sliver, phone panel, and pills are untouched.
+### File touched
+- `src/components/ContactFormDialog.tsx` — replace body content per above. No other files need changes.
+
+### Visual notes
+- Manrope font (already inherited via demo page).
+- Strict light theme; only blue accents are the `WITH VENTUS AI` label and the `WHAT'S NEXT` value line.
+- Keep dialog max width around `sm:max-w-2xl` (narrower than current 5xl) to enforce the airy single-column feel.
