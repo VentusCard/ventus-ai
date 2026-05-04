@@ -735,7 +735,7 @@ export default function ExecDemoIntelPanel({
                     <>
                       <div className="flex items-center gap-3 mb-1">
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}>Spending Habits:</p>
-                        <div className="flex-1 min-w-0 flex flex-wrap gap-1.5 py-0.5">{rollupPills}</div>
+                        <div className="flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5">{rollupPills}</div>
                       </div>
                       <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
                         <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}>Life Event Detection:</p>
@@ -986,7 +986,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+      className="inline-flex items-center gap-1 text-[10.5px] font-semibold px-2.5 py-1 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
@@ -1000,7 +1000,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className="text-[11px] opacity-60 tabular-nums font-normal">
+      <span className="text-[9.5px] opacity-60 tabular-nums font-normal">
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>
