@@ -63,26 +63,23 @@ export default function ExecDemoPage() {
     setAiTabTrigger((n) => n + 1);
   }, []);
 
-  const handleOpenWMCopilot = useCallback((firstName: string, signal: SelectedSignal | null) => {
-    // Skip login — launch the Advisor Console directly with the full client profile pre-loaded.
-    const demo = DEMO_CUSTOMERS[selectedIdx];
-    const baseProfile: import("@/types/clientProfile").ClientProfileData | null = demo?.profile
-      ? { ...demo.profile }
-      : null;
+  const [wmCopilotOpen, setWmCopilotOpen] = useState(false);
+  const [wmCopilotSignal, setWmCopilotSignal] = useState<SelectedSignal | null>(null);
 
-    if (!baseProfile) {
-      toast.error("No client profile available. Run the analysis first.");
-      return;
-    }
+  const handleOpenWMCopilot = useCallback((_firstName: string, signal: SelectedSignal | null) => {
+    setWmCopilotSignal(signal);
+    setWmCopilotOpen(true);
+  }, []);
 
-    if (signal) {
-      const evt = { event: signal.label, date: new Date().toISOString().slice(0, 10) };
-      baseProfile.milestones = [evt, ...(baseProfile.milestones || [])].slice(0, 6);
-    }
+  const handleCloseWMCopilot = useCallback(() => {
+    setWmCopilotOpen(false);
+  }, []);
 
-    sessionStorage.setItem("wm_copilot_launch_client", JSON.stringify(baseProfile));
-    window.open("/tepilot/advisor-console", "_blank");
-  }, [selectedIdx]);
+  // When the AI Banking Assistant is opened, ensure the WM CoPilot is closed.
+  const handleOpenAIAssistantWrapper = useCallback(() => {
+    setWmCopilotOpen(false);
+    setAiTabTrigger((n) => n + 1);
+  }, []);
   const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
@@ -1065,6 +1062,16 @@ export default function ExecDemoPage() {
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
+  // Click any Pillar pill inside the enrichment table → bring all txns in that pillar to the top.
+  const handleEnrichmentPillarClick = useCallback((pillar: string) => {
+    const sm = execProfile.persona.signalMap;
+    const indices = Object.entries(sm)
+      .filter(([, s]) => s.pillar === pillar)
+      .map(([idx]) => Number(idx));
+    const color = getColor(pillar).dot;
+    handleTriggerPillClick(pillar, indices, color, "lifeEvent");
+  }, [execProfile.persona.signalMap, handleTriggerPillClick]);
+
   // Derive processedSignals from indices + current signalMap (auto-syncs on AI upgrade)
   const processedSignals = useMemo(() =>
     processedIndices.map(i => execProfile.persona.signalMap[i]).filter(Boolean),
@@ -1214,9 +1221,10 @@ export default function ExecDemoPage() {
             productActions={productActions}
             actionsLoading={actionsLoading}
             onOpenWMCopilot={handleOpenWMCopilot}
-            onOpenAIAssistant={handleOpenAIAssistant}
+            onOpenAIAssistant={handleOpenAIAssistantWrapper}
             onAIPromptDispatch={dispatchAIPrompt}
-            assistantOpen={true}
+            assistantOpen={!wmCopilotOpen}
+            wmCopilotOpen={wmCopilotOpen}
             synthesisTriggered={synthesisTriggered}
             onSynthesisChange={setSynthesisTriggered}
             fullWidthEnrichment={showEnrichmentFullScreen}
@@ -1232,13 +1240,15 @@ export default function ExecDemoPage() {
             }
             activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
             onClearHighlight={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
+            onEnrichmentPillarClick={handleEnrichmentPillarClick}
           />
         </div>
 
         {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
         {(() => {
           const phoneVisible = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
-          const expandedW = 560;
+          const isRelTab = activeTab === "relationship";
+          const expandedW = isRelTab ? 520 : 560;
           const collapsedW = 40;
           const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
           return (
@@ -1268,28 +1278,34 @@ export default function ExecDemoPage() {
 
               {/* Full phone — with collapse button */}
               {phoneVisible && !phoneCollapsed && (
-                <div className="w-[560px] h-full relative">
+                <div className="h-full relative flex flex-col" style={{ width: expandedW }}>
                   <button
                     onClick={() => setPhoneCollapsed(true)}
                     className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
                   >
                     <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
                   </button>
-                  <ExecDemoPhoneView
-                    customer={demoCustomer}
-                    activeTab={activeTab}
-                    phase={phase}
-                    showContent={phoneVisible && phase !== "idle"}
-                    generatedOffers={generatedOffers}
-                    detectedLifeEvents={detectedLifeEvents}
-                    productCards={productCards}
-                    activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
-                    activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
-                    enrichedTxs={classifiedRef.current}
-                    riskFlags={riskFlags}
-                    aiTabTrigger={aiTabTrigger}
-                    pendingAIPrompt={pendingAIPrompt}
-                  />
+                  <div className="flex-1 min-h-0">
+                    <ExecDemoPhoneView
+                      customer={demoCustomer}
+                      activeTab={activeTab}
+                      phase={phase}
+                      showContent={phoneVisible && phase !== "idle"}
+                      generatedOffers={generatedOffers}
+                      detectedLifeEvents={detectedLifeEvents}
+                      productCards={productCards}
+                      activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
+                      activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
+                      enrichedTxs={classifiedRef.current}
+                      riskFlags={riskFlags}
+                      aiTabTrigger={aiTabTrigger}
+                      pendingAIPrompt={pendingAIPrompt}
+                      wmCopilotMode={wmCopilotOpen && activeTab === "relationship"}
+                      wmCopilotSignal={wmCopilotSignal}
+                      wmCopilotSecondarySignal={wmCopilotSignal && /college/i.test(wmCopilotSignal.label) ? "Home Purchase" : null}
+                      onCloseWMCopilot={handleCloseWMCopilot}
+                    />
+                  </div>
                 </div>
               )}
             </div>

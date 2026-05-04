@@ -6,9 +6,11 @@ import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import RelationshipPhoneView from "./RelationshipPhoneView";
+import WMCopilotPhoneView from "./WMCopilotPhoneView";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
+import type { SelectedSignal } from "./NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type ConsumerTab = "rewards" | "relationship" | "ai";
@@ -40,9 +42,17 @@ interface Props {
   riskFlags?: { flags: any[]; summary: string } | null;
   aiTabTrigger?: number;
   pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
+  /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
+  wmCopilotMode?: boolean;
+  /** Currently selected signal driving the WM CoPilot brief. */
+  wmCopilotSignal?: SelectedSignal | null;
+  /** Optional secondary signal label (e.g., "Home Purchase Planning") combined into the customer summary. */
+  wmCopilotSecondarySignal?: string | null;
+  /** Called when the user closes the WM CoPilot view from inside the phone. */
+  onCloseWMCopilot?: () => void;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, onCloseWMCopilot }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -137,23 +147,36 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         <div className="flex-1 min-h-0 flex flex-col" style={{ zoom: 1.1 }}>
           {/* Status bar */}
           <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
-            <span>9:41 AM</span>
+            {wmCopilotMode ? <span /> : <span>9:41 AM</span>}
             <div className="flex items-center gap-1.5">
               <span className="relative flex h-1.5 w-1.5">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
               </span>
-              <span className="font-semibold text-slate-600 text-[11px]">Our Bank · {firstName}</span>
+              <span className="font-semibold text-slate-600 text-[11px]">
+                {wmCopilotMode ? `Our Bank · Advisor` : `Our Bank · ${firstName}`}
+              </span>
             </div>
-            <div className="flex items-center gap-1.5">
-              <Wifi className="w-3 h-3" />
-              <Battery className="w-3.5 h-3.5" />
-            </div>
+            {wmCopilotMode ? (
+              <span />
+            ) : (
+              <div className="flex items-center gap-1.5">
+                <Wifi className="w-3 h-3" />
+                <Battery className="w-3.5 h-3.5" />
+              </div>
+            )}
           </div>
 
           {/* Content */}
-          <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai') ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
-            {showContent ? (
+          <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || wmCopilotMode) ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
+            {wmCopilotMode ? (
+              <WMCopilotPhoneView
+                customerName={customer.profile?.name ?? firstName}
+                selectedSignal={wmCopilotSignal}
+                secondarySignalLabel={wmCopilotSecondarySignal}
+                onClose={() => onCloseWMCopilot?.()}
+              />
+            ) : showContent ? (
               renderContent()
             ) : (
               <div className="flex items-center justify-center h-full">
@@ -162,28 +185,30 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
             )}
           </div>
 
-          {/* Bottom Tab Bar */}
-          <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
-            {CONSUMER_TABS.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = consumerTab === tab.key;
-              return (
-                <button
-                  key={tab.key}
-                  onClick={() => setConsumerTab(tab.key)}
-                  className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
-                >
-                  <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
-                  <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
-                    {tab.label}
-                  </span>
-                  {isActive && (
-                    <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
-                  )}
-                </button>
-              );
-            })}
-          </div>
+          {/* Bottom Tab Bar — hidden in WM CoPilot mode */}
+          {!wmCopilotMode && (
+            <div className="flex shrink-0 border-t border-slate-200 bg-slate-50/80 px-2">
+              {CONSUMER_TABS.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = consumerTab === tab.key;
+                return (
+                  <button
+                    key={tab.key}
+                    onClick={() => setConsumerTab(tab.key)}
+                    className="flex-1 flex flex-col items-center gap-0.5 py-2 transition-all relative cursor-pointer"
+                  >
+                    <Icon className="w-3.5 h-3.5" style={{ color: isActive ? tab.color : "#94a3b8" }} />
+                    <span className="text-[9px] font-semibold" style={{ color: isActive ? tab.color : "#94a3b8" }}>
+                      {tab.label}
+                    </span>
+                    {isActive && (
+                      <div className="absolute top-0 left-1/4 right-1/4 h-[2px] rounded-full" style={{ background: tab.color }} />
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </div>

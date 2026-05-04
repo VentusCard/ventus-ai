@@ -334,7 +334,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
               <Bot className="w-6 h-6 text-white" />
             </div>
             <h3 className="text-base font-bold text-slate-900 mb-1">
-              How can I help today?
+              Hi {(customer.profile?.name ?? "").split(" ")[0] || "there"}! How can I help today?
             </h3>
             <p className="text-xs text-slate-500 mb-4 max-w-[260px]">
               I can help you understand your spending, find subscriptions, and recommend products.

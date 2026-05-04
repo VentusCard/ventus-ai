@@ -1,30 +1,28 @@
-## Make iPad inner content slightly bigger
+## Update `ContactFormDialog` (the "Next Step" modal)
 
-Scale up everything inside the iPad bezel (status bar, content area, bottom tab bar) by ~10% using a single CSS `zoom` wrapper. The bezel itself stays the same size — only the contents grow.
+Replace the current two-column layout with a single, centered, breathable slide. No cards, borders, or shadows.
 
-### Change
+### Layout (top → bottom)
 
-In `src/components/exec-demo/ExecDemoPhoneView.tsx`, wrap the three inner sections (status bar, content area, tab bar) in a single flex container with `style={{ zoom: 1.1 }}`. The wrapper inherits `flex-1 min-h-0 flex flex-col` so layout still fills the bezel.
+1. **Header** — Ventus logo centered, with the existing tagline ("Future of banking should be both smart and personal") below it in muted slate. Remove the divider bar and bottom border line for a cleaner look.
 
-```tsx
-<div className="phone-mockup-frame ... border-slate-600 ... flex flex-col w-full h-full">
-  {/* Camera dot stays outside zoom */}
-  <div className="flex justify-center pt-1.5 pb-0.5 ...">
-    <div className="w-2 h-2 rounded-full bg-slate-300" />
-  </div>
+2. **Middle section** — three stacked blocks, generous vertical spacing (`space-y-10` or `space-y-12`), centered:
+   - `BANKING TODAY` (xs, uppercase, tracking-widest, slate-400) → "Generic. Static. The same for everyone." (lg, regular, slate-800)
+   - `WITH VENTUS AI` (xs, uppercase, tracking-widest, blue-600) → "Personalized. Intelligent. Built for each customer." (lg, regular, slate-800)
+   - `WHAT'S NEXT` (xs, uppercase, tracking-widest, slate-900) → "Autonomous with warmth — banks that know their customers, serve them better." (lg, medium, blue-600)
 
-  {/* Zoomed inner stack */}
-  <div className="flex-1 min-h-0 flex flex-col" style={{ zoom: 1.1 }}>
-    {/* status bar */}
-    {/* content (rewards / membership / AI chat) */}
-    {/* bottom tab bar */}
-  </div>
-</div>
-```
+3. **Bottom section** — large centered navy line (text-2xl, medium, slate-900): "Come find us in the networking hall." Below it, small grey text (text-xs, slate-400): "ventusai.com".
 
-### Why zoom (not transform: scale)
+### Structural changes
+- Remove the entire right "Learn More" column and the two-column grid.
+- Remove the left "Mission" panel chrome (`bg-slate-50`, border, MISSION header).
+- Replace `DialogContent` inner with a single padded centered container (e.g., `px-16 py-16` or similar), white background.
+- Make the default Radix close button subtle: pass a custom close via styling or hide it (Radix `DialogContent` renders an X by default; override with custom subtle X using `text-slate-300 hover:text-slate-500`, no border/circle). Simplest: rely on default but soften via dialog content child styling, or pass `[&>button]:opacity-30 [&>button]:hover:opacity-60` utility on `DialogContent`.
 
-`transform: scale()` would visually shrink the layout box and leave empty space. `zoom` actually reflows children at the larger size, so the content fills the bezel naturally and scrolling still works inside the AI chat and rewards panes.
+### File touched
+- `src/components/ContactFormDialog.tsx` — replace body content per above. No other files need changes.
 
-### Files
-- `src/components/exec-demo/ExecDemoPhoneView.tsx`
+### Visual notes
+- Manrope font (already inherited via demo page).
+- Strict light theme; only blue accents are the `WITH VENTUS AI` label and the `WHAT'S NEXT` value line.
+- Keep dialog max width around `sm:max-w-2xl` (narrower than current 5xl) to enforce the airy single-column feel.

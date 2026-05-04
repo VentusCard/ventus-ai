@@ -58,6 +58,7 @@ interface Props {
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
+  wmCopilotOpen?: boolean;
   synthesisTriggered?: boolean;
   onSynthesisChange?: (triggered: boolean) => void;
   /** When true, renders the enrichment table edge-to-edge (no card chrome / outer padding). */
@@ -70,6 +71,8 @@ interface Props {
   activePillLabel?: string | null;
   /** Clear-highlight callback wired to the strip's Clear button. */
   onClearHighlight?: () => void;
+  /** Called when a Pillar pill inside the enrichment table is clicked. */
+  onEnrichmentPillarClick?: (pillar: string) => void;
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -190,6 +193,7 @@ export default function ExecDemoIntelPanel({
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
+  wmCopilotOpen = false,
   synthesisTriggered: synthesisTriggeredProp,
   onSynthesisChange,
   fullWidthEnrichment = false,
@@ -197,6 +201,7 @@ export default function ExecDemoIntelPanel({
   highlightColor,
   activePillLabel,
   onClearHighlight,
+  onEnrichmentPillarClick,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -317,7 +322,11 @@ export default function ExecDemoIntelPanel({
 
   useEffect(() => {
     if (activeTab === "relationship" && !selectedSignal && availableSignals.length > 0) {
-      setSelectedSignal(availableSignals[0]);
+      // Prefer College Preparation life event as default; fall back to first available signal
+      const college = availableSignals.find(
+        (s) => s.kind === "lifeEvent" && /college/i.test(s.label)
+      );
+      setSelectedSignal(college ?? availableSignals[0]);
     }
     if (activeTab !== "relationship") {
       setSelectedSignal(null);
@@ -545,7 +554,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
+                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -668,7 +677,7 @@ export default function ExecDemoIntelPanel({
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
                           title={riskPillsMuted ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
@@ -771,10 +780,11 @@ export default function ExecDemoIntelPanel({
                       amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
                     }))}
                     flush={fullWidthEnrichment}
-                    highlightedIndices={synthesisTriggered ? highlightedIndices : null}
+                    highlightedIndices={highlightedIndices}
                     highlightColor={highlightColor}
-                    activePillLabel={synthesisTriggered ? activePillLabel : null}
+                    activePillLabel={activePillLabel}
                     onClearHighlight={onClearHighlight}
+                    onPillarClick={onEnrichmentPillarClick}
                   />
                 ) : null}
               </div>
@@ -821,18 +831,23 @@ export default function ExecDemoIntelPanel({
             ) : activeTab === "product" ? (
               <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} pillarRollups={rollupStats} riskFlags={riskFlags} />
             ) : activeTab === "relationship" ? (
-              <NextConversationRationale
-                selectedSignal={selectedSignal}
-                availableSignals={availableSignals}
-                customerFirstName={customerFirstName}
-                productActions={productActions}
-                actionsLoading={actionsLoading}
-                productCards={productCards}
-                onSelectSignal={(s) => setSelectedSignal(s)}
-                onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
-                onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
-                assistantOpen={assistantOpen}
-              />
+              <div className="h-full flex flex-col min-h-0">
+                <div className="flex-1 min-h-0">
+                  <NextConversationRationale
+                    selectedSignal={selectedSignal}
+                    availableSignals={availableSignals}
+                    customerFirstName={customerFirstName}
+                    productActions={productActions}
+                    actionsLoading={actionsLoading}
+                    productCards={productCards}
+                    onSelectSignal={(s) => setSelectedSignal(s)}
+                    onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
+                    onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
+                    assistantOpen={assistantOpen}
+                    wmCopilotOpen={wmCopilotOpen}
+                  />
+                </div>
+              </div>
             ) : (
               <div className="flex items-center justify-center h-full">
                 <span className="text-[11px] text-slate-300 font-mono">
@@ -971,7 +986,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200"
+      className="inline-flex items-center gap-1 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
