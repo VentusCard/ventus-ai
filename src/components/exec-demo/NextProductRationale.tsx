@@ -566,12 +566,6 @@ function ProductCardBody({
         {/* Spacer pushes eligibility + CTA to the bottom so CTAs align across cards */}
         <div className="flex-1" />
 
-        {/* Eligibility */}
-        <div className="flex items-start gap-1.5 text-[10px] text-slate-500 leading-snug">
-          <Shield className="w-3 h-3 mt-0.5 shrink-0 text-slate-400" />
-          <span>{offer.eligibility}</span>
-        </div>
-
         {/* CTA */}
         <div className="pt-1">
           <button
@@ -581,7 +575,6 @@ function ProductCardBody({
             {offer.cta}
             <ArrowRight className="w-3.5 h-3.5" />
           </button>
-          <p className="text-[10px] text-slate-400 text-center mt-1.5">{offer.ctaSub}</p>
         </div>
       </div>
     </div>
