@@ -67,15 +67,15 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[70px]",
-  merchant: "w-[110px]",
-  description: "w-[110px]",
-  mcc: "w-[50px]",
-  amount: "w-[60px]",
-  source: "w-[80px]",
+  date: "w-[68px]",
+  merchant: "w-[100px]",
+  description: "w-[28px]",
+  mcc: "w-[46px]",
+  amount: "w-[58px]",
+  source: "w-[76px]",
   pillar: "w-[170px]",
   category: "w-[160px]",
-  subs: "w-[200px]",
+  subs: "w-[210px]",
   tier: "w-[110px]",
   freq: "w-[120px]",
 };
@@ -260,11 +260,11 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`px-2.5 py-2 ${COL.description}`}>
+                <td className={`px-1 py-2 ${COL.description} text-center`}>
                   {description ? (
-                    <div className="text-[12.5px] font-mono text-slate-500 truncate max-w-[210px]" title={description}>
-                      {description}
-                    </div>
+                    <span className="text-[13px] font-mono text-slate-400" title={description}>
+                      …
+                    </span>
                   ) : (
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
