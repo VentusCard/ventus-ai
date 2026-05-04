@@ -841,7 +841,16 @@ export default function ExecDemoIntelPanel({
                     actionsLoading={actionsLoading}
                     productCards={productCards}
                     onSelectSignal={(s) => setSelectedSignal(s)}
-                    onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
+                    onOpenWMCopilot={() => {
+                      // WM CoPilot subject must always be a life event — never risk/gambling
+                      const lifeEventSignal: SelectedSignal | null =
+                        selectedSignal && selectedSignal.kind === "lifeEvent"
+                          ? selectedSignal
+                          : (availableSignals.find((s) => s.kind === "lifeEvent" && /college/i.test(s.label))
+                              ?? availableSignals.find((s) => s.kind === "lifeEvent")
+                              ?? { kind: "lifeEvent", label: "College Preparation for Dependent" });
+                      onOpenWMCopilot?.(customerFirstName, lifeEventSignal);
+                    }}
                     onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
                     assistantOpen={assistantOpen}
                     wmCopilotOpen={wmCopilotOpen}
