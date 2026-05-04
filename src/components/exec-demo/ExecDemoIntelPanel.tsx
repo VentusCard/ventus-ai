@@ -554,7 +554,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+                          className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -677,7 +677,7 @@ export default function ExecDemoIntelPanel({
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
                           title={riskPillsMuted ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
-                          className={`inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
@@ -710,7 +710,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3.5 py-2 rounded-full"
+                      className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 py-1.5 rounded-full"
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -841,7 +841,16 @@ export default function ExecDemoIntelPanel({
                     actionsLoading={actionsLoading}
                     productCards={productCards}
                     onSelectSignal={(s) => setSelectedSignal(s)}
-                    onOpenWMCopilot={() => onOpenWMCopilot?.(customerFirstName, selectedSignal)}
+                    onOpenWMCopilot={() => {
+                      // WM CoPilot subject must always be a life event — never risk/gambling
+                      const lifeEventSignal: SelectedSignal | null =
+                        selectedSignal && selectedSignal.kind === "lifeEvent"
+                          ? selectedSignal
+                          : (availableSignals.find((s) => s.kind === "lifeEvent" && /college/i.test(s.label))
+                              ?? availableSignals.find((s) => s.kind === "lifeEvent")
+                              ?? { kind: "lifeEvent", label: "College Preparation for Dependent" });
+                      onOpenWMCopilot?.(customerFirstName, lifeEventSignal);
+                    }}
                     onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
                     assistantOpen={assistantOpen}
                     wmCopilotOpen={wmCopilotOpen}
@@ -986,7 +995,7 @@ function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: Pillar
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-[12px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+      className="inline-flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
