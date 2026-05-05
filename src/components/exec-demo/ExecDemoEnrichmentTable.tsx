@@ -67,9 +67,9 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[58px]",
+  date: "w-[46px]",
   merchant: "w-[88px]",
-  description: "w-[18px]",
+  description: "w-[110px]",
   mcc: "w-[28px]",
   amount: "w-[40px]",
   source: "w-[64px]",
@@ -78,6 +78,20 @@ const COL = {
   subs: "w-[120px]",
   tier: "w-[80px]",
   freq: "w-[88px]",
+};
+
+// Compact "MM/DD" date formatter — keeps the column narrow.
+const formatDateCompact = (raw?: string): string => {
+  if (!raw) return "—";
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${m}/${day}`;
+  }
+  const isoMatch = raw.match(/^\d{4}-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]}/${isoMatch[2]}`;
+  return raw;
 };
 
 const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (
