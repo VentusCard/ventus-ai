@@ -161,7 +161,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           )}
         </div>
       )}
-      <table className="w-full text-left border-collapse table-fixed">
+      <table className="w-full min-w-[888px] text-left border-collapse table-fixed">
         <colgroup>
           <col className={COL.source} />
           <col className={COL.date} />
@@ -300,7 +300,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-2 overflow-hidden ${COL.pillar}`}>
+                <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-1.5 py-2 ${COL.pillar}`}>
                   {isEnriched && c ? (
                     onPillarClick ? (
                       <button
@@ -335,10 +335,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={18} rounded="rounded" />
                   )}
                 </td>
-                <td key={`enr-cat-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell text-[13px] text-slate-700 px-2.5 py-2 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
+                <td key={`enr-cat-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell text-[13px] text-slate-700 px-1.5 py-2 truncate ${COL.category}`} title={(tx as any)?.category}>
                   {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="90px" height={12} />}
                 </td>
-                <td key={`enr-subs-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.subs}`}>
+                <td key={`enr-subs-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-1.5 py-2 ${COL.subs}`}>
                   {isEnriched ? (
                     <div className="flex flex-nowrap gap-0.5 overflow-hidden whitespace-nowrap" title={subs.join(", ")}>
                       {subs.length > 0 ? subs.map((sub, i) => (
@@ -349,7 +349,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={14} />
                   )}
                 </td>
-                <td key={`enr-freq-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.freq}`}>
+                <td key={`enr-freq-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-1.5 py-2 ${COL.freq}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
                       {(tx as any).purchase_frequency || "—"}
