@@ -288,7 +288,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.pillar}`}>
+                <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-2 overflow-hidden ${COL.pillar}`}>
                   {isEnriched && c ? (
                     onPillarClick ? (
                       <button
