@@ -167,6 +167,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           <tr className="border-b border-slate-200">
             <th
               colSpan={6}
+              {...{}}
               className="bg-slate-100 text-slate-600 text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 border-r-2 border-slate-300"
             >
               Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
