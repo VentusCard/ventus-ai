@@ -70,7 +70,7 @@ const COL = {
   date: "w-[58px]",
   merchant: "w-[88px]",
   description: "w-[18px]",
-  mcc: "w-[36px]",
+  mcc: "w-[28px]",
   amount: "w-[48px]",
   source: "w-[64px]",
   pillar: "w-[130px]",
@@ -253,7 +253,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
                 <td className={`px-1 py-2 ${COL.mcc}`}>
                   {mcc ? (
-                    <span className="inline-block bg-slate-100 text-slate-600 text-[13px] font-mono px-1 py-0.5 rounded">
+                    <span className="inline-block bg-slate-100 text-slate-600 text-[12px] font-mono px-0.5 py-0.5 rounded">
                       {mcc}
                     </span>
                   ) : (
