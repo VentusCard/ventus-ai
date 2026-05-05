@@ -68,16 +68,16 @@ interface Props {
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
   date: "w-[44px]",
-  merchant: "w-[82px]",
-  description: "w-[96px]",
-  mcc: "w-[28px]",
-  amount: "w-[40px]",
-  source: "w-[60px]",
-  pillar: "w-[104px]",
-  category: "w-[88px]",
-  subs: "w-[92px]",
+  merchant: "w-[112px]",
+  description: "w-[52px]",
+  mcc: "w-[32px]",
+  amount: "w-[58px]",
+  source: "w-[94px]",
+  pillar: "w-[184px]",
+  category: "w-[112px]",
+  subs: "w-[132px]",
   tier: "w-[68px]",
-  freq: "w-[68px]",
+  freq: "w-[92px]",
 };
 
 // Compact "MM/DD" date formatter — keeps the column narrow.
@@ -161,7 +161,19 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           )}
         </div>
       )}
-      <table className="w-full text-left border-collapse table-fixed">
+      <table className="w-full min-w-[912px] text-left border-collapse table-fixed">
+        <colgroup>
+          <col className={COL.source} />
+          <col className={COL.date} />
+          <col className={COL.merchant} />
+          <col className={COL.mcc} />
+          <col className={COL.description} />
+          <col className={COL.amount} />
+          <col className={COL.pillar} />
+          <col className={COL.category} />
+          <col className={COL.subs} />
+          <col className={COL.freq} />
+        </colgroup>
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
@@ -200,17 +212,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           </tr>
           {/* Tier 2 — Column headers */}
           <tr className="bg-slate-50/80 border-b border-slate-200">
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.source}`}>Source</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.date}`}>Date</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.mcc}`}>MCC</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.description}`}>Description</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.source}`}>Source</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.date}`}>Date</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.merchant}`}>Merchant</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.description}`} title="Description">Desc.</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.pillar}`}>Pillar</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.category}`}>Category</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.subs}`}>Subcategories</th>
             
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
         <tbody>
@@ -288,7 +300,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </td>
 
                 {/* ===== ENRICHED SIDE ===== */}
-                <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2 py-2 overflow-hidden ${COL.pillar}`}>
+                <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-1.5 py-2 ${COL.pillar}`}>
                   {isEnriched && c ? (
                     onPillarClick ? (
                       <button
@@ -323,10 +335,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={18} rounded="rounded" />
                   )}
                 </td>
-                <td key={`enr-cat-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell text-[13px] text-slate-700 px-2.5 py-2 truncate max-w-[135px] ${COL.category}`} title={(tx as any)?.category}>
+                <td key={`enr-cat-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell text-[13px] text-slate-700 px-1.5 py-2 truncate ${COL.category}`} title={(tx as any)?.category}>
                   {isEnriched ? ((tx as any).category || "—") : <ShimmerCell width="90px" height={12} />}
                 </td>
-                <td key={`enr-subs-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.subs}`}>
+                <td key={`enr-subs-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-1.5 py-2 ${COL.subs}`}>
                   {isEnriched ? (
                     <div className="flex flex-nowrap gap-0.5 overflow-hidden whitespace-nowrap" title={subs.join(", ")}>
                       {subs.length > 0 ? subs.map((sub, i) => (
@@ -337,7 +349,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <ShimmerCell width="120px" height={14} />
                   )}
                 </td>
-                <td key={`enr-freq-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.freq}`}>
+                <td key={`enr-freq-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-1.5 py-2 ${COL.freq}`}>
                   {isEnriched ? (
                     <span className={`inline-block border text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getFrequencyColor((tx as any).purchase_frequency)}`}>
                       {(tx as any).purchase_frequency || "—"}
