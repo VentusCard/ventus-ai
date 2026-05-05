@@ -71,7 +71,7 @@ const COL = {
   merchant: "w-[88px]",
   description: "w-[18px]",
   mcc: "w-[28px]",
-  amount: "w-[48px]",
+  amount: "w-[40px]",
   source: "w-[64px]",
   pillar: "w-[130px]",
   category: "w-[110px]",
