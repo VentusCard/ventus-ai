@@ -73,11 +73,11 @@ const COL = {
   mcc: "w-[28px]",
   amount: "w-[40px]",
   source: "w-[64px]",
-  pillar: "w-[130px]",
-  category: "w-[110px]",
-  subs: "w-[120px]",
-  tier: "w-[80px]",
-  freq: "w-[88px]",
+  pillar: "w-[110px]",
+  category: "w-[92px]",
+  subs: "w-[100px]",
+  tier: "w-[68px]",
+  freq: "w-[76px]",
 };
 
 // Compact "MM/DD" date formatter — keeps the column narrow.
