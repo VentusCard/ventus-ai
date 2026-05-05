@@ -67,12 +67,12 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[64px]",
-  merchant: "w-[90px]",
-  description: "w-[24px]",
-  mcc: "w-[42px]",
-  amount: "w-[52px]",
-  source: "w-[70px]",
+  date: "w-[58px]",
+  merchant: "w-[88px]",
+  description: "w-[18px]",
+  mcc: "w-[36px]",
+  amount: "w-[48px]",
+  source: "w-[64px]",
   pillar: "w-[130px]",
   category: "w-[110px]",
   subs: "w-[120px]",
