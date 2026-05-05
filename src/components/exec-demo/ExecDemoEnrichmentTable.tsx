@@ -71,13 +71,13 @@ const COL = {
   merchant: "w-[112px]",
   description: "w-[52px]",
   mcc: "w-[32px]",
-  amount: "w-[48px]",
+  amount: "w-[58px]",
   source: "w-[94px]",
   pillar: "w-[184px]",
   category: "w-[112px]",
   subs: "w-[132px]",
   tier: "w-[68px]",
-  freq: "w-[78px]",
+  freq: "w-[92px]",
 };
 
 // Compact "MM/DD" date formatter — keeps the column narrow.
@@ -161,7 +161,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           )}
         </div>
       )}
-      <table className="w-full min-w-[888px] text-left border-collapse table-fixed">
+      <table className="w-full min-w-[912px] text-left border-collapse table-fixed">
         <colgroup>
           <col className={COL.source} />
           <col className={COL.date} />
