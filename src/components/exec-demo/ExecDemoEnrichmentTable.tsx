@@ -147,7 +147,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           )}
         </div>
       )}
-      <table className="w-full text-left border-collapse min-w-[1480px]">
+      <table className="w-full text-left border-collapse table-fixed">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
