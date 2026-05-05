@@ -67,17 +67,17 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[42px]",
-  merchant: "w-[78px]",
-  description: "w-[40px]",
-  mcc: "w-[28px]",
-  amount: "w-[40px]",
-  source: "w-[58px]",
-  pillar: "w-[156px]",
-  category: "w-[84px]",
-  subs: "w-[88px]",
+  date: "w-[44px]",
+  merchant: "w-[112px]",
+  description: "w-[52px]",
+  mcc: "w-[32px]",
+  amount: "w-[48px]",
+  source: "w-[94px]",
+  pillar: "w-[184px]",
+  category: "w-[112px]",
+  subs: "w-[132px]",
   tier: "w-[68px]",
-  freq: "w-[64px]",
+  freq: "w-[78px]",
 };
 
 // Compact "MM/DD" date formatter — keeps the column narrow.
@@ -162,6 +162,18 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         </div>
       )}
       <table className="w-full text-left border-collapse table-fixed">
+        <colgroup>
+          <col className={COL.source} />
+          <col className={COL.date} />
+          <col className={COL.merchant} />
+          <col className={COL.mcc} />
+          <col className={COL.description} />
+          <col className={COL.amount} />
+          <col className={COL.pillar} />
+          <col className={COL.category} />
+          <col className={COL.subs} />
+          <col className={COL.freq} />
+        </colgroup>
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
@@ -200,17 +212,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           </tr>
           {/* Tier 2 — Column headers */}
           <tr className="bg-slate-50/80 border-b border-slate-200">
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.source}`}>Source</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.date}`}>Date</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.merchant}`}>Merchant</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.mcc}`}>MCC</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.description}`}>Description</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.source}`}>Source</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.date}`}>Date</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.merchant}`}>Merchant</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.description}`} title="Description">Desc.</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.pillar}`}>Pillar</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.category}`}>Category</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.subs}`}>Subcategories</th>
             
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
         <tbody>
