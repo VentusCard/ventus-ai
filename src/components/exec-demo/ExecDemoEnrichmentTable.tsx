@@ -258,7 +258,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                   ) : <span className="text-[13px] text-slate-400">—</span>}
                 </td>
                 <td className={`text-[13px] text-slate-600 whitespace-nowrap px-1 py-2 ${COL.date} tabular-nums`}>
-                  {date || "—"}
+                  {formatDateCompact(date)}
                 </td>
                 <td className={`px-1 py-2 ${COL.merchant}`}>
                   <div className="text-[13px] font-medium text-slate-900 truncate" title={merchantRaw}>
@@ -274,11 +274,11 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`px-0.5 py-2 ${COL.description} text-center`}>
+                <td className={`px-1 py-2 ${COL.description}`}>
                   {description ? (
-                    <span className="text-[13px] font-mono text-slate-400" title={description}>
-                      …
-                    </span>
+                    <div className="text-[13px] text-slate-500 truncate" title={description}>
+                      {description}
+                    </div>
                   ) : (
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
