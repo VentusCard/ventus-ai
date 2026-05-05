@@ -67,17 +67,17 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[46px]",
-  merchant: "w-[88px]",
-  description: "w-[110px]",
+  date: "w-[44px]",
+  merchant: "w-[82px]",
+  description: "w-[96px]",
   mcc: "w-[28px]",
   amount: "w-[40px]",
-  source: "w-[64px]",
-  pillar: "w-[110px]",
-  category: "w-[92px]",
-  subs: "w-[100px]",
+  source: "w-[60px]",
+  pillar: "w-[104px]",
+  category: "w-[88px]",
+  subs: "w-[92px]",
   tier: "w-[68px]",
-  freq: "w-[76px]",
+  freq: "w-[68px]",
 };
 
 // Compact "MM/DD" date formatter — keeps the column narrow.
