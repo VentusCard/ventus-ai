@@ -67,17 +67,31 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[90px]",
-  merchant: "w-[170px]",
-  description: "w-[220px]",
-  mcc: "w-[65px]",
-  amount: "w-[75px]",
-  source: "w-[110px]",
-  pillar: "w-[150px]",
-  category: "w-[140px]",
-  subs: "w-[160px]",
-  tier: "w-[90px]",
-  freq: "w-[95px]",
+  date: "w-[46px]",
+  merchant: "w-[88px]",
+  description: "w-[110px]",
+  mcc: "w-[28px]",
+  amount: "w-[40px]",
+  source: "w-[64px]",
+  pillar: "w-[110px]",
+  category: "w-[92px]",
+  subs: "w-[100px]",
+  tier: "w-[68px]",
+  freq: "w-[76px]",
+};
+
+// Compact "MM/DD" date formatter — keeps the column narrow.
+const formatDateCompact = (raw?: string): string => {
+  if (!raw) return "—";
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${m}/${day}`;
+  }
+  const isoMatch = raw.match(/^\d{4}-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]}/${isoMatch[2]}`;
+  return raw;
 };
 
 const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (
@@ -147,7 +161,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           )}
         </div>
       )}
-      <table className="w-full text-left border-collapse min-w-[1480px]">
+      <table className="w-full text-left border-collapse table-fixed">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
@@ -158,7 +172,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
               Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
             </th>
             <th
-              colSpan={5}
+              colSpan={4}
               className="relative overflow-hidden text-white text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.7s_ease-out_both]"
               style={{
                 background: "linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)",
@@ -195,7 +209,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.tier}`}>Tier</th>
+            
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
@@ -236,40 +250,40 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 } as React.CSSProperties}
               >
                 {/* ===== RAW SIDE ===== */}
-                <td className={`px-2.5 py-2 ${COL.source}`}>
+                <td className={`px-1 py-2 ${COL.source}`}>
                   {source ? (
-                    <span className={`inline-block px-1.5 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
+                    <span className={`inline-block px-1 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
                       {source}
                     </span>
                   ) : <span className="text-[13px] text-slate-400">—</span>}
                 </td>
-                <td className={`text-[13px] text-slate-600 whitespace-nowrap px-2.5 py-2 ${COL.date} tabular-nums`}>
-                  {date || "—"}
+                <td className={`text-[13px] text-slate-600 whitespace-nowrap px-1 py-2 ${COL.date} tabular-nums`}>
+                  {formatDateCompact(date)}
                 </td>
-                <td className={`px-2.5 py-2 ${COL.merchant}`}>
-                  <div className="text-[13px] font-medium text-slate-900 truncate max-w-[160px]" title={merchantRaw}>
+                <td className={`px-1 py-2 ${COL.merchant}`}>
+                  <div className="text-[13px] font-medium text-slate-900 truncate" title={merchantRaw}>
                     {merchantRaw}
                   </div>
                 </td>
-                <td className={`px-2.5 py-2 ${COL.mcc}`}>
+                <td className={`px-1 py-2 ${COL.mcc}`}>
                   {mcc ? (
-                    <span className="inline-block bg-slate-100 text-slate-600 text-[13px] font-mono px-1.5 py-0.5 rounded">
+                    <span className="inline-block bg-slate-100 text-slate-600 text-[12px] font-mono px-0.5 py-0.5 rounded">
                       {mcc}
                     </span>
                   ) : (
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`px-2.5 py-2 ${COL.description}`}>
+                <td className={`px-1 py-2 ${COL.description}`}>
                   {description ? (
-                    <div className="text-[12.5px] font-mono text-slate-500 truncate max-w-[210px]" title={description}>
+                    <div className="text-[13px] text-slate-500 truncate" title={description}>
                       {description}
                     </div>
                   ) : (
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`font-mono text-[13px] text-slate-900 px-2.5 py-2 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
+                <td className={`font-mono text-[13px] text-slate-900 px-1 py-2 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
                   ${Math.round(Math.abs(Number(amount) || 0))}
                 </td>
 
@@ -321,15 +335,6 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     </div>
                   ) : (
                     <ShimmerCell width="120px" height={14} />
-                  )}
-                </td>
-                <td key={`enr-tier-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.tier}`}>
-                  {isEnriched ? (
-                    <span className={`inline-block border text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
-                      {(tx as any).spending_tier || "—"}
-                    </span>
-                  ) : (
-                    <ShimmerCell width="65px" height={16} />
                   )}
                 </td>
                 <td key={`enr-freq-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.freq}`}>
