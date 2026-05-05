@@ -67,17 +67,17 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[68px]",
-  merchant: "w-[100px]",
-  description: "w-[28px]",
-  mcc: "w-[46px]",
-  amount: "w-[58px]",
-  source: "w-[76px]",
-  pillar: "w-[170px]",
-  category: "w-[160px]",
-  subs: "w-[150px]",
-  tier: "w-[110px]",
-  freq: "w-[120px]",
+  date: "w-[64px]",
+  merchant: "w-[90px]",
+  description: "w-[24px]",
+  mcc: "w-[42px]",
+  amount: "w-[52px]",
+  source: "w-[70px]",
+  pillar: "w-[130px]",
+  category: "w-[110px]",
+  subs: "w-[120px]",
+  tier: "w-[80px]",
+  freq: "w-[88px]",
 };
 
 const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (
@@ -147,7 +147,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           )}
         </div>
       )}
-      <table className="w-full text-left border-collapse min-w-[1480px]">
+      <table className="w-full text-left border-collapse table-fixed">
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
