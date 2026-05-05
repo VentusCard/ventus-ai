@@ -172,7 +172,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
               Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
             </th>
             <th
-              colSpan={5}
+              colSpan={4}
               className="relative overflow-hidden text-white text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.7s_ease-out_both]"
               style={{
                 background: "linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)",
@@ -209,7 +209,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.pillar}`}>Pillar</th>
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.category}`}>Category</th>
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.subs}`}>Subcategories</th>
-            <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.tier}`}>Tier</th>
+            
             <th className={`text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
@@ -335,15 +335,6 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     </div>
                   ) : (
                     <ShimmerCell width="120px" height={14} />
-                  )}
-                </td>
-                <td key={`enr-tier-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.tier}`}>
-                  {isEnriched ? (
-                    <span className={`inline-block border text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${getTierColor((tx as any).spending_tier)}`}>
-                      {(tx as any).spending_tier || "—"}
-                    </span>
-                  ) : (
-                    <ShimmerCell width="65px" height={16} />
                   )}
                 </td>
                 <td key={`enr-freq-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-2.5 py-2 ${COL.freq}`}>
