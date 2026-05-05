@@ -236,31 +236,31 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 } as React.CSSProperties}
               >
                 {/* ===== RAW SIDE ===== */}
-                <td className={`px-2.5 py-2 ${COL.source}`}>
+                <td className={`px-1 py-2 ${COL.source}`}>
                   {source ? (
-                    <span className={`inline-block px-1.5 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
+                    <span className={`inline-block px-1 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap ${SOURCE_COLORS[source] ?? "bg-slate-50 text-slate-500"}`}>
                       {source}
                     </span>
                   ) : <span className="text-[13px] text-slate-400">—</span>}
                 </td>
-                <td className={`text-[13px] text-slate-600 whitespace-nowrap px-2.5 py-2 ${COL.date} tabular-nums`}>
+                <td className={`text-[13px] text-slate-600 whitespace-nowrap px-1 py-2 ${COL.date} tabular-nums`}>
                   {date || "—"}
                 </td>
-                <td className={`px-2.5 py-2 ${COL.merchant}`}>
-                  <div className="text-[13px] font-medium text-slate-900 truncate max-w-[160px]" title={merchantRaw}>
+                <td className={`px-1 py-2 ${COL.merchant}`}>
+                  <div className="text-[13px] font-medium text-slate-900 truncate" title={merchantRaw}>
                     {merchantRaw}
                   </div>
                 </td>
-                <td className={`px-2.5 py-2 ${COL.mcc}`}>
+                <td className={`px-1 py-2 ${COL.mcc}`}>
                   {mcc ? (
-                    <span className="inline-block bg-slate-100 text-slate-600 text-[13px] font-mono px-1.5 py-0.5 rounded">
+                    <span className="inline-block bg-slate-100 text-slate-600 text-[13px] font-mono px-1 py-0.5 rounded">
                       {mcc}
                     </span>
                   ) : (
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`px-1 py-2 ${COL.description} text-center`}>
+                <td className={`px-0.5 py-2 ${COL.description} text-center`}>
                   {description ? (
                     <span className="text-[13px] font-mono text-slate-400" title={description}>
                       …
@@ -269,7 +269,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`font-mono text-[13px] text-slate-900 px-2.5 py-2 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
+                <td className={`font-mono text-[13px] text-slate-900 px-1 py-2 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
                   ${Math.round(Math.abs(Number(amount) || 0))}
                 </td>
 
