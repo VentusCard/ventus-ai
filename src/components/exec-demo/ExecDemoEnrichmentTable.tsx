@@ -67,9 +67,9 @@ interface Props {
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
 const COL = {
-  date: "w-[58px]",
+  date: "w-[46px]",
   merchant: "w-[88px]",
-  description: "w-[18px]",
+  description: "w-[110px]",
   mcc: "w-[28px]",
   amount: "w-[40px]",
   source: "w-[64px]",
@@ -78,6 +78,20 @@ const COL = {
   subs: "w-[120px]",
   tier: "w-[80px]",
   freq: "w-[88px]",
+};
+
+// Compact "MM/DD" date formatter — keeps the column narrow.
+const formatDateCompact = (raw?: string): string => {
+  if (!raw) return "—";
+  const d = new Date(raw);
+  if (!isNaN(d.getTime())) {
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${m}/${day}`;
+  }
+  const isoMatch = raw.match(/^\d{4}-(\d{2})-(\d{2})/);
+  if (isoMatch) return `${isoMatch[1]}/${isoMatch[2]}`;
+  return raw;
 };
 
 const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { width?: string; height?: number; rounded?: string }) => (
@@ -244,7 +258,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                   ) : <span className="text-[13px] text-slate-400">—</span>}
                 </td>
                 <td className={`text-[13px] text-slate-600 whitespace-nowrap px-1 py-2 ${COL.date} tabular-nums`}>
-                  {date || "—"}
+                  {formatDateCompact(date)}
                 </td>
                 <td className={`px-1 py-2 ${COL.merchant}`}>
                   <div className="text-[13px] font-medium text-slate-900 truncate" title={merchantRaw}>
@@ -260,11 +274,11 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`px-0.5 py-2 ${COL.description} text-center`}>
+                <td className={`px-1 py-2 ${COL.description}`}>
                   {description ? (
-                    <span className="text-[13px] font-mono text-slate-400" title={description}>
-                      …
-                    </span>
+                    <div className="text-[13px] text-slate-500 truncate" title={description}>
+                      {description}
+                    </div>
                   ) : (
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
