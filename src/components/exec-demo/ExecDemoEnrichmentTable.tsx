@@ -69,11 +69,11 @@ interface Props {
 const COL = {
   date: "w-[44px]",
   merchant: "w-[82px]",
-  description: "w-[96px]",
+  description: "w-[64px]",
   mcc: "w-[28px]",
   amount: "w-[40px]",
   source: "w-[60px]",
-  pillar: "w-[104px]",
+  pillar: "w-[132px]",
   category: "w-[88px]",
   subs: "w-[92px]",
   tier: "w-[68px]",
