@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Layers, Heart, Plane, Search } from "lucide-react";
+import { Layers, Heart, Plane, Search, ShieldAlert } from "lucide-react";
 
 const cardAnimationOffsets = [
-  { x: -220, y: -90 },
-  { x: 220, y: -90 },
-  { x: -220, y: 110 },
-  { x: 220, y: 110 },
+  { x: -260, y: -90 },
+  { x: 0, y: -120 },
+  { x: 260, y: -90 },
+  { x: -160, y: 110 },
+  { x: 160, y: 110 },
 ];
 
 const BurstCard = ({ children, index }: { children: ReactNode; index: number }) => {
