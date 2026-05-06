@@ -76,7 +76,8 @@ const BurstCard = ({ children, index }: { children: ReactNode; index: number }) 
 
 const CapabilityCards = () => {
   return (
-    <div className="grid md:grid-cols-2 gap-6 auto-rows-fr overflow-hidden">
+    <div className="flex flex-col gap-6 overflow-hidden">
+      <div className="grid md:grid-cols-3 gap-6 auto-rows-fr">
       {/* 1 — Lifestyle Pillars */}
       <BurstCard index={0}>
         <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
