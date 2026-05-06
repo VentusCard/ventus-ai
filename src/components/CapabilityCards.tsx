@@ -194,8 +194,9 @@ const CapabilityCards = () => {
       {/* Bottom row: Travel + Risk, centered & narrower */}
       <div className="grid md:grid-cols-12 gap-6 auto-rows-fr">
       {/* 4 — Travel Detection */}
+      <div className="md:col-span-5 md:col-start-2">
       <BurstCard index={3}>
-        <div className="md:col-span-4 md:col-start-2 rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Plane className="w-5 h-5 text-purple-600" />
             <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Travel Detection</h3>
@@ -223,8 +224,10 @@ const CapabilityCards = () => {
           <p className="text-xs mt-4" style={{ color: "#6B7280" }}>Trips inferred from transaction location and timing patterns.</p>
         </div>
       </BurstCard>
+      </div>
 
       {/* 5 — Risk & Financial Vulnerability */}
+      <div className="md:col-span-5">
       <BurstCard index={4}>
         <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
@@ -247,6 +250,7 @@ const CapabilityCards = () => {
           <p className="text-xs mt-4" style={{ color: "#6B7280" }}>High severity signals flagged automatically from transaction patterns.</p>
         </div>
       </BurstCard>
+      </div>
       </div>
     </div>
   );
