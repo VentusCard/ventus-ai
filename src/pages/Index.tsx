@@ -34,7 +34,7 @@ const Index = () => {
             <ScrollReveal>
               <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
-                Four signal layers. Built from your transaction history.
+                Five signal layers. Built from your transaction history.
               </h2>
             </ScrollReveal>
             <CapabilityCards />
