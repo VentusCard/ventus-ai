@@ -138,39 +138,8 @@ const CapabilityCards = () => {
         </div>
       </BurstCard>
 
-      {/* 3 — Travel Detection */}
+      {/* 3 — Purchase Cycle Intel */}
       <BurstCard index={2}>
-        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
-          <div className="flex items-center gap-2 mb-4">
-            <Plane className="w-5 h-5 text-purple-600" />
-            <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Travel Detection</h3>
-          </div>
-          <div className="space-y-3">
-            {[
-              { label: "Trip Identified", status: "green", value: "Miami, FL" },
-              { label: "Travel Window", status: "yellow", value: "Mar 12–18" },
-              { label: "Spend Category", status: "green", value: "Leisure" },
-            ].map((sig) => (
-              <div key={sig.label} className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span
-                    className="w-2.5 h-2.5 rounded-full"
-                    style={{
-                      background: sig.status === "green" ? "#22c55e" : sig.status === "yellow" ? "#f59e0b" : "#ef4444",
-                    }}
-                  />
-                  <span className="text-xs font-medium" style={{ color: "#111827" }}>{sig.label}</span>
-                </div>
-                <span className="text-xs font-semibold" style={{ color: "#111827" }}>{sig.value}</span>
-              </div>
-            ))}
-          </div>
-          <p className="text-xs mt-4" style={{ color: "#6B7280" }}>Trips inferred from transaction location and timing patterns.</p>
-        </div>
-      </BurstCard>
-
-      {/* 4 — Purchase Cycle Intel */}
-      <BurstCard index={3}>
         <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Search className="w-5 h-5 text-orange-500" />
@@ -220,6 +189,65 @@ const CapabilityCards = () => {
           <p className="text-xs mt-3" style={{ color: "#6B7280" }}>Predict what customers need next from seasonal spending rhythms.</p>
         </div>
       </BurstCard>
+      </div>
+
+      {/* Bottom row: Travel + Risk, centered & narrower */}
+      <div className="grid md:grid-cols-12 gap-6 auto-rows-fr">
+      {/* 4 — Travel Detection */}
+      <BurstCard index={3}>
+        <div className="md:col-span-4 md:col-start-2 rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <Plane className="w-5 h-5 text-purple-600" />
+            <h3 className="text-sm font-bold text-purple-600 uppercase tracking-wide">Travel Detection</h3>
+          </div>
+          <div className="space-y-3">
+            {[
+              { label: "Trip Identified", status: "green", value: "Miami, FL" },
+              { label: "Travel Window", status: "yellow", value: "Mar 12–18" },
+              { label: "Spend Category", status: "green", value: "Leisure" },
+            ].map((sig) => (
+              <div key={sig.label} className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{
+                      background: sig.status === "green" ? "#22c55e" : sig.status === "yellow" ? "#f59e0b" : "#ef4444",
+                    }}
+                  />
+                  <span className="text-xs font-medium" style={{ color: "#111827" }}>{sig.label}</span>
+                </div>
+                <span className="text-xs font-semibold" style={{ color: "#111827" }}>{sig.value}</span>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs mt-4" style={{ color: "#6B7280" }}>Trips inferred from transaction location and timing patterns.</p>
+        </div>
+      </BurstCard>
+
+      {/* 5 — Risk & Financial Vulnerability */}
+      <BurstCard index={4}>
+        <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
+          <div className="flex items-center gap-2 mb-4">
+            <ShieldAlert className="w-5 h-5 text-red-600" />
+            <h3 className="text-sm font-bold text-red-600 uppercase tracking-wide">Risk & Financial Vulnerability</h3>
+          </div>
+          <ul className="space-y-2">
+            {[
+              "Gambling & vice merchant detection",
+              "AML and structuring signals",
+              "Financial distress indicators",
+              "Behavioral risk cues",
+            ].map((bullet) => (
+              <li key={bullet} className="flex items-start gap-2">
+                <span className="mt-1.5 w-1.5 h-1.5 rounded-full shrink-0" style={{ background: "#dc2626" }} />
+                <span className="text-xs font-medium" style={{ color: "#111827" }}>{bullet}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs mt-4" style={{ color: "#6B7280" }}>High severity signals flagged automatically from transaction patterns.</p>
+        </div>
+      </BurstCard>
+      </div>
     </div>
   );
 };
