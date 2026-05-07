@@ -215,14 +215,14 @@ const SolutionSections = () => {
                     <PortfolioVisual />
                   </div>
                 </div>
+                <div className="mt-5 flex justify-start">
+                  <Link to="/solutions/portfolio-intelligence">
+                    <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
+                      Learn more
+                    </Button>
+                  </Link>
+                </div>
               </div>
-            </div>
-            <div className="mt-8">
-              <Link to="/solutions/portfolio-intelligence">
-                <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
-                  Learn more
-                </Button>
-              </Link>
             </div>
           </ScrollReveal>
         </div>
