@@ -280,7 +280,7 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Beyond fragmented rails and vague MCCs — Ventus builds dynamic personas, detects life events, and surfaces behavioral signals that tell you who your customer is, not just what they bought.
+              Beyond fragmented rails and vague MCCs — Ventus builds dynamic personas, detects life events, and surfaces behavioral signals that tell you who your customer is.
             </p>
 
             <Button
