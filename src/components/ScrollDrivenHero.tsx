@@ -619,6 +619,70 @@ const ScrollDrivenHero = () => {
           </div>
         </div>
 
+        {/* Four-stage progress bar — synced with scroll stages */}
+        {(() => {
+          const stages = ["Raw Stream", "Categorize", "Detect", "Orchestrate"];
+          // Map scrollProgress to active stage index
+          // Raw Stream: <0.1 | Categorize: 0.1-0.2 | Detect: 0.2-0.45 | Orchestrate: >=0.45
+          const activeIdx =
+            scrollProgress < 0.1 ? 0 : scrollProgress < 0.2 ? 1 : scrollProgress < 0.45 ? 2 : 3;
+          return (
+            <div
+              className="mt-4 md:mt-5 transition-all duration-700 ease-out"
+              style={{
+                width: 520,
+                maxWidth: "calc(100vw - 48px)",
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(12px)",
+                transitionDelay: "350ms",
+              }}
+            >
+              <div className="relative flex items-center justify-between">
+                {/* Connecting baseline */}
+                <div
+                  className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px"
+                  style={{ background: "rgba(17,24,39,0.08)" }}
+                />
+                {/* Animated progress line */}
+                <div
+                  className="absolute left-0 top-1/2 -translate-y-1/2 h-px transition-[width] duration-500 ease-out"
+                  style={{
+                    width: `${Math.min(100, scrollProgress * 100)}%`,
+                    background: "rgba(37,99,235,0.4)",
+                  }}
+                />
+                {stages.map((label, i) => {
+                  const isActive = i === activeIdx;
+                  return (
+                    <div
+                      key={label}
+                      className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white"
+                      style={{
+                        borderBottom: isActive ? "2px solid #2563EB" : "2px solid transparent",
+                        transition: "all 300ms ease-out",
+                      }}
+                    >
+                      <span
+                        className="w-1.5 h-1.5 rounded-full transition-colors duration-300"
+                        style={{ background: isActive ? "#2563EB" : "#9CA3AF" }}
+                      />
+                      <span
+                        className="text-[11px] md:text-xs transition-colors duration-300"
+                        style={{
+                          color: isActive ? "#111827" : "#6B7280",
+                          fontWeight: isActive ? 700 : 500,
+                        }}
+                      >
+                        {label}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          );
+        })()}
+
         <div
           className="mt-5 md:mt-6 flex flex-col items-center pb-6 transition-all duration-700 ease-out"
           style={{
