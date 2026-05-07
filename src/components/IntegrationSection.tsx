@@ -197,12 +197,8 @@ const IntegrationSection = () => {
                       </span>
                       <div className="flex items-center gap-2">
                         <span className="text-[15px] font-bold text-gray-900 tracking-tight">
-                          Ventus Engine
+                          Ventus
                         </span>
-                        <span
-                          className="w-1.5 h-1.5 rounded-full animate-pulse"
-                          style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
-                        />
                       </div>
                     </div>
                   </div>
