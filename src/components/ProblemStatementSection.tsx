@@ -9,12 +9,12 @@ const columns = [
   {
     label: "02 · GROWTH",
     title: "Grow assets under management.",
-    body: "Life event detection connects advisors to customers at exactly the right financial moment.",
+    body: "Personalized offers and products that match real customer behavior convert at higher rates.",
   },
   {
     label: "03 · REVENUE",
     title: "Win more relationships.",
-    body: "Personalized offers and products that match real customer behavior convert at higher rates.",
+    body: "Life event detection connects advisors to customers at exactly the right financial moment.",
   },
 ];
 
