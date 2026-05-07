@@ -309,9 +309,9 @@ const ScrollDrivenHero = () => {
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
-                  minHeight: stage === 4 ? 168 : 0,
-                  marginBottom: stage === 4 ? 4 : 0,
-                  overflow: stage === 4 ? "visible" : "hidden",
+                  minHeight: 168,
+                  marginBottom: 4,
+                  overflow: "visible",
                 }}
               >
                 {/* Header */}
