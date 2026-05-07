@@ -180,12 +180,17 @@ const IntegrationSection = () => {
 
                 {/* VENTUS ENGINE */}
                 <div className="hidden md:flex items-center justify-center md:w-[260px]">
+                  <style>{`
+                    @keyframes glowPulse {
+                      0%, 100% { box-shadow: 0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18); }
+                      50% { box-shadow: 0 0 0 8px rgba(59,130,246,0.10), 0 24px 60px -10px rgba(59,130,246,0.35), 0 0 80px rgba(59,130,246,0.28); }
+                    }
+                  `}</style>
                   <div
                     className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
                     style={{
                       border: "1px solid #DBEAFE",
-                      boxShadow:
-                        "0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18)",
+                      animation: "glowPulse 3s ease-in-out infinite",
                     }}
                   >
                     <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
