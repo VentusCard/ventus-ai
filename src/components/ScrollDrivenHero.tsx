@@ -165,6 +165,7 @@ const personas = [
       { label: "OFFER", text: "Family rewards card matched" },
       { label: "OFFER", text: "Baby monitors & strollers deal surfaced" },
     ],
+    orchestrationAction: "Activate family planning flow",
   },
   {
     id: "college" as const,
@@ -177,6 +178,7 @@ const personas = [
       { label: "PRODUCT", text: "College savings consultation triggered" },
       { label: "OFFER", text: "Student loan pre-approval queued" },
     ],
+    orchestrationAction: "Trigger college savings outreach",
   },
 ];
 
