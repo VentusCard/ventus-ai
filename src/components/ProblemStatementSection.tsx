@@ -29,7 +29,7 @@ const ProblemStatementSection = () => {
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
             The Gap
           </p>
-          <h2 className="max-w-4xl text-3xl font-bold text-gray-900 md:text-4xl leading-[1.1]">
+          <h2 className="font-bold tracking-tight text-gray-900 leading-[1.05] text-left text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
             Your bank knows what a customer spent. <span className="text-gray-400">Not why.</span>
           </h2>
           <p className="italic mt-6" style={{ color: "#2563EB", fontSize: 17 }}>
