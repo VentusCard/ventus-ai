@@ -349,12 +349,14 @@ const ScrollDrivenHero = () => {
             <div className="relative flex flex-col items-stretch" style={{ width: 480, maxWidth: "calc(100vw - 48px)" }}>
               {/* Ventus Orchestrate panel — sits ABOVE the dark card */}
               <div
-                className="relative mb-5 transition-all duration-500 ease-out"
+                className="relative transition-all duration-500 ease-out"
                 style={{
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
-                  minHeight: 168,
+                  minHeight: stage === 4 ? 168 : 0,
+                  marginBottom: stage === 4 ? 20 : 0,
+                  overflow: stage === 4 ? "visible" : "hidden",
                 }}
               >
                 {/* Header */}
