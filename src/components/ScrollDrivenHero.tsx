@@ -161,8 +161,8 @@ const personas = [
     count: personaCounts.parent,
     outputs: [
       { label: "PRODUCT", text: "529 Plan recommendation triggered" },
-      { label: "ALERT", text: "Life insurance review queued" },
       { label: "OFFER", text: "Family rewards card matched" },
+      { label: "OFFER", text: "Baby monitors & strollers deal surfaced" },
     ],
   },
   {
