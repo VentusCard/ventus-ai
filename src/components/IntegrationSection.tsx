@@ -5,6 +5,7 @@ import jackHenryLogo from "@/assets/jack-henry-logo.png";
 import databricksLogo from "@/assets/databricks-logo.png";
 import snowflakeLogo from "@/assets/snowflake-logo.png";
 import salesforceLogo from "@/assets/salesforce-logo.png";
+import dynamicsLogo from "@/assets/dynamics-logo.png";
 
 type Tile = {
   name: string;
@@ -23,75 +24,88 @@ const sources: Tile[] = [
 
 const destinations: Tile[] = [
   { name: "Salesforce Financial Cloud", src: salesforceLogo },
-  { name: "Microsoft Dynamics", monogram: "M", monoColor: "#2563EB" },
+  { name: "Microsoft Dynamics", src: dynamicsLogo },
   { name: "Rewards Engine", monogram: "R", monoColor: "#16A34A" },
   { name: "Advisor Console", monogram: "A", monoColor: "#7C3AED" },
 ];
 
 const Tile = ({ tile }: { tile: Tile }) => (
   <div
-    className="flex items-center gap-3 rounded-xl px-3.5 py-3 bg-white"
-    style={{ border: "1px solid #E5E7EB", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
+    className="flex items-center justify-center rounded-xl bg-white relative z-10"
+    style={{
+      border: "1px solid #E5E7EB",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+      height: 64,
+    }}
   >
-    <div
-      className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden"
-      style={{ background: "#F8FAFC", border: "1px solid #EEF2F7" }}
-    >
-      {tile.src ? (
-        <img src={tile.src} alt={tile.name} className="max-h-6 max-w-7 w-auto object-contain" />
-      ) : (
-        <span className="text-[14px] font-black" style={{ color: tile.monoColor }}>
-          {tile.monogram}
-        </span>
-      )}
-    </div>
-    <div className="flex-1 min-w-0">
-      <div className="text-[13px] font-semibold text-gray-900 truncate leading-tight">
-        {tile.name}
-      </div>
-    </div>
-    <span
-      className="shrink-0 w-1.5 h-1.5 rounded-full"
-      style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
-    />
+    {tile.src ? (
+      <img
+        src={tile.src}
+        alt={tile.name}
+        title={tile.name}
+        className="max-h-9 max-w-[60%] w-auto object-contain"
+      />
+    ) : (
+      <span
+        className="text-[26px] font-black"
+        style={{ color: tile.monoColor }}
+        title={tile.name}
+      >
+        {tile.monogram}
+      </span>
+    )}
   </div>
 );
 
-const FlowLines = ({ side }: { side: "left" | "right" }) => (
-  <svg
-    className="absolute top-0 h-full pointer-events-none hidden md:block"
-    style={{
-      [side]: "100%",
-      width: "60px",
-      zIndex: 1,
-    } as React.CSSProperties}
-    preserveAspectRatio="none"
-    viewBox="0 0 60 400"
-  >
-    {[0.2, 0.4, 0.6, 0.8].map((y, i) => (
-      <g key={i}>
-        <line
-          x1={side === "left" ? "0" : "60"}
-          y1={y * 400}
-          x2={side === "left" ? "60" : "0"}
-          y2={200}
-          stroke="#3B82F6"
-          strokeWidth="1"
-          strokeDasharray="3 4"
-          opacity="0.35"
-        >
-          <animate
-            attributeName="stroke-dashoffset"
-            from="0"
-            to={side === "left" ? "-14" : "14"}
-            dur="2s"
-            repeatCount="indefinite"
-          />
-        </line>
-      </g>
-    ))}
-  </svg>
-);
+/* Flow lines that originate from each tile row on one side
+   and converge into the center of the Ventus engine card. */
+const FlowLines = ({ side, count = 5 }: { side: "left" | "right"; count?: number }) => {
+  // svg viewBox uses normalized 100x100; preserveAspectRatio="none" stretches it
+  // to the absolute container that spans the full gap + half engine.
+  const targetX = side === "left" ? 100 : 0; // engine center anchor
+  const startX = side === "left" ? 0 : 100;
+  return (
+    <svg
+      className="absolute pointer-events-none hidden md:block"
+      style={{
+        top: 0,
+        bottom: 0,
+        [side === "left" ? "right" : "left"]: "50%",
+        [side === "left" ? "left" : "right"]: -48,
+        zIndex: 1,
+      } as React.CSSProperties}
+      preserveAspectRatio="none"
+      viewBox="0 0 100 100"
+    >
+      {Array.from({ length: count }).map((_, i) => {
+        const y = ((i + 0.5) / count) * 100;
+        const cx = (startX + targetX) / 2;
+        // smooth cubic curve from tile row into engine center (y=50)
+        const d = `M ${startX} ${y} C ${cx} ${y}, ${cx} 50, ${targetX} 50`;
+        return (
+          <path
+            key={i}
+            d={d}
+            fill="none"
+            stroke="#3B82F6"
+            strokeWidth="0.4"
+            strokeDasharray="1.2 1.4"
+            opacity="0.55"
+            vectorEffect="non-scaling-stroke"
+          >
+            <animate
+              attributeName="stroke-dashoffset"
+              from="0"
+              to={side === "left" ? "-6" : "6"}
+              dur="2s"
+              repeatCount="indefinite"
+            />
+          </path>
+        );
+      })}
+    </svg>
+  );
+};
 
 const IntegrationSection = () => {
   return (
@@ -133,18 +147,19 @@ const IntegrationSection = () => {
                     Sources
                   </span>
                 </div>
-                <div className="flex flex-col gap-2 relative">
+                <div className="flex flex-col gap-2">
                   {sources.map((t) => (
                     <Tile key={t.name} tile={t} />
                   ))}
-                  <FlowLines side="right" />
                 </div>
               </div>
 
               {/* VENTUS ENGINE */}
-              <div className="flex items-center justify-center md:w-[260px]">
+              <div className="flex items-center justify-center md:w-[260px] relative">
+                <FlowLines side="left" count={sources.length} />
+                <FlowLines side="right" count={destinations.length} />
                 <div
-                  className="rounded-2xl w-full overflow-hidden bg-white"
+                  className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
                   style={{
                     border: "1px solid #DBEAFE",
                     boxShadow:
@@ -178,11 +193,10 @@ const IntegrationSection = () => {
                     Destinations
                   </span>
                 </div>
-                <div className="flex flex-col gap-2 relative">
+                <div className="flex flex-col gap-2">
                   {destinations.map((t) => (
                     <Tile key={t.name} tile={t} />
                   ))}
-                  <FlowLines side="left" />
                 </div>
               </div>
             </div>
