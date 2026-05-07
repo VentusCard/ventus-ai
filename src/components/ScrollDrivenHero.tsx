@@ -258,7 +258,7 @@ const ScrollDrivenHero = () => {
 
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
-      <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible" style={{ paddingTop: 72, paddingBottom: 40 }}>
+      <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible" style={{ paddingTop: 96, paddingBottom: 40 }}>
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-8">
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[62%] flex flex-col items-center xl:items-start">
@@ -422,7 +422,7 @@ const ScrollDrivenHero = () => {
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  width: 400,
+                  width: 480,
                   minHeight: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
@@ -584,14 +584,14 @@ const ScrollDrivenHero = () => {
                   transitionDelay: "400ms",
                 }}
               >
-                <div className="grid grid-cols-4 gap-8">
+                <div className="grid grid-cols-4 gap-3">
                   {STAGE_LABELS.map((label, i) => {
                     const [start, end] = STAGE_RANGES[i];
                     const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
                     const isActive = i === activeStageIdx;
                     const isComplete = scrollProgress >= end;
                     return (
-                      <div key={label} className="flex flex-col items-center">
+                      <div key={label} className="flex flex-col items-start">
                         <div
                           className="relative w-full rounded-full overflow-hidden"
                           style={{ height: 4, background: "#E5E7EB" }}
