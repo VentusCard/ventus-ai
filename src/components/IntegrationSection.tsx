@@ -37,56 +37,60 @@ const IntegrationSection = () => {
       style={{ paddingTop: 80, paddingBottom: 80 }}
     >
       <div className="mx-auto max-w-7xl px-6 md:px-8 text-center">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
-          Integration
-        </p>
-        <h2
-          className="font-bold text-gray-900 leading-tight max-w-3xl mx-auto"
-          style={{ fontSize: 36 }}
-        >
-          Plugs into your existing stack without replacing it.
-        </h2>
+        <ScrollReveal>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+            Integration
+          </p>
+          <h2
+            className="font-bold text-gray-900 leading-tight max-w-3xl mx-auto"
+            style={{ fontSize: 36 }}
+          >
+            Plugs into your existing stack without replacing it.
+          </h2>
+        </ScrollReveal>
 
-        <div className="mt-12 flex flex-col items-center" style={{ gap: 40 }}>
-          {/* Row 1 — Data Sources */}
-          <div className="flex flex-col items-center gap-4">
-            <p
-              className="font-semibold uppercase tracking-widest text-gray-500"
-              style={{ fontSize: 12 }}
-            >
-              Data Sources
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-              {sources.map(({ name, src, height }) => (
+        <ScrollReveal delay={120}>
+          <div className="mt-12 flex flex-col items-center" style={{ gap: 40 }}>
+            {/* Row 1 — Data Sources */}
+            <div className="flex flex-col items-center gap-4">
+              <p
+                className="font-semibold uppercase tracking-widest text-gray-500"
+                style={{ fontSize: 12 }}
+              >
+                Data Sources
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
+                {sources.map(({ name, src, height }) => (
+                  <img
+                    key={name}
+                    src={src}
+                    alt={name}
+                    className={`${height} w-auto grayscale opacity-60`}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Row 2 — Destinations */}
+            <div className="flex flex-col items-center gap-4">
+              <p
+                className="font-semibold uppercase tracking-widest text-gray-500"
+                style={{ fontSize: 12 }}
+              >
+                Destinations
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
                 <img
-                  key={name}
-                  src={src}
-                  alt={name}
-                  className={`${height} w-auto grayscale opacity-60`}
+                  src={salesforceLogo}
+                  alt="Salesforce"
+                  className="h-9 w-auto grayscale opacity-60"
                 />
-              ))}
+                <Pill>Rewards Engine · API</Pill>
+                <Pill>Advisor Tools · Webhook</Pill>
+              </div>
             </div>
           </div>
-
-          {/* Row 2 — Destinations */}
-          <div className="flex flex-col items-center gap-4">
-            <p
-              className="font-semibold uppercase tracking-widest text-gray-500"
-              style={{ fontSize: 12 }}
-            >
-              Destinations
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
-              <img
-                src={salesforceLogo}
-                alt="Salesforce"
-                className="h-9 w-auto grayscale opacity-60"
-              />
-              <Pill>Rewards Engine · API</Pill>
-              <Pill>Advisor Tools · Webhook</Pill>
-            </div>
-          </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );
