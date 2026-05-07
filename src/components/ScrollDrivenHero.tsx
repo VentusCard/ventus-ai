@@ -490,7 +490,7 @@ const ScrollDrivenHero = () => {
                 </div>
 
                 {/* Transaction list */}
-                <div className="relative px-4 py-2 overflow-hidden" style={{ height: 295 }}>
+                <div className="relative px-4 py-2 overflow-hidden hero-tx-list">
                   {stage === 1 ? (
                     <div className="space-y-0 transition-transform" style={{ transform: `translateY(-${scrollOffset}px)` }}>
                       {rawTransactions.map((tx, i) => (
