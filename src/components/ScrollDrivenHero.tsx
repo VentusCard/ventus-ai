@@ -296,52 +296,6 @@ const ScrollDrivenHero = () => {
               <ArrowRight className="w-4 h-4" />
             </Button>
 
-            {/* Smoothly-filling four-stage progress bars */}
-            <div
-              className="mt-12 w-full max-w-[640px] transition-all duration-700 ease-out"
-              style={{
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? "translateY(0)" : "translateY(12px)",
-                transitionDelay: "400ms",
-              }}
-            >
-              <div className="grid grid-cols-4 gap-6 md:gap-8">
-                {STAGE_LABELS.map((label, i) => {
-                  const [start, end] = STAGE_RANGES[i];
-                  const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
-                  const isActive = i === activeStageIdx;
-                  const isComplete = scrollProgress >= end;
-                  return (
-                    <div key={label} className="flex flex-col items-start">
-                      <div
-                        className="relative w-full rounded-full overflow-hidden"
-                        style={{ height: 4, background: "#E5E7EB" }}
-                      >
-                        <div
-                          className="absolute inset-y-0 left-0 rounded-full"
-                          style={{
-                            width: `${(isComplete ? 1 : fill) * 100}%`,
-                            background: "#2563EB",
-                            transition: "width 120ms linear",
-                          }}
-                        />
-                      </div>
-                      <span
-                        className="mt-3 uppercase tracking-[0.12em] whitespace-nowrap"
-                        style={{
-                          fontSize: isActive ? 15 : 13,
-                          color: isActive || isComplete ? "#111827" : "#9CA3AF",
-                          fontWeight: isActive ? 800 : 500,
-                          transition: "color 300ms ease, font-weight 300ms ease, font-size 300ms ease",
-                        }}
-                      >
-                        {label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
           </div>
 
           {/* RIGHT COLUMN */}
