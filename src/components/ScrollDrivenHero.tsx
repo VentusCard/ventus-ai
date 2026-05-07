@@ -280,7 +280,7 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Understand customers through dynamic personas, behavioral signals, and real-time life events.
+              Beyond fragmented rails and vague MCCs — behavioral intelligence that tells you who your customer is, not just what they bought.
             </p>
 
             <Button
