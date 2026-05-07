@@ -35,27 +35,27 @@ const IntegrationSection = () => {
       className="bg-white scroll-mt-20"
       style={{ paddingTop: 80, paddingBottom: 80 }}
     >
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
+      <div className="mx-auto max-w-7xl px-6 md:px-8 text-center">
         <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
           Integration
         </p>
         <h2
-          className="font-bold text-gray-900 leading-tight max-w-3xl"
+          className="font-bold text-gray-900 leading-tight max-w-3xl mx-auto"
           style={{ fontSize: 36 }}
         >
           Plugs into your existing stack without replacing it.
         </h2>
 
-        <div className="mt-12 flex flex-col" style={{ gap: 32 }}>
+        <div className="mt-12 flex flex-col items-center" style={{ gap: 24 }}>
           {/* Row 1 — Data Sources */}
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <div className="flex flex-col items-center gap-4">
             <p
-              className="font-semibold uppercase tracking-widest text-gray-500 md:w-40 shrink-0"
+              className="font-semibold uppercase tracking-widest text-gray-500"
               style={{ fontSize: 12 }}
             >
               Data Sources
             </p>
-            <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
+            <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
               {sources.map(({ name, src, height }) => (
                 <img
                   key={name}
@@ -68,14 +68,14 @@ const IntegrationSection = () => {
           </div>
 
           {/* Row 2 — Destinations */}
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
+          <div className="flex flex-col items-center gap-4">
             <p
-              className="font-semibold uppercase tracking-widest text-gray-500 md:w-40 shrink-0"
+              className="font-semibold uppercase tracking-widest text-gray-500"
               style={{ fontSize: 12 }}
             >
               Destinations
             </p>
-            <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
+            <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
               <img
                 src={salesforceLogo}
                 alt="Salesforce"
