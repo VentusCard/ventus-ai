@@ -149,9 +149,9 @@ const IntegrationSection = () => {
                     } ${y}, ${DST_X} ${y}`}
                     fill="none"
                     stroke="#3B82F6"
-                    strokeWidth="0.4"
-                    strokeDasharray="1.2 1.4"
-                    opacity="0.55"
+                    strokeWidth="0.7"
+                    strokeDasharray="1.4 1.4"
+                    opacity="0.9"
                     vectorEffect="non-scaling-stroke"
                   >
                     <animate
