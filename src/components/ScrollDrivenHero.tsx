@@ -273,7 +273,7 @@ const ScrollDrivenHero = () => {
             </h1>
 
             <p
-              className="mt-5 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left leading-relaxed transition-all duration-700 ease-out xl:text-[19px]"
+              className="mt-5 text-sm md:text-base text-gray-500 max-w-xl text-center xl:text-left leading-relaxed transition-all duration-700 ease-out xl:text-[16px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(20px)",
