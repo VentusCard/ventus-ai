@@ -23,16 +23,16 @@ const columns = [
 
 const ProblemStatementSection = () => {
   return (
-    <section className="bg-white w-full scroll-mt-20" style={{ paddingTop: 80, paddingBottom: 80 }}>
-      <div className="mx-auto mb-10 max-w-7xl px-6 md:px-8">
+    <section className="bg-white w-full scroll-mt-20 py-14 md:py-20">
+      <div className="mx-auto mb-8 md:mb-10 max-w-7xl px-6 md:px-8">
         <ScrollReveal>
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
             The Gap
           </p>
-          <h2 className="font-bold tracking-tight text-gray-900 leading-[1.05] text-left text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
+          <h2 className="font-bold tracking-tight text-gray-900 leading-[1.1] text-left text-[34px] sm:text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
             Your bank knows what a customer spent. <span className="text-gray-400">Not why.</span>
           </h2>
-          <p className="italic mt-6" style={{ color: "#2563EB", fontSize: 17 }}>
+          <p className="italic mt-5 md:mt-6 text-[15px] md:text-[17px]" style={{ color: "#2563EB" }}>
             Ventus is the behavioral intelligence layer that bridges the gap.
           </p>
         </ScrollReveal>
