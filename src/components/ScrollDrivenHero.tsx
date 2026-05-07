@@ -327,11 +327,12 @@ const ScrollDrivenHero = () => {
                         />
                       </div>
                       <span
-                        className="mt-3 text-[12px] md:text-[13px] uppercase tracking-[0.12em] whitespace-nowrap"
+                        className="mt-3 uppercase tracking-[0.12em] whitespace-nowrap"
                         style={{
+                          fontSize: isActive ? 15 : 13,
                           color: isActive || isComplete ? "#111827" : "#9CA3AF",
-                          fontWeight: isActive ? 700 : 500,
-                          transition: "color 300ms ease, font-weight 300ms ease",
+                          fontWeight: isActive ? 800 : 500,
+                          transition: "color 300ms ease, font-weight 300ms ease, font-size 300ms ease",
                         }}
                       >
                         {label}
