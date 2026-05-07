@@ -25,7 +25,7 @@ const destinations: Tile[] = [
   { name: "Salesforce Financial Cloud", src: salesforceLogo },
   { name: "Microsoft Dynamics", src: dynamicsLogo },
   { name: "Rewards Engine", label: "Rewards Engine" },
-  { name: "Advisor Console", label: "Advisor Console" },
+  { name: "Digital Banking App", label: "Digital Banking App" },
 ];
 
 const TileBox = ({ tile }: { tile: Tile }) => (
