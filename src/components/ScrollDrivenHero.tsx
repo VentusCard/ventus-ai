@@ -256,8 +256,22 @@ const ScrollDrivenHero = () => {
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-12">
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[45%] flex flex-col items-center xl:items-start">
+            <p
+              className="text-center xl:text-left transition-all duration-700 ease-out"
+              style={{
+                fontSize: 13,
+                letterSpacing: "0.05em",
+                color: "#6B7280",
+                fontWeight: 500,
+                marginBottom: 16,
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(20px)",
+              }}
+            >
+              3,000+ behavioral labels · 20+ life events · 5-stage enrichment pipeline
+            </p>
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-4xl md:text-5xl xl:text-[72px]"
+              className="font-bold tracking-tight text-gray-900 leading-[1.08] text-center xl:text-left transition-all duration-700 ease-out text-4xl md:text-5xl xl:text-[56px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
