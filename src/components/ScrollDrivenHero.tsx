@@ -320,7 +320,7 @@ const ScrollDrivenHero = () => {
                     <div key={label} className="flex items-center gap-3 md:gap-4">
                       <div className="relative inline-flex flex-col items-center">
                         <span
-                          className="text-[12px] md:text-[13px] tracking-tight whitespace-nowrap"
+                          className="text-[14px] md:text-[15px] tracking-tight whitespace-nowrap"
                           style={{
                             color: isActive ? "#2563EB" : "#9CA3AF",
                             fontWeight: isActive ? 700 : 400,
