@@ -314,3 +314,11 @@
     @apply border-border;
   }
 }
+
+/* Hero scroll-driven card responsive sizing */
+.hero-tx-list { height: 220px; }
+@media (min-width: 768px) { .hero-tx-list { height: 260px; } }
+@media (min-width: 1280px) { .hero-tx-list { height: 295px; } }
+.hero-dark-card { min-height: 340px; }
+@media (min-width: 768px) { .hero-dark-card { min-height: 380px; } }
+@media (min-width: 1280px) { .hero-dark-card { min-height: 420px; } }

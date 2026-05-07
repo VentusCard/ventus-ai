@@ -1,109 +1,71 @@
-import { useEffect, useRef, useState } from "react";
+import ScrollReveal from "@/components/ScrollReveal";
 
-const interpolateColor = (progress: number) => {
-  const clamped = Math.max(0, Math.min(1, progress));
-  const start = { r: 17, g: 24, b: 39 };
-  const end = { r: 37, g: 99, b: 235 };
-
-  const r = Math.round(start.r + (end.r - start.r) * clamped);
-  const g = Math.round(start.g + (end.g - start.g) * clamped);
-  const b = Math.round(start.b + (end.b - start.b) * clamped);
-
-  return `rgb(${r}, ${g}, ${b})`;
-};
+const columns = [
+  {
+    num: "01",
+    label: "RETENTION",
+    title: "Keep customers longer.",
+    body: "Behavioral signals surface the right moment to engage — before customers go looking elsewhere.",
+  },
+  {
+    num: "02",
+    label: "GROWTH",
+    title: "Grow assets under management.",
+    body: "Life event detection connects advisors to customers at exactly the right financial moment.",
+  },
+  {
+    num: "03",
+    label: "REVENUE",
+    title: "Win more relationships.",
+    body: "Personalized offers and products that match real customer behavior convert at higher rates.",
+  },
+];
 
 const ProblemStatementSection = () => {
-  const ref = useRef<HTMLElement>(null);
-  const [visible, setVisible] = useState(false);
-  const [headlineColor, setHeadlineColor] = useState("rgb(17, 24, 39)");
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
-
-    let frame = 0;
-
-    const updateHeadlineColor = () => {
-      const rect = el.getBoundingClientRect();
-      const viewportHeight = window.innerHeight;
-      const startPoint = viewportHeight * 1.02;
-      const endPoint = viewportHeight * 0.32;
-      const progress = (startPoint - rect.top) / (startPoint - endPoint);
-
-      setHeadlineColor(interpolateColor(progress));
-      frame = 0;
-    };
-
-    const requestUpdate = () => {
-      if (frame) return;
-      frame = window.requestAnimationFrame(updateHeadlineColor);
-    };
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.45, rootMargin: "-15% 0px -15% 0px" }
-    );
-
-    observer.observe(el);
-    requestUpdate();
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
-
-    return () => {
-      observer.disconnect();
-      window.removeEventListener("scroll", requestUpdate);
-      window.removeEventListener("resize", requestUpdate);
-      if (frame) {
-        window.cancelAnimationFrame(frame);
-      }
-    };
-  }, []);
-
   return (
-    <section ref={ref} style={{ paddingTop: 160, paddingBottom: 160 }} className="bg-white">
-      <div className="max-w-7xl mx-auto px-6 md:px-8 text-center">
-        <div>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 max-w-4xl mx-auto leading-tight">
-            <span
-              className="block"
-              style={{
-                opacity: visible ? 1 : 0,
-                color: headlineColor,
-                transform: visible ? "translateY(0)" : "translateY(30px)",
-                transition: "opacity 600ms ease-out, transform 600ms ease-out, color 320ms ease-out",
-              }}
-            >
-              Behind every customer's transaction history is a person. The data just doesn't show it.
-            </span>
-          </h2>
-          <p
-            className="mt-4 text-base text-gray-500 max-w-4xl mx-auto leading-relaxed"
-            style={{
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(20px)",
-              transition: "opacity 400ms ease-out 800ms, transform 400ms ease-out 800ms",
-            }}
-          >
-            Fragmented rails, vague MCCs, and no behavioral layer — that's why banking personalization fails.
+    <section className="bg-white w-full scroll-mt-20 pt-24 md:pt-28 pb-14 md:pb-20 relative z-10">
+      <div className="mx-auto mb-8 md:mb-10 max-w-7xl px-6 md:px-8">
+        <ScrollReveal>
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+            The Gap
           </p>
-          <p
-            className="mt-5 max-w-4xl mx-auto text-center italic"
-            style={{
-              color: "#2563EB",
-              fontSize: 18,
-              fontWeight: 500,
-              opacity: visible ? 1 : 0,
-              transform: visible ? "translateY(0)" : "translateY(20px)",
-              transition: "opacity 400ms ease-out 1200ms, transform 400ms ease-out 1200ms",
-            }}
-          >
+          <h2 className="font-bold tracking-tight text-gray-900 leading-[1.1] text-left text-[34px] sm:text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
+            Your bank knows what a customer spent. <span className="text-gray-400">Not why.</span>
+          </h2>
+          <p className="italic mt-5 md:mt-6 text-[23px] md:text-[25px]" style={{ color: "#2563EB" }}>
             Ventus is the behavioral intelligence layer that bridges the gap.
           </p>
+        </ScrollReveal>
+      </div>
+
+      <div className="mx-auto max-w-7xl px-6 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3">
+          {columns.map((c, i) => (
+            <div
+              key={c.label}
+              className={`relative min-w-0 px-5 py-16 lg:px-6 ${
+                i > 0 ? "border-t border-gray-200 lg:border-l lg:border-t-0" : ""
+              }`}
+            >
+              <span
+                className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]"
+                style={{ color: "rgba(37,99,235,0.08)" }}
+              >
+                {c.num}
+              </span>
+              <div className="relative z-10 pt-14">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+                  {c.label}
+                </p>
+                <h3 className="mb-2 text-[30px] font-bold text-gray-900 leading-tight">
+                  {c.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-500">
+                  {c.body}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>

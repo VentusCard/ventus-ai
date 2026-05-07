@@ -213,6 +213,86 @@ const NextConversationPage = () => {
         </div>
       </section>
 
+      {/* RISK SIGNAL — Handle With Care advisor brief */}
+      <section className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 80 }}>
+        <div className="max-w-7xl mx-auto">
+          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "#DC2626" }}>RISK SIGNAL</p>
+          <h2 className="font-bold text-gray-900 mb-3 text-3xl md:text-4xl">
+            The right conversation at the right moment — even when it's not about a product.
+          </h2>
+          <p className="text-gray-500 mb-12 max-w-3xl" style={{ fontSize: 18 }}>
+            When risk signals are detected your advisor gets a completely different brief. Not a sales script — a wellness conversation guide. Talking points focused on empathy, resources for support, and clear instructions to suppress product offers until the customer is in a better place.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-16 items-start">
+            <div className="space-y-3 text-gray-600" style={{ fontSize: 18 }}>
+              <p>● Empathy-first opening framed as a check-in, not a pitch</p>
+              <p>● Curated wellness resources and support pathways</p>
+              <p>● Clear flag: pause product upsells until next signal change</p>
+              <p>● Optional escalation to a financial coach or hardship team</p>
+            </div>
+
+            {/* Handle With Care brief */}
+            <div
+              style={{
+                border: "1px solid #FCA5A5",
+                boxShadow: "0 4px 24px rgba(0,0,0,0.08)",
+                borderRadius: 12,
+              }}
+              className="p-6 bg-white"
+            >
+              <div
+                className="-mx-6 -mt-6 px-6 py-3 mb-4 flex items-center justify-between"
+                style={{ background: "#FEF2F2", borderTopLeftRadius: 12, borderTopRightRadius: 12, borderBottom: "1px solid #FCA5A5" }}
+              >
+                <p className="text-sm font-bold tracking-wide" style={{ color: "#B91C1C" }}>
+                  Handle With Care
+                </p>
+                <span className="text-[10px] font-mono" style={{ color: "#9CA3AF" }}>cust_207</span>
+              </div>
+
+              <span
+                className="text-sm font-semibold px-3 py-1 rounded-full inline-block"
+                style={{ backgroundColor: "#FEF3C7", color: "#D97706" }}
+              >
+                Financial Stress — 88% confidence
+              </span>
+
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#DC2626" }}>Talking Points</p>
+                <div className="space-y-2">
+                  {[
+                    "Open with a check-in — not a product. Ask how things are going.",
+                    "Acknowledge that life has ups and downs. We're here to help.",
+                    "Offer the financial wellness consultation — free, no commitment.",
+                    "Mention spending controls only if the customer raises concerns.",
+                  ].map((p, i) => (
+                    <p key={i} className="text-sm" style={{ color: "#374151" }}>● {p}</p>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB" }}>
+                <p className="text-[10px] font-semibold tracking-widest uppercase mb-3" style={{ color: "#DC2626" }}>Resources to Offer</p>
+                <div className="flex flex-wrap gap-2">
+                  {["Financial Wellness Coach", "Hardship Program", "Spending Controls"].map((r) => (
+                    <span key={r} className="text-xs font-semibold px-3 py-1.5 rounded-full" style={{ background: "#F3F4F6", color: "#374151" }}>
+                      {r}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="mt-5 pt-4" style={{ borderTop: "1px solid #E5E7EB", background: "#FEF2F2", margin: "16px -24px -24px", padding: "16px 24px", borderBottomLeftRadius: 12, borderBottomRightRadius: 12 }}>
+                <p className="text-xs font-semibold" style={{ color: "#B91C1C" }}>
+                  ⓘ Product offers suppressed: Travel Card, Personal Loan, Investment Upsell. Re-evaluated on next signal change.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Conversation block — text + phone */}
       <section ref={conversation.ref} className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 60 }}>
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-12 items-center">
