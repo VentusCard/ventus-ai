@@ -6,11 +6,11 @@ import snowflakeLogo from "@/assets/snowflake-logo.png";
 import salesforceLogo from "@/assets/salesforce-logo.png";
 
 const sources = [
-  { name: "FIS", src: fisLogo, height: "h-6" },
-  { name: "Fiserv", src: fiservLogo, height: "h-7" },
-  { name: "Jack Henry", src: jackHenryLogo, height: "h-6" },
-  { name: "Databricks", src: databricksLogo, height: "h-6" },
-  { name: "Snowflake", src: snowflakeLogo, height: "h-6" },
+  { name: "FIS", src: fisLogo, height: "h-8" },
+  { name: "Fiserv", src: fiservLogo, height: "h-9" },
+  { name: "Jack Henry", src: jackHenryLogo, height: "h-8" },
+  { name: "Databricks", src: databricksLogo, height: "h-8" },
+  { name: "Snowflake", src: snowflakeLogo, height: "h-8" },
 ];
 
 const Pill = ({ children }: { children: React.ReactNode }) => (
