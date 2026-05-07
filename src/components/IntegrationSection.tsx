@@ -127,9 +127,9 @@ const IntegrationSection = () => {
                     } 50, ${ENGINE_X} 50`}
                     fill="none"
                     stroke="#3B82F6"
-                    strokeWidth="0.4"
-                    strokeDasharray="1.2 1.4"
-                    opacity="0.55"
+                    strokeWidth="0.7"
+                    strokeDasharray="1.4 1.4"
+                    opacity="0.9"
                     vectorEffect="non-scaling-stroke"
                   >
                     <animate
@@ -149,9 +149,9 @@ const IntegrationSection = () => {
                     } ${y}, ${DST_X} ${y}`}
                     fill="none"
                     stroke="#3B82F6"
-                    strokeWidth="0.4"
-                    strokeDasharray="1.2 1.4"
-                    opacity="0.55"
+                    strokeWidth="0.7"
+                    strokeDasharray="1.4 1.4"
+                    opacity="0.9"
                     vectorEffect="non-scaling-stroke"
                   >
                     <animate
@@ -179,7 +179,7 @@ const IntegrationSection = () => {
                 </div>
 
                 {/* VENTUS ENGINE */}
-                <div className="flex items-center justify-center md:w-[260px]">
+                <div className="hidden md:flex items-center justify-center md:w-[260px]">
                   <div
                     className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
                     style={{
