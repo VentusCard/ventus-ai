@@ -396,7 +396,7 @@ const ScrollDrivenHero = () => {
                           key={oi}
                           x1={`${cardCenterPct * 100}%`}
                           y1="0"
-                          x2="60%"
+                          x2="50%"
                           y2="28"
                           stroke={activePersona.color}
                           strokeWidth="1.5"
