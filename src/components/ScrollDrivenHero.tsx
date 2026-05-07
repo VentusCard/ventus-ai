@@ -422,7 +422,7 @@ const ScrollDrivenHero = () => {
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  width: 480,
+                  width: 400,
                   minHeight: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
@@ -591,7 +591,7 @@ const ScrollDrivenHero = () => {
                     const isActive = i === activeStageIdx;
                     const isComplete = scrollProgress >= end;
                     return (
-                      <div key={label} className={`flex flex-col ${i === STAGE_LABELS.length - 1 ? "items-end" : "items-start"}`}>
+                      <div key={label} className="flex flex-col items-center">
                         <div
                           className="relative w-full rounded-full overflow-hidden"
                           style={{ height: 4, background: "#E5E7EB" }}
