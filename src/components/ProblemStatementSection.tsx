@@ -66,13 +66,6 @@ const ProblemStatementSection = () => {
           ))}
         </div>
 
-        <div className="mt-16" style={{ borderTop: "1px solid #E5E7EB" }} />
-        <p
-          className="mt-8 text-center italic"
-          style={{ color: "#374151", fontSize: 17 }}
-        >
-          Banks that know their customers grow more assets, retain more customers, and win more relationships.
-        </p>
       </div>
     </section>
   );
