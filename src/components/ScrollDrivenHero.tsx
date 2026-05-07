@@ -359,8 +359,11 @@ const ScrollDrivenHero = () => {
               >
                 {/* Header */}
                 <div className="flex items-center gap-2.5 mb-3 relative z-10">
-                  <span className="text-[11px] font-bold tracking-[0.18em] uppercase" style={{ color: "#0A1628" }}>
-                    Ventus
+                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
+                    V
+                  </span>
+                  <span className="text-[15px] font-bold tracking-tight text-gray-900">
+                    Orchestrate
                   </span>
                   {activePersona && (
                     <>
