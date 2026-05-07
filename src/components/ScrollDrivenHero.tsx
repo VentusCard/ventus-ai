@@ -345,7 +345,7 @@ const ScrollDrivenHero = () => {
                         />
                       </div>
                       {i < STAGE_LABELS.length - 1 && (
-                        <span className="text-[12px] md:text-[13px]" style={{ color: "#D1D5DB" }}>
+                        <span className="text-[14px] md:text-[15px]" style={{ color: "#D1D5DB" }}>
                           →
                         </span>
                       )}
