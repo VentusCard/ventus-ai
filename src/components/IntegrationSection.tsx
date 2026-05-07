@@ -84,8 +84,8 @@ const IntegrationSection = () => {
               Without replacing it.
             </p>
             <p className="mt-5 text-gray-600 leading-relaxed text-[15px]">
-              Connect Ventus to the cores, warehouses, and CRMs you already run. Hashed
-              transactions in, behavioral intelligence out — through whatever pipe your bank
+              Connect Ventus to the cores, warehouses, and CRMs you already run.
+              Transactions in, behavioral intelligence out — through whatever pipe your bank
               prefers.
             </p>
           </div>
