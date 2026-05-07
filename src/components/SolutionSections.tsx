@@ -193,20 +193,15 @@ const SolutionSections = () => {
       <section className="bg-gray-50 py-20 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <ScrollReveal>
-            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
               <div>
                 <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Analytics</p>
                 <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight mb-5">
                   A new analytics layer for your entire customer base.
                 </h2>
-                <p className="text-base text-gray-500 leading-relaxed mb-6">
+                <p className="text-base text-gray-500 leading-relaxed">
                   Every behavioral signal Ventus detects becomes queryable intelligence across your entire book. Questions you couldn't answer before: What are Gen Zs spending on? Which life events are trending this quarter? Where is financial stress concentrated in your portfolio? Your data team gets answers without building anything new.
                 </p>
-                <Link to="/solutions/portfolio-intelligence">
-                  <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
-                    Learn more
-                  </Button>
-                </Link>
               </div>
               <div>
                 <div className="rounded-[20px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden">
@@ -221,6 +216,13 @@ const SolutionSections = () => {
                   </div>
                 </div>
               </div>
+            </div>
+            <div className="mt-8">
+              <Link to="/solutions/portfolio-intelligence">
+                <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
+                  Learn more
+                </Button>
+              </Link>
             </div>
           </ScrollReveal>
         </div>
