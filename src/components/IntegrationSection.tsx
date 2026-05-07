@@ -46,7 +46,7 @@ const IntegrationSection = () => {
           Plugs into your existing stack without replacing it.
         </h2>
 
-        <div className="mt-12 flex flex-col items-center" style={{ gap: 24 }}>
+        <div className="mt-12 flex flex-col items-center" style={{ gap: 40 }}>
           {/* Row 1 — Data Sources */}
           <div className="flex flex-col items-center gap-4">
             <p
