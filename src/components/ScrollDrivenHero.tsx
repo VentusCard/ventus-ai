@@ -574,7 +574,41 @@ const ScrollDrivenHero = () => {
                     className="absolute bottom-0 left-0 right-0 h-12 pointer-events-none"
                     style={{ background: "linear-gradient(to top, #0A1628, transparent)" }}
                   />
+              </div>
+
+              {/* Mobile/Tablet Ventus Orchestration card — bottom right of dark card */}
+              <div
+                className="xl:hidden absolute pointer-events-none transition-all duration-500 ease-out"
+                style={{
+                  right: 8,
+                  bottom: 70,
+                  width: "min(260px, 70%)",
+                  opacity: stage === 4 && activePersona ? 1 : 0,
+                  transform: stage === 4 && activePersona ? "translateY(0)" : "translateY(8px)",
+                  zIndex: 20,
+                }}
+              >
+                <div
+                  className="bg-white rounded-lg shadow-xl overflow-hidden"
+                  style={{ border: "1px solid #E5E7EB", boxShadow: "0 10px 30px rgba(0,0,0,0.18)" }}
+                >
+                  <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
+                    <div className="flex items-center gap-1.5">
+                      <span className="flex items-center justify-center w-4 h-4 rounded bg-blue-600 text-white font-black text-[9px] leading-none">V</span>
+                      <span className="text-[9px] font-bold tracking-[0.12em] uppercase text-gray-700">Ventus Orchestration</span>
+                    </div>
+                    <span
+                      className="w-1.5 h-1.5 rounded-full"
+                      style={{ background: activePersona?.color ?? "#22c55e", boxShadow: `0 0 6px ${activePersona?.color ?? "#22c55e"}` }}
+                    />
+                  </div>
+                  <div className="px-3 pb-2.5 pt-0.5 border-t border-gray-100">
+                    <div className="text-[12px] font-semibold text-gray-900 leading-snug">
+                      {activePersona?.orchestrationAction ?? "—"}
+                    </div>
+                  </div>
                 </div>
+              </div>
               </div>
 
               {/* Stage indicator below the dark card */}
