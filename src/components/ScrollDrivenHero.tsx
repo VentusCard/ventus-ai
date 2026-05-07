@@ -260,10 +260,10 @@ const ScrollDrivenHero = () => {
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
       <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible" style={{ paddingTop: 64, paddingBottom: 40 }}>
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
-          {/* LEFT COLUMN */}
-          <div className="w-full xl:w-[62%] flex flex-col items-center xl:items-start">
+          {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
+          <div className="contents xl:flex xl:flex-col xl:w-[62%] xl:items-start w-full">
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.2] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[68px]"
+              className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-[44px] sm:text-5xl md:text-6xl xl:text-[68px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -273,7 +273,7 @@ const ScrollDrivenHero = () => {
             </h1>
 
             <p
-              className="mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left transition-all duration-700 ease-out xl:text-[18px]"
+              className="order-3 xl:order-none mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left transition-all duration-700 ease-out xl:text-[18px]"
               style={{
                 lineHeight: 1.7,
                 opacity: loaded ? 1 : 0,
@@ -285,7 +285,7 @@ const ScrollDrivenHero = () => {
             </p>
 
             <Button
-              className="mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-10 text-base gap-2"
+              className="order-4 xl:order-none mt-6 xl:mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-10 text-base gap-2"
               onClick={() => navigate("/contact")}
               style={{
                 opacity: loaded ? 1 : 0,
@@ -300,7 +300,7 @@ const ScrollDrivenHero = () => {
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="w-full xl:w-[38%] flex justify-center xl:justify-end">
+          <div className="order-2 xl:order-none w-full xl:w-[38%] flex justify-center xl:justify-end mt-2 xl:mt-0">
             <div className="relative flex flex-col items-stretch" style={{ width: 400, maxWidth: "calc(100vw - 48px)" }}>
               {/* Ventus Orchestrate panel — sits ABOVE the dark card */}
               <div
