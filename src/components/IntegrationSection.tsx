@@ -79,9 +79,9 @@ const IntegrationSection = () => {
               <img
                 src={salesforceLogo}
                 alt="Salesforce"
-                className="h-7 w-auto grayscale opacity-60"
+                className="h-9 w-auto grayscale opacity-60"
               />
-              <Pill>Rewards Engine · REST API</Pill>
+              <Pill>Rewards Engine · API</Pill>
               <Pill>Advisor Tools · Webhook</Pill>
             </div>
           </div>
