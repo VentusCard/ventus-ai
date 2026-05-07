@@ -1,3 +1,4 @@
+import ScrollReveal from "@/components/ScrollReveal";
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
