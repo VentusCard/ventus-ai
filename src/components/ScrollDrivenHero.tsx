@@ -584,7 +584,7 @@ const ScrollDrivenHero = () => {
                   transitionDelay: "400ms",
                 }}
               >
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-5">
                   {STAGE_LABELS.map((label, i) => {
                     const [start, end] = STAGE_RANGES[i];
                     const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
