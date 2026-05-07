@@ -180,6 +180,12 @@ const personas = [
 ];
 
 const STAGE_LABELS = ["Raw Stream", "Categorize", "Detect", "Orchestrate"];
+const STAGE_RANGES: [number, number][] = [
+  [0, 0.1],
+  [0.1, 0.22],
+  [0.22, 0.5],
+  [0.5, 1],
+];
 
 const ScrollDrivenHero = () => {
   const navigate = useNavigate();
