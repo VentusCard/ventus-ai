@@ -256,8 +256,22 @@ const ScrollDrivenHero = () => {
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-12">
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[45%] flex flex-col items-center xl:items-start">
+            <p
+              className="text-center xl:text-left transition-all duration-700 ease-out"
+              style={{
+                fontSize: 13,
+                letterSpacing: "0.05em",
+                color: "#6B7280",
+                fontWeight: 500,
+                marginBottom: 16,
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(20px)",
+              }}
+            >
+              3,000+ behavioral labels · 20+ life events · 5-stage enrichment pipeline
+            </p>
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-4xl md:text-5xl xl:text-[72px]"
+              className="font-bold tracking-tight text-gray-900 leading-[1.08] text-center xl:text-left transition-all duration-700 ease-out text-4xl md:text-5xl xl:text-[56px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -306,7 +320,7 @@ const ScrollDrivenHero = () => {
                     <div key={label} className="flex items-center gap-3 md:gap-4">
                       <div className="relative inline-flex flex-col items-center">
                         <span
-                          className="text-[12px] md:text-[13px] tracking-tight whitespace-nowrap"
+                          className="text-[14px] md:text-[15px] tracking-tight whitespace-nowrap"
                           style={{
                             color: isActive ? "#2563EB" : "#9CA3AF",
                             fontWeight: isActive ? 700 : 400,
@@ -331,7 +345,7 @@ const ScrollDrivenHero = () => {
                         />
                       </div>
                       {i < STAGE_LABELS.length - 1 && (
-                        <span className="text-[12px] md:text-[13px]" style={{ color: "#D1D5DB" }}>
+                        <span className="text-[14px] md:text-[15px]" style={{ color: "#D1D5DB" }}>
                           →
                         </span>
                       )}
@@ -349,8 +363,8 @@ const ScrollDrivenHero = () => {
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  width: 540,
-                  minHeight: 480,
+                  width: 480,
+                  minHeight: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
                   boxShadow: loaded ? "0 25px 60px -12px rgba(0,0,0,0.25)" : "0 10px 30px -8px rgba(0,0,0,0.1)",
