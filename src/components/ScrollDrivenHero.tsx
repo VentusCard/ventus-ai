@@ -257,13 +257,13 @@ const ScrollDrivenHero = () => {
   const statusLabel = stage === 1 ? "Analyzing..." : stage === 2 ? "Categorizing" : stage === 3 ? "Detected" : "Orchestrating";
 
   return (
-    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 70% 80% at 95% 15%, #DBEAFE 0%, #EFF6FF 35%, #FFFFFF 65%)" }}>
+    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
       <div className="sticky top-0 h-screen flex items-center justify-center overflow-visible" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-12">
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[45%] flex flex-col items-center xl:items-start">
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.08] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[68px]"
+              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[72px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -273,7 +273,7 @@ const ScrollDrivenHero = () => {
             </h1>
 
             <p
-              className="mt-5 text-base md:text-lg xl:text-xl text-gray-500 max-w-xl text-center xl:text-left leading-relaxed transition-all duration-700 ease-out"
+              className="mt-5 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left leading-relaxed transition-all duration-700 ease-out xl:text-[19px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(20px)",
