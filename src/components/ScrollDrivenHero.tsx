@@ -606,9 +606,8 @@ const ScrollDrivenHero = () => {
                           />
                         </div>
                         <span
-                          className="mt-2 uppercase tracking-[0.12em] whitespace-nowrap"
+                          className="mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[12px]"
                           style={{
-                            fontSize: 12,
                             color: isActive || isComplete ? "#111827" : "#9CA3AF",
                             fontWeight: isActive ? 800 : 500,
                             transition: "color 300ms ease, font-weight 300ms ease",
