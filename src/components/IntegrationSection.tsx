@@ -6,27 +6,112 @@ import databricksLogo from "@/assets/databricks-logo.png";
 import snowflakeLogo from "@/assets/snowflake-logo.png";
 import salesforceLogo from "@/assets/salesforce-logo.png";
 
-const sources = [
-  { name: "FIS", src: fisLogo, height: "h-8" },
-  { name: "Fiserv", src: fiservLogo, height: "h-9" },
-  { name: "Jack Henry", src: jackHenryLogo, height: "h-8" },
-  { name: "Databricks", src: databricksLogo, height: "h-8" },
-  { name: "Snowflake", src: snowflakeLogo, height: "h-8" },
+type Tile = {
+  name: string;
+  meta: string;
+  src?: string;
+  monogram?: string;
+  monoColor?: string;
+};
+
+const sources: Tile[] = [
+  { name: "FIS", meta: "core · nightly batch", src: fisLogo },
+  { name: "Fiserv", meta: "core · real-time", src: fiservLogo },
+  { name: "Jack Henry SilverLake", meta: "core · sftp drop", src: jackHenryLogo },
+  { name: "Databricks", meta: "warehouse · delta share", src: databricksLogo },
+  { name: "Snowflake", meta: "warehouse · secure share", src: snowflakeLogo },
 ];
 
-const Pill = ({ children }: { children: React.ReactNode }) => (
-  <span
-    style={{
-      background: "#F3F4F6",
-      color: "#374151",
-      borderRadius: 20,
-      padding: "6px 14px",
-      fontSize: 13,
-    }}
-    className="inline-flex items-center font-medium whitespace-nowrap"
+const destinations: Tile[] = [
+  { name: "Salesforce Financial Cloud", meta: "crm · real-time push", src: salesforceLogo },
+  { name: "Microsoft Dynamics", meta: "crm · webhook", monogram: "M", monoColor: "#2563EB" },
+  { name: "Rewards Engine", meta: "internal · API", monogram: "R", monoColor: "#16A34A" },
+  { name: "Advisor Console", meta: "internal · webhook", monogram: "A", monoColor: "#7C3AED" },
+  { name: "Braze / Iterable", meta: "marketing · stream", monogram: "B", monoColor: "#EC4899" },
+];
+
+const Tile = ({ tile }: { tile: Tile }) => (
+  <div
+    className="flex items-center gap-3 rounded-xl px-3.5 py-3 bg-white"
+    style={{ border: "1px solid #E5E7EB", boxShadow: "0 1px 2px rgba(0,0,0,0.03)" }}
   >
-    {children}
-  </span>
+    <div
+      className="shrink-0 w-9 h-9 rounded-lg flex items-center justify-center overflow-hidden"
+      style={{ background: "#F8FAFC", border: "1px solid #EEF2F7" }}
+    >
+      {tile.src ? (
+        <img src={tile.src} alt={tile.name} className="max-h-6 max-w-7 w-auto object-contain" />
+      ) : (
+        <span
+          className="text-[14px] font-black"
+          style={{ color: tile.monoColor }}
+        >
+          {tile.monogram}
+        </span>
+      )}
+    </div>
+    <div className="flex-1 min-w-0">
+      <div className="text-[13px] font-semibold text-gray-900 truncate leading-tight">
+        {tile.name}
+      </div>
+      <div className="text-[11px] text-gray-500 truncate leading-tight mt-0.5">
+        {tile.meta}
+      </div>
+    </div>
+    <span
+      className="shrink-0 w-1.5 h-1.5 rounded-full"
+      style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
+    />
+  </div>
+);
+
+const ApiPill = ({ color, label }: { color: string; label: string }) => (
+  <div
+    className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
+    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
+  >
+    <span
+      className="w-1.5 h-1.5 rounded-full shrink-0"
+      style={{ background: color, boxShadow: `0 0 6px ${color}` }}
+    />
+    <span className="font-mono text-[11px] text-gray-200 truncate">{label}</span>
+  </div>
+);
+
+const FlowLines = ({ side }: { side: "left" | "right" }) => (
+  <svg
+    className="absolute top-0 h-full pointer-events-none hidden md:block"
+    style={{
+      [side]: "100%",
+      width: "60px",
+      zIndex: 1,
+    } as React.CSSProperties}
+    preserveAspectRatio="none"
+    viewBox="0 0 60 400"
+  >
+    {[0.2, 0.4, 0.6, 0.8].map((y, i) => (
+      <g key={i}>
+        <line
+          x1={side === "left" ? "0" : "60"}
+          y1={y * 400}
+          x2={side === "left" ? "60" : "0"}
+          y2={200}
+          stroke="#3B82F6"
+          strokeWidth="1"
+          strokeDasharray="3 4"
+          opacity="0.35"
+        >
+          <animate
+            attributeName="stroke-dashoffset"
+            from="0"
+            to={side === "left" ? "-14" : "14"}
+            dur="2s"
+            repeatCount="indefinite"
+          />
+        </line>
+      </g>
+    ))}
+  </svg>
 );
 
 const IntegrationSection = () => {
@@ -36,57 +121,111 @@ const IntegrationSection = () => {
       className="bg-white scroll-mt-20"
       style={{ paddingTop: 80, paddingBottom: 80 }}
     >
-      <div className="mx-auto max-w-7xl px-6 md:px-8 text-center">
+      <div className="mx-auto max-w-7xl px-6 md:px-8">
         <ScrollReveal>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
-            Integration
-          </p>
-          <h2
-            className="font-bold text-gray-900 leading-tight max-w-3xl mx-auto"
-            style={{ fontSize: 36 }}
-          >
-            Plugs into your existing stack without replacing it.
-          </h2>
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+              Integration
+            </p>
+            <h2 className="font-bold text-gray-900 leading-tight" style={{ fontSize: 36 }}>
+              Plugs into your existing stack.
+            </h2>
+            <p className="mt-2 text-gray-500 font-medium" style={{ fontSize: 20 }}>
+              Without replacing it.
+            </p>
+            <p className="mt-5 text-gray-600 leading-relaxed text-[15px]">
+              Connect Ventus to the cores, warehouses, and CRMs you already run. Hashed
+              transactions in, behavioral intelligence out — through whatever pipe your bank
+              prefers.
+            </p>
+          </div>
         </ScrollReveal>
 
         <ScrollReveal delay={0.12}>
-          <div className="mt-12 flex flex-col items-center" style={{ gap: 40 }}>
-            {/* Row 1 — Data Sources */}
-            <div className="flex flex-col items-center gap-4">
-              <p
-                className="font-semibold uppercase tracking-widest text-gray-500"
-                style={{ fontSize: 12 }}
-              >
-                Data Sources
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4">
-                {sources.map(({ name, src, height }) => (
-                  <img
-                    key={name}
-                    src={src}
-                    alt={name}
-                    className={`${height} w-auto grayscale opacity-60`}
-                  />
-                ))}
+          <div
+            className="mt-14 rounded-2xl p-6 md:p-8"
+            style={{ background: "#F8FAFC", border: "1px solid #E5E7EB" }}
+          >
+            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-12 items-stretch">
+              {/* SOURCES */}
+              <div>
+                <div className="flex items-baseline justify-between mb-3 px-1">
+                  <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                    Sources
+                  </span>
+                  <span className="text-[10px] text-gray-400 font-mono">
+                    Hashed batch · stream
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2 relative">
+                  {sources.map((t) => (
+                    <Tile key={t.name} tile={t} />
+                  ))}
+                  <FlowLines side="right" />
+                </div>
               </div>
-            </div>
 
-            {/* Row 2 — Destinations */}
-            <div className="flex flex-col items-center gap-4">
-              <p
-                className="font-semibold uppercase tracking-widest text-gray-500"
-                style={{ fontSize: 12 }}
-              >
-                Destinations
-              </p>
-              <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-4">
-                <img
-                  src={salesforceLogo}
-                  alt="Salesforce"
-                  className="h-9 w-auto grayscale opacity-60"
-                />
-                <Pill>Rewards Engine · API</Pill>
-                <Pill>Advisor Tools · Webhook</Pill>
+              {/* VENTUS ENGINE */}
+              <div className="flex items-center justify-center md:w-[280px]">
+                <div
+                  className="rounded-2xl w-full overflow-hidden"
+                  style={{
+                    background: "#0A1628",
+                    border: "1px solid rgba(255,255,255,0.08)",
+                    boxShadow: "0 20px 50px -12px rgba(10,22,40,0.35)",
+                  }}
+                >
+                  <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md"
+                        style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}
+                      >
+                        V
+                      </span>
+                      <span className="text-[14px] font-bold text-white tracking-tight">
+                        Ventus Engine
+                      </span>
+                      <span
+                        className="ml-auto w-1.5 h-1.5 rounded-full animate-pulse"
+                        style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
+                      />
+                    </div>
+                    <div className="mt-2 font-mono text-[10.5px] text-gray-400 truncate">
+                      /v1/intelligence
+                    </div>
+                  </div>
+                  <div className="p-4 flex flex-col gap-1.5">
+                    <ApiPill color="#22c55e" label="enrich.merchant" />
+                    <ApiPill color="#3b82f6" label="persona.vector" />
+                    <ApiPill color="#f59e0b" label="life_event.detect" />
+                    <ApiPill color="#a855f7" label="cycle.cadence" />
+                  </div>
+                  <div
+                    className="px-4 py-2.5 border-t font-mono text-[10px] text-gray-400 text-center"
+                    style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
+                  >
+                    180ms p95 · 0 PII · SOC 2 in progress
+                  </div>
+                </div>
+              </div>
+
+              {/* DESTINATIONS */}
+              <div>
+                <div className="flex items-baseline justify-between mb-3 px-1">
+                  <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                    Destinations
+                  </span>
+                  <span className="text-[10px] text-gray-400 font-mono">
+                    JSON · webhook · push
+                  </span>
+                </div>
+                <div className="flex flex-col gap-2 relative">
+                  {destinations.map((t) => (
+                    <Tile key={t.name} tile={t} />
+                  ))}
+                  <FlowLines side="left" />
+                </div>
               </div>
             </div>
           </div>
