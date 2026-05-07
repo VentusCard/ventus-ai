@@ -420,10 +420,9 @@ const ScrollDrivenHero = () => {
               {/* The Card */}
 
               <div
-                className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
+                className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out hero-dark-card"
                 style={{
                   width: "100%",
-                  minHeight: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
                   boxShadow: loaded ? "0 25px 60px -12px rgba(0,0,0,0.25)" : "0 10px 30px -8px rgba(0,0,0,0.1)",
@@ -491,7 +490,7 @@ const ScrollDrivenHero = () => {
                 </div>
 
                 {/* Transaction list */}
-                <div className="relative px-4 py-2 overflow-hidden" style={{ height: 295 }}>
+                <div className="relative px-4 py-2 overflow-hidden hero-tx-list">
                   {stage === 1 ? (
                     <div className="space-y-0 transition-transform" style={{ transform: `translateY(-${scrollOffset}px)` }}>
                       {rawTransactions.map((tx, i) => (
