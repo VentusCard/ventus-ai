@@ -10,8 +10,7 @@ import dynamicsLogo from "@/assets/dynamics-logo.png";
 type Tile = {
   name: string;
   src?: string;
-  monogram?: string;
-  monoColor?: string;
+  label?: string;
 };
 
 const sources: Tile[] = [
@@ -25,17 +24,17 @@ const sources: Tile[] = [
 const destinations: Tile[] = [
   { name: "Salesforce Financial Cloud", src: salesforceLogo },
   { name: "Microsoft Dynamics", src: dynamicsLogo },
-  { name: "Rewards Engine", monogram: "R", monoColor: "#16A34A" },
-  { name: "Advisor Console", monogram: "A", monoColor: "#7C3AED" },
+  { name: "Rewards Engine", label: "Rewards Engine" },
+  { name: "Advisor Console", label: "Advisor Console" },
 ];
 
-const Tile = ({ tile }: { tile: Tile }) => (
+const TileBox = ({ tile }: { tile: Tile }) => (
   <div
     className="flex items-center justify-center rounded-xl bg-white relative z-10"
     style={{
       border: "1px solid #E5E7EB",
       boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
-      height: 64,
+      height: 72,
     }}
   >
     {tile.src ? (
@@ -43,71 +42,29 @@ const Tile = ({ tile }: { tile: Tile }) => (
         src={tile.src}
         alt={tile.name}
         title={tile.name}
-        className="max-h-9 max-w-[60%] w-auto object-contain"
+        className="max-h-10 max-w-[65%] w-auto object-contain"
       />
     ) : (
-      <span
-        className="text-[26px] font-black"
-        style={{ color: tile.monoColor }}
-        title={tile.name}
-      >
-        {tile.monogram}
+      <span className="text-[15px] font-semibold text-gray-500 tracking-tight">
+        {tile.label}
       </span>
     )}
   </div>
 );
 
-/* Flow lines that originate from each tile row on one side
-   and converge into the center of the Ventus engine card. */
-const FlowLines = ({ side, count = 5 }: { side: "left" | "right"; count?: number }) => {
-  // svg viewBox uses normalized 100x100; preserveAspectRatio="none" stretches it
-  // to the absolute container that spans the full gap + half engine.
-  const targetX = side === "left" ? 100 : 0; // engine center anchor
-  const startX = side === "left" ? 0 : 100;
-  return (
-    <svg
-      className="absolute pointer-events-none hidden md:block"
-      style={{
-        top: 0,
-        bottom: 0,
-        [side === "left" ? "right" : "left"]: "50%",
-        [side === "left" ? "left" : "right"]: -48,
-        zIndex: 1,
-      } as React.CSSProperties}
-      preserveAspectRatio="none"
-      viewBox="0 0 100 100"
-    >
-      {Array.from({ length: count }).map((_, i) => {
-        const y = ((i + 0.5) / count) * 100;
-        const cx = (startX + targetX) / 2;
-        // smooth cubic curve from tile row into engine center (y=50)
-        const d = `M ${startX} ${y} C ${cx} ${y}, ${cx} 50, ${targetX} 50`;
-        return (
-          <path
-            key={i}
-            d={d}
-            fill="none"
-            stroke="#3B82F6"
-            strokeWidth="0.4"
-            strokeDasharray="1.2 1.4"
-            opacity="0.55"
-            vectorEffect="non-scaling-stroke"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="0"
-              to={side === "left" ? "-6" : "6"}
-              dur="2s"
-              repeatCount="indefinite"
-            />
-          </path>
-        );
-      })}
-    </svg>
-  );
-};
-
 const IntegrationSection = () => {
+  // Source column has 5 tiles, dest has 4 — both stretch to same height.
+  // Compute tile-center y as % of the grid track.
+  const srcYs = sources.map((_, i) => ((i + 0.5) / sources.length) * 100);
+  const dstYs = destinations.map((_, i) => ((i + 0.5) / destinations.length) * 100);
+
+  // X anchors (% of grid container width). Roughly: source col 0-33%, engine
+  // 33-67%, dest 67-100%. We exit source tiles at their right edge (~33%),
+  // converge to engine center (50%), and continue to dest left edge (~67%).
+  const SRC_X = 33;
+  const DST_X = 67;
+  const ENGINE_X = 50;
+
   return (
     <section
       id="integration"
@@ -139,63 +96,127 @@ const IntegrationSection = () => {
             className="mt-14 rounded-2xl p-6 md:p-8"
             style={{ background: "#F8FAFC", border: "1px solid #E5E7EB" }}
           >
-            <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-12 items-stretch">
-              {/* SOURCES */}
-              <div>
-                <div className="mb-3 px-1">
+            {/* Column headers, outside the tile grid so flow lines line up cleanly */}
+            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] gap-12 mb-3">
+              <div className="px-1">
+                <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                  Sources
+                </span>
+              </div>
+              <div className="md:w-[260px]" />
+              <div className="px-1 text-right">
+                <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                  Destinations
+                </span>
+              </div>
+            </div>
+
+            <div className="relative">
+              {/* Flow lines overlay — covers the entire tile grid */}
+              <svg
+                className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
+                preserveAspectRatio="none"
+                viewBox="0 0 100 100"
+                style={{ zIndex: 1 }}
+              >
+                {srcYs.map((y, i) => (
+                  <path
+                    key={`s-${i}`}
+                    d={`M ${SRC_X} ${y} C ${(SRC_X + ENGINE_X) / 2} ${y}, ${
+                      (SRC_X + ENGINE_X) / 2
+                    } 50, ${ENGINE_X} 50`}
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth="0.4"
+                    strokeDasharray="1.2 1.4"
+                    opacity="0.55"
+                    vectorEffect="non-scaling-stroke"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to="-6"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+                ))}
+                {dstYs.map((y, i) => (
+                  <path
+                    key={`d-${i}`}
+                    d={`M ${ENGINE_X} 50 C ${(DST_X + ENGINE_X) / 2} 50, ${
+                      (DST_X + ENGINE_X) / 2
+                    } ${y}, ${DST_X} ${y}`}
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth="0.4"
+                    strokeDasharray="1.2 1.4"
+                    opacity="0.55"
+                    vectorEffect="non-scaling-stroke"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to="-6"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+                ))}
+              </svg>
+
+              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-12 items-stretch">
+                {/* SOURCES */}
+                <div className="md:hidden mb-1 px-1">
                   <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                     Sources
                   </span>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="h-full flex flex-col justify-around gap-2">
                   {sources.map((t) => (
-                    <Tile key={t.name} tile={t} />
+                    <TileBox key={t.name} tile={t} />
                   ))}
                 </div>
-              </div>
 
-              {/* VENTUS ENGINE */}
-              <div className="flex items-center justify-center md:w-[260px] relative">
-                <FlowLines side="left" count={sources.length} />
-                <FlowLines side="right" count={destinations.length} />
-                <div
-                  className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
-                  style={{
-                    border: "1px solid #DBEAFE",
-                    boxShadow:
-                      "0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18)",
-                  }}
-                >
-                  <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
-                    <span
-                      className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white font-black text-[22px] leading-none shadow-md"
-                      style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}
-                    >
-                      V
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[15px] font-bold text-gray-900 tracking-tight">
-                        Ventus Engine
-                      </span>
+                {/* VENTUS ENGINE */}
+                <div className="flex items-center justify-center md:w-[260px]">
+                  <div
+                    className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
+                    style={{
+                      border: "1px solid #DBEAFE",
+                      boxShadow:
+                        "0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18)",
+                    }}
+                  >
+                    <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
                       <span
-                        className="w-1.5 h-1.5 rounded-full animate-pulse"
-                        style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
-                      />
+                        className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white font-black text-[22px] leading-none shadow-md"
+                        style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}
+                      >
+                        V
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[15px] font-bold text-gray-900 tracking-tight">
+                          Ventus Engine
+                        </span>
+                        <span
+                          className="w-1.5 h-1.5 rounded-full animate-pulse"
+                          style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* DESTINATIONS */}
-              <div>
-                <div className="mb-3 px-1">
+                {/* DESTINATIONS */}
+                <div className="md:hidden mb-1 px-1">
                   <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                     Destinations
                   </span>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="h-full flex flex-col justify-around gap-2">
                   {destinations.map((t) => (
-                    <Tile key={t.name} tile={t} />
+                    <TileBox key={t.name} tile={t} />
                   ))}
                 </div>
               </div>
