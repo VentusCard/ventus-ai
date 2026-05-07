@@ -180,6 +180,12 @@ const personas = [
 ];
 
 const STAGE_LABELS = ["Raw Stream", "Categorize", "Detect", "Orchestrate"];
+const STAGE_RANGES: [number, number][] = [
+  [0, 0.1],
+  [0.1, 0.22],
+  [0.22, 0.5],
+  [0.5, 1],
+];
 
 const ScrollDrivenHero = () => {
   const navigate = useNavigate();
@@ -304,62 +310,168 @@ const ScrollDrivenHero = () => {
               <ArrowRight className="w-4 h-4" />
             </Button>
 
-            {/* Clean four-stage step indicator */}
+            {/* Smoothly-filling four-stage progress bars */}
             <div
-              className="mt-10 w-full max-w-[520px] transition-all duration-700 ease-out"
+              className="mt-12 w-full max-w-[640px] transition-all duration-700 ease-out"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(12px)",
                 transitionDelay: "400ms",
               }}
             >
-              <div className="relative flex items-center justify-center xl:justify-start gap-3 md:gap-4">
+              <div className="grid grid-cols-4 gap-6 md:gap-8">
                 {STAGE_LABELS.map((label, i) => {
+                  const [start, end] = STAGE_RANGES[i];
+                  const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
                   const isActive = i === activeStageIdx;
+                  const isComplete = scrollProgress >= end;
                   return (
-                    <div key={label} className="flex items-center gap-3 md:gap-4">
-                      <div className="relative inline-flex flex-col items-center">
-                        <span
-                          className="text-[14px] md:text-[15px] tracking-tight whitespace-nowrap"
+                    <div key={label} className="flex flex-col items-start">
+                      <div
+                        className="relative w-full rounded-full overflow-hidden"
+                        style={{ height: 4, background: "#E5E7EB" }}
+                      >
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full"
                           style={{
-                            color: isActive ? "#2563EB" : "#9CA3AF",
-                            fontWeight: isActive ? 700 : 400,
-                            transform: isActive ? "scale(1.05)" : "scale(1)",
-                            transformOrigin: "center",
-                            transition: "color 400ms ease, font-weight 400ms ease, transform 400ms ease",
-                            display: "inline-block",
-                          }}
-                        >
-                          {label}
-                        </span>
-                        {/* Animated underline */}
-                        <span
-                          className="absolute -bottom-1.5 left-0 right-0 h-[2px] rounded-full"
-                          style={{
+                            width: `${(isComplete ? 1 : fill) * 100}%`,
                             background: "#2563EB",
-                            opacity: isActive ? 1 : 0,
-                            transform: isActive ? "scaleX(1)" : "scaleX(0)",
-                            transformOrigin: "left center",
-                            transition: "transform 400ms ease, opacity 400ms ease",
+                            transition: "width 120ms linear",
                           }}
                         />
                       </div>
-                      {i < STAGE_LABELS.length - 1 && (
-                        <span className="text-[14px] md:text-[15px]" style={{ color: "#D1D5DB" }}>
-                          →
-                        </span>
-                      )}
+                      <span
+                        className="mt-3 text-[12px] md:text-[13px] uppercase tracking-[0.12em] whitespace-nowrap"
+                        style={{
+                          color: isActive || isComplete ? "#111827" : "#9CA3AF",
+                          fontWeight: isActive ? 700 : 500,
+                          transition: "color 300ms ease, font-weight 300ms ease",
+                        }}
+                      >
+                        {label}
+                      </span>
                     </div>
                   );
                 })}
-                </div>
               </div>
             </div>
+          </div>
 
           {/* RIGHT COLUMN */}
           <div className="w-full xl:w-[55%] flex justify-center xl:justify-end">
             <div className="relative flex flex-col items-stretch" style={{ width: 480, maxWidth: "calc(100vw - 48px)" }}>
+              {/* Ventus Orchestrate panel — sits ABOVE the dark card */}
+              <div
+                className="relative mb-5 transition-all duration-500 ease-out"
+                style={{
+                  opacity: stage === 4 ? 1 : 0,
+                  transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
+                  pointerEvents: stage === 4 ? "auto" : "none",
+                  minHeight: 168,
+                }}
+              >
+                {/* Header */}
+                <div className="flex items-center gap-2.5 mb-3 relative z-10">
+                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md">
+                    V
+                  </span>
+                  <span className="text-[15px] font-bold tracking-tight text-gray-900">
+                    Ventus Orchestrate
+                  </span>
+                  {activePersona && (
+                    <>
+                      <span className="text-gray-300">·</span>
+                      <span
+                        className="text-[12px] font-semibold uppercase tracking-wider"
+                        style={{ color: activePersona.color }}
+                      >
+                        {activePersona.label}
+                      </span>
+                      <span
+                        className="ml-0.5 w-1.5 h-1.5 rounded-full animate-pulse"
+                        style={{
+                          background: activePersona.color,
+                          boxShadow: `0 0 8px ${activePersona.color}`,
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+
+                {/* Three output cards */}
+                <div className="grid grid-cols-3 gap-3 relative z-10">
+                  {(activePersona?.outputs ?? ["", "", ""]).map((output, oi) => {
+                    const stagger = oi * 0.08;
+                    const cardProgress = activePersona
+                      ? Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.2))
+                      : 0;
+                    const color = activePersona?.color ?? "#94a3b8";
+                    return (
+                      <div
+                        key={oi}
+                        className="rounded-lg bg-white"
+                        style={{
+                          minHeight: 100,
+                          opacity: cardProgress,
+                          transform: `translateY(${(1 - cardProgress) * -10}px) scale(${0.92 + cardProgress * 0.08})`,
+                          transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                          border: "1px solid rgba(15,23,42,0.08)",
+                          borderTop: `3px solid ${color}`,
+                          boxShadow: "0 8px 24px -8px rgba(15,23,42,0.18), 0 2px 4px rgba(15,23,42,0.04)",
+                        }}
+                      >
+                        <div className="px-3 py-3">
+                          <div
+                            className="text-[9px] font-mono font-bold uppercase tracking-[0.15em] mb-1.5"
+                            style={{ color }}
+                          >
+                            Action
+                          </div>
+                          <div className="text-[12px] font-semibold text-gray-900 leading-snug">
+                            {output || "—"}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Connecting lines from cards down into the dark card */}
+                {activePersona && (
+                  <svg
+                    className="absolute pointer-events-none"
+                    style={{ bottom: -24, left: 0, width: "100%", height: 28, overflow: "visible", zIndex: 0 }}
+                  >
+                    {[0, 1, 2].map((oi) => {
+                      const cardCenterPct = (oi + 0.5) / 3;
+                      return (
+                        <line
+                          key={oi}
+                          x1={`${cardCenterPct * 100}%`}
+                          y1="0"
+                          x2="50%"
+                          y2="28"
+                          stroke={activePersona.color}
+                          strokeWidth="1.5"
+                          strokeDasharray="4 3"
+                          opacity="0.5"
+                        >
+                          <animate
+                            attributeName="stroke-dashoffset"
+                            from="0"
+                            to="-14"
+                            dur="1.5s"
+                            repeatCount="indefinite"
+                          />
+                        </line>
+                      );
+                    })}
+                  </svg>
+                )}
+              </div>
+
               {/* The Card */}
+
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
                 style={{
@@ -516,115 +628,6 @@ const ScrollDrivenHero = () => {
                 </div>
               </div>
 
-              {/* Ventus Orchestration panel — outside the dark card */}
-              <div
-                className="relative mt-8 transition-all duration-500 ease-out"
-                style={{
-                  opacity: stage === 4 ? 1 : 0,
-                  transform: stage === 4 ? "translateY(0)" : "translateY(-8px)",
-                  pointerEvents: stage === 4 ? "auto" : "none",
-                  minHeight: 180,
-                }}
-              >
-                {/* Connecting SVG lines from card bottom to each output card */}
-                {activePersona && (
-                  <svg
-                    className="absolute pointer-events-none"
-                    style={{ top: -32, left: 0, width: "100%", height: 70, overflow: "visible", zIndex: 0 }}
-                  >
-                    {[0, 1, 2].map((oi) => {
-                      const cardCenterPct = (oi + 0.5) / 3;
-                      return (
-                        <line
-                          key={oi}
-                          x1="50%"
-                          y1="0"
-                          x2={`${cardCenterPct * 100}%`}
-                          y2="68"
-                          stroke={activePersona.color}
-                          strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                          opacity="0.5"
-                        >
-                          <animate
-                            attributeName="stroke-dashoffset"
-                            from="0"
-                            to="-14"
-                            dur="1.5s"
-                            repeatCount="indefinite"
-                          />
-                        </line>
-                      );
-                    })}
-                  </svg>
-                )}
-
-                {/* Header */}
-                <div className="flex items-center gap-2.5 mb-4 relative z-10">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md">
-                    V
-                  </span>
-                  <span className="text-[15px] font-bold tracking-tight text-gray-900">
-                    Ventus Orchestrate
-                  </span>
-                  {activePersona && (
-                    <>
-                      <span className="text-gray-300">·</span>
-                      <span
-                        className="text-[12px] font-semibold uppercase tracking-wider"
-                        style={{ color: activePersona.color }}
-                      >
-                        {activePersona.label}
-                      </span>
-                      <span
-                        className="ml-0.5 w-1.5 h-1.5 rounded-full animate-pulse"
-                        style={{
-                          background: activePersona.color,
-                          boxShadow: `0 0 8px ${activePersona.color}`,
-                        }}
-                      />
-                    </>
-                  )}
-                </div>
-
-                {/* Three output cards — equal size, all visible */}
-                <div className="grid grid-cols-3 gap-3 relative z-10">
-                  {(activePersona?.outputs ?? ["", "", ""]).map((output, oi) => {
-                    const stagger = oi * 0.08;
-                    const cardProgress = activePersona
-                      ? Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.2))
-                      : 0;
-                    const color = activePersona?.color ?? "#94a3b8";
-                    return (
-                      <div
-                        key={oi}
-                        className="rounded-lg bg-white"
-                        style={{
-                          minHeight: 110,
-                          opacity: cardProgress,
-                          transform: `translateY(${(1 - cardProgress) * 12}px) scale(${0.92 + cardProgress * 0.08})`,
-                          transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-                          border: "1px solid rgba(15,23,42,0.08)",
-                          borderTop: `3px solid ${color}`,
-                          boxShadow: "0 8px 24px -8px rgba(15,23,42,0.18), 0 2px 4px rgba(15,23,42,0.04)",
-                        }}
-                      >
-                        <div className="px-3 py-3">
-                          <div
-                            className="text-[9px] font-mono font-bold uppercase tracking-[0.15em] mb-1.5"
-                            style={{ color }}
-                          >
-                            Action
-                          </div>
-                          <div className="text-[12px] font-semibold text-gray-900 leading-snug">
-                            {output || "—"}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
             </div>
           </div>
         </div>
