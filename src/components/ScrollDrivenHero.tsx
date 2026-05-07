@@ -148,9 +148,9 @@ const personas = [
     bg: "rgba(59,130,246,0.15)",
     count: personaCounts.travel,
     outputs: [
-      "Delta SkyMiles offer triggered",
-      "Away Luggage deal surfaced",
-      "Travel rewards upgrade queued",
+      { label: "OFFER", text: "Delta SkyMiles card matched" },
+      { label: "OFFER", text: "Away Luggage deal surfaced" },
+      { label: "SIGNAL", text: "Travel rewards upgrade queued" },
     ],
   },
   {
@@ -160,9 +160,9 @@ const personas = [
     bg: "rgba(34,197,94,0.15)",
     count: personaCounts.parent,
     outputs: [
-      "529 Plan recommendation sent",
-      "Life insurance alert queued",
-      "Family rewards card matched",
+      { label: "PRODUCT", text: "529 Plan recommendation triggered" },
+      { label: "ALERT", text: "Life insurance review queued" },
+      { label: "OFFER", text: "Family rewards card matched" },
     ],
   },
   {
@@ -172,9 +172,9 @@ const personas = [
     bg: "rgba(245,158,11,0.15)",
     count: personaCounts.college,
     outputs: [
-      "College savings consultation scheduled",
-      "Student loan pre-approval triggered",
-      "Education rewards activated",
+      { label: "ALERT", text: "Advisor briefing compiled" },
+      { label: "PRODUCT", text: "College savings consultation triggered" },
+      { label: "OFFER", text: "Student loan pre-approval queued" },
     ],
   },
 ];
