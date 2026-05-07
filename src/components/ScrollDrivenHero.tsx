@@ -274,8 +274,8 @@ const ScrollDrivenHero = () => {
 
             <p
               className="mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left transition-all duration-700 ease-out xl:text-[18px]"
-              style={{ lineHeight: 1.7 }}
               style={{
+                lineHeight: 1.7,
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(20px)",
                 transitionDelay: "200ms",
