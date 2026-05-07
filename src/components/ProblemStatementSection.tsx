@@ -31,11 +31,8 @@ const ProblemStatementSection = () => {
           </h2>
         </ScrollReveal>
 
-        <div style={{ marginTop: 40, marginBottom: 48 }} className="text-center">
-          <p style={{ color: "#6B7280", fontSize: 17 }}>
-            Fragmented rails, vague MCCs, and no behavioral layer — that's why banking personalization fails.
-          </p>
-          <p className="italic" style={{ color: "#2563EB", fontSize: 17, marginTop: 8 }}>
+        <div style={{ marginTop: 32, marginBottom: 40 }}>
+          <p className="italic" style={{ color: "#2563EB", fontSize: 17 }}>
             Ventus is the behavioral intelligence layer that bridges the gap.
           </p>
         </div>
