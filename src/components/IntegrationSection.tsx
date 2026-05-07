@@ -179,7 +179,7 @@ const IntegrationSection = () => {
                 </div>
 
                 {/* VENTUS ENGINE */}
-                <div className="flex items-center justify-center md:w-[260px]">
+                <div className="hidden md:flex items-center justify-center md:w-[260px]">
                   <div
                     className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
                     style={{
