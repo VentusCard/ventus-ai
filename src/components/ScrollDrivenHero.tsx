@@ -352,9 +352,122 @@ const ScrollDrivenHero = () => {
                     </div>
                   );
                 })}
+                </div>
+              </div>
+
+              {/* Ventus Orchestration panel — outside the dark card */}
+              <div
+                className="relative mt-6 transition-all duration-500 ease-out"
+                style={{
+                  opacity: stage === 4 ? 1 : 0,
+                  transform: stage === 4 ? "translateY(0)" : "translateY(-8px)",
+                  pointerEvents: stage === 4 ? "auto" : "none",
+                  minHeight: 180,
+                }}
+              >
+                {/* Header */}
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="flex items-center justify-center w-6 h-6 rounded-md bg-blue-600 text-white font-black text-[12px] leading-none">
+                    V
+                  </span>
+                  <span className="text-[13px] font-bold uppercase tracking-[0.12em] text-gray-900">
+                    Ventus Orchestrate
+                  </span>
+                  {activePersona && (
+                    <>
+                      <span className="text-gray-300">·</span>
+                      <span
+                        className="text-[11px] font-semibold uppercase tracking-wider"
+                        style={{ color: activePersona.color }}
+                      >
+                        {activePersona.label}
+                      </span>
+                      <span
+                        className="ml-1 w-1.5 h-1.5 rounded-full animate-pulse"
+                        style={{
+                          background: activePersona.color,
+                          boxShadow: `0 0 8px ${activePersona.color}`,
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
+
+                {/* Connecting SVG lines */}
+                {activePersona && (
+                  <svg
+                    className="absolute pointer-events-none"
+                    style={{ top: -28, left: 0, width: "100%", height: 60, overflow: "visible" }}
+                  >
+                    {[0, 1, 2].map((oi) => {
+                      // 3 cards take 1/3 of width each, center x of card oi
+                      const cardCenterPct = (oi + 0.5) / 3;
+                      return (
+                        <line
+                          key={oi}
+                          x1="50%"
+                          y1="-30"
+                          x2={`${cardCenterPct * 100}%`}
+                          y2="58"
+                          stroke={activePersona.color}
+                          strokeWidth="1.5"
+                          strokeDasharray="4 3"
+                          opacity="0.45"
+                        >
+                          <animate
+                            attributeName="stroke-dashoffset"
+                            from="0"
+                            to="-14"
+                            dur="1.5s"
+                            repeatCount="indefinite"
+                          />
+                        </line>
+                      );
+                    })}
+                  </svg>
+                )}
+
+                {/* Three output cards — equal size, all visible */}
+                <div className="grid grid-cols-3 gap-3 relative z-10">
+                  {(activePersona?.outputs ?? ["", "", ""]).map((output, oi) => {
+                    const stagger = oi * 0.08;
+                    const cardProgress = activePersona
+                      ? Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.2))
+                      : 0;
+                    const color = activePersona?.color ?? "#94a3b8";
+                    return (
+                      <div
+                        key={oi}
+                        className="rounded-lg bg-white"
+                        style={{
+                          minHeight: 110,
+                          opacity: cardProgress,
+                          transform: `translateY(${(1 - cardProgress) * 12}px) scale(${0.92 + cardProgress * 0.08})`,
+                          transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                          borderTop: `3px solid ${color}`,
+                          border: `1px solid rgba(15,23,42,0.08)`,
+                          borderTopWidth: 3,
+                          borderTopColor: color,
+                          boxShadow: "0 8px 24px -8px rgba(15,23,42,0.18), 0 2px 4px rgba(15,23,42,0.04)",
+                        }}
+                      >
+                        <div className="px-3 py-3 flex flex-col h-full">
+                          <div
+                            className="text-[9px] font-mono font-bold uppercase tracking-[0.15em] mb-1.5"
+                            style={{ color }}
+                          >
+                            Action
+                          </div>
+                          <div className="text-[12px] font-semibold text-gray-900 leading-snug">
+                            {output || "—"}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
             </div>
-          </div>
 
           {/* RIGHT COLUMN */}
           <div className="w-full xl:w-[55%] flex justify-center xl:justify-end">
