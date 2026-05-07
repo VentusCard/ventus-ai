@@ -284,7 +284,7 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Beyond basic categories and static rules — Ventus reads the full story your customers' transactions are telling, and turns it into action.
+              Beyond MCC codes and fragmented rails — Ventus reads the full story your customers' transactions are telling, and turns it into action.
             </p>
 
             <Button
