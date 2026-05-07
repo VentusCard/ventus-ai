@@ -152,6 +152,7 @@ const personas = [
       { label: "OFFER", text: "Away Luggage deal surfaced" },
       { label: "SIGNAL", text: "Travel rewards upgrade queued" },
     ],
+    orchestrationAction: "Curate travel deal collection",
   },
   {
     id: "parent" as const,
