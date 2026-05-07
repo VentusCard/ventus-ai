@@ -8,26 +8,24 @@ import salesforceLogo from "@/assets/salesforce-logo.png";
 
 type Tile = {
   name: string;
-  meta: string;
   src?: string;
   monogram?: string;
   monoColor?: string;
 };
 
 const sources: Tile[] = [
-  { name: "FIS", meta: "core · nightly batch", src: fisLogo },
-  { name: "Fiserv", meta: "core · real-time", src: fiservLogo },
-  { name: "Jack Henry SilverLake", meta: "core · sftp drop", src: jackHenryLogo },
-  { name: "Databricks", meta: "warehouse · delta share", src: databricksLogo },
-  { name: "Snowflake", meta: "warehouse · secure share", src: snowflakeLogo },
+  { name: "FIS", src: fisLogo },
+  { name: "Fiserv", src: fiservLogo },
+  { name: "Jack Henry SilverLake", src: jackHenryLogo },
+  { name: "Databricks", src: databricksLogo },
+  { name: "Snowflake", src: snowflakeLogo },
 ];
 
 const destinations: Tile[] = [
-  { name: "Salesforce Financial Cloud", meta: "crm · real-time push", src: salesforceLogo },
-  { name: "Microsoft Dynamics", meta: "crm · webhook", monogram: "M", monoColor: "#2563EB" },
-  { name: "Rewards Engine", meta: "internal · API", monogram: "R", monoColor: "#16A34A" },
-  { name: "Advisor Console", meta: "internal · webhook", monogram: "A", monoColor: "#7C3AED" },
-  { name: "Braze / Iterable", meta: "marketing · stream", monogram: "B", monoColor: "#EC4899" },
+  { name: "Salesforce Financial Cloud", src: salesforceLogo },
+  { name: "Microsoft Dynamics", monogram: "M", monoColor: "#2563EB" },
+  { name: "Rewards Engine", monogram: "R", monoColor: "#16A34A" },
+  { name: "Advisor Console", monogram: "A", monoColor: "#7C3AED" },
 ];
 
 const Tile = ({ tile }: { tile: Tile }) => (
@@ -42,10 +40,7 @@ const Tile = ({ tile }: { tile: Tile }) => (
       {tile.src ? (
         <img src={tile.src} alt={tile.name} className="max-h-6 max-w-7 w-auto object-contain" />
       ) : (
-        <span
-          className="text-[14px] font-black"
-          style={{ color: tile.monoColor }}
-        >
+        <span className="text-[14px] font-black" style={{ color: tile.monoColor }}>
           {tile.monogram}
         </span>
       )}
@@ -54,27 +49,11 @@ const Tile = ({ tile }: { tile: Tile }) => (
       <div className="text-[13px] font-semibold text-gray-900 truncate leading-tight">
         {tile.name}
       </div>
-      <div className="text-[11px] text-gray-500 truncate leading-tight mt-0.5">
-        {tile.meta}
-      </div>
     </div>
     <span
       className="shrink-0 w-1.5 h-1.5 rounded-full"
       style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
     />
-  </div>
-);
-
-const ApiPill = ({ color, label }: { color: string; label: string }) => (
-  <div
-    className="flex items-center gap-2 rounded-md px-2.5 py-1.5"
-    style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)" }}
-  >
-    <span
-      className="w-1.5 h-1.5 rounded-full shrink-0"
-      style={{ background: color, boxShadow: `0 0 6px ${color}` }}
-    />
-    <span className="font-mono text-[11px] text-gray-200 truncate">{label}</span>
   </div>
 );
 
@@ -149,12 +128,9 @@ const IntegrationSection = () => {
             <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-12 items-stretch">
               {/* SOURCES */}
               <div>
-                <div className="flex items-baseline justify-between mb-3 px-1">
+                <div className="mb-3 px-1">
                   <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                     Sources
-                  </span>
-                  <span className="text-[10px] text-gray-400 font-mono">
-                    Hashed batch · stream
                   </span>
                 </div>
                 <div className="flex flex-col gap-2 relative">
@@ -166,58 +142,40 @@ const IntegrationSection = () => {
               </div>
 
               {/* VENTUS ENGINE */}
-              <div className="flex items-center justify-center md:w-[280px]">
+              <div className="flex items-center justify-center md:w-[260px]">
                 <div
-                  className="rounded-2xl w-full overflow-hidden"
+                  className="rounded-2xl w-full overflow-hidden bg-white"
                   style={{
-                    background: "#0A1628",
-                    border: "1px solid rgba(255,255,255,0.08)",
-                    boxShadow: "0 20px 50px -12px rgba(10,22,40,0.35)",
+                    border: "1px solid #DBEAFE",
+                    boxShadow:
+                      "0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18)",
                   }}
                 >
-                  <div className="px-4 pt-4 pb-3 border-b" style={{ borderColor: "rgba(255,255,255,0.06)" }}>
+                  <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
+                    <span
+                      className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white font-black text-[22px] leading-none shadow-md"
+                      style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}
+                    >
+                      V
+                    </span>
                     <div className="flex items-center gap-2">
-                      <span
-                        className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md"
-                        style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}
-                      >
-                        V
-                      </span>
-                      <span className="text-[14px] font-bold text-white tracking-tight">
+                      <span className="text-[15px] font-bold text-gray-900 tracking-tight">
                         Ventus Engine
                       </span>
                       <span
-                        className="ml-auto w-1.5 h-1.5 rounded-full animate-pulse"
+                        className="w-1.5 h-1.5 rounded-full animate-pulse"
                         style={{ background: "#22c55e", boxShadow: "0 0 6px #22c55e" }}
                       />
                     </div>
-                    <div className="mt-2 font-mono text-[10.5px] text-gray-400 truncate">
-                      /v1/intelligence
-                    </div>
-                  </div>
-                  <div className="p-4 flex flex-col gap-1.5">
-                    <ApiPill color="#22c55e" label="enrich.merchant" />
-                    <ApiPill color="#3b82f6" label="persona.vector" />
-                    <ApiPill color="#f59e0b" label="life_event.detect" />
-                    <ApiPill color="#a855f7" label="cycle.cadence" />
-                  </div>
-                  <div
-                    className="px-4 py-2.5 border-t font-mono text-[10px] text-gray-400 text-center"
-                    style={{ borderColor: "rgba(255,255,255,0.06)", background: "rgba(255,255,255,0.02)" }}
-                  >
-                    180ms p95 · 0 PII · SOC 2 in progress
                   </div>
                 </div>
               </div>
 
               {/* DESTINATIONS */}
               <div>
-                <div className="flex items-baseline justify-between mb-3 px-1">
+                <div className="mb-3 px-1">
                   <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                     Destinations
-                  </span>
-                  <span className="text-[10px] text-gray-400 font-mono">
-                    JSON · webhook · push
                   </span>
                 </div>
                 <div className="flex flex-col gap-2 relative">
