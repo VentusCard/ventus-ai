@@ -358,7 +358,7 @@ const ScrollDrivenHero = () => {
 
           {/* RIGHT COLUMN */}
           <div className="w-full xl:w-[55%] flex justify-center xl:justify-end">
-            <div className="relative flex items-start justify-center">
+            <div className="relative flex flex-col items-stretch" style={{ width: 480, maxWidth: "calc(100vw - 48px)" }}>
               {/* The Card */}
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
