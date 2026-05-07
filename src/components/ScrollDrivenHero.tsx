@@ -258,12 +258,12 @@ const ScrollDrivenHero = () => {
 
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
-      <div className="sticky top-0 h-screen flex items-center justify-center overflow-visible" style={{ paddingTop: 80, paddingBottom: 80 }}>
-        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-12">
+      <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible" style={{ paddingTop: 160, paddingBottom: 80 }}>
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-8">
           {/* LEFT COLUMN */}
-          <div className="w-full xl:w-[45%] flex flex-col items-center xl:items-start">
+          <div className="w-full xl:w-[55%] flex flex-col items-center xl:items-start">
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[66px]"
+              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-6xl md:text-7xl xl:text-[84px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -273,7 +273,8 @@ const ScrollDrivenHero = () => {
             </h1>
 
             <p
-              className="mt-5 text-sm md:text-base text-gray-500 max-w-xl text-center xl:text-left leading-relaxed transition-all duration-700 ease-out xl:text-[16px]"
+              className="mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left transition-all duration-700 ease-out xl:text-[18px]"
+              style={{ lineHeight: 1.7 }}
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(20px)",
