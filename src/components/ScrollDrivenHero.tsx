@@ -428,6 +428,7 @@ const ScrollDrivenHero = () => {
                   width: "100%",
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
+                  paddingRight: 1,
                   boxShadow: loaded ? "0 25px 60px -12px rgba(0,0,0,0.25)" : "0 10px 30px -8px rgba(0,0,0,0.1)",
                   border: "1px solid rgba(255,255,255,0.06)",
                   opacity: loaded ? 1 : 0,
