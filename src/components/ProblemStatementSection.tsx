@@ -24,7 +24,7 @@ const ProblemStatementSection = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <ScrollReveal>
           <p className="text-[12px] font-semibold tracking-[0.18em] text-blue-600 uppercase mb-5">
-            01 · THE GAP
+            THE GAP
           </p>
           <h2 className="font-bold tracking-tight text-gray-900 leading-[1.05] text-left text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
             Your bank knows what a customer spent. <span className="text-gray-400">Not why.</span>
