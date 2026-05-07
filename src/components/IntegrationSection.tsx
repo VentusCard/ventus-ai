@@ -49,7 +49,7 @@ const IntegrationSection = () => {
           </h2>
         </ScrollReveal>
 
-        <ScrollReveal delay={120}>
+        <ScrollReveal delay={0.12}>
           <div className="mt-12 flex flex-col items-center" style={{ gap: 40 }}>
             {/* Row 1 — Data Sources */}
             <div className="flex flex-col items-center gap-4">
