@@ -23,7 +23,7 @@ const columns = [
 
 const ProblemStatementSection = () => {
   return (
-    <section className="bg-white w-full scroll-mt-20 py-14 md:py-20">
+    <section className="bg-white w-full scroll-mt-20 pt-24 md:pt-28 pb-14 md:pb-20 relative z-10">
       <div className="mx-auto mb-8 md:mb-10 max-w-7xl px-6 md:px-8">
         <ScrollReveal>
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">

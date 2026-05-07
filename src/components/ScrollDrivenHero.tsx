@@ -258,7 +258,7 @@ const ScrollDrivenHero = () => {
 
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
-      <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible" style={{ paddingTop: 64, paddingBottom: 40 }}>
+      <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible pt-6 md:pt-10 xl:pt-16 pb-10">
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
           <div className="contents xl:flex xl:flex-col xl:w-[62%] xl:items-start w-full">
@@ -577,14 +577,14 @@ const ScrollDrivenHero = () => {
 
               {/* Stage indicator below the dark card */}
               <div
-                className="mt-6 w-full transition-all duration-700 ease-out"
+                className="mt-3 xl:mt-6 w-full transition-all duration-700 ease-out"
                 style={{
                   opacity: loaded ? 1 : 0,
                   transform: loaded ? "translateY(0)" : "translateY(12px)",
                   transitionDelay: "400ms",
                 }}
               >
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-1.5 xl:gap-3">
                   {STAGE_LABELS.map((label, i) => {
                     const [start, end] = STAGE_RANGES[i];
                     const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
@@ -606,9 +606,8 @@ const ScrollDrivenHero = () => {
                           />
                         </div>
                         <span
-                          className="mt-2 uppercase tracking-[0.12em] whitespace-nowrap"
+                          className="mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[12px]"
                           style={{
-                            fontSize: 12,
                             color: isActive || isComplete ? "#111827" : "#9CA3AF",
                             fontWeight: isActive ? 800 : 500,
                             transition: "color 300ms ease, font-weight 300ms ease",
