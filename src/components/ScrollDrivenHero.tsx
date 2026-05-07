@@ -253,20 +253,106 @@ const ScrollDrivenHero = () => {
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}>
       {/* Sticky container */}
-      <div className="sticky top-0 h-screen flex flex-col items-center justify-start pt-24 md:pt-28 overflow-visible">
-        {/* Centered Headline */}
-        <h1
-          className="font-bold tracking-tight text-gray-900 leading-[1.1] text-center mb-6 md:mb-10 px-6 max-w-4xl transition-all duration-700 ease-out text-4xl md:text-6xl"
-          style={{
-            opacity: loaded ? 1 : 0,
-            transform: loaded ? "translateY(0)" : "translateY(24px)",
-          }}
-        >
-          Turn transaction data into <span className="italic text-blue-600">behavioral intelligence</span>
-        </h1>
+      <div className="sticky top-0 h-screen flex items-center justify-center overflow-visible" style={{ paddingTop: 80, paddingBottom: 80 }}>
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col lg:flex-row items-center gap-10 lg:gap-12">
+          {/* LEFT COLUMN — 45% */}
+          <div className="w-full lg:w-[45%] flex flex-col items-start">
+            <h1
+              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-left transition-all duration-700 ease-out text-4xl md:text-5xl lg:text-[64px]"
+              style={{
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(24px)",
+              }}
+            >
+              Turn transaction data into <span className="italic text-blue-600">behavioral intelligence</span>
+            </h1>
 
-        {/* Card + Callout wrapper */}
-        <div className="relative flex items-start justify-center gap-6">
+            <p
+              className="mt-5 text-base md:text-lg text-gray-500 max-w-xl text-left leading-relaxed transition-all duration-700 ease-out"
+              style={{
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(20px)",
+                transitionDelay: "200ms",
+              }}
+            >
+              Understand customers through dynamic personas, behavioral signals, and real-time life events.
+            </p>
+
+            <Button
+              size="lg"
+              className="mt-6 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out"
+              onClick={() => navigate("/contact")}
+              style={{
+                opacity: loaded ? 1 : 0,
+                transform: loaded ? "translateY(0)" : "translateY(20px)",
+                transitionDelay: "300ms",
+              }}
+            >
+              Schedule a Demo
+            </Button>
+
+            {/* Four-stage progress bar */}
+            {(() => {
+              const stages = ["Raw Stream", "Categorize", "Detect", "Orchestrate"];
+              const activeIdx =
+                scrollProgress < 0.1 ? 0 : scrollProgress < 0.2 ? 1 : scrollProgress < 0.45 ? 2 : 3;
+              return (
+                <div
+                  className="mt-8 w-full max-w-[480px] transition-all duration-700 ease-out"
+                  style={{
+                    opacity: loaded ? 1 : 0,
+                    transform: loaded ? "translateY(0)" : "translateY(12px)",
+                    transitionDelay: "400ms",
+                  }}
+                >
+                  <div className="relative flex items-center justify-between">
+                    <div
+                      className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px"
+                      style={{ background: "rgba(17,24,39,0.08)" }}
+                    />
+                    <div
+                      className="absolute left-0 top-1/2 -translate-y-1/2 h-px transition-[width] duration-500 ease-out"
+                      style={{
+                        width: `${Math.min(100, scrollProgress * 100)}%`,
+                        background: "rgba(37,99,235,0.4)",
+                      }}
+                    />
+                    {stages.map((label, i) => {
+                      const isActive = i === activeIdx;
+                      return (
+                        <div
+                          key={label}
+                          className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white"
+                          style={{
+                            borderBottom: isActive ? "2px solid #2563EB" : "2px solid transparent",
+                            transition: "all 300ms ease-out",
+                          }}
+                        >
+                          <span
+                            className="w-1.5 h-1.5 rounded-full transition-colors duration-300"
+                            style={{ background: isActive ? "#2563EB" : "#9CA3AF" }}
+                          />
+                          <span
+                            className="text-[11px] md:text-xs transition-colors duration-300"
+                            style={{
+                              color: isActive ? "#111827" : "#6B7280",
+                              fontWeight: isActive ? 700 : 500,
+                            }}
+                          >
+                            {label}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* RIGHT COLUMN — 55% */}
+          <div className="w-full lg:w-[55%] flex justify-center lg:justify-end">
+            <div className="relative flex items-start justify-center gap-6">
           {/* Mobile-only floating Ventus Orchestration callout — overlays dark card */}
           {stage === 3 && activePersona && (
             <div
@@ -617,92 +703,8 @@ const ScrollDrivenHero = () => {
               />
             </div>
           </div>
-        </div>
-
-        {/* Four-stage progress bar — synced with scroll stages */}
-        {(() => {
-          const stages = ["Raw Stream", "Categorize", "Detect", "Orchestrate"];
-          // Map scrollProgress to active stage index
-          // Raw Stream: <0.1 | Categorize: 0.1-0.2 | Detect: 0.2-0.45 | Orchestrate: >=0.45
-          const activeIdx =
-            scrollProgress < 0.1 ? 0 : scrollProgress < 0.2 ? 1 : scrollProgress < 0.45 ? 2 : 3;
-          return (
-            <div
-              className="mt-4 md:mt-5 transition-all duration-700 ease-out"
-              style={{
-                width: 520,
-                maxWidth: "calc(100vw - 48px)",
-                opacity: loaded ? 1 : 0,
-                transform: loaded ? "translateY(0)" : "translateY(12px)",
-                transitionDelay: "350ms",
-              }}
-            >
-              <div className="relative flex items-center justify-between">
-                {/* Connecting baseline */}
-                <div
-                  className="absolute left-0 right-0 top-1/2 -translate-y-1/2 h-px"
-                  style={{ background: "rgba(17,24,39,0.08)" }}
-                />
-                {/* Animated progress line */}
-                <div
-                  className="absolute left-0 top-1/2 -translate-y-1/2 h-px transition-[width] duration-500 ease-out"
-                  style={{
-                    width: `${Math.min(100, scrollProgress * 100)}%`,
-                    background: "rgba(37,99,235,0.4)",
-                  }}
-                />
-                {stages.map((label, i) => {
-                  const isActive = i === activeIdx;
-                  return (
-                    <div
-                      key={label}
-                      className="relative z-10 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white"
-                      style={{
-                        borderBottom: isActive ? "2px solid #2563EB" : "2px solid transparent",
-                        transition: "all 300ms ease-out",
-                      }}
-                    >
-                      <span
-                        className="w-1.5 h-1.5 rounded-full transition-colors duration-300"
-                        style={{ background: isActive ? "#2563EB" : "#9CA3AF" }}
-                      />
-                      <span
-                        className="text-[11px] md:text-xs transition-colors duration-300"
-                        style={{
-                          color: isActive ? "#111827" : "#6B7280",
-                          fontWeight: isActive ? 700 : 500,
-                        }}
-                      >
-                        {label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
-          );
-        })()}
-
-        <div
-          className="mt-5 md:mt-6 flex flex-col items-center pb-6 transition-all duration-700 ease-out"
-          style={{
-            opacity: loaded ? 1 : 0,
-            transform: loaded ? "translateY(0)" : "translateY(20px)",
-            transitionDelay: "450ms",
-          }}
-        >
-          <p className="text-sm md:text-base text-gray-500 max-w-xl text-center leading-relaxed px-6">
-            Understand customers through dynamic personas, behavioral signals, and real-time life events.
-          </p>
-
-          {/* Schedule a Demo button */}
-          <Button
-            size="lg"
-            className="mt-5 bg-blue-600 hover:bg-blue-700 text-white"
-            onClick={() => navigate("/contact")}
-          >
-            Schedule a Demo
-          </Button>
+          </div>
         </div>
       </div>
     </div>
