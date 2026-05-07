@@ -577,14 +577,14 @@ const ScrollDrivenHero = () => {
 
               {/* Stage indicator below the dark card */}
               <div
-                className="mt-6 w-full transition-all duration-700 ease-out"
+                className="mt-3 xl:mt-6 w-full transition-all duration-700 ease-out"
                 style={{
                   opacity: loaded ? 1 : 0,
                   transform: loaded ? "translateY(0)" : "translateY(12px)",
                   transitionDelay: "400ms",
                 }}
               >
-                <div className="grid grid-cols-4 gap-3">
+                <div className="grid grid-cols-4 gap-1.5 xl:gap-3">
                   {STAGE_LABELS.map((label, i) => {
                     const [start, end] = STAGE_RANGES[i];
                     const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
