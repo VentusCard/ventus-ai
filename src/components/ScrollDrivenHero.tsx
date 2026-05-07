@@ -257,7 +257,7 @@ const ScrollDrivenHero = () => {
   const statusLabel = stage === 1 ? "Analyzing..." : stage === 2 ? "Categorizing" : stage === 3 ? "Detected" : "Orchestrating";
 
   return (
-    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "#FFFFFF" }}>
+    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 70% 80% at 95% 15%, #DBEAFE 0%, #EFF6FF 35%, #FFFFFF 65%)" }}>
       <div className="sticky top-0 h-screen flex items-center justify-center overflow-visible" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-12">
           {/* LEFT COLUMN */}
