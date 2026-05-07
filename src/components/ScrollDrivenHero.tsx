@@ -310,57 +310,52 @@ const ScrollDrivenHero = () => {
               <ArrowRight className="w-4 h-4" />
             </Button>
 
-            {/* Clean four-stage step indicator */}
+            {/* Smoothly-filling four-stage progress bars */}
             <div
-              className="mt-10 w-full max-w-[520px] transition-all duration-700 ease-out"
+              className="mt-12 w-full max-w-[640px] transition-all duration-700 ease-out"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(12px)",
                 transitionDelay: "400ms",
               }}
             >
-              <div className="relative flex items-center justify-center xl:justify-start gap-3 md:gap-4">
+              <div className="grid grid-cols-4 gap-6 md:gap-8">
                 {STAGE_LABELS.map((label, i) => {
+                  const [start, end] = STAGE_RANGES[i];
+                  const fill = Math.max(0, Math.min(1, (scrollProgress - start) / (end - start)));
                   const isActive = i === activeStageIdx;
+                  const isComplete = scrollProgress >= end;
                   return (
-                    <div key={label} className="flex items-center gap-3 md:gap-4">
-                      <div className="relative inline-flex flex-col items-center">
-                        <span
-                          className="text-[14px] md:text-[15px] tracking-tight whitespace-nowrap"
+                    <div key={label} className="flex flex-col items-start">
+                      <div
+                        className="relative w-full rounded-full overflow-hidden"
+                        style={{ height: 4, background: "#E5E7EB" }}
+                      >
+                        <div
+                          className="absolute inset-y-0 left-0 rounded-full"
                           style={{
-                            color: isActive ? "#2563EB" : "#9CA3AF",
-                            fontWeight: isActive ? 700 : 400,
-                            transform: isActive ? "scale(1.05)" : "scale(1)",
-                            transformOrigin: "center",
-                            transition: "color 400ms ease, font-weight 400ms ease, transform 400ms ease",
-                            display: "inline-block",
-                          }}
-                        >
-                          {label}
-                        </span>
-                        {/* Animated underline */}
-                        <span
-                          className="absolute -bottom-1.5 left-0 right-0 h-[2px] rounded-full"
-                          style={{
+                            width: `${(isComplete ? 1 : fill) * 100}%`,
                             background: "#2563EB",
-                            opacity: isActive ? 1 : 0,
-                            transform: isActive ? "scaleX(1)" : "scaleX(0)",
-                            transformOrigin: "left center",
-                            transition: "transform 400ms ease, opacity 400ms ease",
+                            transition: "width 120ms linear",
                           }}
                         />
                       </div>
-                      {i < STAGE_LABELS.length - 1 && (
-                        <span className="text-[14px] md:text-[15px]" style={{ color: "#D1D5DB" }}>
-                          →
-                        </span>
-                      )}
+                      <span
+                        className="mt-3 text-[12px] md:text-[13px] uppercase tracking-[0.12em] whitespace-nowrap"
+                        style={{
+                          color: isActive || isComplete ? "#111827" : "#9CA3AF",
+                          fontWeight: isActive ? 700 : 500,
+                          transition: "color 300ms ease, font-weight 300ms ease",
+                        }}
+                      >
+                        {label}
+                      </span>
                     </div>
                   );
                 })}
-                </div>
               </div>
             </div>
+          </div>
 
           {/* RIGHT COLUMN */}
           <div className="w-full xl:w-[55%] flex justify-center xl:justify-end">
