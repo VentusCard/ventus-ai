@@ -261,7 +261,7 @@ const ScrollDrivenHero = () => {
       <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible" style={{ paddingTop: 160, paddingBottom: 80 }}>
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-8">
           {/* LEFT COLUMN */}
-          <div className="w-full xl:w-[55%] flex flex-col items-center xl:items-start">
+          <div className="w-full xl:w-[62%] flex flex-col items-center xl:items-start">
             <h1
               className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[68px]"
               style={{
