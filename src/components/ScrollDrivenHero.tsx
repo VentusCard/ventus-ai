@@ -263,7 +263,7 @@ const ScrollDrivenHero = () => {
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[62%] flex flex-col items-center xl:items-start">
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[68px]"
+              className="font-bold tracking-tight text-gray-900 leading-[1.2] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[68px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -281,11 +281,11 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Beyond fragmented rails and vague MCCs — Ventus builds dynamic personas, detects life events, and surfaces behavioral signals that tell you who your customer is.
+              Beyond basic categories and static rules — Ventus reads the full story your customers' transactions are telling, and turns it into action.
             </p>
 
             <Button
-              className="mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-7 text-base gap-2"
+              className="mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-10 text-base gap-2"
               onClick={() => navigate("/contact")}
               style={{
                 opacity: loaded ? 1 : 0,
@@ -310,7 +310,7 @@ const ScrollDrivenHero = () => {
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
                   minHeight: stage === 4 ? 168 : 0,
-                  marginBottom: stage === 4 ? 20 : 0,
+                  marginBottom: stage === 4 ? 4 : 0,
                   overflow: stage === 4 ? "visible" : "hidden",
                 }}
               >
