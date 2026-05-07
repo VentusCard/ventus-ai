@@ -259,7 +259,7 @@ const ScrollDrivenHero = () => {
   return (
     <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
       <div className="sticky top-0 h-screen flex items-start justify-center overflow-visible" style={{ paddingTop: 64, paddingBottom: 40 }}>
-        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-8">
+        <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[62%] flex flex-col items-center xl:items-start">
             <h1
@@ -472,7 +472,7 @@ const ScrollDrivenHero = () => {
                     return (
                       <span
                         key={p.id}
-                        className="inline-flex items-center rounded-full px-2.5 md:px-3 py-1 text-[10px] md:text-[11px] font-semibold whitespace-nowrap"
+                        className="inline-flex items-center rounded-full px-2 md:px-2.5 py-0.5 text-[9px] md:text-[10px] font-semibold whitespace-nowrap"
                         style={{
                           background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
                           color: p.color,
