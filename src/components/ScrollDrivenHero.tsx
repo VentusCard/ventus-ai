@@ -423,7 +423,7 @@ const ScrollDrivenHero = () => {
                   })}
                 </div>
 
-                {/* Solid animated lines from card down into the dark card */}
+                {/* Animated dashed connecting lines */}
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
@@ -431,10 +431,6 @@ const ScrollDrivenHero = () => {
                   >
                     {[0, 1, 2].map((oi) => {
                       const cardCenterPct = (oi + 0.5) / 3;
-                      // line draw progress based on personaWindowProgress (300ms feel)
-                      const stagger = oi * 0.05;
-                      const drawP = Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.15));
-                      const lineLen = 60;
                       return (
                         <line
                           key={oi}
@@ -444,11 +440,17 @@ const ScrollDrivenHero = () => {
                           y2="28"
                           stroke={activePersona.color}
                           strokeWidth="1.5"
-                          opacity="0.4"
-                          strokeDasharray={lineLen}
-                          strokeDashoffset={lineLen * (1 - drawP)}
-                          style={{ transition: "stroke-dashoffset 300ms ease-out" }}
-                        />
+                          strokeDasharray="4 3"
+                          opacity="0.5"
+                        >
+                          <animate
+                            attributeName="stroke-dashoffset"
+                            from="0"
+                            to="-14"
+                            dur="1.5s"
+                            repeatCount="indefinite"
+                          />
+                        </line>
                       );
                     })}
                   </svg>
