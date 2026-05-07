@@ -263,7 +263,7 @@ const ScrollDrivenHero = () => {
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[55%] flex flex-col items-center xl:items-start">
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-6xl md:text-7xl xl:text-[84px]"
+              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[68px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
