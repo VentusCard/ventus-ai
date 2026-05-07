@@ -96,11 +96,11 @@ const PortfolioVisual = () => (
     ].map((row) => (
       <div
         key={row.label}
-        className="rounded-lg px-3 py-2.5 flex items-center justify-between gap-2 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)]"
+        className="rounded-lg px-3 py-2.5 flex items-center justify-between gap-2 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.06)] min-w-0"
         style={{ borderLeft: `3px solid ${row.color}` }}
       >
-        <p className="text-gray-900 font-semibold truncate text-[12px] sm:text-[13px]">{row.label}</p>
-        <p className="font-mono text-gray-500 text-[10px] sm:text-[11px] whitespace-nowrap shrink-0">{row.stat}</p>
+        <p className="text-gray-900 font-semibold truncate text-[12px] sm:text-[13px] min-w-0">{row.label}</p>
+        <p className="font-mono text-gray-500 text-[10px] sm:text-[11px] whitespace-nowrap shrink-0 truncate max-w-[55%]">{row.stat}</p>
       </div>
     ))}
   </div>
@@ -216,7 +216,7 @@ const SolutionSections = () => {
                     <span className="w-3 h-3 rounded-full bg-green-400" />
                     <span className="ml-3 text-[11px] text-gray-400 font-mono">ventusai.com/intelligence</span>
                   </div>
-                  <div className="p-6">
+                  <div className="p-3 sm:p-6">
                     <PortfolioVisual />
                   </div>
                 </div>
