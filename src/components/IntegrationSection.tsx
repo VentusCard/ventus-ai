@@ -6,11 +6,11 @@ import snowflakeLogo from "@/assets/snowflake-logo.png";
 import salesforceLogo from "@/assets/salesforce-logo.png";
 
 const sources = [
-  { name: "FIS", src: fisLogo, height: "h-6" },
-  { name: "Fiserv", src: fiservLogo, height: "h-7" },
-  { name: "Jack Henry", src: jackHenryLogo, height: "h-6" },
-  { name: "Databricks", src: databricksLogo, height: "h-6" },
-  { name: "Snowflake", src: snowflakeLogo, height: "h-6" },
+  { name: "FIS", src: fisLogo, height: "h-8" },
+  { name: "Fiserv", src: fiservLogo, height: "h-9" },
+  { name: "Jack Henry", src: jackHenryLogo, height: "h-8" },
+  { name: "Databricks", src: databricksLogo, height: "h-8" },
+  { name: "Snowflake", src: snowflakeLogo, height: "h-8" },
 ];
 
 const Pill = ({ children }: { children: React.ReactNode }) => (
@@ -46,7 +46,7 @@ const IntegrationSection = () => {
           Plugs into your existing stack without replacing it.
         </h2>
 
-        <div className="mt-12 flex flex-col items-center" style={{ gap: 24 }}>
+        <div className="mt-12 flex flex-col items-center" style={{ gap: 40 }}>
           {/* Row 1 — Data Sources */}
           <div className="flex flex-col items-center gap-4">
             <p
@@ -79,9 +79,9 @@ const IntegrationSection = () => {
               <img
                 src={salesforceLogo}
                 alt="Salesforce"
-                className="h-7 w-auto grayscale opacity-60"
+                className="h-9 w-auto grayscale opacity-60"
               />
-              <Pill>Rewards Engine · REST API</Pill>
+              <Pill>Rewards Engine · API</Pill>
               <Pill>Advisor Tools · Webhook</Pill>
             </div>
           </div>
