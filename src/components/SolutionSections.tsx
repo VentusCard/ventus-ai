@@ -146,45 +146,45 @@ const SolutionSections = () => {
               </h2>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {nextCards.map((section) => (
-                <div
-                  key={section.id}
-                  className="rounded-[20px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col"
-                >
-                  <div className="p-6 lg:p-7 flex flex-col flex-1">
-                    <p className="text-[11px] font-semibold tracking-widest uppercase text-blue-600 mb-3">
-                      {section.label}
-                    </p>
-                    <h3 className="text-xl md:text-[22px] font-bold text-gray-900 leading-tight mb-3">
-                      {section.headline}
-                    </h3>
-                    <p className="text-sm text-gray-500 leading-relaxed mb-5">
-                      {section.body}
-                    </p>
-                    <div className="mt-auto">
-                      <Link to={section.link}>
-                        <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                          Learn more
-                        </Button>
-                      </Link>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {nextCards.map((section) => (
+              <div
+                key={section.id}
+                className="rounded-[20px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col"
+              >
+                <div className="p-6 lg:p-7 flex flex-col flex-1">
+                  <p className="text-[11px] font-semibold tracking-widest uppercase text-blue-600 mb-3">
+                    {section.label}
+                  </p>
+                  <h3 className="text-xl md:text-[22px] font-bold text-gray-900 leading-tight mb-3">
+                    {section.headline}
+                  </h3>
+                  <p className="text-sm text-gray-500 leading-relaxed mb-5">
+                    {section.body}
+                  </p>
+                </div>
+                <div className="bg-gray-50 border-t border-gray-200 p-5">
+                  <div className="rounded-[14px] border border-gray-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden">
+                    <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 border-b border-gray-200">
+                      <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+                      <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                    </div>
+                    <div className="p-4">
+                      {section.card}
                     </div>
                   </div>
-                  <div className="bg-gray-50 border-t border-gray-200 p-5">
-                    <div className="rounded-[14px] border border-gray-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden">
-                      <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 border-b border-gray-200">
-                        <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                        <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
-                      </div>
-                      <div className="p-4">
-                        {section.card}
-                      </div>
-                    </div>
+                  <div className="mt-5">
+                    <Link to={section.link}>
+                      <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">
+                        Learn more
+                      </Button>
+                    </Link>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            ))}
+          </div>
           </ScrollReveal>
         </div>
       </section>
