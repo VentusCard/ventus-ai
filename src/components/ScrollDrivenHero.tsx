@@ -309,9 +309,9 @@ const ScrollDrivenHero = () => {
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
                   pointerEvents: stage === 4 ? "auto" : "none",
-                  minHeight: stage === 4 ? 168 : 0,
-                  marginBottom: stage === 4 ? 4 : 0,
-                  overflow: stage === 4 ? "visible" : "hidden",
+                  minHeight: 168,
+                  marginBottom: 4,
+                  overflow: "visible",
                 }}
               >
                 {/* Header */}
@@ -387,7 +387,7 @@ const ScrollDrivenHero = () => {
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
-                    style={{ bottom: -24, left: 0, width: "100%", height: 28, overflow: "visible", zIndex: 0 }}
+                    style={{ bottom: -10, left: 0, width: "100%", height: 50, overflow: "visible", zIndex: 0 }}
                   >
                     {[0, 1, 2].map((oi) => {
                       const cardCenterPct = (oi + 0.5) / 3;
@@ -397,7 +397,7 @@ const ScrollDrivenHero = () => {
                           x1={`${cardCenterPct * 100}%`}
                           y1="0"
                           x2="50%"
-                          y2="28"
+                          y2="50"
                           stroke={activePersona.color}
                           strokeWidth="1.5"
                           strokeDasharray="4 3"
