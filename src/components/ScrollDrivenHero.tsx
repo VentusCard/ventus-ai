@@ -281,11 +281,11 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Beyond fragmented rails and vague MCCs — Ventus builds dynamic personas, detects life events, and surfaces behavioral signals that tell you who your customer is.
+              Beyond basic categories and static rules — Ventus reads the full story your customers' transactions are telling, and turns it into action.
             </p>
 
             <Button
-              className="mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-7 text-base gap-2"
+              className="mt-7 bg-blue-600 hover:bg-blue-700 text-white transition-all duration-700 ease-out h-12 px-10 text-base gap-2"
               onClick={() => navigate("/contact")}
               style={{
                 opacity: loaded ? 1 : 0,
