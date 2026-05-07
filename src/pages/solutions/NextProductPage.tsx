@@ -179,6 +179,7 @@ const NextProductPage = () => {
       {/* Tabbed life events */}
       <section ref={tabs.ref} className="bg-white px-6" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="max-w-6xl mx-auto">
+          <p style={{ ...revealStyle(tabs.visible, 0), color: "#16A34A" }} className="text-xs font-bold tracking-widest uppercase mb-3">GROWTH</p>
           <h2 style={revealStyle(tabs.visible, 0)} className="font-bold text-gray-900 mb-3 text-3xl md:text-4xl">
             Ventus surfaces the signal. Your team acts on it.
           </h2>
@@ -269,6 +270,83 @@ const NextProductPage = () => {
                   <button
                     className="text-xs font-semibold text-white px-3 py-1.5 rounded-lg transition-colors"
                     style={{ backgroundColor: p.ctaColor }}
+                  >
+                    {p.cta}
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* PROTECTION — Suppression example */}
+      <section className="bg-white px-6" style={{ paddingTop: 40, paddingBottom: 80 }}>
+        <div className="max-w-6xl mx-auto">
+          <p className="text-xs font-bold tracking-widest uppercase mb-3" style={{ color: "#DC2626" }}>PROTECTION</p>
+          <h2 className="font-bold text-gray-900 mb-3 text-3xl md:text-4xl">
+            Know when not to sell.
+          </h2>
+          <p className="text-gray-500 mb-10 max-w-3xl" style={{ fontSize: 18 }}>
+            When Ventus detects financial stress or risk signals it automatically suppresses irrelevant product offers and surfaces the right tools instead — spending controls, wellness resources, and alerts. Your bank shows up with empathy not a sales pitch.
+          </p>
+
+          <div className="grid md:grid-cols-2 gap-8 items-start">
+            <div
+              className="rounded-xl p-7"
+              style={{
+                border: "1.5px solid #FCA5A5",
+                borderLeft: "4px solid #DC2626",
+                boxShadow: "0 2px 12px rgba(0,0,0,0.05)",
+                background: "#FEF2F2",
+              }}
+            >
+              <div className="flex items-center gap-2 mb-4 flex-wrap">
+                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: "#DC2626" }} />
+                <p className="font-bold text-gray-900 text-base">Financial Stress Signal</p>
+                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full" style={{ background: "#DC262615", color: "#DC2626" }}>
+                  Detected
+                </span>
+              </div>
+              <p className="text-sm font-semibold text-gray-900 mb-3">
+                Credit card offer suppressed — financial stress signal detected
+              </p>
+              <p className="text-xs text-gray-600 leading-relaxed mb-4">
+                Recurring overdraft fees, cash advances, and elevated discretionary spend detected over the last 60 days. Standard credit card promotions paused.
+              </p>
+              <div className="border-t border-red-200 pt-3">
+                <p className="text-[10px] font-semibold tracking-widest uppercase text-gray-500 mb-2">Suppressed offers</p>
+                <div className="space-y-1 text-xs text-gray-600">
+                  <p>● Premium Travel Card</p>
+                  <p>● Personal Loan Pre-approval</p>
+                  <p>● Investment Account Upsell</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <p className="text-[10px] font-semibold tracking-widest uppercase mb-1" style={{ color: "#DC2626" }}>
+                Surfaced Instead
+              </p>
+              {[
+                { title: "Merchant Category Controls", reason: "Help the customer set guardrails on discretionary categories.", cta: "Enable Controls →" },
+                { title: "Daily Spending Limits", reason: "Soft caps with friendly notifications — no judgement, just awareness.", cta: "Set Limits →" },
+                { title: "Financial Wellness Consultation", reason: "Free 30-minute session with a certified financial coach.", cta: "Schedule Session →" },
+              ].map((p) => (
+                <div
+                  key={p.title}
+                  className="rounded-xl bg-white"
+                  style={{
+                    padding: 16,
+                    border: "1.5px solid #E5E7EB",
+                    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+                  }}
+                >
+                  <p className="text-sm font-bold text-gray-900 mb-1">{p.title}</p>
+                  <p className="text-xs text-gray-500 leading-relaxed mb-3">{p.reason}</p>
+                  <button
+                    className="text-xs font-semibold text-white px-3 py-1.5 rounded-lg transition-colors"
+                    style={{ backgroundColor: "#0F172A" }}
                   >
                     {p.cta}
                   </button>
