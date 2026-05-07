@@ -396,7 +396,7 @@ const ScrollDrivenHero = () => {
                           key={oi}
                           x1={`${cardCenterPct * 100}%`}
                           y1="0"
-                          x2="60%"
+                          x2="50%"
                           y2="28"
                           stroke={activePersona.color}
                           strokeWidth="1.5"
@@ -422,7 +422,7 @@ const ScrollDrivenHero = () => {
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  width: 480,
+                  width: "100%",
                   minHeight: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
