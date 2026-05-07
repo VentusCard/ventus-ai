@@ -300,8 +300,8 @@ const ScrollDrivenHero = () => {
           </div>
 
           {/* RIGHT COLUMN */}
-          <div className="w-full xl:w-[45%] flex justify-center xl:justify-end">
-            <div className="relative flex flex-col items-stretch" style={{ width: 440, maxWidth: "calc(100vw - 48px)" }}>
+          <div className="w-full xl:w-[38%] flex justify-center xl:justify-end">
+            <div className="relative flex flex-col items-stretch" style={{ width: 400, maxWidth: "calc(100vw - 48px)" }}>
               {/* Ventus Orchestrate panel — sits ABOVE the dark card */}
               <div
                 className="relative transition-all duration-500 ease-out"
