@@ -2,67 +2,71 @@ import ScrollReveal from "@/components/ScrollReveal";
 
 const columns = [
   {
-    label: "01 · RETENTION",
+    num: "01",
+    label: "RETENTION",
     title: "Keep customers longer.",
     body: "Behavioral signals surface the right moment to engage — before customers go looking elsewhere.",
   },
   {
-    label: "02 · GROWTH",
+    num: "02",
+    label: "GROWTH",
     title: "Grow assets under management.",
-    body: "Personalized offers and products that match real customer behavior convert at higher rates.",
+    body: "Life event detection connects advisors to customers at exactly the right financial moment.",
   },
   {
-    label: "03 · REVENUE",
+    num: "03",
+    label: "REVENUE",
     title: "Win more relationships.",
-    body: "Life event detection connects advisors to customers at exactly the right financial moment.",
+    body: "Personalized offers and products that match real customer behavior convert at higher rates.",
   },
 ];
 
 const ProblemStatementSection = () => {
   return (
-    <section className="bg-white w-full" style={{ paddingTop: 80, paddingBottom: 80 }}>
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
+    <section className="bg-white w-full scroll-mt-20" style={{ paddingTop: 80, paddingBottom: 80 }}>
+      <div className="mx-auto mb-10 max-w-7xl px-6 md:px-8">
         <ScrollReveal>
-          <p className="text-[12px] font-semibold tracking-[0.18em] text-blue-600 uppercase mb-5">
-            THE GAP
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+            The Gap
           </p>
-          <h2 className="font-bold tracking-tight text-gray-900 leading-[1.05] text-left text-4xl md:text-5xl xl:text-[64px] max-w-5xl">
+          <h2 className="max-w-4xl text-3xl font-bold text-gray-900 md:text-4xl leading-[1.1]">
             Your bank knows what a customer spent. <span className="text-gray-400">Not why.</span>
           </h2>
-        </ScrollReveal>
-
-        <div style={{ marginTop: 32, marginBottom: 40 }}>
-          <p className="italic" style={{ color: "#2563EB", fontSize: 17 }}>
+          <p className="italic mt-6" style={{ color: "#2563EB", fontSize: 17 }}>
             Ventus is the behavioral intelligence layer that bridges the gap.
           </p>
-        </div>
+        </ScrollReveal>
+      </div>
 
-        <div
-          className="grid grid-cols-1 md:grid-cols-3"
-          style={{ columnGap: 48, rowGap: 32 }}
-        >
-          {columns.map((c) => (
+      <div className="mx-auto max-w-7xl px-6 md:px-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3">
+          {columns.map((c, i) => (
             <div
               key={c.label}
-              className="text-left"
-              style={{ borderTop: "1px solid #BFDBFE", paddingTop: 24 }}
+              className={`relative min-w-0 px-5 py-16 lg:px-6 ${
+                i > 0 ? "border-t border-gray-200 lg:border-l lg:border-t-0" : ""
+              }`}
             >
-              <p className="text-[12px] font-semibold tracking-[0.18em] text-blue-600 uppercase mb-3">
-                {c.label}
-              </p>
-              <h3
-                className="font-bold text-gray-900 leading-tight mb-3"
-                style={{ fontSize: 28 }}
+              <span
+                className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]"
+                style={{ color: "rgba(37,99,235,0.08)" }}
               >
-                {c.title}
-              </h3>
-              <p className="text-[#6B7280] leading-relaxed" style={{ fontSize: 16 }}>
-                {c.body}
-              </p>
+                {c.num}
+              </span>
+              <div className="relative z-10 pt-14">
+                <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+                  {c.label}
+                </p>
+                <h3 className="mb-2 text-[30px] font-bold text-gray-900 leading-tight">
+                  {c.title}
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-500">
+                  {c.body}
+                </p>
+              </div>
             </div>
           ))}
         </div>
-
       </div>
     </section>
   );
