@@ -412,74 +412,27 @@ const ScrollDrivenHero = () => {
                     const isActive = stage === 4 && activePersona?.id === p.id;
                     const isPulsing = isActive && personaWindowProgress < 0.15;
                     return (
-                      <div key={p.id} className="relative">
-                        <span
-                          className="inline-flex items-center rounded-full px-2.5 md:px-3 py-1 text-[10px] md:text-[11px] font-semibold whitespace-nowrap"
-                          style={{
-                            background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
-                            color: p.color,
-                            border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
-                            opacity: isRevealed ? 1 : 0,
-                            transform: isRevealed
-                              ? isPulsing
-                                ? "scale(1.12)"
-                                : "scale(1)"
-                              : "scale(0.8)",
-                            transition: "all 350ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-                            boxShadow: isPulsing ? `0 0 0 6px ${p.color}22` : "none",
-                          }}
-                        >
-                          {p.label}
-                          {isActive && <span className="ml-1 opacity-70">· {p.count} txns</span>}
-                        </span>
-
-                        {/* Output cards explosion — Stage 4 only, only from active pill */}
-                        {isActive && (
-                          <div
-                            className="absolute left-1/2 top-full pointer-events-none z-30"
-                            style={{ transform: "translateX(-50%)", marginTop: 14 }}
-                          >
-                            <div className="relative" style={{ width: 1, height: 1 }}>
-                              {p.outputs.map((output, oi) => {
-                                // Fan: -1, 0, +1 spread
-                                const offsets = [-110, 0, 110];
-                                const yOffsets = [18, 0, 18];
-                                const stagger = oi * 0.1; // 10% of window per card
-                                const cardProgress = Math.max(
-                                  0,
-                                  Math.min(1, (personaWindowProgress - stagger) / 0.25)
-                                );
-                                const visible = cardProgress > 0;
-                                return (
-                                  <div
-                                    key={output}
-                                    className="absolute rounded-md bg-white shadow-lg"
-                                    style={{
-                                      left: 0,
-                                      top: 0,
-                                      width: 180,
-                                      transform: `translate(calc(-50% + ${offsets[oi] * cardProgress}px), ${yOffsets[oi] * cardProgress}px) scale(${0.4 + cardProgress * 0.6})`,
-                                      opacity: visible ? Math.min(1, cardProgress * 1.4) : 0,
-                                      transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-                                      borderLeft: `3px solid ${p.color}`,
-                                      boxShadow: "0 8px 20px -6px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.15)",
-                                    }}
-                                  >
-                                    <div className="px-2.5 py-2">
-                                      <div className="text-[9px] font-mono font-bold uppercase tracking-wider mb-0.5" style={{ color: p.color }}>
-                                        Action
-                                      </div>
-                                      <div className="text-[11px] font-semibold text-gray-900 leading-snug">
-                                        {output}
-                                      </div>
-                                    </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                      <span
+                        key={p.id}
+                        data-persona-pill={p.id}
+                        className="inline-flex items-center rounded-full px-2.5 md:px-3 py-1 text-[10px] md:text-[11px] font-semibold whitespace-nowrap"
+                        style={{
+                          background: isActive ? "rgba(255,255,255,0.95)" : p.bg,
+                          color: p.color,
+                          border: isActive ? `2px solid ${p.color}` : "2px solid transparent",
+                          opacity: isRevealed ? 1 : 0,
+                          transform: isRevealed
+                            ? isPulsing
+                              ? "scale(1.12)"
+                              : "scale(1)"
+                            : "scale(0.8)",
+                          transition: "all 350ms cubic-bezier(0.34, 1.56, 0.64, 1)",
+                          boxShadow: isPulsing ? `0 0 0 6px ${p.color}22` : "none",
+                        }}
+                      >
+                        {p.label}
+                        {isActive && <span className="ml-1 opacity-70">· {p.count} txns</span>}
+                      </span>
                     );
                   })}
                 </div>
