@@ -422,7 +422,7 @@ const ScrollDrivenHero = () => {
               <div
                 className="relative rounded-2xl overflow-hidden transition-all duration-700 ease-out"
                 style={{
-                  width: 480,
+                  width: "100%",
                   minHeight: 420,
                   maxWidth: "calc(100vw - 48px)",
                   background: "#0A1628",
