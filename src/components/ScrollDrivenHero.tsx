@@ -148,9 +148,9 @@ const personas = [
     bg: "rgba(59,130,246,0.15)",
     count: personaCounts.travel,
     outputs: [
-      "Delta SkyMiles offer triggered",
-      "Away Luggage deal surfaced",
-      "Travel rewards upgrade queued",
+      { label: "OFFER", text: "Delta SkyMiles card matched" },
+      { label: "OFFER", text: "Away Luggage deal surfaced" },
+      { label: "SIGNAL", text: "Travel rewards upgrade queued" },
     ],
   },
   {
@@ -160,9 +160,9 @@ const personas = [
     bg: "rgba(34,197,94,0.15)",
     count: personaCounts.parent,
     outputs: [
-      "529 Plan recommendation sent",
-      "Life insurance alert queued",
-      "Family rewards card matched",
+      { label: "PRODUCT", text: "529 Plan recommendation triggered" },
+      { label: "ALERT", text: "Life insurance review queued" },
+      { label: "OFFER", text: "Family rewards card matched" },
     ],
   },
   {
@@ -172,9 +172,9 @@ const personas = [
     bg: "rgba(245,158,11,0.15)",
     count: personaCounts.college,
     outputs: [
-      "College savings consultation scheduled",
-      "Student loan pre-approval triggered",
-      "Education rewards activated",
+      { label: "ALERT", text: "Advisor briefing compiled" },
+      { label: "PRODUCT", text: "College savings consultation triggered" },
+      { label: "OFFER", text: "Student loan pre-approval queued" },
     ],
   },
 ];
@@ -257,13 +257,13 @@ const ScrollDrivenHero = () => {
   const statusLabel = stage === 1 ? "Analyzing..." : stage === 2 ? "Categorizing" : stage === 3 ? "Detected" : "Orchestrating";
 
   return (
-    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 70% 80% at 95% 15%, #DBEAFE 0%, #EFF6FF 35%, #FFFFFF 65%)" }}>
+    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
       <div className="sticky top-0 h-screen flex items-center justify-center overflow-visible" style={{ paddingTop: 80, paddingBottom: 80 }}>
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-10 xl:gap-12">
           {/* LEFT COLUMN */}
           <div className="w-full xl:w-[45%] flex flex-col items-center xl:items-start">
             <h1
-              className="font-bold tracking-tight text-gray-900 leading-[1.08] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[68px]"
+              className="font-bold tracking-tight text-gray-900 leading-[1.05] text-center xl:text-left transition-all duration-700 ease-out text-5xl md:text-6xl xl:text-[72px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
@@ -273,7 +273,7 @@ const ScrollDrivenHero = () => {
             </h1>
 
             <p
-              className="mt-5 text-base md:text-lg xl:text-xl text-gray-500 max-w-xl text-center xl:text-left leading-relaxed transition-all duration-700 ease-out"
+              className="mt-5 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left leading-relaxed transition-all duration-700 ease-out xl:text-[19px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(20px)",
@@ -327,11 +327,12 @@ const ScrollDrivenHero = () => {
                         />
                       </div>
                       <span
-                        className="mt-3 text-[12px] md:text-[13px] uppercase tracking-[0.12em] whitespace-nowrap"
+                        className="mt-3 uppercase tracking-[0.12em] whitespace-nowrap"
                         style={{
+                          fontSize: isActive ? 15 : 13,
                           color: isActive || isComplete ? "#111827" : "#9CA3AF",
-                          fontWeight: isActive ? 700 : 500,
-                          transition: "color 300ms ease, font-weight 300ms ease",
+                          fontWeight: isActive ? 800 : 500,
+                          transition: "color 300ms ease, font-weight 300ms ease, font-size 300ms ease",
                         }}
                       >
                         {label}
@@ -358,17 +359,14 @@ const ScrollDrivenHero = () => {
               >
                 {/* Header */}
                 <div className="flex items-center gap-2.5 mb-3 relative z-10">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md">
-                    V
-                  </span>
-                  <span className="text-[15px] font-bold tracking-tight text-gray-900">
-                    Ventus Orchestrate
+                  <span className="text-[11px] font-bold tracking-[0.18em] uppercase" style={{ color: "#0A1628" }}>
+                    Ventus
                   </span>
                   {activePersona && (
                     <>
                       <span className="text-gray-300">·</span>
                       <span
-                        className="text-[12px] font-semibold uppercase tracking-wider"
+                        className="text-[13px] font-bold tracking-tight"
                         style={{ color: activePersona.color }}
                       >
                         {activePersona.label}
@@ -376,8 +374,8 @@ const ScrollDrivenHero = () => {
                       <span
                         className="ml-0.5 w-1.5 h-1.5 rounded-full animate-pulse"
                         style={{
-                          background: activePersona.color,
-                          boxShadow: `0 0 8px ${activePersona.color}`,
+                          background: "#22c55e",
+                          boxShadow: "0 0 8px #22c55e",
                         }}
                       />
                     </>
@@ -386,7 +384,7 @@ const ScrollDrivenHero = () => {
 
                 {/* Three output cards */}
                 <div className="grid grid-cols-3 gap-3 relative z-10">
-                  {(activePersona?.outputs ?? ["", "", ""]).map((output, oi) => {
+                  {(activePersona?.outputs ?? [null, null, null]).map((output, oi) => {
                     const stagger = oi * 0.08;
                     const cardProgress = activePersona
                       ? Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.2))
@@ -395,26 +393,29 @@ const ScrollDrivenHero = () => {
                     return (
                       <div
                         key={oi}
-                        className="rounded-lg bg-white"
+                        className="bg-white"
                         style={{
+                          borderRadius: 8,
                           minHeight: 100,
                           opacity: cardProgress,
                           transform: `translateY(${(1 - cardProgress) * -10}px) scale(${0.92 + cardProgress * 0.08})`,
                           transition: "all 400ms cubic-bezier(0.34, 1.56, 0.64, 1)",
-                          border: "1px solid rgba(15,23,42,0.08)",
-                          borderTop: `3px solid ${color}`,
-                          boxShadow: "0 8px 24px -8px rgba(15,23,42,0.18), 0 2px 4px rgba(15,23,42,0.04)",
+                          border: "1px solid #E5E7EB",
+                          boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
                         }}
                       >
                         <div className="px-3 py-3">
-                          <div
-                            className="text-[9px] font-mono font-bold uppercase tracking-[0.15em] mb-1.5"
-                            style={{ color }}
+                          <span
+                            className="inline-block text-[9px] font-bold uppercase tracking-[0.15em] mb-2 px-1.5 py-0.5 rounded"
+                            style={{
+                              color,
+                              background: `${color}1f`,
+                            }}
                           >
-                            Action
-                          </div>
+                            {output?.label ?? "—"}
+                          </span>
                           <div className="text-[12px] font-semibold text-gray-900 leading-snug">
-                            {output || "—"}
+                            {output?.text ?? "—"}
                           </div>
                         </div>
                       </div>
@@ -422,7 +423,7 @@ const ScrollDrivenHero = () => {
                   })}
                 </div>
 
-                {/* Connecting lines from cards down into the dark card */}
+                {/* Solid animated lines from card down into the dark card */}
                 {activePersona && (
                   <svg
                     className="absolute pointer-events-none"
@@ -430,6 +431,10 @@ const ScrollDrivenHero = () => {
                   >
                     {[0, 1, 2].map((oi) => {
                       const cardCenterPct = (oi + 0.5) / 3;
+                      // line draw progress based on personaWindowProgress (300ms feel)
+                      const stagger = oi * 0.05;
+                      const drawP = Math.max(0, Math.min(1, (personaWindowProgress - stagger) / 0.15));
+                      const lineLen = 60;
                       return (
                         <line
                           key={oi}
@@ -439,17 +444,11 @@ const ScrollDrivenHero = () => {
                           y2="28"
                           stroke={activePersona.color}
                           strokeWidth="1.5"
-                          strokeDasharray="4 3"
-                          opacity="0.5"
-                        >
-                          <animate
-                            attributeName="stroke-dashoffset"
-                            from="0"
-                            to="-14"
-                            dur="1.5s"
-                            repeatCount="indefinite"
-                          />
-                        </line>
+                          opacity="0.4"
+                          strokeDasharray={lineLen}
+                          strokeDashoffset={lineLen * (1 - drawP)}
+                          style={{ transition: "stroke-dashoffset 300ms ease-out" }}
+                        />
                       );
                     })}
                   </svg>
