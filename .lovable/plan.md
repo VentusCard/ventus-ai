@@ -1,22 +1,60 @@
 ## Goal
-In `ExecDemoIntelPanel.tsx`, when one of the three tabs (Next-Offer, Next-Product, Next-Conversation) is active — i.e. the pill rows are in their collapsed/compact form — allow the Spending Habits / Life Event Detection / Risk Factors pills to wrap onto a maximum of **two rows** instead of horizontally scrolling. Keep the overall row height unchanged. The default (no active tab) view keeps its current single-row scrolling behavior.
+Add a gear icon on the `/demo` password gate that opens a passcode-protected bank customization panel. The bank choice persists across sessions (localStorage) and is threaded into downstream edge functions so generated copy references that bank. Includes a "Generic (no customization)" option.
 
-## File
-`src/components/exec-demo/ExecDemoIntelPanel.tsx` — the three sibling rows around lines 736–747.
+## UX — `src/components/demo/SimplePasswordGate.tsx`
 
-## Changes
+- Add `Settings` (gear) icon button in the top-right corner of the gate screen.
+- Clicking opens a small dialog:
+  - Step 1: passcode prompt (same `ventus2026` as the demo gate). Validates locally; on success advances to step 2. No session persistence — re-prompts every time the dialog opens.
+  - Step 2: bank customization form
+    - Radio / toggle: **Generic (no customization)** vs **Custom bank**
+    - When "Custom bank" selected: text input "Bank name" (e.g. "First National Bank"), optional "Shorthand" (e.g. "FNB")
+    - Save / Cancel buttons
+- Persist to **`localStorage`** key `demo_bank_config` as `{ mode: "generic" | "custom", bankName?, bankShortName? }`. Never auto-cleared.
+- Show small muted label under the logo when set: "Customized for: X" (or nothing for generic).
+- Main demo gate logic unchanged (still uses `sessionStorage` for the demo entry).
 
-1. Define a tab-aware container class string near the existing `labelWidth` / `labelTextSize` / `rowGap` constants (~line 730):
-   - When `isCollapsed` (active tab on): `flex flex-wrap gap-x-2 gap-y-1 max-h-[44px] overflow-hidden py-0`
-   - Otherwise: keep current `flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5`
+## Shared accessor — new `src/lib/demoBankConfig.ts`
 
-2. Apply that class to all three pill containers (lines 738, 742, 746) replacing the hard-coded class string.
+```ts
+export type DemoBankConfig = { mode: "generic" | "custom"; bankName?: string; bankShortName?: string };
+export function getDemoBankConfig(): DemoBankConfig;       // defaults to {mode:"generic"}
+export function setDemoBankConfig(cfg: DemoBankConfig): void;
+```
 
-3. To make sure two rows fit inside `max-h-[44px]` only in collapsed mode, conditionally tighten pill vertical padding:
-   - Life-event pill (line 557): `py-1.5` → `py-1` when `isCollapsed`.
-   - Risk-factor pills (line 680) and the "No Risk Factors Detected" pill (line 713): same conditional.
-   - Rollup pills are produced by `PillarRollupChip`; if they visually overflow we'll pass an `isCollapsed` prop to that component in a follow-up. For now leave it; behavior is OK because rollup pills already use compact sizing.
+Helper `getBankPromptContext()` that returns `null` for generic or `{ bankName, bankShortName }` for custom — to spread into edge function bodies.
 
-## Result
-- In Next-Offer / Next-Product / Next-Conversation views, pills wrap onto up to two rows; nothing scrolls horizontally; overall row height stays the same as today (the previous single row reserved enough vertical space with `py-0.5` + scrollbar that two compressed pill rows now fit).
-- Default enrichment view (no active tab) is untouched.
+## Wire bank into edge function calls
+
+Add `bankContext` to every relevant `supabase.functions.invoke(...)` body in the exec demo flow:
+
+- `src/pages/ExecDemoPage.tsx` (lines ~286, 539, 585, 657, 706, 752):
+  - `synthesize-persona`, `generate-next-offers`, `analyze-lifestyle-signals`, `detect-risk-transactions` (pass-through), `generate-product-cards`, `generate-product-actions`
+  - Skip raw `/classify-transactions` fetch — bank-agnostic
+- `src/components/demo/ConsumerAIChatView.tsx` (line ~290): `consumer-chat` — most important for chatbot persona
+
+## Edge function updates
+
+Each function accepts optional `bankContext: { bankName?, bankShortName? }`. When present, inject into the LLM system prompt (e.g. "You are generating copy for {bankName}. Reference the bank by name where natural."). When absent, fall back to current generic copy ("your bank").
+
+Functions touched:
+- `supabase/functions/consumer-chat/index.ts` — chatbot persona
+- `supabase/functions/generate-product-cards/index.ts` — product titles/issuer references
+- `supabase/functions/generate-next-offers/index.ts` — offer issuer language
+- `supabase/functions/generate-product-actions/index.ts` — CTA copy
+- `supabase/functions/synthesize-persona/index.ts` — pass-through; minor narrative hint
+- `supabase/functions/analyze-lifestyle-signals/index.ts` — pass-through
+
+Validation: trim, max 80 chars, ignore if empty/invalid.
+
+## Out of scope
+- No DB persistence — single-browser localStorage only.
+- No in-demo "change bank" UI — only via gate gear.
+- No per-customer overrides.
+
+## Files touched
+- `src/components/demo/SimplePasswordGate.tsx`
+- `src/lib/demoBankConfig.ts` (new)
+- `src/pages/ExecDemoPage.tsx`
+- `src/components/demo/ConsumerAIChatView.tsx`
+- 6 edge function `index.ts` files listed above
