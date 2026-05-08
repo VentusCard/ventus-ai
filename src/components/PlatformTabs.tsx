@@ -479,7 +479,7 @@ const PlatformTabs = () => {
             </div>
 
             {/* Right Column — 3/5: Browser Mockup */}
-            <div className="md:col-span-3 bg-gray-50 p-6 md:p-8 flex items-center justify-center">
+            <div className="md:col-span-3 bg-white p-6 md:p-8 flex items-center justify-center">
               <div className="w-full rounded-xl border border-gray-200 shadow-lg overflow-hidden bg-white">
                 {/* Title bar */}
                 <div className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 border-b border-gray-200">
