@@ -157,7 +157,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
               </span>
               <span className="font-semibold text-slate-600 text-[11px]">
-                {wmCopilotMode ? `Our Bank · Advisor` : `Our Bank · ${firstName}`}
+                {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
               </span>
             </div>
             {wmCopilotMode ? (
