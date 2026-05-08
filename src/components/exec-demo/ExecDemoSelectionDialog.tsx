@@ -80,6 +80,41 @@ export default function ExecDemoSelectionDialog({
   const customer = DEMO_CUSTOMERS[selectedIdx];
   const rawRows = useMemo(() => parseCsvRows(customer.csv), [customer.csv]);
 
+  const sourceGroups = useMemo(() => {
+    const map = new Map<string, RawRow[]>();
+    for (const r of rawRows) {
+      const key = r.source || "—";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(r);
+    }
+    const known = Object.keys(SOURCE_COLORS);
+    const ordered: { source: string; rows: RawRow[] }[] = [];
+    for (const k of known) {
+      if (map.has(k)) {
+        ordered.push({ source: k, rows: map.get(k)! });
+        map.delete(k);
+      }
+    }
+    for (const [k, rows] of map) ordered.push({ source: k, rows });
+    return ordered;
+  }, [rawRows]);
+
+  const [openSources, setOpenSources] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    setOpenSources({});
+  }, [customer.id]);
+
+  const allOpen = sourceGroups.length > 0 && sourceGroups.every((g) => openSources[g.source]);
+  const toggleAll = () => {
+    if (allOpen) {
+      setOpenSources({});
+    } else {
+      const next: Record<string, boolean> = {};
+      sourceGroups.forEach((g) => { next[g.source] = true; });
+      setOpenSources(next);
+    }
+  };
+
   const handleRun = () => {
     onOpenChange(false);
     onRunAnalysis();
