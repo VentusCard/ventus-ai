@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Pencil, Copy, Check, ArrowLeft, Play } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
