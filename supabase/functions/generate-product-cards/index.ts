@@ -95,11 +95,11 @@ CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
 - Tone: caring, calm, non-judgmental, never alarming. Like a trusted advisor quietly checking in.
 - type: must be "risk"
 - product_name: a non-credit, wellness/safety-themed product. Examples:
-   - "Our Bank SafeBalance Account Controls"
-   - "Our Bank Account Wellness Tools"
-   - "Our Bank Spending Limits & Merchant Controls"
-   - "Our Bank Confidential Customer Care"
-   - For financial-distress signals, prefer hardship-themed products such as: "Our Bank Hardship Assistance Program", "Our Bank Overdraft Protection & Fee Waivers", "Our Bank Confidential Financial Coaching", "Our Bank Balance Assist Short-Term Loan", "Our Bank Customized Cash Wellness Plan"
+   - "${bankLabel} SafeBalance Account Controls"
+   - "${bankLabel} Account Wellness Tools"
+   - "${bankLabel} Spending Limits & Merchant Controls"
+   - "${bankLabel} Confidential Customer Care"
+   - For financial-distress signals, prefer hardship-themed products such as: "${bankLabel} Hardship Assistance Program", "${bankLabel} Overdraft Protection & Fee Waivers", "${bankLabel} Confidential Financial Coaching", "${bankLabel} Balance Assist Short-Term Loan", "${bankLabel} Customized Cash Wellness Plan"
 - signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Sports Betting", "High-Risk / Offshore Gambling", "Casino & Table Games", "Lottery & Raffles", "Casual / Social Gaming", "Horse Racing & Pari-mutuel", "Gambling", "Suspicious International", "Adult Entertainment", "AML", "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress")
 - theme: use "wellness"
 - quote: 1-2 sentences framed as care/transparency. Examples:
