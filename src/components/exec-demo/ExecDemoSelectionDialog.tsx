@@ -166,7 +166,7 @@ export default function ExecDemoSelectionDialog({
 
         {/* Pills row */}
         <div className="px-8 py-3 border-b border-slate-100 shrink-0">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto">
             {DEMO_CUSTOMERS.map((c, i) => (
               <button
                 key={c.id}
