@@ -1,32 +1,23 @@
-## Group transactions by source as collapsible cards
+## Use customized bank name everywhere in Next-Product
 
-In `src/components/exec-demo/ExecDemoSelectionDialog.tsx`, replace the single flat transaction table with a stack of collapsible source cards.
+The Next-Product card sometimes shows "Our Bank 529 College Savings Plan" because several places still hardcode "Our Bank" instead of using the bank name from the demo password gate.
 
 ### Changes
 
-**File: `src/components/exec-demo/ExecDemoSelectionDialog.tsx`**
+**1. `supabase/functions/generate-product-cards/index.ts`** — RISK CARD examples (lines 98–102) still say `"Our Bank …"`. Replace each with `"${bankLabel} …"` so the LLM uses the customized bank name (or "Our Bank" only when generic mode is selected):
+- `${bankLabel} SafeBalance Account Controls`
+- `${bankLabel} Account Wellness Tools`
+- `${bankLabel} Spending Limits & Merchant Controls`
+- `${bankLabel} Confidential Customer Care`
+- All hardship product examples: `${bankLabel} Hardship Assistance Program`, `${bankLabel} Overdraft Protection & Fee Waivers`, `${bankLabel} Confidential Financial Coaching`, `${bankLabel} Balance Assist Short-Term Loan`, `${bankLabel} Customized Cash Wellness Plan`.
 
-1. Group `rawRows` by `source` (e.g. Checking, Cashback Card, Travel Card, Premium Card, Checks, ACH, Wire, Zelle, HSA, plus any "—" fallback). Preserve a stable order based on the existing `SOURCE_COLORS` keys, then append any unknown sources.
+Also reinforce the rule at the top of the system prompt: add an explicit line — "Every product_name MUST be prefixed with `${bankLabel}`. Never emit a product_name containing the literal phrase 'Our Bank' unless `${bankLabel}` is exactly 'Our Bank'." — so the model stops echoing the placeholder.
 
-2. Replace the existing `<ScrollArea>` + `<table>` block (the one rendered when `!showCustomFlow`) with a single `<ScrollArea>` containing a vertical stack of cards — one per source group.
+**2. `src/components/exec-demo/ExecDemoPhoneView.tsx`** (line 157) — Phone status bar header reads `Our Bank · ${firstName}`. Read the customized bank name via `getBankPromptContext()` (or `getDemoBankConfig()`) from `@/lib/demoBankConfig` and use `bankShortName || bankName || "Our Bank"` in place of the literal "Our Bank".
 
-3. Each card:
-   - Header (always visible, click toggles expand):
-     - Source pill (using existing `SOURCE_COLORS` styling)
-     - Source name
-     - Right side: transaction count + total absolute amount (e.g. "12 txns · $1,432.50")
-     - Chevron icon that rotates when open
-   - Expanded body:
-     - The same transaction table markup currently used, but only the rows for that source. Drop the redundant "Source" column inside the body since it is now implied by the card.
-   - Default state: all collapsed. Add a small "Expand all / Collapse all" toggle above the stack.
-
-4. Manage open/closed state with a single `useState<Record<string, boolean>>` keyed by source name. Reset when the selected customer changes (via `useEffect` on `customer.id`).
-
-5. Keep the empty state message when there are zero rows overall.
-
-6. Styling: cards use `border border-slate-200 rounded-xl bg-white` with a hover background on the header, matching the existing light-theme aesthetic of the dialog. No new dependencies — use the existing lucide `ChevronDown` icon.
+**3. `src/components/demo/DemoDetailOverlay.tsx`** (line 229) — Static "Our Bank" label in the demo overlay header. Same swap: read from `demoBankConfig` and fall back to "Our Bank".
 
 ### Out of scope
 
-- No changes to the custom-persona flow, header, pills row, or footer Run button.
-- No backend / edge function changes.
+- `src/components/tepilot/insights/AnalyticsContainer.tsx` is the TePilot analytics shell (separate flow) — leave untouched unless requested.
+- `src/pages/solutions/NextProductPage.tsx` and `src/lib/campaignData.ts` are public marketing pages, not the executive demo — not changed.
