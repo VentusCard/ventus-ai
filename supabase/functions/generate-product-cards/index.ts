@@ -13,6 +13,7 @@ serve(async (req) => {
     const { life_events, persona_rollups, pillars, demographics, risk_flags, bankContext } = await req.json();
     const bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
     const bankShort = bankContext && typeof bankContext.bankShortName === "string" ? bankContext.bankShortName.trim().slice(0, 40) : "";
+    const bankWebsite = bankContext && typeof bankContext.website === "string" ? bankContext.website.trim().slice(0, 200) : "";
     const bankLabel = bankName || "Our Bank";
     const hasRisk = Array.isArray(risk_flags) && risk_flags.length > 0;
     // Pick the top risk (most evidence). Group by category_label and tally.
@@ -60,7 +61,7 @@ Use "${bankLabel}"-prefixed products for ALL recommendations. Never use real ban
 - Retirement: ${bankLabel} IRA, ${bankLabel} Roth IRA
 - Business: ${bankLabel} Business Advantage Card
 
-Every product_name MUST start with or include "${bankLabel}". Keep naming clean and consumer-friendly — no ® or ™ symbols.${bankShort ? `\nIn shorter contexts, "${bankShort}" may be used as a synonym for "${bankLabel}".` : ""}
+Every product_name MUST start with or include "${bankLabel}". Keep naming clean and consumer-friendly — no ® or ™ symbols.${bankShort ? `\nIn shorter contexts, "${bankShort}" may be used as a synonym for "${bankLabel}".` : ""}${bankWebsite ? `\nThe bank's official website is ${bankWebsite} — product naming and tone should match a real institution at that domain.` : ""}
 
 VENTUS THESIS — THE GOLDEN RULE:
 The customer should read the card and think "huh, that's actually relevant to me right now" — never "the bank is watching my transactions." It should feel like good timing, not surveillance.
