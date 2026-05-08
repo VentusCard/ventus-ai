@@ -84,11 +84,6 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
               {tagline}
             </p>
           )}
-          {activeCfg.mode === "custom" && activeCfg.bankName && (
-            <p className="text-xs font-medium text-slate-400 tracking-wide uppercase">
-              Customized for: <span className="text-slate-600">{activeCfg.bankName}</span>
-            </p>
-          )}
         </div>
         {bullets && bullets.length === 3 && (
           <div className="grid grid-cols-3 items-center gap-x-6 whitespace-nowrap w-full">
