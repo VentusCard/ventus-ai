@@ -270,8 +270,9 @@ serve(async (req) => {
     // Bank customization prefix — when set, the assistant speaks as that bank's assistant.
     const bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
     const bankShort = bankContext && typeof bankContext.bankShortName === "string" ? bankContext.bankShortName.trim().slice(0, 40) : "";
+    const bankWebsite = bankContext && typeof bankContext.website === "string" ? bankContext.website.trim().slice(0, 200) : "";
     const bankPrefix = bankName
-      ? `\n\n=== BANK IDENTITY ===\nYou are the AI banking assistant for ${bankName}${bankShort ? ` ("${bankShort}")` : ""}. When referring to the bank, say "${bankName}" or "${bankShort || bankName}" — never "your bank" or a generic placeholder. Frame product recommendations as ${bankName} products where appropriate.\n`
+      ? `\n\n=== BANK IDENTITY ===\nYou are the AI banking assistant for ${bankName}${bankShort ? ` ("${bankShort}")` : ""}. When referring to the bank, say "${bankName}" or "${bankShort || bankName}" — never "your bank" or a generic placeholder. Frame product recommendations as ${bankName} products where appropriate.${bankWebsite ? ` Official site: ${bankWebsite} — you may reference this URL when pointing customers to bank products, account pages, or contact info.` : ""}\n`
       : "";
 
     const systemPrompt = bankPrefix + baseSystemPrompt + followupGuidance;

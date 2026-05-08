@@ -4,12 +4,22 @@ export type DemoBankConfig = {
   mode: "generic" | "custom";
   bankName?: string;
   bankShortName?: string;
+  website?: string;
 };
 
 export type BankPromptContext = {
   bankName: string;
   bankShortName?: string;
+  website?: string;
 } | null;
+
+function normalizeUrl(input: string | undefined): string | undefined {
+  if (!input) return undefined;
+  const trimmed = input.trim().slice(0, 200);
+  if (!trimmed) return undefined;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+}
 
 export function getDemoBankConfig(): DemoBankConfig {
   try {
@@ -21,6 +31,7 @@ export function getDemoBankConfig(): DemoBankConfig {
         mode: "custom",
         bankName: parsed.bankName.trim().slice(0, 80),
         bankShortName: typeof parsed.bankShortName === "string" ? parsed.bankShortName.trim().slice(0, 40) : undefined,
+        website: typeof parsed.website === "string" ? parsed.website.trim().slice(0, 200) : undefined,
       };
     }
     return { mode: "generic" };
@@ -40,6 +51,7 @@ export function setDemoBankConfig(cfg: DemoBankConfig): void {
           mode: "custom",
           bankName: (cfg.bankName || "").trim().slice(0, 80),
           bankShortName: cfg.bankShortName ? cfg.bankShortName.trim().slice(0, 40) : undefined,
+          website: normalizeUrl(cfg.website),
         })
       );
     }
@@ -52,5 +64,5 @@ export function setDemoBankConfig(cfg: DemoBankConfig): void {
 export function getBankPromptContext(): BankPromptContext {
   const cfg = getDemoBankConfig();
   if (cfg.mode !== "custom" || !cfg.bankName) return null;
-  return { bankName: cfg.bankName, bankShortName: cfg.bankShortName };
+  return { bankName: cfg.bankName, bankShortName: cfg.bankShortName, website: cfg.website };
 }
