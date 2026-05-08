@@ -2,6 +2,7 @@ import { useState } from "react";
 import { X, Sparkles, Gift, Users, Bot, Wifi, Battery, BarChart3 } from "lucide-react";
 import ConsumerAIChatView from "./ConsumerAIChatView";
 import type { DemoCustomer } from "@/lib/demoData";
+import { getDemoBankConfig } from "@/lib/demoBankConfig";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
 import { PILLAR_ROWS } from "./DemoNetworkDiagram";
 import type { LocalExperiencesData, PersonalizedDealData, DetectedLifeEventResult, ApiPayloads } from "@/hooks/useDemoEnrichment";
