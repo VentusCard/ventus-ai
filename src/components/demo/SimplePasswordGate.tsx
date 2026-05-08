@@ -298,6 +298,18 @@ function SettingsLauncher({
                         className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
                       />
                     </div>
+                    <div>
+                      <label className="block text-xs font-medium text-slate-600 mb-1">Website <span className="text-slate-400 font-normal">(optional)</span></label>
+                      <input
+                        type="url"
+                        inputMode="url"
+                        value={cfg.website || ""}
+                        onChange={(e) => setCfg({ ...cfg, website: e.target.value })}
+                        placeholder="e.g. firstnational.com"
+                        maxLength={200}
+                        className="w-full h-10 rounded-lg border border-slate-200 bg-white px-3 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-400 transition"
+                      />
+                    </div>
                     {err && <p className="text-xs text-red-500">Bank name is required.</p>}
                   </div>
                 )}
