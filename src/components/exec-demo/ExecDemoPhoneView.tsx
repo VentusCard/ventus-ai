@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Gift, Users, Bot, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
+import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
@@ -57,6 +58,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
   const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
+  const bankCfg = getDemoBankConfig();
+  const bankLabel = bankCfg.mode === "custom" ? (bankCfg.bankShortName || bankCfg.bankName || "Our Bank") : "Our Bank";
   
 
   // Sync with external activeTab changes
@@ -154,7 +157,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
                 <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
               </span>
               <span className="font-semibold text-slate-600 text-[11px]">
-                {wmCopilotMode ? `Our Bank · Advisor` : `Our Bank · ${firstName}`}
+                {wmCopilotMode ? `${bankLabel} · Advisor` : `${bankLabel} · ${firstName}`}
               </span>
             </div>
             {wmCopilotMode ? (

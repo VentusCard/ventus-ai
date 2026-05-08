@@ -10,7 +10,11 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { life_events, persona_rollups, pillars, demographics, risk_flags } = await req.json();
+    const { life_events, persona_rollups, pillars, demographics, risk_flags, bankContext } = await req.json();
+    const bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
+    const bankShort = bankContext && typeof bankContext.bankShortName === "string" ? bankContext.bankShortName.trim().slice(0, 40) : "";
+    const bankWebsite = bankContext && typeof bankContext.website === "string" ? bankContext.website.trim().slice(0, 200) : "";
+    const bankLabel = bankName || "Our Bank";
     const hasRisk = Array.isArray(risk_flags) && risk_flags.length > 0;
     // Pick the top risk (most evidence). Group by category_label and tally.
     let topRisk: { category_group: string; category_label: string; evidence: string[] } | null = null;
@@ -30,7 +34,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a consumer banking product recommendation copywriter for "TCBY Bank". You generate UP TO TWO product recommendation cards (or up to THREE if a RISK CARD is appended) that appear as notifications in a mobile banking app.
+    const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate UP TO TWO product recommendation cards (or up to THREE if a RISK CARD is appended) that appear as notifications in a mobile banking app.
 
 CARD ORDER (STRICT INTERLEAVING):
 Emit cards in exactly this order, skipping a slot only if the source doesn't exist:
@@ -47,17 +51,17 @@ CRITICAL — signal_label must match source verbatim:
 - Life event card: signal_label = life_events[i].event_name EXACTLY
 This enables downstream pill matching. Do NOT paraphrase, shorten, or rewrite the label.
 
-Use generic "Our Bank"-prefixed products for ALL recommendations. Never use real bank brand names (no "Bank of America", "Chase", "Merrill", "Wells Fargo", etc.). Examples:
-- Travel: Our Bank Travel Rewards Card, Our Bank Premium Rewards Card
-- Cash back: Our Bank Customized Cash Rewards Card, Our Bank Unlimited Cash Rewards Card
-- Savings: Our Bank Advantage Savings, Our Bank SafePass Savings
-- Investing: Our Bank Self-Directed Investing, Our Bank Guided Investing
-- Home: Our Bank Home Equity Line of Credit, Our Bank Mortgage
-- Education: Our Bank 529 College Savings Plan
-- Retirement: Our Bank IRA, Our Bank Roth IRA
-- Business: Our Bank Business Advantage Card
+Use "${bankLabel}"-prefixed products for ALL recommendations. Never use real bank brand names other than "${bankLabel}" (no "Bank of America", "Chase", "Merrill", "Wells Fargo", etc.). Examples (substitute "${bankLabel}" wherever you see "Our Bank" below):
+- Travel: ${bankLabel} Travel Rewards Card, ${bankLabel} Premium Rewards Card
+- Cash back: ${bankLabel} Customized Cash Rewards Card, ${bankLabel} Unlimited Cash Rewards Card
+- Savings: ${bankLabel} Advantage Savings, ${bankLabel} SafePass Savings
+- Investing: ${bankLabel} Self-Directed Investing, ${bankLabel} Guided Investing
+- Home: ${bankLabel} Home Equity Line of Credit, ${bankLabel} Mortgage
+- Education: ${bankLabel} 529 College Savings Plan
+- Retirement: ${bankLabel} IRA, ${bankLabel} Roth IRA
+- Business: ${bankLabel} Business Advantage Card
 
-Every product_name MUST start with or include "Our Bank". Keep naming clean and consumer-friendly — no ® or ™ symbols.
+Every product_name MUST start with or include "${bankLabel}". NEVER emit a product_name containing the literal phrase "Our Bank" unless "${bankLabel}" is exactly "Our Bank". Keep naming clean and consumer-friendly — no ® or ™ symbols.${bankShort ? `\nIn shorter contexts, "${bankShort}" may be used as a synonym for "${bankLabel}".` : ""}${bankWebsite ? `\nThe bank's official website is ${bankWebsite} — product naming and tone should match a real institution at that domain.` : ""}
 
 VENTUS THESIS — THE GOLDEN RULE:
 The customer should read the card and think "huh, that's actually relevant to me right now" — never "the bank is watching my transactions." It should feel like good timing, not surveillance.
@@ -91,11 +95,11 @@ CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
 - Tone: caring, calm, non-judgmental, never alarming. Like a trusted advisor quietly checking in.
 - type: must be "risk"
 - product_name: a non-credit, wellness/safety-themed product. Examples:
-   - "Our Bank SafeBalance Account Controls"
-   - "Our Bank Account Wellness Tools"
-   - "Our Bank Spending Limits & Merchant Controls"
-   - "Our Bank Confidential Customer Care"
-   - For financial-distress signals, prefer hardship-themed products such as: "Our Bank Hardship Assistance Program", "Our Bank Overdraft Protection & Fee Waivers", "Our Bank Confidential Financial Coaching", "Our Bank Balance Assist Short-Term Loan", "Our Bank Customized Cash Wellness Plan"
+   - "${bankLabel} SafeBalance Account Controls"
+   - "${bankLabel} Account Wellness Tools"
+   - "${bankLabel} Spending Limits & Merchant Controls"
+   - "${bankLabel} Confidential Customer Care"
+   - For financial-distress signals, prefer hardship-themed products such as: "${bankLabel} Hardship Assistance Program", "${bankLabel} Overdraft Protection & Fee Waivers", "${bankLabel} Confidential Financial Coaching", "${bankLabel} Balance Assist Short-Term Loan", "${bankLabel} Customized Cash Wellness Plan"
 - signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Sports Betting", "High-Risk / Offshore Gambling", "Casino & Table Games", "Lottery & Raffles", "Casual / Social Gaming", "Horse Racing & Pari-mutuel", "Gambling", "Suspicious International", "Adult Entertainment", "AML", "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress")
 - theme: use "wellness"
 - quote: 1-2 sentences framed as care/transparency. Examples:

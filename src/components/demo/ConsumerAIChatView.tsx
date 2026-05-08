@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { getBankPromptContext } from "@/lib/demoBankConfig";
 import ReactMarkdown from "react-markdown";
 import type { DemoCustomer } from "@/lib/demoData";
 import type { EnrichedTransaction } from "@/types/transaction";
@@ -293,6 +294,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
             conversationHistory: messages.map((m) => ({ role: m.role, content: m.content })),
             context: extraContext ? { ...context, signalContext: extraContext } : context,
             kind: effectiveKind,
+            bankContext: getBankPromptContext(),
           },
         });
 
