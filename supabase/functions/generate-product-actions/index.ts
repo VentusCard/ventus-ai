@@ -10,7 +10,9 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { product_cards, persona_rollups, life_events, demographics, pillars, risk_flags } = await req.json();
+    const { product_cards, persona_rollups, life_events, demographics, pillars, risk_flags, bankContext } = await req.json();
+    const bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
+    const bankShort = bankContext && typeof bankContext.bankShortName === "string" ? bankContext.bankShortName.trim().slice(0, 40) : "";
 
     if (!product_cards || !Array.isArray(product_cards) || product_cards.length === 0) {
       return new Response(JSON.stringify({ error: "product_cards required" }), {
@@ -22,7 +24,11 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a world-class private banking concierge strategist. Given a customer's product recommendation cards, their behavioral persona, detected life events, demographics, and spending patterns, you generate 2-5 engagement actions per product card.
+    const bankPrefix = bankName
+      ? `BANK IDENTITY: You represent ${bankName}${bankShort ? ` ("${bankShort}")` : ""}. Where action labels reference the bank, use "${bankShort || bankName}" instead of "Our Bank" or "the bank".\n\n`
+      : "";
+
+    const systemPrompt = bankPrefix + `You are a world-class private banking concierge strategist. Given a customer's product recommendation cards, their behavioral persona, detected life events, demographics, and spending patterns, you generate 2-5 engagement actions per product card.
 
 RULES:
 - Each card gets 2-5 actions
