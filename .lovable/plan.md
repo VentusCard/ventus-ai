@@ -1,38 +1,32 @@
-## Goal
-Add a "Website" field to the demo customization dialog so the bank's URL is persisted alongside the name and threaded into downstream edge functions (so they can search / cite the actual bank when generating copy).
+## Group transactions by source as collapsible cards
 
-## Changes
+In `src/components/exec-demo/ExecDemoSelectionDialog.tsx`, replace the single flat transaction table with a stack of collapsible source cards.
 
-### 1. `src/lib/demoBankConfig.ts`
-- Extend `DemoBankConfig` and `BankPromptContext` with optional `website?: string`.
-- Add `normalizeUrl()` helper: trim, slice to 200 chars, prepend `https://` if no scheme.
-- Persist + return `website` in `getDemoBankConfig` / `setDemoBankConfig` / `getBankPromptContext`.
+### Changes
 
-### 2. `src/components/demo/SimplePasswordGate.tsx`
-- Add a third input under "Bank name" / "Shorthand" in the custom-mode form:
-  - Label: **Website** (optional)
-  - Placeholder: `e.g. firstnational.com`
-  - `maxLength={200}`, `type="url"`, `inputMode="url"`
-- Wire to `cfg.website`; saved by existing Save handler.
+**File: `src/components/exec-demo/ExecDemoSelectionDialog.tsx`**
 
-### 3. Edge functions
-`bankContext` is already passed; downstream functions destructure with extras allowed, so `website` automatically flows through to:
-- `consumer-chat`, `generate-product-cards`, `generate-product-actions`, `generate-next-offers`, `synthesize-persona`, `analyze-lifestyle-signals`, `detect-risk-transactions`
+1. Group `rawRows` by `source` (e.g. Checking, Cashback Card, Travel Card, Premium Card, Checks, ACH, Wire, Zelle, HSA, plus any "—" fallback). Preserve a stable order based on the existing `SOURCE_COLORS` keys, then append any unknown sources.
 
-Update prompt injection in the two functions that already inline `bankContext`:
-- **`supabase/functions/consumer-chat/index.ts`** — when `bankContext.website` is present, append to BANK IDENTITY block: `Official site: ${website}. You may reference this site when pointing customers to bank products or contact pages.`
-- **`supabase/functions/generate-product-cards/index.ts`** — when `website` present, add to system prompt: `Bank's official website is ${website} — product naming and tone should match a real institution at that domain.`
-- **`supabase/functions/generate-product-actions/index.ts`** — append to bank prefix: `Reference site: ${website} for context.`
+2. Replace the existing `<ScrollArea>` + `<table>` block (the one rendered when `!showCustomFlow`) with a single `<ScrollArea>` containing a vertical stack of cards — one per source group.
 
-No edge functions actually do live web search yet — the `website` is metadata the LLM uses to ground tone / references. (If you later want a real Firecrawl-powered search step before generation, that's a separate follow-up.)
+3. Each card:
+   - Header (always visible, click toggles expand):
+     - Source pill (using existing `SOURCE_COLORS` styling)
+     - Source name
+     - Right side: transaction count + total absolute amount (e.g. "12 txns · $1,432.50")
+     - Chevron icon that rotates when open
+   - Expanded body:
+     - The same transaction table markup currently used, but only the rows for that source. Drop the redundant "Source" column inside the body since it is now implied by the card.
+   - Default state: all collapsed. Add a small "Expand all / Collapse all" toggle above the stack.
 
-## Out of scope
-- No actual scraping of the bank site (would need Firecrawl connector + caching). Can be added later if you want generated copy to mirror real product names from the site.
-- No display of the website on the gate screen header.
+4. Manage open/closed state with a single `useState<Record<string, boolean>>` keyed by source name. Reset when the selected customer changes (via `useEffect` on `customer.id`).
 
-## Files touched
-- `src/lib/demoBankConfig.ts`
-- `src/components/demo/SimplePasswordGate.tsx`
-- `supabase/functions/consumer-chat/index.ts`
-- `supabase/functions/generate-product-cards/index.ts`
-- `supabase/functions/generate-product-actions/index.ts`
+5. Keep the empty state message when there are zero rows overall.
+
+6. Styling: cards use `border border-slate-200 rounded-xl bg-white` with a hover background on the header, matching the existing light-theme aesthetic of the dialog. No new dependencies — use the existing lucide `ChevronDown` icon.
+
+### Out of scope
+
+- No changes to the custom-persona flow, header, pills row, or footer Run button.
+- No backend / edge function changes.
