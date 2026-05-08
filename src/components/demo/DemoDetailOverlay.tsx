@@ -227,7 +227,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
             <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium">
               <span>9:41 AM</span>
               <div className="flex flex-col items-center">
-                <span className="font-semibold text-slate-600 text-[11px]">Our Bank</span>
+                <span className="font-semibold text-slate-600 text-[11px]">{(() => { const c = getDemoBankConfig(); return c.mode === "custom" ? (c.bankShortName || c.bankName || "Our Bank") : "Our Bank"; })()}</span>
                 {(activeTab === 'ai') && <span className="text-[8px] text-slate-400"></span>}
               </div>
               <div className="flex items-center gap-1.5">
