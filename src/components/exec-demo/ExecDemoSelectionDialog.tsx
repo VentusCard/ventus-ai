@@ -182,7 +182,7 @@ export default function ExecDemoSelectionDialog({
             ))}
             <button
               onClick={() => setShowCustomFlow(true)}
-              className={`px-3 py-1.5 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
+              className={`px-3 py-2 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 showCustomFlow
                   ? "bg-violet-600 text-white shadow-sm"
                   : "bg-white border border-dashed border-slate-300 text-slate-500 hover:border-violet-400 hover:bg-violet-50"
