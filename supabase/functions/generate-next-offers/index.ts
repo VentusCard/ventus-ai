@@ -184,7 +184,10 @@ serve(async (req) => {
       });
     }
 
-    const { persona, pillars, lifeEvents } = body;
+    const { persona, pillars, lifeEvents, bankContext } = body;
+    const _bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
+    // Note: retail deals reference partner merchants, not the bank. bankContext accepted for forward-compat / logging.
+    if (_bankName) console.log(`[NEXT-OFFERS] customized for bank: ${_bankName}`);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
