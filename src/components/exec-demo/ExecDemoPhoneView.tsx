@@ -58,6 +58,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
   const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
+  const bankCfg = getDemoBankConfig();
+  const bankLabel = bankCfg.mode === "custom" ? (bankCfg.bankShortName || bankCfg.bankName || "Our Bank") : "Our Bank";
   
 
   // Sync with external activeTab changes
