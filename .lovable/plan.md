@@ -1,21 +1,10 @@
-## Expandable pillar rows in iPad Budget tab
+## Hide the floating settings gear inside the demo
 
-Make each of the 4 pillar cards in `BudgetPhoneView` clickable to reveal the top 5 spending categories inside that pillar.
+The bottom-left gear icon comes from `SettingsDialog` rendered with the `floating` prop in `src/components/demo/SimplePasswordGate.tsx` (line ~51). It's mounted after the user passes the password gate, so it appears throughout `/demo`.
 
-### Behavior
-- Click a pillar row → toggles open a list of its top 5 categories.
-- Chevron (right when collapsed, down when expanded) on the right side of the pillar header.
-- Only one pillar open at a time (cleaner in the iPad's small viewport); clicking another closes the previous.
-- Categories sorted by spend descending, capped at 5. Each row shows: category name, spend amount, mini progress bar relative to the pillar total (same pillar color, lighter shade).
+### Change
+- Remove the `floating` prop on that `<SettingsDialog />` instance (or remove the entire `<SettingsDialog />` mount, since with `floating` removed and no other trigger it will never open).
+- Keep the top-right gear on the password gate itself (pre-auth) so admins can still configure the demo before entering.
 
-### Data
-- Group `enrichedTxs` filtered by pillar using the `category` field on `EnrichedTransaction` (already present in `execDemoData.ts`).
-- Round to whole dollars, no transaction counts (per "vaguely specific" tone rule).
-
-### Files touched
-- Edit only: `src/components/exec-demo/BudgetPhoneView.tsx`
-  - Add `useState` for expanded pillar key.
-  - Wrap pillar header in a button; add `ChevronRight` / `ChevronDown` from lucide-react.
-  - Render expandable section beneath the progress bar with the top 5 categories.
-
-No changes to `ExecDemoPhoneView.tsx`, edge functions, or data plumbing.
+### Files
+- Edit only: `src/components/demo/SimplePasswordGate.tsx`
