@@ -8,7 +8,6 @@ const SolutionsCTA = () => (
         See what Ventus finds in your transaction data.
       </h2>
       <p className="text-lg text-gray-500 mb-8">
-        Schedule a demo and get results in under 48 hours.
       </p>
       <Link to="/contact">
         <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
