@@ -36,7 +36,7 @@ const TileBox = ({ tile, align = "center" }: { tile: Tile; align?: "left" | "rig
       border: "1px solid #E5E7EB",
       boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
       height: 72,
-      maxWidth: 220,
+      maxWidth: 180,
       width: "100%",
       marginLeft: align === "right" ? "auto" : align === "left" ? 0 : "auto",
       marginRight: align === "left" ? "auto" : align === "right" ? 0 : "auto",
