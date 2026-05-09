@@ -15,7 +15,7 @@ import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import type { SelectedSignal } from "./NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
-type ConsumerTab = "rewards" | "relationship" | "ai";
+type ConsumerTab = "rewards" | "relationship" | "budget" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "rewards",
@@ -27,6 +27,7 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
   { key: "relationship", label: "Membership", icon: Users, color: "#8b5cf6" },
+  { key: "budget", label: "Budget", icon: Wallet, color: "#0ea5e9" },
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
 ];
 
