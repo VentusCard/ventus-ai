@@ -45,7 +45,7 @@ const Enrichment = () => {
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>
           <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Transaction Enrichment</p>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Multi-rail Enrichment</p>
               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-6">
                 From raw transaction to consumer intelligence.{" "}
                 <span className="text-blue-400">In milliseconds.</span>
