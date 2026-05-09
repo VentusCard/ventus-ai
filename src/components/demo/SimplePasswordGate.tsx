@@ -32,26 +32,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
   const activeCfg = getDemoBankConfig();
 
   if (authed) {
-    return (
-      <>
-        {children}
-        <SettingsLauncher
-          open={settingsOpen}
-          setOpen={setSettingsOpen}
-          unlocked={settingsUnlocked}
-          setUnlocked={setSettingsUnlocked}
-          pwd={settingsPwd}
-          setPwd={setSettingsPwd}
-          err={settingsErr}
-          setErr={setSettingsErr}
-          cfg={cfg}
-          setCfg={setCfg}
-          savedFlash={savedFlash}
-          setSavedFlash={setSavedFlash}
-          floating
-        />
-      </>
-    );
+    return <>{children}</>;
   }
 
   const handleSubmit = (e: React.FormEvent) => {
