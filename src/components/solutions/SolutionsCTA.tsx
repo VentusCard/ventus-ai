@@ -7,8 +7,6 @@ const SolutionsCTA = () => (
       <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
         See what Ventus finds in your transaction data.
       </h2>
-      <p className="text-lg text-gray-500 mb-8">
-      </p>
       <Link to="/contact">
         <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
           Schedule a Demo
