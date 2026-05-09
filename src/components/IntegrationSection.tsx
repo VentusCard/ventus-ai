@@ -1,168 +1,256 @@
-import { useState, useEffect, useRef } from "react";
-import { TrendingUp } from "lucide-react";
-
-
-
+import ScrollReveal from "@/components/ScrollReveal";
+import { Star } from "lucide-react";
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
 import databricksLogo from "@/assets/databricks-logo.png";
 import snowflakeLogo from "@/assets/snowflake-logo.png";
+import salesforceLogo from "@/assets/salesforce-logo.png";
 
-const partners = [
-  
-  { name: "FIS", src: fisLogo, height: "h-6" },
-  { name: "Fiserv", src: fiservLogo, height: "h-7" },
-  { name: "Jack Henry", src: jackHenryLogo, height: "h-6" },
-  { name: "Databricks", src: databricksLogo, height: "h-6" },
-  { name: "Snowflake", src: snowflakeLogo, height: "h-6" },
-];
-
-const statsData: { target: number | null; suffix: string; label: string; display?: string }[] = [
-  { target: null, suffix: "", label: "Behavioral labels", display: "Dynamic" },
-  { target: 12, suffix: "", label: "Lifestyle categories" },
-  { target: 20, suffix: "+", label: "Life events detected" },
-];
-
-const useCountUp = (target: number | null, active: boolean, duration = 1500) => {
-  const [value, setValue] = useState(0);
-
-  useEffect(() => {
-    if (!active || target === null) return;
-    setValue(0);
-
-    const start = performance.now();
-    const tick = (now: number) => {
-      const progress = Math.min((now - start) / duration, 1);
-      setValue(Math.round(progress * target));
-      if (progress < 1) requestAnimationFrame(tick);
-    };
-
-    requestAnimationFrame(tick);
-  }, [active, target, duration]);
-
-  return value;
+type Tile = {
+  name: string;
+  src?: string;
+  label?: string;
+  icon?: "star" | "iphone";
 };
 
-const useInView = (threshold = 0.25) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
+const IphoneGlyph = ({ className }: { className?: string }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden
+  >
+    <rect
+      x="6.25"
+      y="2.75"
+      width="11.5"
+      height="18.5"
+      rx="2.75"
+      stroke="currentColor"
+      strokeWidth="1.35"
+    />
+    <rect x="9.4" y="4.35" width="5.2" height="1.85" rx="0.95" fill="currentColor" opacity={0.38} />
+    <line
+      x1="9.25"
+      y1="19.35"
+      x2="14.75"
+      y2="19.35"
+      stroke="currentColor"
+      strokeWidth="1.1"
+      strokeLinecap="round"
+      opacity={0.45}
+    />
+  </svg>
+);
 
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+const sources: Tile[] = [
+  { name: "FIS", src: fisLogo },
+  { name: "Fiserv", src: fiservLogo },
+  { name: "Jack Henry SilverLake", src: jackHenryLogo },
+  { name: "Databricks", src: databricksLogo },
+  { name: "Snowflake", src: snowflakeLogo },
+];
 
-    const obs = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          obs.disconnect();
-        }
-      },
-      { threshold }
-    );
+const destinations: Tile[] = [
+  { name: "Salesforce Financial Cloud", src: salesforceLogo },
+  { name: "Rewards Engine", label: "Rewards Engine", icon: "star" },
+  { name: "Digital Banking App", label: "Digital Banking App", icon: "iphone" },
+];
 
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [threshold]);
+const iconAccentClass = "text-blue-600";
 
-  return { ref, inView };
-};
+const TileBox = ({ tile }: { tile: Tile }) => (
+  <div
+    className="flex items-center justify-center rounded-xl bg-white relative z-10 w-full"
+    style={{
+      border: "1px solid #E5E7EB",
+      boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
+      height: 72,
+    }}
+  >
+    {tile.src ? (
+      <img
+        src={tile.src}
+        alt={tile.name}
+        title={tile.name}
+        className="max-h-10 max-w-[65%] w-auto object-contain"
+      />
+    ) : (
+      <span className="flex items-center justify-center gap-2 text-[15px] font-semibold text-gray-500 tracking-tight px-2 text-center">
+        {tile.icon === "star" ? (
+          <Star className={`h-4 w-4 shrink-0 ${iconAccentClass}`} strokeWidth={2} aria-hidden />
+        ) : null}
+        {tile.icon === "iphone" ? <IphoneGlyph className={`h-4 w-4 shrink-0 ${iconAccentClass}`} /> : null}
+        {tile.label}
+      </span>
+    )}
+  </div>
+);
 
 const IntegrationSection = () => {
-  const sectionRef = useInView(0.15);
+  const srcYs = sources.map((_, i) => ((i + 0.5) / sources.length) * 100);
+  const dstYs = destinations.map((_, i) => ((i + 0.5) / destinations.length) * 100);
 
-  const count0 = useCountUp(statsData[0].target, sectionRef.inView);
-  const count1 = useCountUp(statsData[1].target, sectionRef.inView);
-  const count2 = useCountUp(statsData[2].target, sectionRef.inView);
-  const counts = [count0, count1, count2];
+  const SRC_X = 33;
+  const DST_X = 67;
+  const ENGINE_X = 50;
 
   return (
-    <section id="integration" className="bg-white scroll-mt-20" style={{ paddingTop: 80, paddingBottom: 80 }}>
-      <div className="mx-auto mb-10 max-w-7xl px-6 md:px-8">
-        <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">Integration</p>
-        <h2 className="max-w-2xl text-3xl font-bold text-gray-900 md:text-4xl">
-          A modular intelligence layer that works with your existing stack.
-        </h2>
-      </div>
+    <section
+      id="integration"
+      className="bg-white scroll-mt-20"
+      style={{ paddingTop: 80, paddingBottom: 80 }}
+    >
+      <div className="mx-auto max-w-7xl px-6 md:px-8">
+        <ScrollReveal>
+          <div className="text-center max-w-3xl mx-auto">
+            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-blue-600">
+              Integration
+            </p>
+            <h2 className="font-bold text-gray-900 leading-tight" style={{ fontSize: 36 }}>
+              Plugs into your existing stack.
+            </h2>
+            <p className="mt-2 text-gray-500 font-medium" style={{ fontSize: 20 }}>
+              Without replacing it.
+            </p>
+            <p className="mt-5 text-gray-600 leading-relaxed text-[15px]">
+              Connect Ventus to the cores, warehouses, and CRMs you already run.
+              Transactions in, behavioral intelligence out — through whatever pipe your bank
+              prefers.
+            </p>
+          </div>
+        </ScrollReveal>
 
-      <div ref={sectionRef.ref} className="mx-auto max-w-7xl px-6 md:px-8">
-        <div
-          className="grid grid-cols-1 lg:grid-cols-3"
-          style={{
-            opacity: sectionRef.inView ? 1 : 0,
-            transform: sectionRef.inView ? "translateY(0)" : "translateY(30px)",
-            transition: "opacity 0.7s ease, transform 0.7s ease",
-          }}
-        >
-          {/* Column 1 — Connect */}
-          <div className="relative min-w-0 px-5 py-16 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]" style={{ color: "rgba(37,99,235,0.08)" }}>
-              01
-            </span>
-            <div className="relative z-10 pt-14">
-              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Ingest</h3>
-              <p className="mb-6 text-sm leading-relaxed text-gray-500">
-                Banks securely share transaction data via API. No changes to core banking systems required.
-              </p>
-              <div className="grid grid-cols-2 items-center justify-items-center gap-x-5 gap-y-4">
-                {partners.map(({ name, src, height }) => (
-                  <div key={name} className="flex items-center justify-center p-1">
-                    <img
-                      src={src}
-                      alt={name}
-                      className={`${height} w-auto grayscale opacity-60`}
+        <ScrollReveal delay={0.12}>
+          <div
+            className="mt-14 rounded-2xl p-6 md:p-8 min-w-0"
+            style={{ background: "#F8FAFC", border: "1px solid #E5E7EB" }}
+          >
+            <div className="hidden lg:grid grid-cols-[1fr_auto_1fr] gap-12 mb-3">
+              <div className="px-1">
+                <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                  Sources
+                </span>
+              </div>
+              <div className="lg:w-[260px]" />
+              <div className="px-1 text-right">
+                <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                  Destinations
+                </span>
+              </div>
+            </div>
+
+            <div className="relative min-w-0">
+              <svg
+                className="absolute inset-0 w-full h-full pointer-events-none hidden lg:block"
+                preserveAspectRatio="none"
+                viewBox="0 0 100 100"
+                style={{ zIndex: 1 }}
+              >
+                {srcYs.map((y, i) => (
+                  <path
+                    key={`s-${i}`}
+                    d={`M ${SRC_X} ${y} C ${(SRC_X + ENGINE_X) / 2} ${y}, ${
+                      (SRC_X + ENGINE_X) / 2
+                    } 50, ${ENGINE_X} 50`}
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth="0.7"
+                    strokeDasharray="1.4 1.4"
+                    opacity="0.9"
+                    vectorEffect="non-scaling-stroke"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to="-6"
+                      dur="2s"
+                      repeatCount="indefinite"
                     />
-                  </div>
+                  </path>
                 ))}
-              </div>
-            </div>
-          </div>
+                {dstYs.map((y, i) => (
+                  <path
+                    key={`d-${i}`}
+                    d={`M ${ENGINE_X} 50 C ${(DST_X + ENGINE_X) / 2} 50, ${
+                      (DST_X + ENGINE_X) / 2
+                    } ${y}, ${DST_X} ${y}`}
+                    fill="none"
+                    stroke="#3B82F6"
+                    strokeWidth="0.7"
+                    strokeDasharray="1.4 1.4"
+                    opacity="0.9"
+                    vectorEffect="non-scaling-stroke"
+                  >
+                    <animate
+                      attributeName="stroke-dashoffset"
+                      from="0"
+                      to="-6"
+                      dur="2s"
+                      repeatCount="indefinite"
+                    />
+                  </path>
+                ))}
+              </svg>
 
-          {/* Column 2 — Enrich */}
-          <div className="relative min-w-0 border-t border-gray-200 px-5 py-16 lg:border-l lg:border-t-0 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]" style={{ color: "rgba(37,99,235,0.08)" }}>
-              02
-            </span>
-            <div className="relative z-10 pt-14">
-              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Enrich</h3>
-              <p className="mb-6 text-sm leading-relaxed text-gray-500">
-                Ventus enriches every transaction and returns behavioral intelligence via API — lifestyle profiles, life events, purchase signals, and travel patterns, all queryable in real time.
-              </p>
-              <div className="space-y-6">
-                {statsData.map((stat, index) => (
-                  <div key={stat.label}>
-                    <p className="font-bold text-gray-900 tabular-nums" style={{ fontSize: "40px", lineHeight: 1, fontVariantNumeric: "tabular-nums" }}>
-                      {stat.display ?? `${sectionRef.inView ? (index === 0 ? counts[0].toLocaleString() : counts[index]) : 0}${stat.suffix}`}
-                    </p>
-                    <p className="mt-1 text-sm text-gray-500">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-6 lg:gap-12 items-stretch min-w-0">
+                <div className="lg:hidden mb-1 px-1">
+                  <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                    Sources
+                  </span>
+                </div>
+                <div className="h-full flex flex-col justify-around gap-2 min-w-0">
+                  {sources.map((t) => (
+                    <TileBox key={t.name} tile={t} />
+                  ))}
+                </div>
 
-          {/* Column 3 — Orchestrate */}
-          <div className="relative min-w-0 border-t border-gray-200 px-5 py-16 lg:border-l lg:border-t-0 lg:px-6">
-            <span className="pointer-events-none absolute left-5 top-4 select-none text-[100px] font-bold leading-none lg:left-6 lg:text-[120px]" style={{ color: "rgba(37,99,235,0.08)" }}>
-              03
-            </span>
-            <div className="relative z-10 pt-14">
-              <h3 className="mb-2 text-[30px] font-bold text-gray-900">Orchestrate</h3>
-              <p className="mb-6 text-sm leading-relaxed text-gray-500">
-                Enriched intelligence flows into your existing CRM, rewards engine, and advisor tools — ready to act on.
-              </p>
-              <div className="space-y-4 mb-6">
-                {["Retention Rate", "Customer LTV", "AUM Growth"].map((label) => (
-                  <div key={label} className="flex items-center gap-3">
-                    <TrendingUp size={20} className="text-blue-600" strokeWidth={2.5} />
-                    <p className="text-sm font-medium text-gray-700">{label}</p>
+                <div className="hidden lg:flex items-center justify-center lg:w-[260px] shrink-0">
+                  <style>{`
+                    @keyframes glowPulse {
+                      0%, 100% { box-shadow: 0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18); }
+                      50% { box-shadow: 0 0 0 8px rgba(59,130,246,0.10), 0 24px 60px -10px rgba(59,130,246,0.35), 0 0 80px rgba(59,130,246,0.28); }
+                    }
+                  `}</style>
+                  <div
+                    className="rounded-2xl w-full overflow-hidden bg-white relative z-10"
+                    style={{
+                      border: "1px solid #DBEAFE",
+                      animation: "glowPulse 3s ease-in-out infinite",
+                    }}
+                  >
+                    <div className="px-5 py-8 flex flex-col items-center justify-center gap-3">
+                      <span
+                        className="flex items-center justify-center w-12 h-12 rounded-xl bg-blue-600 text-white font-black text-[22px] leading-none shadow-md"
+                        style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}
+                      >
+                        V
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[15px] font-bold text-gray-900 tracking-tight">
+                          Ventus
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                ))}
+                </div>
+
+                <div className="lg:hidden mb-1 px-1">
+                  <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
+                    Destinations
+                  </span>
+                </div>
+                <div className="h-full flex flex-col justify-around gap-2 min-w-0">
+                  {destinations.map((t) => (
+                    <TileBox key={t.name} tile={t} />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </ScrollReveal>
       </div>
     </section>
   );

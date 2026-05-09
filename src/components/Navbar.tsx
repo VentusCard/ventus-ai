@@ -3,7 +3,6 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import AnnouncementBar from "./AnnouncementBar";
 
 const DARK_HERO_PAGES = ["/smartrewards", "/engagement", "/wealth", "/analytics", "/travel"];
 
@@ -21,7 +20,6 @@ const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [showAnnouncement, setShowAnnouncement] = useState(true);
   const [solutionsOpen, setSolutionsOpen] = useState(false);
   const [mobileSolutionsOpen, setMobileSolutionsOpen] = useState(false);
 
@@ -49,8 +47,7 @@ const Navbar = () => {
 
   return (
     <div className="absolute top-0 left-0 right-0 z-50">
-      {showAnnouncement && <AnnouncementBar onDismiss={() => setShowAnnouncement(false)} />}
-      <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0A1628]" : "bg-white"}`}>
+      <nav className={`transition-colors duration-300 ${isTransparent ? "bg-[#0A1628]" : "bg-transparent"}`}>
       {/* Desktop navbar */}
       <div className="hidden md:flex h-16 items-center justify-between px-8 max-w-7xl mx-auto">
         <div className="flex items-center gap-8">

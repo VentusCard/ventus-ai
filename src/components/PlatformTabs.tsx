@@ -79,51 +79,54 @@ const AnalyticsPreview = () => {
     { name: "Premium Elite", pen: "8.1%", active: "94%", spend: "$42.8K", color: "bg-purple-400" },
   ];
   return (
-    <div className="space-y-3">
-      <div className="grid grid-cols-3 gap-2">
+    <div className="space-y-3 min-w-0 max-w-full">
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 min-w-0">
         {[
           { label: "Total Accounts", value: "120M" },
           { label: "Total Annual Spend", value: "$385B" },
           { label: "Active Account Rate", value: "78.5%" },
         ].map((m) => (
-          <div key={m.label} className="rounded-lg border border-gray-100 bg-gray-50 p-2 sm:p-3 text-center">
-            <p className="text-sm sm:text-lg font-bold text-gray-900">{m.value}</p>
-            <p className="text-[9px] sm:text-[10px] text-gray-500 mt-0.5 leading-tight">{m.label}</p>
+          <div key={m.label} className="rounded-lg border border-gray-100 bg-gray-50 p-1.5 sm:p-3 text-center min-w-0">
+            <p className="text-xs sm:text-lg font-bold text-gray-900 tabular-nums">{m.value}</p>
+            <p className="text-[8px] sm:text-[10px] text-gray-500 mt-0.5 leading-tight break-words hyphens-auto">{m.label}</p>
           </div>
         ))}
       </div>
-      <div className="space-y-1.5">
+      <div className="space-y-1.5 min-w-0">
         {pillars.map((p) => (
-          <div key={p.label} className="flex items-center gap-2">
-            <span className="text-[11px] text-gray-500 w-14 shrink-0">{p.label}</span>
-            <div className="flex-1 h-3.5 bg-gray-100 rounded-full overflow-hidden flex">
-              <div className="h-full rounded-l-full" style={{ width: `${(p.pct - p.leakage) * 3}%`, backgroundColor: p.color }} />
-              <div className="h-full bg-red-300" style={{ width: `${p.leakage * 3}%` }} />
+          <div key={p.label} className="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <span className="text-[10px] sm:text-[11px] text-gray-500 w-11 sm:w-14 shrink-0 truncate">{p.label}</span>
+            <div className="flex-1 min-w-0 h-3.5 bg-gray-100 rounded-full overflow-hidden flex">
+              <div className="h-full rounded-l-full shrink-0" style={{ width: `${(p.pct - p.leakage) * 3}%`, backgroundColor: p.color }} />
+              <div className="h-full bg-red-300 shrink-0" style={{ width: `${p.leakage * 3}%` }} />
             </div>
-            <span className="text-[9px] text-gray-400 w-12 shrink-0">{p.accounts}</span>
-            <span className="text-[9px] text-red-400 w-10 text-right shrink-0">-{p.leakage}%</span>
+            <span className="text-[8px] sm:text-[9px] text-gray-400 w-10 sm:w-12 shrink-0 text-right tabular-nums">{p.accounts}</span>
+            <span className="text-[8px] sm:text-[9px] text-red-400 w-8 sm:w-10 text-right shrink-0 tabular-nums">-{p.leakage}%</span>
           </div>
         ))}
       </div>
-      <div className="rounded-lg border-l-[3px] border-l-blue-500 border border-gray-100 p-2.5 flex items-center justify-between">
-        <div>
+      <div className="rounded-lg border-l-[3px] border-l-blue-500 border border-gray-100 p-2.5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 min-w-0">
+        <div className="min-w-0">
           <p className="text-[11px] font-semibold text-gray-900">Cross-Sell Gap Detected</p>
-          <p className="text-[10px] text-gray-500">Travel cardholders missing Dining rewards — <span className="font-semibold text-blue-600">23% gap</span></p>
+          <p className="text-[10px] text-gray-500 break-words">Travel cardholders missing Dining rewards — <span className="font-semibold text-blue-600">23% gap</span></p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          <span className="text-[9px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium">12.4K accounts</span>
+          <span className="text-[9px] bg-blue-50 text-blue-700 px-1.5 py-0.5 rounded-full font-medium whitespace-nowrap">12.4K accounts</span>
         </div>
       </div>
-      <div>
+      <div className="min-w-0">
         <p className="text-[10px] font-semibold text-gray-700 mb-1.5">Card Product Performance</p>
         <div className="space-y-1">
           {products.map((p) => (
-            <div key={p.name} className="flex items-center gap-2 text-[10px] rounded-md border border-gray-100 px-2.5 py-1.5">
+            <div
+              key={p.name}
+              className="grid grid-cols-[auto_minmax(0,1fr)_auto_auto_auto] gap-x-1.5 gap-y-0.5 items-center text-[9px] sm:text-[10px] rounded-md border border-gray-100 px-2 py-1.5 min-w-0"
+            >
               <span className={`w-2 h-2 rounded-full ${p.color} shrink-0`} />
-              <span className="font-medium text-gray-800 w-24 shrink-0">{p.name}</span>
-              <span className="text-gray-500 w-12">{p.pen}</span>
-              <span className={`w-10 font-semibold ${p.active === "94%" ? "text-green-600" : "text-gray-700"}`}>{p.active}</span>
-              <span className="text-gray-600 ml-auto font-medium">{p.spend}</span>
+              <span className="font-medium text-gray-800 min-w-0 truncate">{p.name}</span>
+              <span className="text-gray-500 tabular-nums shrink-0">{p.pen}</span>
+              <span className={`tabular-nums shrink-0 font-semibold ${p.active === "94%" ? "text-green-600" : "text-gray-700"}`}>{p.active}</span>
+              <span className="text-gray-600 font-medium tabular-nums text-right shrink-0">{p.spend}</span>
             </div>
           ))}
         </div>
@@ -447,10 +450,10 @@ const PlatformTabs = () => {
         </div>
 
         {/* Content Panel */}
-        <div className="border border-gray-200 rounded-2xl overflow-hidden">
-          <div className="grid md:grid-cols-5 min-h-[420px]">
+        <div className="border border-gray-200 rounded-2xl overflow-hidden min-w-0 max-w-full">
+          <div className="grid md:grid-cols-5 min-h-[420px] min-w-0">
             {/* Left Column — 2/5 */}
-            <div className="md:col-span-2 p-8 md:p-10 flex flex-col justify-between">
+            <div className="md:col-span-2 p-6 sm:p-8 md:p-10 flex flex-col justify-between min-w-0">
               <div>
                 <h3 className="text-2xl font-bold text-gray-900 mb-4">
                   {tab.heading}
@@ -479,8 +482,8 @@ const PlatformTabs = () => {
             </div>
 
             {/* Right Column — 3/5: Browser Mockup */}
-            <div className="md:col-span-3 bg-gray-50 p-6 md:p-8 flex items-center justify-center">
-              <div className="w-full rounded-xl border border-gray-200 shadow-lg overflow-hidden bg-white">
+            <div className="md:col-span-3 bg-white p-4 sm:p-6 md:p-8 flex items-center justify-center min-w-0">
+              <div className="w-full max-w-full min-w-0 rounded-xl border border-gray-200 shadow-lg overflow-hidden bg-white">
                 {/* Title bar */}
                 <div className="flex items-center gap-1.5 px-4 py-2.5 bg-gray-100 border-b border-gray-200">
                   <span className="w-3 h-3 rounded-full bg-red-400" />
@@ -491,7 +494,7 @@ const PlatformTabs = () => {
                   </span>
                 </div>
                 {/* Dashboard content */}
-                <div className="p-5 bg-white min-h-[300px]">
+                <div className="p-4 sm:p-5 bg-white min-h-[300px] min-w-0 max-w-full overflow-x-auto">
                   <TabPreview index={activeIndex} />
                 </div>
               </div>

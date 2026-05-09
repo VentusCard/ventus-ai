@@ -84,8 +84,8 @@ const CrossSellTargetingSection = () => {
   }, []);
 
   return (
-    <section id="cross-sell-targeting" ref={sectionRef} className="py-24 bg-white scroll-mt-20">
-      <div className="max-w-7xl mx-auto px-6 md:px-8">
+    <section id="cross-sell-targeting" ref={sectionRef} className="py-24 bg-white scroll-mt-20 min-w-0 overflow-x-hidden">
+      <div className="max-w-7xl mx-auto px-6 md:px-8 min-w-0 max-w-full">
         <ScrollReveal>
           <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">
             SEE IT IN ACTION

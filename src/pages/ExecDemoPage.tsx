@@ -17,6 +17,7 @@ import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { supabase } from "@/integrations/supabase/client";
+import { getBankPromptContext } from "@/lib/demoBankConfig";
 
 import type { SelectedSignal } from "@/components/exec-demo/NextConversationRationale";
 
@@ -301,6 +302,7 @@ export default function ExecDemoPage() {
           lifeEvents: detectedEvents.map(e => ({ event_name: e.event_name })),
           riskCategoriesPresent,
           riskTransactionIds,
+          bankContext: getBankPromptContext(),
         },
       });
       if (error) throw error;
@@ -536,6 +538,7 @@ export default function ExecDemoPage() {
           evidence_merchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
         }));
       }
+      body.bankContext = getBankPromptContext();
       const { data, error } = await supabase.functions.invoke("generate-next-offers", {
         body,
       });
@@ -587,6 +590,7 @@ export default function ExecDemoPage() {
         client,
         transactions,
         spending_summary: { total_spend: totalSpend, top_categories: topCategories },
+        bankContext: getBankPromptContext(),
       },
     });
     if (error) throw error;
@@ -655,7 +659,7 @@ export default function ExecDemoPage() {
         return;
       }
       const { data, error } = await supabase.functions.invoke("detect-risk-transactions", {
-        body: { transactions: payload },
+        body: { transactions: payload, bankContext: getBankPromptContext() },
       });
       if (error) throw error;
       setRiskFlags(data);
@@ -710,6 +714,7 @@ export default function ExecDemoPage() {
           pillars: pillars.slice(0, 8),
           demographics,
           risk_flags: riskFlagsRef.current?.flags || [],
+          bankContext: getBankPromptContext(),
         },
       });
       if (error) throw error;
@@ -757,6 +762,7 @@ export default function ExecDemoPage() {
           demographics,
           pillars: pillars.slice(0, 6),
           risk_flags: riskFlagsRef.current?.flags || [],
+          bankContext: getBankPromptContext(),
         },
       });
       if (error) throw error;

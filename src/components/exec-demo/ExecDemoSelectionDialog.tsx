@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Pencil, Copy, Check, ArrowLeft, Play } from "lucide-react";
+import { useState, useMemo, useEffect } from "react";
+import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
@@ -80,6 +80,41 @@ export default function ExecDemoSelectionDialog({
   const customer = DEMO_CUSTOMERS[selectedIdx];
   const rawRows = useMemo(() => parseCsvRows(customer.csv), [customer.csv]);
 
+  const sourceGroups = useMemo(() => {
+    const map = new Map<string, RawRow[]>();
+    for (const r of rawRows) {
+      const key = r.source || "—";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(r);
+    }
+    const known = Object.keys(SOURCE_COLORS);
+    const ordered: { source: string; rows: RawRow[] }[] = [];
+    for (const k of known) {
+      if (map.has(k)) {
+        ordered.push({ source: k, rows: map.get(k)! });
+        map.delete(k);
+      }
+    }
+    for (const [k, rows] of map) ordered.push({ source: k, rows });
+    return ordered;
+  }, [rawRows]);
+
+  const [openSources, setOpenSources] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    setOpenSources({});
+  }, [customer.id]);
+
+  const allOpen = sourceGroups.length > 0 && sourceGroups.every((g) => openSources[g.source]);
+  const toggleAll = () => {
+    if (allOpen) {
+      setOpenSources({});
+    } else {
+      const next: Record<string, boolean> = {};
+      sourceGroups.forEach((g) => { next[g.source] = true; });
+      setOpenSources(next);
+    }
+  };
+
   const handleRun = () => {
     onOpenChange(false);
     onRunAnalysis();
@@ -131,12 +166,12 @@ export default function ExecDemoSelectionDialog({
 
         {/* Pills row */}
         <div className="px-8 py-3 border-b border-slate-100 shrink-0">
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto">
             {DEMO_CUSTOMERS.map((c, i) => (
               <button
                 key={c.id}
                 onClick={() => { onSelectCustomer(i); setShowCustomFlow(false); }}
-                className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
+                className={`px-3 py-2 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap ${
                   selectedIdx === i && !showCustomFlow
                     ? "bg-blue-600 text-white shadow-sm"
                     : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50"
@@ -147,13 +182,13 @@ export default function ExecDemoSelectionDialog({
             ))}
             <button
               onClick={() => setShowCustomFlow(true)}
-              className={`px-5 py-2.5 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1.5 ${
+              className={`px-3 py-2 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 showCustomFlow
                   ? "bg-violet-600 text-white shadow-sm"
                   : "bg-white border border-dashed border-slate-300 text-slate-500 hover:border-violet-400 hover:bg-violet-50"
               }`}
             >
-              <Pencil className="w-4 h-4" />
+              <Pencil className="w-3 h-3" />
               Custom
             </button>
           </div>
@@ -214,54 +249,92 @@ export default function ExecDemoSelectionDialog({
           </div>
         )}
 
-        {/* Transaction table — full width */}
+        {/* Transaction cards — grouped by source */}
         {!showCustomFlow && (
           <div className="flex-1 min-h-0 flex flex-col">
+            {rawRows.length > 0 && (
+              <div className="px-8 pt-3 pb-2 flex items-center justify-between shrink-0">
+                <div className="text-xs text-slate-500">
+                  {rawRows.length} transactions · {sourceGroups.length} sources
+                </div>
+                <button
+                  onClick={toggleAll}
+                  className="text-xs font-semibold text-blue-600 hover:text-blue-700"
+                >
+                  {allOpen ? "Collapse all" : "Expand all"}
+                </button>
+              </div>
+            )}
 
-            {/* Scrollable table */}
             <ScrollArea className="flex-1 min-h-0 px-8 pb-2">
-              <table className="w-full text-left border-collapse">
-                <thead className="sticky top-0 z-10">
-                  <tr className="bg-slate-50/80 border-b border-slate-200">
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Source</th>
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">ID</th>
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Date</th>
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Merchant</th>
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">MCC</th>
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Description</th>
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">Amount</th>
-                    <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Zip</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {rawRows.map((row, i) => {
-                    const amt = parseFloat(row.amount);
-                    const fmtAmt = isNaN(amt) ? row.amount : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                    return (
-                      <tr key={i} className="border-b border-slate-100 hover:bg-slate-50/60 transition-colors">
-                        <td className="px-3 py-1">
-                          <span className={`inline-block px-1.5 py-0.5 rounded text-xs font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
-                            {row.source || "—"}
+              <div className="space-y-2">
+                {sourceGroups.map(({ source, rows }) => {
+                  const isOpen = !!openSources[source];
+                  const total = rows.reduce((sum, r) => {
+                    const a = parseFloat(r.amount);
+                    return sum + (isNaN(a) ? 0 : Math.abs(a));
+                  }, 0);
+                  const fmtTotal = `$${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  return (
+                    <div key={source} className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, [source]: !p[source] }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}>
+                            {source}
                           </span>
-                        </td>
-                        <td className="px-3 py-1 text-slate-400 font-mono text-xs">{row.transaction_id || i + 1}</td>
-                        <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
-                        <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
-                        <td className="px-3 py-1">
-                          {row.mcc ? (
-                            <span className="inline-block bg-slate-100 text-slate-600 text-xs font-mono px-1.5 py-0.5 rounded">{row.mcc}</span>
-                          ) : (
-                            <span className="text-xs text-slate-300">—</span>
-                          )}
-                        </td>
-                        <td className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
-                        <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">{fmtAmt}</td>
-                        <td className="px-3 py-1 text-slate-500 text-xs">{row.zip_code || "—"}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          <span className="text-sm font-semibold text-slate-700">{rows.length} txns</span>
+                          <span className="text-xs text-slate-400">·</span>
+                          <span className="text-sm font-mono tabular-nums text-slate-600">{fmtTotal}</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {isOpen && (
+                        <div className="border-t border-slate-100">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-slate-50/60 border-b border-slate-200">
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">ID</th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Date</th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Merchant</th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">MCC</th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Description</th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">Amount</th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Zip</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rows.map((row, i) => {
+                                const amt = parseFloat(row.amount);
+                                const fmtAmt = isNaN(amt) ? row.amount : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                return (
+                                  <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+                                    <td className="px-3 py-1 text-slate-400 font-mono text-xs">{row.transaction_id || i + 1}</td>
+                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
+                                    <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
+                                    <td className="px-3 py-1">
+                                      {row.mcc ? (
+                                        <span className="inline-block bg-slate-100 text-slate-600 text-xs font-mono px-1.5 py-0.5 rounded">{row.mcc}</span>
+                                      ) : (
+                                        <span className="text-xs text-slate-300">—</span>
+                                      )}
+                                    </td>
+                                    <td className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
+                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">{fmtAmt}</td>
+                                    <td className="px-3 py-1 text-slate-500 text-xs">{row.zip_code || "—"}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
 
               {rawRows.length === 0 && (
                 <div className="text-center text-sm text-slate-300 py-16">
