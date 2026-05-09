@@ -95,13 +95,13 @@ const IntegrationSection = () => {
             style={{ background: "#F8FAFC", border: "1px solid #E5E7EB" }}
           >
             {/* Column headers, outside the tile grid so flow lines line up cleanly */}
-            <div className="hidden md:grid grid-cols-[1fr_auto_1fr] gap-12 mb-3">
+            <div className="hidden lg:grid grid-cols-[1fr_auto_1fr] gap-12 mb-3">
               <div className="px-1">
                 <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                   Sources
                 </span>
               </div>
-              <div className="md:w-[260px]" />
+              <div className="lg:w-[260px]" />
               <div className="px-1 text-right">
                 <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                   Destinations
@@ -112,7 +112,7 @@ const IntegrationSection = () => {
             <div className="relative">
               {/* Flow lines overlay — covers the entire tile grid */}
               <svg
-                className="absolute inset-0 w-full h-full pointer-events-none hidden md:block"
+                className="absolute inset-0 w-full h-full pointer-events-none hidden lg:block"
                 preserveAspectRatio="none"
                 viewBox="0 0 100 100"
                 style={{ zIndex: 1 }}
@@ -163,9 +163,9 @@ const IntegrationSection = () => {
                 ))}
               </svg>
 
-              <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 md:gap-12 items-stretch">
+              <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto_1fr] gap-6 lg:gap-12 items-stretch">
                 {/* SOURCES */}
-                <div className="md:hidden mb-1 px-1">
+                <div className="lg:hidden mb-1 px-1">
                   <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                     Sources
                   </span>
@@ -177,7 +177,7 @@ const IntegrationSection = () => {
                 </div>
 
                 {/* VENTUS ENGINE */}
-                <div className="hidden md:flex items-center justify-center md:w-[260px]">
+                <div className="hidden lg:flex items-center justify-center lg:w-[260px]">
                   <style>{`
                     @keyframes glowPulse {
                       0%, 100% { box-shadow: 0 0 0 6px rgba(59,130,246,0.06), 0 20px 50px -12px rgba(59,130,246,0.25), 0 0 60px rgba(59,130,246,0.18); }
@@ -208,7 +208,7 @@ const IntegrationSection = () => {
                 </div>
 
                 {/* DESTINATIONS */}
-                <div className="md:hidden mb-1 px-1">
+                <div className="lg:hidden mb-1 px-1">
                   <span className="text-[10px] font-bold tracking-[0.18em] uppercase text-gray-700">
                     Destinations
                   </span>
