@@ -83,7 +83,7 @@ const CapabilityCards = () => {
         <div className="rounded-xl p-6 min-h-[220px] h-full flex flex-col" style={{ background: "#F3F4F6" }}>
           <div className="flex items-center gap-2 mb-4">
             <Layers className="w-5 h-5 text-blue-600" />
-            <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wide">Lifestyle Pillars</h3>
+            <h3 className="text-sm font-bold text-blue-600 uppercase tracking-wide">Multi-rail Enrichment</h3>
           </div>
           <div className="space-y-2">
             {[
