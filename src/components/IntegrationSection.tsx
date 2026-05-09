@@ -29,7 +29,7 @@ const destinations: Tile[] = [
   { name: "Digital Banking App", label: "Digital Banking App", icon: <Smartphone size={16} color="#3B82F6" strokeWidth={2.5} /> },
 ];
 
-const TileBox = ({ tile }: { tile: Tile }) => (
+const TileBox = ({ tile, align = "center" }: { tile: Tile; align?: "left" | "right" | "center" }) => (
   <div
     className="flex items-center justify-center rounded-xl bg-white relative z-10 px-3"
     style={{
@@ -37,7 +37,9 @@ const TileBox = ({ tile }: { tile: Tile }) => (
       boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
       height: 72,
       maxWidth: 220,
-      margin: "0 auto",
+      width: "100%",
+      marginLeft: align === "right" ? "auto" : align === "left" ? 0 : "auto",
+      marginRight: align === "left" ? "auto" : align === "right" ? 0 : "auto",
     }}
   >
     {tile.src ? (
@@ -180,7 +182,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {sources.map((t) => (
-                    <TileBox key={t.name} tile={t} />
+                    <TileBox key={t.name} tile={t} align="right" />
                   ))}
                 </div>
 
@@ -223,7 +225,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {destinations.map((t) => (
-                    <TileBox key={t.name} tile={t} />
+                    <TileBox key={t.name} tile={t} align="left" />
                   ))}
                 </div>
               </div>
