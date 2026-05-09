@@ -1,4 +1,5 @@
-import { Wallet } from "lucide-react";
+import { useState } from "react";
+import { Wallet, ChevronDown, ChevronRight } from "lucide-react";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { getBudgetStatus } from "@/lib/budgetUtils";
 import type { EnrichedTransaction } from "./execDemoData";
@@ -11,19 +12,27 @@ const fmt = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 export default function BudgetPhoneView({ enrichedTxs }: Props) {
   const txs = enrichedTxs ?? [];
+  const [expanded, setExpanded] = useState<string | null>(null);
 
-  // Aggregate spend by pillar
-  const byPillar = new Map<string, number>();
+  // Aggregate spend by pillar AND categories within each pillar
+  const byPillar = new Map<string, { total: number; cats: Map<string, number> }>();
   txs.forEach((t) => {
     if (!t.pillar) return;
-    byPillar.set(t.pillar, (byPillar.get(t.pillar) || 0) + (t.amount || 0));
+    const entry = byPillar.get(t.pillar) || { total: 0, cats: new Map() };
+    entry.total += t.amount || 0;
+    const cat = t.category || "Other";
+    entry.cats.set(cat, (entry.cats.get(cat) || 0) + (t.amount || 0));
+    byPillar.set(t.pillar, entry);
   });
 
   const top = Array.from(byPillar.entries())
-    .map(([pillar, totalSpend]) => {
-      // Demo budget: round up spend × 1.15 to nearest $10 so progress reads ~85% by default
-      const budget = Math.max(10, Math.ceil((totalSpend * 1.15) / 10) * 10);
-      return { pillar, totalSpend, budget };
+    .map(([pillar, data]) => {
+      const budget = Math.max(10, Math.ceil((data.total * 1.15) / 10) * 10);
+      const categories = Array.from(data.cats.entries())
+        .map(([category, spend]) => ({ category, spend }))
+        .sort((a, b) => b.spend - a.spend)
+        .slice(0, 5);
+      return { pillar, totalSpend: data.total, budget, categories };
     })
     .sort((a, b) => b.totalSpend - a.totalSpend)
     .slice(0, 4);
@@ -91,28 +100,70 @@ export default function BudgetPhoneView({ enrichedTxs }: Props) {
             const status = getBudgetStatus(p.totalSpend, p.budget);
             const pct = Math.min(100, (p.totalSpend / p.budget) * 100);
             const color = PILLAR_COLORS[p.pillar] || "#64748b";
+            const isOpen = expanded === p.pillar;
+            const maxCat = p.categories[0]?.spend || 1;
             return (
               <div
                 key={p.pillar}
-                className="rounded-lg bg-white border border-slate-200 p-2.5"
+                className="rounded-lg bg-white border border-slate-200 overflow-hidden"
               >
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
-                  <span className="text-[11px] font-semibold text-slate-800 flex-1 truncate">
-                    {p.pillar}
-                  </span>
-                  <status.icon className="w-3 h-3 shrink-0" style={{ color: status.color }} />
-                </div>
-                <div className="flex items-end justify-between mb-1">
-                  <span className="text-[12px] font-bold text-slate-900">{fmt(p.totalSpend)}</span>
-                  <span className="text-[9px] text-slate-500">budget {fmt(p.budget)}</span>
-                </div>
-                <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
-                  <div
-                    className="h-full rounded-full transition-all"
-                    style={{ width: `${pct}%`, backgroundColor: status.color }}
-                  />
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setExpanded(isOpen ? null : p.pillar)}
+                  className="w-full text-left p-2.5 hover:bg-slate-50 transition-colors"
+                >
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <span className="w-2 h-2 rounded-full shrink-0" style={{ backgroundColor: color }} />
+                    <span className="text-[11px] font-semibold text-slate-800 flex-1 truncate">
+                      {p.pillar}
+                    </span>
+                    <status.icon className="w-3 h-3 shrink-0" style={{ color: status.color }} />
+                    {isOpen ? (
+                      <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
+                    ) : (
+                      <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" />
+                    )}
+                  </div>
+                  <div className="flex items-end justify-between mb-1">
+                    <span className="text-[12px] font-bold text-slate-900">{fmt(p.totalSpend)}</span>
+                    <span className="text-[9px] text-slate-500">budget {fmt(p.budget)}</span>
+                  </div>
+                  <div className="h-1 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full transition-all"
+                      style={{ width: `${pct}%`, backgroundColor: status.color }}
+                    />
+                  </div>
+                </button>
+
+                {isOpen && p.categories.length > 0 && (
+                  <div className="border-t border-slate-100 bg-slate-50/60 px-2.5 py-2 space-y-1.5">
+                    <p className="text-[8px] font-semibold text-slate-500 uppercase tracking-wider mb-1">
+                      Top categories
+                    </p>
+                    {p.categories.map((c) => {
+                      const w = Math.max(4, (c.spend / maxCat) * 100);
+                      return (
+                        <div key={c.category}>
+                          <div className="flex items-center justify-between mb-0.5">
+                            <span className="text-[10px] font-medium text-slate-700 truncate pr-2">
+                              {c.category}
+                            </span>
+                            <span className="text-[10px] font-semibold text-slate-900 shrink-0">
+                              {fmt(c.spend)}
+                            </span>
+                          </div>
+                          <div className="h-[3px] bg-slate-200 rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full"
+                              style={{ width: `${w}%`, backgroundColor: color, opacity: 0.7 }}
+                            />
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}
