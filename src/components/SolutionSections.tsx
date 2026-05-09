@@ -190,7 +190,7 @@ const SolutionSections = () => {
       </section>
 
       {/* Bank-Wide Intelligence */}
-      <section className="bg-gray-50 py-20 border-y border-gray-200">
+      <section className="bg-white py-20 border-y border-gray-200">
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <ScrollReveal>
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">

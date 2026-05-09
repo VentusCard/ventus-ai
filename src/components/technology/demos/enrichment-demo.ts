@@ -207,7 +207,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
 
   <div class="vte-card">
     <div class="vte-head">
-      <h3 class="vte-title">Enrichment Intelligence</h3>
+      <h3 class="vte-title">Multi-rail Enrichment</h3>
     </div>
 
     <div class="vte-table">

@@ -109,7 +109,7 @@ const EnrichmentHeroCard = () => {
           <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
         </span>
         <span className="text-white text-xs font-medium tracking-wide">
-          Transaction Enrichment Engine
+          Multi-rail Enrichment Engine
         </span>
         <span className="ml-auto text-[10px] text-emerald-400 font-mono">Live</span>
       </div>
