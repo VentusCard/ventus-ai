@@ -182,7 +182,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {sources.map((t) => (
-                    <TileBox key={t.name} tile={t} />
+                    <TileBox key={t.name} tile={t} align="right" />
                   ))}
                 </div>
 
@@ -225,7 +225,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {destinations.map((t) => (
-                    <TileBox key={t.name} tile={t} />
+                    <TileBox key={t.name} tile={t} align="left" />
                   ))}
                 </div>
               </div>
