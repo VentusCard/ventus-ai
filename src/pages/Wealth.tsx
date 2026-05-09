@@ -176,7 +176,7 @@ const Wealth = () => {
           <section className="py-24 bg-white">
             <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Your clients are telling you everything.
+                Ready to Experience Ventus AI?
               </h2>
               <p className="text-lg text-gray-500 mb-8">Ventus makes sure your advisors are listening.</p>
               <Link to="/contact">
