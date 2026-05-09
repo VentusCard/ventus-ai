@@ -25,17 +25,37 @@ export default function BudgetPhoneView({ enrichedTxs }: Props) {
     byPillar.set(t.pillar, entry);
   });
 
-  const top = Array.from(byPillar.entries())
-    .map(([pillar, data]) => {
-      const budget = Math.max(10, Math.ceil((data.total * 1.15) / 10) * 10);
-      const categories = Array.from(data.cats.entries())
-        .map(([category, spend]) => ({ category, spend }))
-        .sort((a, b) => b.spend - a.spend)
-        .slice(0, 5);
-      return { pillar, totalSpend: data.total, budget, categories };
-    })
-    .sort((a, b) => b.totalSpend - a.totalSpend)
+  const hash = (s: string) => {
+    let h = 0;
+    for (let i = 0; i < s.length; i++) h = ((h << 5) - h + s.charCodeAt(i)) | 0;
+    return Math.abs(h);
+  };
+
+  const ranked = Array.from(byPillar.entries())
+    .map(([pillar, data]) => ({ pillar, data }))
+    .sort((a, b) => b.data.total - a.data.total)
     .slice(0, 4);
+
+  // Deterministically mark 2 of the 4 pillars as overbudget based on customer's pillar mix
+  const overbudgetSet = new Set(
+    ranked
+      .map((r) => ({ pillar: r.pillar, score: hash(r.pillar) }))
+      .sort((a, b) => a.score - b.score)
+      .slice(0, 2)
+      .map((r) => r.pillar)
+  );
+
+  const top = ranked.map(({ pillar, data }) => {
+    const isOver = overbudgetSet.has(pillar);
+    // Over: budget is 70-85% of spend → ratio > 1. Under: budget is ~115% of spend.
+    const factor = isOver ? 0.7 + ((hash(pillar) % 16) / 100) : 1.15;
+    const budget = Math.max(10, Math.ceil((data.total * factor) / 10) * 10);
+    const categories = Array.from(data.cats.entries())
+      .map(([category, spend]) => ({ category, spend }))
+      .sort((a, b) => b.spend - a.spend)
+      .slice(0, 5);
+    return { pillar, totalSpend: data.total, budget, categories };
+  });
 
   const totalSpend = top.reduce((s, p) => s + p.totalSpend, 0);
   const totalBudget = top.reduce((s, p) => s + p.budget, 0);
