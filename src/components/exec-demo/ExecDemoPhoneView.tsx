@@ -25,9 +25,9 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
 };
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
+  { key: "budget", label: "Budget", icon: Wallet, color: "#0ea5e9" },
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
   { key: "relationship", label: "Membership", icon: Users, color: "#8b5cf6" },
-  { key: "budget", label: "Budget", icon: Wallet, color: "#0ea5e9" },
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
 ];
 
