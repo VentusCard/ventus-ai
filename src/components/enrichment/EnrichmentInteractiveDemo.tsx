@@ -235,7 +235,7 @@ const EnrichmentInteractiveDemo = () => {
                       {isDone && <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-emerald-600" />}
                       {state === "inactive" && <span className="w-2 h-2 rounded-full bg-gray-300" />}
                     </div>
-                    <p className="font-bold text-xs sm:text-sm" style={{ color: "#0a0f1e" }}>Multi-rail Enrichment</p>
+                    <p className="font-bold text-xs sm:text-sm" style={{ color: "#0a0f1e" }}>{agent.name}</p>
                   </div>
                   {isDone && (
                     <span

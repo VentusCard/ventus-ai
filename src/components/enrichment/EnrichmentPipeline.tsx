@@ -39,7 +39,7 @@ const EnrichmentPipeline = () => {
                 transitionDelay: `${i * 100}ms`,
               }}
             >
-              <p className="font-bold text-sm mb-2" style={{ color: "#0a0f1e" }}>Multi-rail Enrichment</p>
+              <p className="font-bold text-sm mb-2" style={{ color: "#0a0f1e" }}>{agent.name}</p>
               <p className="text-gray-500 text-xs leading-relaxed">{agent.desc}</p>
             </div>
             {i < agents.length - 1 && (
