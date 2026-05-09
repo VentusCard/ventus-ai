@@ -66,7 +66,7 @@ const HeroAnalyticsCard = () => {
 
   return (
     <div
-      className="w-full max-w-md rounded-2xl overflow-hidden"
+      className="w-full max-w-md min-w-0 rounded-2xl overflow-hidden mx-auto"
       style={{ background: "#111827", border: "1px solid #1e2d4a" }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
@@ -85,16 +85,16 @@ const HeroAnalyticsCard = () => {
       </div>
 
       {/* Step indicator */}
-      <div className="flex" style={{ borderBottom: "1px solid #1e2d4a" }}>
+      <div className="grid grid-cols-4 min-w-0" style={{ borderBottom: "1px solid #1e2d4a" }}>
         {STEPS.map((s, i) => (
           <button
             key={s.label}
             onClick={() => goToStep(i)}
-            className="relative flex-1 flex items-center justify-center gap-1.5 py-2.5 text-[10px] font-medium transition-colors"
+            className="relative min-w-0 flex items-center justify-center gap-1 py-2.5 px-0.5 text-[9px] sm:text-[10px] font-medium transition-colors"
             style={{ color: step === i ? "#e2e8f0" : "#475569" }}
           >
-            <s.icon className="w-3 h-3" />
-            {s.label}
+            <s.icon className="w-3 h-3 shrink-0" />
+            <span className="truncate">{s.label}</span>
             {step === i && (
               <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-500 rounded-full" />
             )}
@@ -103,7 +103,7 @@ const HeroAnalyticsCard = () => {
       </div>
 
       {/* Content */}
-      <div className="p-4 min-h-[310px]">
+      <div className="p-3 sm:p-4 min-h-[280px] sm:min-h-[310px] min-w-0 max-w-full overflow-x-auto">
         {step === 0 && <TrendsStep key={`t-${animKey}`} />}
         {step === 1 && <SegmentsStep key={`s-${animKey}`} />}
         {step === 2 && <CrossSellStep key={`c-${animKey}`} />}
@@ -140,9 +140,9 @@ const HeroAnalyticsCard = () => {
 
 /* ── STEP 1: TRENDS ── */
 const TrendsStep = () => (
-  <div>
+  <div className="min-w-0 max-w-full">
     {/* Top metrics */}
-    <div className="grid grid-cols-3 gap-2 mb-4">
+    <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-4 min-w-0">
       {[
         { label: "Annual Spend", value: "$385B", trend: "+12%", up: true },
         { label: "Active Users", value: "75M", trend: "+3.2%", up: true },
@@ -150,14 +150,14 @@ const TrendsStep = () => (
       ].map((m, i) => (
         <div
           key={m.label}
-          className="rounded-lg px-2 py-2 text-center"
+          className="rounded-lg px-1 sm:px-2 py-2 text-center min-w-0"
           style={{
             background: "#0a0f1e",
             animation: `heroFadeUp 0.4s ease ${i * 60}ms both`,
           }}
         >
-          <p className="text-white text-sm font-bold">{m.value}</p>
-          <p className="text-gray-500 text-[8px] uppercase tracking-wider mt-0.5">{m.label}</p>
+          <p className="text-white text-xs sm:text-sm font-bold tabular-nums">{m.value}</p>
+          <p className="text-gray-500 text-[7px] sm:text-[8px] uppercase tracking-wider mt-0.5 leading-tight">{m.label}</p>
           <div className="flex items-center justify-center gap-0.5 mt-0.5">
             {m.up ? <TrendingUp className="w-2 h-2 text-emerald-400" /> : <TrendingDown className="w-2 h-2 text-red-400" />}
             <span className={`text-[8px] font-semibold ${m.up ? "text-emerald-400" : "text-red-400"}`}>{m.trend}</span>
