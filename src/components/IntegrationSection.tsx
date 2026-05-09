@@ -69,8 +69,8 @@ const IntegrationSection = () => {
   // X anchors (% of grid container width). Roughly: source col 0-33%, engine
   // 33-67%, dest 67-100%. We exit source tiles at their right edge (~33%),
   // converge to engine center (50%), and continue to dest left edge (~67%).
-  const SRC_X = 33;
-  const DST_X = 67;
+  const SRC_X = 22;
+  const DST_X = 78;
   const ENGINE_X = 50;
 
   return (
@@ -182,7 +182,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {sources.map((t) => (
-                    <TileBox key={t.name} tile={t} align="right" />
+                    <TileBox key={t.name} tile={t} align="left" />
                   ))}
                 </div>
 
@@ -225,7 +225,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {destinations.map((t) => (
-                    <TileBox key={t.name} tile={t} align="left" />
+                    <TileBox key={t.name} tile={t} align="right" />
                   ))}
                 </div>
               </div>
