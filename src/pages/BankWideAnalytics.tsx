@@ -42,7 +42,7 @@ const BankWideAnalytics = () => {
       <main>
         {/* SECTION 1 — HERO */}
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>
-          <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
+          <div className="max-w-7xl mx-auto px-6 md:px-8 w-full min-w-0 grid md:grid-cols-2 gap-12 items-center">
             <div>
               <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Bank-Wide Analytics</p>
               <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-2">
@@ -69,8 +69,10 @@ const BankWideAnalytics = () => {
                 </Button>
               </div>
             </div>
-            <div className="hidden md:flex justify-center">
-              <HeroAnalyticsCard />
+            <div className="flex justify-center w-full min-w-0 mt-10 md:mt-0">
+              <div className="w-full min-w-0 max-w-md">
+                <HeroAnalyticsCard />
+              </div>
             </div>
           </div>
         </section>
