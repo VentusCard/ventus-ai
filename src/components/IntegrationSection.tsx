@@ -5,7 +5,6 @@ import jackHenryLogo from "@/assets/jack-henry-logo.png";
 import databricksLogo from "@/assets/databricks-logo.png";
 import snowflakeLogo from "@/assets/snowflake-logo.png";
 import salesforceLogo from "@/assets/salesforce-logo.png";
-import dynamicsLogo from "@/assets/dynamics-logo.png";
 
 type Tile = {
   name: string;
@@ -23,7 +22,6 @@ const sources: Tile[] = [
 
 const destinations: Tile[] = [
   { name: "Salesforce Financial Cloud", src: salesforceLogo },
-  { name: "Microsoft Dynamics", src: dynamicsLogo },
   { name: "Rewards Engine", label: "Rewards Engine" },
   { name: "Digital Banking App", label: "Digital Banking App" },
 ];
