@@ -1,6 +1,4 @@
-import type { ReactNode } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import { Star, Smartphone } from "lucide-react";
 import fisLogo from "@/assets/fis-logo.svg";
 import fiservLogo from "@/assets/fiserv-logo.png";
 import jackHenryLogo from "@/assets/jack-henry-logo.png";
@@ -12,7 +10,6 @@ type Tile = {
   name: string;
   src?: string;
   label?: string;
-  icon?: ReactNode;
 };
 
 const sources: Tile[] = [
@@ -25,21 +22,17 @@ const sources: Tile[] = [
 
 const destinations: Tile[] = [
   { name: "Salesforce Financial Cloud", src: salesforceLogo },
-  { name: "Rewards Engine", label: "Rewards Engine", icon: <Star size={16} color="#3B82F6" strokeWidth={2.5} /> },
-  { name: "Digital Banking App", label: "Digital Banking App", icon: <Smartphone size={16} color="#3B82F6" strokeWidth={2.5} /> },
+  { name: "Rewards Engine", label: "Rewards Engine" },
+  { name: "Digital Banking App", label: "Digital Banking App" },
 ];
 
-const TileBox = ({ tile, align = "center" }: { tile: Tile; align?: "left" | "right" | "center" }) => (
+const TileBox = ({ tile }: { tile: Tile }) => (
   <div
-    className="flex items-center justify-center rounded-xl bg-white relative z-10 px-3"
+    className="flex items-center justify-center rounded-xl bg-white relative z-10"
     style={{
       border: "1px solid #E5E7EB",
       boxShadow: "0 1px 2px rgba(0,0,0,0.03)",
       height: 72,
-      maxWidth: 180,
-      width: "100%",
-      marginLeft: align === "right" ? "auto" : align === "left" ? 0 : "auto",
-      marginRight: align === "left" ? "auto" : align === "right" ? 0 : "auto",
     }}
   >
     {tile.src ? (
@@ -50,12 +43,9 @@ const TileBox = ({ tile, align = "center" }: { tile: Tile; align?: "left" | "rig
         className="max-h-10 max-w-[65%] w-auto object-contain"
       />
     ) : (
-      <div className="flex items-center gap-2">
-        {tile.icon}
-        <span className="text-[15px] font-semibold text-gray-500 tracking-tight">
-          {tile.label}
-        </span>
-      </div>
+      <span className="text-[15px] font-semibold text-gray-500 tracking-tight">
+        {tile.label}
+      </span>
     )}
   </div>
 );
@@ -69,8 +59,8 @@ const IntegrationSection = () => {
   // X anchors (% of grid container width). Roughly: source col 0-33%, engine
   // 33-67%, dest 67-100%. We exit source tiles at their right edge (~33%),
   // converge to engine center (50%), and continue to dest left edge (~67%).
-  const SRC_X = 22;
-  const DST_X = 78;
+  const SRC_X = 33;
+  const DST_X = 67;
   const ENGINE_X = 50;
 
   return (
@@ -182,7 +172,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {sources.map((t) => (
-                    <TileBox key={t.name} tile={t} align="left" />
+                    <TileBox key={t.name} tile={t} />
                   ))}
                 </div>
 
@@ -225,7 +215,7 @@ const IntegrationSection = () => {
                 </div>
                 <div className="h-full flex flex-col justify-around gap-2">
                   {destinations.map((t) => (
-                    <TileBox key={t.name} tile={t} align="right" />
+                    <TileBox key={t.name} tile={t} />
                   ))}
                 </div>
               </div>

@@ -9,7 +9,7 @@ const CTA = () => {
           Ready to Experience Ventus AI?
         </h2>
         <p className="text-lg text-gray-500 max-w-2xl mx-auto mb-8">
-          See what Ventus finds in your transaction data.
+          See what Ventus finds in your transaction data. Schedule a demo and get results in under 48 hours.
         </p>
         <Link to="/contact">
           <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
