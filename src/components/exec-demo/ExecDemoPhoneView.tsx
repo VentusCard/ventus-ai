@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Gift, Users, Bot, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
