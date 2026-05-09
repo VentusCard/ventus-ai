@@ -88,30 +88,60 @@ const TAB_ORDER: TabKey[] = ["analytics", "product", "relationship"];
 // Each pillar gets a unique color family so adjacent pills are easy to distinguish.
 const PILLAR_COLORS: Record<string, { bg: string; border: string; text: string; dot: string }> = {
   // MCC fallback names
-  "Travel & Transport":     { bg: "rgba(59,130,246,.12)",  border: "rgba(59,130,246,.35)",  text: "#1e40af", dot: "#3b82f6" }, // blue
-  "Food & Dining":          { bg: "rgba(245,158,11,.12)",  border: "rgba(245,158,11,.35)",  text: "#92400e", dot: "#f59e0b" }, // amber
-  "Wellness & Fitness":     { bg: "rgba(16,185,129,.12)",  border: "rgba(16,185,129,.35)",  text: "#065f46", dot: "#10b981" }, // emerald
-  "Shopping":               { bg: "rgba(139,92,246,.12)",  border: "rgba(139,92,246,.35)",  text: "#5b21b6", dot: "#8b5cf6" }, // violet
-  "Entertainment":          { bg: "rgba(217,70,239,.12)",  border: "rgba(217,70,239,.35)",  text: "#86198f", dot: "#d946ef" }, // fuchsia
-  "Home & Living":          { bg: "rgba(20,184,166,.12)",  border: "rgba(20,184,166,.35)",  text: "#115e59", dot: "#14b8a6" }, // teal
-  "Education & Family":     { bg: "rgba(99,102,241,.12)",  border: "rgba(99,102,241,.35)",  text: "#3730a3", dot: "#6366f1" }, // indigo
-  "Healthcare":             { bg: "rgba(6,182,212,.12)",   border: "rgba(6,182,212,.35)",   text: "#155e75", dot: "#06b6d4" }, // cyan (was red)
-  "Technology":             { bg: "rgba(2,132,199,.12)",   border: "rgba(2,132,199,.35)",   text: "#0c4a6e", dot: "#0284c7" }, // deep sky
-  "Pets & Care":            { bg: "rgba(236,72,153,.12)",  border: "rgba(236,72,153,.35)",  text: "#9d174d", dot: "#ec4899" }, // pink
-  "Financial Planning":     { bg: "rgba(234,179,8,.12)",   border: "rgba(234,179,8,.35)",   text: "#854d0e", dot: "#eab308" }, // yellow
-  "Sports & Active":        { bg: "rgba(34,197,94,.12)",   border: "rgba(34,197,94,.35)",   text: "#166534", dot: "#22c55e" }, // green
-  "Miscellaneous":          { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" }, // slate
+  "Travel & Transport": { bg: "rgba(59,130,246,.12)", border: "rgba(59,130,246,.35)", text: "#1e40af", dot: "#3b82f6" }, // blue
+  "Food & Dining": { bg: "rgba(245,158,11,.12)", border: "rgba(245,158,11,.35)", text: "#92400e", dot: "#f59e0b" }, // amber
+  "Wellness & Fitness": { bg: "rgba(16,185,129,.12)", border: "rgba(16,185,129,.35)", text: "#065f46", dot: "#10b981" }, // emerald
+  Shopping: { bg: "rgba(139,92,246,.12)", border: "rgba(139,92,246,.35)", text: "#5b21b6", dot: "#8b5cf6" }, // violet
+  Entertainment: { bg: "rgba(217,70,239,.12)", border: "rgba(217,70,239,.35)", text: "#86198f", dot: "#d946ef" }, // fuchsia
+  "Home & Living": { bg: "rgba(20,184,166,.12)", border: "rgba(20,184,166,.35)", text: "#115e59", dot: "#14b8a6" }, // teal
+  "Education & Family": { bg: "rgba(99,102,241,.12)", border: "rgba(99,102,241,.35)", text: "#3730a3", dot: "#6366f1" }, // indigo
+  Healthcare: { bg: "rgba(6,182,212,.12)", border: "rgba(6,182,212,.35)", text: "#155e75", dot: "#06b6d4" }, // cyan (was red)
+  Technology: { bg: "rgba(2,132,199,.12)", border: "rgba(2,132,199,.35)", text: "#0c4a6e", dot: "#0284c7" }, // deep sky
+  "Pets & Care": { bg: "rgba(236,72,153,.12)", border: "rgba(236,72,153,.35)", text: "#9d174d", dot: "#ec4899" }, // pink
+  "Financial Planning": { bg: "rgba(234,179,8,.12)", border: "rgba(234,179,8,.35)", text: "#854d0e", dot: "#eab308" }, // yellow
+  "Sports & Active": { bg: "rgba(34,197,94,.12)", border: "rgba(34,197,94,.35)", text: "#166534", dot: "#22c55e" }, // green
+  Miscellaneous: { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" }, // slate
   // AI classifier pillar names (mirror MCC mappings)
-  "Travel & Exploration":       { bg: "rgba(59,130,246,.12)",  border: "rgba(59,130,246,.35)",  text: "#1e40af", dot: "#3b82f6" },
-  "Health & Wellness":          { bg: "rgba(16,185,129,.12)",  border: "rgba(16,185,129,.35)",  text: "#065f46", dot: "#10b981" },
-  "Sports & Active Living":     { bg: "rgba(34,197,94,.12)",   border: "rgba(34,197,94,.35)",   text: "#166534", dot: "#22c55e" },
-  "Style & Beauty":             { bg: "rgba(180,83,9,.12)",    border: "rgba(180,83,9,.35)",    text: "#7c2d12", dot: "#b45309" }, // copper — distinct from pets/food/lime
-  "Pets":                       { bg: "rgba(236,72,153,.12)",  border: "rgba(236,72,153,.35)",  text: "#9d174d", dot: "#ec4899" },
-  "Entertainment & Culture":    { bg: "rgba(217,70,239,.12)",  border: "rgba(217,70,239,.35)",  text: "#86198f", dot: "#d946ef" },
-  "Technology & Digital Life":  { bg: "rgba(2,132,199,.12)",   border: "rgba(2,132,199,.35)",   text: "#0c4a6e", dot: "#0284c7" },
-  "Family & Community":         { bg: "rgba(99,102,241,.12)",  border: "rgba(99,102,241,.35)",  text: "#3730a3", dot: "#6366f1" },
-  "Financial & Aspirational":   { bg: "rgba(234,179,8,.12)",   border: "rgba(234,179,8,.35)",   text: "#854d0e", dot: "#eab308" },
-  "Miscellaneous & Unclassified": { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" },
+  "Travel & Exploration": {
+    bg: "rgba(59,130,246,.12)",
+    border: "rgba(59,130,246,.35)",
+    text: "#1e40af",
+    dot: "#3b82f6",
+  },
+  "Health & Wellness": { bg: "rgba(16,185,129,.12)", border: "rgba(16,185,129,.35)", text: "#065f46", dot: "#10b981" },
+  "Sports & Active Living": {
+    bg: "rgba(34,197,94,.12)",
+    border: "rgba(34,197,94,.35)",
+    text: "#166534",
+    dot: "#22c55e",
+  },
+  "Style & Beauty": { bg: "rgba(180,83,9,.12)", border: "rgba(180,83,9,.35)", text: "#7c2d12", dot: "#b45309" }, // copper — distinct from pets/food/lime
+  Pets: { bg: "rgba(236,72,153,.12)", border: "rgba(236,72,153,.35)", text: "#9d174d", dot: "#ec4899" },
+  "Entertainment & Culture": {
+    bg: "rgba(217,70,239,.12)",
+    border: "rgba(217,70,239,.35)",
+    text: "#86198f",
+    dot: "#d946ef",
+  },
+  "Technology & Digital Life": {
+    bg: "rgba(2,132,199,.12)",
+    border: "rgba(2,132,199,.35)",
+    text: "#0c4a6e",
+    dot: "#0284c7",
+  },
+  "Family & Community": { bg: "rgba(99,102,241,.12)", border: "rgba(99,102,241,.35)", text: "#3730a3", dot: "#6366f1" },
+  "Financial & Aspirational": {
+    bg: "rgba(234,179,8,.12)",
+    border: "rgba(234,179,8,.35)",
+    text: "#854d0e",
+    dot: "#eab308",
+  },
+  "Miscellaneous & Unclassified": {
+    bg: "rgba(148,163,184,.12)",
+    border: "rgba(148,163,184,.35)",
+    text: "#475569",
+    dot: "#94a3b8",
+  },
 };
 
 const DEFAULT_COLOR = { bg: "rgba(148,163,184,.12)", border: "rgba(148,163,184,.35)", text: "#475569", dot: "#94a3b8" };
@@ -138,7 +168,7 @@ function deriveChips(signals: SignalEntry[]): ChipData[] {
     const existing = map.get(key);
     if (existing) {
       existing.count += 1;
-      existing.totalSpend += (s.amount || 0);
+      existing.totalSpend += s.amount || 0;
       if (s.frequency) existing.freqCounts.set(s.frequency, (existing.freqCounts.get(s.frequency) || 0) + 1);
     } else {
       const freqCounts = new Map<string, number>();
@@ -146,14 +176,19 @@ function deriveChips(signals: SignalEntry[]): ChipData[] {
       map.set(key, { pillar: s.pillar, category, label: subcategory, count: 1, totalSpend: s.amount || 0, freqCounts });
     }
   }
-  return Array.from(map.values()).map(({ freqCounts, ...rest }) => {
-    let topFreq: string | undefined;
-    let topCount = 0;
-    for (const [f, c] of freqCounts) {
-      if (c > topCount) { topFreq = f; topCount = c; }
-    }
-    return { ...rest, frequency: topFreq };
-  }).sort((a, b) => b.totalSpend - a.totalSpend);
+  return Array.from(map.values())
+    .map(({ freqCounts, ...rest }) => {
+      let topFreq: string | undefined;
+      let topCount = 0;
+      for (const [f, c] of freqCounts) {
+        if (c > topCount) {
+          topFreq = f;
+          topCount = c;
+        }
+      }
+      return { ...rest, frequency: topFreq };
+    })
+    .sort((a, b) => b.totalSpend - a.totalSpend);
 }
 
 function formatSpend(amount: number): string {
@@ -219,40 +254,43 @@ export default function ExecDemoIntelPanel({
   const rollups = personaSynthesis?.pillarRollups || [];
 
   // Chips not covered by any rollup
-  const unrolledChips = useMemo(
-    () => {
-      if (rollups.length === 0) return chips;
-      // Build set of all category indices covered by rollups
-      const coveredIndices = new Set<number>();
-      for (const r of rollups) {
-        if (r.categoryIndices) {
-          for (const ci of r.categoryIndices) coveredIndices.add(ci);
-        }
+  const unrolledChips = useMemo(() => {
+    if (rollups.length === 0) return chips;
+    // Build set of all category indices covered by rollups
+    const coveredIndices = new Set<number>();
+    for (const r of rollups) {
+      if (r.categoryIndices) {
+        for (const ci of r.categoryIndices) coveredIndices.add(ci);
       }
-      // If we have covered indices, filter by index; otherwise keep all
-      if (coveredIndices.size > 0) {
-        return chips.filter((_, idx) => !coveredIndices.has(idx));
-      }
-      // Fallback: fuzzy pillar matching
-      return chips.filter(c => !rollups.some(r => {
-        if (c.pillar === r.pillar) return true;
-        const cLower = c.pillar.toLowerCase();
-        const rLower = r.pillar.toLowerCase();
-        return rLower.includes(cLower) || cLower.includes(rLower) || r.categories?.some(cat => cat.toLowerCase() === c.label.toLowerCase());
-      }));
-    },
-    [chips, rollups]
-  );
+    }
+    // If we have covered indices, filter by index; otherwise keep all
+    if (coveredIndices.size > 0) {
+      return chips.filter((_, idx) => !coveredIndices.has(idx));
+    }
+    // Fallback: fuzzy pillar matching
+    return chips.filter(
+      (c) =>
+        !rollups.some((r) => {
+          if (c.pillar === r.pillar) return true;
+          const cLower = c.pillar.toLowerCase();
+          const rLower = r.pillar.toLowerCase();
+          return (
+            rLower.includes(cLower) ||
+            cLower.includes(rLower) ||
+            r.categories?.some((cat) => cat.toLowerCase() === c.label.toLowerCase())
+          );
+        }),
+    );
+  }, [chips, rollups]);
 
   // Use pre-computed stats from rollups directly — no re-derivation from chips.
   // Sort by total spend (descending) so highest-dollar lifestyle behaviors lead.
   const rollupStats = useMemo(() => {
     return rollups
-      .filter(r => (r.totalCount ?? 0) > 0)
+      .filter((r) => (r.totalCount ?? 0) > 0)
       .slice()
       .sort((a, b) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0));
   }, [rollups]);
-
 
   // Derive current description from milestone keys
   const currentDescription = useMemo(() => {
@@ -290,8 +328,11 @@ export default function ExecDemoIntelPanel({
 
   // ---- Next Conversation: build available signals + selection state ----
   const customerSegment = (persona as any)?.profile?.segment || (persona as any)?.segment || "Preferred";
-  const isWealthClient = customerSegment === "Private" || customerSegment === "Premium" || customerSegment === "Premier";
-  const customerFirstName = (((persona as any)?.profile?.name || (persona as any)?.name || "the client") as string).split(" ")[0];
+  const isWealthClient =
+    customerSegment === "Private" || customerSegment === "Premium" || customerSegment === "Premier";
+  const customerFirstName = (
+    ((persona as any)?.profile?.name || (persona as any)?.name || "the client") as string
+  ).split(" ")[0];
 
   const availableSignals = useMemo<SelectedSignal[]>(() => {
     const out: SelectedSignal[] = [];
@@ -307,7 +348,9 @@ export default function ExecDemoIntelPanel({
         if (seen.has(key)) return;
         seen.add(key);
         const rawLabel = f.category_label || f.category_group || f.category || f.type || "Risk";
-        const label = String(rawLabel).replace(/_/g, " ").replace(/\b\w/g, (c: string) => c.toUpperCase());
+        const label = String(rawLabel)
+          .replace(/_/g, " ")
+          .replace(/\b\w/g, (c: string) => c.toUpperCase());
         out.push({ kind: "risk", label });
       });
     }
@@ -323,9 +366,7 @@ export default function ExecDemoIntelPanel({
   useEffect(() => {
     if (activeTab === "relationship" && !selectedSignal && availableSignals.length > 0) {
       // Prefer College Preparation life event as default; fall back to first available signal
-      const college = availableSignals.find(
-        (s) => s.kind === "lifeEvent" && /college/i.test(s.label)
-      );
+      const college = availableSignals.find((s) => s.kind === "lifeEvent" && /college/i.test(s.label));
       setSelectedSignal(college ?? availableSignals[0]);
     }
     if (activeTab !== "relationship") {
@@ -347,11 +388,12 @@ export default function ExecDemoIntelPanel({
       autoSelectedTabRef.current = null;
       return;
     }
-    if (activeTab === "analytics"
-      && autoSelectedTabRef.current !== "analytics"
-      && !activeRollup
-      && !activeTriggerLabel
-      && rollupStats.length > 0
+    if (
+      activeTab === "analytics" &&
+      autoSelectedTabRef.current !== "analytics" &&
+      !activeRollup &&
+      !activeTriggerLabel &&
+      rollupStats.length > 0
     ) {
       autoSelectedTabRef.current = "analytics";
       onRollupClick?.(rollupStats[0]);
@@ -362,7 +404,6 @@ export default function ExecDemoIntelPanel({
   // Risk pills should only be visually muted on the Next-Offer tab.
   // On Next-Product, keep them colored & clickable since the rationale panel surfaces risk as "Additional Tools".
   const riskPillsMuted = activeTab === "analytics";
-
 
   return (
     <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
@@ -393,10 +434,8 @@ export default function ExecDemoIntelPanel({
 
       {/* Persona section */}
       <div
-        className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${(!synthesisTriggered || pillsExpanded || !activeTab) ? "flex-1 min-h-0" : ""} ${
-          fullWidthEnrichment
-            ? "pt-3.5 pb-0"
-            : "rounded-2xl px-4 py-3.5 mb-2.5"
+        className={`transition-all duration-700 ease-out overflow-y-auto exec-light-scroll ${!synthesisTriggered || pillsExpanded || !activeTab ? "flex-1 min-h-0" : ""} ${
+          fullWidthEnrichment ? "pt-3.5 pb-0" : "rounded-2xl px-4 py-3.5 mb-2.5"
         }`}
         style={{
           background: fullWidthEnrichment ? undefined : "rgba(11,26,58,.022)",
@@ -406,7 +445,6 @@ export default function ExecDemoIntelPanel({
           maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
         }}
       >
-
         {/* Evolving persona description (shown while AI synthesis loads) */}
         {!synthesisTriggered && displayedDesc && (
           <div
@@ -418,7 +456,6 @@ export default function ExecDemoIntelPanel({
           </div>
         )}
 
-
         {/* Rollup pills + evidence pills */}
         {chips.length > 0 && (
           <div>
@@ -429,18 +466,37 @@ export default function ExecDemoIntelPanel({
                   {(() => {
                     const headerCopy =
                       activeTab === "analytics"
-                        ? { title: "3.1 Curated Deal Collections", sub: "Persona-fit deals lift engagement and grow customer LTV" }
+                        ? {
+                            title: "3.1 Personalized Rewards",
+                            sub: "Persona-fit deal collections lift engagement and grow customer LTV",
+                          }
                         : activeTab === "product"
-                        ? { title: "3.2 Next Financial Product", sub: "Behavioral signals surface the right product to grow AUM" }
-                        : activeTab === "relationship"
-                        ? { title: "3.3 Shared Customer Intelligence", sub: "Boosts NPS, retention, and customer service savings" }
-                        : { title: "2. Behavioral Intelligence", sub: "Personas = Multi-category spending patterns" };
+                          ? {
+                              title: "3.2 Next Financial Product",
+                              sub: "Behavioral signals surface the right product to grow AUM",
+                            }
+                          : activeTab === "relationship"
+                            ? {
+                                title: "3.3 Shared Customer Intelligence",
+                                sub: "Boosts NPS, retention, and customer service savings",
+                              }
+                            : {
+                                title: "2. Behavioral Intelligence",
+                                sub: "Lifestyel indicators = Multi-category spending patterns",
+                              };
                     return (
-                      <p className="font-bold text-slate-800 mb-1 text-xl">{headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span></p>
+                      <p className="font-bold text-slate-800 mb-1 text-xl">
+                        {headerCopy.title}: <span className="text-slate-500 font-semibold">{headerCopy.sub}</span>
+                      </p>
                     );
                   })()}
-                  <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
-                    <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
+                  <button
+                    onClick={() => setPillsExpanded(!pillsExpanded)}
+                    className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <ChevronDown
+                      className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`}
+                    />
                   </button>
                 </div>
                 {(() => {
@@ -448,7 +504,7 @@ export default function ExecDemoIntelPanel({
 
                   // When the relationship tab is active, pill clicks also drive the in-tab signal selection.
                   const isRelTab = activeTab === "relationship";
-                  const handleRollupForRel = (r: typeof rollupStats[number]) => {
+                  const handleRollupForRel = (r: (typeof rollupStats)[number]) => {
                     onRollupClick?.(r);
                     if (isRelTab) {
                       setSelectedSignal({ kind: "lifestyle", label: r.label });
@@ -463,9 +519,10 @@ export default function ExecDemoIntelPanel({
                         const tx: any = transactions[idx];
                         if (!tx) continue;
                         const name = tx.normalized_merchant || tx.merchant_name || tx.merchant || "Unknown";
-                        const amt = typeof tx.amount === "number"
-                          ? Math.abs(tx.amount)
-                          : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                        const amt =
+                          typeof tx.amount === "number"
+                            ? Math.abs(tx.amount)
+                            : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
                         if (!mMap[name]) mMap[name] = { total: 0, count: 0 };
                         mMap[name].total += amt;
                         mMap[name].count += 1;
@@ -484,9 +541,10 @@ export default function ExecDemoIntelPanel({
                         const tx: any = enrichedTransactions[idx];
                         if (!tx) continue;
                         const bucket = tx.subcategory || tx.category || "Other";
-                        const amt = typeof tx.amount === "number"
-                          ? Math.abs(tx.amount)
-                          : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
+                        const amt =
+                          typeof tx.amount === "number"
+                            ? Math.abs(tx.amount)
+                            : Math.abs(parseFloat(String(tx.amount).replace(/[^0-9.\-]/g, "")) || 0);
                         if (!catMap[bucket]) catMap[bucket] = { total: 0, count: 0, merchants: new Set() };
                         catMap[bucket].total += amt;
                         catMap[bucket].count += 1;
@@ -495,8 +553,12 @@ export default function ExecDemoIntelPanel({
                       }
                       const buckets = Object.entries(catMap)
                         .sort((a, b) => b[1].total - a[1].total)
-                        .map(([name, v]) => `${name} $${Math.round(v.total)} (${v.count}x, ${[...v.merchants].slice(0, 3).join(", ")})`);
-                      if (buckets.length) categoryBreakdown = ` Breakdown by enriched subcategory: ${buckets.join("; ")}.`;
+                        .map(
+                          ([name, v]) =>
+                            `${name} $${Math.round(v.total)} (${v.count}x, ${[...v.merchants].slice(0, 3).join(", ")})`,
+                        );
+                      if (buckets.length)
+                        categoryBreakdown = ` Breakdown by enriched subcategory: ${buckets.join("; ")}.`;
                     }
                     // Only dispatch AI chat prompts on the Next-Conversation (relationship) tab.
                     // On Next-Offer / Next-Product, pill clicks should only filter the deal/product collection.
@@ -512,7 +574,7 @@ export default function ExecDemoIntelPanel({
                       setSelectedSignal({ kind: "lifeEvent", label });
                       onAIPromptDispatch?.(
                         `I'm preparing for ${label.toLowerCase()}. What financial resources and products should I consider for this?`,
-                        "lifeEvent"
+                        "lifeEvent",
                       );
                     }
                   };
@@ -523,14 +585,20 @@ export default function ExecDemoIntelPanel({
                       const subject = merchant && merchant.trim().length > 0 ? `at ${merchant}` : `flagged as ${label}`;
                       onAIPromptDispatch?.(
                         `What is this transaction ${subject}? What is it typically associated with statistically?`,
-                        "risk"
+                        "risk",
                       );
                     }
                   };
 
                   // Shared pill renderers
                   const rollupPills = rollupStats.map((r, i) => (
-                    <PillarRollupChip key={`${r.pillar}::${r.label}`} rollup={r} delay={0.5 + i * 0.15} isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label} onClick={() => handleRollupForRel(r)} />
+                    <PillarRollupChip
+                      key={`${r.pillar}::${r.label}`}
+                      rollup={r}
+                      delay={0.5 + i * 0.15}
+                      isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label}
+                      onClick={() => handleRollupForRel(r)}
+                    />
                   ));
 
                   const lifeEventPills = productsLoading ? (
@@ -541,14 +609,17 @@ export default function ExecDemoIntelPanel({
                   ) : detectedLifeEvents && detectedLifeEvents.length > 0 ? (
                     detectedLifeEvents.map((evt, i) => {
                       const isActive = activeTriggerLabel === evt.event_name;
-                      const evidenceMerchants = evt.evidence?.map(e => e.merchant.toLowerCase()) || [];
+                      const evidenceMerchants = evt.evidence?.map((e) => e.merchant.toLowerCase()) || [];
                       const matchedIndices = transactions
-                        ? transactions.map((tx, idx) => {
-                            const m = (tx.merchant || "").toLowerCase();
-                            return evidenceMerchants.some(em => m.includes(em) || em.includes(m)) ? idx : -1;
-                          }).filter(idx => idx !== -1)
+                        ? transactions
+                            .map((tx, idx) => {
+                              const m = (tx.merchant || "").toLowerCase();
+                              return evidenceMerchants.some((em) => m.includes(em) || em.includes(m)) ? idx : -1;
+                            })
+                            .filter((idx) => idx !== -1)
                         : [];
-                      const confidence = evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
+                      const confidence =
+                        evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
                       const evCount = evt.evidence?.length ?? 0;
                       return (
                         <span
@@ -603,10 +674,13 @@ export default function ExecDemoIntelPanel({
                       const groupKeyFor = (f: any): { key: string; label: string } => {
                         const grp = String(f.category_group || f.category || "").toLowerCase();
                         const lbl = String(f.category_label || "").toLowerCase();
-                        if (grp === "vice" && lbl.includes("adult")) return { key: "adult", label: "Adult Entertainment" };
+                        if (grp === "vice" && lbl.includes("adult"))
+                          return { key: "adult", label: "Adult Entertainment" };
                         if (grp === "vice") return { key: "gambling", label: "Gambling" };
-                        if (grp === "financial_distress") return { key: "financial_vulnerability", label: "Financial Vulnerability" };
-                        if (grp === "suspicious_international") return { key: "suspicious_international", label: "Suspicious International" };
+                        if (grp === "financial_distress")
+                          return { key: "financial_vulnerability", label: "Financial Vulnerability" };
+                        if (grp === "suspicious_international")
+                          return { key: "suspicious_international", label: "Suspicious International" };
                         if (grp === "aml") return { key: "aml", label: "AML" };
                         const raw = f.category_label || f.category_group || f.category || "Risk";
                         return { key: String(raw).toLowerCase(), label: String(raw) };
@@ -634,7 +708,8 @@ export default function ExecDemoIntelPanel({
                       });
                       const ORDER = ["gambling", "financial_vulnerability", "adult", "suspicious_international", "aml"];
                       return Array.from(rollupMap.values()).sort((a, b) => {
-                        const ai = ORDER.indexOf(a.key); const bi = ORDER.indexOf(b.key);
+                        const ai = ORDER.indexOf(a.key);
+                        const bi = ORDER.indexOf(b.key);
                         if (ai === -1 && bi === -1) return a.label.localeCompare(b.label);
                         if (ai === -1) return 1;
                         if (bi === -1) return -1;
@@ -652,13 +727,19 @@ export default function ExecDemoIntelPanel({
                       if (transactions) {
                         const idSet = new Set<string>(rollup.txIds);
                         const merchantSet = new Set<string>(
-                          Array.from(rollup.merchants as Set<string>).map((m: string) => m.toLowerCase().trim())
+                          Array.from(rollup.merchants as Set<string>).map((m: string) => m.toLowerCase().trim()),
                         );
                         transactions.forEach((tx: any, idx: number) => {
                           const tid = tx.transaction_id || tx.id || "";
-                          if (tid && idSet.has(tid)) { matchedIndices.push(idx); return; }
+                          if (tid && idSet.has(tid)) {
+                            matchedIndices.push(idx);
+                            return;
+                          }
                           const m = String(tid).match(/^tx-(\d+)$/);
-                          if (m && idSet.has(`tx-${m[1]}`)) { matchedIndices.push(idx); return; }
+                          if (m && idSet.has(`tx-${m[1]}`)) {
+                            matchedIndices.push(idx);
+                            return;
+                          }
                           const mname = ((tx as any).merchant_name || (tx as any).merchant || "").toLowerCase().trim();
                           if (mname && merchantSet.has(mname)) matchedIndices.push(idx);
                         });
@@ -671,27 +752,34 @@ export default function ExecDemoIntelPanel({
                           onClick={() => {
                             if (!isClickable) return;
                             const all = Array.from(rollup.merchants as Set<string>);
-                            const picked = all.length > 0
-                              ? all[Math.floor(Math.random() * all.length)]
-                              : rollup.sampleMerchant;
+                            const picked =
+                              all.length > 0 ? all[Math.floor(Math.random() * all.length)] : rollup.sampleMerchant;
                             handleRiskForRel(flagLabel, matchedIndices, dotColor, picked);
                           }}
-                          title={riskPillsMuted ? "Not applicable for offer targeting" : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`}
+                          title={
+                            riskPillsMuted
+                              ? "Not applicable for offer targeting"
+                              : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`
+                          }
                           className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
                               : isActive
-                              ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
-                              : `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"}, ${isHigh ? "rgba(239,68,68,.08)" : "rgba(245,158,11,.08)"})`,
+                                ? `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.30)" : "rgba(245,158,11,.30)"}, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"})`
+                                : `linear-gradient(135deg, ${isHigh ? "rgba(239,68,68,.18)" : "rgba(245,158,11,.18)"}, ${isHigh ? "rgba(239,68,68,.08)" : "rgba(245,158,11,.08)"})`,
                             color: riskPillsMuted ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
                             border: riskPillsMuted
                               ? "1.5px solid #cbd5e1"
                               : isActive
-                              ? `2px solid ${dotColor}`
-                              : `1.5px solid ${dotColor}`,
+                                ? `2px solid ${dotColor}`
+                                : `1.5px solid ${dotColor}`,
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
-                            boxShadow: riskPillsMuted ? "none" : isActive ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}` : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
+                            boxShadow: riskPillsMuted
+                              ? "none"
+                              : isActive
+                                ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}`
+                                : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
                             transform: isActive && !riskPillsMuted ? "scale(1.08)" : "scale(1)",
                             opacity: riskPillsMuted ? 0.65 : 1,
                             filter: riskPillsMuted ? "grayscale(1)" : "none",
@@ -700,7 +788,9 @@ export default function ExecDemoIntelPanel({
                             textDecorationThickness: riskPillsMuted ? "1.5px" : undefined,
                           }}
                         >
-                          <span style={{ color: riskPillsMuted ? "#94a3b8" : dotColor, textDecoration: "none" }}>{riskPillsMuted ? "✕" : "⚠"}</span>
+                          <span style={{ color: riskPillsMuted ? "#94a3b8" : dotColor, textDecoration: "none" }}>
+                            {riskPillsMuted ? "✕" : "⚠"}
+                          </span>
                           {flagLabel}
                           <span className="text-[11px] opacity-60 tabular-nums font-normal">
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
@@ -735,15 +825,33 @@ export default function ExecDemoIntelPanel({
                   return (
                     <>
                       <div className="flex items-center gap-3 mb-1">
-                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}>Spending Habits:</p>
+                        <p
+                          className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}
+                        >
+                          Spending Habits:
+                        </p>
                         <div className={pillRowClass}>{rollupPills}</div>
                       </div>
-                      <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}>
-                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}>Life Event Detection:</p>
+                      <div
+                        className={`flex items-center gap-3 ${rowGap}`}
+                        style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}
+                      >
+                        <p
+                          className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}
+                        >
+                          Life Event Detection:
+                        </p>
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
-                      <div className={`flex items-center gap-3 ${rowGap}`} style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}>
-                        <p className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600`}>Risk Factors:</p>
+                      <div
+                        className={`flex items-center gap-3 ${rowGap}`}
+                        style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
+                      >
+                        <p
+                          className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600`}
+                        >
+                          Risk Factors:
+                        </p>
                         <div className={pillRowClass}>{riskPills}</div>
                       </div>
                     </>
@@ -754,19 +862,29 @@ export default function ExecDemoIntelPanel({
               </div>
             ) : (
               <>
-              <div className="flex items-start justify-between">
-                <p className="font-bold text-slate-800 mb-1.5 text-lg">1. Semantic Enrichment: <span className="text-slate-500 font-semibold">Source and format agnostic enrichment to gain a full picture</span></p>
-                <button onClick={() => setPillsExpanded(!pillsExpanded)} className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors">
-                  <ChevronDown className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`} />
-                </button>
-              </div>
+                <div className="flex items-start justify-between">
+                  <p className="font-bold text-slate-800 mb-1.5 text-lg">
+                    1. Multi-Rail Semantic Enrichment:{" "}
+                    <span className="text-slate-500 font-semibold">
+                      Source and format agnostic enrichment to gain a full picture
+                    </span>
+                  </p>
+                  <button
+                    onClick={() => setPillsExpanded(!pillsExpanded)}
+                    className="shrink-0 ml-2 mt-1 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    <ChevronDown
+                      className={`w-5 h-5 transition-transform duration-200 ${pillsExpanded ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                </div>
               </>
             )}
 
             {(pillsExpanded || !activeTab) && (
               <div
-                className={`transition-all duration-500 overflow-hidden flex flex-col ${(!activeTab || pillsExpanded) ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
-                style={{ maxHeight: (!activeTab || pillsExpanded) ? undefined : 360 }}
+                className={`transition-all duration-500 overflow-hidden flex flex-col ${!activeTab || pillsExpanded ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
+                style={{ maxHeight: !activeTab || pillsExpanded ? undefined : 360 }}
               >
                 {!activeTab ? (
                   <ExecDemoEnrichmentTable
@@ -808,7 +926,9 @@ export default function ExecDemoIntelPanel({
                 style={{ animation: `offer-card-in 0.45s ease-out ${i * 0.1}s both` }}
               >
                 <Icon className="w-4 h-4 text-slate-500 group-hover:text-primary transition-colors" />
-                <span className="text-xs font-bold text-slate-700 group-hover:text-primary transition-colors">{meta.label}</span>
+                <span className="text-xs font-bold text-slate-700 group-hover:text-primary transition-colors">
+                  {meta.label}
+                </span>
               </button>
             );
           })}
@@ -828,9 +948,30 @@ export default function ExecDemoIntelPanel({
         <div className={`flex flex-col min-h-0 overflow-hidden ${synthesisTriggered ? "flex-1" : ""}`}>
           <div className="flex-1 min-h-0 overflow-auto scrollbar-light">
             {activeTab === "analytics" && synthesisTriggered ? (
-              <PurchaseCycleTimeline chips={chips} transactions={transactions || []} signalMap={persona.signalMap} personaSynthesis={personaSynthesis} generatedOffers={generatedOffers} offersLoading={offersLoading} activeRollup={activeRollup} activeTriggerLabel={activeTriggerLabel} activeTrigger={activeTrigger} />
+              <PurchaseCycleTimeline
+                chips={chips}
+                transactions={transactions || []}
+                signalMap={persona.signalMap}
+                personaSynthesis={personaSynthesis}
+                generatedOffers={generatedOffers}
+                offersLoading={offersLoading}
+                activeRollup={activeRollup}
+                activeTriggerLabel={activeTriggerLabel}
+                activeTrigger={activeTrigger}
+              />
             ) : activeTab === "product" ? (
-              <NextProductRationale lifeEvents={detectedLifeEvents || null} loading={!!productsLoading} productCards={productCards} transactions={transactions} onTriggerPillClick={onTriggerPillClick} activeTriggerLabel={activeTriggerLabel} productActions={productActions} actionsLoading={actionsLoading} pillarRollups={rollupStats} riskFlags={riskFlags} />
+              <NextProductRationale
+                lifeEvents={detectedLifeEvents || null}
+                loading={!!productsLoading}
+                productCards={productCards}
+                transactions={transactions}
+                onTriggerPillClick={onTriggerPillClick}
+                activeTriggerLabel={activeTriggerLabel}
+                productActions={productActions}
+                actionsLoading={actionsLoading}
+                pillarRollups={rollupStats}
+                riskFlags={riskFlags}
+              />
             ) : activeTab === "relationship" ? (
               <div className="h-full flex flex-col min-h-0">
                 <div className="flex-1 min-h-0">
@@ -847,9 +988,11 @@ export default function ExecDemoIntelPanel({
                       const lifeEventSignal: SelectedSignal | null =
                         selectedSignal && selectedSignal.kind === "lifeEvent"
                           ? selectedSignal
-                          : (availableSignals.find((s) => s.kind === "lifeEvent" && /college/i.test(s.label))
-                              ?? availableSignals.find((s) => s.kind === "lifeEvent")
-                              ?? { kind: "lifeEvent", label: "College Preparation for Dependent" });
+                          : (availableSignals.find((s) => s.kind === "lifeEvent" && /college/i.test(s.label)) ??
+                            availableSignals.find((s) => s.kind === "lifeEvent") ?? {
+                              kind: "lifeEvent",
+                              label: "College Preparation for Dependent",
+                            });
                       onOpenWMCopilot?.(customerFirstName, lifeEventSignal);
                     }}
                     onOpenAIAssistant={() => onOpenAIAssistant?.(customerFirstName, selectedSignal)}
@@ -860,9 +1003,7 @@ export default function ExecDemoIntelPanel({
               </div>
             ) : (
               <div className="flex items-center justify-center h-full">
-                <span className="text-[11px] text-slate-300 font-mono">
-                  Analyzing transactions...
-                </span>
+                <span className="text-[11px] text-slate-300 font-mono">Analyzing transactions...</span>
               </div>
             )}
           </div>
@@ -943,7 +1084,19 @@ export default function ExecDemoIntelPanel({
 }
 
 /** A single color-coded chip showing label · count× · $amount */
-function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { chip: ChipData; isActive?: boolean; onClick?: () => void; collapsed?: boolean; mergeDelay?: number }) {
+function AnimatedChip({
+  chip,
+  isActive,
+  onClick,
+  collapsed,
+  mergeDelay = 0,
+}: {
+  chip: ChipData;
+  isActive?: boolean;
+  onClick?: () => void;
+  collapsed?: boolean;
+  mergeDelay?: number;
+}) {
   const prevCount = useRef(chip.count);
   const [pulse, setPulse] = useState(false);
   const c = getColor(chip.pillar);
@@ -966,7 +1119,9 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
         background: isActive ? c.bg.replace(".12", ".25") : c.bg,
         color: c.text,
         border: isActive ? `2px solid ${c.dot}` : `1px solid ${c.border}`,
-        animation: collapsed ? `pill-collapse 0.6s ease-in-out ${mergeDelay}s forwards` : "pill-pop 0.45s ease-out both",
+        animation: collapsed
+          ? `pill-collapse 0.6s ease-in-out ${mergeDelay}s forwards`
+          : "pill-pop 0.45s ease-out both",
         transform: isActive ? "scale(1.08)" : "scale(1)",
         boxShadow: isActive ? `0 0 8px ${c.bg}` : "none",
       }}
@@ -983,15 +1138,23 @@ function AnimatedChip({ chip, isActive, onClick, collapsed, mergeDelay = 0 }: { 
           {chip.count}×
         </span>
       )}
-      <span className="text-[11px] opacity-70 tabular-nums">
-        {formatSpend(chip.totalSpend)}
-      </span>
+      <span className="text-[11px] opacity-70 tabular-nums">{formatSpend(chip.totalSpend)}</span>
     </span>
   );
 }
 
 /** Synthesized rollup pill for a pillar */
-function PillarRollupChip({ rollup, delay, isActive, onClick }: { rollup: PillarRollup & { totalSpend?: number; totalCount?: number }; delay: number; isActive?: boolean; onClick?: () => void }) {
+function PillarRollupChip({
+  rollup,
+  delay,
+  isActive,
+  onClick,
+}: {
+  rollup: PillarRollup & { totalSpend?: number; totalCount?: number };
+  delay: number;
+  isActive?: boolean;
+  onClick?: () => void;
+}) {
   const c = getColor(rollup.pillar);
   return (
     <span
@@ -1028,16 +1191,11 @@ function IntelCardContent({ card }: { card: IntelCard }) {
     >
       <div className="flex items-center gap-1.5 mb-1.5">
         <span style={{ color: card.accent, fontSize: 16 }}>{card.icon}</span>
-        <span
-          className="text-[12px] font-bold tracking-wider uppercase"
-          style={{ color: card.accent }}
-        >
+        <span className="text-[12px] font-bold tracking-wider uppercase" style={{ color: card.accent }}>
           {card.title}
         </span>
       </div>
-      {card.subtitle && (
-        <div className="text-[10px] text-slate-400 mb-3">{card.subtitle}</div>
-      )}
+      {card.subtitle && <div className="text-[10px] text-slate-400 mb-3">{card.subtitle}</div>}
       {card.pills ? (
         <div className="flex flex-wrap gap-2">
           {card.pills.map((pill) => (
