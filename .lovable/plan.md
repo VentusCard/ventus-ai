@@ -1,10 +1,18 @@
-## Hide the floating settings gear inside the demo
+## Goal
+For `/demo` sample data, only card-funded transactions (Premium Card, Travel Card, Cashback Card) should carry an MCC. Non-card sources (Checks, Checking, ACH, HSA, Wire, Zelle) should have an empty MCC field — matching how a real bank would only have MCC data for card rails.
 
-The bottom-left gear icon comes from `SettingsDialog` rendered with the `floating` prop in `src/components/demo/SimplePasswordGate.tsx` (line ~51). It's mounted after the user passes the password gate, so it appears throughout `/demo`.
+## Scope
+Single file: `src/lib/sampleData.ts`. All `SAMPLE_CSV*` blocks are affected. ~137 rows currently violate the rule.
 
-### Change
-- Remove the `floating` prop on that `<SettingsDialog />` instance (or remove the entire `<SettingsDialog />` mount, since with `floating` removed and no other trigger it will never open).
-- Keep the top-right gear on the password gate itself (pre-auth) so admins can still configure the demo before entering.
+## Approach
+Run a one-off script that rewrites `src/lib/sampleData.ts`:
+- For every CSV data row inside the template literals, parse the comma-separated columns
+- If the `source` column (last) is NOT one of `Premium Card`, `Travel Card`, `Cashback Card`, blank the `mcc` column (4th)
+- Leave header rows, card-source rows, and all surrounding TS code untouched
 
-### Files
-- Edit only: `src/components/demo/SimplePasswordGate.tsx`
+No UI/component changes needed — downstream code (`parsePastedText`, enrichment, displays) already tolerates empty `mcc`.
+
+## Verification
+- Re-run the awk check to confirm 0 non-card rows still have an MCC
+- Spot-check the user's example row `txn_058 PORTFOLIO RECOVERY ASSOC` now shows blank MCC
+- Confirm card rows (e.g. `Premium Card`) still retain their MCCs
