@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Gift, Users, Bot, Wifi, Battery } from "lucide-react";
+import { Gift, Users, Bot, Wallet, Wifi, Battery } from "lucide-react";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 
@@ -8,13 +8,14 @@ import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import RelationshipPhoneView from "./RelationshipPhoneView";
 import WMCopilotPhoneView from "./WMCopilotPhoneView";
+import BudgetPhoneView from "./BudgetPhoneView";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
 import type { SelectedSignal } from "./NextConversationRationale";
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
-type ConsumerTab = "rewards" | "relationship" | "ai";
+type ConsumerTab = "rewards" | "relationship" | "budget" | "ai";
 
 const TAB_MAP: Record<TabKey, ConsumerTab> = {
   analytics: "rewards",
@@ -24,6 +25,7 @@ const TAB_MAP: Record<TabKey, ConsumerTab> = {
 };
 
 const CONSUMER_TABS: { key: ConsumerTab; label: string; icon: typeof Gift; color: string }[] = [
+  { key: "budget", label: "Budget", icon: Wallet, color: "#0ea5e9" },
   { key: "rewards", label: "Rewards", icon: Gift, color: "#22c55e" },
   { key: "relationship", label: "Membership", icon: Users, color: "#8b5cf6" },
   { key: "ai", label: "AI", icon: Bot, color: "#3b82f6" },
@@ -95,6 +97,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
         );
       case "relationship":
         return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
+      case "budget":
+        return <BudgetPhoneView enrichedTxs={enrichedTxs} />;
       case "ai": {
         const personalizedDeals = generatedOffers && generatedOffers.length > 0
           ? {

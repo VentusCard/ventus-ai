@@ -429,7 +429,7 @@ const PlatformTabs = () => {
           One Tech Core. Five Insight Tools.
         </h2>
         <p className="text-gray-500 text-lg mb-10">
-          Every team in your bank. One enrichment engine underneath.
+          Every team in your bank. One Multi-rail Enrichment engine underneath.
         </p>
 
         {/* Tab Buttons */}

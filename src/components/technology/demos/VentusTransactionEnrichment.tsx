@@ -717,7 +717,7 @@ export default function VentusTransactionEnrichment() {
         <div className="vte-card">
           <div className="vte-head">
             <h3 className="vte-title">
-              Enrichment Intelligence
+              Multi-rail Enrichment
             </h3>
             <span className="vte-live-badge">
               <span className="vte-live-dot" />
