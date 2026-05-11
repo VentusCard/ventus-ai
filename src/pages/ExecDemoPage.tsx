@@ -4,14 +4,29 @@ import { X, ChevronRight, ChevronLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
-import ExecDemoIntelPanel, { type PersonaSynthesis, type PillarRollup, getColor } from "@/components/exec-demo/ExecDemoIntelPanel";
+import ExecDemoIntelPanel, {
+  type PersonaSynthesis,
+  type PillarRollup,
+  getColor,
+} from "@/components/exec-demo/ExecDemoIntelPanel";
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
 import type { CardActions } from "@/components/exec-demo/NextProductRationale";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
-import { getIntelligenceForCustomer, getCsvForCustomer, buildLocalProfile, csvToClassifyPayload, buildSignalMapFromClassified, type SignalEntry, type ExecPersona, type ExecIntelligence, type Transaction, type EnrichedTransaction } from "@/components/exec-demo/execDemoData";
+import {
+  getIntelligenceForCustomer,
+  getCsvForCustomer,
+  buildLocalProfile,
+  csvToClassifyPayload,
+  buildSignalMapFromClassified,
+  type SignalEntry,
+  type ExecPersona,
+  type ExecIntelligence,
+  type Transaction,
+  type EnrichedTransaction,
+} from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
@@ -48,21 +63,37 @@ export default function ExecDemoPage() {
   const [collectedIndices, setCollectedIndices] = useState<number[]>([]);
   const [currentCardColor, setCurrentCardColor] = useState("#60a5fa");
   const [contactOpen, setContactOpen] = useState(false);
-  const [activePillFilter, setActivePillFilter] = useState<{ pillar: string; label: string; isCategory?: boolean } | null>(null);
+  const [activePillFilter, setActivePillFilter] = useState<{
+    pillar: string;
+    label: string;
+    isCategory?: boolean;
+  } | null>(null);
   const [activeRollup, setActiveRollup] = useState<PillarRollup | null>(null);
-  const [profile, setProfile] = useState<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
+  const [profile, setProfile] = useState<{
+    persona: ExecPersona;
+    intelligence: ExecIntelligence;
+    transactions: Transaction[];
+  } | null>(null);
   const [stepIndex, setStepIndex] = useState(0);
   const [aiTabTrigger, setAiTabTrigger] = useState(0);
-  const [pendingAIPrompt, setPendingAIPrompt] = useState<{ text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null>(null);
+  const [pendingAIPrompt, setPendingAIPrompt] = useState<{
+    text: string;
+    nonce: number;
+    kind?: "lifestyle" | "lifeEvent" | "risk";
+    signalContext?: string;
+  } | null>(null);
 
   const handleOpenAIAssistant = useCallback(() => {
     setAiTabTrigger((n) => n + 1);
   }, []);
 
-  const dispatchAIPrompt = useCallback((text: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => {
-    setPendingAIPrompt({ text, nonce: Date.now(), kind, signalContext });
-    setAiTabTrigger((n) => n + 1);
-  }, []);
+  const dispatchAIPrompt = useCallback(
+    (text: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => {
+      setPendingAIPrompt({ text, nonce: Date.now(), kind, signalContext });
+      setAiTabTrigger((n) => n + 1);
+    },
+    [],
+  );
 
   const [wmCopilotOpen, setWmCopilotOpen] = useState(false);
   const [wmCopilotSignal, setWmCopilotSignal] = useState<SelectedSignal | null>(null);
@@ -81,7 +112,11 @@ export default function ExecDemoPage() {
     setWmCopilotOpen(false);
     setAiTabTrigger((n) => n + 1);
   }, []);
-  const profileRef = useRef<{ persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] } | null>(null);
+  const profileRef = useRef<{
+    persona: ExecPersona;
+    intelligence: ExecIntelligence;
+    transactions: Transaction[];
+  } | null>(null);
   const [customCsv, setCustomCsv] = useState<string | null>(null);
   const [customName, setCustomName] = useState<string | null>(null);
   const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
@@ -95,7 +130,12 @@ export default function ExecDemoPage() {
   const [productsLoading, setProductsLoading] = useState(false);
   const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
   const [productCardsLoading, setProductCardsLoading] = useState(false);
-  const [activeTriggerPill, setActiveTriggerPill] = useState<{ label: string; indices: number[]; color: string; kind: "lifeEvent" | "risk" } | null>(null);
+  const [activeTriggerPill, setActiveTriggerPill] = useState<{
+    label: string;
+    indices: number[];
+    color: string;
+    kind: "lifeEvent" | "risk";
+  } | null>(null);
   const [productActions, setProductActions] = useState<CardActions[] | null>(null);
   const [actionsLoading, setActionsLoading] = useState(false);
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
@@ -209,12 +249,21 @@ export default function ExecDemoPage() {
   /** Synthesize persona headline + insights from classified transactions */
   const firePersonaSynthesis = useCallback(async (enrichedTxs: EnrichedTransaction[]) => {
     // Group by pillar::category and collect merchants, tiers, subcategories
-    const grouped = new Map<string, {
-      pillar: string; label: string; count: number; totalSpend: number;
-      frequency?: string; txIndices: number[];
-      topMerchants: string[]; spendingTier: string; subcategories: string[];
-      dates: string[];
-    }>();
+    const grouped = new Map<
+      string,
+      {
+        pillar: string;
+        label: string;
+        count: number;
+        totalSpend: number;
+        frequency?: string;
+        txIndices: number[];
+        topMerchants: string[];
+        spendingTier: string;
+        subcategories: string[];
+        dates: string[];
+      }
+    >();
     for (const [txIdx, tx] of enrichedTxs.entries()) {
       const key = `${tx.pillar}::${tx.category}`;
       const existing = grouped.get(key);
@@ -225,18 +274,23 @@ export default function ExecDemoPage() {
         if (tx.date) existing.dates.push(tx.date);
         if (tx.merchant_name && !existing.topMerchants.includes(tx.merchant_name))
           existing.topMerchants.push(tx.merchant_name);
-        if (tx.subcategories) tx.subcategories.forEach(sc => {
-          if (!existing.subcategories.includes(sc)) existing.subcategories.push(sc);
-        });
+        if (tx.subcategories)
+          tx.subcategories.forEach((sc) => {
+            if (!existing.subcategories.includes(sc)) existing.subcategories.push(sc);
+          });
         // Keep highest tier
-        const tierRank: Record<string, number> = { "Budget": 0, "Standard": 1, "Premium": 2 };
+        const tierRank: Record<string, number> = { Budget: 0, Standard: 1, Premium: 2 };
         if ((tierRank[tx.spending_tier] ?? 1) > (tierRank[existing.spendingTier] ?? 1)) {
           existing.spendingTier = tx.spending_tier;
         }
       } else {
         grouped.set(key, {
-          pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount,
-          frequency: tx.purchase_frequency, txIndices: [txIdx],
+          pillar: tx.pillar,
+          label: tx.category,
+          count: 1,
+          totalSpend: tx.amount,
+          frequency: tx.purchase_frequency,
+          txIndices: [txIdx],
           topMerchants: tx.merchant_name ? [tx.merchant_name] : [],
           spendingTier: tx.spending_tier || "Standard",
           subcategories: tx.subcategories ? [...tx.subcategories] : [],
@@ -263,25 +317,28 @@ export default function ExecDemoPage() {
     // theme suppression. Bound to 6s so a slow risk call never blocks the demo.
     if (riskReadyRef.current) {
       try {
-        await Promise.race([
-          riskReadyRef.current,
-          new Promise<void>((resolve) => setTimeout(resolve, 6000)),
-        ]);
-      } catch { /* swallow — defensive UI filter still applies */ }
+        await Promise.race([riskReadyRef.current, new Promise<void>((resolve) => setTimeout(resolve, 6000))]);
+      } catch {
+        /* swallow — defensive UI filter still applies */
+      }
     }
     const riskFlagsForPersona = riskFlagsRef.current?.flags || [];
-    const riskCategoriesPresent = Array.from(new Set(
-      riskFlagsForPersona
-        .map((f: any) => String(f.category_label || f.category_group || "").trim())
-        .filter((s: string) => s.length > 0)
-    ));
-    const riskTransactionIds = Array.from(new Set(
-      riskFlagsForPersona
-        .map((f: any) => String(f.transaction_id || "").trim())
-        .filter((s: string) => s.length > 0)
-    ));
+    const riskCategoriesPresent = Array.from(
+      new Set(
+        riskFlagsForPersona
+          .map((f: any) => String(f.category_label || f.category_group || "").trim())
+          .filter((s: string) => s.length > 0),
+      ),
+    );
+    const riskTransactionIds = Array.from(
+      new Set(
+        riskFlagsForPersona.map((f: any) => String(f.transaction_id || "").trim()).filter((s: string) => s.length > 0),
+      ),
+    );
     const riskTxIdSet = new Set(riskTransactionIds);
-    console.log(`[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`);
+    console.log(
+      `[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`,
+    );
 
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
@@ -289,7 +346,7 @@ export default function ExecDemoPage() {
           pillars,
           // Send the full enriched transaction list so the LLM can pick exact rows
           // (with their lifestyle subcategory tags) for lifestyle-prone rollups.
-          transactions: enrichedTxs.map(t => ({
+          transactions: enrichedTxs.map((t) => ({
             merchant_name: t.merchant_name,
             normalized_merchant: (t as any).normalized_merchant,
             amount: t.amount,
@@ -299,7 +356,7 @@ export default function ExecDemoPage() {
             subcategories: t.subcategories,
             spending_tier: t.spending_tier,
           })),
-          lifeEvents: detectedEvents.map(e => ({ event_name: e.event_name })),
+          lifeEvents: detectedEvents.map((e) => ({ event_name: e.event_name })),
           riskCategoriesPresent,
           riskTransactionIds,
           bankContext: getBankPromptContext(),
@@ -307,143 +364,176 @@ export default function ExecDemoPage() {
       });
       if (error) throw error;
       const synthesis: PersonaSynthesis = {
-        pillarRollups: (data.pillar_rollups || []).map((r: any) => {
-          const catIndices: number[] = r.category_indices || [];
-          const txIndicesFromAI: number[] = Array.isArray(r.transaction_indices) ? r.transaction_indices : [];
+        pillarRollups: (data.pillar_rollups || [])
+          .map((r: any) => {
+            const catIndices: number[] = r.category_indices || [];
+            const txIndicesFromAI: number[] = Array.isArray(r.transaction_indices) ? r.transaction_indices : [];
 
-          // Resolve contributing CATEGORY groups via index + fallback by name (used for downstream code
-          // that still needs categoryIndices, e.g. coherence guards)
-          const matchedGroupIndices = new Set<number>();
-          for (const ci of catIndices) {
-            if (ci >= 0 && ci < pillars.length) matchedGroupIndices.add(ci);
-          }
-          if (r.categories) {
-            for (const catName of r.categories) {
-              const idx = pillars.findIndex(
-                (p, i) => !matchedGroupIndices.has(i) && p.pillar === r.pillar && p.label.toLowerCase() === catName.toLowerCase()
-              );
-              if (idx >= 0) matchedGroupIndices.add(idx);
+            // Resolve contributing CATEGORY groups via index + fallback by name (used for downstream code
+            // that still needs categoryIndices, e.g. coherence guards)
+            const matchedGroupIndices = new Set<number>();
+            for (const ci of catIndices) {
+              if (ci >= 0 && ci < pillars.length) matchedGroupIndices.add(ci);
             }
-          }
+            if (r.categories) {
+              for (const catName of r.categories) {
+                const idx = pillars.findIndex(
+                  (p, i) =>
+                    !matchedGroupIndices.has(i) &&
+                    p.pillar === r.pillar &&
+                    p.label.toLowerCase() === catName.toLowerCase(),
+                );
+                if (idx >= 0) matchedGroupIndices.add(idx);
+              }
+            }
 
-          // PRIMARY membership source: per-transaction indices the LLM picked.
-          // These come from the numbered transaction list (with lifestyle tags) the LLM saw.
-          // Fallback: if the LLM returned no transaction_indices for this rollup
-          // (e.g. utilities / subscriptions / financial — pillars we did NOT send txn-level for),
-          // expand all transactions in the matched categories.
-          const txIndicesSet = new Set<number>();
-          if (txIndicesFromAI.length > 0) {
-            for (const ti of txIndicesFromAI) {
-              if (ti >= 0 && ti < enrichedTxs.length) txIndicesSet.add(ti);
+            // PRIMARY membership source: per-transaction indices the LLM picked.
+            // These come from the numbered transaction list (with lifestyle tags) the LLM saw.
+            // Fallback: if the LLM returned no transaction_indices for this rollup
+            // (e.g. utilities / subscriptions / financial — pillars we did NOT send txn-level for),
+            // expand all transactions in the matched categories.
+            const txIndicesSet = new Set<number>();
+            if (txIndicesFromAI.length > 0) {
+              for (const ti of txIndicesFromAI) {
+                if (ti >= 0 && ti < enrichedTxs.length) txIndicesSet.add(ti);
+              }
+            } else {
+              for (const gi of matchedGroupIndices) {
+                for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
+              }
             }
-          } else {
+            // RISK GUARD: any transaction owned by a risk flag (gambling, BNPL, payday, collections,
+            // adult, offshore, etc.) is the exclusive property of the Risk pill — never let it appear
+            // inside a lifestyle rollup, no matter what the LLM said.
+            if (riskTxIdSet.size > 0) {
+              for (const ti of Array.from(txIndicesSet)) {
+                const txId = (enrichedTxs[ti] as any)?.transaction_id;
+                if (txId && riskTxIdSet.has(txId)) txIndicesSet.delete(ti);
+              }
+            }
+            const txIndices = Array.from(txIndicesSet);
+
+            // Re-derive categoryIndices from the actual selected transactions so the rollup-level
+            // coherence guards (≥2 categories, life-stage rules, incompatible-theme rules)
+            // operate on what's truly inside the pill — not what the LLM claimed.
+            const derivedCatKeys = new Set<string>();
+            for (const ti of txIndices) {
+              const t = enrichedTxs[ti];
+              if (t) derivedCatKeys.add(`${t.pillar}::${t.category}`);
+            }
+            const derivedCategoryIndices: number[] = [];
+            derivedCatKeys.forEach((key) => {
+              const idx = pillars.findIndex((p) => `${p.pillar}::${p.label}` === key);
+              if (idx >= 0) derivedCategoryIndices.push(idx);
+            });
+            // Union with LLM-claimed categories so non-txn-level pillars (utilities etc.) still work
             for (const gi of matchedGroupIndices) {
-              for (const ti of pillars[gi].txIndices) txIndicesSet.add(ti);
+              if (!derivedCategoryIndices.includes(gi)) derivedCategoryIndices.push(gi);
             }
-          }
-          // RISK GUARD: any transaction owned by a risk flag (gambling, BNPL, payday, collections,
-          // adult, offshore, etc.) is the exclusive property of the Risk pill — never let it appear
-          // inside a lifestyle rollup, no matter what the LLM said.
-          if (riskTxIdSet.size > 0) {
-            for (const ti of Array.from(txIndicesSet)) {
-              const txId = (enrichedTxs[ti] as any)?.transaction_id;
-              if (txId && riskTxIdSet.has(txId)) txIndicesSet.delete(ti);
-            }
-          }
-          const txIndices = Array.from(txIndicesSet);
 
-          // Re-derive categoryIndices from the actual selected transactions so the rollup-level
-          // coherence guards (≥2 categories, life-stage rules, incompatible-theme rules)
-          // operate on what's truly inside the pill — not what the LLM claimed.
-          const derivedCatKeys = new Set<string>();
-          for (const ti of txIndices) {
-            const t = enrichedTxs[ti];
-            if (t) derivedCatKeys.add(`${t.pillar}::${t.category}`);
-          }
-          const derivedCategoryIndices: number[] = [];
-          derivedCatKeys.forEach(key => {
-            const idx = pillars.findIndex(p => `${p.pillar}::${p.label}` === key);
-            if (idx >= 0) derivedCategoryIndices.push(idx);
-          });
-          // Union with LLM-claimed categories so non-txn-level pillars (utilities etc.) still work
-          for (const gi of matchedGroupIndices) {
-            if (!derivedCategoryIndices.includes(gi)) derivedCategoryIndices.push(gi);
-          }
+            const totalCount = txIndices.length;
+            const totalSpend = txIndices.reduce((s, ti) => s + (enrichedTxs[ti]?.amount || 0), 0);
 
-          const totalCount = txIndices.length;
-          const totalSpend = txIndices.reduce((s, ti) => s + (enrichedTxs[ti]?.amount || 0), 0);
+            // Collect the resolved category labels for coherence validation
+            const resolvedCategories = derivedCategoryIndices.map((gi) => pillars[gi].label.toLowerCase());
 
-          // Collect the resolved category labels for coherence validation
-          const resolvedCategories = derivedCategoryIndices.map(gi => pillars[gi].label.toLowerCase());
+            return {
+              pillar: r.pillar,
+              label: r.label,
+              categories: r.categories || [],
+              categoryIndices: derivedCategoryIndices,
+              txIndices,
+              totalCount,
+              totalSpend,
+              _resolvedCategories: resolvedCategories,
+            };
+          })
+          .filter((r: any) => r.totalCount > 0)
+          .filter((r: any) => {
+            // Client-side coherence validation: reject nonsensical rollups
+            const label = (r.label as string).toLowerCase();
+            const cats = r._resolvedCategories as string[];
 
-          return {
-            pillar: r.pillar,
-            label: r.label,
-            categories: r.categories || [],
-            categoryIndices: derivedCategoryIndices,
-            txIndices,
-            totalCount,
-            totalSpend,
-            _resolvedCategories: resolvedCategories,
-          };
-        })
-        .filter((r: any) => r.totalCount > 0)
-        .filter((r: any) => {
-          // Client-side coherence validation: reject nonsensical rollups
-          const label = (r.label as string).toLowerCase();
-          const cats = r._resolvedCategories as string[];
-
-          // Rule 1: Reject rollups with only 1 matched category (not a real grouping)
-          if (r.categoryIndices.length < 2) {
-            console.log(`[ROLLUP-REJECT] "${r.label}" — only 1 category, not a real grouping`);
-            return false;
-          }
-
-          // Rule 2: Reject life-stage labels without enough corroborating evidence
-          const lifeStageKeywords = ["nursery", "nesting", "new parent", "baby", "suburban", "family setup", "expecting"];
-          const isLifeStageLabel = lifeStageKeywords.some(kw => label.includes(kw));
-          if (isLifeStageLabel) {
-            const familyKeywords = ["baby", "kids", "child", "nursery", "pediatr", "daycare", "maternity", "infant", "toddler"];
-            const familyCatCount = cats.filter(c => familyKeywords.some(fk => c.includes(fk))).length;
-            if (familyCatCount < 2) {
-              console.log(`[ROLLUP-REJECT] "${r.label}" — life-stage label with only ${familyCatCount} family categories`);
+            // Rule 1: Reject rollups with only 1 matched category (not a real grouping)
+            if (r.categoryIndices.length < 2) {
+              console.log(`[ROLLUP-REJECT] "${r.label}" — only 1 category, not a real grouping`);
               return false;
             }
-          }
 
-          // Rule 3: Reject rollups that mix incompatible themes
-          const incompatiblePairs: [string[], string[]][] = [
-            [["gas", "fuel", "commut", "auto", "car wash"], ["nursery", "baby", "kids", "child", "toy"]],
-            [["gas", "fuel", "commut", "auto"], ["streaming", "subscription", "netflix", "hulu", "spotify"]],
-            [["grocery", "supermarket", "food"], ["streaming", "subscription", "software"]],
-          ];
-          for (const [groupA, groupB] of incompatiblePairs) {
-            const hasA = cats.some(c => groupA.some(kw => c.includes(kw)));
-            const hasB = cats.some(c => groupB.some(kw => c.includes(kw)));
-            if (hasA && hasB) {
-              console.log(`[ROLLUP-REJECT] "${r.label}" — incompatible themes detected`);
+            // Rule 2: Reject life-stage labels without enough corroborating evidence
+            const lifeStageKeywords = [
+              "nursery",
+              "nesting",
+              "new parent",
+              "baby",
+              "suburban",
+              "family setup",
+              "expecting",
+            ];
+            const isLifeStageLabel = lifeStageKeywords.some((kw) => label.includes(kw));
+            if (isLifeStageLabel) {
+              const familyKeywords = [
+                "baby",
+                "kids",
+                "child",
+                "nursery",
+                "pediatr",
+                "daycare",
+                "maternity",
+                "infant",
+                "toddler",
+              ];
+              const familyCatCount = cats.filter((c) => familyKeywords.some((fk) => c.includes(fk))).length;
+              if (familyCatCount < 2) {
+                console.log(
+                  `[ROLLUP-REJECT] "${r.label}" — life-stage label with only ${familyCatCount} family categories`,
+                );
+                return false;
+              }
+            }
+
+            // Rule 3: Reject rollups that mix incompatible themes
+            const incompatiblePairs: [string[], string[]][] = [
+              [
+                ["gas", "fuel", "commut", "auto", "car wash"],
+                ["nursery", "baby", "kids", "child", "toy"],
+              ],
+              [
+                ["gas", "fuel", "commut", "auto"],
+                ["streaming", "subscription", "netflix", "hulu", "spotify"],
+              ],
+              [
+                ["grocery", "supermarket", "food"],
+                ["streaming", "subscription", "software"],
+              ],
+            ];
+            for (const [groupA, groupB] of incompatiblePairs) {
+              const hasA = cats.some((c) => groupA.some((kw) => c.includes(kw)));
+              const hasB = cats.some((c) => groupB.some((kw) => c.includes(kw)));
+              if (hasA && hasB) {
+                console.log(`[ROLLUP-REJECT] "${r.label}" — incompatible themes detected`);
+                return false;
+              }
+            }
+
+            // Rule 4: Reject rollups whose label uses risk-domain vocabulary. Those concepts
+            // belong exclusively to the Risk surface — never restate them as a customer-facing lifestyle.
+            const riskVocab = /betting|sportsbook|casino|wager|gambl|payday|bnpl|cash advance|adult|vice|high roller/i;
+            if (riskVocab.test(r.label)) {
+              console.warn(`[ROLLUP-REJECT] "${r.label}" — uses risk-domain vocabulary; coordinate via Risk pill`);
               return false;
             }
-          }
 
-          // Rule 4: Reject rollups whose label uses risk-domain vocabulary. Those concepts
-          // belong exclusively to the Risk surface — never restate them as a customer-facing lifestyle.
-          const riskVocab = /betting|sportsbook|casino|wager|gambl|payday|bnpl|cash advance|adult|vice|high roller/i;
-          if (riskVocab.test(r.label)) {
-            console.warn(`[ROLLUP-REJECT] "${r.label}" — uses risk-domain vocabulary; coordinate via Risk pill`);
-            return false;
-          }
+            // Rule 5: After the risk-id guard above stripped risk-owned txns, the rollup may
+            // have collapsed below the meaningful-evidence threshold. Drop it.
+            if (r.totalCount < 2) {
+              console.log(`[ROLLUP-REJECT] "${r.label}" — fewer than 2 transactions after risk filtering`);
+              return false;
+            }
 
-          // Rule 5: After the risk-id guard above stripped risk-owned txns, the rollup may
-          // have collapsed below the meaningful-evidence threshold. Drop it.
-          if (r.totalCount < 2) {
-            console.log(`[ROLLUP-REJECT] "${r.label}" — fewer than 2 transactions after risk filtering`);
-            return false;
-          }
-
-          return true;
-        })
-        .map(({ _resolvedCategories, ...rest }: any) => rest),
+            return true;
+          })
+          .map(({ _resolvedCategories, ...rest }: any) => rest),
       };
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
@@ -453,7 +543,12 @@ export default function ExecDemoPage() {
       // synthesize-persona now also returns detected_life_events when canonical thresholds are met,
       // so themes like "Home Purchase / Transition" surface even if upstream detection missed them.
       const promotedRaw = Array.isArray(data?.detected_life_events) ? data.detected_life_events : [];
-      const normalizeName = (s: string) => s.toLowerCase().replace(/[^a-z0-9 ]/g, " ").replace(/\s+/g, " ").trim();
+      const normalizeName = (s: string) =>
+        s
+          .toLowerCase()
+          .replace(/[^a-z0-9 ]/g, " ")
+          .replace(/\s+/g, " ")
+          .trim();
       const themeKey = (s: string) => {
         const n = normalizeName(s);
         if (/\b(home|house|mortgage|nesting|relocation|moving)\b/.test(n)) return "home";
@@ -466,24 +561,28 @@ export default function ExecDemoPage() {
         if (/\b(inherit|windfall|estate)\b/.test(n)) return "windfall";
         return n;
       };
-      const upstreamThemes = new Set(detectedEvents.map(e => themeKey(e.event_name || "")));
+      const upstreamThemes = new Set(detectedEvents.map((e) => themeKey(e.event_name || "")));
       const promotedEvents: LifeEvent[] = promotedRaw
         .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)))
         .map((e: any) => {
           // Hydrate evidence from transaction_indices when the model gave indices but thin evidence.
           const txIdx: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
-          const hydratedEvidence = (e.evidence && e.evidence.length > 0)
-            ? e.evidence
-            : txIdx.slice(0, 4).map((ti: number) => {
-                const t: any = enrichedTxs[ti];
-                if (!t) return null;
-                return {
-                  merchant: t.normalized_merchant || t.merchant_name || "Unknown",
-                  amount: typeof t.amount === "number" ? t.amount : 0,
-                  date: t.date || "",
-                  relevance: `Cluster evidence for ${e.event_name}`,
-                };
-              }).filter(Boolean);
+          const hydratedEvidence =
+            e.evidence && e.evidence.length > 0
+              ? e.evidence
+              : txIdx
+                  .slice(0, 4)
+                  .map((ti: number) => {
+                    const t: any = enrichedTxs[ti];
+                    if (!t) return null;
+                    return {
+                      merchant: t.normalized_merchant || t.merchant_name || "Unknown",
+                      amount: typeof t.amount === "number" ? t.amount : 0,
+                      date: t.date || "",
+                      relevance: `Cluster evidence for ${e.event_name}`,
+                    };
+                  })
+                  .filter(Boolean);
           return {
             event_name: e.event_name,
             confidence: typeof e.confidence === "number" ? e.confidence : 70,
@@ -492,7 +591,10 @@ export default function ExecDemoPage() {
           } as LifeEvent;
         });
       if (promotedEvents.length > 0) {
-        console.log("[PRELOAD] Promoted life events from persona:", promotedEvents.map(e => e.event_name));
+        console.log(
+          "[PRELOAD] Promoted life events from persona:",
+          promotedEvents.map((e) => e.event_name),
+        );
       }
       const mergedEvents: LifeEvent[] = [...detectedEvents, ...promotedEvents];
 
@@ -505,60 +607,63 @@ export default function ExecDemoPage() {
   }, []);
 
   /** Generate AI-powered deal recommendations from persona + pillars + optional life events */
-  const fireNextOffers = useCallback(async (synthesis: PersonaSynthesis, pillars: any[], lifeEvents?: LifeEvent[]) => {
-    // De-dupe: skip if a generation is already in flight (e.g., StrictMode double-invoke)
-    if (offersInFlightRef.current) {
-      console.log("[PRELOAD] Next-offers skipped — already in flight");
-      return;
-    }
-    offersInFlightRef.current = true;
-    setOffersLoading(true);
-    setGeneratedOffers(null);
-    try {
-      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics = demoCustomer?.profile?.demographics || {};
-      const body: any = {
-        persona: {
-          pillarRollups: synthesis.pillarRollups,
-        },
-        pillars: pillars.slice(0, 8).map(p => ({
-          pillar: p.pillar,
-          label: p.label,
-          count: p.count,
-          totalSpend: p.totalSpend,
-          topMerchants: p.topMerchants,
-          subcategories: p.subcategories,
-        })),
-        demographics,
-      };
-      if (lifeEvents && lifeEvents.length > 0) {
-        body.lifeEvents = lifeEvents.map(e => ({
-          event_name: e.event_name,
-          confidence: e.confidence,
-          evidence_merchants: (e.evidence || []).map(ev => ev.merchant).filter(Boolean),
-        }));
+  const fireNextOffers = useCallback(
+    async (synthesis: PersonaSynthesis, pillars: any[], lifeEvents?: LifeEvent[]) => {
+      // De-dupe: skip if a generation is already in flight (e.g., StrictMode double-invoke)
+      if (offersInFlightRef.current) {
+        console.log("[PRELOAD] Next-offers skipped — already in flight");
+        return;
       }
-      body.bankContext = getBankPromptContext();
-      const { data, error } = await supabase.functions.invoke("generate-next-offers", {
-        body,
-      });
-      if (error) throw error;
-      setGeneratedOffers(data.rollupOffers || []);
-      console.log("[PRELOAD] Next-offers ready:", data.rollupOffers?.length, "groups");
-    } catch (err) {
-      console.error("[PRELOAD] Next-offers failed:", err);
-    } finally {
-      setOffersLoading(false);
-      offersInFlightRef.current = false;
-    }
-  }, [selectedIdx]);
+      offersInFlightRef.current = true;
+      setOffersLoading(true);
+      setGeneratedOffers(null);
+      try {
+        const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+        const demographics = demoCustomer?.profile?.demographics || {};
+        const body: any = {
+          persona: {
+            pillarRollups: synthesis.pillarRollups,
+          },
+          pillars: pillars.slice(0, 8).map((p) => ({
+            pillar: p.pillar,
+            label: p.label,
+            count: p.count,
+            totalSpend: p.totalSpend,
+            topMerchants: p.topMerchants,
+            subcategories: p.subcategories,
+          })),
+          demographics,
+        };
+        if (lifeEvents && lifeEvents.length > 0) {
+          body.lifeEvents = lifeEvents.map((e) => ({
+            event_name: e.event_name,
+            confidence: e.confidence,
+            evidence_merchants: (e.evidence || []).map((ev) => ev.merchant).filter(Boolean),
+          }));
+        }
+        body.bankContext = getBankPromptContext();
+        const { data, error } = await supabase.functions.invoke("generate-next-offers", {
+          body,
+        });
+        if (error) throw error;
+        setGeneratedOffers(data.rollupOffers || []);
+        console.log("[PRELOAD] Next-offers ready:", data.rollupOffers?.length, "groups");
+      } catch (err) {
+        console.error("[PRELOAD] Next-offers failed:", err);
+      } finally {
+        setOffersLoading(false);
+        offersInFlightRef.current = false;
+      }
+    },
+    [selectedIdx],
+  );
 
   /** Pure life-event detection — invokes the edge function and returns events.
    *  Used both pre-synthesis (to feed dedup hint into synthesize-persona) and
    *  reused by fireLifeEventDetection to avoid double API calls. */
   const detectLifeEventsOnly = useCallback(async (): Promise<LifeEvent[]> => {
     const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-    const demographics = demoCustomer?.profile?.demographics as Record<string, string> || {};
+    const demographics = (demoCustomer?.profile?.demographics as Record<string, string>) || {};
     const enrichedTxs = classifiedRef.current || [];
     if (enrichedTxs.length === 0) return [];
 
@@ -582,7 +687,7 @@ export default function ExecDemoPage() {
       };
     });
 
-    const topCategories = [...new Set(enrichedTxs.map(tx => tx.category))].slice(0, 5);
+    const topCategories = [...new Set(enrichedTxs.map((tx) => tx.category))].slice(0, 5);
     const totalSpend = enrichedTxs.reduce((s, tx) => s + tx.amount, 0);
 
     const { data, error } = await supabase.functions.invoke("analyze-lifestyle-signals", {
@@ -601,32 +706,30 @@ export default function ExecDemoPage() {
 
   /** Hydrate UI state with detected life events and trigger downstream product cards + offers.
    *  If `preDetectedEvents` is supplied, skip the API call and reuse them. */
-  const fireLifeEventDetection = useCallback(async (
-    synthesis?: PersonaSynthesis,
-    pillars?: any[],
-    preDetectedEvents?: LifeEvent[],
-  ) => {
-    setProductsLoading(true);
-    setDetectedLifeEvents(null);
-    try {
-      const events: LifeEvent[] = preDetectedEvents ?? await detectLifeEventsOnly();
-      setDetectedLifeEvents(events.slice(0, 3));
-      detectedLifeEventsRef.current = events.slice(0, 3);
-      console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
-      // Fire product cards generation with life events + persona data
-      fireProductCards(events, personaSynthesisRef.current);
-      // Fire offers with both pillars and detected life events in a single call
-      const syn = synthesis || personaSynthesisRef.current;
-      if (syn && pillars) {
-        fireNextOffers(syn, pillars, events.length > 0 ? events : undefined);
+  const fireLifeEventDetection = useCallback(
+    async (synthesis?: PersonaSynthesis, pillars?: any[], preDetectedEvents?: LifeEvent[]) => {
+      setProductsLoading(true);
+      setDetectedLifeEvents(null);
+      try {
+        const events: LifeEvent[] = preDetectedEvents ?? (await detectLifeEventsOnly());
+        setDetectedLifeEvents(events.slice(0, 3));
+        detectedLifeEventsRef.current = events.slice(0, 3);
+        console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
+        // Fire product cards generation with life events + persona data
+        fireProductCards(events, personaSynthesisRef.current);
+        // Fire offers with both pillars and detected life events in a single call
+        const syn = synthesis || personaSynthesisRef.current;
+        if (syn && pillars) {
+          fireNextOffers(syn, pillars, events.length > 0 ? events : undefined);
+        }
+      } catch (err) {
+        console.error("[PRELOAD] Life event detection failed:", err);
+      } finally {
+        setProductsLoading(false);
       }
-    } catch (err) {
-      console.error("[PRELOAD] Life event detection failed:", err);
-    } finally {
-      setProductsLoading(false);
-    }
-  }, [detectLifeEventsOnly]);
-
+    },
+    [detectLifeEventsOnly],
+  );
 
   /** Detect risk factors using detect-risk-transactions edge function (RAW csv evidence) */
   const fireRiskDetection = useCallback(async () => {
@@ -642,7 +745,10 @@ export default function ExecDemoPage() {
       // Build raw payload from CSV — bypass enrichment so risk engine sees MCC, description, source, zips
       const rawTxs = csvToClassifyPayload(csv);
       const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const homeZip = (demoCustomer?.profile?.demographics as any)?.zip || (demoCustomer?.profile?.demographics as any)?.zip_code || "";
+      const homeZip =
+        (demoCustomer?.profile?.demographics as any)?.zip ||
+        (demoCustomer?.profile?.demographics as any)?.zip_code ||
+        "";
       const payload = rawTxs.slice(0, 100).map((t) => ({
         transaction_id: t.transaction_id,
         merchant_name: t.merchant_name,
@@ -679,101 +785,111 @@ export default function ExecDemoPage() {
   }, [selectedIdx, customCsv]);
 
   /** Generate consumer product cards from life events + persona rollups */
-  const fireProductCards = useCallback(async (events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
-    setProductCardsLoading(true);
-    setProductCards(null);
-    try {
-      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics = demoCustomer?.profile?.demographics || {};
-      const enrichedTxs = classifiedRef.current || [];
+  const fireProductCards = useCallback(
+    async (events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
+      setProductCardsLoading(true);
+      setProductCards(null);
+      try {
+        const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+        const demographics = demoCustomer?.profile?.demographics || {};
+        const enrichedTxs = classifiedRef.current || [];
 
-      // Rebuild pillars summary for the function
-      const grouped = new Map<string, any>();
-      for (const tx of enrichedTxs) {
-        const key = `${tx.pillar}::${tx.category}`;
-        const existing = grouped.get(key);
-        if (existing) {
-          existing.count += 1;
-          existing.totalSpend += tx.amount;
-          if (tx.subcategories) tx.subcategories.forEach((sc: string) => {
-            if (!existing.subcategories.includes(sc)) existing.subcategories.push(sc);
-          });
-        } else {
-          grouped.set(key, {
-            pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount,
-            subcategories: tx.subcategories ? [...tx.subcategories] : [],
-          });
+        // Rebuild pillars summary for the function
+        const grouped = new Map<string, any>();
+        for (const tx of enrichedTxs) {
+          const key = `${tx.pillar}::${tx.category}`;
+          const existing = grouped.get(key);
+          if (existing) {
+            existing.count += 1;
+            existing.totalSpend += tx.amount;
+            if (tx.subcategories)
+              tx.subcategories.forEach((sc: string) => {
+                if (!existing.subcategories.includes(sc)) existing.subcategories.push(sc);
+              });
+          } else {
+            grouped.set(key, {
+              pillar: tx.pillar,
+              label: tx.category,
+              count: 1,
+              totalSpend: tx.amount,
+              subcategories: tx.subcategories ? [...tx.subcategories] : [],
+            });
+          }
         }
-      }
-      const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+        const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
 
-      const { data, error } = await supabase.functions.invoke("generate-product-cards", {
-        body: {
-          life_events: events,
-          persona_rollups: synthesis?.pillarRollups || [],
-          pillars: pillars.slice(0, 8),
-          demographics,
-          risk_flags: riskFlagsRef.current?.flags || [],
-          bankContext: getBankPromptContext(),
-        },
-      });
-      if (error) throw error;
-      const cards = data.cards || [];
-      setProductCards(cards);
-      console.log("[PRELOAD] Product cards ready:", cards.length);
-      // Fire action generation with full context
-      if (cards.length > 0) {
-        fireProductActions(cards, events, synthesis);
+        const { data, error } = await supabase.functions.invoke("generate-product-cards", {
+          body: {
+            life_events: events,
+            persona_rollups: synthesis?.pillarRollups || [],
+            pillars: pillars.slice(0, 8),
+            demographics,
+            risk_flags: riskFlagsRef.current?.flags || [],
+            bankContext: getBankPromptContext(),
+          },
+        });
+        if (error) throw error;
+        const cards = data.cards || [];
+        setProductCards(cards);
+        console.log("[PRELOAD] Product cards ready:", cards.length);
+        // Fire action generation with full context
+        if (cards.length > 0) {
+          fireProductActions(cards, events, synthesis);
+        }
+      } catch (err) {
+        console.error("[PRELOAD] Product cards failed:", err);
+      } finally {
+        setProductCardsLoading(false);
       }
-    } catch (err) {
-      console.error("[PRELOAD] Product cards failed:", err);
-    } finally {
-      setProductCardsLoading(false);
-    }
-  }, [selectedIdx]);
+    },
+    [selectedIdx],
+  );
 
   /** Generate AI-powered engagement actions for each product card */
-  const fireProductActions = useCallback(async (cards: ProductCard[], events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
-    setActionsLoading(true);
-    setProductActions(null);
-    try {
-      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics = demoCustomer?.profile?.demographics || {};
-      const enrichedTxs = classifiedRef.current || [];
+  const fireProductActions = useCallback(
+    async (cards: ProductCard[], events: LifeEvent[], synthesis: PersonaSynthesis | null) => {
+      setActionsLoading(true);
+      setProductActions(null);
+      try {
+        const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+        const demographics = demoCustomer?.profile?.demographics || {};
+        const enrichedTxs = classifiedRef.current || [];
 
-      const grouped = new Map<string, any>();
-      for (const tx of enrichedTxs) {
-        const key = `${tx.pillar}::${tx.category}`;
-        const existing = grouped.get(key);
-        if (existing) {
-          existing.count += 1;
-          existing.totalSpend += tx.amount;
-        } else {
-          grouped.set(key, { pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount });
+        const grouped = new Map<string, any>();
+        for (const tx of enrichedTxs) {
+          const key = `${tx.pillar}::${tx.category}`;
+          const existing = grouped.get(key);
+          if (existing) {
+            existing.count += 1;
+            existing.totalSpend += tx.amount;
+          } else {
+            grouped.set(key, { pillar: tx.pillar, label: tx.category, count: 1, totalSpend: tx.amount });
+          }
         }
-      }
-      const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+        const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
 
-      const { data, error } = await supabase.functions.invoke("generate-product-actions", {
-        body: {
-          product_cards: cards,
-          persona_rollups: synthesis?.pillarRollups || [],
-          life_events: events.slice(0, 3),
-          demographics,
-          pillars: pillars.slice(0, 6),
-          risk_flags: riskFlagsRef.current?.flags || [],
-          bankContext: getBankPromptContext(),
-        },
-      });
-      if (error) throw error;
-      setProductActions(data.card_actions || []);
-      console.log("[PRELOAD] Product actions ready:", data.card_actions?.length, "cards");
-    } catch (err) {
-      console.error("[PRELOAD] Product actions failed:", err);
-    } finally {
-      setActionsLoading(false);
-    }
-  }, [selectedIdx]);
+        const { data, error } = await supabase.functions.invoke("generate-product-actions", {
+          body: {
+            product_cards: cards,
+            persona_rollups: synthesis?.pillarRollups || [],
+            life_events: events.slice(0, 3),
+            demographics,
+            pillars: pillars.slice(0, 6),
+            risk_flags: riskFlagsRef.current?.flags || [],
+            bankContext: getBankPromptContext(),
+          },
+        });
+        if (error) throw error;
+        setProductActions(data.card_actions || []);
+        console.log("[PRELOAD] Product actions ready:", data.card_actions?.length, "cards");
+      } catch (err) {
+        console.error("[PRELOAD] Product actions failed:", err);
+      } finally {
+        setActionsLoading(false);
+      }
+    },
+    [selectedIdx],
+  );
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
   fireRiskDetectionRef.current = fireRiskDetection;
@@ -817,42 +933,52 @@ export default function ExecDemoPage() {
       // Preload classification in background
       fireClassification(getCsvForCustomer(idx));
     },
-    [clearTimeouts, fireClassification]
+    [clearTimeouts, fireClassification],
   );
 
   const handleChangeCustomer = useCallback(() => {
     setSelectionDialogOpen(true);
   }, []);
 
-  const handleLoadCustomCsv = useCallback((csv: string, name: string) => {
-    clearTimeouts();
-    setCustomCsv(csv);
-    setCustomName(name);
-    setPhase("idle");
-    setProcessedIndices([]);
-    setRevealedTabs([]);
-    setActiveTab(null);
-    setTxPanelExpanded(false);
-    setCollectedIndices([]);
-    setActivePillFilter(null);
-    setActiveRollup(null);
-    setSynthesisTriggered(false);
-    setProfile(buildLocalProfile(csv, 0, name));
-    // Preload classification for custom CSV
-    fireClassification(csv);
-  }, [clearTimeouts, fireClassification]);
+  const handleLoadCustomCsv = useCallback(
+    (csv: string, name: string) => {
+      clearTimeouts();
+      setCustomCsv(csv);
+      setCustomName(name);
+      setPhase("idle");
+      setProcessedIndices([]);
+      setRevealedTabs([]);
+      setActiveTab(null);
+      setTxPanelExpanded(false);
+      setCollectedIndices([]);
+      setActivePillFilter(null);
+      setActiveRollup(null);
+      setSynthesisTriggered(false);
+      setProfile(buildLocalProfile(csv, 0, name));
+      // Preload classification for custom CSV
+      fireClassification(csv);
+    },
+    [clearTimeouts, fireClassification],
+  );
 
-  const revealStep = useCallback((idx: number, p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }, skipHighlight = false) => {
-    const tabKey = TAB_ORDER[idx];
-    const card = p.intelligence[tabKey];
-    setActiveTab(tabKey);
-    setCurrentCardColor(card.accent);
-    if (!skipHighlight) {
-      setCollectedIndices(card.txIndices);
-    }
-    setRevealedTabs(TAB_ORDER.slice(0, idx + 1));
-    setStepIndex(idx);
-  }, []);
+  const revealStep = useCallback(
+    (
+      idx: number,
+      p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] },
+      skipHighlight = false,
+    ) => {
+      const tabKey = TAB_ORDER[idx];
+      const card = p.intelligence[tabKey];
+      setActiveTab(tabKey);
+      setCurrentCardColor(card.accent);
+      if (!skipHighlight) {
+        setCollectedIndices(card.txIndices);
+      }
+      setRevealedTabs(TAB_ORDER.slice(0, idx + 1));
+      setStepIndex(idx);
+    },
+    [],
+  );
 
   // ============================================================================
   // Global stage navigation: ◀ / ▶ / Backspace step through the entire /demo flow
@@ -869,7 +995,7 @@ export default function ExecDemoPage() {
       "Next-Product",
       "Next-Conversation",
     ],
-    []
+    [],
   );
 
   const currentStage = useMemo<number>(() => {
@@ -925,7 +1051,7 @@ export default function ExecDemoPage() {
         }
       }
     },
-    [NAV_TAB_ORDER]
+    [NAV_TAB_ORDER],
   );
 
   const goNext = useCallback(() => {
@@ -944,12 +1070,7 @@ export default function ExecDemoPage() {
       const target = e.target as HTMLElement | null;
       if (target) {
         const tag = target.tagName;
-        if (
-          tag === "INPUT" ||
-          tag === "TEXTAREA" ||
-          tag === "SELECT" ||
-          target.isContentEditable
-        ) {
+        if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || target.isContentEditable) {
           return;
         }
       }
@@ -965,22 +1086,25 @@ export default function ExecDemoPage() {
     return () => window.removeEventListener("keydown", handler);
   }, [goNext, goBack]);
 
-  const runAnimationWithProfile = useCallback((p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
-    setProcessedIndices([]);
-    setRevealedTabs([]);
-    setActiveTab(null);
-    setTxPanelExpanded(false);
-    setCollectedIndices([]);
-    profileRef.current = p;
+  const runAnimationWithProfile = useCallback(
+    (p: { persona: ExecPersona; intelligence: ExecIntelligence; transactions: Transaction[] }) => {
+      setProcessedIndices([]);
+      setRevealedTabs([]);
+      setActiveTab(null);
+      setTxPanelExpanded(false);
+      setCollectedIndices([]);
+      profileRef.current = p;
 
-    // Skip the scroll/cardScan animation — go straight to the full-width
-    // enrichment table view. Mark all transactions as "processed" so any
-    // downstream consumers of processedSignals stay in sync.
-    const txCount = p.transactions.length;
-    setProcessedIndices(Array.from({ length: txCount }, (_, i) => i));
-    setPhase("hold");
-    setCurrentCardColor(p.intelligence.analytics.accent);
-  }, [schedule, revealStep]);
+      // Skip the scroll/cardScan animation — go straight to the full-width
+      // enrichment table view. Mark all transactions as "processed" so any
+      // downstream consumers of processedSignals stay in sync.
+      const txCount = p.transactions.length;
+      setProcessedIndices(Array.from({ length: txCount }, (_, i) => i));
+      setPhase("hold");
+      setCurrentCardColor(p.intelligence.analytics.accent);
+    },
+    [schedule, revealStep],
+  );
 
   const handleRunAnalysis = useCallback(async () => {
     if (isRunning) return;
@@ -1018,7 +1142,6 @@ export default function ExecDemoPage() {
 
     // 2. Start animation immediately
     runAnimationWithProfile(localProfile);
-
   }, [isRunning, clearTimeouts, selectedIdx, customCsv, customName, runAnimationWithProfile]);
 
   // Keep the forward-ref in sync so stage navigation can call analysis from
@@ -1026,7 +1149,6 @@ export default function ExecDemoPage() {
   useEffect(() => {
     runAnalysisRef.current = handleRunAnalysis;
   }, [handleRunAnalysis]);
-
 
   const handleTabClick = useCallback((tab: TabKey) => {
     // Always clear pill selections when switching between the three "Next-..." tabs
@@ -1045,43 +1167,49 @@ export default function ExecDemoPage() {
     setActiveRollup(null);
     setActiveTriggerPill(null);
     setActivePillFilter((prev) =>
-      prev && prev.pillar === pillar && prev.label === label && prev.isCategory === !!isCategory ? null : { pillar, label, isCategory: !!isCategory }
+      prev && prev.pillar === pillar && prev.label === label && prev.isCategory === !!isCategory
+        ? null
+        : { pillar, label, isCategory: !!isCategory },
     );
   }, []);
 
   const handleRollupClick = useCallback((rollup: PillarRollup) => {
     setActivePillFilter(null);
     setActiveTriggerPill(null);
-    setActiveRollup((prev) =>
-      prev && prev.pillar === rollup.pillar && prev.label === rollup.label ? null : rollup
-    );
+    setActiveRollup((prev) => (prev && prev.pillar === rollup.pillar && prev.label === rollup.label ? null : rollup));
   }, []);
 
-  const handleTriggerPillClick = useCallback((label: string, txIndices: number[], color: string, kind: "lifeEvent" | "risk" = "lifeEvent") => {
-    setActivePillFilter(null);
-    setActiveRollup(null);
-    setActiveTriggerPill((prev) =>
-      prev && prev.label === label ? null : { label, indices: txIndices, color, kind }
-    );
-  }, []);
+  const handleTriggerPillClick = useCallback(
+    (label: string, txIndices: number[], color: string, kind: "lifeEvent" | "risk" = "lifeEvent") => {
+      setActivePillFilter(null);
+      setActiveRollup(null);
+      setActiveTriggerPill((prev) =>
+        prev && prev.label === label ? null : { label, indices: txIndices, color, kind },
+      );
+    },
+    [],
+  );
 
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
 
   // Click any Pillar pill inside the enrichment table → bring all txns in that pillar to the top.
-  const handleEnrichmentPillarClick = useCallback((pillar: string) => {
-    const sm = execProfile.persona.signalMap;
-    const indices = Object.entries(sm)
-      .filter(([, s]) => s.pillar === pillar)
-      .map(([idx]) => Number(idx));
-    const color = getColor(pillar).dot;
-    handleTriggerPillClick(pillar, indices, color, "lifeEvent");
-  }, [execProfile.persona.signalMap, handleTriggerPillClick]);
+  const handleEnrichmentPillarClick = useCallback(
+    (pillar: string) => {
+      const sm = execProfile.persona.signalMap;
+      const indices = Object.entries(sm)
+        .filter(([, s]) => s.pillar === pillar)
+        .map(([idx]) => Number(idx));
+      const color = getColor(pillar).dot;
+      handleTriggerPillClick(pillar, indices, color, "lifeEvent");
+    },
+    [execProfile.persona.signalMap, handleTriggerPillClick],
+  );
 
   // Derive processedSignals from indices + current signalMap (auto-syncs on AI upgrade)
-  const processedSignals = useMemo(() =>
-    processedIndices.map(i => execProfile.persona.signalMap[i]).filter(Boolean),
-    [processedIndices, execProfile.persona.signalMap]
+  const processedSignals = useMemo(
+    () => processedIndices.map((i) => execProfile.persona.signalMap[i]).filter(Boolean),
+    [processedIndices, execProfile.persona.signalMap],
   );
 
   // Clear stale pill filter when signalMap changes (AI upgrade)
@@ -1110,227 +1238,253 @@ export default function ExecDemoPage() {
     }
     if (activePillFilter) {
       return Object.entries(sm)
-        .filter(([, s]) => s.pillar === activePillFilter.pillar && (activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label))
+        .filter(
+          ([, s]) =>
+            s.pillar === activePillFilter.pillar &&
+            (activePillFilter.isCategory ? s.category === activePillFilter.label : s.label === activePillFilter.label),
+        )
         .map(([idx]) => Number(idx));
     }
     return null;
   }, [activePillFilter, activeRollup, activeTriggerPill, execProfile.persona.signalMap]);
 
   return (
-    <SimplePasswordGate tagline="AI Native Customer Intelligence Infrastructure for Banks" bullets={["Semantic Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}>
-    <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
-      {/* Top bar */}
-      <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
-        <div className="flex items-center gap-3">
-          <img src={ventusLogo} alt="Ventus AI" className="h-8 w-auto" />
-          <span className="text-[15px] font-semibold text-slate-700 hidden sm:inline">
-            Semantic Enrichment - Behavioral Intelligence - Personalization Orchestration
-          </span>
-        </div>
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setContactOpen(true)}
-            className="text-[13px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-          >
-            Next Step →
-          </button>
-          <Link
-            to="/"
-            className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
-          >
-            <X className="w-[18px] h-[18px]" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Main content — 3 columns with animated collapse */}
-      {(() => {
-        const isNextTab = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
-        const phoneVisible = isNextTab;
-        const showEnrichmentFullScreen =
-          phase === "hold" && !activeTab;
-        return (
-      <div className="flex-1 min-h-0 flex">
-        {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view AND on Next tabs) */}
-        {!showEnrichmentFullScreen && !isNextTab && (
-        <div
-          className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
-          style={{
-            width: 400,
-            minWidth: 400,
-            overflow: "hidden",
-          }}
-        >
-          <div className="w-[400px] h-full relative">
-            <ExecDemoLeftPanel
-              selectedIdx={selectedIdx}
-              onSelectCustomer={handleSelectCustomer}
-              onRunAnalysis={handleRunAnalysis}
-              onLoadCustomCsv={handleLoadCustomCsv}
-              onChangeCustomer={handleChangeCustomer}
-              isRunning={isRunning}
-              phase={phase}
-              collectedIndices={collectedIndices}
-              currentCardColor={currentCardColor}
-              isCustomMode={!!customCsv}
-              customName={customName || undefined}
-              customTransactions={profile?.transactions}
-              personaIcon={execProfile.persona.icon}
-              personaTitle={execProfile.persona.title}
-              filteredIndices={filteredIndices}
-              signalMap={execProfile.persona.signalMap}
-              activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
-              activePillColor={
-                activeTriggerPill
-                  ? activeTriggerPill.color
-                  : activeRollup
-                    ? getColor(activeRollup.pillar).dot
-                    : activePillFilter
-                      ? getColor(activePillFilter.pillar).dot
-                      : "#10b981"
-              }
-              onClearFilter={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
-              enriched={phase === "cardCycle" || phase === "hold"}
-            />
+    <SimplePasswordGate
+      tagline="AI Native Customer Intelligence Infrastructure for Banks"
+      bullets={["Multi-Rail Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}
+    >
+      <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
+        {/* Top bar */}
+        <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
+          <div className="flex items-center gap-3">
+            <img src={ventusLogo} alt="Ventus AI" className="h-8 w-auto" />
+            <span className="text-[15px] font-semibold text-slate-700 hidden sm:inline">
+              Semantic Enrichment - Behavioral Intelligence - Personalization Orchestration
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setContactOpen(true)}
+              className="text-[13px] font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+            >
+              Next Step →
+            </button>
+            <Link
+              to="/"
+              className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
+            >
+              <X className="w-[18px] h-[18px]" />
+            </Link>
           </div>
         </div>
-        )}
 
-        {/* Col 2 — Intelligence panel (always visible, fills remaining space) */}
-        <div className="flex-1 border-r border-slate-200 bg-white overflow-hidden min-w-0">
-          <ExecDemoIntelPanel
-            persona={execProfile.persona}
-            intelligence={execProfile.intelligence}
-            phase={phase}
-            processedSignals={processedSignals}
-            revealedTabs={revealedTabs}
-            activeTab={activeTab}
-            onTabClick={handleTabClick}
-            activePillFilter={activePillFilter}
-            onPillClick={handlePillClick}
-            activePillarFilter={activeRollup?.pillar || null}
-            activeRollup={activeRollup}
-            onRollupClick={handleRollupClick}
-            personaSynthesis={personaSynthesis}
-            transactions={execProfile.transactions}
-            enrichedTransactions={enrichedTxs}
-            generatedOffers={generatedOffers}
-            offersLoading={offersLoading}
-            detectedLifeEvents={detectedLifeEvents}
-            productsLoading={productsLoading}
-            productCards={productCards}
-            riskFlags={riskFlags}
-            riskLoading={riskLoading}
-            onTriggerPillClick={handleTriggerPillClick}
-            activeTriggerLabel={activeTriggerPill?.label}
-            activeTrigger={activeTriggerPill}
-            productActions={productActions}
-            actionsLoading={actionsLoading}
-            onOpenWMCopilot={handleOpenWMCopilot}
-            onOpenAIAssistant={handleOpenAIAssistantWrapper}
-            onAIPromptDispatch={dispatchAIPrompt}
-            assistantOpen={!wmCopilotOpen}
-            wmCopilotOpen={wmCopilotOpen}
-            synthesisTriggered={synthesisTriggered}
-            onSynthesisChange={setSynthesisTriggered}
-            fullWidthEnrichment={showEnrichmentFullScreen}
-            highlightedIndices={filteredIndices}
-            highlightColor={
-              activeTriggerPill
-                ? activeTriggerPill.color
-                : activeRollup
-                  ? getColor(activeRollup.pillar).dot
-                  : activePillFilter
-                    ? getColor(activePillFilter.pillar).dot
-                    : "#0ea5e9"
-            }
-            activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
-            onClearHighlight={() => { setActivePillFilter(null); setActiveRollup(null); setActiveTriggerPill(null); }}
-            onEnrichmentPillarClick={handleEnrichmentPillarClick}
-          />
-        </div>
-
-        {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
+        {/* Main content — 3 columns with animated collapse */}
         {(() => {
-          const phoneVisible = activeTab === "analytics" || activeTab === "rewards" || activeTab === "product" || activeTab === "relationship";
-          const isRelTab = activeTab === "relationship";
-          const expandedW = isRelTab ? 520 : 560;
-          const collapsedW = 40;
-          const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
+          const isNextTab =
+            activeTab === "analytics" ||
+            activeTab === "rewards" ||
+            activeTab === "product" ||
+            activeTab === "relationship";
+          const phoneVisible = isNextTab;
+          const showEnrichmentFullScreen = phase === "hold" && !activeTab;
           return (
-            <div
-              className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out relative border-l border-slate-200"
-              style={{
-                width: w,
-                minWidth: w,
-                opacity: phoneVisible ? 1 : 0,
-              }}
-            >
-              {/* Sliver state */}
-              {phoneVisible && phoneCollapsed && (
+            <div className="flex-1 min-h-0 flex">
+              {/* Col 1 — Transaction feed (hidden during pre-synthesis enrichment table view AND on Next tabs) */}
+              {!showEnrichmentFullScreen && !isNextTab && (
                 <div
-                  className="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition-colors"
-                  onClick={() => setPhoneCollapsed(false)}
+                  className="border-r border-slate-200 bg-white transition-all duration-500 ease-in-out relative"
+                  style={{
+                    width: 400,
+                    minWidth: 400,
+                    overflow: "hidden",
+                  }}
                 >
-                  <ChevronLeft className="w-4 h-4 text-slate-400 mb-2" />
-                  <span
-                    className="text-[10px] text-slate-400 font-medium tracking-wider"
-                    style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
-                  >
-                    AI Assistant
-                  </span>
-                </div>
-              )}
-
-              {/* Full phone — with collapse button */}
-              {phoneVisible && !phoneCollapsed && (
-                <div className="h-full relative flex flex-col" style={{ width: expandedW }}>
-                  <button
-                    onClick={() => setPhoneCollapsed(true)}
-                    className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
-                  >
-                    <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
-                  </button>
-                  <div className="flex-1 min-h-0">
-                    <ExecDemoPhoneView
-                      customer={demoCustomer}
-                      activeTab={activeTab}
+                  <div className="w-[400px] h-full relative">
+                    <ExecDemoLeftPanel
+                      selectedIdx={selectedIdx}
+                      onSelectCustomer={handleSelectCustomer}
+                      onRunAnalysis={handleRunAnalysis}
+                      onLoadCustomCsv={handleLoadCustomCsv}
+                      onChangeCustomer={handleChangeCustomer}
+                      isRunning={isRunning}
                       phase={phase}
-                      showContent={phoneVisible && phase !== "idle"}
-                      generatedOffers={generatedOffers}
-                      detectedLifeEvents={detectedLifeEvents}
-                      productCards={productCards}
-                      activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
-                      activeRollupPillar={activeTriggerPill ? "Life Event" : (activeRollup?.pillar || null)}
-                      enrichedTxs={classifiedRef.current}
-                      riskFlags={riskFlags}
-                      aiTabTrigger={aiTabTrigger}
-                      pendingAIPrompt={pendingAIPrompt}
-                      wmCopilotMode={wmCopilotOpen && activeTab === "relationship"}
-                      wmCopilotSignal={wmCopilotSignal}
-                      wmCopilotSecondarySignal={wmCopilotSignal && /college/i.test(wmCopilotSignal.label) ? "Home Purchase" : null}
-                      onCloseWMCopilot={handleCloseWMCopilot}
+                      collectedIndices={collectedIndices}
+                      currentCardColor={currentCardColor}
+                      isCustomMode={!!customCsv}
+                      customName={customName || undefined}
+                      customTransactions={profile?.transactions}
+                      personaIcon={execProfile.persona.icon}
+                      personaTitle={execProfile.persona.title}
+                      filteredIndices={filteredIndices}
+                      signalMap={execProfile.persona.signalMap}
+                      activePillLabel={
+                        activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null
+                      }
+                      activePillColor={
+                        activeTriggerPill
+                          ? activeTriggerPill.color
+                          : activeRollup
+                            ? getColor(activeRollup.pillar).dot
+                            : activePillFilter
+                              ? getColor(activePillFilter.pillar).dot
+                              : "#10b981"
+                      }
+                      onClearFilter={() => {
+                        setActivePillFilter(null);
+                        setActiveRollup(null);
+                        setActiveTriggerPill(null);
+                      }}
+                      enriched={phase === "cardCycle" || phase === "hold"}
                     />
                   </div>
                 </div>
               )}
+
+              {/* Col 2 — Intelligence panel (always visible, fills remaining space) */}
+              <div className="flex-1 border-r border-slate-200 bg-white overflow-hidden min-w-0">
+                <ExecDemoIntelPanel
+                  persona={execProfile.persona}
+                  intelligence={execProfile.intelligence}
+                  phase={phase}
+                  processedSignals={processedSignals}
+                  revealedTabs={revealedTabs}
+                  activeTab={activeTab}
+                  onTabClick={handleTabClick}
+                  activePillFilter={activePillFilter}
+                  onPillClick={handlePillClick}
+                  activePillarFilter={activeRollup?.pillar || null}
+                  activeRollup={activeRollup}
+                  onRollupClick={handleRollupClick}
+                  personaSynthesis={personaSynthesis}
+                  transactions={execProfile.transactions}
+                  enrichedTransactions={enrichedTxs}
+                  generatedOffers={generatedOffers}
+                  offersLoading={offersLoading}
+                  detectedLifeEvents={detectedLifeEvents}
+                  productsLoading={productsLoading}
+                  productCards={productCards}
+                  riskFlags={riskFlags}
+                  riskLoading={riskLoading}
+                  onTriggerPillClick={handleTriggerPillClick}
+                  activeTriggerLabel={activeTriggerPill?.label}
+                  activeTrigger={activeTriggerPill}
+                  productActions={productActions}
+                  actionsLoading={actionsLoading}
+                  onOpenWMCopilot={handleOpenWMCopilot}
+                  onOpenAIAssistant={handleOpenAIAssistantWrapper}
+                  onAIPromptDispatch={dispatchAIPrompt}
+                  assistantOpen={!wmCopilotOpen}
+                  wmCopilotOpen={wmCopilotOpen}
+                  synthesisTriggered={synthesisTriggered}
+                  onSynthesisChange={setSynthesisTriggered}
+                  fullWidthEnrichment={showEnrichmentFullScreen}
+                  highlightedIndices={filteredIndices}
+                  highlightColor={
+                    activeTriggerPill
+                      ? activeTriggerPill.color
+                      : activeRollup
+                        ? getColor(activeRollup.pillar).dot
+                        : activePillFilter
+                          ? getColor(activePillFilter.pillar).dot
+                          : "#0ea5e9"
+                  }
+                  activePillLabel={activeTriggerPill?.label || activeRollup?.label || activePillFilter?.label || null}
+                  onClearHighlight={() => {
+                    setActivePillFilter(null);
+                    setActiveRollup(null);
+                    setActiveTriggerPill(null);
+                  }}
+                  onEnrichmentPillarClick={handleEnrichmentPillarClick}
+                />
+              </div>
+
+              {/* Col 3 — Phone mockup (only opens when "Open AI Banking Assistant" is clicked) */}
+              {(() => {
+                const phoneVisible =
+                  activeTab === "analytics" ||
+                  activeTab === "rewards" ||
+                  activeTab === "product" ||
+                  activeTab === "relationship";
+                const isRelTab = activeTab === "relationship";
+                const expandedW = isRelTab ? 520 : 560;
+                const collapsedW = 40;
+                const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
+                return (
+                  <div
+                    className="bg-slate-50 overflow-hidden transition-all duration-500 ease-in-out relative border-l border-slate-200"
+                    style={{
+                      width: w,
+                      minWidth: w,
+                      opacity: phoneVisible ? 1 : 0,
+                    }}
+                  >
+                    {/* Sliver state */}
+                    {phoneVisible && phoneCollapsed && (
+                      <div
+                        className="absolute inset-0 z-20 flex flex-col items-center justify-center cursor-pointer hover:bg-slate-100 transition-colors"
+                        onClick={() => setPhoneCollapsed(false)}
+                      >
+                        <ChevronLeft className="w-4 h-4 text-slate-400 mb-2" />
+                        <span
+                          className="text-[10px] text-slate-400 font-medium tracking-wider"
+                          style={{ writingMode: "vertical-rl", textOrientation: "mixed" }}
+                        >
+                          AI Assistant
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Full phone — with collapse button */}
+                    {phoneVisible && !phoneCollapsed && (
+                      <div className="h-full relative flex flex-col" style={{ width: expandedW }}>
+                        <button
+                          onClick={() => setPhoneCollapsed(true)}
+                          className="absolute left-2 top-1/2 -translate-y-1/2 z-10 p-1 rounded-full hover:bg-slate-100 transition-colors"
+                        >
+                          <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+                        </button>
+                        <div className="flex-1 min-h-0">
+                          <ExecDemoPhoneView
+                            customer={demoCustomer}
+                            activeTab={activeTab}
+                            phase={phase}
+                            showContent={phoneVisible && phase !== "idle"}
+                            generatedOffers={generatedOffers}
+                            detectedLifeEvents={detectedLifeEvents}
+                            productCards={productCards}
+                            activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
+                            activeRollupPillar={activeTriggerPill ? "Life Event" : activeRollup?.pillar || null}
+                            enrichedTxs={classifiedRef.current}
+                            riskFlags={riskFlags}
+                            aiTabTrigger={aiTabTrigger}
+                            pendingAIPrompt={pendingAIPrompt}
+                            wmCopilotMode={wmCopilotOpen && activeTab === "relationship"}
+                            wmCopilotSignal={wmCopilotSignal}
+                            wmCopilotSecondarySignal={
+                              wmCopilotSignal && /college/i.test(wmCopilotSignal.label) ? "Home Purchase" : null
+                            }
+                            onCloseWMCopilot={handleCloseWMCopilot}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           );
         })()}
-      </div>
-        );
-      })()}
 
-      <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
-      <ExecDemoSelectionDialog
-        open={selectionDialogOpen}
-        onOpenChange={setSelectionDialogOpen}
-        selectedIdx={selectedIdx}
-        onSelectCustomer={handleSelectCustomer}
-        onRunAnalysis={handleRunAnalysis}
-        onLoadCustomCsv={handleLoadCustomCsv}
-      />
-    </div>
+        <ContactFormDialog open={contactOpen} onOpenChange={setContactOpen} />
+        <ExecDemoSelectionDialog
+          open={selectionDialogOpen}
+          onOpenChange={setSelectionDialogOpen}
+          selectedIdx={selectedIdx}
+          onSelectCustomer={handleSelectCustomer}
+          onRunAnalysis={handleRunAnalysis}
+          onLoadCustomCsv={handleLoadCustomCsv}
+        />
+      </div>
     </SimplePasswordGate>
   );
 }
