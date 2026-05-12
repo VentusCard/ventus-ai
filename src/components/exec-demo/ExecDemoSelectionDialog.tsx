@@ -463,7 +463,7 @@ export default function ExecDemoSelectionDialog({
             className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
           >
             <Play className="w-5 h-5" />
-            Ventus AI Semantic Enrichment
+            Start
           </button>
         </div>
       </DialogContent>
