@@ -778,7 +778,6 @@ export default function ExecDemoIntelPanel({
                               : isActive
                                 ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}`
                                 : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
-                            transform: isActive && !riskPillsMuted ? "scale(1.08)" : "scale(1)",
                             opacity: riskPillsMuted ? 0.65 : 1,
                             filter: riskPillsMuted ? "grayscale(1)" : "none",
                             textDecoration: riskPillsMuted ? "line-through" : "none",
