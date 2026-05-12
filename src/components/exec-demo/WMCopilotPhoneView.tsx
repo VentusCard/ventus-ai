@@ -112,9 +112,9 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
             <section>
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Sparkles className={`w-3 h-3 ${brief.sensitive ? "text-rose-500" : "text-purple-500"}`} />
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tasks Automated</h4>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Tasks Automated</h4>
               </div>
-              <p className="text-[12px] leading-snug text-slate-700 mb-2">
+              <p className="text-[13px] leading-snug text-slate-700 mb-2">
                 I've prepped the timeline and action list — see attachment below.
               </p>
               <div
@@ -132,10 +132,10 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
                   <FileText className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[11.5px] font-semibold text-slate-800 truncate leading-tight">
+                  <p className="font-mono text-[12.5px] font-semibold text-slate-800 truncate leading-tight">
                     {fileName}
                   </p>
-                  <p className="text-[10px] text-slate-500 mt-1 leading-tight">
+                  <p className="text-[11px] text-slate-500 mt-1 leading-tight">
                     Timeline · {brief.nextSteps.length} action items
                   </p>
                 </div>
