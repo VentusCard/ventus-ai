@@ -2,7 +2,7 @@ import { ClientProfileData } from "@/types/clientProfile";
 
 // Sample customer profiles for each dataset
 export const SAMPLE_CUSTOMER_1: ClientProfileData = {
-  name: "User #482719356",
+  name: "Sarah Mitchell",
   segment: "Preferred",
   aum: "$650K",
   tenure: "2.5 years",
@@ -37,7 +37,7 @@ export const SAMPLE_CUSTOMER_1: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_2: ClientProfileData = {
-  name: "User #519384207",
+  name: "James Rodriguez",
   segment: "Preferred",
   aum: "$420K",
   tenure: "1.8 years",
@@ -72,7 +72,7 @@ export const SAMPLE_CUSTOMER_2: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_3: ClientProfileData = {
-  name: "User #264158093",
+  name: "Emily Chen",
   segment: "Private",
   aum: "$1.2M",
   tenure: "4.5 years",
@@ -108,7 +108,7 @@ export const SAMPLE_CUSTOMER_3: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_4: ClientProfileData = {
-  name: "User #730895142",
+  name: "Michael Thompson",
   segment: "Premium",
   aum: "$2.8M",
   tenure: "8.2 years",
@@ -145,7 +145,7 @@ export const SAMPLE_CUSTOMER_4: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_5: ClientProfileData = {
-  name: "User #395672481",
+  name: "Amanda Williams",
   segment: "Private",
   aum: "$1.5M",
   tenure: "5.5 years",
@@ -181,7 +181,7 @@ export const SAMPLE_CUSTOMER_5: ClientProfileData = {
 };
 
 export const SAMPLE_CUSTOMER_6: ClientProfileData = {
-  name: "User #847203615",
+  name: "Robert Garcia",
   segment: "Premium",
   aum: "$3.2M",
   tenure: "10.3 years",
