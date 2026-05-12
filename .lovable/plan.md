@@ -1,15 +1,27 @@
-In `src/components/exec-demo/WMCopilotPhoneView.tsx`, render a second file packet card whenever `secondarySignalLabel` is provided (and differs from the primary).
+Add AI-generated personalized outreach pointers to the **Ventus AI Insight** section of the WM CoPilot view.
 
-### Implementation
-1. Extract the existing file-packet `<button>` (mapped from a signal label) into a small inline component/helper `FilePacketCard({ label, brief, sensitive, displayName, onOpen })` so we can reuse it for both events. It encapsulates: SHORT_MAP lookup, filename derivation (`{firstName}_{short}.pdf`), the styled button, and the "Timeline · N action items" subline.
-2. Build two `SelectedSignal` entries:
-   - primary = `fallbackSignal`
-   - secondary = `secondarySignalLabel ? { kind: "lifeEvent", label: secondarySignalLabel } : null`
-   Resolve a brief for each via `resolveBrief()` to drive its own `nextSteps.length` count and tone.
-3. Track planner state per card with a single `plannerSignal: SelectedSignal | null` (null = closed). Clicking a card sets it; closing resets to null. Build the `LifeEvent` `mockEvent` from `plannerSignal.label` instead of always from the primary.
-4. Render section heading "Tasks Automated" once, then the AI prompt copy ("I've prepped the timeline and action list — see attachments below."), then a vertical stack of the 1–2 file cards (`space-y-2`).
-5. Filenames use the same `firstName` (already derived once) and the per-event SHORT_MAP slug.
+### Backend
+Create `supabase/functions/generate-outreach-pointers/index.ts`:
+- POST with body `{ customerName, personaTitle, personaSummary, lifeEvents: string[] }`.
+- CORS headers, OPTIONS handler.
+- Calls the Lovable AI Gateway (`https://ai.gateway.lovable.dev/v1/chat/completions`) with `LOVABLE_API_KEY`, model `google/gemini-2.5-flash`.
+- System prompt: senior wealth advisor, return JSON `{ pointers: string[] }` with **3 short, vaguely-specific outreach pointers** tailored to the customer's persona + the detected life event(s). Each pointer ≤ 18 words, opportunity-framed (no risk/stress language per project rules), no specific dollar amounts.
+- Returns parsed `{ pointers: string[] }`.
+
+### Wiring (props plumbing)
+- `WMCopilotPhoneView` gains optional props `personaTitle?: string`, `personaSummary?: string`.
+- `ExecDemoPhoneView` adds matching pass-through props.
+- `ExecDemoPage.tsx` passes `execProfile.persona.title` (and the resolved `personaDescription` already computed in the intel panel — replicate the simple lookup here, or pass `execProfile.persona.title` only and a short fallback). For minimal scope, pass `personaTitle = execProfile.persona.title`; `personaSummary` is optional.
+
+### WMCopilotPhoneView changes
+- New state: `pointers: string[] | null`, `pointersLoading: boolean`.
+- `useEffect` keyed on `[fallbackSignal.label, secondarySignalLabel, displayName]`: call the edge function via `supabase.functions.invoke('generate-outreach-pointers', { body: {...} })`. Aborts on unmount via a `cancelled` flag.
+- Render order in the **Ventus AI Insight** section:
+  1. Existing static `brief.insight` paragraph (unchanged).
+  2. New sub-block titled "Personalized Outreach Pointers" — bullet list of `pointers` with the same purple/rose dot styling. While loading, show 3 shimmer rows. On error, hide the sub-block silently.
+- No changes to Next Steps or Tasks Automated sections.
 
 ### Scope
-- Only `WMCopilotPhoneView.tsx` is edited.
-- No new imports beyond what is already used.
+- New file: `supabase/functions/generate-outreach-pointers/index.ts`.
+- Edited: `WMCopilotPhoneView.tsx`, `ExecDemoPhoneView.tsx`, `ExecDemoPage.tsx`.
+- No DB changes. No new dependencies.
