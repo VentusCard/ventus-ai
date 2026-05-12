@@ -771,9 +771,7 @@ export default function ExecDemoIntelPanel({
                             color: riskPillsMuted ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
                             border: riskPillsMuted
                               ? "1.5px solid #cbd5e1"
-                              : isActive
-                                ? `2px solid ${dotColor}`
-                                : `1.5px solid ${dotColor}`,
+                              : `1.5px solid ${dotColor}`,
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
                             boxShadow: riskPillsMuted
                               ? "none"
