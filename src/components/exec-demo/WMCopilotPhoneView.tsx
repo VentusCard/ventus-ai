@@ -1,5 +1,30 @@
+import { useState } from "react";
 import { Sparkles, ListChecks, Paperclip, FileText, X } from "lucide-react";
 import { resolveBrief, type SelectedSignal } from "./NextConversationRationale";
+import { FinancialTimelineTool } from "@/components/tepilot/advisor-console/FinancialTimelineTool";
+import type { LifeEvent } from "@/types/lifestyle-signals";
+
+const PROJECT_TYPE_MAP: Record<string, LifeEvent["financial_projection"] extends infer T ? (T extends { project_type: infer P } ? P : never) : never> = {
+  "College Preparation for Dependent": "education",
+  "Home Purchase": "home",
+  "Wedding Planning": "wedding",
+  "New Baby": "family_formation",
+  "Retirement Planning": "retirement",
+};
+
+const PROJECT_DURATION_DEFAULTS: Record<string, number> = {
+  education: 4,
+  home: 2,
+  retirement: 25,
+  business: 5,
+  wedding: 1,
+  wealth_transfer: 2,
+  liquidity_event: 2,
+  family_formation: 1,
+  charitable_giving: 1,
+  elder_care: 5,
+  other: 3,
+};
 
 interface Props {
   customerName: string;
