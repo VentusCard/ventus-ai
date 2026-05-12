@@ -357,25 +357,25 @@ export default function ExecDemoSelectionDialog({
                           <table className="w-full text-left border-collapse">
                             <thead>
                               <tr className="bg-slate-50/60 border-b border-slate-200">
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   ID
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Date
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Merchant
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   MCC
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Description
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">
                                   Amount
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Zip
                                 </th>
                               </tr>
