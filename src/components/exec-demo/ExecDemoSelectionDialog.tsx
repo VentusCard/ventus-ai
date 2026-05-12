@@ -289,8 +289,6 @@ export default function ExecDemoSelectionDialog({
                         KYC
                       </span>
                       <span className="text-base font-semibold text-slate-700">{customer.profile.compliance.kycStatus}</span>
-                      <span className="text-sm text-slate-400">·</span>
-                      <span className="text-sm text-slate-500">Last reviewed {customer.profile.compliance.lastReview}</span>
                     </div>
                     <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${kycOpen ? "rotate-180" : ""}`} />
                   </button>
