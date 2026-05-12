@@ -340,13 +340,13 @@ export default function ExecDemoSelectionDialog({
                       >
                         <div className="flex items-center gap-3">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}
+                            className={`inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}
                           >
                             {source}
                           </span>
-                          <span className="text-sm font-semibold text-slate-700">{rows.length} txns</span>
-                          <span className="text-xs text-slate-400">·</span>
-                          <span className="text-xs font-mono tabular-nums text-slate-500">{fmtTotal}</span>
+                          <span className="text-base font-semibold text-slate-700">{rows.length} txns</span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm font-mono tabular-nums text-slate-500">{fmtTotal}</span>
                         </div>
                         <ChevronDown
                           className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
