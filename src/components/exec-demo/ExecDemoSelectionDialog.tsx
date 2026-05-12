@@ -267,10 +267,10 @@ export default function ExecDemoSelectionDialog({
           <div className="flex-1 min-h-0 flex flex-col">
             {rawRows.length > 0 && (
               <div className="px-8 pt-3 pb-2 flex items-center justify-between shrink-0">
-                <div className="text-xs text-slate-500">
+                <div className="text-sm text-slate-500">
                   {rawRows.length} transactions · {sourceGroups.length} sources
                 </div>
-                <button onClick={toggleAll} className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+                <button onClick={toggleAll} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
                   {allOpen ? "Collapse all" : "Expand all"}
                 </button>
               </div>
