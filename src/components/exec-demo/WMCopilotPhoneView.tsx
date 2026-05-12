@@ -127,8 +127,6 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
   const brief = resolveBrief(fallbackSignal);
 
   const [plannerSignal, setPlannerSignal] = useState<SelectedSignal | null>(null);
-  const [pointers, setPointers] = useState<string[] | null>(null);
-  const [pointersLoading, setPointersLoading] = useState(false);
 
   // Build summary line
   const summaryParts = [fallbackSignal.label];
@@ -158,42 +156,6 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
     { signal: fallbackSignal, brief },
     ...(secondarySignal ? [{ signal: secondarySignal, brief: resolveBrief(secondarySignal) }] : []),
   ];
-
-  // Fetch personalized outreach pointers whenever the persona/event combo changes.
-  const eventLabels = packets.map((p) => p.signal.label).join("|");
-  useEffect(() => {
-    let cancelled = false;
-    const events = packets.map((p) => p.signal.label);
-    setPointers(null);
-    setPointersLoading(true);
-    supabase.functions
-      .invoke("generate-outreach-pointers", {
-        body: {
-          customerName: displayName,
-          personaTitle: personaTitle ?? null,
-          personaSummary: personaSummary ?? null,
-          lifeEvents: events,
-        },
-      })
-      .then(({ data, error }) => {
-        if (cancelled) return;
-        if (error || !data?.pointers?.length) {
-          setPointers([]);
-        } else {
-          setPointers(data.pointers as string[]);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setPointers([]);
-      })
-      .finally(() => {
-        if (!cancelled) setPointersLoading(false);
-      });
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [eventLabels, displayName, personaTitle, personaSummary]);
 
   return (
     <div className="flex flex-col h-full bg-white">
