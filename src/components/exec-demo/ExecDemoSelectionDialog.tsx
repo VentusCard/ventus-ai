@@ -186,7 +186,7 @@ export default function ExecDemoSelectionDialog({
                     : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50"
                 }`}
               >
-                {c.profile.name} · {c.txnCount} txns
+                {c.profile.name}
               </button>
             ))}
             <button
