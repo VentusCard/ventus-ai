@@ -315,7 +315,7 @@ export default function ExecDemoSelectionDialog({
                         ["Risk Profile", customer.profile.compliance.riskProfile],
                       ].map(([label, value]) => (
                         <div key={label} className="min-w-0">
-                          <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
+                          <div className="text-[11px] uppercase tracking-wider text-slate-500">{label}</div>
                           <div className="text-sm text-slate-800 truncate" title={String(value)}>
                             {value || "—"}
                           </div>
