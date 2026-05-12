@@ -632,10 +632,9 @@ export default function ExecDemoIntelPanel({
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
                               : "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
                             color: "#92400e",
-                            border: isActive ? "2px solid #f59e0b" : "1.5px solid #f59e0b",
+                            border: "1.5px solid #f59e0b",
                             animation: `rollup-entrance 0.5s ease-out ${0.8 + i * 0.15}s both, rollup-glow 1s ease-out ${1.3 + i * 0.15}s both`,
                             boxShadow: isActive ? "0 0 14px rgba(245,158,11,.35)" : "0 2px 8px rgba(245,158,11,.2)",
-                            transform: isActive ? "scale(1.08)" : "scale(1)",
                           }}
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
