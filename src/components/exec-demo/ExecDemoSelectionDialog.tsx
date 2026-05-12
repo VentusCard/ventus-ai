@@ -285,12 +285,12 @@ export default function ExecDemoSelectionDialog({
                     className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
+                      <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
                         KYC
                       </span>
-                      <span className="text-sm font-semibold text-slate-700">{customer.profile.compliance.kycStatus}</span>
-                      <span className="text-xs text-slate-400">·</span>
-                      <span className="text-xs text-slate-500">Last reviewed {customer.profile.compliance.lastReview}</span>
+                      <span className="text-base font-semibold text-slate-700">{customer.profile.compliance.kycStatus}</span>
+                      <span className="text-sm text-slate-400">·</span>
+                      <span className="text-sm text-slate-500">Last reviewed {customer.profile.compliance.lastReview}</span>
                     </div>
                     <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${kycOpen ? "rotate-180" : ""}`} />
                   </button>
