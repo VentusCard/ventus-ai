@@ -1463,6 +1463,7 @@ export default function ExecDemoPage() {
                             wmCopilotSecondarySignal={
                               wmCopilotSignal && /college/i.test(wmCopilotSignal.label) ? "Home Purchase" : null
                             }
+                            wmCopilotPersonaTitle={execProfile.persona.title}
                             onCloseWMCopilot={handleCloseWMCopilot}
                           />
                         </div>
