@@ -597,6 +597,7 @@ export default function ExecDemoIntelPanel({
                       rollup={r}
                       delay={0.5 + i * 0.15}
                       isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label}
+                      isCollapsed={isCollapsed}
                       onClick={() => handleRollupForRel(r)}
                     />
                   ));
@@ -631,10 +632,9 @@ export default function ExecDemoIntelPanel({
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
                               : "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
                             color: "#92400e",
-                            border: isActive ? "2px solid #f59e0b" : "1.5px solid #f59e0b",
+                            border: "1.5px solid #f59e0b",
                             animation: `rollup-entrance 0.5s ease-out ${0.8 + i * 0.15}s both, rollup-glow 1s ease-out ${1.3 + i * 0.15}s both`,
                             boxShadow: isActive ? "0 0 14px rgba(245,158,11,.35)" : "0 2px 8px rgba(245,158,11,.2)",
-                            transform: isActive ? "scale(1.08)" : "scale(1)",
                           }}
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
@@ -771,16 +771,13 @@ export default function ExecDemoIntelPanel({
                             color: riskPillsMuted ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
                             border: riskPillsMuted
                               ? "1.5px solid #cbd5e1"
-                              : isActive
-                                ? `2px solid ${dotColor}`
-                                : `1.5px solid ${dotColor}`,
+                              : `1.5px solid ${dotColor}`,
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
                             boxShadow: riskPillsMuted
                               ? "none"
                               : isActive
                                 ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}`
                                 : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
-                            transform: isActive && !riskPillsMuted ? "scale(1.08)" : "scale(1)",
                             opacity: riskPillsMuted ? 0.65 : 1,
                             filter: riskPillsMuted ? "grayscale(1)" : "none",
                             textDecoration: riskPillsMuted ? "line-through" : "none",
@@ -1148,27 +1145,28 @@ function PillarRollupChip({
   rollup,
   delay,
   isActive,
+  isCollapsed,
   onClick,
 }: {
   rollup: PillarRollup & { totalSpend?: number; totalCount?: number };
   delay: number;
   isActive?: boolean;
+  isCollapsed?: boolean;
   onClick?: () => void;
 }) {
   const c = getColor(rollup.pillar);
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
           : `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
         color: c.text,
-        border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
+        border: `1.5px solid ${c.dot}`,
         animation: `rollup-entrance 0.5s ease-out ${delay}s both, rollup-glow 1s ease-out ${delay + 0.5}s both`,
         boxShadow: isActive ? `0 0 14px ${c.bg.replace(".12", ".35")}` : `0 2px 8px ${c.bg.replace(".12", ".2")}`,
-        transform: isActive ? "scale(1.08)" : "scale(1)",
       }}
     >
       <span style={{ color: c.dot }}>✦</span>
