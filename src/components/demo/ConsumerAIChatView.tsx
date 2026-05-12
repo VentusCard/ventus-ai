@@ -333,7 +333,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
         {showWelcome ? (
           <div className="flex flex-col items-center justify-center h-full text-center px-4">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mb-3 shadow-lg">
-              <Bot className="w-6 h-6 text-white" />
+              <span className="text-white font-black text-2xl leading-none tracking-tight">V</span>
             </div>
             <h3 className="text-base font-bold text-slate-900 mb-1">
               Hi {(customer.profile?.name ?? "").split(" ")[0] || "there"}! How can I help today?
