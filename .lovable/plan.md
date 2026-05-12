@@ -1,43 +1,13 @@
-## Add KYC Card to Executive Demo Customer Selection
+Add a disabled "Digital Telemetry — Coming soon" card as the **last** card inside the scrollable transaction area in `src/components/exec-demo/ExecDemoSelectionDialog.tsx`.
 
-Add a "KYC" card styled identically to the transaction source group cards in `ExecDemoSelectionDialog.tsx`, placed **directly below the user pills row and above the divider line / ScrollArea** (outside the scroll area, so it stays pinned).
+**Placement**: Inside `<ScrollArea>`, within the same `space-y-2` wrapper, immediately after the closing `})}` of `sourceGroups.map(...)` — making it the final item in the list.
 
-### Placement
+**Styling**: Same outer shape as source group cards but visually disabled:
+- `rounded-xl border border-dashed border-slate-200 bg-slate-50/60 overflow-hidden opacity-70 cursor-not-allowed`
+- Non-interactive (plain `<div>`, no toggle handler, no state)
 
-In `src/components/exec-demo/ExecDemoSelectionDialog.tsx`, insert a new section between the pills `div` (currently ending around line ~195) and the transaction cards block (`{!showCustomFlow && (...)}`). When `showCustomFlow` is true, hide it.
+**Header row** (mirrors source card header layout):
+- Left: pill `bg-slate-200 text-slate-500` labeled "Digital Telemetry", then `text-sm font-semibold text-slate-400` "Coming soon", `·` separator, `text-xs text-slate-400` hint "App, web & device signals"
+- Right: static `ChevronDown` in `text-slate-300` (no rotation)
 
-Wrapper styling matches other pinned sections:
-`px-8 py-3 border-b border-slate-100 shrink-0`
-
-### Card markup (matches source card style)
-
-Same outer container as source cards:
-- `rounded-xl border border-slate-200 bg-white overflow-hidden`
-- Collapsible header button with chevron rotation (`useState` for `kycOpen`)
-- Body revealed when open
-
-### Header row
-
-- Left: pill labeled `KYC` using `bg-indigo-50 text-indigo-700` (matches source pill shape: `inline-block px-2 py-0.5 rounded text-xs font-medium`)
-- Then: bold status `<customer.profile.compliance.kycStatus>` (e.g. "Current"), `·` separator, muted "Last reviewed <date>"
-- Right: chevron with rotation transition
-
-### Body (when expanded)
-
-Two/three-column key/value grid pulled from `customer.profile`:
-- Name, Segment, AUM, Tenure
-- Age, Occupation, Industry, Family Status, Income Level
-- Email, Phone, Address (`profile.contact`)
-- KYC Status, Last Review, Next Review, Risk Profile (`profile.compliance`)
-
-Layout: `grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 px-4 py-3 border-t border-slate-100`. Labels: `text-[10px] uppercase tracking-wider text-slate-500`. Values: `text-sm text-slate-800`.
-
-### State
-
-Local `const [kycOpen, setKycOpen] = useState(false);` reset on customer change via existing `useEffect` on `customer.id`.
-
-### Files touched
-
-- `src/components/exec-demo/ExecDemoSelectionDialog.tsx` only.
-
-No data model, type, or other component changes required.
+**Files**: Only `src/components/exec-demo/ExecDemoSelectionDialog.tsx`.
