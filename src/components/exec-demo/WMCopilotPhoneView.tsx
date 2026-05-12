@@ -91,8 +91,21 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
         {/* TASK AUTOMATED — single file packet attached */}
         {(() => {
-          const rawFirst = (displayName || "Client").replace(/^User\s*#?\s*/i, "").split(/[\s_]+/)[0] || "Client";
-          const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+          // Derive a stable mock first name. customer.profile.name is "User #12345"
+          // style and has no real name, so pick deterministically from a pool keyed
+          // on whatever digits/letters trail the displayName.
+          const FIRST_NAMES = [
+            "Sarah", "Michael", "Priya", "James", "Emily", "David", "Olivia",
+            "Daniel", "Sophia", "Liam", "Ava", "Noah", "Mia", "Ethan", "Isabella",
+          ];
+          const seedSrc = (displayName || "Client").replace(/[^A-Za-z0-9]/g, "");
+          let seed = 0;
+          for (let i = 0; i < seedSrc.length; i++) seed = (seed * 31 + seedSrc.charCodeAt(i)) >>> 0;
+          const looksLikeRealName = /^[A-Za-z]+\s+[A-Za-z]+/.test(displayName || "") && !/^User\b/i.test(displayName || "");
+          const firstName = looksLikeRealName
+            ? (displayName || "").split(/\s+/)[0]
+            : FIRST_NAMES[seed % FIRST_NAMES.length];
+
           const SHORT_MAP: Record<string, string> = {
             "College Preparation for Dependent": "College_Prep",
             "Home Purchase": "Home_Purchase",
@@ -111,7 +124,6 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
               .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
               .join("_");
           const fileName = `${firstName}_${short}.pdf`;
-          const accent = brief.sensitive ? "rose" : "purple";
           return (
             <section>
               <div className="flex items-center gap-1.5 mb-1.5">
@@ -122,32 +134,28 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
                 I've prepped the timeline and action list — see attachment below.
               </p>
               <div
-                className={`relative rounded-md border px-2.5 py-2 flex items-center gap-2 shadow-sm ${
+                className={`rounded-lg border px-3 py-2.5 flex items-center gap-2.5 shadow-sm ${
                   brief.sensitive
                     ? "bg-rose-50 border-rose-200"
-                    : "bg-amber-50 border-amber-200"
+                    : "bg-amber-50/70 border-amber-200"
                 }`}
               >
-                {/* folder tab notch */}
-                <span
-                  className={`absolute -top-1.5 left-3 h-1.5 w-10 rounded-t-sm ${
-                    brief.sensitive ? "bg-rose-200" : "bg-amber-200"
-                  }`}
-                />
                 <div
-                  className={`shrink-0 w-7 h-8 rounded-sm flex items-center justify-center ${
-                    brief.sensitive ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-800"
+                  className={`shrink-0 w-8 h-9 rounded flex items-center justify-center ${
+                    brief.sensitive ? "bg-rose-100 text-rose-700" : "bg-white text-amber-700 border border-amber-200"
                   }`}
                 >
-                  <FileText className="w-3.5 h-3.5" />
+                  <FileText className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[11.5px] font-semibold text-slate-800 truncate">{fileName}</p>
-                  <p className="text-[10px] text-slate-500 mt-0.5">
+                  <p className="font-mono text-[11.5px] font-semibold text-slate-800 truncate leading-tight">
+                    {fileName}
+                  </p>
+                  <p className="text-[10px] text-slate-500 mt-1 leading-tight">
                     Timeline · {brief.nextSteps.length} action items
                   </p>
                 </div>
-                <Paperclip className={`w-3 h-3 shrink-0 ${brief.sensitive ? "text-rose-400" : "text-amber-500"}`} />
+                <Paperclip className={`w-3.5 h-3.5 shrink-0 ${brief.sensitive ? "text-rose-400" : "text-amber-500"}`} />
               </div>
             </section>
           );
