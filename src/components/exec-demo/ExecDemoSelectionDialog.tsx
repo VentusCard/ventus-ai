@@ -156,7 +156,7 @@ export default function ExecDemoSelectionDialog({
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
-        className="max-w-[85vw] w-[85vw] h-[85vh] max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl border-slate-200 bg-white flex flex-col [&>button[aria-label='Close']]:hidden [&>button.absolute.right-4.top-4]:hidden"
+        className="max-w-[65vw] w-[65vw] h-[85vh] max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl border-slate-200 bg-white flex flex-col [&>button[aria-label='Close']]:hidden [&>button.absolute.right-4.top-4]:hidden"
       >
         {/* Header */}
         <div className="px-8 py-3 border-b border-slate-100 shrink-0">
