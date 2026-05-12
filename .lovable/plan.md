@@ -1,30 +1,32 @@
-Normalize text sizes and weights across the customer-selection dialog so it reads as one consistent type system.
+## Problem
 
-## Type scale (target)
+In the Next-Offer / Next-Product / Next-Conversation tab area of `ExecDemoIntelPanel.tsx`, three pill rows render side-by-side:
+1. Lifestyle rollup pills (`PillarRollupChip`)
+2. Life-event pills (inline)
+3. Risk pills (inline)
 
-- **Dialog title** ("Select a Customer Profile"): `text-base font-semibold` (down from `text-lg font-bold`) — matches enterprise dialogs and reduces top-heaviness
-- **Subtitle** under title: keep `text-xs text-slate-500` (down from `text-sm text-slate-400`) — currently too long and too prominent
-- **Customer pills**: keep `text-xs font-semibold` ✓ (already consistent)
-- **Card header pill labels** (KYC / Source name / Digital Telemetry): `text-xs font-medium` ✓ (already consistent)
-- **Card header primary value** (kycStatus / "{n} txns" / "Coming soon"): standardize to `text-sm font-semibold text-slate-700` ✓ (already consistent)
-- **Card header secondary** (totals / "Last reviewed …" / "App, web & device signals"): standardize to `text-xs text-slate-500` — fixes the source-card total which is currently `text-sm` and visually out-of-step
-- **Section meta row** ("N transactions · M sources" / "Expand all"): keep `text-xs` ✓
-- **Table headers**: keep `text-xs uppercase` ✓
-- **Table body cells**: standardize ID + Zip to `text-xs`, all other cells to `text-[13px]` (down from mixed `text-sm`) — current mix of `text-xs` (id, zip, mcc pill) and `text-sm` (date, merchant, description, amount) creates jagged rhythm; tightening body to 13px keeps density
-- **KYC grid labels**: bump from `text-[10px]` to `text-[11px] uppercase` — 10px is below comfortable read size
-- **KYC grid values**: keep `text-sm` ✓
-- **Custom-flow step labels** ("1. Describe a persona" / "2. Paste LLM output"): keep `text-xs uppercase` ✓
-- **Custom-flow textareas + buttons**: keep `text-sm` ✓
-- **Footer "Start" button**: down from `text-base` to `text-sm font-semibold`, reduce padding from `py-3.5` to `py-3` — currently disproportionately large for a one-word CTA
+Their heights drift because the styles aren't consistent:
 
-## Specific edits in `src/components/exec-demo/ExecDemoSelectionDialog.tsx`
+- **Vertical padding**: life-event and risk pills switch to `py-1` when the panel is collapsed (any tab active), but `PillarRollupChip` is hard-coded to `py-1.5` regardless. So lifestyle pills are visibly taller than the other two rows on the Next-Offer tab.
+- **Gap**: lifestyle rollup uses `gap-1`, while life-event and risk pills use `gap-1.5` — minor width drift but contributes to the inconsistent feel.
+- **Active scale**: all three pill types apply `transform: scale(1.08)` when active, which makes the active pill noticeably taller than its neighbors and breaks row alignment.
+- **Border width swap**: `1.5px → 2px` on active also nudges height by 0.5px per side.
 
-1. **Line 166** title: `text-lg font-bold` → `text-base font-semibold`
-2. **Line 168** subtitle: `text-sm text-slate-400` → `text-xs text-slate-500`
-3. **Line 349** source total: `text-sm font-mono tabular-nums text-slate-600` → `text-xs font-mono tabular-nums text-slate-500`
-4. **Line 293** KYC "Last reviewed": already `text-xs text-slate-500` ✓ (no change)
-5. **Lines 397, 401, 416, 421** table cells: `text-sm` → `text-[13px]`
-6. **Line 318** KYC labels: `text-[10px]` → `text-[11px]`
-7. **Line 463** Start button: `text-base font-semibold ... py-3.5` → `text-sm font-semibold ... py-3`
+## Fix
 
-No structural changes, no logic changes. Only typography tokens.
+Edit only `src/components/exec-demo/ExecDemoIntelPanel.tsx`:
+
+1. **Make `PillarRollupChip` collapse-aware.** Pass an `isCollapsed` prop from the call site (line ~594) and use `py-1` when collapsed, `py-1.5` otherwise — matching the other two pill rows.
+2. **Standardize gap to `gap-1.5`** on `PillarRollupChip` so icon/text/meta spacing matches life-event and risk pills.
+3. **Replace `scale(1.08)` active state** with a non-height-changing emphasis on all three pill renderers: keep the stronger gradient, the glow box-shadow, and the `2px` border, but drop the scale transform. To keep total height identical between active and inactive, keep border at `1.5px` always and switch only color/shadow/background for the active state (or compensate with `-0.5px` margin — simplest is to keep border width constant).
+4. Leave font size, icon, and text content alone — request is purely about height alignment.
+
+## Out of scope
+
+- No content/wording changes.
+- No changes to pill click behavior, ordering, or which pills render.
+- No changes to other tabs' visuals beyond the row-height normalization (which is the desired effect).
+
+## Files
+
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` (PillarRollupChip definition ~line 1147, call site ~line 594, life-event pill ~line 625, risk pill ~line 750)

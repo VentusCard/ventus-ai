@@ -597,6 +597,7 @@ export default function ExecDemoIntelPanel({
                       rollup={r}
                       delay={0.5 + i * 0.15}
                       isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label}
+                      isCollapsed={isCollapsed}
                       onClick={() => handleRollupForRel(r)}
                     />
                   ));
