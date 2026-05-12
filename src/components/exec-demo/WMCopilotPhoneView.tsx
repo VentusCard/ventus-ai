@@ -1,4 +1,4 @@
-import { Sparkles, MessageSquare, ListChecks, Package, X } from "lucide-react";
+import { Sparkles, MessageSquare, ListChecks, Paperclip, FileText, X } from "lucide-react";
 import { resolveBrief, type SelectedSignal } from "./NextConversationRationale";
 
 interface Props {
