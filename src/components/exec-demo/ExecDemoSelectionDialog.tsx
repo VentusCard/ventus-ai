@@ -163,9 +163,9 @@ export default function ExecDemoSelectionDialog({
           <div className="flex items-center gap-2">
             <img src={ventusLogo} alt="Ventus AI" className="h-9 w-auto" />
             <span className="text-sm text-slate-400">·</span>
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Select a Customer Profile</h2>
+            <h2 className="text-base font-semibold text-slate-800 tracking-tight">Select a Customer Profile</h2>
           </div>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Ingests a holistic picture of every customer: KYC, and every transaction across rails
           </p>
         </div>
@@ -315,7 +315,7 @@ export default function ExecDemoSelectionDialog({
                         ["Risk Profile", customer.profile.compliance.riskProfile],
                       ].map(([label, value]) => (
                         <div key={label} className="min-w-0">
-                          <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
+                          <div className="text-[11px] uppercase tracking-wider text-slate-500">{label}</div>
                           <div className="text-sm text-slate-800 truncate" title={String(value)}>
                             {value || "—"}
                           </div>
@@ -346,7 +346,7 @@ export default function ExecDemoSelectionDialog({
                           </span>
                           <span className="text-sm font-semibold text-slate-700">{rows.length} txns</span>
                           <span className="text-xs text-slate-400">·</span>
-                          <span className="text-sm font-mono tabular-nums text-slate-600">{fmtTotal}</span>
+                          <span className="text-xs font-mono tabular-nums text-slate-500">{fmtTotal}</span>
                         </div>
                         <ChevronDown
                           className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -394,11 +394,11 @@ export default function ExecDemoSelectionDialog({
                                     <td className="px-3 py-1 text-slate-400 font-mono text-xs">
                                       {row.transaction_id || i + 1}
                                     </td>
-                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">
+                                    <td className="px-3 py-1 text-[13px] text-slate-600 tabular-nums whitespace-nowrap">
                                       {row.date}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-[13px] font-medium text-slate-900 max-w-[260px] truncate"
                                       title={row.merchant_name}
                                     >
                                       {row.merchant_name}
@@ -413,12 +413,12 @@ export default function ExecDemoSelectionDialog({
                                       )}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-[13px] font-mono text-slate-500 max-w-[260px] truncate"
                                       title={row.mcc_description}
                                     >
                                       {row.mcc_description}
                                     </td>
-                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                    <td className="px-3 py-1 text-right font-mono text-[13px] text-slate-900 tabular-nums whitespace-nowrap font-normal">
                                       {fmtAmt}
                                     </td>
                                     <td className="px-3 py-1 text-slate-500 text-xs">{row.zip_code || "—"}</td>
@@ -460,7 +460,7 @@ export default function ExecDemoSelectionDialog({
         <div className="px-8 py-3 border-t border-slate-100 shrink-0">
           <button
             onClick={handleRun}
-            className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
+            className="w-full flex items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
           >
             <Play className="w-5 h-5" />
             Start
