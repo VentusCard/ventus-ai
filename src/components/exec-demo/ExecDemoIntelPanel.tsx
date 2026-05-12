@@ -625,7 +625,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
+                          className={`inline-flex items-center gap-1.5 text-[13px] font-semibold px-3.5 ${isCollapsed ? "py-1.5" : "py-2"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -639,7 +639,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
-                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
+                          <span className="text-xs opacity-60 tabular-nums font-normal">
                             {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
                           </span>
                         </span>
@@ -761,7 +761,7 @@ export default function ExecDemoIntelPanel({
                               ? "Not applicable for offer targeting"
                               : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`
                           }
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-1.5 text-[13px] font-semibold px-3.5 ${isCollapsed ? "py-1.5" : "py-2"} rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
@@ -792,7 +792,7 @@ export default function ExecDemoIntelPanel({
                             {riskPillsMuted ? "✕" : "⚠"}
                           </span>
                           {flagLabel}
-                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
+                          <span className="text-xs opacity-60 tabular-nums font-normal">
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
                           </span>
                         </span>
