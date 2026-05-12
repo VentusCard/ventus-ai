@@ -52,9 +52,9 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
         <section>
           <div className="flex items-center gap-1.5 mb-1">
             <Sparkles className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Ventus AI Insight</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Ventus AI Insight</h4>
           </div>
-          <p className="text-[12px] leading-snug text-slate-700">{brief.insight}</p>
+          <p className="text-[13px] leading-snug text-slate-700">{brief.insight}</p>
         </section>
 
         {/* NEXT STEPS */}
