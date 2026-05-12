@@ -1,5 +1,30 @@
+import { useState } from "react";
 import { Sparkles, ListChecks, Paperclip, FileText, X } from "lucide-react";
 import { resolveBrief, type SelectedSignal } from "./NextConversationRationale";
+import { FinancialTimelineTool } from "@/components/tepilot/advisor-console/FinancialTimelineTool";
+import type { LifeEvent } from "@/types/lifestyle-signals";
+
+const PROJECT_TYPE_MAP: Record<string, LifeEvent["financial_projection"] extends infer T ? (T extends { project_type: infer P } ? P : never) : never> = {
+  "College Preparation for Dependent": "education",
+  "Home Purchase": "home",
+  "Wedding Planning": "wedding",
+  "New Baby": "family_formation",
+  "Retirement Planning": "retirement",
+};
+
+const PROJECT_DURATION_DEFAULTS: Record<string, number> = {
+  education: 4,
+  home: 2,
+  retirement: 25,
+  business: 5,
+  wedding: 1,
+  wealth_transfer: 2,
+  liquidity_event: 2,
+  family_formation: 1,
+  charitable_giving: 1,
+  elder_care: 5,
+  other: 3,
+};
 
 interface Props {
   customerName: string;
@@ -15,6 +40,26 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
   const fallbackSignal: SelectedSignal = selectedSignal ?? { kind: "lifeEvent", label: "College Preparation for Dependent" };
   const brief = resolveBrief(fallbackSignal);
+  const [plannerOpen, setPlannerOpen] = useState(false);
+
+  const projectType = PROJECT_TYPE_MAP[fallbackSignal.label] ?? "other";
+  const startYear = new Date().getFullYear() + 1;
+  const mockEvent: LifeEvent = {
+    event_name: fallbackSignal.label,
+    confidence: 0.9,
+    evidence: [],
+    talking_points: [],
+    financial_projection: {
+      project_type: projectType,
+      estimated_start_year: startYear,
+      duration_years: PROJECT_DURATION_DEFAULTS[projectType] ?? 3,
+      estimated_total_cost: 0,
+      estimated_current_savings: 0,
+      recommended_monthly_contribution: 0,
+      cost_breakdown: [],
+      recommended_funding_sources: [],
+    },
+  };
 
   // Build the summary line — combine selected + secondary if both are life events / lifestyle
   const summaryParts = [fallbackSignal.label];
@@ -117,11 +162,13 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
               <p className="text-[13px] leading-snug text-slate-700 mb-2">
                 I've prepped the timeline and action list — see attachment below.
               </p>
-              <div
-                className={`rounded-lg border px-3 py-2.5 flex items-center gap-2.5 shadow-sm ${
+              <button
+                type="button"
+                onClick={() => setPlannerOpen(true)}
+                className={`w-full text-left rounded-lg border px-3 py-2.5 flex items-center gap-2.5 shadow-sm transition-all hover:shadow-md hover:ring-2 ${
                   brief.sensitive
-                    ? "bg-rose-50 border-rose-200"
-                    : "bg-amber-50/70 border-amber-200"
+                    ? "bg-rose-50 border-rose-200 hover:ring-rose-300"
+                    : "bg-amber-50/70 border-amber-200 hover:ring-purple-300"
                 }`}
               >
                 <div
@@ -140,11 +187,12 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
                   </p>
                 </div>
                 <Paperclip className={`w-3.5 h-3.5 shrink-0 ${brief.sensitive ? "text-rose-400" : "text-amber-500"}`} />
-              </div>
+              </button>
             </section>
           );
         })()}
       </div>
+      <FinancialTimelineTool open={plannerOpen} onOpenChange={setPlannerOpen} detectedEvent={mockEvent} />
     </div>
   );
 }
