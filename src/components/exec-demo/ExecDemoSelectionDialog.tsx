@@ -394,11 +394,11 @@ export default function ExecDemoSelectionDialog({
                                     <td className="px-3 py-1 text-slate-400 font-mono text-xs">
                                       {row.transaction_id || i + 1}
                                     </td>
-                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">
+                                    <td className="px-3 py-1 text-[13px] text-slate-600 tabular-nums whitespace-nowrap">
                                       {row.date}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-[13px] font-medium text-slate-900 max-w-[260px] truncate"
                                       title={row.merchant_name}
                                     >
                                       {row.merchant_name}
@@ -413,12 +413,12 @@ export default function ExecDemoSelectionDialog({
                                       )}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-[13px] font-mono text-slate-500 max-w-[260px] truncate"
                                       title={row.mcc_description}
                                     >
                                       {row.mcc_description}
                                     </td>
-                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                    <td className="px-3 py-1 text-right font-mono text-[13px] text-slate-900 tabular-nums whitespace-nowrap font-normal">
                                       {fmtAmt}
                                     </td>
                                     <td className="px-3 py-1 text-slate-500 text-xs">{row.zip_code || "—"}</td>
