@@ -162,11 +162,13 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
               <p className="text-[13px] leading-snug text-slate-700 mb-2">
                 I've prepped the timeline and action list — see attachment below.
               </p>
-              <div
-                className={`rounded-lg border px-3 py-2.5 flex items-center gap-2.5 shadow-sm ${
+              <button
+                type="button"
+                onClick={() => setPlannerOpen(true)}
+                className={`w-full text-left rounded-lg border px-3 py-2.5 flex items-center gap-2.5 shadow-sm transition-all hover:shadow-md hover:ring-2 ${
                   brief.sensitive
-                    ? "bg-rose-50 border-rose-200"
-                    : "bg-amber-50/70 border-amber-200"
+                    ? "bg-rose-50 border-rose-200 hover:ring-rose-300"
+                    : "bg-amber-50/70 border-amber-200 hover:ring-purple-300"
                 }`}
               >
                 <div
