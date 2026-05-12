@@ -163,9 +163,9 @@ export default function ExecDemoSelectionDialog({
           <div className="flex items-center gap-2">
             <img src={ventusLogo} alt="Ventus AI" className="h-9 w-auto" />
             <span className="text-sm text-slate-400">·</span>
-            <h2 className="text-base font-semibold text-slate-800 tracking-tight">Select a Customer Profile</h2>
+            <h2 className="text-lg font-semibold text-slate-800 tracking-tight">Select a Customer Profile</h2>
           </div>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-sm text-slate-500 mt-0.5">
             Ingests a holistic picture of every customer: KYC, and every transaction across rails
           </p>
         </div>
@@ -180,7 +180,7 @@ export default function ExecDemoSelectionDialog({
                   onSelectCustomer(i);
                   setShowCustomFlow(false);
                 }}
-                className={`px-3 py-2 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap ${
+                className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
                   selectedIdx === i && !showCustomFlow
                     ? "bg-blue-600 text-white shadow-sm"
                     : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50"
@@ -191,7 +191,7 @@ export default function ExecDemoSelectionDialog({
             ))}
             <button
               onClick={() => setShowCustomFlow(true)}
-              className={`px-3 py-2 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
+              className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
                 showCustomFlow
                   ? "bg-violet-600 text-white shadow-sm"
                   : "bg-white border border-dashed border-slate-300 text-slate-500 hover:border-violet-400 hover:bg-violet-50"
@@ -267,10 +267,10 @@ export default function ExecDemoSelectionDialog({
           <div className="flex-1 min-h-0 flex flex-col">
             {rawRows.length > 0 && (
               <div className="px-8 pt-3 pb-2 flex items-center justify-between shrink-0">
-                <div className="text-xs text-slate-500">
+                <div className="text-sm text-slate-500">
                   {rawRows.length} transactions · {sourceGroups.length} sources
                 </div>
-                <button onClick={toggleAll} className="text-xs font-semibold text-blue-600 hover:text-blue-700">
+                <button onClick={toggleAll} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
                   {allOpen ? "Collapse all" : "Expand all"}
                 </button>
               </div>
@@ -285,12 +285,12 @@ export default function ExecDemoSelectionDialog({
                     className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
+                      <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
                         KYC
                       </span>
-                      <span className="text-sm font-semibold text-slate-700">{customer.profile.compliance.kycStatus}</span>
-                      <span className="text-xs text-slate-400">·</span>
-                      <span className="text-xs text-slate-500">Last reviewed {customer.profile.compliance.lastReview}</span>
+                      <span className="text-base font-semibold text-slate-700">{customer.profile.compliance.kycStatus}</span>
+                      <span className="text-sm text-slate-400">·</span>
+                      <span className="text-sm text-slate-500">Last reviewed {customer.profile.compliance.lastReview}</span>
                     </div>
                     <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${kycOpen ? "rotate-180" : ""}`} />
                   </button>
@@ -315,8 +315,8 @@ export default function ExecDemoSelectionDialog({
                         ["Risk Profile", customer.profile.compliance.riskProfile],
                       ].map(([label, value]) => (
                         <div key={label} className="min-w-0">
-                          <div className="text-[11px] uppercase tracking-wider text-slate-500">{label}</div>
-                          <div className="text-sm text-slate-800 truncate" title={String(value)}>
+                          <div className="text-xs uppercase tracking-wider text-slate-500">{label}</div>
+                          <div className="text-[15px] text-slate-800 truncate" title={String(value)}>
                             {value || "—"}
                           </div>
                         </div>
@@ -340,13 +340,13 @@ export default function ExecDemoSelectionDialog({
                       >
                         <div className="flex items-center gap-3">
                           <span
-                            className={`inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}
+                            className={`inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}
                           >
                             {source}
                           </span>
-                          <span className="text-sm font-semibold text-slate-700">{rows.length} txns</span>
-                          <span className="text-xs text-slate-400">·</span>
-                          <span className="text-xs font-mono tabular-nums text-slate-500">{fmtTotal}</span>
+                          <span className="text-base font-semibold text-slate-700">{rows.length} txns</span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm font-mono tabular-nums text-slate-500">{fmtTotal}</span>
                         </div>
                         <ChevronDown
                           className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
@@ -357,25 +357,25 @@ export default function ExecDemoSelectionDialog({
                           <table className="w-full text-left border-collapse">
                             <thead>
                               <tr className="bg-slate-50/60 border-b border-slate-200">
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   ID
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Date
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Merchant
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   MCC
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Description
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">
                                   Amount
                                 </th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
                                   Zip
                                 </th>
                               </tr>
@@ -391,37 +391,37 @@ export default function ExecDemoSelectionDialog({
                                     key={i}
                                     className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors"
                                   >
-                                    <td className="px-3 py-1 text-slate-400 font-mono text-xs">
+                                    <td className="px-3 py-1 text-slate-400 font-mono text-[13px]">
                                       {row.transaction_id || i + 1}
                                     </td>
-                                    <td className="px-3 py-1 text-[13px] text-slate-600 tabular-nums whitespace-nowrap">
+                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">
                                       {row.date}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-[13px] font-medium text-slate-900 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate"
                                       title={row.merchant_name}
                                     >
                                       {row.merchant_name}
                                     </td>
                                     <td className="px-3 py-1">
                                       {row.mcc ? (
-                                        <span className="inline-block bg-slate-100 text-slate-600 text-xs font-mono px-1.5 py-0.5 rounded">
+                                        <span className="inline-block bg-slate-100 text-slate-600 text-[13px] font-mono px-1.5 py-0.5 rounded">
                                           {row.mcc}
                                         </span>
                                       ) : (
-                                        <span className="text-xs text-slate-300">—</span>
+                                        <span className="text-[13px] text-slate-300">—</span>
                                       )}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-[13px] font-mono text-slate-500 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate"
                                       title={row.mcc_description}
                                     >
                                       {row.mcc_description}
                                     </td>
-                                    <td className="px-3 py-1 text-right font-mono text-[13px] text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
                                       {fmtAmt}
                                     </td>
-                                    <td className="px-3 py-1 text-slate-500 text-xs">{row.zip_code || "—"}</td>
+                                    <td className="px-3 py-1 text-slate-500 text-[13px]">{row.zip_code || "—"}</td>
                                   </tr>
                                 );
                               })}
@@ -437,12 +437,12 @@ export default function ExecDemoSelectionDialog({
                 <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 overflow-hidden opacity-70 cursor-not-allowed">
                   <div className="w-full flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-slate-200 text-slate-500">
+                      <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-slate-200 text-slate-500">
                         Digital Telemetry
                       </span>
-                      <span className="text-sm font-semibold text-slate-400">Coming soon</span>
-                      <span className="text-xs text-slate-400">·</span>
-                      <span className="text-xs text-slate-400">App, web & device signals</span>
+                      <span className="text-base font-semibold text-slate-400">Coming soon</span>
+                      <span className="text-sm text-slate-400">·</span>
+                      <span className="text-sm text-slate-400">App, web & device signals</span>
                     </div>
                     <ChevronDown className="w-4 h-4 text-slate-300" />
                   </div>
@@ -460,7 +460,7 @@ export default function ExecDemoSelectionDialog({
         <div className="px-8 py-3 border-t border-slate-100 shrink-0">
           <button
             onClick={handleRun}
-            className="w-full flex items-center justify-center gap-2 rounded-full py-3 text-sm font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
+            className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
           >
             <Play className="w-5 h-5" />
             Start
