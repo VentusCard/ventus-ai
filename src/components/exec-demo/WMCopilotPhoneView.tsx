@@ -187,11 +187,12 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
                   </p>
                 </div>
                 <Paperclip className={`w-3.5 h-3.5 shrink-0 ${brief.sensitive ? "text-rose-400" : "text-amber-500"}`} />
-              </div>
+              </button>
             </section>
           );
         })()}
       </div>
+      <FinancialTimelineTool open={plannerOpen} onOpenChange={setPlannerOpen} detectedEvent={mockEvent} />
     </div>
   );
 }
