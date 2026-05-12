@@ -442,7 +442,7 @@ export default function ExecDemoIntelPanel({
           border: fullWidthEnrichment ? undefined : "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
-          maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
+          maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "58vh" : undefined,
         }}
       >
         {/* Evolving persona description (shown while AI synthesis loads) */}
