@@ -442,7 +442,7 @@ export default function ExecDemoIntelPanel({
           border: fullWidthEnrichment ? undefined : "1px solid rgba(11,26,58,.14)",
           opacity: showProfile ? 1 : 0,
           transform: showProfile ? "translateY(0)" : "translateY(12px)",
-          maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "45vh" : undefined,
+          maxHeight: synthesisTriggered && !pillsExpanded && activeTab ? "65vh" : undefined,
         }}
       >
         {/* Evolving persona description (shown while AI synthesis loads) */}
@@ -597,6 +597,7 @@ export default function ExecDemoIntelPanel({
                       rollup={r}
                       delay={0.5 + i * 0.15}
                       isActive={activeRollup?.pillar === r.pillar && activeRollup?.label === r.label}
+                      isCollapsed={isCollapsed}
                       onClick={() => handleRollupForRel(r)}
                     />
                   ));
@@ -625,21 +626,20 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className={`inline-flex items-center gap-1.5 text-[13px] font-semibold px-3.5 ${isCollapsed ? "py-1.5" : "py-2"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
+                          className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
                               : "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
                             color: "#92400e",
-                            border: isActive ? "2px solid #f59e0b" : "1.5px solid #f59e0b",
+                            border: "1.5px solid #f59e0b",
                             animation: `rollup-entrance 0.5s ease-out ${0.8 + i * 0.15}s both, rollup-glow 1s ease-out ${1.3 + i * 0.15}s both`,
                             boxShadow: isActive ? "0 0 14px rgba(245,158,11,.35)" : "0 2px 8px rgba(245,158,11,.2)",
-                            transform: isActive ? "scale(1.08)" : "scale(1)",
                           }}
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
-                          <span className="text-xs opacity-60 tabular-nums font-normal">
+                          <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
                             {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
                           </span>
                         </span>
@@ -761,7 +761,7 @@ export default function ExecDemoIntelPanel({
                               ? "Not applicable for offer targeting"
                               : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`
                           }
-                          className={`inline-flex items-center gap-1.5 text-[13px] font-semibold px-3.5 ${isCollapsed ? "py-1.5" : "py-2"} rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
@@ -771,16 +771,13 @@ export default function ExecDemoIntelPanel({
                             color: riskPillsMuted ? "#94a3b8" : isHigh ? "#991b1b" : "#92400e",
                             border: riskPillsMuted
                               ? "1.5px solid #cbd5e1"
-                              : isActive
-                                ? `2px solid ${dotColor}`
-                                : `1.5px solid ${dotColor}`,
+                              : `1.5px solid ${dotColor}`,
                             animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.15}s both, rollup-glow 1s ease-out ${1.7 + i * 0.15}s both`,
                             boxShadow: riskPillsMuted
                               ? "none"
                               : isActive
                                 ? `0 0 14px ${isHigh ? "rgba(239,68,68,.35)" : "rgba(245,158,11,.35)"}`
                                 : `0 2px 8px ${isHigh ? "rgba(239,68,68,.2)" : "rgba(245,158,11,.2)"}`,
-                            transform: isActive && !riskPillsMuted ? "scale(1.08)" : "scale(1)",
                             opacity: riskPillsMuted ? 0.65 : 1,
                             filter: riskPillsMuted ? "grayscale(1)" : "none",
                             textDecoration: riskPillsMuted ? "line-through" : "none",
@@ -792,7 +789,7 @@ export default function ExecDemoIntelPanel({
                             {riskPillsMuted ? "✕" : "⚠"}
                           </span>
                           {flagLabel}
-                          <span className="text-xs opacity-60 tabular-nums font-normal">
+                          <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
                           </span>
                         </span>
@@ -800,7 +797,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full`}
+                      className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full`}
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -818,9 +815,9 @@ export default function ExecDemoIntelPanel({
                   // on Next-Offer / Next-Product / Next-Conversation tabs. When a
                   // tab is active (collapsed), use tighter dimensions to fit.
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
-                  const labelTextSize = isCollapsed ? "text-[11px]" : "text-[13px]";
-                  const rowGap = isCollapsed ? "mt-1.5" : "mt-2.5";
-                  const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5";
+                  const labelTextSize = isCollapsed ? "text-[12px]" : "text-[13px]";
+                  const rowGap = isCollapsed ? "mt-2.5" : "mt-2.5";
+                  const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2.5 overflow-x-auto exec-light-scroll py-0.5";
 
                   return (
                     <>
@@ -1148,32 +1145,33 @@ function PillarRollupChip({
   rollup,
   delay,
   isActive,
+  isCollapsed,
   onClick,
 }: {
   rollup: PillarRollup & { totalSpend?: number; totalCount?: number };
   delay: number;
   isActive?: boolean;
+  isCollapsed?: boolean;
   onClick?: () => void;
 }) {
   const c = getColor(rollup.pillar);
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1.5 text-[13px] font-semibold px-3.5 py-2 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+      className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
           : `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
         color: c.text,
-        border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
+        border: `1.5px solid ${c.dot}`,
         animation: `rollup-entrance 0.5s ease-out ${delay}s both, rollup-glow 1s ease-out ${delay + 0.5}s both`,
         boxShadow: isActive ? `0 0 14px ${c.bg.replace(".12", ".35")}` : `0 2px 8px ${c.bg.replace(".12", ".2")}`,
-        transform: isActive ? "scale(1.08)" : "scale(1)",
       }}
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className="text-xs opacity-60 tabular-nums font-normal">
+      <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>

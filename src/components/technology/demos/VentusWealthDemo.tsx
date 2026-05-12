@@ -39,8 +39,8 @@ interface DemoDetail {
 const CLIENTS: DemoClient[] = [
   { id: 'c1', name: 'Margaret Chen', segment: 'Private', aum: '$4.2M' },
   { id: 'c2', name: 'David Park', segment: 'Premium', aum: '$1.8M' },
-  { id: 'c3', name: 'User #482719356', segment: 'Private', aum: '$6.1M' },
-  { id: 'c4', name: 'User #519384207', segment: 'Preferred', aum: '$890K' },
+  { id: 'c3', name: 'Sarah Mitchell', segment: 'Private', aum: '$6.1M' },
+  { id: 'c4', name: 'James Rodriguez', segment: 'Preferred', aum: '$890K' },
   { id: 'c5', name: 'Linda Nakamura', segment: 'Private', aum: '$3.5M' },
   { id: 'c6', name: 'Robert Thompson', segment: 'Premium', aum: '$2.1M' },
   { id: 'c7', name: 'Emily Watson', segment: 'Preferred', aum: '$720K' },

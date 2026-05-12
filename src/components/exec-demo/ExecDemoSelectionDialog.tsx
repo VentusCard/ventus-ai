@@ -186,7 +186,14 @@ export default function ExecDemoSelectionDialog({
                     : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50"
                 }`}
               >
-                {c.profile.name}
+                {({
+                  "Sarah Mitchell": "User #482719356",
+                  "James Rodriguez": "User #519384207",
+                  "Emily Chen": "User #264158093",
+                  "Michael Thompson": "User #730895142",
+                  "Amanda Williams": "User #395672481",
+                  "Robert Garcia": "User #847203615",
+                } as Record<string, string>)[c.profile.name] ?? c.profile.name}
               </button>
             ))}
             <button

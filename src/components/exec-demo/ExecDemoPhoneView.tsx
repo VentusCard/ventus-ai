@@ -51,11 +51,14 @@ interface Props {
   wmCopilotSignal?: SelectedSignal | null;
   /** Optional secondary signal label (e.g., "Home Purchase Planning") combined into the customer summary. */
   wmCopilotSecondarySignal?: string | null;
+  /** Persona context for personalized AI outreach pointers. */
+  wmCopilotPersonaTitle?: string;
+  wmCopilotPersonaSummary?: string;
   /** Called when the user closes the WM CoPilot view from inside the phone. */
   onCloseWMCopilot?: () => void;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, onCloseWMCopilot }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
@@ -181,6 +184,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
                 customerName={customer.profile?.name ?? firstName}
                 selectedSignal={wmCopilotSignal}
                 secondarySignalLabel={wmCopilotSecondarySignal}
+                personaTitle={wmCopilotPersonaTitle}
+                personaSummary={wmCopilotPersonaSummary}
                 onClose={() => onCloseWMCopilot?.()}
               />
             ) : showContent ? (
