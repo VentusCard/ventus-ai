@@ -789,7 +789,7 @@ export default function ExecDemoIntelPanel({
                             {riskPillsMuted ? "✕" : "⚠"}
                           </span>
                           {flagLabel}
-                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
+                          <span className={`${isCollapsed ? "text-[11.5px]" : "text-[11px]"} opacity-60 tabular-nums font-normal`}>
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
                           </span>
                         </span>
