@@ -761,7 +761,7 @@ export default function ExecDemoIntelPanel({
                               ? "Not applicable for offer targeting"
                               : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`
                           }
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center ${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"} font-semibold rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
