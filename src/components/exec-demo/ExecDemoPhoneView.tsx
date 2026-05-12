@@ -51,6 +51,9 @@ interface Props {
   wmCopilotSignal?: SelectedSignal | null;
   /** Optional secondary signal label (e.g., "Home Purchase Planning") combined into the customer summary. */
   wmCopilotSecondarySignal?: string | null;
+  /** Persona context for personalized AI outreach pointers. */
+  wmCopilotPersonaTitle?: string;
+  wmCopilotPersonaSummary?: string;
   /** Called when the user closes the WM CoPilot view from inside the phone. */
   onCloseWMCopilot?: () => void;
 }
