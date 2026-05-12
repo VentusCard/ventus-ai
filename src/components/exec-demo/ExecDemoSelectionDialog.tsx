@@ -391,37 +391,37 @@ export default function ExecDemoSelectionDialog({
                                     key={i}
                                     className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors"
                                   >
-                                    <td className="px-3 py-1 text-slate-400 font-mono text-xs">
+                                    <td className="px-3 py-1 text-slate-400 font-mono text-[13px]">
                                       {row.transaction_id || i + 1}
                                     </td>
-                                    <td className="px-3 py-1 text-[13px] text-slate-600 tabular-nums whitespace-nowrap">
+                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">
                                       {row.date}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-[13px] font-medium text-slate-900 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate"
                                       title={row.merchant_name}
                                     >
                                       {row.merchant_name}
                                     </td>
                                     <td className="px-3 py-1">
                                       {row.mcc ? (
-                                        <span className="inline-block bg-slate-100 text-slate-600 text-xs font-mono px-1.5 py-0.5 rounded">
+                                        <span className="inline-block bg-slate-100 text-slate-600 text-[13px] font-mono px-1.5 py-0.5 rounded">
                                           {row.mcc}
                                         </span>
                                       ) : (
-                                        <span className="text-xs text-slate-300">—</span>
+                                        <span className="text-[13px] text-slate-300">—</span>
                                       )}
                                     </td>
                                     <td
-                                      className="px-3 py-1 text-[13px] font-mono text-slate-500 max-w-[260px] truncate"
+                                      className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate"
                                       title={row.mcc_description}
                                     >
                                       {row.mcc_description}
                                     </td>
-                                    <td className="px-3 py-1 text-right font-mono text-[13px] text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
                                       {fmtAmt}
                                     </td>
-                                    <td className="px-3 py-1 text-slate-500 text-xs">{row.zip_code || "—"}</td>
+                                    <td className="px-3 py-1 text-slate-500 text-[13px]">{row.zip_code || "—"}</td>
                                   </tr>
                                 );
                               })}
