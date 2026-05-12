@@ -815,9 +815,9 @@ export default function ExecDemoIntelPanel({
                   // on Next-Offer / Next-Product / Next-Conversation tabs. When a
                   // tab is active (collapsed), use tighter dimensions to fit.
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
-                  const labelTextSize = isCollapsed ? "text-[11px]" : "text-[13px]";
-                  const rowGap = isCollapsed ? "mt-1.5" : "mt-2.5";
-                  const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2 overflow-x-auto exec-light-scroll py-0.5";
+                  const labelTextSize = isCollapsed ? "text-[12px]" : "text-[13px]";
+                  const rowGap = isCollapsed ? "mt-2.5" : "mt-2.5";
+                  const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2.5 overflow-x-auto exec-light-scroll py-0.5";
 
                   return (
                     <>
