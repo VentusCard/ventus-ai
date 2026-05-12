@@ -1158,7 +1158,7 @@ function PillarRollupChip({
   return (
     <span
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
+      className={`inline-flex items-center ${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"} font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
@@ -1171,7 +1171,7 @@ function PillarRollupChip({
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className="text-[11px] opacity-60 tabular-nums font-normal">
+      <span className={`${isCollapsed ? "text-[11.5px]" : "text-[11px]"} opacity-60 tabular-nums font-normal`}>
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>
