@@ -29,7 +29,7 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
       <div className="shrink-0 px-3 py-2.5 border-b border-purple-200 bg-purple-50 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-purple-700">WM CoPilot</span>
+          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-purple-700">WM CoPilot</span>
         </div>
         <button
           onClick={onClose}
@@ -42,8 +42,8 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
       {/* Customer summary line */}
       <div className="shrink-0 px-3 py-2.5 border-b border-slate-100">
-        <p className="text-[12.5px] font-bold text-slate-900">{displayName}</p>
-        <p className="text-[11px] text-slate-600 mt-0.5">{summary}</p>
+        <p className="text-[13.5px] font-bold text-slate-900">{displayName}</p>
+        <p className="text-[12px] text-slate-600 mt-0.5">{summary}</p>
       </div>
 
       {/* Scrollable brief content */}
@@ -52,20 +52,20 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
         <section>
           <div className="flex items-center gap-1.5 mb-1">
             <Sparkles className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Ventus AI Insight</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Ventus AI Insight</h4>
           </div>
-          <p className="text-[12px] leading-snug text-slate-700">{brief.insight}</p>
+          <p className="text-[13px] leading-snug text-slate-700">{brief.insight}</p>
         </section>
 
         {/* NEXT STEPS */}
         <section>
           <div className="flex items-center gap-1.5 mb-1">
             <ListChecks className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Next Steps</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Next Steps</h4>
           </div>
           <ul className="space-y-1">
             {brief.nextSteps.map((s, i) => (
-              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
+              <li key={i} className="flex gap-1.5 text-[13px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-purple-400"}`} />
                 <span>{s}</span>
               </li>
@@ -112,9 +112,9 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
             <section>
               <div className="flex items-center gap-1.5 mb-1.5">
                 <Sparkles className={`w-3 h-3 ${brief.sensitive ? "text-rose-500" : "text-purple-500"}`} />
-                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tasks Automated</h4>
+                <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Tasks Automated</h4>
               </div>
-              <p className="text-[12px] leading-snug text-slate-700 mb-2">
+              <p className="text-[13px] leading-snug text-slate-700 mb-2">
                 I've prepped the timeline and action list — see attachment below.
               </p>
               <div
@@ -132,10 +132,10 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
                   <FileText className="w-4 h-4" />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="font-mono text-[11.5px] font-semibold text-slate-800 truncate leading-tight">
+                  <p className="font-mono text-[12.5px] font-semibold text-slate-800 truncate leading-tight">
                     {fileName}
                   </p>
-                  <p className="text-[10px] text-slate-500 mt-1 leading-tight">
+                  <p className="text-[11px] text-slate-500 mt-1 leading-tight">
                     Timeline · {brief.nextSteps.length} action items
                   </p>
                 </div>
