@@ -1,21 +1,15 @@
-Make the file packet card in `src/components/exec-demo/WMCopilotPhoneView.tsx` clickable. On click, open the existing **Life Event Planner** (`FinancialTimelineTool`) as a full app-level modal over the entire demo.
+In `src/components/exec-demo/WMCopilotPhoneView.tsx`, render a second file packet card whenever `secondarySignalLabel` is provided (and differs from the primary).
 
 ### Implementation
-In `WMCopilotPhoneView.tsx`:
-1. Add `useState` for `plannerOpen`.
-2. Wrap the existing file packet `<div>` in a `<button type="button" onClick={() => setPlannerOpen(true)}>` with `w-full text-left` + a hover ring (`hover:ring-2 hover:ring-purple-300`) so it reads as actionable. Keep the existing visual unchanged.
-3. Render `<FinancialTimelineTool open={plannerOpen} onOpenChange={setPlannerOpen} detectedEvent={mockEvent} />` at the bottom of the component (the dialog portals out, so it escapes the phone frame).
-4. Build `mockEvent: LifeEvent` from `fallbackSignal.label` via a small map → `project_type` (and a sensible `event_name`):
-   - `College Preparation for Dependent` → `education`
-   - `Home Purchase` → `home`
-   - `Wedding Planning` → `wedding`
-   - `New Baby` → `family_formation`
-   - `Retirement Planning` → `retirement`
-   - default → `other`
-   No `financial_projection` is supplied — `FinancialTimelineTool` will fall back to `loadTemplate(projectType)` using the matching default template (it sets `projectType` from the map below).
-5. Set `projectType` on the tool by passing a minimal `detectedEvent` with no `financial_projection` is not enough on its own (the tool only consumes `detectedEvent.financial_projection`). To make the planner open on the right tab, call `loadFromDetectedEvent` path by also supplying a stub `financial_projection` with the mapped `project_type` and the default duration from `projectDurations`, plus empty arrays for cost_breakdown / funding_sources and zeros for the numeric fields. The tool's existing `loadFromDetectedEvent` will then key off `project_type`.
+1. Extract the existing file-packet `<button>` (mapped from a signal label) into a small inline component/helper `FilePacketCard({ label, brief, sensitive, displayName, onOpen })` so we can reuse it for both events. It encapsulates: SHORT_MAP lookup, filename derivation (`{firstName}_{short}.pdf`), the styled button, and the "Timeline · N action items" subline.
+2. Build two `SelectedSignal` entries:
+   - primary = `fallbackSignal`
+   - secondary = `secondarySignalLabel ? { kind: "lifeEvent", label: secondarySignalLabel } : null`
+   Resolve a brief for each via `resolveBrief()` to drive its own `nextSteps.length` count and tone.
+3. Track planner state per card with a single `plannerSignal: SelectedSignal | null` (null = closed). Clicking a card sets it; closing resets to null. Build the `LifeEvent` `mockEvent` from `plannerSignal.label` instead of always from the primary.
+4. Render section heading "Tasks Automated" once, then the AI prompt copy ("I've prepped the timeline and action list — see attachments below."), then a vertical stack of the 1–2 file cards (`space-y-2`).
+5. Filenames use the same `firstName` (already derived once) and the per-event SHORT_MAP slug.
 
 ### Scope
 - Only `WMCopilotPhoneView.tsx` is edited.
-- No changes to `FinancialTimelineTool` or its data files.
-- Tone follows existing `brief.sensitive` accents on the card; the planner dialog itself is unchanged.
+- No new imports beyond what is already used.
