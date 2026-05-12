@@ -29,7 +29,7 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
       <div className="shrink-0 px-3 py-2.5 border-b border-purple-200 bg-purple-50 flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-purple-500" />
-          <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-purple-700">WM CoPilot</span>
+          <span className="text-[12px] font-bold uppercase tracking-[0.14em] text-purple-700">WM CoPilot</span>
         </div>
         <button
           onClick={onClose}
