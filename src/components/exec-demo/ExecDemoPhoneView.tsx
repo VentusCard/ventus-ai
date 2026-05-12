@@ -184,6 +184,8 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
                 customerName={customer.profile?.name ?? firstName}
                 selectedSignal={wmCopilotSignal}
                 secondarySignalLabel={wmCopilotSecondarySignal}
+                personaTitle={wmCopilotPersonaTitle}
+                personaSummary={wmCopilotPersonaSummary}
                 onClose={() => onCloseWMCopilot?.()}
               />
             ) : showContent ? (
