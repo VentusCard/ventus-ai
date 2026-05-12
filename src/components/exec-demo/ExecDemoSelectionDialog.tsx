@@ -100,8 +100,10 @@ export default function ExecDemoSelectionDialog({
   }, [rawRows]);
 
   const [openSources, setOpenSources] = useState<Record<string, boolean>>({});
+  const [kycOpen, setKycOpen] = useState(false);
   useEffect(() => {
     setOpenSources({});
+    setKycOpen(false);
   }, [customer.id]);
 
   const allOpen = sourceGroups.length > 0 && sourceGroups.every((g) => openSources[g.source]);
@@ -193,6 +195,55 @@ export default function ExecDemoSelectionDialog({
             </button>
           </div>
         </div>
+
+        {/* KYC card — pinned below pills, above scroll area */}
+        {!showCustomFlow && (
+          <div className="px-8 py-3 border-b border-slate-100 shrink-0">
+            <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+              <button
+                onClick={() => setKycOpen((o) => !o)}
+                className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <span className="inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
+                    KYC
+                  </span>
+                  <span className="text-sm font-semibold text-slate-700">{customer.profile.compliance.kycStatus}</span>
+                  <span className="text-xs text-slate-400">·</span>
+                  <span className="text-xs text-slate-500">Last reviewed {customer.profile.compliance.lastReview}</span>
+                </div>
+                <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${kycOpen ? "rotate-180" : ""}`} />
+              </button>
+              {kycOpen && (
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 px-4 py-3 border-t border-slate-100">
+                  {[
+                    ["Name", customer.profile.name],
+                    ["Segment", customer.profile.segment],
+                    ["AUM", customer.profile.aum],
+                    ["Tenure", customer.profile.tenure],
+                    ["Age", customer.profile.demographics.age],
+                    ["Occupation", customer.profile.demographics.occupation],
+                    ["Industry", customer.profile.demographics.industry],
+                    ["Family Status", customer.profile.demographics.familyStatus],
+                    ["Income Level", customer.profile.demographics.incomeLevel],
+                    ["Email", customer.profile.contact.email],
+                    ["Phone", customer.profile.contact.phone],
+                    ["Address", customer.profile.contact.address],
+                    ["KYC Status", customer.profile.compliance.kycStatus],
+                    ["Last Review", customer.profile.compliance.lastReview],
+                    ["Next Review", customer.profile.compliance.nextReview],
+                    ["Risk Profile", customer.profile.compliance.riskProfile],
+                  ].map(([label, value]) => (
+                    <div key={label} className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
+                      <div className="text-sm text-slate-800 truncate" title={String(value)}>{value || "—"}</div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Custom flow (inline, between pills and table) */}
         {showCustomFlow && (
