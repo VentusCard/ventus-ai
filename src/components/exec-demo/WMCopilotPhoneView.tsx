@@ -1,8 +1,7 @@
-import { useEffect, useState } from "react";
-import { Sparkles, ListChecks, Paperclip, FileText, X, Send } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, ListChecks, Paperclip, FileText, X } from "lucide-react";
 import { resolveBrief, type SelectedSignal } from "./NextConversationRationale";
 import { FinancialTimelineTool } from "@/components/tepilot/advisor-console/FinancialTimelineTool";
-import { supabase } from "@/integrations/supabase/client";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 
 type ProjectType = NonNullable<LifeEvent["financial_projection"]>["project_type"];
