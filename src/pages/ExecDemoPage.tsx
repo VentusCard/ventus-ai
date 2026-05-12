@@ -1259,7 +1259,7 @@ export default function ExecDemoPage() {
           <div className="flex items-center gap-3">
             <img src={ventusLogo} alt="Ventus AI" className="h-8 w-auto" />
             <span className="text-[15px] font-semibold text-slate-700 hidden sm:inline">
-              Semantic Enrichment - Behavioral Intelligence - Personalization Orchestration
+              Multi-Rail Enrichment - Behavioral Intelligence - Personalization Orchestration
             </span>
           </div>
           <div className="flex items-center gap-3">
