@@ -228,6 +228,34 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
             <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Ventus AI Insight</h4>
           </div>
           <p className="text-[13px] leading-snug text-slate-700">{brief.insight}</p>
+
+          {/* Personalized Outreach Pointers — AI-generated */}
+          <div className="mt-2.5 rounded-md border border-purple-100 bg-purple-50/60 px-2.5 py-2">
+            <div className="flex items-center gap-1.5 mb-1">
+              <Send className="w-2.5 h-2.5 text-purple-600" />
+              <h5 className="text-[10.5px] font-bold uppercase tracking-wider text-purple-700">
+                Personalized Outreach Pointers
+              </h5>
+            </div>
+            {pointersLoading ? (
+              <div className="space-y-1.5 py-0.5">
+                {[0, 1, 2].map((i) => (
+                  <div key={i} className="h-2.5 rounded bg-purple-100/80 animate-pulse" style={{ width: `${85 - i * 12}%` }} />
+                ))}
+              </div>
+            ) : pointers && pointers.length > 0 ? (
+              <ul className="space-y-1">
+                {pointers.map((p, i) => (
+                  <li key={i} className="flex gap-1.5 text-[12.5px] leading-snug text-slate-700">
+                    <span className="shrink-0 mt-1.5 w-1 h-1 rounded-full bg-purple-500" />
+                    <span>{p}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p className="text-[11.5px] italic text-slate-400">Outreach pointers unavailable.</p>
+            )}
+          </div>
         </section>
 
         {/* NEXT STEPS */}
