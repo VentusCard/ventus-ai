@@ -100,8 +100,10 @@ export default function ExecDemoSelectionDialog({
   }, [rawRows]);
 
   const [openSources, setOpenSources] = useState<Record<string, boolean>>({});
+  const [kycOpen, setKycOpen] = useState(false);
   useEffect(() => {
     setOpenSources({});
+    setKycOpen(false);
   }, [customer.id]);
 
   const allOpen = sourceGroups.length > 0 && sourceGroups.every((g) => openSources[g.source]);
