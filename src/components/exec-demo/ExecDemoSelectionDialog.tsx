@@ -437,12 +437,12 @@ export default function ExecDemoSelectionDialog({
                 <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 overflow-hidden opacity-70 cursor-not-allowed">
                   <div className="w-full flex items-center justify-between px-4 py-3">
                     <div className="flex items-center gap-3">
-                      <span className="inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap bg-slate-200 text-slate-500">
+                      <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-slate-200 text-slate-500">
                         Digital Telemetry
                       </span>
-                      <span className="text-sm font-semibold text-slate-400">Coming soon</span>
-                      <span className="text-xs text-slate-400">·</span>
-                      <span className="text-xs text-slate-400">App, web & device signals</span>
+                      <span className="text-base font-semibold text-slate-400">Coming soon</span>
+                      <span className="text-sm text-slate-400">·</span>
+                      <span className="text-sm text-slate-400">App, web & device signals</span>
                     </div>
                     <ChevronDown className="w-4 h-4 text-slate-300" />
                   </div>
