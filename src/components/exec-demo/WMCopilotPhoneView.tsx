@@ -42,8 +42,8 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
       {/* Customer summary line */}
       <div className="shrink-0 px-3 py-2.5 border-b border-slate-100">
-        <p className="text-[12.5px] font-bold text-slate-900">{displayName}</p>
-        <p className="text-[11px] text-slate-600 mt-0.5">{summary}</p>
+        <p className="text-[13.5px] font-bold text-slate-900">{displayName}</p>
+        <p className="text-[12px] text-slate-600 mt-0.5">{summary}</p>
       </div>
 
       {/* Scrollable brief content */}
