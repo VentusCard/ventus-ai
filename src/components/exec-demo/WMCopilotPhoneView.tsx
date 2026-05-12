@@ -40,6 +40,26 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
 
   const fallbackSignal: SelectedSignal = selectedSignal ?? { kind: "lifeEvent", label: "College Preparation for Dependent" };
   const brief = resolveBrief(fallbackSignal);
+  const [plannerOpen, setPlannerOpen] = useState(false);
+
+  const projectType = PROJECT_TYPE_MAP[fallbackSignal.label] ?? "other";
+  const startYear = new Date().getFullYear() + 1;
+  const mockEvent: LifeEvent = {
+    event_name: fallbackSignal.label,
+    confidence: 0.9,
+    evidence: [],
+    talking_points: [],
+    financial_projection: {
+      project_type: projectType,
+      estimated_start_year: startYear,
+      duration_years: PROJECT_DURATION_DEFAULTS[projectType] ?? 3,
+      estimated_total_cost: 0,
+      estimated_current_savings: 0,
+      recommended_monthly_contribution: 0,
+      cost_breakdown: [],
+      recommended_funding_sources: [],
+    },
+  };
 
   // Build the summary line — combine selected + secondary if both are life events / lifestyle
   const summaryParts = [fallbackSignal.label];
