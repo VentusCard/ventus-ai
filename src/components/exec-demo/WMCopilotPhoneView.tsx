@@ -89,31 +89,69 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
           </ul>
         </section>
 
-        {/* RECOMMENDED PRODUCTS — chips */}
-        <section>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Package className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
-              {brief.sensitive ? "Recommended Resources" : "Recommended Products"}
-            </h4>
-          </div>
-          <div className="flex flex-wrap gap-1.5">
-            {brief.products.map((p, i) => (
-              <span
-                key={i}
-                title={p.description}
-                className={`inline-flex items-center gap-1.5 text-[11px] font-semibold rounded-full px-2.5 py-1.5 border ${
+        {/* TASK AUTOMATED — single file packet attached */}
+        {(() => {
+          const rawFirst = (displayName || "Client").replace(/^User\s*#?\s*/i, "").split(/[\s_]+/)[0] || "Client";
+          const firstName = rawFirst.charAt(0).toUpperCase() + rawFirst.slice(1).toLowerCase();
+          const SHORT_MAP: Record<string, string> = {
+            "College Preparation for Dependent": "College_Prep",
+            "Home Purchase": "Home_Purchase",
+            "Wedding Planning": "Wedding",
+            "New Baby": "New_Baby",
+            "Retirement Planning": "Retirement",
+            "Hawaiian Vacations": "Hawaii_Trip",
+            "Annual Hawaiian Vacations": "Hawaii_Trip",
+            "Winter Ski Trips": "Ski_Trip",
+          };
+          const short =
+            SHORT_MAP[fallbackSignal.label] ??
+            fallbackSignal.label
+              .split(/\s+/)
+              .slice(0, 2)
+              .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+              .join("_");
+          const fileName = `${firstName}_${short}.pdf`;
+          const accent = brief.sensitive ? "rose" : "purple";
+          return (
+            <section>
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <Sparkles className={`w-3 h-3 ${brief.sensitive ? "text-rose-500" : "text-purple-500"}`} />
+                <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Tasks Automated</h4>
+              </div>
+              <p className="text-[12px] leading-snug text-slate-700 mb-2">
+                I've prepped the timeline and action list — see attachment below.
+              </p>
+              <div
+                className={`relative rounded-md border px-2.5 py-2 flex items-center gap-2 shadow-sm ${
                   brief.sensitive
-                    ? "bg-rose-50 border-rose-200 text-rose-700"
-                    : "bg-purple-50 border-purple-200 text-purple-700"
+                    ? "bg-rose-50 border-rose-200"
+                    : "bg-amber-50 border-amber-200"
                 }`}
               >
-                <Package className="w-3 h-3 opacity-70" />
-                {p.name}
-              </span>
-            ))}
-          </div>
-        </section>
+                {/* folder tab notch */}
+                <span
+                  className={`absolute -top-1.5 left-3 h-1.5 w-10 rounded-t-sm ${
+                    brief.sensitive ? "bg-rose-200" : "bg-amber-200"
+                  }`}
+                />
+                <div
+                  className={`shrink-0 w-7 h-8 rounded-sm flex items-center justify-center ${
+                    brief.sensitive ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-800"
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-mono text-[11.5px] font-semibold text-slate-800 truncate">{fileName}</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">
+                    Timeline · {brief.nextSteps.length} action items
+                  </p>
+                </div>
+                <Paperclip className={`w-3 h-3 shrink-0 ${brief.sensitive ? "text-rose-400" : "text-amber-500"}`} />
+              </div>
+            </section>
+          );
+        })()}
       </div>
     </div>
   );
