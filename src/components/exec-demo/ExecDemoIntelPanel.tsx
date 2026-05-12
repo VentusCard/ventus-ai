@@ -1149,27 +1149,28 @@ function PillarRollupChip({
   rollup,
   delay,
   isActive,
+  isCollapsed,
   onClick,
 }: {
   rollup: PillarRollup & { totalSpend?: number; totalCount?: number };
   delay: number;
   isActive?: boolean;
+  isCollapsed?: boolean;
   onClick?: () => void;
 }) {
   const c = getColor(rollup.pillar);
   return (
     <span
       onClick={onClick}
-      className="inline-flex items-center gap-1 text-[11px] font-semibold px-3 py-1.5 rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+      className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
           : `linear-gradient(135deg, ${c.bg.replace(".12", ".18")}, ${c.bg.replace(".12", ".08")})`,
         color: c.text,
-        border: isActive ? `2px solid ${c.dot}` : `1.5px solid ${c.dot}`,
+        border: `1.5px solid ${c.dot}`,
         animation: `rollup-entrance 0.5s ease-out ${delay}s both, rollup-glow 1s ease-out ${delay + 0.5}s both`,
         boxShadow: isActive ? `0 0 14px ${c.bg.replace(".12", ".35")}` : `0 2px 8px ${c.bg.replace(".12", ".2")}`,
-        transform: isActive ? "scale(1.08)" : "scale(1)",
       }}
     >
       <span style={{ color: c.dot }}>✦</span>
