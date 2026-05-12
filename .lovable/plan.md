@@ -1,30 +1,21 @@
 ## Goal
 
-Card max-height 65vh, and the 3 pill rows (lifestyle / life events / risk) sized larger so they breathe into the new vertical space instead of clustering at the top.
+In the "2. Behavioral Intelligence" view (header shown when no Next-* tab is active), the 3 pill rows currently render at the smaller, expanded size. Make them match the larger collapsed-state pill size already used on the Next-* tabs.
 
-## Changes (single file: `src/components/exec-demo/ExecDemoIntelPanel.tsx`)
+## Change
 
-1. **Card max-height** (line 445)
-   - `45vh` → `65vh`
+In `src/components/exec-demo/ExecDemoIntelPanel.tsx`, drop the `isCollapsed` size branching on all four pill renderers — always use the larger size:
 
-2. **Pill sizing — collapsed state grows to match expanded** (3 pill renderers + `PillarRollupChip`)
-   - Lifestyle rollup pill (`PillarRollupChip`, line 1161)
-   - Life-event pill (line 629)
-   - Risk pill (line 764)
-   - Empty-state risk pill (line 800)
+- Lifestyle rollup pill (`PillarRollupChip`, line 1161)
+- Life-event pill (line 629)
+- Risk pill (line 764)
+- Empty-state risk pill (line 800)
 
-   For each, when `isCollapsed`:
-   - `text-[11px]` → `text-[12.5px]`
-   - `py-1` → `py-2`
-   - `px-3` → `px-3.5`
-   - `gap-1.5` → `gap-2`
-   - Inner count span: `text-[11px]` → `text-[11.5px]`
+Each goes from:
+`${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"}`
+to:
+`"gap-2 text-[12.5px] px-3.5 py-2"`
 
-   When not collapsed: leave as-is (already `py-1.5`).
+Inner count `<span>` text size also goes from conditional → always `text-[11.5px]`.
 
-3. **Row gap between pills** — wherever the 3 rows render (search container `flex flex-wrap gap-*`), bump row/column gap one notch (e.g. `gap-2` → `gap-2.5`) so the taller pills don't crowd each other. (I'll confirm the exact wrapper line during implementation.)
-
-No wording, ordering, color, click-handler, or other-tab changes.
-
-## Risk
-Minor — purely visual sizing tweaks scoped to the collapsed-pills state on the Next-Offer / analytics tabs.
+No color, ordering, click-handler, or other-tab changes.
