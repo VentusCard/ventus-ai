@@ -121,13 +121,15 @@ function FilePacketCard({ fileName, actionCount, sensitive, onOpen }: FilePacket
   );
 }
 
-export default function WMCopilotPhoneView({ customerName, selectedSignal, secondarySignalLabel, onClose }: Props) {
+export default function WMCopilotPhoneView({ customerName, selectedSignal, secondarySignalLabel, personaTitle, personaSummary, onClose }: Props) {
   const displayName = customerName || "Client";
 
   const fallbackSignal: SelectedSignal = selectedSignal ?? { kind: "lifeEvent", label: "College Preparation for Dependent" };
   const brief = resolveBrief(fallbackSignal);
 
   const [plannerSignal, setPlannerSignal] = useState<SelectedSignal | null>(null);
+  const [pointers, setPointers] = useState<string[] | null>(null);
+  const [pointersLoading, setPointersLoading] = useState(false);
 
   // Build summary line
   const summaryParts = [fallbackSignal.label];
