@@ -346,7 +346,7 @@ export default function ExecDemoSelectionDialog({
                           </span>
                           <span className="text-sm font-semibold text-slate-700">{rows.length} txns</span>
                           <span className="text-xs text-slate-400">·</span>
-                          <span className="text-sm font-mono tabular-nums text-slate-600">{fmtTotal}</span>
+                          <span className="text-xs font-mono tabular-nums text-slate-500">{fmtTotal}</span>
                         </div>
                         <ChevronDown
                           className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
