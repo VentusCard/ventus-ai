@@ -626,7 +626,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-3 ${isCollapsed ? "py-1" : "py-1.5"} rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
+                          className={`inline-flex items-center ${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"} font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -639,7 +639,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
-                          <span className="text-[11px] opacity-60 tabular-nums font-normal">
+                          <span className={`${isCollapsed ? "text-[11.5px]" : "text-[11px]"} opacity-60 tabular-nums font-normal`}>
                             {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
                           </span>
                         </span>
