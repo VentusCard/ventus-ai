@@ -163,9 +163,9 @@ export default function ExecDemoSelectionDialog({
           <div className="flex items-center gap-2">
             <img src={ventusLogo} alt="Ventus AI" className="h-9 w-auto" />
             <span className="text-sm text-slate-400">·</span>
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Select a Customer Profile</h2>
+            <h2 className="text-base font-semibold text-slate-800 tracking-tight">Select a Customer Profile</h2>
           </div>
-          <p className="text-sm text-slate-400 mt-0.5">
+          <p className="text-xs text-slate-500 mt-0.5">
             Ingests a holistic picture of every customer: KYC, and every transaction across rails
           </p>
         </div>
