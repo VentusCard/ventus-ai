@@ -626,7 +626,7 @@ export default function ExecDemoIntelPanel({
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
-                          className={`inline-flex items-center ${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"} font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
+                          className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
@@ -639,7 +639,7 @@ export default function ExecDemoIntelPanel({
                         >
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
-                          <span className={`${isCollapsed ? "text-[11.5px]" : "text-[11px]"} opacity-60 tabular-nums font-normal`}>
+                          <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
                             {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
                           </span>
                         </span>
@@ -761,7 +761,7 @@ export default function ExecDemoIntelPanel({
                               ? "Not applicable for offer targeting"
                               : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`
                           }
-                          className={`inline-flex items-center ${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"} font-semibold rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
+                          className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
                             background: riskPillsMuted
                               ? "#e2e8f0"
@@ -789,7 +789,7 @@ export default function ExecDemoIntelPanel({
                             {riskPillsMuted ? "✕" : "⚠"}
                           </span>
                           {flagLabel}
-                          <span className={`${isCollapsed ? "text-[11.5px]" : "text-[11px]"} opacity-60 tabular-nums font-normal`}>
+                          <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
                             {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
                           </span>
                         </span>
@@ -797,7 +797,7 @@ export default function ExecDemoIntelPanel({
                     })
                   ) : (
                     <span
-                      className={`inline-flex items-center ${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"} font-semibold rounded-full`}
+                      className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full`}
                       style={{
                         background: "linear-gradient(135deg, rgba(16,185,129,.18), rgba(16,185,129,.08))",
                         color: "#065f46",
@@ -1158,7 +1158,7 @@ function PillarRollupChip({
   return (
     <span
       onClick={onClick}
-      className={`inline-flex items-center ${isCollapsed ? "gap-2 text-[12.5px] px-3.5 py-2" : "gap-1.5 text-[11px] px-3 py-1.5"} font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
+      className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
       style={{
         background: isActive
           ? `linear-gradient(135deg, ${c.bg.replace(".12", ".30")}, ${c.bg.replace(".12", ".18")})`
@@ -1171,7 +1171,7 @@ function PillarRollupChip({
     >
       <span style={{ color: c.dot }}>✦</span>
       {rollup.label}
-      <span className={`${isCollapsed ? "text-[11.5px]" : "text-[11px]"} opacity-60 tabular-nums font-normal`}>
+      <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
         {rollup.totalCount ?? 0} txns · {formatSpend(rollup.totalSpend ?? 0)}
       </span>
     </span>
