@@ -76,6 +76,10 @@ interface Props {
   selectedSignal: SelectedSignal | null;
   /** Optional secondary signal label to merge into the customer header summary. */
   secondarySignalLabel?: string | null;
+  /** Persona title used to personalize AI outreach pointers. */
+  personaTitle?: string;
+  /** Optional longer persona description for additional AI context. */
+  personaSummary?: string;
   onClose: () => void;
 }
 
