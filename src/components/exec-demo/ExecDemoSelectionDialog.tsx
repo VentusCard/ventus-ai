@@ -180,7 +180,7 @@ export default function ExecDemoSelectionDialog({
                   onSelectCustomer(i);
                   setShowCustomFlow(false);
                 }}
-                className={`px-3 py-2 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap ${
+                className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
                   selectedIdx === i && !showCustomFlow
                     ? "bg-blue-600 text-white shadow-sm"
                     : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50"
