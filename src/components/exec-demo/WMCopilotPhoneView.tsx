@@ -61,11 +61,11 @@ export default function WMCopilotPhoneView({ customerName, selectedSignal, secon
         <section>
           <div className="flex items-center gap-1.5 mb-1">
             <ListChecks className="w-3 h-3 text-slate-500" />
-            <h4 className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Next Steps</h4>
+            <h4 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Next Steps</h4>
           </div>
           <ul className="space-y-1">
             {brief.nextSteps.map((s, i) => (
-              <li key={i} className="flex gap-1.5 text-[12px] leading-snug text-slate-700">
+              <li key={i} className="flex gap-1.5 text-[13px] leading-snug text-slate-700">
                 <span className={`shrink-0 mt-1.5 w-1 h-1 rounded-full ${brief.sensitive ? "bg-rose-400" : "bg-purple-400"}`} />
                 <span>{s}</span>
               </li>
