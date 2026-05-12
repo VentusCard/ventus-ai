@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function WMCopilotPhoneView({ customerName, selectedSignal, secondarySignalLabel, onClose }: Props) {
-  // Use the actual customer name (already in "User #..." format) so the advisor view matches the selected user
+  // Use the actual customer name so the advisor view matches the selected user
   const displayName = customerName || "Client";
 
   const fallbackSignal: SelectedSignal = selectedSignal ?? { kind: "lifeEvent", label: "College Preparation for Dependent" };
