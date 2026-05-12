@@ -8,15 +8,15 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 
 const SOURCE_COLORS: Record<string, string> = {
-  "Checking": "bg-slate-100 text-slate-600",
+  Checking: "bg-slate-100 text-slate-600",
   "Cashback Card": "bg-emerald-50 text-emerald-700",
   "Travel Card": "bg-blue-50 text-blue-700",
   "Premium Card": "bg-rose-50 text-rose-700",
-  "Checks": "bg-orange-50 text-orange-700",
-  "ACH": "bg-slate-100 text-slate-600",
-  "Wire": "bg-red-50 text-red-700",
-  "Zelle": "bg-purple-50 text-purple-700",
-  "HSA": "bg-amber-50 text-amber-700",
+  Checks: "bg-orange-50 text-orange-700",
+  ACH: "bg-slate-100 text-slate-600",
+  Wire: "bg-red-50 text-red-700",
+  Zelle: "bg-purple-50 text-purple-700",
+  HSA: "bg-amber-50 text-amber-700",
 };
 
 interface RawRow {
@@ -36,21 +36,24 @@ function parseCsvRows(csv: string): RawRow[] {
   const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
   const idx = (col: string) => header.indexOf(col);
 
-  return lines.slice(1).filter((l) => l.trim()).map((line) => {
-    const cols = line.split(",").map((c) => c.trim());
-    const get = (col: string) => cols[idx(col)] || "";
-    const mcc = get("mcc");
-    return {
-      transaction_id: get("transaction_id"),
-      merchant_name: get("merchant_name"),
-      mcc_description: MCC_DESCRIPTIONS[mcc] || get("description") || "—",
-      mcc,
-      amount: get("amount"),
-      date: get("date"),
-      zip_code: get("zip_code") || get("home_zip"),
-      source: get("source"),
-    };
-  });
+  return lines
+    .slice(1)
+    .filter((l) => l.trim())
+    .map((line) => {
+      const cols = line.split(",").map((c) => c.trim());
+      const get = (col: string) => cols[idx(col)] || "";
+      const mcc = get("mcc");
+      return {
+        transaction_id: get("transaction_id"),
+        merchant_name: get("merchant_name"),
+        mcc_description: MCC_DESCRIPTIONS[mcc] || get("description") || "—",
+        mcc,
+        amount: get("amount"),
+        date: get("date"),
+        zip_code: get("zip_code") || get("home_zip"),
+        source: get("source"),
+      };
+    });
 }
 
 interface Props {
@@ -62,7 +65,8 @@ interface Props {
   onLoadCustomCsv?: (csv: string, name: string) => void;
 }
 
-const DEFAULT_PERSONA = "A 35-year-old tech professional in San Francisco who loves hiking, craft coffee, and is saving for a first home.";
+const DEFAULT_PERSONA =
+  "A 35-year-old tech professional in San Francisco who loves hiking, craft coffee, and is saving for a first home.";
 
 export default function ExecDemoSelectionDialog({
   open,
@@ -112,7 +116,9 @@ export default function ExecDemoSelectionDialog({
       setOpenSources({});
     } else {
       const next: Record<string, boolean> = {};
-      sourceGroups.forEach((g) => { next[g.source] = true; });
+      sourceGroups.forEach((g) => {
+        next[g.source] = true;
+      });
       setOpenSources(next);
     }
   };
@@ -157,12 +163,10 @@ export default function ExecDemoSelectionDialog({
           <div className="flex items-center gap-2">
             <img src={ventusLogo} alt="Ventus AI" className="h-9 w-auto" />
             <span className="text-sm text-slate-400">·</span>
-            <h2 className="text-lg font-bold text-slate-800 tracking-tight">
-              Select a Customer Profile
-            </h2>
+            <h2 className="text-lg font-bold text-slate-800 tracking-tight">Select a Customer Profile</h2>
           </div>
           <p className="text-sm text-slate-400 mt-0.5">
-            Choose a sample customer to explore semantic enrichment
+            Ingests a holistic picture of every customer: KYC, and every transaction across rails
           </p>
         </div>
 
@@ -172,7 +176,10 @@ export default function ExecDemoSelectionDialog({
             {DEMO_CUSTOMERS.map((c, i) => (
               <button
                 key={c.id}
-                onClick={() => { onSelectCustomer(i); setShowCustomFlow(false); }}
+                onClick={() => {
+                  onSelectCustomer(i);
+                  setShowCustomFlow(false);
+                }}
                 className={`px-3 py-2 rounded-full text-xs font-semibold transition-all duration-150 whitespace-nowrap ${
                   selectedIdx === i && !showCustomFlow
                     ? "bg-blue-600 text-white shadow-sm"
@@ -236,7 +243,9 @@ export default function ExecDemoSelectionDialog({
                   ].map(([label, value]) => (
                     <div key={label} className="min-w-0">
                       <div className="text-[10px] uppercase tracking-wider text-slate-500">{label}</div>
-                      <div className="text-sm text-slate-800 truncate" title={String(value)}>{value || "—"}</div>
+                      <div className="text-sm text-slate-800 truncate" title={String(value)}>
+                        {value || "—"}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -258,7 +267,9 @@ export default function ExecDemoSelectionDialog({
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">1. Describe a persona</div>
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    1. Describe a persona
+                  </div>
                   <textarea
                     value={personaInput}
                     onChange={(e) => setPersonaInput(e.target.value)}
@@ -276,7 +287,9 @@ export default function ExecDemoSelectionDialog({
                 </div>
 
                 <div className="space-y-2">
-                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">2. Paste LLM output</div>
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    2. Paste LLM output
+                  </div>
                   <textarea
                     value={pasteValue}
                     onChange={(e) => setPasteValue(e.target.value)}
@@ -308,10 +321,7 @@ export default function ExecDemoSelectionDialog({
                 <div className="text-xs text-slate-500">
                   {rawRows.length} transactions · {sourceGroups.length} sources
                 </div>
-                <button
-                  onClick={toggleAll}
-                  className="text-xs font-semibold text-blue-600 hover:text-blue-700"
-                >
+                <button onClick={toggleAll} className="text-xs font-semibold text-blue-600 hover:text-blue-700">
                   {allOpen ? "Collapse all" : "Expand all"}
                 </button>
               </div>
@@ -333,47 +343,88 @@ export default function ExecDemoSelectionDialog({
                         className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}>
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-xs font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}
+                          >
                             {source}
                           </span>
                           <span className="text-sm font-semibold text-slate-700">{rows.length} txns</span>
                           <span className="text-xs text-slate-400">·</span>
                           <span className="text-sm font-mono tabular-nums text-slate-600">{fmtTotal}</span>
                         </div>
-                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        />
                       </button>
                       {isOpen && (
                         <div className="border-t border-slate-100">
                           <table className="w-full text-left border-collapse">
                             <thead>
                               <tr className="bg-slate-50/60 border-b border-slate-200">
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">ID</th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Date</th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Merchant</th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">MCC</th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Description</th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">Amount</th>
-                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Zip</th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  ID
+                                </th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Date
+                                </th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Merchant
+                                </th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  MCC
+                                </th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Description
+                                </th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">
+                                  Amount
+                                </th>
+                                <th className="text-slate-600 text-xs font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Zip
+                                </th>
                               </tr>
                             </thead>
                             <tbody>
                               {rows.map((row, i) => {
                                 const amt = parseFloat(row.amount);
-                                const fmtAmt = isNaN(amt) ? row.amount : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                const fmtAmt = isNaN(amt)
+                                  ? row.amount
+                                  : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                                 return (
-                                  <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
-                                    <td className="px-3 py-1 text-slate-400 font-mono text-xs">{row.transaction_id || i + 1}</td>
-                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
-                                    <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate" title={row.merchant_name}>{row.merchant_name}</td>
+                                  <tr
+                                    key={i}
+                                    className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors"
+                                  >
+                                    <td className="px-3 py-1 text-slate-400 font-mono text-xs">
+                                      {row.transaction_id || i + 1}
+                                    </td>
+                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">
+                                      {row.date}
+                                    </td>
+                                    <td
+                                      className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate"
+                                      title={row.merchant_name}
+                                    >
+                                      {row.merchant_name}
+                                    </td>
                                     <td className="px-3 py-1">
                                       {row.mcc ? (
-                                        <span className="inline-block bg-slate-100 text-slate-600 text-xs font-mono px-1.5 py-0.5 rounded">{row.mcc}</span>
+                                        <span className="inline-block bg-slate-100 text-slate-600 text-xs font-mono px-1.5 py-0.5 rounded">
+                                          {row.mcc}
+                                        </span>
                                       ) : (
                                         <span className="text-xs text-slate-300">—</span>
                                       )}
                                     </td>
-                                    <td className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate" title={row.mcc_description}>{row.mcc_description}</td>
-                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">{fmtAmt}</td>
+                                    <td
+                                      className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate"
+                                      title={row.mcc_description}
+                                    >
+                                      {row.mcc_description}
+                                    </td>
+                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                      {fmtAmt}
+                                    </td>
                                     <td className="px-3 py-1 text-slate-500 text-xs">{row.zip_code || "—"}</td>
                                   </tr>
                                 );
@@ -388,9 +439,7 @@ export default function ExecDemoSelectionDialog({
               </div>
 
               {rawRows.length === 0 && (
-                <div className="text-center text-sm text-slate-300 py-16">
-                  No transactions available
-                </div>
+                <div className="text-center text-sm text-slate-300 py-16">No transactions available</div>
               )}
             </ScrollArea>
           </div>
