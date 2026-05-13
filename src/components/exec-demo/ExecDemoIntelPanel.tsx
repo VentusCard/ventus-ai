@@ -482,7 +482,7 @@ export default function ExecDemoIntelPanel({
                               }
                             : {
                                 title: "2. Behavioral Intelligence",
-                                sub: "Lifestyel indicators = Multi-category spending patterns",
+                                sub: "Lifestyle indicators = Multi-category, multi-rail spending patterns",
                               };
                     return (
                       <p className="font-bold text-slate-800 mb-1 text-xl">
