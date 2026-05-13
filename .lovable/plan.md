@@ -1,27 +1,19 @@
-Add AI-generated personalized outreach pointers to the **Ventus AI Insight** section of the WM CoPilot view.
+# Anonymize KYC fields in /demo
 
-### Backend
-Create `supabase/functions/generate-outreach-pointers/index.ts`:
-- POST with body `{ customerName, personaTitle, personaSummary, lifeEvents: string[] }`.
-- CORS headers, OPTIONS handler.
-- Calls the Lovable AI Gateway (`https://ai.gateway.lovable.dev/v1/chat/completions`) with `LOVABLE_API_KEY`, model `google/gemini-2.5-flash`.
-- System prompt: senior wealth advisor, return JSON `{ pointers: string[] }` with **3 short, vaguely-specific outreach pointers** tailored to the customer's persona + the detected life event(s). Each pointer ≤ 18 words, opportunity-framed (no risk/stress language per project rules), no specific dollar amounts.
-- Returns parsed `{ pointers: string[] }`.
+In `src/components/exec-demo/ExecDemoSelectionDialog.tsx`, keep all existing KYC fields but replace PII values with `"-"`.
 
-### Wiring (props plumbing)
-- `WMCopilotPhoneView` gains optional props `personaTitle?: string`, `personaSummary?: string`.
-- `ExecDemoPhoneView` adds matching pass-through props.
-- `ExecDemoPage.tsx` passes `execProfile.persona.title` (and the resolved `personaDescription` already computed in the intel panel — replicate the simple lookup here, or pass `execProfile.persona.title` only and a short fallback). For minimal scope, pass `personaTitle = execProfile.persona.title`; `personaSummary` is optional.
+## Changes
 
-### WMCopilotPhoneView changes
-- New state: `pointers: string[] | null`, `pointersLoading: boolean`.
-- `useEffect` keyed on `[fallbackSignal.label, secondarySignalLabel, displayName]`: call the edge function via `supabase.functions.invoke('generate-outreach-pointers', { body: {...} })`. Aborts on unmount via a `cancelled` flag.
-- Render order in the **Ventus AI Insight** section:
-  1. Existing static `brief.insight` paragraph (unchanged).
-  2. New sub-block titled "Personalized Outreach Pointers" — bullet list of `pointers` with the same purple/rose dot styling. While loading, show 3 shimmer rows. On error, hide the sub-block silently.
-- No changes to Next Steps or Tasks Automated sections.
+**File:** `src/components/exec-demo/ExecDemoSelectionDialog.tsx` (KYC grid, lines ~298–328)
 
-### Scope
-- New file: `supabase/functions/generate-outreach-pointers/index.ts`.
-- Edited: `WMCopilotPhoneView.tsx`, `ExecDemoPhoneView.tsx`, `ExecDemoPage.tsx`.
-- No DB changes. No new dependencies.
+1. **Collapsed header** — replace `customer.profile.compliance.kycStatus` next to the KYC pill so it does not show the customer name (already shows kycStatus, leave as-is).
+
+2. **Expanded grid** — keep all 16 rows in the same order, replace these values with the literal string `"-"`:
+   - Name
+   - Email
+   - Phone
+   - Address → replace full street/city with `"-"`, but display the trailing **zip code** extracted from the address (regex `/\b\d{5}\b/`) appended as `"- (zip 94110)"`. If no zip is present, just `"-"`.
+
+3. **Keep unchanged** (non-PII): Segment, AUM, Tenure, Age, Occupation, Industry, Family Status, Income Level, KYC Status, Last Review, Next Review, Risk Profile.
+
+No other files or logic touched. Underlying `customer.profile` data is unchanged so downstream edge functions still receive whatever they receive today.
