@@ -295,37 +295,43 @@ export default function ExecDemoSelectionDialog({
                       <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
                         KYC
                       </span>
-                      <span className="text-base font-semibold text-slate-700">{customer.profile.compliance.kycStatus}</span>
+                      <span className="text-base font-semibold text-slate-700">Anonymized</span>
+                      <span className="text-sm text-slate-400">·</span>
+                      <span className="text-sm text-slate-500">No PII</span>
                     </div>
                     <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${kycOpen ? "rotate-180" : ""}`} />
                   </button>
                   {kycOpen && (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 px-4 py-3 border-t border-slate-100">
-                      {[
-                        ["Name", customer.profile.name],
-                        ["Segment", customer.profile.segment],
-                        ["AUM", customer.profile.aum],
-                        ["Tenure", customer.profile.tenure],
-                        ["Age", customer.profile.demographics.age],
-                        ["Occupation", customer.profile.demographics.occupation],
-                        ["Industry", customer.profile.demographics.industry],
-                        ["Family Status", customer.profile.demographics.familyStatus],
-                        ["Income Level", customer.profile.demographics.incomeLevel],
-                        ["Email", customer.profile.contact.email],
-                        ["Phone", customer.profile.contact.phone],
-                        ["Address", customer.profile.contact.address],
-                        ["KYC Status", customer.profile.compliance.kycStatus],
-                        ["Last Review", customer.profile.compliance.lastReview],
-                        ["Next Review", customer.profile.compliance.nextReview],
-                        ["Risk Profile", customer.profile.compliance.riskProfile],
-                      ].map(([label, value]) => (
-                        <div key={label} className="min-w-0">
-                          <div className="text-xs uppercase tracking-wider text-slate-500">{label}</div>
-                          <div className="text-[15px] text-slate-800 truncate" title={String(value)}>
-                            {value || "—"}
+                      {(() => {
+                        const zipMatch = (customer.profile.contact.address || "").match(/\b\d{5}\b/);
+                        const addressVal = zipMatch ? `- (zip ${zipMatch[0]})` : "-";
+                        return [
+                          ["Name", "-"],
+                          ["Segment", customer.profile.segment],
+                          ["AUM", customer.profile.aum],
+                          ["Tenure", customer.profile.tenure],
+                          ["Age", customer.profile.demographics.age],
+                          ["Occupation", customer.profile.demographics.occupation],
+                          ["Industry", customer.profile.demographics.industry],
+                          ["Family Status", customer.profile.demographics.familyStatus],
+                          ["Income Level", customer.profile.demographics.incomeLevel],
+                          ["Email", "-"],
+                          ["Phone", "-"],
+                          ["Address", addressVal],
+                          ["KYC Status", customer.profile.compliance.kycStatus],
+                          ["Last Review", customer.profile.compliance.lastReview],
+                          ["Next Review", customer.profile.compliance.nextReview],
+                          ["Risk Profile", customer.profile.compliance.riskProfile],
+                        ].map(([label, value]) => (
+                          <div key={label} className="min-w-0">
+                            <div className="text-xs uppercase tracking-wider text-slate-500">{label}</div>
+                            <div className="text-[15px] text-slate-800 truncate" title={String(value)}>
+                              {value || "—"}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ));
+                      })()}
                     </div>
                   )}
                 </div>
