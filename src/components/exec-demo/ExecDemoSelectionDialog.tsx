@@ -318,17 +318,18 @@ export default function ExecDemoSelectionDialog({
                           ["Phone", "-"],
                           ["Address", addressVal],
                           ["KYC Status", customer.profile.compliance.kycStatus],
-                        ["Last Review", customer.profile.compliance.lastReview],
-                        ["Next Review", customer.profile.compliance.nextReview],
-                        ["Risk Profile", customer.profile.compliance.riskProfile],
-                      ].map(([label, value]) => (
-                        <div key={label} className="min-w-0">
-                          <div className="text-xs uppercase tracking-wider text-slate-500">{label}</div>
-                          <div className="text-[15px] text-slate-800 truncate" title={String(value)}>
-                            {value || "—"}
+                          ["Last Review", customer.profile.compliance.lastReview],
+                          ["Next Review", customer.profile.compliance.nextReview],
+                          ["Risk Profile", customer.profile.compliance.riskProfile],
+                        ].map(([label, value]) => (
+                          <div key={label} className="min-w-0">
+                            <div className="text-xs uppercase tracking-wider text-slate-500">{label}</div>
+                            <div className="text-[15px] text-slate-800 truncate" title={String(value)}>
+                              {value || "—"}
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        ));
+                      })()}
                     </div>
                   )}
                 </div>
