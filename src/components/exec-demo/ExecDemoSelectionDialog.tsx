@@ -295,7 +295,9 @@ export default function ExecDemoSelectionDialog({
                       <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
                         KYC
                       </span>
-                      <span className="text-base font-semibold text-slate-700">Anonymized · No PII</span>
+                      <span className="text-base font-semibold text-slate-700">Anonymized</span>
+                      <span className="text-sm text-slate-400">·</span>
+                      <span className="text-sm text-slate-500">No PII</span>
                     </div>
                     <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${kycOpen ? "rotate-180" : ""}`} />
                   </button>
