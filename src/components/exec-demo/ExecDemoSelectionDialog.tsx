@@ -301,20 +301,23 @@ export default function ExecDemoSelectionDialog({
                   </button>
                   {kycOpen && (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 px-4 py-3 border-t border-slate-100">
-                      {[
-                        ["Name", customer.profile.name],
-                        ["Segment", customer.profile.segment],
-                        ["AUM", customer.profile.aum],
-                        ["Tenure", customer.profile.tenure],
-                        ["Age", customer.profile.demographics.age],
-                        ["Occupation", customer.profile.demographics.occupation],
-                        ["Industry", customer.profile.demographics.industry],
-                        ["Family Status", customer.profile.demographics.familyStatus],
-                        ["Income Level", customer.profile.demographics.incomeLevel],
-                        ["Email", customer.profile.contact.email],
-                        ["Phone", customer.profile.contact.phone],
-                        ["Address", customer.profile.contact.address],
-                        ["KYC Status", customer.profile.compliance.kycStatus],
+                      {(() => {
+                        const zipMatch = (customer.profile.contact.address || "").match(/\b\d{5}\b/);
+                        const addressVal = zipMatch ? `- (zip ${zipMatch[0]})` : "-";
+                        return [
+                          ["Name", "-"],
+                          ["Segment", customer.profile.segment],
+                          ["AUM", customer.profile.aum],
+                          ["Tenure", customer.profile.tenure],
+                          ["Age", customer.profile.demographics.age],
+                          ["Occupation", customer.profile.demographics.occupation],
+                          ["Industry", customer.profile.demographics.industry],
+                          ["Family Status", customer.profile.demographics.familyStatus],
+                          ["Income Level", customer.profile.demographics.incomeLevel],
+                          ["Email", "-"],
+                          ["Phone", "-"],
+                          ["Address", addressVal],
+                          ["KYC Status", customer.profile.compliance.kycStatus],
                         ["Last Review", customer.profile.compliance.lastReview],
                         ["Next Review", customer.profile.compliance.nextReview],
                         ["Risk Profile", customer.profile.compliance.riskProfile],
