@@ -1,14 +1,19 @@
-## Skip password gate when arriving at /bank-analytics from /demo
+## Stop auto-scroll from yanking the analytics page mid-load
 
-The Next Steps dialog opens `/bank-analytics` in a new tab. Because `SimplePasswordGate` reads `sessionStorage` (which is per-tab), the new tab always re-prompts for the password — even though the user already unlocked the demo.
+`VentusAIWelcomeView` runs `messagesEndRef.current?.scrollIntoView(...)` in a `useEffect` that fires on every change to `messages` — including the initial render. Because the ref sits well below the gradient hero, the browser scrolls the whole window to bring it into view, which is why `/bank-analytics` opens halfway down. `VentusAIChatPanel` has the same pattern.
 
 ### Change
 
-1. **`src/components/ContactFormDialog.tsx`** — append a token to the link:
-   - Change `href="/bank-analytics"` to `href="/bank-analytics?from=demo"`.
+In **`src/components/tepilot/insights/VentusAIWelcomeView.tsx`** (line 135) and **`src/components/tepilot/insights/VentusAIChatPanel.tsx`** (line 94):
 
-2. **`src/components/demo/SimplePasswordGate.tsx`** — auto-unlock when that token is present:
-   - On mount, if `new URLSearchParams(window.location.search).get("from") === "demo"`, set `sessionStorage[SESSION_KEY] = "true"` and `setAuthed(true)`.
-   - Then strip the param from the URL via `window.history.replaceState` so it doesn't linger.
+- Skip the scroll on the first render / when `messages.length === 0`.
+- Use `block: "nearest"` so it only scrolls the nearest scroll container (the chat list), not the page.
 
-This keeps the gate intact for direct visits to `/bank-analytics`, but lets the demo flow pass through seamlessly. Safe because anyone clicking the button has already cleared the same gate on `/demo`.
+```ts
+useEffect(() => {
+  if (messages.length === 0) return;
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}, [messages]);
+```
+
+This keeps the chat-follows-new-message behavior intact while letting the page open at the top.
