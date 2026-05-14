@@ -168,8 +168,8 @@ const TePilot = () => {
     suggestedMapping: Record<string, string | null>;
   } | null>(null);
   useEffect(() => {
-    // Restore authentication states
-    const auth = sessionStorage.getItem("tepilot_auth");
+    // Restore authentication states (check both per-tab and persistent)
+    const auth = sessionStorage.getItem("tepilot_auth") || localStorage.getItem("tepilot_auth");
     if (auth === "authenticated") setIsAuthenticated(true);
 
     // Restore parsed transactions
@@ -296,6 +296,7 @@ const TePilot = () => {
     if (password === "ventusgang26") {
       setIsAuthenticated(true);
       sessionStorage.setItem("tepilot_auth", "authenticated");
+      localStorage.setItem("tepilot_auth", "authenticated");
       toast.success("Access granted");
     } else {
       toast.error("Incorrect password");

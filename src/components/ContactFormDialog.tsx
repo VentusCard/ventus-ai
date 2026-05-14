@@ -21,9 +21,9 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             <img src={ventusLogo} alt="Ventus AI" className="w-48 object-contain" />
             <button
               onClick={() => {
-                sessionStorage.setItem("tepilot_auth", "authenticated");
+                localStorage.setItem("tepilot_auth", "authenticated");
+                window.open("/tepilot?view=bankwide", "_blank", "noopener,noreferrer");
                 onOpenChange(false);
-                window.location.href = "/tepilot?view=bankwide";
               }}
               className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors"
             >
