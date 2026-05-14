@@ -296,6 +296,7 @@ const TePilot = () => {
     if (password === "ventusgang26") {
       setIsAuthenticated(true);
       sessionStorage.setItem("tepilot_auth", "authenticated");
+      localStorage.setItem("tepilot_auth", "authenticated");
       toast.success("Access granted");
     } else {
       toast.error("Incorrect password");
