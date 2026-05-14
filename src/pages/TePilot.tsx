@@ -65,6 +65,8 @@ const TePilot = () => {
   const location = useLocation();
   const [searchParams] = useSearchParams();
   const [activeTab, setActiveTab] = useState(() => {
+    // URL view param takes priority (e.g. ?view=bankwide opens insights tab)
+    if (searchParams.get('view') === 'bankwide') return 'insights';
     // Check if navigation state specifies a tab
     const navState = location.state as {
       activeTab?: string;
