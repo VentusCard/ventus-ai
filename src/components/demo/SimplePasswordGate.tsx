@@ -27,6 +27,16 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
 
   useEffect(() => {
     setCfg(getDemoBankConfig());
+    try {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("from") === "demo") {
+        sessionStorage.setItem(SESSION_KEY, "true");
+        setAuthed(true);
+        params.delete("from");
+        const qs = params.toString();
+        window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash);
+      }
+    } catch {}
   }, []);
 
   const activeCfg = getDemoBankConfig();
