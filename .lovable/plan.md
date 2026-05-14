@@ -1,11 +1,14 @@
-# Match KYC header formatting to source cards
+Add a navigation button below the Ventus AI logo in the ContactFormDialog that links to the Bank Analytics Dashboard.
 
-In `src/components/exec-demo/ExecDemoSelectionDialog.tsx` (line ~298), split the single "Anonymized · No PII" span into the same 3-span pattern used by source group headers:
+## Changes
 
-```tsx
-<span className="text-base font-semibold text-slate-700">Anonymized</span>
-<span className="text-sm text-slate-400">·</span>
-<span className="text-sm text-slate-500">No PII</span>
-```
+1. **File: `src/components/ContactFormDialog.tsx`**
+   - Add a button below the Ventus AI logo (in the header section) that navigates to `/analytics`.
+   - Use the existing `Link` component from react-router-dom.
+   - Style it as a subtle, on-brand button matching the light theme (white bg, slate-200 border, blue-600 text on hover).
+   - Button label: "Bank Analytics Dashboard →"
 
-This matches spacing (parent already has `gap-3`), uses the smaller dot (`text-sm text-slate-400`), and renders the second part in grey (`text-slate-500`).
+## Technical Details
+- Import `Link` from `react-router-dom` if not already present.
+- The button should sit between the logo image and the side-by-side comparison section, centered under the logo.
+- No other dialog content or behavior changes.
