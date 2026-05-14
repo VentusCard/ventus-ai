@@ -22,7 +22,6 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
             <a
               href="/bank-analytics"
               target="_blank"
-              rel="noopener noreferrer"
               onClick={() => onOpenChange(false)}
               className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors"
             >
