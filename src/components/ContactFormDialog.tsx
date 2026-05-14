@@ -62,7 +62,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                       Banking Today
                     </p>
                     <p className="text-lg font-normal text-slate-800">
-                      Generic. Static. The same for everyone.
+                      Generic. Static.<br />The same for everyone.
                     </p>
                   </div>
                   <ArrowRight className="w-8 h-8 text-blue-600 shrink-0" strokeWidth={1.5} />
@@ -71,7 +71,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                       With Ventus AI
                     </p>
                     <p className="text-lg font-normal text-slate-800">
-                      Personalized. Intelligent. Individualized for each customer.
+                      Personalized. Intelligent.<br />Individualized for each customer.
                     </p>
                   </div>
                 </div>
