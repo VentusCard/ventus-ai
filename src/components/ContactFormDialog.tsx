@@ -30,12 +30,12 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           {/* Page content */}
           <div className="flex-1 flex flex-col justify-center">
             {page === 1 ? (
-              <div className="text-center max-w-xl mx-auto">
+              <div className="text-center mx-auto">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-3">
                   Next Steps
                 </p>
                 <h2 className="text-3xl font-medium text-slate-900 mb-4">Bank Analytics</h2>
-                <p className="text-lg font-light text-slate-600 mb-10 leading-relaxed">
+                <p className="text-lg font-light text-slate-600 mb-10 leading-relaxed whitespace-nowrap">
                   Manage everything you've seen so far, and unlock new analytical capabilities.
                 </p>
                 <a
