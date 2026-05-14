@@ -34,7 +34,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                 <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-3">
                   Next Steps
                 </p>
-                <h2 className="text-3xl font-medium text-slate-900 mb-4">Bank Analytics</h2>
+                <h2 className="text-3xl font-medium text-slate-900 mb-4">AI-Powered Customer Intelligence</h2>
                 <p className="text-lg font-light text-slate-600 mb-10 leading-relaxed whitespace-nowrap">
                   Manage everything you've seen so far, and unlock new analytical capabilities.
                 </p>
@@ -43,7 +43,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                   target="_blank"
                   className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
                 >
-                  Bank Analytics Dashboard <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+                  AI-Powered Customer Intelligence Dashboard <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
                 </a>
               </div>
             ) : (

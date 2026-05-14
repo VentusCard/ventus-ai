@@ -27,7 +27,7 @@ const MODULE_CONFIG: { mod: ModuleKey; label: string; team: string; description:
   {
     mod: "Analytics",
     label: "Ventus AI Customer Intelligence & Analytics",
-    team: "Bank Analytics Team",
+    team: "Customer Intelligence Team",
     description: "Core transaction classification, spending analytics, and customer profiling",
     borderColor: "border-l-blue-500",
     checkColor: "text-blue-600",
