@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
-import { SimplePasswordGate } from "@/components/demo/SimplePasswordGate";
+import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 
 export default function BankAnalyticsDashboard() {
   const navigate = useNavigate();
