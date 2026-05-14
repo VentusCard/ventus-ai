@@ -1,14 +1,6 @@
-Add a navigation button below the Ventus AI logo in the ContactFormDialog that links to the Bank Analytics Dashboard.
+Update the "Bank Analytics Dashboard" button in `ContactFormDialog.tsx` to link to the actual bank-wide analytics dashboard at `/tepilot?view=bankwide` instead of the `/analytics` marketing page.
 
-## Changes
+## Change
 
-1. **File: `src/components/ContactFormDialog.tsx`**
-   - Add a button below the Ventus AI logo (in the header section) that navigates to `/analytics`.
-   - Use the existing `Link` component from react-router-dom.
-   - Style it as a subtle, on-brand button matching the light theme (white bg, slate-200 border, blue-600 text on hover).
-   - Button label: "Bank Analytics Dashboard →"
-
-## Technical Details
-- Import `Link` from `react-router-dom` if not already present.
-- The button should sit between the logo image and the side-by-side comparison section, centered under the logo.
-- No other dialog content or behavior changes.
+- File: `src/components/ContactFormDialog.tsx`
+- Update the `<Link to="/analytics">` to `<Link to="/tepilot?view=bankwide">`. No styling or label changes.
