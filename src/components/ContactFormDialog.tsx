@@ -43,7 +43,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                   target="_blank"
                   className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
                 >
-                  AI-Powered Customer Intelligence Dashboard <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
+                  Bank Analytics Portal and Dashboard <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
                 </a>
               </div>
             ) : (
