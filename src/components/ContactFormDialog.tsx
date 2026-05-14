@@ -39,7 +39,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                   Manage everything you've seen so far, and unlock new analytical capabilities.
                 </p>
                 <a
-                  href="/bank-analytics"
+                  href="/bank-analytics?from=demo"
                   target="_blank"
                   className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
                 >
