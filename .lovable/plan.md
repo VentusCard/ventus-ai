@@ -1,11 +1,8 @@
-The TePilot page checks `sessionStorage.getItem("tepilot_auth") === "authenticated"` to bypass its password screen. Since the dialog button is an authorized internal entry point, we can pre-authenticate the session before navigating.
+When the dialog navigates to `/tepilot?view=bankwide`, the page sets `insightType='bankwide'` but `activeTab` still restores the last-used tab (or defaults to `upload`). The bankwide dashboard only renders inside the `insights` tab, so the user lands on the upload screen.
 
 ## Change
 
-- File: `src/components/ContactFormDialog.tsx`
-- Replace the `<Link>` with a `<button>` (or keep `Link` with an `onClick`) that:
-  1. Calls `sessionStorage.setItem("tepilot_auth", "authenticated")`
-  2. Closes the dialog
-  3. Navigates to `/tepilot?view=bankwide` (using `useNavigate` from react-router-dom)
+- File: `src/pages/TePilot.tsx` (activeTab initializer, lines 67–78)
+- At the top of the initializer, check `searchParams.get('view') === 'bankwide'` and return `"insights"` immediately — taking priority over `navState.activeTab` and the sessionStorage value.
 
-No styling/label changes. No edits to TePilot itself.
+No other changes.
