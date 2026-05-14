@@ -77,7 +77,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                 </div>
 
                 <div className="text-center">
-                  <p className="text-lg font-light text-primary-foreground">www.ventusai.com</p>
+                  <p className="text-primary-foreground font-medium text-xl">www.ventusai.com</p>
                 </div>
               </div>
             )}
