@@ -1,15 +1,23 @@
-## Gate `/bank-analytics` with the demo password
+## Split the Next Steps dialog into two pages
 
-Currently `/bank-analytics` is publicly accessible — anyone with the URL bypasses the password screen. This plan extends the existing `SimplePasswordGate` (password `ventus2026`, sessionStorage key `demo_password_access`) to cover it.
+Convert `src/components/ContactFormDialog.tsx` from a single scrolling layout into a 2-page paginated dialog with a small footer pager (Page 1 / Page 2 dots + Next/Back).
 
-### Changes
+### Page 1 — Bank Analytics
+- Ventus logo (existing header treatment)
+- Headline: "Bank Analytics"
+- Subcopy: "Manage everything you've seen so far, and unlock new analytical capabilities."
+- Primary CTA pill: "Bank Analytics Dashboard →" (same `/bank-analytics` new-tab link as today)
+- "Next →" control bottom-right advances to page 2
 
-1. **`src/pages/BankAnalyticsDashboard.tsx`** — Wrap `<AnalyticsContainer />` in `<SimplePasswordGate>`. Reuses the same component, password, and sessionStorage key as `/demo`.
+### Page 2 — Vision
+- Ventus logo header (kept consistent)
+- Existing "Banking Today → With Ventus AI" comparison block
+- Existing tagline: "The future of banking is smarter and warmer"
+- Existing link: `www.ventusai.com`
+- "← Back" control bottom-left returns to page 1
 
-2. **`src/components/ContactFormDialog.tsx`** — Remove `rel="noopener noreferrer"` from the new-tab link to `/bank-analytics`. Browsers only copy `sessionStorage` to a `target="_blank"` tab when the opener relationship is preserved; with `noopener` set, the new tab gets fresh storage and re-prompts for the password. Same-origin, and the dashboard's back button already relies on `window.opener`.
-
-### Result
-
-- Direct URL visit to `/bank-analytics` → password prompt (identical to `/demo`).
-- Click "Bank Analytics Dashboard →" from an authenticated `/demo` → opens in a new tab, already unlocked via inherited sessionStorage.
-- Back arrow → closes the new tab, original `/demo` state intact.
+### Implementation notes
+- Local `useState<1 | 2>(1)` inside the dialog; reset to `1` whenever `open` flips to true (via `useEffect`).
+- Pager dots centered at the bottom, Back/Next on the sides, all using existing slate/blue tokens — no new colors.
+- Keep dialog width (`sm:max-w-3xl`), background, font, and close-button styling untouched.
+- No changes outside this file.
