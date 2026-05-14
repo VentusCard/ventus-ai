@@ -44,7 +44,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           {/* Bottom */}
           <div className="text-center">
             <p className="text-2xl font-medium text-blue-600 mb-3">
-              Let's make banking smarter together.
+              The future of banking is smarter and warmer
             </p>
             <p className="text-lg font-light text-primary-foreground">www.ventusai.com</p>
           </div>
