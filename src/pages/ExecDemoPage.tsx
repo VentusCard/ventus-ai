@@ -1250,7 +1250,7 @@ export default function ExecDemoPage() {
 
   return (
     <SimplePasswordGate
-      tagline="AI Native Customer Intelligence Infrastructure for Banks"
+      tagline="Behavioral Intelligence Infrastructure For Banking Personalization"
       bullets={["Multi-Rail Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}
     >
       <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
