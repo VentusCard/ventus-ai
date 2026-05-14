@@ -48,8 +48,15 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
               </div>
             ) : (
               <div>
+                {/* Tagline on top */}
+                <div className="text-center mb-10">
+                  <p className="text-2xl font-bold text-blue-600">
+                    The future of banking is smarter <em className="italic">and</em> warmer
+                  </p>
+                </div>
+
                 {/* Side-by-side comparison */}
-                <div className="w-full flex items-center justify-between gap-6 mb-14">
+                <div className="w-full flex items-center justify-between gap-6 mb-10">
                   <div className="flex-1 text-center">
                     <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-3">
                       Banking Today
@@ -69,11 +76,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                   </div>
                 </div>
 
-                {/* Tagline */}
                 <div className="text-center">
-                  <p className="text-2xl font-medium text-blue-600 mb-3">
-                    The future of banking is smarter <em className="italic">and</em> warmer
-                  </p>
                   <p className="text-lg font-light text-primary-foreground">www.ventusai.com</p>
                 </div>
               </div>
