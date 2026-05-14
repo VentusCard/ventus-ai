@@ -321,7 +321,7 @@ export default function DemoNetworkDiagram({ customer, activeNode, onNodeClick, 
         </div>
       </div>
 
-      {/* Bank Analytics Column + Consumer Views Column */}
+      {/* AI-Powered Customer Intelligence Column + Consumer Views Column */}
       {visibleRows.map((pillar, pi) => {
         const rowCenterY = getRowCenterY(pi);
         const PillarIcon = pillar.icon;

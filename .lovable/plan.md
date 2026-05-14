@@ -1,11 +1,19 @@
-# Match KYC header formatting to source cards
+## Stop auto-scroll from yanking the analytics page mid-load
 
-In `src/components/exec-demo/ExecDemoSelectionDialog.tsx` (line ~298), split the single "Anonymized · No PII" span into the same 3-span pattern used by source group headers:
+`VentusAIWelcomeView` runs `messagesEndRef.current?.scrollIntoView(...)` in a `useEffect` that fires on every change to `messages` — including the initial render. Because the ref sits well below the gradient hero, the browser scrolls the whole window to bring it into view, which is why `/bank-analytics` opens halfway down. `VentusAIChatPanel` has the same pattern.
 
-```tsx
-<span className="text-base font-semibold text-slate-700">Anonymized</span>
-<span className="text-sm text-slate-400">·</span>
-<span className="text-sm text-slate-500">No PII</span>
+### Change
+
+In **`src/components/tepilot/insights/VentusAIWelcomeView.tsx`** (line 135) and **`src/components/tepilot/insights/VentusAIChatPanel.tsx`** (line 94):
+
+- Skip the scroll on the first render / when `messages.length === 0`.
+- Use `block: "nearest"` so it only scrolls the nearest scroll container (the chat list), not the page.
+
+```ts
+useEffect(() => {
+  if (messages.length === 0) return;
+  messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}, [messages]);
 ```
 
-This matches spacing (parent already has `gap-3`), uses the smaller dot (`text-sm text-slate-400`), and renders the second part in grey (`text-slate-500`).
+This keeps the chat-follows-new-message behavior intact while letting the page open at the top.

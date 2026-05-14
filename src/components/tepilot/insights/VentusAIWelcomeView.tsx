@@ -133,7 +133,8 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
   });
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length === 0) return;
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages]);
 
   const handleSend = () => {

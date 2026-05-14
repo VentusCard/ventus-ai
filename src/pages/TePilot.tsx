@@ -101,9 +101,6 @@ const TePilot = () => {
   const [subcategoryBudgets, setSubcategoryBudgets] = useState<Record<string, number>>({});
   const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
-    // Check URL search params first, then navigation state
-    const viewParam = searchParams.get('view');
-    if (viewParam === 'bankwide') return 'bankwide';
     const navState = location.state as { insightType?: 'revenue' | 'relationship' | 'bankwide' } | null;
     return navState?.insightType || null;
   });
