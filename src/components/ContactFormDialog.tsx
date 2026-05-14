@@ -18,7 +18,7 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="sm:max-w-3xl bg-white p-0 overflow-hidden rounded-2xl border-none shadow-2xl [&>button]:top-4 [&>button]:right-4 [&>button]:h-9 [&>button]:w-9 [&>button]:rounded-full [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-slate-100 [&>button]:hover:bg-slate-200 [&>button]:text-slate-700 [&>button]:opacity-100 [&>button]:border-0 [&>button]:shadow-none [&>button]:ring-0 [&>button>svg]:h-4 [&>button>svg]:w-4"
+        className="sm:max-w-4xl bg-white p-0 overflow-hidden rounded-2xl border-none shadow-2xl [&>button]:top-4 [&>button]:right-4 [&>button]:h-9 [&>button]:w-9 [&>button]:rounded-full [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:bg-slate-100 [&>button]:hover:bg-slate-200 [&>button]:text-slate-700 [&>button]:opacity-100 [&>button]:border-0 [&>button]:shadow-none [&>button]:ring-0 [&>button>svg]:h-4 [&>button>svg]:w-4"
         style={{ fontFamily: "Manrope, sans-serif" }}
       >
         <div className="px-12 pt-16 pb-8 flex flex-col min-h-[520px]">
