@@ -19,16 +19,13 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           {/* Header */}
           <div className="flex flex-col items-center mb-16 pb-5 border-b border-slate-200">
             <img src={ventusLogo} alt="Ventus AI" className="w-48 object-contain" />
-            <button
-              onClick={() => {
-                sessionStorage.setItem("tepilot_auth", "authenticated");
-                onOpenChange(false);
-                window.location.href = "/tepilot?view=bankwide";
-              }}
+            <Link
+              to="/bank-analytics"
+              onClick={() => onOpenChange(false)}
               className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-semibold border border-slate-200 bg-white text-slate-600 hover:text-blue-600 hover:border-blue-300 transition-colors"
             >
               Bank Analytics Dashboard <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
-            </button>
+            </Link>
           </div>
 
           {/* Middle - side-by-side comparison */}
