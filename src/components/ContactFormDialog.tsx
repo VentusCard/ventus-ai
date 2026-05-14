@@ -41,7 +41,6 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
                 <a
                   href="/bank-analytics"
                   target="_blank"
-                  onClick={() => onOpenChange(false)}
                   className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-full text-sm font-semibold border border-slate-200 bg-white text-slate-700 hover:text-blue-600 hover:border-blue-300 transition-colors"
                 >
                   Bank Analytics Dashboard <ArrowRight className="w-4 h-4" strokeWidth={1.5} />
