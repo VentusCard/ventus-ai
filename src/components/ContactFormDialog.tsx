@@ -23,20 +23,14 @@ export default function ContactFormDialog({ open, onOpenChange }: ContactFormDia
           {/* Middle - side-by-side comparison */}
           <div className="w-full flex items-center justify-between gap-6 mb-20">
             <div className="flex-1 text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-3">
-                Banking Today
-              </p>
-              <p className="text-lg font-normal text-slate-800">
-                Generic. Static. The same for everyone.
-              </p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400 mb-3">Banking Today</p>
+              <p className="text-lg font-normal text-slate-800">Generic. Static. The same for everyone.</p>
             </div>
             <ArrowRight className="w-8 h-8 text-blue-600 shrink-0" strokeWidth={1.5} />
             <div className="flex-1 text-center">
-              <p className="text-[11px] uppercase tracking-[0.2em] text-blue-600 mb-3 font-extrabold">
-                With Ventus AI
-              </p>
+              <p className="text-[11px] uppercase tracking-[0.2em] text-blue-600 mb-3 font-extrabold">With Ventus AI</p>
               <p className="text-lg font-normal text-slate-800">
-                Personalized. Intelligent. Built for each customer.
+                Personalized. Intelligent. Individualized for each customer.
               </p>
             </div>
           </div>
