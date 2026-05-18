@@ -1,0 +1,37 @@
+{
+  "fixture_version": "2026-05-17",
+  "source_system": "fiserv",
+  "description": "Normalized mock card transactions shaped to exercise fields commonly expected from Fiserv-style card activity feeds.",
+  "transactions": [
+    {
+      "transaction_id": "fiserv_txn_0001",
+      "customer_id": "qa_customer_010",
+      "merchant_name": "CHEWY.COM",
+      "amount": 126.32,
+      "date": "2026-03-08",
+      "mcc_code": "5995",
+      "zip_code": "33301",
+      "home_zip": "33139"
+    },
+    {
+      "transaction_id": "fiserv_txn_0002",
+      "customer_id": "qa_customer_010",
+      "merchant_name": "MARRIOTT HOTELS 331",
+      "amount": 1198.54,
+      "date": "2026-03-19",
+      "mcc_code": "7011",
+      "zip_code": "94102",
+      "home_zip": "33139"
+    },
+    {
+      "transaction_id": "fiserv_txn_0003",
+      "customer_id": "qa_customer_011",
+      "merchant_name": "APPLE.COM/BILL",
+      "amount": 9.99,
+      "date": "2026-03-22",
+      "mcc_code": "5818",
+      "zip_code": "95014",
+      "home_zip": "75201"
+    }
+  ]
+}
