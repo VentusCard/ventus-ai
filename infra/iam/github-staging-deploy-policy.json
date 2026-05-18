@@ -41,6 +41,17 @@
       "Resource": "arn:aws:ssm:us-east-2:373633008995:parameter/cdk-bootstrap/hnb659fds/version"
     },
     {
+      "Sid": "CdkBootstrapRoles",
+      "Effect": "Allow",
+      "Action": "sts:AssumeRole",
+      "Resource": [
+        "arn:aws:iam::373633008995:role/cdk-hnb659fds-lookup-role-373633008995-us-east-2",
+        "arn:aws:iam::373633008995:role/cdk-hnb659fds-deploy-role-373633008995-us-east-2",
+        "arn:aws:iam::373633008995:role/cdk-hnb659fds-file-publishing-role-373633008995-us-east-2",
+        "arn:aws:iam::373633008995:role/cdk-hnb659fds-image-publishing-role-373633008995-us-east-2"
+      ]
+    },
+    {
       "Sid": "MonitorLambda",
       "Effect": "Allow",
       "Action": [

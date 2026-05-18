@@ -13,6 +13,7 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
 ## Change Review
 
 - Review the synthesized CloudFormation resources.
+- Confirm GitHub Actions CDK diff did not report `Could not create a change set`; fallback template diffs are not sufficient for deployment approval.
 - Confirm there are no replacements of existing API Gateway, Lambda, Aurora, SQS, S3, VPC, subnet, or security group resources.
 - Confirm monitor resources are additive:
   - SNS topic `ventus-backend-alerts`

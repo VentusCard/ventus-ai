@@ -93,6 +93,10 @@ jobs:
             -c region=${AWS_REGION} \
             "${context_args[@]}" \
             --no-color | tee cdk-diff.txt
+          if grep -q "Could not create a change set" cdk-diff.txt; then
+            echo "CDK diff fell back to template comparison instead of a CloudFormation change set." >&2
+            exit 1
+          fi
         working-directory: infra
 
       - name: Upload CDK Diff
