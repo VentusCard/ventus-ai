@@ -125,6 +125,38 @@ jobs:
           name: cdk-staging-diff
           path: infra/cdk-diff.txt
 
+      - name: Clean Up Initial Diff Review Stack
+        if: always() && env.CDK_STACK_EXISTS == 'false'
+        run: |
+          set -euo pipefail
+          resource_count="$(aws cloudformation list-stack-resources \
+            --stack-name "${CDK_STACK_NAME}" \
+            --region "${AWS_REGION}" \
+            --query 'length(StackResourceSummaries)' \
+            --output text 2>/dev/null || echo MISSING)"
+
+          if [ "${resource_count}" = "MISSING" ]; then
+            echo "::notice::No initial diff review stack found to clean up."
+            exit 0
+          fi
+
+          if [ "${resource_count}" != "0" ]; then
+            echo "Refusing to delete ${CDK_STACK_NAME}; it owns ${resource_count} resource(s)." >&2
+            exit 1
+          fi
+
+          aws cloudformation delete-change-set \
+            --stack-name "${CDK_STACK_NAME}" \
+            --change-set-name cdk-diff-change-set \
+            --region "${AWS_REGION}" 2>/dev/null || true
+          aws cloudformation delete-stack \
+            --stack-name "${CDK_STACK_NAME}" \
+            --region "${AWS_REGION}"
+          aws cloudformation wait stack-delete-complete \
+            --stack-name "${CDK_STACK_NAME}" \
+            --region "${AWS_REGION}"
+          echo "::notice::Cleaned up empty initial CDK diff review stack."
+
   deploy:
     name: Deploy Staging Stack
     runs-on: ubuntu-latest
