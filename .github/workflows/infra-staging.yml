@@ -87,6 +87,7 @@ jobs:
 
       - name: Diff Staging Stack
         run: |
+          set -o pipefail
           context_args=()
           if [ -n "${ALERT_EMAIL}" ]; then
             context_args+=("-c" "alertEmail=${ALERT_EMAIL}")
@@ -95,7 +96,8 @@ jobs:
             -c account=${AWS_ACCOUNT_ID} \
             -c region=${AWS_REGION} \
             "${context_args[@]}" \
-            --no-color | tee cdk-diff.txt
+            --no-color \
+            --verbose | tee cdk-diff.txt
           if grep -q "Could not create a change set" cdk-diff.txt; then
             echo "CDK diff fell back to template comparison instead of a CloudFormation change set." >&2
             exit 1
@@ -103,6 +105,7 @@ jobs:
         working-directory: infra
 
       - name: Upload CDK Diff
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: cdk-staging-diff
