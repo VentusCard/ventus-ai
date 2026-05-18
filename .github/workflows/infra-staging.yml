@@ -37,6 +37,7 @@ env:
   AWS_ACCOUNT_ID: "373633008995"
   AWS_REGION: us-east-2
   ALERT_EMAIL: ${{ github.event.inputs.alert_email || '' }}
+  CDK_STACK_NAME: VentusExistingInfraStack
 
 jobs:
   diff:
@@ -64,6 +65,15 @@ jobs:
 
       - name: Validate CDK Bootstrap
         run: aws ssm get-parameter --name /cdk-bootstrap/hnb659fds/version --region "${AWS_REGION}"
+
+      - name: Detect Existing Staging Stack
+        run: |
+          if aws cloudformation describe-stacks --stack-name "${CDK_STACK_NAME}" --region "${AWS_REGION}" >/dev/null 2>&1; then
+            echo "CDK_STACK_EXISTS=true" >> "${GITHUB_ENV}"
+          else
+            echo "CDK_STACK_EXISTS=false" >> "${GITHUB_ENV}"
+            echo "::notice::${CDK_STACK_NAME} does not exist yet; initial create diffs are template comparisons until the first deploy."
+          fi
 
       - name: Install Infra Dependencies
         run: npm ci
@@ -99,6 +109,10 @@ jobs:
             --no-color \
             --verbose | tee cdk-diff.txt
           if grep -q "Could not create a change set" cdk-diff.txt; then
+            if [ "${CDK_STACK_EXISTS}" = "false" ]; then
+              echo "::notice::CDK used template comparison because ${CDK_STACK_NAME} has not been deployed yet."
+              exit 0
+            fi
             echo "CDK diff fell back to template comparison instead of a CloudFormation change set." >&2
             exit 1
           fi
@@ -139,6 +153,14 @@ jobs:
 
       - name: Validate CDK Bootstrap
         run: aws ssm get-parameter --name /cdk-bootstrap/hnb659fds/version --region "${AWS_REGION}"
+
+      - name: Detect Existing Staging Stack
+        run: |
+          if aws cloudformation describe-stacks --stack-name "${CDK_STACK_NAME}" --region "${AWS_REGION}" >/dev/null 2>&1; then
+            echo "::notice::Updating existing ${CDK_STACK_NAME} stack."
+          else
+            echo "::notice::Creating initial ${CDK_STACK_NAME} stack."
+          fi
 
       - name: Install Infra Dependencies
         run: npm ci
