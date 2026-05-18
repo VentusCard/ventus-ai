@@ -1,0 +1,87 @@
+{
+  "version": "2026-05-17",
+  "description": "Initial operational thresholds for Ventus enrichment pipeline readiness checks. These are alerting thresholds, not enrichment behavior changes.",
+  "terminal_statuses": ["complete", "failed"],
+  "stuck_job_sla_minutes": 20,
+  "stages": [
+    {
+      "name": "ingested",
+      "timestamp_field": "ingested_at",
+      "expected_after": null,
+      "warn_after_minutes": 2,
+      "page_after_minutes": 5
+    },
+    {
+      "name": "classified",
+      "timestamp_field": "classified_at",
+      "expected_after": "ingested_at",
+      "warn_after_minutes": 5,
+      "page_after_minutes": 10
+    },
+    {
+      "name": "pillar_analyzed",
+      "timestamp_field": "pillar_analyzed_at",
+      "expected_after": "classified_at",
+      "warn_after_minutes": 8,
+      "page_after_minutes": 15
+    },
+    {
+      "name": "travel_detected",
+      "timestamp_field": "travel_detected_at",
+      "expected_after": "classified_at",
+      "warn_after_minutes": 8,
+      "page_after_minutes": 15
+    },
+    {
+      "name": "lifestyle_analyzed",
+      "timestamp_field": "lifestyle_analyzed_at",
+      "expected_after": "classified_at",
+      "warn_after_minutes": 8,
+      "page_after_minutes": 15
+    },
+    {
+      "name": "risk_analyzed",
+      "timestamp_field": "risk_analyzed_at",
+      "expected_after": "classified_at",
+      "warn_after_minutes": 8,
+      "page_after_minutes": 15
+    },
+    {
+      "name": "complete",
+      "timestamp_field": "completed_at",
+      "expected_after": "ingested_at",
+      "warn_after_minutes": 12,
+      "page_after_minutes": 20
+    }
+  ],
+  "alarms": {
+    "lambda_errors_5m": {
+      "threshold": 1,
+      "evaluation_periods": 1
+    },
+    "api_5xx_5m": {
+      "threshold": 1,
+      "evaluation_periods": 1
+    },
+    "api_latency_p95_ms": {
+      "threshold": 3000,
+      "evaluation_periods": 2
+    },
+    "queue_oldest_message_seconds": {
+      "threshold": 600,
+      "evaluation_periods": 2
+    },
+    "dlq_visible_messages": {
+      "threshold": 1,
+      "evaluation_periods": 1
+    },
+    "webhook_failures_5m": {
+      "threshold": 1,
+      "evaluation_periods": 1
+    },
+    "stuck_jobs": {
+      "threshold": 1,
+      "evaluation_periods": 1
+    }
+  }
+}

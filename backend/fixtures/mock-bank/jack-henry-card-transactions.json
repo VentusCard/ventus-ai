@@ -1,0 +1,37 @@
+{
+  "fixture_version": "2026-05-17",
+  "source_system": "jack_henry",
+  "description": "Normalized mock card transactions shaped to exercise fields commonly expected from Jack Henry community-bank transaction exports.",
+  "transactions": [
+    {
+      "transaction_id": "jh_txn_0001",
+      "customer_id": "qa_customer_020",
+      "merchant_name": "LOCAL DENTAL ASSOCIATES",
+      "amount": 246.0,
+      "date": "2026-02-05",
+      "mcc_code": "8021",
+      "zip_code": "37203",
+      "home_zip": "37215"
+    },
+    {
+      "transaction_id": "jh_txn_0002",
+      "customer_id": "qa_customer_020",
+      "merchant_name": "U-HAUL MOVING & STORAGE",
+      "amount": 89.4,
+      "date": "2026-02-14",
+      "mcc_code": "7513",
+      "zip_code": "37204",
+      "home_zip": "37215"
+    },
+    {
+      "transaction_id": "jh_txn_0003",
+      "customer_id": "qa_customer_021",
+      "merchant_name": "STATE UNIVERSITY BOOKSTORE",
+      "amount": 463.75,
+      "date": "2026-02-21",
+      "mcc_code": "5942",
+      "zip_code": "48109",
+      "home_zip": "48104"
+    }
+  ]
+}

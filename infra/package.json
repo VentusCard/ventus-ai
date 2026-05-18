@@ -1,0 +1,23 @@
+{
+  "name": "ventus-infra",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AWS CDK skeleton for codifying existing Ventus pilot infrastructure.",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "check:iam": "node ./scripts/validate-iam-policies.mjs",
+    "synth": "npm --prefix ../backend run package:monitors && cdk synth",
+    "diff": "npm --prefix ../backend run package:monitors && cdk diff",
+    "deploy": "npm --prefix ../backend run package:monitors && cdk deploy"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.182.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.182.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

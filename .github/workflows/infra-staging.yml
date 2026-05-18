@@ -1,0 +1,149 @@
+name: Infra Staging Diff And Deploy
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/infra-staging.yml"
+      - "backend/monitors/**"
+      - "backend/scripts/package-monitors.mjs"
+      - "docs/cdk-deployment-review-checklist.md"
+      - "docs/github-aws-oidc-staging.md"
+      - "docs/observability-readiness.md"
+      - "infra/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose whether to review a diff only or deploy the reviewed staging stack."
+        required: true
+        default: "diff"
+        type: choice
+        options:
+          - diff
+          - deploy
+      alert_email:
+        description: "Optional email subscription for the backend alert SNS topic."
+        required: false
+        type: string
+      confirm_deploy:
+        description: "Required for deploy: type deploy-staging."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  AWS_ACCOUNT_ID: "373633008995"
+  AWS_REGION: us-east-2
+  ALERT_EMAIL: ${{ github.event.inputs.alert_email || '' }}
+
+jobs:
+  diff:
+    name: CDK Diff
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate AWS Role Variable
+        run: test -n "${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          role-session-name: ventus-infra-staging-diff-${{ github.run_id }}
+
+      - name: Install Infra Dependencies
+        run: npm ci
+        working-directory: infra
+
+      - name: Typecheck CDK
+        run: npm run check
+        working-directory: infra
+
+      - name: Synthesize CDK Plan
+        run: |
+          context_args=()
+          if [ -n "${ALERT_EMAIL}" ]; then
+            context_args+=("-c" "alertEmail=${ALERT_EMAIL}")
+          fi
+          npm run synth -- \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            "${context_args[@]}"
+        working-directory: infra
+
+      - name: Diff Staging Stack
+        run: |
+          context_args=()
+          if [ -n "${ALERT_EMAIL}" ]; then
+            context_args+=("-c" "alertEmail=${ALERT_EMAIL}")
+          fi
+          npm run diff -- \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            "${context_args[@]}" \
+            --no-color | tee cdk-diff.txt
+        working-directory: infra
+
+      - name: Upload CDK Diff
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdk-staging-diff
+          path: infra/cdk-diff.txt
+
+  deploy:
+    name: Deploy Staging Stack
+    runs-on: ubuntu-latest
+    needs: diff
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy' && github.event.inputs.confirm_deploy == 'deploy-staging'
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate AWS Role Variable
+        run: test -n "${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          role-session-name: ventus-infra-staging-deploy-${{ github.run_id }}
+
+      - name: Install Infra Dependencies
+        run: npm ci
+        working-directory: infra
+
+      - name: Typecheck CDK
+        run: npm run check
+        working-directory: infra
+
+      - name: Deploy Staging Stack
+        run: |
+          context_args=()
+          if [ -n "${ALERT_EMAIL}" ]; then
+            context_args+=("-c" "alertEmail=${ALERT_EMAIL}")
+          fi
+          npm run deploy -- \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            "${context_args[@]}" \
+            --require-approval never
+        working-directory: infra

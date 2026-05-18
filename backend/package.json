@@ -1,0 +1,20 @@
+{
+  "name": "ventus-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Recovered AWS Lambda backend source for Ventus API pilot-readiness work.",
+  "scripts": {
+    "list:functions": "node ./scripts/list-functions.mjs",
+    "package:functions": "node ./scripts/package-functions.mjs",
+    "package:monitors": "node ./scripts/package-monitors.mjs",
+    "smoke:api": "node ./scripts/smoke-api.mjs",
+    "qa:enrichment": "node ./scripts/qa-enrichment-contract.mjs",
+    "qa:live": "node ./scripts/qa-live-pipeline.mjs",
+    "docs:api": "node ./scripts/generate-api-docs.mjs",
+    "validate:openapi": "node ./scripts/validate-openapi.mjs",
+    "check:routes": "node ./scripts/check-route-coverage.mjs",
+    "check:imports": "node ./scripts/check-relative-imports.mjs",
+    "check:pipeline-readiness": "node ./scripts/check-pipeline-readiness.mjs"
+  }
+}

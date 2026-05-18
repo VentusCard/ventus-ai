@@ -1,0 +1,8 @@
+{
+  "app": "npx ts-node --esm bin/app.ts",
+  "context": {
+    "account": "373633008995",
+    "region": "us-east-2"
+  }
+}
+

@@ -1,0 +1,141 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "CloudFormationVentusStack",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:CreateChangeSet",
+        "cloudformation:CreateStack",
+        "cloudformation:DeleteChangeSet",
+        "cloudformation:DeleteStack",
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStacks",
+        "cloudformation:ExecuteChangeSet",
+        "cloudformation:GetTemplate",
+        "cloudformation:GetTemplateSummary",
+        "cloudformation:UpdateStack"
+      ],
+      "Resource": "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*"
+    },
+    {
+      "Sid": "CdkBootstrapAssets",
+      "Effect": "Allow",
+      "Action": [
+        "s3:GetBucketLocation",
+        "s3:GetObject",
+        "s3:ListBucket",
+        "s3:PutObject",
+        "s3:DeleteObject"
+      ],
+      "Resource": [
+        "arn:aws:s3:::cdk-hnb659fds-assets-373633008995-us-east-2",
+        "arn:aws:s3:::cdk-hnb659fds-assets-373633008995-us-east-2/*"
+      ]
+    },
+    {
+      "Sid": "CdkBootstrapMetadata",
+      "Effect": "Allow",
+      "Action": "ssm:GetParameter",
+      "Resource": "arn:aws:ssm:us-east-2:373633008995:parameter/cdk-bootstrap/hnb659fds/version"
+    },
+    {
+      "Sid": "MonitorLambda",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:AddPermission",
+        "lambda:CreateFunction",
+        "lambda:DeleteFunction",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:RemovePermission",
+        "lambda:TagResource",
+        "lambda:UntagResource",
+        "lambda:UpdateFunctionCode",
+        "lambda:UpdateFunctionConfiguration"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:373633008995:function:ventus-stuck-job-monitor"
+    },
+    {
+      "Sid": "MonitorExecutionRole",
+      "Effect": "Allow",
+      "Action": [
+        "iam:AttachRolePolicy",
+        "iam:CreateRole",
+        "iam:DeleteRole",
+        "iam:DeleteRolePolicy",
+        "iam:DetachRolePolicy",
+        "iam:GetRole",
+        "iam:GetRolePolicy",
+        "iam:ListRolePolicies",
+        "iam:PassRole",
+        "iam:PutRolePolicy",
+        "iam:TagRole",
+        "iam:UntagRole"
+      ],
+      "Resource": "arn:aws:iam::373633008995:role/VentusExistingInfraStack-*"
+    },
+    {
+      "Sid": "AlertTopic",
+      "Effect": "Allow",
+      "Action": [
+        "sns:CreateTopic",
+        "sns:DeleteTopic",
+        "sns:GetTopicAttributes",
+        "sns:SetTopicAttributes",
+        "sns:Subscribe",
+        "sns:TagResource",
+        "sns:Unsubscribe",
+        "sns:UntagResource"
+      ],
+      "Resource": "arn:aws:sns:us-east-2:373633008995:ventus-backend-alerts"
+    },
+    {
+      "Sid": "EventBridgeMonitorSchedule",
+      "Effect": "Allow",
+      "Action": [
+        "events:DeleteRule",
+        "events:DescribeRule",
+        "events:PutRule",
+        "events:PutTargets",
+        "events:RemoveTargets",
+        "events:TagResource",
+        "events:UntagResource"
+      ],
+      "Resource": "arn:aws:events:us-east-2:373633008995:rule/ventus-stuck-job-monitor-every-5-minutes"
+    },
+    {
+      "Sid": "CloudWatchAlarms",
+      "Effect": "Allow",
+      "Action": [
+        "cloudwatch:DeleteAlarms",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:PutMetricAlarm",
+        "cloudwatch:TagResource",
+        "cloudwatch:UntagResource"
+      ],
+      "Resource": "arn:aws:cloudwatch:us-east-2:373633008995:alarm:ventus-*"
+    },
+    {
+      "Sid": "VentusLambdaLogMetricFilters",
+      "Effect": "Allow",
+      "Action": [
+        "logs:DeleteMetricFilter",
+        "logs:DescribeMetricFilters",
+        "logs:PutMetricFilter"
+      ],
+      "Resource": "arn:aws:logs:us-east-2:373633008995:log-group:/aws/lambda/ventus-*"
+    },
+    {
+      "Sid": "NetworkReadOnly",
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeSecurityGroups",
+        "ec2:DescribeSubnets",
+        "ec2:DescribeVpcs"
+      ],
+      "Resource": "*"
+    }
+  ]
+}

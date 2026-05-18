@@ -1,0 +1,169 @@
+{
+  "enrich_response": {
+    "batch_id": "batch_20260517120000_api_bank_demo",
+    "status": "ingested",
+    "transaction_count": 3,
+    "customers": 2,
+    "message": "Pipeline triggered. Poll /v1/jobs/batch_20260517120000_api_bank_demo for status."
+  },
+  "job_response": {
+    "job_id": "batch_20260517120000_api_bank_demo",
+    "status": "complete",
+    "bank_id": "bank_demo",
+    "transaction_count": 3,
+    "source_file": "api",
+    "customers": [
+      {
+        "customer_id": "qa_customer_001",
+        "status": "complete",
+        "error_message": null,
+        "timestamps": {
+          "ingested_at": "2026-05-17T17:00:00.000Z",
+          "classified_at": "2026-05-17T17:01:00.000Z",
+          "pillar_analyzed_at": "2026-05-17T17:02:00.000Z",
+          "travel_detected_at": "2026-05-17T17:03:00.000Z",
+          "lifestyle_analyzed_at": "2026-05-17T17:04:00.000Z",
+          "risk_analyzed_at": "2026-05-17T17:05:00.000Z",
+          "completed_at": "2026-05-17T17:06:00.000Z"
+        }
+      }
+    ]
+  },
+  "transactions_response": {
+    "customer_id": "qa_customer_001",
+    "total": 1,
+    "limit": 50,
+    "offset": 0,
+    "transactions": [
+      {
+        "transaction_id": "fis_txn_0001",
+        "clean_merchant_name": "Whole Foods Market",
+        "lifestyle_category": "Food & Dining",
+        "merchant_category": "Grocery",
+        "amount": "84.17",
+        "pre_tax_amount": "80.55",
+        "tax_amount": "3.62",
+        "tax_rate": "4.5%",
+        "tax_state": "IL",
+        "transaction_date": "2026-04-12T00:00:00.000Z",
+        "confidence_score": 0.91,
+        "inferred_purchase": "Groceries",
+        "trip_id": null,
+        "zip_code": "60611"
+      }
+    ]
+  },
+  "life_events_response": {
+    "customer_id": "qa_customer_001",
+    "life_events": [
+      {
+        "id": 101,
+        "event_name": "Relocation",
+        "event_type": "life_event",
+        "confidence": 0.82,
+        "urgency_timeline": "Immediate",
+        "status": "active",
+        "talking_points": ["Recent moving-related spending"],
+        "next_steps": ["Offer branch or card travel support"],
+        "insight": "Customer has moving-related purchases.",
+        "recommended_products": ["Checking account address update"],
+        "first_detected_at": "2026-05-17T17:00:00.000Z",
+        "last_confirmed_at": "2026-05-17T17:00:00.000Z",
+        "detected_at": "2026-05-17T17:00:00.000Z",
+        "evidence": [
+          {
+            "transaction_id": "jh_txn_0002",
+            "merchant": "U-Haul",
+            "amount": "89.40",
+            "date": "2026-02-14T00:00:00.000Z",
+            "relevance": "moving expense"
+          }
+        ]
+      }
+    ],
+    "behavioral_signals": [
+      {
+        "id": 201,
+        "signal_category": "pet_care",
+        "signal_name": "Pet ownership",
+        "confidence": 0.77,
+        "status": "active",
+        "talking_points": ["Recurring pet merchant activity"],
+        "first_detected_at": "2026-05-17T17:00:00.000Z",
+        "last_confirmed_at": "2026-05-17T17:00:00.000Z",
+        "detected_at": "2026-05-17T17:00:00.000Z",
+        "evidence": []
+      }
+    ]
+  },
+  "trips_response": {
+    "customer_id": "qa_customer_010",
+    "trips": [
+      {
+        "trip_id": "trip_qa_001",
+        "destination": "San Francisco, CA",
+        "trip_start": "2026-03-19T00:00:00.000Z",
+        "trip_end": "2026-03-22T00:00:00.000Z",
+        "trip_duration_days": 4,
+        "total_trip_spend": "1198.54",
+        "transaction_count": "1",
+        "transport_spend": "0",
+        "lodging_spend": "1198.54",
+        "dining_spend": "0",
+        "activities_spend": "0",
+        "other_spend": "0",
+        "detected_at": "2026-05-17T17:00:00.000Z",
+        "is_upcoming": false
+      }
+    ]
+  },
+  "risk_factors_response": {
+    "customer_id": "qa_customer_001",
+    "risk_factors": [
+      {
+        "id": 301,
+        "transaction_id": "risk_txn_001",
+        "category_group": "cash_advance",
+        "category_label": "Cash advance",
+        "severity": "medium",
+        "merchant": "ATM CASH ADVANCE",
+        "amount": "500.00",
+        "transaction_date": "2026-04-12T00:00:00.000Z",
+        "reason": "Cash-like transaction pattern",
+        "detected_at": "2026-05-17T17:00:00.000Z"
+      }
+    ],
+    "summary": {
+      "total": 1,
+      "high": 0,
+      "medium": 1,
+      "low": 0
+    }
+  },
+  "analytics_response": {
+    "bank_id": "bank_demo",
+    "generated_at": "2026-05-17T17:00:00.000Z",
+    "overview": {
+      "total_customers": 2,
+      "total_transactions": 3,
+      "total_spend": 825.51,
+      "avg_transaction": 275.17,
+      "avg_confidence": 0.88
+    },
+    "pillar_distribution": [],
+    "life_event_summary": [],
+    "behavioral_signal_summary": [],
+    "risk_summary": [],
+    "top_merchants": [],
+    "segments": []
+  },
+  "webhook_registration_response": {
+    "webhook_id": "wh_bank_demo_1770000000000",
+    "bank_id": "bank_demo",
+    "url": "https://example.com/ventus-webhooks",
+    "events": ["batch_started", "batch_complete"],
+    "is_active": true,
+    "created_at": "2026-05-17T17:00:00.000Z",
+    "message": "Webhook registered successfully"
+  }
+}

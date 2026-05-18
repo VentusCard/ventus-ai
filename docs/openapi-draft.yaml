@@ -1,0 +1,463 @@
+openapi: 3.0.3
+info:
+  title: Ventus AI API
+  version: 1.0.0-draft
+  description: |
+    Draft OpenAPI contract reconstructed from the deployed AWS Lambda API on 2026-05-17.
+    Treat this as a starting point for `/docs`, Postman collection generation, and client onboarding.
+servers:
+  - url: https://api.ventusai.com
+security:
+  - ApiKeyAuth: []
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+    Health:
+      type: object
+      properties:
+        status:
+          type: string
+          example: healthy
+        timestamp:
+          type: string
+          format: date-time
+    EnrichTransactionInput:
+      type: object
+      required:
+        - transaction_id
+        - customer_id
+        - merchant_name
+        - amount
+        - date
+      properties:
+        transaction_id:
+          type: string
+        customer_id:
+          type: string
+        merchant_name:
+          type: string
+        amount:
+          type: number
+        date:
+          type: string
+          format: date
+        mcc_code:
+          type: string
+          nullable: true
+        zip_code:
+          type: string
+          nullable: true
+        home_zip:
+          type: string
+          nullable: true
+    EnrichRequest:
+      type: object
+      required:
+        - transactions
+      properties:
+        transactions:
+          type: array
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/EnrichTransactionInput'
+    EnrichResponse:
+      type: object
+      properties:
+        batch_id:
+          type: string
+        status:
+          type: string
+          example: ingested
+        transaction_count:
+          type: integer
+        customers:
+          type: integer
+        message:
+          type: string
+    Job:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - ingested
+            - classified
+            - pillar_analyzed
+            - travel_detected
+            - lifestyle_analyzed
+            - risk_analyzed
+            - complete
+            - failed
+        bank_id:
+          type: string
+        transaction_count:
+          type: integer
+        source_file:
+          type: string
+        customers:
+          type: array
+          items:
+            type: object
+            properties:
+              customer_id:
+                type: string
+              status:
+                type: string
+              error_message:
+                type: string
+                nullable: true
+              timestamps:
+                type: object
+                properties:
+                  ingested_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  classified_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  pillar_analyzed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  travel_detected_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  lifestyle_analyzed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  risk_analyzed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+                  completed_at:
+                    type: string
+                    format: date-time
+                    nullable: true
+    EnrichedTransaction:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+        clean_merchant_name:
+          type: string
+        lifestyle_category:
+          type: string
+        merchant_category:
+          type: string
+        amount:
+          type: string
+        pre_tax_amount:
+          type: string
+          nullable: true
+        tax_amount:
+          type: string
+          nullable: true
+        tax_rate:
+          type: string
+          nullable: true
+        tax_state:
+          type: string
+          nullable: true
+        transaction_date:
+          type: string
+          format: date-time
+        confidence_score:
+          type: number
+        inferred_purchase:
+          type: string
+          nullable: true
+        trip_id:
+          type: string
+          nullable: true
+        zip_code:
+          type: string
+          nullable: true
+    WebhookRegistrationRequest:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+            enum:
+              - batch_started
+              - batch_complete
+              - life_event_detected
+              - trip_detected
+              - risk_detected
+              - behavioral_signal_detected
+        secret:
+          type: string
+          nullable: true
+    WebhookRegistrationResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        bank_id:
+          type: string
+        url:
+          type: string
+        events:
+          type: array
+          items:
+            type: string
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        message:
+          type: string
+paths:
+  /health:
+    get:
+      security: []
+      summary: Health check
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Health'
+  /v1/enrich:
+    post:
+      summary: Submit transactions for enrichment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EnrichRequest'
+      responses:
+        '202':
+          description: Batch accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EnrichResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs:
+    get:
+      summary: Look up job by S3 key
+      parameters:
+        - in: query
+          name: s3_key
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/jobs/{job_id}:
+    get:
+      summary: Get enrichment job status
+      parameters:
+        - in: path
+          name: job_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '404':
+          description: Job not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/customers/{customer_id}/transactions:
+    get:
+      summary: Get enriched transactions for a customer
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+        - in: query
+          name: pillar
+          schema:
+            type: string
+        - in: query
+          name: date_from
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: date_to
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: confidence_min
+          schema:
+            type: number
+            minimum: 0
+            maximum: 1
+      responses:
+        '200':
+          description: Enriched transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer_id:
+                    type: string
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/EnrichedTransaction'
+  /v1/customers/{customer_id}/profile:
+    get:
+      summary: Get customer lifestyle profile
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Customer profile
+  /v1/customers/{customer_id}/life-events:
+    get:
+      summary: Get active customer life events
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Life events with evidence and recommendations
+  /v1/customers/{customer_id}/purchase-signals:
+    get:
+      summary: Get purchase cycle signals for a customer
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Purchase signals
+  /v1/customers/{customer_id}/trips:
+    get:
+      summary: Get detected customer trips
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trips
+  /v1/customers/{customer_id}/risk-factors:
+    get:
+      summary: Get customer risk factors
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Risk factors and summary
+  /v1/analytics/bank:
+    get:
+      summary: Get portfolio-level bank analytics
+      responses:
+        '200':
+          description: Bank analytics
+  /v1/webhooks:
+    post:
+      summary: Register or update a webhook
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookRegistrationRequest'
+      responses:
+        '201':
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookRegistrationResponse'
+        '400':
+          description: Invalid webhook registration request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
