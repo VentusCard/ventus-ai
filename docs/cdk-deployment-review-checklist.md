@@ -7,6 +7,7 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
 - Confirm the AWS account ID is `373633008995` only if that is the intended target.
 - Confirm the region is `us-east-2`.
 - Confirm the deployment target is staging before production.
+- Confirm the account is CDK-bootstrapped in `us-east-2` with `/cdk-bootstrap/hnb659fds/version` present before relying on GitHub Actions deploys.
 - Confirm no Lovable-generated code is bypassing GitHub review.
 - Confirm `cdk synth` has been reviewed before any `cdk deploy`.
 
@@ -66,6 +67,8 @@ GitHub Actions staging diff/deploy setup:
 
 - Configure `AWS_STAGING_DEPLOY_ROLE_ARN` as a repository variable.
 - Configure a protected `staging` GitHub environment.
+- Bootstrap the target account/region before deployment, reviewed separately:
+  `npx cdk bootstrap aws://373633008995/us-east-2 --trust 373633008995`
 - Use `.github/workflows/infra-staging.yml` for reviewed diff and manual deploy.
 - Follow `docs/github-aws-oidc-staging.md` for the AWS role trust policy.
 
