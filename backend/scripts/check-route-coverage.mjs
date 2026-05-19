@@ -28,14 +28,22 @@ for (const match of apiSource.matchAll(routeRegex)) {
   });
 }
 
-const documentedPaths = new Set(
-  openApi
-    .split('\n')
-    .filter((line) => /^  \/[^:]+:/.test(line))
-    .map((line) => line.trim().replace(/:$/, ''))
-);
+const documentedOperations = new Set();
+let currentPath = null;
+for (const line of openApi.split('\n')) {
+  const pathMatch = line.match(/^  (\/[^:]+):$/);
+  if (pathMatch) {
+    currentPath = pathMatch[1];
+    continue;
+  }
 
-const missing = sourceRoutes.filter((route) => !documentedPaths.has(route.path));
+  const methodMatch = line.match(/^    (get|post|put|patch|delete):$/);
+  if (currentPath && methodMatch) {
+    documentedOperations.add(`${methodMatch[1].toUpperCase()} ${currentPath}`);
+  }
+}
+
+const missing = sourceRoutes.filter((route) => !documentedOperations.has(`${route.method} ${route.path}`));
 
 assert.equal(
   missing.length,
