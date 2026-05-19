@@ -20,6 +20,7 @@ This harness is scoped to backend pilot readiness. It does not change UI/UX, enr
 
 ```sh
 npm run --prefix backend qa:enrichment
+npm run --prefix backend qa:golden
 ```
 
 ## Run Against Staging Or Live API
@@ -60,6 +61,19 @@ Useful optional settings:
 
 - Mock-bank input fixtures: `backend/fixtures/mock-bank/`
 - API response examples: `backend/fixtures/contracts/api-response-examples.json`
+- Golden enrichment expectations: `backend/fixtures/evaluation/golden-enrichment-expectations.json`
+
+## Golden Enrichment QA
+
+The golden expectation layer defines expected classification outcomes for the current mock FIS, Fiserv, and Jack Henry transaction fixtures. It is test harness data, not a production enriched dataset.
+
+The CI-safe mode validates that every expected transaction still maps to a source fixture and has an expected clean merchant name, lifestyle category, merchant category, minimum confidence threshold, and downstream signal flags for travel, risk, and life-event candidates.
+
+To compare actual model/API output against the golden set, provide a JSON file containing either an array or `{ "predictions": [...] }` with `transaction_id`, `clean_merchant_name`, `lifestyle_category`, `merchant_category`, and `confidence_score`.
+
+```sh
+VENTUS_QA_PREDICTIONS_PATH=/path/to/predictions.json npm run --prefix backend qa:golden
+```
 
 ## How This Helps Pilot Readiness
 

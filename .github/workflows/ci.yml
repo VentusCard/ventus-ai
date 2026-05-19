@@ -41,6 +41,7 @@ jobs:
           node --check backend/scripts/check-pipeline-readiness.mjs
           node --check backend/scripts/package-monitors.mjs
           node --check backend/scripts/qa-enrichment-contract.mjs
+          node --check backend/scripts/qa-golden-enrichment.mjs
           node --check backend/scripts/qa-live-pipeline.mjs
           node --check backend/scripts/lib/qa-validators.mjs
 
@@ -68,6 +69,9 @@ jobs:
 
       - name: Check Enrichment QA Contracts
         run: npm run --prefix backend qa:enrichment
+
+      - name: Check Golden Enrichment Expectations
+        run: npm run --prefix backend qa:golden
 
       - name: Validate Lambda Entrypoints
         run: |
