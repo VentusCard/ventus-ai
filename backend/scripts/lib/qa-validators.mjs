@@ -23,6 +23,20 @@ export const WEBHOOK_EVENTS = new Set([
   'behavioral_signal_detected',
 ]);
 export const RISK_SEVERITIES = new Set(['high', 'medium', 'low']);
+export const LIFESTYLE_CATEGORIES = new Set([
+  'Sports & Active Living',
+  'Health & Wellness',
+  'Food & Dining',
+  'Travel & Exploration',
+  'Home & Living',
+  'Style & Beauty',
+  'Pets',
+  'Entertainment & Culture',
+  'Technology & Digital Life',
+  'Family & Community',
+  'Financial & Aspirational',
+  'Miscellaneous & Unclassified',
+]);
 
 export function readJson(path) {
   return JSON.parse(readFileSync(path, 'utf8'));
@@ -334,4 +348,108 @@ export function validateContractExamples(examples) {
   validateRiskFactorsResponse(examples.risk_factors_response);
   validateAnalyticsResponse(examples.analytics_response);
   validateWebhookRegistrationResponse(examples.webhook_registration_response);
+}
+
+export function validateGoldenEnrichmentExpectations(expectations, mockBankRoot) {
+  assertObject(expectations, 'golden expectations');
+  assertString(expectations.fixture_version, 'golden expectations.fixture_version');
+  assertObject(expectations.minimum_expected_coverage, 'golden expectations.minimum_expected_coverage');
+  assertArray(expectations.expectations, 'golden expectations.expectations');
+
+  const fixtureById = new Map();
+  const sourceCounts = new Map();
+  const files = readdirSync(mockBankRoot).filter((name) => name.endsWith('.json')).sort();
+  for (const fileName of files) {
+    const fixture = readJson(join(mockBankRoot, fileName));
+    for (const txn of fixture.transactions) {
+      fixtureById.set(txn.transaction_id, {
+        ...txn,
+        source_system: fixture.source_system,
+      });
+    }
+  }
+
+  const seen = new Set();
+  for (const [index, expectation] of expectations.expectations.entries()) {
+    const label = `golden expectations.expectations[${index}]`;
+    assertObject(expectation, label);
+    assertString(expectation.transaction_id, `${label}.transaction_id`);
+    assert.ok(!seen.has(expectation.transaction_id), `${label}.transaction_id is duplicated`);
+    seen.add(expectation.transaction_id);
+
+    const fixtureTxn = fixtureById.get(expectation.transaction_id);
+    assert.ok(fixtureTxn, `${label}.transaction_id does not exist in mock-bank fixtures`);
+    assert.equal(expectation.source_system, fixtureTxn.source_system, `${label}.source_system`);
+    sourceCounts.set(expectation.source_system, (sourceCounts.get(expectation.source_system) || 0) + 1);
+
+    assertString(expectation.expected_clean_merchant_name, `${label}.expected_clean_merchant_name`);
+    assert.ok(
+      LIFESTYLE_CATEGORIES.has(expectation.expected_lifestyle_category),
+      `${label}.expected_lifestyle_category is unsupported`
+    );
+    assertString(expectation.expected_merchant_category, `${label}.expected_merchant_category`);
+    assertConfidenceFloor(expectation.expected_confidence_min, `${label}.expected_confidence_min`);
+    assertObject(expectation.expected_signals, `${label}.expected_signals`);
+    for (const signal of ['travel_candidate', 'risk_candidate', 'life_event_candidate']) {
+      assert.equal(typeof expectation.expected_signals[signal], 'boolean', `${label}.expected_signals.${signal}`);
+    }
+  }
+
+  for (const [sourceSystem, minimum] of Object.entries(expectations.minimum_expected_coverage)) {
+    assert.ok(
+      (sourceCounts.get(sourceSystem) || 0) >= minimum,
+      `expected at least ${minimum} golden expectations for ${sourceSystem}`
+    );
+  }
+
+  return {
+    expectationCount: expectations.expectations.length,
+    sourceSystems: [...sourceCounts.keys()].sort(),
+  };
+}
+
+export function validateGoldenPredictionResults(expectations, predictions) {
+  const predictionRows = Array.isArray(predictions) ? predictions : predictions.predictions;
+  assertArray(predictionRows, 'golden predictions');
+  const predictionsById = new Map(predictionRows.map((prediction) => [prediction.transaction_id, prediction]));
+  const failures = [];
+
+  for (const expectation of expectations.expectations) {
+    const prediction = predictionsById.get(expectation.transaction_id);
+    if (!prediction) {
+      failures.push(`${expectation.transaction_id}: missing prediction`);
+      continue;
+    }
+
+    compareStringPrediction(failures, expectation, prediction, 'clean_merchant_name', 'expected_clean_merchant_name');
+    compareStringPrediction(failures, expectation, prediction, 'lifestyle_category', 'expected_lifestyle_category');
+    compareStringPrediction(failures, expectation, prediction, 'merchant_category', 'expected_merchant_category');
+
+    const confidence = Number(prediction.confidence_score);
+    if (!Number.isFinite(confidence) || confidence < expectation.expected_confidence_min) {
+      failures.push(
+        `${expectation.transaction_id}: confidence_score ${prediction.confidence_score} below ${expectation.expected_confidence_min}`
+      );
+    }
+  }
+
+  return {
+    checked: expectations.expectations.length,
+    failures,
+  };
+}
+
+function assertConfidenceFloor(value, label) {
+  assert.ok(isFiniteNumber(value), `${label} should be a number`);
+  assert.ok(value >= 0.4 && value <= 0.9, `${label} should be between 0.4 and 0.9`);
+}
+
+function compareStringPrediction(failures, expectation, prediction, predictionKey, expectationKey) {
+  const actual = String(prediction[predictionKey] || '').toLowerCase();
+  const expected = String(expectation[expectationKey] || '').toLowerCase();
+  if (actual !== expected) {
+    failures.push(
+      `${expectation.transaction_id}: ${predictionKey} expected "${expectation[expectationKey]}", got "${prediction[predictionKey]}"`
+    );
+  }
 }
