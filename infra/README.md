@@ -19,7 +19,7 @@ Current posture:
 - Secrets Manager secret references
 - VPC, security groups, subnets, and VPC endpoints
 - CloudWatch log retention, metrics, alarms, and dashboards
-- Budget/anomaly monitoring
+- Additional budget/anomaly monitoring segmentation as environments split
 
 ## Recommended CDK Sequence
 
@@ -47,8 +47,33 @@ The current CDK stack records known production resource names and defines readin
 - API Gateway 5xx and p95 latency
 - webhook delivery failures
 - stuck pipeline runs
+- service-level AWS Cost Anomaly Detection
 
 These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.
+
+## Cost Guardrails
+
+The stack defines one deployable billing control:
+
+- AWS Cost Anomaly Detection monitor `ventus-service-cost-anomaly-monitor`
+
+The default anomaly notification threshold is `50` USD of absolute impact.
+
+Override thresholds during synth/diff/deploy:
+
+```bash
+npm run --prefix infra synth -- -c anomalyImpactThresholdUsd=100
+```
+
+Email notifications are attached only when `alertEmail` is provided:
+
+```bash
+npm run --prefix infra synth -- -c alertEmail=ops@example.com
+```
+
+These controls are alert-only. They do not stop services, mutate application resources, or enforce spend shutdowns.
+
+AWS Budget creation is intentionally not in this stack yet because the target `us-east-2` CloudFormation registry reports `AWS::Budgets::Budget` as non-provisionable. Add a dedicated billing-control stack or approved manual budget as the next cost-governance step.
 
 ## Stuck-Job Monitor
 

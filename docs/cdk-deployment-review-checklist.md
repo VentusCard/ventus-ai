@@ -21,7 +21,10 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
   - CloudWatch alarms and metric filters
   - Lambda `ventus-stuck-job-monitor`
   - EventBridge schedule `ventus-stuck-job-monitor-every-5-minutes`
+  - AWS Cost Anomaly Detection monitor `ventus-service-cost-anomaly-monitor`
 - Confirm alarm thresholds match `backend/config/pipeline-slas.json`.
+- Confirm cost thresholds are intentional:
+  - anomaly notification defaults to `50` USD absolute impact unless `anomalyImpactThresholdUsd` context overrides it
 - Confirm alert recipients are correct and escalation ownership is assigned.
 
 ## IAM Review
@@ -29,6 +32,7 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
 - Confirm the stuck-job monitor can only read the intended Secrets Manager secret.
 - Confirm `cloudwatch:PutMetricData` is scoped to `Ventus/Pipeline`.
 - Confirm SNS publish is scoped to the alert topic.
+- Confirm cost guardrail permissions are alert-only and do not introduce budget actions that can stop services.
 - Confirm no broad write access to core production infrastructure is introduced.
 
 ## Network Review
@@ -76,6 +80,12 @@ Optional email subscription at synth time:
 
 ```sh
 npm run --prefix infra synth -- -c alertEmail=ops@example.com
+```
+
+Optional cost-threshold overrides:
+
+```sh
+npm run --prefix infra synth -- -c anomalyImpactThresholdUsd=100
 ```
 
 Do not run `cdk deploy` until this checklist is complete.
