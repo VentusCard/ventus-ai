@@ -34,6 +34,7 @@ jobs:
           node --check backend/scripts/package-functions.mjs
           node --check backend/scripts/smoke-api.mjs
           node --check backend/scripts/validate-openapi.mjs
+          node --check backend/scripts/check-openapi-contract.mjs
           node --check backend/scripts/generate-api-docs.mjs
           node --check backend/scripts/check-route-coverage.mjs
           node --check backend/scripts/check-relative-imports.mjs
@@ -52,6 +53,9 @@ jobs:
 
       - name: Validate OpenAPI Draft
         run: npm run --prefix backend validate:openapi
+
+      - name: Check OpenAPI Contract Completeness
+        run: npm run --prefix backend check:openapi-contract
 
       - name: Check API Route Coverage
         run: npm run --prefix backend check:routes

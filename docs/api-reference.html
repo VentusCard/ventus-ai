@@ -302,6 +302,318 @@ components:
           format: date-time
         message:
           type: string
+    CustomerProfile:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        bank_id:
+          type: string
+        total_spend:
+          type: number
+        pillars:
+          type: array
+          items:
+            type: object
+            properties:
+              pillar:
+                type: string
+              total_spend:
+                type: number
+              transaction_count:
+                type: integer
+              avg_transaction:
+                type: number
+              pct_of_total_spend:
+                type: number
+              last_purchase_date:
+                type: string
+                format: date-time
+                nullable: true
+              analyzed_at:
+                type: string
+                format: date-time
+                nullable: true
+    EvidenceTransaction:
+      type: object
+      properties:
+        transaction_id:
+          type: string
+        merchant:
+          type: string
+        amount:
+          type: string
+        date:
+          type: string
+          format: date-time
+          nullable: true
+        relevance:
+          type: string
+          nullable: true
+    LifeEventsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        life_events:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                oneOf:
+                  - type: integer
+                  - type: string
+              event_name:
+                type: string
+              event_type:
+                type: string
+              confidence:
+                type: number
+                minimum: 0
+                maximum: 1
+              urgency_timeline:
+                type: string
+              status:
+                type: string
+              talking_points:
+                type: array
+                items:
+                  type: string
+              next_steps:
+                type: array
+                items:
+                  type: string
+              insight:
+                type: string
+                nullable: true
+              recommended_products:
+                type: array
+                items:
+                  type: string
+              financial_projection:
+                type: object
+                nullable: true
+              first_detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              last_confirmed_at:
+                type: string
+                format: date-time
+                nullable: true
+              detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              evidence:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvidenceTransaction'
+        behavioral_signals:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                oneOf:
+                  - type: integer
+                  - type: string
+              signal_category:
+                type: string
+              signal_name:
+                type: string
+              confidence:
+                type: number
+                minimum: 0
+                maximum: 1
+              status:
+                type: string
+              talking_points:
+                type: array
+                items:
+                  type: string
+              first_detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              last_confirmed_at:
+                type: string
+                format: date-time
+                nullable: true
+              detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              evidence:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EvidenceTransaction'
+    PurchaseSignalsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        days_elapsed_this_month:
+          type: integer
+        purchase_signals:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+            properties:
+              pillar:
+                type: string
+              monthly_breakdown:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    month:
+                      type: string
+                    spend:
+                      type: number
+                    transaction_count:
+                      type: integer
+    TripsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        trips:
+          type: array
+          items:
+            type: object
+            properties:
+              trip_id:
+                type: string
+              destination:
+                type: string
+              trip_start:
+                type: string
+                format: date-time
+              trip_end:
+                type: string
+                format: date-time
+              trip_duration_days:
+                type: string
+              total_trip_spend:
+                type: string
+              transaction_count:
+                type: string
+              transport_spend:
+                type: string
+              lodging_spend:
+                type: string
+              dining_spend:
+                type: string
+              activities_spend:
+                type: string
+              other_spend:
+                type: string
+              detected_at:
+                type: string
+                format: date-time
+                nullable: true
+              is_upcoming:
+                type: boolean
+    RiskFactorsResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        risk_factors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                oneOf:
+                  - type: integer
+                  - type: string
+              transaction_id:
+                type: string
+              category_group:
+                type: string
+              category_label:
+                type: string
+              severity:
+                type: string
+                enum:
+                  - high
+                  - medium
+                  - low
+              merchant:
+                type: string
+              amount:
+                type: string
+              transaction_date:
+                type: string
+                format: date-time
+              reason:
+                type: string
+              detected_at:
+                type: string
+                format: date-time
+        summary:
+          type: object
+          properties:
+            total:
+              type: integer
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+    AnalyticsResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+        overview:
+          type: object
+          properties:
+            total_customers:
+              type: integer
+            total_transactions:
+              type: integer
+            total_spend:
+              type: number
+            avg_transaction:
+              type: number
+            avg_confidence:
+              type: number
+        pillar_distribution:
+          type: array
+          items:
+            type: object
+        life_event_summary:
+          type: array
+          items:
+            type: object
+        behavioral_signal_summary:
+          type: array
+          items:
+            type: object
+        risk_summary:
+          type: array
+          items:
+            type: object
+        top_merchants:
+          type: array
+          items:
+            type: object
+        segments:
+          type: array
+          items:
+            type: object
 paths:
   /health:
     get:
@@ -457,6 +769,10 @@ paths:
       responses:
         '200':
           description: Customer profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CustomerProfile'
   /v1/customers/{customer_id}/life-events:
     get:
       summary: Get active customer life events
@@ -469,6 +785,10 @@ paths:
       responses:
         '200':
           description: Life events with evidence and recommendations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LifeEventsResponse'
   /v1/customers/{customer_id}/purchase-signals:
     get:
       summary: Get purchase cycle signals for a customer
@@ -481,6 +801,10 @@ paths:
       responses:
         '200':
           description: Purchase signals
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PurchaseSignalsResponse'
   /v1/customers/{customer_id}/trips:
     get:
       summary: Get detected customer trips
@@ -493,6 +817,10 @@ paths:
       responses:
         '200':
           description: Trips
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripsResponse'
   /v1/customers/{customer_id}/risk-factors:
     get:
       summary: Get customer risk factors
@@ -505,12 +833,20 @@ paths:
       responses:
         '200':
           description: Risk factors and summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskFactorsResponse'
   /v1/analytics/bank:
     get:
       summary: Get portfolio-level bank analytics
       responses:
         '200':
           description: Bank analytics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsResponse'
   /v1/webhooks:
     post:
       summary: Register or update a webhook
