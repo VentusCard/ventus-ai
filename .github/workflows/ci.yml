@@ -102,6 +102,10 @@ jobs:
         run: npm run check:iam
         working-directory: infra
 
+      - name: Check Observability Readiness
+        run: npm run check:observability
+        working-directory: infra
+
       - name: Synthesize CDK Plan
         run: npm run synth
         working-directory: infra

@@ -47,6 +47,7 @@ The current CDK stack records known production resource names and defines readin
 - API Gateway 5xx and p95 latency
 - webhook delivery failures
 - stuck pipeline runs
+- six-month CloudWatch log retention for backend Lambda and monitor log groups
 - service-level AWS Cost Anomaly Detection
 
 These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.

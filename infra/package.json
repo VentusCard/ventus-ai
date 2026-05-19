@@ -7,6 +7,7 @@
   "scripts": {
     "check": "tsc --noEmit",
     "check:iam": "node ./scripts/validate-iam-policies.mjs",
+    "check:observability": "node ./scripts/check-observability-readiness.mjs",
     "synth": "npm --prefix ../backend run package:monitors && cdk synth",
     "diff": "npm --prefix ../backend run package:monitors && cdk diff",
     "deploy": "npm --prefix ../backend run package:monitors && cdk deploy"

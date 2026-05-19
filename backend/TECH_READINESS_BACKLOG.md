@@ -24,7 +24,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Add alarms for DLQ depth on every queue. Initial CDK alarm proposals exist in `infra/lib/ventus-existing-infra-stack.ts`.
 - Add stuck-job detection for pipeline runs that do not reach `complete` or `failed` within an expected SLA. Initial config and SQL live in `backend/config/pipeline-slas.json` and `backend/sql/stuck-pipeline-runs.sql`.
 - Add webhook delivery failure metrics and alerts. Initial CloudWatch log metric filter proposal exists in CDK.
-- Add explicit CloudWatch log retention.
+- Add explicit CloudWatch log retention. Initial six-month retention is codified in CDK for backend Lambda log groups and checked in CI.
 
 ## P1 - Pipeline Reliability
 
