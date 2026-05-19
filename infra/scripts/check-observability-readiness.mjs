@@ -16,6 +16,13 @@ const requiredLambdaFunctions = [
   'ventus-risk-detection',
   'ventus-travel-detection',
 ];
+const requiredDatabaseMetrics = [
+  'CPUUtilization',
+  'DatabaseConnections',
+  'FreeLocalStorage',
+  'AuroraReplicaLagMaximum',
+  'VolumeBytesUsed',
+];
 
 assert.match(
   stackSource,
@@ -50,6 +57,18 @@ for (const functionName of requiredLambdaFunctions) {
   );
 }
 
+assert.match(
+  stackSource,
+  /DBClusterIdentifier:\s*resources\.databaseClusterIdentifier/,
+  'RDS alarms should target the configured Aurora cluster identifier'
+);
+for (const metricName of requiredDatabaseMetrics) {
+  assert.ok(
+    stackSource.includes(`metricName: '${metricName}'`),
+    `Aurora readiness metric ${metricName} should be alarmed`
+  );
+}
+
 console.log(
-  `Observability readiness checks passed: ${requiredLambdaFunctions.length + 1} Lambda log groups`
+  `Observability readiness checks passed: ${requiredLambdaFunctions.length + 1} Lambda log groups, ${requiredDatabaseMetrics.length} Aurora metrics`
 );

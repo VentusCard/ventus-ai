@@ -48,6 +48,7 @@ The current CDK stack records known production resource names and defines readin
 - webhook delivery failures
 - stuck pipeline runs
 - six-month CloudWatch log retention for backend Lambda and monitor log groups
+- Aurora cluster CPU, connection, local storage, replica lag, and volume growth signals
 - service-level AWS Cost Anomaly Detection
 
 These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.
