@@ -56,12 +56,13 @@ The CDK stack in `infra/lib/ventus-existing-infra-stack.ts` now covers:
 - Webhook delivery failures from worker log metric filters.
 - Scheduled stuck-job monitor Lambda and `StuckPipelineRuns` alarm.
 - Six-month CloudWatch log retention for backend Lambda and monitor log groups.
+- Aurora cluster CPU, connections, free local storage, replica lag, and volume bytes used.
 - AWS Cost Anomaly Detection service monitor.
 
 Still needed before production deployment:
 
 - Final alert subscriptions, such as email, PagerDuty, or Slack.
-- Aurora CPU, connection, storage, and replication/availability alarms.
+- Aurora instance-level availability and failover alarms after the final staging/prod instance inventory is confirmed.
 - DB network-path review for the scheduled stuck-job monitor before staging deploy.
 
 ## Cost Guardrails

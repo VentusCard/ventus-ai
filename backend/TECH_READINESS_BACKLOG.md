@@ -25,6 +25,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Add stuck-job detection for pipeline runs that do not reach `complete` or `failed` within an expected SLA. Initial config and SQL live in `backend/config/pipeline-slas.json` and `backend/sql/stuck-pipeline-runs.sql`.
 - Add webhook delivery failure metrics and alerts. Initial CloudWatch log metric filter proposal exists in CDK.
 - Add explicit CloudWatch log retention. Initial six-month retention is codified in CDK for backend Lambda log groups and checked in CI.
+- Add Aurora cluster alarms for CPU, connections, free local storage, replica lag, and volume bytes used. Initial CDK alarms are checked in CI.
 
 ## P1 - Pipeline Reliability
 

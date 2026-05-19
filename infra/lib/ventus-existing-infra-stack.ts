@@ -318,6 +318,9 @@ export class VentusExistingInfraStack extends cdk.Stack {
       ApiName: resources.apiGatewayName,
       Stage: resources.apiGatewayStage,
     };
+    const databaseMetricDimensions = {
+      DBClusterIdentifier: resources.databaseClusterIdentifier,
+    };
 
     withAlertAction(new cloudwatch.Alarm(this, 'VentusApi5xxAlarm', {
       alarmName: readinessAlarmName('ventus-api', '5xx'),
@@ -347,6 +350,86 @@ export class VentusExistingInfraStack extends cdk.Stack {
       }),
       threshold: 3000,
       evaluationPeriods: 2,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    }));
+
+    withAlertAction(new cloudwatch.Alarm(this, 'VentusDatabaseCpuAlarm', {
+      alarmName: readinessAlarmName(resources.databaseClusterIdentifier, 'cpu-high'),
+      alarmDescription: 'Ventus Aurora cluster CPU utilization is high.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/RDS',
+        metricName: 'CPUUtilization',
+        dimensionsMap: databaseMetricDimensions,
+        statistic: 'Average',
+        period: cdk.Duration.minutes(5),
+      }),
+      threshold: 80,
+      evaluationPeriods: 3,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    }));
+
+    withAlertAction(new cloudwatch.Alarm(this, 'VentusDatabaseConnectionsAlarm', {
+      alarmName: readinessAlarmName(resources.databaseClusterIdentifier, 'connections-high'),
+      alarmDescription: 'Ventus Aurora cluster database connections are elevated.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/RDS',
+        metricName: 'DatabaseConnections',
+        dimensionsMap: databaseMetricDimensions,
+        statistic: 'Maximum',
+        period: cdk.Duration.minutes(5),
+      }),
+      threshold: 80,
+      evaluationPeriods: 3,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    }));
+
+    withAlertAction(new cloudwatch.Alarm(this, 'VentusDatabaseFreeLocalStorageAlarm', {
+      alarmName: readinessAlarmName(resources.databaseClusterIdentifier, 'free-local-storage-low'),
+      alarmDescription: 'Ventus Aurora cluster free local storage is low.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/RDS',
+        metricName: 'FreeLocalStorage',
+        dimensionsMap: databaseMetricDimensions,
+        statistic: 'Minimum',
+        period: cdk.Duration.minutes(5),
+      }),
+      threshold: 5 * 1024 * 1024 * 1024,
+      evaluationPeriods: 3,
+      comparisonOperator: cloudwatch.ComparisonOperator.LESS_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    }));
+
+    withAlertAction(new cloudwatch.Alarm(this, 'VentusDatabaseReplicaLagAlarm', {
+      alarmName: readinessAlarmName(resources.databaseClusterIdentifier, 'replica-lag-high'),
+      alarmDescription: 'Ventus Aurora cluster replica lag is elevated.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/RDS',
+        metricName: 'AuroraReplicaLagMaximum',
+        dimensionsMap: databaseMetricDimensions,
+        statistic: 'Maximum',
+        period: cdk.Duration.minutes(5),
+      }),
+      threshold: 30000,
+      evaluationPeriods: 2,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    }));
+
+    withAlertAction(new cloudwatch.Alarm(this, 'VentusDatabaseVolumeBytesUsedAlarm', {
+      alarmName: readinessAlarmName(resources.databaseClusterIdentifier, 'volume-bytes-used-high'),
+      alarmDescription: 'Ventus Aurora cluster volume bytes used crossed the pilot-readiness threshold.',
+      metric: new cloudwatch.Metric({
+        namespace: 'AWS/RDS',
+        metricName: 'VolumeBytesUsed',
+        dimensionsMap: databaseMetricDimensions,
+        statistic: 'Maximum',
+        period: cdk.Duration.hours(1),
+      }),
+      threshold: 80 * 1024 * 1024 * 1024,
+      evaluationPeriods: 1,
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     }));
