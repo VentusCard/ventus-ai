@@ -141,7 +141,7 @@
         "cloudwatch:TagResource",
         "cloudwatch:UntagResource"
       ],
-      "Resource": "arn:aws:cloudwatch:us-east-2:373633008995:alarm:ventus-*"
+      "Resource": "arn:aws:cloudwatch:us-east-2:373633008995:alarm:ventus-*-readiness-*"
     },
     {
       "Sid": "VentusLambdaLogMetricFilters",

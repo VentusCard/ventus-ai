@@ -5,8 +5,8 @@ This directory is the AWS CDK home for codifying Ventus infrastructure.
 Current posture:
 
 - CDK is chosen because Ventus is AWS-native and the engineering stack is TypeScript-friendly.
-- This is an import-first skeleton. It does not create or modify live AWS resources.
-- Existing production resources should be imported gradually and reviewed before any deploy.
+- This remains import-first: existing production resources should be imported gradually before CDK owns them.
+- The current deployed footprint is limited to additive readiness monitoring resources.
 
 ## Current Production Resources To Model
 
@@ -37,7 +37,7 @@ Use `docs/cdk-deployment-review-checklist.md` before any deployment.
 
 ## Current Skeleton
 
-The current CDK stack records known production resource names and defines proposed CloudWatch alarms for:
+The current CDK stack records known production resource names and defines readiness CloudWatch alarms for:
 
 - Lambda errors
 - Lambda duration near timeout
@@ -48,11 +48,11 @@ The current CDK stack records known production resource names and defines propos
 - webhook delivery failures
 - stuck pipeline runs
 
-These alarms are code-only until a reviewed CDK deploy occurs.
+These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.
 
-## Stuck-Job Monitor Proposal
+## Stuck-Job Monitor
 
-The stack also defines a proposed scheduled Lambda monitor:
+The stack also defines a scheduled Lambda monitor:
 
 - Source: `backend/monitors/stuck-job-monitor`
 - Package output: `backend/dist/monitors/stuck-job-monitor.zip`
@@ -74,7 +74,7 @@ Review an AWS diff after credentials/OIDC are configured:
 npm run --prefix infra diff
 ```
 
-CI runs synth only. It does not deploy.
+Pull request CI runs synth only. Deploys require the protected staging workflow.
 
 The staging GitHub workflow lives at `.github/workflows/infra-staging.yml`. Configure the OIDC role and protected environment with `docs/github-aws-oidc-staging.md` before enabling it for deploys.
 
@@ -84,7 +84,7 @@ Optional email subscription:
 npm run --prefix infra synth -- -c alertEmail=ops@example.com
 ```
 
-The monitor is proposed in the same VPC/subnet/security-group path as the existing deployed backend Lambdas:
+The monitor uses the same VPC/subnet/security-group path as the existing deployed backend Lambdas:
 
 - VPC: `vpc-0d4cf689a4fed7f31`
 - Lambda subnets: `subnet-057aa09eef4545099`, `subnet-00958cfa806e7e363`
@@ -92,4 +92,4 @@ The monitor is proposed in the same VPC/subnet/security-group path as the existi
 
 Before deploying, review the synthesized plan and confirm the database security group self-reference on port `5432` is still present.
 
-CDK may warn that imported subnet route table IDs are not provided. That warning is acceptable for the current monitor proposal because the Lambda only needs subnet IDs/security groups for `VpcConfig`; route table mutation is not part of this stack.
+CDK may warn that imported subnet route table IDs are not provided. That warning is acceptable for the current monitor because the Lambda only needs subnet IDs/security groups for `VpcConfig`; route table mutation is not part of this stack.

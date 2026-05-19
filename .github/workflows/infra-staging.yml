@@ -34,6 +34,7 @@ permissions:
   id-token: write
 
 env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   AWS_ACCOUNT_ID: "373633008995"
   AWS_REGION: us-east-2
   ALERT_EMAIL: ${{ github.event.inputs.alert_email || '' }}
