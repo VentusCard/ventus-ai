@@ -172,7 +172,7 @@ Add CloudWatch alarms for:
 - Aurora CPU/connections/storage anomalies.
 - Monthly billing threshold and anomaly detection.
 
-The CDK skeleton in `infra/lib/ventus-existing-infra-stack.ts` now includes proposed CloudWatch alarms, SNS alarm actions, webhook failure metric filters, and a scheduled stuck-job monitor. It is not deployed from this repo yet.
+The CDK stack in `infra/lib/ventus-existing-infra-stack.ts` now includes deployed readiness CloudWatch alarms, SNS alarm actions, webhook failure metric filters, and a scheduled stuck-job monitor. Keep future changes behind CDK diff review and staging approval.
 
 ## Deployment Guardrail
 
