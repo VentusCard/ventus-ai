@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as ce from 'aws-cdk-lib/aws-ce';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
@@ -67,6 +68,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
     if (typeof alertEmail === 'string' && alertEmail.length > 0) {
       alertTopic.addSubscription(new subscriptions.EmailSubscription(alertEmail));
     }
+    const anomalyImpactThresholdUsd = positiveNumberContext(this, 'anomalyImpactThresholdUsd', 50);
     const alertAction = new cloudwatchActions.SnsAction(alertTopic);
     const withAlertAction = (alarm: cloudwatch.Alarm) => {
       alarm.addAlarmAction(alertAction);
@@ -144,6 +146,62 @@ export class VentusExistingInfraStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, 'BackendAlertsTopicArn', {
       value: alertTopic.topicArn,
+    });
+
+    const costAnomalyEmailSubscribers =
+      typeof alertEmail === 'string' && alertEmail.length > 0
+        ? [
+            {
+              type: 'EMAIL',
+              address: alertEmail,
+            },
+          ]
+        : [];
+
+    const costAnomalyMonitor = new ce.CfnAnomalyMonitor(this, 'VentusServiceCostAnomalyMonitor', {
+      monitorName: 'ventus-service-cost-anomaly-monitor',
+      monitorType: 'DIMENSIONAL',
+      monitorDimension: 'SERVICE',
+      resourceTags: [
+        {
+          key: 'Application',
+          value: 'Ventus',
+        },
+        {
+          key: 'Control',
+          value: 'CostGuardrail',
+        },
+      ],
+    });
+
+    if (costAnomalyEmailSubscribers.length > 0) {
+      new ce.CfnAnomalySubscription(this, 'VentusCostAnomalySubscription', {
+        subscriptionName: 'ventus-cost-anomaly-alerts',
+        frequency: 'DAILY',
+        monitorArnList: [costAnomalyMonitor.ref],
+        thresholdExpression: JSON.stringify({
+          Dimensions: {
+            Key: 'ANOMALY_TOTAL_IMPACT_ABSOLUTE',
+            MatchOptions: ['GREATER_THAN_OR_EQUAL'],
+            Values: [String(anomalyImpactThresholdUsd)],
+          },
+        }),
+        subscribers: costAnomalyEmailSubscribers,
+        resourceTags: [
+          {
+            key: 'Application',
+            value: 'Ventus',
+          },
+          {
+            key: 'Control',
+            value: 'CostGuardrail',
+          },
+        ],
+      });
+    }
+
+    new cdk.CfnOutput(this, 'ServiceCostAnomalyMonitorArn', {
+      value: costAnomalyMonitor.attrMonitorArn,
     });
 
     for (const functionName of resources.lambdaFunctions) {
@@ -406,4 +464,18 @@ function toId(value: string): string {
 
 function readinessAlarmName(resourceName: string, signalName: string): string {
   return `${resourceName}-readiness-${signalName}`;
+}
+
+function positiveNumberContext(scope: Construct, key: string, defaultValue: number): number {
+  const value = scope.node.tryGetContext(key);
+  if (value === undefined || value === null || value === '') {
+    return defaultValue;
+  }
+
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    throw new Error(`${key} must be a positive number`);
+  }
+
+  return parsed;
 }

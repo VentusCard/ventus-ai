@@ -190,7 +190,25 @@ The machine-readable copy lives at `infra/iam/github-staging-deploy-policy.json`
         "cloudwatch:TagResource",
         "cloudwatch:UntagResource"
       ],
-      "Resource": "arn:aws:cloudwatch:us-east-2:373633008995:alarm:ventus-*"
+      "Resource": "arn:aws:cloudwatch:us-east-2:373633008995:alarm:ventus-*-readiness-*"
+    },
+    {
+      "Sid": "CostGuardrails",
+      "Effect": "Allow",
+      "Action": [
+        "ce:CreateAnomalyMonitor",
+        "ce:CreateAnomalySubscription",
+        "ce:DeleteAnomalyMonitor",
+        "ce:DeleteAnomalySubscription",
+        "ce:GetAnomalyMonitors",
+        "ce:GetAnomalySubscriptions",
+        "ce:ListTagsForResource",
+        "ce:TagResource",
+        "ce:UntagResource",
+        "ce:UpdateAnomalyMonitor",
+        "ce:UpdateAnomalySubscription"
+      ],
+      "Resource": "*"
     },
     {
       "Sid": "VentusLambdaLogMetricFilters",

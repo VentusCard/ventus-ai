@@ -1,6 +1,6 @@
 # Observability Readiness
 
-This document captures the first operational readiness layer for the Ventus backend. It is repo-only and does not deploy alarms or monitors by itself.
+This document captures the first operational readiness layer for the Ventus backend. The CDK resources are deployed only through reviewed diff/deploy workflows.
 
 ## Pipeline SLA
 
@@ -41,9 +41,9 @@ It flags rows in `pipeline_runs` where:
 
 The query also returns the first missing stage timestamp to direct triage to the right worker.
 
-## Proposed CloudWatch Alarms
+## Deployed Readiness Monitoring
 
-The CDK proposal in `infra/lib/ventus-existing-infra-stack.ts` now covers:
+The CDK stack in `infra/lib/ventus-existing-infra-stack.ts` now covers:
 
 - SNS alert topic for backend alarms.
 - Lambda `Errors` for every backend function.
@@ -55,14 +55,35 @@ The CDK proposal in `infra/lib/ventus-existing-infra-stack.ts` now covers:
 - API Gateway p95 latency.
 - Webhook delivery failures from worker log metric filters.
 - Scheduled stuck-job monitor Lambda and `StuckPipelineRuns` alarm.
+- AWS Cost Anomaly Detection service monitor.
 
 Still needed before production deployment:
 
 - Final alert subscriptions, such as email, PagerDuty, or Slack.
 - CloudWatch log retention policies.
-- Billing alarms and AWS Cost Anomaly Detection.
 - Aurora CPU, connection, storage, and replication/availability alarms.
 - DB network-path review for the scheduled stuck-job monitor before staging deploy.
+
+## Cost Guardrails
+
+The infra stack defines:
+
+- Cost anomaly monitor: `ventus-service-cost-anomaly-monitor`
+- Default anomaly notification threshold: `50` USD absolute impact
+
+Override thresholds during synth/diff/deploy:
+
+```sh
+npm run --prefix infra synth -- -c anomalyImpactThresholdUsd=100
+```
+
+Email delivery requires `alertEmail` context:
+
+```sh
+npm run --prefix infra synth -- -c alertEmail=ops@example.com
+```
+
+AWS Budget creation remains a follow-up because the target `us-east-2` CloudFormation registry reports `AWS::Budgets::Budget` as non-provisionable. Until a dedicated billing stack is added, configure a manual monthly AWS Budget in the Billing console.
 
 ## Staging Monitor Rollout
 
@@ -135,4 +156,4 @@ Webhook failures:
 
 ## Pilot Readiness Gap
 
-The repo now defines what should be monitored, but it does not yet deploy or route alerts. The next readiness step is to add an alert destination and a scheduled stuck-job monitor in staging first.
+The repo now defines and deploys the first readiness layer. The next readiness steps are to confirm alert recipients, add CloudWatch log retention, and add Aurora health alarms.
