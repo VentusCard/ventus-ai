@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const SOURCE_SYSTEMS = new Set(['fis', 'fiserv', 'jack_henry']);
+export const SOURCE_SYSTEMS = new Set(['fis', 'fiserv', 'jack_henry', 'generic_bank_export']);
+export const TRANSACTION_TYPES = new Set(['debit', 'credit', 'signal']);
 export const TERMINAL_JOB_STATUSES = new Set(['complete', 'failed']);
 export const JOB_STATUSES = new Set([
   'ingested',
@@ -115,12 +116,21 @@ export function validateEnrichTransaction(txn, label = 'transaction') {
   assert.ok(isMcc(txn.mcc_code ?? null), `${label}.mcc_code should be a four digit MCC`);
   assert.ok(isZip(txn.zip_code ?? null), `${label}.zip_code should be a ZIP code`);
   assert.ok(isZip(txn.home_zip ?? null), `${label}.home_zip should be a ZIP code`);
+  if (txn.rail !== undefined) assertString(txn.rail, `${label}.rail`);
+  if (txn.source_profile !== undefined) assertString(txn.source_profile, `${label}.source_profile`);
+  if (txn.transaction_type !== undefined) {
+    assert.ok(
+      TRANSACTION_TYPES.has(txn.transaction_type),
+      `${label}.transaction_type ${txn.transaction_type} is unsupported`
+    );
+  }
 }
 
 export function validateMockBankFixtures(mockBankRoot) {
   const seenIds = new Set();
   const files = readdirSync(mockBankRoot).filter((name) => name.endsWith('.json')).sort();
   assert.ok(files.length >= 3, 'expected mock-bank fixtures for multiple core processors');
+  const taxonomy = readJson(join(mockBankRoot, '..', 'evaluation', 'multirail-profile-taxonomy.json'));
 
   for (const fileName of files) {
     const fixture = readJson(join(mockBankRoot, fileName));
@@ -132,6 +142,7 @@ export function validateMockBankFixtures(mockBankRoot) {
 
     for (const [index, txn] of fixture.transactions.entries()) {
       validateEnrichTransaction(txn, `${fileName}.transactions[${index}]`);
+      validateTransactionProfile(txn, taxonomy, `${fileName}.transactions[${index}]`);
       assert.ok(!seenIds.has(txn.transaction_id), `duplicate transaction_id ${txn.transaction_id}`);
       seenIds.add(txn.transaction_id);
     }
@@ -354,10 +365,13 @@ export function validateGoldenEnrichmentExpectations(expectations, mockBankRoot)
   assertObject(expectations, 'golden expectations');
   assertString(expectations.fixture_version, 'golden expectations.fixture_version');
   assertObject(expectations.minimum_expected_coverage, 'golden expectations.minimum_expected_coverage');
+  assertObject(expectations.minimum_profile_coverage, 'golden expectations.minimum_profile_coverage');
   assertArray(expectations.expectations, 'golden expectations.expectations');
 
   const fixtureById = new Map();
   const sourceCounts = new Map();
+  const profileCounts = new Map();
+  const taxonomy = readJson(join(mockBankRoot, '..', 'evaluation', 'multirail-profile-taxonomy.json'));
   const files = readdirSync(mockBankRoot).filter((name) => name.endsWith('.json')).sort();
   for (const fileName of files) {
     const fixture = readJson(join(mockBankRoot, fileName));
@@ -381,6 +395,16 @@ export function validateGoldenEnrichmentExpectations(expectations, mockBankRoot)
     assert.ok(fixtureTxn, `${label}.transaction_id does not exist in mock-bank fixtures`);
     assert.equal(expectation.source_system, fixtureTxn.source_system, `${label}.source_system`);
     sourceCounts.set(expectation.source_system, (sourceCounts.get(expectation.source_system) || 0) + 1);
+    const profile = expectation.source_profile ?? fixtureTxn.source_profile;
+    const rail = expectation.rail ?? fixtureTxn.rail;
+    const transactionType = expectation.transaction_type ?? fixtureTxn.transaction_type;
+    validateExpectationProfile(
+      { rail, source_profile: profile, transaction_type: transactionType },
+      taxonomy,
+      label
+    );
+    const profileKey = `${rail}/${profile}`;
+    profileCounts.set(profileKey, (profileCounts.get(profileKey) || 0) + 1);
 
     assertString(expectation.expected_clean_merchant_name, `${label}.expected_clean_merchant_name`);
     assert.ok(
@@ -402,9 +426,17 @@ export function validateGoldenEnrichmentExpectations(expectations, mockBankRoot)
     );
   }
 
+  for (const [profileKey, minimum] of Object.entries(expectations.minimum_profile_coverage)) {
+    assert.ok(
+      (profileCounts.get(profileKey) || 0) >= minimum,
+      `expected at least ${minimum} golden expectations for ${profileKey}`
+    );
+  }
+
   return {
     expectationCount: expectations.expectations.length,
     sourceSystems: [...sourceCounts.keys()].sort(),
+    profiles: [...profileCounts.keys()].sort(),
   };
 }
 
@@ -452,4 +484,23 @@ function compareStringPrediction(failures, expectation, prediction, predictionKe
       `${expectation.transaction_id}: ${predictionKey} expected "${expectation[expectationKey]}", got "${prediction[predictionKey]}"`
     );
   }
+}
+
+function validateTransactionProfile(txn, taxonomy, label) {
+  if (txn.rail === undefined && txn.source_profile === undefined && txn.transaction_type === undefined) return;
+  validateExpectationProfile(txn, taxonomy, label);
+}
+
+function validateExpectationProfile(value, taxonomy, label) {
+  assertString(value.rail, `${label}.rail`);
+  assertString(value.source_profile, `${label}.source_profile`);
+  assert.ok(taxonomy.rails[value.rail], `${label}.rail ${value.rail} is not in taxonomy`);
+  assert.ok(
+    taxonomy.rails[value.rail].profiles[value.source_profile],
+    `${label}.source_profile ${value.source_profile} is not in taxonomy rail ${value.rail}`
+  );
+  assert.ok(
+    TRANSACTION_TYPES.has(value.transaction_type),
+    `${label}.transaction_type ${value.transaction_type} is unsupported`
+  );
 }
