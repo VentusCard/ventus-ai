@@ -14,9 +14,8 @@ import { Construct } from 'constructs';
 /**
  * CDK skeleton for documenting/importing existing production resources.
  *
- * This stack intentionally does not create resources yet. The next step is to
- * import existing resources one class at a time and compare synthesized plans
- * before any deploy is considered.
+ * This stack imports existing production-adjacent resources by identifier and
+ * adds non-invasive readiness monitoring around them.
  */
 export class VentusExistingInfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -159,7 +158,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       });
 
       withAlertAction(new cloudwatch.Alarm(this, `${toId(functionName)}ErrorsAlarm`, {
-        alarmName: `${functionName}-errors`,
+        alarmName: readinessAlarmName(functionName, 'errors'),
         alarmDescription: `Ventus backend Lambda ${functionName} reported errors.`,
         metric: errorMetric,
         threshold: 1,
@@ -179,7 +178,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       });
 
       withAlertAction(new cloudwatch.Alarm(this, `${toId(functionName)}DurationAlarm`, {
-        alarmName: `${functionName}-duration-near-timeout`,
+        alarmName: readinessAlarmName(functionName, 'duration-near-timeout'),
         alarmDescription: `Ventus backend Lambda ${functionName} is approaching timeout behavior.`,
         metric: durationMetric,
         threshold: functionName === 'ventus-api' ? 25000 : 270000,
@@ -189,7 +188,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       }));
 
       withAlertAction(new cloudwatch.Alarm(this, `${toId(functionName)}ThrottlesAlarm`, {
-        alarmName: `${functionName}-throttles`,
+        alarmName: readinessAlarmName(functionName, 'throttles'),
         alarmDescription: `Ventus backend Lambda ${functionName} reported throttles.`,
         metric: new cloudwatch.Metric({
           namespace: 'AWS/Lambda',
@@ -219,7 +218,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       });
 
       withAlertAction(new cloudwatch.Alarm(this, `${toId(queueName)}OldestMessageAgeAlarm`, {
-        alarmName: `${queueName}-oldest-message-age`,
+        alarmName: readinessAlarmName(queueName, 'oldest-message-age'),
         alarmDescription: `Ventus backend queue ${queueName} has an old message and may be stuck.`,
         metric: queueAgeMetric,
         threshold: 600,
@@ -240,7 +239,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       });
 
       withAlertAction(new cloudwatch.Alarm(this, `${toId(dlqName)}DepthAlarm`, {
-        alarmName: `${dlqName}-visible-messages`,
+        alarmName: readinessAlarmName(dlqName, 'visible-messages'),
         alarmDescription: `Ventus backend DLQ ${dlqName} has messages requiring triage.`,
         metric: dlqDepthMetric,
         threshold: 1,
@@ -256,7 +255,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
     };
 
     withAlertAction(new cloudwatch.Alarm(this, 'VentusApi5xxAlarm', {
-      alarmName: 'ventus-api-5xx',
+      alarmName: readinessAlarmName('ventus-api', '5xx'),
       alarmDescription: 'Ventus API Gateway returned 5xx responses.',
       metric: new cloudwatch.Metric({
         namespace: 'AWS/ApiGateway',
@@ -272,7 +271,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
     }));
 
     withAlertAction(new cloudwatch.Alarm(this, 'VentusApiLatencyAlarm', {
-      alarmName: 'ventus-api-latency-p95',
+      alarmName: readinessAlarmName('ventus-api', 'latency-p95'),
       alarmDescription: 'Ventus API Gateway p95 latency breached the pilot-readiness threshold.',
       metric: new cloudwatch.Metric({
         namespace: 'AWS/ApiGateway',
@@ -308,7 +307,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
     }
 
     withAlertAction(new cloudwatch.Alarm(this, 'VentusWebhookFailuresAlarm', {
-      alarmName: 'ventus-webhook-delivery-failures',
+      alarmName: readinessAlarmName('ventus-webhook', 'delivery-failures'),
       alarmDescription: 'Ventus webhook delivery failures appeared in worker logs.',
       metric: new cloudwatch.Metric({
         namespace: 'Ventus/Pipeline',
@@ -378,7 +377,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
     });
 
     withAlertAction(new cloudwatch.Alarm(this, 'VentusStuckPipelineRunsAlarm', {
-      alarmName: 'ventus-stuck-pipeline-runs',
+      alarmName: readinessAlarmName('ventus-stuck-pipeline', 'runs'),
       alarmDescription: 'Ventus pipeline runs exceeded the stuck-job SLA.',
       metric: new cloudwatch.Metric({
         namespace: 'Ventus/Pipeline',
@@ -403,4 +402,8 @@ function toId(value: string): string {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join('');
+}
+
+function readinessAlarmName(resourceName: string, signalName: string): string {
+  return `${resourceName}-readiness-${signalName}`;
 }
