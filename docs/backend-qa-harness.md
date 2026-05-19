@@ -4,7 +4,8 @@ This harness is scoped to backend pilot readiness. It does not change UI/UX, enr
 
 ## What It Checks
 
-- Mock-bank input payloads for FIS, Fiserv, and Jack Henry style normalized transaction feeds.
+- Mock-bank input payloads for FIS, Fiserv, Jack Henry, and provider-agnostic multi-rail normalized transaction feeds.
+- Provider-agnostic rail/profile coverage for card, ACH, bill pay, P2P, wire, ATM cash, refund, fee, and merchant-integration signals.
 - Required `POST /v1/enrich` input fields: transaction ID, customer ID, merchant name, amount, date, MCC, ZIP, and home ZIP.
 - Representative downstream response contracts for:
   - `POST /v1/enrich`
@@ -62,12 +63,21 @@ Useful optional settings:
 - Mock-bank input fixtures: `backend/fixtures/mock-bank/`
 - API response examples: `backend/fixtures/contracts/api-response-examples.json`
 - Golden enrichment expectations: `backend/fixtures/evaluation/golden-enrichment-expectations.json`
+- Multi-rail profile taxonomy: `backend/fixtures/evaluation/multirail-profile-taxonomy.json`
 
 ## Golden Enrichment QA
 
-The golden expectation layer defines expected classification outcomes for the current mock FIS, Fiserv, and Jack Henry transaction fixtures. It is test harness data, not a production enriched dataset.
+The golden expectation layer defines expected classification outcomes for the current mock FIS, Fiserv, Jack Henry, and provider-agnostic multi-rail transaction fixtures. It is test harness data, not a production enriched dataset.
 
-The CI-safe mode validates that every expected transaction still maps to a source fixture and has an expected clean merchant name, lifestyle category, merchant category, minimum confidence threshold, and downstream signal flags for travel, risk, and life-event candidates.
+The CI-safe mode validates that every expected transaction still maps to a source fixture and has an expected rail, source profile, transaction type, clean merchant name, lifestyle category, merchant category, minimum confidence threshold, and downstream signal flags for travel, risk, and life-event candidates.
+
+`source_system` is metadata for fixture provenance. The behavior under test is defined by:
+
+- `rail`: card, ACH, bill pay, P2P, wire, or merchant integration
+- `source_profile`: the provider-agnostic transaction pattern, such as `card_travel`, `ach_payroll`, or `wire_transfer`
+- `transaction_type`: debit, credit, or signal
+
+New integration partners should map into these profiles or add new profiles to `multirail-profile-taxonomy.json` before adding golden expectations.
 
 To compare actual model/API output against the golden set, provide a JSON file containing either an array or `{ "predictions": [...] }` with `transaction_id`, `clean_merchant_name`, `lifestyle_category`, `merchant_category`, and `confidence_score`.
 
