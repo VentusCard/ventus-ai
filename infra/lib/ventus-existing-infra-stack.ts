@@ -69,6 +69,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       alertTopic.addSubscription(new subscriptions.EmailSubscription(alertEmail));
     }
     const anomalyImpactThresholdUsd = positiveNumberContext(this, 'anomalyImpactThresholdUsd', 50);
+    const backendLogRetention = logs.RetentionDays.SIX_MONTHS;
     const alertAction = new cloudwatchActions.SnsAction(alertTopic);
     const withAlertAction = (alarm: cloudwatch.Alarm) => {
       alarm.addAlarmAction(alertAction);
@@ -205,6 +206,12 @@ export class VentusExistingInfraStack extends cdk.Stack {
     });
 
     for (const functionName of resources.lambdaFunctions) {
+      new logs.LogRetention(this, `${toId(functionName)}LogRetention`, {
+        logGroupName: `/aws/lambda/${functionName}`,
+        retention: backendLogRetention,
+        removalPolicy: cdk.RemovalPolicy.RETAIN,
+      });
+
       const errorMetric = new cloudwatch.Metric({
         namespace: 'AWS/Lambda',
         metricName: 'Errors',
@@ -400,6 +407,11 @@ export class VentusExistingInfraStack extends cdk.Stack {
         SNS_TOPIC_ARN: alertTopic.topicArn,
         STUCK_JOB_SLA_MINUTES: '20',
       },
+    });
+    new logs.LogRetention(this, 'VentusStuckJobMonitorLogRetention', {
+      logGroupName: '/aws/lambda/ventus-stuck-job-monitor',
+      retention: backendLogRetention,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
     const databaseSecretArn = cdk.Stack.of(this).formatArn({
       service: 'secretsmanager',
