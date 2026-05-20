@@ -354,7 +354,7 @@ export default function ExecDemoSelectionDialog({
                         className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-emerald-50 text-emerald-700">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-teal-100 text-teal-800">
                             Income
                           </span>
                           <span className="text-base font-semibold text-slate-700">{incomeRows.length} txns</span>
@@ -395,7 +395,7 @@ export default function ExecDemoSelectionDialog({
                                       <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[420px] truncate" title={row.merchant_name}>
                                         {row.merchant_name}
                                       </td>
-                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-emerald-700">
+                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-teal-800">
                                         {fmtAmt}
                                       </td>
                                     </tr>
