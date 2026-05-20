@@ -1,118 +1,40 @@
 
 ## Goal
 
-Add a **4th column** to the Next-Product tab (`NextProductRationale.tsx`) — after Life Event, Shopping Habit, Additional Tools — that shows the **creditworthiness** result from the `assess-creditworthiness` edge function we just deployed.
-
-Scope is the Exec Demo Next-Product panel only. No CSV, no other tabs.
-
----
-
-## Where this lives
-
-- View: `src/components/exec-demo/NextProductRationale.tsx` (renders the row of columns).
-- Orchestrator: `src/pages/ExecDemoPage.tsx` (already owns `productCards`, `riskFlags`, etc. — add credit fetch + state here).
-- Wiring: `src/components/exec-demo/ExecDemoIntelPanel.tsx` (passes props through).
-
----
+Move the Creditworthiness UI out of the 4th column and render it as a **full-width horizontal card** sitting **above** the 3 product columns in the Next-Product tab.
 
 ## Changes
 
-### 1. `src/pages/ExecDemoPage.tsx`
+### `src/components/exec-demo/NextProductRationale.tsx`
 
-- New state:
-  ```ts
-  const [creditAssessment, setCreditAssessment] = useState<CreditAssessment | null>(null);
-  const [creditLoading, setCreditLoading] = useState(false);
-  ```
-- New `fireCreditAssessment` callback, mirroring `fireProductCards` structure. Triggered alongside `fireProductCards` (phase 2, after `classify-transactions` completes — same gate `fireProductCards` already uses).
-  ```ts
-  const { data, error } = await supabase.functions.invoke("assess-creditworthiness", {
-    body: {
-      client: {
-        name: demoCustomer?.profile?.name,
-        age: demographics.age,
-        occupation: demographics.occupation,
-        industry: demographics.industry,
-        income_level: demographics.incomeLevel,
-        family_status: demographics.familyStatus,
-        segment: demoCustomer?.profile?.segment,
-      },
-      transactions: classifiedRef.current || [],
-      window_days: 90,
-    },
-  });
-  ```
-- Reset on customer switch (alongside existing `setProductCards(null)`).
-- Pass `creditAssessment` + `creditLoading` into `<ExecDemoIntelPanel ... />` (both call sites, lines ~1365 and ~1454).
+1. **Layout change** — In the `productCards` branch, revert the column wrapper back to the original 3-column flex (`flex items-stretch gap-3`, cap at 3). Render a new `<CreditworthinessBanner ... />` immediately **above** the columns row (between `RecommendedProductsPills` and the columns), only when `creditAssessment` or `creditLoading` is truthy.
 
-### 2. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+2. **New `CreditworthinessBanner` component** — Replaces `CreditworthinessColumn`. Same data inputs (`assessment`, `loading`) and same band-color logic, but optimized for a wide horizontal layout:
 
-- Extend `Props` with `creditAssessment?: CreditAssessment | null; creditLoading?: boolean;`.
-- Forward to `<NextProductRationale ... creditAssessment={creditAssessment} creditLoading={creditLoading} />` at line 960.
+   - Outer card: full-width `rounded-xl border bg-white`, 3px left border in band color, padding `px-4 py-3`.
+   - Horizontal grid laid out in one row (collapses to wrap if narrower):
+     - **Left block** (fixed-ish width ~220px): "Creditworthiness" label · band+score pill · `confidence% conf` · one-line summary truncated to 2 lines.
+     - **Middle block** (flex-1): 4-up affordability mini stats inline — `Monthly Inflow · Monthly Outflow · Surplus · DTI Proxy` — same `formatSpend` / percentage formatting as the column version, separated by thin vertical dividers (`w-px bg-slate-200`).
+     - **Signals block** (flex-shrink-0): chip row with `Income / Volatility / Discretionary` level chips + up to 2 positive chips + up to 2 distress chips (fewer than the column version because horizontal real estate is tighter).
+     - **Right block** (~260px): "Suggested Next Step" — `recommended_products[0].product` bold + one-line rationale muted.
+   - **Top drivers** (collapsed): instead of stacked drivers, render the top 2 driver labels as small inline chips with direction arrows under the summary (e.g. `↑ Stable payroll · ↓ Discretionary creep`). One-line explanations are dropped to keep the card compact.
+   - Footnote `Indicative · no bureau data` as a small muted italic line aligned right.
 
-### 3. `src/components/exec-demo/NextProductRationale.tsx` — the actual 4th column
+3. **Loading state** — Same banner shell, but middle/right blocks become 3 pulsing slate bars; left block shows "Creditworthiness" label + a `h-7 w-40 bg-slate-100 animate-pulse rounded-full` placeholder.
 
-- Add a shared `CreditAssessment` TypeScript interface (exported) matching the edge-function response:
-  ```ts
-  export interface CreditAssessment {
-    score: number;
-    band: "Excellent" | "Good" | "Fair" | "Limited" | "Poor";
-    confidence: number;
-    summary: string;
-    drivers: { label: string; direction: "positive" | "negative" | "neutral"; weight: number; explanation: string }[];
-    affordability: { estimated_monthly_inflow: number; estimated_monthly_outflow: number; estimated_dti_proxy: number; surplus_ratio: number };
-    signals: {
-      income_stability: "stable" | "variable" | "thin" | "unknown";
-      cashflow_volatility: "low" | "medium" | "high";
-      discretionary_pressure: "low" | "medium" | "high";
-      distress_indicators: string[];
-      positive_indicators: string[];
-    };
-    recommended_products: { product: string; rationale: string }[];
-    caveats: string[];
-  }
-  ```
-- Extend `Props`: `creditAssessment?: CreditAssessment | null; creditLoading?: boolean;`.
-- Render: when present, push a 4th `ResolvedCard`-shaped entry into `pickedCards` and bump the cap from 3 to 4 (`pickedCards.length >= 4`). Reuse `renderColumn`'s outer shell — header label + pill + body — but branch the body and pill to a credit-specific renderer.
-- Header label: `"Creditworthiness"`.
-- Pill (replaces the standard trigger pill):
-  - Text: band name + score, e.g. `"Good · 732"`.
-  - Color map by band (light theme, slate-200-border palette already in file):
-    - Excellent → emerald (`#10b981`)
-    - Good → sky/blue (`#3b82f6`)
-    - Fair → amber (`#f59e0b`)
-    - Limited → slate (`#64748b`)
-    - Poor → rose (`#f43f5e`) — sparingly, this is the only justified red use (memory rule allows red for risk; credit risk qualifies).
-  - Suffix: `"{confidence}% conf"` in muted small text.
-  - Non-clickable (no triggerable transactions).
-- Body card (compact, matches existing `ProductCardBody` density):
-  1. One-line `summary`.
-  2. Mini-grid: `Monthly inflow / Monthly outflow / Surplus / DTI proxy` formatted with the existing `formatSpend` and percentage helpers.
-  3. **Signal chips row** (small pills): `income_stability`, `cashflow_volatility`, `discretionary_pressure` — colored green/amber/red per value. Then up to 3 chips each from `positive_indicators` (emerald) and `distress_indicators` (rose).
-  4. **Top 2 drivers** by `weight`, with a small ↑/→/↓ glyph for direction and a one-line `explanation`.
-  5. **Recommended product** — first item from `recommended_products` rendered as a primary chip (`product`) with `rationale` as muted subtext. (No `ActionPillsRow` — credit column has no card actions.)
-  6. Muted footnote: `"Indicative · no bureau data"` (from caveats).
-- Loading state: when `creditLoading && !creditAssessment`, render a 4th column skeleton (label "Creditworthiness", 3 pulsing slate bars) so layout doesn't reflow.
-- Empty state: if `creditAssessment === null && !creditLoading`, **omit** the 4th column (render only 3 — matches existing fallback behavior for missing data).
+4. **Empty state** — If `!creditAssessment && !creditLoading`, render nothing (no banner, no reserved space). Columns remain unaffected.
 
-### 4. Layout adjustments
+5. **Cleanup** — Delete `CreditworthinessColumn` (replaced by `CreditworthinessBanner`). Keep the exported `CreditAssessment` interface, `BAND_COLORS`, and `LEVEL_TONE` constants intact since the banner reuses them.
 
-- Container at line 834 is `flex items-stretch gap-3`. With 4 children it can get tight at narrow widths — reduce `gap-3` → `gap-2` only when 4 columns are present (conditional class) and let `flex-1 min-w-0` continue to do the work. No grid swap needed; the panel is desktop-only per the memory rule.
-- Vertical divider logic (`{i > 0 && <div className="w-px bg-slate-200..." />}`) continues to insert dividers between all 4 columns.
+### Out of scope
 
----
-
-## Out of scope
-
-- No new edge functions — `assess-creditworthiness` is already deployed.
-- No changes to other tabs (Relationship, Analytics, Purchase Cycle).
-- No changes to risk pipeline, sample data, classification, or memory.
-- No mobile/responsive work (panel is desktop-gated).
+- `ExecDemoPage.tsx`, `ExecDemoIntelPanel.tsx`, edge function, and assessment fetching all stay as-is.
+- No new props, no API changes.
 
 ## Verification
 
-After implementation:
-1. Load `/deckmo` (or wherever ExecDemoPage is reachable), pick a demo customer, wait for enrichment.
-2. Confirm 4th "Creditworthiness" column appears with score/band/drivers/recommended product.
-3. Customer switch resets the column.
-4. Network tab shows one `POST .../assess-creditworthiness` per customer, returning the shape above.
+1. Load `/demo`, pick a customer, wait for enrichment.
+2. Confirm a single wide creditworthiness banner appears above the 3 (Life Event / Shopping Habit / Additional Tools) columns.
+3. Columns are back to 3-wide (no 4th column squeeze).
+4. Customer switch → banner disappears, then re-renders for the new customer.
+5. While loading, banner skeleton appears in the same horizontal position.
