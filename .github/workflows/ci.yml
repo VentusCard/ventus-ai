@@ -45,6 +45,7 @@ jobs:
           node --check backend/scripts/qa-golden-enrichment.mjs
           node --check backend/scripts/qa-live-pipeline.mjs
           node --check backend/scripts/lib/qa-validators.mjs
+          node --check infra/scripts/audit-live-secrets-cutover.mjs
           node --check infra/scripts/check-secrets-boundary.mjs
 
       - name: Validate Monitor Entrypoints
