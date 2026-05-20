@@ -54,6 +54,8 @@ The current CDK stack records known production resource names and defines readin
 
 The current RDS network exposure baseline is captured in `infra/security/rds-network-exposure-baseline.json` and checked by CI. It documents the existing temporary public `/32` Postgres ingress exceptions and the target posture of private-only database access.
 
+The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. Use `docs/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables and secret metadata before and after the AWS cutover.
+
 These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.
 
 ## Cost Guardrails

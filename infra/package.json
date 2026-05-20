@@ -10,6 +10,7 @@
     "check:observability": "node ./scripts/check-observability-readiness.mjs",
     "check:rds-network": "node ./scripts/check-rds-network-exposure.mjs",
     "check:secrets": "node ./scripts/check-secrets-boundary.mjs",
+    "audit:secrets-cutover": "node ./scripts/audit-live-secrets-cutover.mjs",
     "synth": "npm --prefix ../backend run package:monitors && cdk synth",
     "diff": "npm --prefix ../backend run package:monitors && cdk diff",
     "deploy": "npm --prefix ../backend run package:monitors && cdk deploy"
