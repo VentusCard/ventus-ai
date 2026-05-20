@@ -893,6 +893,44 @@ export default function ExecDemoPage() {
     [selectedIdx],
   );
 
+  /** Assess indicative behavioral creditworthiness from enriched transactions */
+  const fireCreditAssessment = useCallback(async () => {
+    setCreditLoading(true);
+    setCreditAssessment(null);
+    try {
+      const enrichedTxs = classifiedRef.current || [];
+      if (enrichedTxs.length === 0) {
+        setCreditLoading(false);
+        return;
+      }
+      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+      const demographics: any = demoCustomer?.profile?.demographics || {};
+      const { data, error } = await supabase.functions.invoke("assess-creditworthiness", {
+        body: {
+          client: {
+            name: demographics.name,
+            age: demographics.age,
+            occupation: demographics.occupation,
+            industry: demographics.industry,
+            income_level: demographics.incomeLevel,
+            family_status: demographics.familyStatus,
+            segment: demographics.segment,
+          },
+          transactions: enrichedTxs,
+          window_days: 90,
+        },
+      });
+      if (error) throw error;
+      setCreditAssessment(data as CreditAssessment);
+      console.log("[PRELOAD] Credit assessment ready:", (data as any)?.band, (data as any)?.score);
+    } catch (err) {
+      console.error("[PRELOAD] Credit assessment failed:", err);
+    } finally {
+      setCreditLoading(false);
+    }
+  }, [selectedIdx]);
+
+
   firePersonaSynthesisRef.current = firePersonaSynthesis;
   fireRiskDetectionRef.current = fireRiskDetection;
 
