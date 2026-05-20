@@ -19,6 +19,29 @@ export interface CardActions {
   actions: CardAction[];
 }
 
+export interface CreditAssessment {
+  score: number;
+  band: "Excellent" | "Good" | "Fair" | "Limited" | "Poor";
+  confidence: number;
+  summary: string;
+  drivers: { label: string; direction: "positive" | "negative" | "neutral"; weight: number; explanation: string }[];
+  affordability: {
+    estimated_monthly_inflow: number;
+    estimated_monthly_outflow: number;
+    estimated_dti_proxy: number;
+    surplus_ratio: number;
+  };
+  signals: {
+    income_stability: "stable" | "variable" | "thin" | "unknown";
+    cashflow_volatility: "low" | "medium" | "high";
+    discretionary_pressure: "low" | "medium" | "high";
+    distress_indicators: string[];
+    positive_indicators: string[];
+  };
+  recommended_products: { product: string; rationale: string }[];
+  caveats: string[];
+}
+
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
   smartphone: Smartphone, mail: Mail, "user-check": UserCheck, calendar: CalendarCheck,
   heart: Heart, gift: Gift, shield: Shield, lightbulb: Lightbulb, star: Star,
