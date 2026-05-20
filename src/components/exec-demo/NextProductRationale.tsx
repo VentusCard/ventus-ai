@@ -1033,28 +1033,20 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Up to 3 product columns + optional 4th creditworthiness column with vertical dividers */}
-        {(() => {
-          const showCredit = !!creditAssessment || !!creditLoading;
-          const totalCols = pickedCards.length + (showCredit ? 1 : 0);
-          const gapClass = totalCols >= 4 ? "gap-2" : "gap-3";
-          return (
-            <div className={`flex items-stretch ${gapClass}`}>
-              {pickedCards.map((c, i) => (
-                <Fragment key={i}>
-                  {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
-                  {renderColumn(c, i)}
-                </Fragment>
-              ))}
-              {showCredit && (
-                <Fragment>
-                  {pickedCards.length > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
-                  <CreditworthinessColumn assessment={creditAssessment} loading={!!creditLoading} />
-                </Fragment>
-              )}
-            </div>
-          );
-        })()}
+        {/* Creditworthiness banner — full-width card above the columns */}
+        {(creditAssessment || creditLoading) && (
+          <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
+        )}
+
+        {/* Up to 3 products side-by-side with vertical dividers */}
+        <div className="flex items-stretch gap-3">
+          {pickedCards.map((c, i) => (
+            <Fragment key={i}>
+              {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
+              {renderColumn(c, i)}
+            </Fragment>
+          ))}
+        </div>
 
         <style>{`
           @keyframes exec-product-reveal {
