@@ -719,6 +719,8 @@ export default function ExecDemoPage() {
         console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
         // Fire product cards generation with life events + persona data
         fireProductCards(events, personaSynthesisRef.current);
+        // Fire indicative creditworthiness assessment in parallel
+        fireCreditAssessment();
         // Fire offers with both pillars and detected life events in a single call
         const syn = synthesis || personaSynthesisRef.current;
         if (syn && pillars) {
