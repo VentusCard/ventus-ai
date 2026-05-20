@@ -108,6 +108,7 @@ export function buildAdvisorContext(
   transactions: EnrichedTransaction[],
   aiInsights: AIInsights | null
 ): AdvisorContext {
+  transactions = transactions.filter((t) => !isIncome(t as any));
   if (transactions.length === 0) {
     return {
       overview: {
