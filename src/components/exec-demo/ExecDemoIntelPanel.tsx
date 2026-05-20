@@ -972,6 +972,8 @@ export default function ExecDemoIntelPanel({
                 actionsLoading={actionsLoading}
                 pillarRollups={rollupStats}
                 riskFlags={riskFlags}
+                creditAssessment={creditAssessment}
+                creditLoading={creditLoading}
               />
             ) : activeTab === "relationship" ? (
               <div className="h-full flex flex-col min-h-0">
