@@ -73,6 +73,8 @@ interface Props {
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
   riskFlags?: { flags: any[]; summary: string } | null;
+  creditAssessment?: CreditAssessment | null;
+  creditLoading?: boolean;
 }
 
 /** Compute the first risk rollup pill (mirrors logic in ExecDemoIntelPanel) */
