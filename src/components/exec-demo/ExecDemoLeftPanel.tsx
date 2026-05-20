@@ -115,7 +115,7 @@ const TxRow = ({
         <span className="truncate font-medium">{tx.merchant}</span>
         <span
           className="shrink-0 tabular-nums font-semibold"
-          style={{ color: highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
+          style={{ color: tx.amount?.startsWith("$") && !tx.amount?.startsWith("($") ? "#059669" : highlight ? highlightColor : dim ? "#94a3b8" : "#475569" }}
         >
           {tx.amount}
         </span>
