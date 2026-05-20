@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
+import { getFlow } from "@/lib/transactionFlow";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
