@@ -440,3 +440,14 @@ function formatShortDate(dateStr: string): string {
     return dateStr;
   }
 }
+
+// Keyword-based income detection. Source-agnostic so future non-ACH inflows
+// (Zelle deposits, brokerage transfers, gig payouts, gov benefits) match too.
+const INCOME_KEYWORDS = [
+  "PAYROLL", "DIRECT DEP", "DIR DEP", "SALARY",
+  "IRS TREAS", "SSA TREAS", "PENSION", "DIVIDEND",
+];
+function isIncomeTransaction(t: Transaction): boolean {
+  const hay = `${t.merchant_name ?? ""} ${t.description ?? ""}`.toUpperCase();
+  return INCOME_KEYWORDS.some(k => hay.includes(k));
+}
