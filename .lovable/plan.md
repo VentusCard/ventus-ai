@@ -1,44 +1,89 @@
 ## Goal
-Visually differentiate income vs. spend in the **raw transaction CSV display** using accounting convention — income shown as a positive number, spend shown in parentheses, e.g. `$9,500.00` vs `($2,800.00)`. All **downstream copy** (LLM prompts, summaries, "you spent X on Y") continues to use positive numbers.
 
-## Approach
-Keep stored amounts unsigned (no churn through every consumer that sums or formats spend). Layer income detection + accounting display on top.
+Teach `classify-transactions` to recognize **incomes** by adding a **13th pillar: "Income & Inflows"**. LLM-driven. Merchant refunds keep their normal spending pillar (so a Whole Foods return still counts as Grocery) but are flagged as inflows via a separate `flow` field.
 
-### 1. Income detection helper
-Add `src/lib/transactionFlow.ts`:
+## Changes
+
+### 1. `supabase/functions/classify-transactions/index.ts`
+
+**a. Prompt — add pillar 13** (keep 1–12 unchanged):
+
+```
+13. Income & Inflows: Payroll, Reimbursements, Investment Income,
+    Government Benefits, Tax Refunds, Transfers In, Interest Earned,
+    Rental Income, Gifts Received, General
+```
+
+(Note: merchant refunds are intentionally NOT a category here — see refund rule below.)
+
+**b. Add an INCOME vs SPEND section to the prompt:**
+
+```
+INCOME vs SPEND (flow field):
+Every transaction gets a "flow" value: "income" or "spend".
+
+flow = "income" when money flows INTO the account. Signals:
+  PAYROLL, DIRECT DEPOSIT, DES: PAYROLL, ACH CREDIT, REFUND, RETURN,
+  REIMBURSEMENT, DIVIDEND, INTEREST PAID/EARNED, IRS TREAS, SSA TREAS,
+  TAX REF, VENMO CASHOUT, ZELLE FROM <person>, RENTAL INCOME, REBATE,
+  CASHBACK REDEMPTION.
+
+flow = "spend" for all normal purchases.
+
+PILLAR ROUTING for income:
+• Payroll, government benefits, dividends, interest, tax refunds, transfers
+  in, rental income, gifts received → pillar "Income & Inflows".
+• MERCHANT REFUNDS / RETURNS → keep the merchant's NORMAL spending pillar.
+  Example: "WHOLE FOODS REFUND" → Food & Dining / Grocery, flow="income".
+  Example: "AMAZON RETURN" → Home & Living / General, flow="income".
+  Example: "DELTA AIR LINES REFUND" → Travel & Exploration / Flights,
+           flow="income".
+  Rationale: refunds reverse a specific spend category; keeping the pillar
+  lets analytics net them against the original spend.
+
+For Income & Inflows rows: spending_tier = "N/A". purchase_frequency
+reflects cadence (Payroll → Monthly/Weekly; Tax Refund → Annually;
+Interest → Monthly).
+```
+
+Add 4–5 examples under a new "Income & Inflows:" example block (Employer payroll, IRS TREAS tax refund, Vanguard dividend, SSA benefit, Venmo cashout) AND 2–3 refund examples that stay in spending pillars under their normal pillar blocks (WHOLE FOODS REFUND, AMAZON RETURN, DELTA REFUND).
+
+**c. Tool schema** — two updates:
+- Extend `pillar` enum with `"Income & Inflows"`.
+- Add `flow` field:
+  ```ts
+  flow: { type: "string", enum: ["income", "spend"] }
+  ```
+  Add `"flow"` to the `required` array.
+
+**d. Merge step** — include `flow` on the enriched object; default to `classification.flow ?? "spend"`. Fallback branches (failed classification) also set `flow: "spend"`. No deterministic overrides — leave it entirely to the LLM as requested.
+
+### 2. `src/lib/transactionFlow.ts`
+
+Update `getFlow()` to prefer the explicit field, falling back to the existing regex for sample data that bypasses the classifier:
+
 ```ts
-export type Flow = "income" | "spend";
-export function getFlow(tx: { merchant_name?: string; merchant?: string; source?: string }): Flow {
-  const name = (tx.merchant_name ?? tx.merchant ?? "").toUpperCase();
-  if (/DES:\s*PAYROLL|PAYROLL|DIRECT DEP|DEPOSIT/.test(name)) return "income";
-  return "spend";
-}
-export function formatAccounting(amount: number, flow: Flow): string {
-  const abs = Math.abs(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  return flow === "income" ? `$${abs}` : `($${abs})`;
+export function getFlow(tx: {
+  flow?: Flow;
+  merchant_name?: string;
+  merchant?: string;
+  description?: string;
+}): Flow {
+  if (tx.flow === "income" || tx.flow === "spend") return tx.flow;
+  // existing regex fallback unchanged
 }
 ```
 
-### 2. Raw-CSV display points (only these change visually)
-Apply `formatAccounting(amt, getFlow(row))` and color (income = emerald-600, spend = slate-900) at:
-- `src/components/exec-demo/ExecDemoSelectionDialog.tsx` (raw paste preview table, line ~399)
-- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` (raw enrichment table)
-- `src/components/exec-demo/ExecDemoLeftPanel.tsx` if it shows amounts
-- `src/components/demo/DemoEnrichmentTableView.tsx` (raw engine view on `/demo`)
-- `src/components/exec-demo/execDemoData.ts → parseCsvToTransactions`: keep `Transaction.amount` string as-is for the tooltip/table renderers that already format via the helper; switch its current `fmt` to call `formatAccounting`.
+`isIncome()`, `formatAccounting()`, `stripIncome()`, and `buildAdvisorContext` all read through `getFlow()` and automatically inherit the new field. Refunds will correctly show as income (green, no brackets) AND still appear in their pillar's spend aggregation totals — which is the desired netting behavior for merchant returns.
 
-### 3. Downstream stays positive
-No changes to:
-- Pillar aggregations, persona prompts, deal generation, financial tips, advisor chat, analytics totals — they already use absolute values or sum unsigned amounts.
-- LLM prompt builders (`advisorContextBuilder`, `eventPreparationPromptBuilder`, etc.) — they format with `formatCurrency` on positive numbers; income rows currently inflate "spend" totals, so we add a filter: when building **spend** context/totals, exclude rows where `getFlow(tx) === "income"`. Income is surfaced separately only where the UI already shows it (none today — out of scope to add unless asked).
+> Note: `stripIncome()` currently excludes ALL income from aggregations. With refunds now flagged income, they'd be excluded too — defeating the "net against spend" intent. Update `stripIncome()` to only exclude income when `pillar === "Income & Inflows"`, keeping refunds in their pillar's totals.
 
-### 4. CSV files
-No edits to the CSV string literals. Amounts stay positive; the display layer interprets sign by flow.
+### 3. Pillar color palette
+
+Add "Income & Inflows" to the pillar color map using an **emerald/green** hue (matches existing income tint in `ExecDemoLeftPanel`). Red stays reserved for risk.
 
 ## Out of scope
-- TePilot views (`ResultsTable`, `PreviewTable`, `TransactionDetailModal`) unless you want it there too — see open question.
-- Adding an income summary card anywhere.
-- Changing the underlying `amount: number` type to signed.
 
-## Open question
-Apply accounting brackets in **executive demo + `/demo` raw views only**, or also in **TePilot** raw tables (`PreviewTable`, `ResultsTable`, `TransactionDetailModal`)?
+- No CSV data changes.
+- No DB migrations.
+- No UI layout changes — formatting and tinting already flow through `getFlow()`.
