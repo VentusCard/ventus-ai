@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, Fragment } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
+import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower, ArrowUp, ArrowDown, Minus, Gauge } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PillarRollup } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
