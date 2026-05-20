@@ -147,7 +147,7 @@ One test batch initially appeared stuck at `travel_detected`, but later complete
 - No regional WAF ACL was found in `us-east-2`, despite WAF billing.
 - S3 public access block and bucket encryption are enabled.
 - S3 versioning appears unset.
-- Secrets metadata originally indicated a DB credential secret also contained a Gemini API key. On 2026-05-20, a dedicated `ventus/model-providers/gemini` secret was created, all seven backend Lambdas received `RDS_SECRET_ID`, the five model-analysis Lambdas received `MODEL_PROVIDER_SECRET_ID`, and model Lambda IAM policies were updated to read the dedicated model-provider secret. `npm run --prefix infra audit:secrets-cutover` now passes. Remaining cleanup is to deploy the recovered backend package that reads `MODEL_PROVIDER_SECRET_ID`, smoke-test enrichment, then remove `GEMINI_API_KEY` from the DB credential secret and enable/review rotation/KMS posture.
+- Secrets metadata originally indicated a DB credential secret also contained a Gemini API key. On 2026-05-20, a dedicated `ventus/model-providers/gemini` secret was created, all seven backend Lambdas received `RDS_SECRET_ID`, the five model-analysis Lambdas received `MODEL_PROVIDER_SECRET_ID`, model Lambda IAM policies were updated to read the dedicated model-provider secret, and the recovered backend package that reads `MODEL_PROVIDER_SECRET_ID` was deployed to the seven backend Lambdas. `npm run --prefix infra audit:secrets-cutover` now passes. Remaining cleanup is to run authenticated enrichment smoke tests, then remove `GEMINI_API_KEY` from the DB credential secret and enable/review rotation/KMS posture.
 
 ### Billing
 
