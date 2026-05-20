@@ -3,6 +3,7 @@ import type { EnrichedTransaction } from "@/types/transaction";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import { PILLAR_COLORS } from "@/lib/sampleData";
+import { getFlow } from "@/lib/transactionFlow";
 
 const getConfidenceColor = (c: number) => {
   if (c >= 0.8) return "bg-green-500/10 text-green-700 border-green-500/20";
