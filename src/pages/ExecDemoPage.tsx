@@ -12,7 +12,7 @@ import ExecDemoIntelPanel, {
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
-import type { CardActions } from "@/components/exec-demo/NextProductRationale";
+import type { CardActions, CreditAssessment } from "@/components/exec-demo/NextProductRationale";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import {
