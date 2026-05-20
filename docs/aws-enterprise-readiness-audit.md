@@ -141,6 +141,7 @@ One test batch initially appeared stuck at `travel_detected`, but later complete
 - Cluster deletion protection is enabled, but one DB instance reports deletion protection false.
 - One RDS instance is publicly accessible.
 - Postgres ingress allows self-reference plus two public `/32` IPs.
+- Current RDS exposure is captured as a CI-checked baseline in `infra/security/rds-network-exposure-baseline.json`; target posture is private-only RDS access through approved backend compute and controlled administrative access.
 - API Gateway stage tracing is disabled.
 - CloudWatch log groups mostly lack explicit retention policies.
 - No regional WAF ACL was found in `us-east-2`, despite WAF billing.
@@ -242,7 +243,7 @@ Production guardrails:
   - stuck jobs
   - webhook failure rate
 - Add explicit log retention.
-- Review and reduce public RDS exposure.
+- Review and reduce public RDS exposure by validating/removing the two public `/32` Postgres exceptions and moving the public RDS instance to private-only access.
 - Separate DB credentials from model-provider secrets.
 - Add secret rotation strategy.
 - Enable S3 versioning if the bucket stores bank uploads.

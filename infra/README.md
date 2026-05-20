@@ -52,6 +52,8 @@ The current CDK stack records known production resource names and defines readin
 - Aurora cluster CPU, connection, local storage, replica lag, and volume growth signals
 - service-level AWS Cost Anomaly Detection
 
+The current RDS network exposure baseline is captured in `infra/security/rds-network-exposure-baseline.json` and checked by CI. It documents the existing temporary public `/32` Postgres ingress exceptions and the target posture of private-only database access.
+
 These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.
 
 ## Cost Guardrails

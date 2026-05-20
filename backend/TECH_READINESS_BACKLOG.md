@@ -42,7 +42,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 
 - Narrow production CORS. Initial `ventus-api` allowlist is environment-driven through `VENTUS_ALLOWED_ORIGINS` and checked in CI.
 - Add API throttling or usage plans. Initial pilot usage plan is codified in CDK with throttle/quota defaults; API key association remains a per-client onboarding step.
-- Review public RDS exposure and public `/32` ingress rules.
+- Review public RDS exposure and public `/32` ingress rules. Current exposure is captured in `infra/security/rds-network-exposure-baseline.json` and checked in CI; remediation remains to remove the public instance/access path after owner validation.
 - Separate DB credentials and model-provider credentials into separate Secrets Manager secrets.
 - Define secret rotation policy.
 - Enable tracing for API Gateway/Lambda where appropriate.

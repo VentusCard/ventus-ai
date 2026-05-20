@@ -68,6 +68,7 @@ Still needed before production deployment:
 - API key association and per-client quota policy after pilot client onboarding is approved.
 - Final production `VENTUS_ALLOWED_ORIGINS` values after approved bank/prototype domains are confirmed.
 - DB network-path review for the scheduled stuck-job monitor before staging deploy.
+- RDS public exposure remediation: validate or remove the two temporary public `/32` Postgres ingress exceptions and move the public DB instance to private-only access.
 
 ## Cost Guardrails
 
