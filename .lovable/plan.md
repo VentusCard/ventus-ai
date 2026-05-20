@@ -1,28 +1,27 @@
-## Shrink SAMPLE_CSV to a 12-month window (preserve all non-ACH)
+## Add Income chip after the KYC/demographics line
 
-Trim `SAMPLE_CSV` in `src/lib/sampleData.ts` to a 12-month window while keeping every non-ACH transaction. Other 5 sample CSVs untouched.
+### Placement
+`src/components/demo/DemoCustomerPanel.tsx` — insert a new chip row directly **after** the Industry/Income KYC line (`lines 340-352`) and **before** the existing summary stats row (`lines 354-365`).
 
-### Window
-- Target range: `2025-07-16` → `2026-07-15`
+### Detection — source-agnostic
+Income = any transaction whose `merchant_name` or `description` matches an extensible keyword set:
+- `PAYROLL`, `DIRECT DEP`, `DIR DEP`, `SALARY`, `IRS TREAS`, `SSA TREAS`, `PENSION`, `DIVIDEND`
+- Case-insensitive, substring match
+- Source field is **not** used for the rule — keeps it future-proof for non-ACH income (Zelle deposits, brokerage transfers, gig payouts, etc.)
+- Centralize in a small local helper `isIncomeTransaction(t)` so we can swap in a smarter classifier later.
 
-### Row-level rules
-- **ACH rows** (`source === "ACH"`): keep only those already inside the window; drop the rest (~60 of 84 removed).
-- **Non-ACH rows** (all 67): keep every row. Any row dated `≤ 2025-07-15` gets re-dated into the window via linear remap of its original date from `[2024-04-02 … 2026-07-06]` → `[2025-07-16 … 2026-07-15]`. Rows already inside the window keep their original date.
-  - Life-event clusters (home-buying mortgage/title-fee, college/admissions block, etc.) get compressed proportionally so their relative order and clustering are preserved.
+### Chip visuals
+- Single emerald pill matching the existing source-pill style, e.g.
+  `Income · $114,000 · 12 deposits`
+- Uses the same `text-[11px]` row as KYC, emerald accent (`bg-emerald-50 text-emerald-700`) since income is a positive money-in signal.
+- Only renders when at least one income txn is detected; otherwise the row is omitted.
 
-### Method
-Node script:
-1. Parse `SAMPLE_CSV` template literal body, split header + rows.
-2. For each non-ACH row outside the window, compute remapped date.
-3. Filter ACH rows to window.
-4. Stable-sort all surviving rows ascending by date.
-5. Rewrite the literal in place, headers preserved, all other CSV constants untouched.
-
-### Expected impact
-- Total rows: 151 → ~91 (67 non-ACH + ~24 ACH).
-- Non-ACH content unchanged; only `date` field rewritten for pre-window rows.
-- ACH cadence still visible (monthly payroll/rent/auto-debit) but only across the last 12 months.
+### Total recalculation
+- `totalSpend` (line 281) becomes spend-only: sum of non-income transactions.
+- Existing `$X total` chip now accurately reflects outflows; no label change needed (still reads "total").
+- Income is **not** double-counted.
 
 ### Out of scope
-- No changes to other sample CSVs, demographics, LLM prompts, edge functions, or UI.
-- No merchant/amount edits or row synthesis.
+- No changes to `Transaction` type, parsers, sample data, enrichment, or downstream views.
+- Table rows render unchanged — income rows still show their existing source pill.
+- No new color tokens.
