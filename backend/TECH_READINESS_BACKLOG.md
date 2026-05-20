@@ -41,7 +41,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 ## P1 - Security Hardening
 
 - Narrow production CORS.
-- Add API throttling or usage plans.
+- Add API throttling or usage plans. Initial pilot usage plan is codified in CDK with throttle/quota defaults; API key association remains a per-client onboarding step.
 - Review public RDS exposure and public `/32` ingress rules.
 - Separate DB credentials and model-provider credentials into separate Secrets Manager secrets.
 - Define secret rotation policy.

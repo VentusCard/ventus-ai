@@ -1,4 +1,5 @@
 import * as cdk from 'aws-cdk-lib';
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as ce from 'aws-cdk-lib/aws-ce';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as cloudwatchActions from 'aws-cdk-lib/aws-cloudwatch-actions';
@@ -353,6 +354,36 @@ export class VentusExistingInfraStack extends cdk.Stack {
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     }));
+
+    new apigateway.CfnUsagePlan(this, 'VentusPilotUsagePlan', {
+      usagePlanName: 'ventus-api-pilot-readiness-plan',
+      description:
+        'Pilot readiness usage plan for approved Ventus API clients. API keys can be associated after client onboarding approval.',
+      apiStages: [
+        {
+          apiId: resources.apiGatewayRestApiId,
+          stage: resources.apiGatewayStage,
+        },
+      ],
+      throttle: {
+        rateLimit: 25,
+        burstLimit: 50,
+      },
+      quota: {
+        limit: 100000,
+        period: 'MONTH',
+      },
+      tags: [
+        {
+          key: 'Application',
+          value: 'Ventus',
+        },
+        {
+          key: 'Control',
+          value: 'ApiThrottling',
+        },
+      ],
+    });
 
     withAlertAction(new cloudwatch.Alarm(this, 'VentusDatabaseCpuAlarm', {
       alarmName: readinessAlarmName(resources.databaseClusterIdentifier, 'cpu-high'),

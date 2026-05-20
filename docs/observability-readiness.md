@@ -53,6 +53,7 @@ The CDK stack in `infra/lib/ventus-existing-infra-stack.ts` now covers:
 - SQS oldest message age.
 - API Gateway 5xx errors.
 - API Gateway p95 latency.
+- API Gateway pilot usage plan with steady-state throttle, burst limit, and monthly quota.
 - Webhook delivery failures from worker log metric filters.
 - Scheduled stuck-job monitor Lambda and `StuckPipelineRuns` alarm.
 - Six-month CloudWatch log retention for backend Lambda and monitor log groups.
@@ -63,6 +64,7 @@ Still needed before production deployment:
 
 - Final alert subscriptions, such as email, PagerDuty, or Slack.
 - Aurora instance-level availability and failover alarms after the final staging/prod instance inventory is confirmed.
+- API key association and per-client quota policy after pilot client onboarding is approved.
 - DB network-path review for the scheduled stuck-job monitor before staging deploy.
 
 ## Cost Guardrails
