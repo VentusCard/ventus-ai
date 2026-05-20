@@ -1409,6 +1409,8 @@ export default function ExecDemoPage() {
                   productCards={productCards}
                   riskFlags={riskFlags}
                   riskLoading={riskLoading}
+                  creditAssessment={creditAssessment}
+                  creditLoading={creditLoading}
                   onTriggerPillClick={handleTriggerPillClick}
                   activeTriggerLabel={activeTriggerPill?.label}
                   activeTrigger={activeTriggerPill}
