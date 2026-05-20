@@ -37,6 +37,7 @@ jobs:
           node --check backend/scripts/check-openapi-contract.mjs
           node --check backend/scripts/generate-api-docs.mjs
           node --check backend/scripts/check-route-coverage.mjs
+          node --check backend/scripts/check-api-cors-readiness.mjs
           node --check backend/scripts/check-relative-imports.mjs
           node --check backend/scripts/check-pipeline-readiness.mjs
           node --check backend/scripts/package-monitors.mjs
@@ -60,6 +61,9 @@ jobs:
 
       - name: Check API Route Coverage
         run: npm run --prefix backend check:routes
+
+      - name: Check API CORS Readiness
+        run: npm run --prefix backend check:cors
 
       - name: Check Backend Relative Imports
         run: npm run --prefix backend check:imports

@@ -40,7 +40,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 
 ## P1 - Security Hardening
 
-- Narrow production CORS.
+- Narrow production CORS. Initial `ventus-api` allowlist is environment-driven through `VENTUS_ALLOWED_ORIGINS` and checked in CI.
 - Add API throttling or usage plans. Initial pilot usage plan is codified in CDK with throttle/quota defaults; API key association remains a per-client onboarding step.
 - Review public RDS exposure and public `/32` ingress rules.
 - Separate DB credentials and model-provider credentials into separate Secrets Manager secrets.

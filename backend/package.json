@@ -16,6 +16,7 @@
     "validate:openapi": "node ./scripts/validate-openapi.mjs",
     "check:openapi-contract": "node ./scripts/check-openapi-contract.mjs",
     "check:routes": "node ./scripts/check-route-coverage.mjs",
+    "check:cors": "node ./scripts/check-api-cors-readiness.mjs",
     "check:imports": "node ./scripts/check-relative-imports.mjs",
     "check:pipeline-readiness": "node ./scripts/check-pipeline-readiness.mjs"
   }
