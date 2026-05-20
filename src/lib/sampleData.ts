@@ -223,7 +223,7 @@ txn_002,OLUKAI SANDALS,Leather flip-flops for island trip,5661,128.00,2024-06-23
 txn_003,HAYES VALLEY GENERAL STORE,Assorted home and gift goods,5999,84.00,2024-05-12,94102,Cashback Card
 txn_004,SF TENNIS CLUB,"Annual membership dues",,350.00,2024-11-25,,Checks
 txn_005,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2024-04-02,94102,Premium Card
-txn_006,PACIFIC HEIGHTS APT,,,2800.00,2024-12-10,,ACH
+
 txn_007,SUNBUM REEF SAFE SPF,Reef-safe sunscreen pre-trip,5912,64.00,2024-06-20,94102,Cashback Card
 txn_008,MARIA G,"Dogsitting",,150.00,2024-12-18,,Zelle
 txn_009,KOA KEA HOTEL KAUAI,Poipu beachfront 5 nights,7011,2290.00,2024-07-03,96756,Premium Card
