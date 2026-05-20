@@ -16,8 +16,11 @@ import { PILLAR_COLORS } from "./sampleData";
 import { isIncome } from "./transactionFlow";
 
 // Strip income rows so spend totals/charts don't include paychecks/deposits.
-const stripIncome = <T extends { merchant_name?: string; merchant?: string; description?: string }>(txs: T[]): T[] =>
-  txs.filter((t) => !isIncome(t));
+// Merchant refunds (flow="income" but pillar is a normal spending pillar) are KEPT
+// so they net against the original spend in their pillar's totals.
+const stripIncome = <T extends { pillar?: string; merchant_name?: string; merchant?: string; description?: string }>(
+  txs: T[],
+): T[] => txs.filter((t) => !(t.pillar === "Income & Inflows" || (isIncome(t) && !t.pillar)));
 
 // MCC-based aggregations
 export function aggregateByMCC(transactions: Transaction[]): MCCAggregate[] {
