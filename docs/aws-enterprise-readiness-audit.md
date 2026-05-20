@@ -125,7 +125,7 @@ One test batch initially appeared stuck at `travel_detected`, but later complete
 - `status.ventusai.com` does not resolve.
 - API Gateway uses a single proxy route to Lambda, so route contracts are only discoverable from code.
 - API Gateway usage plans returned empty. Rate limits may only exist in application code, if at all.
-- CORS is broad with `Access-Control-Allow-Origin: *`.
+- CORS was originally broad with `Access-Control-Allow-Origin: *`; the recovered `ventus-api` source now uses an environment-driven allowlist through `VENTUS_ALLOWED_ORIGINS`.
 - API auth is API-key based and scoped through `bank_id`; this is workable for pilots but should evolve for enterprise admin/user workflows.
 
 ### Pipeline Reliability
@@ -232,7 +232,7 @@ Production guardrails:
 ### Phase 4 - Security Hardening
 
 - Add API rate limits or usage plans.
-- Narrow CORS for production.
+- Confirm final production `VENTUS_ALLOWED_ORIGINS` values for approved bank, Ventus, staging, and prototype domains before deployment.
 - Enable API Gateway or Lambda tracing.
 - Add CloudWatch alarms for:
   - Lambda errors

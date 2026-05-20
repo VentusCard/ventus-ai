@@ -13,6 +13,20 @@ app.use(express.json());
 const SECRET_ARN =
   'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
 const getDB = createDbFactory({ secretId: SECRET_ARN });
+const DEFAULT_ALLOWED_ORIGINS = [
+  'https://ventusai.com',
+  'https://www.ventusai.com',
+  'https://staging.d1gaewa028qzng.amplifyapp.com',
+  'https://*.ventusai.com',
+  'https://*.lovable.app',
+  'https://*.lovable.dev',
+  'https://*.lovableproject.com',
+  'https://*.amplifyapp.com',
+];
+const DEFAULT_DEV_ALLOWED_ORIGINS = [
+  'http://localhost:*',
+  'http://127.0.0.1:*',
+];
 
 // ─── URGENCY TIMELINE DEFAULTS ────────────────────────────────────────────────
 function getDefaultUrgencyTimeline(eventName) {
@@ -53,9 +67,55 @@ const SEGMENT_DISPLAY_NAMES = {
 };
 
 // ─── CORS MIDDLEWARE ──────────────────────────────────────────────────────────
+function parseAllowedOrigins(value, environment) {
+  if (typeof value === 'string' && value.trim().length > 0) {
+    return value
+      .split(',')
+      .map((origin) => origin.trim())
+      .filter(Boolean);
+  }
+
+  if (environment === 'production') {
+    return DEFAULT_ALLOWED_ORIGINS;
+  }
+
+  return ['*'];
+}
+
+function wildcardOriginToRegex(pattern) {
+  const escaped = pattern
+    .replace(/[.+?^${}()|[\]\\]/g, '\\$&')
+    .replaceAll('*', '[^.:/]+');
+  return new RegExp(`^${escaped}$`);
+}
+
+function originMatchesPattern(origin, pattern) {
+  if (pattern === '*') return true;
+  if (pattern === origin) return true;
+  if (!pattern.includes('*')) return false;
+  return wildcardOriginToRegex(pattern).test(origin);
+}
+
+function resolveCorsOrigin(origin, allowedOrigins) {
+  if (!origin) return null;
+  return allowedOrigins.some((allowedOrigin) => originMatchesPattern(origin, allowedOrigin))
+    ? origin
+    : null;
+}
+
+const environment = process.env.VENTUS_ENVIRONMENT || process.env.NODE_ENV || 'development';
+const allowedOrigins = [
+  ...parseAllowedOrigins(process.env.VENTUS_ALLOWED_ORIGINS, environment),
+  ...(environment === 'production' ? [] : DEFAULT_DEV_ALLOWED_ORIGINS),
+];
+
 app.use((req, res, next) => {
   const requestId = crypto.randomUUID();
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const corsOrigin = resolveCorsOrigin(req.headers.origin, allowedOrigins);
+  if (corsOrigin) {
+    res.setHeader('Access-Control-Allow-Origin', corsOrigin);
+  }
+  res.setHeader('Vary', 'Origin');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, x-api-key');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('X-Ventus-Version', 'v1');
