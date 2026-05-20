@@ -104,6 +104,12 @@ export default function ExecDemoSelectionDialog({
     return ordered;
   }, [rawRows]);
 
+  const incomeRows = useMemo(() => rawRows.filter((r) => isIncome(r)), [rawRows]);
+  const incomeTotal = useMemo(
+    () => incomeRows.reduce((s, r) => s + (isNaN(parseFloat(r.amount)) ? 0 : Math.abs(parseFloat(r.amount))), 0),
+    [incomeRows],
+  );
+
   const [openSources, setOpenSources] = useState<Record<string, boolean>>({});
   const [kycOpen, setKycOpen] = useState(false);
   useEffect(() => {
