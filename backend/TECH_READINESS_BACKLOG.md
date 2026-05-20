@@ -45,7 +45,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Review public RDS exposure and public `/32` ingress rules. Current exposure is captured in `infra/security/rds-network-exposure-baseline.json` and checked in CI; remediation remains to remove the public instance/access path after owner validation.
 - Separate DB credentials and model-provider credentials into separate Secrets Manager secrets. Initial runtime support now resolves `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` separately while preserving the legacy fallback until AWS env vars are cut over.
 - Define secret rotation policy. Initial baseline is checked in CI: database credentials every 30 days, model-provider credentials every 90 days, and no single secret should contain both DB and model-provider keys.
-- Enable tracing for API Gateway/Lambda where appropriate.
+- Enable tracing for API Gateway/Lambda where appropriate. Initial target posture is captured in `infra/security/tracing-readiness-baseline.json` and can be verified against live AWS with `npm run --prefix infra audit:tracing`.
 - Enable S3 versioning if bank-upload retention requires it.
 
 ## P1 - QA Harness
