@@ -829,6 +829,7 @@ Deno.serve(async (req) => {
                   confidence: 0.85,
                   spending_tier: "N/A",
                   purchase_frequency: "Occasional",
+                  flow: "spend",
                   explanation: `Description-driven fallback for non-card (${(original as any).source || "transfer"}) transaction.`,
                   enriched_at: new Date().toISOString(),
                 };
@@ -843,6 +844,7 @@ Deno.serve(async (req) => {
                 confidence: 0.1,
                 spending_tier: "N/A",
                 purchase_frequency: "One-Time",
+                flow: "spend",
                 explanation: "Classification failed after all retries",
                 enriched_at: new Date().toISOString(),
               };
