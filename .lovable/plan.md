@@ -1,23 +1,44 @@
 ## Goal
+Visually differentiate income vs. spend in the **raw transaction CSV display** using accounting convention — income shown as a positive number, spend shown in parentheses, e.g. `$9,500.00` vs `($2,800.00)`. All **downstream copy** (LLM prompts, summaries, "you spent X on Y") continues to use positive numbers.
 
-Add foundational financial spending patterns to the first executive demo dataset (Sarah Mitchell, `SAMPLE_CSV` in `src/lib/sampleData.ts`) so basic banking signals — monthly income, monthly rent, and a monthly car lease — appear alongside the existing lifestyle transactions, with **at least one entry every month** across the full date range.
+## Approach
+Keep stored amounts unsigned (no churn through every consumer that sums or formats spend). Layer income detection + accounting display on top.
 
-## Current state
+### 1. Income detection helper
+Add `src/lib/transactionFlow.ts`:
+```ts
+export type Flow = "income" | "spend";
+export function getFlow(tx: { merchant_name?: string; merchant?: string; source?: string }): Flow {
+  const name = (tx.merchant_name ?? tx.merchant ?? "").toUpperCase();
+  if (/DES:\s*PAYROLL|PAYROLL|DIRECT DEP|DEPOSIT/.test(name)) return "income";
+  return "spend";
+}
+export function formatAccounting(amount: number, flow: Flow): string {
+  const abs = Math.abs(amount).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return flow === "income" ? `$${abs}` : `($${abs})`;
+}
+```
 
-`SAMPLE_CSV` spans Apr 2024 → Jul 2026 with rich lifestyle signals but no payroll, only a single rent entry, and no auto lease. Some months also have sparse activity.
+### 2. Raw-CSV display points (only these change visually)
+Apply `formatAccounting(amt, getFlow(row))` and color (income = emerald-600, spend = slate-900) at:
+- `src/components/exec-demo/ExecDemoSelectionDialog.tsx` (raw paste preview table, line ~399)
+- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx` (raw enrichment table)
+- `src/components/exec-demo/ExecDemoLeftPanel.tsx` if it shows amounts
+- `src/components/demo/DemoEnrichmentTableView.tsx` (raw engine view on `/demo`)
+- `src/components/exec-demo/execDemoData.ts → parseCsvToTransactions`: keep `Transaction.amount` string as-is for the tooltip/table renderers that already format via the helper; switch its current `fmt` to call `formatAccounting`.
 
-## Changes
+### 3. Downstream stays positive
+No changes to:
+- Pillar aggregations, persona prompts, deal generation, financial tips, advisor chat, analytics totals — they already use absolute values or sum unsigned amounts.
+- LLM prompt builders (`advisorContextBuilder`, `eventPreparationPromptBuilder`, etc.) — they format with `formatCurrency` on positive numbers; income rows currently inflate "spend" totals, so we add a filter: when building **spend** context/totals, exclude rows where `getFlow(tx) === "income"`. Income is surfaced separately only where the UI already shows it (none today — out of scope to add unless asked).
 
-Edit only `SAMPLE_CSV` in `src/lib/sampleData.ts`. Add three recurring monthly series across the full ~28-month window (Apr 2024 → Jul 2026). **ACH / lease entries put the real bank descriptor in `merchant_name` and leave `description` blank**, matching how these arrive in a bank feed:
-
-1. **Monthly payroll** — `merchant_name`: `MERIDIAN CAPITAL DES:PAYROLL` · `+9500.00` · 1st of each month · source `ACH` · MCC blank · `description` blank. One entry per month, every month in range — guarantees no empty months.
-2. **Monthly rent** — `merchant_name`: `PACIFIC HEIGHTS APT DES:RENT` · `2800.00` · 1st of each month · source `ACH` · MCC blank · `description` blank. Replaces the lone existing rent row and extends as a recurring series.
-3. **Monthly auto lease** — `merchant_name`: `VW CREDIT INC DES:AUTO DEBIT` · `685.00` · 15th of each month · source `ACH` · MCC Blank · `description` blank.
-
-Net effect: ~84 new rows interspersed chronologically among the existing ~68 lifestyle rows. Payroll/rent fall to "Miscellaneous" via the existing MCC map, which is correct — they should read as raw banking signals, not lifestyle.
+### 4. CSV files
+No edits to the CSV string literals. Amounts stay positive; the display layer interprets sign by flow.
 
 ## Out of scope
+- TePilot views (`ResultsTable`, `PreviewTable`, `TransactionDetailModal`) unless you want it there too — see open question.
+- Adding an income summary card anywhere.
+- Changing the underlying `amount: number` type to signed.
 
-- No changes to other sample customers, `execDemoData.ts`, persona pills, or UI components.
-- No new MCC mappings (6141 falls through to Miscellaneous — fine for now).
-- No backend/edge-function changes.
+## Open question
+Apply accounting brackets in **executive demo + `/demo` raw views only**, or also in **TePilot** raw tables (`PreviewTable`, `ResultsTable`, `TransactionDetailModal`)?
