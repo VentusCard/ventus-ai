@@ -226,6 +226,8 @@ export default function ExecDemoIntelPanel({
   actionsLoading,
   riskFlags,
   riskLoading,
+  creditAssessment,
+  creditLoading,
   onOpenWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
