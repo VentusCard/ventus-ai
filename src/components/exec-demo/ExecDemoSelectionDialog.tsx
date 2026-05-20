@@ -429,7 +429,7 @@ export default function ExecDemoSelectionDialog({
                                     >
                                       {row.mcc_description}
                                     </td>
-                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                    <td className={`px-3 py-1 text-right font-mono text-sm tabular-nums whitespace-nowrap font-normal ${flow === "income" ? "text-emerald-600 font-semibold" : "text-slate-900"}`}>
                                       {fmtAmt}
                                     </td>
                                     <td className="px-3 py-1 text-slate-500 text-[13px]">{row.zip_code || "—"}</td>
