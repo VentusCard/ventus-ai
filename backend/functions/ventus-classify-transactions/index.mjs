@@ -5,13 +5,18 @@
 
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
-import { createSecretsProvider } from '../../shared/secrets.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 
-const SECRET_ARN =
-  'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
-const getSecrets = createSecretsProvider({ secretId: SECRET_ARN });
+const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
+const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
+  envVar: 'MODEL_PROVIDER_SECRET_ID',
+});
+const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
+const getModelSecrets = createSecretsProvider({
+  secretId: MODEL_PROVIDER_SECRET_ID,
+});
 
 const PILLAR_QUEUE_URL = process.env.PILLAR_QUEUE_URL;
 const TRAVEL_QUEUE_URL = process.env.TRAVEL_QUEUE_URL;
@@ -48,7 +53,7 @@ async function runWithConcurrency(items, limit, worker) {
 }
 
 // ─── DB ───────────────────────────────────────────────────────────────────────
-const getDB = createDbFactory({ getSecrets });
+const getDB = createDbFactory({ getSecrets: getDbSecrets });
 
 // ─── FETCH RAW TRANSACTIONS FOR THIS CUSTOMER ─────────────────────────────────
 async function fetchRawTransactions(db, customerId, batchId) {
@@ -488,7 +493,7 @@ async function classifyWithSubBatchFallback(batch, batchIndex, geminiApiKey) {
 
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
-  const secrets = await getSecrets();
+  const secrets = await getModelSecrets();
   const geminiApiKey = secrets.GEMINI_API_KEY;
 
   // ── MODE 1: SQS trigger (pipeline mode) ──

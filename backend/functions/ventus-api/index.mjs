@@ -5,14 +5,14 @@ import serverless from 'serverless-http';
 import crypto from 'crypto';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
+import { resolveSecretId } from '../../shared/secrets.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 const app = express();
 app.use(express.json());
 
-const SECRET_ARN =
-  'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
-const getDB = createDbFactory({ secretId: SECRET_ARN });
+const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
+const getDB = createDbFactory({ secretId: DATABASE_SECRET_ID });
 const DEFAULT_ALLOWED_ORIGINS = [
   'https://ventusai.com',
   'https://www.ventusai.com',

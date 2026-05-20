@@ -6,15 +6,20 @@
 import { STATE_TAX_RATES } from './tax-rates.mjs';
 import { ZIP_TO_STATE } from './zip-to-state.mjs';
 import { createDbFactory } from '../../shared/db.mjs';
-import { createSecretsProvider } from '../../shared/secrets.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
-const SECRET_ARN =
-  'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
-const getSecrets = createSecretsProvider({ secretId: SECRET_ARN });
+const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
+const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
+  envVar: 'MODEL_PROVIDER_SECRET_ID',
+});
+const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
+const getModelSecrets = createSecretsProvider({
+  secretId: MODEL_PROVIDER_SECRET_ID,
+});
 
 // ─── DB ───────────────────────────────────────────────────────────────────────
-const getDB = createDbFactory({ getSecrets });
+const getDB = createDbFactory({ getSecrets: getDbSecrets });
 
 function getStateFromZip(zip) {
   if (!zip || zip.length < 3) return null;
@@ -353,7 +358,7 @@ async function updatePipelineRuns(db, batchId, customerId) {
 
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
-  const secrets = await getSecrets();
+  const secrets = await getModelSecrets();
   const geminiApiKey = secrets.GEMINI_API_KEY;
 
   for (const record of event.Records) {
