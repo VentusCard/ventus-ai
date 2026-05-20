@@ -142,7 +142,7 @@ One test batch initially appeared stuck at `travel_detected`, but later complete
 - One RDS instance is publicly accessible.
 - Postgres ingress allows self-reference plus two public `/32` IPs.
 - Current RDS exposure is captured as a CI-checked baseline in `infra/security/rds-network-exposure-baseline.json`; target posture is private-only RDS access through approved backend compute and controlled administrative access.
-- API Gateway stage tracing is disabled. Live audit on 2026-05-20 also showed backend Lambda tracing is still `PassThrough`; target posture is captured in `infra/security/tracing-readiness-baseline.json`.
+- API Gateway stage tracing and structured access logs were enabled on 2026-05-20. Backend Lambda tracing is now `Active` for the seven recovered backend Lambdas, verified by `npm run --prefix infra audit:tracing`. API access logs write to `/aws/apigateway/ventus-api-prod-access` with 180-day retention.
 - CloudWatch log groups mostly lack explicit retention policies.
 - No regional WAF ACL was found in `us-east-2`, despite WAF billing.
 - S3 public access block and bucket encryption are enabled.
