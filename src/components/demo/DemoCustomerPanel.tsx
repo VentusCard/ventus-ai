@@ -349,7 +349,19 @@ function CustomerSlot({
               )}
               {selected.profile.demographics.incomeLevel && (
                 <span>Income: <span className="font-medium text-slate-600">{selected.profile.demographics.incomeLevel}</span></span>
-              )}
+          )}
+
+          {/* Income chip — source-agnostic, may grow to multiple inflow types */}
+          {incomeTxns.length > 0 && (
+            <div className="mb-2 flex items-center gap-1.5 flex-wrap text-[11px]">
+              <span className="text-slate-500 font-medium">Income:</span>
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 text-[10px] font-medium">
+                ${totalIncome.toLocaleString("en-US", { maximumFractionDigits: 0 })}
+                <span className="text-emerald-500/70">·</span>
+                {incomeTxns.length} deposit{incomeTxns.length === 1 ? "" : "s"}
+              </span>
+            </div>
+          )}
             </div>
           )}
 
