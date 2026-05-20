@@ -395,7 +395,7 @@ export default function ExecDemoSelectionDialog({
                                       <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[420px] truncate" title={row.merchant_name}>
                                         {row.merchant_name}
                                       </td>
-                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-emerald-700">
+                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-teal-800">
                                         {fmtAmt}
                                       </td>
                                     </tr>
