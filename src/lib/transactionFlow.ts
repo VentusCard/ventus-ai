@@ -5,7 +5,18 @@
  */
 export type Flow = "income" | "spend";
 
-export function getFlow(tx: { merchant_name?: string; merchant?: string; description?: string }): Flow {
+export function getFlow(tx: {
+  flow?: Flow | string;
+  pillar?: string;
+  merchant_name?: string;
+  merchant?: string;
+  description?: string;
+}): Flow {
+  // Prefer the explicit field set by the classifier.
+  if (tx.flow === "income" || tx.flow === "spend") return tx.flow;
+  // Income & Inflows pillar always means inflow.
+  if (tx.pillar === "Income & Inflows") return "income";
+  // Regex fallback for sample/demo data that bypasses the classifier.
   const name = ((tx.merchant_name ?? tx.merchant ?? "") + " " + (tx.description ?? "")).toUpperCase();
   if (/DES:\s*PAYROLL|\bPAYROLL\b|DIRECT\s*DEP|\bDEPOSIT\b/.test(name)) return "income";
   return "spend";
@@ -18,6 +29,12 @@ export function formatAccounting(amount: number, flow: Flow): string {
 }
 
 /** True if a transaction should be excluded from spend totals/context. */
-export function isIncome(tx: { merchant_name?: string; merchant?: string; description?: string }): boolean {
+export function isIncome(tx: {
+  flow?: Flow | string;
+  pillar?: string;
+  merchant_name?: string;
+  merchant?: string;
+  description?: string;
+}): boolean {
   return getFlow(tx) === "income";
 }
