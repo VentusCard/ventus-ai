@@ -278,7 +278,9 @@ function CustomerSlot({
     setOutputText("");
   };
 
-  const totalSpend = transactions.reduce((sum, t) => sum + t.amount, 0);
+  const incomeTxns = transactions.filter(isIncomeTransaction);
+  const totalIncome = incomeTxns.reduce((sum, t) => sum + t.amount, 0);
+  const totalSpend = transactions.reduce((sum, t) => sum + t.amount, 0) - totalIncome;
   const dates = transactions.map(t => t.date).sort();
   const dateRange = dates.length > 0
     ? `${formatShortDate(dates[0])} – ${formatShortDate(dates[dates.length - 1])}`
