@@ -598,6 +598,7 @@ export const PILLAR_COLORS: Record<string, string> = {
   "Family & Community": "#14b8a6",
   "Financial & Aspirational": "#a855f7",
   "Miscellaneous & Unclassified": "#64748b",
+  "Income & Inflows": "#22c55e",
 };
 
 export const LIFESTYLE_PILLARS = [
