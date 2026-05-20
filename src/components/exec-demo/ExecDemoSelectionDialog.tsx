@@ -3,6 +3,7 @@ import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
+import { getFlow, formatAccounting } from "@/lib/transactionFlow";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
