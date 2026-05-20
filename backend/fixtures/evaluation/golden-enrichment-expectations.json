@@ -5,7 +5,8 @@
     "fis": 3,
     "fiserv": 3,
     "jack_henry": 3,
-    "generic_bank_export": 9
+    "generic_bank_export": 11,
+    "adversarial": 6
   },
   "minimum_profile_coverage": {
     "card/card_grocery": 1,
@@ -15,12 +16,16 @@
     "card/card_healthcare": 1,
     "card/card_education": 1,
     "card/card_subscription": 1,
+    "card/card_dining": 1,
+    "card/card_electronics": 2,
     "card/atm_cash": 1,
     "card/refund_credit": 1,
     "card/fee_charge": 1,
     "ach/ach_payroll": 1,
+    "ach/ach_subscription": 1,
     "ach/ach_loan_payment": 1,
     "bill_pay/bill_pay_utility": 1,
+    "bill_pay/bill_pay_mortgage": 1,
     "p2p/p2p_transfer": 1,
     "wire/wire_transfer": 1,
     "merchant_integration/merchant_crm_signal": 1
@@ -203,6 +208,22 @@
       }
     },
     {
+      "transaction_id": "multi_ach_subscription_0001",
+      "source_system": "generic_bank_export",
+      "rail": "ach",
+      "source_profile": "ach_subscription",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Netflix",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Streaming & Entertainment",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
       "transaction_id": "multi_billpay_utility_0001",
       "source_system": "generic_bank_export",
       "rail": "bill_pay",
@@ -216,6 +237,22 @@
         "travel_candidate": false,
         "risk_candidate": false,
         "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_billpay_mortgage_0001",
+      "source_system": "generic_bank_export",
+      "rail": "bill_pay",
+      "source_profile": "bill_pay_mortgage",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Wells Fargo Home Mortgage",
+      "expected_lifestyle_category": "Home & Living",
+      "expected_merchant_category": "Mortgage & Housing",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
       }
     },
     {
@@ -312,6 +349,114 @@
         "travel_candidate": false,
         "risk_candidate": false,
         "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "adv_lookalike_delta_dental_0001",
+      "source_system": "adversarial",
+      "category": "lookalike",
+      "rationale": "Merchant name shares the 'Delta' brand with a major airline but is a dental insurance provider. Must not be classified as travel.",
+      "rail": "card",
+      "source_profile": "card_healthcare",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Delta Dental",
+      "expected_lifestyle_category": "Health & Wellness",
+      "expected_merchant_category": "Insurance & Premiums",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_ambiguous_apple_billing_0001",
+      "source_system": "adversarial",
+      "category": "ambiguous_brand",
+      "rationale": "Apple is a multi-purpose brand. APPLE.COM/BILL specifically indicates digital subscriptions, not in-store electronics retail.",
+      "rail": "card",
+      "source_profile": "card_subscription",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Apple",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Software & Apps",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_ambiguous_apple_retail_0001",
+      "source_system": "adversarial",
+      "category": "ambiguous_brand",
+      "rationale": "Apple is a multi-purpose brand. APPLE STORE with retail MCC 5732 indicates in-person electronics retail, not a digital subscription.",
+      "rail": "card",
+      "source_profile": "card_electronics",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Apple Store",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Electronics",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_large_legitimate_bestbuy_0001",
+      "source_system": "adversarial",
+      "category": "large_legitimate",
+      "rationale": "Large card amount at a known electronics retailer should not be flagged as risk. Amount alone is not sufficient signal for a risk flag.",
+      "rail": "card",
+      "source_profile": "card_electronics",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Best Buy",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Electronics",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_garbled_square_coffee_0001",
+      "source_system": "adversarial",
+      "category": "garbled_merchant",
+      "rationale": "Real-world merchant strings include payment-processor prefixes (Square 'SQ *'), location suffixes, and extra whitespace. Cleaning must strip processor prefixes and collapse whitespace.",
+      "rail": "card",
+      "source_profile": "card_dining",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Evans Coffee",
+      "expected_lifestyle_category": "Food & Dining",
+      "expected_merchant_category": "Coffee Shops",
+      "expected_confidence_min": 0.6,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_dual_category_walmart_0001",
+      "source_system": "adversarial",
+      "category": "dual_category",
+      "rationale": "Walmart is a dual-category merchant (groceries + electronics + general). MCC 5411 disambiguates this charge as a grocery purchase; classification should follow MCC when present.",
+      "rail": "card",
+      "source_profile": "card_grocery",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Walmart",
+      "expected_lifestyle_category": "Food & Dining",
+      "expected_merchant_category": "Grocery",
+      "expected_confidence_min": 0.6,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
       }
     }
   ]

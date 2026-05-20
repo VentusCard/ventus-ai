@@ -11,6 +11,14 @@
           "expected_lifestyle_category": "Food & Dining",
           "expected_signal_bias": "routine_spend"
         },
+        "card_dining": {
+          "expected_lifestyle_category": "Food & Dining",
+          "expected_signal_bias": "discretionary_spend"
+        },
+        "card_electronics": {
+          "expected_lifestyle_category": "Technology & Digital Life",
+          "expected_signal_bias": "retail_spend"
+        },
         "card_travel": {
           "expected_lifestyle_category": "Travel & Exploration",
           "expected_signal_bias": "travel_candidate"
