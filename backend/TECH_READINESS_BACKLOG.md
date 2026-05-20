@@ -43,8 +43,8 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Narrow production CORS. Initial `ventus-api` allowlist is environment-driven through `VENTUS_ALLOWED_ORIGINS` and checked in CI.
 - Add API throttling or usage plans. Initial pilot usage plan is codified in CDK with throttle/quota defaults; API key association remains a per-client onboarding step.
 - Review public RDS exposure and public `/32` ingress rules. Current exposure is captured in `infra/security/rds-network-exposure-baseline.json` and checked in CI; remediation remains to remove the public instance/access path after owner validation.
-- Separate DB credentials and model-provider credentials into separate Secrets Manager secrets.
-- Define secret rotation policy.
+- Separate DB credentials and model-provider credentials into separate Secrets Manager secrets. Initial runtime support now resolves `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` separately while preserving the legacy fallback until AWS env vars are cut over.
+- Define secret rotation policy. Initial baseline is checked in CI: database credentials every 30 days, model-provider credentials every 90 days, and no single secret should contain both DB and model-provider keys.
 - Enable tracing for API Gateway/Lambda where appropriate.
 - Enable S3 versioning if bank-upload retention requires it.
 

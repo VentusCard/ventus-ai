@@ -45,6 +45,7 @@ jobs:
           node --check backend/scripts/qa-golden-enrichment.mjs
           node --check backend/scripts/qa-live-pipeline.mjs
           node --check backend/scripts/lib/qa-validators.mjs
+          node --check infra/scripts/check-secrets-boundary.mjs
 
       - name: Validate Monitor Entrypoints
         run: |
@@ -112,6 +113,10 @@ jobs:
 
       - name: Check RDS Network Exposure Baseline
         run: npm run check:rds-network
+        working-directory: infra
+
+      - name: Check Secrets Boundary Baseline
+        run: npm run check:secrets
         working-directory: infra
 
       - name: Synthesize CDK Plan

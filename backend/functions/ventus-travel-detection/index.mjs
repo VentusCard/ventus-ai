@@ -5,12 +5,17 @@
 // → updates transactions_enriched with trip_id
 
 import { createDbFactory } from '../../shared/db.mjs';
-import { createSecretsProvider } from '../../shared/secrets.mjs';
+import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
-const SECRET_ARN =
-  'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
-const getSecrets = createSecretsProvider({ secretId: SECRET_ARN });
+const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
+const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
+  envVar: 'MODEL_PROVIDER_SECRET_ID',
+});
+const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
+const getModelSecrets = createSecretsProvider({
+  secretId: MODEL_PROVIDER_SECRET_ID,
+});
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const MAX_RETRIES = 2;
@@ -18,7 +23,7 @@ const BASE_DELAY_MS = 1000;
 const MODEL = 'gemini-2.5-flash';
 
 // ─── DB ───────────────────────────────────────────────────────────────────────
-const getDB = createDbFactory({ getSecrets });
+const getDB = createDbFactory({ getSecrets: getDbSecrets });
 
 function getDelayMs(attempt) {
   const base = BASE_DELAY_MS * Math.pow(2, attempt);
@@ -462,7 +467,7 @@ async function updatePipelineRuns(db, batchId, customerId) {
 
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
-  const secrets = await getSecrets();
+  const secrets = await getModelSecrets();
   const geminiApiKey = secrets.GEMINI_API_KEY;
 
   for (const record of event.Records) {

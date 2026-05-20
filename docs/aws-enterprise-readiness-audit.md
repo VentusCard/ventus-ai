@@ -147,7 +147,7 @@ One test batch initially appeared stuck at `travel_detected`, but later complete
 - No regional WAF ACL was found in `us-east-2`, despite WAF billing.
 - S3 public access block and bucket encryption are enabled.
 - S3 versioning appears unset.
-- Secrets metadata indicates a DB credential secret also contains a Gemini API key. These should be separated by purpose and rotation policy.
+- Secrets metadata indicates a DB credential secret also contains a Gemini API key. The recovered backend now supports separate `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` runtime configuration with the legacy combined secret retained only as a temporary compatibility fallback. A CI-checked baseline in `infra/security/secrets-boundary-baseline.json` defines the target separation and rotation posture.
 
 ### Billing
 

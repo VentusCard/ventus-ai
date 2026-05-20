@@ -8,14 +8,14 @@ import { S3Client, GetObjectCommand } from '@aws-sdk/client-s3';
 import { SQSClient, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { parse } from 'csv-parse/sync';
 import { createDbFactory } from '../../shared/db.mjs';
+import { resolveSecretId } from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
 const s3 = new S3Client({ region: 'us-east-2' });
 const sqs = new SQSClient({ region: 'us-east-2' });
 
-const SECRET_ARN =
-  'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
-const getDB = createDbFactory({ secretId: SECRET_ARN });
+const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
+const getDB = createDbFactory({ secretId: DATABASE_SECRET_ID });
 
 // ─── FIRE WEBHOOK ─────────────────────────────────────────────────────────────
 const fireWebhook = createWebhookDispatcher();
