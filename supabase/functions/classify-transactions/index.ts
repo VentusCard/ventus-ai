@@ -883,6 +883,7 @@ Deno.serve(async (req) => {
               confidence,
               spending_tier: classification.spending_tier || "N/A",
               purchase_frequency: classification.purchase_frequency || "One-Time",
+              flow: classification.flow === "income" ? "income" : "spend",
               explanation,
               enriched_at: new Date().toISOString(),
             };
