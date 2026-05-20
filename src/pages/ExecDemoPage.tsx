@@ -970,6 +970,8 @@ export default function ExecDemoPage() {
       setProductCardsLoading(false);
       setProductActions(null);
       setActionsLoading(false);
+      setCreditAssessment(null);
+      setCreditLoading(false);
       setSynthesisTriggered(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
