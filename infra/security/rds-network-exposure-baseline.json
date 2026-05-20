@@ -1,0 +1,53 @@
+{
+  "version": "2026-05-19",
+  "scope": "Existing Aurora PostgreSQL network exposure baseline for pilot-readiness review.",
+  "database_cluster_identifier": "ventus-bofa-cluster",
+  "database_security_group_id": "sg-08836ed15d778ecd6",
+  "database_security_group_name": "bofa-rds-sg",
+  "postgres_port": 5432,
+  "required_self_references": [
+    {
+      "protocol": "tcp",
+      "from_port": 5432,
+      "to_port": 5432,
+      "security_group_id": "sg-08836ed15d778ecd6",
+      "reason": "Existing Lambda/database path depends on the database security group self-reference."
+    }
+  ],
+  "temporary_public_ingress_exceptions": [
+    {
+      "cidr": "207.181.211.74/32",
+      "protocol": "tcp",
+      "from_port": 5432,
+      "to_port": 5432,
+      "reason": "Existing public Postgres access observed during AWS audit; requires owner validation or removal."
+    },
+    {
+      "cidr": "155.33.132.60/32",
+      "protocol": "tcp",
+      "from_port": 5432,
+      "to_port": 5432,
+      "reason": "Existing public Postgres access observed during AWS audit; requires owner validation or removal."
+    }
+  ],
+  "known_publicly_accessible_instances": [
+    {
+      "db_instance_identifier": "ventus-bofa-cluster-instance-1",
+      "publicly_accessible": true,
+      "required_action": "Move to private-only access after confirming the operational access path."
+    },
+    {
+      "db_instance_identifier": "ventus-bofa-cluster-instance-1-us-east-2a",
+      "publicly_accessible": false,
+      "required_action": "Keep private."
+    }
+  ],
+  "blocked_cidrs": [
+    "0.0.0.0/0",
+    "::/0"
+  ],
+  "target_posture": {
+    "publicly_accessible": false,
+    "postgres_ingress": "Security-group-only access from approved backend compute and controlled administrative access through VPN, bastion, or SSM."
+  }
+}

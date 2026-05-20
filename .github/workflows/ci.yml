@@ -110,6 +110,10 @@ jobs:
         run: npm run check:observability
         working-directory: infra
 
+      - name: Check RDS Network Exposure Baseline
+        run: npm run check:rds-network
+        working-directory: infra
+
       - name: Synthesize CDK Plan
         run: npm run synth
         working-directory: infra

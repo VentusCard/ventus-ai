@@ -44,6 +44,7 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
 - Confirm it uses security group `sg-08836ed15d778ecd6`.
 - Confirm the security group self-reference on port `5432` remains in place.
 - Confirm no new public database ingress is added.
+- Confirm `infra/security/rds-network-exposure-baseline.json` still matches the live RDS security group and that any temporary public `/32` exceptions have named owners or approved removal plans.
 
 ## Rollback
 
