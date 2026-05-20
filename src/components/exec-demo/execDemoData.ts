@@ -78,22 +78,24 @@ export function parseCsvToTransactions(csv: string): Transaction[] {
   return lines.slice(1).filter((l) => l.trim()).map((line) => {
     const cols = line.split(",").map((c) => c.trim());
     const rawAmt = parseFloat(cols[amountIdx] || "0");
-    const fmt = rawAmt >= 1000
-      ? `$${rawAmt.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-      : `$${rawAmt.toFixed(2)}`;
+    const merchant = cols[merchantIdx] || "Unknown";
+    const description = descIdx >= 0 ? (cols[descIdx] || undefined) : undefined;
+    const flow = getFlow({ merchant_name: merchant, description });
+    const fmt = formatAccounting(rawAmt, flow);
     const rawDate = cols[dateIdx] || "";
     const dateParts = rawDate.split("-");
     const shortDate = dateParts.length >= 3 ? `${dateParts[1]}/${dateParts[2]}/${dateParts[0].slice(2)}` : rawDate.slice(5);
     return {
       date: shortDate,
-      merchant: cols[merchantIdx] || "Unknown",
+      merchant,
       amount: fmt,
       source: sourceIdx >= 0 ? (cols[sourceIdx] || undefined) : undefined,
-      description: descIdx >= 0 ? (cols[descIdx] || undefined) : undefined,
+      description,
       mcc: mccIdx >= 0 ? (cols[mccIdx] || undefined) : undefined,
     };
   });
 }
+
 
 
 // ---------- MCC → Signal mapping ----------
