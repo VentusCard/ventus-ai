@@ -354,7 +354,7 @@ export default function ExecDemoSelectionDialog({
                         className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
                       >
                         <div className="flex items-center gap-3">
-                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-emerald-50 text-emerald-700">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-teal-100 text-teal-800">
                             Income
                           </span>
                           <span className="text-base font-semibold text-slate-700">{incomeRows.length} txns</span>
