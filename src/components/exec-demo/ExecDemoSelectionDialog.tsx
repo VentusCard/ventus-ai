@@ -395,9 +395,8 @@ export default function ExecDemoSelectionDialog({
                             <tbody>
                               {rows.map((row, i) => {
                                 const amt = parseFloat(row.amount);
-                                const fmtAmt = isNaN(amt)
-                                  ? row.amount
-                                  : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                const flow = getFlow(row);
+                                const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, flow);
                                 return (
                                   <tr
                                     key={i}
