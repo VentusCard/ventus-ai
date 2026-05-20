@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, Fragment } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
+import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower, ArrowUp, ArrowDown, Minus, Gauge } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PillarRollup } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
@@ -17,6 +17,29 @@ export interface CardAction {
 export interface CardActions {
   card_index: number;
   actions: CardAction[];
+}
+
+export interface CreditAssessment {
+  score: number;
+  band: "Excellent" | "Good" | "Fair" | "Limited" | "Poor";
+  confidence: number;
+  summary: string;
+  drivers: { label: string; direction: "positive" | "negative" | "neutral"; weight: number; explanation: string }[];
+  affordability: {
+    estimated_monthly_inflow: number;
+    estimated_monthly_outflow: number;
+    estimated_dti_proxy: number;
+    surplus_ratio: number;
+  };
+  signals: {
+    income_stability: "stable" | "variable" | "thin" | "unknown";
+    cashflow_volatility: "low" | "medium" | "high";
+    discretionary_pressure: "low" | "medium" | "high";
+    distress_indicators: string[];
+    positive_indicators: string[];
+  };
+  recommended_products: { product: string; rationale: string }[];
+  caveats: string[];
 }
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -50,6 +73,8 @@ interface Props {
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
   riskFlags?: { flags: any[]; summary: string } | null;
+  creditAssessment?: CreditAssessment | null;
+  creditLoading?: boolean;
 }
 
 /** Compute the first risk rollup pill (mirrors logic in ExecDemoIntelPanel) */
@@ -718,7 +743,181 @@ function GroupSlideshow({
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags }: Props) {
+/* ─── Creditworthiness column (4th column in Next-Product row) ─── */
+const BAND_COLORS: Record<CreditAssessment["band"], { dot: string; text: string; bg: string; border: string }> = {
+  Excellent: { dot: "#10b981", text: "#065f46", bg: "#ecfdf5", border: "#a7f3d0" },
+  Good:      { dot: "#3b82f6", text: "#1e3a8a", bg: "#eff6ff", border: "#bfdbfe" },
+  Fair:      { dot: "#f59e0b", text: "#92400e", bg: "#fffbeb", border: "#fde68a" },
+  Limited:   { dot: "#64748b", text: "#334155", bg: "#f8fafc", border: "#e2e8f0" },
+  Poor:      { dot: "#f43f5e", text: "#9f1239", bg: "#fff1f2", border: "#fecdd3" },
+};
+
+const LEVEL_TONE: Record<string, { text: string; bg: string; border: string }> = {
+  stable:   { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
+  variable: { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
+  thin:     { text: "text-slate-600",   bg: "bg-slate-50",   border: "border-slate-200" },
+  unknown:  { text: "text-slate-500",   bg: "bg-slate-50",   border: "border-slate-200" },
+  low:      { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
+  medium:   { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
+  high:     { text: "text-rose-700",    bg: "bg-rose-50",    border: "border-rose-100" },
+};
+
+function CreditworthinessColumn({ assessment, loading }: { assessment?: CreditAssessment | null; loading: boolean }) {
+  if (loading && !assessment) {
+    return (
+      <div className="flex-1 min-w-0 flex flex-col gap-2.5">
+        <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Creditworthiness</div>
+        <div className="h-7 w-32 rounded-full bg-slate-100 animate-pulse" />
+        <div className="rounded-xl border border-slate-200 bg-white p-3 flex-1 space-y-2">
+          {[1, 2, 3, 4].map(i => (
+            <div key={i} className="h-2.5 bg-slate-100 rounded animate-pulse" style={{ width: `${85 - i * 12}%` }} />
+          ))}
+        </div>
+      </div>
+    );
+  }
+  if (!assessment) return null;
+
+  const band = BAND_COLORS[assessment.band] || BAND_COLORS.Limited;
+  const aff = assessment.affordability;
+  const topDrivers = [...(assessment.drivers || [])]
+    .sort((a, b) => (b.weight || 0) - (a.weight || 0))
+    .slice(0, 2);
+  const topProduct = assessment.recommended_products?.[0];
+  const positives = (assessment.signals?.positive_indicators || []).slice(0, 3);
+  const distress = (assessment.signals?.distress_indicators || []).slice(0, 3);
+
+  const dirIcon = (d: "positive" | "negative" | "neutral") =>
+    d === "positive" ? <ArrowUp className="w-3 h-3 text-emerald-500" />
+    : d === "negative" ? <ArrowDown className="w-3 h-3 text-rose-500" />
+    : <Minus className="w-3 h-3 text-slate-400" />;
+
+  return (
+    <div className="flex-1 min-w-0 flex flex-col gap-2.5">
+      <div className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Creditworthiness</div>
+
+      {/* Band + score pill */}
+      <div
+        className="self-start inline-flex items-center gap-1.5 text-[11px] font-bold px-3 py-1.5 rounded-full"
+        style={{
+          background: `linear-gradient(135deg, ${band.dot}10, ${band.dot}20)`,
+          color: band.text,
+          border: `1.5px solid ${band.dot}80`,
+          boxShadow: `0 2px 8px ${band.dot}15`,
+        }}
+      >
+        <Gauge className="w-3 h-3" style={{ color: band.dot }} />
+        {assessment.band} · {assessment.score}
+        <span className="text-[9px] font-medium opacity-70 ml-1 tabular-nums">
+          {assessment.confidence}% conf
+        </span>
+      </div>
+
+      {/* Body card */}
+      <div
+        className="flex-1 rounded-xl border bg-white overflow-hidden flex flex-col"
+        style={{
+          borderColor: band.border,
+          borderLeftWidth: 3,
+          borderLeftColor: band.dot,
+          animation: `exec-product-reveal 0.4s ease-out 0.15s both`,
+        }}
+      >
+        <div className="px-3 py-3 space-y-3 flex flex-col flex-1">
+          {/* Summary */}
+          <p className="text-[12px] text-slate-700 leading-snug">{assessment.summary}</p>
+
+          {/* Affordability mini-grid */}
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1.5">
+              <div className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400">Monthly Inflow</div>
+              <div className="text-[12px] font-bold text-slate-800 tabular-nums">{formatSpend(aff?.estimated_monthly_inflow || 0)}</div>
+            </div>
+            <div className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1.5">
+              <div className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400">Monthly Outflow</div>
+              <div className="text-[12px] font-bold text-slate-800 tabular-nums">{formatSpend(aff?.estimated_monthly_outflow || 0)}</div>
+            </div>
+            <div className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1.5">
+              <div className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400">Surplus</div>
+              <div className="text-[12px] font-bold text-slate-800 tabular-nums">{Math.round((aff?.surplus_ratio || 0) * 100)}%</div>
+            </div>
+            <div className="rounded-lg bg-slate-50 border border-slate-100 px-2 py-1.5">
+              <div className="text-[8.5px] font-bold uppercase tracking-wider text-slate-400">DTI Proxy</div>
+              <div className="text-[12px] font-bold text-slate-800 tabular-nums">{Math.round((aff?.estimated_dti_proxy || 0) * 100)}%</div>
+            </div>
+          </div>
+
+          {/* Signal chips */}
+          <div className="flex flex-wrap gap-1">
+            {(["income_stability", "cashflow_volatility", "discretionary_pressure"] as const).map(key => {
+              const val = (assessment.signals as any)?.[key] as string;
+              if (!val) return null;
+              const tone = LEVEL_TONE[val] || LEVEL_TONE.unknown;
+              const label = key === "income_stability" ? "Income" : key === "cashflow_volatility" ? "Volatility" : "Discretionary";
+              return (
+                <span key={key} className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border ${tone.text} ${tone.bg} ${tone.border}`}>
+                  {label}: {val}
+                </span>
+              );
+            })}
+            {positives.map((p, i) => (
+              <span key={`p${i}`} className="inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border text-emerald-700 bg-emerald-50 border-emerald-100">
+                <CheckCircle2 className="w-2.5 h-2.5" /> {p}
+              </span>
+            ))}
+            {distress.map((d, i) => (
+              <span key={`d${i}`} className="inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border text-rose-700 bg-rose-50 border-rose-100">
+                <Shield className="w-2.5 h-2.5" /> {d}
+              </span>
+            ))}
+          </div>
+
+          {/* Top drivers */}
+          {topDrivers.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-[9px] font-bold uppercase tracking-wider text-slate-400">Top Drivers</div>
+              {topDrivers.map((dr, i) => (
+                <div key={i} className="flex items-start gap-1.5">
+                  <div className="mt-0.5 shrink-0">{dirIcon(dr.direction)}</div>
+                  <div className="min-w-0">
+                    <div className="text-[11px] font-semibold text-slate-800 leading-tight">{dr.label}</div>
+                    <div className="text-[10.5px] text-slate-500 leading-snug">{dr.explanation}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="flex-1" />
+
+          {/* Recommended product */}
+          {topProduct && (
+            <div
+              className="rounded-lg px-3 py-2"
+              style={{ background: `${band.dot}10`, border: `1px solid ${band.dot}25` }}
+            >
+              <div className="flex items-center gap-1.5 mb-1">
+                <Sparkles className="w-3 h-3" style={{ color: band.dot }} />
+                <span className="text-[9px] font-bold uppercase tracking-wider" style={{ color: band.text }}>
+                  Suggested Next Step
+                </span>
+              </div>
+              <div className="text-[12px] font-semibold text-slate-800 leading-snug">{topProduct.product}</div>
+              <div className="text-[10.5px] text-slate-500 leading-snug mt-0.5">{topProduct.rationale}</div>
+            </div>
+          )}
+
+          {/* Footnote */}
+          <div className="text-[9px] text-slate-400 italic leading-snug">
+            Indicative · no bureau data
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -830,15 +1029,28 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Up to 3 products side-by-side with vertical dividers */}
-        <div className="flex items-stretch gap-3">
-          {pickedCards.map((c, i) => (
-            <Fragment key={i}>
-              {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
-              {renderColumn(c, i)}
-            </Fragment>
-          ))}
-        </div>
+        {/* Up to 3 product columns + optional 4th creditworthiness column with vertical dividers */}
+        {(() => {
+          const showCredit = !!creditAssessment || !!creditLoading;
+          const totalCols = pickedCards.length + (showCredit ? 1 : 0);
+          const gapClass = totalCols >= 4 ? "gap-2" : "gap-3";
+          return (
+            <div className={`flex items-stretch ${gapClass}`}>
+              {pickedCards.map((c, i) => (
+                <Fragment key={i}>
+                  {i > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
+                  {renderColumn(c, i)}
+                </Fragment>
+              ))}
+              {showCredit && (
+                <Fragment>
+                  {pickedCards.length > 0 && <div className="w-px bg-slate-200 self-stretch shrink-0" />}
+                  <CreditworthinessColumn assessment={creditAssessment} loading={!!creditLoading} />
+                </Fragment>
+              )}
+            </div>
+          );
+        })()}
 
         <style>{`
           @keyframes exec-product-reveal {

@@ -1,121 +1,118 @@
 
 ## Goal
 
-Add a new edge function **`assess-creditworthiness`** that consumes the same enriched-transaction stream the rest of the demo workflow uses (output of `classify-transactions` + the 13th `Income & Inflows` pillar + `flow` field) and produces a structured creditworthiness assessment for a single customer.
+Add a **4th column** to the Next-Product tab (`NextProductRationale.tsx`) — after Life Event, Shopping Habit, Additional Tools — that shows the **creditworthiness** result from the `assess-creditworthiness` edge function we just deployed.
 
-No frontend, no DB changes, no sample data changes. Drop-in sibling of `detect-risk-transactions` and `analyze-lifestyle-signals`.
-
----
-
-## Function contract
-
-**Path:** `supabase/functions/assess-creditworthiness/index.ts`
-**Config:** add `[functions.assess-creditworthiness] verify_jwt = false` to `supabase/config.toml`.
-**Method:** `POST`. **CORS:** reuse the `ALLOWED_ORIGINS` / `getCorsHeaders` block used by the other functions.
-
-### Request body
-
-```ts
-{
-  client: {
-    name: string;
-    age?: number;
-    occupation?: string;
-    industry?: string;
-    income_level?: string;     // demographic band, optional
-    family_status?: string;
-    segment?: string;          // Preferred | Private | Premium
-  };
-  transactions: EnrichedTransaction[];   // includes pillar, subcategory, flow, amount, date
-  window_days?: number;                  // default 90
-}
-```
-
-No raw SQL, no service-role usage. Pure compute over the payload.
-
-### Response body
-
-```ts
-{
-  score: number;                       // 300-850, lender-style band
-  band: "Excellent" | "Good" | "Fair" | "Limited" | "Poor";
-  confidence: number;                  // 0-100
-  summary: string;                     // 1-2 sentence advisor-facing headline
-  drivers: {
-    label: string;
-    direction: "positive" | "negative" | "neutral";
-    weight: number;                    // 0-1, relative contribution
-    explanation: string;               // grounded in observed transactions
-  }[];                                 // 4-7 items
-  affordability: {
-    estimated_monthly_inflow: number;
-    estimated_monthly_outflow: number;
-    estimated_dti_proxy: number;       // recurring-debt-like outflow / inflow
-    surplus_ratio: number;             // (inflow - outflow) / inflow
-  };
-  signals: {
-    income_stability: "stable" | "variable" | "thin" | "unknown";
-    cashflow_volatility: "low" | "medium" | "high";
-    discretionary_pressure: "low" | "medium" | "high";
-    distress_indicators: string[];     // e.g. ["NSF Fee", "Payday Loan"]
-    positive_indicators: string[];     // e.g. ["Recurring Payroll", "Investment Contributions"]
-  };
-  recommended_products: {
-    product: string;                   // free-form, e.g. "Secured credit-builder card"
-    rationale: string;
-  }[];
-  caveats: string[];                   // model uncertainty + data-window notes
-}
-```
+Scope is the Exec Demo Next-Product panel only. No CSV, no other tabs.
 
 ---
 
-## Implementation outline (one file, ~300 lines)
+## Where this lives
 
-1. **Deterministic pre-pass** over `transactions`:
-   - Split by `getFlow()` semantics inline — treat `tx.flow === "income"` OR `tx.pillar === "Income & Inflows"` as inflow; all else as outflow. Use `Math.abs(amount)` on both sides.
-   - Compute, scoped to the last `window_days`:
-     - total inflow, total outflow, net cashflow, surplus_ratio
-     - normalized **monthly** inflow/outflow (scale by `window_days / 30`)
-     - payroll cadence: count of inflow rows whose `subcategory ∈ {Payroll, Direct Deposit}` grouped by month → `income_stability`
-     - per-month outflow stdev / mean → `cashflow_volatility` bucket
-     - distress hit-counts from `pillar === "Financial Distress"` (Overdraft/NSF, Pawn/Payday, Debt Collection, Subprime, Check Cashing) — surface labels in `distress_indicators`
-     - positive hit-counts from `pillar === "Income & Inflows"` subcategories (Payroll, Investment Income, Interest Earned, Rental Income, Tax Refunds) — surface labels in `positive_indicators`
-     - DTI proxy = (sum of outflow in subcategories matching `/mortgage|auto loan|student loan|credit card payment|personal loan|loan payment/i` plus all `Financial Distress` outflows) / monthly inflow
-   - Bundle into a compact `MetricsPack` object passed to the LLM as context.
+- View: `src/components/exec-demo/NextProductRationale.tsx` (renders the row of columns).
+- Orchestrator: `src/pages/ExecDemoPage.tsx` (already owns `productCards`, `riskFlags`, etc. — add credit fetch + state here).
+- Wiring: `src/components/exec-demo/ExecDemoIntelPanel.tsx` (passes props through).
 
-2. **LLM call** via Lovable AI Gateway (`https://ai.gateway.lovable.dev/v1/chat/completions`), same auth header + 429/402 handling as the other functions.
-   - Model: `google/gemini-2.5-flash`, fallback `openai/gpt-5-mini` on non-2xx.
-   - Tool calling with a `CREDITWORTHINESS_TOOL` whose JSON schema mirrors the response body above; `required` covers every top-level field plus `drivers[*]`, `affordability.*`, `signals.*`.
-   - System prompt rules:
-     - "You are a credit-risk analyst. Do **not** issue a credit decision; produce an indicative behavioral assessment grounded only in the supplied transactions."
-     - Score band mapping: 300–579 Poor, 580–669 Fair, 670–739 Limited→Good (Limited reserved for thin-file), 740–799 Good, 800–850 Excellent. Thin file (<30 days of data OR <5 inflow rows) → cap score at 680 and set band to "Limited", confidence ≤ 60.
-     - Drivers must cite **observed pillars / subcategories / merchants** — no speculation about credit bureau data, no FICO claims.
-     - `recommended_products` constrained to: secured card, credit-builder loan, unsecured card upgrade, debt-consolidation loan, HELOC, personal loan, auto refi, mortgage pre-qual, wealth onboarding. No external brand names.
-     - Honor the project's "vaguely specific" memory rule: behavioral labels, no exact counts/amounts.
-     - `caveats` MUST include "Indicative model, not a credit decision; no bureau data used."
-   - User prompt includes: client demographics, `window_days`, `MetricsPack`, and a truncated transaction sample (top 30 inflows by amount + top 30 outflows by amount + all `Financial Distress` rows, capped at 100 lines total).
+---
 
-3. **Merge step**:
-   - Parse the tool call. If absent or malformed, return a deterministic fallback object built purely from `MetricsPack` (`band="Limited"`, `confidence=40`, generic driver list).
-   - Overwrite `affordability` with the deterministic numbers regardless of what the LLM returned — the LLM may not do math reliably.
-   - Clamp `score` to [300, 850] and `confidence` to [0, 100].
-   - Always echo back `window_days` actually used.
+## Changes
 
-4. **Logging**: `console.log` the deterministic metrics, the score/band/confidence, and any LLM failure — matching the verbosity of `detect-risk-transactions`.
+### 1. `src/pages/ExecDemoPage.tsx`
+
+- New state:
+  ```ts
+  const [creditAssessment, setCreditAssessment] = useState<CreditAssessment | null>(null);
+  const [creditLoading, setCreditLoading] = useState(false);
+  ```
+- New `fireCreditAssessment` callback, mirroring `fireProductCards` structure. Triggered alongside `fireProductCards` (phase 2, after `classify-transactions` completes — same gate `fireProductCards` already uses).
+  ```ts
+  const { data, error } = await supabase.functions.invoke("assess-creditworthiness", {
+    body: {
+      client: {
+        name: demoCustomer?.profile?.name,
+        age: demographics.age,
+        occupation: demographics.occupation,
+        industry: demographics.industry,
+        income_level: demographics.incomeLevel,
+        family_status: demographics.familyStatus,
+        segment: demoCustomer?.profile?.segment,
+      },
+      transactions: classifiedRef.current || [],
+      window_days: 90,
+    },
+  });
+  ```
+- Reset on customer switch (alongside existing `setProductCards(null)`).
+- Pass `creditAssessment` + `creditLoading` into `<ExecDemoIntelPanel ... />` (both call sites, lines ~1365 and ~1454).
+
+### 2. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+
+- Extend `Props` with `creditAssessment?: CreditAssessment | null; creditLoading?: boolean;`.
+- Forward to `<NextProductRationale ... creditAssessment={creditAssessment} creditLoading={creditLoading} />` at line 960.
+
+### 3. `src/components/exec-demo/NextProductRationale.tsx` — the actual 4th column
+
+- Add a shared `CreditAssessment` TypeScript interface (exported) matching the edge-function response:
+  ```ts
+  export interface CreditAssessment {
+    score: number;
+    band: "Excellent" | "Good" | "Fair" | "Limited" | "Poor";
+    confidence: number;
+    summary: string;
+    drivers: { label: string; direction: "positive" | "negative" | "neutral"; weight: number; explanation: string }[];
+    affordability: { estimated_monthly_inflow: number; estimated_monthly_outflow: number; estimated_dti_proxy: number; surplus_ratio: number };
+    signals: {
+      income_stability: "stable" | "variable" | "thin" | "unknown";
+      cashflow_volatility: "low" | "medium" | "high";
+      discretionary_pressure: "low" | "medium" | "high";
+      distress_indicators: string[];
+      positive_indicators: string[];
+    };
+    recommended_products: { product: string; rationale: string }[];
+    caveats: string[];
+  }
+  ```
+- Extend `Props`: `creditAssessment?: CreditAssessment | null; creditLoading?: boolean;`.
+- Render: when present, push a 4th `ResolvedCard`-shaped entry into `pickedCards` and bump the cap from 3 to 4 (`pickedCards.length >= 4`). Reuse `renderColumn`'s outer shell — header label + pill + body — but branch the body and pill to a credit-specific renderer.
+- Header label: `"Creditworthiness"`.
+- Pill (replaces the standard trigger pill):
+  - Text: band name + score, e.g. `"Good · 732"`.
+  - Color map by band (light theme, slate-200-border palette already in file):
+    - Excellent → emerald (`#10b981`)
+    - Good → sky/blue (`#3b82f6`)
+    - Fair → amber (`#f59e0b`)
+    - Limited → slate (`#64748b`)
+    - Poor → rose (`#f43f5e`) — sparingly, this is the only justified red use (memory rule allows red for risk; credit risk qualifies).
+  - Suffix: `"{confidence}% conf"` in muted small text.
+  - Non-clickable (no triggerable transactions).
+- Body card (compact, matches existing `ProductCardBody` density):
+  1. One-line `summary`.
+  2. Mini-grid: `Monthly inflow / Monthly outflow / Surplus / DTI proxy` formatted with the existing `formatSpend` and percentage helpers.
+  3. **Signal chips row** (small pills): `income_stability`, `cashflow_volatility`, `discretionary_pressure` — colored green/amber/red per value. Then up to 3 chips each from `positive_indicators` (emerald) and `distress_indicators` (rose).
+  4. **Top 2 drivers** by `weight`, with a small ↑/→/↓ glyph for direction and a one-line `explanation`.
+  5. **Recommended product** — first item from `recommended_products` rendered as a primary chip (`product`) with `rationale` as muted subtext. (No `ActionPillsRow` — credit column has no card actions.)
+  6. Muted footnote: `"Indicative · no bureau data"` (from caveats).
+- Loading state: when `creditLoading && !creditAssessment`, render a 4th column skeleton (label "Creditworthiness", 3 pulsing slate bars) so layout doesn't reflow.
+- Empty state: if `creditAssessment === null && !creditLoading`, **omit** the 4th column (render only 3 — matches existing fallback behavior for missing data).
+
+### 4. Layout adjustments
+
+- Container at line 834 is `flex items-stretch gap-3`. With 4 children it can get tight at narrow widths — reduce `gap-3` → `gap-2` only when 4 columns are present (conditional class) and let `flex-1 min-w-0` continue to do the work. No grid swap needed; the panel is desktop-only per the memory rule.
+- Vertical divider logic (`{i > 0 && <div className="w-px bg-slate-200..." />}`) continues to insert dividers between all 4 columns.
 
 ---
 
 ## Out of scope
 
-- No DB tables, no migrations, no storage.
-- No edits to `classify-transactions`, sample data, or any frontend file.
-- No changes to `getFlow()` / aggregations — function reads `flow` and `pillar` directly to stay self-contained.
-- No automated tests in this round (function is LLM-driven; structural tests can follow once a UI exists).
+- No new edge functions — `assess-creditworthiness` is already deployed.
+- No changes to other tabs (Relationship, Analytics, Purchase Cycle).
+- No changes to risk pipeline, sample data, classification, or memory.
+- No mobile/responsive work (panel is desktop-gated).
 
-## Testing approach (after deploy)
+## Verification
 
-Use `supabase--curl_edge_functions` against `/assess-creditworthiness` with a payload built from one of the existing demo customers' enriched transactions (e.g. via the exec-demo dataset) to confirm:
-1. Deterministic affordability numbers are sane.
-2. Tool call parses; score lands inside band; thin-file cap fires when transactions are trimmed.
-3. 402/429 paths return the expected JSON shapes.
+After implementation:
+1. Load `/deckmo` (or wherever ExecDemoPage is reachable), pick a demo customer, wait for enrichment.
+2. Confirm 4th "Creditworthiness" column appears with score/band/drivers/recommended product.
+3. Customer switch resets the column.
+4. Network tab shows one `POST .../assess-creditworthiness` per customer, returning the shape above.
