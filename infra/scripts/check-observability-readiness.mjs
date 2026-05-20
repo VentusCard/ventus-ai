@@ -69,6 +69,37 @@ for (const metricName of requiredDatabaseMetrics) {
   );
 }
 
+assert.match(
+  stackSource,
+  /new apigateway\.CfnUsagePlan/,
+  'API Gateway pilot usage plan should be codified'
+);
+assert.match(
+  stackSource,
+  /usagePlanName:\s*'ventus-api-pilot-readiness-plan'/,
+  'API Gateway pilot usage plan should have a stable name'
+);
+assert.match(
+  stackSource,
+  /apiId:\s*resources\.apiGatewayRestApiId/,
+  'API Gateway pilot usage plan should attach to the configured API'
+);
+assert.match(
+  stackSource,
+  /stage:\s*resources\.apiGatewayStage/,
+  'API Gateway pilot usage plan should attach to the configured stage'
+);
+assert.match(
+  stackSource,
+  /rateLimit:\s*25/,
+  'API Gateway pilot usage plan should include a steady-state rate limit'
+);
+assert.match(
+  stackSource,
+  /burstLimit:\s*50/,
+  'API Gateway pilot usage plan should include a burst limit'
+);
+
 console.log(
-  `Observability readiness checks passed: ${requiredLambdaFunctions.length + 1} Lambda log groups, ${requiredDatabaseMetrics.length} Aurora metrics`
+  `Observability readiness checks passed: ${requiredLambdaFunctions.length + 1} Lambda log groups, ${requiredDatabaseMetrics.length} Aurora metrics, API usage plan`
 );

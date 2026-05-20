@@ -45,6 +45,7 @@ The current CDK stack records known production resource names and defines readin
 - SQS DLQ visible message depth
 - SQS oldest message age
 - API Gateway 5xx and p95 latency
+- API Gateway pilot usage plan with throttle/quota defaults
 - webhook delivery failures
 - stuck pipeline runs
 - six-month CloudWatch log retention for backend Lambda and monitor log groups
