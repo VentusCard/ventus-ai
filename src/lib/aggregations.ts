@@ -13,6 +13,11 @@ import {
   SankeyData,
 } from "@/types/transaction";
 import { PILLAR_COLORS } from "./sampleData";
+import { isIncome } from "./transactionFlow";
+
+// Strip income rows so spend totals/charts don't include paychecks/deposits.
+const stripIncome = <T extends { merchant_name?: string; merchant?: string; description?: string }>(txs: T[]): T[] =>
+  txs.filter((t) => !isIncome(t));
 
 // MCC-based aggregations
 export function aggregateByMCC(transactions: Transaction[]): MCCAggregate[] {
