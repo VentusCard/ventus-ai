@@ -3,6 +3,7 @@ import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
+import { getFlow, formatAccounting } from "@/lib/transactionFlow";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
@@ -394,9 +395,8 @@ export default function ExecDemoSelectionDialog({
                             <tbody>
                               {rows.map((row, i) => {
                                 const amt = parseFloat(row.amount);
-                                const fmtAmt = isNaN(amt)
-                                  ? row.amount
-                                  : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                const flow = getFlow(row);
+                                const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, flow);
                                 return (
                                   <tr
                                     key={i}
@@ -429,7 +429,7 @@ export default function ExecDemoSelectionDialog({
                                     >
                                       {row.mcc_description}
                                     </td>
-                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                    <td className={`px-3 py-1 text-right font-mono text-sm tabular-nums whitespace-nowrap font-normal ${flow === "income" ? "text-emerald-600 font-semibold" : "text-slate-900"}`}>
                                       {fmtAmt}
                                     </td>
                                     <td className="px-3 py-1 text-slate-500 text-[13px]">{row.zip_code || "—"}</td>
