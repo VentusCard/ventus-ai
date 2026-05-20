@@ -43,6 +43,32 @@
       "transaction_type": "debit"
     },
     {
+      "transaction_id": "multi_billpay_mortgage_0001",
+      "customer_id": "qa_customer_109",
+      "merchant_name": "BILL PAY WELLS FARGO HOME MORTGAGE",
+      "amount": 2438.0,
+      "date": "2026-04-01",
+      "mcc_code": null,
+      "zip_code": null,
+      "home_zip": "30309",
+      "rail": "bill_pay",
+      "source_profile": "bill_pay_mortgage",
+      "transaction_type": "debit"
+    },
+    {
+      "transaction_id": "multi_ach_subscription_0001",
+      "customer_id": "qa_customer_110",
+      "merchant_name": "ACH DEBIT NETFLIX SUBSCRIPTION",
+      "amount": 22.99,
+      "date": "2026-04-05",
+      "mcc_code": null,
+      "zip_code": null,
+      "home_zip": "94103",
+      "rail": "ach",
+      "source_profile": "ach_subscription",
+      "transaction_type": "debit"
+    },
+    {
       "transaction_id": "multi_p2p_zelle_0001",
       "customer_id": "qa_customer_103",
       "merchant_name": "ZELLE PAYMENT TO ALEX R",

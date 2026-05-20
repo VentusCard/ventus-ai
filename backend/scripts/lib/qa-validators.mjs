@@ -2,7 +2,16 @@ import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 
-export const SOURCE_SYSTEMS = new Set(['fis', 'fiserv', 'jack_henry', 'generic_bank_export']);
+export const SOURCE_SYSTEMS = new Set(['fis', 'fiserv', 'jack_henry', 'generic_bank_export', 'adversarial']);
+export const SIGNAL_KEYS = ['travel_candidate', 'risk_candidate', 'life_event_candidate'];
+export const ADVERSARIAL_CATEGORIES = new Set([
+  'lookalike',
+  'ambiguous_brand',
+  'large_legitimate',
+  'garbled_merchant',
+  'dual_category',
+  'missing_field',
+]);
 export const TRANSACTION_TYPES = new Set(['debit', 'credit', 'signal']);
 export const TERMINAL_JOB_STATUSES = new Set(['complete', 'failed']);
 export const JOB_STATUSES = new Set([
@@ -414,8 +423,16 @@ export function validateGoldenEnrichmentExpectations(expectations, mockBankRoot)
     assertString(expectation.expected_merchant_category, `${label}.expected_merchant_category`);
     assertConfidenceFloor(expectation.expected_confidence_min, `${label}.expected_confidence_min`);
     assertObject(expectation.expected_signals, `${label}.expected_signals`);
-    for (const signal of ['travel_candidate', 'risk_candidate', 'life_event_candidate']) {
+    for (const signal of SIGNAL_KEYS) {
       assert.equal(typeof expectation.expected_signals[signal], 'boolean', `${label}.expected_signals.${signal}`);
+    }
+
+    if (expectation.source_system === 'adversarial') {
+      assert.ok(
+        ADVERSARIAL_CATEGORIES.has(expectation.category),
+        `${label}.category should be one of ${[...ADVERSARIAL_CATEGORIES].join(', ')}`
+      );
+      assertString(expectation.rationale, `${label}.rationale`);
     }
   }
 
@@ -463,12 +480,34 @@ export function validateGoldenPredictionResults(expectations, predictions) {
         `${expectation.transaction_id}: confidence_score ${prediction.confidence_score} below ${expectation.expected_confidence_min}`
       );
     }
+
+    compareSignalPredictions(failures, expectation, prediction);
   }
 
   return {
     checked: expectations.expectations.length,
     failures,
   };
+}
+
+function compareSignalPredictions(failures, expectation, prediction) {
+  const predictedSignals = prediction.signals ?? prediction.expected_signals ?? prediction;
+  for (const signal of SIGNAL_KEYS) {
+    const expected = expectation.expected_signals[signal];
+    const actual = predictedSignals[signal];
+    if (typeof actual !== 'boolean') {
+      failures.push(
+        `${expectation.transaction_id}: ${signal} missing or non-boolean in prediction (got ${JSON.stringify(actual)})`
+      );
+      continue;
+    }
+    if (actual !== expected) {
+      const direction = expected ? 'expected to be flagged' : 'must not be flagged';
+      failures.push(
+        `${expectation.transaction_id}: ${signal} ${direction} (expected ${expected}, got ${actual})`
+      );
+    }
+  }
 }
 
 function assertConfidenceFloor(value, label) {
