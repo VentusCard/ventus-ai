@@ -180,6 +180,39 @@ PILLARS & CATEGORIES (category = primary behavioral identifier within the pillar
 10. Family & Community: Childcare & Education, Gifts & Donations, Religious Organizations, Community Events, Kids Activities, Elder Care, General
 11. Financial & Aspirational: Investments, Savings & Deposits, Insurance, Professional Development, Courses & Certifications, Financial Services, General
 12. Miscellaneous & Unclassified: Unclear Merchants, General Services, One-Time Purchases, Unknown, Mixed Categories, General
+13. Income & Inflows: Payroll, Reimbursements, Investment Income, Government Benefits, Tax Refunds, Transfers In, Interest Earned, Rental Income, Gifts Received, General
+
+INCOME vs SPEND (flow field):
+Every transaction gets a "flow" value: "income" or "spend".
+
+flow = "income" when money flows INTO the account. Signals in merchant or description:
+  PAYROLL, DIRECT DEPOSIT, DES: PAYROLL, ACH CREDIT, REFUND, RETURN, REIMBURSEMENT,
+  DIVIDEND, INTEREST PAID/EARNED, IRS TREAS, SSA TREAS, TAX REF, VENMO CASHOUT,
+  ZELLE FROM <person>, RENTAL INCOME, REBATE, CASHBACK REDEMPTION.
+
+flow = "spend" for all normal purchases.
+
+PILLAR ROUTING for income:
+• Payroll, government benefits, dividends, interest, tax refunds, transfers in,
+  rental income, gifts received → pillar "Income & Inflows".
+• MERCHANT REFUNDS / RETURNS → keep the merchant's NORMAL spending pillar.
+  - "WHOLE FOODS REFUND" → Food & Dining / Grocery, flow="income"
+  - "AMAZON RETURN" → Home & Living / General, flow="income"
+  - "DELTA AIR LINES REFUND" → Travel & Exploration / Flights, flow="income"
+  Rationale: refunds reverse a specific spend category; keeping the pillar lets
+  analytics net them against the original spend.
+
+For Income & Inflows rows: spending_tier = "N/A". purchase_frequency reflects
+cadence (Payroll → Monthly or Weekly; Tax Refund → Annually; Interest → Monthly;
+Dividends → Monthly or Annually).
+
+Income & Inflows examples:
+- "EMPLOYER COMPANY DES: PAYROLL" → Income & Inflows / Payroll / ["Payroll"] flow="income"
+- "IRS TREAS 310 TAX REF" → Income & Inflows / Tax Refunds / ["Tax Refund"] flow="income"
+- "SSA TREAS 310 XXSOC SEC" → Income & Inflows / Government Benefits / ["Social Security"] flow="income"
+- "VANGUARD DIVIDEND" → Income & Inflows / Investment Income / ["Dividend"] flow="income"
+- "VENMO CASHOUT" → Income & Inflows / Transfers In / ["Transfer"] flow="income"
+- "ZELLE FROM SARAH LEE" → Income & Inflows / Transfers In / ["Transfer"] flow="income"
 
 SUBCATEGORY LABELS (1-3 per transaction):
 Return 1 to 3 short labels that describe what you can ACTUALLY INFER from the merchant name. These are independent tags, not a hierarchy.
