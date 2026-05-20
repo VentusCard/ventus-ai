@@ -77,6 +77,34 @@ function describeSecret(secretId) {
   }
 }
 
+function inspectSecretContents(secretId, profile) {
+  const value = safeAwsJson(
+    ['secretsmanager', 'get-secret-value', '--secret-id', secretId],
+    `could not inspect secret contents for ${secretId}`
+  );
+  if (!value?.SecretString) return;
+
+  let parsed;
+  try {
+    parsed = JSON.parse(value.SecretString);
+  } catch {
+    failures.push(`secret ${profile.name} does not contain a JSON SecretString`);
+    return;
+  }
+
+  for (const key of profile.allowed_keys || []) {
+    if (!Object.prototype.hasOwnProperty.call(parsed, key)) {
+      failures.push(`secret ${profile.name} is missing expected key ${key}`);
+    }
+  }
+
+  for (const key of profile.forbidden_keys || []) {
+    if (Object.prototype.hasOwnProperty.call(parsed, key)) {
+      failures.push(`secret ${profile.name} still contains forbidden key ${key}`);
+    }
+  }
+}
+
 const identity = safeAwsJson(['sts', 'get-caller-identity'], 'could not read caller identity');
 if (identity) {
   console.log(`AWS caller: ${identity.Arn}`);
@@ -132,6 +160,18 @@ for (const functionName of databaseFunctions) {
 
 for (const secretId of observedSecretIds) {
   describeSecret(secretId);
+}
+
+const targetSecretProfiles = new Map(
+  baseline.target_secrets.map((profile) => [profile.env_var, profile])
+);
+const databaseProfile = targetSecretProfiles.get(databaseEnvVar);
+const modelProviderProfile = targetSecretProfiles.get(modelProviderEnvVar);
+if (databaseProfile && baseline.live_status?.database_secret_id) {
+  inspectSecretContents(baseline.live_status.database_secret_id, databaseProfile);
+}
+if (modelProviderProfile && baseline.live_status?.model_provider_secret_id) {
+  inspectSecretContents(baseline.live_status.model_provider_secret_id, modelProviderProfile);
 }
 
 console.log(JSON.stringify({ region, strict, functionSummaries }, null, 2));
