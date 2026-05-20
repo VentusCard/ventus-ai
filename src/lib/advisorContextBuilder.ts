@@ -1,6 +1,7 @@
 import { EnrichedTransaction, PillarAggregate } from "@/types/transaction";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { aggregateByPillar } from "./aggregations";
+import { isIncome } from "./transactionFlow";
 
 export interface FinancialPlanContext {
   monthlyIncome: number;
