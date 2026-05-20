@@ -147,7 +147,7 @@ One test batch initially appeared stuck at `travel_detected`, but later complete
 - No regional WAF ACL was found in `us-east-2`, despite WAF billing.
 - S3 public access block and bucket encryption are enabled.
 - S3 versioning appears unset.
-- Secrets metadata indicates a DB credential secret also contains a Gemini API key. The recovered backend now supports separate `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` runtime configuration with the legacy combined secret retained only as a temporary compatibility fallback. A CI-checked baseline in `infra/security/secrets-boundary-baseline.json` defines the target separation and rotation posture, and `docs/aws-secrets-cutover-runbook.md` documents the AWS cutover and live audit command.
+- Secrets metadata originally indicated a DB credential secret also contained a Gemini API key. On 2026-05-20, a dedicated `ventus/model-providers/gemini` secret was created, all seven backend Lambdas received `RDS_SECRET_ID`, the five model-analysis Lambdas received `MODEL_PROVIDER_SECRET_ID`, and model Lambda IAM policies were updated to read the dedicated model-provider secret. `npm run --prefix infra audit:secrets-cutover` now passes. Remaining cleanup is to deploy the recovered backend package that reads `MODEL_PROVIDER_SECRET_ID`, smoke-test enrichment, then remove `GEMINI_API_KEY` from the DB credential secret and enable/review rotation/KMS posture.
 
 ### Billing
 

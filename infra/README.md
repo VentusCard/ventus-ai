@@ -54,7 +54,7 @@ The current CDK stack records known production resource names and defines readin
 
 The current RDS network exposure baseline is captured in `infra/security/rds-network-exposure-baseline.json` and checked by CI. It documents the existing temporary public `/32` Postgres ingress exceptions and the target posture of private-only database access.
 
-The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. Use `docs/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables and secret metadata before and after the AWS cutover.
+The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. The live Lambda env/IAM cutover to `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` was completed on 2026-05-20. Use `docs/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables and secret metadata before removing legacy combined-secret contents.
 
 The tracing readiness baseline is captured in `infra/security/tracing-readiness-baseline.json` and checked by CI. API Gateway tracing/access logs and Lambda active tracing were enabled on 2026-05-20. Use `npm run --prefix infra audit:tracing` to verify live API Gateway tracing, API access logs, and Lambda X-Ray mode.
 
