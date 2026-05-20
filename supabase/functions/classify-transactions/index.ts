@@ -459,6 +459,7 @@ const CLASSIFICATION_TOOL = [
                     "Family & Community",
                     "Financial & Aspirational",
                     "Miscellaneous & Unclassified",
+                    "Income & Inflows",
                   ],
                 },
                 category: {
@@ -485,12 +486,18 @@ const CLASSIFICATION_TOOL = [
                   type: "string",
                   enum: ["Budget", "Standard", "Premium", "N/A"],
                   description:
-                    "Merchant market positioning: Premium (luxury/high-end), Standard (mid-range), Budget (discount/value), N/A (utilities/insurance/medical)",
+                    "Merchant market positioning: Premium (luxury/high-end), Standard (mid-range), Budget (discount/value), N/A (utilities/insurance/medical/income)",
                 },
                 purchase_frequency: {
                   type: "string",
                   enum: ["Weekly", "Monthly", "Occasional", "Annually", "One-Time"],
                   description: "How often a typical customer transacts with this merchant type",
+                },
+                flow: {
+                  type: "string",
+                  enum: ["income", "spend"],
+                  description:
+                    "'income' when money flows INTO the account (payroll, refund, dividend, interest, transfer in, etc.); 'spend' for normal purchases.",
                 },
               },
               required: [
@@ -501,6 +508,7 @@ const CLASSIFICATION_TOOL = [
                 "confidence",
                 "spending_tier",
                 "purchase_frequency",
+                "flow",
               ],
             },
           },
