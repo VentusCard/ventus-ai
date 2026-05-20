@@ -141,6 +141,8 @@ export default function ExecDemoPage() {
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
+  const [creditAssessment, setCreditAssessment] = useState<CreditAssessment | null>(null);
+  const [creditLoading, setCreditLoading] = useState(false);
   const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
   const [synthesisTriggered, setSynthesisTriggered] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
