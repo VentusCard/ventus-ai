@@ -56,7 +56,7 @@ The current RDS network exposure baseline is captured in `infra/security/rds-net
 
 The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. Use `docs/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables and secret metadata before and after the AWS cutover.
 
-The tracing readiness baseline is captured in `infra/security/tracing-readiness-baseline.json` and checked by CI. Use `npm run --prefix infra audit:tracing` to verify live API Gateway tracing, API access logs, and Lambda X-Ray mode before and after enablement.
+The tracing readiness baseline is captured in `infra/security/tracing-readiness-baseline.json` and checked by CI. API Gateway tracing/access logs and Lambda active tracing were enabled on 2026-05-20. Use `npm run --prefix infra audit:tracing` to verify live API Gateway tracing, API access logs, and Lambda X-Ray mode.
 
 These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.
 

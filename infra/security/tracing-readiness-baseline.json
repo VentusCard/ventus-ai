@@ -32,11 +32,14 @@
     "ventus-travel-detection"
   ],
   "target_lambda_tracing_mode": "Active",
-  "current_known_gap": {
+  "live_status": {
     "observed_at": "2026-05-20",
-    "api_gateway_stage_tracing_enabled": false,
-    "api_gateway_access_logs_enabled": false,
-    "lambda_tracing_mode": "PassThrough"
+    "api_gateway_stage_tracing_enabled": true,
+    "api_gateway_access_logs_enabled": true,
+    "api_gateway_access_log_group": "/aws/apigateway/ventus-api-prod-access",
+    "api_gateway_access_log_retention_days": 180,
+    "lambda_tracing_mode": "Active",
+    "verified_with": "npm run --prefix infra audit:tracing"
   },
   "target_posture": {
     "trace_enrichment_requests_end_to_end": true,
