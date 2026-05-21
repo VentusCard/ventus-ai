@@ -56,9 +56,9 @@ The current RDS network exposure baseline is captured in `infra/security/rds-net
 
 The current secrets boundary baseline is captured in `infra/security/secrets-boundary-baseline.json` and checked by CI. The live Lambda env/IAM cutover to `RDS_SECRET_ID` and `MODEL_PROVIDER_SECRET_ID` was completed on 2026-05-20, the recovered backend package that reads the separated model-provider secret was deployed to the seven backend Lambdas the same day, and the duplicated `GEMINI_API_KEY` was removed from the DB credential secret. Use `docs/aws-secrets-cutover-runbook.md` plus `npm run --prefix infra audit:secrets-cutover` to verify live Lambda environment variables, secret contents, and secret metadata.
 
-The rotation/KMS target posture is captured in `infra/security/secrets-rotation-kms-baseline.json` and checked by CI. Use `npm run --prefix infra audit:secrets-rotation-kms` to inspect live rotation and customer-managed KMS status without reading secret values. Strict mode should remain a known gap until KMS key policies and rotation mechanics are reviewed.
+The rotation/KMS target posture is captured in `infra/security/secrets-rotation-kms-baseline.json` and checked by CI. Use `npm run --prefix infra audit:secrets-rotation-kms` to inspect live rotation and customer-managed KMS status without reading secret values. Customer-managed KMS is enabled for the DB and model-provider credential secrets; Secrets Manager rotation remains pending.
 
-Proposed KMS review artifacts live under `infra/iam/secrets-kms-*.json`. They are validation targets only; they do not create keys or migrate secrets until reviewed and wired into a deployment plan.
+KMS review artifacts live under `infra/iam/secrets-kms-*.json` and are checked by `npm run --prefix infra check:iam`.
 
 The tracing readiness baseline is captured in `infra/security/tracing-readiness-baseline.json` and checked by CI. API Gateway tracing/access logs and Lambda active tracing were enabled on 2026-05-20. Use `npm run --prefix infra audit:tracing` to verify live API Gateway tracing, API access logs, and Lambda X-Ray mode.
 
