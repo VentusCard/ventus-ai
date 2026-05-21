@@ -5,6 +5,7 @@
 // → writes to customer_risk_factors → fires risk_detected webhook if high severity
 
 import { createDbFactory } from '../../shared/db.mjs';
+import { fetchGeminiChatCompletion } from '../../shared/model-provider.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
@@ -915,28 +916,23 @@ async function callGeminiForAML(transactions, alreadyFlaggedIds, geminiApiKey) {
   if (txSummary.length === 0) return [];
 
   try {
-    const res = await fetch(
-      'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${geminiApiKey}`,
-        },
-        body: JSON.stringify({
-          model: 'gemini-2.5-flash',
-          messages: [
-            { role: 'system', content: AML_SYSTEM_PROMPT },
-            {
-              role: 'user',
-              content: `Analyze ${txSummary.length} transactions for AML patterns:\n${JSON.stringify(txSummary, null, 1)}`,
-            },
-          ],
-          temperature: 0,
-          max_tokens: 2000,
-        }),
-      }
-    );
+    const res = await fetchGeminiChatCompletion({
+      apiKey: geminiApiKey,
+      label: 'RISK',
+      maxRetries: 3,
+      body: {
+        model: 'gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: AML_SYSTEM_PROMPT },
+          {
+            role: 'user',
+            content: `Analyze ${txSummary.length} transactions for AML patterns:\n${JSON.stringify(txSummary, null, 1)}`,
+          },
+        ],
+        temperature: 0,
+        max_tokens: 2000,
+      },
+    });
 
     if (!res.ok) {
       console.warn(`[RISK] Gemini AML error ${res.status}`);

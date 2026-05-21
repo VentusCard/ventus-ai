@@ -5,6 +5,7 @@
 // → writes to customer_life_events + life_event_evidence
 
 import { createDbFactory } from '../../shared/db.mjs';
+import { fetchGeminiChatCompletion } from '../../shared/model-provider.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
@@ -497,29 +498,25 @@ Canonical events: 80%+ confidence only. Apply causality test strictly.
 Behavioral signals: 60%+ confidence, must be advisor-actionable, minimum 2 evidence transactions.
 Include exact transaction_id from [ID:xxx] prefix for every evidence item.`;
 
-  const res = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${geminiApiKey}`,
+  const res = await fetchGeminiChatCompletion({
+    apiKey: geminiApiKey,
+    label: 'LIFESTYLE',
+    maxRetries: 4,
+    maxDelayMs: 20000,
+    body: {
+      model: 'gemini-2.5-flash',
+      messages: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: userPrompt },
+      ],
+      tools: [LIFESTYLE_SIGNAL_TOOL],
+      tool_choice: {
+        type: 'function',
+        function: { name: 'detect_lifestyle_signals' },
       },
-      body: JSON.stringify({
-        model: 'gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: userPrompt },
-        ],
-        tools: [LIFESTYLE_SIGNAL_TOOL],
-        tool_choice: {
-          type: 'function',
-          function: { name: 'detect_lifestyle_signals' },
-        },
-        max_tokens: 8000,
-      }),
-    }
-  );
+      max_tokens: 8000,
+    },
+  });
 
   if (!res.ok) {
     const err = await res.text();
