@@ -46,6 +46,11 @@ assert.match(
 );
 assert.match(
   stackSource,
+  /logGroupName:\s*'\/aws\/lambda\/ventus-webhook-delivery-monitor'/,
+  'webhook delivery monitor should have explicit CloudWatch Logs retention'
+);
+assert.match(
+  stackSource,
   /removalPolicy:\s*cdk\.RemovalPolicy\.RETAIN/,
   'log retention resources should retain log groups on stack deletion'
 );
@@ -99,7 +104,22 @@ assert.match(
   /burstLimit:\s*50/,
   'API Gateway pilot usage plan should include a burst limit'
 );
+assert.match(
+  stackSource,
+  /functionName:\s*'ventus-webhook-delivery-monitor'/,
+  'webhook delivery monitor Lambda should be codified'
+);
+assert.match(
+  stackSource,
+  /ruleName:\s*'ventus-webhook-delivery-monitor-every-5-minutes'/,
+  'webhook delivery monitor schedule should be codified'
+);
+assert.match(
+  stackSource,
+  /metricName:\s*'WebhookFailedDeliveries'/,
+  'webhook failed deliveries metric should be alarmed'
+);
 
 console.log(
-  `Observability readiness checks passed: ${requiredLambdaFunctions.length + 1} Lambda log groups, ${requiredDatabaseMetrics.length} Aurora metrics, API usage plan`
+  `Observability readiness checks passed: ${requiredLambdaFunctions.length + 2} Lambda log groups, ${requiredDatabaseMetrics.length} Aurora metrics, API usage plan, webhook delivery monitor`
 );

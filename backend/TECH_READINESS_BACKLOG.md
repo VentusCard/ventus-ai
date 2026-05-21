@@ -23,7 +23,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Add alarms for Lambda errors and duration. Initial CDK alarm proposals exist in `infra/lib/ventus-existing-infra-stack.ts`.
 - Add alarms for DLQ depth on every queue. Initial CDK alarm proposals exist in `infra/lib/ventus-existing-infra-stack.ts`.
 - Add stuck-job detection for pipeline runs that do not reach `complete` or `failed` within an expected SLA. Initial config and SQL live in `backend/config/pipeline-slas.json` and `backend/sql/stuck-pipeline-runs.sql`.
-- Add webhook delivery failure metrics and alerts. Initial CloudWatch log metric filter proposal exists in CDK.
+- Add webhook delivery failure metrics and alerts. Initial CloudWatch log metric filter proposal exists in CDK, and ledger-based `ventus-webhook-delivery-monitor` CDK wiring has been added.
 - Add persistent webhook delivery history. Initial `webhook_delivery_attempts` schema, dispatcher writes, and `GET /v1/webhook-deliveries` endpoint added.
 - Add explicit CloudWatch log retention. Initial six-month retention is codified in CDK for backend Lambda log groups and checked in CI.
 - Add Aurora cluster alarms for CPU, connections, free local storage, replica lag, and volume bytes used. Initial CDK alarms are checked in CI.
