@@ -117,6 +117,14 @@ Expected resource:
 - Security group: `sg-08836ed15d778ecd6`
 - KMS key: `alias/ventus/database-secrets`
 
+Deployment status:
+
+- Deployed through the protected GitHub infra workflow on 2026-05-21.
+- CloudFormation stack `VentusExistingInfraStack` reached `UPDATE_COMPLETE`.
+- Nested rotation application stack reached `CREATE_COMPLETE`.
+- Lambda `ventus-db-credential-rotation` is `Active` in the expected VPC path.
+- The DB credential secret rotation schedule remains disabled.
+
 After deployment, re-run:
 
 ```bash
