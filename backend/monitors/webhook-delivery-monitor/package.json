@@ -1,0 +1,13 @@
+{
+  "name": "ventus-webhook-delivery-monitor",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Scheduled Ventus webhook delivery failure monitor.",
+  "dependencies": {
+    "@aws-sdk/client-cloudwatch": "^3.1003.0",
+    "@aws-sdk/client-secrets-manager": "^3.1003.0",
+    "@aws-sdk/client-sns": "^3.1003.0",
+    "pg": "^8.20.0"
+  }
+}

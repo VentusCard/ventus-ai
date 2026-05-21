@@ -56,6 +56,7 @@ The CDK stack in `infra/lib/ventus-existing-infra-stack.ts` now covers:
 - API Gateway pilot usage plan with steady-state throttle, burst limit, and monthly quota.
 - Environment-driven API CORS allowlist for `ventus-api`.
 - Webhook delivery failures from worker log metric filters.
+- Failed webhook deliveries from the Aurora `webhook_delivery_attempts` ledger via `ventus-webhook-delivery-monitor`.
 - Scheduled stuck-job monitor Lambda and `StuckPipelineRuns` alarm.
 - Six-month CloudWatch log retention for backend Lambda and monitor log groups.
 - Aurora cluster CPU, connections, free local storage, replica lag, and volume bytes used.
@@ -101,6 +102,18 @@ It does the following:
 - Queries `pipeline_runs` for rows older than the configured stuck-job SLA.
 - Publishes `Ventus/Pipeline` `StuckPipelineRuns` to CloudWatch.
 - Publishes a concise SNS alert when stuck jobs are found.
+
+## Webhook Delivery Monitor
+
+The proposed monitor source lives at `backend/monitors/webhook-delivery-monitor`.
+
+It runs every five minutes and:
+
+- Queries `webhook_delivery_attempts` for failed deliveries in the recent lookback window.
+- Publishes `Ventus/Pipeline` `WebhookFailedDeliveries` to CloudWatch.
+- Publishes a concise SNS alert with delivery IDs, bank IDs, event types, status codes, attempt counts, and replay linkage when failures are found.
+
+This complements the existing worker log metric filter. The database-backed monitor catches failed deliveries recorded by API-driven test/replay paths as well as worker-dispatched webhooks.
 
 Package and synthesize:
 

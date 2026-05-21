@@ -621,6 +621,78 @@ export class VentusExistingInfraStack extends cdk.Stack {
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     }));
+
+    const webhookDeliveryMonitor = new lambda.Function(this, 'VentusWebhookDeliveryMonitor', {
+      functionName: 'ventus-webhook-delivery-monitor',
+      description: 'Scheduled monitor for failed Ventus webhook deliveries recorded in Aurora.',
+      runtime: lambda.Runtime.NODEJS_20_X,
+      architecture: lambda.Architecture.ARM_64,
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('../backend/dist/monitors/webhook-delivery-monitor.zip'),
+      vpc: existingVpc,
+      vpcSubnets: {
+        subnets: monitorSubnets,
+      },
+      securityGroups: [databaseSecurityGroup],
+      memorySize: 256,
+      timeout: cdk.Duration.minutes(1),
+      environment: {
+        VENTUS_ENVIRONMENT: 'staging',
+        RDS_SECRET_ID: resources.databaseSecretId,
+        RDS_DATABASE: resources.databaseName,
+        SNS_TOPIC_ARN: alertTopic.topicArn,
+        WEBHOOK_FAILURE_LOOKBACK_MINUTES: '5',
+        WEBHOOK_FAILURE_ALERT_LIMIT: '10',
+      },
+    });
+    new logs.LogRetention(this, 'VentusWebhookDeliveryMonitorLogRetention', {
+      logGroupName: '/aws/lambda/ventus-webhook-delivery-monitor',
+      retention: backendLogRetention,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
+    webhookDeliveryMonitor.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['secretsmanager:GetSecretValue'],
+        resources: [databaseSecretArn],
+      })
+    );
+    webhookDeliveryMonitor.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ['cloudwatch:PutMetricData'],
+        resources: ['*'],
+        conditions: {
+          StringEquals: {
+            'cloudwatch:namespace': 'Ventus/Pipeline',
+          },
+        },
+      })
+    );
+    alertTopic.grantPublish(webhookDeliveryMonitor);
+
+    new events.Rule(this, 'VentusWebhookDeliveryMonitorSchedule', {
+      ruleName: 'ventus-webhook-delivery-monitor-every-5-minutes',
+      description: 'Runs the Ventus webhook delivery monitor every five minutes.',
+      schedule: events.Schedule.rate(cdk.Duration.minutes(5)),
+      targets: [new targets.LambdaFunction(webhookDeliveryMonitor)],
+    });
+
+    withAlertAction(new cloudwatch.Alarm(this, 'VentusWebhookFailedDeliveriesAlarm', {
+      alarmName: readinessAlarmName('ventus-webhook', 'failed-deliveries'),
+      alarmDescription: 'Ventus webhook delivery failures were recorded in Aurora.',
+      metric: new cloudwatch.Metric({
+        namespace: 'Ventus/Pipeline',
+        metricName: 'WebhookFailedDeliveries',
+        dimensionsMap: {
+          Environment: 'staging',
+        },
+        statistic: 'Maximum',
+        period: cdk.Duration.minutes(5),
+      }),
+      threshold: 1,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    }));
   }
 }
 
