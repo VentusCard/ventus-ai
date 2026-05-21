@@ -22,6 +22,7 @@ import { Construct } from 'constructs';
 export class VentusExistingInfraStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
+    this.templateOptions.transforms = ['AWS::Serverless-2016-10-31'];
 
     const resources = {
       apiGatewayRestApiId: '97rgw0xjbj',
@@ -224,7 +225,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       });
 
       new cdk.CfnResource(this, 'VentusDatabaseSecretRotationLambda', {
-        type: 'AWS::ServerlessRepo::Application',
+        type: 'AWS::Serverless::Application',
         properties: {
           Location: {
             ApplicationId: resources.databaseSecretRotationApplicationId,

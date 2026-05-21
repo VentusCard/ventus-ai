@@ -110,7 +110,7 @@ npm run --prefix infra synth -- -c alertEmail=yusheng_chen@ventusai.com -c enabl
 
 Expected resource:
 
-- Type: `AWS::ServerlessRepo::Application`
+- Type: `AWS::Serverless::Application`
 - Application: `SecretsManagerRDSPostgreSQLRotationSingleUser`
 - Function name: `ventus-db-credential-rotation`
 - Subnets: `subnet-057aa09eef4545099`, `subnet-00958cfa806e7e363`
