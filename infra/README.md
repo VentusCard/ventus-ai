@@ -58,6 +58,8 @@ The current secrets boundary baseline is captured in `infra/security/secrets-bou
 
 The rotation/KMS target posture is captured in `infra/security/secrets-rotation-kms-baseline.json` and checked by CI. Use `npm run --prefix infra audit:secrets-rotation-kms` to inspect live rotation and customer-managed KMS status without reading secret values. Strict mode should remain a known gap until KMS key policies and rotation mechanics are reviewed.
 
+Proposed KMS review artifacts live under `infra/iam/secrets-kms-*.json`. They are validation targets only; they do not create keys or migrate secrets until reviewed and wired into a deployment plan.
+
 The tracing readiness baseline is captured in `infra/security/tracing-readiness-baseline.json` and checked by CI. API Gateway tracing/access logs and Lambda active tracing were enabled on 2026-05-20. Use `npm run --prefix infra audit:tracing` to verify live API Gateway tracing, API access logs, and Lambda X-Ray mode.
 
 These readiness alarms have been deployed through the protected staging workflow. Review a CDK diff before changing or adding alarms.
