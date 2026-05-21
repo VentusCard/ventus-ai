@@ -34,9 +34,9 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Add retry/replay runbook for failed customer stages.
 - Add idempotency documentation for duplicate `transaction_id`.
 - Add webhook management endpoints:
-  - `GET /v1/webhooks`
-  - `DELETE /v1/webhooks/{webhook_id}`
-  - `POST /v1/webhooks/{webhook_id}/test`
+  - `GET /v1/webhooks` - initial implementation added
+  - `DELETE /v1/webhooks/{webhook_id}` - initial implementation added as a soft-disable
+  - `POST /v1/webhooks/{webhook_id}/test` - initial implementation added for signed test delivery
 
 ## P1 - Security Hardening
 

@@ -228,8 +228,35 @@ components:
         created_at:
           type: string
           format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
         message:
           type: string
+    WebhookListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookRegistrationResponse'
+    WebhookTestResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        event:
+          type: string
+          example: webhook_test
+        delivery_id:
+          type: string
+        status_code:
+          type: integer
+        delivered:
+          type: boolean
     CustomerProfile:
       type: object
       properties:
@@ -776,6 +803,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/AnalyticsResponse'
   /v1/webhooks:
+    get:
+      summary: List webhook registrations
+      responses:
+        '200':
+          description: Webhook registrations for the authenticated bank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookListResponse'
     post:
       summary: Register or update a webhook
       requestBody:
@@ -797,3 +833,49 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/webhooks/{webhook_id}:
+    delete:
+      summary: Disable a webhook registration
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Webhook disabled
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/webhooks/{webhook_id}/test:
+    post:
+      summary: Send a test webhook delivery
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test delivery completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookTestResponse'
+        '404':
+          description: Active webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Test delivery reached the endpoint but was not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookTestResponse'
