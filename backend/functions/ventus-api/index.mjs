@@ -6,6 +6,7 @@ import crypto from 'crypto';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
 import { resolveSecretId } from '../../shared/secrets.mjs';
+import { recordWebhookDelivery } from '../../shared/webhooks.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 const app = express();
@@ -84,7 +85,7 @@ function validateWebhookUrl(value) {
   }
 }
 
-async function deliverWebhookTest({ webhook, bankId }) {
+async function deliverWebhookTest({ db, webhook, bankId }) {
   const deliveryId = crypto.randomUUID();
   const body = JSON.stringify({
     event: 'webhook_test',
@@ -100,21 +101,41 @@ async function deliverWebhookTest({ webhook, bankId }) {
     ? crypto.createHmac('sha256', webhook.secret).update(body).digest('hex')
     : null;
 
-  const response = await fetch(webhook.url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-ventus-event': 'webhook_test',
-      'x-ventus-delivery-id': deliveryId,
-      ...(signature && { 'x-ventus-signature': signature }),
-    },
-    body,
+  let response = null;
+  let errorMessage = null;
+  try {
+    response = await fetch(webhook.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-ventus-event': 'webhook_test',
+        'x-ventus-delivery-id': deliveryId,
+        ...(signature && { 'x-ventus-signature': signature }),
+      },
+      body,
+    });
+  } catch (error) {
+    errorMessage = error.message;
+  }
+
+  await recordWebhookDelivery({
+    db,
+    deliveryId,
+    webhookId: webhook.webhook_id,
+    bankId,
+    eventType: 'webhook_test',
+    targetUrl: webhook.url,
+    payloadBody: body,
+    attemptCount: 1,
+    status: response?.ok ? 'delivered' : 'failed',
+    statusCode: response?.status ?? null,
+    errorMessage: response?.ok ? null : errorMessage || `HTTP ${response?.status}`,
   });
 
   return {
     delivery_id: deliveryId,
-    status_code: response.status,
-    delivered: response.ok,
+    status_code: response?.status ?? null,
+    delivered: response?.ok ?? false,
   };
 }
 
@@ -1158,6 +1179,53 @@ app.get('/v1/webhooks', async (req, res) => {
   }
 });
 
+app.get('/v1/webhook-deliveries', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const limit = Math.min(
+      Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1),
+      100
+    );
+    const values = [req.bankId, limit];
+    const filters = ['bank_id = $1'];
+
+    if (req.query.webhook_id) {
+      values.push(req.query.webhook_id);
+      filters.push(`webhook_id = $${values.length}`);
+    }
+
+    if (req.query.status) {
+      if (!['delivered', 'failed'].includes(req.query.status)) {
+        return res.status(400).json({ error: 'status must be delivered or failed' });
+      }
+      values.push(req.query.status);
+      filters.push(`status = $${values.length}`);
+    }
+
+    const result = await db.query(
+      `SELECT delivery_id, webhook_id, bank_id, event_type, target_url,
+              attempt_count, status, status_code, error_message, created_at,
+              last_attempted_at, delivered_at
+       FROM webhook_delivery_attempts
+       WHERE ${filters.join(' AND ')}
+       ORDER BY last_attempted_at DESC
+       LIMIT $2`,
+      values
+    );
+
+    res.status(200).json({
+      bank_id: req.bankId,
+      deliveries: result.rows,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
 app.post('/v1/webhooks', async (req, res) => {
   const db = await getDB();
   await db.connect();
@@ -1254,6 +1322,7 @@ app.post('/v1/webhooks/:webhook_id/test', async (req, res) => {
     let delivery;
     try {
       delivery = await deliverWebhookTest({
+        db,
         webhook: result.rows[0],
         bankId: req.bankId,
       });

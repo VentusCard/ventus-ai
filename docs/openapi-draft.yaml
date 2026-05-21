@@ -257,6 +257,53 @@ components:
           type: integer
         delivered:
           type: boolean
+    WebhookDelivery:
+      type: object
+      properties:
+        delivery_id:
+          type: string
+          format: uuid
+        webhook_id:
+          type: string
+          nullable: true
+        bank_id:
+          type: string
+        event_type:
+          type: string
+        target_url:
+          type: string
+        attempt_count:
+          type: integer
+        status:
+          type: string
+          enum:
+            - delivered
+            - failed
+        status_code:
+          type: integer
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_attempted_at:
+          type: string
+          format: date-time
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+    WebhookDeliveryListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookDelivery'
     CustomerProfile:
       type: object
       properties:
@@ -829,6 +876,43 @@ paths:
                 $ref: '#/components/schemas/WebhookRegistrationResponse'
         '400':
           description: Invalid webhook registration request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/webhook-deliveries:
+    get:
+      summary: List recent webhook delivery attempts
+      parameters:
+        - name: webhook_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - delivered
+              - failed
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Recent webhook delivery attempts for the authenticated bank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeliveryListResponse'
+        '400':
+          description: Invalid delivery filter
           content:
             application/json:
               schema:
