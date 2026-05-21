@@ -66,6 +66,58 @@ const SEGMENT_DISPLAY_NAMES = {
   home_services: 'Home Services',
 };
 
+const WEBHOOK_EVENTS = [
+  'batch_started',
+  'batch_complete',
+  'life_event_detected',
+  'trip_detected',
+  'risk_detected',
+  'behavioral_signal_detected',
+];
+
+function validateWebhookUrl(value) {
+  try {
+    const url = new URL(value);
+    return url.protocol === 'https:';
+  } catch {
+    return false;
+  }
+}
+
+async function deliverWebhookTest({ webhook, bankId }) {
+  const deliveryId = crypto.randomUUID();
+  const body = JSON.stringify({
+    event: 'webhook_test',
+    bank_id: bankId,
+    timestamp: new Date().toISOString(),
+    delivery_id: deliveryId,
+    data: {
+      message: 'Ventus webhook test delivery',
+      configured_events: webhook.events,
+    },
+  });
+  const signature = webhook.secret
+    ? crypto.createHmac('sha256', webhook.secret).update(body).digest('hex')
+    : null;
+
+  const response = await fetch(webhook.url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-ventus-event': 'webhook_test',
+      'x-ventus-delivery-id': deliveryId,
+      ...(signature && { 'x-ventus-signature': signature }),
+    },
+    body,
+  });
+
+  return {
+    delivery_id: deliveryId,
+    status_code: response.status,
+    delivered: response.ok,
+  };
+}
+
 // ─── CORS MIDDLEWARE ──────────────────────────────────────────────────────────
 function parseAllowedOrigins(value, environment) {
   if (typeof value === 'string' && value.trim().length > 0) {
@@ -1082,6 +1134,30 @@ app.post('/v1/enrich', async (req, res) => {
 });
 
 // ─── WEBHOOKS ─────────────────────────────────────────────────────────────────
+app.get('/v1/webhooks', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const result = await db.query(
+      `SELECT webhook_id, bank_id, url, events, is_active, created_at, updated_at
+       FROM webhook_registrations
+       WHERE bank_id = $1
+       ORDER BY updated_at DESC, created_at DESC`,
+      [req.bankId]
+    );
+
+    res.status(200).json({
+      bank_id: req.bankId,
+      webhooks: result.rows,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
 app.post('/v1/webhooks', async (req, res) => {
   const db = await getDB();
   await db.connect();
@@ -1093,18 +1169,14 @@ app.post('/v1/webhooks', async (req, res) => {
       return res.status(400).json({ error: 'url and events array required' });
     }
 
-    const validEvents = [
-      'batch_started',
-      'batch_complete',
-      'life_event_detected',
-      'trip_detected',
-      'risk_detected',
-      'behavioral_signal_detected',
-    ];
-    const invalidEvents = events.filter((e) => !validEvents.includes(e));
+    if (!validateWebhookUrl(url)) {
+      return res.status(400).json({ error: 'webhook url must be a valid https URL' });
+    }
+
+    const invalidEvents = events.filter((e) => !WEBHOOK_EVENTS.includes(e));
     if (invalidEvents.length > 0) {
       return res.status(400).json({
-        error: `Invalid events: ${invalidEvents.join(', ')}. Valid events: ${validEvents.join(', ')}`,
+        error: `Invalid events: ${invalidEvents.join(', ')}. Valid events: ${WEBHOOK_EVENTS.join(', ')}`,
       });
     }
 
@@ -1119,7 +1191,7 @@ app.post('/v1/webhooks', async (req, res) => {
          secret     = EXCLUDED.secret,
          is_active  = true,
          updated_at = NOW()
-       RETURNING webhook_id, bank_id, url, events, is_active, created_at`,
+       RETURNING webhook_id, bank_id, url, events, is_active, created_at, updated_at`,
       [webhookId, bank_id, url, events, secret || null]
     );
 
@@ -1130,7 +1202,74 @@ app.post('/v1/webhooks', async (req, res) => {
       events: result.rows[0].events,
       is_active: result.rows[0].is_active,
       created_at: result.rows[0].created_at,
+      updated_at: result.rows[0].updated_at,
       message: 'Webhook registered successfully',
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
+app.delete('/v1/webhooks/:webhook_id', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const result = await db.query(
+      `UPDATE webhook_registrations
+       SET is_active = false, updated_at = NOW()
+       WHERE webhook_id = $1 AND bank_id = $2
+       RETURNING webhook_id, bank_id, url, events, is_active, updated_at`,
+      [req.params.webhook_id, req.bankId]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'Webhook not found' });
+
+    res.status(204).send();
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
+app.post('/v1/webhooks/:webhook_id/test', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const result = await db.query(
+      `SELECT webhook_id, bank_id, url, events, secret, is_active
+       FROM webhook_registrations
+       WHERE webhook_id = $1 AND bank_id = $2 AND is_active = true`,
+      [req.params.webhook_id, req.bankId]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'Active webhook not found' });
+
+    let delivery;
+    try {
+      delivery = await deliverWebhookTest({
+        webhook: result.rows[0],
+        bankId: req.bankId,
+      });
+    } catch (error) {
+      console.warn('[WEBHOOK] Test delivery failed:', error.message);
+      delivery = {
+        delivery_id: crypto.randomUUID(),
+        status_code: null,
+        delivered: false,
+      };
+    }
+
+    res.status(delivery.delivered ? 200 : 502).json({
+      webhook_id: result.rows[0].webhook_id,
+      event: 'webhook_test',
+      ...delivery,
     });
   } catch (e) {
     console.error(e);
