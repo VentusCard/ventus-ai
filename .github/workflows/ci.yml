@@ -45,9 +45,11 @@ jobs:
           node --check backend/scripts/qa-golden-enrichment.mjs
           node --check backend/scripts/qa-live-pipeline.mjs
           node --check backend/scripts/lib/qa-validators.mjs
+          node --check infra/scripts/audit-live-db-rotation-preflight.mjs
           node --check infra/scripts/audit-live-secrets-cutover.mjs
           node --check infra/scripts/audit-live-secrets-rotation-kms.mjs
           node --check infra/scripts/audit-live-tracing-readiness.mjs
+          node --check infra/scripts/check-db-rotation-preflight.mjs
           node --check infra/scripts/check-secrets-boundary.mjs
           node --check infra/scripts/check-secrets-rotation-kms-readiness.mjs
           node --check infra/scripts/check-tracing-readiness.mjs
@@ -110,6 +112,10 @@ jobs:
 
       - name: Validate IAM Policy Artifacts
         run: npm run check:iam
+        working-directory: infra
+
+      - name: Check DB Rotation Preflight Baseline
+        run: npm run check:db-rotation-preflight
         working-directory: infra
 
       - name: Check Observability Readiness
