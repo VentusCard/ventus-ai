@@ -15,6 +15,7 @@ Do not commit secret values. Do not print secret values into logs, tickets, scre
   - DB credentials: 30 days
   - model-provider credentials: 90 days
 - Customer-managed KMS is required for both secret classes before enterprise security review.
+- Runtime secret reads use a short cache (`SECRETS_CACHE_TTL_MS`, default 60 seconds) so warm Lambda containers do not hold database credentials indefinitely after a rotation.
 
 ## Pre-Checks
 
