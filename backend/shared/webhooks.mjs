@@ -1,6 +1,58 @@
 import crypto from 'crypto';
 
 const DEFAULT_MAX_RETRIES = 3;
+const ERROR_MESSAGE_LIMIT = 500;
+
+function truncateErrorMessage(value) {
+  if (!value) return null;
+  return String(value).slice(0, ERROR_MESSAGE_LIMIT);
+}
+
+export async function recordWebhookDelivery({
+  db,
+  deliveryId,
+  webhookId,
+  bankId,
+  eventType,
+  targetUrl,
+  payloadBody,
+  attemptCount,
+  status,
+  statusCode = null,
+  errorMessage = null,
+}) {
+  try {
+    await db.query(
+      `INSERT INTO webhook_delivery_attempts
+        (delivery_id, webhook_id, bank_id, event_type, target_url, payload_sha256,
+         attempt_count, status, status_code, error_message, last_attempted_at, delivered_at)
+       VALUES
+        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(),
+         CASE WHEN $8 = 'delivered' THEN NOW() ELSE NULL END)
+       ON CONFLICT (delivery_id) DO UPDATE
+       SET attempt_count = EXCLUDED.attempt_count,
+           status = EXCLUDED.status,
+           status_code = EXCLUDED.status_code,
+           error_message = EXCLUDED.error_message,
+           last_attempted_at = EXCLUDED.last_attempted_at,
+           delivered_at = EXCLUDED.delivered_at`,
+      [
+        deliveryId,
+        webhookId,
+        bankId,
+        eventType,
+        targetUrl,
+        crypto.createHash('sha256').update(payloadBody).digest('hex'),
+        attemptCount,
+        status,
+        statusCode,
+        truncateErrorMessage(errorMessage),
+      ]
+    );
+  } catch (err) {
+    console.warn('[WEBHOOK] Failed to record delivery attempt:', err.message);
+  }
+}
 
 export function createWebhookDispatcher({
   maxRetries = DEFAULT_MAX_RETRIES,
@@ -10,7 +62,7 @@ export function createWebhookDispatcher({
     let registrations;
     try {
       const result = await db.query(
-        `SELECT url, secret FROM webhook_registrations
+        `SELECT webhook_id, url, secret FROM webhook_registrations
          WHERE bank_id = $1 AND is_active = true AND $2 = ANY(events)`,
         [bankId, eventType]
       );
@@ -25,34 +77,45 @@ export function createWebhookDispatcher({
       return;
     }
 
-    const body = JSON.stringify({
-      event: eventType,
-      bank_id: bankId,
-      timestamp: new Date().toISOString(),
-      data: payload,
-    });
-
     for (const webhook of registrations) {
+      const deliveryId = crypto.randomUUID();
+      const body = JSON.stringify({
+        event: eventType,
+        bank_id: bankId,
+        timestamp: new Date().toISOString(),
+        delivery_id: deliveryId,
+        data: payload,
+      });
       const signature = webhook.secret
         ? crypto.createHmac('sha256', webhook.secret).update(body).digest('hex')
         : null;
+      let finalStatusCode = null;
+      let finalErrorMessage = null;
+      let delivered = false;
+      let attempts = 0;
 
       for (let i = 0; i < maxRetries; i++) {
+        attempts = i + 1;
         try {
           const res = await fetch(webhook.url, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
+              'x-ventus-event': eventType,
+              'x-ventus-delivery-id': deliveryId,
               ...(signature && { 'x-ventus-signature': signature }),
             },
             body,
           });
+          finalStatusCode = res.status;
           if (res.ok) {
             console.log(`[WEBHOOK] ✓ Delivered ${eventType} to ${webhook.url}`);
+            delivered = true;
             break;
           }
           throw new Error(`HTTP ${res.status}`);
         } catch (err) {
+          finalErrorMessage = err.message;
           if (i === maxRetries - 1) {
             const message = includeUrlInFinalError
               ? `[WEBHOOK] Failed after ${maxRetries} attempts to ${webhook.url}:`
@@ -63,6 +126,20 @@ export function createWebhookDispatcher({
           }
         }
       }
+
+      await recordWebhookDelivery({
+        db,
+        deliveryId,
+        webhookId: webhook.webhook_id,
+        bankId,
+        eventType,
+        targetUrl: webhook.url,
+        payloadBody: body,
+        attemptCount: attempts,
+        status: delivered ? 'delivered' : 'failed',
+        statusCode: finalStatusCode,
+        errorMessage: delivered ? null : finalErrorMessage,
+      });
     }
   };
 }
