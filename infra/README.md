@@ -60,6 +60,14 @@ The rotation/KMS target posture is captured in `infra/security/secrets-rotation-
 
 The DB credential rotation enablement preflight is captured in `infra/security/db-secret-rotation-preflight.json` and checked by CI. Use `npm run --prefix infra audit:db-rotation-preflight` to verify the live Aurora cluster, DB secret shape, rotation Lambda presence, and AWS PostgreSQL rotation application availability without printing secret values. This is a gate before enabling 30-day Secrets Manager rotation on the production DB credential secret.
 
+The DB rotation Lambda is codified but opt-in only. Default synth and CI do not create it. To review the proposed AWS-managed PostgreSQL single-user rotation Lambda before deployment:
+
+```bash
+npm run --prefix infra synth -- -c alertEmail=yusheng_chen@ventusai.com -c enableDbRotationLambda=true
+```
+
+The opt-in resource deploys `AWS::ServerlessRepo::Application` from AWS's `SecretsManagerRDSPostgreSQLRotationSingleUser` application, names the function `ventus-db-credential-rotation`, places it in the backend Lambda subnet/security-group path, and points it at `alias/ventus/database-secrets`. This does not enable the 30-day secret rotation schedule by itself; that remains a separate post-test step.
+
 KMS review artifacts live under `infra/iam/secrets-kms-*.json` and are checked by `npm run --prefix infra check:iam`.
 
 The tracing readiness baseline is captured in `infra/security/tracing-readiness-baseline.json` and checked by CI. API Gateway tracing/access logs and Lambda active tracing were enabled on 2026-05-20. Use `npm run --prefix infra audit:tracing` to verify live API Gateway tracing, API access logs, and Lambda X-Ray mode.

@@ -98,6 +98,40 @@ Do not enable DB credential rotation until these are true:
 4. The Lambda role can read/update only the DB credential secret and decrypt `alias/ventus/database-secrets`.
 5. A manual rotation test passes API health, invalid-key auth, and authenticated enrichment smoke checks.
 
+## DB Rotation Lambda Deployment
+
+The rotation Lambda is codified in CDK but gated behind an explicit context flag. Default CI and default synth do not create it.
+
+Review the proposed Lambda resource:
+
+```bash
+npm run --prefix infra synth -- -c alertEmail=yusheng_chen@ventusai.com -c enableDbRotationLambda=true
+```
+
+Expected resource:
+
+- Type: `AWS::ServerlessRepo::Application`
+- Application: `SecretsManagerRDSPostgreSQLRotationSingleUser`
+- Function name: `ventus-db-credential-rotation`
+- Subnets: `subnet-057aa09eef4545099`, `subnet-00958cfa806e7e363`
+- Security group: `sg-08836ed15d778ecd6`
+- KMS key: `alias/ventus/database-secrets`
+
+After deployment, re-run:
+
+```bash
+AWS_CLI=/Users/yushengchen/Library/Python/3.9/bin/aws npm run --prefix infra audit:db-rotation-preflight
+```
+
+Do not enable the 30-day Secrets Manager rotation schedule until the manual rotation test and rollback checks pass.
+
+For GitHub-driven review/deploy, run the `Infra Staging Diff And Deploy` workflow manually with:
+
+- `action`: `diff` first, then `deploy` only after review
+- `alert_email`: `yusheng_chen@ventusai.com`
+- `enable_db_rotation_lambda`: `true`
+- `confirm_deploy`: `deploy-staging` only for the deploy run
+
 ## Rollback
 
 Because the backend keeps the legacy secret fallback in code, the operational rollback is to restore the previous Lambda environment variables and redeploy the previous package. Do not delete the legacy DB credential secret during the cutover window.

@@ -30,8 +30,12 @@ export class VentusExistingInfraStack extends cdk.Stack {
       customDomain: 'api.ventusai.com',
       databaseClusterIdentifier: 'ventus-bofa-cluster',
       databaseName: 'ventus_bofa',
+      databaseKmsAliasName: 'alias/ventus/database-secrets',
       databaseSecretId:
         'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022',
+      databaseSecretRotationFunctionName: 'ventus-db-credential-rotation',
+      databaseSecretRotationApplicationId:
+        'arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerRDSPostgreSQLRotationSingleUser',
       vpcId: 'vpc-0d4cf689a4fed7f31',
       vpcAvailabilityZones: ['us-east-2a', 'us-east-2b'],
       lambdaSubnetIds: ['subnet-057aa09eef4545099', 'subnet-00958cfa806e7e363'],
@@ -70,6 +74,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       alertTopic.addSubscription(new subscriptions.EmailSubscription(alertEmail));
     }
     const anomalyImpactThresholdUsd = positiveNumberContext(this, 'anomalyImpactThresholdUsd', 50);
+    const enableDbRotationLambda = booleanContext(this, 'enableDbRotationLambda', false);
     const backendLogRetention = logs.RetentionDays.SIX_MONTHS;
     const alertAction = new cloudwatchActions.SnsAction(alertTopic);
     const withAlertAction = (alarm: cloudwatch.Alarm) => {
@@ -120,6 +125,10 @@ export class VentusExistingInfraStack extends cdk.Stack {
 
     new cdk.CfnOutput(this, 'CurrentDatabaseSecretId', {
       value: resources.databaseSecretId,
+    });
+
+    new cdk.CfnOutput(this, 'CurrentDatabaseSecretRotationFunctionName', {
+      value: resources.databaseSecretRotationFunctionName,
     });
 
     new cdk.CfnOutput(this, 'CurrentVpcId', {
@@ -205,6 +214,40 @@ export class VentusExistingInfraStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ServiceCostAnomalyMonitorArn', {
       value: costAnomalyMonitor.attrMonitorArn,
     });
+
+    if (enableDbRotationLambda) {
+      const databaseKmsKeyArn = cdk.Stack.of(this).formatArn({
+        service: 'kms',
+        resource: 'alias',
+        resourceName: resources.databaseKmsAliasName.slice('alias/'.length),
+        arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+      });
+
+      new cdk.CfnResource(this, 'VentusDatabaseSecretRotationLambda', {
+        type: 'AWS::ServerlessRepo::Application',
+        properties: {
+          Location: {
+            ApplicationId: resources.databaseSecretRotationApplicationId,
+            SemanticVersion: '1.1.667',
+          },
+          Parameters: {
+            endpoint: `https://secretsmanager.${cdk.Stack.of(this).region}.amazonaws.com`,
+            functionName: resources.databaseSecretRotationFunctionName,
+            kmsKeyArn: databaseKmsKeyArn,
+            vpcSecurityGroupIds: resources.databaseSecurityGroupId,
+            vpcSubnetIds: resources.lambdaSubnetIds.join(','),
+            excludeCharacters: ':/@"\'\\',
+            passwordLength: '32',
+            requireEachIncludedType: 'true',
+          },
+          Tags: {
+            Application: 'Ventus',
+            Control: 'SecretsRotation',
+            Owner: 'platform',
+          },
+        },
+      });
+    }
 
     for (const functionName of resources.lambdaFunctions) {
       new logs.LogRetention(this, `${toId(functionName)}LogRetention`, {
@@ -604,4 +647,19 @@ function positiveNumberContext(scope: Construct, key: string, defaultValue: numb
   }
 
   return parsed;
+}
+
+function booleanContext(scope: Construct, key: string, defaultValue: boolean): boolean {
+  const value = scope.node.tryGetContext(key);
+  if (value === undefined || value === null || value === '') {
+    return defaultValue;
+  }
+  if (value === true || value === 'true') {
+    return true;
+  }
+  if (value === false || value === 'false') {
+    return false;
+  }
+
+  throw new Error(`${key} must be true or false`);
 }
