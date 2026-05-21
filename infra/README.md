@@ -66,7 +66,7 @@ The DB rotation Lambda is codified but opt-in only. Default synth and CI do not 
 npm run --prefix infra synth -- -c alertEmail=yusheng_chen@ventusai.com -c enableDbRotationLambda=true
 ```
 
-The opt-in resource deploys `AWS::ServerlessRepo::Application` from AWS's `SecretsManagerRDSPostgreSQLRotationSingleUser` application, names the function `ventus-db-credential-rotation`, places it in the backend Lambda subnet/security-group path, and points it at `alias/ventus/database-secrets`. This does not enable the 30-day secret rotation schedule by itself; that remains a separate post-test step.
+The opt-in resource deploys `AWS::Serverless::Application` from AWS's `SecretsManagerRDSPostgreSQLRotationSingleUser` Serverless Application Repository application, names the function `ventus-db-credential-rotation`, places it in the backend Lambda subnet/security-group path, and points it at `alias/ventus/database-secrets`. This does not enable the 30-day secret rotation schedule by itself; that remains a separate post-test step.
 
 KMS review artifacts live under `infra/iam/secrets-kms-*.json` and are checked by `npm run --prefix infra check:iam`.
 
