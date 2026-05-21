@@ -66,6 +66,12 @@ AWS_CLI=/Users/yushengchen/Library/Python/3.9/bin/aws npm run --prefix infra aud
 
 Do not move live secrets to a customer-managed KMS key until the key policy and Lambda role permissions are reviewed together.
 
+Review artifacts:
+
+- `infra/iam/secrets-kms-key-policy-template.json`
+- `infra/iam/secrets-kms-deploy-policy-proposal.json`
+- `infra/security/secrets-rotation-kms-baseline.json`
+
 1. Create customer-managed KMS keys under `alias/ventus/`, keeping separate key classes for DB credentials and model-provider credentials.
 2. Grant the required Lambda roles `kms:Decrypt` and `kms:DescribeKey` through least-privilege key policy and/or IAM.
 3. Update one non-critical secret first, run health checks, then continue to production credential secrets.
