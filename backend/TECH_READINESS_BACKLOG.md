@@ -34,6 +34,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Add a `partial_failure` state for multi-customer batches.
 - Add retry/replay runbook for failed customer stages.
 - Add idempotency documentation for duplicate `transaction_id`.
+- Add webhook retry/replay controls. Initial `POST /v1/webhook-deliveries/{delivery_id}/replay` implementation added for failed deliveries with stored replay payloads.
 - Add webhook management endpoints:
   - `GET /v1/webhooks` - initial implementation added
   - `DELETE /v1/webhooks/{webhook_id}` - initial implementation added as a soft-disable

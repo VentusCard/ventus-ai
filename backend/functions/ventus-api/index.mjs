@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
 import { resolveSecretId } from '../../shared/secrets.mjs';
-import { recordWebhookDelivery } from '../../shared/webhooks.mjs';
+import { buildWebhookBody, recordWebhookDelivery } from '../../shared/webhooks.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 const app = express();
@@ -87,12 +87,11 @@ function validateWebhookUrl(value) {
 
 async function deliverWebhookTest({ db, webhook, bankId }) {
   const deliveryId = crypto.randomUUID();
-  const body = JSON.stringify({
-    event: 'webhook_test',
-    bank_id: bankId,
-    timestamp: new Date().toISOString(),
-    delivery_id: deliveryId,
-    data: {
+  const body = buildWebhookBody({
+    eventType: 'webhook_test',
+    bankId,
+    deliveryId,
+    payload: {
       message: 'Ventus webhook test delivery',
       configured_events: webhook.events,
     },
@@ -134,6 +133,59 @@ async function deliverWebhookTest({ db, webhook, bankId }) {
 
   return {
     delivery_id: deliveryId,
+    status_code: response?.status ?? null,
+    delivered: response?.ok ?? false,
+  };
+}
+
+async function deliverWebhookReplay({ db, originalDelivery, webhook }) {
+  const deliveryId = crypto.randomUUID();
+  const originalPayload = originalDelivery.payload_json;
+  const body = buildWebhookBody({
+    eventType: originalDelivery.event_type,
+    bankId: originalDelivery.bank_id,
+    deliveryId,
+    payload: originalPayload.data,
+  });
+  const signature = webhook.secret
+    ? crypto.createHmac('sha256', webhook.secret).update(body).digest('hex')
+    : null;
+
+  let response = null;
+  let errorMessage = null;
+  try {
+    response = await fetch(originalDelivery.target_url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-ventus-event': originalDelivery.event_type,
+        'x-ventus-delivery-id': deliveryId,
+        ...(signature && { 'x-ventus-signature': signature }),
+      },
+      body,
+    });
+  } catch (error) {
+    errorMessage = error.message;
+  }
+
+  await recordWebhookDelivery({
+    db,
+    deliveryId,
+    webhookId: originalDelivery.webhook_id,
+    bankId: originalDelivery.bank_id,
+    eventType: originalDelivery.event_type,
+    targetUrl: originalDelivery.target_url,
+    payloadBody: body,
+    attemptCount: 1,
+    status: response?.ok ? 'delivered' : 'failed',
+    statusCode: response?.status ?? null,
+    errorMessage: response?.ok ? null : errorMessage || `HTTP ${response?.status}`,
+    replayOfDeliveryId: originalDelivery.delivery_id,
+  });
+
+  return {
+    delivery_id: deliveryId,
+    replay_of_delivery_id: originalDelivery.delivery_id,
     status_code: response?.status ?? null,
     delivered: response?.ok ?? false,
   };
@@ -1206,7 +1258,7 @@ app.get('/v1/webhook-deliveries', async (req, res) => {
     const result = await db.query(
       `SELECT delivery_id, webhook_id, bank_id, event_type, target_url,
               attempt_count, status, status_code, error_message, created_at,
-              last_attempted_at, delivered_at
+              last_attempted_at, delivered_at, replay_of_delivery_id
        FROM webhook_delivery_attempts
        WHERE ${filters.join(' AND ')}
        ORDER BY last_attempted_at DESC
@@ -1217,6 +1269,53 @@ app.get('/v1/webhook-deliveries', async (req, res) => {
     res.status(200).json({
       bank_id: req.bankId,
       deliveries: result.rows,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
+app.post('/v1/webhook-deliveries/:delivery_id/replay', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const result = await db.query(
+      `SELECT d.delivery_id, d.webhook_id, d.bank_id, d.event_type, d.target_url,
+              d.status, d.payload_json, w.secret, w.is_active
+       FROM webhook_delivery_attempts d
+       LEFT JOIN webhook_registrations w
+         ON w.webhook_id = d.webhook_id AND w.bank_id = d.bank_id
+       WHERE d.delivery_id = $1 AND d.bank_id = $2`,
+      [req.params.delivery_id, req.bankId]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'Webhook delivery not found' });
+
+    const originalDelivery = result.rows[0];
+    if (originalDelivery.status !== 'failed') {
+      return res.status(409).json({ error: 'Only failed webhook deliveries can be replayed' });
+    }
+    if (!originalDelivery.payload_json) {
+      return res.status(409).json({ error: 'Webhook delivery is missing replay payload' });
+    }
+    if (!originalDelivery.is_active) {
+      return res.status(409).json({ error: 'Webhook registration is not active' });
+    }
+
+    const delivery = await deliverWebhookReplay({
+      db,
+      originalDelivery,
+      webhook: { secret: originalDelivery.secret },
+    });
+
+    res.status(delivery.delivered ? 200 : 502).json({
+      webhook_id: originalDelivery.webhook_id,
+      event: originalDelivery.event_type,
+      ...delivery,
     });
   } catch (e) {
     console.error(e);
