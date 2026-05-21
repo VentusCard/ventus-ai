@@ -58,6 +58,8 @@ The current secrets boundary baseline is captured in `infra/security/secrets-bou
 
 The rotation/KMS target posture is captured in `infra/security/secrets-rotation-kms-baseline.json` and checked by CI. Use `npm run --prefix infra audit:secrets-rotation-kms` to inspect live rotation metadata, rotation enablement, and customer-managed KMS status without reading secret values. Customer-managed KMS and rotation metadata tags are enabled for the DB and model-provider credential secrets; Secrets Manager rotation remains pending.
 
+The DB credential rotation enablement preflight is captured in `infra/security/db-secret-rotation-preflight.json` and checked by CI. Use `npm run --prefix infra audit:db-rotation-preflight` to verify the live Aurora cluster, DB secret shape, rotation Lambda presence, and AWS PostgreSQL rotation application availability without printing secret values. This is a gate before enabling 30-day Secrets Manager rotation on the production DB credential secret.
+
 KMS review artifacts live under `infra/iam/secrets-kms-*.json` and are checked by `npm run --prefix infra check:iam`.
 
 The tracing readiness baseline is captured in `infra/security/tracing-readiness-baseline.json` and checked by CI. API Gateway tracing/access logs and Lambda active tracing were enabled on 2026-05-20. Use `npm run --prefix infra audit:tracing` to verify live API Gateway tracing, API access logs, and Lambda X-Ray mode.

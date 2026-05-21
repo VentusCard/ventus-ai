@@ -12,6 +12,7 @@ const legacySecretId = baseline.legacy_combined_secret_id;
 const allowedLegacyReferences = new Set([
   'backend/shared/secrets.mjs',
   'infra/lib/ventus-existing-infra-stack.ts',
+  'infra/security/db-secret-rotation-preflight.json',
   'infra/security/secrets-boundary-baseline.json',
   'infra/security/secrets-rotation-kms-baseline.json',
 ]);

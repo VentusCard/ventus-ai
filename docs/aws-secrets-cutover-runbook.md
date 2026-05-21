@@ -43,6 +43,13 @@ npm run --prefix infra check:secrets-rotation-kms
 AWS_CLI=/Users/yushengchen/Library/Python/3.9/bin/aws npm run --prefix infra audit:secrets-rotation-kms
 ```
 
+Check whether the DB credential secret is ready for Secrets Manager rotation enablement:
+
+```bash
+npm run --prefix infra check:db-rotation-preflight
+AWS_CLI=/Users/yushengchen/Library/Python/3.9/bin/aws npm run --prefix infra audit:db-rotation-preflight
+```
+
 Use strict mode only after KMS key policies and rotation mechanics have been reviewed:
 
 ```bash
@@ -75,9 +82,21 @@ Review artifacts:
 1. Create customer-managed KMS keys under `alias/ventus/`, keeping separate key classes for DB credentials and model-provider credentials. Completed aliases: `alias/ventus/database-secrets` and `alias/ventus/model-provider-secrets`.
 2. Grant the required Lambda roles `kms:Decrypt` and `kms:DescribeKey` through least-privilege key policy and/or IAM. Completed through the reviewed key policy.
 3. Update one non-critical secret first, run health checks, then continue to production credential secrets. Completed for model-provider first, then DB credentials.
-4. For DB credentials, use a reviewed Secrets Manager RDS rotation path and test rollback before enabling 30-day rotation. Pending.
+4. For DB credentials, run `check:db-rotation-preflight` and `audit:db-rotation-preflight`, deploy the AWS PostgreSQL single-user rotation Lambda in the backend VPC path, manually test one rotation in a maintenance window, and only then enable the 30-day schedule. Pending.
 5. For model-provider credentials, rotate by issuing a new provider key, updating `ventus/model-providers/gemini`, running authenticated enrichment smoke, then revoking the old provider key. Pending because provider-side key issuance/revocation is outside AWS.
 6. Re-run `audit:secrets-rotation-kms -- --strict` and store the output as enterprise security evidence.
+
+## DB Rotation Enablement Gates
+
+The DB rotation preflight baseline lives at `infra/security/db-secret-rotation-preflight.json`.
+
+Do not enable DB credential rotation until these are true:
+
+1. The AWS `SecretsManagerRDSPostgreSQLRotationSingleUser` rotation app has been reviewed for Aurora PostgreSQL compatibility.
+2. The rotation Lambda is deployed in the backend VPC path using subnets `subnet-057aa09eef4545099`, `subnet-00958cfa806e7e363`, and security group `sg-08836ed15d778ecd6`.
+3. No public Postgres ingress is added for rotation.
+4. The Lambda role can read/update only the DB credential secret and decrypt `alias/ventus/database-secrets`.
+5. A manual rotation test passes API health, invalid-key auth, and authenticated enrichment smoke checks.
 
 ## Rollback
 
