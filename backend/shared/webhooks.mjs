@@ -3,6 +3,16 @@ import crypto from 'crypto';
 const DEFAULT_MAX_RETRIES = 3;
 const ERROR_MESSAGE_LIMIT = 500;
 
+export function buildWebhookBody({ eventType, bankId, deliveryId, payload }) {
+  return JSON.stringify({
+    event: eventType,
+    bank_id: bankId,
+    timestamp: new Date().toISOString(),
+    delivery_id: deliveryId,
+    data: payload,
+  });
+}
+
 function truncateErrorMessage(value) {
   if (!value) return null;
   return String(value).slice(0, ERROR_MESSAGE_LIMIT);
@@ -20,15 +30,17 @@ export async function recordWebhookDelivery({
   status,
   statusCode = null,
   errorMessage = null,
+  replayOfDeliveryId = null,
 }) {
   try {
     await db.query(
       `INSERT INTO webhook_delivery_attempts
         (delivery_id, webhook_id, bank_id, event_type, target_url, payload_sha256,
-         attempt_count, status, status_code, error_message, last_attempted_at, delivered_at)
+         payload_json, replay_of_delivery_id, attempt_count, status, status_code,
+         error_message, last_attempted_at, delivered_at)
        VALUES
-        ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, NOW(),
-         CASE WHEN $8 = 'delivered' THEN NOW() ELSE NULL END)
+        ($1, $2, $3, $4, $5, $6, $7::jsonb, $8, $9, $10, $11, $12, NOW(),
+         CASE WHEN $10 = 'delivered' THEN NOW() ELSE NULL END)
        ON CONFLICT (delivery_id) DO UPDATE
        SET attempt_count = EXCLUDED.attempt_count,
            status = EXCLUDED.status,
@@ -43,6 +55,8 @@ export async function recordWebhookDelivery({
         eventType,
         targetUrl,
         crypto.createHash('sha256').update(payloadBody).digest('hex'),
+        payloadBody,
+        replayOfDeliveryId,
         attemptCount,
         status,
         statusCode,
@@ -79,13 +93,7 @@ export function createWebhookDispatcher({
 
     for (const webhook of registrations) {
       const deliveryId = crypto.randomUUID();
-      const body = JSON.stringify({
-        event: eventType,
-        bank_id: bankId,
-        timestamp: new Date().toISOString(),
-        delivery_id: deliveryId,
-        data: payload,
-      });
+      const body = buildWebhookBody({ eventType, bankId, deliveryId, payload });
       const signature = webhook.secret
         ? crypto.createHmac('sha256', webhook.secret).update(body).digest('hex')
         : null;

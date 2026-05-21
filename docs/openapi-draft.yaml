@@ -295,6 +295,10 @@ components:
           type: string
           format: date-time
           nullable: true
+        replay_of_delivery_id:
+          type: string
+          format: uuid
+          nullable: true
     WebhookDeliveryListResponse:
       type: object
       properties:
@@ -304,6 +308,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/WebhookDelivery'
+    WebhookReplayResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        event:
+          type: string
+        delivery_id:
+          type: string
+          format: uuid
+        replay_of_delivery_id:
+          type: string
+          format: uuid
+        status_code:
+          type: integer
+          nullable: true
+        delivered:
+          type: boolean
     CustomerProfile:
       type: object
       properties:
@@ -917,6 +939,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/webhook-deliveries/{delivery_id}/replay:
+    post:
+      summary: Replay a failed webhook delivery
+      parameters:
+        - name: delivery_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Replay delivery completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookReplayResponse'
+        '404':
+          description: Webhook delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Webhook delivery is not replayable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Replay delivery reached the endpoint but was not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookReplayResponse'
   /v1/webhooks/{webhook_id}:
     delete:
       summary: Disable a webhook registration

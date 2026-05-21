@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
-import { createWebhookDispatcher } from './webhooks.mjs';
+import { buildWebhookBody, createWebhookDispatcher } from './webhooks.mjs';
 
 const originalFetch = globalThis.fetch;
 
@@ -60,8 +60,10 @@ test('createWebhookDispatcher records delivered webhook attempts', async () => {
   assert.equal(deliveryInsert.params[1], 'wh_test_1');
   assert.equal(deliveryInsert.params[2], 'bank_123');
   assert.equal(deliveryInsert.params[3], 'batch_complete');
-  assert.equal(deliveryInsert.params[7], 'delivered');
-  assert.equal(deliveryInsert.params[8], 204);
+  assert.deepEqual(JSON.parse(deliveryInsert.params[6]).data, { batch_id: 'batch_123' });
+  assert.equal(deliveryInsert.params[8], 1);
+  assert.equal(deliveryInsert.params[9], 'delivered');
+  assert.equal(deliveryInsert.params[10], 204);
 });
 
 test('createWebhookDispatcher records failed webhook attempts after retries', async () => {
@@ -78,8 +80,24 @@ test('createWebhookDispatcher records failed webhook attempts after retries', as
     query.sql.includes('INSERT INTO webhook_delivery_attempts')
   );
   assert.ok(deliveryInsert);
-  assert.equal(deliveryInsert.params[6], 2);
-  assert.equal(deliveryInsert.params[7], 'failed');
-  assert.equal(deliveryInsert.params[8], 503);
-  assert.equal(deliveryInsert.params[9], 'HTTP 503');
+  assert.equal(deliveryInsert.params[8], 2);
+  assert.equal(deliveryInsert.params[9], 'failed');
+  assert.equal(deliveryInsert.params[10], 503);
+  assert.equal(deliveryInsert.params[11], 'HTTP 503');
+});
+
+test('buildWebhookBody creates replayable payload envelopes', () => {
+  const body = buildWebhookBody({
+    eventType: 'risk_detected',
+    bankId: 'bank_123',
+    deliveryId: '00000000-0000-4000-8000-000000000000',
+    payload: { customer_id: 'cust_123' },
+  });
+  const parsed = JSON.parse(body);
+
+  assert.equal(parsed.event, 'risk_detected');
+  assert.equal(parsed.bank_id, 'bank_123');
+  assert.equal(parsed.delivery_id, '00000000-0000-4000-8000-000000000000');
+  assert.deepEqual(parsed.data, { customer_id: 'cust_123' });
+  assert.ok(parsed.timestamp);
 });

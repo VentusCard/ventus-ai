@@ -5,6 +5,8 @@ CREATE TABLE IF NOT EXISTS webhook_delivery_attempts (
   event_type TEXT NOT NULL,
   target_url TEXT NOT NULL,
   payload_sha256 TEXT NOT NULL,
+  payload_json JSONB,
+  replay_of_delivery_id UUID REFERENCES webhook_delivery_attempts(delivery_id),
   attempt_count INTEGER NOT NULL DEFAULT 1,
   status TEXT NOT NULL CHECK (status IN ('delivered', 'failed')),
   status_code INTEGER,
@@ -22,3 +24,9 @@ CREATE INDEX IF NOT EXISTS idx_webhook_delivery_attempts_webhook_last_attempted
 
 CREATE INDEX IF NOT EXISTS idx_webhook_delivery_attempts_status_last_attempted
   ON webhook_delivery_attempts (status, last_attempted_at DESC);
+
+ALTER TABLE webhook_delivery_attempts
+  ADD COLUMN IF NOT EXISTS payload_json JSONB;
+
+ALTER TABLE webhook_delivery_attempts
+  ADD COLUMN IF NOT EXISTS replay_of_delivery_id UUID REFERENCES webhook_delivery_attempts(delivery_id);
