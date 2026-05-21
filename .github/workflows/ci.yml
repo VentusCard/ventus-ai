@@ -46,8 +46,10 @@ jobs:
           node --check backend/scripts/qa-live-pipeline.mjs
           node --check backend/scripts/lib/qa-validators.mjs
           node --check infra/scripts/audit-live-secrets-cutover.mjs
+          node --check infra/scripts/audit-live-secrets-rotation-kms.mjs
           node --check infra/scripts/audit-live-tracing-readiness.mjs
           node --check infra/scripts/check-secrets-boundary.mjs
+          node --check infra/scripts/check-secrets-rotation-kms-readiness.mjs
           node --check infra/scripts/check-tracing-readiness.mjs
 
       - name: Validate Monitor Entrypoints
@@ -120,6 +122,10 @@ jobs:
 
       - name: Check Secrets Boundary Baseline
         run: npm run check:secrets
+        working-directory: infra
+
+      - name: Check Secrets Rotation KMS Baseline
+        run: npm run check:secrets-rotation-kms
         working-directory: infra
 
       - name: Check Tracing Readiness Baseline

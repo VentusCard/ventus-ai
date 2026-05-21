@@ -13,6 +13,7 @@ const allowedLegacyReferences = new Set([
   'backend/shared/secrets.mjs',
   'infra/lib/ventus-existing-infra-stack.ts',
   'infra/security/secrets-boundary-baseline.json',
+  'infra/security/secrets-rotation-kms-baseline.json',
 ]);
 
 function walk(dir) {
