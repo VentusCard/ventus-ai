@@ -75,8 +75,8 @@ Review artifacts:
 1. Create customer-managed KMS keys under `alias/ventus/`, keeping separate key classes for DB credentials and model-provider credentials. Completed aliases: `alias/ventus/database-secrets` and `alias/ventus/model-provider-secrets`.
 2. Grant the required Lambda roles `kms:Decrypt` and `kms:DescribeKey` through least-privilege key policy and/or IAM. Completed through the reviewed key policy.
 3. Update one non-critical secret first, run health checks, then continue to production credential secrets. Completed for model-provider first, then DB credentials.
-4. For DB credentials, use a reviewed Secrets Manager RDS rotation path and test rollback before enabling 30-day rotation.
-5. For model-provider credentials, rotate by issuing a new provider key, updating `ventus/model-providers/gemini`, running authenticated enrichment smoke, then revoking the old provider key.
+4. For DB credentials, use a reviewed Secrets Manager RDS rotation path and test rollback before enabling 30-day rotation. Pending.
+5. For model-provider credentials, rotate by issuing a new provider key, updating `ventus/model-providers/gemini`, running authenticated enrichment smoke, then revoking the old provider key. Pending because provider-side key issuance/revocation is outside AWS.
 6. Re-run `audit:secrets-rotation-kms -- --strict` and store the output as enterprise security evidence.
 
 ## Rollback
