@@ -43,6 +43,10 @@ if (identity) {
 }
 
 const summaries = [];
+function tagsToMap(tags = []) {
+  return new Map(tags.map((tag) => [tag.Key, tag.Value]));
+}
+
 for (const profile of baseline.target_secrets) {
   const description = safeAwsJson(
     ['secretsmanager', 'describe-secret', '--secret-id', profile.secret_id],
@@ -57,6 +61,8 @@ for (const profile of baseline.target_secrets) {
   const kmsKeyId = description.KmsKeyId || null;
   const hasCustomerManagedKms = Boolean(kmsKeyId);
   const rotationDays = description.RotationRules?.AutomaticallyAfterDays || null;
+  const tags = tagsToMap(description.Tags || []);
+  const missingOrMismatchedTags = [];
 
   if (!rotationEnabled) {
     failures.push(`${profile.name}: rotation is not enabled`);
@@ -70,6 +76,14 @@ for (const profile of baseline.target_secrets) {
     failures.push(`${profile.name}: customer-managed KMS key is not configured`);
   }
 
+  for (const [key, expectedValue] of Object.entries(profile.required_tags || {})) {
+    const actualValue = tags.get(key);
+    if (actualValue !== expectedValue) {
+      missingOrMismatchedTags.push({ key, expectedValue, actualValue: actualValue || null });
+      failures.push(`${profile.name}: tag ${key} is ${actualValue || 'missing'}, expected ${expectedValue}`);
+    }
+  }
+
   summaries.push({
     name: profile.name,
     secretId: profile.secret_id,
@@ -77,6 +91,8 @@ for (const profile of baseline.target_secrets) {
     rotationDays,
     customerManagedKms: hasCustomerManagedKms,
     kmsKeyId,
+    rotationMetadataTagged: missingOrMismatchedTags.length === 0,
+    missingOrMismatchedTags,
   });
 }
 

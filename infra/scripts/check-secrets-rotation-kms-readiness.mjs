@@ -36,6 +36,10 @@ for (const profile of baseline.target_secrets) {
   );
   assert.ok(profile.rotation_type, `${profile.name} should define a rotation type`);
   assert.ok(profile.rotation_notes, `${profile.name} should include rotation notes`);
+  assert.ok(profile.required_tags, `${profile.name} should define required audit tags`);
+  for (const key of ['Application', 'Control', 'Owner', 'RotationTargetDays', 'RotationType', 'KmsAlias']) {
+    assert.ok(profile.required_tags[key], `${profile.name} should require ${key} tag`);
+  }
 }
 
 assert.equal(
