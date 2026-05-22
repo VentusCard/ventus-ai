@@ -5,7 +5,10 @@
 // → updates transactions_enriched with trip_id
 
 import { createDbFactory } from '../../shared/db.mjs';
-import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
+import {
+  createSecretsProvider,
+  resolveSecretId,
+} from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
@@ -352,6 +355,9 @@ async function writeTrips(db, customerId, bankId, batchId, detectedTrips) {
     const txnIds = trip.transaction_ids || [];
     if (txnIds.length === 0) continue;
 
+    const tripId = `trip_${customerId}_${trip.destination.toLowerCase().replace(/\s+/g, '_')}_${trip.trip_start.replace(/-/g, '')}`;
+    trip.customerScopedTripId = tripId;
+
     const spendRes = await db.query(
       `SELECT 
          SUM(amount) as total_spend,
@@ -388,7 +394,7 @@ async function writeTrips(db, customerId, bankId, batchId, detectedTrips) {
          transport_spend, lodging_spend, dining_spend, activities_spend, other_spend,
          is_upcoming, detected_at)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,NOW())
-       ON CONFLICT (trip_id, bank_id) DO UPDATE SET
+       ON CONFLICT (trip_id, customer_id, bank_id) DO UPDATE SET
          destination        = EXCLUDED.destination,
          trip_start         = EXCLUDED.trip_start,
          trip_end           = EXCLUDED.trip_end,
@@ -402,7 +408,7 @@ async function writeTrips(db, customerId, bankId, batchId, detectedTrips) {
          other_spend        = EXCLUDED.other_spend,
          is_upcoming        = EXCLUDED.is_upcoming`,
       [
-        trip.trip_id,
+        tripId,
         customerId,
         bankId,
         batchId,
@@ -435,7 +441,7 @@ async function updateEnrichedTransactions(db, detectedTrips) {
     for (const txnId of trip.transaction_ids || []) {
       await db.query(
         `UPDATE transactions_enriched SET trip_id = $1 WHERE transaction_id = $2`,
-        [trip.trip_id, txnId]
+        [trip.customerScopedTripId || trip.trip_id, txnId]
       );
       updated++;
     }
