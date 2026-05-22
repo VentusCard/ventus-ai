@@ -12,18 +12,19 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 
 - Host `docs/openapi-draft.yaml` through `/docs` or a bank-facing docs site.
 - Generate a Postman collection from the OpenAPI spec.
+- Add a partner-facing webhook integration guide. Initial guide lives in `docs/webhook-partner-integration-guide.md` with registration, test delivery, delivery history, replay, signature verification, monitoring, and Postman import steps.
 - Add concrete request/response examples for:
   - `POST /v1/enrich`
   - `GET /v1/jobs/{job_id}`
   - `GET /v1/customers/{customer_id}/transactions`
-  - `POST /v1/webhooks`
+  - `POST /v1/webhooks` - initial partner-facing examples added in `docs/webhook-partner-integration-guide.md`
 
 ## P0 - Monitoring
 
 - Add alarms for Lambda errors and duration. Initial CDK alarm proposals exist in `infra/lib/ventus-existing-infra-stack.ts`.
 - Add alarms for DLQ depth on every queue. Initial CDK alarm proposals exist in `infra/lib/ventus-existing-infra-stack.ts`.
 - Add stuck-job detection for pipeline runs that do not reach `complete` or `failed` within an expected SLA. Initial config and SQL live in `backend/config/pipeline-slas.json` and `backend/sql/stuck-pipeline-runs.sql`.
-- Add webhook delivery failure metrics and alerts. Initial CloudWatch log metric filter proposal exists in CDK, and ledger-based `ventus-webhook-delivery-monitor` CDK wiring has been added.
+- Add webhook delivery failure metrics and alerts. Initial CloudWatch log metric filters and the ledger-based `ventus-webhook-delivery-monitor` are deployed through CDK; remaining verification is a reviewed manual monitor invocation after the action limit resets.
 - Add persistent webhook delivery history. Initial `webhook_delivery_attempts` schema, dispatcher writes, and `GET /v1/webhook-deliveries` endpoint added.
 - Add explicit CloudWatch log retention. Initial six-month retention is codified in CDK for backend Lambda log groups and checked in CI.
 - Add Aurora cluster alarms for CPU, connections, free local storage, replica lag, and volume bytes used. Initial CDK alarms are checked in CI.
@@ -39,6 +40,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
   - `GET /v1/webhooks` - initial implementation added
   - `DELETE /v1/webhooks/{webhook_id}` - initial implementation added as a soft-disable
   - `POST /v1/webhooks/{webhook_id}/test` - initial implementation added for signed test delivery
+- Add partner-facing support docs for webhook onboarding and incident response. Initial guide lives in `docs/webhook-partner-integration-guide.md`, and the backend runbook now points support triage there.
 
 ## P1 - Security Hardening
 
