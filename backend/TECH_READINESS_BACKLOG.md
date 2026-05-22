@@ -11,7 +11,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 ## P0 - API Documentation
 
 - Host `docs/openapi-draft.yaml` through `/docs` or a bank-facing docs site.
-- Generate a Postman collection from the OpenAPI spec.
+- Generate a Postman collection from the OpenAPI spec. Initial generator and checked-in collection live at `backend/scripts/generate-postman-collection.mjs` and `docs/ventus-api.postman_collection.json`.
 - Add a partner-facing webhook integration guide. Initial guide lives in `docs/webhook-partner-integration-guide.md` with registration, test delivery, delivery history, replay, signature verification, monitoring, and Postman import steps.
 - Add concrete request/response examples for:
   - `POST /v1/enrich`

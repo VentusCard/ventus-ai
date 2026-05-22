@@ -54,6 +54,9 @@
         Generated from <code>docs/openapi-draft.yaml</code>. This is an offline artifact for pilot review
         and should be replaced by the live <code>/docs</code> route once backend docs hosting is wired.
       </p>
+      <p>
+        Postman import artifact: <code>docs/ventus-api.postman_collection.json</code>.
+      </p>
       <h2>Endpoints</h2>
       <section class="paths">
         <div class="path">/health</div>
@@ -68,6 +71,10 @@
         <div class="path">/v1/customers/{customer_id}/risk-factors</div>
         <div class="path">/v1/analytics/bank</div>
         <div class="path">/v1/webhooks</div>
+        <div class="path">/v1/webhook-deliveries</div>
+        <div class="path">/v1/webhook-deliveries/{delivery_id}/replay</div>
+        <div class="path">/v1/webhooks/{webhook_id}</div>
+        <div class="path">/v1/webhooks/{webhook_id}/test</div>
       </section>
       <h2>OpenAPI Source</h2>
       <pre>openapi: 3.0.3
@@ -300,8 +307,104 @@ components:
         created_at:
           type: string
           format: date-time
+        updated_at:
+          type: string
+          format: date-time
+          nullable: true
         message:
           type: string
+    WebhookListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        webhooks:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookRegistrationResponse'
+    WebhookTestResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        event:
+          type: string
+          example: webhook_test
+        delivery_id:
+          type: string
+        status_code:
+          type: integer
+        delivered:
+          type: boolean
+    WebhookDelivery:
+      type: object
+      properties:
+        delivery_id:
+          type: string
+          format: uuid
+        webhook_id:
+          type: string
+          nullable: true
+        bank_id:
+          type: string
+        event_type:
+          type: string
+        target_url:
+          type: string
+        attempt_count:
+          type: integer
+        status:
+          type: string
+          enum:
+            - delivered
+            - failed
+        status_code:
+          type: integer
+          nullable: true
+        error_message:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        last_attempted_at:
+          type: string
+          format: date-time
+        delivered_at:
+          type: string
+          format: date-time
+          nullable: true
+        replay_of_delivery_id:
+          type: string
+          format: uuid
+          nullable: true
+    WebhookDeliveryListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/WebhookDelivery'
+    WebhookReplayResponse:
+      type: object
+      properties:
+        webhook_id:
+          type: string
+        event:
+          type: string
+        delivery_id:
+          type: string
+          format: uuid
+        replay_of_delivery_id:
+          type: string
+          format: uuid
+        status_code:
+          type: integer
+          nullable: true
+        delivered:
+          type: boolean
     CustomerProfile:
       type: object
       properties:
@@ -848,6 +951,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/AnalyticsResponse'
   /v1/webhooks:
+    get:
+      summary: List webhook registrations
+      responses:
+        '200':
+          description: Webhook registrations for the authenticated bank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookListResponse'
     post:
       summary: Register or update a webhook
       requestBody:
@@ -869,6 +981,124 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /v1/webhook-deliveries:
+    get:
+      summary: List recent webhook delivery attempts
+      parameters:
+        - name: webhook_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: string
+            enum:
+              - delivered
+              - failed
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+      responses:
+        '200':
+          description: Recent webhook delivery attempts for the authenticated bank
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookDeliveryListResponse'
+        '400':
+          description: Invalid delivery filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/webhook-deliveries/{delivery_id}/replay:
+    post:
+      summary: Replay a failed webhook delivery
+      parameters:
+        - name: delivery_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Replay delivery completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookReplayResponse'
+        '404':
+          description: Webhook delivery not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '409':
+          description: Webhook delivery is not replayable
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Replay delivery reached the endpoint but was not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookReplayResponse'
+  /v1/webhooks/{webhook_id}:
+    delete:
+      summary: Disable a webhook registration
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Webhook disabled
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /v1/webhooks/{webhook_id}/test:
+    post:
+      summary: Send a test webhook delivery
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Test delivery completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookTestResponse'
+        '404':
+          description: Active webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '502':
+          description: Test delivery reached the endpoint but was not accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookTestResponse'
 </pre>
     </main>
   </body>

@@ -210,10 +210,14 @@ The ledger-backed monitor sends alerts through `ventus-backend-alerts` and the C
 
 ## Postman / Client Collection Path
 
-The source contract is `docs/openapi-draft.yaml`. Until a hosted docs site is added, partners can import that OpenAPI file into Postman or another API client and configure:
+The source contract is `docs/openapi-draft.yaml`. A generated Postman collection is checked in at `docs/ventus-api.postman_collection.json` and can be imported directly into Postman for pilot onboarding.
+
+Configure these collection variables before calling authenticated endpoints:
 
 - `baseUrl`: `https://api.ventusai.com`
-- `x-api-key`: partner/bank API key
+- `apiKey`: partner/bank API key
+- `webhookId`: webhook ID returned by `POST /v1/webhooks`
+- `deliveryId`: failed delivery ID returned by `GET /v1/webhook-deliveries`
 
 Recommended onboarding sequence:
 
