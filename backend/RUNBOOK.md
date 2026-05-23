@@ -132,15 +132,21 @@ Before enabling it in staging, confirm Lambda-to-Aurora network access and alert
 Symptoms:
 
 - Logs contain `[WEBHOOK] Failed after ... attempts`.
+- CloudWatch alarm `ventus-webhook-readiness-failed-deliveries` enters alarm state.
 - Client says they did not receive `batch_complete`, `life_event_detected`, `trip_detected`, or `risk_detected`.
 
 Triage sequence:
 
-1. Confirm webhook registration URL and event list in `webhook_registrations`.
-2. Confirm HMAC secret alignment with the client.
-3. Confirm client endpoint returns a 2xx response quickly.
-4. Check whether stale test endpoints such as `webhook.site` are still active.
-5. Recommended product gap: add `GET`, `DELETE`, and test-delivery endpoints for webhook registrations.
+1. Confirm the active endpoint and event list with `GET /v1/webhooks`.
+2. Inspect recent failures with `GET /v1/webhook-deliveries?status=failed&limit=20`.
+3. Compare the client's logged `x-ventus-delivery-id` with the Ventus delivery history.
+4. Confirm HMAC secret alignment with the client.
+5. Confirm the client endpoint returns a 2xx response quickly after accepting or queueing the event.
+6. Disable stale test endpoints such as `webhook.site` with `DELETE /v1/webhooks/{webhook_id}`.
+7. Send a signed test delivery with `POST /v1/webhooks/{webhook_id}/test` after endpoint changes.
+8. Replay a failed delivery with `POST /v1/webhook-deliveries/{delivery_id}/replay` only after the partner endpoint is ready.
+
+Partner onboarding and support examples live in `docs/webhook-partner-integration-guide.md`.
 
 ## S3 CSV Ingestion Triage
 
@@ -172,7 +178,7 @@ Add CloudWatch alarms for:
 - Aurora CPU/connections/storage anomalies.
 - Monthly billing threshold and anomaly detection.
 
-The CDK stack in `infra/lib/ventus-existing-infra-stack.ts` now includes deployed readiness CloudWatch alarms, SNS alarm actions, webhook failure metric filters, and a scheduled stuck-job monitor. Keep future changes behind CDK diff review and staging approval.
+The CDK stack in `infra/lib/ventus-existing-infra-stack.ts` now includes deployed readiness CloudWatch alarms, SNS alarm actions, webhook failure metric filters, a scheduled stuck-job monitor, and a scheduled ledger-backed webhook delivery monitor. Keep future changes behind CDK diff review and staging approval.
 
 ## Deployment Guardrail
 
