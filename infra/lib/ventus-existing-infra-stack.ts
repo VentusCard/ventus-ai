@@ -693,6 +693,22 @@ export class VentusExistingInfraStack extends cdk.Stack {
       comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     }));
+
+    withAlertAction(new cloudwatch.Alarm(this, 'GeminiRateLimitAlarm', {
+      alarmName: 'ventus-gemini-rate-limit-hits',
+      alarmDescription:
+        'Gemini 429 rate limit hits exceeding threshold — consider Vertex migration or quota increase.',
+      metric: new cloudwatch.Metric({
+        namespace: 'Ventus/Pipeline',
+        metricName: 'GeminiRateLimitHit',
+        statistic: 'Sum',
+        period: cdk.Duration.minutes(5),
+      }),
+      threshold: 10,
+      evaluationPeriods: 1,
+      comparisonOperator: cloudwatch.ComparisonOperator.GREATER_THAN_OR_EQUAL_TO_THRESHOLD,
+      treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
+    }));
   }
 }
 

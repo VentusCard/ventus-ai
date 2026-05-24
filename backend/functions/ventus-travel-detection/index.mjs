@@ -6,10 +6,19 @@
 
 import { createDbFactory } from '../../shared/db.mjs';
 import {
+  is429,
+  get429DelayMs,
+  parseRetryAfterMs,
+  publishGeminiRateLimit,
+} from '../../shared/gemini.mjs';
+import {
   createSecretsProvider,
   resolveSecretId,
 } from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+
+const LAMBDA_NAME =
+  process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-travel-detection';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
@@ -281,6 +290,14 @@ async function callTravelDetectionAI(
   );
 
   if (!res.ok) {
+    if (is429(res.status)) {
+      console.warn(`[GEMINI] 429 rate limit hit on TRAVEL batch ${batchNum}`);
+      publishGeminiRateLimit(LAMBDA_NAME);
+      const tagged = new Error(`429 rate limit on travel batch ${batchNum}`);
+      tagged.is429 = true;
+      tagged.retryAfterMs = parseRetryAfterMs(res.headers.get('retry-after'));
+      throw tagged;
+    }
     const err = await res.text().catch(() => '');
     console.error(
       `[BATCH ${batchNum}] Gemini error (${res.status}): ${err.slice(0, 200)}`
@@ -319,9 +336,12 @@ async function callTravelDetectionAI(
 
 // ─── PROCESS TRAVEL CANDIDATES WITH RETRIES ───────────────────────────────────
 async function processTravelCandidates(candidates, homeZip, geminiApiKey) {
+  let last429 = null;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     if (attempt > 0) {
-      const delay = getDelayMs(attempt - 1);
+      const delay = last429
+        ? (last429.retryAfterMs ?? get429DelayMs(attempt - 1))
+        : getDelayMs(attempt - 1);
       console.log(`[TRAVEL] Retry ${attempt} (delay: ${Math.round(delay)}ms)`);
       await new Promise((r) => setTimeout(r, delay));
     }
@@ -338,8 +358,14 @@ async function processTravelCandidates(candidates, homeZip, geminiApiKey) {
         console.log(`[TRAVEL] ✓ Detected ${trips.length} trips`);
         return trips;
       }
+      last429 = null;
     } catch (e) {
-      console.error(`[TRAVEL] Exception (attempt ${attempt}):`, e.message);
+      if (e?.is429) {
+        last429 = e;
+      } else {
+        last429 = null;
+        console.error(`[TRAVEL] Exception (attempt ${attempt}):`, e.message);
+      }
     }
   }
 
