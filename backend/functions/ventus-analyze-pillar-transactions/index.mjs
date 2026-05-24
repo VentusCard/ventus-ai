@@ -6,8 +6,17 @@
 import { STATE_TAX_RATES } from './tax-rates.mjs';
 import { ZIP_TO_STATE } from './zip-to-state.mjs';
 import { createDbFactory } from '../../shared/db.mjs';
+import {
+  is429,
+  get429DelayMs,
+  parseRetryAfterMs,
+  publishGeminiRateLimit,
+} from '../../shared/gemini.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
+
+const LAMBDA_NAME =
+  process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-analyze-pillar-transactions';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
@@ -164,11 +173,13 @@ The JSON must follow this exact structure:
   ]
 }`;
 
+  let nextDelayMs = null;
   for (let attempt = 0; attempt <= 2; attempt++) {
     if (attempt > 0) {
-      const delay = 1000 * Math.pow(2, attempt - 1);
-      console.log(`[PILLAR] Retry ${attempt} (delay: ${delay}ms)`);
+      const delay = nextDelayMs ?? 1000 * Math.pow(2, attempt - 1);
+      console.log(`[PILLAR] Retry ${attempt} (delay: ${Math.round(delay)}ms)`);
       await new Promise((r) => setTimeout(r, delay));
+      nextDelayMs = null;
     }
 
     try {
@@ -198,6 +209,13 @@ The JSON must follow this exact structure:
 
       if (!res.ok) {
         const err = await res.text();
+        if (is429(res.status)) {
+          console.warn('[GEMINI] 429 rate limit hit on PILLAR');
+          publishGeminiRateLimit(LAMBDA_NAME);
+          nextDelayMs =
+            parseRetryAfterMs(res.headers.get('retry-after')) ??
+            get429DelayMs(attempt);
+        }
         console.error(
           `[PILLAR] Gemini error ${res.status}: ${err.slice(0, 200)}`
         );

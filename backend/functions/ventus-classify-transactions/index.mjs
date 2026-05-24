@@ -5,9 +5,18 @@
 
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
+import {
+  is429,
+  get429DelayMs,
+  parseRetryAfterMs,
+  publishGeminiRateLimit,
+} from '../../shared/gemini.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
+
+const LAMBDA_NAME =
+  process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-classify-transactions';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
 const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
@@ -404,6 +413,14 @@ async function callClassificationAPI(
   );
 
   if (!res.ok) {
+    if (is429(res.status)) {
+      console.warn(`[GEMINI] 429 rate limit hit on BATCH ${batchNum}`);
+      publishGeminiRateLimit(LAMBDA_NAME);
+      const tagged = new Error(`429 rate limit on batch ${batchNum}`);
+      tagged.is429 = true;
+      tagged.retryAfterMs = parseRetryAfterMs(res.headers.get('retry-after'));
+      throw tagged;
+    }
     const err = await res.text().catch(() => '');
     console.error(
       `[BATCH ${batchNum}] API error (${res.status}): ${err.slice(0, 200)}`
@@ -430,10 +447,15 @@ async function callClassificationAPI(
 // ─── BATCH CLASSIFICATION WITH RETRIES ────────────────────────────────────────
 async function classifyBatch(batch, batchIndex, geminiApiKey) {
   const batchNum = batchIndex + 1;
+  let last429 = null;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const model = attempt === MAX_RETRIES ? FALLBACK_MODEL : FAST_MODEL;
-    if (attempt > 0)
-      await new Promise((r) => setTimeout(r, getDelayMs(attempt - 1)));
+    if (attempt > 0) {
+      const delay = last429
+        ? (last429.retryAfterMs ?? get429DelayMs(attempt - 1))
+        : getDelayMs(attempt - 1);
+      await new Promise((r) => setTimeout(r, delay));
+    }
     try {
       const { classifications } = await callClassificationAPI(
         batch,
@@ -448,8 +470,14 @@ async function classifyBatch(batch, batchIndex, geminiApiKey) {
         );
         return classifications;
       }
+      last429 = null;
     } catch (e) {
-      console.error(`[BATCH ${batchNum}] Exception (attempt ${attempt}):`, e);
+      if (e?.is429) {
+        last429 = e;
+      } else {
+        last429 = null;
+        console.error(`[BATCH ${batchNum}] Exception (attempt ${attempt}):`, e);
+      }
     }
   }
   return [];
@@ -466,9 +494,14 @@ async function classifyWithSubBatchFallback(batch, batchIndex, geminiApiKey) {
 
     const all = [];
     for (let si = 0; si < subBatches.length; si++) {
+      let last429 = null;
       for (let attempt = 0; attempt <= 2; attempt++) {
-        if (attempt > 0)
-          await new Promise((r) => setTimeout(r, getDelayMs(attempt)));
+        if (attempt > 0) {
+          const delay = last429
+            ? (last429.retryAfterMs ?? get429DelayMs(attempt - 1))
+            : getDelayMs(attempt);
+          await new Promise((r) => setTimeout(r, delay));
+        }
         try {
           const { classifications } = await callClassificationAPI(
             subBatches[si],
@@ -481,8 +514,14 @@ async function classifyWithSubBatchFallback(batch, batchIndex, geminiApiKey) {
             all.push(...classifications);
             break;
           }
+          last429 = null;
         } catch (e) {
-          console.error(`[SUB-BATCH] Error:`, e);
+          if (e?.is429) {
+            last429 = e;
+          } else {
+            last429 = null;
+            console.error(`[SUB-BATCH] Error:`, e);
+          }
         }
       }
     }

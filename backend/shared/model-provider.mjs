@@ -1,3 +1,10 @@
+import {
+  is429,
+  get429DelayMs,
+  parseRetryAfterMs,
+  publishGeminiRateLimit,
+} from './gemini.mjs';
+
 const DEFAULT_TRANSIENT_STATUSES = new Set([408, 409, 425, 429, 500, 502, 503, 504]);
 
 export function getRetryDelayMs(attempt, { baseDelayMs = 1000, maxDelayMs = 15000 } = {}) {
@@ -45,7 +52,16 @@ export async function fetchGeminiChatCompletion({
       }
 
       const err = await res.text().catch(() => '');
-      console.warn(`[${label}] Transient Gemini ${res.status}: ${err.slice(0, 200)}`);
+      if (is429(res.status)) {
+        console.warn(`[GEMINI] 429 rate limit hit on ${label}`);
+        publishGeminiRateLimit(process.env.AWS_LAMBDA_FUNCTION_NAME);
+        const retryAfterMs = parseRetryAfterMs(res.headers.get('retry-after'));
+        const delay = retryAfterMs ?? get429DelayMs(attempt);
+        console.log(`[${label}] Gemini 429 backoff ${Math.round(delay)}ms`);
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      } else {
+        console.warn(`[${label}] Transient Gemini ${res.status}: ${err.slice(0, 200)}`);
+      }
     } catch (error) {
       if (attempt === maxRetries) throw error;
       console.warn(`[${label}] Transient Gemini exception: ${error.message}`);
