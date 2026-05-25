@@ -367,7 +367,94 @@ app.get('/v1/customers/:id/profile', async (req, res) => {
   }
 });
 
-// ─── LIFE EVENTS ──────────────────────────────────────────────────────────────
+// ─── LIFE EVENTS / BEHAVIORAL (customer_life_events) ───────────────────────────
+const CUSTOMER_LIFE_EVENT_COLUMNS = `id, event_name, event_type, event_category, confidence, urgency_timeline,
+              status, is_dismissed, talking_points, next_steps,
+              project_type, estimated_start_year, duration_years,
+              estimated_total_cost, estimated_current_savings,
+              recommended_monthly_contribution, cost_breakdown,
+              recommended_funding_sources, recommended_products,
+              signal_category, signal_name, insight,
+              first_detected_at, last_confirmed_at, detected_at`;
+
+async function fetchLifeEventEvidenceRows(db, lifeEventId) {
+  const evidence = await db.query(
+    `SELECT lee.transaction_id, te.clean_merchant_name as merchant,
+            te.amount, te.transaction_date as date, lee.relevance
+     FROM life_event_evidence lee
+     LEFT JOIN transactions_enriched te ON lee.transaction_id = te.transaction_id
+     WHERE lee.life_event_id = $1`,
+    [lifeEventId]
+  );
+  return evidence.rows;
+}
+
+function mapLifeEventResponseRow(event) {
+  return {
+    id: event.id,
+    event_name: event.event_name,
+    event_type: event.event_type,
+    confidence: event.confidence,
+    urgency_timeline:
+      !event.urgency_timeline || event.urgency_timeline === 'Unknown'
+        ? getDefaultUrgencyTimeline(event.event_name)
+        : event.urgency_timeline,
+    status: event.status,
+    talking_points: event.talking_points,
+    next_steps: event.next_steps,
+    insight: event.insight,
+    recommended_products: event.recommended_products,
+    ...(event.estimated_total_cost || event.project_type
+      ? {
+          financial_projection: {
+            project_type: event.project_type,
+            estimated_start_year: event.estimated_start_year,
+            duration_years: event.duration_years,
+            estimated_total_cost: event.estimated_total_cost,
+            estimated_current_savings: event.estimated_current_savings,
+            recommended_monthly_contribution: event.recommended_monthly_contribution,
+            cost_breakdown: event.cost_breakdown,
+            recommended_funding_sources: event.recommended_funding_sources,
+          },
+        }
+      : {}),
+    first_detected_at: event.first_detected_at,
+    last_confirmed_at: event.last_confirmed_at,
+    detected_at: event.detected_at,
+    evidence: event.evidence,
+  };
+}
+
+function mapBehavioralSignalResponseRow(event) {
+  return {
+    id: event.id,
+    signal_category: event.signal_category,
+    signal_name: event.signal_name,
+    confidence: event.confidence,
+    status: event.status,
+    talking_points: event.talking_points,
+    first_detected_at: event.first_detected_at,
+    last_confirmed_at: event.last_confirmed_at,
+    detected_at: event.detected_at,
+    evidence: event.evidence,
+  };
+}
+
+async function loadCustomerLifeEventRecord(
+  db,
+  { customerId, bankId, recordId, eventCategory }
+) {
+  const result = await db.query(
+    `SELECT ${CUSTOMER_LIFE_EVENT_COLUMNS}
+     FROM customer_life_events
+     WHERE id = $1 AND customer_id = $2 AND bank_id = $3
+     AND event_category = $4
+     AND status = 'active' AND is_dismissed = false`,
+    [recordId, customerId, bankId, eventCategory]
+  );
+  return result.rows[0] || null;
+}
+
 app.get('/v1/customers/:id/life-events', async (req, res) => {
   const db = await getDB();
   await db.connect();
@@ -376,14 +463,7 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
     if (!id) return res.status(400).json({ error: 'Customer ID required' });
 
     const allEvents = await db.query(
-      `SELECT id, event_name, event_type, event_category, confidence, urgency_timeline,
-              status, is_dismissed, talking_points, next_steps,
-              project_type, estimated_start_year, duration_years,
-              estimated_total_cost, estimated_current_savings,
-              recommended_monthly_contribution, cost_breakdown,
-              recommended_funding_sources, recommended_products,
-              signal_category, signal_name, insight,
-              first_detected_at, last_confirmed_at, detected_at
+      `SELECT ${CUSTOMER_LIFE_EVENT_COLUMNS}
        FROM customer_life_events
        WHERE customer_id = $1 AND bank_id = $2
        AND status = 'active' AND is_dismissed = false
@@ -396,75 +476,82 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
 
     const withEvidence = [];
     for (const event of allEvents.rows) {
-      const evidence = await db.query(
-        `SELECT lee.transaction_id, te.clean_merchant_name as merchant,
-                te.amount, te.transaction_date as date, lee.relevance
-         FROM life_event_evidence lee
-         LEFT JOIN transactions_enriched te ON lee.transaction_id = te.transaction_id
-         WHERE lee.life_event_id = $1`,
-        [event.id]
-      );
-      withEvidence.push({ ...event, evidence: evidence.rows });
+      const evidence = await fetchLifeEventEvidenceRows(db, event.id);
+      withEvidence.push({ ...event, evidence });
     }
 
-    // ── Canonical life events ────────────────────────────────────────────────
     const lifeEvents = withEvidence
       .filter((e) => e.event_category === 'life_event')
-      .map((e) => ({
-        id: e.id,
-        event_name: e.event_name,
-        event_type: e.event_type,
-        confidence: e.confidence,
-        urgency_timeline:
-          !e.urgency_timeline || e.urgency_timeline === 'Unknown'
-            ? getDefaultUrgencyTimeline(e.event_name)
-            : e.urgency_timeline,
-        status: e.status,
-        talking_points: e.talking_points,
-        next_steps: e.next_steps,
-        insight: e.insight,
-        recommended_products: e.recommended_products,
-        ...(e.estimated_total_cost || e.project_type
-          ? {
-              financial_projection: {
-                project_type: e.project_type,
-                estimated_start_year: e.estimated_start_year,
-                duration_years: e.duration_years,
-                estimated_total_cost: e.estimated_total_cost,
-                estimated_current_savings: e.estimated_current_savings,
-                recommended_monthly_contribution:
-                  e.recommended_monthly_contribution,
-                cost_breakdown: e.cost_breakdown,
-                recommended_funding_sources: e.recommended_funding_sources,
-              },
-            }
-          : {}),
-        first_detected_at: e.first_detected_at,
-        last_confirmed_at: e.last_confirmed_at,
-        detected_at: e.detected_at,
-        evidence: e.evidence,
-      }));
+      .map(mapLifeEventResponseRow);
 
-    // ── Behavioral signals ───────────────────────────────────────────────────
     const behavioralSignals = withEvidence
       .filter((e) => e.event_category === 'behavioral')
-      .map((e) => ({
-        id: e.id,
-        signal_category: e.signal_category,
-        signal_name: e.signal_name,
-        confidence: e.confidence,
-        status: e.status,
-        talking_points: e.talking_points,
-        first_detected_at: e.first_detected_at,
-        last_confirmed_at: e.last_confirmed_at,
-        detected_at: e.detected_at,
-        evidence: e.evidence,
-      }));
+      .map(mapBehavioralSignalResponseRow);
 
     res.status(200).json({
       customer_id: id,
       life_events: lifeEvents,
       behavioral_signals: behavioralSignals,
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
+app.get('/v1/customers/:id/life-events/:life_event_id', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const { id, life_event_id: lifeEventId } = req.params;
+    if (!id) return res.status(400).json({ error: 'Customer ID required' });
+    if (!lifeEventId) return res.status(400).json({ error: 'Life event ID required' });
+
+    const row = await loadCustomerLifeEventRecord(db, {
+      customerId: id,
+      bankId: req.bankId,
+      recordId: lifeEventId,
+      eventCategory: 'life_event',
+    });
+    if (!row) return res.status(404).json({ error: 'Life event not found' });
+
+    const evidence = await fetchLifeEventEvidenceRows(db, row.id);
+    res.status(200).json({
+      customer_id: id,
+      life_event: mapLifeEventResponseRow({ ...row, evidence }),
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
+app.get('/v1/customers/:id/behavioral-signals/:behavioral_signal_id', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const { id, behavioral_signal_id: behavioralSignalId } = req.params;
+    if (!id) return res.status(400).json({ error: 'Customer ID required' });
+    if (!behavioralSignalId) {
+      return res.status(400).json({ error: 'Behavioral signal ID required' });
+    }
+
+    const row = await loadCustomerLifeEventRecord(db, {
+      customerId: id,
+      bankId: req.bankId,
+      recordId: behavioralSignalId,
+      eventCategory: 'behavioral',
+    });
+    if (!row) return res.status(404).json({ error: 'Behavioral signal not found' });
+
+    const evidence = await fetchLifeEventEvidenceRows(db, row.id);
+    res.status(200).json({
+      customer_id: id,
+      behavioral_signal: mapBehavioralSignalResponseRow({ ...row, evidence }),
     });
   } catch (e) {
     console.error(e);
@@ -807,6 +894,43 @@ app.get('/v1/customers/:id/trips', async (req, res) => {
   }
 });
 
+app.get('/v1/customers/:id/trips/:trip_id', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const { id, trip_id: tripId } = req.params;
+    if (!id) return res.status(400).json({ error: 'Customer ID required' });
+    if (!tripId) return res.status(400).json({ error: 'Trip ID required' });
+
+    const result = await db.query(
+      `SELECT trip_id, destination, trip_start, trip_end,
+              trip_duration_days, total_trip_spend, transaction_count,
+              transport_spend, lodging_spend, dining_spend,
+              activities_spend, other_spend, detected_at
+       FROM customer_trips
+       WHERE customer_id = $1 AND bank_id = $2 AND trip_id = $3`,
+      [id, req.bankId, tripId]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'Trip not found' });
+
+    const trip = result.rows[0];
+    res.status(200).json({
+      customer_id: id,
+      trip: {
+        ...trip,
+        is_upcoming: new Date(trip.trip_end) > new Date(),
+      },
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
 // ─── RISK FACTORS ─────────────────────────────────────────────────────────────
 app.get('/v1/customers/:id/risk-factors', async (req, res) => {
   const db = await getDB();
@@ -838,6 +962,37 @@ app.get('/v1/customers/:id/risk-factors', async (req, res) => {
         medium: result.rows.filter((r) => r.severity === 'medium').length,
         low: result.rows.filter((r) => r.severity === 'low').length,
       },
+    });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
+app.get('/v1/customers/:id/risk-factors/:risk_factor_id', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const { id, risk_factor_id: riskFactorId } = req.params;
+    if (!id) return res.status(400).json({ error: 'Customer ID required' });
+    if (!riskFactorId) return res.status(400).json({ error: 'Risk factor ID required' });
+
+    const result = await db.query(
+      `SELECT id, transaction_id, category_group, category_label,
+              severity, merchant, amount, transaction_date, reason, detected_at
+       FROM customer_risk_factors
+       WHERE customer_id = $1 AND bank_id = $2 AND id = $3`,
+      [id, req.bankId, riskFactorId]
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'Risk factor not found' });
+
+    res.status(200).json({
+      customer_id: id,
+      risk_factor: result.rows[0],
     });
   } catch (e) {
     console.error(e);

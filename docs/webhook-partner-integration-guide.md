@@ -59,12 +59,12 @@ Envelope:
 
 Partners receive IDs in the webhook and load full records via the API:
 
-| Event | IDs in `data` | Detail API |
-| --- | --- | --- |
-| `life_event_detected` | `life_event_ids[]` | `GET /v1/customers/:id/life-events` |
-| `behavioral_signal_detected` | `behavioral_signal_ids[]` | same |
-| `risk_detected` | `risk_factor_ids[]` | `GET /v1/customers/:id/risk-factors` |
-| `trip_detected` | `trip_ids[]` | `GET /v1/customers/:id/trips` |
+| Event | IDs in `data` | Detail API (preferred) | List API (bulk) |
+| --- | --- | --- | --- |
+| `life_event_detected` | `life_event_ids[]` | `GET /v1/customers/:id/life-events/:life_event_id` | `GET /v1/customers/:id/life-events` |
+| `behavioral_signal_detected` | `behavioral_signal_ids[]` | `GET /v1/customers/:id/behavioral-signals/:behavioral_signal_id` | same list endpoint |
+| `risk_detected` | `risk_factor_ids[]` | `GET /v1/customers/:id/risk-factors/:risk_factor_id` | `GET /v1/customers/:id/risk-factors` |
+| `trip_detected` | `trip_ids[]` | `GET /v1/customers/:id/trips/:trip_id` | `GET /v1/customers/:id/trips` |
 
 Example `risk_detected`:
 
