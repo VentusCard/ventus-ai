@@ -3,7 +3,7 @@
 import express from 'express';
 import serverless from 'serverless-http';
 import crypto from 'crypto';
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { SQSClient, SendMessageCommand, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
 import { resolveSecretId } from '../../shared/secrets.mjs';
 import { buildWebhookBody, recordWebhookDelivery } from '../../shared/webhooks.mjs';
@@ -1132,6 +1132,27 @@ app.post('/v1/enrich', async (req, res) => {
     if (!Array.isArray(transactions) || transactions.length === 0) {
       return res.status(400).json({ error: 'transactions array required' });
     }
+    if (transactions.length > 1000) {
+      return res.status(400).json({ error: 'batch size exceeds maximum of 1000 transactions' });
+    }
+
+    // ── Per-transaction field validation ─────────────────────────────────────
+    const REQUIRED_FIELDS = ['transaction_id', 'customer_id', 'merchant_name', 'amount', 'date'];
+    for (const txn of transactions) {
+      const missing = REQUIRED_FIELDS.filter((f) => txn[f] == null || txn[f] === '');
+      if (missing.length > 0) {
+        return res.status(400).json({
+          error: `transaction missing required fields: ${missing.join(', ')}`,
+          transaction_id: txn.transaction_id ?? null,
+        });
+      }
+      if (typeof txn.amount !== 'number') {
+        return res.status(400).json({
+          error: 'transaction amount must be a number',
+          transaction_id: txn.transaction_id,
+        });
+      }
+    }
 
     const timestamp = new Date()
       .toISOString()
@@ -1139,54 +1160,81 @@ app.post('/v1/enrich', async (req, res) => {
       .slice(0, 14);
     const batchId = `batch_${timestamp}_api_${bank_id}`;
 
-    for (const txn of transactions) {
-      await db.query(
-        `INSERT INTO transactions_raw
-          (transaction_id, customer_id, bank_id, batch_id, raw_merchant,
-           amount, transaction_date, mcc_code, zip_code, source_file, processed)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'api',false)
-         ON CONFLICT (transaction_id) DO NOTHING`,
-        [
-          txn.transaction_id,
-          txn.customer_id,
-          bank_id,
-          batchId,
-          txn.merchant_name,
-          txn.amount,
-          txn.date,
-          txn.mcc_code || null,
-          txn.zip_code || null,
-        ]
-      );
-    }
+    // ── Bulk insert transactions_raw (9 params per row) ───────────────────────
+    const TXN_PARAMS = 9;
+    const txnPlaceholders = transactions
+      .map((_, i) => {
+        const b = i * TXN_PARAMS;
+        return `($${b+1},$${b+2},$${b+3},$${b+4},$${b+5},$${b+6},$${b+7},$${b+8},$${b+9},'api',false)`;
+      })
+      .join(',');
+    const txnValues = transactions.flatMap((txn) => [
+      txn.transaction_id,
+      txn.customer_id,
+      bank_id,
+      batchId,
+      txn.merchant_name,
+      txn.amount,
+      txn.date,
+      txn.mcc_code || null,
+      txn.zip_code || null,
+    ]);
+    await db.query(
+      `INSERT INTO transactions_raw
+        (transaction_id, customer_id, bank_id, batch_id, raw_merchant,
+         amount, transaction_date, mcc_code, zip_code, source_file, processed)
+       VALUES ${txnPlaceholders}
+       ON CONFLICT (transaction_id) DO NOTHING`,
+      txnValues
+    );
 
+    // ── Group by customer ─────────────────────────────────────────────────────
     const customerGroups = {};
     for (const txn of transactions) {
-      const cid = txn.customer_id || 'unknown';
+      const cid = txn.customer_id;
       if (!customerGroups[cid]) customerGroups[cid] = [];
       customerGroups[cid].push(txn);
     }
+    const customerEntries = Object.entries(customerGroups);
 
-    for (const [customerId, txns] of Object.entries(customerGroups)) {
-      await db.query(
-        `INSERT INTO pipeline_runs
-          (batch_id, bank_id, customer_id, source_file, transaction_count, status, ingested_at)
-         VALUES ($1,$2,$3,'api',$4,'ingested',NOW())
-         ON CONFLICT (batch_id, customer_id) DO NOTHING`,
-        [batchId, bank_id, customerId, txns.length]
-      );
-    }
+    // ── Bulk insert pipeline_runs (4 params per row) ──────────────────────────
+    const RUN_PARAMS = 4;
+    const runPlaceholders = customerEntries
+      .map((_, i) => {
+        const b = i * RUN_PARAMS;
+        return `($${b+1},$${b+2},$${b+3},'api',$${b+4},'ingested',NOW())`;
+      })
+      .join(',');
+    const runValues = customerEntries.flatMap(([customerId, txns]) => [
+      batchId,
+      bank_id,
+      customerId,
+      txns.length,
+    ]);
+    await db.query(
+      `INSERT INTO pipeline_runs
+        (batch_id, bank_id, customer_id, source_file, transaction_count, status, ingested_at)
+       VALUES ${runPlaceholders}
+       ON CONFLICT (batch_id, customer_id) DO NOTHING`,
+      runValues
+    );
 
-    for (const [customerId, txns] of Object.entries(customerGroups)) {
+    // ── Batch SQS sends (max 10 per SendMessageBatch call) ────────────────────
+    const SQS_BATCH_SIZE = 10;
+    for (let i = 0; i < customerEntries.length; i += SQS_BATCH_SIZE) {
+      const batch = customerEntries.slice(i, i + SQS_BATCH_SIZE);
       await sqs.send(
-        new SendMessageCommand({
+        new SendMessageBatchCommand({
           QueueUrl: process.env.CLASSIFY_QUEUE_URL,
-          MessageBody: JSON.stringify({
-            batch_id: batchId,
-            customer_id: customerId,
-            bank_id,
-            transaction_count: txns.length,
-          }),
+          Entries: batch.map(([customerId, txns], idx) => ({
+            Id: String(idx),
+            MessageBody: JSON.stringify({
+              batch_id: batchId,
+              customer_id: customerId,
+              bank_id,
+              transaction_count: txns.length,
+            }),
+          })),
         })
       );
     }
@@ -1195,7 +1243,7 @@ app.post('/v1/enrich', async (req, res) => {
       batch_id: batchId,
       status: 'ingested',
       transaction_count: transactions.length,
-      customers: Object.keys(customerGroups).length,
+      customers: customerEntries.length,
       message: `Pipeline triggered. Poll /v1/jobs/${batchId} for status.`,
     });
   } catch (e) {
