@@ -1501,6 +1501,70 @@ app.post('/v1/webhooks', async (req, res) => {
   }
 });
 
+app.put('/v1/webhooks/:webhook_id', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const { url, events, secret } = req.body ?? {};
+
+    if (url === undefined && events === undefined && secret === undefined) {
+      return res.status(400).json({ error: 'at least one of url, events, or secret is required' });
+    }
+
+    if (url !== undefined && !validateWebhookUrl(url)) {
+      return res.status(400).json({ error: 'webhook url must be a valid https URL' });
+    }
+
+    if (events !== undefined) {
+      if (!Array.isArray(events) || events.length === 0) {
+        return res.status(400).json({ error: 'events must be a non-empty array' });
+      }
+      const invalidEvents = events.filter((e) => !WEBHOOK_EVENTS.includes(e));
+      if (invalidEvents.length > 0) {
+        return res.status(400).json({
+          error: `Invalid events: ${invalidEvents.join(', ')}. Valid events: ${WEBHOOK_EVENTS.join(', ')}`,
+        });
+      }
+    }
+
+    // Build SET clause dynamically from provided fields only.
+    const setClauses = ['updated_at = NOW()'];
+    const values = [];
+
+    if (url !== undefined) {
+      values.push(url);
+      setClauses.push(`url = $${values.length}`);
+    }
+    if (events !== undefined) {
+      values.push(events);
+      setClauses.push(`events = $${values.length}`);
+    }
+    if (secret !== undefined) {
+      values.push(secret || null);
+      setClauses.push(`secret = $${values.length}`);
+    }
+
+    values.push(req.params.webhook_id, req.bankId);
+    const result = await db.query(
+      `UPDATE webhook_registrations
+       SET ${setClauses.join(', ')}
+       WHERE webhook_id = $${values.length - 1} AND bank_id = $${values.length}
+       RETURNING webhook_id, bank_id, url, events, is_active, created_at, updated_at`,
+      values
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'Webhook not found' });
+
+    res.status(200).json(result.rows[0]);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
 app.delete('/v1/webhooks/:webhook_id', async (req, res) => {
   const db = await getDB();
   await db.connect();
