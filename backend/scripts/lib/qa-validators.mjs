@@ -27,6 +27,9 @@ export const JOB_STATUSES = new Set([
 export const WEBHOOK_EVENTS = new Set([
   'batch_started',
   'batch_complete',
+  'batch_partial',
+  'batch_failed',
+  'batch_stuck',
   'life_event_detected',
   'trip_detected',
   'risk_detected',

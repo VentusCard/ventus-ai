@@ -51,6 +51,17 @@ for (const monitorName of monitors) {
   cpSync(join(sourceDir, 'index.mjs'), join(buildDir, 'index.mjs'));
   cpSync(join(sourceDir, 'package.json'), join(buildDir, 'package.json'));
 
+  const sharedCopies = {
+    'stuck-job-monitor': ['batch-stuck.mjs', 'webhooks.mjs'],
+  };
+  const sharedFiles = sharedCopies[monitorName] ?? [];
+  if (sharedFiles.length > 0) {
+    mkdirSync(join(buildDir, 'shared'), { recursive: true });
+    for (const sharedFile of sharedFiles) {
+      cpSync(join(backendRoot, 'shared', sharedFile), join(buildDir, 'shared', sharedFile));
+    }
+  }
+
   if (existsSync(join(sourceDir, 'package-lock.json'))) {
     cpSync(join(sourceDir, 'package-lock.json'), join(buildDir, 'package-lock.json'));
     run('npm', ['ci', '--omit=dev'], buildDir);

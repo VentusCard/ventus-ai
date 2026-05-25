@@ -129,35 +129,114 @@ Before enabling it in staging, confirm Lambda-to-Aurora network access and alert
 
 ## Webhook Payloads (schema_version 1)
 
-`life_event_detected` and `behavioral_signal_detected` use thin ID arrays. Load full rows from `customer_life_events` by id (same table; `event_category` is `life_event` or `behavioral`).
+Apply `backend/sql/webhook-payload-v2-migration.sql` to Aurora (RDS Query Editor is fine) before deploying lambdas that use `webhook_fired_at`, `warnings`, or batch outcome/stuck columns. The script is idempotent (`IF NOT EXISTS`).
+
+### Entity events (thin ID arrays)
+
+| Event | IDs in `data` | Load detail via |
+|-------|----------------|-----------------|
+| `life_event_detected` | `life_event_ids[]` | `GET /v1/customers/:id/life-events` |
+| `behavioral_signal_detected` | `behavioral_signal_ids[]` | same |
+| `risk_detected` | `risk_factor_ids[]` (high severity, new this run) | `GET /v1/customers/:id/risk-factors` |
+| `trip_detected` | `trip_ids[]` (new/updated this run) | `GET /v1/customers/:id/trips` |
 
 ```json
 {
   "event": "life_event_detected",
-  "bank_id": "bank_id",
-  "delivery_id": "uuid",
   "data": {
     "schema_version": 1,
     "customer_id": "cust_id",
     "batch_id": "batch_id",
-    "life_event_ids": ["row-uuid-1", "row-uuid-2"]
+    "life_event_ids": ["row-uuid-1"]
   }
 }
 ```
 
 ```json
 {
-  "event": "behavioral_signal_detected",
+  "event": "risk_detected",
   "data": {
     "schema_version": 1,
     "customer_id": "cust_id",
     "batch_id": "batch_id",
-    "behavioral_signal_ids": ["row-uuid-3"]
+    "risk_factor_ids": ["42", "43"]
   }
 }
 ```
 
-Only **new** rows with `webhook_fired_at` set on this run are included. Replay uses stored `payload_json` on `webhook_delivery_attempts`.
+```json
+{
+  "event": "trip_detected",
+  "data": {
+    "schema_version": 1,
+    "customer_id": "cust_id",
+    "batch_id": "batch_id",
+    "trip_ids": ["trip_cust_paris_20250101"]
+  }
+}
+```
+
+### `webhook_fired_at` dedup (entity events)
+
+All entity webhooks use a `webhook_fired_at` column on the source table. Re-fire rules differ by domain:
+
+| Table | Events | When webhook fires |
+| --- | --- | --- |
+| `customer_life_events` | `life_event_detected` | **New** life event row only; re-confirms do not re-webhook |
+| `customer_life_events` | `behavioral_signal_detected` | **New** behavioral row only (and `webhook_eligible`) |
+| `customer_risk_factors` | `risk_detected` | High-severity rows inserted this run |
+| `customer_trips` | `trip_detected` | Every trip written/upserted this run |
+
+Per-customer pipeline failures are recorded on `pipeline_runs` (`status = failed`, `error_message`, `warnings`). There is no per-customer failure webhook; use `batch_partial` / `batch_failed` when the batch finishes, or `batch_stuck` if the batch exceeds SLA while still running. Detail: `GET /v1/jobs/:batch_id`.
+
+### Batch outcome events
+
+Emitted once per `batch_id` when all customers are terminal (complete or failed):
+
+| Event | When |
+|-------|------|
+| `batch_complete` | All customers finished all stages |
+| `batch_partial` | Mix of complete and failed |
+| `batch_failed` | All customers failed |
+
+```json
+{
+  "event": "batch_partial",
+  "data": {
+    "schema_version": 1,
+    "batch_id": "batch_id",
+    "customers_processed": 8,
+    "customers_failed": 2,
+    "status": "partial"
+  }
+}
+```
+
+`GET /v1/jobs/:id` returns `batch_outcome_event`, `batch_outcome_webhook_at`, `batch_stuck_webhook_at`, and per-customer `warnings` (JSON array).
+
+### Batch stuck event
+
+Emitted **once per `batch_id`** by the scheduled stuck-job monitor when one or more customers exceed the stuck-job SLA (default 20 minutes) and are still not `complete` or `failed`. Opt in via webhook registration (`batch_stuck`).
+
+```json
+{
+  "event": "batch_stuck",
+  "data": {
+    "schema_version": 1,
+    "batch_id": "batch_id",
+    "status": "stuck",
+    "sla_minutes": 20,
+    "stuck_customer_ids": ["cust_a", "cust_b"],
+    "customers_complete": 8,
+    "customers_failed": 0,
+    "customers_in_progress": 2
+  }
+}
+```
+
+Load per-customer stage detail via `GET /v1/jobs/:batch_id`. A batch may receive `batch_stuck` while still running, then later `batch_complete`, `batch_partial`, or `batch_failed` when all customers finish.
+
+Replay uses stored `payload_json` on `webhook_delivery_attempts`.
 
 ## Webhook Failure Triage
 
@@ -165,7 +244,7 @@ Symptoms:
 
 - Logs contain `[WEBHOOK] Failed after ... attempts`.
 - CloudWatch alarm `ventus-webhook-readiness-failed-deliveries` enters alarm state.
-- Client says they did not receive `batch_complete`, `life_event_detected`, `trip_detected`, or `risk_detected`.
+- Client says they did not receive `batch_complete`, `batch_partial`, `batch_failed`, `batch_stuck`, `life_event_detected`, `trip_detected`, or `risk_detected`.
 
 Triage sequence:
 

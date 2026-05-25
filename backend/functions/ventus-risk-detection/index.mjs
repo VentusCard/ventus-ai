@@ -7,6 +7,7 @@
 import { createDbFactory } from '../../shared/db.mjs';
 import { fetchGeminiChatCompletion } from '../../shared/model-provider.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
+import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
@@ -956,6 +957,8 @@ async function callGeminiForAML(transactions, alreadyFlaggedIds, geminiApiKey) {
 
 // ─── WRITE RISK FACTORS ───────────────────────────────────────────────────────
 async function writeRiskFactors(db, customerId, bankId, batchId, flags) {
+  const webhookRiskFactorIds = [];
+
   await db.query(
     `DELETE FROM customer_risk_factors
      WHERE customer_id = $1 AND batch_id = $2`,
@@ -963,12 +966,13 @@ async function writeRiskFactors(db, customerId, bankId, batchId, flags) {
   );
 
   for (const flag of flags) {
-    await db.query(
+    const inserted = await db.query(
       `INSERT INTO customer_risk_factors
         (customer_id, bank_id, batch_id, transaction_id,
          category_group, category_label, severity,
          merchant, amount, transaction_date, reason, detected_at)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW())`,
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,NOW())
+       RETURNING id`,
       [
         customerId,
         bankId,
@@ -983,8 +987,22 @@ async function writeRiskFactors(db, customerId, bankId, batchId, flags) {
         flag.reason || null,
       ]
     );
+    const riskFactorId = inserted.rows[0]?.id;
+    if (flag.severity === 'high' && riskFactorId) {
+      const marked = await db.query(
+        `UPDATE customer_risk_factors
+         SET webhook_fired_at = NOW()
+         WHERE id = $1 AND webhook_fired_at IS NULL
+         RETURNING id`,
+        [riskFactorId]
+      );
+      if (marked.rows.length > 0) {
+        webhookRiskFactorIds.push(String(riskFactorId));
+      }
+    }
   }
   console.log(`[RDS] ✓ Wrote ${flags.length} risk factors`);
+  return { webhookRiskFactorIds };
 }
 
 // ─── UPDATE PIPELINE_RUNS ─────────────────────────────────────────────────────
@@ -1003,29 +1021,6 @@ async function updatePipelineRuns(db, batchId, customerId) {
 }
 
 // ─── BATCH COMPLETE CHECK ─────────────────────────────────────────────────────
-async function checkAndFireBatchComplete(db, batchId, bankId) {
-  const batchCheck = await db.query(
-    `SELECT 
-       COUNT(*) as total,
-       COUNT(CASE WHEN stages_complete >= 4 THEN 1 END) as complete
-     FROM pipeline_runs
-     WHERE batch_id = $1`,
-    [batchId]
-  );
-
-  const { total, complete } = batchCheck.rows[0];
-  console.log(`[RISK] Batch progress: ${complete}/${total} customers complete`);
-
-  if (parseInt(total) === parseInt(complete)) {
-    console.log(`[RISK] ✓ All customers complete — firing batch_complete`);
-    await fireWebhook(db, bankId, 'batch_complete', {
-      batch_id: batchId,
-      customers_processed: parseInt(total),
-      status: 'complete',
-    });
-  }
-}
-
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
   const secrets = await getModelSecrets();
@@ -1072,16 +1067,24 @@ export const handler = async (event) => {
       console.log(`[RISK] Total merged flags: ${allFlags.length}`);
 
       if (allFlags.length > 0) {
-        await writeRiskFactors(db, customer_id, bank_id, batch_id, allFlags);
+        const { webhookRiskFactorIds } = await writeRiskFactors(
+          db,
+          customer_id,
+          bank_id,
+          batch_id,
+          allFlags
+        );
 
-        const highSeverity = allFlags.filter((f) => f.severity === 'high');
-        if (highSeverity.length > 0) {
+        if (webhookRiskFactorIds.length > 0) {
           await fireWebhook(db, bank_id, 'risk_detected', {
+            schema_version: 1,
             customer_id,
             batch_id,
-            high_severity_count: highSeverity.length,
-            categories: [...new Set(highSeverity.map((f) => f.category_label))],
+            risk_factor_ids: webhookRiskFactorIds,
           });
+          console.log(
+            `[WEBHOOK] risk_detected: ${webhookRiskFactorIds.length} high-severity factor(s) for ${customer_id}`
+          );
         }
       } else {
         console.log(`[RISK] No risk factors for ${customer_id}`);
@@ -1097,12 +1100,17 @@ export const handler = async (event) => {
       );
 
       if (stagesComplete >= 4) {
-        await checkAndFireBatchComplete(db, batch_id, bank_id);
+        await checkAndEmitBatchOutcome(db, batch_id, bank_id, fireWebhook);
       }
 
       console.log(`[RISK] ✓ Done for customer ${customer_id}`);
     } catch (err) {
       console.error(`[RISK] Error for customer ${customer_id}:`, err);
+      await markCustomerPipelineFailed(
+        db,
+        { batchId: batch_id, customerId: customer_id, bankId: bank_id, errorMessage: err.message },
+        fireWebhook
+      );
       throw err;
     } finally {
       await db.end();

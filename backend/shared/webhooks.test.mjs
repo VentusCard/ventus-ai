@@ -92,15 +92,80 @@ test('buildWebhookBody creates replayable payload envelopes', () => {
     eventType: 'risk_detected',
     bankId: 'bank_123',
     deliveryId: '00000000-0000-4000-8000-000000000000',
-    payload: { customer_id: 'cust_123' },
+    payload: {
+      schema_version: 1,
+      customer_id: 'cust_123',
+      batch_id: 'batch_1',
+      risk_factor_ids: ['99'],
+    },
   });
   const parsed = JSON.parse(body);
 
   assert.equal(parsed.event, 'risk_detected');
-  assert.equal(parsed.bank_id, 'bank_123');
-  assert.equal(parsed.delivery_id, '00000000-0000-4000-8000-000000000000');
-  assert.deepEqual(parsed.data, { customer_id: 'cust_123' });
+  assert.equal(parsed.data.schema_version, 1);
+  assert.deepEqual(parsed.data.risk_factor_ids, ['99']);
   assert.ok(parsed.timestamp);
+});
+
+test('buildWebhookBody supports thin trip_detected id payloads', () => {
+  const body = buildWebhookBody({
+    eventType: 'trip_detected',
+    bankId: 'bank_123',
+    deliveryId: '00000000-0000-4000-8000-000000000002',
+    payload: {
+      schema_version: 1,
+      customer_id: 'cust_abc',
+      batch_id: 'batch_xyz',
+      trip_ids: ['trip_cust_paris_20250101'],
+    },
+  });
+  const parsed = JSON.parse(body);
+
+  assert.equal(parsed.event, 'trip_detected');
+  assert.deepEqual(parsed.data.trip_ids, ['trip_cust_paris_20250101']);
+});
+
+test('buildWebhookBody supports batch_partial outcome payloads', () => {
+  const body = buildWebhookBody({
+    eventType: 'batch_partial',
+    bankId: 'bank_123',
+    deliveryId: '00000000-0000-4000-8000-000000000003',
+    payload: {
+      schema_version: 1,
+      batch_id: 'batch_xyz',
+      customers_processed: 3,
+      customers_failed: 1,
+      status: 'partial',
+    },
+  });
+  const parsed = JSON.parse(body);
+
+  assert.equal(parsed.event, 'batch_partial');
+  assert.equal(parsed.data.status, 'partial');
+  assert.equal(parsed.data.customers_failed, 1);
+});
+
+test('buildWebhookBody supports batch_stuck payloads', () => {
+  const body = buildWebhookBody({
+    eventType: 'batch_stuck',
+    bankId: 'bank_123',
+    deliveryId: '00000000-0000-4000-8000-000000000004',
+    payload: {
+      schema_version: 1,
+      batch_id: 'batch_xyz',
+      status: 'stuck',
+      sla_minutes: 20,
+      stuck_customer_ids: ['cust_a'],
+      customers_complete: 5,
+      customers_failed: 0,
+      customers_in_progress: 1,
+    },
+  });
+  const parsed = JSON.parse(body);
+
+  assert.equal(parsed.event, 'batch_stuck');
+  assert.equal(parsed.data.status, 'stuck');
+  assert.deepEqual(parsed.data.stuck_customer_ids, ['cust_a']);
 });
 
 test('buildWebhookBody supports thin life_event_detected id payloads', () => {
