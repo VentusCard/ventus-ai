@@ -11,7 +11,9 @@ import {
   parseRetryAfterMs,
   publishGeminiRateLimit,
 } from '../../shared/gemini.mjs';
+import { markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
+import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 
@@ -23,6 +25,7 @@ const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
   envVar: 'MODEL_PROVIDER_SECRET_ID',
 });
 const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
+const fireWebhook = createWebhookDispatcher();
 const getModelSecrets = createSecretsProvider({
   secretId: MODEL_PROVIDER_SECRET_ID,
 });
@@ -629,12 +632,11 @@ export const handler = async (event) => {
         console.log(`[CLASSIFY] ✓ Done for customer ${customer_id}`);
       } catch (err) {
         console.error(`[CLASSIFY] Error for customer ${customer_id}:`, err);
-        await db
-          .query(
-            `UPDATE pipeline_runs SET status = 'failed', error_message = $1 WHERE batch_id = $2 AND customer_id = $3`,
-            [err.message, batch_id, customer_id]
-          )
-          .catch(() => {});
+        await markCustomerPipelineFailed(
+          db,
+          { batchId: batch_id, customerId: customer_id, bankId: bank_id, errorMessage: err.message },
+          fireWebhook
+        );
         throw err;
       } finally {
         await db.end();

@@ -337,6 +337,7 @@ export const handler = async (event) => {
 
     // 7. Fire batch_started webhook — bank receives batch_id immediately
     await fireWebhook(db, bankId, 'batch_started', {
+      schema_version: 1,
       batch_id: batchId,
       filename: key.split('/').pop(),
       transaction_count: transactions.length,

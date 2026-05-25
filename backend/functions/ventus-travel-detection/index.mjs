@@ -15,6 +15,7 @@ import {
   createSecretsProvider,
   resolveSecretId,
 } from '../../shared/secrets.mjs';
+import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
 const LAMBDA_NAME =
@@ -47,31 +48,6 @@ function getDelayMs(attempt) {
 const fireWebhook = createWebhookDispatcher();
 
 // ─── BATCH COMPLETE CHECK ─────────────────────────────────────────────────────
-async function checkAndFireBatchComplete(db, batchId, bankId) {
-  const batchCheck = await db.query(
-    `SELECT 
-       COUNT(*) as total,
-       COUNT(CASE WHEN stages_complete >= 4 THEN 1 END) as complete
-     FROM pipeline_runs
-     WHERE batch_id = $1`,
-    [batchId]
-  );
-
-  const { total, complete } = batchCheck.rows[0];
-  console.log(
-    `[TRAVEL] Batch progress: ${complete}/${total} customers complete`
-  );
-
-  if (parseInt(total) === parseInt(complete)) {
-    console.log(`[TRAVEL] ✓ All customers complete — firing batch_complete`);
-    await fireWebhook(db, bankId, 'batch_complete', {
-      batch_id: batchId,
-      customers_processed: parseInt(total),
-      status: 'complete',
-    });
-  }
-}
-
 // ─── FETCH ALL ENRICHED TRANSACTIONS FOR CUSTOMER ─────────────────────────────
 async function fetchEnrichedTransactions(db, customerId) {
   const res = await db.query(
@@ -375,7 +351,7 @@ async function processTravelCandidates(candidates, homeZip, geminiApiKey) {
 
 // ─── WRITE TRIPS TO customer_trips ────────────────────────────────────────────
 async function writeTrips(db, customerId, bankId, batchId, detectedTrips) {
-  let tripsWritten = 0;
+  const webhookTripIds = [];
 
   for (const trip of detectedTrips) {
     const txnIds = trip.transaction_ids || [];
@@ -452,11 +428,19 @@ async function writeTrips(db, customerId, bankId, batchId, detectedTrips) {
         trip.is_upcoming || false,
       ]
     );
-    tripsWritten++;
+    webhookTripIds.push(tripId);
+    await db
+      .query(
+        `UPDATE customer_trips SET webhook_fired_at = NOW() WHERE trip_id = $1 AND customer_id = $2 AND bank_id = $3`,
+        [tripId, customerId, bankId]
+      )
+      .catch((err) =>
+        console.warn('[TRAVEL] webhook_fired_at update failed:', err.message)
+      );
   }
 
-  console.log(`[RDS] ✓ Wrote ${tripsWritten} trips`);
-  return tripsWritten;
+  console.log(`[RDS] ✓ Wrote ${webhookTripIds.length} trips`);
+  return { tripsWritten: webhookTripIds.length, webhookTripIds };
 }
 
 // ─── UPDATE transactions_enriched WITH TRIP DATA ──────────────────────────────
@@ -566,7 +550,7 @@ export const handler = async (event) => {
           `[TRAVEL] stages_complete: ${stagesComplete}/4 for ${customer_id}`
         );
         if (stagesComplete >= 4)
-          await checkAndFireBatchComplete(db, batch_id, bank_id);
+          await checkAndEmitBatchOutcome(db, batch_id, bank_id, fireWebhook);
         continue;
       }
 
@@ -577,7 +561,7 @@ export const handler = async (event) => {
       );
       console.log(`[TRAVEL] ${detectedTrips.length} trips detected`);
 
-      const tripsWritten = await writeTrips(
+      const { tripsWritten, webhookTripIds } = await writeTrips(
         db,
         customer_id,
         bank_id,
@@ -586,12 +570,18 @@ export const handler = async (event) => {
       );
       await updateEnrichedTransactions(db, detectedTrips);
 
-      if (tripsWritten > 0) {
+      if (webhookTripIds.length > 0) {
         await fireWebhook(db, bank_id, 'trip_detected', {
+          schema_version: 1,
           customer_id,
           batch_id,
-          trips_detected: tripsWritten,
+          trip_ids: webhookTripIds,
         });
+        console.log(
+          `[WEBHOOK] trip_detected: ${webhookTripIds.length} trip(s) for ${customer_id}`
+        );
+      } else if (tripsWritten === 0) {
+        console.log(`[TRAVEL] No trips written for ${customer_id}`);
       }
 
       const stagesComplete = await updatePipelineRuns(
@@ -604,18 +594,17 @@ export const handler = async (event) => {
       );
 
       if (stagesComplete >= 4) {
-        await checkAndFireBatchComplete(db, batch_id, bank_id);
+        await checkAndEmitBatchOutcome(db, batch_id, bank_id, fireWebhook);
       }
 
       console.log(`[TRAVEL] ✓ Done for customer ${customer_id}`);
     } catch (err) {
       console.error(`[TRAVEL] Error for customer ${customer_id}:`, err);
-      await db
-        .query(
-          `UPDATE pipeline_runs SET status = 'failed', error_message = $1 WHERE batch_id = $2 AND customer_id = $3`,
-          [err.message, batch_id, customer_id]
-        )
-        .catch(() => {});
+      await markCustomerPipelineFailed(
+        db,
+        { batchId: batch_id, customerId: customer_id, bankId: bank_id, errorMessage: err.message },
+        fireWebhook
+      );
       throw err;
     } finally {
       await db.end();

@@ -70,6 +70,9 @@ const SEGMENT_DISPLAY_NAMES = {
 const WEBHOOK_EVENTS = [
   'batch_started',
   'batch_complete',
+  'batch_partial',
+  'batch_failed',
+  'batch_stuck',
   'life_event_detected',
   'trip_detected',
   'risk_detected',
@@ -1114,7 +1117,9 @@ app.get('/v1/jobs/:id', async (req, res) => {
 
     const job = await db.query(
       `SELECT batch_id, bank_id, customer_id, source_file,
-              transaction_count, status, error_message,
+              transaction_count, status, error_message, warnings,
+              batch_outcome_event, batch_outcome_webhook_at,
+              batch_stuck_webhook_at,
               ingested_at, classified_at, pillar_analyzed_at,
               travel_detected_at, lifestyle_analyzed_at, risk_analyzed_at, completed_at
        FROM pipeline_runs
@@ -1127,7 +1132,10 @@ app.get('/v1/jobs/:id', async (req, res) => {
 
     res.status(200).json({
       job_id: id,
-      status: job.rows[0].status,
+      status: job.rows[0].batch_outcome_event || job.rows[0].status,
+      batch_outcome_event: job.rows[0].batch_outcome_event || null,
+      batch_outcome_webhook_at: job.rows[0].batch_outcome_webhook_at || null,
+      batch_stuck_webhook_at: job.rows[0].batch_stuck_webhook_at || null,
       bank_id: job.rows[0].bank_id,
       transaction_count: job.rows[0].transaction_count,
       source_file: job.rows[0].source_file,
@@ -1135,6 +1143,7 @@ app.get('/v1/jobs/:id', async (req, res) => {
         customer_id: r.customer_id,
         status: r.status,
         error_message: r.error_message,
+        warnings: r.warnings || [],
         timestamps: {
           ingested_at: r.ingested_at,
           classified_at: r.classified_at,

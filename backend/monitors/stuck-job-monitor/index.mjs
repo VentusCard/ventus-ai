@@ -2,6 +2,10 @@ import { CloudWatchClient, PutMetricDataCommand } from '@aws-sdk/client-cloudwat
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
 import { PublishCommand, SNSClient } from '@aws-sdk/client-sns';
 import { Client } from 'pg';
+import { emitBatchStuckWebhooks } from './shared/batch-stuck.mjs';
+import { createWebhookDispatcher } from './shared/webhooks.mjs';
+
+const fireWebhook = createWebhookDispatcher({ includeUrlInFinalError: false });
 
 const region = process.env.AWS_REGION || 'us-east-2';
 const environment = process.env.VENTUS_ENVIRONMENT || 'staging';
@@ -126,6 +130,12 @@ export async function handler() {
   await db.connect();
   try {
     const stuckJobs = await findStuckJobs(db);
+    const batchStuckWebhooksEmitted = await emitBatchStuckWebhooks(
+      db,
+      stuckJobs,
+      fireWebhook,
+      stuckJobSlaMinutes
+    );
     await publishMetric(stuckJobs.length);
     await publishAlert(stuckJobs);
 
@@ -134,12 +144,14 @@ export async function handler() {
         environment,
         stuck_job_sla_minutes: stuckJobSlaMinutes,
         stuck_job_count: stuckJobs.length,
+        batch_stuck_webhooks_emitted: batchStuckWebhooksEmitted,
       })
     );
 
     return {
       ok: true,
       stuck_job_count: stuckJobs.length,
+      batch_stuck_webhooks_emitted: batchStuckWebhooksEmitted,
       stuck_jobs: stuckJobs,
     };
   } finally {

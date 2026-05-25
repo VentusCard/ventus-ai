@@ -7,6 +7,7 @@
 import { createDbFactory } from '../../shared/db.mjs';
 import { fetchGeminiChatCompletion } from '../../shared/model-provider.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
+import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
 
 const DATABASE_SECRET_ID = resolveSecretId({ envVar: 'RDS_SECRET_ID' });
@@ -23,32 +24,6 @@ const getDB = createDbFactory({ getSecrets: getDbSecrets });
 
 // ─── FIRE WEBHOOK ─────────────────────────────────────────────────────────────
 const fireWebhook = createWebhookDispatcher();
-
-// ─── BATCH COMPLETE CHECK ─────────────────────────────────────────────────────
-async function checkAndFireBatchComplete(db, batchId, bankId) {
-  const batchCheck = await db.query(
-    `SELECT 
-       COUNT(*) as total,
-       COUNT(CASE WHEN stages_complete >= 4 THEN 1 END) as complete
-     FROM pipeline_runs
-     WHERE batch_id = $1`,
-    [batchId]
-  );
-
-  const { total, complete } = batchCheck.rows[0];
-  console.log(
-    `[LIFESTYLE] Batch progress: ${complete}/${total} customers complete`
-  );
-
-  if (parseInt(total) === parseInt(complete)) {
-    console.log(`[LIFESTYLE] ✓ All customers complete — firing batch_complete`);
-    await fireWebhook(db, bankId, 'batch_complete', {
-      batch_id: batchId,
-      customers_processed: parseInt(total),
-      status: 'complete',
-    });
-  }
-}
 
 // ─── FETCH TRANSACTIONS — 12 MONTH WINDOW ─────────────────────────────────────
 async function fetchEnrichedTransactions(db, customerId) {
@@ -993,7 +968,7 @@ export const handler = async (event) => {
       );
 
       if (stagesComplete >= 4) {
-        await checkAndFireBatchComplete(db, batch_id, bank_id);
+        await checkAndEmitBatchOutcome(db, batch_id, bank_id, fireWebhook);
       }
 
       console.log(
@@ -1001,12 +976,11 @@ export const handler = async (event) => {
       );
     } catch (err) {
       console.error(`[LIFESTYLE] Error for customer ${customer_id}:`, err);
-      await db
-        .query(
-          `UPDATE pipeline_runs SET status = 'failed', error_message = $1 WHERE batch_id = $2 AND customer_id = $3`,
-          [err.message, batch_id, customer_id]
-        )
-        .catch(() => {});
+      await markCustomerPipelineFailed(
+        db,
+        { batchId: batch_id, customerId: customer_id, bankId: bank_id, errorMessage: err.message },
+        fireWebhook
+      );
       throw err;
     } finally {
       await db.end();

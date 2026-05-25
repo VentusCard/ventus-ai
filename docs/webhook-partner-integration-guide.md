@@ -1,6 +1,6 @@
 # Ventus Webhook Partner Integration Guide
 
-This guide is for bank, processor, and merchant-integration partners wiring their systems to Ventus webhook events. It covers registration, test delivery, delivery history, replay, signature verification, and Ventus-side monitoring.
+This guide is for bank, processor, and merchant-integration partners wiring their systems to Ventus webhook events. It covers registration, test delivery, delivery history, replay, signature verification, thin payloads, and Ventus-side monitoring.
 
 The current API base URL is:
 
@@ -18,34 +18,121 @@ Do not send production API keys in email, chat, screenshots, or shared documents
 
 ## Supported Events
 
-Ventus currently supports these webhook event subscriptions:
+Ventus supports these webhook event subscriptions:
 
-| Event | Meaning |
-| --- | --- |
-| `batch_started` | A transaction batch was accepted for processing. |
-| `batch_complete` | Pipeline processing completed for a batch/customer stage. |
-| `life_event_detected` | A qualifying life event was detected. |
-| `trip_detected` | A travel pattern/trip was detected. |
-| `risk_detected` | A qualifying risk signal was detected. |
-| `behavioral_signal_detected` | A qualifying behavioral signal was detected. |
+| Event | Granularity | Meaning |
+| --- | --- | --- |
+| `batch_started` | Batch | File/batch accepted for processing |
+| `batch_complete` | Batch | All customers finished successfully |
+| `batch_partial` | Batch | Batch finished with mix of success and failure |
+| `batch_failed` | Batch | All customers failed |
+| `batch_stuck` | Batch | One or more customers past SLA, still not complete/failed |
+| `life_event_detected` | Customer | New life event(s) detected |
+| `behavioral_signal_detected` | Customer | New behavioral signal(s) detected |
+| `risk_detected` | Customer | New high-severity risk factor(s) |
+| `trip_detected` | Customer | Trip(s) written or updated this run |
+
+Batch outcome events (`batch_complete`, `batch_partial`, `batch_failed`) fire **once per batch** when every customer is terminal. `batch_stuck` fires **once per batch** when the stuck-job SLA is exceeded (default 20 minutes). A batch may receive `batch_stuck` and later a terminal batch event.
 
 ## Webhook Payload Shape
 
-Webhook deliveries use this envelope:
+All production events use `schema_version: 1` inside `data`.
+
+Envelope:
 
 ```json
 {
-  "event": "risk_detected",
+  "event": "life_event_detected",
   "bank_id": "bank_demo",
   "timestamp": "2026-05-21T22:00:00.000Z",
   "delivery_id": "00000000-0000-4000-8000-000000000000",
   "data": {
-    "customer_id": "cust_013"
+    "schema_version": 1,
+    "customer_id": "cust_013",
+    "batch_id": "batch_abc",
+    "life_event_ids": ["101", "102"]
   }
 }
 ```
 
-The `data` object differs by event type. Partners should treat unknown fields as forward-compatible additions.
+### Entity events (thin ID arrays)
+
+Partners receive IDs in the webhook and load full records via the API:
+
+| Event | IDs in `data` | Detail API |
+| --- | --- | --- |
+| `life_event_detected` | `life_event_ids[]` | `GET /v1/customers/:id/life-events` |
+| `behavioral_signal_detected` | `behavioral_signal_ids[]` | same |
+| `risk_detected` | `risk_factor_ids[]` | `GET /v1/customers/:id/risk-factors` |
+| `trip_detected` | `trip_ids[]` | `GET /v1/customers/:id/trips` |
+
+Example `risk_detected`:
+
+```json
+{
+  "event": "risk_detected",
+  "data": {
+    "schema_version": 1,
+    "customer_id": "cust_013",
+    "batch_id": "batch_abc",
+    "risk_factor_ids": ["42"]
+  }
+}
+```
+
+### Batch events
+
+Example `batch_started`:
+
+```json
+{
+  "event": "batch_started",
+  "data": {
+    "schema_version": 1,
+    "batch_id": "batch_abc",
+    "filename": "star_upload.csv",
+    "transaction_count": 1200,
+    "customer_count": 45
+  }
+}
+```
+
+Example `batch_partial`:
+
+```json
+{
+  "event": "batch_partial",
+  "data": {
+    "schema_version": 1,
+    "batch_id": "batch_abc",
+    "customers_processed": 40,
+    "customers_failed": 5,
+    "status": "partial"
+  }
+}
+```
+
+Example `batch_stuck`:
+
+```json
+{
+  "event": "batch_stuck",
+  "data": {
+    "schema_version": 1,
+    "batch_id": "batch_abc",
+    "status": "stuck",
+    "sla_minutes": 20,
+    "stuck_customer_ids": ["cust_001", "cust_002"],
+    "customers_complete": 38,
+    "customers_failed": 0,
+    "customers_in_progress": 7
+  }
+}
+```
+
+Job-level detail (per-customer status, errors, warnings): `GET /v1/jobs/:batch_id`.
+
+Treat unknown fields as forward-compatible additions.
 
 ## Delivery Headers
 
@@ -97,7 +184,7 @@ curl -X POST "https://api.ventusai.com/v1/webhooks" \
   -H "x-api-key: $VENTUS_API_KEY" \
   -d '{
     "url": "https://partner.example.com/ventus/webhooks",
-    "events": ["batch_complete", "risk_detected"],
+    "events": ["batch_complete", "batch_partial", "batch_stuck", "life_event_detected", "risk_detected"],
     "secret": "replace-with-shared-secret"
   }'
 ```
@@ -198,6 +285,7 @@ Partner endpoints should:
 - Treat `delivery_id` as idempotency material.
 - Verify HMAC signatures when a secret is configured.
 - Log `x-ventus-delivery-id`, `x-ventus-event`, response status, and processing outcome.
+- For entity events, fetch detail by ID from the Ventus API after receiving the webhook.
 
 ## Ventus Operational Monitoring
 
@@ -205,6 +293,8 @@ Ventus monitors webhook delivery health in two ways:
 
 - Worker log metric filters for legacy webhook failure log lines.
 - `ventus-webhook-delivery-monitor`, which queries the Aurora `webhook_delivery_attempts` ledger every five minutes and publishes `Ventus/Pipeline` `WebhookFailedDeliveries`.
+
+Pipeline stuck jobs are monitored separately via `ventus-stuck-job-monitor` (internal SNS + optional partner `batch_stuck` webhook).
 
 The ledger-backed monitor sends alerts through `ventus-backend-alerts` and the CloudWatch alarm `ventus-webhook-readiness-failed-deliveries`.
 
@@ -221,12 +311,13 @@ Configure these collection variables before calling authenticated endpoints:
 
 Recommended onboarding sequence:
 
-1. Register webhook.
+1. Register webhook with desired batch + entity events.
 2. List webhooks and confirm the registered endpoint.
 3. Send test delivery.
-4. Inspect delivery history.
-5. Disable any stale endpoint.
-6. Replay a failed delivery only after partner endpoint readiness is confirmed.
+4. Upload a pilot file; confirm `batch_started` → entity events → terminal batch event.
+5. Inspect delivery history.
+6. Disable any stale endpoint.
+7. Replay a failed delivery only after partner endpoint readiness is confirmed.
 
 ## Internal Support Checklist
 
@@ -237,4 +328,7 @@ When a partner reports a missing event:
 3. Check `GET /v1/webhook-deliveries?status=failed`.
 4. Compare the partner's logged `x-ventus-delivery-id` with Ventus delivery history.
 5. Confirm partner endpoint status codes and signature verification.
-6. Use replay only for failed deliveries after confirming the partner endpoint is ready.
+6. For batch issues, check `GET /v1/jobs/:batch_id` for per-customer status and warnings.
+7. Use replay only for failed deliveries after confirming the partner endpoint is ready.
+
+Operational runbook: `backend/RUNBOOK.md`. Database DDL for webhook columns: `backend/sql/webhook-payload-v2-migration.sql`.

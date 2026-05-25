@@ -6,9 +6,14 @@ const ERROR_MESSAGE_LIMIT = 500;
 /**
  * Webhook envelope: { event, bank_id, timestamp, delivery_id, data }.
  *
- * life_event_detected / behavioral_signal_detected data (schema_version 1):
- *   { schema_version: 1, customer_id, batch_id, life_event_ids[] | behavioral_signal_ids[] }
- * Consumers load full rows from customer_life_events by id.
+ * Entity events (schema_version 1) — thin ID arrays; load detail via API:
+ *   life_event_detected:     life_event_ids[]
+ *   behavioral_signal_detected: behavioral_signal_ids[]
+ *   risk_detected:           risk_factor_ids[] (high severity, new this run)
+ *   trip_detected:           trip_ids[] (new/updated this run)
+ *
+ * Batch events (schema_version 1):
+ *   batch_started | batch_complete | batch_partial | batch_failed | batch_stuck
  */
 export function buildWebhookBody({ eventType, bankId, deliveryId, payload }) {
   return JSON.stringify({
