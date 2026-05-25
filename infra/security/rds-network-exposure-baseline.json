@@ -1,5 +1,5 @@
 {
-  "version": "2026-05-19",
+  "version": "2026-05-24",
   "scope": "Existing Aurora PostgreSQL network exposure baseline for pilot-readiness review.",
   "database_cluster_identifier": "ventus-bofa-cluster",
   "database_security_group_id": "sg-08836ed15d778ecd6",
@@ -14,27 +14,28 @@
       "reason": "Existing Lambda/database path depends on the database security group self-reference."
     }
   ],
-  "temporary_public_ingress_exceptions": [
+  "temporary_public_ingress_exceptions": [],
+  "remediated_public_ingress_exceptions": [
     {
       "cidr": "207.181.211.74/32",
       "protocol": "tcp",
       "from_port": 5432,
       "to_port": 5432,
-      "reason": "Existing public Postgres access observed during AWS audit; requires owner validation or removal."
+      "reason": "Removed by remediate-rds-public-access.mjs. Was: public Postgres access observed during AWS audit."
     },
     {
       "cidr": "155.33.132.60/32",
       "protocol": "tcp",
       "from_port": 5432,
       "to_port": 5432,
-      "reason": "Existing public Postgres access observed during AWS audit; requires owner validation or removal."
+      "reason": "Removed by remediate-rds-public-access.mjs. Was: public Postgres access observed during AWS audit."
     }
   ],
   "known_publicly_accessible_instances": [
     {
       "db_instance_identifier": "ventus-bofa-cluster-instance-1",
-      "publicly_accessible": true,
-      "required_action": "Move to private-only access after confirming the operational access path."
+      "publicly_accessible": false,
+      "required_action": "Verify with audit:rds-network after running remediate-rds-public-access.mjs --execute."
     },
     {
       "db_instance_identifier": "ventus-bofa-cluster-instance-1-us-east-2a",
