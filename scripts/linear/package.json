@@ -1,0 +1,17 @@
+{
+  "name": "ventus-linear-import",
+  "private": true,
+  "type": "module",
+  "description": "One-time bulk import of Ventus pilot roadmap issues into Linear.",
+  "scripts": {
+    "import": "node ./import-issues.mjs",
+    "dry-run": "node ./import-issues.mjs --dry-run",
+    "import:repo-org": "node ./import-issues.mjs --file issues-repo-organization.json",
+    "dry-run:repo-org": "node ./import-issues.mjs --file issues-repo-organization.json --dry-run",
+    "today": "node ./today.mjs",
+    "reorder": "node ./reorder-issues.mjs"
+  },
+  "dependencies": {
+    "@linear/sdk": "^40.0.0"
+  }
+}

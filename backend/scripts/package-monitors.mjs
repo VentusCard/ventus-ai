@@ -6,8 +6,18 @@ import { fileURLToPath } from 'node:url';
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..');
 const monitorsRoot = join(backendRoot, 'monitors');
+const sharedRoot = join(backendRoot, 'shared');
 const distRoot = join(backendRoot, 'dist', 'monitors');
 const buildRoot = join(backendRoot, 'dist', 'monitor-build');
+
+/** Same rule as package-functions.mjs: bundle all shared modules (not *.test.mjs). */
+function copySharedIntoBuild(buildDir) {
+  if (!existsSync(sharedRoot)) return;
+  cpSync(sharedRoot, join(buildDir, 'shared'), {
+    recursive: true,
+    filter: (src) => !src.endsWith('.test.mjs'),
+  });
+}
 
 function run(command, args, cwd) {
   const npmCacheDir = join(backendRoot, 'dist', 'npm-cache');
@@ -50,17 +60,7 @@ for (const monitorName of monitors) {
 
   cpSync(join(sourceDir, 'index.mjs'), join(buildDir, 'index.mjs'));
   cpSync(join(sourceDir, 'package.json'), join(buildDir, 'package.json'));
-
-  const sharedCopies = {
-    'stuck-job-monitor': ['batch-stuck.mjs', 'webhooks.mjs'],
-  };
-  const sharedFiles = sharedCopies[monitorName] ?? [];
-  if (sharedFiles.length > 0) {
-    mkdirSync(join(buildDir, 'shared'), { recursive: true });
-    for (const sharedFile of sharedFiles) {
-      cpSync(join(backendRoot, 'shared', sharedFile), join(buildDir, 'shared', sharedFile));
-    }
-  }
+  copySharedIntoBuild(buildDir);
 
   if (existsSync(join(sourceDir, 'package-lock.json'))) {
     cpSync(join(sourceDir, 'package-lock.json'), join(buildDir, 'package-lock.json'));
