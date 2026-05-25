@@ -252,24 +252,57 @@ app.use((req, res, next) => {
 app.options('*splat', (req, res) => res.sendStatus(200));
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
+// ─── API KEY AUTH CACHE ───────────────────────────────────────────────────────
+// Keyed by API key string → { bankId, expiresAt }
+// TTL is intentionally short so revoked keys stop working within one window.
+const AUTH_CACHE_TTL_MS = Number(process.env.AUTH_CACHE_TTL_MS ?? 5 * 60 * 1000);
+// Rate-limit last_used_at writes to once per key per interval.
+const LAST_USED_INTERVAL_MS = Number(process.env.AUTH_LAST_USED_INTERVAL_MS ?? 5 * 60 * 1000);
+const authCache = new Map();   // apiKey → { bankId, expiresAt }
+const lastUsedAt = new Map();  // apiKey → timestamp of last DB write
+
+async function touchLastUsed(apiKey) {
+  const now = Date.now();
+  if ((lastUsedAt.get(apiKey) ?? 0) + LAST_USED_INTERVAL_MS > now) return;
+  lastUsedAt.set(apiKey, now);
+  try {
+    const db = await getDB();
+    await db.connect();
+    await db.query(`UPDATE api_keys SET last_used_at = NOW() WHERE key = $1`, [apiKey]);
+    await db.end();
+  } catch (e) {
+    console.warn('[AUTH] last_used_at update failed:', e.message);
+  }
+}
+
 app.use(async (req, res, next) => {
   if (req.path === '/health') return next();
 
   const apiKey = req.headers['x-api-key'];
   if (!apiKey) return res.status(403).json({ error: 'API key required' });
 
+  const now = Date.now();
+  const cached = authCache.get(apiKey);
+  if (cached && cached.expiresAt > now) {
+    req.bankId = cached.bankId;
+    touchLastUsed(apiKey); // fire-and-forget
+    return next();
+  }
+
   const db = await getDB();
   await db.connect();
   try {
     const result = await db.query(
-      `UPDATE api_keys SET last_used_at = NOW()
-       WHERE key = $1 AND is_active = true
-       RETURNING bank_id`,
+      `SELECT bank_id FROM api_keys WHERE key = $1 AND is_active = true`,
       [apiKey]
     );
     if (result.rows.length === 0)
       return res.status(403).json({ error: 'Invalid or inactive API key' });
-    req.bankId = result.rows[0].bank_id;
+
+    const bankId = result.rows[0].bank_id;
+    authCache.set(apiKey, { bankId, expiresAt: now + AUTH_CACHE_TTL_MS });
+    req.bankId = bankId;
+    touchLastUsed(apiKey); // fire-and-forget
     next();
   } catch (e) {
     console.error('[AUTH]', e);
