@@ -3,7 +3,7 @@
 import express from 'express';
 import serverless from 'serverless-http';
 import crypto from 'crypto';
-import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
+import { SQSClient, SendMessageCommand, SendMessageBatchCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
 import { resolveSecretId } from '../../shared/secrets.mjs';
 import { buildWebhookBody, recordWebhookDelivery } from '../../shared/webhooks.mjs';
@@ -252,24 +252,57 @@ app.use((req, res, next) => {
 app.options('*splat', (req, res) => res.sendStatus(200));
 
 // ─── AUTH MIDDLEWARE ──────────────────────────────────────────────────────────
+// ─── API KEY AUTH CACHE ───────────────────────────────────────────────────────
+// Keyed by API key string → { bankId, expiresAt }
+// TTL is intentionally short so revoked keys stop working within one window.
+const AUTH_CACHE_TTL_MS = Number(process.env.AUTH_CACHE_TTL_MS ?? 5 * 60 * 1000);
+// Rate-limit last_used_at writes to once per key per interval.
+const LAST_USED_INTERVAL_MS = Number(process.env.AUTH_LAST_USED_INTERVAL_MS ?? 5 * 60 * 1000);
+const authCache = new Map();   // apiKey → { bankId, expiresAt }
+const lastUsedAt = new Map();  // apiKey → timestamp of last DB write
+
+async function touchLastUsed(apiKey) {
+  const now = Date.now();
+  if ((lastUsedAt.get(apiKey) ?? 0) + LAST_USED_INTERVAL_MS > now) return;
+  lastUsedAt.set(apiKey, now);
+  try {
+    const db = await getDB();
+    await db.connect();
+    await db.query(`UPDATE api_keys SET last_used_at = NOW() WHERE key = $1`, [apiKey]);
+    await db.end();
+  } catch (e) {
+    console.warn('[AUTH] last_used_at update failed:', e.message);
+  }
+}
+
 app.use(async (req, res, next) => {
   if (req.path === '/health') return next();
 
   const apiKey = req.headers['x-api-key'];
   if (!apiKey) return res.status(403).json({ error: 'API key required' });
 
+  const now = Date.now();
+  const cached = authCache.get(apiKey);
+  if (cached && cached.expiresAt > now) {
+    req.bankId = cached.bankId;
+    touchLastUsed(apiKey); // fire-and-forget
+    return next();
+  }
+
   const db = await getDB();
   await db.connect();
   try {
     const result = await db.query(
-      `UPDATE api_keys SET last_used_at = NOW()
-       WHERE key = $1 AND is_active = true
-       RETURNING bank_id`,
+      `SELECT bank_id FROM api_keys WHERE key = $1 AND is_active = true`,
       [apiKey]
     );
     if (result.rows.length === 0)
       return res.status(403).json({ error: 'Invalid or inactive API key' });
-    req.bankId = result.rows[0].bank_id;
+
+    const bankId = result.rows[0].bank_id;
+    authCache.set(apiKey, { bankId, expiresAt: now + AUTH_CACHE_TTL_MS });
+    req.bankId = bankId;
+    touchLastUsed(apiKey); // fire-and-forget
     next();
   } catch (e) {
     console.error('[AUTH]', e);
@@ -1132,6 +1165,27 @@ app.post('/v1/enrich', async (req, res) => {
     if (!Array.isArray(transactions) || transactions.length === 0) {
       return res.status(400).json({ error: 'transactions array required' });
     }
+    if (transactions.length > 1000) {
+      return res.status(400).json({ error: 'batch size exceeds maximum of 1000 transactions' });
+    }
+
+    // ── Per-transaction field validation ─────────────────────────────────────
+    const REQUIRED_FIELDS = ['transaction_id', 'customer_id', 'merchant_name', 'amount', 'date'];
+    for (const txn of transactions) {
+      const missing = REQUIRED_FIELDS.filter((f) => txn[f] == null || txn[f] === '');
+      if (missing.length > 0) {
+        return res.status(400).json({
+          error: `transaction missing required fields: ${missing.join(', ')}`,
+          transaction_id: txn.transaction_id ?? null,
+        });
+      }
+      if (typeof txn.amount !== 'number') {
+        return res.status(400).json({
+          error: 'transaction amount must be a number',
+          transaction_id: txn.transaction_id,
+        });
+      }
+    }
 
     const timestamp = new Date()
       .toISOString()
@@ -1139,54 +1193,81 @@ app.post('/v1/enrich', async (req, res) => {
       .slice(0, 14);
     const batchId = `batch_${timestamp}_api_${bank_id}`;
 
-    for (const txn of transactions) {
-      await db.query(
-        `INSERT INTO transactions_raw
-          (transaction_id, customer_id, bank_id, batch_id, raw_merchant,
-           amount, transaction_date, mcc_code, zip_code, source_file, processed)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,'api',false)
-         ON CONFLICT (transaction_id) DO NOTHING`,
-        [
-          txn.transaction_id,
-          txn.customer_id,
-          bank_id,
-          batchId,
-          txn.merchant_name,
-          txn.amount,
-          txn.date,
-          txn.mcc_code || null,
-          txn.zip_code || null,
-        ]
-      );
-    }
+    // ── Bulk insert transactions_raw (9 params per row) ───────────────────────
+    const TXN_PARAMS = 9;
+    const txnPlaceholders = transactions
+      .map((_, i) => {
+        const b = i * TXN_PARAMS;
+        return `($${b+1},$${b+2},$${b+3},$${b+4},$${b+5},$${b+6},$${b+7},$${b+8},$${b+9},'api',false)`;
+      })
+      .join(',');
+    const txnValues = transactions.flatMap((txn) => [
+      txn.transaction_id,
+      txn.customer_id,
+      bank_id,
+      batchId,
+      txn.merchant_name,
+      txn.amount,
+      txn.date,
+      txn.mcc_code || null,
+      txn.zip_code || null,
+    ]);
+    await db.query(
+      `INSERT INTO transactions_raw
+        (transaction_id, customer_id, bank_id, batch_id, raw_merchant,
+         amount, transaction_date, mcc_code, zip_code, source_file, processed)
+       VALUES ${txnPlaceholders}
+       ON CONFLICT (transaction_id) DO NOTHING`,
+      txnValues
+    );
 
+    // ── Group by customer ─────────────────────────────────────────────────────
     const customerGroups = {};
     for (const txn of transactions) {
-      const cid = txn.customer_id || 'unknown';
+      const cid = txn.customer_id;
       if (!customerGroups[cid]) customerGroups[cid] = [];
       customerGroups[cid].push(txn);
     }
+    const customerEntries = Object.entries(customerGroups);
 
-    for (const [customerId, txns] of Object.entries(customerGroups)) {
-      await db.query(
-        `INSERT INTO pipeline_runs
-          (batch_id, bank_id, customer_id, source_file, transaction_count, status, ingested_at)
-         VALUES ($1,$2,$3,'api',$4,'ingested',NOW())
-         ON CONFLICT (batch_id, customer_id) DO NOTHING`,
-        [batchId, bank_id, customerId, txns.length]
-      );
-    }
+    // ── Bulk insert pipeline_runs (4 params per row) ──────────────────────────
+    const RUN_PARAMS = 4;
+    const runPlaceholders = customerEntries
+      .map((_, i) => {
+        const b = i * RUN_PARAMS;
+        return `($${b+1},$${b+2},$${b+3},'api',$${b+4},'ingested',NOW())`;
+      })
+      .join(',');
+    const runValues = customerEntries.flatMap(([customerId, txns]) => [
+      batchId,
+      bank_id,
+      customerId,
+      txns.length,
+    ]);
+    await db.query(
+      `INSERT INTO pipeline_runs
+        (batch_id, bank_id, customer_id, source_file, transaction_count, status, ingested_at)
+       VALUES ${runPlaceholders}
+       ON CONFLICT (batch_id, customer_id) DO NOTHING`,
+      runValues
+    );
 
-    for (const [customerId, txns] of Object.entries(customerGroups)) {
+    // ── Batch SQS sends (max 10 per SendMessageBatch call) ────────────────────
+    const SQS_BATCH_SIZE = 10;
+    for (let i = 0; i < customerEntries.length; i += SQS_BATCH_SIZE) {
+      const batch = customerEntries.slice(i, i + SQS_BATCH_SIZE);
       await sqs.send(
-        new SendMessageCommand({
+        new SendMessageBatchCommand({
           QueueUrl: process.env.CLASSIFY_QUEUE_URL,
-          MessageBody: JSON.stringify({
-            batch_id: batchId,
-            customer_id: customerId,
-            bank_id,
-            transaction_count: txns.length,
-          }),
+          Entries: batch.map(([customerId, txns], idx) => ({
+            Id: String(idx),
+            MessageBody: JSON.stringify({
+              batch_id: batchId,
+              customer_id: customerId,
+              bank_id,
+              transaction_count: txns.length,
+            }),
+          })),
         })
       );
     }
@@ -1195,7 +1276,7 @@ app.post('/v1/enrich', async (req, res) => {
       batch_id: batchId,
       status: 'ingested',
       transaction_count: transactions.length,
-      customers: Object.keys(customerGroups).length,
+      customers: customerEntries.length,
       message: `Pipeline triggered. Poll /v1/jobs/${batchId} for status.`,
     });
   } catch (e) {
@@ -1211,17 +1292,21 @@ app.get('/v1/webhooks', async (req, res) => {
   const db = await getDB();
   await db.connect();
   try {
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1), 100);
+
     const result = await db.query(
       `SELECT webhook_id, bank_id, url, events, is_active, created_at, updated_at
        FROM webhook_registrations
        WHERE bank_id = $1
-       ORDER BY updated_at DESC, created_at DESC`,
-      [req.bankId]
+       ORDER BY updated_at DESC, created_at DESC
+       LIMIT $2`,
+      [req.bankId, limit]
     );
 
     res.status(200).json({
       bank_id: req.bankId,
       webhooks: result.rows,
+      limit,
     });
   } catch (e) {
     console.error(e);
@@ -1235,12 +1320,25 @@ app.get('/v1/webhook-deliveries', async (req, res) => {
   const db = await getDB();
   await db.connect();
   try {
-    const limit = Math.min(
-      Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1),
-      100
-    );
-    const values = [req.bankId, limit];
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1), 100);
+
+    // ── Decode keyset cursor ─────────────────────────────────────────────────
+    // Cursor encodes { ts: ISO string, id: delivery_id } of the last item seen.
+    let cursorTs = null;
+    let cursorId = null;
+    if (req.query.cursor) {
+      try {
+        const decoded = JSON.parse(Buffer.from(req.query.cursor, 'base64').toString('utf8'));
+        cursorTs = decoded.ts;
+        cursorId = decoded.id;
+        if (!cursorTs || !cursorId) throw new Error('incomplete');
+      } catch {
+        return res.status(400).json({ error: 'invalid cursor' });
+      }
+    }
+
     const filters = ['bank_id = $1'];
+    const values = [req.bankId];
 
     if (req.query.webhook_id) {
       values.push(req.query.webhook_id);
@@ -1255,20 +1353,43 @@ app.get('/v1/webhook-deliveries', async (req, res) => {
       filters.push(`status = $${values.length}`);
     }
 
+    if (cursorTs && cursorId) {
+      values.push(cursorTs, cursorId);
+      filters.push(
+        `(last_attempted_at, delivery_id) < ($${values.length - 1}::timestamptz, $${values.length})`
+      );
+    }
+
+    // Fetch limit+1 to determine whether a next page exists.
+    values.push(limit + 1);
     const result = await db.query(
       `SELECT delivery_id, webhook_id, bank_id, event_type, target_url,
               attempt_count, status, status_code, error_message, created_at,
               last_attempted_at, delivered_at, replay_of_delivery_id
        FROM webhook_delivery_attempts
        WHERE ${filters.join(' AND ')}
-       ORDER BY last_attempted_at DESC
-       LIMIT $2`,
+       ORDER BY last_attempted_at DESC, delivery_id DESC
+       LIMIT $${values.length}`,
       values
     );
 
+    const hasMore = result.rows.length > limit;
+    const deliveries = hasMore ? result.rows.slice(0, limit) : result.rows;
+
+    let nextCursor = null;
+    if (hasMore) {
+      const last = deliveries[deliveries.length - 1];
+      nextCursor = Buffer.from(
+        JSON.stringify({ ts: last.last_attempted_at, id: last.delivery_id })
+      ).toString('base64');
+    }
+
     res.status(200).json({
       bank_id: req.bankId,
-      deliveries: result.rows,
+      deliveries,
+      limit,
+      has_more: hasMore,
+      ...(nextCursor ? { next_cursor: nextCursor } : {}),
     });
   } catch (e) {
     console.error(e);
@@ -1372,6 +1493,70 @@ app.post('/v1/webhooks', async (req, res) => {
       updated_at: result.rows[0].updated_at,
       message: 'Webhook registered successfully',
     });
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await db.end();
+  }
+});
+
+app.put('/v1/webhooks/:webhook_id', async (req, res) => {
+  const db = await getDB();
+  await db.connect();
+  try {
+    const { url, events, secret } = req.body ?? {};
+
+    if (url === undefined && events === undefined && secret === undefined) {
+      return res.status(400).json({ error: 'at least one of url, events, or secret is required' });
+    }
+
+    if (url !== undefined && !validateWebhookUrl(url)) {
+      return res.status(400).json({ error: 'webhook url must be a valid https URL' });
+    }
+
+    if (events !== undefined) {
+      if (!Array.isArray(events) || events.length === 0) {
+        return res.status(400).json({ error: 'events must be a non-empty array' });
+      }
+      const invalidEvents = events.filter((e) => !WEBHOOK_EVENTS.includes(e));
+      if (invalidEvents.length > 0) {
+        return res.status(400).json({
+          error: `Invalid events: ${invalidEvents.join(', ')}. Valid events: ${WEBHOOK_EVENTS.join(', ')}`,
+        });
+      }
+    }
+
+    // Build SET clause dynamically from provided fields only.
+    const setClauses = ['updated_at = NOW()'];
+    const values = [];
+
+    if (url !== undefined) {
+      values.push(url);
+      setClauses.push(`url = $${values.length}`);
+    }
+    if (events !== undefined) {
+      values.push(events);
+      setClauses.push(`events = $${values.length}`);
+    }
+    if (secret !== undefined) {
+      values.push(secret || null);
+      setClauses.push(`secret = $${values.length}`);
+    }
+
+    values.push(req.params.webhook_id, req.bankId);
+    const result = await db.query(
+      `UPDATE webhook_registrations
+       SET ${setClauses.join(', ')}
+       WHERE webhook_id = $${values.length - 1} AND bank_id = $${values.length}
+       RETURNING webhook_id, bank_id, url, events, is_active, created_at, updated_at`,
+      values
+    );
+
+    if (result.rows.length === 0)
+      return res.status(404).json({ error: 'Webhook not found' });
+
+    res.status(200).json(result.rows[0]);
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Internal server error' });

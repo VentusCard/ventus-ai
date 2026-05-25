@@ -56,20 +56,26 @@ assert.ok(
   Array.isArray(baseline.temporary_public_ingress_exceptions),
   'temporary_public_ingress_exceptions should be an array'
 );
-for (const [index, exception] of baseline.temporary_public_ingress_exceptions.entries()) {
-  const label = `temporary_public_ingress_exceptions[${index}]`;
-  assertPortRule(exception, label);
-  assertIpv4Cidr32(exception.cidr, `${label}.cidr`);
-  assert.ok(!baseline.blocked_cidrs.includes(exception.cidr), `${label}.cidr should not be broad public ingress`);
-  assert.match(exception.reason, /requires owner validation or removal/i, `${label}.reason should require follow-up`);
-}
+assert.equal(
+  baseline.temporary_public_ingress_exceptions.length,
+  0,
+  'temporary_public_ingress_exceptions must be empty — all public /32 rules should have been removed. ' +
+  'Run infra/scripts/remediate-rds-public-access.mjs --execute to remove them, then update the baseline.'
+);
 
 assert.ok(
-  baseline.known_publicly_accessible_instances.some(
-    (instance) => instance.publicly_accessible === true
-  ),
-  'baseline should explicitly track the currently public RDS instance until remediated'
+  Array.isArray(baseline.known_publicly_accessible_instances),
+  'known_publicly_accessible_instances should be an array'
 );
+for (const [index, instance] of baseline.known_publicly_accessible_instances.entries()) {
+  assert.equal(
+    instance.publicly_accessible,
+    false,
+    `known_publicly_accessible_instances[${index}] (${instance.db_instance_identifier}) must be publicly_accessible=false. ` +
+    'Run infra/scripts/remediate-rds-public-access.mjs --execute to remediate.'
+  );
+}
+
 assert.equal(
   baseline.target_posture.publicly_accessible,
   false,
@@ -77,5 +83,5 @@ assert.equal(
 );
 
 console.log(
-  `RDS network exposure baseline checks passed: ${baseline.temporary_public_ingress_exceptions.length} temporary public /32 exception(s)`
+  `RDS network exposure baseline checks passed: 0 public /32 exceptions, all instances private`
 );

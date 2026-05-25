@@ -74,6 +74,9 @@ const html = `<!doctype html>
         Generated from <code>docs/openapi-draft.yaml</code>. This is an offline artifact for pilot review
         and should be replaced by the live <code>/docs</code> route once backend docs hosting is wired.
       </p>
+      <p>
+        Postman import artifact: <code>docs/ventus-api.postman_collection.json</code>.
+      </p>
       <h2>Endpoints</h2>
       <section class="paths">
         ${pathLines.map((path) => `<div class="path">${escapeHtml(path)}</div>`).join('\n        ')}
@@ -88,4 +91,3 @@ const html = `<!doctype html>
 mkdirSync(dirname(outputPath), { recursive: true });
 writeFileSync(outputPath, html);
 console.log(`Wrote ${outputPath}`);
-

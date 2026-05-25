@@ -17,6 +17,8 @@
     "audit:secrets-cutover": "node ./scripts/audit-live-secrets-cutover.mjs",
     "audit:secrets-rotation-kms": "node ./scripts/audit-live-secrets-rotation-kms.mjs",
     "audit:tracing": "node ./scripts/audit-live-tracing-readiness.mjs",
+    "audit:rds-network": "node ./scripts/audit-live-rds-network-exposure.mjs",
+    "remediate:rds-public-access": "node ./scripts/remediate-rds-public-access.mjs",
     "synth": "npm --prefix ../backend run package:monitors && cdk synth",
     "diff": "npm --prefix ../backend run package:monitors && cdk diff",
     "deploy": "npm --prefix ../backend run package:monitors && cdk deploy"
