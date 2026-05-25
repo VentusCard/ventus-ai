@@ -133,12 +133,12 @@ Apply `backend/sql/webhook-payload-v2-migration.sql` to Aurora (RDS Query Editor
 
 ### Entity events (thin ID arrays)
 
-| Event | IDs in `data` | Load detail via |
-|-------|----------------|-----------------|
-| `life_event_detected` | `life_event_ids[]` | `GET /v1/customers/:id/life-events` |
-| `behavioral_signal_detected` | `behavioral_signal_ids[]` | same |
-| `risk_detected` | `risk_factor_ids[]` (high severity, new this run) | `GET /v1/customers/:id/risk-factors` |
-| `trip_detected` | `trip_ids[]` (new/updated this run) | `GET /v1/customers/:id/trips` |
+| Event | IDs in `data` | Load detail via (preferred) |
+|-------|----------------|------------------------------|
+| `life_event_detected` | `life_event_ids[]` | `GET /v1/customers/:id/life-events/:life_event_id` |
+| `behavioral_signal_detected` | `behavioral_signal_ids[]` | `GET /v1/customers/:id/behavioral-signals/:behavioral_signal_id` |
+| `risk_detected` | `risk_factor_ids[]` (high severity, new this run) | `GET /v1/customers/:id/risk-factors/:risk_factor_id` |
+| `trip_detected` | `trip_ids[]` (new/updated this run) | `GET /v1/customers/:id/trips/:trip_id` |
 
 ```json
 {

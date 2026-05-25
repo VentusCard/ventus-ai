@@ -593,6 +593,38 @@ components:
               type: integer
             low:
               type: integer
+    LifeEventDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        life_event:
+          type: object
+          additionalProperties: true
+    BehavioralSignalDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        behavioral_signal:
+          type: object
+          additionalProperties: true
+    TripDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        trip:
+          type: object
+          additionalProperties: true
+    RiskFactorDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        risk_factor:
+          type: object
+          additionalProperties: true
     AnalyticsResponse:
       type: object
       properties:
@@ -813,6 +845,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LifeEventsResponse'
+  /v1/customers/{customer_id}/life-events/{life_event_id}:
+    get:
+      summary: Get one active life event by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: life_event_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Life event with evidence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LifeEventDetailResponse'
+        '404':
+          description: Life event not found
+  /v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}:
+    get:
+      summary: Get one active behavioral signal by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: behavioral_signal_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Behavioral signal with evidence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BehavioralSignalDetailResponse'
+        '404':
+          description: Behavioral signal not found
   /v1/customers/{customer_id}/purchase-signals:
     get:
       summary: Get purchase cycle signals for a customer
@@ -845,6 +923,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TripsResponse'
+  /v1/customers/{customer_id}/trips/{trip_id}:
+    get:
+      summary: Get one customer trip by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: trip_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetailResponse'
+        '404':
+          description: Trip not found
   /v1/customers/{customer_id}/risk-factors:
     get:
       summary: Get customer risk factors
@@ -861,6 +962,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RiskFactorsResponse'
+  /v1/customers/{customer_id}/risk-factors/{risk_factor_id}:
+    get:
+      summary: Get one customer risk factor by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: risk_factor_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Risk factor detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskFactorDetailResponse'
+        '404':
+          description: Risk factor not found
   /v1/analytics/bank:
     get:
       summary: Get portfolio-level bank analytics
