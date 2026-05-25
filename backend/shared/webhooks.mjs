@@ -3,6 +3,13 @@ import crypto from 'crypto';
 const DEFAULT_MAX_RETRIES = 3;
 const ERROR_MESSAGE_LIMIT = 500;
 
+/**
+ * Webhook envelope: { event, bank_id, timestamp, delivery_id, data }.
+ *
+ * life_event_detected / behavioral_signal_detected data (schema_version 1):
+ *   { schema_version: 1, customer_id, batch_id, life_event_ids[] | behavioral_signal_ids[] }
+ * Consumers load full rows from customer_life_events by id.
+ */
 export function buildWebhookBody({ eventType, bankId, deliveryId, payload }) {
   return JSON.stringify({
     event: eventType,

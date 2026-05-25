@@ -101,3 +101,23 @@ test('buildWebhookBody creates replayable payload envelopes', () => {
   assert.deepEqual(parsed.data, { customer_id: 'cust_123' });
   assert.ok(parsed.timestamp);
 });
+
+test('buildWebhookBody supports thin life_event_detected id payloads', () => {
+  const body = buildWebhookBody({
+    eventType: 'life_event_detected',
+    bankId: 'bank_star',
+    deliveryId: '00000000-0000-4000-8000-000000000001',
+    payload: {
+      schema_version: 1,
+      customer_id: 'cust_abc',
+      batch_id: 'batch_xyz',
+      life_event_ids: ['101', '102'],
+    },
+  });
+  const parsed = JSON.parse(body);
+
+  assert.equal(parsed.event, 'life_event_detected');
+  assert.equal(parsed.data.schema_version, 1);
+  assert.deepEqual(parsed.data.life_event_ids, ['101', '102']);
+  assert.equal(parsed.data.behavioral_signal_ids, undefined);
+});

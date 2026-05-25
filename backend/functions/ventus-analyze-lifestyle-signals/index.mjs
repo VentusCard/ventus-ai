@@ -544,6 +544,7 @@ async function writeCanonicalEvents(
   transactions
 ) {
   const writtenEvents = [];
+  const webhookLifeEventIds = [];
   const validIds = new Set(transactions.map((t) => t.transaction_id));
   const CONFIDENCE_THRESHOLD = 80;
 
@@ -685,6 +686,7 @@ async function writeCanonicalEvents(
         `UPDATE customer_life_events SET webhook_fired_at = NOW() WHERE id = $1`,
         [lifeEventId]
       );
+      webhookLifeEventIds.push(String(lifeEventId));
       writtenEvents.push(event);
     } else if (!isNew) {
       writtenEvents.push(event);
@@ -702,7 +704,7 @@ async function writeCanonicalEvents(
   );
 
   console.log(`[RDS] ✓ Wrote/updated ${writtenEvents.length} canonical events`);
-  return writtenEvents;
+  return { writtenCount: writtenEvents.length, webhookLifeEventIds };
 }
 
 // ─── WRITE BEHAVIORAL SIGNALS ─────────────────────────────────────────────────
@@ -715,6 +717,7 @@ async function writeBehavioralSignals(
   transactions
 ) {
   const writtenSignals = [];
+  const webhookBehavioralSignalIds = [];
   const validIds = new Set(transactions.map((t) => t.transaction_id));
   const CONFIDENCE_THRESHOLD = 60;
 
@@ -838,6 +841,7 @@ async function writeBehavioralSignals(
         `UPDATE customer_life_events SET webhook_fired_at = NOW() WHERE id = $1`,
         [lifeEventId]
       );
+      webhookBehavioralSignalIds.push(String(lifeEventId));
     }
 
     writtenSignals.push(signal);
@@ -856,7 +860,7 @@ async function writeBehavioralSignals(
   console.log(
     `[RDS] ✓ Wrote/updated ${writtenSignals.length} behavioral signals`
   );
-  return writtenSignals;
+  return { writtenCount: writtenSignals.length, webhookBehavioralSignalIds };
 }
 
 // ─── UPDATE PIPELINE_RUNS ─────────────────────────────────────────────────────
@@ -935,42 +939,48 @@ export const handler = async (event) => {
         `[LIFESTYLE] Gemini: ${canonicalEvents.length} canonical events, ${behavioralSignals.length} behavioral signals`
       );
 
-      const writtenCanonical = await writeCanonicalEvents(
-        db,
-        customer_id,
-        bank_id,
-        batch_id,
-        canonicalEvents,
-        transactions
-      );
+      const { writtenCount: canonicalWrittenCount, webhookLifeEventIds } =
+        await writeCanonicalEvents(
+          db,
+          customer_id,
+          bank_id,
+          batch_id,
+          canonicalEvents,
+          transactions
+        );
 
-      if (writtenCanonical.length > 0) {
+      if (webhookLifeEventIds.length > 0) {
         await fireWebhook(db, bank_id, 'life_event_detected', {
+          schema_version: 1,
           customer_id,
           batch_id,
-          events_detected: writtenCanonical.length,
-          event_names: writtenCanonical.map((e) => e.event_name),
+          life_event_ids: webhookLifeEventIds,
         });
+        console.log(
+          `[WEBHOOK] life_event_detected: ${webhookLifeEventIds.length} new event(s) for ${customer_id}`
+        );
       }
 
-      const writtenSignals = await writeBehavioralSignals(
-        db,
-        customer_id,
-        bank_id,
-        batch_id,
-        behavioralSignals,
-        transactions
-      );
+      const { writtenCount: behavioralWrittenCount, webhookBehavioralSignalIds } =
+        await writeBehavioralSignals(
+          db,
+          customer_id,
+          bank_id,
+          batch_id,
+          behavioralSignals,
+          transactions
+        );
 
-      const newEligibleSignals = writtenSignals.filter(
-        (s) => s.webhook_eligible
-      );
-      if (newEligibleSignals.length > 0) {
+      if (webhookBehavioralSignalIds.length > 0) {
         await fireWebhook(db, bank_id, 'behavioral_signal_detected', {
+          schema_version: 1,
           customer_id,
           batch_id,
-          signals: newEligibleSignals.map((s) => s.signal_name),
+          behavioral_signal_ids: webhookBehavioralSignalIds,
         });
+        console.log(
+          `[WEBHOOK] behavioral_signal_detected: ${webhookBehavioralSignalIds.length} new signal(s) for ${customer_id}`
+        );
       }
 
       const stagesComplete = await updatePipelineRuns(
@@ -987,7 +997,7 @@ export const handler = async (event) => {
       }
 
       console.log(
-        `[LIFESTYLE] ✓ Done for ${customer_id} — ${writtenCanonical.length} canonical, ${writtenSignals.length} behavioral`
+        `[LIFESTYLE] ✓ Done for ${customer_id} — ${canonicalWrittenCount} canonical, ${behavioralWrittenCount} behavioral`
       );
     } catch (err) {
       console.error(`[LIFESTYLE] Error for customer ${customer_id}:`, err);

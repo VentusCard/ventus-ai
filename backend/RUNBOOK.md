@@ -127,6 +127,38 @@ Scheduled monitor proposal:
 
 Before enabling it in staging, confirm Lambda-to-Aurora network access and alert recipients.
 
+## Webhook Payloads (schema_version 1)
+
+`life_event_detected` and `behavioral_signal_detected` use thin ID arrays. Load full rows from `customer_life_events` by id (same table; `event_category` is `life_event` or `behavioral`).
+
+```json
+{
+  "event": "life_event_detected",
+  "bank_id": "bank_id",
+  "delivery_id": "uuid",
+  "data": {
+    "schema_version": 1,
+    "customer_id": "cust_id",
+    "batch_id": "batch_id",
+    "life_event_ids": ["row-uuid-1", "row-uuid-2"]
+  }
+}
+```
+
+```json
+{
+  "event": "behavioral_signal_detected",
+  "data": {
+    "schema_version": 1,
+    "customer_id": "cust_id",
+    "batch_id": "batch_id",
+    "behavioral_signal_ids": ["row-uuid-3"]
+  }
+}
+```
+
+Only **new** rows with `webhook_fired_at` set on this run are included. Replay uses stored `payload_json` on `webhook_delivery_attempts`.
+
 ## Webhook Failure Triage
 
 Symptoms:
