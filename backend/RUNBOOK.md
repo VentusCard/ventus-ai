@@ -127,6 +127,20 @@ Scheduled monitor proposal:
 
 Before enabling it in staging, confirm Lambda-to-Aurora network access and alert recipients.
 
+Monitor zip builds use the same `backend/shared/` modules as pipeline Lambdas (excluding `*.test.mjs`). Deploy monitor **code** with:
+
+```bash
+./backend/scripts/deploy.sh monitors
+```
+
+Deploy pipeline workers and monitors together:
+
+```bash
+./backend/scripts/deploy.sh all
+```
+
+Monitor **infra** (schedule, IAM, VPC, alarms) remains CDK / `infra-staging` workflow — `deploy.sh` only updates Lambda zip code.
+
 ## Webhook Payloads (schema_version 1)
 
 Apply `backend/sql/webhook-payload-v2-migration.sql` to Aurora (RDS Query Editor is fine) before deploying lambdas that use `webhook_fired_at`, `warnings`, or batch outcome/stuck columns. The script is idempotent (`IF NOT EXISTS`).
