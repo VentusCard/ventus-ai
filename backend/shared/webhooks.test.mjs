@@ -103,6 +103,26 @@ test('buildWebhookBody creates replayable payload envelopes', () => {
   assert.ok(parsed.timestamp);
 });
 
+test('buildWebhookBody supports thin life_event_detected id payloads', () => {
+  const body = buildWebhookBody({
+    eventType: 'life_event_detected',
+    bankId: 'bank_star',
+    deliveryId: '00000000-0000-4000-8000-000000000001',
+    payload: {
+      schema_version: 1,
+      customer_id: 'cust_abc',
+      batch_id: 'batch_xyz',
+      life_event_ids: ['101', '102'],
+    },
+  });
+  const parsed = JSON.parse(body);
+
+  assert.equal(parsed.event, 'life_event_detected');
+  assert.equal(parsed.data.schema_version, 1);
+  assert.deepEqual(parsed.data.life_event_ids, ['101', '102']);
+  assert.equal(parsed.data.behavioral_signal_ids, undefined);
+});
+
 test('buildWebhookBody timestamp is ISO 8601 UTC', () => {
   const body = buildWebhookBody({
     eventType: 'batch_complete',
@@ -144,7 +164,15 @@ test('createWebhookDispatcher omits signature header when webhook has no secret'
     async query(sql, params) {
       this.queries.push({ sql, params });
       if (sql.includes('FROM webhook_registrations')) {
-        return { rows: [{ webhook_id: 'wh_unsigned', url: 'https://partner.example.test/webhook', secret: null }] };
+        return {
+          rows: [
+            {
+              webhook_id: 'wh_unsigned',
+              url: 'https://partner.example.test/webhook',
+              secret: null,
+            },
+          ],
+        };
       }
       return { rows: [] };
     },
@@ -168,9 +196,14 @@ test('createWebhookDispatcher persists correct payload SHA-256', async () => {
   const fireWebhook = createWebhookDispatcher({ maxRetries: 1 });
   await fireWebhook(db, 'bank_123', 'batch_complete', { batch_id: 'batch_123' });
 
-  const deliveryInsert = db.queries.find((q) => q.sql.includes('INSERT INTO webhook_delivery_attempts'));
+  const deliveryInsert = db.queries.find((q) =>
+    q.sql.includes('INSERT INTO webhook_delivery_attempts')
+  );
   assert.ok(deliveryInsert);
-  const expectedSha256 = crypto.createHash('sha256').update(requests[0].options.body).digest('hex');
+  const expectedSha256 = crypto
+    .createHash('sha256')
+    .update(requests[0].options.body)
+    .digest('hex');
   assert.equal(deliveryInsert.params[5], expectedSha256);
 });
 
