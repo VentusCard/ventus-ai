@@ -1292,17 +1292,21 @@ app.get('/v1/webhooks', async (req, res) => {
   const db = await getDB();
   await db.connect();
   try {
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1), 100);
+
     const result = await db.query(
       `SELECT webhook_id, bank_id, url, events, is_active, created_at, updated_at
        FROM webhook_registrations
        WHERE bank_id = $1
-       ORDER BY updated_at DESC, created_at DESC`,
-      [req.bankId]
+       ORDER BY updated_at DESC, created_at DESC
+       LIMIT $2`,
+      [req.bankId, limit]
     );
 
     res.status(200).json({
       bank_id: req.bankId,
       webhooks: result.rows,
+      limit,
     });
   } catch (e) {
     console.error(e);
@@ -1316,12 +1320,25 @@ app.get('/v1/webhook-deliveries', async (req, res) => {
   const db = await getDB();
   await db.connect();
   try {
-    const limit = Math.min(
-      Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1),
-      100
-    );
-    const values = [req.bankId, limit];
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1), 100);
+
+    // ── Decode keyset cursor ─────────────────────────────────────────────────
+    // Cursor encodes { ts: ISO string, id: delivery_id } of the last item seen.
+    let cursorTs = null;
+    let cursorId = null;
+    if (req.query.cursor) {
+      try {
+        const decoded = JSON.parse(Buffer.from(req.query.cursor, 'base64').toString('utf8'));
+        cursorTs = decoded.ts;
+        cursorId = decoded.id;
+        if (!cursorTs || !cursorId) throw new Error('incomplete');
+      } catch {
+        return res.status(400).json({ error: 'invalid cursor' });
+      }
+    }
+
     const filters = ['bank_id = $1'];
+    const values = [req.bankId];
 
     if (req.query.webhook_id) {
       values.push(req.query.webhook_id);
@@ -1336,20 +1353,43 @@ app.get('/v1/webhook-deliveries', async (req, res) => {
       filters.push(`status = $${values.length}`);
     }
 
+    if (cursorTs && cursorId) {
+      values.push(cursorTs, cursorId);
+      filters.push(
+        `(last_attempted_at, delivery_id) < ($${values.length - 1}::timestamptz, $${values.length})`
+      );
+    }
+
+    // Fetch limit+1 to determine whether a next page exists.
+    values.push(limit + 1);
     const result = await db.query(
       `SELECT delivery_id, webhook_id, bank_id, event_type, target_url,
               attempt_count, status, status_code, error_message, created_at,
               last_attempted_at, delivered_at, replay_of_delivery_id
        FROM webhook_delivery_attempts
        WHERE ${filters.join(' AND ')}
-       ORDER BY last_attempted_at DESC
-       LIMIT $2`,
+       ORDER BY last_attempted_at DESC, delivery_id DESC
+       LIMIT $${values.length}`,
       values
     );
 
+    const hasMore = result.rows.length > limit;
+    const deliveries = hasMore ? result.rows.slice(0, limit) : result.rows;
+
+    let nextCursor = null;
+    if (hasMore) {
+      const last = deliveries[deliveries.length - 1];
+      nextCursor = Buffer.from(
+        JSON.stringify({ ts: last.last_attempted_at, id: last.delivery_id })
+      ).toString('base64');
+    }
+
     res.status(200).json({
       bank_id: req.bankId,
-      deliveries: result.rows,
+      deliveries,
+      limit,
+      has_more: hasMore,
+      ...(nextCursor ? { next_cursor: nextCursor } : {}),
     });
   } catch (e) {
     console.error(e);
