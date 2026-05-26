@@ -66,9 +66,13 @@
         <div class="path">/v1/customers/{customer_id}/transactions</div>
         <div class="path">/v1/customers/{customer_id}/profile</div>
         <div class="path">/v1/customers/{customer_id}/life-events</div>
+        <div class="path">/v1/customers/{customer_id}/life-events/{life_event_id}</div>
+        <div class="path">/v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}</div>
         <div class="path">/v1/customers/{customer_id}/purchase-signals</div>
         <div class="path">/v1/customers/{customer_id}/trips</div>
+        <div class="path">/v1/customers/{customer_id}/trips/{trip_id}</div>
         <div class="path">/v1/customers/{customer_id}/risk-factors</div>
+        <div class="path">/v1/customers/{customer_id}/risk-factors/{risk_factor_id}</div>
         <div class="path">/v1/analytics/bank</div>
         <div class="path">/v1/webhooks</div>
         <div class="path">/v1/webhook-deliveries</div>
@@ -282,6 +286,9 @@ components:
             enum:
               - batch_started
               - batch_complete
+              - batch_partial
+              - batch_failed
+              - batch_stuck
               - life_event_detected
               - trip_detected
               - risk_detected
@@ -672,6 +679,38 @@ components:
               type: integer
             low:
               type: integer
+    LifeEventDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        life_event:
+          type: object
+          additionalProperties: true
+    BehavioralSignalDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        behavioral_signal:
+          type: object
+          additionalProperties: true
+    TripDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        trip:
+          type: object
+          additionalProperties: true
+    RiskFactorDetailResponse:
+      type: object
+      properties:
+        customer_id:
+          type: string
+        risk_factor:
+          type: object
+          additionalProperties: true
     AnalyticsResponse:
       type: object
       properties:
@@ -892,6 +931,52 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LifeEventsResponse'
+  /v1/customers/{customer_id}/life-events/{life_event_id}:
+    get:
+      summary: Get one active life event by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: life_event_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Life event with evidence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LifeEventDetailResponse'
+        '404':
+          description: Life event not found
+  /v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}:
+    get:
+      summary: Get one active behavioral signal by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: behavioral_signal_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Behavioral signal with evidence
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BehavioralSignalDetailResponse'
+        '404':
+          description: Behavioral signal not found
   /v1/customers/{customer_id}/purchase-signals:
     get:
       summary: Get purchase cycle signals for a customer
@@ -924,6 +1009,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/TripsResponse'
+  /v1/customers/{customer_id}/trips/{trip_id}:
+    get:
+      summary: Get one customer trip by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: trip_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Trip detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TripDetailResponse'
+        '404':
+          description: Trip not found
   /v1/customers/{customer_id}/risk-factors:
     get:
       summary: Get customer risk factors
@@ -940,6 +1048,29 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/RiskFactorsResponse'
+  /v1/customers/{customer_id}/risk-factors/{risk_factor_id}:
+    get:
+      summary: Get one customer risk factor by ID
+      parameters:
+        - in: path
+          name: customer_id
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: risk_factor_id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Risk factor detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskFactorDetailResponse'
+        '404':
+          description: Risk factor not found
   /v1/analytics/bank:
     get:
       summary: Get portfolio-level bank analytics
@@ -1054,6 +1185,55 @@ paths:
               schema:
                 $ref: '#/components/schemas/WebhookReplayResponse'
   /v1/webhooks/{webhook_id}:
+    put:
+      summary: Update a webhook registration
+      parameters:
+        - name: webhook_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              minProperties: 1
+              properties:
+                url:
+                  type: string
+                  format: uri
+                  description: New HTTPS endpoint URL
+                events:
+                  type: array
+                  minItems: 1
+                  items:
+                    type: string
+                  description: Replacement event subscription list
+                secret:
+                  type: string
+                  nullable: true
+                  description: New signing secret (null to remove)
+      responses:
+        '200':
+          description: Updated webhook registration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebhookRegistration'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Webhook not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
     delete:
       summary: Disable a webhook registration
       parameters:

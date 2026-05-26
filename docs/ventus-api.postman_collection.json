@@ -294,6 +294,50 @@
           }
         },
         {
+          "name": "Get one active life event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events/{life_event_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "life-events",
+                "{life_event_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/life-events/{life_event_id}"
+          }
+        },
+        {
+          "name": "Get one active behavioral signal by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/behavioral-signals/{behavioral_signal_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "behavioral-signals",
+                "{behavioral_signal_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}"
+          }
+        },
+        {
           "name": "Get purchase cycle signals for a customer",
           "request": {
             "method": "GET",
@@ -336,6 +380,28 @@
           }
         },
         {
+          "name": "Get one customer trip by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips/{trip_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "trips",
+                "{trip_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/trips/{trip_id}"
+          }
+        },
+        {
           "name": "Get customer risk factors",
           "request": {
             "method": "GET",
@@ -354,6 +420,28 @@
               "query": []
             },
             "description": "GET /v1/customers/{customer_id}/risk-factors"
+          }
+        },
+        {
+          "name": "Get one customer risk factor by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors/{risk_factor_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "risk-factors",
+                "{risk_factor_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/risk-factors/{risk_factor_id}"
           }
         }
       ]
@@ -492,6 +580,26 @@
               "query": []
             },
             "description": "POST /v1/webhook-deliveries/{delivery_id}/replay"
+          }
+        },
+        {
+          "name": "Update a webhook registration",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhooks",
+                "{{webhookId}}"
+              ],
+              "query": []
+            },
+            "description": "PUT /v1/webhooks/{webhook_id}"
           }
         },
         {
