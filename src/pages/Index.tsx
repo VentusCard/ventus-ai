@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
@@ -24,6 +25,11 @@ const faqs = [
 const Index = () => {
   return (
     <div>
+      <SEO
+        title="Ventus AI — Transaction Intelligence for Banks"
+        description="Ventus AI turns transaction data into analytics and human insight, powering personalization, smarter rewards, and next-gen banking experiences."
+        path="/"
+      />
       <main className="flex flex-col">
         <ScrollDrivenHero />
         <ProblemStatementSection />
