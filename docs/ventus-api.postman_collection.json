@@ -150,12 +150,12 @@
       "name": "Jobs",
       "item": [
         {
-          "name": "Look up job by S3 key",
+          "name": "List recent batches or look up by S3 key",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/jobs?s3_key={{s3Key}}",
+              "raw": "{{baseUrl}}/v1/jobs?s3_key={{s3Key}}&limit={{limit}}&offset={{offset}}&status={{status}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -167,7 +167,22 @@
                 {
                   "key": "s3_key",
                   "value": "{{s3Key}}",
-                  "disabled": false
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "{{status}}",
+                  "disabled": true
                 }
               ]
             },
@@ -294,6 +309,50 @@
           }
         },
         {
+          "name": "Get one active life event by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events/{life_event_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "life-events",
+                "{life_event_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/life-events/{life_event_id}"
+          }
+        },
+        {
+          "name": "Get one active behavioral signal by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/behavioral-signals/{behavioral_signal_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "behavioral-signals",
+                "{behavioral_signal_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/behavioral-signals/{behavioral_signal_id}"
+          }
+        },
+        {
           "name": "Get purchase cycle signals for a customer",
           "request": {
             "method": "GET",
@@ -336,6 +395,28 @@
           }
         },
         {
+          "name": "Get one customer trip by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips/{trip_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "trips",
+                "{trip_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/trips/{trip_id}"
+          }
+        },
+        {
           "name": "Get customer risk factors",
           "request": {
             "method": "GET",
@@ -354,6 +435,28 @@
               "query": []
             },
             "description": "GET /v1/customers/{customer_id}/risk-factors"
+          }
+        },
+        {
+          "name": "Get one customer risk factor by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors/{risk_factor_id}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "customers",
+                "{{customerId}}",
+                "risk-factors",
+                "{risk_factor_id}"
+              ],
+              "query": []
+            },
+            "description": "GET /v1/customers/{customer_id}/risk-factors/{risk_factor_id}"
           }
         }
       ]
@@ -492,6 +595,26 @@
               "query": []
             },
             "description": "POST /v1/webhook-deliveries/{delivery_id}/replay"
+          }
+        },
+        {
+          "name": "Update a webhook registration",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/v1/webhooks/{{webhookId}}",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "v1",
+                "webhooks",
+                "{{webhookId}}"
+              ],
+              "query": []
+            },
+            "description": "PUT /v1/webhooks/{webhook_id}"
           }
         },
         {
