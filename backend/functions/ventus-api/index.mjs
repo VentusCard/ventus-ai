@@ -462,23 +462,43 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Customer ID required' });
 
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1), 100);
+    const offset = Math.max(Number.parseInt(req.query.offset || '0', 10) || 0, 0);
+
     const allEvents = await db.query(
       `SELECT ${CUSTOMER_LIFE_EVENT_COLUMNS}
        FROM customer_life_events
        WHERE customer_id = $1 AND bank_id = $2
        AND status = 'active' AND is_dismissed = false
-       ORDER BY confidence DESC`,
-      [id, req.bankId]
+       ORDER BY confidence DESC
+       LIMIT $3 OFFSET $4`,
+      [id, req.bankId, limit, offset]
     );
 
     if (allEvents.rows.length === 0)
       return res.status(404).json({ error: 'No life events found' });
 
-    const withEvidence = [];
-    for (const event of allEvents.rows) {
-      const evidence = await fetchLifeEventEvidenceRows(db, event.id);
-      withEvidence.push({ ...event, evidence });
+    // Batch-fetch all evidence in a single query instead of one query per event.
+    const eventIds = allEvents.rows.map((e) => e.id);
+    const evidenceResult = await db.query(
+      `SELECT lee.life_event_id, lee.transaction_id,
+              te.clean_merchant_name AS merchant,
+              te.amount, te.transaction_date AS date, lee.relevance
+       FROM life_event_evidence lee
+       LEFT JOIN transactions_enriched te ON lee.transaction_id = te.transaction_id
+       WHERE lee.life_event_id = ANY($1)`,
+      [eventIds]
+    );
+    const evidenceByEventId = {};
+    for (const row of evidenceResult.rows) {
+      if (!evidenceByEventId[row.life_event_id]) evidenceByEventId[row.life_event_id] = [];
+      evidenceByEventId[row.life_event_id].push(row);
     }
+
+    const withEvidence = allEvents.rows.map((event) => ({
+      ...event,
+      evidence: evidenceByEventId[event.id] || [],
+    }));
 
     const lifeEvents = withEvidence
       .filter((e) => e.event_category === 'life_event')
@@ -490,6 +510,8 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
 
     res.status(200).json({
       customer_id: id,
+      limit,
+      offset,
       life_events: lifeEvents,
       behavioral_signals: behavioralSignals,
     });
@@ -865,6 +887,9 @@ app.get('/v1/customers/:id/trips', async (req, res) => {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Customer ID required' });
 
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '50', 10) || 50, 1), 100);
+    const offset = Math.max(Number.parseInt(req.query.offset || '0', 10) || 0, 0);
+
     const trips = await db.query(
       `SELECT trip_id, destination, trip_start, trip_end,
               trip_duration_days, total_trip_spend, transaction_count,
@@ -872,8 +897,9 @@ app.get('/v1/customers/:id/trips', async (req, res) => {
               activities_spend, other_spend, detected_at
        FROM customer_trips
        WHERE customer_id = $1 AND bank_id = $2
-       ORDER BY trip_start DESC`,
-      [id, req.bankId]
+       ORDER BY trip_start DESC
+       LIMIT $3 OFFSET $4`,
+      [id, req.bankId, limit, offset]
     );
 
     if (trips.rows.length === 0)
@@ -881,6 +907,8 @@ app.get('/v1/customers/:id/trips', async (req, res) => {
 
     res.status(200).json({
       customer_id: id,
+      limit,
+      offset,
       trips: trips.rows.map((t) => ({
         ...t,
         is_upcoming: new Date(t.trip_end) > new Date(),
@@ -939,15 +967,19 @@ app.get('/v1/customers/:id/risk-factors', async (req, res) => {
     const { id } = req.params;
     if (!id) return res.status(400).json({ error: 'Customer ID required' });
 
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '100', 10) || 100, 1), 500);
+    const offset = Math.max(Number.parseInt(req.query.offset || '0', 10) || 0, 0);
+
     const result = await db.query(
       `SELECT id, transaction_id, category_group, category_label,
               severity, merchant, amount, transaction_date, reason, detected_at
        FROM customer_risk_factors
        WHERE customer_id = $1 AND bank_id = $2
-       ORDER BY 
+       ORDER BY
          CASE severity WHEN 'high' THEN 1 WHEN 'medium' THEN 2 ELSE 3 END,
-         detected_at DESC`,
-      [id, req.bankId]
+         detected_at DESC
+       LIMIT $3 OFFSET $4`,
+      [id, req.bankId, limit, offset]
     );
 
     if (result.rows.length === 0)
@@ -955,6 +987,8 @@ app.get('/v1/customers/:id/risk-factors', async (req, res) => {
 
     res.status(200).json({
       customer_id: id,
+      limit,
+      offset,
       risk_factors: result.rows,
       summary: {
         total: result.rows.length,
