@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useParams, Link, Navigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { insightsPosts } from "@/lib/insightsData";
@@ -20,6 +21,7 @@ const InsightPost = () => {
 
   return (
     <main className="bg-white min-h-screen">
+      <SEO title={`${post.title} — Ventus AI`} description={post.excerpt} path={`/insights/${post.slug}`} type="article" />
       <article className="pt-40 pb-32 px-6">
         <div className="max-w-3xl mx-auto">
           {/* Back link */}

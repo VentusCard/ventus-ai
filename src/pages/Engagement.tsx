@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -42,6 +43,7 @@ const Engagement = () => {
 
   return (
     <div>
+      <SEO title="Engagement — Ventus AI" description="Lifestyle profiles, intent signals, and personalized engagement experiences powered by Ventus AI transaction intelligence." path="/engagement" />
       <main>
         {/* SECTION 1 — HERO */}
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>

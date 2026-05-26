@@ -26,6 +26,7 @@ const NextConversationPage = () => {
 
   return (
     <main className="bg-white min-h-screen">
+      <SEO title="Conversation Intelligence — Ventus AI" description="Surface the next-best conversation for advisors and bankers, grounded in transaction signals and customer life events." path="/solutions/conversation-intelligence" />
       {/* Hero */}
       <section ref={hero.ref} className="pt-40 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[80vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">

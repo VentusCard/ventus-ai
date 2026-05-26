@@ -26,6 +26,7 @@ const PortfolioIntelligencePage = () => {
 
   return (
     <main className="bg-white min-h-screen">
+      <SEO title="Portfolio Intelligence — Ventus AI" description="Customer and portfolio intelligence for banks: lifestyle pillars, life events, and wallet-share insights at scale." path="/solutions/portfolio-intelligence" />
       {/* Hero */}
       <section ref={hero.ref} className="pt-40 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[80vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">
