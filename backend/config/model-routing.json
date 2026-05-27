@@ -24,6 +24,15 @@
       "temperature": 0,
       "max_tokens": 8000
     },
+    "life_event_detection_shadow": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "role": "reasoning_worker_shadow",
+      "temperature": 0,
+      "max_tokens": 8000,
+      "shadow_only": true,
+      "compares_to": "life_event_detection"
+    },
     "risk_detection": {
       "provider": "gemini",
       "model": "gemini-2.5-flash",

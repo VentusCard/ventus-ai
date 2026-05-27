@@ -11,6 +11,10 @@ const rubric = JSON.parse(
     'utf8'
   )
 );
+const modelEvaluationSql = readFileSync(
+  resolve('../backend/sql/model-evaluation-runs.sql'),
+  'utf8'
+);
 const gatewaySource = readFileSync(
   resolve('../backend/shared/model-gateway.mjs'),
   'utf8'
@@ -35,6 +39,7 @@ const classificationSource = readFileSync(
 const requiredTasks = [
   'merchant_classification',
   'life_event_detection',
+  'life_event_detection_shadow',
   'risk_detection',
   'travel_detection',
   'enrichment_judge',
@@ -55,13 +60,23 @@ for (const task of requiredTasks) {
 }
 
 assert.equal(
+  routing.tasks.life_event_detection_shadow.shadow_only,
+  true,
+  'life event shadow route should start shadow-only'
+);
+assert.equal(
+  routing.tasks.life_event_detection_shadow.compares_to,
+  'life_event_detection',
+  'life event shadow route should declare the production route it compares to'
+);
+assert.equal(
   routing.tasks.enrichment_judge.shadow_only,
   true,
   'judge task should start shadow-only so it cannot alter production output'
 );
 
 assert.equal(rubric.version, 1, 'model evaluation rubric should be versioned');
-for (const task of requiredTasks) {
+for (const task of requiredTasks.filter((item) => !item.endsWith('_shadow'))) {
   assert.ok(rubric.tasks?.[task], `missing evaluation rubric for ${task}`);
   assert.ok(
     rubric.tasks[task].primary_metrics?.length > 0,
@@ -76,6 +91,21 @@ assert.equal(
   rubric.gates.production_route_change.requires_shadow_runs,
   true,
   'production model route changes should require shadow runs first'
+);
+assert.match(
+  modelEvaluationSql,
+  /CREATE TABLE IF NOT EXISTS model_evaluation_runs/,
+  'model evaluation ledger schema should exist'
+);
+assert.match(
+  modelEvaluationSql,
+  /cost_estimate_usd/,
+  'model evaluation ledger should capture cost estimates'
+);
+assert.match(
+  modelEvaluationSql,
+  /judge_verdict/,
+  'model evaluation ledger should capture judge verdicts'
 );
 assert.match(
   gatewaySource,
