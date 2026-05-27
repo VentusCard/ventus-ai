@@ -19,6 +19,10 @@ const riskDetectionSource = readFileSync(
   resolve('../backend/functions/ventus-risk-detection/index.mjs'),
   'utf8'
 );
+const lifestyleSignalsSource = readFileSync(
+  resolve('../backend/functions/ventus-analyze-lifestyle-signals/index.mjs'),
+  'utf8'
+);
 
 const requiredTasks = [
   'merchant_classification',
@@ -80,7 +84,17 @@ assert.match(
   /task:\s*'risk_detection'/,
   'risk detection should route through the risk_detection task'
 );
+assert.match(
+  lifestyleSignalsSource,
+  /createModelGateway/,
+  'lifestyle signals should use the shared model gateway'
+);
+assert.match(
+  lifestyleSignalsSource,
+  /task:\s*'life_event_detection'/,
+  'lifestyle signals should route through the life_event_detection task'
+);
 
 console.log(
-  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), risk_detection migrated, judge shadow-only`
+  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), risk_detection and life_event_detection migrated, judge shadow-only`
 );

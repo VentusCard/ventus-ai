@@ -5,7 +5,7 @@
 // → writes to customer_life_events + life_event_evidence
 
 import { createDbFactory } from '../../shared/db.mjs';
-import { fetchGeminiChatCompletion } from '../../shared/model-provider.mjs';
+import { createModelGateway } from '../../shared/model-gateway.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
@@ -17,6 +17,11 @@ const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
 const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
 const getModelSecrets = createSecretsProvider({
   secretId: MODEL_PROVIDER_SECRET_ID,
+});
+const modelGateway = createModelGateway({
+  getSecrets: getModelSecrets,
+  functionName:
+    process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-analyze-lifestyle-signals',
 });
 
 // ─── DB ───────────────────────────────────────────────────────────────────────
@@ -434,13 +439,12 @@ Each transaction is prefixed with [ID:uuid]. Include exact transaction_id for ev
 ## FINANCIAL PROJECTION YEAR
 Only include estimated_start_year if clearly inferrable. Never guess. Omit for immediate events.`;
 
-// ─── CALL GEMINI ──────────────────────────────────────────────────────────────
-async function callGeminiForLifestyleSignals(
+// ─── CALL MODEL GATEWAY ───────────────────────────────────────────────────────
+async function callModelForLifestyleSignals(
   customerId,
   transactions,
   spendingSummary,
-  existingSignals,
-  geminiApiKey
+  existingSignals
 ) {
   const sortedTxns = [...transactions].sort(
     (a, b) => new Date(b.transaction_date) - new Date(a.transaction_date)
@@ -473,29 +477,27 @@ Canonical events: 80%+ confidence only. Apply causality test strictly.
 Behavioral signals: 60%+ confidence, must be advisor-actionable, minimum 2 evidence transactions.
 Include exact transaction_id from [ID:xxx] prefix for every evidence item.`;
 
-  const res = await fetchGeminiChatCompletion({
-    apiKey: geminiApiKey,
+  const { response: res, metadata } = await modelGateway.chatCompletion({
+    task: 'life_event_detection',
     label: 'LIFESTYLE',
     maxRetries: 4,
     maxDelayMs: 20000,
-    body: {
-      model: 'gemini-2.5-flash',
-      messages: [
-        { role: 'system', content: SYSTEM_PROMPT },
-        { role: 'user', content: userPrompt },
-      ],
-      tools: [LIFESTYLE_SIGNAL_TOOL],
-      tool_choice: {
-        type: 'function',
-        function: { name: 'detect_lifestyle_signals' },
-      },
-      max_tokens: 8000,
+    messages: [
+      { role: 'system', content: SYSTEM_PROMPT },
+      { role: 'user', content: userPrompt },
+    ],
+    tools: [LIFESTYLE_SIGNAL_TOOL],
+    tool_choice: {
+      type: 'function',
+      function: { name: 'detect_lifestyle_signals' },
     },
   });
 
   if (!res.ok) {
     const err = await res.text();
-    throw new Error(`Gemini error ${res.status}: ${err.slice(0, 200)}`);
+    throw new Error(
+      `${metadata.provider}/${metadata.model} error ${res.status}: ${err.slice(0, 200)}`
+    );
   }
 
   const data = await res.json();
@@ -855,9 +857,6 @@ async function updatePipelineRuns(db, batchId, customerId) {
 
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
-  const secrets = await getModelSecrets();
-  const geminiApiKey = secrets.GEMINI_API_KEY;
-
   for (const record of event.Records) {
     const { batch_id, customer_id, bank_id } = JSON.parse(record.body);
     console.log(
@@ -899,19 +898,18 @@ export const handler = async (event) => {
         `[LIFESTYLE] ${existingSignals.length} existing behavioral signals for context`
       );
 
-      console.log(`[LIFESTYLE] Calling Gemini for two-layer detection...`);
-      const aiResult = await callGeminiForLifestyleSignals(
+      console.log(`[LIFESTYLE] Calling model gateway for two-layer detection...`);
+      const aiResult = await callModelForLifestyleSignals(
         customer_id,
         transactions,
         spendingSummary,
-        existingSignals,
-        geminiApiKey
+        existingSignals
       );
 
       const canonicalEvents = aiResult.canonical_events || [];
       const behavioralSignals = aiResult.behavioral_signals || [];
       console.log(
-        `[LIFESTYLE] Gemini: ${canonicalEvents.length} canonical events, ${behavioralSignals.length} behavioral signals`
+        `[LIFESTYLE] Model gateway: ${canonicalEvents.length} canonical events, ${behavioralSignals.length} behavioral signals`
       );
 
       const { writtenCount: canonicalWrittenCount, webhookLifeEventIds } =
