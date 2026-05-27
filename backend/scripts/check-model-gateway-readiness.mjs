@@ -27,6 +27,10 @@ const travelDetectionSource = readFileSync(
   resolve('../backend/functions/ventus-travel-detection/index.mjs'),
   'utf8'
 );
+const classificationSource = readFileSync(
+  resolve('../backend/functions/ventus-classify-transactions/index.mjs'),
+  'utf8'
+);
 
 const requiredTasks = [
   'merchant_classification',
@@ -108,7 +112,17 @@ assert.match(
   /task:\s*'travel_detection'/,
   'travel detection should route through the travel_detection task'
 );
+assert.match(
+  classificationSource,
+  /createModelGateway/,
+  'classification should use the shared model gateway'
+);
+assert.match(
+  classificationSource,
+  /task:\s*'merchant_classification'/,
+  'classification should route through the merchant_classification task'
+);
 
 console.log(
-  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), risk/life-event/travel migrated, judge shadow-only`
+  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), production model tasks migrated, judge shadow-only`
 );
