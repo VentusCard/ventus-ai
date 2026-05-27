@@ -501,6 +501,10 @@ components:
       properties:
         customer_id:
           type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
         life_events:
           type: array
           items:
@@ -629,6 +633,10 @@ components:
       properties:
         customer_id:
           type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
         trips:
           type: array
           items:
@@ -671,6 +679,10 @@ components:
       properties:
         customer_id:
           type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
         risk_factors:
           type: array
           items:
@@ -995,9 +1007,24 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: limit
+          description: Maximum number of combined life-event and behavioral-signal rows to return.
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          description: Number of combined life-event and behavioral-signal rows to skip.
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
       responses:
         '200':
-          description: Life events with evidence and recommendations
+          description: Life events with evidence and recommendations. Pagination is applied before splitting the combined result into life_events and behavioral_signals.
           content:
             application/json:
               schema:
@@ -1073,6 +1100,19 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
       responses:
         '200':
           description: Trips
@@ -1112,9 +1152,22 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 500
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
       responses:
         '200':
-          description: Risk factors and summary
+          description: Risk factors and page-level severity summary
           content:
             application/json:
               schema:

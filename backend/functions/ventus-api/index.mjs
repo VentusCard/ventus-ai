@@ -377,14 +377,16 @@ const CUSTOMER_LIFE_EVENT_COLUMNS = `id, event_name, event_type, event_category,
               signal_category, signal_name, insight,
               first_detected_at, last_confirmed_at, detected_at`;
 
-async function fetchLifeEventEvidenceRows(db, lifeEventId) {
+async function fetchLifeEventEvidenceRows(db, lifeEventId, bankId) {
   const evidence = await db.query(
     `SELECT lee.transaction_id, te.clean_merchant_name as merchant,
             te.amount, te.transaction_date as date, lee.relevance
      FROM life_event_evidence lee
-     LEFT JOIN transactions_enriched te ON lee.transaction_id = te.transaction_id
+     LEFT JOIN transactions_enriched te
+       ON lee.transaction_id = te.transaction_id
+      AND te.bank_id = $2
      WHERE lee.life_event_id = $1`,
-    [lifeEventId]
+    [lifeEventId, bankId]
   );
   return evidence.rows;
 }
@@ -475,8 +477,17 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
       [id, req.bankId, limit, offset]
     );
 
-    if (allEvents.rows.length === 0)
+    if (allEvents.rows.length === 0 && offset === 0)
       return res.status(404).json({ error: 'No life events found' });
+    if (allEvents.rows.length === 0) {
+      return res.status(200).json({
+        customer_id: id,
+        limit,
+        offset,
+        life_events: [],
+        behavioral_signals: [],
+      });
+    }
 
     // Batch-fetch all evidence in a single query instead of one query per event.
     const eventIds = allEvents.rows.map((e) => e.id);
@@ -485,9 +496,11 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
               te.clean_merchant_name AS merchant,
               te.amount, te.transaction_date AS date, lee.relevance
        FROM life_event_evidence lee
-       LEFT JOIN transactions_enriched te ON lee.transaction_id = te.transaction_id
+       LEFT JOIN transactions_enriched te
+         ON lee.transaction_id = te.transaction_id
+        AND te.bank_id = $2
        WHERE lee.life_event_id = ANY($1)`,
-      [eventIds]
+      [eventIds, req.bankId]
     );
     const evidenceByEventId = {};
     for (const row of evidenceResult.rows) {
@@ -539,7 +552,7 @@ app.get('/v1/customers/:id/life-events/:life_event_id', async (req, res) => {
     });
     if (!row) return res.status(404).json({ error: 'Life event not found' });
 
-    const evidence = await fetchLifeEventEvidenceRows(db, row.id);
+    const evidence = await fetchLifeEventEvidenceRows(db, row.id, req.bankId);
     res.status(200).json({
       customer_id: id,
       life_event: mapLifeEventResponseRow({ ...row, evidence }),
@@ -570,7 +583,7 @@ app.get('/v1/customers/:id/behavioral-signals/:behavioral_signal_id', async (req
     });
     if (!row) return res.status(404).json({ error: 'Behavioral signal not found' });
 
-    const evidence = await fetchLifeEventEvidenceRows(db, row.id);
+    const evidence = await fetchLifeEventEvidenceRows(db, row.id, req.bankId);
     res.status(200).json({
       customer_id: id,
       behavioral_signal: mapBehavioralSignalResponseRow({ ...row, evidence }),
@@ -902,8 +915,16 @@ app.get('/v1/customers/:id/trips', async (req, res) => {
       [id, req.bankId, limit, offset]
     );
 
-    if (trips.rows.length === 0)
+    if (trips.rows.length === 0 && offset === 0)
       return res.status(404).json({ error: 'No trips found' });
+    if (trips.rows.length === 0) {
+      return res.status(200).json({
+        customer_id: id,
+        limit,
+        offset,
+        trips: [],
+      });
+    }
 
     res.status(200).json({
       customer_id: id,
@@ -982,8 +1003,22 @@ app.get('/v1/customers/:id/risk-factors', async (req, res) => {
       [id, req.bankId, limit, offset]
     );
 
-    if (result.rows.length === 0)
+    if (result.rows.length === 0 && offset === 0)
       return res.status(404).json({ error: 'No risk factors found' });
+    if (result.rows.length === 0) {
+      return res.status(200).json({
+        customer_id: id,
+        limit,
+        offset,
+        risk_factors: [],
+        summary: {
+          total: 0,
+          high: 0,
+          medium: 0,
+          low: 0,
+        },
+      });
+    }
 
     res.status(200).json({
       customer_id: id,
