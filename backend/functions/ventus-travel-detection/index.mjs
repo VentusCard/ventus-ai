@@ -1,16 +1,11 @@
 // lambdas/travel-detection/index.mjs
 // Triggered by SQS ventus-travel-queue
 // Reads from transactions_enriched → pre-filters travel candidates
-// → detects trips via Gemini → writes to customer_trips
+// → detects trips via model gateway → writes to customer_trips
 // → updates transactions_enriched with trip_id
 
 import { createDbFactory } from '../../shared/db.mjs';
-import {
-  is429,
-  get429DelayMs,
-  parseRetryAfterMs,
-  publishGeminiRateLimit,
-} from '../../shared/gemini.mjs';
+import { createModelGateway } from '../../shared/model-gateway.mjs';
 import {
   createSecretsProvider,
   resolveSecretId,
@@ -29,11 +24,14 @@ const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
 const getModelSecrets = createSecretsProvider({
   secretId: MODEL_PROVIDER_SECRET_ID,
 });
+const modelGateway = createModelGateway({
+  getSecrets: getModelSecrets,
+  functionName: LAMBDA_NAME,
+});
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
-const MODEL = 'gemini-2.5-flash';
 
 // ─── DB ───────────────────────────────────────────────────────────────────────
 const getDB = createDbFactory({ getSecrets: getDbSecrets });
@@ -233,50 +231,33 @@ const TRAVEL_TOOL = [
   },
 ];
 
-// ─── CALL GEMINI FOR TRAVEL DETECTION ─────────────────────────────────────────
+// ─── CALL MODEL GATEWAY FOR TRAVEL DETECTION ──────────────────────────────────
 async function callTravelDetectionAI(
   candidates,
   homeZip,
   batchNum,
-  attempt,
-  geminiApiKey
+  attempt
 ) {
-  const res = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${geminiApiKey}`,
+  const { response: res, metadata } = await modelGateway.chatCompletion({
+    task: 'travel_detection',
+    label: `TRAVEL batch ${batchNum}`,
+    maxRetries: MAX_RETRIES,
+    maxDelayMs: 8000,
+    messages: [
+      { role: 'system', content: buildPrompt(homeZip) },
+      {
+        role: 'user',
+        content: `Identify complete trips from these ${candidates.length} pre-filtered travel candidates and call detect_travel_patterns:\n\n${JSON.stringify(candidates, null, 2)}`,
       },
-      body: JSON.stringify({
-        model: MODEL,
-        max_tokens: 2000,
-        messages: [
-          { role: 'system', content: buildPrompt(homeZip) },
-          {
-            role: 'user',
-            content: `Identify complete trips from these ${candidates.length} pre-filtered travel candidates and call detect_travel_patterns:\n\n${JSON.stringify(candidates, null, 2)}`,
-          },
-        ],
-        tools: TRAVEL_TOOL,
-        tool_choice: 'auto',
-      }),
-    }
-  );
+    ],
+    tools: TRAVEL_TOOL,
+    tool_choice: 'auto',
+  });
 
   if (!res.ok) {
-    if (is429(res.status)) {
-      console.warn(`[GEMINI] 429 rate limit hit on TRAVEL batch ${batchNum}`);
-      publishGeminiRateLimit(LAMBDA_NAME);
-      const tagged = new Error(`429 rate limit on travel batch ${batchNum}`);
-      tagged.is429 = true;
-      tagged.retryAfterMs = parseRetryAfterMs(res.headers.get('retry-after'));
-      throw tagged;
-    }
     const err = await res.text().catch(() => '');
     console.error(
-      `[BATCH ${batchNum}] Gemini error (${res.status}): ${err.slice(0, 200)}`
+      `[BATCH ${batchNum}] ${metadata.provider}/${metadata.model} error (${res.status}): ${err.slice(0, 200)}`
     );
     return [];
   }
@@ -289,14 +270,14 @@ async function callTravelDetectionAI(
     choice?.native_finish_reason === 'MALFORMED_FUNCTION_CALL'
   ) {
     console.error(`[BATCH ${batchNum}] Malformed function call`);
-    console.log(`[TRAVEL] Gemini raw:`, JSON.stringify(choice, null, 2));
+    console.log(`[TRAVEL] Model raw:`, JSON.stringify(choice, null, 2));
     return [];
   }
 
   const toolCalls = choice?.message?.tool_calls;
   if (!toolCalls?.length) {
     console.warn(`[BATCH ${batchNum}] No tool calls (attempt ${attempt})`);
-    console.log(`[TRAVEL] Gemini raw:`, JSON.stringify(choice, null, 2));
+    console.log(`[TRAVEL] Model raw:`, JSON.stringify(choice, null, 2));
     return [];
   }
 
@@ -311,13 +292,10 @@ async function callTravelDetectionAI(
 }
 
 // ─── PROCESS TRAVEL CANDIDATES WITH RETRIES ───────────────────────────────────
-async function processTravelCandidates(candidates, homeZip, geminiApiKey) {
-  let last429 = null;
+async function processTravelCandidates(candidates, homeZip) {
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     if (attempt > 0) {
-      const delay = last429
-        ? (last429.retryAfterMs ?? get429DelayMs(attempt - 1))
-        : getDelayMs(attempt - 1);
+      const delay = getDelayMs(attempt - 1);
       console.log(`[TRAVEL] Retry ${attempt} (delay: ${Math.round(delay)}ms)`);
       await new Promise((r) => setTimeout(r, delay));
     }
@@ -327,21 +305,14 @@ async function processTravelCandidates(candidates, homeZip, geminiApiKey) {
         candidates,
         homeZip,
         1,
-        attempt,
-        geminiApiKey
+        attempt
       );
       if (trips.length > 0) {
         console.log(`[TRAVEL] ✓ Detected ${trips.length} trips`);
         return trips;
       }
-      last429 = null;
     } catch (e) {
-      if (e?.is429) {
-        last429 = e;
-      } else {
-        last429 = null;
-        console.error(`[TRAVEL] Exception (attempt ${attempt}):`, e.message);
-      }
+      console.error(`[TRAVEL] Exception (attempt ${attempt}):`, e.message);
     }
   }
 
@@ -483,9 +454,6 @@ async function updatePipelineRuns(db, batchId, customerId) {
 
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
-  const secrets = await getModelSecrets();
-  const geminiApiKey = secrets.GEMINI_API_KEY;
-
   for (const record of event.Records) {
     const { batch_id, customer_id, bank_id } = JSON.parse(record.body);
     console.log(
@@ -531,7 +499,7 @@ export const handler = async (event) => {
         zip: t.zip_code || 'unknown',
       }));
 
-      // Pre-filter to travel candidates only before sending to Gemini
+      // Pre-filter to travel candidates only before sending to the model gateway
       const candidates = filterTravelCandidates(summary, homeZip);
       console.log(
         `[TRAVEL] ${candidates.length}/${summary.length} transactions are travel candidates`
@@ -539,7 +507,7 @@ export const handler = async (event) => {
 
       if (candidates.length === 0) {
         console.log(
-          `[TRAVEL] No travel candidates found, skipping Gemini call`
+          `[TRAVEL] No travel candidates found, skipping model gateway call`
         );
         const stagesComplete = await updatePipelineRuns(
           db,
@@ -556,8 +524,7 @@ export const handler = async (event) => {
 
       const detectedTrips = await processTravelCandidates(
         candidates,
-        homeZip,
-        geminiApiKey
+        homeZip
       );
       console.log(`[TRAVEL] ${detectedTrips.length} trips detected`);
 
