@@ -79,7 +79,12 @@ assert.equal(
 );
 assert.match(
   gatewaySource,
-  /metadata:\s*\{[\s\S]*provider:[\s\S]*model:[\s\S]*role:/,
+  /logModelInvocationAudit/,
+  'gateway should emit non-client-facing invocation audit metadata'
+);
+assert.match(
+  gatewaySource,
+  /invocation_id:[\s\S]*task:[\s\S]*provider:[\s\S]*model:[\s\S]*duration_ms:/,
   'gateway responses should expose task/provider/model metadata for audit and evals'
 );
 assert.match(

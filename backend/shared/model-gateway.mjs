@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -46,6 +47,7 @@ export function createModelGateway({
   getSecrets,
   fetchImpl = globalThis.fetch,
   functionName = process.env.AWS_LAMBDA_FUNCTION_NAME,
+  logger = console,
 } = {}) {
   if (!getSecrets) throw new Error('getSecrets is required');
   if (!fetchImpl) throw new Error('fetch implementation is required');
@@ -77,9 +79,19 @@ export function createModelGateway({
         temperature,
         maxTokens: max_tokens,
       });
+      const invocation = createModelInvocationMetadata({
+        route,
+        label,
+        functionName,
+      });
       const secrets = await getSecrets();
       const apiKey = secrets[route.apiKeySecretField];
       if (!apiKey) {
+        finalizeModelInvocationMetadata(invocation, {
+          ok: false,
+          error: 'missing_api_key',
+        });
+        logModelInvocationAudit(logger, invocation);
         throw new Error(
           `Missing model API key field ${route.apiKeySecretField} for task ${task}`
         );
@@ -98,31 +110,81 @@ export function createModelGateway({
         ...extraBody,
       };
 
-      const response = await fetchOpenAiCompatible({
-        route,
-        apiKey,
-        body,
-        fetchImpl,
-        label,
-        maxRetries,
-        baseDelayMs,
-        maxDelayMs,
-        functionName,
-      });
+      let response;
+      try {
+        response = await fetchOpenAiCompatible({
+          route,
+          apiKey,
+          body,
+          fetchImpl,
+          label,
+          maxRetries,
+          baseDelayMs,
+          maxDelayMs,
+          functionName,
+        });
+        finalizeModelInvocationMetadata(invocation, {
+          ok: response.ok,
+          status: response.status,
+        });
+      } catch (error) {
+        finalizeModelInvocationMetadata(invocation, {
+          ok: false,
+          error: error?.name || 'model_gateway_error',
+        });
+        throw error;
+      } finally {
+        logModelInvocationAudit(logger, invocation);
+      }
 
       return {
         response,
         route,
-        metadata: {
-          task,
-          provider: route.provider,
-          model: route.model,
-          role: route.role,
-          shadow_only: route.shadowOnly,
-        },
+        metadata: invocation,
       };
     },
   };
+}
+
+export function createModelInvocationMetadata({ route, label, functionName }) {
+  const startedAtMs = Date.now();
+  return {
+    invocation_id: randomUUID(),
+    task: route.task,
+    provider: route.provider,
+    model: route.model,
+    role: route.role,
+    shadow_only: route.shadowOnly,
+    label,
+    function_name: functionName || 'unknown',
+    started_at: new Date(startedAtMs).toISOString(),
+    completed_at: null,
+    duration_ms: null,
+    status: null,
+    ok: null,
+    error: null,
+    audit_schema_version: 1,
+    _started_at_ms: startedAtMs,
+  };
+}
+
+export function finalizeModelInvocationMetadata(
+  metadata,
+  { ok, status = null, error = null }
+) {
+  const completedAtMs = Date.now();
+  metadata.completed_at = new Date(completedAtMs).toISOString();
+  metadata.duration_ms = Math.max(completedAtMs - metadata._started_at_ms, 0);
+  metadata.status = status;
+  metadata.ok = ok;
+  metadata.error = error;
+  delete metadata._started_at_ms;
+  return metadata;
+}
+
+export function logModelInvocationAudit(logger, metadata) {
+  if (process.env.MODEL_GATEWAY_AUDIT_LOGS === 'false') return;
+  logger.info?.('[MODEL_GATEWAY_AUDIT]', metadata);
 }
 
 async function fetchOpenAiCompatible({

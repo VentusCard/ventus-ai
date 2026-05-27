@@ -27,11 +27,17 @@ test('model routing config defines required enrichment tasks', () => {
 
 test('model gateway sends OpenAI-compatible chat completions with route metadata', async () => {
   const calls = [];
+  const auditLogs = [];
   const gateway = createModelGateway({
     getSecrets: async () => ({ GEMINI_API_KEY: 'test-key' }),
     fetchImpl: async (url, options) => {
       calls.push({ url, options });
       return new Response(JSON.stringify({ choices: [] }), { status: 200 });
+    },
+    logger: {
+      info(...args) {
+        auditLogs.push(args);
+      },
     },
   });
 
@@ -56,14 +62,31 @@ test('model gateway sends OpenAI-compatible chat completions with route metadata
   assert.equal(body.messages[0].content, 'classify this');
   assert.equal(result.metadata.task, 'merchant_classification');
   assert.equal(result.metadata.provider, 'gemini');
+  assert.equal(result.metadata.model, 'gemini-2.5-flash');
+  assert.equal(result.metadata.ok, true);
+  assert.equal(result.metadata.status, 200);
+  assert.match(result.metadata.invocation_id, /^[0-9a-f-]{36}$/);
+  assert.ok(result.metadata.duration_ms >= 0);
   assert.equal(result.response.status, 200);
+
+  assert.equal(auditLogs.length, 1);
+  assert.equal(auditLogs[0][0], '[MODEL_GATEWAY_AUDIT]');
+  assert.equal(auditLogs[0][1].task, 'merchant_classification');
+  assert.equal(auditLogs[0][1].ok, true);
+  assert.doesNotMatch(JSON.stringify(auditLogs), /classify this/);
 });
 
 test('model gateway fails closed when a routed secret field is missing', async () => {
+  const auditLogs = [];
   const gateway = createModelGateway({
     getSecrets: async () => ({}),
     fetchImpl: async () => {
       throw new Error('fetch should not be called');
+    },
+    logger: {
+      info(...args) {
+        auditLogs.push(args);
+      },
     },
   });
 
@@ -75,4 +98,8 @@ test('model gateway fails closed when a routed secret field is missing', async (
       }),
     /Missing model API key field GEMINI_API_KEY/
   );
+  assert.equal(auditLogs.length, 1);
+  assert.equal(auditLogs[0][1].task, 'risk_detection');
+  assert.equal(auditLogs[0][1].ok, false);
+  assert.equal(auditLogs[0][1].error, 'missing_api_key');
 });
