@@ -150,11 +150,7 @@ function variableName(openApiName) {
 }
 
 function postmanPath(path) {
-  return path
-    .replaceAll('{job_id}', '{{jobId}}')
-    .replaceAll('{customer_id}', '{{customerId}}')
-    .replaceAll('{webhook_id}', '{{webhookId}}')
-    .replaceAll('{delivery_id}', '{{deliveryId}}');
+  return path.replace(/\{([^}]+)\}/g, (_, name) => `{{${variableName(name)}}}`);
 }
 
 function requestForOperation(operation) {
@@ -248,11 +244,16 @@ function buildCollection(operations) {
       { key: 'apiKey', value: '', type: 'secret' },
       { key: 'jobId', value: 'job_demo_001', type: 'string' },
       { key: 'customerId', value: 'cust_demo_001', type: 'string' },
+      { key: 'lifeEventId', value: 'life_event_demo_001', type: 'string' },
+      { key: 'behavioralSignalId', value: 'behavioral_signal_demo_001', type: 'string' },
+      { key: 'tripId', value: 'trip_demo_001', type: 'string' },
+      { key: 'riskFactorId', value: 'risk_factor_demo_001', type: 'string' },
       { key: 'webhookId', value: 'wh_bank_demo_1770000000000', type: 'string' },
       { key: 'deliveryId', value: '00000000-0000-4000-8000-000000000000', type: 'string' },
       { key: 'webhookIdFilter', value: 'wh_bank_demo_1770000000000', type: 'string' },
       { key: 'status', value: 'failed', type: 'string' },
       { key: 'limit', value: '20', type: 'string' },
+      { key: 'offset', value: '0', type: 'string' },
     ],
     item: [...folders.values()],
   };
