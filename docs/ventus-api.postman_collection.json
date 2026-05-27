@@ -59,6 +59,26 @@
       "type": "string"
     },
     {
+      "key": "lifeEventId",
+      "value": "life_event_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "behavioralSignalId",
+      "value": "behavioral_signal_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "tripId",
+      "value": "trip_demo_001",
+      "type": "string"
+    },
+    {
+      "key": "riskFactorId",
+      "value": "risk_factor_demo_001",
+      "type": "string"
+    },
+    {
       "key": "webhookId",
       "value": "wh_bank_demo_1770000000000",
       "type": "string"
@@ -81,6 +101,11 @@
     {
       "key": "limit",
       "value": "20",
+      "type": "string"
+    },
+    {
+      "key": "offset",
+      "value": "0",
       "type": "string"
     }
   ],
@@ -299,7 +324,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events/{life_event_id}",
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events/{{lifeEventId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -308,7 +333,7 @@
                 "customers",
                 "{{customerId}}",
                 "life-events",
-                "{life_event_id}"
+                "{{lifeEventId}}"
               ],
               "query": []
             },
@@ -321,7 +346,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/behavioral-signals/{behavioral_signal_id}",
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/behavioral-signals/{{behavioralSignalId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -330,7 +355,7 @@
                 "customers",
                 "{{customerId}}",
                 "behavioral-signals",
-                "{behavioral_signal_id}"
+                "{{behavioralSignalId}}"
               ],
               "query": []
             },
@@ -385,7 +410,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips/{trip_id}",
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips/{{tripId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -394,7 +419,7 @@
                 "customers",
                 "{{customerId}}",
                 "trips",
-                "{trip_id}"
+                "{{tripId}}"
               ],
               "query": []
             },
@@ -428,7 +453,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors/{risk_factor_id}",
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors/{{riskFactorId}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -437,7 +462,7 @@
                 "customers",
                 "{{customerId}}",
                 "risk-factors",
-                "{risk_factor_id}"
+                "{{riskFactorId}}"
               ],
               "query": []
             },
