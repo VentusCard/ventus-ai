@@ -15,6 +15,10 @@ const gatewaySource = readFileSync(
   resolve('../backend/shared/model-gateway.mjs'),
   'utf8'
 );
+const riskDetectionSource = readFileSync(
+  resolve('../backend/functions/ventus-risk-detection/index.mjs'),
+  'utf8'
+);
 
 const requiredTasks = [
   'merchant_classification',
@@ -66,7 +70,17 @@ assert.match(
   /metadata:\s*\{[\s\S]*provider:[\s\S]*model:[\s\S]*role:/,
   'gateway responses should expose task/provider/model metadata for audit and evals'
 );
+assert.match(
+  riskDetectionSource,
+  /createModelGateway/,
+  'risk detection should use the shared model gateway'
+);
+assert.match(
+  riskDetectionSource,
+  /task:\s*'risk_detection'/,
+  'risk detection should route through the risk_detection task'
+);
 
 console.log(
-  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), judge shadow-only`
+  `Model gateway readiness ok: ${requiredTasks.length} routed task(s), risk_detection migrated, judge shadow-only`
 );

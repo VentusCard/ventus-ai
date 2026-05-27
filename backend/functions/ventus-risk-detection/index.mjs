@@ -1,11 +1,11 @@
 // lambdas/analyze-risk-factors/index.mjs
 // Triggered by SQS ventus-risk-queue
 // Reads from transactions_enriched + transactions_raw
-// → runs deterministic risk detection + Gemini AML analysis
+// → runs deterministic risk detection + model-routed AML analysis
 // → writes to customer_risk_factors → fires risk_detected webhook if high severity
 
 import { createDbFactory } from '../../shared/db.mjs';
-import { fetchGeminiChatCompletion } from '../../shared/model-provider.mjs';
+import { createModelGateway } from '../../shared/model-gateway.mjs';
 import { createSecretsProvider, resolveSecretId } from '../../shared/secrets.mjs';
 import { checkAndEmitBatchOutcome, markCustomerPipelineFailed } from '../../shared/batch-outcome.mjs';
 import { createWebhookDispatcher } from '../../shared/webhooks.mjs';
@@ -17,6 +17,10 @@ const MODEL_PROVIDER_SECRET_ID = resolveSecretId({
 const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
 const getModelSecrets = createSecretsProvider({
   secretId: MODEL_PROVIDER_SECRET_ID,
+});
+const modelGateway = createModelGateway({
+  getSecrets: getModelSecrets,
+  functionName: process.env.AWS_LAMBDA_FUNCTION_NAME || 'ventus-risk-detection',
 });
 
 // ─── DB ───────────────────────────────────────────────────────────────────────
@@ -901,7 +905,7 @@ Respond with valid JSON only, no markdown:
 
 If no AML patterns found return: {"flags":[]}`;
 
-async function callGeminiForAML(transactions, alreadyFlaggedIds, geminiApiKey) {
+async function callModelForAML(transactions, alreadyFlaggedIds) {
   const txSummary = transactions
     .filter((t) => !alreadyFlaggedIds.has(t.transaction_id))
     .map((t) => ({
@@ -917,26 +921,23 @@ async function callGeminiForAML(transactions, alreadyFlaggedIds, geminiApiKey) {
   if (txSummary.length === 0) return [];
 
   try {
-    const res = await fetchGeminiChatCompletion({
-      apiKey: geminiApiKey,
+    const { response: res, metadata } = await modelGateway.chatCompletion({
+      task: 'risk_detection',
       label: 'RISK',
       maxRetries: 3,
-      body: {
-        model: 'gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: AML_SYSTEM_PROMPT },
-          {
-            role: 'user',
-            content: `Analyze ${txSummary.length} transactions for AML patterns:\n${JSON.stringify(txSummary, null, 1)}`,
-          },
-        ],
-        temperature: 0,
-        max_tokens: 2000,
-      },
+      messages: [
+        { role: 'system', content: AML_SYSTEM_PROMPT },
+        {
+          role: 'user',
+          content: `Analyze ${txSummary.length} transactions for AML patterns:\n${JSON.stringify(txSummary, null, 1)}`,
+        },
+      ],
     });
 
     if (!res.ok) {
-      console.warn(`[RISK] Gemini AML error ${res.status}`);
+      console.warn(
+        `[RISK] ${metadata.provider}/${metadata.model} AML error ${res.status}`
+      );
       return [];
     }
 
@@ -950,7 +951,7 @@ async function callGeminiForAML(transactions, alreadyFlaggedIds, geminiApiKey) {
     const parsed = JSON.parse(clean.trim());
     return Array.isArray(parsed.flags) ? parsed.flags : [];
   } catch (e) {
-    console.error('[RISK] Gemini AML exception:', e.message);
+    console.error('[RISK] Model-routed AML exception:', e.message);
     return [];
   }
 }
@@ -1023,9 +1024,6 @@ async function updatePipelineRuns(db, batchId, customerId) {
 // ─── BATCH COMPLETE CHECK ─────────────────────────────────────────────────────
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
-  const secrets = await getModelSecrets();
-  const geminiApiKey = secrets.GEMINI_API_KEY;
-
   for (const record of event.Records) {
     const { batch_id, customer_id, bank_id } = JSON.parse(record.body);
     console.log(`[RISK] Processing customer ${customer_id} batch ${batch_id}`);
@@ -1045,13 +1043,9 @@ export const handler = async (event) => {
       const detFlags = deterministicFlags(transactions);
       console.log(`[RISK] Deterministic flags: ${detFlags.length}`);
 
-      // Step 2 — Gemini AML analysis
+      // Step 2 — model-routed AML analysis
       const alreadyFlaggedIds = new Set(detFlags.map((f) => f.transaction_id));
-      const amlFlags = await callGeminiForAML(
-        transactions,
-        alreadyFlaggedIds,
-        geminiApiKey
-      );
+      const amlFlags = await callModelForAML(transactions, alreadyFlaggedIds);
       console.log(`[RISK] AML flags: ${amlFlags.length}`);
 
       // Step 3 — merge, deterministic wins
