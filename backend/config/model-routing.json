@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "default_provider": "gemini",
+  "default_model": "gemini-2.5-flash",
+  "providers": {
+    "gemini": {
+      "type": "openai_compatible",
+      "endpoint": "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions",
+      "api_key_secret_field": "GEMINI_API_KEY"
+    }
+  },
+  "tasks": {
+    "merchant_classification": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "role": "fast_worker",
+      "temperature": 0,
+      "max_tokens": 4000
+    },
+    "life_event_detection": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "role": "reasoning_worker",
+      "temperature": 0,
+      "max_tokens": 8000
+    },
+    "risk_detection": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "role": "risk_worker",
+      "temperature": 0,
+      "max_tokens": 2000
+    },
+    "travel_detection": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "role": "domain_worker",
+      "temperature": 0,
+      "max_tokens": 4000
+    },
+    "enrichment_judge": {
+      "provider": "gemini",
+      "model": "gemini-2.5-flash",
+      "role": "qa_judge",
+      "temperature": 0,
+      "max_tokens": 4000,
+      "shadow_only": true
+    }
+  }
+}

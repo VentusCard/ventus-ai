@@ -57,6 +57,7 @@ This backlog is scoped to backend and platform readiness. It intentionally exclu
 - Add backend-only smoke tests against a staging API and staging database.
 - Add schema contract tests for API responses. Initial CI-safe checks live in `backend/scripts/qa-enrichment-contract.mjs`.
 - Add golden enrichment expectations for mock FIS, Fiserv, Jack Henry, and provider-agnostic multi-rail transactions. Initial CI-safe checks live in `backend/scripts/qa-golden-enrichment.mjs`.
+- Add multi-LLM evaluation routing before sandbox data arrives. Initial task routing and gateway readiness checks live in `backend/config/model-routing.json`, `backend/shared/model-gateway.mjs`, and `backend/scripts/check-model-gateway-readiness.mjs`; the judge route starts shadow-only and must not alter production enrichment output until measured against golden expectations.
 - Add latency checks for each pipeline stage.
 - Add regression tests for webhook signing and delivery payload shape.
 - Add regression tests for webhook delivery persistence. Initial shared dispatcher tests cover delivered and failed attempts.
