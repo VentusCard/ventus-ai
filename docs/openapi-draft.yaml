@@ -83,6 +83,45 @@ components:
           type: integer
         message:
           type: string
+    BatchSummary:
+      type: object
+      properties:
+        batch_id:
+          type: string
+        source_file:
+          type: string
+        status:
+          type: string
+          enum: [complete, partial, failed, processing]
+        batch_outcome_event:
+          type: string
+          nullable: true
+        ingested_at:
+          type: string
+          format: date-time
+        customer_count:
+          type: integer
+        transaction_count:
+          type: integer
+        customers_complete:
+          type: integer
+        customers_failed:
+          type: integer
+        customers_in_progress:
+          type: integer
+    JobListResponse:
+      type: object
+      properties:
+        bank_id:
+          type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
+        batches:
+          type: array
+          items:
+            $ref: '#/components/schemas/BatchSummary'
     Job:
       type: object
       properties:
@@ -382,6 +421,10 @@ components:
       properties:
         customer_id:
           type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
         life_events:
           type: array
           items:
@@ -510,6 +553,10 @@ components:
       properties:
         customer_id:
           type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
         trips:
           type: array
           items:
@@ -552,6 +599,10 @@ components:
       properties:
         customer_id:
           type: string
+        limit:
+          type: integer
+        offset:
+          type: integer
         risk_factors:
           type: array
           items:
@@ -715,22 +766,57 @@ paths:
                 $ref: '#/components/schemas/Error'
   /v1/jobs:
     get:
-      summary: Look up job by S3 key
+      summary: List recent batches or look up by S3 key
+      description: |
+        Without `s3_key`: returns a paginated list of batches for the authenticated bank,
+        aggregated from pipeline runs, ordered by submission time descending.
+        With `s3_key`: legacy lookup — returns the full per-customer detail for that source file.
       parameters:
         - in: query
           name: s3_key
-          required: true
+          required: false
           schema:
             type: string
+          description: If provided, returns the per-customer job detail for this source file (legacy mode).
+        - in: query
+          name: limit
+          required: false
+          schema:
+            type: integer
+            default: 20
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          required: false
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
+        - in: query
+          name: status
+          required: false
+          schema:
+            type: string
+            enum: [complete, partial, failed, processing]
+          description: Filter batches by aggregate status.
       responses:
         '200':
-          description: Job status
+          description: Batch list or legacy job detail
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Job'
+                oneOf:
+                  - $ref: '#/components/schemas/JobListResponse'
+                  - $ref: '#/components/schemas/Job'
+        '400':
+          description: Invalid status filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '404':
-          description: Job not found
+          description: Job not found (s3_key mode only)
           content:
             application/json:
               schema:
@@ -841,9 +927,24 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: limit
+          description: Maximum number of combined life-event and behavioral-signal rows to return.
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          description: Number of combined life-event and behavioral-signal rows to skip.
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
       responses:
         '200':
-          description: Life events with evidence and recommendations
+          description: Life events with evidence and recommendations. Pagination is applied before splitting the combined result into life_events and behavioral_signals.
           content:
             application/json:
               schema:
@@ -919,6 +1020,19 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
       responses:
         '200':
           description: Trips
@@ -958,9 +1072,22 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 100
+            minimum: 1
+            maximum: 500
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+            minimum: 0
       responses:
         '200':
-          description: Risk factors and summary
+          description: Risk factors and page-level severity summary
           content:
             application/json:
               schema:

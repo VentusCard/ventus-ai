@@ -377,14 +377,16 @@ const CUSTOMER_LIFE_EVENT_COLUMNS = `id, event_name, event_type, event_category,
               signal_category, signal_name, insight,
               first_detected_at, last_confirmed_at, detected_at`;
 
-async function fetchLifeEventEvidenceRows(db, lifeEventId) {
+async function fetchLifeEventEvidenceRows(db, lifeEventId, bankId) {
   const evidence = await db.query(
     `SELECT lee.transaction_id, te.clean_merchant_name as merchant,
             te.amount, te.transaction_date as date, lee.relevance
      FROM life_event_evidence lee
-     LEFT JOIN transactions_enriched te ON lee.transaction_id = te.transaction_id
+     LEFT JOIN transactions_enriched te
+       ON lee.transaction_id = te.transaction_id
+      AND te.bank_id = $2
      WHERE lee.life_event_id = $1`,
-    [lifeEventId]
+    [lifeEventId, bankId]
   );
   return evidence.rows;
 }
@@ -475,8 +477,17 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
       [id, req.bankId, limit, offset]
     );
 
-    if (allEvents.rows.length === 0)
+    if (allEvents.rows.length === 0 && offset === 0)
       return res.status(404).json({ error: 'No life events found' });
+    if (allEvents.rows.length === 0) {
+      return res.status(200).json({
+        customer_id: id,
+        limit,
+        offset,
+        life_events: [],
+        behavioral_signals: [],
+      });
+    }
 
     // Batch-fetch all evidence in a single query instead of one query per event.
     const eventIds = allEvents.rows.map((e) => e.id);
@@ -485,9 +496,11 @@ app.get('/v1/customers/:id/life-events', async (req, res) => {
               te.clean_merchant_name AS merchant,
               te.amount, te.transaction_date AS date, lee.relevance
        FROM life_event_evidence lee
-       LEFT JOIN transactions_enriched te ON lee.transaction_id = te.transaction_id
+       LEFT JOIN transactions_enriched te
+         ON lee.transaction_id = te.transaction_id
+        AND te.bank_id = $2
        WHERE lee.life_event_id = ANY($1)`,
-      [eventIds]
+      [eventIds, req.bankId]
     );
     const evidenceByEventId = {};
     for (const row of evidenceResult.rows) {
@@ -539,7 +552,7 @@ app.get('/v1/customers/:id/life-events/:life_event_id', async (req, res) => {
     });
     if (!row) return res.status(404).json({ error: 'Life event not found' });
 
-    const evidence = await fetchLifeEventEvidenceRows(db, row.id);
+    const evidence = await fetchLifeEventEvidenceRows(db, row.id, req.bankId);
     res.status(200).json({
       customer_id: id,
       life_event: mapLifeEventResponseRow({ ...row, evidence }),
@@ -570,7 +583,7 @@ app.get('/v1/customers/:id/behavioral-signals/:behavioral_signal_id', async (req
     });
     if (!row) return res.status(404).json({ error: 'Behavioral signal not found' });
 
-    const evidence = await fetchLifeEventEvidenceRows(db, row.id);
+    const evidence = await fetchLifeEventEvidenceRows(db, row.id, req.bankId);
     res.status(200).json({
       customer_id: id,
       behavioral_signal: mapBehavioralSignalResponseRow({ ...row, evidence }),
@@ -902,8 +915,16 @@ app.get('/v1/customers/:id/trips', async (req, res) => {
       [id, req.bankId, limit, offset]
     );
 
-    if (trips.rows.length === 0)
+    if (trips.rows.length === 0 && offset === 0)
       return res.status(404).json({ error: 'No trips found' });
+    if (trips.rows.length === 0) {
+      return res.status(200).json({
+        customer_id: id,
+        limit,
+        offset,
+        trips: [],
+      });
+    }
 
     res.status(200).json({
       customer_id: id,
@@ -982,8 +1003,22 @@ app.get('/v1/customers/:id/risk-factors', async (req, res) => {
       [id, req.bankId, limit, offset]
     );
 
-    if (result.rows.length === 0)
+    if (result.rows.length === 0 && offset === 0)
       return res.status(404).json({ error: 'No risk factors found' });
+    if (result.rows.length === 0) {
+      return res.status(200).json({
+        customer_id: id,
+        limit,
+        offset,
+        risk_factors: [],
+        summary: {
+          total: 0,
+          high: 0,
+          medium: 0,
+          low: 0,
+        },
+      });
+    }
 
     res.status(200).json({
       customer_id: id,
@@ -1250,44 +1285,105 @@ app.get('/v1/jobs', async (req, res) => {
   const db = await getDB();
   await db.connect();
   try {
-    const { s3_key } = req.query;
-    if (!s3_key)
-      return res.status(400).json({ error: 's3_key query param required' });
+    const { s3_key, status: statusFilter } = req.query;
 
-    const job = await db.query(
-      `SELECT batch_id, bank_id, customer_id, source_file,
-              transaction_count, status, error_message,
-              ingested_at, classified_at, pillar_analyzed_at,
-              travel_detected_at, lifestyle_analyzed_at, risk_analyzed_at, completed_at
+    // ── Legacy: lookup by s3_key ────────────────────────────────────────────
+    if (s3_key) {
+      const job = await db.query(
+        `SELECT batch_id, bank_id, customer_id, source_file,
+                transaction_count, status, error_message,
+                ingested_at, classified_at, pillar_analyzed_at,
+                travel_detected_at, lifestyle_analyzed_at, risk_analyzed_at, completed_at
+         FROM pipeline_runs
+         WHERE source_file = $1 AND bank_id = $2
+         ORDER BY ingested_at DESC`,
+        [s3_key, req.bankId]
+      );
+
+      if (job.rows.length === 0)
+        return res.status(404).json({ error: 'Job not found' });
+
+      return res.status(200).json({
+        job_id: job.rows[0].batch_id,
+        status: job.rows[0].status,
+        bank_id: job.rows[0].bank_id,
+        transaction_count: job.rows[0].transaction_count,
+        source_file: job.rows[0].source_file,
+        customers: job.rows.map((r) => ({
+          customer_id: r.customer_id,
+          status: r.status,
+          error_message: r.error_message,
+          timestamps: {
+            ingested_at: r.ingested_at,
+            classified_at: r.classified_at,
+            pillar_analyzed_at: r.pillar_analyzed_at,
+            travel_detected_at: r.travel_detected_at,
+            lifestyle_analyzed_at: r.lifestyle_analyzed_at,
+            risk_analyzed_at: r.risk_analyzed_at,
+            completed_at: r.completed_at,
+          },
+        })),
+      });
+    }
+
+    // ── General batch listing ────────────────────────────────────────────────
+    const limit = Math.min(Math.max(Number.parseInt(req.query.limit || '20', 10) || 20, 1), 100);
+    const offset = Math.max(Number.parseInt(req.query.offset || '0', 10) || 0, 0);
+
+    const VALID_STATUS_FILTERS = ['complete', 'partial', 'failed', 'processing'];
+    if (statusFilter && !VALID_STATUS_FILTERS.includes(statusFilter)) {
+      return res.status(400).json({
+        error: `status must be one of: ${VALID_STATUS_FILTERS.join(', ')}`,
+      });
+    }
+
+    // Aggregate pipeline_runs to one row per batch_id.
+    // batch status:
+    //   complete  — all customers complete
+    //   failed    — all customers failed
+    //   partial   — mix of complete and failed, none in progress
+    //   processing — at least one customer still in progress
+    const params = [req.bankId, limit, offset];
+    const havingClause = statusFilter
+      ? {
+          complete: `HAVING bool_and(status = 'complete')`,
+          failed: `HAVING bool_and(status = 'failed')`,
+          partial: `HAVING bool_or(status = 'complete') AND bool_or(status = 'failed') AND NOT bool_or(status NOT IN ('complete','failed'))`,
+          processing: `HAVING bool_or(status NOT IN ('complete','failed'))`,
+        }[statusFilter]
+      : '';
+
+    const result = await db.query(
+      `SELECT
+         batch_id,
+         MAX(source_file)          AS source_file,
+         MIN(ingested_at)          AS ingested_at,
+         MAX(batch_outcome_event)  AS batch_outcome_event,
+         COUNT(DISTINCT customer_id)::int           AS customer_count,
+         SUM(transaction_count)::int                AS transaction_count,
+         COUNT(*) FILTER (WHERE status = 'complete')::int           AS customers_complete,
+         COUNT(*) FILTER (WHERE status = 'failed')::int             AS customers_failed,
+         COUNT(*) FILTER (WHERE status NOT IN ('complete','failed'))::int AS customers_in_progress,
+         CASE
+           WHEN bool_and(status = 'complete') THEN 'complete'
+           WHEN bool_and(status = 'failed')   THEN 'failed'
+           WHEN bool_or(status NOT IN ('complete','failed')) THEN 'processing'
+           ELSE 'partial'
+         END AS status
        FROM pipeline_runs
-       WHERE source_file = $1 AND bank_id = $2
-       ORDER BY ingested_at DESC`,
-      [s3_key, req.bankId]
+       WHERE bank_id = $1
+       GROUP BY batch_id
+       ${havingClause}
+       ORDER BY MIN(ingested_at) DESC
+       LIMIT $2 OFFSET $3`,
+      params
     );
 
-    if (job.rows.length === 0)
-      return res.status(404).json({ error: 'Job not found' });
-
     res.status(200).json({
-      job_id: job.rows[0].batch_id,
-      status: job.rows[0].status,
-      bank_id: job.rows[0].bank_id,
-      transaction_count: job.rows[0].transaction_count,
-      source_file: job.rows[0].source_file,
-      customers: job.rows.map((r) => ({
-        customer_id: r.customer_id,
-        status: r.status,
-        error_message: r.error_message,
-        timestamps: {
-          ingested_at: r.ingested_at,
-          classified_at: r.classified_at,
-          pillar_analyzed_at: r.pillar_analyzed_at,
-          travel_detected_at: r.travel_detected_at,
-          lifestyle_analyzed_at: r.lifestyle_analyzed_at,
-          risk_analyzed_at: r.risk_analyzed_at,
-          completed_at: r.completed_at,
-        },
-      })),
+      bank_id: req.bankId,
+      limit,
+      offset,
+      batches: result.rows,
     });
   } catch (e) {
     console.error(e);

@@ -175,12 +175,12 @@
       "name": "Jobs",
       "item": [
         {
-          "name": "Look up job by S3 key",
+          "name": "List recent batches or look up by S3 key",
           "request": {
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/jobs?s3_key={{s3Key}}",
+              "raw": "{{baseUrl}}/v1/jobs?s3_key={{s3Key}}&limit={{limit}}&offset={{offset}}&status={{status}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -192,7 +192,22 @@
                 {
                   "key": "s3_key",
                   "value": "{{s3Key}}",
-                  "disabled": false
+                  "disabled": true
+                },
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                },
+                {
+                  "key": "status",
+                  "value": "{{status}}",
+                  "disabled": true
                 }
               ]
             },
@@ -303,7 +318,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events",
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/life-events?limit={{limit}}&offset={{offset}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -313,7 +328,18 @@
                 "{{customerId}}",
                 "life-events"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                }
+              ]
             },
             "description": "GET /v1/customers/{customer_id}/life-events"
           }
@@ -389,7 +415,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips",
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/trips?limit={{limit}}&offset={{offset}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -399,7 +425,18 @@
                 "{{customerId}}",
                 "trips"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                }
+              ]
             },
             "description": "GET /v1/customers/{customer_id}/trips"
           }
@@ -432,7 +469,7 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors",
+              "raw": "{{baseUrl}}/v1/customers/{{customerId}}/risk-factors?limit={{limit}}&offset={{offset}}",
               "host": [
                 "{{baseUrl}}"
               ],
@@ -442,7 +479,18 @@
                 "{{customerId}}",
                 "risk-factors"
               ],
-              "query": []
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "{{limit}}",
+                  "disabled": true
+                },
+                {
+                  "key": "offset",
+                  "value": "{{offset}}",
+                  "disabled": true
+                }
+              ]
             },
             "description": "GET /v1/customers/{customer_id}/risk-factors"
           }
