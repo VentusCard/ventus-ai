@@ -19,6 +19,7 @@
     "check:cors": "node ./scripts/check-api-cors-readiness.mjs",
     "check:imports": "node ./scripts/check-relative-imports.mjs",
     "check:model-gateway": "node ./scripts/check-model-gateway-readiness.mjs",
+    "check:model-gateway-deploy": "node ./scripts/check-model-gateway-deploy-readiness.mjs",
     "check:pipeline-readiness": "node ./scripts/check-pipeline-readiness.mjs",
     "test": "node --test \"./shared/*.test.mjs\""
   }
