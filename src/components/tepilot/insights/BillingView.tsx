@@ -1,5 +1,4 @@
 import { CreditCard, Download, TrendingUp, Receipt, Package } from "lucide-react";
-import { TabHeader } from "./TabHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
