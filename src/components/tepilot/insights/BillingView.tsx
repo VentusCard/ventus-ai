@@ -1,5 +1,4 @@
 import { CreditCard, Download, TrendingUp, Receipt, Package } from "lucide-react";
-import { TabHeader } from "./TabHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,14 +36,6 @@ function formatNum(n: number) {
 export function BillingView() {
   return (
     <div className="space-y-6">
-      <TabHeader
-        icon={<CreditCard className="w-4 h-4" />}
-        title="Billing & Subscription"
-        subtitle="Manage your plan, payment methods, and view invoices"
-        howItWorks="Your subscription bundles platform access with usage-based modules. Invoices are issued on the first of each month."
-        whyItMatters="Clear visibility into spend and usage helps you right-size modules as adoption grows across your institution."
-      />
-
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-5">
         <Card className="p-5 shadow-sm lg:col-span-2">
           <div className="flex items-start justify-between gap-4">

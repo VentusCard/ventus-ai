@@ -1,5 +1,4 @@
-import { Settings, Building2, Bell, Plug, ShieldCheck, Check } from "lucide-react";
-import { TabHeader } from "./TabHeader";
+import { Building2, Bell, Plug, ShieldCheck, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -44,14 +43,6 @@ function ToggleRow({ label, desc, defaultChecked }: { label: string; desc: strin
 export function SettingsView() {
   return (
     <div className="space-y-6">
-      <TabHeader
-        icon={<Settings className="w-4 h-4" />}
-        title="Settings & Integrations"
-        subtitle="Manage your institution profile, integrations, notifications, and security"
-        howItWorks="Configure how your team and customers experience Ventus — from data source connections to notification preferences and identity controls."
-        whyItMatters="A well-tuned settings layer keeps your data flowing reliably and your team focused on the alerts that matter most."
-      />
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         <SectionCard title="Institution Profile" icon={Building2}>
           <div className="space-y-4">

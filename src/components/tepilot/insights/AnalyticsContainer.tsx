@@ -12,9 +12,7 @@ import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
-import { SettingsView } from "./SettingsView";
-import { BillingView } from "./BillingView";
-import { TeamView } from "./TeamView";
+import { SettingsContainer } from "./SettingsContainer";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
@@ -30,7 +28,7 @@ import { Button } from "@/components/ui/button";
 import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'billing' | 'team';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings';
 
 interface NavItem {
   value: TabValue;
@@ -87,8 +85,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Admin",
     items: [
       { value: "settings", label: "Settings", icon: Settings },
-      { value: "billing", label: "Billing", icon: CreditCard },
-      { value: "team", label: "Team & Permissions", icon: Users },
     ],
   },
 ];
@@ -178,9 +174,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
           </div>
         </div>
       );
-      case 'settings': return <SettingsView />;
-      case 'billing': return <BillingView />;
-      case 'team': return <TeamView />;
+      case 'settings': return <SettingsContainer />;
     }
   };
 

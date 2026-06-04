@@ -1,5 +1,4 @@
 import { Users, UserPlus, MoreVertical, Mail, Check, X } from "lucide-react";
-import { TabHeader } from "./TabHeader";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -54,14 +53,6 @@ function initials(name: string) {
 export function TeamView() {
   return (
     <div className="space-y-6">
-      <TabHeader
-        icon={<Users className="w-4 h-4" />}
-        title="Team & Permissions"
-        subtitle="Manage who has access to Ventus and what they can do"
-        howItWorks="Roles bundle permissions across analytics, deals, settings, and billing. Owners can promote, demote, and remove any user."
-        whyItMatters="Tight role hygiene keeps customer data scoped to the people who need it and audit trails clean for compliance."
-      />
-
       <div className="flex items-center justify-between">
         <div>
           <p className="text-2xl font-bold text-slate-900">{members.length} <span className="text-sm font-normal text-slate-500">team members</span></p>
