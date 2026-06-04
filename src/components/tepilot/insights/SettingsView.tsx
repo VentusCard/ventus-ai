@@ -1,5 +1,4 @@
-import { Settings, Building2, Bell, Plug, ShieldCheck, Check } from "lucide-react";
-import { TabHeader } from "./TabHeader";
+import { Building2, Bell, Plug, ShieldCheck, Check } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
