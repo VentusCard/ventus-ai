@@ -96,7 +96,6 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
-  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Filter nav groups based on enabled modules
@@ -122,6 +121,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
     const set = new Set<TabValue>();
     filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
     set.add('settings'); // footer-anchored, always available
+    set.add('feedback'); // footer-anchored, always available
     return set;
   }, [filteredNavGroups]);
 
@@ -169,6 +169,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </div>
       );
       case 'settings': return <SettingsContainer />;
+      case 'feedback': return <FeedbackPage />;
     }
   };
 
@@ -255,15 +256,15 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
         <div className="mt-auto border-t border-slate-200 py-1">
           {[
-            { label: "Feedback & Ideas", icon: MessageSquare, onClick: () => setFeedbackOpen(true) },
-            { label: "Settings", icon: Settings, onClick: () => setActiveTab('settings') },
+            { label: "Feedback & Ideas", icon: MessageSquare, tab: 'feedback' as const },
+            { label: "Settings", icon: Settings, tab: 'settings' as const },
           ].map((item) => {
             const Icon = item.icon;
-            const isActive = activeTab === 'settings' && item.label === 'Settings';
+            const isActive = activeTab === item.tab;
             return (
               <button
                 key={item.label}
-                onClick={item.onClick}
+                onClick={() => setActiveTab(item.tab)}
                 title={collapsed ? item.label : undefined}
                 className={cn(
                   "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
@@ -300,7 +301,6 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
       )}
       </div>
-      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </div>
   );
 }
