@@ -1,23 +1,30 @@
-## Root cause
+# Hover Explanations for Behavioral Intelligence Labels
 
-Resend's testing mode (the `onboarding@resend.dev` sender) only allows sending to the account owner (`marco@ventusai.com`) and **rejects any additional recipient field**. The function currently sets `reply_to` to whatever email the submitter types — Resend counts that as a second recipient and returns:
+On `/demo`, in the Behavioral Intelligence step (`ExecDemoIntelPanel.tsx`, lines ~828–857), wrap each of the three row labels in a shadcn `Tooltip` so hovering reveals what Ventus detects under that category.
 
-```text
-403 You can only send testing emails to your own email address...
-```
+## Tooltip copy
 
-That's why every submission still fails.
+**Spending Habits** (cyan label)
 
-## Fix
+> Dynamic behavioral labels derived from 3-tier semantic enrichment . Patterns adapt to the customer's life: e.g. "Club tennis player (summer season)", "Weeknight Thai takeout regular", "Luxury fitness loyalist".
 
-In `supabase/functions/send-feedback/index.ts`:
+**Life Event Detection** (amber label)
 
-1. Remove the `reply_to` line entirely (this is what trips the 403).
-2. Keep `to: ['marco@ventusai.com']`.
-3. Surface the submitter's contact email so you know who to reach out to:
-   - Subject becomes: `New Ventus feedback from {name} <{contact}>`
-   - The Contact row is already rendered prominently in the HTML/text body.
+> 20+ major life events detected  before the customer tells you — new baby, home purchase, relocation, marriage, divorce, new job and more. 
 
-Then redeploy `send-feedback` and test from `/bankdemo` → Feedback & Ideas.
+**Risk Factors** (red label)
 
-No frontend, schema, or secret changes needed. Verifying a domain in Resend later would let us also reply directly to submitters, but it isn't required.
+> Obfuscated behavioral risk signals across Financial Vulnerability Indicators, trend deterioration, vice exposure, and fraud/AML patterns. 
+
+## Implementation notes
+
+- Use the existing `@/components/ui/tooltip` primitives (`Tooltip`, `TooltipTrigger`, `TooltipContent`, with a single `TooltipProvider` wrapping the three rows).
+- Trigger: wrap the `<p>` label with `TooltipTrigger asChild` and add a subtle `cursor-help` plus a small `Info` icon (lucide `Info`, `w-3 h-3`, same color as the label) inline after the label text so users know it's hoverable.
+- `TooltipContent`: `max-w-xs`, `text-xs leading-relaxed`, `side="top"`, `align="start"`. Strict light theme (white bg, slate-200 border, slate-700 text) per project memory — no dark mode utilities.
+- Keep copy "vaguely specific" — no exact transaction counts or dollar figures (per Core memory).
+- No changes to pill logic, animations, or data — labels only.
+
+## Scope
+
+- One file edited: `src/components/exec-demo/ExecDemoIntelPanel.tsx`.
+- No backend, schema, or routing changes.
