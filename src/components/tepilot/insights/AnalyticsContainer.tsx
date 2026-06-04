@@ -26,6 +26,7 @@ import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { VentusAIChatPanel } from "./VentusAIChatPanel";
+import { FeedbackDialog } from "./FeedbackDialog";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
 type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings';
@@ -95,6 +96,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
 
   // Filter nav groups based on enabled modules
@@ -253,7 +255,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
         <div className="mt-auto border-t border-slate-200 py-1">
           {[
-            { label: "Feedback & Ideas", icon: MessageSquare, onClick: () => toast({ title: "Feedback & Ideas", description: "Coming soon" }) },
+            { label: "Feedback & Ideas", icon: MessageSquare, onClick: () => setFeedbackOpen(true) },
             { label: "Settings", icon: Settings, onClick: () => setActiveTab('settings') },
           ].map((item) => {
             const Icon = item.icon;
