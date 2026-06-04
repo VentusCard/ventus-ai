@@ -839,7 +839,7 @@ export default function ExecDemoIntelPanel({
                             </p>
                           </TooltipTrigger>
                           <TooltipPortal>
-                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
                               Dynamic behavioral labels derived from 3-tier semantic enrichment — not static MCC buckets. Patterns adapt seasonally and to lifestyle: e.g. "Club tennis player (summer)", "Weeknight Thai takeout regular", "Boutique fitness loyalist". Vaguely specific by design.
                             </TooltipContent>
                           </TooltipPortal>
