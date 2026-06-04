@@ -174,9 +174,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
           </div>
         </div>
       );
-      case 'settings': return <SettingsView />;
-      case 'billing': return <BillingView />;
-      case 'team': return <TeamView />;
+      case 'settings': return <SettingsContainer />;
     }
   };
 
