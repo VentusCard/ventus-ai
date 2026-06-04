@@ -252,20 +252,25 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
         <div className="mt-auto border-t border-slate-200 py-1">
           {[
-            { label: "Feedback & Ideas", icon: MessageSquare },
+            { label: "Feedback & Ideas", icon: MessageSquare, onClick: () => toast({ title: "Feedback & Ideas", description: "Coming soon" }) },
+            { label: "Settings", icon: Settings, onClick: () => setActiveTab('settings') },
           ].map((item) => {
             const Icon = item.icon;
+            const isActive = activeTab === 'settings' && item.label === 'Settings';
             return (
               <button
                 key={item.label}
-                onClick={() => toast({ title: item.label, description: "Coming soon" })}
+                onClick={item.onClick}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent",
-                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5"
+                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                  isActive
+                    ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
                 )}
               >
-                <Icon className="w-4 h-4 shrink-0 text-slate-400" />
+                <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </button>
             );
