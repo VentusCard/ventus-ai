@@ -83,6 +83,14 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
+  {
+    label: "Admin",
+    items: [
+      { value: "settings", label: "Settings", icon: Settings },
+      { value: "billing", label: "Billing", icon: CreditCard },
+      { value: "team", label: "Team & Permissions", icon: Users },
+    ],
+  },
 ];
 
 interface AnalyticsContainerProps {
