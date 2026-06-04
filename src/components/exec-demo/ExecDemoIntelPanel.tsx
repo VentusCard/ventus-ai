@@ -859,9 +859,11 @@ export default function ExecDemoIntelPanel({
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
-                            20+ major life events detected from transaction signals before the customer tells you — new baby, home purchase, relocation, marriage, divorce, new job, retirement, college tuition, eldercare, medical event, pet adoption, vehicle purchase, home renovation, travel milestones, and more. Each is scored by confidence with transaction evidence.
-                          </TooltipContent>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              20+ major life events detected from transaction signals before the customer tells you — new baby, home purchase, relocation, marriage, divorce, new job, retirement, college tuition, eldercare, medical event, pet adoption, vehicle purchase, home renovation, travel milestones, and more. Each is scored by confidence with transaction evidence.
+                            </TooltipContent>
+                          </TooltipPortal>
                         </Tooltip>
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
