@@ -839,7 +839,7 @@ export default function ExecDemoIntelPanel({
                             </p>
                           </TooltipTrigger>
                           <TooltipPortal>
-                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
                               Dynamic behavioral labels derived from 3-tier semantic enrichment — not static MCC buckets. Patterns adapt seasonally and to lifestyle: e.g. "Club tennis player (summer)", "Weeknight Thai takeout regular", "Boutique fitness loyalist". Vaguely specific by design.
                             </TooltipContent>
                           </TooltipPortal>
@@ -860,7 +860,7 @@ export default function ExecDemoIntelPanel({
                             </p>
                           </TooltipTrigger>
                           <TooltipPortal>
-                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
                               20+ major life events detected from transaction signals before the customer tells you — new baby, home purchase, relocation, marriage, divorce, new job, retirement, college tuition, eldercare, medical event, pet adoption, vehicle purchase, home renovation, travel milestones, and more. Each is scored by confidence with transaction evidence.
                             </TooltipContent>
                           </TooltipPortal>
@@ -881,7 +881,7 @@ export default function ExecDemoIntelPanel({
                             </p>
                           </TooltipTrigger>
                           <TooltipPortal>
-                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
                               Obfuscated behavioral risk signals across Financial Vulnerability Indicators (7 cohorts: overdraft drift, BNPL stacking, payday cycles, and more), trend deterioration, vice exposure (gambling, alcohol, adult), and fraud/AML patterns. Surfaced only when a real signal exists.
                             </TooltipContent>
                           </TooltipPortal>
