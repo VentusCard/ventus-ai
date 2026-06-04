@@ -1,6 +1,7 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
 import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
@@ -837,9 +838,11 @@ export default function ExecDemoIntelPanel({
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
-                            Dynamic behavioral labels derived from 3-tier semantic enrichment — not static MCC buckets. Patterns adapt seasonally and to lifestyle: e.g. "Club tennis player (summer)", "Weeknight Thai takeout regular", "Boutique fitness loyalist". Vaguely specific by design.
-                          </TooltipContent>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              Dynamic behavioral labels derived from 3-tier semantic enrichment — not static MCC buckets. Patterns adapt seasonally and to lifestyle: e.g. "Club tennis player (summer)", "Weeknight Thai takeout regular", "Boutique fitness loyalist". Vaguely specific by design.
+                            </TooltipContent>
+                          </TooltipPortal>
                         </Tooltip>
                         <div className={pillRowClass}>{rollupPills}</div>
                       </div>
@@ -856,9 +859,11 @@ export default function ExecDemoIntelPanel({
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
-                            20+ major life events detected from transaction signals before the customer tells you — new baby, home purchase, relocation, marriage, divorce, new job, retirement, college tuition, eldercare, medical event, pet adoption, vehicle purchase, home renovation, travel milestones, and more. Each is scored by confidence with transaction evidence.
-                          </TooltipContent>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              20+ major life events detected from transaction signals before the customer tells you — new baby, home purchase, relocation, marriage, divorce, new job, retirement, college tuition, eldercare, medical event, pet adoption, vehicle purchase, home renovation, travel milestones, and more. Each is scored by confidence with transaction evidence.
+                            </TooltipContent>
+                          </TooltipPortal>
                         </Tooltip>
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
@@ -875,9 +880,11 @@ export default function ExecDemoIntelPanel({
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
-                          <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
-                            Obfuscated behavioral risk signals across Financial Vulnerability Indicators (7 cohorts: overdraft drift, BNPL stacking, payday cycles, and more), trend deterioration, vice exposure (gambling, alcohol, adult), and fraud/AML patterns. Surfaced only when a real signal exists.
-                          </TooltipContent>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-md bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              Obfuscated behavioral risk signals across Financial Vulnerability Indicators (7 cohorts: overdraft drift, BNPL stacking, payday cycles, and more), trend deterioration, vice exposure (gambling, alcohol, adult), and fraud/AML patterns. Surfaced only when a real signal exists.
+                            </TooltipContent>
+                          </TooltipPortal>
                         </Tooltip>
                         <div className={pillRowClass}>{riskPills}</div>
                       </div>
