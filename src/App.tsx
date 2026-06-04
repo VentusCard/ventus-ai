@@ -66,6 +66,7 @@ const AppLayout = () => {
       <Route path="/demo" element={<ExecDemoPage />} />
       <Route path="/deckmo" element={<DemoPage />} />
       <Route path="/pricing" element={<Pricing />} />
+      <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
       <Route path="/bank-analytics" element={<BankAnalyticsDashboard />} />
       <Route path="/solutions/offer-intelligence" element={<NextOfferPage />} />
       <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
