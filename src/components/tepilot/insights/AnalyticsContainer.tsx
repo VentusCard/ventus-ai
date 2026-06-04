@@ -300,6 +300,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
       )}
       </div>
+      <FeedbackDialog open={feedbackOpen} onOpenChange={setFeedbackOpen} />
     </div>
   );
 }
