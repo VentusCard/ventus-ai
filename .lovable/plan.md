@@ -1,7 +1,21 @@
-Change the Income pill in `ExecDemoSelectionDialog.tsx` from emerald (`bg-emerald-50 text-emerald-700`) to a distinct color so it stands apart from existing source pills (Cashback Card already uses emerald).
+## Rename `/bank-analytics` → `/bankdemo`
 
-Proposed: **teal** — `bg-teal-100 text-teal-800` (unused by any source in `SOURCE_COLORS`, still reads as "money in", clearly different from Cashback Card's lighter emerald).
+Update the route path everywhere it's referenced. No component logic, file names, or behavior change.
 
-Also tint the per-row amount text in the expanded Income table from `text-emerald-700` → `text-teal-800` to match.
+### Changes
 
-No other changes.
+1. **`src/App.tsx`**
+   - Change `Route path="/bank-analytics"` → `/bankdemo`
+   - Update chrome check `isBankAnalytics = location.pathname === "/bankdemo"`
+   - (Optional) keep a legacy redirect `Route path="/bank-analytics"` → `<Navigate to="/bankdemo" replace />` so old links still work.
+
+2. **`src/components/ContactFormDialog.tsx`** — `href="/bank-analytics?from=demo"` → `/bankdemo?from=demo`
+
+3. **`src/pages/RewardsPipelinePage.tsx`** — `<Link to="/bank-analytics">` → `/bankdemo`
+
+4. **`public/llms.txt`** — no current entry for this route; leave untouched.
+
+The page component file `BankAnalyticsDashboard.tsx` stays as-is (internal name only).
+
+### Question
+Should I keep `/bank-analytics` as a legacy redirect to `/bankdemo`, or remove it entirely? Defaulting to **keep as redirect** unless you say otherwise.
