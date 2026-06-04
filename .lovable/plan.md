@@ -1,34 +1,23 @@
-## Feedback form with sender details
+## Root cause
 
-Extend the previously planned Feedback & Ideas flow to capture who sent the feedback.
+Resend's testing mode (the `onboarding@resend.dev` sender) only allows sending to the account owner (`marco@ventusai.com`) and **rejects any additional recipient field**. The function currently sets `reply_to` to whatever email the submitter types — Resend counts that as a second recipient and returns:
 
-### 1. Edge Function `supabase/functions/send-feedback/index.ts`
-Use Resend via the connector gateway. Validate with zod:
-- `name`: string, trim, 1–120 chars (required)
-- `position`: string, trim, 1–160 chars (required)
-- `contact`: string, trim, 3–200 chars (required) — accepts email or phone, free-form
-- `message`: string, trim, 5–5000 chars (required)
-- `source`: string, optional, max 200
+```text
+403 You can only send testing emails to your own email address...
+```
 
-Send to `Marco@ventusai.com`:
-- Subject: `New Ventus feedback from {name}`
-- `reply_to`: set to `contact` if it parses as an email, otherwise omit
-- HTML body: labeled rows for Name, Position, Contact, Source, Submitted at, followed by the message in a styled block
-- Plain-text fallback with the same fields
-- From: `Ventus Feedback <onboarding@resend.dev>`
+That's why every submission still fails.
 
-Returns `{ ok: true }` or 400/500 with error detail.
+## Fix
 
-### 2. `src/components/tepilot/insights/FeedbackDialog.tsx`
-shadcn `Dialog` titled "Feedback & Ideas", subtitle "Tell us what would make Ventus better." Fields in this order:
-- Name (`Input`)
-- Position / Role (`Input`)
-- Contact (email or phone) (`Input`)
-- Message (`Textarea`, rows 6)
+In `supabase/functions/send-feedback/index.ts`:
 
-Client-side zod validation mirroring the edge function. Submit button calls `supabase.functions.invoke('send-feedback', { body: {...} })`, shows loading state, toast on success/error, resets and closes on success.
+1. Remove the `reply_to` line entirely (this is what trips the 403).
+2. Keep `to: ['marco@ventusai.com']`.
+3. Surface the submitter's contact email so you know who to reach out to:
+   - Subject becomes: `New Ventus feedback from {name} <{contact}>`
+   - The Contact row is already rendered prominently in the HTML/text body.
 
-### 3. `AnalyticsContainer.tsx`
-Add `feedbackOpen` state, wire the existing footer "Feedback & Ideas" button's `onClick` to open the dialog, render `<FeedbackDialog open onOpenChange />`.
+Then redeploy `send-feedback` and test from `/bankdemo` → Feedback & Ideas.
 
-No DB or schema changes. Uses existing Resend connector and `LOVABLE_API_KEY` / `RESEND_API_KEY` secrets.
+No frontend, schema, or secret changes needed. Verifying a domain in Resend later would let us also reply directly to submitters, but it isn't required.
