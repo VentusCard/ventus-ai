@@ -85,8 +85,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Admin",
     items: [
       { value: "settings", label: "Settings", icon: Settings },
-      { value: "billing", label: "Billing", icon: CreditCard },
-      { value: "team", label: "Team & Permissions", icon: Users },
     ],
   },
 ];
