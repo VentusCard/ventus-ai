@@ -28,13 +28,13 @@ export function SettingsContainer() {
             <Users className="w-3.5 h-3.5" /> Team & Permissions
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="general" className="mt-5">
+        <TabsContent value="general" forceMount className="mt-5 data-[state=inactive]:hidden">
           <SettingsView />
         </TabsContent>
-        <TabsContent value="billing" className="mt-5">
+        <TabsContent value="billing" forceMount className="mt-5 data-[state=inactive]:hidden">
           <BillingView />
         </TabsContent>
-        <TabsContent value="team" className="mt-5">
+        <TabsContent value="team" forceMount className="mt-5 data-[state=inactive]:hidden">
           <TeamView />
         </TabsContent>
       </Tabs>
