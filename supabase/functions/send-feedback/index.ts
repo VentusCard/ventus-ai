@@ -65,12 +65,11 @@ ${message}`;
 
     const payload: Record<string, unknown> = {
       from: 'Ventus Feedback <onboarding@resend.dev>',
-      to: ['Marco@ventusai.com'],
-      subject: `New Ventus feedback from ${name}`,
+      to: ['marco@ventusai.com'],
+      subject: `New Ventus feedback from ${name} <${contact}>`,
       html,
       text,
     };
-    if (isEmail(contact)) payload.reply_to = contact;
 
     const resp = await fetch('https://api.resend.com/emails', {
       method: 'POST',
