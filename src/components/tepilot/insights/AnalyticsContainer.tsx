@@ -122,6 +122,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       allowedLabels.add("Health");
       allowedLabels.add("Others");
     }
+    // Admin (Settings/Billing/Team) is always shown
+    allowedLabels.add("Admin");
 
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
