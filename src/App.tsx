@@ -42,7 +42,7 @@ const AppLayout = () => {
   const isTepilot = location.pathname.startsWith("/tepilot");
   const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
   const isPricing = location.pathname === "/pricing";
-  const isBankAnalytics = location.pathname === "/bank-analytics";
+  const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
 
   const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
 
