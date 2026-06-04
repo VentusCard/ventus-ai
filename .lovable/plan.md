@@ -1,20 +1,25 @@
-# Plan: Make the Settings footer button actually open the Settings page
+# Plan: Make Settings sub-tab switching feel instant
 
 ## Root cause
 
-In `src/components/tepilot/insights/AnalyticsContainer.tsx`, the `validTabs` `useMemo` (lines 119-123) only includes values from `filteredNavGroups`. Since `settings` lives in the bottom footer (not in `NAV_GROUPS`), it's never in `validTabs`. The `useEffect` at lines 126-130 then treats `activeTab === 'settings'` as invalid and immediately resets to `'ventus-ai'`, so clicking Settings does nothing visible.
+In `src/components/tepilot/insights/SettingsContainer.tsx`, the three `TabsContent` panels (`SettingsView`, `BillingView`, `TeamView`) unmount and remount on every tab change — Radix Tabs' default behavior. Each panel re-mounts a sizable tree of shadcn primitives (Card, Switch, Select, Table, Dropdown, Progress) with no expensive logic but enough JSX that the mount cost is perceptible.
 
 ## Change
 
-**`src/components/tepilot/insights/AnalyticsContainer.tsx`** — add `'settings'` to the `validTabs` set so the auto-reset effect leaves it alone:
+**`src/components/tepilot/insights/SettingsContainer.tsx`** — pass `forceMount` to each `TabsContent` so all three panels mount once and stay mounted; Radix toggles their `data-state` for visibility. Use Tailwind to hide inactive panels.
 
-```ts
-const validTabs = useMemo(() => {
-  const set = new Set<TabValue>();
-  filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
-  set.add('settings'); // footer-anchored, always available
-  return set;
-}, [filteredNavGroups]);
+```tsx
+<TabsContent value="general" forceMount className="mt-5 data-[state=inactive]:hidden">
+  <SettingsView />
+</TabsContent>
+<TabsContent value="billing" forceMount className="mt-5 data-[state=inactive]:hidden">
+  <BillingView />
+</TabsContent>
+<TabsContent value="team" forceMount className="mt-5 data-[state=inactive]:hidden">
+  <TeamView />
+</TabsContent>
 ```
 
-No other files change. The footer button already calls `setActiveTab('settings')` and `renderContent()` already returns `<SettingsContainer />` for that case.
+Tradeoff: first open of the Settings page mounts all three panels up front (still fast since they're static JSX). Subsequent tab switches become a CSS visibility toggle — effectively instant.
+
+No other files change.
