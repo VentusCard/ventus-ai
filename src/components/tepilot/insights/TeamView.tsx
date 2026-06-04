@@ -1,4 +1,4 @@
-import { UserPlus, MoreVertical, Mail, Check, X } from "lucide-react";
+import { Users, UserPlus, MoreVertical, Mail, Check, X } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
