@@ -62,7 +62,7 @@ interface Props {
   onCloseWMCopilot?: () => void;
 }
 
-export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot }: Props) {
+export default function ExecDemoPhoneView({ customer, activeTab, phase, showContent = false, generatedOffers, detectedLifeEvents, productCards, activeRollupLabel, activeRollupPillar, enrichedTxs, riskFlags, aiTabTrigger, pendingAIPrompt, wmCopilotMode = false, wmCopilotSignal = null, wmCopilotSecondarySignal = null, wmCopilotPersonaTitle, wmCopilotPersonaSummary, onCloseWMCopilot, productDeliveryChannel = "mobile" }: Props) {
   const mappedTab: ConsumerTab = activeTab ? TAB_MAP[activeTab] : "rewards";
   const [consumerTab, setConsumerTab] = useState<ConsumerTab>(mappedTab);
   const [pendingAIMessage, setPendingAIMessage] = useState<string | null>(null);
