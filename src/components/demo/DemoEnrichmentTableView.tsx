@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowRight } from "lucide-react";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { getFlow } from "@/lib/transactionFlow";
+import EnrichmentIncomeFlowSankey from "./EnrichmentIncomeFlowSankey";
 
 const getConfidenceColor = (c: number) => {
   if (c >= 0.8) return "bg-green-500/10 text-green-700 border-green-500/20";
