@@ -6,6 +6,7 @@ import type { PillarRollup } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import type { Transaction } from "./execDemoData";
+import ProductDeliveryChannelCard, { type ProductDeliveryChannel } from "./ProductDeliveryChannelCard";
 
 export interface CardAction {
   label: string;
@@ -75,6 +76,8 @@ interface Props {
   riskFlags?: { flags: any[]; summary: string } | null;
   creditAssessment?: CreditAssessment | null;
   creditLoading?: boolean;
+  deliveryChannel?: ProductDeliveryChannel;
+  onDeliveryChannelChange?: (channel: ProductDeliveryChannel) => void;
 }
 
 /** Compute the first risk rollup pill (mirrors logic in ExecDemoIntelPanel) */
@@ -776,7 +779,7 @@ function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAs
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -891,6 +894,11 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Creditworthiness banner — full-width card above the columns */}
         {(creditAssessment || creditLoading) && (
           <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
+        )}
+
+        {/* Delivery channel selector — drives the phone mockup preview */}
+        {onDeliveryChannelChange && (
+          <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
         )}
 
         {/* Up to 3 products side-by-side with vertical dividers */}

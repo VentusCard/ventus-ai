@@ -58,6 +58,8 @@ interface Props {
   riskLoading?: boolean;
   creditAssessment?: import("./NextProductRationale").CreditAssessment | null;
   creditLoading?: boolean;
+  productDeliveryChannel?: import("./ProductDeliveryChannelCard").ProductDeliveryChannel;
+  onProductDeliveryChannelChange?: (channel: import("./ProductDeliveryChannelCard").ProductDeliveryChannel) => void;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
@@ -230,6 +232,8 @@ export default function ExecDemoIntelPanel({
   riskLoading,
   creditAssessment,
   creditLoading,
+  productDeliveryChannel = "mobile",
+  onProductDeliveryChannelChange,
   onOpenWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
@@ -1008,6 +1012,8 @@ export default function ExecDemoIntelPanel({
                 riskFlags={riskFlags}
                 creditAssessment={creditAssessment}
                 creditLoading={creditLoading}
+                deliveryChannel={productDeliveryChannel}
+                onDeliveryChannelChange={onProductDeliveryChannelChange}
               />
             ) : activeTab === "relationship" ? (
               <div className="h-full flex flex-col min-h-0">
