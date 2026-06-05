@@ -1,36 +1,14 @@
-## Goal
-Make the **Delivery Channel** selector visually distinct from the 3 product cards by pairing it side-by-side with the **Creditworthiness** banner in a single row above the product columns.
+Make the three delivery-channel option buttons look more obviously clickable.
 
-## Changes (all in `src/components/exec-demo/NextProductRationale.tsx`)
+Current issue: inactive buttons are transparent ghost-style with no border, so they read as plain text rather than buttons.
 
-### 1. Row layout
-Replace the two stacked full-width blocks with one flex row:
+Changes:
+1. Give every option a consistent button shell — subtle border (`border border-slate-200`), soft background (`bg-white`), and a hover lift (`hover:shadow-sm`).
+2. Keep the active state visually stronger: retain the accent-colored ring + soft shadow, and add a slightly tinted background (`bg-{accent}/5`).
+3. Ensure the icon container and label colors still distinguish active vs. inactive, but every cell now looks like a tappable card/button regardless of state.
+4. No prop or state changes. Purely Tailwind + inline-style adjustments in `ProductDeliveryChannelCard.tsx`.
 
-```text
-┌─────────────────────────────┬───────────────────────────┐
-│  Delivery Channel (≈2/3)    │  Creditworthiness (≈1/3)  │
-└─────────────────────────────┴───────────────────────────┘
-┌──────────┬──────────┬──────────┐
-│ Product 1│ Product 2│ Product 3│
-└──────────┴──────────┴──────────┘
-```
-
-- Wrap `ProductDeliveryChannelCard` + `CreditworthinessBanner` in `<div className="flex items-stretch gap-3">`.
-- Channel selector gets `flex-[2]`; creditworthiness gets `flex-[1]` so the channel options stay readable.
-- If only one of the two is present, it spans full width.
-
-### 2. Visual distinction for the channel selector
-Make it read as an interactive "control strip" rather than another card:
-- Swap the white card background for a subtle slate gradient (`bg-gradient-to-r from-slate-50 to-white`) with a thicker left accent bar in indigo to signal "delivery surface".
-- Add a small header row: indigo `Send` icon + `DELIVERY CHANNEL` label + helper text "Preview the touchpoint" right-aligned.
-- Active option gets a stronger ring + soft drop shadow; inactive options become flat ghost buttons (no border) so the selected one pops.
-- Reduce option tile height a touch so the row matches the creditworthiness banner height visually.
-
-### 3. Creditworthiness banner tweaks (minor)
-Trim the inner padding from `py-6` to `py-4` and tighten the horizontal layout so it sits at the same height as the channel card in the new row.
-
-No prop, state, or backend changes.
-
-## Files touched
-- `src/components/exec-demo/NextProductRationale.tsx` — wrap selector + credit banner in a flex row, slim padding.
-- `src/components/exec-demo/ProductDeliveryChannelCard.tsx` — restyle (gradient bg, accent bar, header row, sharper active state).
+Technical details
+- File: `src/components/exec-demo/ProductDeliveryChannelCard.tsx`
+- Replace ghost inactive styling with bordered card styling.
+- Keep existing layout, grid, and active-state accent logic intact.
