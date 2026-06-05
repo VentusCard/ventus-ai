@@ -1501,6 +1501,7 @@ export default function ExecDemoPage() {
                             generatedOffers={generatedOffers}
                             detectedLifeEvents={detectedLifeEvents}
                             productCards={productCards}
+                            productDeliveryChannel={productDeliveryChannel}
                             activeRollupLabel={activeTriggerPill?.label || activeRollup?.label || null}
                             activeRollupPillar={activeTriggerPill ? "Life Event" : activeRollup?.pillar || null}
                             enrichedTxs={classifiedRef.current}
