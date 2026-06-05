@@ -58,6 +58,8 @@ interface Props {
   riskLoading?: boolean;
   creditAssessment?: import("./NextProductRationale").CreditAssessment | null;
   creditLoading?: boolean;
+  productDeliveryChannel?: import("./ProductDeliveryChannelCard").ProductDeliveryChannel;
+  onProductDeliveryChannelChange?: (channel: import("./ProductDeliveryChannelCard").ProductDeliveryChannel) => void;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
