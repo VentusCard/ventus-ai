@@ -70,8 +70,9 @@ for (const functionName of functions) {
       cpSync(sourceFile, join(buildDir, fileName));
     }
   }
-  if (existsSync(sharedRoot)) {
-    cpSync(sharedRoot, join(buildDir, 'shared'), { recursive: true });
+  const configRoot = join(backendRoot, 'config');
+  if (existsSync(configRoot)) {
+    cpSync(configRoot, join(buildDir, 'config'), { recursive: true });
   }
 
   if (existsSync(join(sourceDir, 'package-lock.json'))) {
