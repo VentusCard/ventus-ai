@@ -103,6 +103,12 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           </div>
         );
       case "relationship":
+        if (productDeliveryChannel === "email") {
+          return <EmailPreviewPhoneView cards={productCards ?? []} customerName={customer.profile?.name} bankLabel={bankLabel} />;
+        }
+        if (productDeliveryChannel === "sms") {
+          return <SmsPreviewPhoneView cards={productCards ?? []} customerName={customer.profile?.name} bankLabel={bankLabel} />;
+        }
         return <RelationshipPhoneView customer={customer} detectedLifeEvents={detectedLifeEvents} productCards={productCards} onGoToAI={(msg) => { setPendingAIMessage(msg); setConsumerTab("ai"); }} />;
       case "budget":
         return <BudgetPhoneView enrichedTxs={enrichedTxs} />;
