@@ -10,7 +10,9 @@
     "package:monitors": "node ./scripts/package-monitors.mjs",
     "smoke:api": "node ./scripts/smoke-api.mjs",
     "qa:enrichment": "node ./scripts/qa-enrichment-contract.mjs",
+    "qa:partner-ingest": "node ./scripts/qa-partner-ingest.mjs",
     "qa:golden": "node ./scripts/qa-golden-enrichment.mjs",
+    "qa:model-output": "node ./scripts/qa-model-output-report.mjs",
     "qa:live": "node ./scripts/qa-live-pipeline.mjs",
     "docs:api": "node ./scripts/generate-api-docs.mjs && node ./scripts/generate-postman-collection.mjs",
     "validate:openapi": "node ./scripts/validate-openapi.mjs",
@@ -18,6 +20,8 @@
     "check:routes": "node ./scripts/check-route-coverage.mjs",
     "check:cors": "node ./scripts/check-api-cors-readiness.mjs",
     "check:imports": "node ./scripts/check-relative-imports.mjs",
+    "check:model-gateway": "node ./scripts/check-model-gateway-readiness.mjs",
+    "check:model-gateway-deploy": "node ./scripts/check-model-gateway-deploy-readiness.mjs",
     "check:pipeline-readiness": "node ./scripts/check-pipeline-readiness.mjs",
     "test": "node --test \"./shared/*.test.mjs\""
   }

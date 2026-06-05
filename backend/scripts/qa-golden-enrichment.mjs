@@ -10,6 +10,7 @@ import {
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..');
 const mockBankRoot = join(backendRoot, 'fixtures', 'mock-bank');
+const partnerIngestRoot = join(backendRoot, 'fixtures', 'partner-ingest');
 const expectationsPath = join(
   backendRoot,
   'fixtures',
@@ -18,7 +19,7 @@ const expectationsPath = join(
 );
 
 const expectations = readJson(expectationsPath);
-const result = validateGoldenEnrichmentExpectations(expectations, mockBankRoot);
+const result = validateGoldenEnrichmentExpectations(expectations, mockBankRoot, partnerIngestRoot);
 
 console.log(
   `ok golden enrichment expectations: ${result.expectationCount} expectations across ${result.sourceSystems.length} source systems`

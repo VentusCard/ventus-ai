@@ -5,6 +5,7 @@
 
 import { SQSClient, SendMessageCommand } from '@aws-sdk/client-sqs';
 import { createDbFactory } from '../../shared/db.mjs';
+import { createModelGateway } from '../../shared/model-gateway.mjs';
 import {
   is429,
   get429DelayMs,
@@ -28,6 +29,10 @@ const getDbSecrets = createSecretsProvider({ secretId: DATABASE_SECRET_ID });
 const fireWebhook = createWebhookDispatcher();
 const getModelSecrets = createSecretsProvider({
   secretId: MODEL_PROVIDER_SECRET_ID,
+});
+const modelGateway = createModelGateway({
+  getSecrets: getModelSecrets,
+  functionName: LAMBDA_NAME,
 });
 
 const PILLAR_QUEUE_URL = process.env.PILLAR_QUEUE_URL;
@@ -382,42 +387,34 @@ const CLASSIFICATION_TOOL = [
   },
 ];
 
-// ─── CORE GEMINI API CALL ─────────────────────────────────────────────────────
+// ─── CORE MODEL GATEWAY API CALL ──────────────────────────────────────────────
 async function callClassificationAPI(
   batch,
   model,
   batchNum,
-  attempt,
-  geminiApiKey
+  attempt
 ) {
-  const res = await fetch(
-    'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${geminiApiKey}`,
+  const { response: res, metadata } = await modelGateway.chatCompletion({
+    task: 'merchant_classification',
+    model,
+    label: `BATCH ${batchNum}`,
+    maxRetries: 0,
+    messages: [
+      { role: 'system', content: CLASSIFICATION_PROMPT },
+      {
+        role: 'user',
+        content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}`,
       },
-      body: JSON.stringify({
-        model,
-        messages: [
-          { role: 'system', content: CLASSIFICATION_PROMPT },
-          {
-            role: 'user',
-            content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}`,
-          },
-        ],
-        tools: CLASSIFICATION_TOOL,
-        tool_choice: { type: 'function', function: { name: 'classify_batch' } },
-        temperature: 0,
-        max_tokens: 4000,
-      }),
-    }
-  );
+    ],
+    tools: CLASSIFICATION_TOOL,
+    tool_choice: { type: 'function', function: { name: 'classify_batch' } },
+  });
 
   if (!res.ok) {
     if (is429(res.status)) {
-      console.warn(`[GEMINI] 429 rate limit hit on BATCH ${batchNum}`);
+      console.warn(
+        `[${metadata.provider.toUpperCase()}] 429 rate limit hit on BATCH ${batchNum}`
+      );
       publishGeminiRateLimit(LAMBDA_NAME);
       const tagged = new Error(`429 rate limit on batch ${batchNum}`);
       tagged.is429 = true;
@@ -426,7 +423,7 @@ async function callClassificationAPI(
     }
     const err = await res.text().catch(() => '');
     console.error(
-      `[BATCH ${batchNum}] API error (${res.status}): ${err.slice(0, 200)}`
+      `[BATCH ${batchNum}] ${metadata.provider}/${metadata.model} error (${res.status}): ${err.slice(0, 200)}`
     );
     return { classifications: [] };
   }
@@ -448,7 +445,7 @@ async function callClassificationAPI(
 }
 
 // ─── BATCH CLASSIFICATION WITH RETRIES ────────────────────────────────────────
-async function classifyBatch(batch, batchIndex, geminiApiKey) {
+async function classifyBatch(batch, batchIndex) {
   const batchNum = batchIndex + 1;
   let last429 = null;
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
@@ -464,8 +461,7 @@ async function classifyBatch(batch, batchIndex, geminiApiKey) {
         batch,
         model,
         batchNum,
-        attempt,
-        geminiApiKey
+        attempt
       );
       if (classifications.length > 0) {
         console.log(
@@ -486,8 +482,8 @@ async function classifyBatch(batch, batchIndex, geminiApiKey) {
   return [];
 }
 
-async function classifyWithSubBatchFallback(batch, batchIndex, geminiApiKey) {
-  const results = await classifyBatch(batch, batchIndex, geminiApiKey);
+async function classifyWithSubBatchFallback(batch, batchIndex) {
+  const results = await classifyBatch(batch, batchIndex);
   if (results.length > 0) return results;
 
   if (batch.length > SUB_BATCH_SIZE) {
@@ -510,8 +506,7 @@ async function classifyWithSubBatchFallback(batch, batchIndex, geminiApiKey) {
             subBatches[si],
             FALLBACK_MODEL,
             `${batchIndex + 1}.${si + 1}`,
-            attempt,
-            geminiApiKey
+            attempt
           );
           if (classifications.length > 0) {
             all.push(...classifications);
@@ -535,9 +530,6 @@ async function classifyWithSubBatchFallback(batch, batchIndex, geminiApiKey) {
 
 // ─── LAMBDA HANDLER ───────────────────────────────────────────────────────────
 export const handler = async (event) => {
-  const secrets = await getModelSecrets();
-  const geminiApiKey = secrets.GEMINI_API_KEY;
-
   // ── MODE 1: SQS trigger (pipeline mode) ──
   if (event.Records) {
     for (const record of event.Records) {
@@ -584,8 +576,7 @@ export const handler = async (event) => {
           const batchResults = await runWithConcurrency(
             batches,
             CONCURRENCY_LIMIT,
-            (batch, idx) =>
-              classifyWithSubBatchFallback(batch, idx, geminiApiKey)
+            (batch, idx) => classifyWithSubBatchFallback(batch, idx)
           );
           newClassifications = batchResults.flat();
 
@@ -685,7 +676,7 @@ export const handler = async (event) => {
     const batchResults = await runWithConcurrency(
       batches,
       CONCURRENCY_LIMIT,
-      (batch, idx) => classifyWithSubBatchFallback(batch, idx, geminiApiKey)
+      (batch, idx) => classifyWithSubBatchFallback(batch, idx)
     );
     const allClassifications = batchResults.flat();
 

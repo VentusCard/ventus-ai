@@ -1,0 +1,114 @@
+{
+  "fixture_version": "2026-06-04",
+  "fixture_type": "normalized_enrichment_input",
+  "source_system": "plaid",
+  "description": "Expected Ventus enrichment input records produced from the Plaid /transactions/sync raw QA fixture.",
+  "transactions": [
+    {
+      "transaction_id": "plaid_txn_card_coffee_0001",
+      "customer_id": "qa_plaid_customer_001",
+      "merchant_name": "Starbucks",
+      "amount": 5.75,
+      "date": "2026-05-01",
+      "mcc_code": null,
+      "zip_code": "10003",
+      "home_zip": "10003",
+      "rail": "card",
+      "source_profile": "card_dining",
+      "transaction_type": "debit",
+      "partner_metadata": {
+        "source_system": "plaid",
+        "source_transaction_id": "plaid_txn_card_coffee_0001",
+        "account_id": "plaid_acc_credit_001",
+        "payment_channel": "in store",
+        "personal_finance_category": "FOOD_AND_DRINK_COFFEE",
+        "counterparty_type": "merchant"
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_payroll_0001",
+      "customer_id": "qa_plaid_customer_001",
+      "merchant_name": "Acme Corp Payroll",
+      "amount": -4280.15,
+      "date": "2026-05-02",
+      "mcc_code": null,
+      "zip_code": null,
+      "home_zip": "10003",
+      "rail": "ach",
+      "source_profile": "ach_payroll",
+      "transaction_type": "credit",
+      "partner_metadata": {
+        "source_system": "plaid",
+        "source_transaction_id": "plaid_txn_payroll_0001",
+        "account_id": "plaid_acc_checking_001",
+        "payment_channel": "other",
+        "personal_finance_category": "INCOME_WAGES",
+        "counterparty_type": "employer"
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_zelle_0001",
+      "customer_id": "qa_plaid_customer_001",
+      "merchant_name": "Zelle Payment To Alex R",
+      "amount": 75,
+      "date": "2026-05-03",
+      "mcc_code": null,
+      "zip_code": null,
+      "home_zip": "10003",
+      "rail": "p2p",
+      "source_profile": "p2p_transfer",
+      "transaction_type": "debit",
+      "partner_metadata": {
+        "source_system": "plaid",
+        "source_transaction_id": "plaid_txn_zelle_0001",
+        "account_id": "plaid_acc_checking_001",
+        "payment_channel": "other",
+        "personal_finance_category": "TRANSFER_OUT_ACCOUNT_TRANSFER",
+        "counterparty_type": "payment_app"
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_wire_escrow_0001",
+      "customer_id": "qa_plaid_customer_001",
+      "merchant_name": "Title Company Escrow",
+      "amount": 25000,
+      "date": "2026-05-06",
+      "mcc_code": null,
+      "zip_code": "10003",
+      "home_zip": "10003",
+      "rail": "wire",
+      "source_profile": "wire_transfer",
+      "transaction_type": "debit",
+      "partner_metadata": {
+        "source_system": "plaid",
+        "source_transaction_id": "plaid_txn_wire_escrow_0001",
+        "account_id": "plaid_acc_checking_001",
+        "payment_channel": "other",
+        "personal_finance_category": "TRANSFER_OUT_ACCOUNT_TRANSFER",
+        "counterparty_type": "financial_institution"
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_streaming_posted_0001",
+      "customer_id": "qa_plaid_customer_001",
+      "merchant_name": "Netflix",
+      "amount": 22.99,
+      "date": "2026-05-07",
+      "mcc_code": null,
+      "zip_code": null,
+      "home_zip": "10003",
+      "rail": "card",
+      "source_profile": "card_subscription",
+      "transaction_type": "debit",
+      "partner_metadata": {
+        "source_system": "plaid",
+        "source_transaction_id": "plaid_txn_streaming_posted_0001",
+        "pending_transaction_id": "plaid_pending_streaming_0001",
+        "account_id": "plaid_acc_credit_001",
+        "payment_channel": "online",
+        "personal_finance_category": "ENTERTAINMENT_TV_AND_MOVIES",
+        "counterparty_type": "merchant"
+      }
+    }
+  ]
+}
