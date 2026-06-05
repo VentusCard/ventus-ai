@@ -15,7 +15,7 @@ function createPipelineDb(rows) {
     async query(sql, params) {
       if (sql.includes('ARRAY_AGG(customer_id')) {
         const batchId = params[0];
-        const slaMinutes = params[1];
+        const slaMinutes = params[1]; 
         const batchRows = state.filter((r) => r.batch_id === batchId);
         const stuck = batchRows.filter(
           (r) =>
