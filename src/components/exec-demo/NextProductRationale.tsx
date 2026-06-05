@@ -768,7 +768,7 @@ const LEVEL_TONE: Record<string, { text: string; bg: string; border: string }> =
 function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAssessment | null; loading: boolean }) {
   return (
     <div
-      className="rounded-xl border border-slate-200 bg-white px-4 py-6 flex items-center justify-center gap-3"
+      className="h-full rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-center gap-2"
       style={{ animation: `exec-product-reveal 0.4s ease-out both` }}
     >
       <Gauge className="w-4 h-4 text-slate-400" />
