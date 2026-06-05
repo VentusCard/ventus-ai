@@ -46,6 +46,7 @@ interface Props {
   activeRollupPillar?: string | null;
   enrichedTxs?: EnrichedTransaction[] | null;
   riskFlags?: { flags: any[]; summary: string } | null;
+  productDeliveryChannel?: ProductDeliveryChannel;
   aiTabTrigger?: number;
   pendingAIPrompt?: { text: string; nonce: number; kind?: "lifestyle" | "lifeEvent" | "risk"; signalContext?: string } | null;
   /** When true, the right phone panel renders the WM CoPilot view instead of the customer mockup. */
