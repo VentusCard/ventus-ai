@@ -1442,6 +1442,8 @@ export default function ExecDemoPage() {
                     setActiveTriggerPill(null);
                   }}
                   onEnrichmentPillarClick={handleEnrichmentPillarClick}
+                  productDeliveryChannel={productDeliveryChannel}
+                  onProductDeliveryChannelChange={setProductDeliveryChannel}
                 />
               </div>
 
