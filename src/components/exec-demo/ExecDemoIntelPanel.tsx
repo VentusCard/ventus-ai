@@ -927,24 +927,27 @@ export default function ExecDemoIntelPanel({
                 style={{ maxHeight: !activeTab || pillsExpanded ? undefined : 360 }}
               >
                 {!activeTab ? (
-                  <ExecDemoEnrichmentTable
-                    transactions={enrichedTransactions || []}
-                    rawRows={(transactions || []).map((t, i) => ({
-                      transaction_id: `tx-${i}`,
-                      source: t.source,
-                      date: t.date,
-                      merchant_name: t.merchant,
-                      description: (t as any).description,
-                      mcc: (t as any).mcc,
-                      amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
-                    }))}
-                    flush={fullWidthEnrichment}
-                    highlightedIndices={highlightedIndices}
-                    highlightColor={highlightColor}
-                    activePillLabel={activePillLabel}
-                    onClearHighlight={onClearHighlight}
-                    onPillarClick={onEnrichmentPillarClick}
-                  />
+                  <>
+                    <EnrichmentIncomeFlowSankey enriched={enrichedTransactions || []} />
+                    <ExecDemoEnrichmentTable
+                      transactions={enrichedTransactions || []}
+                      rawRows={(transactions || []).map((t, i) => ({
+                        transaction_id: `tx-${i}`,
+                        source: t.source,
+                        date: t.date,
+                        merchant_name: t.merchant,
+                        description: (t as any).description,
+                        mcc: (t as any).mcc,
+                        amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
+                      }))}
+                      flush={fullWidthEnrichment}
+                      highlightedIndices={highlightedIndices}
+                      highlightColor={highlightColor}
+                      activePillLabel={activePillLabel}
+                      onClearHighlight={onClearHighlight}
+                      onPillarClick={onEnrichmentPillarClick}
+                    />
+                  </>
                 ) : null}
               </div>
             )}
