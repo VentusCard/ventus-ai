@@ -76,6 +76,8 @@ interface Props {
   riskFlags?: { flags: any[]; summary: string } | null;
   creditAssessment?: CreditAssessment | null;
   creditLoading?: boolean;
+  deliveryChannel?: ProductDeliveryChannel;
+  onDeliveryChannelChange?: (channel: ProductDeliveryChannel) => void;
 }
 
 /** Compute the first risk rollup pill (mirrors logic in ExecDemoIntelPanel) */
