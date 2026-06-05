@@ -6,6 +6,7 @@
     "fiserv": 3,
     "jack_henry": 3,
     "generic_bank_export": 11,
+    "plaid": 5,
     "adversarial": 6
   },
   "minimum_profile_coverage": {
@@ -453,6 +454,86 @@
       "expected_lifestyle_category": "Food & Dining",
       "expected_merchant_category": "Grocery",
       "expected_confidence_min": 0.6,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_card_coffee_0001",
+      "source_system": "plaid",
+      "rail": "card",
+      "source_profile": "card_dining",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Starbucks",
+      "expected_lifestyle_category": "Food & Dining",
+      "expected_merchant_category": "Coffee Shops",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_payroll_0001",
+      "source_system": "plaid",
+      "rail": "ach",
+      "source_profile": "ach_payroll",
+      "transaction_type": "credit",
+      "expected_clean_merchant_name": "Acme Corp Payroll",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Income",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_zelle_0001",
+      "source_system": "plaid",
+      "rail": "p2p",
+      "source_profile": "p2p_transfer",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Zelle Payment To Alex R",
+      "expected_lifestyle_category": "Miscellaneous & Unclassified",
+      "expected_merchant_category": "Transfers",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_wire_escrow_0001",
+      "source_system": "plaid",
+      "rail": "wire",
+      "source_profile": "wire_transfer",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Title Company Escrow",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Large Transfers",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": true,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_streaming_posted_0001",
+      "source_system": "plaid",
+      "rail": "card",
+      "source_profile": "card_subscription",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Netflix",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Streaming Subscriptions",
+      "expected_confidence_min": 0.7,
       "expected_signals": {
         "travel_candidate": false,
         "risk_candidate": false,

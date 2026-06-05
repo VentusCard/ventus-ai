@@ -44,6 +44,8 @@ jobs:
           node --check backend/scripts/package-monitors.mjs
           node --check backend/scripts/qa-enrichment-contract.mjs
           node --check backend/scripts/qa-golden-enrichment.mjs
+          node --check backend/scripts/qa-model-output-report.mjs
+          node --check backend/scripts/qa-partner-ingest.mjs
           node --check backend/scripts/qa-live-pipeline.mjs
           node --check backend/scripts/lib/qa-validators.mjs
           node --check infra/scripts/audit-live-db-rotation-preflight.mjs
