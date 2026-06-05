@@ -896,6 +896,11 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
           <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
         )}
 
+        {/* Delivery channel selector — drives the phone mockup preview */}
+        {onDeliveryChannelChange && (
+          <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
+        )}
+
         {/* Up to 3 products side-by-side with vertical dividers */}
         <div className="flex items-stretch gap-3">
           {pickedCards.map((c, i) => (
