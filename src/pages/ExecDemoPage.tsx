@@ -130,6 +130,7 @@ export default function ExecDemoPage() {
   const [productsLoading, setProductsLoading] = useState(false);
   const [productCards, setProductCards] = useState<ProductCard[] | null>(null);
   const [productCardsLoading, setProductCardsLoading] = useState(false);
+  const [productDeliveryChannel, setProductDeliveryChannel] = useState<"mobile" | "email" | "sms">("mobile");
   const [activeTriggerPill, setActiveTriggerPill] = useState<{
     label: string;
     indices: number[];
