@@ -70,6 +70,12 @@ for (const functionName of functions) {
       cpSync(sourceFile, join(buildDir, fileName));
     }
   }
+  if (existsSync(sharedRoot)) {
+    cpSync(sharedRoot, join(buildDir, 'shared'), {
+      recursive: true,
+      filter: (src) => !src.endsWith('.test.mjs'),
+    });
+  }
   const configRoot = join(backendRoot, 'config');
   if (existsSync(configRoot)) {
     cpSync(configRoot, join(buildDir, 'config'), { recursive: true });
