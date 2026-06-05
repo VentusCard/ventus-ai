@@ -779,7 +779,7 @@ function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAs
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
   if (loading || !lifeEvents) {
     return (
