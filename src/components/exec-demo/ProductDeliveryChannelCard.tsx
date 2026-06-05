@@ -37,25 +37,27 @@ export default function ProductDeliveryChannelCard({ value, onChange }: Props) {
               <button
                 key={opt.key}
                 onClick={() => onChange(opt.key)}
-                className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-left transition-all ${
-                  active ? "bg-white shadow-md" : "bg-transparent hover:bg-white/60"
+                className={`group flex items-center gap-2 rounded-lg border px-2.5 py-2 text-left transition-all active:translate-y-px ${
+                  active
+                    ? "bg-white shadow-md border-transparent"
+                    : "bg-white border-slate-200 hover:border-slate-300 hover:shadow-sm hover:-translate-y-px"
                 }`}
                 style={
                   active
-                    ? { boxShadow: `0 0 0 2px ${opt.accent}, 0 2px 8px ${opt.accent}25` }
+                    ? { boxShadow: `0 0 0 2px ${opt.accent}, 0 4px 12px ${opt.accent}30`, backgroundColor: `${opt.accent}08` }
                     : undefined
                 }
               >
                 <div
-                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0"
+                  className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-colors"
                   style={{
-                    background: active ? `${opt.accent}15` : "transparent",
+                    background: active ? `${opt.accent}20` : "#f1f5f9",
                   }}
                 >
-                  <Icon className="w-3.5 h-3.5" style={{ color: active ? opt.accent : "#94a3b8" }} />
+                  <Icon className="w-3.5 h-3.5" style={{ color: active ? opt.accent : "#64748b" }} />
                 </div>
-                <div className="min-w-0">
-                  <p className={`text-[11px] font-bold leading-tight ${active ? "text-slate-800" : "text-slate-500"}`}>
+                <div className="min-w-0 flex-1">
+                  <p className={`text-[11px] font-bold leading-tight ${active ? "text-slate-900" : "text-slate-700"}`}>
                     {opt.label}
                   </p>
                   <p className="text-[9px] text-slate-400 leading-tight truncate">{opt.description}</p>
@@ -63,6 +65,7 @@ export default function ProductDeliveryChannelCard({ value, onChange }: Props) {
               </button>
             );
           })}
+
         </div>
       </div>
     </div>
