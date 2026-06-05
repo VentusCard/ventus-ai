@@ -9,6 +9,9 @@ import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView
 import RelationshipPhoneView from "./RelationshipPhoneView";
 import WMCopilotPhoneView from "./WMCopilotPhoneView";
 import BudgetPhoneView from "./BudgetPhoneView";
+import EmailPreviewPhoneView from "./phone-channels/EmailPreviewPhoneView";
+import SmsPreviewPhoneView from "./phone-channels/SmsPreviewPhoneView";
+import type { ProductDeliveryChannel } from "./ProductDeliveryChannelCard";
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { EnrichedTransaction } from "@/components/exec-demo/execDemoData";
