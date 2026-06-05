@@ -178,6 +178,43 @@ npm run --prefix backend qa:model-output
 
 The report includes overall pass rate, missing and extra predictions, field-level accuracy, and breakdowns by source system, rail, source profile, and transaction type. This is the intended evaluation layer for comparing Gemini, OpenAI, Anthropic, or future partner-specific enrichment models before any production routing change.
 
+## Plaid Sandbox Pulls
+
+Use `npm run --prefix backend plaid:sandbox:pull` to create Sandbox Items and save raw `/transactions/sync` responses into `backend/artifacts/plaid-sandbox/`. The artifacts directory is git-ignored because the raw pulls are operational QA output and may contain Sandbox access metadata.
+
+Minimal smoke run:
+
+```sh
+PLAID_SANDBOX_USER_COUNT=5 npm run --prefix backend plaid:sandbox:pull
+```
+
+For bulk testing, create a local manifest outside committed fixtures and point the script at it:
+
+```json
+{
+  "run_id": "plaid_bulk_qa_001",
+  "institution_id": "ins_109508",
+  "products": ["transactions"],
+  "transactions": {
+    "start_date": "2026-02-01",
+    "end_date": "2026-06-05"
+  },
+  "users": [
+    {
+      "customer_id": "qa_plaid_card_001",
+      "username": "user_good",
+      "password": "pass_good"
+    }
+  ]
+}
+```
+
+```sh
+PLAID_SANDBOX_USERS_PATH=/path/to/plaid-sandbox-users.json npm run --prefix backend plaid:sandbox:pull
+```
+
+The first recommended cohort is 25 Sandbox users: 5 everyday card, 5 travel/lifestyle, 5 payroll/ACH, 5 P2P/wire/unusual rail, and 5 malformed or ambiguous cases. Use the output as raw evidence for normalization and reject-report QA before promoting anything into golden expectations.
+
 ## How This Helps Pilot Readiness
 
 The first layer catches contract drift before code is promoted to staging or production. The next layer should reuse these validators against a staging API with a staging API key and known QA customer IDs, then add latency and stage-completion assertions for the full enrichment lifecycle.
