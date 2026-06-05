@@ -891,14 +891,20 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
 
-        {/* Creditworthiness banner — full-width card above the columns */}
-        {(creditAssessment || creditLoading) && (
-          <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
-        )}
-
-        {/* Delivery channel selector — drives the phone mockup preview */}
-        {onDeliveryChannelChange && (
-          <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
+        {/* Delivery channel selector + creditworthiness banner side-by-side */}
+        {(onDeliveryChannelChange || creditAssessment || creditLoading) && (
+          <div className="flex items-stretch gap-3">
+            {onDeliveryChannelChange && (
+              <div className="flex-[2] min-w-0">
+                <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
+              </div>
+            )}
+            {(creditAssessment || creditLoading) && (
+              <div className="flex-[1] min-w-0">
+                <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
+              </div>
+            )}
+          </div>
         )}
 
         {/* Up to 3 products side-by-side with vertical dividers */}
