@@ -232,6 +232,8 @@ export default function ExecDemoIntelPanel({
   riskLoading,
   creditAssessment,
   creditLoading,
+  productDeliveryChannel = "mobile",
+  onProductDeliveryChannelChange,
   onOpenWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
