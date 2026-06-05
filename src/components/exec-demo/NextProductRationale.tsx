@@ -6,6 +6,7 @@ import type { PillarRollup } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import type { Transaction } from "./execDemoData";
+import ProductDeliveryChannelCard, { type ProductDeliveryChannel } from "./ProductDeliveryChannelCard";
 
 export interface CardAction {
   label: string;
