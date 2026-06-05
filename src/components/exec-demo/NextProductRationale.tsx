@@ -1,11 +1,12 @@
 import { useEffect, useState, useCallback, Fragment } from "react";
 import useEmblaCarousel from "embla-carousel-react";
-import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower } from "lucide-react";
+import { Sparkles, ArrowRight, TrendingUp, CreditCard, CheckCircle2, Star, Smartphone, Mail, UserCheck, CalendarCheck, Heart, Gift, Shield, Lightbulb, Compass, PenLine, Cake, Plane, Home, Briefcase, Bell, Flower, ArrowUp, ArrowDown, Minus, Gauge } from "lucide-react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { PillarRollup } from "./ExecDemoIntelPanel";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import type { Transaction } from "./execDemoData";
+import ProductDeliveryChannelCard, { type ProductDeliveryChannel } from "./ProductDeliveryChannelCard";
 
 export interface CardAction {
   label: string;
@@ -17,6 +18,29 @@ export interface CardAction {
 export interface CardActions {
   card_index: number;
   actions: CardAction[];
+}
+
+export interface CreditAssessment {
+  score: number;
+  band: "Excellent" | "Good" | "Fair" | "Limited" | "Poor";
+  confidence: number;
+  summary: string;
+  drivers: { label: string; direction: "positive" | "negative" | "neutral"; weight: number; explanation: string }[];
+  affordability: {
+    estimated_monthly_inflow: number;
+    estimated_monthly_outflow: number;
+    estimated_dti_proxy: number;
+    surplus_ratio: number;
+  };
+  signals: {
+    income_stability: "stable" | "variable" | "thin" | "unknown";
+    cashflow_volatility: "low" | "medium" | "high";
+    discretionary_pressure: "low" | "medium" | "high";
+    distress_indicators: string[];
+    positive_indicators: string[];
+  };
+  recommended_products: { product: string; rationale: string }[];
+  caveats: string[];
 }
 
 const ICON_MAP: Record<string, React.ComponentType<any>> = {
@@ -50,6 +74,10 @@ interface Props {
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
   riskFlags?: { flags: any[]; summary: string } | null;
+  creditAssessment?: CreditAssessment | null;
+  creditLoading?: boolean;
+  deliveryChannel?: ProductDeliveryChannel;
+  onDeliveryChannelChange?: (channel: ProductDeliveryChannel) => void;
 }
 
 /** Compute the first risk rollup pill (mirrors logic in ExecDemoIntelPanel) */
@@ -718,7 +746,40 @@ function GroupSlideshow({
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags }: Props) {
+/* ─── Creditworthiness column (4th column in Next-Product row) ─── */
+const BAND_COLORS: Record<CreditAssessment["band"], { dot: string; text: string; bg: string; border: string }> = {
+  Excellent: { dot: "#10b981", text: "#065f46", bg: "#ecfdf5", border: "#a7f3d0" },
+  Good:      { dot: "#3b82f6", text: "#1e3a8a", bg: "#eff6ff", border: "#bfdbfe" },
+  Fair:      { dot: "#f59e0b", text: "#92400e", bg: "#fffbeb", border: "#fde68a" },
+  Limited:   { dot: "#64748b", text: "#334155", bg: "#f8fafc", border: "#e2e8f0" },
+  Poor:      { dot: "#f43f5e", text: "#9f1239", bg: "#fff1f2", border: "#fecdd3" },
+};
+
+const LEVEL_TONE: Record<string, { text: string; bg: string; border: string }> = {
+  stable:   { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
+  variable: { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
+  thin:     { text: "text-slate-600",   bg: "bg-slate-50",   border: "border-slate-200" },
+  unknown:  { text: "text-slate-500",   bg: "bg-slate-50",   border: "border-slate-200" },
+  low:      { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
+  medium:   { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
+  high:     { text: "text-rose-700",    bg: "bg-rose-50",    border: "border-rose-100" },
+};
+
+function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAssessment | null; loading: boolean }) {
+  return (
+    <div
+      className="h-full rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-center gap-2"
+      style={{ animation: `exec-product-reveal 0.4s ease-out both` }}
+    >
+      <Gauge className="w-4 h-4 text-slate-400" />
+      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Creditworthiness</div>
+      <span className="text-slate-300">·</span>
+      <div className="text-[12px] font-semibold text-slate-500">Coming soon</div>
+    </div>
+  );
+}
+
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -829,6 +890,22 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
 
         {/* Product catalog pills */}
         <RecommendedProductsPills productCards={productCards} />
+
+        {/* Delivery channel selector + creditworthiness banner side-by-side */}
+        {(onDeliveryChannelChange || creditAssessment || creditLoading) && (
+          <div className="flex items-stretch gap-3">
+            {onDeliveryChannelChange && (
+              <div className="flex-[2] min-w-0">
+                <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
+              </div>
+            )}
+            {(creditAssessment || creditLoading) && (
+              <div className="flex-[1] min-w-0">
+                <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Up to 3 products side-by-side with vertical dividers */}
         <div className="flex items-stretch gap-3">

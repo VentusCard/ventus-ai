@@ -1,19 +1,14 @@
-## Stop auto-scroll from yanking the analytics page mid-load
+Make the three delivery-channel option buttons look more obviously clickable.
 
-`VentusAIWelcomeView` runs `messagesEndRef.current?.scrollIntoView(...)` in a `useEffect` that fires on every change to `messages` — including the initial render. Because the ref sits well below the gradient hero, the browser scrolls the whole window to bring it into view, which is why `/bank-analytics` opens halfway down. `VentusAIChatPanel` has the same pattern.
+Current issue: inactive buttons are transparent ghost-style with no border, so they read as plain text rather than buttons.
 
-### Change
+Changes:
+1. Give every option a consistent button shell — subtle border (`border border-slate-200`), soft background (`bg-white`), and a hover lift (`hover:shadow-sm`).
+2. Keep the active state visually stronger: retain the accent-colored ring + soft shadow, and add a slightly tinted background (`bg-{accent}/5`).
+3. Ensure the icon container and label colors still distinguish active vs. inactive, but every cell now looks like a tappable card/button regardless of state.
+4. No prop or state changes. Purely Tailwind + inline-style adjustments in `ProductDeliveryChannelCard.tsx`.
 
-In **`src/components/tepilot/insights/VentusAIWelcomeView.tsx`** (line 135) and **`src/components/tepilot/insights/VentusAIChatPanel.tsx`** (line 94):
-
-- Skip the scroll on the first render / when `messages.length === 0`.
-- Use `block: "nearest"` so it only scrolls the nearest scroll container (the chat list), not the page.
-
-```ts
-useEffect(() => {
-  if (messages.length === 0) return;
-  messagesEndRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-}, [messages]);
-```
-
-This keeps the chat-follows-new-message behavior intact while letting the page open at the top.
+Technical details
+- File: `src/components/exec-demo/ProductDeliveryChannelCard.tsx`
+- Replace ghost inactive styling with bordered card styling.
+- Keep existing layout, grid, and active-state accent logic intact.

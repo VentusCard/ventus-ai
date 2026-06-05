@@ -1,0 +1,27 @@
+# Ventus AI
+
+> Transaction intelligence platform for banks and credit unions. Ventus AI turns transaction data into analytics and human insight, powering personalization, smarter rewards, and next-gen banking experiences.
+
+Ventus AI goes beyond basic enrichment. It interprets transaction data to reveal consumer intent, lifestyle pillars, and life events — feeding rewards personalization, customer analytics, and advisor relationship tools for financial institutions.
+
+## Pages
+
+- [Home](/): Overview of Ventus AI transaction intelligence for banks.
+- [Platform](/platform): Semantic enrichment, lifestyle pillars, life event detection, and personalization capabilities.
+- [Smart Rewards](/smartrewards): Personalized rewards and merchant offers driven by transaction intelligence.
+- [Engagement](/engagement): Lifestyle profiles, intent signals, and personalized customer engagement.
+- [Wealth Management](/wealth): Life event detection, urgency scoring, and automated meeting prep for advisors.
+- [Travel Experience](/travel): Detect trips, fares, and travel intent from transaction data.
+- [Bank-Wide Analytics](/analytics): Portfolio lifestyle, life event, and wallet-share analytics.
+- [Contact](/contact): Get in touch with the Ventus AI team.
+
+## Solutions
+
+- [Offer Intelligence](/solutions/offer-intelligence): Generate the next-best offer for every customer.
+- [Product Intelligence](/solutions/product-intelligence): Recommend the next-best banking product per customer.
+- [Conversation Intelligence](/solutions/conversation-intelligence): Surface the next-best conversation for advisors and bankers.
+- [Portfolio Intelligence](/solutions/portfolio-intelligence): Customer and portfolio intelligence at scale.
+
+## Insights
+
+- [Insights](/insights): Research, product updates, and industry perspectives from the Ventus AI team.

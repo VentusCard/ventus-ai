@@ -1,6 +1,7 @@
 import { EnrichedTransaction, PillarAggregate } from "@/types/transaction";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { aggregateByPillar } from "./aggregations";
+import { isIncome } from "./transactionFlow";
 
 export interface FinancialPlanContext {
   monthlyIncome: number;
@@ -107,6 +108,7 @@ export function buildAdvisorContext(
   transactions: EnrichedTransaction[],
   aiInsights: AIInsights | null
 ): AdvisorContext {
+  transactions = transactions.filter((t) => !isIncome(t as any));
   if (transactions.length === 0) {
     return {
       overview: {

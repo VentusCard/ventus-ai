@@ -1,5 +1,7 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
 import PurchaseCycleTimeline from "./PurchaseCycleTimeline";
 import NextOfferRationale from "./NextOfferRationale";
@@ -54,6 +56,10 @@ interface Props {
   actionsLoading?: boolean;
   riskFlags?: { flags: any[]; summary: string } | null;
   riskLoading?: boolean;
+  creditAssessment?: import("./NextProductRationale").CreditAssessment | null;
+  creditLoading?: boolean;
+  productDeliveryChannel?: import("./ProductDeliveryChannelCard").ProductDeliveryChannel;
+  onProductDeliveryChannelChange?: (channel: import("./ProductDeliveryChannelCard").ProductDeliveryChannel) => void;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
@@ -224,6 +230,10 @@ export default function ExecDemoIntelPanel({
   actionsLoading,
   riskFlags,
   riskLoading,
+  creditAssessment,
+  creditLoading,
+  productDeliveryChannel = "mobile",
+  onProductDeliveryChannelChange,
   onOpenWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
@@ -821,36 +831,68 @@ export default function ExecDemoIntelPanel({
 
                   return (
                     <>
+                      <TooltipProvider delayDuration={150}>
                       <div className="flex items-center gap-3 mb-1">
-                        <p
-                          className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700`}
-                        >
-                          Spending Habits:
-                        </p>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p
+                              className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-cyan-700 cursor-help inline-flex items-center gap-1.5`}
+                            >
+                              Spending Habits:
+                              <Info className="w-3 h-3 opacity-70" />
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              Dynamic behavioral labels derived from 3-tier semantic enrichment — not static MCC buckets. Patterns adapt seasonally and to lifestyle: e.g. "Club tennis player (summer)", "Weeknight Thai takeout regular", "Boutique fitness loyalist". Vaguely specific by design.
+                            </TooltipContent>
+                          </TooltipPortal>
+                        </Tooltip>
                         <div className={pillRowClass}>{rollupPills}</div>
                       </div>
                       <div
                         className={`flex items-center gap-3 ${rowGap}`}
                         style={{ animation: "fade-in 0.5s ease-out 0.2s both" }}
                       >
-                        <p
-                          className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700`}
-                        >
-                          Life Event Detection:
-                        </p>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p
+                              className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700 cursor-help inline-flex items-center gap-1.5`}
+                            >
+                              Life Event Detection:
+                              <Info className="w-3 h-3 opacity-70" />
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              20+ major life events detected from transaction signals before the customer tells you — new baby, home purchase, relocation, marriage, divorce, new job, retirement, college tuition, eldercare, medical event, pet adoption, vehicle purchase, home renovation, travel milestones, and more. Each is scored by confidence with transaction evidence.
+                            </TooltipContent>
+                          </TooltipPortal>
+                        </Tooltip>
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
                       <div
                         className={`flex items-center gap-3 ${rowGap}`}
                         style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
                       >
-                        <p
-                          className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600`}
-                        >
-                          Risk Factors:
-                        </p>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p
+                              className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600 cursor-help inline-flex items-center gap-1.5`}
+                            >
+                              Risk Factors:
+                              <Info className="w-3 h-3 opacity-70" />
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              Obfuscated behavioral risk signals across Financial Vulnerability Indicators (7 cohorts: overdraft drift, BNPL stacking, payday cycles, and more), trend deterioration, vice exposure (gambling, alcohol, adult), and fraud/AML patterns. Surfaced only when a real signal exists.
+                            </TooltipContent>
+                          </TooltipPortal>
+                        </Tooltip>
                         <div className={pillRowClass}>{riskPills}</div>
                       </div>
+                      </TooltipProvider>
                     </>
                   );
                 })()}
@@ -968,6 +1010,10 @@ export default function ExecDemoIntelPanel({
                 actionsLoading={actionsLoading}
                 pillarRollups={rollupStats}
                 riskFlags={riskFlags}
+                creditAssessment={creditAssessment}
+                creditLoading={creditLoading}
+                deliveryChannel={productDeliveryChannel}
+                onDeliveryChannelChange={onProductDeliveryChannelChange}
               />
             ) : activeTab === "relationship" ? (
               <div className="h-full flex flex-col min-h-0">

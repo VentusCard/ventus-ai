@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useMemo, useState } from "react";
 import { Settings, Check, Mail, Zap } from "lucide-react";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
@@ -452,6 +453,7 @@ function PricingInner() {
 export default function Pricing() {
   return (
     <SimplePasswordGate tagline="Pricing Builder">
+      <SEO title="Pricing — Ventus AI" description="Build a custom Ventus AI pricing estimate by selecting modules and your institution's scale." path="/pricing" />
       <PricingInner />
     </SimplePasswordGate>
   );

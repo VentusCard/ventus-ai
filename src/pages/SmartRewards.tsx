@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -40,6 +41,7 @@ const SmartRewards = () => {
 
   return (
     <div>
+      <SEO title="Smart Rewards — Ventus AI" description="Personalized rewards and merchant offers driven by transaction intelligence, lifestyle pillars, and intent signals." path="/smartrewards" />
       <main>
         {/* SECTION 1 — HERO */}
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>

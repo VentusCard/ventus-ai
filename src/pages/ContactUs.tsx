@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -65,6 +66,7 @@ ${name}
 
   return (
     <div>
+      <SEO title="Contact — Ventus AI" description="Get in touch with the Ventus AI team to explore transaction intelligence for your bank or credit union." path="/contact" />
       <main className="pt-36">
         {/* Two-column: Trust + Form */}
         <section className="py-8 md:py-14 bg-white">

@@ -12,11 +12,12 @@ import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
+import { SettingsContainer } from "./SettingsContainer";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert, AlertTriangle
+  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
@@ -25,9 +26,10 @@ import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { VentusAIChatPanel } from "./VentusAIChatPanel";
+import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -111,7 +113,6 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       allowedLabels.add("Health");
       allowedLabels.add("Others");
     }
-
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
 
@@ -119,6 +120,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   const validTabs = useMemo(() => {
     const set = new Set<TabValue>();
     filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
+    set.add('settings'); // footer-anchored, always available
+    set.add('feedback'); // footer-anchored, always available
     return set;
   }, [filteredNavGroups]);
 
@@ -165,6 +168,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
           </div>
         </div>
       );
+      case 'settings': return <SettingsContainer />;
+      case 'feedback': return <FeedbackPage />;
     }
   };
 
@@ -251,21 +256,25 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
         <div className="mt-auto border-t border-slate-200 py-1">
           {[
-            { label: "Feedback & Ideas", icon: MessageSquare },
-            { label: "Settings & Integrations", icon: Settings },
+            { label: "Feedback & Ideas", icon: MessageSquare, tab: 'feedback' as const },
+            { label: "Settings", icon: Settings, tab: 'settings' as const },
           ].map((item) => {
             const Icon = item.icon;
+            const isActive = activeTab === item.tab;
             return (
               <button
                 key={item.label}
-                onClick={() => toast({ title: item.label, description: "Coming soon" })}
+                onClick={() => setActiveTab(item.tab)}
                 title={collapsed ? item.label : undefined}
                 className={cn(
-                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent",
-                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5"
+                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                  isActive
+                    ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
                 )}
               >
-                <Icon className="w-4 h-4 shrink-0 text-slate-400" />
+                <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </button>
             );

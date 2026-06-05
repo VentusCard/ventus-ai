@@ -1,3 +1,4 @@
+import SEO from "@/components/SEO";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -37,6 +38,7 @@ const Wealth = () => {
 
   return (
     <div>
+      <SEO title="Wealth Management — Ventus AI" description="Life event detection, urgency scoring, and automated meeting prep that helps wealth advisors reach the right client at the right time." path="/wealth" />
       <main>
         {/* SECTION 1 — HERO */}
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>

@@ -3,6 +3,7 @@ import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown } from "lucide-react"
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
+import { getFlow, formatAccounting, isIncome } from "@/lib/transactionFlow";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
@@ -102,6 +103,12 @@ export default function ExecDemoSelectionDialog({
     for (const [k, rows] of map) ordered.push({ source: k, rows });
     return ordered;
   }, [rawRows]);
+
+  const incomeRows = useMemo(() => rawRows.filter((r) => isIncome(r)), [rawRows]);
+  const incomeTotal = useMemo(
+    () => incomeRows.reduce((s, r) => s + (isNaN(parseFloat(r.amount)) ? 0 : Math.abs(parseFloat(r.amount))), 0),
+    [incomeRows],
+  );
 
   const [openSources, setOpenSources] = useState<Record<string, boolean>>({});
   const [kycOpen, setKycOpen] = useState(false);
@@ -336,6 +343,73 @@ export default function ExecDemoSelectionDialog({
                   )}
                 </div>
 
+                {/* Income card — counts all inflows regardless of source */}
+                {(() => {
+                  const incomeOpen = !!openSources["__income__"];
+                  const fmtIncome = `$${incomeTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  return (
+                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, __income__: !p["__income__"] }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-teal-100 text-teal-800">
+                            Income
+                          </span>
+                          <span className="text-base font-semibold text-slate-700">{incomeRows.length} txns</span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm font-mono tabular-nums text-slate-500">{fmtIncome}</span>
+                          <span className="text-xs text-slate-400">all sources</span>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform ${incomeOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      {incomeOpen && (
+                        <div className="border-t border-slate-100">
+                          {incomeRows.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-slate-500">No income detected in this profile.</div>
+                          ) : (
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-slate-50/60 border-b border-slate-200">
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Source</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Date</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Merchant</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {incomeRows.map((row, i) => {
+                                  const amt = parseFloat(row.amount);
+                                  const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, "income");
+                                  return (
+                                    <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+                                      <td className="px-3 py-1">
+                                        <span className={`inline-block px-2 py-0.5 rounded text-[12px] font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                                          {row.source || "—"}
+                                        </span>
+                                      </td>
+                                      <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
+                                      <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[420px] truncate" title={row.merchant_name}>
+                                        {row.merchant_name}
+                                      </td>
+                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-teal-800">
+                                        {fmtAmt}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {sourceGroups.map(({ source, rows }) => {
                   const isOpen = !!openSources[source];
                   const total = rows.reduce((sum, r) => {
@@ -394,9 +468,8 @@ export default function ExecDemoSelectionDialog({
                             <tbody>
                               {rows.map((row, i) => {
                                 const amt = parseFloat(row.amount);
-                                const fmtAmt = isNaN(amt)
-                                  ? row.amount
-                                  : `$${Math.abs(amt).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                const flow = getFlow(row);
+                                const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, flow);
                                 return (
                                   <tr
                                     key={i}
@@ -429,7 +502,7 @@ export default function ExecDemoSelectionDialog({
                                     >
                                       {row.mcc_description}
                                     </td>
-                                    <td className="px-3 py-1 text-right font-mono text-sm text-slate-900 tabular-nums whitespace-nowrap font-normal">
+                                    <td className={`px-3 py-1 text-right font-mono text-sm tabular-nums whitespace-nowrap font-normal ${flow === "income" ? "text-emerald-600 font-semibold" : "text-slate-900"}`}>
                                       {fmtAmt}
                                     </td>
                                     <td className="px-3 py-1 text-slate-500 text-[13px]">{row.zip_code || "—"}</td>

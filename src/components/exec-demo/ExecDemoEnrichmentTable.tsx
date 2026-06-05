@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
+import { getFlow } from "@/lib/transactionFlow";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
@@ -295,9 +296,16 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                     <span className="text-[13px] text-slate-300">—</span>
                   )}
                 </td>
-                <td className={`font-mono text-[13px] text-slate-900 px-1 py-2 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200`}>
-                  ${Math.round(Math.abs(Number(amount) || 0))}
-                </td>
+                {(() => {
+                  const flow = getFlow({ merchant_name: merchantRaw, description: rawDesc });
+                  const absAmt = Math.round(Math.abs(Number(amount) || 0));
+                  const txt = flow === "income" ? `$${absAmt}` : `($${absAmt})`;
+                  return (
+                    <td className={`font-mono text-[13px] px-1 py-2 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-slate-200 ${flow === "income" ? "text-emerald-600 font-semibold" : "text-slate-900"}`}>
+                      {txt}
+                    </td>
+                  );
+                })()}
 
                 {/* ===== ENRICHED SIDE ===== */}
                 <td key={`enr-pillar-${idx}-${isEnriched ? revealKey : "pending"}`} className={`exec-enriched-cell px-1.5 py-2 ${COL.pillar}`}>
