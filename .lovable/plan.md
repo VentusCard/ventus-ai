@@ -1,14 +1,20 @@
-Make the three delivery-channel option buttons look more obviously clickable.
+The Sankey was added to `/demo` (`DemoEnrichmentTableView`), not the executive demo (`/exec-demo`). It needs to move.
 
-Current issue: inactive buttons are transparent ghost-style with no border, so they read as plain text rather than buttons.
+## Changes
 
-Changes:
-1. Give every option a consistent button shell — subtle border (`border border-slate-200`), soft background (`bg-white`), and a hover lift (`hover:shadow-sm`).
-2. Keep the active state visually stronger: retain the accent-colored ring + soft shadow, and add a slightly tinted background (`bg-{accent}/5`).
-3. Ensure the icon container and label colors still distinguish active vs. inactive, but every cell now looks like a tappable card/button regardless of state.
-4. No prop or state changes. Purely Tailwind + inline-style adjustments in `ProductDeliveryChannelCard.tsx`.
+1. **Move the file**  
+   `src/components/demo/EnrichmentIncomeFlowSankey.tsx` → `src/components/exec-demo/EnrichmentIncomeFlowSankey.tsx` (no internal changes).
 
-Technical details
-- File: `src/components/exec-demo/ProductDeliveryChannelCard.tsx`
-- Replace ghost inactive styling with bordered card styling.
-- Keep existing layout, grid, and active-state accent logic intact.
+2. **Remove from `/demo`**  
+   In `src/components/demo/DemoEnrichmentTableView.tsx`, drop the import and the `<EnrichmentIncomeFlowSankey />` render line.
+
+3. **Add to the executive demo**  
+   In `src/components/exec-demo/ExecDemoIntelPanel.tsx`, inside the enrichment block around lines 924–948 (the `(pillsExpanded || !activeTab)` branch), render the Sankey directly above `<ExecDemoEnrichmentTable …/>`:
+   ```tsx
+   <EnrichmentIncomeFlowSankey enriched={enrichedTransactions || []} />
+   <ExecDemoEnrichmentTable … />
+   ```
+   The surrounding wrapper is already `flex flex-col flex-1 min-h-0`, so the Sankey becomes a fixed-height header and the table keeps the remaining vertical space.
+
+## Out of scope
+- No styling redesign, no data changes, no other surfaces touched.

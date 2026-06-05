@@ -5,6 +5,7 @@ import { ArrowRight } from "lucide-react";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 import { getFlow } from "@/lib/transactionFlow";
 
+
 const getConfidenceColor = (c: number) => {
   if (c >= 0.8) return "bg-green-500/10 text-green-700 border-green-500/20";
   if (c >= 0.5) return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20";
