@@ -1,10 +1,17 @@
 import { useMemo } from "react";
-import type { EnrichedTransaction } from "@/types/transaction";
 import { getFlow } from "@/lib/transactionFlow";
 import { PILLAR_COLORS } from "@/lib/sampleData";
 
+interface SankeyTx {
+  merchant_name: string;
+  description?: string;
+  amount: number;
+  pillar: string;
+  source?: string;
+}
+
 interface Props {
-  enriched: EnrichedTransaction[];
+  enriched: SankeyTx[];
 }
 
 const SOURCE_COLORS: Record<string, string> = {
