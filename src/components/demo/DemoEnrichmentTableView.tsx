@@ -183,7 +183,6 @@ export default function DemoEnrichmentTableView({ customer, enriched }: Props) {
       {customer && (
         <div className="flex-1 min-h-0 flex flex-col">
           <CustomerHeader customer={customer} color="blue" />
-          <EnrichmentIncomeFlowSankey enriched={enriched ?? []} />
           <CustomerTable transactions={enriched ?? []} />
         </div>
       )}
