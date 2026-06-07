@@ -56,6 +56,13 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
+    label: "Targeting",
+    items: [
+      { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
+      { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
+    ],
+  },
+  {
     label: "Rewards",
     items: [
       { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
