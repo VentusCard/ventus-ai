@@ -2,6 +2,8 @@ import { useState, useRef, useEffect, useMemo } from "react";
 import { BankwideView } from "./BankwideView";
 import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
+import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
+import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
@@ -17,7 +19,8 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users
+  Building2, ArrowLeft, Bot, MessageSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
+  Zap, Megaphone
 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
@@ -29,7 +32,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+type TabValue = 'ventus-ai' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -50,6 +53,13 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
       { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
       { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
+    ],
+  },
+  {
+    label: "Targeting",
+    items: [
+      { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
+      { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
     ],
   },
   {
@@ -108,10 +118,11 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Health group follows Analytics (always on since Analytics is always enabled)
+    // Health/Others/Targeting groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
       allowedLabels.add("Health");
       allowedLabels.add("Others");
+      allowedLabels.add("Targeting");
     }
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
@@ -144,6 +155,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
+      case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
+      case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
