@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { DemographicFilters as DemographicFiltersPanel } from "./DemographicFilt
 import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { SegmentOutputPanel } from "./SegmentOutputPanel";
 import { PRODUCT_FLOWS, getProductFlow } from "@/lib/productAutomatedFlows";
-import { LIFESTYLE_ASSET_SIGNALS, estimateAssetSignalAudience } from "@/lib/lifestyleAssetSignals";
+import { getAssetSignalsForProduct, estimateAssetSignalAudience } from "@/lib/lifestyleAssetSignals";
 import { LIFESTYLE_PILLARS } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 import type { DemographicFilters as DemographicFiltersType } from "@/types/segment";
@@ -32,6 +32,13 @@ export function ProductCampaignBuilderView() {
   const toggle = useCallback((list: string[], id: string) => {
     return list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
   }, []);
+
+  const productAssetSignals = useMemo(() => getAssetSignalsForProduct(productId), [productId]);
+
+  // Clear selections that no longer exist on the newly-picked product's signal set
+  useEffect(() => {
+    setAssetSignals((prev) => prev.filter((id) => productAssetSignals.some((s) => s.id === id)));
+  }, [productAssetSignals]);
 
   const estimatedSize = useMemo(
     () => estimateAssetSignalAudience({ productId, assetSignals, lifeEvents, pillars, demographics }),
@@ -87,14 +94,15 @@ export function ProductCampaignBuilderView() {
 
             <div className="space-y-1">
               <DimensionChipCloud
-                title="Lifestyle Asset Signals"
+                title={product ? `Lifestyle Asset Signals · ${product.name}` : "Lifestyle Asset Signals"}
                 icon={<Gem className="w-4 h-4 text-blue-600" />}
-                chips={LIFESTYLE_ASSET_SIGNALS.map((s) => ({ id: s.id, label: s.label, description: s.description }))}
+                chips={productAssetSignals.map((s) => ({ id: s.id, label: s.label, description: s.description }))}
                 selectedChips={assetSignals}
                 onToggle={(id) => setAssetSignals((prev) => toggle(prev, id))}
-                badge={`${LIFESTYLE_ASSET_SIGNALS.length}`}
+                badge={`${productAssetSignals.length}`}
                 defaultOpen
               />
+
               <DimensionChipCloud
                 title="Life Events"
                 icon={<Sparkles className="w-4 h-4 text-blue-600" />}
