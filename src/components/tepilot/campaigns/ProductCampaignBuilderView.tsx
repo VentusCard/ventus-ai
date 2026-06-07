@@ -94,14 +94,15 @@ export function ProductCampaignBuilderView() {
 
             <div className="space-y-1">
               <DimensionChipCloud
-                title="Lifestyle Asset Signals"
+                title={product ? `Lifestyle Asset Signals · ${product.name}` : "Lifestyle Asset Signals"}
                 icon={<Gem className="w-4 h-4 text-blue-600" />}
-                chips={LIFESTYLE_ASSET_SIGNALS.map((s) => ({ id: s.id, label: s.label, description: s.description }))}
+                chips={productAssetSignals.map((s) => ({ id: s.id, label: s.label, description: s.description }))}
                 selectedChips={assetSignals}
                 onToggle={(id) => setAssetSignals((prev) => toggle(prev, id))}
-                badge={`${LIFESTYLE_ASSET_SIGNALS.length}`}
+                badge={`${productAssetSignals.length}`}
                 defaultOpen
               />
+
               <DimensionChipCloud
                 title="Life Events"
                 icon={<Sparkles className="w-4 h-4 text-blue-600" />}
