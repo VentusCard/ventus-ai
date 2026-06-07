@@ -33,6 +33,13 @@ export function ProductCampaignBuilderView() {
     return list.includes(id) ? list.filter((x) => x !== id) : [...list, id];
   }, []);
 
+  const productAssetSignals = useMemo(() => getAssetSignalsForProduct(productId), [productId]);
+
+  // Clear selections that no longer exist on the newly-picked product's signal set
+  useEffect(() => {
+    setAssetSignals((prev) => prev.filter((id) => productAssetSignals.some((s) => s.id === id)));
+  }, [productAssetSignals]);
+
   const estimatedSize = useMemo(
     () => estimateAssetSignalAudience({ productId, assetSignals, lifeEvents, pillars, demographics }),
     [productId, assetSignals, lifeEvents, pillars, demographics]
