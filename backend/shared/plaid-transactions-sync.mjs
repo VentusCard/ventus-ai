@@ -28,12 +28,33 @@ const P2P_TEXT = /\b(zelle|venmo|cash\s?app|paypal)\b/i;
 const WIRE_TEXT = /\b(wire|escrow)\b/i;
 
 // Plaid personal_finance_category.primary -> Ventus source_profile suffix.
+// Covers Plaid's full set of ~16 primary categories so source_profile carries
+// real signal instead of collapsing to "_general".
 const PFC_PRIMARY_TO_PROFILE = Object.freeze({
-  FOOD_AND_DRINK: 'dining',
-  INCOME: 'payroll',
-  TRANSFER_OUT: 'transfer',
+  INCOME: 'income',
   TRANSFER_IN: 'transfer',
-  ENTERTAINMENT: 'subscription',
+  TRANSFER_OUT: 'transfer',
+  LOAN_PAYMENTS: 'loan',
+  BANK_FEES: 'fees',
+  ENTERTAINMENT: 'entertainment',
+  FOOD_AND_DRINK: 'dining',
+  GENERAL_MERCHANDISE: 'retail',
+  HOME_IMPROVEMENT: 'home_improvement',
+  MEDICAL: 'medical',
+  PERSONAL_CARE: 'personal_care',
+  GENERAL_SERVICES: 'services',
+  GOVERNMENT_AND_NON_PROFIT: 'government',
+  TRANSPORTATION: 'transport',
+  TRAVEL: 'travel',
+  RENT_AND_UTILITIES: 'utilities',
+});
+
+// Finer-grained overrides keyed on personal_finance_category.detailed. Lets a
+// specific detailed category win over its broad primary bucket (e.g. wages map
+// to payroll, streaming maps to subscription).
+const PFC_DETAILED_TO_PROFILE = Object.freeze({
+  INCOME_WAGES: 'payroll',
+  ENTERTAINMENT_TV_AND_MOVIES: 'subscription',
 });
 
 const DEFAULT_ALLOWED_CURRENCIES = ['USD'];
@@ -97,8 +118,13 @@ export function derivePlaidRail(txn, account) {
 }
 
 export function derivePlaidSourceProfile(rail, txn) {
-  const pfcPrimary = txn.personal_finance_category?.primary ?? null;
-  const suffix = PFC_PRIMARY_TO_PROFILE[pfcPrimary] ?? 'general';
+  const pfc = txn.personal_finance_category ?? null;
+  const detailed = pfc?.detailed ?? null;
+  const primary = pfc?.primary ?? null;
+  const suffix =
+    (detailed && PFC_DETAILED_TO_PROFILE[detailed]) ||
+    PFC_PRIMARY_TO_PROFILE[primary] ||
+    'general';
   return `${rail}_${suffix}`;
 }
 

@@ -109,16 +109,72 @@ test('rail derivation covers card, ach, p2p, and wire', () => {
 test('source_profile combines rail with the personal finance category', () => {
   assert.equal(
     derivePlaidSourceProfile(RAILS.CARD, {
-      personal_finance_category: { primary: 'FOOD_AND_DRINK' },
+      personal_finance_category: { primary: 'FOOD_AND_DRINK', detailed: 'FOOD_AND_DRINK_COFFEE' },
     }),
     'card_dining'
   );
+  // Detailed override wins over the broad primary bucket.
   assert.equal(
     derivePlaidSourceProfile(RAILS.ACH, {
-      personal_finance_category: { primary: 'INCOME' },
+      personal_finance_category: { primary: 'INCOME', detailed: 'INCOME_WAGES' },
     }),
     'ach_payroll'
   );
+  assert.equal(
+    derivePlaidSourceProfile(RAILS.CARD, {
+      personal_finance_category: { primary: 'ENTERTAINMENT', detailed: 'ENTERTAINMENT_TV_AND_MOVIES' },
+    }),
+    'card_subscription'
+  );
+});
+
+test('expanded PFC map covers Plaid primary categories instead of collapsing to _general', () => {
+  const cases = [
+    ['TRANSPORTATION', 'card_transport'],
+    ['TRAVEL', 'card_travel'],
+    ['GENERAL_MERCHANDISE', 'card_retail'],
+    ['LOAN_PAYMENTS', 'ach_loan'],
+    ['RENT_AND_UTILITIES', 'ach_utilities'],
+    ['PERSONAL_CARE', 'card_personal_care'],
+    ['MEDICAL', 'card_medical'],
+    ['BANK_FEES', 'ach_fees'],
+  ];
+  for (const [primary, expected] of cases) {
+    const rail = expected.split('_')[0];
+    assert.equal(
+      derivePlaidSourceProfile(rail, { personal_finance_category: { primary, detailed: `${primary}_OTHER` } }),
+      expected
+    );
+  }
+});
+
+test('unmapped/absent categories still fall back to _general safely', () => {
+  assert.equal(derivePlaidSourceProfile('card', {}), 'card_general');
+  assert.equal(
+    derivePlaidSourceProfile('card', { personal_finance_category: { primary: 'NOT_A_REAL_CATEGORY' } }),
+    'card_general'
+  );
+});
+
+test('real Plaid sandbox sample normalizes with no rejects and no _general profiles', () => {
+  const realFixture = JSON.parse(
+    readFileSync(resolve(here, '..', 'fixtures', 'plaid-sandbox-sample', 'plaid-transactions-sync-real.json'), 'utf8')
+  );
+  const out = normalizePlaidTransactionsSync({
+    payload: realFixture.payload,
+    mapping_context: realFixture.mapping_context,
+  });
+  assert.equal(out.rejected_records.length, 0, 'real mapped accounts should produce no rejects');
+  assert.ok(out.transactions.length > 0);
+  for (const txn of out.transactions) {
+    validateEnrichTransaction(txn, `real[${txn.transaction_id}]`);
+    assert.ok(
+      !txn.source_profile.endsWith('_general'),
+      `${txn.transaction_id} collapsed to ${txn.source_profile}; PFC ${txn.partner_metadata.personal_finance_category} is unmapped`
+    );
+  }
+  const transport = out.transactions.find((t) => t.merchant_name === 'Uber');
+  assert.ok(transport && transport.source_profile.endsWith('_transport'));
 });
 
 test('merchant_name falls back through clean Plaid sources', () => {
