@@ -13,6 +13,7 @@ const outputRoot = resolve(
 const clientId = process.env.PLAID_CLIENT_ID;
 const secret = process.env.PLAID_SECRET;
 const baseUrl = process.env.PLAID_BASE_URL || 'https://sandbox.plaid.com';
+const READY_STATUSES = new Set(['INITIAL_UPDATE_COMPLETE', 'HISTORICAL_UPDATE_COMPLETE']);
 
 assert.ok(clientId, 'PLAID_CLIENT_ID is required');
 assert.ok(secret, 'PLAID_SECRET is required');
@@ -58,6 +59,8 @@ for (const [index, user] of manifest.users.entries()) {
           exchange: tokenExchange.request_id,
           transactions_sync: syncResponse.request_id,
         },
+        transactions_update_status: syncResponse.transactions_update_status || null,
+        sync_attempts: syncResponse.sync_attempts || null,
         counts: {
           added: syncResponse.added?.length || 0,
           modified: syncResponse.modified?.length || 0,
@@ -74,6 +77,8 @@ for (const [index, user] of manifest.users.entries()) {
     customer_id: label,
     item_id: tokenExchange.item_id,
     raw_transactions_path: rawPath,
+    transactions_update_status: syncResponse.transactions_update_status || null,
+    sync_attempts: syncResponse.sync_attempts || null,
     added: syncResponse.added?.length || 0,
     modified: syncResponse.modified?.length || 0,
     removed: syncResponse.removed?.length || 0,
@@ -148,34 +153,100 @@ async function createSandboxPublicToken(user) {
   return response.public_token;
 }
 
+// Pulls the full /transactions/sync history for a freshly created sandbox Item.
+//
+// Plaid fetches transactions for a new Item asynchronously, so the first sync
+// after item creation returns `transactions_update_status: NOT_READY` with an
+// empty `added[]` and an empty cursor. We nudge the Item with a refresh + a
+// simulated SYNC_UPDATES_AVAILABLE webhook, then poll with backoff until the
+// Item reports a completed update status (or starts returning data).
 async function syncTransactions(accessToken) {
+  const maxAttempts = Number(process.env.PLAID_SYNC_MAX_ATTEMPTS || 12);
+  const baseDelayMs = Number(process.env.PLAID_SYNC_BASE_DELAY_MS || 1500);
+  const maxDelayMs = Number(process.env.PLAID_SYNC_MAX_DELAY_MS || 8000);
+
   let cursor = null;
   const added = [];
   const modified = [];
   const removed = [];
   let latest = null;
+  let attempt = 0;
+  let nudged = false;
 
-  do {
-    latest = await plaidRequest('/transactions/sync', {
+  while (attempt < maxAttempts) {
+    attempt += 1;
+
+    // Drain every available page for the current cursor before judging readiness.
+    let hasMore = true;
+    while (hasMore) {
+      latest = await plaidRequest('/transactions/sync', {
+        access_token: accessToken,
+        cursor,
+        count: 500,
+        options: {
+          include_personal_finance_category: true,
+        },
+      });
+      added.push(...(latest.added || []));
+      modified.push(...(latest.modified || []));
+      removed.push(...(latest.removed || []));
+      if (typeof latest.next_cursor === 'string' && latest.next_cursor.length > 0) {
+        cursor = latest.next_cursor;
+      }
+      hasMore = latest.has_more === true;
+    }
+
+    const status = latest.transactions_update_status;
+    const hasData = added.length > 0 || modified.length > 0 || removed.length > 0;
+    if (READY_STATUSES.has(status) || hasData) {
+      return { ...latest, added, modified, removed, sync_attempts: attempt };
+    }
+
+    // Item still initializing. Trigger a refresh + simulated webhook once, then
+    // back off and poll again until data lands or we exhaust our attempts.
+    if (!nudged) {
+      await triggerTransactionsRefresh(accessToken);
+      await fireSandboxWebhook(accessToken);
+      nudged = true;
+    }
+    if (attempt < maxAttempts) {
+      const delay = Math.min(baseDelayMs * attempt, maxDelayMs);
+      console.log(
+        `  transactions ${status || 'NOT_READY'}; retry ${attempt}/${maxAttempts} in ${delay}ms`
+      );
+      await sleep(delay);
+    }
+  }
+
+  console.warn(
+    `  WARNING: transactions still not ready after ${attempt} attempt(s) (status: ${
+      latest?.transactions_update_status || 'unknown'
+    }); writing what was returned`
+  );
+  return { ...latest, added, modified, removed, sync_attempts: attempt };
+}
+
+async function triggerTransactionsRefresh(accessToken) {
+  try {
+    await plaidRequest('/transactions/refresh', { access_token: accessToken });
+  } catch (error) {
+    console.warn(`  transactions/refresh failed (continuing): ${error.message}`);
+  }
+}
+
+async function fireSandboxWebhook(accessToken) {
+  try {
+    await plaidRequest('/sandbox/item/fire_webhook', {
       access_token: accessToken,
-      cursor,
-      count: 500,
-      options: {
-        include_personal_finance_category: true,
-      },
+      webhook_code: 'SYNC_UPDATES_AVAILABLE',
     });
-    added.push(...(latest.added || []));
-    modified.push(...(latest.modified || []));
-    removed.push(...(latest.removed || []));
-    cursor = latest.next_cursor;
-  } while (latest.has_more);
+  } catch (error) {
+    console.warn(`  sandbox/item/fire_webhook failed (continuing): ${error.message}`);
+  }
+}
 
-  return {
-    ...latest,
-    added,
-    modified,
-    removed,
-  };
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 async function plaidRequest(path, body) {
