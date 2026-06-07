@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -8,7 +8,7 @@ import { DemographicFilters as DemographicFiltersPanel } from "./DemographicFilt
 import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { SegmentOutputPanel } from "./SegmentOutputPanel";
 import { PRODUCT_FLOWS, getProductFlow } from "@/lib/productAutomatedFlows";
-import { LIFESTYLE_ASSET_SIGNALS, estimateAssetSignalAudience } from "@/lib/lifestyleAssetSignals";
+import { getAssetSignalsForProduct, estimateAssetSignalAudience } from "@/lib/lifestyleAssetSignals";
 import { LIFESTYLE_PILLARS } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 import type { DemographicFilters as DemographicFiltersType } from "@/types/segment";
