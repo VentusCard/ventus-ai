@@ -155,6 +155,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
+      case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
+      case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
