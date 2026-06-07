@@ -80,3 +80,4 @@ Updated: 3h ago
 - [Hero Animation](mem://features/home/scroll-driven-hero) — 3-stage scroll sequence for the homepage card
 - [Capability Cards](mem://features/home/capability-cards) — Data type visual cues and subtext colors
 - [Phone Mockup Scrollbar](mem://style/visuals/phone-mockup-scrollbar) — All phone mockup scrollbars are light-themed via CSS scope
+- [Bankdemo Targeting Group](mem://features/bankdemo/targeting-group) — New Targeting sidebar group with product-first Automated Flows + Campaign Builder; mock data only
