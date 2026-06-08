@@ -323,22 +323,12 @@ export function ProductCampaignBuilderView() {
               );
             })()}
 
-            {(() => {
-              const dem = applicableDemographics;
-              const totalApplicable = dem
-                ? dem.ageRanges.length + dem.regions.length + dem.incomeBands.length + dem.accountTenure.length
-                : null;
-              if (dem && totalApplicable === 0) return null;
-              return (
-                <div className="mt-3 pt-3 border-t border-slate-100">
-                  <DemographicFiltersPanel
-                    filters={demographics}
-                    onChange={setDemographics}
-                    applicable={dem ?? undefined}
-                  />
-                </div>
-              );
-            })()}
+            <div className="mt-3 pt-3 border-t border-slate-100">
+              <DemographicFiltersPanel
+                filters={demographics}
+                onChange={setDemographics}
+              />
+            </div>
           </div>
 
           {/* Step 3 */}
