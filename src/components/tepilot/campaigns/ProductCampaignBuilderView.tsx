@@ -103,8 +103,11 @@ export function ProductCampaignBuilderView() {
       }
       if (!data?.signals?.length) throw new Error("No signals returned");
       setGeneratedSignals(data.signals);
+      const nextLE: string[] = Array.isArray(data.applicableLifeEvents) ? data.applicableLifeEvents : [];
+      setApplicableLifeEvents(nextLE);
       // Drop any prior selection IDs that don't exist in the new set
       setAssetSignals((prev) => prev.filter((id) => data.signals.some((s: LifestyleAssetSignal) => s.id === id)));
+      setLifeEvents((prev) => prev.filter((id) => nextLE.includes(id)));
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Generation failed";
       setSignalsError(msg);
