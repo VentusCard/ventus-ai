@@ -251,15 +251,26 @@ export function ProductCampaignBuilderView() {
               )}
 
               {generatedSignals.length > 0 && (
-                <DimensionChipCloud
-                  title=""
-                  icon={null}
-                  chips={signalChips}
-                  selectedChips={assetSignals}
-                  onToggle={(id) => setAssetSignals((prev) => toggle(prev, id))}
-                  defaultOpen
-                  hideHeader
-                />
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {signalChips.map((chip) => {
+                    const selected = assetSignals.includes(chip.id);
+                    return (
+                      <button
+                        key={chip.id}
+                        onClick={() => setAssetSignals((prev) => toggle(prev, chip.id))}
+                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                          selected
+                            ? "bg-blue-50 border-blue-400 text-blue-700"
+                            : "bg-white border-slate-200 text-slate-600 hover:border-blue-400 hover:text-slate-900"
+                        }`}
+                        title={chip.description}
+                      >
+                        <span className={`w-2 h-2 rounded-full ${selected ? "bg-blue-600" : "bg-slate-300"}`} />
+                        {chip.label}
+                      </button>
+                    );
+                  })}
+                </div>
               )}
             </div>
 
