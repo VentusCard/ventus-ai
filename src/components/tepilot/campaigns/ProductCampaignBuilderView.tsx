@@ -117,22 +117,23 @@ export function ProductCampaignBuilderView() {
       setAssetSignals((prev) => prev.filter((id) => data.signals.some((s: LifestyleAssetSignal) => s.id === id)));
       setLifeEvents((prev) => prev.filter((id) => nextLE.includes(id)));
       const nextDem = data.applicableDemographics ?? { ageRanges: [], regions: [], incomeBands: [], accountTenure: [] };
-      const ageSet = new Set<string>(nextDem.ageRanges ?? []);
-      const regionSet = new Set<string>(nextDem.regions ?? []);
-      const incomeSet = new Set<string>(nextDem.incomeBands ?? []);
-      const tenureSet = new Set<string>(nextDem.accountTenure ?? []);
+      const ageArr: string[] = Array.isArray(nextDem.ageRanges) ? nextDem.ageRanges : [];
+      const regionArr: string[] = Array.isArray(nextDem.regions) ? nextDem.regions : [];
+      const incomeArr: string[] = Array.isArray(nextDem.incomeBands) ? nextDem.incomeBands : [];
+      const tenureArr: string[] = Array.isArray(nextDem.accountTenure) ? nextDem.accountTenure : [];
       setApplicableDemographics({
-        ageRanges: [...ageSet],
-        regions: [...regionSet],
-        incomeBands: [...incomeSet],
-        accountTenure: [...tenureSet],
+        ageRanges: ageArr,
+        regions: regionArr,
+        incomeBands: incomeArr,
+        accountTenure: tenureArr,
       });
-      setDemographics((prev) => ({
-        ageRanges: prev.ageRanges.filter((a) => ageSet.has(a)),
-        regions: prev.regions.filter((r) => regionSet.has(r)),
-        incomeBands: prev.incomeBands.filter((i) => incomeSet.has(i)),
-        accountTenure: prev.accountTenure !== "all" && !tenureSet.has(prev.accountTenure) ? "all" : prev.accountTenure,
-      }));
+      // Pre-select the AI-suggested values; user can still adjust afterward.
+      setDemographics({
+        ageRanges: ageArr,
+        regions: regionArr,
+        incomeBands: incomeArr,
+        accountTenure: (tenureArr[0] as DemographicFiltersType["accountTenure"]) ?? "all",
+      });
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Generation failed";
       setSignalsError(msg);
