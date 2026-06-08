@@ -384,14 +384,12 @@ export function ProductCampaignBuilderView() {
                 <span className="text-slate-500">Asset signals</span>
                 <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{assetSignals.length}</Badge>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">Life events</span>
-                <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{lifeEvents.length}</Badge>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">Lifestyle pillars</span>
-                <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{pillars.length}</Badge>
-              </div>
+              {applicableLifeEvents.length > 0 && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Life events</span>
+                  <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{lifeEvents.length}</Badge>
+                </div>
+              )}
             </div>
           </div>
         </div>
