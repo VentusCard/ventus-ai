@@ -42,10 +42,21 @@ PRODUCT
 REFERENCE SIGNALS (curated examples of the level of product-specificity required — match this concreteness, do not copy verbatim):
 ${curatedBlock}
 
+REQUIRED ORDERING:
+- The FIRST 2–3 signals MUST be the most obvious, top-of-mind consumer spending categories this product directly rewards or serves (the basics any customer would expect). Lead with these baselines, then layer in more nuanced/behavioral signals.
+- Travel rewards card baselines: flights booked, hotel stays, rental cars, rideshare/taxis to airport, restaurant spend abroad
+- HELOC baselines: home improvement spend, contractor payments, big-box hardware runs
+- 529 plan baselines: daycare/tuition payments, kids' activity spend, pediatric copays
+- Auto loan baselines: dealer visits, vehicle service spend, gas stations
+- Cashback card baselines: grocery spend, gas stations, streaming subscriptions
+- Mortgage baselines: rent payments, real estate agent fees, moving/storage spend
+- Checking upgrade baselines: direct deposit payroll, recurring bill autopay
+
 For each signal you emit, silently verify:
 1. Does the label name a concrete merchant category, transaction archetype, account flow, or life-stage event tied to ${productName}?
 2. Would a customer who needs a DIFFERENT product (e.g., auto loan vs. 529 vs. HELOC vs. travel card) NOT trigger this signal?
 3. Does the description name the evidence type (merchant category, ACH counterparty, deposit/withdrawal pattern, cadence) AND why it predicts fit for ${productName} specifically?
+4. Does this set INCLUDE the obvious top-of-mind spending categories a customer would expect this product to reward? If not, add them FIRST before any nuanced signals.
 
 If a signal could plausibly apply to 3+ unrelated products, throw it out and generate a more specific one.`;
 
