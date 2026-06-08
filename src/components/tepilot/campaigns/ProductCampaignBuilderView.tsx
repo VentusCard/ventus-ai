@@ -29,6 +29,12 @@ export function ProductCampaignBuilderView() {
 
   const [generatedSignals, setGeneratedSignals] = useState<LifestyleAssetSignal[]>([]);
   const [applicableLifeEvents, setApplicableLifeEvents] = useState<string[]>([]);
+  const [applicableDemographics, setApplicableDemographics] = useState<{
+    ageRanges: string[];
+    regions: string[];
+    incomeBands: string[];
+    accountTenure: string[];
+  } | null>(null);
   const [signalsLoading, setSignalsLoading] = useState(false);
   const [signalsError, setSignalsError] = useState<string | null>(null);
 
@@ -46,12 +52,15 @@ export function ProductCampaignBuilderView() {
   useEffect(() => {
     setGeneratedSignals([]);
     setApplicableLifeEvents([]);
+    setApplicableDemographics(null);
     setAssetSignals([]);
     setLifeEvents([]);
+    setDemographics({ ageRanges: [], regions: [], incomeBands: [], accountTenure: "all" });
     setGeneratedPersonas(null);
     setSignalsError(null);
     setSegmentError(null);
   }, [productId]);
+
 
   const selectedSignalObjects = useMemo(
     () => generatedSignals.filter((s) => assetSignals.includes(s.id)),
