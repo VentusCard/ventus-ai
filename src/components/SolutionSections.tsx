@@ -209,7 +209,7 @@ const SolutionSections = () => {
                     <span className="w-3 h-3 rounded-full bg-red-400" />
                     <span className="w-3 h-3 rounded-full bg-yellow-400" />
                     <span className="w-3 h-3 rounded-full bg-green-400" />
-                    <span className="ml-3 text-[11px] text-gray-400 font-mono">​</span>
+                    <span className="ml-3 text-[11px] text-gray-400 font-mono"></span>
                   </div>
                   <div className="p-3 sm:p-6">
                     <PortfolioVisual />
