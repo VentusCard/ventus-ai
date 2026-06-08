@@ -1,40 +1,26 @@
-## Problem
+## Goal
+Make sure AI-generated lifestyle signals always include the obvious, baseline consumer spending behaviors for the product — not just clever edge signals. E.g. a travel rewards card must surface flights, hotels, rental cars, rideshare to airport, etc.
 
-Generated signals come back too generic ("Sustained idle checking balance", "Multi-carrier travel pattern") — they could fit almost any product. The model isn't being forced to reason about what specifically distinguishes a buyer of *this* product.
+## Change
+Edit `supabase/functions/generate-lifestyle-signals/index.ts` system + user prompt:
 
-## Fix
+1. **Add a "baseline coverage" rule**: The first 2–3 signals MUST be the most obvious consumer spending categories the product directly rewards/serves. Then add more nuanced/behavioral signals after.
 
-Tighten `supabase/functions/generate-lifestyle-signals/index.ts` so every signal is anchored to the product's actual use case, target customer, and competitive context.
+2. **Add per-product baseline examples** in the prompt:
+   - Travel rewards card → flights booked, hotel stays, rental cars, rideshare/taxis, restaurant spend abroad
+   - HELOC → home improvement spend, contractor payments, big-box hardware runs
+   - 529 plan → daycare/tuition payments, kids' activity spend
+   - Auto loan → dealer visits, vehicle service spend, gas stations
+   - Cashback card → grocery, gas, streaming subscriptions
+   - Mortgage → rent payments, real estate agent fees, moving services
+   - Checking upgrade → direct deposit payroll, recurring bills
 
-### 1. Enrich the prompt input
-Pass more product context from `ProductCampaignBuilderView.tsx` when available: `product.targetCustomer`, `product.keyFeatures`, `product.priceRange`, `product.competitors` (whichever fields exist on the product object — fall back gracefully).
+3. **Silent-checklist addition**: "Does this set include the obvious top-of-mind spending categories a customer would expect this product to reward? If not, add them first."
 
-### 2. Rewrite the system prompt
-Replace the current generic strategist prompt with rules that force product-specificity:
-
-- The signal must answer: "What does a customer who is about to need *this exact product* do in their transaction history that a customer who needs a different product does NOT do?"
-- BANNED generic phrasings: "sustained idle balance", "multi-carrier travel", "recurring premium subscriptions", "high discretionary spend", "affluent lifestyle indicators", or any signal that could apply to 3+ unrelated products.
-- Each signal label MUST reference a concrete merchant category, transaction archetype, or life-stage event tied to the product (e.g. for a HELOC: "Home improvement big-box runs", "Recurring contractor ACH", "Property tax lump sum"; for a travel card: "International POS in last 90d", "Airline ancillary fees", "Lounge day-pass purchases").
-- Descriptions must name the *evidence* (merchant type, flow direction, cadence) and *why it predicts fit for this product specifically* in ≤18 words.
-
-### 3. Reinforce via user prompt
-Restructure user prompt as a checklist the model fills:
-```
-Product: {name}
-What this product does: {positioning}
-Target customer: {targetCustomer}
-
-For each signal, internally answer:
-- Which merchant category / transaction type?
-- Why does this predict need for {productName} (not just general affluence)?
-Then emit the signal.
-```
-
-### 4. Keep tone rules
-Preserve existing "vaguely specific" rules (no exact $ or counts), no em dashes, no competitor names, no risk language, detectionRate 0.003–0.20.
-
-### 5. Validate
-After deploy, hit the function via `supabase--curl_edge_functions` for 2 different products (e.g. a HELOC vs a travel rewards card) and confirm signal sets are visibly different and product-anchored.
+4. **Keep all prior rules**: consumer perspective (no fee/leakage/interchange terms), product-specific phrasing, banned generic labels, tone constraints (≤18 words, no em dashes, no exact $).
 
 ## Out of scope
-Frontend UI, segment generation, imagery brief — only the signals edge function + its caller's input payload change.
+Frontend, segment generation, other edge functions.
+
+## Validation
+Re-run for travel rewards card; confirm output leads with flights/hotels/rental cars before more nuanced signals.
