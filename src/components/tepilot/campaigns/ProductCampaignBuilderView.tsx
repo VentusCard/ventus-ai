@@ -9,10 +9,9 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { SegmentOutputPanel, type GeneratedPersona } from "./SegmentOutputPanel";
 import { PRODUCT_FLOWS, getProductFlow } from "@/lib/productAutomatedFlows";
 import { estimateAssetSignalAudience, type LifestyleAssetSignal } from "@/lib/lifestyleAssetSignals";
-import { LIFESTYLE_PILLARS } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 import type { DemographicFilters as DemographicFiltersType } from "@/types/segment";
-import { Megaphone, Gem, Heart, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import { Megaphone, Gem, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
@@ -29,6 +28,7 @@ export function ProductCampaignBuilderView() {
   });
 
   const [generatedSignals, setGeneratedSignals] = useState<LifestyleAssetSignal[]>([]);
+  const [applicableLifeEvents, setApplicableLifeEvents] = useState<string[]>([]);
   const [signalsLoading, setSignalsLoading] = useState(false);
   const [signalsError, setSignalsError] = useState<string | null>(null);
 
@@ -45,7 +45,9 @@ export function ProductCampaignBuilderView() {
   // Reset everything tied to a product when product changes
   useEffect(() => {
     setGeneratedSignals([]);
+    setApplicableLifeEvents([]);
     setAssetSignals([]);
+    setLifeEvents([]);
     setGeneratedPersonas(null);
     setSignalsError(null);
     setSegmentError(null);
@@ -100,8 +102,11 @@ export function ProductCampaignBuilderView() {
       }
       if (!data?.signals?.length) throw new Error("No signals returned");
       setGeneratedSignals(data.signals);
+      const nextLE: string[] = Array.isArray(data.applicableLifeEvents) ? data.applicableLifeEvents : [];
+      setApplicableLifeEvents(nextLE);
       // Drop any prior selection IDs that don't exist in the new set
       setAssetSignals((prev) => prev.filter((id) => data.signals.some((s: LifestyleAssetSignal) => s.id === id)));
+      setLifeEvents((prev) => prev.filter((id) => nextLE.includes(id)));
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Generation failed";
       setSignalsError(msg);
@@ -275,22 +280,21 @@ export function ProductCampaignBuilderView() {
               )}
             </div>
 
-            <DimensionChipCloud
-              title="Life Events"
-              icon={<Sparkles className="w-4 h-4 text-blue-600" />}
-              chips={LIFE_EVENTS.map((e) => ({ id: e.id, label: e.name }))}
-              selectedChips={lifeEvents}
-              onToggle={(id) => setLifeEvents((prev) => toggle(prev, id))}
-              badge={`${LIFE_EVENTS.length}`}
-            />
-            <DimensionChipCloud
-              title="Lifestyle Pillars"
-              icon={<Heart className="w-4 h-4 text-blue-600" />}
-              chips={LIFESTYLE_PILLARS.map((p) => ({ id: p, label: p }))}
-              selectedChips={pillars}
-              onToggle={(id) => setPillars((prev) => toggle(prev, id))}
-              badge={`${LIFESTYLE_PILLARS.length}`}
-            />
+            {applicableLifeEvents.length > 0 && (() => {
+              const chips = LIFE_EVENTS
+                .filter((e) => applicableLifeEvents.includes(e.id))
+                .map((e) => ({ id: e.id, label: e.name }));
+              return (
+                <DimensionChipCloud
+                  title="Life Events"
+                  icon={<Sparkles className="w-4 h-4 text-blue-600" />}
+                  chips={chips}
+                  selectedChips={lifeEvents}
+                  onToggle={(id) => setLifeEvents((prev) => toggle(prev, id))}
+                  badge={`${chips.length}`}
+                />
+              );
+            })()}
 
             <div className="mt-3 pt-3 border-t border-slate-100">
               <DemographicFiltersPanel filters={demographics} onChange={setDemographics} />
@@ -379,14 +383,12 @@ export function ProductCampaignBuilderView() {
                 <span className="text-slate-500">Asset signals</span>
                 <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{assetSignals.length}</Badge>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">Life events</span>
-                <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{lifeEvents.length}</Badge>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">Lifestyle pillars</span>
-                <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{pillars.length}</Badge>
-              </div>
+              {applicableLifeEvents.length > 0 && (
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">Life events</span>
+                  <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{lifeEvents.length}</Badge>
+                </div>
+              )}
             </div>
           </div>
         </div>

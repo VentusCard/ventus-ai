@@ -32,7 +32,18 @@ serve(async (req) => {
           .join("\n")
       : "  (none provided)";
 
-    const userPrompt = `Generate 8–10 Lifestyle Asset Signals that predict strong fit for THIS SPECIFIC product. A signal is only good if it would NOT apply equally well to a different banking product.
+    const LIFE_EVENT_VOCAB = [
+      { id: "retirement", name: "Retirement Planning" },
+      { id: "education", name: "Education Funding" },
+      { id: "family", name: "Family Formation" },
+      { id: "home", name: "Home Purchase" },
+      { id: "elder_care", name: "Elder Care" },
+      { id: "business", name: "Business Liquidity" },
+      { id: "wealth_transfer", name: "Wealth Transfer" },
+    ];
+    const lifeEventVocabBlock = LIFE_EVENT_VOCAB.map((e) => `  - ${e.id} (${e.name})`).join("\n");
+
+    const userPrompt = `Generate 8–10 Lifestyle Asset Signals that predict strong fit for THIS SPECIFIC product, AND decide which life events are meaningful targeting levers for it.
 
 PRODUCT
 - Name: ${productName}
@@ -42,7 +53,7 @@ PRODUCT
 REFERENCE SIGNALS (curated examples of the level of product-specificity required — match this concreteness, do not copy verbatim):
 ${curatedBlock}
 
-REQUIRED ORDERING:
+REQUIRED ORDERING FOR SIGNALS:
 - The FIRST 2–3 signals MUST be the most obvious, top-of-mind consumer spending categories this product directly rewards or serves (the basics any customer would expect). Lead with these baselines, then layer in more nuanced/behavioral signals.
 - Travel rewards card baselines: flights booked, hotel stays, rental cars, rideshare/taxis to airport, restaurant spend abroad
 - HELOC baselines: home improvement spend, contractor payments, big-box hardware runs
@@ -52,6 +63,13 @@ REQUIRED ORDERING:
 - Mortgage baselines: rent payments, real estate agent fees, moving/storage spend
 - Checking upgrade baselines: direct deposit payroll, recurring bill autopay
 
+APPLICABLE LIFE EVENTS:
+- Canonical vocabulary (use these ids exactly, or an empty array):
+${lifeEventVocabBlock}
+- Return ONLY the life events that are a clear, meaningful targeting lever for THIS product. Return an empty array when none truly apply.
+- Examples: travel rewards card → []; cashback card → []; personal loan → []; auto loan → []; 529 → ["family","education"]; HELOC → ["home","family"]; mortgage → ["home","family"]; wealth management → ["retirement","business","wealth_transfer"]; life insurance → ["family","retirement","wealth_transfer","elder_care"]; high-yield savings → ["retirement","education","home"]; small business loan → ["business"].
+- Do NOT pad the list. Empty is the right answer for many cards/loans.
+
 For each signal you emit, silently verify:
 1. Does the label name a concrete merchant category, transaction archetype, account flow, or life-stage event tied to ${productName}?
 2. Would a customer who needs a DIFFERENT product (e.g., auto loan vs. 529 vs. HELOC vs. travel card) NOT trigger this signal?
@@ -59,6 +77,7 @@ For each signal you emit, silently verify:
 4. Does this set INCLUDE the obvious top-of-mind spending categories a customer would expect this product to reward? If not, add them FIRST before any nuanced signals.
 
 If a signal could plausibly apply to 3+ unrelated products, throw it out and generate a more specific one.`;
+
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -102,7 +121,7 @@ ABSOLUTE RULES:
             type: "function",
             function: {
               name: "emit_signals",
-              description: "Emit 8–10 product-anchored lifestyle asset signals.",
+              description: "Emit 8–10 product-anchored lifestyle asset signals plus the life events applicable to this product.",
               parameters: {
                 type: "object",
                 properties: {
@@ -122,8 +141,16 @@ ABSOLUTE RULES:
                       additionalProperties: false,
                     },
                   },
+                  applicableLifeEvents: {
+                    type: "array",
+                    description: "Subset of canonical life-event ids relevant to this product. Empty when none apply.",
+                    items: {
+                      type: "string",
+                      enum: ["retirement", "education", "family", "home", "elder_care", "business", "wealth_transfer"],
+                    },
+                  },
                 },
-                required: ["signals"],
+                required: ["signals", "applicableLifeEvents"],
                 additionalProperties: false,
               },
             },
@@ -132,6 +159,7 @@ ABSOLUTE RULES:
         tool_choice: { type: "function", function: { name: "emit_signals" } },
       }),
     });
+
 
     if (!response.ok) {
       const status = response.status;
@@ -171,7 +199,14 @@ ABSOLUTE RULES:
       return { id, label: String(s.label ?? "Signal"), description: String(s.description ?? ""), detectionRate: rate };
     });
 
-    return new Response(JSON.stringify({ signals }), {
+    const ALLOWED_LE = new Set(["retirement", "education", "family", "home", "elder_care", "business", "wealth_transfer"]);
+    const applicableLifeEvents = Array.from(new Set(
+      (Array.isArray(parsed.applicableLifeEvents) ? parsed.applicableLifeEvents : [])
+        .map((x: unknown) => String(x))
+        .filter((x: string) => ALLOWED_LE.has(x))
+    ));
+
+    return new Response(JSON.stringify({ signals, applicableLifeEvents }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
