@@ -119,9 +119,23 @@ export function SegmentOutputPanel({ productId, audienceSize, selectedAssetSigna
             <p className="text-base font-bold text-slate-900">{formatN(audienceSize)} customers · {product?.name}</p>
           </div>
         </div>
-        <Badge variant="outline" className="border-slate-200 bg-white text-slate-600 text-xs">
-          {personas.length} personalized variants
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Select value={provider} onValueChange={handleProviderChange}>
+            <SelectTrigger className="h-7 w-[150px] text-[11px] border-slate-200 bg-white">
+              <SelectValue placeholder="Picker" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-slate-200">
+              {STOCK_PROVIDERS.map((p) => (
+                <SelectItem key={p.id} value={p.id} className="text-xs">
+                  Picker · {p.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Badge variant="outline" className="border-slate-200 bg-white text-slate-600 text-xs">
+            {personas.length} personalized variants
+          </Badge>
+        </div>
       </div>
 
       <div className="space-y-3">
