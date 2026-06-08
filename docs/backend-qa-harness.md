@@ -195,6 +195,25 @@ VENTUS_QA_EVALUATION_REPORT_PATH=/path/to/plaid-model-output-report.json \
 npm run --prefix backend qa:model-output
 ```
 
+To run the selected Plaid candidates through Ventus enrichment, first build the exact `POST /v1/enrich` fixture:
+
+```sh
+PLAID_GOLDEN_EXPECTATIONS_PATH=/path/to/plaid-golden-candidates.json \
+PLAID_GOLDEN_NORMALIZED_PATH=/path/to/normalized-transactions.json \
+npm run --prefix backend plaid:golden:fixture
+```
+
+Then submit/capture predictions against staging:
+
+```sh
+VENTUS_STAGING_API_BASE_URL=https://staging-api.example.com \
+VENTUS_API_KEY=... \
+PLAID_GOLDEN_ENRICH_FIXTURE_PATH=/path/to/plaid-golden-enrich-fixture.json \
+npm run --prefix backend plaid:enrichment:capture
+```
+
+The capture script writes `enrichment-predictions.json` and raw API output alongside the fixture. It refuses to submit to `https://api.ventusai.com` unless `VENTUS_LIVE_QA_ALLOW_PRODUCTION=true` is set.
+
 ## Plaid Sandbox Pulls
 
 Use `npm run --prefix backend plaid:sandbox:pull` to create Sandbox Items and save raw `/transactions/sync` responses into `backend/artifacts/plaid-sandbox/`. The artifacts directory is git-ignored because the raw pulls are operational QA output and may contain Sandbox access metadata.

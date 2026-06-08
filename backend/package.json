@@ -11,6 +11,8 @@
     "smoke:api": "node ./scripts/smoke-api.mjs",
     "plaid:sandbox:pull": "node ./scripts/pull-plaid-sandbox-transactions.mjs",
     "plaid:golden:candidates": "node ./scripts/generate-plaid-golden-candidates.mjs",
+    "plaid:golden:fixture": "node ./scripts/build-plaid-golden-enrich-fixture.mjs",
+    "plaid:enrichment:capture": "node ./scripts/capture-plaid-enrichment-predictions.mjs",
     "qa:enrichment": "node ./scripts/qa-enrichment-contract.mjs",
     "qa:partner-ingest": "node ./scripts/qa-partner-ingest.mjs",
     "qa:golden": "node ./scripts/qa-golden-enrichment.mjs",
