@@ -1,44 +1,26 @@
 ## Goal
-Make the "Refine Audience (Optional)" demographic filters dynamic per product — same pattern as life events. The edge function decides which demographic facets (age ranges, regions, income bands, account tenure) are meaningful targeting levers for the selected product, and the UI only renders those facets with only the suggested values pre-narrowed.
-
-## Edge function — `supabase/functions/generate-lifestyle-signals/index.ts`
-
-Extend the `emit_signals` tool schema with an additional output:
-
-```
-applicableDemographics: {
-  ageRanges:    string[],   // subset of ['18-24','25-34','35-44','45-54','55-64','65+'] — [] = hide facet
-  regions:      string[],   // subset of ['Northeast','Southeast','Midwest','Southwest','West','Northwest'] — [] = hide facet
-  incomeBands:  string[],   // subset of ['under_50k','50k_100k','100k_150k','over_150k'] — [] = hide facet
-  accountTenure: string[]   // subset of ['new','established','loyal'] — [] = hide facet
-}
-```
-
-Prompt additions:
-- Pass the canonical vocab (ids + labels) for each facet.
-- Rule: "For each demographic facet, return ONLY the values that are clearly relevant targeting levers for THIS product. Return an empty array for any facet that doesn't meaningfully discriminate fit (e.g. regions usually don't matter for a national travel card — return []). Don't pad. Examples: 529 plan → ageRanges ['25-34','35-44'], incomeBands ['50k_100k','100k_150k','over_150k'], accountTenure [], regions []; HELOC → ageRanges ['35-44','45-54','55-64'], incomeBands ['100k_150k','over_150k'], accountTenure ['established','loyal'], regions []; wealth management → ageRanges ['45-54','55-64','65+'], incomeBands ['over_150k'], accountTenure ['established','loyal'], regions []; travel rewards card → ageRanges ['25-34','35-44','45-54'], incomeBands ['100k_150k','over_150k'], accountTenure [], regions []; small business loan → ageRanges [], incomeBands [], accountTenure ['established','loyal'], regions []."
-
-Response body: `{ signals, applicableLifeEvents, applicableDemographics }`. Sanitize against the allowed sets; default each facet to `[]` when missing.
-
-## Frontend — `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx`
-
-- New state `applicableDemographics: { ageRanges, regions, incomeBands, accountTenure }`. Reset on product change; populate from edge-function response.
-- On each new generation, drop any currently-selected demographic value that isn't in the new applicable set. Reset `accountTenure` to `'all'` if the facet was removed.
-- Pass `applicableDemographics` down to `DemographicFilters` via a new optional prop.
-- If ALL four facets are empty, hide the entire Refine Audience collapsible.
+Change "Refine Audience (Optional)" to always show the full canonical filter set. Instead of hiding facets/options not in `applicableDemographics`, render everything and **pre-select** the values the edge function returned as applicable.
 
 ## Frontend — `src/components/tepilot/campaigns/DemographicFilters.tsx`
+- Remove the option-filtering and facet-hiding logic driven by `applicable`. Always render all four facets with their full canonical lists (`AGE_RANGES`, `REGIONS`, `INCOME_BANDS`, `ACCOUNT_TENURE_OPTIONS`).
+- Keep the `applicable` prop on the type signature (still accepted) but no longer use it to filter what's rendered. Pre-selection is handled by the parent setting `filters`.
+- Drop the early `return null` when all facets are empty.
 
-- Accept new optional prop `applicable?: { ageRanges?: string[]; regions?: string[]; incomeBands?: string[]; accountTenure?: string[] }`.
-- For each facet, filter the rendered options to the intersection of canonical list and `applicable[facet]`. If `applicable[facet]` is omitted (undefined), show all (back-compat with other callers). If `applicable[facet]` is an empty array, hide the entire facet block.
-- For Account Tenure: when filtered, build the Select options as `[All Tenures] + filtered ACCOUNT_TENURE_OPTIONS`. Hide the whole Select when applicable list is empty.
-- No behavior change for callers that don't pass `applicable`.
+## Frontend — `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx`
+- After a successful `generate-lifestyle-signals` response, **pre-select** the returned demographics into the `DemographicFilters` state instead of using them to gate visibility:
+  - `ageRanges` ← `applicableDemographics.ageRanges` (intersected with canonical `AGE_RANGES`)
+  - `regions` ← `applicableDemographics.regions` (intersected with canonical `REGIONS`)
+  - `incomeBands` ← `applicableDemographics.incomeBands` (intersected with canonical income band values)
+  - `accountTenure` ← first value of `applicableDemographics.accountTenure` if present, otherwise `'all'` (the Select is single-value)
+- On product change, reset filters back to empty arrays / `'all'` before regenerating.
+- Stop pruning user selections against `applicableDemographics` on subsequent generations — once the user has interacted, leave their picks alone; only the fresh-generation step writes pre-selections.
+- Keep passing `applicableDemographics` to `DemographicFilters` for now (no-op in the child) or drop the prop — choose drop to keep the surface clean.
 
 ## Out of scope
-Audience-size estimator math, other campaign builder sections, other edge functions, other consumers of `DemographicFilters`.
+Edge function changes (it keeps returning `applicableDemographics`), other campaign builder sections, other consumers of `DemographicFilters`, audience-size estimator.
 
 ## Validation
-- Travel Rewards Card → Generate → Refine Audience shows only Age Ranges + Income Bands (no Regions, no Tenure).
-- 529 Plan → Generate → Age Ranges narrowed to 25-34 / 35-44, Income Bands shown, Tenure + Regions hidden.
-- Wealth Management → Generate → Age Ranges narrowed to 45+, Income Bands = $150K+, Tenure shows Established/Loyal.
-- Small Business Loan → Generate → only Account Tenure shown.
+- Travel Rewards Card → Generate → Refine Audience shows ALL facets; Age Ranges has `25-34 / 35-44 / 45-54` pre-selected, Income Bands has `$100K–$150K / $150K+` pre-selected, Regions none, Tenure = All Tenures.
+- 529 Plan → Generate → all facets visible; Age Ranges pre-selects `25-34 / 35-44`; Income Bands pre-selects `$50K–$100K / $100K–$150K / $150K+`.
+- Small Business Loan → all facets visible; Account Tenure pre-selects `Established` (or `Loyal`); other facets empty but still visible so the user can add.
+- Switching products clears prior selections before applying the new pre-selection.
