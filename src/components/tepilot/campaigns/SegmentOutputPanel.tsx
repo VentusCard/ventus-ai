@@ -1,10 +1,15 @@
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Mail, Image as ImageIcon, Users, Copy, Send } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Mail, Image as ImageIcon, Users, Copy, ExternalLink } from "lucide-react";
 import { getAssetSignalsForProduct, findAssetSignal } from "@/lib/lifestyleAssetSignals";
 import { getProductFlow } from "@/lib/productAutomatedFlows";
 import { buildImageryBrief, formatImageryBriefForClipboard } from "@/lib/segmentImageryBrief";
+import { buildStockPickerUrl, providerLabel, STOCK_PROVIDERS, DEFAULT_PROVIDER, type StockProvider } from "@/lib/stockPickerLink";
 import { toast } from "@/hooks/use-toast";
+
+const PROVIDER_STORAGE_KEY = "tepilot.stockPicker.provider";
 
 interface Persona {
   label: string;
@@ -80,6 +85,19 @@ export function SegmentOutputPanel({ productId, audienceSize, selectedAssetSigna
   const product = getProductFlow(productId);
   const personas = getPersonas(productId, selectedAssetSignals);
 
+  const [provider, setProvider] = useState<StockProvider>(DEFAULT_PROVIDER);
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(PROVIDER_STORAGE_KEY) as StockProvider | null;
+      if (saved && STOCK_PROVIDERS.some((p) => p.id === saved)) setProvider(saved);
+    } catch {/* ignore */}
+  }, []);
+  const handleProviderChange = (v: string) => {
+    const next = v as StockProvider;
+    setProvider(next);
+    try { sessionStorage.setItem(PROVIDER_STORAGE_KEY, next); } catch {/* ignore */}
+  };
+
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -101,9 +119,23 @@ export function SegmentOutputPanel({ productId, audienceSize, selectedAssetSigna
             <p className="text-base font-bold text-slate-900">{formatN(audienceSize)} customers · {product?.name}</p>
           </div>
         </div>
-        <Badge variant="outline" className="border-slate-200 bg-white text-slate-600 text-xs">
-          {personas.length} personalized variants
-        </Badge>
+        <div className="flex items-center gap-2">
+          <Select value={provider} onValueChange={handleProviderChange}>
+            <SelectTrigger className="h-7 w-[150px] text-[11px] border-slate-200 bg-white">
+              <SelectValue placeholder="Picker" />
+            </SelectTrigger>
+            <SelectContent className="bg-white border-slate-200">
+              {STOCK_PROVIDERS.map((p) => (
+                <SelectItem key={p.id} value={p.id} className="text-xs">
+                  Picker · {p.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Badge variant="outline" className="border-slate-200 bg-white text-slate-600 text-xs">
+            {personas.length} personalized variants
+          </Badge>
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -190,13 +222,25 @@ export function SegmentOutputPanel({ productId, audienceSize, selectedAssetSigna
                       Copy brief
                     </Button>
                     <Button
+                      asChild
                       size="sm"
                       variant="outline"
                       className="h-7 px-2 text-[10px] border-slate-200"
-                      onClick={() => toast({ title: "Queued for stock selection", description: `${p.label} · ${brief.query}` })}
                     >
-                      <Send className="w-3 h-3 mr-1" />
-                      Send to picker
+                      <a
+                        href={buildStockPickerUrl(provider, brief)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          toast({
+                            title: `Opening ${providerLabel(provider)}`,
+                            description: `${p.label} · ${brief.query}`,
+                          })
+                        }
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        Open in {providerLabel(provider)}
+                      </a>
                     </Button>
                   </div>
                 </div>
