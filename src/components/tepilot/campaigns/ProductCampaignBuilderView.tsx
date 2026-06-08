@@ -46,7 +46,9 @@ export function ProductCampaignBuilderView() {
   // Reset everything tied to a product when product changes
   useEffect(() => {
     setGeneratedSignals([]);
+    setApplicableLifeEvents([]);
     setAssetSignals([]);
+    setLifeEvents([]);
     setGeneratedPersonas(null);
     setSignalsError(null);
     setSegmentError(null);
