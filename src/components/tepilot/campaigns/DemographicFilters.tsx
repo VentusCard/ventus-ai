@@ -107,78 +107,86 @@ export function DemographicFilters({ filters, onChange, applicable }: Demographi
       <CollapsibleContent>
         <div className="px-3 pb-3 space-y-3">
           {/* Age Ranges */}
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Age Ranges</p>
-            <div className="flex flex-wrap gap-1.5">
-              {AGE_RANGES.map((age) => {
-                const isSelected = filters.ageRanges.includes(age);
-                return (
-                  <button
-                    key={age}
-                    onClick={() => toggleAgeRange(age)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-blue-50 border-blue-400 text-blue-700'
-                        : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
-                    {age}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Regions */}
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Regions</p>
-            <div className="flex flex-wrap gap-1.5">
-              {REGIONS.map((region) => {
-                const isSelected = filters.regions.includes(region);
-                return (
-                  <button
-                    key={region}
-                    onClick={() => toggleRegion(region)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-blue-50 border-blue-400 text-blue-700'
-                        : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
-                    {region}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Income & Tenure Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Income Bands */}
+          {showAge && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Income Bands</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Age Ranges</p>
               <div className="flex flex-wrap gap-1.5">
-                {INCOME_BANDS.map((income) => {
-                  const isSelected = filters.incomeBands.includes(income.value);
+                {ageOptions.map((age) => {
+                  const isSelected = filters.ageRanges.includes(age);
                   return (
                     <button
-                      key={income.value}
-                      onClick={() => toggleIncomeBand(income.value)}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                      key={age}
+                      onClick={() => toggleAgeRange(age)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-blue-50 border-blue-400 text-blue-700'
                           : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
                       }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
-                      {income.label}
+                      <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
+                      {age}
                     </button>
                   );
                 })}
               </div>
             </div>
+          )}
+
+          {/* Regions */}
+          {showRegion && (
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Regions</p>
+              <div className="flex flex-wrap gap-1.5">
+                {regionOptions.map((region) => {
+                  const isSelected = filters.regions.includes(region);
+                  return (
+                    <button
+                      key={region}
+                      onClick={() => toggleRegion(region)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-blue-50 border-blue-400 text-blue-700'
+                          : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
+                      {region}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Income & Tenure Row */}
+          {(showIncome || showTenure) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Income Bands */}
+              {showIncome && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Income Bands</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {incomeOptions.map((income) => {
+                      const isSelected = filters.incomeBands.includes(income.value);
+                      return (
+                        <button
+                          key={income.value}
+                          onClick={() => toggleIncomeBand(income.value)}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-50 border-blue-400 text-blue-700'
+                              : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
+                          {income.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
 
             {/* Account Tenure */}
             <div>
