@@ -29,6 +29,7 @@ export function ProductCampaignBuilderView() {
   });
 
   const [generatedSignals, setGeneratedSignals] = useState<LifestyleAssetSignal[]>([]);
+  const [applicableLifeEvents, setApplicableLifeEvents] = useState<string[]>([]);
   const [signalsLoading, setSignalsLoading] = useState(false);
   const [signalsError, setSignalsError] = useState<string | null>(null);
 
