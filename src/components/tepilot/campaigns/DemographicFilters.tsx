@@ -54,17 +54,38 @@ export function DemographicFilters({ filters, onChange, applicable }: Demographi
     onChange({ ...filters, accountTenure: value as AccountTenure });
   };
 
-  const hasActiveFilters = 
-    filters.ageRanges.length > 0 || 
-    filters.regions.length > 0 || 
-    filters.incomeBands.length > 0 || 
+  const ageOptions = applicable?.ageRanges
+    ? AGE_RANGES.filter((a) => applicable.ageRanges!.includes(a))
+    : [...AGE_RANGES];
+  const regionOptions = applicable?.regions
+    ? REGIONS.filter((r) => applicable.regions!.includes(r))
+    : [...REGIONS];
+  const incomeOptions = applicable?.incomeBands
+    ? INCOME_BANDS.filter((i) => applicable.incomeBands!.includes(i.value))
+    : [...INCOME_BANDS];
+  const tenureOptions = applicable?.accountTenure
+    ? ACCOUNT_TENURE_OPTIONS.filter((t) => t.value === "all" || applicable.accountTenure!.includes(t.value))
+    : [...ACCOUNT_TENURE_OPTIONS];
+
+  const showAge = ageOptions.length > 0;
+  const showRegion = regionOptions.length > 0;
+  const showIncome = incomeOptions.length > 0;
+  const showTenure = applicable?.accountTenure ? applicable.accountTenure.length > 0 : true;
+
+  if (!showAge && !showRegion && !showIncome && !showTenure) return null;
+
+  const hasActiveFilters =
+    filters.ageRanges.length > 0 ||
+    filters.regions.length > 0 ||
+    filters.incomeBands.length > 0 ||
     filters.accountTenure !== 'all';
 
-  const activeFilterCount = 
-    filters.ageRanges.length + 
-    filters.regions.length + 
-    filters.incomeBands.length + 
+  const activeFilterCount =
+    filters.ageRanges.length +
+    filters.regions.length +
+    filters.incomeBands.length +
     (filters.accountTenure !== 'all' ? 1 : 0);
+
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
