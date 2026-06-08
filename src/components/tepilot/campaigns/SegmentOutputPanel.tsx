@@ -1,10 +1,15 @@
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Mail, Image as ImageIcon, Users, Copy, Send } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Mail, Image as ImageIcon, Users, Copy, ExternalLink } from "lucide-react";
 import { getAssetSignalsForProduct, findAssetSignal } from "@/lib/lifestyleAssetSignals";
 import { getProductFlow } from "@/lib/productAutomatedFlows";
 import { buildImageryBrief, formatImageryBriefForClipboard } from "@/lib/segmentImageryBrief";
+import { buildStockPickerUrl, providerLabel, STOCK_PROVIDERS, DEFAULT_PROVIDER, type StockProvider } from "@/lib/stockPickerLink";
 import { toast } from "@/hooks/use-toast";
+
+const PROVIDER_STORAGE_KEY = "tepilot.stockPicker.provider";
 
 interface Persona {
   label: string;
