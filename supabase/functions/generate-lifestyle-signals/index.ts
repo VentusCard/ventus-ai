@@ -164,8 +164,32 @@ ABSOLUTE RULES:
                       enum: ["retirement", "education", "family", "home", "elder_care", "business", "wealth_transfer"],
                     },
                   },
+                  applicableDemographics: {
+                    type: "object",
+                    description: "Per-facet subsets of canonical values relevant for this product. Empty array hides the facet.",
+                    properties: {
+                      ageRanges: {
+                        type: "array",
+                        items: { type: "string", enum: ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"] },
+                      },
+                      regions: {
+                        type: "array",
+                        items: { type: "string", enum: ["Northeast", "Southeast", "Midwest", "Southwest", "West", "Northwest"] },
+                      },
+                      incomeBands: {
+                        type: "array",
+                        items: { type: "string", enum: ["under_50k", "50k_100k", "100k_150k", "over_150k"] },
+                      },
+                      accountTenure: {
+                        type: "array",
+                        items: { type: "string", enum: ["new", "established", "loyal"] },
+                      },
+                    },
+                    required: ["ageRanges", "regions", "incomeBands", "accountTenure"],
+                    additionalProperties: false,
+                  },
                 },
-                required: ["signals", "applicableLifeEvents"],
+                required: ["signals", "applicableLifeEvents", "applicableDemographics"],
                 additionalProperties: false,
               },
             },
