@@ -88,6 +88,7 @@ export function ProductCampaignBuilderView() {
           productName: product.name,
           productCategory: product.category,
           productPositioning: product.positioning,
+          curatedSignals: product.signals?.map((s) => ({ label: s.label, evidence: s.evidence })) ?? [],
         },
       });
       if (error) throw new Error(error.message);
