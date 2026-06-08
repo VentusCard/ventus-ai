@@ -70,6 +70,21 @@ ${lifeEventVocabBlock}
 - Examples: travel rewards card → []; cashback card → []; personal loan → []; auto loan → []; 529 → ["family","education"]; HELOC → ["home","family"]; mortgage → ["home","family"]; wealth management → ["retirement","business","wealth_transfer"]; life insurance → ["family","retirement","wealth_transfer","elder_care"]; high-yield savings → ["retirement","education","home"]; small business loan → ["business"].
 - Do NOT pad the list. Empty is the right answer for many cards/loans.
 
+APPLICABLE DEMOGRAPHICS:
+- For each facet, return ONLY values that are clearly relevant targeting levers for THIS product. Return an empty array for any facet that does not meaningfully discriminate fit. Do NOT pad.
+- Canonical vocabulary:
+  - ageRanges: ["18-24","25-34","35-44","45-54","55-64","65+"]
+  - regions: ["Northeast","Southeast","Midwest","Southwest","West","Northwest"]
+  - incomeBands: ["under_50k","50k_100k","100k_150k","over_150k"]
+  - accountTenure: ["new","established","loyal"]
+- Examples:
+  - 529 plan → ageRanges ["25-34","35-44"], incomeBands ["50k_100k","100k_150k","over_150k"], accountTenure [], regions []
+  - HELOC → ageRanges ["35-44","45-54","55-64"], incomeBands ["100k_150k","over_150k"], accountTenure ["established","loyal"], regions []
+  - Wealth management → ageRanges ["45-54","55-64","65+"], incomeBands ["over_150k"], accountTenure ["established","loyal"], regions []
+  - Travel rewards card → ageRanges ["25-34","35-44","45-54"], incomeBands ["100k_150k","over_150k"], accountTenure [], regions []
+  - Small business loan → ageRanges [], incomeBands [], accountTenure ["established","loyal"], regions []
+- Regions almost always [] unless the product is geographically constrained.
+
 For each signal you emit, silently verify:
 1. Does the label name a concrete merchant category, transaction archetype, account flow, or life-stage event tied to ${productName}?
 2. Would a customer who needs a DIFFERENT product (e.g., auto loan vs. 529 vs. HELOC vs. travel card) NOT trigger this signal?
@@ -149,8 +164,32 @@ ABSOLUTE RULES:
                       enum: ["retirement", "education", "family", "home", "elder_care", "business", "wealth_transfer"],
                     },
                   },
+                  applicableDemographics: {
+                    type: "object",
+                    description: "Per-facet subsets of canonical values relevant for this product. Empty array hides the facet.",
+                    properties: {
+                      ageRanges: {
+                        type: "array",
+                        items: { type: "string", enum: ["18-24", "25-34", "35-44", "45-54", "55-64", "65+"] },
+                      },
+                      regions: {
+                        type: "array",
+                        items: { type: "string", enum: ["Northeast", "Southeast", "Midwest", "Southwest", "West", "Northwest"] },
+                      },
+                      incomeBands: {
+                        type: "array",
+                        items: { type: "string", enum: ["under_50k", "50k_100k", "100k_150k", "over_150k"] },
+                      },
+                      accountTenure: {
+                        type: "array",
+                        items: { type: "string", enum: ["new", "established", "loyal"] },
+                      },
+                    },
+                    required: ["ageRanges", "regions", "incomeBands", "accountTenure"],
+                    additionalProperties: false,
+                  },
                 },
-                required: ["signals", "applicableLifeEvents"],
+                required: ["signals", "applicableLifeEvents", "applicableDemographics"],
                 additionalProperties: false,
               },
             },
@@ -206,7 +245,21 @@ ABSOLUTE RULES:
         .filter((x: string) => ALLOWED_LE.has(x))
     ));
 
-    return new Response(JSON.stringify({ signals, applicableLifeEvents }), {
+    const ALLOWED_AGE = new Set(["18-24", "25-34", "35-44", "45-54", "55-64", "65+"]);
+    const ALLOWED_REGION = new Set(["Northeast", "Southeast", "Midwest", "Southwest", "West", "Northwest"]);
+    const ALLOWED_INCOME = new Set(["under_50k", "50k_100k", "100k_150k", "over_150k"]);
+    const ALLOWED_TENURE = new Set(["new", "established", "loyal"]);
+    const sanitize = (arr: unknown, allowed: Set<string>): string[] =>
+      Array.from(new Set((Array.isArray(arr) ? arr : []).map((x) => String(x)).filter((x) => allowed.has(x))));
+    const dem = parsed.applicableDemographics ?? {};
+    const applicableDemographics = {
+      ageRanges: sanitize(dem.ageRanges, ALLOWED_AGE),
+      regions: sanitize(dem.regions, ALLOWED_REGION),
+      incomeBands: sanitize(dem.incomeBands, ALLOWED_INCOME),
+      accountTenure: sanitize(dem.accountTenure, ALLOWED_TENURE),
+    };
+
+    return new Response(JSON.stringify({ signals, applicableLifeEvents, applicableDemographics }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {

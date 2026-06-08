@@ -29,6 +29,12 @@ export function ProductCampaignBuilderView() {
 
   const [generatedSignals, setGeneratedSignals] = useState<LifestyleAssetSignal[]>([]);
   const [applicableLifeEvents, setApplicableLifeEvents] = useState<string[]>([]);
+  const [applicableDemographics, setApplicableDemographics] = useState<{
+    ageRanges: string[];
+    regions: string[];
+    incomeBands: string[];
+    accountTenure: string[];
+  } | null>(null);
   const [signalsLoading, setSignalsLoading] = useState(false);
   const [signalsError, setSignalsError] = useState<string | null>(null);
 
@@ -46,12 +52,15 @@ export function ProductCampaignBuilderView() {
   useEffect(() => {
     setGeneratedSignals([]);
     setApplicableLifeEvents([]);
+    setApplicableDemographics(null);
     setAssetSignals([]);
     setLifeEvents([]);
+    setDemographics({ ageRanges: [], regions: [], incomeBands: [], accountTenure: "all" });
     setGeneratedPersonas(null);
     setSignalsError(null);
     setSegmentError(null);
   }, [productId]);
+
 
   const selectedSignalObjects = useMemo(
     () => generatedSignals.filter((s) => assetSignals.includes(s.id)),
@@ -107,6 +116,23 @@ export function ProductCampaignBuilderView() {
       // Drop any prior selection IDs that don't exist in the new set
       setAssetSignals((prev) => prev.filter((id) => data.signals.some((s: LifestyleAssetSignal) => s.id === id)));
       setLifeEvents((prev) => prev.filter((id) => nextLE.includes(id)));
+      const nextDem = data.applicableDemographics ?? { ageRanges: [], regions: [], incomeBands: [], accountTenure: [] };
+      const ageSet = new Set<string>(nextDem.ageRanges ?? []);
+      const regionSet = new Set<string>(nextDem.regions ?? []);
+      const incomeSet = new Set<string>(nextDem.incomeBands ?? []);
+      const tenureSet = new Set<string>(nextDem.accountTenure ?? []);
+      setApplicableDemographics({
+        ageRanges: [...ageSet],
+        regions: [...regionSet],
+        incomeBands: [...incomeSet],
+        accountTenure: [...tenureSet],
+      });
+      setDemographics((prev) => ({
+        ageRanges: prev.ageRanges.filter((a) => ageSet.has(a)),
+        regions: prev.regions.filter((r) => regionSet.has(r)),
+        incomeBands: prev.incomeBands.filter((i) => incomeSet.has(i)),
+        accountTenure: prev.accountTenure !== "all" && !tenureSet.has(prev.accountTenure) ? "all" : prev.accountTenure,
+      }));
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Generation failed";
       setSignalsError(msg);
@@ -296,9 +322,22 @@ export function ProductCampaignBuilderView() {
               );
             })()}
 
-            <div className="mt-3 pt-3 border-t border-slate-100">
-              <DemographicFiltersPanel filters={demographics} onChange={setDemographics} />
-            </div>
+            {(() => {
+              const dem = applicableDemographics;
+              const totalApplicable = dem
+                ? dem.ageRanges.length + dem.regions.length + dem.incomeBands.length + dem.accountTenure.length
+                : null;
+              if (dem && totalApplicable === 0) return null;
+              return (
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                  <DemographicFiltersPanel
+                    filters={demographics}
+                    onChange={setDemographics}
+                    applicable={dem ?? undefined}
+                  />
+                </div>
+              );
+            })()}
           </div>
 
           {/* Step 3 */}
