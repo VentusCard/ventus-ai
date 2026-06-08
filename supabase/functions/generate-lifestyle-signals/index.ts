@@ -121,7 +121,7 @@ ABSOLUTE RULES:
             type: "function",
             function: {
               name: "emit_signals",
-              description: "Emit 8–10 product-anchored lifestyle asset signals.",
+              description: "Emit 8–10 product-anchored lifestyle asset signals plus the life events applicable to this product.",
               parameters: {
                 type: "object",
                 properties: {
@@ -141,8 +141,16 @@ ABSOLUTE RULES:
                       additionalProperties: false,
                     },
                   },
+                  applicableLifeEvents: {
+                    type: "array",
+                    description: "Subset of canonical life-event ids relevant to this product. Empty when none apply.",
+                    items: {
+                      type: "string",
+                      enum: ["retirement", "education", "family", "home", "elder_care", "business", "wealth_transfer"],
+                    },
+                  },
                 },
-                required: ["signals"],
+                required: ["signals", "applicableLifeEvents"],
                 additionalProperties: false,
               },
             },
@@ -151,6 +159,7 @@ ABSOLUTE RULES:
         tool_choice: { type: "function", function: { name: "emit_signals" } },
       }),
     });
+
 
     if (!response.ok) {
       const status = response.status;
