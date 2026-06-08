@@ -1,39 +1,37 @@
 ## Goal
-Replace the static, persona-template "Imagery direction" caption with a **per-microsegment stock-image query** derived from the actual selected product + that persona's assigned signal chips. No image generation — just a clean, searchable brief ready to hand off to a stock image selector (Getty, Unsplash, internal DAM).
+Make the "Send to picker" button actually open a stock image selector prefilled with that microsegment's imagery query, so the picker is one click away from the right results.
 
 ## Approach
-Compute imagery on the fly per persona card from real data, not from a hardcoded template string. Each microsegment gets a distinct, signal-grounded brief so a stock picker can act on it.
+No real stock API integration (no keys, no backend). Open the picker in a new tab via a deep-link URL the provider already exposes for search. Default to Unsplash; let the user switch provider per environment. Each persona card carries its own brief, so the URL is built per card.
 
 ## New helper
-`src/lib/segmentImageryBrief.ts`
-- Export `buildImageryBrief({ productId, personaLabel, signalIds }): ImageryBrief`
-- `ImageryBrief` shape:
-  - `query: string` — short stock-search query (5–8 words, e.g. "coastal marina sunrise, neutral, no people")
-  - `keywords: string[]` — 4–6 atomic tags derived from signals (marine, coastal, dusk, brass, study, nursery…)
-  - `mood: string` — one of a small fixed set (Editorial calm, Quiet luxury, Warm domestic, Architectural minimal, Outdoor leisure)
-  - `composition: string` — short note (e.g. "Object-forward, shallow depth, off-center")
-  - `avoid: string[]` — always includes "logos", "identifiable faces", plus signal-aware exclusions
-- Mapping table from `assetSignalId` → keyword/mood fragments (hand-authored, ~30 signals across the product catalog). Falls back to product-level defaults when no signals are selected.
-- Pure function, no network calls, fully synchronous.
+`src/lib/stockPickerLink.ts`
+- `type StockProvider = "unsplash" | "pexels" | "getty"`
+- `STOCK_PROVIDERS`: array with `{ id, label, buildUrl(query) }`:
+  - Unsplash → `https://unsplash.com/s/photos/${encodeURIComponent(slug(query))}?orientation=landscape`
+  - Pexels → `https://www.pexels.com/search/${encodeURIComponent(slug(query))}/?orientation=landscape`
+  - Getty → `https://www.gettyimages.com/photos/${encodeURIComponent(slug(query))}?phrase=${encodeURIComponent(query)}&assettype=image&orientations=horizontal`
+- `slug(query)` collapses commas/spaces to single spaces, trims length to ~80 chars (providers ignore long tails), strips the "no people" tail when it's a stop-word for that provider.
+- `buildStockPickerUrl(provider, brief)` returns the final URL, using `brief.query` + first 3 `keywords` as the search phrase.
+- `DEFAULT_PROVIDER: StockProvider = "unsplash"` (no key required).
 
 ## Frontend changes
 `src/components/tepilot/campaigns/SegmentOutputPanel.tsx`
-- Drop the static `imagery` string from `PERSONA_TEMPLATES`.
-- For each rendered persona, call `buildImageryBrief(...)` with that persona's resolved `signalIds` + the active `productId`.
-- Replace the current "Imagery direction" right-column block with a compact stock-brief card:
-  - Header chip: `Stock image brief`
-  - Large line: the `query` (monospace-ish, copyable)
-  - Row of `keywords` as small chips
-  - Two muted micro-labels: `Mood · {mood}` and `Composition · {composition}`
-  - `Avoid: …` line in slate-500
-  - A small "Copy brief" ghost button (uses `navigator.clipboard.writeText` on a formatted multi-line string) and a "Send to stock picker" outline button that is a **no-op stub** with a toast `"Queued for stock selection"` — wired so a real integration can drop in later.
-- Keep the existing slate gradient placeholder swatch above the brief as a visual stand-in for the eventual image.
+- Add a small provider selector at the panel header (right side, next to the "N personalized variants" badge): a compact `Select` ("Picker · Unsplash | Pexels | Getty"). Local component state, defaults to Unsplash. Applies to all cards.
+- On each card, replace the existing no-op "Send to picker" toast with:
+  - Compute `url = buildStockPickerUrl(provider, brief)`.
+  - Render as an `<a href={url} target="_blank" rel="noopener noreferrer">` styled like the current outline button (use `asChild` on the existing Button so styling stays identical).
+  - Button label becomes `Open in {providerLabel}` and the icon stays `Send`.
+  - Keep the toast on click as a confirmation: `"Opening {providerLabel} with this brief"`.
+- Keep the "Copy brief" button unchanged.
+- Persist the chosen provider in `sessionStorage` under `tepilot.stockPicker.provider` so a banker doesn't re-pick per visit. Read once on mount, write on change.
 
 ## Out of scope
-- No edge function, no image generation, no real stock API integration.
-- No changes to Automated Flows, Campaign Builder steps, signal catalogs, audience estimator, or message copy.
-- No persistence.
+- No real API/auth integration with the picker.
+- No DAM/Bynder/Brandfolder hookup (would need creds).
+- No image preview/embed back in the card.
+- No changes to brief generation, messages, audience math, or other views.
 
 ## Files touched
-- New: `src/lib/segmentImageryBrief.ts`
+- New: `src/lib/stockPickerLink.ts`
 - Edit: `src/components/tepilot/campaigns/SegmentOutputPanel.tsx`
