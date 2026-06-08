@@ -70,6 +70,21 @@ ${lifeEventVocabBlock}
 - Examples: travel rewards card → []; cashback card → []; personal loan → []; auto loan → []; 529 → ["family","education"]; HELOC → ["home","family"]; mortgage → ["home","family"]; wealth management → ["retirement","business","wealth_transfer"]; life insurance → ["family","retirement","wealth_transfer","elder_care"]; high-yield savings → ["retirement","education","home"]; small business loan → ["business"].
 - Do NOT pad the list. Empty is the right answer for many cards/loans.
 
+APPLICABLE DEMOGRAPHICS:
+- For each facet, return ONLY values that are clearly relevant targeting levers for THIS product. Return an empty array for any facet that does not meaningfully discriminate fit. Do NOT pad.
+- Canonical vocabulary:
+  - ageRanges: ["18-24","25-34","35-44","45-54","55-64","65+"]
+  - regions: ["Northeast","Southeast","Midwest","Southwest","West","Northwest"]
+  - incomeBands: ["under_50k","50k_100k","100k_150k","over_150k"]
+  - accountTenure: ["new","established","loyal"]
+- Examples:
+  - 529 plan → ageRanges ["25-34","35-44"], incomeBands ["50k_100k","100k_150k","over_150k"], accountTenure [], regions []
+  - HELOC → ageRanges ["35-44","45-54","55-64"], incomeBands ["100k_150k","over_150k"], accountTenure ["established","loyal"], regions []
+  - Wealth management → ageRanges ["45-54","55-64","65+"], incomeBands ["over_150k"], accountTenure ["established","loyal"], regions []
+  - Travel rewards card → ageRanges ["25-34","35-44","45-54"], incomeBands ["100k_150k","over_150k"], accountTenure [], regions []
+  - Small business loan → ageRanges [], incomeBands [], accountTenure ["established","loyal"], regions []
+- Regions almost always [] unless the product is geographically constrained.
+
 For each signal you emit, silently verify:
 1. Does the label name a concrete merchant category, transaction archetype, account flow, or life-stage event tied to ${productName}?
 2. Would a customer who needs a DIFFERENT product (e.g., auto loan vs. 529 vs. HELOC vs. travel card) NOT trigger this signal?
