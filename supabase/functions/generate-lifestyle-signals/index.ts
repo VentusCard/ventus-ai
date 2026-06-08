@@ -245,7 +245,21 @@ ABSOLUTE RULES:
         .filter((x: string) => ALLOWED_LE.has(x))
     ));
 
-    return new Response(JSON.stringify({ signals, applicableLifeEvents }), {
+    const ALLOWED_AGE = new Set(["18-24", "25-34", "35-44", "45-54", "55-64", "65+"]);
+    const ALLOWED_REGION = new Set(["Northeast", "Southeast", "Midwest", "Southwest", "West", "Northwest"]);
+    const ALLOWED_INCOME = new Set(["under_50k", "50k_100k", "100k_150k", "over_150k"]);
+    const ALLOWED_TENURE = new Set(["new", "established", "loyal"]);
+    const sanitize = (arr: unknown, allowed: Set<string>): string[] =>
+      Array.from(new Set((Array.isArray(arr) ? arr : []).map((x) => String(x)).filter((x) => allowed.has(x))));
+    const dem = parsed.applicableDemographics ?? {};
+    const applicableDemographics = {
+      ageRanges: sanitize(dem.ageRanges, ALLOWED_AGE),
+      regions: sanitize(dem.regions, ALLOWED_REGION),
+      incomeBands: sanitize(dem.incomeBands, ALLOWED_INCOME),
+      accountTenure: sanitize(dem.accountTenure, ALLOWED_TENURE),
+    };
+
+    return new Response(JSON.stringify({ signals, applicableLifeEvents, applicableDemographics }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
