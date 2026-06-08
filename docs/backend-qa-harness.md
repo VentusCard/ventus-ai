@@ -178,6 +178,42 @@ npm run --prefix backend qa:model-output
 
 The report includes overall pass rate, missing and extra predictions, field-level accuracy, and breakdowns by source system, rail, source profile, and transaction type. This is the intended evaluation layer for comparing Gemini, OpenAI, Anthropic, or future partner-specific enrichment models before any production routing change.
 
+For Plaid sandbox-specific reviews, generate a draft 50-transaction candidate set from a sandbox artifact directory:
+
+```sh
+PLAID_SANDBOX_ARTIFACT_DIR=/path/to/backend/artifacts/plaid-sandbox/20260608012241 \
+PLAID_GOLDEN_TARGET_COUNT=50 \
+npm run --prefix backend plaid:golden:candidates
+```
+
+This writes a local, git-ignored `plaid-golden-candidates.json` file with heuristic draft labels. These labels are not golden truth until reviewed and frozen by a human. Once enriched predictions are available for the same transaction IDs, compare them with:
+
+```sh
+VENTUS_QA_EXPECTATIONS_PATH=/path/to/plaid-golden-candidates.json \
+VENTUS_QA_PREDICTIONS_PATH=/path/to/enrichment-predictions.json \
+VENTUS_QA_EVALUATION_REPORT_PATH=/path/to/plaid-model-output-report.json \
+npm run --prefix backend qa:model-output
+```
+
+To run the selected Plaid candidates through Ventus enrichment, first build the exact `POST /v1/enrich` fixture:
+
+```sh
+PLAID_GOLDEN_EXPECTATIONS_PATH=/path/to/plaid-golden-candidates.json \
+PLAID_GOLDEN_NORMALIZED_PATH=/path/to/normalized-transactions.json \
+npm run --prefix backend plaid:golden:fixture
+```
+
+Then submit/capture predictions against staging:
+
+```sh
+VENTUS_STAGING_API_BASE_URL=https://staging-api.example.com \
+VENTUS_API_KEY=... \
+PLAID_GOLDEN_ENRICH_FIXTURE_PATH=/path/to/plaid-golden-enrich-fixture.json \
+npm run --prefix backend plaid:enrichment:capture
+```
+
+The capture script writes `enrichment-predictions.json` and raw API output alongside the fixture. It refuses to submit to `https://api.ventusai.com` unless `VENTUS_LIVE_QA_ALLOW_PRODUCTION=true` is set.
+
 ## Plaid Sandbox Pulls
 
 Use `npm run --prefix backend plaid:sandbox:pull` to create Sandbox Items and save raw `/transactions/sync` responses into `backend/artifacts/plaid-sandbox/`. The artifacts directory is git-ignored because the raw pulls are operational QA output and may contain Sandbox access metadata.

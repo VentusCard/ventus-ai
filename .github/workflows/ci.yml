@@ -33,6 +33,9 @@ jobs:
           node --check backend/scripts/list-functions.mjs
           node --check backend/scripts/package-functions.mjs
           node --check backend/scripts/smoke-api.mjs
+          node --check backend/scripts/build-plaid-golden-enrich-fixture.mjs
+          node --check backend/scripts/capture-plaid-enrichment-predictions.mjs
+          node --check backend/scripts/generate-plaid-golden-candidates.mjs
           node --check backend/scripts/pull-plaid-sandbox-transactions.mjs
           node --check backend/scripts/validate-openapi.mjs
           node --check backend/scripts/check-openapi-contract.mjs
