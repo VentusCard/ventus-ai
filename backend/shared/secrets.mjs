@@ -14,10 +14,12 @@ export function createSecretsProvider({
   secretId,
   region = DEFAULT_REGION,
   client,
+  commandFactory,
 }) {
   if (!secretId) throw new Error('secretId is required');
 
   let secretsClient = client;
+  let createCommand = commandFactory;
   let cachedSecrets = null;
   let cachedAtMs = 0;
   const cacheTtlMs = resolveCacheTtlMs();
@@ -28,10 +30,12 @@ export function createSecretsProvider({
 
     const { resolvedClient, command } = await createGetSecretValueCommand({
       client: secretsClient,
+      commandFactory: createCommand,
       region,
       secretId,
     });
     secretsClient = resolvedClient;
+    createCommand = createCommand || command.commandFactory;
 
     const response = await secretsClient.send(command);
 
@@ -51,7 +55,13 @@ function resolveCacheTtlMs() {
   return parsed;
 }
 
-async function createGetSecretValueCommand({ client, region, secretId }) {
+async function createGetSecretValueCommand({ client, commandFactory, region, secretId }) {
+  if (client && commandFactory) {
+    return {
+      resolvedClient: client,
+      command: commandFactory({ SecretId: secretId }),
+    };
+  }
   if (client) {
     return {
       resolvedClient: client,
@@ -63,9 +73,12 @@ async function createGetSecretValueCommand({ client, region, secretId }) {
     SecretsManagerClient,
     GetSecretValueCommand,
   } = await import('@aws-sdk/client-secrets-manager');
+  const sdkCommandFactory = (input) => new GetSecretValueCommand(input);
+  const command = sdkCommandFactory({ SecretId: secretId });
+  command.commandFactory = sdkCommandFactory;
 
   return {
     resolvedClient: new SecretsManagerClient({ region }),
-    command: new GetSecretValueCommand({ SecretId: secretId }),
+    command,
   };
 }
