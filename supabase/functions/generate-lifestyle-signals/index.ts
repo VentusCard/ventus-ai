@@ -199,7 +199,14 @@ ABSOLUTE RULES:
       return { id, label: String(s.label ?? "Signal"), description: String(s.description ?? ""), detectionRate: rate };
     });
 
-    return new Response(JSON.stringify({ signals }), {
+    const ALLOWED_LE = new Set(["retirement", "education", "family", "home", "elder_care", "business", "wealth_transfer"]);
+    const applicableLifeEvents = Array.from(new Set(
+      (Array.isArray(parsed.applicableLifeEvents) ? parsed.applicableLifeEvents : [])
+        .map((x: unknown) => String(x))
+        .filter((x: string) => ALLOWED_LE.has(x))
+    ));
+
+    return new Response(JSON.stringify({ signals, applicableLifeEvents }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
