@@ -9,10 +9,9 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { SegmentOutputPanel, type GeneratedPersona } from "./SegmentOutputPanel";
 import { PRODUCT_FLOWS, getProductFlow } from "@/lib/productAutomatedFlows";
 import { estimateAssetSignalAudience, type LifestyleAssetSignal } from "@/lib/lifestyleAssetSignals";
-import { LIFESTYLE_PILLARS } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 import type { DemographicFilters as DemographicFiltersType } from "@/types/segment";
-import { Megaphone, Gem, Heart, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import { Megaphone, Gem, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
