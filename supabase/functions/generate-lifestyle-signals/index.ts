@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { productId, productName, productCategory, productPositioning } = await req.json();
+    const { productId, productName, productCategory, productPositioning, curatedSignals } = await req.json();
 
     if (!productId || !productName) {
       return new Response(JSON.stringify({ error: "productId and productName are required" }), {
@@ -21,16 +21,28 @@ serve(async (req) => {
       });
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+    const curatedBlock = Array.isArray(curatedSignals) && curatedSignals.length
+      ? curatedSignals
+          .map((s: any, i: number) => `  ${i + 1}. ${s.label} — evidence: ${s.evidence}`)
+          .join("\n")
+      : "  (none provided)";
 
-    const userPrompt = `Generate 8–10 Lifestyle Asset Signals that a bank's data platform could detect to identify customers who would be a strong fit for the following product:
+    const userPrompt = `Generate 8–10 Lifestyle Asset Signals that predict strong fit for THIS SPECIFIC product. A signal is only good if it would NOT apply equally well to a different banking product.
 
-Product: ${productName}
-Category: ${productCategory ?? "n/a"}
-Positioning: ${productPositioning ?? "n/a"}
+PRODUCT
+- Name: ${productName}
+- Category: ${productCategory ?? "n/a"}
+- What it does: ${productPositioning ?? "n/a"}
 
-Each signal should describe an observable behavior in transaction data (spending pattern, account flow, recurring debit, deposit pattern, etc.) that correlates with strong fit for this product.`;
+REFERENCE SIGNALS (curated examples of the level of product-specificity required — match this concreteness, do not copy verbatim):
+${curatedBlock}
+
+For each signal you emit, silently verify:
+1. Does the label name a concrete merchant category, transaction archetype, account flow, or life-stage event tied to ${productName}?
+2. Would a customer who needs a DIFFERENT product (e.g., auto loan vs. 529 vs. HELOC vs. travel card) NOT trigger this signal?
+3. Does the description name the evidence type (merchant category, ACH counterparty, deposit/withdrawal pattern, cadence) AND why it predicts fit for ${productName} specifically?
+
+If a signal could plausibly apply to 3+ unrelated products, throw it out and generate a more specific one.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -43,16 +55,23 @@ Each signal should describe an observable behavior in transaction data (spending
         messages: [
           {
             role: "system",
-            content: `You are a bank marketing data strategist. Generate lifestyle/behavioral signals a bank can detect from transaction data.
+            content: `You are a bank marketing data strategist. You generate lifestyle/behavioral signals a bank can detect from transaction data, tightly anchored to a specific product.
 
-RULES:
-1. NEVER use em dashes (—). Use commas or short dashes (-).
-2. NEVER include specific dollar amounts or exact transaction counts. Use "vaguely specific" behavioral phrasing (e.g., "Recurring private club dues", "Sustained idle checking balance", "Multi-carrier travel pattern"). Never "5+ transactions" or ">$25k".
-3. NEVER mention competitor brand names (Plaid, MX, etc.) or risk/stress terminology. Frame everything as opportunity / fit.
-4. Labels: 2–4 words, behavioral archetype tone.
-5. Descriptions: ≤14 words, describe the evidence type without exact counts/dollars.
-6. detectionRate: realistic estimate of share of US bank base, between 0.003 and 0.20.
-7. id: short kebab-case, prefixed with the productId (e.g., "${productId}-private-banking").`,
+ABSOLUTE RULES:
+1. PRODUCT-SPECIFIC OR NOTHING. Every signal must reference a concrete merchant category, transaction archetype, ACH counterparty, deposit/withdrawal pattern, or life-stage event that is materially more common among buyers of this product than buyers of other banking products. Generic "affluent lifestyle" or "idle balance" signals are FORBIDDEN unless the product is literally a savings/wealth product where they directly apply.
+2. BANNED GENERIC LABELS (never emit these or rewordings of them, regardless of product): "Sustained idle checking balance", "Multi-carrier travel pattern", "High discretionary spend", "Recurring premium subscriptions", "Affluent lifestyle indicators", "Established banking relationship", "Stable deposit pattern", "Diversified merchant mix".
+3. Each label MUST name a real-world thing (merchant type, ACH counterparty, ticket/fee type, life event, asset class, etc.). Examples of the right shape:
+   - HELOC: "Home improvement big-box runs", "Recurring contractor ACH", "Property tax lump sum", "Permit/inspection fees"
+   - Travel card: "International POS in last 90d", "Airline ancillary fees", "Lounge day-pass purchases", "Hotel loyalty status charges"
+   - 529 plan: "Daycare ACH cadence", "Pediatric copay cluster", "SAT/ACT registration fees", "College tour travel"
+   - Auto loan: "Used dealer DMV fees", "CarMax/CarGurus search activity", "Recent insurance premium hike", "Service department spend on aging vehicle"
+4. NEVER use em dashes (—). Use commas or short dashes (-).
+5. NEVER include specific dollar amounts or exact transaction counts. Use "vaguely specific" behavioral phrasing. No "5+ transactions" or ">$25k".
+6. NEVER mention competitor brand names (Plaid, MX, etc.) or risk/stress terminology. Frame everything as opportunity / fit.
+7. Labels: 2–5 words, concrete archetype tone.
+8. Descriptions: ≤18 words. Format: "<evidence type / merchant or flow>, indicates <why this predicts ${"${productName}"} specifically>".
+9. detectionRate: realistic share of US bank base, between 0.003 and 0.20.
+10. id: short kebab-case, prefixed with the productId.`,
           },
           { role: "user", content: userPrompt },
         ],
@@ -61,7 +80,7 @@ RULES:
             type: "function",
             function: {
               name: "emit_signals",
-              description: "Emit 8–10 lifestyle asset signals tuned to the given product.",
+              description: "Emit 8–10 product-anchored lifestyle asset signals.",
               parameters: {
                 type: "object",
                 properties: {
