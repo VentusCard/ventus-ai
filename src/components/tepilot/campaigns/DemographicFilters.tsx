@@ -13,12 +13,20 @@ import {
   type AccountTenure
 } from "@/types/segment";
 
+interface ApplicableDemographics {
+  ageRanges?: string[];
+  regions?: string[];
+  incomeBands?: string[];
+  accountTenure?: string[];
+}
+
 interface DemographicFiltersProps {
   filters: DemographicFiltersType;
   onChange: (filters: DemographicFiltersType) => void;
+  applicable?: ApplicableDemographics;
 }
 
-export function DemographicFilters({ filters, onChange }: DemographicFiltersProps) {
+export function DemographicFilters({ filters, onChange, applicable }: DemographicFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleAgeRange = (age: string) => {
