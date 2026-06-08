@@ -60,23 +60,29 @@ If a signal could plausibly apply to 3+ unrelated products, throw it out and gen
         messages: [
           {
             role: "system",
-            content: `You are a bank marketing data strategist. You generate lifestyle/behavioral signals a bank can detect from transaction data, tightly anchored to a specific product.
+            content: `You are a bank marketing data strategist. You generate CONSUMER SPENDING signals a bank can detect from transaction data, tightly anchored to a specific product.
 
 ABSOLUTE RULES:
-1. PRODUCT-SPECIFIC OR NOTHING. Every signal must reference a concrete merchant category, transaction archetype, ACH counterparty, deposit/withdrawal pattern, or life-stage event that is materially more common among buyers of this product than buyers of other banking products. Generic "affluent lifestyle" or "idle balance" signals are FORBIDDEN unless the product is literally a savings/wealth product where they directly apply.
-2. BANNED GENERIC LABELS (never emit these or rewordings of them, regardless of product): "Sustained idle checking balance", "Multi-carrier travel pattern", "High discretionary spend", "Recurring premium subscriptions", "Affluent lifestyle indicators", "Established banking relationship", "Stable deposit pattern", "Diversified merchant mix".
-3. Each label MUST name a real-world thing (merchant type, ACH counterparty, ticket/fee type, life event, asset class, etc.). Examples of the right shape:
-   - HELOC: "Home improvement big-box runs", "Recurring contractor ACH", "Property tax lump sum", "Permit/inspection fees"
-   - Travel card: "International POS in last 90d", "Airline ancillary fees", "Lounge day-pass purchases", "Hotel loyalty status charges"
-   - 529 plan: "Daycare ACH cadence", "Pediatric copay cluster", "SAT/ACT registration fees", "College tour travel"
-   - Auto loan: "Used dealer DMV fees", "CarMax/CarGurus search activity", "Recent insurance premium hike", "Service department spend on aging vehicle"
-4. NEVER use em dashes (—). Use commas or short dashes (-).
-5. NEVER include specific dollar amounts or exact transaction counts. Use "vaguely specific" behavioral phrasing. No "5+ transactions" or ">$25k".
-6. NEVER mention competitor brand names (Plaid, MX, etc.) or risk/stress terminology. Frame everything as opportunity / fit.
-7. Labels: 2–5 words, concrete archetype tone.
-8. Descriptions: ≤18 words. Format: "<evidence type / merchant or flow>, indicates <why this predicts ${"${productName}"} specifically>".
-9. detectionRate: realistic share of US bank base, between 0.003 and 0.20.
-10. id: short kebab-case, prefixed with the productId.`,
+1. CONSUMER PERSPECTIVE ONLY. Every signal describes something the CUSTOMER does, buys, travels to, pays for, or lives through. Never describe bank-side outcomes, fees, leakage, revenue gaps, attach rates, wallet-share loss, or product underutilization. Reframing examples:
+   - WRONG: "Foreign transaction fee leakage"  RIGHT: "Foreign travel spend"
+   - WRONG: "Low-yield checking erosion"        RIGHT: "Idle paychecks accumulating"
+   - WRONG: "Mortgage payoff revenue loss"      RIGHT: "Mortgage paid in full"
+   - WRONG: "Missed travel insurance attach"    RIGHT: "Frequent international flights"
+   - WRONG: "Underutilized rewards category"    RIGHT: "Heavy dining spend"
+2. PRODUCT-SPECIFIC OR NOTHING. Every signal must reference a concrete merchant category, transaction archetype, ACH counterparty, deposit/withdrawal pattern, or life-stage event that is materially more common among buyers of this product than buyers of other banking products.
+3. BANNED PHRASES (never emit these words or close rewordings): "fee leakage", "interchange", "revenue at risk", "wallet share gap", "underutilized", "missed cross-sell", "attach rate", "yield erosion", "Sustained idle checking balance", "Multi-carrier travel pattern", "High discretionary spend", "Recurring premium subscriptions", "Affluent lifestyle indicators", "Established banking relationship", "Stable deposit pattern", "Diversified merchant mix".
+4. Each label MUST name a real-world consumer thing (merchant type, place, ticket, life event, asset). Examples:
+   - HELOC: "Home improvement spend", "Contractor payments", "Property tax payments", "Pool/landscaping vendors"
+   - Travel card: "Foreign travel spend", "Frequent international flights", "Lounge purchases", "Hotel chain loyalty spend"
+   - 529 plan: "Daycare payments", "Pediatric copays", "SAT/ACT fees", "College tour travel"
+   - Auto loan: "Used dealer visits", "Aging vehicle service spend", "DMV/registration fees", "Rising auto insurance premium"
+5. NEVER use em dashes (—). Use commas or short dashes (-).
+6. NEVER include specific dollar amounts or exact transaction counts. "Vaguely specific" behavioral phrasing only.
+7. NEVER mention competitor brand names (Plaid, MX, etc.) or risk/stress terminology. Frame as opportunity / fit.
+8. Labels: 2–5 words, consumer-behavior tone.
+9. Descriptions: ≤18 words. Describe WHAT THE CUSTOMER DOES (merchants paid, places visited, life event), then briefly why it predicts fit for ${"${productName}"}.
+10. detectionRate: realistic share of US bank base, between 0.003 and 0.20.
+11. id: short kebab-case, prefixed with the productId.`,
           },
           { role: "user", content: userPrompt },
         ],
