@@ -188,23 +188,26 @@ export function DemographicFilters({ filters, onChange, applicable }: Demographi
               )}
 
 
-            {/* Account Tenure */}
-            <div>
-              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Account Tenure</p>
-              <Select value={filters.accountTenure} onValueChange={updateTenure}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select tenure" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ACCOUNT_TENURE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              {/* Account Tenure */}
+              {showTenure && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Account Tenure</p>
+                  <Select value={filters.accountTenure} onValueChange={updateTenure}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select tenure" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tenureOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
             </div>
-          </div>
+          )}
 
         </div>
       </CollapsibleContent>
