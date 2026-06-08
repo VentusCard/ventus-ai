@@ -222,13 +222,25 @@ export function SegmentOutputPanel({ productId, audienceSize, selectedAssetSigna
                       Copy brief
                     </Button>
                     <Button
+                      asChild
                       size="sm"
                       variant="outline"
                       className="h-7 px-2 text-[10px] border-slate-200"
-                      onClick={() => toast({ title: "Queued for stock selection", description: `${p.label} · ${brief.query}` })}
                     >
-                      <Send className="w-3 h-3 mr-1" />
-                      Send to picker
+                      <a
+                        href={buildStockPickerUrl(provider, brief)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={() =>
+                          toast({
+                            title: `Opening ${providerLabel(provider)}`,
+                            description: `${p.label} · ${brief.query}`,
+                          })
+                        }
+                      >
+                        <ExternalLink className="w-3 h-3 mr-1" />
+                        Open in {providerLabel(provider)}
+                      </a>
                     </Button>
                   </div>
                 </div>
