@@ -281,22 +281,21 @@ export function ProductCampaignBuilderView() {
               )}
             </div>
 
-            <DimensionChipCloud
-              title="Life Events"
-              icon={<Sparkles className="w-4 h-4 text-blue-600" />}
-              chips={LIFE_EVENTS.map((e) => ({ id: e.id, label: e.name }))}
-              selectedChips={lifeEvents}
-              onToggle={(id) => setLifeEvents((prev) => toggle(prev, id))}
-              badge={`${LIFE_EVENTS.length}`}
-            />
-            <DimensionChipCloud
-              title="Lifestyle Pillars"
-              icon={<Heart className="w-4 h-4 text-blue-600" />}
-              chips={LIFESTYLE_PILLARS.map((p) => ({ id: p, label: p }))}
-              selectedChips={pillars}
-              onToggle={(id) => setPillars((prev) => toggle(prev, id))}
-              badge={`${LIFESTYLE_PILLARS.length}`}
-            />
+            {applicableLifeEvents.length > 0 && (() => {
+              const chips = LIFE_EVENTS
+                .filter((e) => applicableLifeEvents.includes(e.id))
+                .map((e) => ({ id: e.id, label: e.name }));
+              return (
+                <DimensionChipCloud
+                  title="Life Events"
+                  icon={<Sparkles className="w-4 h-4 text-blue-600" />}
+                  chips={chips}
+                  selectedChips={lifeEvents}
+                  onToggle={(id) => setLifeEvents((prev) => toggle(prev, id))}
+                  badge={`${chips.length}`}
+                />
+              );
+            })()}
 
             <div className="mt-3 pt-3 border-t border-slate-100">
               <DemographicFiltersPanel filters={demographics} onChange={setDemographics} />
