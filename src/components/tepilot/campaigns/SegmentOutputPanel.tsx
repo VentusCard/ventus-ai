@@ -85,6 +85,19 @@ export function SegmentOutputPanel({ productId, audienceSize, selectedAssetSigna
   const product = getProductFlow(productId);
   const personas = getPersonas(productId, selectedAssetSignals);
 
+  const [provider, setProvider] = useState<StockProvider>(DEFAULT_PROVIDER);
+  useEffect(() => {
+    try {
+      const saved = sessionStorage.getItem(PROVIDER_STORAGE_KEY) as StockProvider | null;
+      if (saved && STOCK_PROVIDERS.some((p) => p.id === saved)) setProvider(saved);
+    } catch {/* ignore */}
+  }, []);
+  const handleProviderChange = (v: string) => {
+    const next = v as StockProvider;
+    setProvider(next);
+    try { sessionStorage.setItem(PROVIDER_STORAGE_KEY, next); } catch {/* ignore */}
+  };
+
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
