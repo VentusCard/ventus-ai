@@ -178,6 +178,23 @@ npm run --prefix backend qa:model-output
 
 The report includes overall pass rate, missing and extra predictions, field-level accuracy, and breakdowns by source system, rail, source profile, and transaction type. This is the intended evaluation layer for comparing Gemini, OpenAI, Anthropic, or future partner-specific enrichment models before any production routing change.
 
+For Plaid sandbox-specific reviews, generate a draft 50-transaction candidate set from a sandbox artifact directory:
+
+```sh
+PLAID_SANDBOX_ARTIFACT_DIR=/path/to/backend/artifacts/plaid-sandbox/20260608012241 \
+PLAID_GOLDEN_TARGET_COUNT=50 \
+npm run --prefix backend plaid:golden:candidates
+```
+
+This writes a local, git-ignored `plaid-golden-candidates.json` file with heuristic draft labels. These labels are not golden truth until reviewed and frozen by a human. Once enriched predictions are available for the same transaction IDs, compare them with:
+
+```sh
+VENTUS_QA_EXPECTATIONS_PATH=/path/to/plaid-golden-candidates.json \
+VENTUS_QA_PREDICTIONS_PATH=/path/to/enrichment-predictions.json \
+VENTUS_QA_EVALUATION_REPORT_PATH=/path/to/plaid-model-output-report.json \
+npm run --prefix backend qa:model-output
+```
+
 ## Plaid Sandbox Pulls
 
 Use `npm run --prefix backend plaid:sandbox:pull` to create Sandbox Items and save raw `/transactions/sync` responses into `backend/artifacts/plaid-sandbox/`. The artifacts directory is git-ignored because the raw pulls are operational QA output and may contain Sandbox access metadata.

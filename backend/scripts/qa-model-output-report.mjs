@@ -18,18 +18,24 @@ const expectationsPath = join(
   'evaluation',
   'golden-enrichment-expectations.json'
 );
+const customExpectationsPath = process.env.VENTUS_QA_EXPECTATIONS_PATH
+  ? resolve(process.env.VENTUS_QA_EXPECTATIONS_PATH)
+  : null;
 
 assert.ok(
   process.env.VENTUS_QA_PREDICTIONS_PATH,
   'VENTUS_QA_PREDICTIONS_PATH is required to generate a model-output evaluation report'
 );
 
-const expectations = readJson(expectationsPath);
-validateGoldenEnrichmentExpectations(expectations, mockBankRoot, partnerIngestRoot);
+const expectations = readJson(customExpectationsPath || expectationsPath);
+if (!customExpectationsPath) {
+  validateGoldenEnrichmentExpectations(expectations, mockBankRoot, partnerIngestRoot);
+}
 
 const predictionsPath = resolve(process.env.VENTUS_QA_PREDICTIONS_PATH);
 const predictions = readJson(predictionsPath);
 const report = evaluateGoldenPredictionResults(expectations, predictions, {
+  expectations_path: customExpectationsPath || expectationsPath,
   predictions_path: predictionsPath,
   provider: process.env.VENTUS_QA_MODEL_PROVIDER ?? null,
   model: process.env.VENTUS_QA_MODEL_NAME ?? null,
