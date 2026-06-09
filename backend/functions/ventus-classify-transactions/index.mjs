@@ -272,8 +272,25 @@ These truncated names are well-known brands. Always normalize to the clean brand
 - DISCOVER E-PAYMENT, DISCOVER PAYMENT → Discover Payment
 - CHASE CREDIT CRD, CHASE AUTOPAY → Chase Payment
 - CAPITAL ONE, CAP ONE PAYMENT → Capital One Payment
+- DIRECT DEPOSIT, PAYROLL, SALARY, WAGES → Direct Deposit / Payroll
+- SBA, SMALL BUSINESS ADMINISTRATION → Small Business Administration
 
-STEP 3 — USE MCC CODE AS BACKUP
+STEP 3 — USE PARTNER CONTEXT WHEN PRESENT
+Some transactions include bracketed partner context, for example:
+[partner_context: rail=ach; source_profile=ach_income; transaction_type=credit; plaid_pfc=INCOME_WAGES]
+Use this context as evidence, but never include the bracketed text in normalized_merchant.
+
+Partner context rules:
+- source_profile or plaid_pfc containing INCOME, PAYROLL, WAGES, or DIRECT_DEPOSIT → Financial & Aspirational / Income & Payroll
+- source_profile or plaid_pfc containing LOAN_PAYMENTS or CREDIT_CARD_PAYMENT → Financial & Aspirational / Loan Payments
+- source_profile or plaid_pfc containing BANK_FEES → Financial & Aspirational / Banking Fees
+- source_profile or plaid_pfc containing TRANSFER, ACCOUNT_TRANSFER, WIRE, P2P, ZELLE, or VENMO → Financial & Aspirational / Transfers, unless the merchant is clearly a consumer merchant
+- source_profile or plaid_pfc containing GOVERNMENT → Family & Community / Government Services, unless the merchant is clearly a loan agency such as SBA
+- source_profile or plaid_pfc containing GENERAL_SERVICES and merchant is a known business software/service provider → Technology & Digital Life / Software & Apps or Financial & Aspirational / Professional Services based on merchant
+- transaction_type=credit should be treated as inflow evidence; if paired with income/payroll context, mark as Income & Payroll with 0.9 confidence
+- For ACH card or loan payments, normalize clean merchant to the institution name without adding "Payment" unless the raw merchant explicitly says payment
+
+STEP 4 — USE MCC CODE AS BACKUP
 If the merchant name is still unrecognizable after stripping prefixes, use the MCC code to determine the pillar:
 - 5411 → Food & Dining / Grocery
 - 5812, 5814 → Food & Dining / Dining Out or Coffee & Cafes
@@ -291,7 +308,7 @@ If the merchant name is still unrecognizable after stripping prefixes, use the M
 - 5999 → use merchant name context to determine best pillar
 - 7995 → Entertainment & Culture / Gaming (note: gambling MCC, flag if needed)
 
-STEP 4 — CLASSIFY
+STEP 5 — CLASSIFY
 Now classify into the correct pillar and subcategory.
 
 PILLARS & SUBCATEGORIES:
@@ -305,7 +322,7 @@ PILLARS & SUBCATEGORIES:
 8. Entertainment & Culture: Movies & Theater, Concerts & Events, Museums & Exhibitions, Books & Magazines, Hobbies & Crafts, Gaming, General
 9. Technology & Digital Life: Electronics & Devices, Software & Apps, Streaming Services, Internet & Phone, Cloud Storage, Tech Accessories, General
 10. Family & Community: Childcare & Education, Gifts & Donations, Religious Organizations, Community Events, Kids Activities, Elder Care, General
-11. Financial & Aspirational: Investments, Savings & Deposits, Insurance, Professional Development, Courses & Certifications, Financial Services, General
+11. Financial & Aspirational: Investments, Savings & Deposits, Income & Payroll, Loan Payments, Transfers, Banking Fees, Insurance, Professional Development, Professional Services, Courses & Certifications, Financial Services, General
 12. Miscellaneous & Unclassified: ONLY use this when the merchant name is completely unrecognizable AND no MCC code is available. This should be rare.
 
 CLASSIFICATION EXAMPLES:
@@ -320,6 +337,10 @@ Entertainment & Culture: "AMC THEATRES" → Movies & Theater, "TICKETMASTER" →
 Technology & Digital Life: "BEST BUY" → Electronics & Devices, "ADOBE" → Software & Apps, "SPOTIFY" → Streaming Services
 Family & Community: "KINDERCARE" → Childcare & Education, "GOFUNDME" → Gifts & Donations
 Financial & Aspirational: "VANGUARD" → Investments, "UDEMY" → Courses & Certifications, "GEICO" → Insurance
+Multi-rail / partner context: "Direct Deposit Plaid Inc [partner_context: rail=ach; source_profile=ach_income; transaction_type=credit; plaid_pfc=INCOME_WAGES]" → Direct Deposit Plaid Inc / Financial & Aspirational / Income & Payroll
+Multi-rail / partner context: "American Express [partner_context: rail=ach; source_profile=ach_loan; plaid_pfc=LOAN_PAYMENTS_CREDIT_CARD_PAYMENT]" → American Express / Financial & Aspirational / Loan Payments
+Multi-rail / partner context: "Small Business Administration [partner_context: source_profile=card_loan; plaid_pfc=LOAN_PAYMENTS_OTHER_PAYMENT]" → Small Business Administration / Financial & Aspirational / Loan Payments
+Multi-rail / partner context: "Labor&industries; L&i Elf. Merchant Name: Labor&industries [partner_context: plaid_pfc=GOVERNMENT_AND_NON_PROFIT_GOVERNMENT_DEPARTMENTS_AND_AGENCIES]" → Labor & Industries / Family & Community / Government Services
 
 CONFIDENCE LEVELS:
 - 0.9: Recognized brand name OR business type completely obvious from name or MCC
@@ -330,7 +351,8 @@ MERCHANT PARSING RULES:
 - Always return the clean normalized brand name in normalized_merchant, not the raw bank string
 - Personal transfers (Zelle to a person, Venmo to a person) → normalized_merchant: "Personal Transfer"
 - ATM withdrawals → normalized_merchant: "ATM Withdrawal"
-- Loan or credit card payments → normalized_merchant: use the card/bank name + "Payment"
+- Loan or credit card payments → normalized_merchant: use the card/bank name; add "Payment" only when the raw text explicitly says payment
+- Bracketed partner_context is classifier-only evidence and must be removed from normalized_merchant
 - Unknown local merchant with MCC → use MCC to classify, keep merchant name as is
 - Unknown local merchant without MCC → Miscellaneous & Unclassified at 0.4`;
 
@@ -562,10 +584,11 @@ export const handler = async (event) => {
         let newClassifications = [];
         if (uncached.length > 0) {
           const summary = uncached.map((r) => ({
-            id: r.transaction_id,
+            transaction_id: r.transaction_id,
             merchant: r.raw_merchant,
             amount: r.amount,
             date: r.transaction_date,
+            ...(r.mcc_code && { mcc_code: r.mcc_code }),
             ...(r.zip_code && { zip: r.zip_code }),
           }));
 
@@ -661,10 +684,17 @@ export const handler = async (event) => {
       };
 
     const summary = transactions.map((t) => ({
-      id: t.transaction_id,
+      transaction_id: t.transaction_id,
       merchant: t.merchant_name,
       amount: t.amount,
       date: t.date,
+      ...(t.mcc_code && { mcc_code: t.mcc_code }),
+      ...(t.rail && { rail: t.rail }),
+      ...(t.source_profile && { source_profile: t.source_profile }),
+      ...(t.transaction_type && { transaction_type: t.transaction_type }),
+      ...(t.partner_metadata?.personal_finance_category && {
+        plaid_pfc: t.partner_metadata.personal_finance_category,
+      }),
       ...(t.zip_code && { zip: t.zip_code }),
     }));
 
