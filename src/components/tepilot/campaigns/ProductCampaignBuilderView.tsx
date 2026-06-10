@@ -311,120 +311,153 @@ export function ProductCampaignBuilderView() {
             )}
           </div>
 
-          {/* Step 2 */}
+          {/* Step 2 — 5 signal families from the System tab */}
           <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <div className="flex items-center gap-2 mb-3">
+            <div className="flex items-center gap-2 mb-1">
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
-              <p className="text-sm font-semibold text-slate-900">Layer targeting signals</p>
+              <p className="text-sm font-semibold text-slate-900">Layer the 5 Ventus signal families</p>
             </div>
+            <p className="text-[11px] text-slate-500 mb-3 pl-8">Same intelligence core powering the System tab — life event, behavioral, financial, demographic, and risk signals.</p>
 
-            {/* Lifestyle Asset Signals — generative */}
-            <div className="rounded-lg border border-slate-200 bg-slate-50/40 p-3 mb-2">
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <div className="flex items-center gap-2">
-                  <Gem className="w-4 h-4 text-blue-600" />
-                  <p className="text-xs font-semibold text-slate-900">
-                    Lifestyle Asset Signals {product ? `· ${product.name}` : ""}
-                  </p>
+            <div className="space-y-2">
+              {/* 1. Life Event Signals */}
+              <FamilySection family="life" count={lifeEvents.length}>
+                {applicableLifeEvents.length > 0 ? (() => {
+                  const chips = LIFE_EVENTS
+                    .filter((e) => applicableLifeEvents.includes(e.id))
+                    .map((e) => ({ id: e.id, label: e.name }));
+                  return (
+                    <DimensionChipCloud
+                      title=""
+                      icon={<Sparkles className="w-4 h-4 text-amber-600" />}
+                      chips={chips}
+                      selectedChips={lifeEvents}
+                      onToggle={(id) => setLifeEvents((prev) => toggle(prev, id))}
+                    />
+                  );
+                })() : (
+                  <p className="text-xs text-slate-400 italic">Generate behavioral signals first to surface life events tuned to {product?.name ?? "the product"}.</p>
+                )}
+              </FamilySection>
+
+              {/* 2. Behavioral Signals (Lifestyle Asset Signals, generative) */}
+              <FamilySection family="behavioral" count={assetSignals.length}>
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <Gem className="w-4 h-4 text-blue-600" />
+                    <p className="text-xs font-semibold text-slate-900">
+                      Lifestyle Asset Signals {product ? `· ${product.name}` : ""}
+                    </p>
+                    {generatedSignals.length > 0 && (
+                      <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">
+                        {generatedSignals.length}
+                      </Badge>
+                    )}
+                  </div>
                   {generatedSignals.length > 0 && (
-                    <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">
-                      {generatedSignals.length}
-                    </Badge>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 px-2 text-[11px] text-slate-600"
+                      onClick={generateSignals}
+                      disabled={signalsLoading}
+                    >
+                      {signalsLoading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />}
+                      Regenerate
+                    </Button>
                   )}
                 </div>
-                {generatedSignals.length > 0 && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-7 px-2 text-[11px] text-slate-600"
-                    onClick={generateSignals}
-                    disabled={signalsLoading}
-                  >
-                    {signalsLoading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />}
-                    Regenerate
-                  </Button>
-                )}
-              </div>
 
-              {signalsLoading && generatedSignals.length === 0 && (
-                <div className="flex flex-wrap gap-1.5 py-2">
-                  {Array.from({ length: 8 }).map((_, i) => (
-                    <div key={i} className="h-6 w-24 rounded-full bg-slate-200/70 animate-pulse" />
-                  ))}
-                </div>
-              )}
-
-              {!signalsLoading && generatedSignals.length === 0 && !signalsError && (
-                <div className="flex items-center justify-between gap-3 py-2">
-                  <p className="text-xs text-slate-500 leading-snug">
-                    No lifestyle signals yet. Ventus will generate a fresh set tuned to {product?.name ?? "the product"}.
-                  </p>
-                  <Button size="sm" onClick={generateSignals} disabled={signalsLoading} className="shrink-0">
-                    <Wand2 className="w-3.5 h-3.5 mr-1" />
-                    Generate signals
-                  </Button>
-                </div>
-              )}
-
-              {signalsError && (
-                <div className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-white p-2.5">
-                  <div className="flex items-start gap-2 text-xs text-slate-600">
-                    <AlertCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
-                    <span>{signalsError}</span>
+                {signalsLoading && generatedSignals.length === 0 && (
+                  <div className="flex flex-wrap gap-1.5 py-2">
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <div key={i} className="h-6 w-24 rounded-full bg-slate-200/70 animate-pulse" />
+                    ))}
                   </div>
-                  <Button size="sm" variant="outline" onClick={generateSignals} disabled={signalsLoading}>
-                    Retry
-                  </Button>
-                </div>
-              )}
+                )}
 
-              {generatedSignals.length > 0 && (
-                <div className="flex flex-wrap gap-2 pt-1">
-                  {signalChips.map((chip) => {
-                    const selected = assetSignals.includes(chip.id);
-                    return (
-                      <button
-                        key={chip.id}
-                        onClick={() => setAssetSignals((prev) => toggle(prev, chip.id))}
-                        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                          selected
-                            ? "bg-blue-50 border-blue-400 text-blue-700"
-                            : "bg-white border-slate-200 text-slate-600 hover:border-blue-400 hover:text-slate-900"
-                        }`}
-                        title={chip.description}
-                      >
-                        <span className={`w-2 h-2 rounded-full ${selected ? "bg-blue-600" : "bg-slate-300"}`} />
-                        {chip.label}
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+                {!signalsLoading && generatedSignals.length === 0 && !signalsError && (
+                  <div className="flex items-center justify-between gap-3 py-2">
+                    <p className="text-xs text-slate-500 leading-snug">
+                      No lifestyle signals yet. Ventus will generate a fresh set tuned to {product?.name ?? "the product"}.
+                    </p>
+                    <Button size="sm" onClick={generateSignals} disabled={signalsLoading} className="shrink-0">
+                      <Wand2 className="w-3.5 h-3.5 mr-1" />
+                      Generate signals
+                    </Button>
+                  </div>
+                )}
 
-            {applicableLifeEvents.length > 0 && (() => {
-              const chips = LIFE_EVENTS
-                .filter((e) => applicableLifeEvents.includes(e.id))
-                .map((e) => ({ id: e.id, label: e.name }));
-              return (
-                <DimensionChipCloud
-                  title="Life Events"
-                  icon={<Sparkles className="w-4 h-4 text-blue-600" />}
-                  chips={chips}
-                  selectedChips={lifeEvents}
-                  onToggle={(id) => setLifeEvents((prev) => toggle(prev, id))}
-                  badge={`${chips.length}`}
+                {signalsError && (
+                  <div className="flex items-center justify-between gap-3 rounded-md border border-slate-200 bg-white p-2.5">
+                    <div className="flex items-start gap-2 text-xs text-slate-600">
+                      <AlertCircle className="w-3.5 h-3.5 text-slate-500 shrink-0 mt-0.5" />
+                      <span>{signalsError}</span>
+                    </div>
+                    <Button size="sm" variant="outline" onClick={generateSignals} disabled={signalsLoading}>
+                      Retry
+                    </Button>
+                  </div>
+                )}
+
+                {generatedSignals.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-1">
+                    {signalChips.map((chip) => {
+                      const selected = assetSignals.includes(chip.id);
+                      return (
+                        <button
+                          key={chip.id}
+                          onClick={() => setAssetSignals((prev) => toggle(prev, chip.id))}
+                          className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                            selected
+                              ? "bg-blue-50 border-blue-400 text-blue-700"
+                              : "bg-white border-slate-200 text-slate-600 hover:border-blue-400 hover:text-slate-900"
+                          }`}
+                          title={chip.description}
+                        >
+                          <span className={`w-2 h-2 rounded-full ${selected ? "bg-blue-600" : "bg-slate-300"}`} />
+                          {chip.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </FamilySection>
+
+              {/* 3. Financial Signals */}
+              <FamilySection family="financial" count={financialSignals.length}>
+                <ChipCloud
+                  chips={FINANCIAL_SIGNAL_CHIPS}
+                  selected={financialSignals}
+                  onToggle={(id) => setFinancialSignals((prev) => toggle(prev, id))}
+                  accent="emerald"
                 />
-              );
-            })()}
+              </FamilySection>
 
-            <div className="mt-3 pt-3 border-t border-slate-100">
-              <DemographicFiltersPanel
-                filters={demographics}
-                onChange={setDemographics}
-              />
+              {/* 4. Demographic Signals */}
+              <FamilySection
+                family="demographic"
+                count={demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0)}
+              >
+                <DemographicFiltersPanel
+                  filters={demographics}
+                  onChange={setDemographics}
+                />
+              </FamilySection>
+
+              {/* 5. Risk Signals */}
+              <FamilySection family="risk" count={riskSignals.length}>
+                <p className="text-[11px] text-slate-500 mb-2">Inclusion filters — only target customers who meet these criteria.</p>
+                <ChipCloud
+                  chips={RISK_SIGNAL_CHIPS}
+                  selected={riskSignals}
+                  onToggle={(id) => setRiskSignals((prev) => toggle(prev, id))}
+                  accent="rose"
+                />
+              </FamilySection>
             </div>
           </div>
+
 
           {/* Step 3 */}
           <div className="rounded-xl border border-slate-200 bg-white p-4">
