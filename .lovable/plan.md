@@ -1,18 +1,54 @@
-## Differentiate Life Event vs Behavioral signals
+## Goal
 
-Add a `type: "life-event" | "behavioral"` field to each signal in `PRODUCT_FLOWS`, then render a small colored pill next to each signal label in the expanded panel.
+Add a new **Capabilities** tab in the Home nav group of `/bankdemo`, directly under **Ventus AI**. Renders a static 3-column diagram modeled on the uploaded slide.
 
-### 1. `src/lib/productAutomatedFlows.ts`
-- Extend `FlowSignal` interface with `type: "life-event" | "behavioral"`.
-- Classify every existing signal across all 10 flows:
-  - **life-event**: newborn cluster, dependent age inference, college-age dependent, recent family formation, new mortgage holder, lease-end timing, long-term homeowner, pre-approval inquiry, stated savings intent
-  - **behavioral**: home renovation spend, property tax payment, RSU/ESPP inflows, brokerage transfers, country club dues, private aviation, dealer visits, auto insurance shop-around, rent above median, down-payment accumulation, BNPL usage, cash-advance recovery, revolving creep, idle balance, yield-seeking ACH, multi-airline, hotel diversity, international tx, vendor ACH cluster, processor deposits, business-pattern card use, single-earner household
+## Layout
 
-### 2. `src/components/tepilot/campaigns/ProductAutomatedFlowsView.tsx`
-- In the expanded signals `<ul>`, render a small pill before/after the signal label:
-  - **Life Event** → amber pill (`bg-amber-50 text-amber-700 border-amber-200`)
-  - **Behavioral** → blue pill (`bg-blue-50 text-blue-700 border-blue-200`)
-- Pill style: `text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border`
-- No changes to row layout, toggle, or chevron behavior.
+3 columns connected by curly braces (strict light theme — white bg, slate-200 borders, no `dark:`):
 
-Light theme preserved throughout.
+```text
+   INPUTS                  CORE                     DOWNSTREAM
+ ┌──────────┐      ┌─────────────────────┐      ┌────────────────────┐
+ │ Card Txn │      │       VENTUS        │      │ Personalized       │
+ │ ACH/Wire │      │  Behavioral Intel   │      │ Rewards            │
+ │ Checks   │  ──▶ │ ─────────────────── │ ──▶  │ Next-Product Intel │
+ │ Zelle    │      │ • Life Event        │      │ Semantic Budgeting │
+ │ Digital  │      │ • Behavioral        │      │ AI Banking Asst    │
+ │ Telemetry│      │ • Financial         │      │ Risk & Vulnerab.   │
+ │ Credit   │      │ • Demographic       │      │ Segmentation       │
+ └──────────┘      │ • Risk              │      └────────────────────┘
+                   └─────────────────────┘
+```
+
+### Column contents
+
+1. **Inputs (left)** — pill cards: Card Transaction, ACH/Wires, Checks, Zelle, Digital Telemetry, Credit Score.
+2. **Core (center)** — single rounded card titled "VENTUS — Behavioral Intelligence Core" with a divider, then 5 signal rows inside (each row = colored dot + label):
+   - Life Event Signals (amber)
+   - Behavioral Signals (blue)
+   - Financial Signals (emerald)
+   - Demographic Signals (violet)
+   - Risk Signals (rose)
+   - Small caption above the list: "What the core produces"
+3. **Downstream (right)** — pill cards: Personalized Rewards, Next-Product Intelligence, Semantic Budgeting, AI Banking Assistant, Risk and Vulnerability, Segmentation & Targeting.
+
+Curly-brace SVG connectors between Inputs→Core and Core→Downstream (no per-item lines).
+
+## Files
+
+- **New:** `src/components/tepilot/insights/CapabilitiesView.tsx` — pure presentational, no data deps.
+- **Edit:** `src/components/tepilot/insights/AnalyticsContainer.tsx`
+  - Add `'capabilities'` to `TabValue`.
+  - Insert nav item `{ value: 'capabilities', label: 'Capabilities', icon: Layers }` in the **Home** group, right after Ventus AI.
+  - Add case in `renderContent()` returning `<CapabilitiesView />`.
+
+## Style notes
+
+- Manrope, white bg, slate-200 borders, semantic shadcn tokens.
+- Signal dot colors reuse existing palette (amber/blue match `ProductAutomatedFlowsView` badges).
+- `TabHeader` at top: "Platform Capabilities" / "How Ventus turns raw bank data into signals and downstream actions."
+
+## Out of scope
+
+- No click-through wiring between capability cards and other tabs.
+- No backend/data changes.
