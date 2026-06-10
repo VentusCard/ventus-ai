@@ -562,7 +562,8 @@ export function ProductCampaignBuilderView() {
                 { label: "Life event", count: lifeEvents.length },
                 { label: "Behavioral", count: assetSignals.length },
                 { label: "Financial", count: financialSignals.length },
-                { label: "Demographic", count: demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0) },
+                { label: "Demographic", count: demographicSignals.length },
+                { label: "KYC filters", count: demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0) },
                 { label: "Risk", count: riskSignals.length },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between text-xs">
