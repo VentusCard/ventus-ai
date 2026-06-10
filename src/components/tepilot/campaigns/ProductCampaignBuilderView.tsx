@@ -443,14 +443,14 @@ export function ProductCampaignBuilderView() {
                 />
               </FamilySection>
 
-              {/* 4. Demographic Signals */}
-              <FamilySection
-                family="demographic"
-                count={demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0)}
-              >
-                <DemographicFiltersPanel
-                  filters={demographics}
-                  onChange={setDemographics}
+              {/* 4. Demographic Signals — inferred household/livelihood patterns beyond KYC */}
+              <FamilySection family="demographic" count={demographicSignals.length}>
+                <p className="text-[11px] text-slate-500 mb-2">Inferred household and livelihood indicators — beyond KYC fields.</p>
+                <ChipCloud
+                  chips={DEMOGRAPHIC_SIGNAL_CHIPS}
+                  selected={demographicSignals}
+                  onToggle={(id) => setDemographicSignals((prev) => toggle(prev, id))}
+                  accent="violet"
                 />
               </FamilySection>
 
@@ -465,7 +465,18 @@ export function ProductCampaignBuilderView() {
                 />
               </FamilySection>
             </div>
+
+            {/* KYC filters — separated from the inferred demographic signal family */}
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">KYC filters</p>
+              <p className="text-[11px] text-slate-500 mb-3">Hard filters from the customer's on-file profile (age, region, income band, account tenure).</p>
+              <DemographicFiltersPanel
+                filters={demographics}
+                onChange={setDemographics}
+              />
+            </div>
           </div>
+
 
 
           {/* Step 3 */}
