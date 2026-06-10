@@ -1,14 +1,14 @@
 import { TabHeader } from "./TabHeader";
-import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle } from "lucide-react";
+import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const INPUTS = [
-  { label: "Card Transactions", icon: CreditCard },
-  { label: "ACH & Wires", icon: ArrowLeftRight },
-  { label: "Checks", icon: FileText },
-  { label: "Zelle", icon: Send },
-  { label: "Digital Telemetry", icon: Smartphone },
-  { label: "Credit Score", icon: Gauge },
+  { label: "Card Transactions", icon: CreditCard, source: "Card Processor" },
+  { label: "ACH & Wires", icon: ArrowLeftRight, source: "Core" },
+  { label: "Checks", icon: FileText, source: "Core" },
+  { label: "Zelle", icon: Send, source: "EWS" },
+  { label: "Digital Telemetry", icon: Smartphone, source: "Digital Banking" },
+  { label: "Credit Score", icon: Gauge, source: "Credit Bureau" },
 ];
 
 const SIGNALS = [
@@ -67,11 +67,28 @@ export function CapabilitiesView() {
         <div className="grid grid-cols-[1fr_auto_1.2fr_auto_1fr] gap-4 items-stretch">
           {/* INPUTS */}
           <div className="flex flex-col">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3 text-center">Data Inputs</p>
+            <div className="flex items-center justify-center gap-1.5 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Data Inputs · {INPUTS.length} connected</p>
+            </div>
             <div className="flex flex-col gap-2.5 flex-1 justify-center">
-              {INPUTS.map((i) => (
-                <Pill key={i.label} label={i.label} Icon={i.icon} />
-              ))}
+              {INPUTS.map((i) => {
+                const Icon = i.icon;
+                return (
+                  <div key={i.label} className="px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white shadow-sm hover:border-emerald-300 transition-colors">
+                    <div className="flex items-center gap-2.5">
+                      <div className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-100 shrink-0">
+                        <Icon className="w-3.5 h-3.5 text-slate-600" />
+                      </div>
+                      <span className="text-sm font-semibold text-slate-800 flex-1 truncate">{i.label}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5 mt-1.5 pl-[38px]">
+                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <span className="text-[11px] font-medium text-slate-600 truncate">{i.source}</span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
