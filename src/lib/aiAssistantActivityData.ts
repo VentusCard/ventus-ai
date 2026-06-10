@@ -51,7 +51,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "spend-recap",
     volume: 3240,
     deltaPct: 42,
-    spark: [120, 145, 180, 210, 260, 295, 340],
+    spark: [128, 112, 175, 158, 244, 218, 332],
     sampleQuestion: "How much did I spend on my Tahoe ski trip?",
     script: [
       "How much did I spend on my Tahoe ski trip?",
@@ -66,7 +66,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "life-event",
     volume: 2870,
     deltaPct: 31,
-    spark: [180, 195, 215, 230, 255, 280, 310],
+    spark: [192, 178, 238, 215, 248, 295, 308],
     sampleQuestion: "I'm thinking about buying a house. What resources do you have?",
     script: [
       "I'm thinking about buying a house. What resources do you have?",
@@ -81,7 +81,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "resource-request",
     volume: 2150,
     deltaPct: 58,
-    spark: [80, 95, 120, 155, 195, 240, 285],
+    spark: [72, 108, 92, 168, 142, 226, 290],
     sampleQuestion: "I'm planning a trip home for the holidays — any tips on booking smarter?",
     script: [
       "I'm planning a trip home for the holidays — any tips on booking smarter?",
@@ -96,7 +96,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "resource-request",
     volume: 1980,
     deltaPct: 22,
-    spark: [150, 160, 165, 175, 185, 195, 210],
+    spark: [148, 172, 138, 188, 162, 205, 212],
     sampleQuestion: "What's the fastest way for me to pay off my credit card?",
     script: [
       "What's the fastest way for me to pay off my credit card?",
@@ -111,7 +111,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "product-question",
     volume: 1620,
     deltaPct: 14,
-    spark: [125, 130, 138, 142, 150, 158, 165],
+    spark: [124, 118, 148, 132, 158, 144, 166],
     sampleQuestion: "Is my 401k allocation still appropriate for me?",
     script: [
       "Is my 401k allocation still appropriate for me?",
@@ -126,7 +126,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "life-event",
     volume: 1340,
     deltaPct: 9,
-    spark: [110, 115, 118, 120, 125, 128, 132],
+    spark: [112, 104, 122, 116, 108, 126, 133],
     sampleQuestion: "We're expecting a baby in the spring. How do I get our budget ready?",
     script: [
       "We're expecting a baby in the spring. How do I get our budget ready?",
@@ -141,7 +141,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "life-event",
     volume: 1085,
     deltaPct: 27,
-    spark: [70, 78, 85, 92, 98, 104, 112],
+    spark: [68, 82, 74, 96, 88, 106, 114],
     sampleQuestion: "We just got engaged — how should we start saving for the wedding?",
     script: [
       "We just got engaged — how should we start saving for the wedding?",
@@ -156,7 +156,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "product-question",
     volume: 920,
     deltaPct: 36,
-    spark: [40, 48, 55, 62, 72, 82, 95],
+    spark: [42, 36, 58, 50, 78, 68, 96],
     sampleQuestion: "Would an EV actually save me money based on how I drive?",
     script: [
       "Would an EV actually save me money based on how I drive?",
@@ -171,7 +171,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "life-event",
     volume: 740,
     deltaPct: 11,
-    spark: [55, 58, 62, 65, 68, 70, 74],
+    spark: [54, 62, 56, 70, 60, 72, 75],
     sampleQuestion: "How do I open a 529 for my daughter?",
     script: [
       "How do I open a 529 for my daughter?",
@@ -186,7 +186,7 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     intent: "spend-recap",
     volume: 615,
     deltaPct: -6,
-    spark: [80, 78, 76, 74, 70, 66, 62],
+    spark: [82, 72, 84, 70, 78, 64, 75],
     sampleQuestion: "Am I spending too much on dining out?",
     script: [
       "Am I spending too much on dining out?",

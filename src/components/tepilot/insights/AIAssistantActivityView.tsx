@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MessagesSquare, Pause, Play, Wifi, Battery, TrendingUp, ArrowUp, ArrowDown, Minus } from "lucide-react";
+import { MessagesSquare, Pause, Play, Wifi, Battery, TrendingUp, ArrowUp, ArrowDown, Minus, Sparkles } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
@@ -125,6 +125,27 @@ export function AIAssistantActivityView() {
         howItWorks="Ventus clusters every consumer conversation by intent, lifestyle pillar, and life event, and surfaces the trending themes alongside a live preview of how the assistant responds."
         whyItMatters="Gives marketing, product, and advisor teams a direct read on what customers actually want help with — informing campaigns, product roadmaps, and proactive outreach."
       />
+
+      {/* Ventus AI key insight */}
+      <div className="rounded-lg border border-blue-200 bg-gradient-to-r from-blue-50 via-white to-white px-4 py-3 flex items-start gap-3">
+        <div className="shrink-0 w-7 h-7 rounded-md bg-blue-100 flex items-center justify-center">
+          <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="text-[10px] uppercase tracking-wider text-blue-700 font-semibold">
+            Ventus AI · Key insight
+          </div>
+          <div className="text-[13.5px] font-semibold text-slate-900 mt-0.5">
+            Travel and life-event questions are driving this week's volume spike.
+          </div>
+          <div className="text-[11.5px] text-slate-600 mt-0.5 leading-relaxed">
+            Holiday travel planning (+58%) and ski trip recaps (+42%) led the last 24 hours of growth. First-home buying resources crossed 2.8k conversations — the highest of any life-event topic this quarter.
+          </div>
+        </div>
+        <div className="flex items-stretch gap-3 shrink-0 pl-3 border-l border-slate-200">
+          <span className="text-[10px] text-slate-400 self-center">Updated 2 min ago</span>
+        </div>
+      </div>
 
       {/* KPI strip */}
       <div className="grid grid-cols-4 gap-3">
