@@ -1,106 +1,63 @@
-## New Tab: AI Assistant Activity
+## Make AI Assistant Activity insights-driven
 
-A new banker-facing view in the `/bankdemo` analytics sidebar that surfaces what consumers are asking the Ventus AI chatbot about, paired with a live iPad mockup that auto-plays curated conversations and lets the banker take over with real LLM responses.
+Refocus the left side of `src/components/tepilot/insights/AIAssistantActivityView.tsx` on real numbers, deltas, and trend visuals. Drop the Live Conversation Stream card. The iPad mockup on the right stays as-is.
 
-### 1. Navigation
-
-Add a new sidebar group **"Conversations"** at the top of `NAV_GROUPS` in `src/components/tepilot/insights/AnalyticsContainer.tsx` (just under "Home").
+### Layout after change
 
 ```text
-Home
-  Ventus AI
-  System
-Conversations            ← NEW
-  AI Assistant Activity  ← NEW (icon: MessagesSquare)
-Analytics
-...
+┌──────────────────────────────────────────────────────────────┐
+│ TabHeader: "AI Assistant Activity"                           │
+├──────────────────────────────────────────────────────────────┤
+│ KPI strip (4 tiles, with deltas)                             │
+│  • Conversations / 24h   12,480   ↑ 18% WoW                  │
+│  • Avg. msgs per chat    4.6      ↑ 0.3                      │
+│  • Self-serve resolution 81%      ↑ 4 pts                    │
+│  • Avg. response time    1.4s     ↓ 0.2s                     │
+├──────────────────────┬───────────────────────────────────────┤
+│ LEFT (col-span-7)    │ RIGHT (col-span-5) — iPad (unchanged) │
+│                      │                                       │
+│ Intent Mix (24h)     │                                       │
+│  horizontal bar:     │                                       │
+│  Spend recap   38%   │                                       │
+│  Resource req  24%   │                                       │
+│  Life event    21%   │                                       │
+│  Product Q     17%   │                                       │
+│                      │                                       │
+│ Trending Topics      │                                       │
+│  (table-style rows;  │                                       │
+│  click to play)      │                                       │
+│  Topic │ Vol │ Δ7d │ │                                       │
+│  Intent│ Spark line  │                                       │
+│  ...10 rows          │                                       │
+└──────────────────────┴───────────────────────────────────────┘
 ```
 
-- New `TabValue`: `'ai-assistant-activity'`
-- New `MODULE_NAV_GROUP_MAP` entry so the group shows whenever the Analytics module is enabled.
-- New `TAB_LABELS` entry in `VentusAIChatPanel` plus quick-actions ("Top topics today", "Rising intents", "Unresolved questions", "Life-event signals from chat").
+### Changes
 
-### 2. New view component
+1. **Remove** the entire "Live conversation stream" card and the `LIVE_QUESTION_FEED`-driven rotation effect/state (`feedIdx`, `feedItems`, the `setInterval`).
+2. **KPI strip**: replace vague phrases ("Trending higher", "Multi-turn", etc.) with concrete numbers + delta chips. 4 tiles:
+   - Conversations (24h): `12,480` · `↑ 18% WoW` (green)
+   - Avg. messages per chat: `4.6` · `↑ 0.3` (green)
+   - Self-serve resolution: `81%` · `↑ 4 pts` (green)
+   - Avg. assistant response: `1.4s` · `↓ 0.2s` (green)
+   Each tile shows label (uppercase), large bold value, and a colored delta pill with up/down arrow.
+3. **New "Intent Mix (last 24h)" card** above Trending Topics: a stacked-bar legend with four intent categories (Spend recap, Resource request, Life event, Product question), each with a colored bar, %, and count. Reuses `INTENT_META` colors.
+4. **Trending Topics — insights-ified**: each row now shows
+   - Emoji + label + intent tag + active "Playing" badge
+   - **Volume number** (e.g. `3,240 chats`)
+   - **7-day delta** as a colored pill (e.g. `↑ 42%` green, `↓ 6%` red, `→ flat` slate)
+   - **Tiny inline sparkline** (7 points) rendered as an SVG polyline
+   - One-line sample question (kept, italic, truncated)
+   Replace `volumeBlurb` / `deltaBlurb` strings with structured numeric fields.
+5. **Data update** in `src/lib/aiAssistantActivityData.ts`:
+   - Add to `TrendingTopic`: `volume: number; deltaPct: number; spark: number[];` (7 values for the sparkline).
+   - Seed each of the 10 topics with realistic numbers (volumes between ~400 and ~3,500; deltas between -10% and +60%; sparklines roughly matching delta direction).
+   - Remove `LIVE_QUESTION_FEED` export (no longer used).
+   - Keep `volumeBlurb` / `deltaBlurb` fields removed; the structured numbers replace them.
 
-`src/components/tepilot/insights/AIAssistantActivityView.tsx` — split-panel layout matching other interactive demos.
+### Notes
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│ TabHeader: "AI Assistant Activity"                          │
-├──────────────────────────┬──────────────────────────────────┤
-│ LEFT (≈60%)              │ RIGHT (≈40%)                     │
-│                          │                                  │
-│ Top KPIs strip           │       ╭───────────────╮          │
-│ • Conversations / 24h    │       │ iPad mockup   │          │
-│ • Avg msgs / convo       │       │ (live)        │          │
-│ • Top intent             │       │               │          │
-│ • Resolution rate        │       │ ConsumerAIChat│          │
-│                          │       │   View        │          │
-│ Trending Topics feed     │       │               │          │
-│ (clickable cards)        │       ╰───────────────╯          │
-│ ────────────────────     │  "Watching: <Topic>" caption     │
-│ 🎿 Ski trip spend  ↑42%  │  [Pause] [Take over]             │
-│ 🏠 First-home resources  │                                  │
-│ ✈️  Holiday travel plan  │                                  │
-│ 💍 Wedding savings       │                                  │
-│ 👶 New baby budgeting    │                                  │
-│ 🚗 EV vs gas TCO         │                                  │
-│ 📈 401k rebalance        │                                  │
-│ 💳 APR / debt payoff     │                                  │
-│ 🎓 529 plan setup        │                                  │
-│ 🍽 Dining budget tune-up │                                  │
-└──────────────────────────┴──────────────────────────────────┘
-```
-
-#### Left panel: Trending Topics feed
-Curated list (constant data file) of ~10 topics. Each card shows:
-- Emoji + label (e.g. "Ski trip spend recap")
-- Vaguely-specific volume + delta ("Trending across many high-income skiers, ↑ this week")
-- Top intent tag (Spend recap / Resource request / Life event / Product question)
-- One representative anonymized question snippet
-- "Play in mockup" affordance — clicking loads that scripted conversation into the iPad
-
-Per memory rules: no exact transaction counts or specific spend amounts in copy; use vaguely-specific behavioral phrasing. No risk/stress language.
-
-A small "Live conversation stream" sub-card at the bottom shows a slow auto-rotating anonymized feed of one-line questions (purely visual, no metrics).
-
-#### Right panel: Live iPad mockup
-Reuses the iPad chrome from `src/components/exec-demo/ExecDemoPhoneView.tsx` (status bar, frame, "Our Bank · {first name}" indicator). New thin wrapper `AIAssistantActivityPhone.tsx` renders just the iPad frame + status bar and embeds `ConsumerAIChatView` directly (skipping the bottom tab bar and other consumer tabs — chat only).
-
-Two modes:
-1. **Scripted/auto-play (default)** — feeds a queued user message into `ConsumerAIChatView` (already supports `initialMessage` + `messageNonce`), waits for the AI stream to complete via `consumer-chat` edge function, pauses ~5s, then advances to the next scripted question. Cycles through the selected topic's 2–4 turn conversation, then moves to the next trending topic.
-2. **Take over** — banker can type into the chat directly; auto-rotation pauses until they hit "Resume demo".
-
-Caption under the iPad reads "Watching: Ski trip spend recap" so the banker knows which topic is playing.
-
-### 3. Data
-
-`src/lib/aiAssistantActivityData.ts` — exports `TRENDING_TOPICS: TrendingTopic[]` with:
-
-```ts
-type TrendingTopic = {
-  id: string;
-  emoji: string;
-  label: string;
-  intent: "spend-recap" | "resource-request" | "life-event" | "product-question";
-  volumeBlurb: string;     // "Trending across many high-income skiers"
-  deltaBlurb: string;      // "↑ this week"
-  sampleQuestion: string;  // shown on the card
-  script: string[];        // 2-4 user turns to feed the iPad sequentially
-};
-```
-
-Seed topics include: ski trip spend recap, first-home buying resources, holiday travel planning, wedding savings, new baby budgeting, EV vs gas TCO, 401k rebalance question, debt payoff strategy, 529 plan setup, dining budget tune-up.
-
-### 4. Wiring
-
-- `AnalyticsContainer.renderContent`: add `case 'ai-assistant-activity': return <AIAssistantActivityView />;`
-- No backend / schema changes. Uses the existing `consumer-chat` edge function via the unchanged `ConsumerAIChatView`.
-- No new dependencies.
-
-### Technical notes
-
-- Reusing `ConsumerAIChatView` keeps the actual chat behavior identical to what consumers see (markdown rendering, streaming, persona-aware system prompt).
-- The auto-rotation effect listens to `ConsumerAIChatView`'s existing `onInitialMessageConsumed` callback plus a small "stream finished" signal we'll thread through via a new optional `onAssistantDone` prop (one-line addition, defaults to undefined so other call sites are unaffected).
-- iPad frame styling stays consistent with the memory rule on iPad mockups (slate-300 border, rounded-[20px], inner scroll container).
-- Strict light theme; no `dark:` utilities anywhere in the new files.
+- These numbers are internal banker-facing analytics, so concrete counts/percentages are appropriate. Memory's "vaguely specific" rule applies to customer-facing AI copy, not the internal dashboard — same convention as the other Analytics tabs (Wallet Share, Subscription Analytics, etc.) which all show hard numbers.
+- Sparklines are tiny SVG polylines (~60×16) auto-scaled to each topic's series — no chart library needed.
+- iPad mockup, topic selection behavior, auto-rotation, pause/resume — all unchanged.
+- Strict light theme; no `dark:` utilities.
