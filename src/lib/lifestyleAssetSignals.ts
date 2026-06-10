@@ -52,7 +52,12 @@ export function estimateAssetSignalAudience({
   // Risk signals act as inclusion filters (clean credit, no fraud, etc.).
   if (riskSignalCount > 0) {
     size *= Math.max(0.3, 0.9 - riskSignalCount * 0.08);
+  // Inferred demographic signals narrow to the specific household pattern.
+  if (demographicSignalCount > 0) {
+    size *= Math.max(0.2, 0.8 - demographicSignalCount * 0.12);
   }
+
+
 
   if (demographics.ageRanges.length > 0 && demographics.ageRanges.length < 6) {
     size *= demographics.ageRanges.length / 6;
