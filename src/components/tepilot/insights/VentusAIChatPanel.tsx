@@ -70,7 +70,7 @@ const TAB_LABELS: Record<string, string> = {
   "customer-insights": "Customer Insights",
   "fvi-dashboard": "Financial Vulnerability",
   "fraud-aml": "Fraud/AML",
-  "ai-assistant-activity": "AI Assistant Activity",
+  "ai-assistant-activity": "AI Banking Assistant ",
 };
 
 interface VentusAIChatPanelProps {

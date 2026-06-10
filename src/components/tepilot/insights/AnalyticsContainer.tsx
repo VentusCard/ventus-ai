@@ -78,7 +78,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Relationship",
     items: [
       { value: "life-events", label: "Life Event Detection", icon: CalendarHeart },
-      { value: "ai-assistant-activity", label: "AI Assistant Activity", icon: MessagesSquare },
+      { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
       { value: "targeting", label: "Next-Best Product Engine", icon: Route },
       { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
     ],
