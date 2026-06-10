@@ -28,6 +28,8 @@ serve(async (req) => {
       lifeEvents = [],
       pillars = [],
       demographics = {},
+      financialSignals = [],
+      riskSignals = [],
       audienceSize,
     } = await req.json();
 
@@ -44,14 +46,16 @@ Product: ${productName}
 Positioning: ${productPositioning ?? "n/a"}
 Audience size: ${audienceSize ? `~${audienceSize.toLocaleString()}` : "unknown"}
 
-Selected lifestyle asset signals:
+Selected lifestyle asset signals (Behavioral family):
 ${signalLines}
 
-Life events: ${(lifeEvents as string[]).join(", ") || "(none)"}
+Life event signals: ${(lifeEvents as string[]).join(", ") || "(none)"}
 Lifestyle pillars: ${(pillars as string[]).join(", ") || "(none)"}
+Financial signals: ${(financialSignals as string[]).join(", ") || "(none)"}
+Risk signals (inclusion filters — audience meets ALL of these): ${(riskSignals as string[]).join(", ") || "(none)"}
 Demographics: ${JSON.stringify(demographics)}
 
-For each persona, distribute the selected signals (signalLabels must be a subset of the labels above), write a personalized message, and produce a stock-image brief.`;
+The audience is the intersection of all 5 Ventus signal families above. For each persona, distribute the selected behavioral signals (signalLabels must be a subset of the labels above), reflect the financial and risk posture in the message tone, write a personalized message, and produce a stock-image brief.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
