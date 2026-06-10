@@ -1,27 +1,62 @@
 ## Goal
-Give the insights column more breathing room and let users slice the Trending Topics table by intent.
 
-## 1. Widen the left column
-In `src/components/tepilot/insights/AIAssistantActivityView.tsx`:
-- Change the main split from `grid-cols-12` `col-span-7 / col-span-5` → `col-span-8 / col-span-4`.
-- iPad mockup wrapper stays capped at `maxWidth: 380` and is centered, so the narrower right column doesn't clip the device — it just sits closer to its natural width.
-- Trending Topics column template stays `[1fr_90px_70px_80px]`; the extra width flows into the Topic column (longer sample questions get fewer truncations).
+Make the Campaign Builder's targeting step (Step 2) explicitly consume all 5 signal families defined in the System tab's Behavioral Intelligence Core, so the builder visibly maps to the platform narrative.
 
-## 2. Trending Topics filters
-Add a filter row inside the Trending Topics card header (just under the existing title row, above the column headers).
+## The 5 signal families (from `CapabilitiesView.tsx`)
 
-Behavior:
-- 5 pill buttons in a single row: `All` + one per intent (`Spend recap`, `Resource request`, `Life event`, `Product question`), using each intent's `INTENT_META` color for the active state (light tinted bg + colored text + colored border), and neutral slate for inactive.
-- Each pill shows the matching count, e.g. `Life event · 3`.
-- Local state `intentFilter: TopicIntent | "all"` (default `"all"`). Filter `TRENDING_TOPICS` before rendering rows.
-- Empty state: if a filter yields no rows (won't happen with current data but defensive), show a small slate-500 row "No topics in this intent".
-- Selecting a filter does NOT change the iPad mockup's active topic. If the currently-playing topic is filtered out, keep playing it; the "Playing" badge simply won't appear in the visible list.
-- Auto-rotation: keep cycling through the FULL `TRENDING_TOPICS` (filter is purely visual). This preserves the demo's narrative flow.
+1. Life Event Signals — amber
+2. Behavioral Signals — blue
+3. Financial Signals — emerald
+4. Demographic Signals — violet
+5. Risk Signals — rose
 
-Optional secondary filter (include): a tiny right-aligned sort toggle `Vol ▾ / Δ 7d ▾` (two text buttons, default `Vol`). Sorting applies to the filtered list, descending. Keep it lightweight — no dropdown component.
+## Current state
 
-## 3. Out of scope
-- Intent Mix card, KPI strip, Ventus AI insight banner, iPad mockup internals, data file, navigation — all unchanged.
+Step 2 in `ProductCampaignBuilderView.tsx` only surfaces 3 of the 5:
+- Lifestyle Asset Signals (a Behavioral subset) ✓
+- Life Events ✓
+- Demographics ✓
+- Missing: dedicated **Financial Signals** and **Risk Signals** layers; Behavioral is only represented via Lifestyle Asset Signals.
+
+## Changes
+
+### 1. Restructure Step 2 as a 5-family panel
+
+Group the existing controls under labeled, color-coded sections that mirror the System tab (same icon + tint tokens):
+
+- **Life Event Signals** — existing Life Events chip cloud (amber accent)
+- **Behavioral Signals** — existing Lifestyle Asset Signals generator (blue accent)
+- **Financial Signals** — NEW chip cloud (emerald accent): income band, deposit balance tier, investable assets tier, payroll deposit, recent large inflow, credit utilization
+- **Demographic Signals** — existing `DemographicFiltersPanel` (violet accent)
+- **Risk Signals** — NEW chip cloud (rose accent): low overdraft risk, no fraud flags, stable tenure, healthy DTI — used as inclusion/exclusion filters
+
+Each family gets a left-border accent + tiny family icon header so the visual matches the System tab.
+
+### 2. Add the two missing data layers
+
+- New file `src/lib/campaignSignalFamilies.ts` exporting static chip lists for **Financial Signals** and **Risk Signals** (id, label, description). No edge function calls — same pattern as life events.
+- Add state in `ProductCampaignBuilderView`: `financialSignals: string[]`, `riskSignals: string[]`. Reset alongside other selections on product change.
+- Include both arrays in `hasSelections` and pass them to:
+  - `estimateAssetSignalAudience` call (extend the helper to accept and lightly reduce audience per selected financial/risk signal — simple multiplicative factors so the audience bar visibly responds).
+  - The `generate-campaign-segment` invoke body so personas reflect them.
+
+### 3. Edge function payload
+
+Extend `supabase/functions/generate-campaign-segment/index.ts` to read `financialSignals` and `riskSignals` from the request body and append them to the persona-generation prompt as additional context. No schema/tool changes needed.
+
+### 4. Step 2 header
+
+Update the Step 2 title to "Layer the 5 Ventus signal families" and add a one-line subtitle "Same intelligence core powering the System tab." to make the mapping explicit.
+
+## Out of scope
+
+- No changes to the System tab itself.
+- No changes to Automated Flows or the legacy Next-Best Product Engine.
+- No DB/RLS changes.
 
 ## Files touched
-- `src/components/tepilot/insights/AIAssistantActivityView.tsx` only.
+
+- `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx` (restructure Step 2, new state, wire new signals)
+- `src/lib/campaignSignalFamilies.ts` (new)
+- `src/lib/lifestyleAssetSignals.ts` (extend `estimateAssetSignalAudience` to accept financial/risk signal counts)
+- `supabase/functions/generate-campaign-segment/index.ts` (accept + use new fields in prompt)
