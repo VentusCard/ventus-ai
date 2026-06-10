@@ -98,12 +98,12 @@ export function CapabilitiesView() {
           {/* CORE */}
           <div className="flex flex-col">
             <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3 text-center">Behavioral Intelligence Core</p>
-            <div className="flex-1 flex flex-col rounded-2xl border-2 border-slate-900 bg-gradient-to-br from-slate-900 to-slate-800 p-5 shadow-lg">
-              <div className="text-center pb-4 border-b border-white/10">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-blue-300">Ventus</p>
-                <p className="text-base font-bold text-white mt-0.5">Behavioral Intelligence Core</p>
+            <div className="flex-1 flex flex-col rounded-2xl border-2 border-blue-700 bg-gradient-to-br from-blue-700 to-blue-900 p-5 shadow-lg">
+              <div className="flex flex-col items-center text-center pb-4 border-b border-white/15">
+                <img src={ventusLogoTransparent} alt="Ventus" className="h-6 w-auto brightness-0 invert opacity-95" />
+                <p className="text-base font-bold text-white mt-2">Behavioral Intelligence Core</p>
               </div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mt-4 mb-2.5 text-center">What the core produces</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80 mt-4 mb-2.5 text-center">What the core produces</p>
               <div className="flex flex-col gap-2 flex-1 justify-center">
                 {SIGNALS.map((s) => {
                   const Icon = s.icon;
