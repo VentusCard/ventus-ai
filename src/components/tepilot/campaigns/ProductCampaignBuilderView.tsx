@@ -537,16 +537,19 @@ export function ProductCampaignBuilderView() {
               <p className="text-xs text-slate-400 italic">Select at least one signal to size the audience.</p>
             )}
             <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500">Asset signals</span>
-                <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{assetSignals.length}</Badge>
-              </div>
-              {applicableLifeEvents.length > 0 && (
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-500">Life events</span>
-                  <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{lifeEvents.length}</Badge>
+              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold mb-1">Signal families selected</p>
+              {[
+                { label: "Life event", count: lifeEvents.length },
+                { label: "Behavioral", count: assetSignals.length },
+                { label: "Financial", count: financialSignals.length },
+                { label: "Demographic", count: demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0) },
+                { label: "Risk", count: riskSignals.length },
+              ].map((row) => (
+                <div key={row.label} className="flex items-center justify-between text-xs">
+                  <span className="text-slate-500">{row.label}</span>
+                  <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">{row.count}</Badge>
                 </div>
-              )}
+              ))}
             </div>
           </div>
         </div>
