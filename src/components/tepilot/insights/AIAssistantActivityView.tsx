@@ -1,20 +1,69 @@
-import { useEffect, useMemo, useRef, useState } from "react";
-import { MessagesSquare, Pause, Play, Wifi, Battery, TrendingUp } from "lucide-react";
+import { useEffect, useState } from "react";
+import { MessagesSquare, Pause, Play, Wifi, Battery, TrendingUp, ArrowUp, ArrowDown, Minus } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 import {
   TRENDING_TOPICS,
-  LIVE_QUESTION_FEED,
   INTENT_META,
+  INTENT_MIX,
+  ASSISTANT_KPIS,
   type TrendingTopic,
 } from "@/lib/aiAssistantActivityData";
 import { cn } from "@/lib/utils";
 
-const TURN_INTERVAL_MS = 14000; // gap between auto-played user turns
-const TOPIC_GAP_MS = 4000; // pause before rolling to next topic
-const FEED_ROTATE_MS = 3500;
+const TURN_INTERVAL_MS = 14000;
+const TOPIC_GAP_MS = 4000;
+
+function Sparkline({ data, color }: { data: number[]; color: string }) {
+  const w = 64;
+  const h = 18;
+  const min = Math.min(...data);
+  const max = Math.max(...data);
+  const range = max - min || 1;
+  const pts = data.map((v, i) => {
+    const x = (i / (data.length - 1)) * w;
+    const y = h - ((v - min) / range) * h;
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  });
+  return (
+    <svg width={w} height={h} className="shrink-0">
+      <polyline points={pts.join(" ")} fill="none" stroke={color} strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function DeltaPill({ deltaPct }: { deltaPct: number }) {
+  const flat = Math.abs(deltaPct) < 1;
+  const up = deltaPct > 0;
+  const cls = flat
+    ? "bg-slate-100 text-slate-600 border-slate-200"
+    : up
+      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+      : "bg-rose-50 text-rose-700 border-rose-200";
+  const Icon = flat ? Minus : up ? ArrowUp : ArrowDown;
+  const text = flat ? "flat" : `${up ? "+" : ""}${deltaPct}%`;
+  return (
+    <span className={cn("inline-flex items-center gap-0.5 text-[10.5px] font-semibold px-1.5 py-0.5 rounded border", cls)}>
+      <Icon className="w-2.5 h-2.5" />
+      {text}
+    </span>
+  );
+}
+
+function KpiTile({ label, value, delta, positive = true }: { label: string; value: string; delta: string; positive?: boolean }) {
+  const cls = positive ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-rose-50 text-rose-700 border-rose-200";
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white px-3 py-2.5">
+      <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">{label}</div>
+      <div className="flex items-baseline gap-2 mt-1">
+        <div className="text-xl font-bold text-slate-900 leading-none">{value}</div>
+        <span className={cn("text-[10px] font-semibold px-1.5 py-0.5 rounded border", cls)}>{delta}</span>
+      </div>
+    </div>
+  );
+}
 
 export function AIAssistantActivityView() {
   const customer = DEMO_CUSTOMERS[0];
@@ -26,13 +75,11 @@ export function AIAssistantActivityView() {
   const [turnIdx, setTurnIdx] = useState(0);
   const [pendingMessage, setPendingMessage] = useState<string | null>(null);
   const [nonce, setNonce] = useState(0);
-  const [chatKey, setChatKey] = useState(0); // remount when topic changes
+  const [chatKey, setChatKey] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [feedIdx, setFeedIdx] = useState(0);
 
-  const activeTopic = TRENDING_TOPICS[activeTopicIdx];
+  const activeTopic: TrendingTopic = TRENDING_TOPICS[activeTopicIdx];
 
-  // Kick off the first turn whenever topic changes / chat remounts.
   useEffect(() => {
     if (paused) return;
     const t = setTimeout(() => {
@@ -43,12 +90,10 @@ export function AIAssistantActivityView() {
     return () => clearTimeout(t);
   }, [chatKey, paused]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Advance subsequent turns within the active topic.
   useEffect(() => {
     if (paused) return;
     if (turnIdx === 0) return;
     if (turnIdx >= activeTopic.script.length) {
-      // Finished topic — pause then rotate to next.
       const t = setTimeout(() => {
         setActiveTopicIdx((i) => (i + 1) % TRENDING_TOPICS.length);
         setChatKey((k) => k + 1);
@@ -64,12 +109,6 @@ export function AIAssistantActivityView() {
     return () => clearTimeout(t);
   }, [turnIdx, activeTopic, paused]);
 
-  // Rolling live feed
-  useEffect(() => {
-    const t = setInterval(() => setFeedIdx((i) => (i + 1) % LIVE_QUESTION_FEED.length), FEED_ROTATE_MS);
-    return () => clearInterval(t);
-  }, []);
-
   const handleSelectTopic = (idx: number) => {
     setActiveTopicIdx(idx);
     setChatKey((k) => k + 1);
@@ -77,39 +116,66 @@ export function AIAssistantActivityView() {
     setPaused(false);
   };
 
-  const feedItems = useMemo(() => {
-    return [0, 1, 2, 3, 4].map((offset) => LIVE_QUESTION_FEED[(feedIdx + offset) % LIVE_QUESTION_FEED.length]);
-  }, [feedIdx]);
-
   return (
     <div className="space-y-6">
       <TabHeader
         icon={<MessagesSquare className="w-4 h-4" />}
         title="AI Assistant Activity"
-        subtitle="See what customers are asking the Ventus AI assistant about, in real time"
+        subtitle="What customers are asking the Ventus AI assistant — by volume, intent, and trend"
         howItWorks="Ventus clusters every consumer conversation by intent, lifestyle pillar, and life event, and surfaces the trending themes alongside a live preview of how the assistant responds."
         whyItMatters="Gives marketing, product, and advisor teams a direct read on what customers actually want help with — informing campaigns, product roadmaps, and proactive outreach."
       />
 
       {/* KPI strip */}
       <div className="grid grid-cols-4 gap-3">
-        {[
-          { label: "Active conversations (24h)", value: "Trending higher" },
-          { label: "Avg. messages per chat", value: "Multi-turn" },
-          { label: "Top intent today", value: "Spend recaps" },
-          { label: "Self-serve resolution", value: "Mostly resolved in-app" },
-        ].map((k) => (
-          <div key={k.label} className="rounded-lg border border-slate-200 bg-white px-3 py-2.5">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">{k.label}</div>
-            <div className="text-sm font-bold text-slate-800 mt-0.5">{k.value}</div>
-          </div>
-        ))}
+        <KpiTile label="Conversations (24h)" value={ASSISTANT_KPIS.conversations24h.value} delta={ASSISTANT_KPIS.conversations24h.delta} />
+        <KpiTile label="Avg. messages per chat" value={ASSISTANT_KPIS.avgMessages.value} delta={ASSISTANT_KPIS.avgMessages.delta} />
+        <KpiTile label="Self-serve resolution" value={ASSISTANT_KPIS.selfServeResolution.value} delta={ASSISTANT_KPIS.selfServeResolution.delta} />
+        <KpiTile label="Avg. response time" value={ASSISTANT_KPIS.avgResponseTime.value} delta={ASSISTANT_KPIS.avgResponseTime.delta} />
       </div>
 
-      {/* Split panel */}
       <div className="grid grid-cols-12 gap-4">
-        {/* Left: trending topics + live feed */}
+        {/* Left: insights */}
         <div className="col-span-7 space-y-3">
+          {/* Intent mix */}
+          <div className="rounded-lg border border-slate-200 bg-white">
+            <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200">
+              <span className="text-[12px] font-semibold text-slate-800">Intent Mix (last 24h)</span>
+              <span className="text-[10px] text-slate-400">
+                {INTENT_MIX.reduce((s, e) => s + e.count, 0).toLocaleString()} conversations
+              </span>
+            </div>
+            <div className="px-3 py-3">
+              {/* stacked bar */}
+              <div className="flex h-2.5 rounded-full overflow-hidden border border-slate-200">
+                {INTENT_MIX.map((e) => (
+                  <div
+                    key={e.intent}
+                    style={{ width: `${e.pct}%`, backgroundColor: INTENT_META[e.intent].barColor }}
+                    title={`${INTENT_META[e.intent].label} · ${e.pct}%`}
+                  />
+                ))}
+              </div>
+              <div className="grid grid-cols-4 gap-2 mt-3">
+                {INTENT_MIX.map((e) => {
+                  const meta = INTENT_META[e.intent];
+                  return (
+                    <div key={e.intent} className="flex items-start gap-2">
+                      <span className="w-2 h-2 rounded-sm mt-1 shrink-0" style={{ backgroundColor: meta.barColor }} />
+                      <div className="min-w-0">
+                        <div className="text-[11px] font-semibold text-slate-700 truncate">{meta.label}</div>
+                        <div className="text-[10.5px] text-slate-500">
+                          {e.pct}% · {e.count.toLocaleString()}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* Trending topics */}
           <div className="rounded-lg border border-slate-200 bg-white">
             <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200">
               <div className="flex items-center gap-1.5">
@@ -118,7 +184,16 @@ export function AIAssistantActivityView() {
               </div>
               <span className="text-[10px] text-slate-400">Click a topic to play it on the iPad →</span>
             </div>
-            <div className="divide-y divide-slate-100 max-h-[520px] overflow-y-auto scrollbar-light">
+
+            {/* Column headers */}
+            <div className="grid grid-cols-[1fr_90px_70px_80px] gap-3 px-3 py-1.5 border-b border-slate-100 text-[9.5px] uppercase tracking-wider text-slate-400 font-semibold">
+              <div>Topic</div>
+              <div className="text-right">Vol (24h)</div>
+              <div className="text-right">Δ 7d</div>
+              <div className="text-right">Trend</div>
+            </div>
+
+            <div className="divide-y divide-slate-100 max-h-[460px] overflow-y-auto scrollbar-light">
               {TRENDING_TOPICS.map((t, idx) => {
                 const active = idx === activeTopicIdx;
                 const intent = INTENT_META[t.intent];
@@ -127,60 +202,41 @@ export function AIAssistantActivityView() {
                     key={t.id}
                     onClick={() => handleSelectTopic(idx)}
                     className={cn(
-                      "w-full text-left px-3 py-2.5 transition-colors flex gap-3 items-start",
+                      "w-full text-left grid grid-cols-[1fr_90px_70px_80px] gap-3 items-center px-3 py-2 transition-colors",
                       active ? "bg-blue-50/60" : "hover:bg-slate-50"
                     )}
                   >
-                    <div className="text-xl leading-none mt-0.5">{t.emoji}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={cn("text-[12.5px] font-semibold", active ? "text-blue-800" : "text-slate-800")}>
-                          {t.label}
-                        </span>
-                        <span className={cn("text-[9.5px] font-semibold px-1.5 py-0.5 rounded border", intent.color)}>
-                          {intent.label}
-                        </span>
-                        {active && (
-                          <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-blue-600 text-white">
-                            Playing
+                    <div className="flex gap-2.5 items-start min-w-0">
+                      <div className="text-lg leading-none mt-0.5">{t.emoji}</div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className={cn("text-[12.5px] font-semibold truncate", active ? "text-blue-800" : "text-slate-800")}>
+                            {t.label}
                           </span>
-                        )}
+                          <span className={cn("text-[9.5px] font-semibold px-1.5 py-0.5 rounded border", intent.pillClass)}>
+                            {intent.label}
+                          </span>
+                          {active && (
+                            <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-blue-600 text-white">
+                              Playing
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-[11px] text-slate-500 italic mt-0.5 truncate">"{t.sampleQuestion}"</div>
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">
-                        {t.volumeBlurb} · <span className="text-slate-600 font-medium">{t.deltaBlurb}</span>
-                      </div>
-                      <div className="text-[11.5px] text-slate-600 italic mt-1 truncate">"{t.sampleQuestion}"</div>
+                    </div>
+                    <div className="text-right text-[12.5px] font-bold text-slate-800 tabular-nums">
+                      {t.volume.toLocaleString()}
+                    </div>
+                    <div className="text-right">
+                      <DeltaPill deltaPct={t.deltaPct} />
+                    </div>
+                    <div className="flex justify-end">
+                      <Sparkline data={t.spark} color={intent.barColor} />
                     </div>
                   </button>
                 );
               })}
-            </div>
-          </div>
-
-          {/* Live anonymized stream */}
-          <div className="rounded-lg border border-slate-200 bg-white">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200">
-              <div className="flex items-center gap-1.5">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" />
-                </span>
-                <span className="text-[12px] font-semibold text-slate-800">Live conversation stream</span>
-              </div>
-              <span className="text-[10px] text-slate-400">Anonymized</span>
-            </div>
-            <div className="px-3 py-2 space-y-1">
-              {feedItems.map((q, i) => (
-                <div
-                  key={`${q}-${i}`}
-                  className={cn(
-                    "text-[11.5px] truncate transition-opacity",
-                    i === 0 ? "text-slate-700 font-medium" : "text-slate-400"
-                  )}
-                >
-                  · {q}
-                </div>
-              ))}
             </div>
           </div>
         </div>
@@ -192,11 +248,9 @@ export function AIAssistantActivityView() {
               className="relative rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col"
               style={{ width: "100%", maxWidth: 380, height: 600 }}
             >
-              {/* Camera dot */}
               <div className="flex justify-center pt-1.5 pb-0.5 bg-white shrink-0">
                 <div className="w-2 h-2 rounded-full bg-slate-300" />
               </div>
-              {/* Status bar */}
               <div className="flex items-center justify-between px-5 py-1 bg-white text-[10px] text-slate-400 font-medium shrink-0">
                 <span>9:41 AM</span>
                 <div className="flex items-center gap-1.5">
@@ -211,7 +265,6 @@ export function AIAssistantActivityView() {
                   <Battery className="w-3.5 h-3.5" />
                 </div>
               </div>
-              {/* Chat */}
               <div className="flex-1 min-h-0 bg-white overflow-hidden flex flex-col">
                 <ConsumerAIChatView
                   key={chatKey}
@@ -223,7 +276,6 @@ export function AIAssistantActivityView() {
               </div>
             </div>
 
-            {/* Caption + controls */}
             <div className="w-full max-w-[380px] mt-3 flex items-center justify-between">
               <div className="text-[11px] text-slate-500 truncate pr-2">
                 <span className="text-slate-400">Watching:</span>{" "}
