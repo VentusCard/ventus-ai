@@ -107,6 +107,7 @@ export function ProductCampaignBuilderView() {
   const [pillars, setPillars] = useState<string[]>([]);
   const [financialSignals, setFinancialSignals] = useState<string[]>([]);
   const [riskSignals, setRiskSignals] = useState<string[]>([]);
+  const [demographicSignals, setDemographicSignals] = useState<string[]>([]);
   const [demographics, setDemographics] = useState<DemographicFiltersType>({
     ageRanges: [],
     regions: [],
