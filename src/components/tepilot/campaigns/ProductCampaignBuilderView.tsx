@@ -9,11 +9,93 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { SegmentOutputPanel, type GeneratedPersona } from "./SegmentOutputPanel";
 import { PRODUCT_FLOWS, getProductFlow } from "@/lib/productAutomatedFlows";
 import { estimateAssetSignalAudience, type LifestyleAssetSignal } from "@/lib/lifestyleAssetSignals";
+import { FINANCIAL_SIGNAL_CHIPS, RISK_SIGNAL_CHIPS } from "@/lib/campaignSignalFamilies";
 import { LIFE_EVENTS } from "@/types/segment";
 import type { DemographicFilters as DemographicFiltersType } from "@/types/segment";
-import { Megaphone, Gem, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle } from "lucide-react";
+import { Megaphone, Gem, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
+
+// Mirrors the 5 signal families surfaced on the System tab (CapabilitiesView).
+const FAMILY_TINT = {
+  life: { border: "border-l-amber-400", icon: CalendarHeart, iconClass: "text-amber-600", label: "Life Event Signals" },
+  behavioral: { border: "border-l-blue-400", icon: Activity, iconClass: "text-blue-600", label: "Behavioral Signals" },
+  financial: { border: "border-l-emerald-400", icon: DollarSign, iconClass: "text-emerald-600", label: "Financial Signals" },
+  demographic: { border: "border-l-violet-400", icon: UserCircle, iconClass: "text-violet-600", label: "Demographic Signals" },
+  risk: { border: "border-l-rose-400", icon: AlertTriangle, iconClass: "text-rose-600", label: "Risk Signals" },
+} as const;
+
+type FamilyKey = keyof typeof FAMILY_TINT;
+
+function FamilySection({
+  family,
+  count,
+  children,
+  empty,
+}: {
+  family: FamilyKey;
+  count?: number;
+  children: React.ReactNode;
+  empty?: boolean;
+}) {
+  const meta = FAMILY_TINT[family];
+  const Icon = meta.icon;
+  return (
+    <div className={cn("rounded-lg border border-slate-200 border-l-4 bg-white p-3", meta.border)}>
+      <div className="flex items-center gap-2 mb-2">
+        <Icon className={cn("w-3.5 h-3.5", meta.iconClass)} />
+        <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700">{meta.label}</p>
+        {typeof count === "number" && count > 0 && (
+          <Badge variant="outline" className="text-[10px] border-slate-200 bg-white ml-auto">{count}</Badge>
+        )}
+      </div>
+      <div className={cn(empty && "text-xs text-slate-400 italic")}>{children}</div>
+    </div>
+  );
+}
+
+function ChipCloud({
+  chips,
+  selected,
+  onToggle,
+  accent,
+}: {
+  chips: Array<{ id: string; label: string; description?: string }>;
+  selected: string[];
+  onToggle: (id: string) => void;
+  accent: "emerald" | "rose";
+}) {
+  const selectedClass =
+    accent === "emerald"
+      ? "bg-emerald-50 border-emerald-400 text-emerald-700"
+      : "bg-rose-50 border-rose-400 text-rose-700";
+  const dotClass = accent === "emerald" ? "bg-emerald-600" : "bg-rose-600";
+  return (
+    <div className="flex flex-wrap gap-2">
+      {chips.map((chip) => {
+        const isSelected = selected.includes(chip.id);
+        return (
+          <button
+            key={chip.id}
+            onClick={() => onToggle(chip.id)}
+            title={chip.description}
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer",
+              isSelected
+                ? selectedClass
+                : "bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900",
+            )}
+          >
+            <span className={cn("w-2 h-2 rounded-full", isSelected ? dotClass : "bg-slate-300")} />
+            {chip.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
 
 export function ProductCampaignBuilderView() {
   const [productId, setProductId] = useState<string>("wealth-management");
