@@ -1,22 +1,23 @@
 ## Goal
-Convert the "Automated Flows" tab on /bankdemo from a multi-column card grid to a single-column list of compact horizontal rows.
+Make each row in the Automated Flows list clickable to reveal the flow's signals inline.
 
 ## Changes
 
 ### `src/components/tepilot/campaigns/ProductAutomatedFlowsView.tsx`
 
-Replace the `FlowCard` component with a `FlowRow` component:
+- Add `expandedId` state (string | null) in `ProductAutomatedFlowsView`. Only one row expanded at a time.
+- Wrap each `FlowRow` in a container that:
+  - Renders the row as a button (cursor-pointer, click toggles expand).
+  - Adds a `ChevronDown` icon (rotates 180° when expanded) at the right edge, before the Switch.
+  - The Switch and its surrounding area get `onClick={(e) => e.stopPropagation()}` so toggling Active/Paused does NOT expand the row.
+- When expanded, render a panel below the row inside the same bordered container, showing:
+  - Section label "Signals Ventus is detecting" (sparkles icon).
+  - The existing signal list (bullet + label + evidence) from the old card layout.
+- Light theme, slate-200 border, slate-50 expanded background, smooth chevron rotation.
 
-- **Layout**: single full-width row per flow, flex layout with no vertical stacking inside the row.
-- **Left section**: product icon (small, 32px), name (text-sm font-semibold), category pill (same color logic).
-- **Middle section**: signals count ("N signals") + positioning text truncated to one line.
-- **Right section**: formatted audience number, status toggle + "Active" / "Paused" badge.
-- **Hover**: subtle background change (slate-50).
-- **Grid**: change `grid-cols-1 md:grid-cols-2 xl:grid-cols-3` to just `grid-cols-1`.
-
-Keep all existing data, state, filtering, and toggle behavior unchanged. Keep `TabHeader` and category filter pills exactly as they are.
+No data/state/behavior changes beyond expand/collapse.
 
 ## Validation
-- Rows stack vertically at all breakpoints.
-- Category filter still works; toggling a row updates its status badge in place.
-- No layout overflow at the demo viewport width (>=1024px).
+- Clicking a row expands it and collapses any previously expanded row.
+- Clicking the Switch toggles Active/Paused without expanding/collapsing.
+- Signals render correctly with label + evidence.
