@@ -77,6 +77,8 @@ export function AIAssistantActivityView() {
   const [nonce, setNonce] = useState(0);
   const [chatKey, setChatKey] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [intentFilter, setIntentFilter] = useState<TrendingTopic["intent"] | "all">("all");
+  const [sortBy, setSortBy] = useState<"vol" | "delta">("vol");
 
   const activeTopic: TrendingTopic = TRENDING_TOPICS[activeTopicIdx];
 
@@ -157,7 +159,7 @@ export function AIAssistantActivityView() {
 
       <div className="grid grid-cols-12 gap-4">
         {/* Left: insights */}
-        <div className="col-span-7 space-y-3">
+        <div className="col-span-8 space-y-3">
           {/* Intent mix */}
           <div className="rounded-lg border border-slate-200 bg-white">
             <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200">
@@ -197,73 +199,162 @@ export function AIAssistantActivityView() {
           </div>
 
           {/* Trending topics */}
-          <div className="rounded-lg border border-slate-200 bg-white">
-            <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200">
-              <div className="flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
-                <span className="text-[12px] font-semibold text-slate-800">Trending Topics</span>
-              </div>
-              <span className="text-[10px] text-slate-400">Click a topic to play it on the iPad →</span>
-            </div>
+          {(() => {
+            const intentCounts: Record<string, number> = { all: TRENDING_TOPICS.length };
+            for (const t of TRENDING_TOPICS) intentCounts[t.intent] = (intentCounts[t.intent] ?? 0) + 1;
+            const filtered = TRENDING_TOPICS
+              .map((t, originalIdx) => ({ t, originalIdx }))
+              .filter(({ t }) => intentFilter === "all" || t.intent === intentFilter)
+              .sort((a, b) =>
+                sortBy === "vol" ? b.t.volume - a.t.volume : b.t.deltaPct - a.t.deltaPct
+              );
+            const filterPills: Array<{ key: TrendingTopic["intent"] | "all"; label: string; color?: string; bg?: string; border?: string }> = [
+              { key: "all", label: "All" },
+              ...(Object.keys(INTENT_META) as TrendingTopic["intent"][]).map((k) => ({
+                key: k,
+                label: INTENT_META[k].label,
+                color: INTENT_META[k].barColor,
+              })),
+            ];
+            return (
+              <div className="rounded-lg border border-slate-200 bg-white">
+                <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200">
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                    <span className="text-[12px] font-semibold text-slate-800">Trending Topics</span>
+                  </div>
+                  <span className="text-[10px] text-slate-400">Click a topic to play it on the iPad →</span>
+                </div>
 
-            {/* Column headers */}
-            <div className="grid grid-cols-[1fr_90px_70px_80px] gap-3 px-3 py-1.5 border-b border-slate-100 text-[9.5px] uppercase tracking-wider text-slate-400 font-semibold">
-              <div>Topic</div>
-              <div className="text-right">Vol (24h)</div>
-              <div className="text-right">Δ 7d</div>
-              <div className="text-right">Trend</div>
-            </div>
-
-            <div className="divide-y divide-slate-100 max-h-[460px] overflow-y-auto scrollbar-light">
-              {TRENDING_TOPICS.map((t, idx) => {
-                const active = idx === activeTopicIdx;
-                const intent = INTENT_META[t.intent];
-                return (
-                  <button
-                    key={t.id}
-                    onClick={() => handleSelectTopic(idx)}
-                    className={cn(
-                      "w-full text-left grid grid-cols-[1fr_90px_70px_80px] gap-3 items-center px-3 py-2 transition-colors",
-                      active ? "bg-blue-50/60" : "hover:bg-slate-50"
-                    )}
-                  >
-                    <div className="flex gap-2.5 items-start min-w-0">
-                      <div className="text-lg leading-none mt-0.5">{t.emoji}</div>
-                      <div className="min-w-0">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className={cn("text-[12.5px] font-semibold truncate", active ? "text-blue-800" : "text-slate-800")}>
-                            {t.label}
-                          </span>
-                          <span className={cn("text-[9.5px] font-semibold px-1.5 py-0.5 rounded border", intent.pillClass)}>
-                            {intent.label}
-                          </span>
-                          {active && (
-                            <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-blue-600 text-white">
-                              Playing
-                            </span>
+                {/* Filter row */}
+                <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-slate-100 flex-wrap">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    {filterPills.map((p) => {
+                      const active = intentFilter === p.key;
+                      const count = intentCounts[p.key] ?? 0;
+                      return (
+                        <button
+                          key={p.key}
+                          onClick={() => setIntentFilter(p.key)}
+                          className={cn(
+                            "inline-flex items-center gap-1.5 text-[10.5px] font-semibold px-2 py-0.5 rounded-full border transition-colors",
+                            active
+                              ? "bg-white"
+                              : "bg-slate-50 text-slate-500 border-slate-200 hover:bg-slate-100"
                           )}
+                          style={
+                            active && p.color
+                              ? {
+                                  color: p.color,
+                                  borderColor: p.color,
+                                  backgroundColor: `${p.color}14`,
+                                }
+                              : active
+                                ? { color: "#1e40af", borderColor: "#bfdbfe", backgroundColor: "#eff6ff" }
+                                : undefined
+                          }
+                        >
+                          {p.color && (
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.color }} />
+                          )}
+                          {p.label}
+                          <span className={cn("tabular-nums opacity-70")}>· {count}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="flex items-center gap-0.5 text-[10px] text-slate-400 font-semibold">
+                    <span className="uppercase tracking-wider mr-1">Sort</span>
+                    <button
+                      onClick={() => setSortBy("vol")}
+                      className={cn(
+                        "px-1.5 py-0.5 rounded border",
+                        sortBy === "vol"
+                          ? "border-blue-200 bg-blue-50 text-blue-700"
+                          : "border-transparent text-slate-500 hover:bg-slate-50"
+                      )}
+                    >
+                      Vol ▾
+                    </button>
+                    <button
+                      onClick={() => setSortBy("delta")}
+                      className={cn(
+                        "px-1.5 py-0.5 rounded border",
+                        sortBy === "delta"
+                          ? "border-blue-200 bg-blue-50 text-blue-700"
+                          : "border-transparent text-slate-500 hover:bg-slate-50"
+                      )}
+                    >
+                      Δ 7d ▾
+                    </button>
+                  </div>
+                </div>
+
+                {/* Column headers */}
+                <div className="grid grid-cols-[1fr_90px_70px_80px] gap-3 px-3 py-1.5 border-b border-slate-100 text-[9.5px] uppercase tracking-wider text-slate-400 font-semibold">
+                  <div>Topic</div>
+                  <div className="text-right">Vol (24h)</div>
+                  <div className="text-right">Δ 7d</div>
+                  <div className="text-right">Trend</div>
+                </div>
+
+                <div className="divide-y divide-slate-100 max-h-[460px] overflow-y-auto scrollbar-light">
+                  {filtered.length === 0 && (
+                    <div className="px-3 py-6 text-center text-[11px] text-slate-500">
+                      No topics in this intent.
+                    </div>
+                  )}
+                  {filtered.map(({ t, originalIdx }) => {
+                    const active = originalIdx === activeTopicIdx;
+                    const intent = INTENT_META[t.intent];
+                    return (
+                      <button
+                        key={t.id}
+                        onClick={() => handleSelectTopic(originalIdx)}
+                        className={cn(
+                          "w-full text-left grid grid-cols-[1fr_90px_70px_80px] gap-3 items-center px-3 py-2 transition-colors",
+                          active ? "bg-blue-50/60" : "hover:bg-slate-50"
+                        )}
+                      >
+                        <div className="flex gap-2.5 items-start min-w-0">
+                          <div className="text-lg leading-none mt-0.5">{t.emoji}</div>
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              <span className={cn("text-[12.5px] font-semibold truncate", active ? "text-blue-800" : "text-slate-800")}>
+                                {t.label}
+                              </span>
+                              <span className={cn("text-[9.5px] font-semibold px-1.5 py-0.5 rounded border", intent.pillClass)}>
+                                {intent.label}
+                              </span>
+                              {active && (
+                                <span className="text-[9.5px] font-semibold px-1.5 py-0.5 rounded bg-blue-600 text-white">
+                                  Playing
+                                </span>
+                              )}
+                            </div>
+                            <div className="text-[11px] text-slate-500 italic mt-0.5 truncate">"{t.sampleQuestion}"</div>
+                          </div>
                         </div>
-                        <div className="text-[11px] text-slate-500 italic mt-0.5 truncate">"{t.sampleQuestion}"</div>
-                      </div>
-                    </div>
-                    <div className="text-right text-[12.5px] font-bold text-slate-800 tabular-nums">
-                      {t.volume.toLocaleString()}
-                    </div>
-                    <div className="text-right">
-                      <DeltaPill deltaPct={t.deltaPct} />
-                    </div>
-                    <div className="flex justify-end">
-                      <Sparkline data={t.spark} color={intent.barColor} />
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
+                        <div className="text-right text-[12.5px] font-bold text-slate-800 tabular-nums">
+                          {t.volume.toLocaleString()}
+                        </div>
+                        <div className="text-right">
+                          <DeltaPill deltaPct={t.deltaPct} />
+                        </div>
+                        <div className="flex justify-end">
+                          <Sparkline data={t.spark} color={intent.barColor} />
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })()}
         </div>
 
         {/* Right: iPad mockup */}
-        <div className="col-span-5">
+        <div className="col-span-4">
           <div className="flex flex-col items-center">
             <div
               className="relative rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col"
