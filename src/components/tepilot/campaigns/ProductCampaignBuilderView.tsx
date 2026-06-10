@@ -102,6 +102,8 @@ export function ProductCampaignBuilderView() {
   const [assetSignals, setAssetSignals] = useState<string[]>([]);
   const [lifeEvents, setLifeEvents] = useState<string[]>([]);
   const [pillars, setPillars] = useState<string[]>([]);
+  const [financialSignals, setFinancialSignals] = useState<string[]>([]);
+  const [riskSignals, setRiskSignals] = useState<string[]>([]);
   const [demographics, setDemographics] = useState<DemographicFiltersType>({
     ageRanges: [],
     regions: [],
@@ -137,6 +139,8 @@ export function ProductCampaignBuilderView() {
     setApplicableDemographics(null);
     setAssetSignals([]);
     setLifeEvents([]);
+    setFinancialSignals([]);
+    setRiskSignals([]);
     setDemographics({ ageRanges: [], regions: [], incomeBands: [], accountTenure: "all" });
     setGeneratedPersonas(null);
     setSignalsError(null);
@@ -156,12 +160,15 @@ export function ProductCampaignBuilderView() {
       lifeEvents,
       pillars,
       demographics,
+      financialSignalCount: financialSignals.length,
+      riskSignalCount: riskSignals.length,
     }),
-    [productId, selectedSignalObjects, lifeEvents, pillars, demographics]
+    [productId, selectedSignalObjects, lifeEvents, pillars, demographics, financialSignals.length, riskSignals.length]
   );
 
   const hasSelections =
     assetSignals.length > 0 || lifeEvents.length > 0 || pillars.length > 0 ||
+    financialSignals.length > 0 || riskSignals.length > 0 ||
     demographics.ageRanges.length > 0 || demographics.incomeBands.length > 0 || demographics.regions.length > 0;
 
   const handleApiError = (status: number | undefined, fallback: string) => {
@@ -239,6 +246,12 @@ export function ProductCampaignBuilderView() {
           lifeEvents: lifeEvents.map((id) => LIFE_EVENTS.find((e) => e.id === id)?.name ?? id),
           pillars,
           demographics,
+          financialSignals: financialSignals
+            .map((id) => FINANCIAL_SIGNAL_CHIPS.find((c) => c.id === id)?.label)
+            .filter(Boolean) as string[],
+          riskSignals: riskSignals
+            .map((id) => RISK_SIGNAL_CHIPS.find((c) => c.id === id)?.label)
+            .filter(Boolean) as string[],
           audienceSize: estimatedSize,
         },
       });
