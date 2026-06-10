@@ -174,7 +174,7 @@ export function ProductAutomatedFlowsView() {
 
       <div className="flex flex-col gap-2">
         {filtered.map((flow) => (
-          <FlowRow key={flow.id} flow={flow} active={active.has(flow.id)} onToggle={() => toggle(flow.id)} />
+          <FlowRow key={flow.id} flow={flow} active={active.has(flow.id)} expanded={expandedId === flow.id} onToggle={() => toggle(flow.id)} onExpand={() => setExpandedId(expandedId === flow.id ? null : flow.id)} />
         ))}
       </div>
     </div>
