@@ -33,8 +33,8 @@ export const INTENT_MIX: IntentMixEntry[] = [
   { intent: "spend-recap", count: 4742, pct: 38 },
   { intent: "resource-request", count: 2995, pct: 24 },
   { intent: "life-event", count: 2621, pct: 21 },
-  { intent: "product-question": 2122, pct: 17 } as unknown as IntentMixEntry,
-].map((e: any) => ({ intent: e.intent, count: e.count, pct: e.pct }));
+  { intent: "product-question", count: 2122, pct: 17 },
+];
 
 export const ASSISTANT_KPIS = {
   conversations24h: { value: "12,480", delta: "+18% WoW", trend: "up" as const },
