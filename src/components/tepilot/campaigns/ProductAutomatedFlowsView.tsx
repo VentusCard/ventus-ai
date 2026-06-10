@@ -127,9 +127,9 @@ export function ProductAutomatedFlowsView() {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+      <div className="flex flex-col gap-2">
         {filtered.map((flow) => (
-          <FlowCard key={flow.id} flow={flow} active={active.has(flow.id)} onToggle={() => toggle(flow.id)} />
+          <FlowRow key={flow.id} flow={flow} active={active.has(flow.id)} onToggle={() => toggle(flow.id)} />
         ))}
       </div>
     </div>
