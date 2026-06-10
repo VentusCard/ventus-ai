@@ -1,23 +1,18 @@
-## Goal
-Make each row in the Automated Flows list clickable to reveal the flow's signals inline.
+## Differentiate Life Event vs Behavioral signals
 
-## Changes
+Add a `type: "life-event" | "behavioral"` field to each signal in `PRODUCT_FLOWS`, then render a small colored pill next to each signal label in the expanded panel.
 
-### `src/components/tepilot/campaigns/ProductAutomatedFlowsView.tsx`
+### 1. `src/lib/productAutomatedFlows.ts`
+- Extend `FlowSignal` interface with `type: "life-event" | "behavioral"`.
+- Classify every existing signal across all 10 flows:
+  - **life-event**: newborn cluster, dependent age inference, college-age dependent, recent family formation, new mortgage holder, lease-end timing, long-term homeowner, pre-approval inquiry, stated savings intent
+  - **behavioral**: home renovation spend, property tax payment, RSU/ESPP inflows, brokerage transfers, country club dues, private aviation, dealer visits, auto insurance shop-around, rent above median, down-payment accumulation, BNPL usage, cash-advance recovery, revolving creep, idle balance, yield-seeking ACH, multi-airline, hotel diversity, international tx, vendor ACH cluster, processor deposits, business-pattern card use, single-earner household
 
-- Add `expandedId` state (string | null) in `ProductAutomatedFlowsView`. Only one row expanded at a time.
-- Wrap each `FlowRow` in a container that:
-  - Renders the row as a button (cursor-pointer, click toggles expand).
-  - Adds a `ChevronDown` icon (rotates 180° when expanded) at the right edge, before the Switch.
-  - The Switch and its surrounding area get `onClick={(e) => e.stopPropagation()}` so toggling Active/Paused does NOT expand the row.
-- When expanded, render a panel below the row inside the same bordered container, showing:
-  - Section label "Signals Ventus is detecting" (sparkles icon).
-  - The existing signal list (bullet + label + evidence) from the old card layout.
-- Light theme, slate-200 border, slate-50 expanded background, smooth chevron rotation.
+### 2. `src/components/tepilot/campaigns/ProductAutomatedFlowsView.tsx`
+- In the expanded signals `<ul>`, render a small pill before/after the signal label:
+  - **Life Event** → amber pill (`bg-amber-50 text-amber-700 border-amber-200`)
+  - **Behavioral** → blue pill (`bg-blue-50 text-blue-700 border-blue-200`)
+- Pill style: `text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border`
+- No changes to row layout, toggle, or chevron behavior.
 
-No data/state/behavior changes beyond expand/collapse.
-
-## Validation
-- Clicking a row expands it and collapses any previously expanded row.
-- Clicking the Switch toggles Active/Paused without expanding/collapsing.
-- Signals render correctly with label + evidence.
+Light theme preserved throughout.

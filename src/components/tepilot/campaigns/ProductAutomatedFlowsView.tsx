@@ -104,7 +104,19 @@ function FlowRow({
                 <div className="flex items-start gap-2">
                   <span className="mt-1.5 w-1 h-1 rounded-full bg-blue-500 shrink-0" />
                   <div className="min-w-0">
-                    <p className="font-medium text-slate-900 leading-tight">{sig.label}</p>
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span
+                        className={cn(
+                          "text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded-full border shrink-0",
+                          sig.type === "life-event"
+                            ? "bg-amber-50 text-amber-700 border-amber-200"
+                            : "bg-blue-50 text-blue-700 border-blue-200"
+                        )}
+                      >
+                        {sig.type === "life-event" ? "Life Event" : "Behavioral"}
+                      </span>
+                      <p className="font-medium text-slate-900 leading-tight">{sig.label}</p>
+                    </div>
                     <p className="text-[11px] text-slate-500 leading-snug mt-0.5">{sig.evidence}</p>
                   </div>
                 </div>
