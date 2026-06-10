@@ -258,6 +258,9 @@ export function ProductCampaignBuilderView() {
           riskSignals: riskSignals
             .map((id) => RISK_SIGNAL_CHIPS.find((c) => c.id === id)?.label)
             .filter(Boolean) as string[],
+          demographicSignals: demographicSignals
+            .map((id) => DEMOGRAPHIC_SIGNAL_CHIPS.find((c) => c.id === id)?.label)
+            .filter(Boolean) as string[],
           audienceSize: estimatedSize,
         },
       });
