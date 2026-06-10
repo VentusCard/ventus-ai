@@ -58,7 +58,7 @@ export function CapabilitiesView() {
     <div className="space-y-6">
       <TabHeader
         icon={<Layers className="w-4 h-4" />}
-        title="Platform Capabilities"
+        title="System"
         subtitle="How Ventus turns raw bank data into signals and downstream actions"
         howItWorks="Ventus ingests bank-native data streams, classifies and enriches them into five signal families inside the Behavioral Intelligence Core, then powers every downstream personalization, targeting, and risk product."
         whyItMatters="One intelligence layer replaces siloed point solutions — every product reads from the same enriched signal foundation."
