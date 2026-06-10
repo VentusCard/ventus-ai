@@ -31,12 +31,12 @@ const DOWNSTREAM = [
 
 function VentusPill({ label, Icon }: { label: string; Icon: React.ElementType }) {
   return (
-    <div className="relative flex items-center gap-2.5 px-4 py-3 rounded-lg border border-indigo-200 border-l-2 border-l-indigo-600 bg-white shadow-sm hover:border-indigo-400 hover:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-all">
-      <div className="flex items-center justify-center w-7 h-7 rounded-md bg-gradient-to-br from-blue-900 to-indigo-900 shrink-0">
+    <div className="relative flex items-center gap-2.5 px-4 py-3 rounded-lg border border-indigo-700 border-l-2 border-l-indigo-300 bg-gradient-to-br from-blue-900 to-indigo-900 shadow-sm hover:border-indigo-400 hover:shadow-[0_0_0_3px_rgba(99,102,241,0.25)] transition-all">
+      <div className="flex items-center justify-center w-7 h-7 rounded-md bg-white/10 shrink-0">
         <Icon className="w-3.5 h-3.5 text-white" />
       </div>
-      <span className="text-sm font-medium text-slate-800">{label}</span>
-      <img src={ventusLogoTransparent} alt="" aria-hidden className="absolute top-1.5 right-1.5 h-2.5 w-auto opacity-30" />
+      <span className="text-sm font-medium text-white">{label}</span>
+      <img src={ventusLogoTransparent} alt="" aria-hidden className="absolute top-1.5 right-1.5 h-2.5 w-auto opacity-50 brightness-0 invert" />
     </div>
   );
 }
