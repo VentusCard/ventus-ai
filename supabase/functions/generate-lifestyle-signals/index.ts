@@ -220,8 +220,23 @@ ABSOLUTE RULES:
                     required: ["ageRanges", "regions", "incomeBands", "accountTenure"],
                     additionalProperties: false,
                   },
+                  applicableFinancialSignalIds: {
+                    type: "array",
+                    description: "Subset of provided financial signal chip ids relevant to this product. Empty when none apply.",
+                    items: { type: "string" },
+                  },
+                  applicableRiskSignalIds: {
+                    type: "array",
+                    description: "Subset of provided risk signal chip ids relevant to this product. Empty when none apply.",
+                    items: { type: "string" },
+                  },
+                  applicableDemographicSignalIds: {
+                    type: "array",
+                    description: "Subset of provided inferred-demographic chip ids relevant to this product. Empty when none apply.",
+                    items: { type: "string" },
+                  },
                 },
-                required: ["signals", "applicableLifeEvents", "applicableDemographics"],
+                required: ["signals", "applicableLifeEvents", "applicableDemographics", "applicableFinancialSignalIds", "applicableRiskSignalIds", "applicableDemographicSignalIds"],
                 additionalProperties: false,
               },
             },
@@ -291,7 +306,20 @@ ABSOLUTE RULES:
       accountTenure: sanitize(dem.accountTenure, ALLOWED_TENURE),
     };
 
-    return new Response(JSON.stringify({ signals, applicableLifeEvents, applicableDemographics }), {
+    const sanitizeIds = (arr: unknown, allowed: Set<string>): string[] =>
+      Array.from(new Set((Array.isArray(arr) ? arr : []).map((x) => String(x)).filter((x) => allowed.has(x))));
+    const applicableFinancialSignalIds = sanitizeIds(parsed.applicableFinancialSignalIds, finIds);
+    const applicableRiskSignalIds = sanitizeIds(parsed.applicableRiskSignalIds, riskIds);
+    const applicableDemographicSignalIds = sanitizeIds(parsed.applicableDemographicSignalIds, demIds);
+
+    return new Response(JSON.stringify({
+      signals,
+      applicableLifeEvents,
+      applicableDemographics,
+      applicableFinancialSignalIds,
+      applicableRiskSignalIds,
+      applicableDemographicSignalIds,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
