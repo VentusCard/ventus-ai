@@ -126,7 +126,7 @@ export function CapabilitiesView() {
 
           {/* DOWNSTREAM */}
           <div className="flex flex-col">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3 text-center">Downstream Capabilities</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 mb-3 text-center">PERSONALIZED BANKING</p>
             <div className="flex flex-col gap-2.5 flex-1 justify-center">
               {DOWNSTREAM.map((d) => (
                 <Pill key={d.label} label={d.label} Icon={d.icon} />
