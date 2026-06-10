@@ -30,6 +30,7 @@ serve(async (req) => {
       demographics = {},
       financialSignals = [],
       riskSignals = [],
+      demographicSignals = [],
       audienceSize,
     } = await req.json();
 
