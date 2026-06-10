@@ -14,6 +14,10 @@ interface EstimateInput {
   lifeEvents: string[];
   pillars: string[];
   demographics: DemographicFilters;
+  /** Count of selected Financial Signal chips (System tab family). */
+  financialSignalCount?: number;
+  /** Count of selected Risk Signal chips (System tab family). */
+  riskSignalCount?: number;
 }
 
 const BASE_POPULATION = 250_000_000;
@@ -24,6 +28,8 @@ export function estimateAssetSignalAudience({
   lifeEvents,
   pillars,
   demographics,
+  financialSignalCount = 0,
+  riskSignalCount = 0,
 }: EstimateInput): number {
   const product = getProductFlow(productId);
   let size = BASE_POPULATION * (product?.penetration ?? 0.05);
@@ -35,6 +41,15 @@ export function estimateAssetSignalAudience({
 
   if (lifeEvents.length > 0) size *= 0.55 + lifeEvents.length * 0.08;
   if (pillars.length > 0) size *= 0.55 + pillars.length * 0.06;
+
+  // Financial signals narrow the audience to qualified balances/cash-flow.
+  if (financialSignalCount > 0) {
+    size *= Math.max(0.25, 0.85 - financialSignalCount * 0.1);
+  }
+  // Risk signals act as inclusion filters (clean credit, no fraud, etc.).
+  if (riskSignalCount > 0) {
+    size *= Math.max(0.3, 0.9 - riskSignalCount * 0.08);
+  }
 
   if (demographics.ageRanges.length > 0 && demographics.ageRanges.length < 6) {
     size *= demographics.ageRanges.length / 6;
