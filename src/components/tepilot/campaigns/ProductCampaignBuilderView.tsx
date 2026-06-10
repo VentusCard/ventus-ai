@@ -145,6 +145,7 @@ export function ProductCampaignBuilderView() {
     setLifeEvents([]);
     setFinancialSignals([]);
     setRiskSignals([]);
+    setDemographicSignals([]);
     setDemographics({ ageRanges: [], regions: [], incomeBands: [], accountTenure: "all" });
     setGeneratedPersonas(null);
     setSignalsError(null);
@@ -166,13 +167,14 @@ export function ProductCampaignBuilderView() {
       demographics,
       financialSignalCount: financialSignals.length,
       riskSignalCount: riskSignals.length,
+      demographicSignalCount: demographicSignals.length,
     }),
-    [productId, selectedSignalObjects, lifeEvents, pillars, demographics, financialSignals.length, riskSignals.length]
+    [productId, selectedSignalObjects, lifeEvents, pillars, demographics, financialSignals.length, riskSignals.length, demographicSignals.length]
   );
 
   const hasSelections =
     assetSignals.length > 0 || lifeEvents.length > 0 || pillars.length > 0 ||
-    financialSignals.length > 0 || riskSignals.length > 0 ||
+    financialSignals.length > 0 || riskSignals.length > 0 || demographicSignals.length > 0 ||
     demographics.ageRanges.length > 0 || demographics.incomeBands.length > 0 || demographics.regions.length > 0;
 
   const handleApiError = (status: number | undefined, fallback: string) => {
