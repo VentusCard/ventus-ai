@@ -22,7 +22,7 @@ function formatAudience(n: number): string {
   return n.toString();
 }
 
-function FlowCard({
+function FlowRow({
   flow,
   active,
   onToggle,
@@ -33,61 +33,43 @@ function FlowCard({
 }) {
   const Icon = flow.icon;
   return (
-    <div className="rounded-xl border border-slate-200 bg-white shadow-sm hover:shadow-md transition-shadow flex flex-col">
-      <div className="flex items-start gap-3 p-4 border-b border-slate-100">
-        <div className="flex items-center justify-center w-10 h-10 rounded-lg bg-slate-900 shrink-0">
-          <Icon className="w-5 h-5 text-white" />
-        </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <h3 className="text-sm font-semibold text-slate-900 leading-tight">{flow.name}</h3>
-            <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full border", CATEGORY_COLOR[flow.category])}>
-              {flow.category}
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-1 leading-snug">{flow.positioning}</p>
-        </div>
-        <Switch checked={active} onCheckedChange={onToggle} className="shrink-0 mt-1" />
+    <div className="flex items-center gap-4 px-4 py-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors">
+      <div className="flex items-center justify-center w-8 h-8 rounded-md bg-slate-900 shrink-0">
+        <Icon className="w-4 h-4 text-white" />
       </div>
 
-      <div className="p-4 flex-1">
-        <div className="flex items-center gap-1.5 mb-2">
-          <Sparkles className="w-3 h-3 text-blue-500" />
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-            Signals Ventus is detecting
-          </p>
-        </div>
-        <ul className="space-y-2">
-          {flow.signals.map((sig) => (
-            <li key={sig.label} className="text-xs">
-              <div className="flex items-start gap-2">
-                <span className="mt-1.5 w-1 h-1 rounded-full bg-blue-500 shrink-0" />
-                <div className="min-w-0">
-                  <p className="font-medium text-slate-900 leading-tight">{sig.label}</p>
-                  <p className="text-[11px] text-slate-500 leading-snug mt-0.5">{sig.evidence}</p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ul>
+      <div className="flex items-center gap-2 w-64 shrink-0 min-w-0">
+        <span className="text-sm font-semibold text-slate-900 truncate">{flow.name}</span>
+        <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full border shrink-0", CATEGORY_COLOR[flow.category])}>
+          {flow.category}
+        </span>
       </div>
 
-      <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60 rounded-b-xl flex items-center justify-between">
-        <div>
-          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Triggered audience</p>
-          <p className="text-sm font-bold text-slate-900">{formatAudience(flow.estimatedAudience)}</p>
-        </div>
-        <Badge
-          variant="outline"
-          className={cn(
-            "text-[10px] gap-1 border",
-            active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500"
-          )}
-        >
-          {active ? <Play className="w-2.5 h-2.5" /> : null}
-          {active ? "Active" : "Paused"}
-        </Badge>
+      <div className="flex-1 min-w-0 flex items-center gap-3">
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 shrink-0">
+          <Sparkles className="w-3 h-3" />
+          {flow.signals.length} {flow.signals.length === 1 ? "signal" : "signals"}
+        </span>
+        <span className="text-xs text-slate-500 truncate">{flow.positioning}</span>
       </div>
+
+      <div className="text-right shrink-0 w-28">
+        <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
+        <p className="text-sm font-bold text-slate-900 mt-0.5">{formatAudience(flow.estimatedAudience)}</p>
+      </div>
+
+      <Badge
+        variant="outline"
+        className={cn(
+          "text-[10px] gap-1 border shrink-0 w-16 justify-center",
+          active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500"
+        )}
+      >
+        {active ? <Play className="w-2.5 h-2.5" /> : null}
+        {active ? "Active" : "Paused"}
+      </Badge>
+
+      <Switch checked={active} onCheckedChange={onToggle} className="shrink-0" />
     </div>
   );
 }
