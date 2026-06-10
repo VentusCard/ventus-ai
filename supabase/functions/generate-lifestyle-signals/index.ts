@@ -12,7 +12,32 @@ serve(async (req) => {
   }
 
   try {
-    const { productId, productName, productCategory, productPositioning, curatedSignals } = await req.json();
+    const {
+      productId,
+      productName,
+      productCategory,
+      productPositioning,
+      curatedSignals,
+      financialSignalCatalog,
+      riskSignalCatalog,
+      demographicSignalCatalog,
+    } = await req.json();
+
+    const toCatalog = (arr: unknown): { id: string; label: string }[] =>
+      Array.isArray(arr)
+        ? arr
+            .filter((x) => x && typeof x === "object")
+            .map((x: any) => ({ id: String(x.id ?? ""), label: String(x.label ?? "") }))
+            .filter((x) => x.id && x.label)
+        : [];
+    const finCat = toCatalog(financialSignalCatalog);
+    const riskCat = toCatalog(riskSignalCatalog);
+    const demCat = toCatalog(demographicSignalCatalog);
+    const finIds = new Set(finCat.map((c) => c.id));
+    const riskIds = new Set(riskCat.map((c) => c.id));
+    const demIds = new Set(demCat.map((c) => c.id));
+    const catalogBlock = (label: string, cat: { id: string; label: string }[]) =>
+      cat.length ? `${label}:\n${cat.map((c) => `  - ${c.id} (${c.label})`).join("\n")}` : `${label}: (none provided)`;
 
     if (!productId || !productName) {
       return new Response(JSON.stringify({ error: "productId and productName are required" }), {
@@ -84,6 +109,13 @@ APPLICABLE DEMOGRAPHICS:
   - Travel rewards card → ageRanges ["25-34","35-44","45-54"], incomeBands ["100k_150k","over_150k"], accountTenure [], regions []
   - Small business loan → ageRanges [], incomeBands [], accountTenure ["established","loyal"], regions []
 - Regions almost always [] unless the product is geographically constrained.
+
+APPLICABLE FINANCIAL / RISK / INFERRED-DEMOGRAPHIC SIGNAL CHIPS:
+- These are pre-curated chips from three additional Ventus signal families. For each family, return ONLY the chip ids that are clearly relevant targeting levers for THIS product. Empty array when none apply. Do NOT pad.
+- ${catalogBlock("Financial signal chips", finCat)}
+- ${catalogBlock("Risk signal chips", riskCat)}
+- ${catalogBlock("Inferred demographic signal chips (household/livelihood beyond KYC)", demCat)}
+- Examples: travel rewards card → financial: ["fin-payroll-direct-deposit","fin-low-credit-util"], risk: ["risk-no-overdraft-90d","risk-no-fraud-flags"], demographic: ["demo-dual-income"]; HELOC → financial: ["fin-mortgage-payer","fin-deposit-growth","fin-low-credit-util"], risk: ["risk-healthy-dti","risk-stable-tenure"], demographic: ["demo-likely-homeowner","demo-parent-school-age"]; 529 → financial: ["fin-payroll-direct-deposit","fin-deposit-growth"], risk: ["risk-no-overdraft-90d"], demographic: ["demo-parent-young-kids","demo-parent-school-age","demo-dual-income"]; wealth management → financial: ["fin-investable-assets","fin-deposit-growth"], risk: ["risk-stable-tenure","risk-healthy-dti"], demographic: ["demo-pre-retiree","demo-empty-nester","demo-likely-homeowner"].
 
 For each signal you emit, silently verify:
 1. Does the label name a concrete merchant category, transaction archetype, account flow, or life-stage event tied to ${productName}?
@@ -188,8 +220,23 @@ ABSOLUTE RULES:
                     required: ["ageRanges", "regions", "incomeBands", "accountTenure"],
                     additionalProperties: false,
                   },
+                  applicableFinancialSignalIds: {
+                    type: "array",
+                    description: "Subset of provided financial signal chip ids relevant to this product. Empty when none apply.",
+                    items: { type: "string" },
+                  },
+                  applicableRiskSignalIds: {
+                    type: "array",
+                    description: "Subset of provided risk signal chip ids relevant to this product. Empty when none apply.",
+                    items: { type: "string" },
+                  },
+                  applicableDemographicSignalIds: {
+                    type: "array",
+                    description: "Subset of provided inferred-demographic chip ids relevant to this product. Empty when none apply.",
+                    items: { type: "string" },
+                  },
                 },
-                required: ["signals", "applicableLifeEvents", "applicableDemographics"],
+                required: ["signals", "applicableLifeEvents", "applicableDemographics", "applicableFinancialSignalIds", "applicableRiskSignalIds", "applicableDemographicSignalIds"],
                 additionalProperties: false,
               },
             },
@@ -259,7 +306,20 @@ ABSOLUTE RULES:
       accountTenure: sanitize(dem.accountTenure, ALLOWED_TENURE),
     };
 
-    return new Response(JSON.stringify({ signals, applicableLifeEvents, applicableDemographics }), {
+    const sanitizeIds = (arr: unknown, allowed: Set<string>): string[] =>
+      Array.from(new Set((Array.isArray(arr) ? arr : []).map((x) => String(x)).filter((x) => allowed.has(x))));
+    const applicableFinancialSignalIds = sanitizeIds(parsed.applicableFinancialSignalIds, finIds);
+    const applicableRiskSignalIds = sanitizeIds(parsed.applicableRiskSignalIds, riskIds);
+    const applicableDemographicSignalIds = sanitizeIds(parsed.applicableDemographicSignalIds, demIds);
+
+    return new Response(JSON.stringify({
+      signals,
+      applicableLifeEvents,
+      applicableDemographics,
+      applicableFinancialSignalIds,
+      applicableRiskSignalIds,
+      applicableDemographicSignalIds,
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (e) {
