@@ -9,7 +9,7 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { SegmentOutputPanel, type GeneratedPersona } from "./SegmentOutputPanel";
 import { PRODUCT_FLOWS, getProductFlow } from "@/lib/productAutomatedFlows";
 import { estimateAssetSignalAudience, type LifestyleAssetSignal } from "@/lib/lifestyleAssetSignals";
-import { FINANCIAL_SIGNAL_CHIPS, RISK_SIGNAL_CHIPS } from "@/lib/campaignSignalFamilies";
+import { FINANCIAL_SIGNAL_CHIPS, RISK_SIGNAL_CHIPS, DEMOGRAPHIC_SIGNAL_CHIPS } from "@/lib/campaignSignalFamilies";
 import { LIFE_EVENTS } from "@/types/segment";
 import type { DemographicFilters as DemographicFiltersType } from "@/types/segment";
 import { Megaphone, Gem, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle } from "lucide-react";
@@ -64,13 +64,16 @@ function ChipCloud({
   chips: Array<{ id: string; label: string; description?: string }>;
   selected: string[];
   onToggle: (id: string) => void;
-  accent: "emerald" | "rose";
+  accent: "emerald" | "rose" | "violet";
 }) {
   const selectedClass =
     accent === "emerald"
       ? "bg-emerald-50 border-emerald-400 text-emerald-700"
-      : "bg-rose-50 border-rose-400 text-rose-700";
-  const dotClass = accent === "emerald" ? "bg-emerald-600" : "bg-rose-600";
+      : accent === "rose"
+      ? "bg-rose-50 border-rose-400 text-rose-700"
+      : "bg-violet-50 border-violet-400 text-violet-700";
+  const dotClass =
+    accent === "emerald" ? "bg-emerald-600" : accent === "rose" ? "bg-rose-600" : "bg-violet-600";
   return (
     <div className="flex flex-wrap gap-2">
       {chips.map((chip) => {
