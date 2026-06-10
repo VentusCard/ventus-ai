@@ -97,11 +97,11 @@ export function CapabilitiesView() {
 
           {/* CORE */}
           <div className="flex flex-col">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 text-center">Behavioral Intelligence Core</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 text-center">VENTUS AI SYSTEM</p>
             <div className="flex-1 flex flex-col rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-lg">
               <div className="flex flex-col items-center text-center pb-4 border-b border-white/15">
                 <img src={ventusLogoTransparent} alt="Ventus" className="h-6 w-auto brightness-0 invert opacity-95" />
-                <p className="text-base font-bold text-white mt-2">Behavioral Intelligence Core</p>
+                <p className="text-base font-bold text-white mt-2">VENTUS AI SYSTEM</p>
               </div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80 mt-4 mb-2.5 text-center">DYNAMIC UNDERSTANDING OF EVERY CUSTOMER</p>
               <div className="flex flex-col gap-2 flex-1 justify-center">
