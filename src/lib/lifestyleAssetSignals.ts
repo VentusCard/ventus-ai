@@ -18,6 +18,8 @@ interface EstimateInput {
   financialSignalCount?: number;
   /** Count of selected Risk Signal chips (System tab family). */
   riskSignalCount?: number;
+  /** Count of selected inferred Demographic Signal chips (beyond KYC). */
+  demographicSignalCount?: number;
 }
 
 const BASE_POPULATION = 250_000_000;
@@ -30,6 +32,7 @@ export function estimateAssetSignalAudience({
   demographics,
   financialSignalCount = 0,
   riskSignalCount = 0,
+  demographicSignalCount = 0,
 }: EstimateInput): number {
   const product = getProductFlow(productId);
   let size = BASE_POPULATION * (product?.penetration ?? 0.05);
