@@ -51,12 +51,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Conversations",
-    items: [
-      { value: "ai-assistant-activity", label: "AI Assistant Activity", icon: MessagesSquare },
-    ],
-  },
-  {
     label: "Analytics",
     items: [
       { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
@@ -84,6 +78,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Relationship",
     items: [
       { value: "life-events", label: "Life Event Detection", icon: CalendarHeart },
+      { value: "ai-assistant-activity", label: "AI Assistant Activity", icon: MessagesSquare },
       { value: "targeting", label: "Next-Best Product Engine", icon: Route },
       { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
     ],
@@ -123,12 +118,11 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Health/Others/Targeting/Conversations groups follow Analytics (always on since Analytics is always enabled)
+    // Health/Others/Targeting groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
       allowedLabels.add("Health");
       allowedLabels.add("Others");
       allowedLabels.add("Targeting");
-      allowedLabels.add("Conversations");
     }
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
