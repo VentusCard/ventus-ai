@@ -18,6 +18,8 @@ interface EstimateInput {
   financialSignalCount?: number;
   /** Count of selected Risk Signal chips (System tab family). */
   riskSignalCount?: number;
+  /** Count of selected inferred Demographic Signal chips (beyond KYC). */
+  demographicSignalCount?: number;
 }
 
 const BASE_POPULATION = 250_000_000;
@@ -30,6 +32,7 @@ export function estimateAssetSignalAudience({
   demographics,
   financialSignalCount = 0,
   riskSignalCount = 0,
+  demographicSignalCount = 0,
 }: EstimateInput): number {
   const product = getProductFlow(productId);
   let size = BASE_POPULATION * (product?.penetration ?? 0.05);
@@ -50,6 +53,14 @@ export function estimateAssetSignalAudience({
   if (riskSignalCount > 0) {
     size *= Math.max(0.3, 0.9 - riskSignalCount * 0.08);
   }
+  // Inferred demographic signals narrow to the specific household pattern.
+  if (demographicSignalCount > 0) {
+    size *= Math.max(0.2, 0.8 - demographicSignalCount * 0.12);
+  }
+
+
+
+
 
   if (demographics.ageRanges.length > 0 && demographics.ageRanges.length < 6) {
     size *= demographics.ageRanges.length / 6;

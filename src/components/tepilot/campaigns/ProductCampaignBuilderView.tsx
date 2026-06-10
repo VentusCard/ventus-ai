@@ -9,7 +9,7 @@ import { AudienceEstimateBar } from "./AudienceEstimateBar";
 import { SegmentOutputPanel, type GeneratedPersona } from "./SegmentOutputPanel";
 import { PRODUCT_FLOWS, getProductFlow } from "@/lib/productAutomatedFlows";
 import { estimateAssetSignalAudience, type LifestyleAssetSignal } from "@/lib/lifestyleAssetSignals";
-import { FINANCIAL_SIGNAL_CHIPS, RISK_SIGNAL_CHIPS } from "@/lib/campaignSignalFamilies";
+import { FINANCIAL_SIGNAL_CHIPS, RISK_SIGNAL_CHIPS, DEMOGRAPHIC_SIGNAL_CHIPS } from "@/lib/campaignSignalFamilies";
 import { LIFE_EVENTS } from "@/types/segment";
 import type { DemographicFilters as DemographicFiltersType } from "@/types/segment";
 import { Megaphone, Gem, Sparkles, Wand2, RefreshCw, Loader2, AlertCircle, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle } from "lucide-react";
@@ -64,13 +64,16 @@ function ChipCloud({
   chips: Array<{ id: string; label: string; description?: string }>;
   selected: string[];
   onToggle: (id: string) => void;
-  accent: "emerald" | "rose";
+  accent: "emerald" | "rose" | "violet";
 }) {
   const selectedClass =
     accent === "emerald"
       ? "bg-emerald-50 border-emerald-400 text-emerald-700"
-      : "bg-rose-50 border-rose-400 text-rose-700";
-  const dotClass = accent === "emerald" ? "bg-emerald-600" : "bg-rose-600";
+      : accent === "rose"
+      ? "bg-rose-50 border-rose-400 text-rose-700"
+      : "bg-violet-50 border-violet-400 text-violet-700";
+  const dotClass =
+    accent === "emerald" ? "bg-emerald-600" : accent === "rose" ? "bg-rose-600" : "bg-violet-600";
   return (
     <div className="flex flex-wrap gap-2">
       {chips.map((chip) => {
@@ -104,6 +107,7 @@ export function ProductCampaignBuilderView() {
   const [pillars, setPillars] = useState<string[]>([]);
   const [financialSignals, setFinancialSignals] = useState<string[]>([]);
   const [riskSignals, setRiskSignals] = useState<string[]>([]);
+  const [demographicSignals, setDemographicSignals] = useState<string[]>([]);
   const [demographics, setDemographics] = useState<DemographicFiltersType>({
     ageRanges: [],
     regions: [],
@@ -141,6 +145,7 @@ export function ProductCampaignBuilderView() {
     setLifeEvents([]);
     setFinancialSignals([]);
     setRiskSignals([]);
+    setDemographicSignals([]);
     setDemographics({ ageRanges: [], regions: [], incomeBands: [], accountTenure: "all" });
     setGeneratedPersonas(null);
     setSignalsError(null);
@@ -162,13 +167,14 @@ export function ProductCampaignBuilderView() {
       demographics,
       financialSignalCount: financialSignals.length,
       riskSignalCount: riskSignals.length,
+      demographicSignalCount: demographicSignals.length,
     }),
-    [productId, selectedSignalObjects, lifeEvents, pillars, demographics, financialSignals.length, riskSignals.length]
+    [productId, selectedSignalObjects, lifeEvents, pillars, demographics, financialSignals.length, riskSignals.length, demographicSignals.length]
   );
 
   const hasSelections =
     assetSignals.length > 0 || lifeEvents.length > 0 || pillars.length > 0 ||
-    financialSignals.length > 0 || riskSignals.length > 0 ||
+    financialSignals.length > 0 || riskSignals.length > 0 || demographicSignals.length > 0 ||
     demographics.ageRanges.length > 0 || demographics.incomeBands.length > 0 || demographics.regions.length > 0;
 
   const handleApiError = (status: number | undefined, fallback: string) => {
@@ -251,6 +257,9 @@ export function ProductCampaignBuilderView() {
             .filter(Boolean) as string[],
           riskSignals: riskSignals
             .map((id) => RISK_SIGNAL_CHIPS.find((c) => c.id === id)?.label)
+            .filter(Boolean) as string[],
+          demographicSignals: demographicSignals
+            .map((id) => DEMOGRAPHIC_SIGNAL_CHIPS.find((c) => c.id === id)?.label)
             .filter(Boolean) as string[],
           audienceSize: estimatedSize,
         },
@@ -434,14 +443,14 @@ export function ProductCampaignBuilderView() {
                 />
               </FamilySection>
 
-              {/* 4. Demographic Signals */}
-              <FamilySection
-                family="demographic"
-                count={demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0)}
-              >
-                <DemographicFiltersPanel
-                  filters={demographics}
-                  onChange={setDemographics}
+              {/* 4. Demographic Signals — inferred household/livelihood patterns beyond KYC */}
+              <FamilySection family="demographic" count={demographicSignals.length}>
+                <p className="text-[11px] text-slate-500 mb-2">Inferred household and livelihood indicators — beyond KYC fields.</p>
+                <ChipCloud
+                  chips={DEMOGRAPHIC_SIGNAL_CHIPS}
+                  selected={demographicSignals}
+                  onToggle={(id) => setDemographicSignals((prev) => toggle(prev, id))}
+                  accent="violet"
                 />
               </FamilySection>
 
@@ -456,7 +465,18 @@ export function ProductCampaignBuilderView() {
                 />
               </FamilySection>
             </div>
+
+            {/* KYC filters — separated from the inferred demographic signal family */}
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">KYC filters</p>
+              <p className="text-[11px] text-slate-500 mb-3">Hard filters from the customer's on-file profile (age, region, income band, account tenure).</p>
+              <DemographicFiltersPanel
+                filters={demographics}
+                onChange={setDemographics}
+              />
+            </div>
           </div>
+
 
 
           {/* Step 3 */}
@@ -542,7 +562,8 @@ export function ProductCampaignBuilderView() {
                 { label: "Life event", count: lifeEvents.length },
                 { label: "Behavioral", count: assetSignals.length },
                 { label: "Financial", count: financialSignals.length },
-                { label: "Demographic", count: demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0) },
+                { label: "Demographic", count: demographicSignals.length },
+                { label: "KYC filters", count: demographics.ageRanges.length + demographics.regions.length + demographics.incomeBands.length + (demographics.accountTenure !== "all" ? 1 : 0) },
                 { label: "Risk", count: riskSignals.length },
               ].map((row) => (
                 <div key={row.label} className="flex items-center justify-between text-xs">

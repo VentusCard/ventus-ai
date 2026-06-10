@@ -82,3 +82,78 @@ export const RISK_SIGNAL_CHIPS: SignalFamilyChip[] = [
     detectionRate: 0.71,
   },
 ];
+
+export const DEMOGRAPHIC_SIGNAL_CHIPS: SignalFamilyChip[] = [
+  {
+    id: "demo-dual-income",
+    label: "Dual-income household",
+    description: "Two recurring payroll deposits to the same household.",
+    detectionRate: 0.34,
+  },
+  {
+    id: "demo-single-income",
+    label: "Single-income household",
+    description: "One payroll stream supporting family-pattern outflows.",
+    detectionRate: 0.29,
+  },
+  {
+    id: "demo-parent-young-kids",
+    label: "Parent of young children",
+    description: "Childcare, pediatric, and family-store outflow patterns.",
+    detectionRate: 0.21,
+  },
+  {
+    id: "demo-parent-school-age",
+    label: "Parent of school-age kids",
+    description: "K-12 tuition, school supplies, and youth-sports activity.",
+    detectionRate: 0.19,
+  },
+  {
+    id: "demo-empty-nester",
+    label: "Empty nester",
+    description: "Drop in family outflows alongside discretionary recovery.",
+    detectionRate: 0.14,
+  },
+  {
+    id: "demo-eldercare",
+    label: "Caregiver for aging parent",
+    description: "Eldercare, assisted-living, and medical co-pay activity.",
+    detectionRate: 0.09,
+  },
+  {
+    id: "demo-likely-homeowner",
+    label: "Likely homeowner",
+    description: "Mortgage servicer, property tax, and home-insurance outflows.",
+    detectionRate: 0.46,
+  },
+  {
+    id: "demo-likely-renter",
+    label: "Likely renter",
+    description: "Recurring rent ACH with no mortgage activity on file.",
+    detectionRate: 0.32,
+  },
+  {
+    id: "demo-recently-relocated",
+    label: "Recently relocated",
+    description: "Sustained merchant footprint shift into a new metro.",
+    detectionRate: 0.07,
+  },
+  {
+    id: "demo-self-employed",
+    label: "Self-employed / 1099",
+    description: "Irregular inflows alongside quarterly tax outflows.",
+    detectionRate: 0.11,
+  },
+  {
+    id: "demo-pre-retiree",
+    label: "Pre-retiree",
+    description: "Peak earnings with 401k catch-up and advisory-fee activity.",
+    detectionRate: 0.13,
+  },
+  {
+    id: "demo-newly-partnered",
+    label: "Newly partnered household",
+    description: "Joint account opened with merged outflow patterns.",
+    detectionRate: 0.06,
+  },
+];

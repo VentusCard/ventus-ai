@@ -30,6 +30,7 @@ serve(async (req) => {
       demographics = {},
       financialSignals = [],
       riskSignals = [],
+      demographicSignals = [],
       audienceSize,
     } = await req.json();
 
@@ -53,7 +54,8 @@ Life event signals: ${(lifeEvents as string[]).join(", ") || "(none)"}
 Lifestyle pillars: ${(pillars as string[]).join(", ") || "(none)"}
 Financial signals: ${(financialSignals as string[]).join(", ") || "(none)"}
 Risk signals (inclusion filters — audience meets ALL of these): ${(riskSignals as string[]).join(", ") || "(none)"}
-Demographics: ${JSON.stringify(demographics)}
+Inferred demographic signals (household / livelihood patterns beyond KYC): ${(demographicSignals as string[]).join(", ") || "(none)"}
+KYC filters: ${JSON.stringify(demographics)}
 
 The audience is the intersection of all 5 Ventus signal families above. For each persona, distribute the selected behavioral signals (signalLabels must be a subset of the labels above), reflect the financial and risk posture in the message tone, write a personalized message, and produce a stock-image brief.`;
 
