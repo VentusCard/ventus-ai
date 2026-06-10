@@ -122,7 +122,7 @@ export function AIAssistantActivityView() {
     <div className="space-y-6">
       <TabHeader
         icon={<MessagesSquare className="w-4 h-4" />}
-        title="AI Assistant Activity"
+        title="AI Banking Assistant "
         subtitle="What customers are asking the Ventus AI assistant — by volume, intent, and trend"
         howItWorks="Ventus clusters every consumer conversation by intent, lifestyle pillar, and life event, and surfaces the trending themes alongside a live preview of how the assistant responds."
         whyItMatters="Gives marketing, product, and advisor teams a direct read on what customers actually want help with — informing campaigns, product roadmaps, and proactive outreach."
