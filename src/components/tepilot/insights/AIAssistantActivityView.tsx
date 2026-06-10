@@ -354,7 +354,7 @@ export function AIAssistantActivityView() {
         </div>
 
         {/* Right: iPad mockup */}
-        <div className="col-span-5">
+        <div className="col-span-4">
           <div className="flex flex-col items-center">
             <div
               className="relative rounded-[20px] border-[12px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col"
