@@ -338,9 +338,27 @@ export function ProductCampaignBuilderView() {
 
           {/* Step 2 — 5 signal families from the System tab */}
           <div className="rounded-xl border border-slate-200 bg-white p-4">
-            <div className="flex items-center gap-2 mb-1">
-              <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
-              <p className="text-sm font-semibold text-slate-900">Layer the 5 Ventus signal families</p>
+            <div className="flex items-start justify-between gap-3 mb-1">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
+                <p className="text-sm font-semibold text-slate-900">Layer the 5 Ventus signal families</p>
+              </div>
+              <Button
+                size="sm"
+                onClick={generateSignals}
+                disabled={signalsLoading || !product}
+                variant={generatedSignals.length > 0 ? "outline" : "default"}
+                className="shrink-0 h-8"
+              >
+                {signalsLoading ? (
+                  <Loader2 className="w-3.5 h-3.5 mr-1 animate-spin" />
+                ) : generatedSignals.length > 0 ? (
+                  <RefreshCw className="w-3.5 h-3.5 mr-1" />
+                ) : (
+                  <Wand2 className="w-3.5 h-3.5 mr-1" />
+                )}
+                {generatedSignals.length > 0 ? "Regenerate signals" : "Generate signals"}
+              </Button>
             </div>
             <p className="text-[11px] text-slate-500 mb-3 pl-8">Ventus suggests across all 5 signal families — you can refine each chip cloud.</p>
 
@@ -367,29 +385,15 @@ export function ProductCampaignBuilderView() {
 
               {/* 2. Behavioral Signals (Lifestyle Asset Signals, generative) */}
               <FamilySection family="behavioral" count={assetSignals.length}>
-                <div className="flex items-center justify-between gap-2 mb-2">
-                  <div className="flex items-center gap-2">
-                    <Gem className="w-4 h-4 text-blue-600" />
-                    <p className="text-xs font-semibold text-slate-900">
-                      Lifestyle Asset Signals {product ? `· ${product.name}` : ""}
-                    </p>
-                    {generatedSignals.length > 0 && (
-                      <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">
-                        {generatedSignals.length}
-                      </Badge>
-                    )}
-                  </div>
+                <div className="flex items-center gap-2 mb-2">
+                  <Gem className="w-4 h-4 text-blue-600" />
+                  <p className="text-xs font-semibold text-slate-900">
+                    Lifestyle Asset Signals {product ? `· ${product.name}` : ""}
+                  </p>
                   {generatedSignals.length > 0 && (
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="h-7 px-2 text-[11px] text-slate-600"
-                      onClick={generateSignals}
-                      disabled={signalsLoading}
-                    >
-                      {signalsLoading ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />}
-                      Regenerate
-                    </Button>
+                    <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">
+                      {generatedSignals.length}
+                    </Badge>
                   )}
                 </div>
 
@@ -402,15 +406,9 @@ export function ProductCampaignBuilderView() {
                 )}
 
                 {!signalsLoading && generatedSignals.length === 0 && !signalsError && (
-                  <div className="flex items-center justify-between gap-3 py-2">
-                    <p className="text-xs text-slate-500 leading-snug">
-                      No lifestyle signals yet. Ventus will generate a fresh set tuned to {product?.name ?? "the product"}.
-                    </p>
-                    <Button size="sm" onClick={generateSignals} disabled={signalsLoading} className="shrink-0">
-                      <Wand2 className="w-3.5 h-3.5 mr-1" />
-                      Generate signals
-                    </Button>
-                  </div>
+                  <p className="text-xs text-slate-500 leading-snug py-2">
+                    No lifestyle signals yet. Use “Generate signals” above to surface a fresh set tuned to {product?.name ?? "the product"}.
+                  </p>
                 )}
 
                 {signalsError && (
