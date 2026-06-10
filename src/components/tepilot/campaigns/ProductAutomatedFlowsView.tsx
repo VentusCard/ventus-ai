@@ -123,6 +123,8 @@ export function ProductAutomatedFlowsView() {
     () => new Set(PRODUCT_FLOWS.filter((p) => p.defaultActive).map((p) => p.id))
   );
 
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
   const filtered = category === "All" ? PRODUCT_FLOWS : PRODUCT_FLOWS.filter((p) => p.category === category);
 
   const toggle = (id: string) => {
