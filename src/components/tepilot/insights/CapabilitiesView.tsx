@@ -1,14 +1,14 @@
 import { TabHeader } from "./TabHeader";
-import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle } from "lucide-react";
+import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const INPUTS = [
-  { label: "Card Transactions", icon: CreditCard },
-  { label: "ACH & Wires", icon: ArrowLeftRight },
-  { label: "Checks", icon: FileText },
-  { label: "Zelle", icon: Send },
-  { label: "Digital Telemetry", icon: Smartphone },
-  { label: "Credit Score", icon: Gauge },
+  { label: "Card Transactions", icon: CreditCard, source: "Card Processor" },
+  { label: "ACH & Wires", icon: ArrowLeftRight, source: "Core" },
+  { label: "Checks", icon: FileText, source: "Core" },
+  { label: "Zelle", icon: Send, source: "EWS" },
+  { label: "Digital Telemetry", icon: Smartphone, source: "Digital Banking" },
+  { label: "Credit Score", icon: Gauge, source: "Credit Bureau" },
 ];
 
 const SIGNALS = [
