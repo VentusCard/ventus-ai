@@ -103,7 +103,7 @@ export function CapabilitiesView() {
                 <img src={ventusLogoTransparent} alt="Ventus" className="h-6 w-auto brightness-0 invert opacity-95" />
                 <p className="text-base font-bold text-white mt-2">Behavioral Intelligence Core</p>
               </div>
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80 mt-4 mb-2.5 text-center">What the core produces</p>
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80 mt-4 mb-2.5 text-center">DYNAMIC UNDERSTANDING OF EVERY CUSTOMER</p>
               <div className="flex flex-col gap-2 flex-1 justify-center">
                 {SIGNALS.map((s) => {
                   const Icon = s.icon;
