@@ -195,6 +195,9 @@ export function ProductCampaignBuilderView() {
           productCategory: product.category,
           productPositioning: product.positioning,
           curatedSignals: product.signals?.map((s) => ({ label: s.label, evidence: s.evidence })) ?? [],
+          financialSignalCatalog: FINANCIAL_SIGNAL_CHIPS.map((c) => ({ id: c.id, label: c.label })),
+          riskSignalCatalog: RISK_SIGNAL_CHIPS.map((c) => ({ id: c.id, label: c.label })),
+          demographicSignalCatalog: DEMOGRAPHIC_SIGNAL_CHIPS.map((c) => ({ id: c.id, label: c.label })),
         },
       });
       if (error) throw new Error(error.message);
@@ -229,6 +232,19 @@ export function ProductCampaignBuilderView() {
         incomeBands: incomeArr,
         accountTenure: (tenureArr[0] as DemographicFiltersType["accountTenure"]) ?? "all",
       });
+      // Pre-select AI-suggested chips across the 3 static signal families.
+      const finSel: string[] = Array.isArray(data.applicableFinancialSignalIds)
+        ? data.applicableFinancialSignalIds.filter((id: string) => FINANCIAL_SIGNAL_CHIPS.some((c) => c.id === id))
+        : [];
+      const riskSel: string[] = Array.isArray(data.applicableRiskSignalIds)
+        ? data.applicableRiskSignalIds.filter((id: string) => RISK_SIGNAL_CHIPS.some((c) => c.id === id))
+        : [];
+      const demSel: string[] = Array.isArray(data.applicableDemographicSignalIds)
+        ? data.applicableDemographicSignalIds.filter((id: string) => DEMOGRAPHIC_SIGNAL_CHIPS.some((c) => c.id === id))
+        : [];
+      setFinancialSignals(finSel);
+      setRiskSignals(riskSel);
+      setDemographicSignals(demSel);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Generation failed";
       setSignalsError(msg);
@@ -326,7 +342,7 @@ export function ProductCampaignBuilderView() {
               <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
               <p className="text-sm font-semibold text-slate-900">Layer the 5 Ventus signal families</p>
             </div>
-            <p className="text-[11px] text-slate-500 mb-3 pl-8">Same intelligence core powering the System tab — life event, behavioral, financial, demographic, and risk signals.</p>
+            <p className="text-[11px] text-slate-500 mb-3 pl-8">Ventus suggests across all 5 signal families — you can refine each chip cloud.</p>
 
             <div className="space-y-2">
               {/* 1. Life Event Signals */}
