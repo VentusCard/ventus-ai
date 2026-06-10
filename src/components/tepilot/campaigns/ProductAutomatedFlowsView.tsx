@@ -25,51 +25,94 @@ function formatAudience(n: number): string {
 function FlowRow({
   flow,
   active,
+  expanded,
   onToggle,
+  onExpand,
 }: {
   flow: ProductFlow;
   active: boolean;
+  expanded: boolean;
   onToggle: () => void;
+  onExpand: () => void;
 }) {
   const Icon = flow.icon;
   return (
-    <div className="flex items-center gap-4 px-4 py-3 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 transition-colors">
-      <div className="flex items-center justify-center w-8 h-8 rounded-md bg-slate-900 shrink-0">
-        <Icon className="w-4 h-4 text-white" />
-      </div>
-
-      <div className="flex items-center gap-2 w-64 shrink-0 min-w-0">
-        <span className="text-sm font-semibold text-slate-900 truncate">{flow.name}</span>
-        <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full border shrink-0", CATEGORY_COLOR[flow.category])}>
-          {flow.category}
-        </span>
-      </div>
-
-      <div className="flex-1 min-w-0 flex items-center gap-3">
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 shrink-0">
-          <Sparkles className="w-3 h-3" />
-          {flow.signals.length} {flow.signals.length === 1 ? "signal" : "signals"}
-        </span>
-        <span className="text-xs text-slate-500 truncate">{flow.positioning}</span>
-      </div>
-
-      <div className="text-right shrink-0 w-28">
-        <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
-        <p className="text-sm font-bold text-slate-900 mt-0.5">{formatAudience(flow.estimatedAudience)}</p>
-      </div>
-
-      <Badge
-        variant="outline"
-        className={cn(
-          "text-[10px] gap-1 border shrink-0 w-16 justify-center",
-          active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500"
-        )}
+    <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
+      <button
+        type="button"
+        onClick={onExpand}
+        className="w-full flex items-center gap-4 px-4 py-3 hover:bg-slate-50 transition-colors text-left"
       >
-        {active ? <Play className="w-2.5 h-2.5" /> : null}
-        {active ? "Active" : "Paused"}
-      </Badge>
+        <div className="flex items-center justify-center w-8 h-8 rounded-md bg-slate-900 shrink-0">
+          <Icon className="w-4 h-4 text-white" />
+        </div>
 
-      <Switch checked={active} onCheckedChange={onToggle} className="shrink-0" />
+        <div className="flex items-center gap-2 w-64 shrink-0 min-w-0">
+          <span className="text-sm font-semibold text-slate-900 truncate">{flow.name}</span>
+          <span className={cn("text-[10px] font-medium px-1.5 py-0.5 rounded-full border shrink-0", CATEGORY_COLOR[flow.category])}>
+            {flow.category}
+          </span>
+        </div>
+
+        <div className="flex-1 min-w-0 flex items-center gap-3">
+          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-600 shrink-0">
+            <Sparkles className="w-3 h-3" />
+            {flow.signals.length} {flow.signals.length === 1 ? "signal" : "signals"}
+          </span>
+          <span className="text-xs text-slate-500 truncate">{flow.positioning}</span>
+        </div>
+
+        <div className="text-right shrink-0 w-28">
+          <p className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
+          <p className="text-sm font-bold text-slate-900 mt-0.5">{formatAudience(flow.estimatedAudience)}</p>
+        </div>
+
+        <Badge
+          variant="outline"
+          className={cn(
+            "text-[10px] gap-1 border shrink-0 w-16 justify-center",
+            active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-500"
+          )}
+        >
+          {active ? <Play className="w-2.5 h-2.5" /> : null}
+          {active ? "Active" : "Paused"}
+        </Badge>
+
+        <div onClick={(e) => e.stopPropagation()} className="shrink-0 flex items-center">
+          <Switch checked={active} onCheckedChange={onToggle} />
+        </div>
+
+        <ChevronDown
+          className={cn(
+            "w-4 h-4 text-slate-400 shrink-0 transition-transform",
+            expanded && "rotate-180"
+          )}
+        />
+      </button>
+
+      {expanded && (
+        <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Sparkles className="w-3 h-3 text-blue-500" />
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              Signals Ventus is detecting
+            </p>
+          </div>
+          <ul className="space-y-2">
+            {flow.signals.map((sig) => (
+              <li key={sig.label} className="text-xs">
+                <div className="flex items-start gap-2">
+                  <span className="mt-1.5 w-1 h-1 rounded-full bg-blue-500 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="font-medium text-slate-900 leading-tight">{sig.label}</p>
+                    <p className="text-[11px] text-slate-500 leading-snug mt-0.5">{sig.evidence}</p>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
