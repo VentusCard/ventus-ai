@@ -3,7 +3,7 @@ import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
-import { Zap, Play, Sparkles } from "lucide-react";
+import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
