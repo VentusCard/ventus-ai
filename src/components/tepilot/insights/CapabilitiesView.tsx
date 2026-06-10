@@ -29,19 +29,19 @@ const DOWNSTREAM = [
   { label: "Segmentation & Targeting", icon: Users },
 ];
 
-function Pill({ label, Icon }: { label: string; Icon: React.ElementType }) {
+function VentusPill({ label, Icon }: { label: string; Icon: React.ElementType }) {
   return (
-    <div className="flex items-center gap-2.5 px-4 py-3 rounded-lg border border-slate-200 bg-white shadow-sm hover:border-slate-300 transition-colors">
-      <div className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-100 shrink-0">
-        <Icon className="w-3.5 h-3.5 text-slate-600" />
+    <div className="relative flex items-center gap-2.5 px-4 py-3 rounded-lg border border-indigo-200 border-l-2 border-l-indigo-600 bg-white shadow-sm hover:border-indigo-400 hover:shadow-[0_0_0_3px_rgba(79,70,229,0.08)] transition-all">
+      <div className="flex items-center justify-center w-7 h-7 rounded-md bg-gradient-to-br from-blue-900 to-indigo-900 shrink-0">
+        <Icon className="w-3.5 h-3.5 text-white" />
       </div>
       <span className="text-sm font-medium text-slate-800">{label}</span>
+      <img src={ventusLogoTransparent} alt="" aria-hidden className="absolute top-1.5 right-1.5 h-2.5 w-auto opacity-30" />
     </div>
   );
 }
 
 function Brace({ direction = "right" }: { direction?: "right" | "left" }) {
-  // simple curly-brace SVG
   return (
     <svg viewBox="0 0 40 320" className="w-6 h-full text-slate-300" preserveAspectRatio="none" fill="none" stroke="currentColor" strokeWidth="1.5">
       {direction === "right" ? (
@@ -49,6 +49,52 @@ function Brace({ direction = "right" }: { direction?: "right" | "left" }) {
       ) : (
         <path d="M35 5 C 15 5, 15 150, 5 160 C 15 170, 15 315, 35 315" strokeLinecap="round" />
       )}
+    </svg>
+  );
+}
+
+function CoreConnectors({ count }: { count: number }) {
+  // 6 curves from a single left anchor to evenly spaced right anchors.
+  const lines = Array.from({ length: count }, (_, i) => {
+    const y = ((i + 0.5) / count) * 100;
+    return { y, delay: (i * 0.4).toFixed(2) };
+  });
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      className="w-full h-full"
+      fill="none"
+    >
+      <defs>
+        <linearGradient id="ventusFlow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#c7d2fe" />
+          <stop offset="50%" stopColor="#6366f1" />
+          <stop offset="100%" stopColor="#a5b4fc" />
+        </linearGradient>
+        <style>{`
+          @keyframes ventusDash {
+            from { stroke-dashoffset: 0; }
+            to { stroke-dashoffset: -24; }
+          }
+          .ventus-flow {
+            stroke-dasharray: 4 8;
+            animation: ventusDash 3s linear infinite;
+          }
+        `}</style>
+      </defs>
+      {lines.map((l, i) => (
+        <path
+          key={i}
+          d={`M 0 50 C 35 50, 65 ${l.y}, 100 ${l.y}`}
+          stroke="url(#ventusFlow)"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          vectorEffect="non-scaling-stroke"
+          className="ventus-flow"
+          style={{ animationDelay: `${l.delay}s` }}
+        />
+      ))}
     </svg>
   );
 }
@@ -65,7 +111,7 @@ export function CapabilitiesView() {
       />
 
       <div className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8">
-        <div className="grid grid-cols-[1fr_auto_1.2fr_auto_1fr] gap-4 items-stretch">
+        <div className="grid grid-cols-[1fr_auto_1.2fr_72px_1fr] gap-4 items-stretch">
           {/* INPUTS */}
           <div className="flex flex-col">
             <div className="flex items-center justify-center gap-1.5 mb-3">
@@ -120,16 +166,21 @@ export function CapabilitiesView() {
             </div>
           </div>
 
-          <div className="flex items-stretch">
-            <Brace direction="left" />
+          {/* ANIMATED CONNECTORS */}
+          <div className="flex items-stretch pt-8">
+            <CoreConnectors count={DOWNSTREAM.length} />
           </div>
 
           {/* DOWNSTREAM */}
           <div className="flex flex-col">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-3 text-center">PERSONALIZED BANKING</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-700 mb-1 text-center">PERSONALIZED BANKING</p>
+            <div className="flex items-center justify-center gap-1.5 mb-3">
+              <span className="w-1.5 h-1.5 rounded-full bg-indigo-600 animate-pulse" />
+              <p className="text-[10px] font-medium text-indigo-600">Powered by Ventus</p>
+            </div>
             <div className="flex flex-col gap-2.5 flex-1 justify-center">
               {DOWNSTREAM.map((d) => (
-                <Pill key={d.label} label={d.label} Icon={d.icon} />
+                <VentusPill key={d.label} label={d.label} Icon={d.icon} />
               ))}
             </div>
           </div>
