@@ -1,5 +1,5 @@
-// memo removed: empty-state branch must precede hooks
-import { Activity, CalendarHeart, TrendingUp, Sparkles } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Activity, CalendarHeart, TrendingUp, Sparkles, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
