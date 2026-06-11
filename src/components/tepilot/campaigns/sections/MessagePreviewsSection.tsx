@@ -33,11 +33,13 @@ interface Props {
   product?: CatalogProduct;
   variants?: VariantBreakdown;
   offers?: string[];
+  campaignLink?: string;
 }
 
-export function MessagePreviewsSection({ product, variants, offers = [] }: Props) {
+export function MessagePreviewsSection({ product, variants, offers = [], campaignLink = "" }: Props) {
   const productName = product?.name ?? "";
-  const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants, offers) : [];
+  const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants, offers, campaignLink) : [];
+
 
   const totalSlots = 5;
 
@@ -188,9 +190,21 @@ export function MessagePreviewsSection({ product, variants, offers = [] }: Props
 
               <p className="text-[11px] text-slate-700 leading-relaxed mb-3 flex-1">{card.body}</p>
 
-              <button className="self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] font-semibold hover:bg-slate-800 transition-colors mb-2">
-                {card.cta}
-              </button>
+              {card.ctaHref ? (
+                <a
+                  href={card.ctaHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] font-semibold hover:bg-slate-800 transition-colors mb-2 no-underline"
+                >
+                  {card.cta}
+                </a>
+              ) : (
+                <button className="self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] font-semibold hover:bg-slate-800 transition-colors mb-2">
+                  {card.cta}
+                </button>
+              )}
+
 
               <div className="pt-2 border-t border-slate-100">
                 <div className="flex items-start gap-1.5">

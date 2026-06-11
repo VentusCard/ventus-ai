@@ -15,8 +15,10 @@ export interface MessageCard {
   subject: string;
   body: string;
   cta: string;
+  ctaHref?: string;      // optional campaign URL — renders the CTA as a link
   why: string;           // 1-line rationale
 }
+
 
 // ── Anchor pools by category ────────────────────────────────────────────────
 
@@ -262,12 +264,11 @@ export function buildMessageCards(
   product: CatalogProduct,
   variants: VariantBreakdown,
   offers: string[] = [],
+  campaignLink: string = "",
 ): MessageCard[] {
   const cards: MessageCard[] = [];
   const cat = product.category;
 
-  // Slot allocation: prefer stack cards when product is category-bearing,
-  // then life events, then goals, then usage as filler.
   const hasStacks = variants.stacks > 0 && variants.plays > 0;
   const stackAnchors = STACK_ANCHORS[cat] ?? [];
   const lifeAnchors = LIFE_EVENT_ANCHORS[cat];
@@ -277,7 +278,6 @@ export function buildMessageCards(
   const target = 5;
   const primaryOffer = offers[0]?.trim();
 
-  // Offer card — prepended when the user added at least one timely promo.
   if (primaryOffer) {
     const lower = product.name.toLowerCase();
     cards.push({
@@ -297,14 +297,11 @@ export function buildMessageCards(
       const anchor = stackAnchors[i];
       const play = PLAYS_BY_FAMILY.STACK[i % PLAYS_BY_FAMILY.STACK.length];
       const base = copyFor("STACK", product, anchor, play);
-      // First STACK card carries an offer tail when a promo is active.
       const body = primaryOffer && i === 0 ? `${base.body} — ${primaryOffer}.` : base.body;
       cards.push({ anchorFamily: "STACK", play, anchor, ...base, body });
     }
   }
 
-
-  // Life-event slots — at least 2 when product has them
   const lifeSlots = hasStacks ? 2 : Math.min(3, lifeAnchors.length);
   for (let i = 0; i < lifeSlots && cards.length < target; i++) {
     const anchor = lifeAnchors[i % lifeAnchors.length];
@@ -312,14 +309,12 @@ export function buildMessageCards(
     cards.push({ anchorFamily: "LIFE_EVENT", play, anchor, ...copyFor("LIFE_EVENT", product, anchor, play) });
   }
 
-  // Goal slot
   if (cards.length < target && variants.financialGoals > 0 && goalAnchors.length > 0) {
     const anchor = goalAnchors[0];
     const play = PLAYS_BY_FAMILY.GOAL[0];
     cards.push({ anchorFamily: "GOAL", play, anchor, ...copyFor("GOAL", product, anchor, play) });
   }
 
-  // Pad with usage / activation nudges (honest filler for low-variant products)
   let usageIdx = 0;
   while (cards.length < target && usageIdx < usageAnchors.length) {
     const anchor = usageAnchors[usageIdx];
@@ -328,7 +323,10 @@ export function buildMessageCards(
     usageIdx++;
   }
 
-  // If product genuinely has fewer than 5 anchors available, return what we have —
-  // the UI will render an honest "no further anchors" placeholder.
-  return cards.slice(0, target);
+  // Attach campaign link to every card's CTA when provided.
+  const href = campaignLink.trim();
+  const out = href ? cards.map((c) => ({ ...c, ctaHref: href })) : cards;
+
+  return out.slice(0, target);
 }
+
