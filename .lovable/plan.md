@@ -1,34 +1,44 @@
-# Rewrite Microsegment Copy: Subtle, Bright, Non-Creepy
+# Add Life-Event-Driven Flows (Consumer Products Only)
 
-Regenerate the `body` (and tighten `subject` + `title` where needed) for every entry in `src/lib/productMicrosegments.ts`. Same structure, same `signalLabel` keys, same flow IDs — only the customer-facing copy changes.
+Add the missing life-event flows that map to a concrete consumer financial product the bank actually sells. Skip events already covered by an existing flow (e.g. newborn→529, RSU vest→wealth, lease end→auto loan, pre-retirement→annuity/LTC, 401(k) job-change→IRA, inheritance→wealth/trust).
 
-## Tone rules (enforced in the regeneration prompt)
-- **No surveillance language.** Banned openers: "We've noticed…", "We see you…", "We detected…", "Based on your activity…", "Your transactions show…". Never reference the specific signal evidence back to the customer.
-- **Subtle.** Speak to a life moment or goal in general terms — never call out specific merchants, counts, amounts, frequencies, or behaviors.
-- **Short.** 2 sentences max, ~25–40 words total. No multi-paragraph emails.
-- **Bright & engaging.** Warm, optimistic, opportunity-framed. No stress/risk/scarcity language.
-- **Opener.** Must still start with `Hi {{first_name}},` then go straight to a benefit or moment.
-- **Subject.** ≤ 50 chars, friendly, benefit-led.
-- **Title.** 4–6 words.
-- **CTA.** 2–4 words, action-led.
+## New flows to add
 
-## Examples of the new feel
-- Before: "Hi {{first_name}}, we've noticed you're actively managing your investments. Did you know you can consolidate your portfolio and enjoy commission-free trading…"
-- After: "Hi {{first_name}}, ready to put more of your portfolio to work? Commission-free trades and smarter tools, whenever you want them."
+| # | id | Name | Category | Triggering life event |
+|---|----|------|----------|------------------------|
+| 1 | `wedding-loan` | Wedding Personal Loan | Lending | Engagement → wedding cycle |
+| 2 | `solo-restart-checking` | Solo Restart Checking | Deposits | Divorce / separation |
+| 3 | `inherited-ira` | Inherited IRA | Wealth | Beneficiary distribution |
+| 4 | `second-home-mortgage` | Second Home Mortgage | Lending | Vacation-home purchase |
+| 5 | `student-loan-refi` | Student Loan Refinance | Lending | Post-grad income step-up |
+| 6 | `hsa` | Health Savings Account | Deposits | High-deductible health plan |
+| 7 | `donor-advised-fund` | Donor-Advised Fund | Wealth | Charitable giving uptick |
+| 8 | `personal-line-of-credit` | Personal Line of Credit | Lending | Income disruption / gap |
+| 9 | `global-account` | Multi-Currency Global Account | Deposits | Expat / international move |
+| 10 | `homeowners-insurance` | Homeowners Insurance | Insurance | New home purchase |
+| 11 | `umbrella-insurance` | Umbrella Insurance | Insurance | Multi-asset household, teen driver |
+| 12 | `move-financing` | Moving & Relocation Loan | Lending | Cross-state move |
 
-- Before: "Hi {{first_name}}, as you settle into life with your newest family member, long term planning often takes on a new meaning. We noticed your recent focus on nursery and healthcare essentials and want to help you balance those…"
-- After: "Hi {{first_name}}, the early years fly by — a little set aside now can open big doors later. Start a tax-smart education fund in minutes."
+## Per-flow signals (consumer-account observable)
+Each gets 3 `FlowSignal`s mixing `life-event` and `behavioral`, drawn from personal-account activity only (no business-account assumptions). Examples:
+- **Wedding loan**: engagement ring spend cluster, venue/caterer deposits, save-the-date printing
+- **Solo restart checking**: joint→single ACH shift, recurring family-law attorney ACH, address change
+- **Inherited IRA**: estate-distribution inflow, beneficiary form interactions, deceased-spouse signal
+- **Second home mortgage**: recurring vacation-rental spend at same locale, multi-state property tax, high HHI
+- **Student loan refi**: recurring federal/private servicer ACH + payroll step-up post-graduation
+- **HSA**: HDHP premium pattern, recurring pharmacy + specialist copays, FSA cliff timing
+- **Donor-advised fund**: Q4 charitable spike, recurring nonprofit donations, high investable assets
+- **PLOC**: payroll gap or step-down, rising card utilization, healthy savings ratio
+- **Global account**: international payroll inflow, foreign-currency spend, cross-border wires
+- **Homeowners insurance**: new mortgage on file + no insurer ACH detected
+- **Umbrella**: multi-property tax footprint, teen-driver insurance add, wealth tier
+- **Move financing**: van-rental / moving-services spend, multi-state address change, deposit on new lease
 
-## Scope
-- Touch only `src/lib/productMicrosegments.ts`.
-- All 32 flows × ~3–4 signals each (~110 entries) get refreshed.
-- Preserve every `signalLabel` exactly (it is the join key with `productAutomatedFlows.ts`).
-- Keep `FlowMicrosegment` shape and the exported `FLOW_MICROSEGMENTS` const.
-
-## How
-One-shot regeneration via the same Lovable AI gateway script pattern used last time: feed each flow's `name`, `positioning`, and ordered signals, ask for new `{title, subject, body, cta}` per signal under the tone rules above, then rewrite the file with `signalLabel`s preserved.
+## Microsegments
+Generate `FLOW_MICROSEGMENTS` entries for all 12 new flows using the same script and tone rules already in place (≤40-word body, no surveillance phrasing, bright/opportunity-framed, `Hi {{first_name}},` opener).
 
 ## Files touched
-- `src/lib/productMicrosegments.ts` — full copy refresh, structure unchanged.
+- `src/lib/productAutomatedFlows.ts` — add 12 entries (icons from lucide-react, no UI changes)
+- `src/lib/productMicrosegments.ts` — append 12 new keys via regen script
 
-No component, routing, or schema changes.
+No component, route, schema, or styling changes. Brings catalog from 32 → 44 flows.
