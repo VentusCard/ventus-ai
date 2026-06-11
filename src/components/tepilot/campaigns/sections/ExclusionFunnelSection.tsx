@@ -127,7 +127,10 @@ export function ExclusionFunnelSection({ product }: Props) {
 
   const exclusions = getProductExclusions(product.id, product.category);
   const relevance = getProductSignalRelevance(product.id, product.category);
-  const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions, relevance, disabled);
+  const funnelDisabled = new Set(disabled);
+  funnelDisabled.add("financial");
+  const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions, relevance, funnelDisabled);
+
 
   const activeFilterCount =
     (AGE_RANGES.length - filters.ageRanges.length) +
