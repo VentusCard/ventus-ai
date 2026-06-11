@@ -46,7 +46,7 @@ function hashString(s: string): number {
 export function buildSamplePayload(product: CatalogProduct, cards: MessageCard[]): SampleRow[] {
   const now = Date.now();
   return cards.slice(0, 5).map((card, idx) => {
-    const r = rng(hashString(`${product.id}:${idx}`));
+    const r = rng(hashString(`${product.name}:${idx}`));
     const first = FIRST_NAMES[Math.floor(r() * FIRST_NAMES.length)];
     const last = LAST_NAMES[Math.floor(r() * LAST_NAMES.length)];
     const id = `C-${Math.floor(r() * 1e8).toString().padStart(8, "0")}`;
