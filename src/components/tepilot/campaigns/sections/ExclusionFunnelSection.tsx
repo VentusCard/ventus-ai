@@ -172,10 +172,12 @@ export function ExclusionFunnelSection({ product }: Props) {
             <div
               key={fam}
               className={cn(
-                "relative rounded-lg p-3 transition-all text-white animate-fade-in",
-                meta.solid,
+                "relative rounded-lg p-3 transition-all bg-white border-2 animate-fade-in",
+                meta.cardBorder,
+                meta.cardText,
                 relMeta.cardOpacity,
-                isExpanded && "ring-2 ring-white ring-offset-2 ring-offset-white shadow-md",
+                isExpanded && "ring-2 ring-offset-2 ring-offset-white shadow-md",
+                isExpanded && meta.cardBorder.replace("border-", "ring-"),
                 isDisabled && "opacity-40",
               )}
             >
@@ -235,12 +237,13 @@ export function ExclusionFunnelSection({ product }: Props) {
                 className="w-full text-left"
               >
                 <div className="flex items-center gap-1.5 mb-2 pr-6">
-                  <Icon className="w-4 h-4 text-white shrink-0" />
+                  <Icon className={cn("w-4 h-4 shrink-0", meta.cardText)} />
                 </div>
-                <p className="text-[12px] font-semibold text-white leading-tight">{meta.label}</p>
+                <p className={cn("text-[12px] font-semibold leading-tight", meta.cardText)}>{meta.label}</p>
               </button>
             </div>
           );
+
         })}
       </div>
 

@@ -774,7 +774,7 @@ export const FAMILY_REASONS: Record<ExclusionType, { intro: string; reasons: str
   },
 };
 
-export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; border: string; iconBg: string; iconColor: string; chip: string; solid: string }> = {
+export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; border: string; iconBg: string; iconColor: string; chip: string; solid: string; cardBorder: string; cardText: string }> = {
   "life-event": {
     label: "Life Event Signals",
     tone: "amber",
@@ -783,6 +783,8 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconColor: "text-amber-600",
     chip: "bg-amber-50 text-amber-700 border-amber-200",
     solid: "bg-amber-500",
+    cardBorder: "border-amber-500",
+    cardText: "text-amber-700",
   },
   behavioral: {
     label: "Behavioral Signals",
@@ -792,6 +794,8 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconColor: "text-blue-600",
     chip: "bg-blue-50 text-blue-700 border-blue-200",
     solid: "bg-blue-500",
+    cardBorder: "border-blue-500",
+    cardText: "text-blue-700",
   },
   financial: {
     label: "Financial Signals",
@@ -801,6 +805,8 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconColor: "text-emerald-600",
     chip: "bg-emerald-50 text-emerald-700 border-emerald-200",
     solid: "bg-emerald-600",
+    cardBorder: "border-emerald-600",
+    cardText: "text-emerald-700",
   },
   demographic: {
     label: "Demographic Signals",
@@ -810,6 +816,8 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconColor: "text-violet-600",
     chip: "bg-violet-50 text-violet-700 border-violet-200",
     solid: "bg-violet-500",
+    cardBorder: "border-violet-500",
+    cardText: "text-violet-700",
   },
   risk: {
     label: "Risk Signals",
@@ -819,5 +827,8 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconColor: "text-rose-600",
     chip: "bg-rose-50 text-rose-700 border-rose-200",
     solid: "bg-rose-500",
+    cardBorder: "border-rose-500",
+    cardText: "text-rose-700",
   },
 };
+
