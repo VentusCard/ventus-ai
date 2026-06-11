@@ -1,24 +1,44 @@
-# Keep Financial card, but stop subtracting it from the addressable count
+# Show life-event, demographic, financial cards as a realistic subset
 
-Financial signals should still display in the 5-card grid, but they must not reduce the addressable audience. Today, for products where `relevance.financial === "flag"`, the funnel removes those users and the card shows `−N excluded`.
+Currently those three families display the full `eligible` count, which implies every customer has, e.g., a new job or savings goal. They should show a believable share of the eligible base.
 
-## Changes
+## New label rules
+
+| Family | Label | Share of eligible |
+|---|---|---|
+| Behavioral | `{eligible} users · all` | 100% (unchanged) |
+| Life Event | `{N} users · {pct}%` | **18%** |
+| Demographic | `{N} users · {pct}%` | **62%** |
+| Financial | `{N} users · {pct}%` | **34%** |
+| Risk (flag) | `−{removed} excluded` | unchanged |
+
+Numbers are deterministic per product (`round(estimatedAudience × share)`), formatted with the existing `fmt()` helper.
+
+## Code
 
 File: `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx`
 
-1. **Exclude financial from funnel subtraction.** When calling `buildAudienceFunnel`, merge `"financial"` into the `disabled` set passed in (without affecting the user-controlled `disabled` state). Existing logic in `buildAudienceFunnel` already treats disabled families as "don't subtract", so the final addressable count and footer stay correct.
-   ```ts
-   const funnelDisabled = new Set(disabled);
-   funnelDisabled.add("financial");
-   const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions, relevance, funnelDisabled);
-   ```
-2. **Card label override.** In the `.map`, force the financial card off the "flag" branch so it reads `{eligible} users` instead of `−N excluded`:
-   ```ts
-   const isFlag = rel === "flag" && fam !== "financial";
-   ```
-3. **Disable toggle.** Financial cards stay non-toggleable (already the case — `canToggle` excludes `financial`).
+Inside the `.map`, replace the current `countLabel` branch with:
 
-## Out of scope
-- Removing the financial card itself.
-- Changing `buildAudienceFunnel` internals (we use the existing `disabled` mechanism).
-- Other families' behavior.
+```ts
+const FAMILY_SHARE: Partial<Record<ExclusionType, number>> = {
+  "life-event": 0.18,
+  demographic: 0.62,
+  financial: 0.34,
+};
+const removed = funnel.byFamily[fam]?.removed ?? 0;
+const isFlag = rel === "flag" && fam !== "financial";
+
+let countLabel: string;
+if (fam === "behavioral") {
+  countLabel = `${fmt(product.estimatedAudience)} users · all`;
+} else if (isFlag) {
+  countLabel = `−${fmt(removed)} excluded`;
+} else {
+  const share = FAMILY_SHARE[fam] ?? 1;
+  const n = Math.round(product.estimatedAudience * share);
+  countLabel = `${fmt(n)} users · ${Math.round(share * 100)}%`;
+}
+```
+
+No other changes (funnel math, footer, financial-not-subtracting behavior all stay as-is).

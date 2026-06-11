@@ -323,12 +323,22 @@ export function ExclusionFunnelSection({ product }: Props) {
 
           const removed = funnel.byFamily[fam]?.removed ?? 0;
           const isFlag = rel === "flag" && fam !== "financial";
-          const countLabel =
-            fam === "behavioral"
-              ? `${fmt(product.estimatedAudience)} users · all`
-              : isFlag
-                ? `−${fmt(removed)} excluded`
-                : `${fmt(product.estimatedAudience)} users`;
+          const FAMILY_SHARE: Partial<Record<ExclusionType, number>> = {
+            "life-event": 0.18,
+            demographic: 0.62,
+            financial: 0.34,
+          };
+          let countLabel: string;
+          if (fam === "behavioral") {
+            countLabel = `${fmt(product.estimatedAudience)} users · all`;
+          } else if (isFlag) {
+            countLabel = `−${fmt(removed)} excluded`;
+          } else {
+            const share = FAMILY_SHARE[fam] ?? 1;
+            const n = Math.round(product.estimatedAudience * share);
+            countLabel = `${fmt(n)} users · ${Math.round(share * 100)}%`;
+          }
+
 
           const state: "pending" | "processing" | "ready" =
             idx < revealedCount ? "ready" : idx === revealedCount ? "processing" : "pending";
