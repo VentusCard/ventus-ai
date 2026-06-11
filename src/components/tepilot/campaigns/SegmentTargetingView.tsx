@@ -8,8 +8,8 @@ export function SegmentTargetingView() {
     <div className="space-y-6">
       <TabHeader
         icon={<Route className="w-4 h-4" />}
-        title="Next-Best Product Engine"
-        subtitle="Lifestyle-driven product scoring and precision targeting"
+        title="Next-product"
+        subtitle="For each customer, what's the single best next product based on lifestyle pillars and life events?"
         howItWorks="Ventus scores every customer against every product using lifestyle pillars, life events, and behavioral gaps to rank next-best-offer."
         whyItMatters="Replaces guesswork with precision targeting, improving cross-sell conversion and reducing campaign waste."
       />

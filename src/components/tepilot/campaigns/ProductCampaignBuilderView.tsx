@@ -44,7 +44,7 @@ export function ProductCampaignBuilderView() {
       <TabHeader
         icon={<Megaphone className="w-4 h-4" />}
         title="Campaign Builder"
-        subtitle="Pick a product, see who qualifies after risk filters, and preview the personalized campaigns it can author."
+        subtitle="Pick a product the bank wants to push, see who qualifies after risk filters, and preview the personalized campaigns it can author."
         howItWorks="44 products span six categories. Each product carries an additive variant budget — Spending Behavior × plays plus life-event hooks plus financial-goal hooks — that maps to the distinct campaigns the engine can anchor on."
         whyItMatters="Lets relationship managers reason about a single product end-to-end — mechanics, eligible audience, and the honest count of campaigns it can power — without leaving the tab."
       />
