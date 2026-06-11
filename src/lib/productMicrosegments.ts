@@ -244,7 +244,7 @@ export const FLOW_MICROSEGMENTS: Record<string, FlowMicrosegment[]> = {
       "subject": "Peace of mind for your household",
       "body": "Hi {{first_name}}, you work hard to provide for your household and manage your family's daily needs. When others rely on a single source of income, having a dedicated safety net becomes an essential part of a sound financial plan. Term life insurance is designed to replace that income and maintain your family's standard of living for years to come. Let's look at how we can help safeguard the lifestyle you provide for your dependents."
     }
-  ]
+  ],
   "self-directed-brokerage": [
     {
       "body": "Hi {{first_name}},\n\nWe've noticed you're actively managing your investments. Did you know you can consolidate your portfolio and enjoy commission-free trading with us? Gain more control and simplify your financial life all in one place. Explore a world of investment opportunities designed for self-directed investors like you.",
@@ -427,29 +427,6 @@ export const FLOW_MICROSEGMENTS: Record<string, FlowMicrosegment[]> = {
       "subject": "Your Recent Income Growth Can Save You More!",
       "signalLabel": "[life-event] Income step-up \u2014 Payroll deposit increase > 15% sustained 6 months",
       "title": "Higher Income, Lower Auto Payments"
-    }
-  ],
-  "equipment-financing": [
-    {
-      "cta": "Explore Equipment Financing Options",
-      "title": "Smart Financing for Your Next Equipment Upgrade",
-      "signalLabel": "[behavioral] Trade equipment purchases \u2014 Large card spend at industrial suppliers or dental/medical vendors",
-      "body": "Hi {{first_name}}, Is your business looking to acquire new equipment or machinery? We've noticed your activity with industrial and medical suppliers, and we're here to help you finance your next big purchase. Our flexible equipment financing solutions can help you preserve working capital and get the tools you need to grow. Let us help you unlock new possibilities for your business.",
-      "subject": "Upgrade Your Business with Smart Equipment Financing"
-    },
-    {
-      "cta": "Finance Your Practice Equipment",
-      "subject": "Expand Your Practice, We'll Handle the Equipment",
-      "body": "Hi {{first_name}}, We understand the demands of running a successful practice, including managing payroll and operational costs. If you're considering expanding your services or updating your equipment, we offer tailored financing to support your growth. Our solutions are designed to help professional practices like yours thrive without tying up valuable capital. Discover how easy it is to upgrade your practice.",
-      "signalLabel": "[behavioral] Practice payroll ACH \u2014 Recurring payroll outflows from professional practice",
-      "title": "Grow Your Practice with Equipment Financing"
-    },
-    {
-      "title": "Invest in Equipment, Not Just Real Estate",
-      "signalLabel": "[behavioral] Commercial lease ACH \u2014 Monthly commercial-real estate lease payment",
-      "body": "Hi {{first_name}}, We see you're effectively managing your commercial real estate. Now, let's explore how you can further empower your business. Investing in new or upgraded equipment can significantly boost efficiency and productivity. Our flexible financing options are designed to help you acquire the assets you need while maintaining a healthy cash flow. Let's discuss how we can support your business's next big step.",
-      "subject": "Equip Your Business for Growth and Efficiency",
-      "cta": "Discover Equipment Financing Solutions"
     }
   ],
   "starter-checking": [
@@ -703,75 +680,6 @@ export const FLOW_MICROSEGMENTS: Record<string, FlowMicrosegment[]> = {
       "signalLabel": "[behavioral] Seasonal travel pattern \u2014 Predictable annual booking cadence with same brand",
       "cta": "Upgrade Your Travel Rewards",
       "title": "Travel Smarter, Earn More Every Season"
-    }
-  ],
-  "sb-cashback-card": [
-    {
-      "signalLabel": "[behavioral] Supplier card spend \u2014 Recurring charges at wholesale, office supply, fuel cards",
-      "title": "Business Spending, Smarter Cash Back",
-      "body": "Hi {{first_name}}, we've noticed your business has a steady rhythm of essential purchases. Imagine earning significant cash back on those recurring expenses, from wholesale to office supplies and fuel. Our Small Business Cash Back Card is designed to turn your everyday operational spending into rewarding savings. It's an effortless way to boost your bottom line.",
-      "subject": "Unlock More Cash Back on Your Business Buys",
-      "cta": "Explore Cash Back Benefits"
-    },
-    {
-      "body": "Hi {{first_name}}, it's great to see your business thriving with consistent customer transactions. What if every sale you make could also contribute to greater cash back for your business? Our Small Business Cash Back Card helps you earn more on supplier spend, freeing up capital from your strong sales. It's a smart way to get more from your hard-earned revenue.",
-      "subject": "Maximize Rewards from Your Business Transactions",
-      "title": "Turn Sales into Smarter Rewards",
-      "signalLabel": "[behavioral] Processor deposits \u2014 Square / Stripe / Toast settlements to business account",
-      "cta": "Discover Card Benefits"
-    },
-    {
-      "title": "Empower Your Team, Earn More",
-      "signalLabel": "[behavioral] Employee card request \u2014 Multiple authorized-user adds within 90 days",
-      "body": "Hi {{first_name}}, as your business grows, so does the need for efficient team spending. You've been actively expanding your team's access, and our Small Business Cash Back Card can help you manage and maximize those expenses. Empower your employees with their own cards while still earning cash back on all their business-related purchases. It\u2019s an easy way to stay in control and get rewarded.",
-      "subject": "Streamline Spending & Earn with Team Cards",
-      "cta": "Get Cards for Your Team"
-    }
-  ],
-  "sb-flat-card": [
-    {
-      "cta": "Explore Cash Back Benefits",
-      "body": "Hi {{first_name}},\n\nWe've noticed your business has a wide array of vendors and suppliers, which speaks to your dynamic operations. Imagine getting unlimited cash back on all those diverse business purchases. Our Flat-Rate Card is designed to simplify your rewards, making every swipe more valuable. It's time to turn your varied spending into consistent savings.\n\nReady to maximize your cash back?",
-      "signalLabel": "[behavioral] Diversified business spend \u2014 Card spend across 30+ business-coded merchants/mo",
-      "title": "Diverse Business Spend Rewards",
-      "subject": "Unlock More Cash Back for Your Diverse Spending"
-    },
-    {
-      "signalLabel": "[behavioral] SaaS subscription stack \u2014 10+ recurring SaaS charges on business account",
-      "subject": "Simplify Your SaaS Spend, Maximize Your Cash Back",
-      "title": "Optimize Your SaaS Subscriptions",
-      "body": "Hi {{first_name}},\n\nYour business relies on a robust suite of software tools, and that's smart. Managing numerous subscriptions can be complex, but earning rewards on them doesn't have to be. Our Flat-Rate Card offers unlimited cash back on all your recurring SaaS expenses, streamlining your finances. It's a simple way to get more from the tools that drive your business forward.\n\nDiscover smarter spending for your SaaS.",
-      "cta": "Simplify SaaS Rewards"
-    },
-    {
-      "body": "Hi {{first_name}},\n\nIt's clear your business is thriving, and your expanding team is a testament to that growth. We understand that managing increasing payroll is a significant part of your success. With our Flat-Rate Card, you can earn unlimited cash back on all your business expenses, including those vital payroll-related costs. It's a thoughtful way to support your growth while continuously earning rewards.\n\nGrow your cash back with your business.",
-      "cta": "Get Rewarded for Growth",
-      "signalLabel": "[behavioral] Growing payroll outflow \u2014 Payroll provider ACH increasing quarter over quarter",
-      "subject": "Earn Cash Back as Your Business Grows",
-      "title": "Reward Your Growing Team"
-    }
-  ],
-  "sb-travel-card": [
-    {
-      "body": "Hi {{first_name}}, we've noticed your consistent travel for client meetings, and we understand the importance of making every trip count. Our Small Business Travel Card is designed to turn your regular hotel and rental car expenses into significant rewards. Imagine earning points on every mile, every stay, and every client visit, transforming necessary travel into a rewarding experience for your business. Let us help you streamline your travel spending and elevate your reward potential.",
-      "cta": "Explore Travel Card Benefits",
-      "signalLabel": "[behavioral] Client travel pattern \u2014 Hotel + rental car spend on business account weekly",
-      "subject": "Unlock More Rewards on Your Business Trips",
-      "title": "Frequent Travelers, Maximize Your Rewards"
-    },
-    {
-      "body": "Hi {{first_name}}, we see you're investing in valuable industry events and trade shows. These opportunities are crucial for growth, and your Small Business Travel Card can help you get more back from those significant registration fees and associated travel costs. Consolidate your expenses and watch your rewards grow, making future events even more accessible and beneficial. Discover how your business can thrive by optimizing these essential investments.",
-      "cta": "Optimize Event Spending",
-      "signalLabel": "[behavioral] Conference / trade show spend \u2014 Annual large registration fees + travel cluster",
-      "subject": "Maximize Returns on Conference & Event Spending",
-      "title": "Conferences & Events: Earn More Back"
-    },
-    {
-      "title": "Global Business, Global Rewards",
-      "subject": "Seamless Rewards for Your International Business",
-      "body": "Hi {{first_name}}, your business has a global reach, and we recognize the unique financial considerations that come with an international clientele. The Small Business Travel Card is ideal for businesses engaging in international transactions or managing foreign exchange. We can help you simplify your global expenditures and earn valuable rewards, ensuring every international connection benefits your bottom line. Expand your horizons with a card built for global success.",
-      "cta": "Streamline International Payments",
-      "signalLabel": "[behavioral] International client base \u2014 FX or international wires to business counterparties"
     }
   ],
   "permanent-life": [
