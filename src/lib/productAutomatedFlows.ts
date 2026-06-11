@@ -31,6 +31,7 @@ import {
   Globe,
   Heart,
   Truck,
+  Gift,
   type LucideIcon,
 } from "lucide-react";
 
