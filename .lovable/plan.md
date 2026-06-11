@@ -1,56 +1,100 @@
-# Sharpen Every Flow Signal to Ventus-Unique Patterns
+## Goal
 
-Rewrite the `signals` array on every flow in `src/lib/productAutomatedFlows.ts` so each `evidence` string reflects something **Ventus is uniquely positioned to detect** via multi-rail, semantically enriched transaction data — not patterns a generic bank analytics layer or Plaid-style aggregator could produce on its own.
+Replace `ProductCampaignBuilderView` with a focused 3-section layout driven entirely by the existing 44-product `PRODUCT_FLOWS` catalog. No new tab — the existing Targeting → Campaign Builder slot now renders the redesigned view.
 
-## What "uniquely Ventus" means (the lens applied to every signal)
-Sharpen evidence to lean on at least one of these capabilities:
-1. **Cross-rail joins** — combining card + ACH + wire + bill-pay + P2P (Zelle/Venmo) to see a complete behavior no single rail reveals.
-2. **Semantic merchant enrichment** — resolving obscured descriptors (e.g., `STRP*XYZ`, `WF8429*ACH`, `VEN*CASH`) to canonical entities, categories, life-stage tags, and counterparty identity.
-3. **Recurring-payment graph** — clustering irregular but related outflows into named obligations (childcare, eldercare, alimony, tuition, club dues) that don't share a clean merchant name.
-4. **Counterparty resolution** — turning anonymous wire/ACH lines into known entities (estate counsel, captive lender, foreign payroll provider, charity).
-5. **Cross-rail life-stage inference** — combining signals across rails into a confident life event (e.g., baby retailer card + pediatric copay ACH + daycare bill-pay = newborn at month X).
-6. **Wallet-share visibility** — detecting that a competitor product is doing what your bank could (external card paydown bill-pay, outbound brokerage ACH, neobank funding ACH).
+---
 
-Single-rail signals are kept only when no multi-rail version exists.
+## Layout
 
-## Scope
-- All 44 flows × ~3 signals each (~130 evidence lines) get rewritten.
-- `label` may be tightened where the new evidence reframes it.
-- `type` (`life-event` | `behavioral`) preserved per signal where appropriate.
-- Signal *count* per flow stays at 3 (drop the occasional 4th to keep cards consistent) unless a strong cross-rail signal warrants a 4th.
-- Constraints honored: no competitor merchant names in customer-facing text (signals are internal-facing, so descriptor patterns like `STRP*` are OK as evidence examples), "vaguely specific" tone preserved.
+```text
+┌─────────────────────────────────────────────────────────────┐
+│ Section 1 — PRODUCT PICKER + MECHANICS                      │
+│  Left:  scrollable grid of all 44 products (grouped by      │
+│         category: Wealth · Lending · Deposits · Cards ·     │
+│         Insurance) as compact cards with icon + name.       │
+│  Right: selected product detail — positioning + 1–2 lines   │
+│         of mechanics ("3% transit · 2% sports · 1% else,    │
+│         $0 annual fee, top-3 categories auto-rotate") and a │
+│         bullet list of 3–5 product features.                │
+├─────────────────────────────────────────────────────────────┤
+│ Section 2 — AUDIENCE & EXCLUSION FUNNEL                     │
+│  Horizontal funnel:                                         │
+│   Total base (250M) → Eligible (penetration) →              │
+│   minus financial-risk → minus behavioral-risk →            │
+│   Final addressable                                         │
+│  Below funnel: two columns of exclusion chips, each with    │
+│   • criterion label                                         │
+│   • count removed (vaguely specific)                        │
+│   • one-line plain-English rationale                        │
+│  e.g. "Recent NSF cluster — 1.2M removed — protects         │
+│   customer from a card they'd struggle to service."         │
+├─────────────────────────────────────────────────────────────┤
+│ Section 3 — THREE PERSONALIZED MESSAGE PREVIEWS             │
+│  Three side-by-side cards, each tagged by angle:            │
+│   1. Behavioral / spend-pattern                              │
+│      "This card gets you 3% on transit and 2% on sports."   │
+│   2. Life-event driven                                       │
+│      "Your top categories this year — diapers, pediatric    │
+│       copays — both earn 2% with this card."                │
+│   3. Financial-journey driven                                │
+│      "You're building toward a down payment — round-ups     │
+│       on every swipe go straight to your HYSA."             │
+│  Each card: subject line, 2–3 sentence body, CTA pill, and  │
+│  a small "Why this angle" chip referencing the signal type. │
+└─────────────────────────────────────────────────────────────┘
+```
 
-## Example transforms
+---
 
-Before → After (529 plan, newborn signal):
-- Before: `"Buy Buy Baby, Carter's, pediatric copays within 90 days"`
-- After: `"Card spend at baby-category merchants (resolved across 200+ DBAs) co-occurring with pediatrician HSA/copay ACH and new daycare bill-pay payee within 90 days"`
+## Data model changes
 
-Before → After (HELOC, home renovation):
-- Before: `"Home Depot, Lowe's, contractor ACH > $1,000"`
-- After: `"Sustained card spend at home-improvement merchants combined with semantically resolved contractor Zelle/Venmo memos ('framing,' 'plumbing,' 'cabinets') above household baseline"`
+Extend `ProductFlow` in `src/lib/productAutomatedFlows.ts`:
 
-Before → After (Wealth Management, RSU vest):
-- Before: `"Quarterly RSU vest, ESPP buyback inflows"`
-- After: `"Quarterly payroll-rail inflows from a brokerage transfer agent (resolved counterparty: Fidelity/Schwab equity-plan accounts) paired with same-day outbound ACH to retail brokerage"`
+```ts
+export interface ProductMechanics {
+  tagline: string;            // one-liner: "3% / 2% / 1% on top categories"
+  features: string[];         // 3–5 short bullets
+  // optional structured rate card for visual rendering
+  rateTable?: { tier: string; rate: string; note?: string }[];
+  fee?: string;               // "$0 annual fee" / "$95 / waived first year"
+}
+```
 
-Before → After (Inherited IRA):
-- Before: `"Single deposit from estate or trust counsel over $50k"`
-- After: `"Wire inflow with descriptor resolved to estate-counsel IOLTA account, paired with prior recurring bill-pay to a probate attorney and a joint→single account state change"`
+Add a `mechanics` field to every one of the 44 products, anonymized from the BoA-style reference catalog already used elsewhere in the project (Category Cash Back Card = 3/2/1, Travel Card = 1.5x/3x on travel, HYSA = 4.25% APY, etc.). Hand-authored in the catalog file — no LLM call for mechanics.
 
-Before → After (Global Account, expat):
-- Before: `"Recurring deposit from foreign-domiciled employer"`
-- After: `"Wire payroll inflows with originating-bank BIC resolved to a non-US institution, plus FX card spend in the same country and outbound P2P memos in a non-English language"`
+Audience funnel inputs (deterministic, mock):
+- `estimatedAudience` already on each product.
+- Add `exclusions: { id, label, removedPct, rationale, type: 'financial'|'behavioral' }[]` on each product. ~4–6 exclusions per product, mocked but plausible (e.g. cards exclude "thin credit file", "recent NSF cluster"; HELOC excludes "LTV > 80%", "recent late mortgage payment").
 
-Before → After (Wedding Loan):
-- Before: `"Jewelry purchase at premium retailer over $3k"`
-- After: `"Single large card spend at fine-jewelry MCC, followed within 60 days by vendor-deposit bill-pay payees semantically tagged as wedding services (venue, catering, photography)"`
+Counts in the funnel = `estimatedAudience × (1 − sum(removedPct))` with per-stage subtraction shown visually.
 
-## How
-One-shot per flow via the existing LLM script (`/tmp/regen-ms.py` updated to also rewrite signals) using the Ventus capabilities above as the system prompt. Output keyed by flow id with new `signals: [{label, evidence, type}, ...]`. Apply the patch to `productAutomatedFlows.ts`. Then re-run the microsegments regenerator so `productMicrosegments.ts` picks up the new `signalLabel`s (which encode label + evidence).
+---
 
-## Files touched
-- `src/lib/productAutomatedFlows.ts` — `signals` arrays rewritten for all 44 flows (no schema, no UI changes)
-- `src/lib/productMicrosegments.ts` — regenerated to match new signalLabels with the existing bright/non-surveillance tone
+## Files to touch
 
-No component, routing, or styling changes.
+- `src/lib/productAutomatedFlows.ts` — extend type, add `mechanics` + `exclusions` to all 44 entries (largest edit; mechanical).
+- `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx` — full rewrite into 3-section layout described above. Remove the old 3-step state (signals/lifeEvents/pillars/etc.) and the right sticky strip.
+- New `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — grid + detail panel.
+- New `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx` — funnel + exclusion list.
+- New `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — 3 message cards.
+- New `src/lib/productMessageVariants.ts` — for each product, 3 hand-authored message variants keyed by angle (behavioral, life-event, financial-journey). Uses the same anonymized voice as `productMicrosegments.ts`. No LLM call — deterministic so the preview is instant and consistent.
+
+Untouched: `ProductAutomatedFlowsView`, edge functions, `productMicrosegments.ts`, sidebar navigation, all other tabs.
+
+---
+
+## Style + tone constraints (from project memory)
+
+- Strict light theme; white cards, slate-200 borders; no `dark:` utilities.
+- Manrope for UI; `ui-monospace` only for raw transaction-style strings (rate-card mono is fine).
+- "Vaguely specific" messaging — no exact transaction counts or dollar amounts in customer copy.
+- No competitor or BoA product names in any visible string; mechanics phrased generically.
+- Avoid risk/stress language in the message previews; exclusion rationales are framed as customer protection ("we hold off until …") rather than denial.
+
+---
+
+## Non-goals
+
+- No edge function changes, no DB schema, no auth.
+- No regeneration of `productMicrosegments.ts`.
+- Old multi-family signal builder is gone; nothing else in the app imports its state.
