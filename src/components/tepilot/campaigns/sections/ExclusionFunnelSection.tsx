@@ -23,10 +23,10 @@ import {
   SIGNAL_FAMILIES,
   SIGNAL_RELEVANCE_META,
   FAMILY_META,
-  FAMILY_REASONS,
   type ExclusionType,
   type SignalRelevance,
 } from "@/lib/productCatalogExtras";
+
 
 const fmt = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
