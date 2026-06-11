@@ -588,28 +588,102 @@ export interface FamilyBreakdown {
   signals: ProductExclusion[];
 }
 
+export type SignalRelevance = "useful" | "neutral" | "flag";
+
+const CATEGORY_SIGNAL_RELEVANCE: Record<FlowCategory, Record<ExclusionType, SignalRelevance>> = {
+  Cards: {
+    "life-event": "neutral",
+    behavioral: "useful",
+    financial: "flag",
+    demographic: "neutral",
+    risk: "flag",
+  },
+  Lending: {
+    "life-event": "useful",
+    behavioral: "neutral",
+    financial: "flag",
+    demographic: "neutral",
+    risk: "flag",
+  },
+  Deposits: {
+    "life-event": "neutral",
+    behavioral: "useful",
+    financial: "neutral",
+    demographic: "neutral",
+    risk: "neutral",
+  },
+  Wealth: {
+    "life-event": "useful",
+    behavioral: "neutral",
+    financial: "flag",
+    demographic: "useful",
+    risk: "neutral",
+  },
+  Insurance: {
+    "life-event": "useful",
+    behavioral: "neutral",
+    financial: "neutral",
+    demographic: "useful",
+    risk: "flag",
+  },
+};
+
+const PRODUCT_SIGNAL_RELEVANCE: Record<string, Record<ExclusionType, SignalRelevance>> = {
+  // Travel cards — clearly behavioral + life-event driven
+  "travel-card":               { "life-event": "useful",  behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  "premium-travel-card":       { "life-event": "useful",  behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  "ultra-premium-travel-card": { "life-event": "useful",  behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  // Cashback / general-purpose cards — behavioral only
+  "category-cashback-card":    { "life-event": "neutral", behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  "flat-cashback-card":        { "life-event": "neutral", behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  "balance-transfer-card":     { "life-event": "neutral", behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  "cobrand-card":              { "life-event": "neutral", behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  // Mortgage / home equity — life-event + demographic
+  "mortgage":                  { "life-event": "useful",  behavioral: "neutral", financial: "flag",    demographic: "useful",  risk: "flag" },
+  "second-home-mortgage":      { "life-event": "useful",  behavioral: "neutral", financial: "flag",    demographic: "useful",  risk: "flag" },
+  "heloc":                     { "life-event": "useful",  behavioral: "neutral", financial: "flag",    demographic: "useful",  risk: "flag" },
+  // Education / family savings — life-event + behavioral
+  "529-plan":                  { "life-event": "useful",  behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "neutral" },
+  // High-yield savings — behavioral with timing
+  "high-yield-savings":        { "life-event": "useful",  behavioral: "useful",  financial: "neutral", demographic: "neutral", risk: "neutral" },
+  // Installment loans — behavioral with hard underwriting flags
+  "auto-loan":                 { "life-event": "neutral", behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  "auto-refi":                 { "life-event": "neutral", behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+  "personal-loan":             { "life-event": "neutral", behavioral: "useful",  financial: "flag",    demographic: "neutral", risk: "flag" },
+};
+
+export function getProductSignalRelevance(
+  productId: string,
+  category: FlowCategory,
+): Record<ExclusionType, SignalRelevance> {
+  return PRODUCT_SIGNAL_RELEVANCE[productId] ?? CATEGORY_SIGNAL_RELEVANCE[category];
+}
+
 export function buildAudienceFunnel(
   estimatedAudience: number,
   exclusions: ProductExclusion[],
+  relevance: Record<ExclusionType, SignalRelevance>,
   disabled?: Set<ExclusionType>,
 ): {
   stages: FunnelStage[];
   finalCount: number;
   byFamily: Record<ExclusionType, FamilyBreakdown>;
 } {
-  // Apply families sequentially in SIGNAL_FAMILIES order so each removal is on the post-prior remainder.
+  // Only families ranked as "flag" remove customers. "useful" qualifies them in;
+  // "neutral" is informational only. Apply flag families sequentially.
   let remaining = estimatedAudience;
   const stages: FunnelStage[] = [{ id: "eligible", label: "Eligible base", count: estimatedAudience }];
   const byFamily = {} as Record<ExclusionType, FamilyBreakdown>;
 
   for (const fam of SIGNAL_FAMILIES) {
     const signals = exclusions.filter((e) => e.type === fam);
-    const pct = signals.reduce((s, e) => s + e.removedPct, 0);
+    const rel = relevance[fam];
+    const isFlag = rel === "flag";
+    const pct = isFlag ? signals.reduce((s, e) => s + e.removedPct, 0) : 0;
     const isDisabled = disabled?.has(fam) ?? false;
     const potentialRemoved = Math.round(remaining * pct);
     const after = isDisabled ? remaining : remaining - potentialRemoved;
     const removed = remaining - after;
-    // Report each family's *potential* removed count for tooltip clarity, even when disabled.
     byFamily[fam] = { removed: isDisabled ? potentialRemoved : removed, signals };
     stages.push({ id: `after-${fam}`, label: `After ${FAMILY_META[fam].label.toLowerCase()}`, count: after, delta: removed });
     remaining = after;
@@ -618,13 +692,36 @@ export function buildAudienceFunnel(
   return { stages, finalCount: remaining, byFamily };
 }
 
-export const FAMILY_POLARITY: Record<ExclusionType, "plus" | "minus"> = {
-  "life-event": "plus",
-  behavioral: "plus",
-  demographic: "plus",
-  financial: "minus",
-  risk: "minus",
+export const SIGNAL_RELEVANCE_META: Record<SignalRelevance, { label: string; intro: string; badgeBg: string; badgeBorder: string; badgeText: string; bulletColor: string; cardOpacity: string }> = {
+  useful: {
+    label: "Strong driver for this product",
+    intro: "These signals qualify customers because they are a primary driver for this product:",
+    badgeBg: "bg-emerald-500",
+    badgeBorder: "border-emerald-400",
+    badgeText: "text-white",
+    bulletColor: "bg-emerald-500",
+    cardOpacity: "",
+  },
+  neutral: {
+    label: "Considered, not decisive here",
+    intro: "These signals are reviewed for completeness but do not materially shape the audience for this product:",
+    badgeBg: "bg-slate-300",
+    badgeBorder: "border-slate-300",
+    badgeText: "text-slate-700",
+    bulletColor: "bg-slate-400",
+    cardOpacity: "opacity-60",
+  },
+  flag: {
+    label: "Disqualifying check",
+    intro: "These signals exclude customers to protect them or to satisfy underwriting:",
+    badgeBg: "bg-rose-500",
+    badgeBorder: "border-rose-400",
+    badgeText: "text-white",
+    bulletColor: "bg-rose-500",
+    cardOpacity: "",
+  },
 };
+
 
 export const FAMILY_REASONS: Record<ExclusionType, { intro: string; reasons: string[] }> = {
   "life-event": {
