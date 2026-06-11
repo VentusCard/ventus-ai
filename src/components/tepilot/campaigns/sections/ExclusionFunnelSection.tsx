@@ -398,7 +398,7 @@ export function ExclusionFunnelSection({ product }: Props) {
                 <PopoverContent
                   side="top"
                   align="end"
-                  className="w-64 p-3 bg-white border-slate-200 text-slate-900"
+                  className="w-80 p-3 bg-white border-slate-200 text-slate-900"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <div className="flex items-center gap-2 mb-2">
@@ -410,21 +410,45 @@ export function ExclusionFunnelSection({ product }: Props) {
                       <p className="text-[10px] text-slate-500 leading-tight">{relMeta.label}</p>
                     </div>
                   </div>
+
+                  {(() => {
+                    const narrative = FAMILY_NARRATIVE[fam];
+                    return (
+                      <div className="mb-2.5 pb-2.5 border-b border-slate-100">
+                        <p className={cn("text-[11px] italic font-medium leading-snug mb-1", meta.cardText)}>
+                          {narrative.tagline}
+                        </p>
+                        <p className="text-[10px] text-slate-600 leading-snug mb-1.5">
+                          {narrative.description}
+                        </p>
+                        <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-1">What we read</p>
+                        <ul className="space-y-1">
+                          {narrative.themes.map((t, i) => (
+                            <li key={i} className="flex items-start gap-1.5">
+                              <span className={cn("mt-1.5 w-1 h-1 rounded-full shrink-0", relMeta.bulletColor)} />
+                              <p className="text-[10px] text-slate-700 leading-snug">{t}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    );
+                  })()}
+
                   {(() => {
                     const items = getFamilySignals(fam);
                     const shown = items.slice(0, 5);
                     const extra = items.length - shown.length;
                     if (items.length === 0) {
                       return (
-                        <p className="text-[11px] text-slate-500 italic leading-snug">
-                          No product-specific signals — relying on universal checks.
+                        <p className="text-[10px] text-slate-500 italic leading-snug">
+                          No product-specific signals for {product.name} — relying on universal checks.
                         </p>
                       );
                     }
                     return (
                       <>
-                        <p className="text-[11px] text-slate-600 leading-snug mb-2">
-                          Signals driving this family for {product.name}:
+                        <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
+                          Evidence for {product.name}
                         </p>
                         <ul className="space-y-1.5">
                           {shown.map((s) => (
