@@ -18,7 +18,15 @@ export interface ProductMechanics {
   features: string[];
 }
 
-export type ExclusionType = "financial" | "behavioral";
+export type ExclusionType = "financial" | "behavioral" | "life-event" | "demographic" | "risk";
+
+export const SIGNAL_FAMILIES: ExclusionType[] = [
+  "life-event",
+  "behavioral",
+  "financial",
+  "demographic",
+  "risk",
+];
 
 export interface ProductExclusion {
   id: string;
@@ -339,6 +347,22 @@ const FIN = (id: string, label: string, removedPct: number, rationale: string): 
   ({ id, label, removedPct, rationale, type: "financial" });
 const BEH = (id: string, label: string, removedPct: number, rationale: string): ProductExclusion =>
   ({ id, label, removedPct, rationale, type: "behavioral" });
+const LIFE = (id: string, label: string, removedPct: number, rationale: string): ProductExclusion =>
+  ({ id, label, removedPct, rationale, type: "life-event" });
+const DEMO = (id: string, label: string, removedPct: number, rationale: string): ProductExclusion =>
+  ({ id, label, removedPct, rationale, type: "demographic" });
+const RISK = (id: string, label: string, removedPct: number, rationale: string): ProductExclusion =>
+  ({ id, label, removedPct, rationale, type: "risk" });
+
+// Universal signal additions applied to every product so all 5 families have content.
+const UNIVERSAL_SIGNALS: ProductExclusion[] = [
+  LIFE("recent-life-event", "Active life-event window", 0.04, "Households inside a recent life-event window are prioritized — timing materially lifts response."),
+  LIFE("stale-life-context", "Stale household context", 0.03, "No life-event signals refreshed in 18+ months — held for re-discovery before outreach."),
+  DEMO("outside-target-age", "Outside product target age band", 0.05, "Age outside the band where this product's structure typically pays off."),
+  DEMO("region-unsupported", "Region without product availability", 0.02, "Product not currently offered in this region or licensed jurisdiction."),
+  RISK("fraud-watch", "Active fraud / dispute watch", 0.02, "Open fraud or dispute case — held until the case clears to avoid noisy onboarding."),
+  RISK("aml-review", "AML review in progress", 0.01, "Pending AML review — standard policy to pause cross-sell outreach."),
+];
 
 const CATEGORY_DEFAULT_EXCLUSIONS: Record<FlowCategory, ProductExclusion[]> = {
   Cards: [
@@ -534,7 +558,8 @@ export function getProductMechanics(productId: string, category: FlowCategory): 
 }
 
 export function getProductExclusions(productId: string, category: FlowCategory): ProductExclusion[] {
-  return EXCLUSIONS_OVERRIDES[productId] ?? CATEGORY_DEFAULT_EXCLUSIONS[category];
+  const base = EXCLUSIONS_OVERRIDES[productId] ?? CATEGORY_DEFAULT_EXCLUSIONS[category];
+  return [...base, ...UNIVERSAL_SIGNALS];
 }
 
 export function getProductMessageVariants(
@@ -558,22 +583,76 @@ export interface FunnelStage {
   delta?: number; // amount removed from previous stage
 }
 
+export interface FamilyBreakdown {
+  removed: number;
+  signals: ProductExclusion[];
+}
+
 export function buildAudienceFunnel(
   estimatedAudience: number,
   exclusions: ProductExclusion[],
-): { stages: FunnelStage[]; financialRemoved: number; behavioralRemoved: number; finalCount: number } {
-  const finPct = exclusions.filter((e) => e.type === "financial").reduce((s, e) => s + e.removedPct, 0);
-  const behPct = exclusions.filter((e) => e.type === "behavioral").reduce((s, e) => s + e.removedPct, 0);
-  const afterFin = Math.round(estimatedAudience * (1 - finPct));
-  const afterBeh = Math.round(afterFin * (1 - behPct));
-  return {
-    financialRemoved: estimatedAudience - afterFin,
-    behavioralRemoved: afterFin - afterBeh,
-    finalCount: afterBeh,
-    stages: [
-      { id: "eligible", label: "Eligible base", count: estimatedAudience },
-      { id: "after-fin", label: "After financial-risk filters", count: afterFin, delta: estimatedAudience - afterFin },
-      { id: "after-beh", label: "After behavioral-risk filters", count: afterBeh, delta: afterFin - afterBeh },
-    ],
-  };
+): {
+  stages: FunnelStage[];
+  finalCount: number;
+  byFamily: Record<ExclusionType, FamilyBreakdown>;
+} {
+  // Apply families sequentially in SIGNAL_FAMILIES order so each removal is on the post-prior remainder.
+  let remaining = estimatedAudience;
+  const stages: FunnelStage[] = [{ id: "eligible", label: "Eligible base", count: estimatedAudience }];
+  const byFamily = {} as Record<ExclusionType, FamilyBreakdown>;
+
+  for (const fam of SIGNAL_FAMILIES) {
+    const signals = exclusions.filter((e) => e.type === fam);
+    const pct = signals.reduce((s, e) => s + e.removedPct, 0);
+    const after = Math.round(remaining * (1 - pct));
+    const removed = remaining - after;
+    byFamily[fam] = { removed, signals };
+    stages.push({ id: `after-${fam}`, label: `After ${FAMILY_META[fam].label.toLowerCase()}`, count: after, delta: removed });
+    remaining = after;
+  }
+
+  return { stages, finalCount: remaining, byFamily };
 }
+
+export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; border: string; iconBg: string; iconColor: string; chip: string }> = {
+  "life-event": {
+    label: "Life Event Signals",
+    tone: "amber",
+    border: "border-l-amber-400",
+    iconBg: "bg-amber-50",
+    iconColor: "text-amber-600",
+    chip: "bg-amber-50 text-amber-700 border-amber-200",
+  },
+  behavioral: {
+    label: "Behavioral Signals",
+    tone: "blue",
+    border: "border-l-blue-400",
+    iconBg: "bg-blue-50",
+    iconColor: "text-blue-600",
+    chip: "bg-blue-50 text-blue-700 border-blue-200",
+  },
+  financial: {
+    label: "Financial Signals",
+    tone: "emerald",
+    border: "border-l-emerald-400",
+    iconBg: "bg-emerald-50",
+    iconColor: "text-emerald-600",
+    chip: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  },
+  demographic: {
+    label: "Demographic Signals",
+    tone: "violet",
+    border: "border-l-violet-400",
+    iconBg: "bg-violet-50",
+    iconColor: "text-violet-600",
+    chip: "bg-violet-50 text-violet-700 border-violet-200",
+  },
+  risk: {
+    label: "Risk Signals",
+    tone: "rose",
+    border: "border-l-rose-400",
+    iconBg: "bg-rose-50",
+    iconColor: "text-rose-600",
+    chip: "bg-rose-50 text-rose-700 border-rose-200",
+  },
+};

@@ -1,9 +1,24 @@
-// memo removed: empty-state branch must precede hooks
+import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { DollarSign, Activity, Users, ShieldCheck } from "lucide-react";
+import {
+  DollarSign,
+  Activity,
+  UserCircle,
+  AlertTriangle,
+  CalendarHeart,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
-import { buildAudienceFunnel, getProductExclusions } from "@/lib/productCatalogExtras";
+import {
+  buildAudienceFunnel,
+  getProductExclusions,
+  SIGNAL_FAMILIES,
+  FAMILY_META,
+  type ExclusionType,
+} from "@/lib/productCatalogExtras";
 
 const fmt = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -11,20 +26,30 @@ const fmt = (n: number) => {
   return n.toLocaleString();
 };
 
+const FAMILY_ICON: Record<ExclusionType, React.ComponentType<{ className?: string }>> = {
+  "life-event": CalendarHeart,
+  behavioral: Activity,
+  financial: DollarSign,
+  demographic: UserCircle,
+  risk: AlertTriangle,
+};
+
 interface Props {
   product?: ProductFlow;
 }
 
 export function ExclusionFunnelSection({ product }: Props) {
+  const [expanded, setExpanded] = useState<ExclusionType | null>(null);
+
   if (!product) {
     return (
       <div className="rounded-xl border border-slate-200 bg-white p-4 opacity-60">
         <div className="flex items-center gap-2 mb-3">
           <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
-          <p className="text-sm font-semibold text-slate-900">Audience &amp; exclusion funnel</p>
+          <p className="text-sm font-semibold text-slate-900">Audience &amp; signal contributions</p>
         </div>
         <p className="text-xs text-slate-500 text-center py-8">
-          Pick a product above to model the audience funnel and risk filters.
+          Pick a product above to see how each signal family shapes the addressable audience.
         </p>
       </div>
     );
@@ -33,127 +58,129 @@ export function ExclusionFunnelSection({ product }: Props) {
   const exclusions = getProductExclusions(product.id, product.category);
   const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions);
 
-  const financial = exclusions.filter((e) => e.type === "financial");
-  const behavioral = exclusions.filter((e) => e.type === "behavioral");
-  const maxCount = funnel.stages[0].count;
-
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex items-center gap-2 mb-3">
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
-        <p className="text-sm font-semibold text-slate-900">Audience &amp; exclusion funnel</p>
+        <p className="text-sm font-semibold text-slate-900">Audience &amp; signal contributions</p>
         <Badge variant="outline" className="text-[10px] border-slate-200 bg-white ml-auto">
-          {fmt(funnel.finalCount)} addressable
+          {fmt(product.estimatedAudience)} eligible → {fmt(funnel.finalCount)} addressable
         </Badge>
       </div>
 
-      {/* Funnel bars */}
-      <div className="space-y-2 mb-5">
-        {funnel.stages.map((stage, i) => {
-          const widthPct = (stage.count / maxCount) * 100;
-          const tone =
-            i === 0
-              ? "bg-slate-700"
-              : i === 1
-              ? "bg-emerald-500"
-              : "bg-blue-500";
+      {/* 5 signal-family cards */}
+      <div className="grid grid-cols-5 gap-2 mb-3">
+        {SIGNAL_FAMILIES.map((fam) => {
+          const meta = FAMILY_META[fam];
+          const Icon = FAMILY_ICON[fam];
+          const data = funnel.byFamily[fam];
+          const isExpanded = expanded === fam;
           return (
-            <div key={stage.id}>
-              <div className="flex items-baseline justify-between mb-1">
-                <p className="text-xs font-medium text-slate-700">{stage.label}</p>
-                <div className="flex items-baseline gap-2">
-                  {stage.delta && stage.delta > 0 && (
-                    <span className="text-[11px] text-slate-500">−{fmt(stage.delta)}</span>
-                  )}
-                  <span className="text-sm font-mono font-semibold text-slate-900">{fmt(stage.count)}</span>
-                </div>
+            <button
+              key={fam}
+              onClick={() => setExpanded(isExpanded ? null : fam)}
+              className={cn(
+                "text-left rounded-lg border border-slate-200 border-l-4 bg-white p-2.5 transition-all hover:shadow-sm",
+                meta.border,
+                isExpanded && "ring-2 ring-slate-900 ring-offset-1",
+              )}
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <span className={cn("flex items-center justify-center w-6 h-6 rounded-md shrink-0", meta.iconBg)}>
+                  <Icon className={cn("w-3.5 h-3.5", meta.iconColor)} />
+                </span>
+                {isExpanded ? (
+                  <ChevronUp className="w-3 h-3 text-slate-400 ml-auto" />
+                ) : (
+                  <ChevronDown className="w-3 h-3 text-slate-400 ml-auto" />
+                )}
               </div>
-              <div className="relative h-3 rounded-full bg-slate-100 overflow-hidden">
-                <div
-                  className={cn("h-full rounded-full transition-all", tone)}
-                  style={{ width: `${Math.max(widthPct, 4)}%` }}
-                />
-              </div>
-            </div>
+              <p className="text-[11px] font-semibold text-slate-900 leading-tight mb-0.5">{meta.label}</p>
+              <p className="text-[10px] text-slate-500 font-mono tabular-nums">
+                {data.signals.length} signals · −{fmt(data.removed)}
+              </p>
+            </button>
           );
         })}
-        <div className="pt-2 mt-2 border-t border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-xs text-slate-600">
-            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Final addressable audience</span>
-          </div>
-          <span className="text-base font-mono font-semibold text-slate-900">{fmt(funnel.finalCount)}</span>
+      </div>
+
+      {/* Expanded panel */}
+      {expanded && (
+        <ExpandedPanel
+          family={expanded}
+          signals={funnel.byFamily[expanded].signals}
+          removed={funnel.byFamily[expanded].removed}
+          baseForRates={product.estimatedAudience}
+          onClose={() => setExpanded(null)}
+        />
+      )}
+
+      {/* Final addressable footer */}
+      <div className="pt-3 mt-1 border-t border-slate-100 flex items-center justify-between">
+        <div className="flex items-center gap-2 text-xs text-slate-600">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+          <span>Final addressable audience after all five signal families</span>
         </div>
+        <span className="text-base font-mono font-semibold text-slate-900">{fmt(funnel.finalCount)}</span>
       </div>
-
-      {/* Exclusion criteria — two columns */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <ExclusionColumn
-          title="Financial-risk filters"
-          icon={<DollarSign className="w-3.5 h-3.5 text-emerald-600" />}
-          tone="emerald"
-          totalRemoved={funnel.financialRemoved}
-          totalBase={product.estimatedAudience}
-          items={financial}
-        />
-        <ExclusionColumn
-          title="Behavioral-risk filters"
-          icon={<Activity className="w-3.5 h-3.5 text-blue-600" />}
-          tone="blue"
-          totalRemoved={funnel.behavioralRemoved}
-          totalBase={product.estimatedAudience}
-          items={behavioral}
-        />
-      </div>
-
-      <p className="mt-3 text-[11px] text-slate-500 italic flex items-start gap-1.5">
-        <Users className="w-3 h-3 mt-0.5 shrink-0" />
-        Filters are framed as customer protection — anyone in an excluded cohort is held for a more appropriate offer, not denied.
-      </p>
     </div>
   );
 }
 
-function ExclusionColumn({
-  title,
-  icon,
-  tone,
-  totalRemoved,
-  totalBase,
-  items,
+function ExpandedPanel({
+  family,
+  signals,
+  removed,
+  baseForRates,
+  onClose,
 }: {
-  title: string;
-  icon: React.ReactNode;
-  tone: "emerald" | "blue";
-  totalRemoved: number;
-  totalBase: number;
-  items: ReturnType<typeof getProductExclusions>;
+  family: ExclusionType;
+  signals: ReturnType<typeof getProductExclusions>;
+  removed: number;
+  baseForRates: number;
+  onClose: () => void;
 }) {
-  const borderTone = tone === "emerald" ? "border-l-emerald-400" : "border-l-blue-400";
+  const meta = FAMILY_META[family];
+  const Icon = FAMILY_ICON[family];
   return (
-    <div className={cn("rounded-lg border border-slate-200 border-l-4 bg-white p-3", borderTone)}>
-      <div className="flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5">
-          {icon}
-          <p className="text-[11px] font-bold uppercase tracking-wider text-slate-700">{title}</p>
+    <div className={cn("rounded-lg border border-slate-200 border-l-4 bg-slate-50 p-3 mb-3", meta.border)}>
+      <div className="flex items-center gap-2 mb-2">
+        <span className={cn("flex items-center justify-center w-7 h-7 rounded-md shrink-0", meta.iconBg)}>
+          <Icon className={cn("w-4 h-4", meta.iconColor)} />
+        </span>
+        <div className="min-w-0">
+          <p className="text-sm font-semibold text-slate-900 leading-tight">{meta.label}</p>
+          <p className="text-[11px] text-slate-500">
+            {signals.length} contributing signals · −{fmt(removed)} from prior stage
+          </p>
         </div>
-        <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">
-          −{fmt(totalRemoved)}
-        </Badge>
+        <button
+          onClick={onClose}
+          className="ml-auto inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900"
+        >
+          Collapse <ChevronUp className="w-3 h-3" />
+        </button>
       </div>
-      <ul className="space-y-2">
-        {items.map((ex) => (
-          <li key={ex.id} className="rounded-md border border-slate-100 bg-slate-50 p-2">
-            <div className="flex items-baseline justify-between gap-2 mb-0.5">
-              <p className="text-xs font-medium text-slate-900 leading-tight">{ex.label}</p>
-              <span className="text-[10px] font-mono text-slate-600 shrink-0">
-                −{fmt(Math.round(totalBase * ex.removedPct))}
-              </span>
-            </div>
-            <p className="text-[11px] text-slate-600 leading-snug">{ex.rationale}</p>
-          </li>
-        ))}
-      </ul>
+
+      {signals.length === 0 ? (
+        <p className="text-xs text-slate-500 italic py-3 text-center">
+          No {meta.label.toLowerCase()} are filtering this product right now.
+        </p>
+      ) : (
+        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
+          {signals.map((s) => (
+            <li key={s.id} className="rounded-md border border-slate-200 bg-white p-2">
+              <div className="flex items-baseline justify-between gap-2 mb-0.5">
+                <p className="text-xs font-medium text-slate-900 leading-tight">{s.label}</p>
+                <span className="text-[10px] font-mono text-slate-600 shrink-0">
+                  −{fmt(Math.round(baseForRates * s.removedPct))}
+                </span>
+              </div>
+              <p className="text-[11px] text-slate-600 leading-snug">{s.rationale}</p>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
