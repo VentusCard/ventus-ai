@@ -312,12 +312,8 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
 
         {selected && (
           <AudiencePanel
-            baseline={baseline}
             estimatedReach={estimatedReach}
-            retention={retention}
-            tightest={tightest}
             emptyGroup={emptyGroup}
-            anyNarrowed={activeCount > 0}
           />
         )}
         </div>
