@@ -200,7 +200,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         )}
 
         {/* Right column: Filters + Audience panel */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3 h-full">
 
         {/* Filters column */}
         <div className="rounded-md border border-slate-200 bg-white">
