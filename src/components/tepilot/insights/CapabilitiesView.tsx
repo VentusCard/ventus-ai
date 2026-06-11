@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 const INPUTS = [
+  { label: "KYC", icon: UserCircle, source: "Core" },
   { label: "Card Transactions", icon: CreditCard, source: "Card Processor" },
   { label: "ACH & Wires", icon: ArrowLeftRight, source: "Core" },
   { label: "Checks", icon: FileText, source: "Core" },
