@@ -1,12 +1,13 @@
 // Deterministic 5-card preview builder per CatalogProduct.
-// One anchored campaign per card — never blended.
+// Hard rule: 2 behavior + 1 life event + 1 demographic + 1 financial signal.
+// Promo overlay folds into the first behavior card's copy — never its own card.
 
 import type { CatalogProduct, ProductCategory } from "@/types/campaign-studio";
 import type { VariantBreakdown } from "@/lib/campaignCatalogVariants";
 import { getProductMechanics, type ProductMechanics, type RateRow } from "@/lib/productCatalogExtras";
 import type { FlowCategory } from "@/lib/productAutomatedFlows";
 
-export type AnchorFamily = "STACK" | "LIFE_EVENT" | "GOAL" | "USAGE";
+export type AnchorFamily = "BEHAVIOR" | "LIFE_EVENT" | "DEMOGRAPHIC" | "FINANCIAL_SIGNAL";
 
 export interface MessageCard {
   anchorFamily: AnchorFamily;
@@ -22,6 +23,7 @@ export interface MessageCard {
 
 // ── Anchor pools by category ────────────────────────────────────────────────
 
+// Behavior (stack) — rate-table-friendly pairs.
 const STACK_ANCHORS: Partial<Record<ProductCategory, string[]>> = {
   credit_cards: [
     "Groceries × Warehouse club",
@@ -29,6 +31,16 @@ const STACK_ANCHORS: Partial<Record<ProductCategory, string[]>> = {
     "Travel × Hotels (direct)",
     "Fuel & transit × Ride-share",
   ],
+};
+
+// Behavior (usage) — single-anchor utilization signals.
+const USAGE_ANCHORS: Record<ProductCategory, string[]> = {
+  credit_cards:      ["Off-us spend leakage", "Single-card concentration", "Recurring bills off-card", "Travel booked off-portal"],
+  deposit_accounts:  ["Idle checking buffer", "Dormant savings sub-account", "Direct-deposit not enrolled", "Bill-pay underused"],
+  loans:             ["High-rate balance elsewhere", "Variable-rate exposure", "Promo-rate window closing", "Auto-pay not enrolled"],
+  investments:       ["Cash drag in checking", "Outbound brokerage transfer", "Idle IRA contribution room", "Unused tax-loss harvest"],
+  insurance:         ["Coverage gap vs assets", "Comparable policy expiring", "Bundling discount unused", "Beneficiary not on file"],
+  digital_services:  ["Enrolled but inactive", "Adjacent feature unused", "Mobile app not installed", "Alerts not configured"],
 };
 
 const LIFE_EVENT_ANCHORS: Record<ProductCategory, string[]> = {
@@ -40,31 +52,31 @@ const LIFE_EVENT_ANCHORS: Record<ProductCategory, string[]> = {
   digital_services:  ["New device detected", "First mobile session in 90 days", "Switched to direct deposit", "Move to a new metro"],
 };
 
-const GOAL_ANCHORS: Record<ProductCategory, string[]> = {
-  credit_cards:      ["Pay-off plan in motion", "Travel fund forming", "Big-ticket purchase ahead"],
-  deposit_accounts:  ["Emergency fund target", "Down-payment savings", "Tax-bill set-aside"],
-  loans:             ["Debt consolidation arc", "Home-improvement plan", "Tuition runway"],
-  investments:       ["Retirement runway", "College tuition runway", "Wealth-transfer plan"],
-  insurance:         ["Income-protection floor", "Asset-protection floor"],
-  digital_services:  ["Self-serve adoption goal"],
+const DEMOGRAPHIC_ANCHORS: Record<ProductCategory, string[]> = {
+  credit_cards:      ["Young professional, metro", "Family with school-age kids", "Mass-affluent household", "Empty-nester, suburb"],
+  deposit_accounts:  ["Dual-income household", "Single-earner family", "Recent grad", "Pre-retiree"],
+  loans:             ["First-time buyer cohort", "Move-up homeowner", "Parents of college-bound teens", "Self-employed household"],
+  investments:       ["High-earner, no portfolio", "Inheritance-eligible Gen X", "Pre-retiree, 55+", "Dual-income, no kids"],
+  insurance:         ["New homeowner cohort", "Young family, single income", "Empty-nester downsizer", "Small-business owner"],
+  digital_services:  ["Mobile-first Gen Z", "Branch-loyal boomer", "Urban Millennial", "Suburban family"],
 };
 
-const USAGE_ANCHORS: Record<ProductCategory, string[]> = {
-  credit_cards:      ["Off-us spend leakage", "Single-card concentration"],
-  deposit_accounts:  ["Idle checking buffer", "Dormant savings sub-account"],
-  loans:             ["High-rate balance elsewhere", "Variable-rate exposure"],
-  investments:       ["Cash drag in checking", "Outbound brokerage transfer"],
-  insurance:         ["Coverage gap vs assets", "Comparable policy expiring"],
-  digital_services:  ["Enrolled but inactive", "Adjacent feature unused"],
+const FINANCIAL_SIGNAL_ANCHORS: Record<ProductCategory, string[]> = {
+  credit_cards:      ["Rising monthly card spend", "Balance carried elsewhere", "Direct-deposit increase", "Cross-bank transfers up"],
+  deposit_accounts:  ["Savings rate trending up", "Bonus landed in checking", "Outbound transfers to brokerage", "Balance volatility rising"],
+  loans:             ["High-rate balance elsewhere", "Mortgage payoff accelerating", "Auto-loan term ending", "Credit utilization climbing"],
+  investments:       ["Cash position growing", "Outbound to competitor brokerage", "401(k) match maxed out", "Tax-bill set-aside growing"],
+  insurance:         ["Premium increase at renewal", "Asset value outpacing coverage", "Claim history clean", "Auto-pay lapses"],
+  digital_services:  ["Login frequency declining", "Mobile sessions trending up", "Alert opt-ins growing", "Feature-trial signals"],
 };
 
 // ── Play assignment per anchor family ───────────────────────────────────────
 
 const PLAYS_BY_FAMILY: Record<AnchorFamily, string[]> = {
-  STACK:      ["ACQUIRE", "UPGRADE", "ACTIVATE", "RETAIN"],
-  LIFE_EVENT: ["ACQUIRE", "ACTIVATE"],
-  GOAL:       ["RETAIN", "UPGRADE"],
-  USAGE:      ["ACTIVATE", "WINBACK"],
+  BEHAVIOR:         ["ACQUIRE", "UPGRADE", "ACTIVATE", "RETAIN"],
+  LIFE_EVENT:       ["ACQUIRE", "ACTIVATE"],
+  DEMOGRAPHIC:      ["ACQUIRE", "UPGRADE"],
+  FINANCIAL_SIGNAL: ["ACTIVATE", "WINBACK", "RETAIN"],
 };
 
 // ── Mechanics resolution ────────────────────────────────────────────────────
@@ -88,7 +100,6 @@ function getMechanics(product: CatalogProduct): ProductMechanics {
 
 // ── Anchor → rate tier matching ─────────────────────────────────────────────
 
-// Keyword groups: anchor-part token → tier-text tokens that imply a match.
 const ANCHOR_KEYWORDS: Array<{ part: RegExp; tier: RegExp }> = [
   { part: /grocer/i,                      tier: /grocer/i },
   { part: /warehouse/i,                   tier: /warehouse/i },
@@ -105,7 +116,6 @@ function splitAnchor(anchor: string): string[] {
   return anchor.split(/\s*[×x&]\s*/).map((s) => s.trim()).filter(Boolean);
 }
 
-// Strip parenthetical qualifiers ("Hotels (direct)" → "Hotels"), lowercase.
 function cleanPart(part: string): string {
   return part.replace(/\s*\(.*?\)\s*/g, "").trim().toLowerCase();
 }
@@ -118,20 +128,16 @@ function matchTier(part: string, table: RateRow[]): RateRow | null {
       if (hit) return hit;
     }
   }
-  // Fallback: the top "chosen-category" tier (first row), if it reads like one.
   if (table[0] && /chosen|top|bonus|category|select/i.test(table[0].tier)) {
     return table[0];
   }
   return null;
 }
 
-// Build a natural-language earn phrase for STACK / USAGE bodies.
-// Returns null when the product doesn't have a rate table (deposits, etc.).
 function buildRatePhrase(anchor: string, mechanics: ProductMechanics): string | null {
   const table = mechanics.rateTable;
   if (!table || table.length === 0) return null;
 
-  // Flat-rate card: single tier covering everything.
   if (table.length === 1) {
     const only = table[0];
     if (/all|every|purchases|spend/i.test(only.tier)) {
@@ -146,12 +152,10 @@ function buildRatePhrase(anchor: string, mechanics: ProductMechanics): string | 
     .filter((r): r is { part: string; tier: RateRow } => !!r.tier);
 
   if (resolved.length === 0) {
-    // No keyword hits — fall back to top two tiers verbatim.
     const top = table.slice(0, 2);
     return top.map((r) => `${r.rate} on ${r.tier.toLowerCase()}`).join(" and ");
   }
 
-  // Collapse when both parts resolve to the same tier.
   if (resolved.length === 2 && resolved[0].tier.rate === resolved[1].tier.rate) {
     return `${resolved[0].tier.rate} on ${resolved[0].part} and ${resolved[1].part}`;
   }
@@ -161,7 +165,6 @@ function buildRatePhrase(anchor: string, mechanics: ProductMechanics): string | 
     .join(" and ");
 }
 
-// Light pluralization for natural earn phrases ("warehouse club" → "warehouse clubs").
 function pluralize(word: string): string {
   if (/s$/i.test(word)) return word;
   if (/(ch|sh|x|z)$/i.test(word)) return word + "es";
@@ -176,23 +179,18 @@ function feeLine(mechanics: ProductMechanics): string {
 function keyFeature(mechanics: ProductMechanics, family: AnchorFamily): string {
   const f = mechanics.features ?? [];
   if (f.length === 0) return mechanics.tagline;
-  // Pick the feature most aligned with the family's intent.
-  if (family === "LIFE_EVENT") return f.find((x) => /protect|cover|trip|fraud|insur/i.test(x)) ?? f[0];
-  if (family === "GOAL")       return f.find((x) => /goal|automat|rebalanc|track|harvest|grow/i.test(x)) ?? f[0];
-  if (family === "USAGE")      return f.find((x) => /activat|switch|enable|enroll|redeem|cap|bonus/i.test(x)) ?? f[0];
+  if (family === "LIFE_EVENT")       return f.find((x) => /protect|cover|trip|fraud|insur/i.test(x)) ?? f[0];
+  if (family === "DEMOGRAPHIC")      return f.find((x) => /rewards|benefit|tier|perk|status/i.test(x)) ?? f[0];
+  if (family === "FINANCIAL_SIGNAL") return f.find((x) => /activat|switch|enable|enroll|redeem|cap|bonus|rate/i.test(x)) ?? f[0];
   return f[0];
 }
 
-// Lowercase first letter (for mid-sentence interpolation).
 function lc(s: string): string {
   return s.length === 0 ? s : s.charAt(0).toLowerCase() + s.slice(1);
 }
 
 // ── Copy templates ──────────────────────────────────────────────────────────
 
-// Anchor labels sometimes use "×" (e.g. "Groceries × Warehouse club"). Convert
-// to "and" when interpolated mid-sentence, and lowercase only the first word so
-// brand-ish nouns ("Streaming", "Ride-share") keep their shape.
 function prose(anchor: string): string {
   const cleaned = anchor.replace(/\s*×\s*/g, " and ");
   return cleaned.charAt(0).toLowerCase() + cleaned.slice(1);
@@ -213,11 +211,11 @@ function copyFor(
   const feature = keyFeature(mechanics, family);
 
   switch (family) {
-    case "STACK": {
+    case "BEHAVIOR": {
       const partCount = splitAnchor(anchor).length;
       const noun = partCount === 1 ? "category" : "categories";
       const subject = ratePhrase
-        ? `${ratePhrase} — on your two biggest categories`
+        ? `${ratePhrase} — on your top ${noun}`
         : `More from your everyday spend`;
       const body = ratePhrase
         ? `With the ${name} you can get ${ratePhrase} — the ${noun} that already carry most of your spend. ${fee}, nothing to switch on.`
@@ -226,7 +224,7 @@ function copyFor(
         subject,
         body,
         cta: play === "UPGRADE" ? "Make the switch" : "See how it adds up",
-        why: `Stack anchor — ${anchor}. Play: ${play}.`,
+        why: `Behavior anchor — ${anchor}. Play: ${play}.`,
       };
     }
     case "LIFE_EVENT":
@@ -236,29 +234,29 @@ function copyFor(
         cta: play === "ACTIVATE" ? "Turn it on" : "Open when you're ready",
         why: `Life-event anchor — ${anchor}. Play: ${play}.`,
       };
-    case "GOAL":
+    case "DEMOGRAPHIC":
       return {
-        subject: `Quiet support for your ${anchorProse}`,
-        body: `The direction of your saving and spending lines up with a ${anchorProse}. ${name} adds ${lc(feature)}, with ${lc(fee)} — progress compounds in the background.`,
-        cta: play === "UPGRADE" ? "Strengthen the plan" : "Keep it going",
-        why: `Goal anchor — ${anchor}. Play: ${play}.`,
+        subject: `Built for ${anchorProse}`,
+        body: `Households like ${anchorProse} tend to use ${lower} differently. ${name} leans into ${lc(feature)}, with ${lc(fee)} — sized to where you are now.`,
+        cta: play === "UPGRADE" ? "See the upgrade" : "See if it fits",
+        why: `Demographic anchor — ${anchor}. Play: ${play}.`,
       };
-    case "USAGE": {
-      const tail = ratePhrase
-        ? `you start earning ${ratePhrase}`
-        : `it starts pulling its weight`;
+    case "FINANCIAL_SIGNAL":
       return {
-        subject: `One small switch, more from ${lower}`,
-        body: `You already have ${lower}. The piece most people miss is ${lc(feature)} — flip it on and ${tail}, with nothing else to change.`,
-        cta: play === "WINBACK" ? "Pick it back up" : "Turn it on",
-        why: `Usage anchor — ${anchor}. Play: ${play}.`,
+        subject: `${anchor} — worth a look`,
+        body: `Your recent pattern shows ${lc(anchor)}. ${name} responds with ${lc(feature)}, ${lc(fee)} — a low-friction move that matches the signal.`,
+        cta: play === "WINBACK" ? "Pick it back up" : "Take a look",
+        why: `Financial-signal anchor — ${anchor}. Play: ${play}.`,
       };
-    }
   }
 }
 
 
 // ── Builder ─────────────────────────────────────────────────────────────────
+
+function pick<T>(pool: T[], i: number, seed: number): T {
+  return pool[(i + seed) % pool.length];
+}
 
 export function buildMessageCards(
   product: CatalogProduct,
@@ -267,67 +265,63 @@ export function buildMessageCards(
   campaignLink: string = "",
   seed: number = 0,
 ): MessageCard[] {
-  const cards: MessageCard[] = [];
   const cat = product.category;
+  const stackPool = STACK_ANCHORS[cat] ?? [];
+  const usagePool = USAGE_ANCHORS[cat] ?? [];
+  const lifePool = LIFE_EVENT_ANCHORS[cat] ?? [];
+  const demoPool = DEMOGRAPHIC_ANCHORS[cat] ?? [];
+  const signalPool = FINANCIAL_SIGNAL_ANCHORS[cat] ?? [];
 
-  const hasStacks = variants.stacks > 0 && variants.plays > 0;
-  const stackAnchors = STACK_ANCHORS[cat] ?? [];
-  const lifeAnchors = LIFE_EVENT_ANCHORS[cat];
-  const goalAnchors = GOAL_ANCHORS[cat];
-  const usageAnchors = USAGE_ANCHORS[cat];
-
-  const target = 5;
   const primaryOffer = offers[0]?.trim();
+  const cards: MessageCard[] = [];
 
-  if (primaryOffer) {
-    const lower = product.name.toLowerCase();
-    cards.push({
-      anchorFamily: "USAGE",
-      play: "OFFER",
-      anchor: primaryOffer,
-      subject: `${primaryOffer} — on the ${lower}`,
-      body: `Right now, the ${product.name} comes with ${primaryOffer}. A timely reason to take a closer look — no other change needed.`,
-      cta: "Claim offer",
-      why: `Promo anchor — ${primaryOffer}.`,
-    });
+  // Build two behavior pools: prefer stacks first when available, then usage.
+  // Slot 0 + 1 both behavior.
+  const behaviorSources: Array<string[]> = [];
+  if (stackPool.length > 0) {
+    behaviorSources.push(stackPool);
+    behaviorSources.push(usagePool.length > 0 ? usagePool : stackPool);
+  } else {
+    behaviorSources.push(usagePool);
+    behaviorSources.push(usagePool);
   }
 
-  if (hasStacks) {
-    const n = Math.min(2, stackAnchors.length);
-    for (let i = 0; i < n; i++) {
-      const anchor = stackAnchors[(i + seed) % stackAnchors.length];
-      const play = PLAYS_BY_FAMILY.STACK[(i + seed) % PLAYS_BY_FAMILY.STACK.length];
-      const base = copyFor("STACK", product, anchor, play);
-      const body = primaryOffer && i === 0 ? `${base.body} — ${primaryOffer}.` : base.body;
-      cards.push({ anchorFamily: "STACK", play, anchor, ...base, body });
-    }
+  for (let slot = 0; slot < 2; slot++) {
+    const pool = behaviorSources[slot];
+    if (pool.length === 0) continue;
+    // Slot 1 offsets by 1 in the same pool to avoid duplicates when both come from usage.
+    const anchor = pick(pool, slot, seed);
+    const play = pick(PLAYS_BY_FAMILY.BEHAVIOR, slot, seed);
+    const base = copyFor("BEHAVIOR", product, anchor, play);
+    const body = primaryOffer && slot === 0
+      ? `${base.body} Currently: ${primaryOffer}.`
+      : base.body;
+    cards.push({ anchorFamily: "BEHAVIOR", play, anchor, ...base, body });
   }
 
-  const lifeSlots = hasStacks ? 2 : Math.min(3, lifeAnchors.length);
-  for (let i = 0; i < lifeSlots && cards.length < target; i++) {
-    const anchor = lifeAnchors[(i + seed) % lifeAnchors.length];
-    const play = PLAYS_BY_FAMILY.LIFE_EVENT[(i + seed) % PLAYS_BY_FAMILY.LIFE_EVENT.length];
+  // Slot 2: life event
+  if (lifePool.length > 0) {
+    const anchor = pick(lifePool, 0, seed);
+    const play = pick(PLAYS_BY_FAMILY.LIFE_EVENT, 0, seed);
     cards.push({ anchorFamily: "LIFE_EVENT", play, anchor, ...copyFor("LIFE_EVENT", product, anchor, play) });
   }
 
-  if (cards.length < target && variants.financialGoals > 0 && goalAnchors.length > 0) {
-    const anchor = goalAnchors[seed % goalAnchors.length];
-    const play = PLAYS_BY_FAMILY.GOAL[seed % PLAYS_BY_FAMILY.GOAL.length];
-    cards.push({ anchorFamily: "GOAL", play, anchor, ...copyFor("GOAL", product, anchor, play) });
+  // Slot 3: demographic
+  if (demoPool.length > 0) {
+    const anchor = pick(demoPool, 0, seed);
+    const play = pick(PLAYS_BY_FAMILY.DEMOGRAPHIC, 0, seed);
+    cards.push({ anchorFamily: "DEMOGRAPHIC", play, anchor, ...copyFor("DEMOGRAPHIC", product, anchor, play) });
   }
 
-  let usageIdx = 0;
-  while (cards.length < target && usageIdx < usageAnchors.length) {
-    const anchor = usageAnchors[(usageIdx + seed) % usageAnchors.length];
-    const play = PLAYS_BY_FAMILY.USAGE[(usageIdx + seed) % PLAYS_BY_FAMILY.USAGE.length];
-    cards.push({ anchorFamily: "USAGE", play, anchor, ...copyFor("USAGE", product, anchor, play) });
-    usageIdx++;
+  // Slot 4: financial signal
+  if (signalPool.length > 0) {
+    const anchor = pick(signalPool, 0, seed);
+    const play = pick(PLAYS_BY_FAMILY.FINANCIAL_SIGNAL, 0, seed);
+    cards.push({ anchorFamily: "FINANCIAL_SIGNAL", play, anchor, ...copyFor("FINANCIAL_SIGNAL", product, anchor, play) });
   }
 
-  // Attach campaign link to every card's CTA when provided.
   const href = campaignLink.trim();
   const out = href ? cards.map((c) => ({ ...c, ctaHref: href })) : cards;
 
-  return out.slice(0, target);
+  return out.slice(0, 5);
 }
-

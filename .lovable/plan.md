@@ -1,33 +1,73 @@
-Two changes to section 3 (`MessagePreviewsSection`) plus a tiny extension to the local card builder.
+## Goal
+Regenerate the 5 local preview cards so they strictly follow the **2/1/1/1/1 rule** — 2 behavior, 1 life event, 1 demographic, 1 financial signal — and remove the dedicated "OFFER" card that currently occupies slot 0 in violation of the rule.
 
-## 1. Rename "Total campaigns" → "Micro-segments"
-`src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` line 121:
+## Problem
+`buildMessageCards.ts` pushes a promo card first whenever `offers[0]` is set (lines 282–293). That's why card #1 still renders:
+
+> Activation nudge — OFFER — "Double rewards until EOY — on the cashback (3/2/1)" …
+
+This breaks the 2/1/1/1/1 quota and uses a 5th family ("promo") that isn't in the rule.
+
+## Changes — `src/components/tepilot/campaigns/sections/buildMessageCards.ts`
+
+### 1. Drop the dedicated offer card
+Remove the `if (primaryOffer) { cards.push({...}) }` block (lines 282–293). The promo overlay still influences copy — see step 4.
+
+### 2. Add two new anchor families
+Extend `AnchorFamily` to: `"BEHAVIOR" | "LIFE_EVENT" | "DEMOGRAPHIC" | "FINANCIAL_SIGNAL"`.
+
+(STACK/USAGE/GOAL constants stay internal — BEHAVIOR is sourced from existing STACK_ANCHORS + USAGE_ANCHORS pools so card copy/rate-phrase logic is unchanged.)
+
+New pools (per `ProductCategory`, ~3–4 entries each so seed rotation works):
+
+- **DEMOGRAPHIC_ANCHORS** — life-stage / segment labels, e.g.
+  - credit_cards: "Young professional, metro", "Family w/ school-age kids", "Mass-affluent household", "Empty-nester, suburb"
+  - deposit_accounts: "Dual-income household", "Single-earner family", "Recent grad", "Pre-retiree"
+  - (similar for loans / investments / insurance / digital_services)
+- **FINANCIAL_SIGNAL_ANCHORS** — observed money-movement signals, e.g.
+  - credit_cards: "Rising monthly card spend", "Off-us spend leakage", "Balance carried elsewhere", "Direct-deposit increase"
+  - deposit_accounts: "Idle checking buffer", "Bonus landed in checking", "Savings rate trending up", "Outbound transfers to brokerage"
+  - (similar for the rest)
+
+### 3. Hard-coded 2/1/1/1 build order
+Replace the current conditional build loop with a fixed 5-slot fill (seed rotates within each pool):
+
+```text
+slot 0: BEHAVIOR  (STACK_ANCHORS[cat], else USAGE_ANCHORS[cat])
+slot 1: BEHAVIOR  (the other behavior pool, or 2nd entry)
+slot 2: LIFE_EVENT
+slot 3: DEMOGRAPHIC
+slot 4: FINANCIAL_SIGNAL
 ```
-Total campaigns  →  Micro-segments
-```
-Header (line 101) and "shown below" copy stay as-is.
 
-## 2. Regenerate button (local re-roll)
-Goal: re-shuffle the 5 exemplars without calling any edge function.
+Each slot uses `(slotIdx + seed) % pool.length` for variation on Regenerate.
 
-### a. Add a seed parameter to the deterministic builder
-`src/components/tepilot/campaigns/sections/buildMessageCards.ts`:
-- Add optional 5th arg `seed: number = 0`.
-- In the three `i % pool.length` lookups (lines ~298, 307–308, 321), replace `i` with `(i + seed)` so each bump rotates the anchor + play picks.
-- No other logic changes; output stays a 5-card array of `MessageCard`.
+If a category has no STACK pool (e.g. deposits), both behavior slots draw from USAGE_ANCHORS with offset indices.
 
-### b. Wire seed state + button in `MessagePreviewsSection.tsx`
-- New state: `const [regenSeed, setRegenSeed] = useState(0);`
-- Pass `regenSeed` into `buildMessageCards(product, variants, offers, campaignLink, regenSeed)`.
-- Extend the stagger-reveal `useEffect` dependency from `[productName]` to `[productName, regenSeed]` so each regen replays the cascade.
-- Reset `regenSeed` to `0` inside `handleSelectProduct` (parent) — simplest: also reset on product change via `useEffect(() => setRegenSeed(0), [productName])`.
-- Button placement: top-right of the section header row (next to title on line 99–102). Small ghost-style icon button using `RefreshCw` from `lucide-react`:
-  ```
-  [3] Micro-Segment Personalized Campaign Output           [↻ Regenerate]
-  ```
-  - `text-[11px] font-medium text-slate-600 hover:text-slate-900`, slate-200 border, white bg, rounded-md, px-2 py-1, gap-1 with a `w-3.5 h-3.5` icon. Disabled when `!product`.
-  - On click: `setRegenSeed((s) => s + 1)`.
+### 4. Fold the promo overlay into copy, not a card
+When `primaryOffer` is set, append it to the body of **slot 0 only** (first behavior card), e.g. `${base.body} Currently: ${primaryOffer}.` Promo never produces its own card and never appears as its own anchor family — this is what satisfies the user's earlier instruction about the LLM also taking the full campaign context into account (the promo lives inside the behavior card).
+
+### 5. Copy templates for new families
+Add two new `case` branches in `copyFor(...)`:
+
+- **DEMOGRAPHIC**: subject `"Built for ${anchorProse}"`, body references mechanics tagline + fee, CTA "See if it fits", why `Demographic anchor — ${anchor}.`
+- **FINANCIAL_SIGNAL**: subject `"${anchor} — worth a look"`, body references the signal + one mechanic feature + fee, CTA "Take a look", why `Financial-signal anchor — ${anchor}.`
+
+### 6. `PLAYS_BY_FAMILY` additions
+- DEMOGRAPHIC → `["ACQUIRE", "UPGRADE"]`
+- FINANCIAL_SIGNAL → `["ACTIVATE", "WINBACK", "RETAIN"]`
 
 ## Out of scope
-- No edge-function call (per user choice "Re-roll local cards only").
-- No changes to the fanned deck, popover, counter math, or `variants.total`.
+- No edge-function call (`generate-campaign-offers` stays untouched — local-only re-roll as previously confirmed).
+- No changes to `MessagePreviewsSection.tsx`, the fanned deck, popover, counters, or `variants.total`.
+- No changes to the "Micro-segments" label or the Regenerate button itself.
+
+## Verification
+After the edit, with any product + the "Double rewards until EOY" offer set:
+- Card 1: BEHAVIOR (stack), body ends with "Currently: Double rewards until EOY."
+- Card 2: BEHAVIOR (second stack or usage)
+- Card 3: LIFE_EVENT
+- Card 4: DEMOGRAPHIC
+- Card 5: FINANCIAL_SIGNAL
+- No card has `play: "OFFER"` or `anchorFamily` outside the four allowed.
+- Clicking Regenerate rotates anchors/plays within each slot's pool.
