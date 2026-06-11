@@ -212,12 +212,14 @@ function copyFor(
 
   switch (family) {
     case "STACK": {
+      const partCount = splitAnchor(anchor).length;
+      const noun = partCount === 1 ? "category" : "categories";
       const subject = ratePhrase
         ? `${ratePhrase} — on your two biggest categories`
         : `More from your everyday spend`;
       const body = ratePhrase
-        ? `Your spend in ${anchorProse} has been steady for a while. ${name} earns ${ratePhrase}, so the categories you already live in pay the most. ${fee}.`
-        : `Your spend in ${anchorProse} has been steady for a while. ${name} is built around that pattern — ${lc(mechanics.tagline)} ${fee}.`;
+        ? `With the ${name} you can get ${ratePhrase} — the ${noun} that already carry most of your spend. ${fee}, nothing to switch on.`
+        : `With the ${name} you can get ${lc(mechanics.tagline)} — built around the pattern your spend already follows. ${fee}.`;
       return {
         subject,
         body,
