@@ -96,10 +96,10 @@ export function ExclusionFunnelSection({ product }: Props) {
             <div
               key={fam}
               className={cn(
-                "relative rounded-lg border border-slate-200 border-l-4 bg-white p-2.5 transition-all",
-                meta.border,
-                isExpanded && "ring-2 ring-slate-900 ring-offset-1",
-                isDisabled && "opacity-60",
+                "relative rounded-lg p-3 transition-all text-white",
+                meta.solid,
+                isExpanded && "ring-2 ring-white ring-offset-2 ring-offset-white shadow-md",
+                isDisabled && "opacity-40",
               )}
             >
               {/* +/− polarity toggle (top-right) */}
@@ -113,13 +113,9 @@ export function ExclusionFunnelSection({ product }: Props) {
                     aria-label={`${isDisabled ? "Enable" : "Disable"} ${meta.label}`}
                     className={cn(
                       "absolute top-1.5 right-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full border transition-colors",
-                      polarity === "plus"
-                        ? isDisabled
-                          ? "border-slate-200 bg-white text-slate-400 hover:border-emerald-300"
-                          : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
-                        : isDisabled
-                          ? "border-slate-200 bg-white text-slate-400 hover:border-rose-300"
-                          : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100",
+                      isDisabled
+                        ? "border-white/60 bg-transparent text-white/70 hover:bg-white/10"
+                        : "border-white/70 bg-white/15 text-white hover:bg-white/25",
                     )}
                   >
                     {polarity === "plus" ? <Plus className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
@@ -136,14 +132,6 @@ export function ExclusionFunnelSection({ product }: Props) {
                       <Icon className={cn("w-3.5 h-3.5", meta.iconColor)} />
                     </span>
                     <p className="text-xs font-semibold text-slate-900">{meta.label}</p>
-                    <span
-                      className={cn(
-                        "ml-auto text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded",
-                        polarity === "plus" ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700",
-                      )}
-                    >
-                      {polarity === "plus" ? "+" : "−"}{fmt(data.removed)}
-                    </span>
                   </div>
                   <p className="text-[11px] text-slate-600 leading-snug mb-2">{FAMILY_REASONS[fam].intro}</p>
                   <ul className="space-y-1">
@@ -169,30 +157,21 @@ export function ExclusionFunnelSection({ product }: Props) {
                 onClick={() => setExpanded(isExpanded ? null : fam)}
                 className="w-full text-left"
               >
-                <div className="flex items-center gap-1.5 mb-1.5 pr-6">
-                  <span className={cn("flex items-center justify-center w-6 h-6 rounded-md shrink-0", meta.iconBg)}>
-                    <Icon className={cn("w-3.5 h-3.5", meta.iconColor)} />
-                  </span>
+                <div className="flex items-center gap-1.5 mb-2 pr-6">
+                  <Icon className="w-4 h-4 text-white shrink-0" />
                   {isExpanded ? (
-                    <ChevronUp className="w-3 h-3 text-slate-400 ml-auto" />
+                    <ChevronUp className="w-3 h-3 text-white/80 ml-auto" />
                   ) : (
-                    <ChevronDown className="w-3 h-3 text-slate-400 ml-auto" />
+                    <ChevronDown className="w-3 h-3 text-white/80 ml-auto" />
                   )}
                 </div>
-                <p className="text-[11px] font-semibold text-slate-900 leading-tight mb-0.5">{meta.label}</p>
-                <p
-                  className={cn(
-                    "text-[10px] font-mono tabular-nums",
-                    isDisabled ? "text-slate-400 line-through" : "text-slate-500",
-                  )}
-                >
-                  {data.signals.length} signals · {polarity === "plus" ? "+" : "−"}{fmt(data.removed)}
-                </p>
+                <p className="text-[12px] font-semibold text-white leading-tight">{meta.label}</p>
               </button>
             </div>
           );
         })}
       </div>
+
 
       {/* Expanded panel */}
       {expanded && (
