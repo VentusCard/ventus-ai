@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
@@ -13,9 +12,6 @@ import {
   ChevronUp,
   ChevronDown,
   ChevronRight,
-  Plus,
-  Minus,
-  Circle,
   Loader2,
   Filter,
 } from "lucide-react";
@@ -27,7 +23,6 @@ import {
   SIGNAL_FAMILIES,
   SIGNAL_RELEVANCE_META,
   FAMILY_META,
-  FAMILY_NARRATIVE,
   FAMILY_DIMENSIONS,
   type ExclusionType,
   type SignalRelevance,
