@@ -29,6 +29,25 @@ const DEFAULT_DEV_ALLOWED_ORIGINS = [
   'http://127.0.0.1:*',
 ];
 
+function buildRawMerchantForClassification(txn) {
+  const context = [];
+  if (txn.rail) context.push(`rail=${txn.rail}`);
+  if (txn.source_profile) context.push(`source_profile=${txn.source_profile}`);
+  if (txn.transaction_type) context.push(`transaction_type=${txn.transaction_type}`);
+  if (txn.partner_metadata?.personal_finance_category) {
+    context.push(`plaid_pfc=${txn.partner_metadata.personal_finance_category}`);
+  }
+  if (txn.partner_metadata?.payment_channel) {
+    context.push(`payment_channel=${txn.partner_metadata.payment_channel}`);
+  }
+  if (txn.partner_metadata?.counterparty_type) {
+    context.push(`counterparty_type=${txn.partner_metadata.counterparty_type}`);
+  }
+
+  if (context.length === 0) return txn.merchant_name;
+  return `${txn.merchant_name} [partner_context: ${context.join('; ')}]`;
+}
+
 // ─── URGENCY TIMELINE DEFAULTS ────────────────────────────────────────────────
 function getDefaultUrgencyTimeline(eventName) {
   const defaults = {
@@ -1500,7 +1519,7 @@ app.post('/v1/enrich', async (req, res) => {
       txn.customer_id,
       bank_id,
       batchId,
-      txn.merchant_name,
+      buildRawMerchantForClassification(txn),
       txn.amount,
       txn.date,
       txn.mcc_code || null,
