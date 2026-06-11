@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
-import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronDown, ChevronUp } from "lucide-react";
+import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { CatalogProduct } from "@/types/campaign-studio";
 import { PRODUCT_CATEGORY_LABELS } from "@/lib/campaignStudioData";
