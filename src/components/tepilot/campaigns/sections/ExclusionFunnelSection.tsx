@@ -124,9 +124,78 @@ export function ExclusionFunnelSection({ product }: Props) {
     );
   }
 
+export function ExclusionFunnelSection({ product }: Props) {
+  const [expanded, setExpanded] = useState<ExclusionType | null>(null);
+  const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
+  const [revealedCount, setRevealedCount] = useState(0);
+  const [filters, setFilters] = useState<DemoFilters>(DEFAULT_FILTERS);
+  const [filtersOpen, setFiltersOpen] = useState(true);
+
+  useEffect(() => {
+    if (!product) return;
+    setRevealedCount(0);
+    setExpanded(null);
+    setFilters(DEFAULT_FILTERS);
+    const total = 5;
+    const id = setInterval(() => {
+      setRevealedCount((c) => {
+        if (c >= total) {
+          clearInterval(id);
+          return c;
+        }
+        return c + 1;
+      });
+    }, 220);
+    return () => clearInterval(id);
+  }, [product?.id]);
+
+
+  if (!product) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-4 opacity-60">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
+          <p className="text-sm font-semibold text-slate-900">Filter the audience</p>
+        </div>
+        <p className="text-xs text-slate-500 text-center py-8">
+          Pick a product above to apply demographic and signal-family filters.
+        </p>
+      </div>
+    );
+  }
+
   const exclusions = getProductExclusions(product.id, product.category);
   const relevance = getProductSignalRelevance(product.id, product.category);
   const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions, relevance, disabled);
+
+  const activeFilterCount =
+    (AGE_RANGES.length - filters.ageRanges.length) +
+    (INCOME_BANDS.length - filters.incomeBands.length) +
+    (FICO_RANGES.length - filters.ficoRanges.length) +
+    (REGIONS.length - filters.regions.length) +
+    (filters.accountTenure !== "all" ? 1 : 0) +
+    (filters.relationshipDepth !== "any" ? 1 : 0);
+
+  const groupRatios = {
+    Age: filters.ageRanges.length / AGE_RANGES.length,
+    Income: filters.incomeBands.length / INCOME_BANDS.length,
+    FICO: filters.ficoRanges.length / FICO_RANGES.length,
+    Region: filters.regions.length / REGIONS.length,
+  };
+  const emptyGroup = Object.entries(groupRatios).find(([, r]) => r === 0)?.[0];
+  const retention =
+    groupRatios.Age * groupRatios.Income * groupRatios.FICO * groupRatios.Region *
+    (TENURE_FACTOR[filters.accountTenure] ?? 1) *
+    (DEPTH_FACTOR[filters.relationshipDepth] ?? 1);
+  const combinedFinal = emptyGroup ? 0 : Math.round(funnel.finalCount * retention);
+
+  const toggleArr = (key: "ageRanges" | "incomeBands" | "ficoRanges" | "regions", value: string) => {
+    setFilters((f) => {
+      const cur = f[key];
+      return { ...f, [key]: cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value] };
+    });
+  };
+
 
   const getFamilySignals = (fam: ExclusionType): { label: string; detail: string }[] => {
     if (fam === "life-event" || fam === "behavioral") {
