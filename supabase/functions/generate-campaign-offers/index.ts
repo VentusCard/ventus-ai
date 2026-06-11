@@ -137,15 +137,13 @@ const EMIT_TOOL = {
           type: "object",
           properties: {
             plays_qualified: { type: "array", items: { type: "string" } },
-            angles_qualified: {
-              type: "array",
-              items: { type: "string", enum: ["BEHAVIORAL", "LIFE_EVENT", "FINANCIAL"] },
-            },
+            behavioral_categories_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 15 BEHAVIORAL_CATEGORIES." },
+            life_events_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 15 LIFE_EVENTS." },
+            financial_angles_qualified: { type: "array", items: { type: "string" } },
             anchors_available: { type: "array", items: { type: "string" } },
-            voice_registers: { type: "array", items: { type: "string" } },
             proof_modes: { type: "array", items: { type: "string" } },
           },
-          required: ["plays_qualified", "angles_qualified", "anchors_available", "voice_registers", "proof_modes"],
+          required: ["plays_qualified", "behavioral_categories_qualified", "life_events_qualified", "financial_angles_qualified", "anchors_available", "proof_modes"],
         },
         examples: {
           type: "array",
