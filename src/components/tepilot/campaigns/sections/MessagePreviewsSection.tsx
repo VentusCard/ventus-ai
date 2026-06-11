@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+// memo removed: empty-state branch must precede hooks
 import { Activity, CalendarHeart, TrendingUp, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -27,14 +27,25 @@ const ANGLE_VISUAL: Record<MessageAngle, { icon: React.ComponentType<{ className
 };
 
 interface Props {
-  product: ProductFlow;
+  product?: ProductFlow;
 }
 
 export function MessagePreviewsSection({ product }: Props) {
-  const variants = useMemo(
-    () => getProductMessageVariants(product.id, product.name, product.category),
-    [product.id, product.name, product.category],
-  );
+  if (!product) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-4 opacity-60">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">3</span>
+          <p className="text-sm font-semibold text-slate-900">Personalized message previews</p>
+        </div>
+        <p className="text-xs text-slate-500 text-center py-8">
+          Pick a product above to preview three personalized angles.
+        </p>
+      </div>
+    );
+  }
+
+  const variants = getProductMessageVariants(product.id, product.name, product.category);
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">

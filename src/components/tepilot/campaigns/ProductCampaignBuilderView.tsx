@@ -21,13 +21,8 @@ export function ProductCampaignBuilderView() {
       />
 
       <ProductPickerSection selectedId={productId} onSelect={setProductId} />
-
-      {product && (
-        <>
-          <ExclusionFunnelSection product={product} />
-          <MessagePreviewsSection product={product} />
-        </>
-      )}
+      <ExclusionFunnelSection product={product} />
+      <MessagePreviewsSection product={product} />
     </div>
   );
 }
