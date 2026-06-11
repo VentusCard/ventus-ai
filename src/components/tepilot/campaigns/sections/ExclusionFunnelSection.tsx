@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import {
   DollarSign,
@@ -10,6 +11,8 @@ import {
   ShieldCheck,
   ChevronDown,
   ChevronUp,
+  Plus,
+  Minus,
 } from "lucide-react";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
 import {
@@ -17,6 +20,8 @@ import {
   getProductExclusions,
   SIGNAL_FAMILIES,
   FAMILY_META,
+  FAMILY_POLARITY,
+  FAMILY_REASONS,
   type ExclusionType,
 } from "@/lib/productCatalogExtras";
 
@@ -40,6 +45,7 @@ interface Props {
 
 export function ExclusionFunnelSection({ product }: Props) {
   const [expanded, setExpanded] = useState<ExclusionType | null>(null);
+  const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
 
   if (!product) {
     return (
@@ -56,7 +62,16 @@ export function ExclusionFunnelSection({ product }: Props) {
   }
 
   const exclusions = getProductExclusions(product.id, product.category);
-  const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions);
+  const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions, disabled);
+
+  const toggleFamily = (fam: ExclusionType) => {
+    setDisabled((prev) => {
+      const next = new Set(prev);
+      if (next.has(fam)) next.delete(fam);
+      else next.add(fam);
+      return next;
+    });
+  };
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -74,32 +89,107 @@ export function ExclusionFunnelSection({ product }: Props) {
           const meta = FAMILY_META[fam];
           const Icon = FAMILY_ICON[fam];
           const data = funnel.byFamily[fam];
+          const polarity = FAMILY_POLARITY[fam];
           const isExpanded = expanded === fam;
+          const isDisabled = disabled.has(fam);
           return (
-            <button
+            <div
               key={fam}
-              onClick={() => setExpanded(isExpanded ? null : fam)}
               className={cn(
-                "text-left rounded-lg border border-slate-200 border-l-4 bg-white p-2.5 transition-all hover:shadow-sm",
+                "relative rounded-lg border border-slate-200 border-l-4 bg-white p-2.5 transition-all",
                 meta.border,
                 isExpanded && "ring-2 ring-slate-900 ring-offset-1",
+                isDisabled && "opacity-60",
               )}
             >
-              <div className="flex items-center gap-1.5 mb-1.5">
-                <span className={cn("flex items-center justify-center w-6 h-6 rounded-md shrink-0", meta.iconBg)}>
-                  <Icon className={cn("w-3.5 h-3.5", meta.iconColor)} />
-                </span>
-                {isExpanded ? (
-                  <ChevronUp className="w-3 h-3 text-slate-400 ml-auto" />
-                ) : (
-                  <ChevronDown className="w-3 h-3 text-slate-400 ml-auto" />
-                )}
-              </div>
-              <p className="text-[11px] font-semibold text-slate-900 leading-tight mb-0.5">{meta.label}</p>
-              <p className="text-[10px] text-slate-500 font-mono tabular-nums">
-                {data.signals.length} signals · −{fmt(data.removed)}
-              </p>
-            </button>
+              {/* +/− polarity toggle (top-right) */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFamily(fam);
+                    }}
+                    aria-label={`${isDisabled ? "Enable" : "Disable"} ${meta.label}`}
+                    className={cn(
+                      "absolute top-1.5 right-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full border transition-colors",
+                      polarity === "plus"
+                        ? isDisabled
+                          ? "border-slate-200 bg-white text-slate-400 hover:border-emerald-300"
+                          : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100"
+                        : isDisabled
+                          ? "border-slate-200 bg-white text-slate-400 hover:border-rose-300"
+                          : "border-rose-200 bg-rose-50 text-rose-700 hover:bg-rose-100",
+                    )}
+                  >
+                    {polarity === "plus" ? <Plus className="w-3 h-3" /> : <Minus className="w-3 h-3" />}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent
+                  side="top"
+                  align="end"
+                  className="w-64 p-3 bg-white border-slate-200 text-slate-900"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className={cn("flex items-center justify-center w-6 h-6 rounded-md", meta.iconBg)}>
+                      <Icon className={cn("w-3.5 h-3.5", meta.iconColor)} />
+                    </span>
+                    <p className="text-xs font-semibold text-slate-900">{meta.label}</p>
+                    <span
+                      className={cn(
+                        "ml-auto text-[10px] font-mono tabular-nums px-1.5 py-0.5 rounded",
+                        polarity === "plus" ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700",
+                      )}
+                    >
+                      {polarity === "plus" ? "+" : "−"}{fmt(data.removed)}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-600 leading-snug mb-2">{FAMILY_REASONS[fam].intro}</p>
+                  <ul className="space-y-1">
+                    {FAMILY_REASONS[fam].reasons.map((r) => (
+                      <li key={r} className="flex items-start gap-1.5 text-[11px] text-slate-700">
+                        <span
+                          className={cn(
+                            "mt-1 w-1 h-1 rounded-full shrink-0",
+                            polarity === "plus" ? "bg-emerald-500" : "bg-rose-500",
+                          )}
+                        />
+                        <span className="leading-snug">{r}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[10px] text-slate-400 mt-2 pt-2 border-t border-slate-100">
+                    Click the {polarity === "plus" ? "+" : "−"} again to {isDisabled ? "re-enable" : "disable"} this family in the funnel.
+                  </p>
+                </PopoverContent>
+              </Popover>
+
+              <button
+                onClick={() => setExpanded(isExpanded ? null : fam)}
+                className="w-full text-left"
+              >
+                <div className="flex items-center gap-1.5 mb-1.5 pr-6">
+                  <span className={cn("flex items-center justify-center w-6 h-6 rounded-md shrink-0", meta.iconBg)}>
+                    <Icon className={cn("w-3.5 h-3.5", meta.iconColor)} />
+                  </span>
+                  {isExpanded ? (
+                    <ChevronUp className="w-3 h-3 text-slate-400 ml-auto" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3 text-slate-400 ml-auto" />
+                  )}
+                </div>
+                <p className="text-[11px] font-semibold text-slate-900 leading-tight mb-0.5">{meta.label}</p>
+                <p
+                  className={cn(
+                    "text-[10px] font-mono tabular-nums",
+                    isDisabled ? "text-slate-400 line-through" : "text-slate-500",
+                  )}
+                >
+                  {data.signals.length} signals · {polarity === "plus" ? "+" : "−"}{fmt(data.removed)}
+                </p>
+              </button>
+            </div>
           );
         })}
       </div>
@@ -119,7 +209,12 @@ export function ExclusionFunnelSection({ product }: Props) {
       <div className="pt-3 mt-1 border-t border-slate-100 flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs text-slate-600">
           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>Final addressable audience after all five signal families</span>
+          <span>
+            Final addressable audience
+            {disabled.size > 0 && (
+              <span className="text-slate-400"> · {disabled.size} family{disabled.size > 1 ? "ies" : ""} disabled</span>
+            )}
+          </span>
         </div>
         <span className="text-base font-mono font-semibold text-slate-900">{fmt(funnel.finalCount)}</span>
       </div>
@@ -142,6 +237,7 @@ function ExpandedPanel({
 }) {
   const meta = FAMILY_META[family];
   const Icon = FAMILY_ICON[family];
+  const polarity = FAMILY_POLARITY[family];
   return (
     <div className={cn("rounded-lg border border-slate-200 border-l-4 bg-slate-50 p-3 mb-3", meta.border)}>
       <div className="flex items-center gap-2 mb-2">
@@ -151,7 +247,7 @@ function ExpandedPanel({
         <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-900 leading-tight">{meta.label}</p>
           <p className="text-[11px] text-slate-500">
-            {signals.length} contributing signals · −{fmt(removed)} from prior stage
+            {signals.length} contributing signals · {polarity === "plus" ? "+" : "−"}{fmt(removed)} from prior stage
           </p>
         </div>
         <button
@@ -173,7 +269,7 @@ function ExpandedPanel({
               <div className="flex items-baseline justify-between gap-2 mb-0.5">
                 <p className="text-xs font-medium text-slate-900 leading-tight">{s.label}</p>
                 <span className="text-[10px] font-mono text-slate-600 shrink-0">
-                  −{fmt(Math.round(baseForRates * s.removedPct))}
+                  {polarity === "plus" ? "+" : "−"}{fmt(Math.round(baseForRates * s.removedPct))}
                 </span>
               </div>
               <p className="text-[11px] text-slate-600 leading-snug">{s.rationale}</p>
