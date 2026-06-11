@@ -90,7 +90,7 @@ export function ProductPickerSection({ selectedName, onSelect, offers, onOffersC
 
       {selected && selectedFlow && mechanics && variants ? (
         <div className="flex gap-3">
-          <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50 p-3">
+          <div className="w-1/2 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-900 shrink-0">
                 <selectedFlow.icon className="w-3.5 h-3.5 text-white" />
@@ -123,7 +123,68 @@ export function ProductPickerSection({ selectedName, onSelect, offers, onOffersC
             </div>
           </div>
 
-          <div className="w-[40%] rounded-lg border border-slate-200 bg-white p-3 flex flex-col items-center justify-center gap-2 text-center">
+          <div className="w-1/4 rounded-lg border border-slate-200 bg-white p-3 flex flex-col">
+            <div className="flex items-center gap-1.5 mb-2">
+              <Tag className="w-3.5 h-3.5 text-slate-500" />
+              <p className="text-[11px] font-semibold text-slate-700">Offers</p>
+              <span className="text-[10px] text-slate-400">optional</span>
+              <span className="ml-auto text-[10px] text-slate-400 tabular-nums">
+                {offers.length}/{OFFER_MAX_COUNT}
+              </span>
+            </div>
+            <div className="flex gap-1">
+              <Input
+                value={offerDraft}
+                onChange={(e) => setOfferDraft(e.target.value.slice(0, OFFER_MAX_LEN))}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addOffer();
+                  }
+                }}
+                placeholder="e.g. Double rewards through EOY"
+                disabled={offers.length >= OFFER_MAX_COUNT}
+                className="h-7 text-xs bg-white border-slate-200"
+                maxLength={OFFER_MAX_LEN}
+              />
+              <button
+                type="button"
+                onClick={addOffer}
+                disabled={!offerDraft.trim() || offers.length >= OFFER_MAX_COUNT}
+                className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md bg-slate-900 text-white hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                aria-label="Add offer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+              </button>
+            </div>
+            <div className="mt-2 flex flex-wrap gap-1">
+              {offers.length === 0 ? (
+                <p className="text-[10px] text-slate-400 leading-snug">
+                  Add timely promos — e.g. "Limited-edition metal card", "Waived first-year fee".
+                </p>
+              ) : (
+                offers.map((o, i) => (
+                  <span
+                    key={`${o}-${i}`}
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-slate-100 border border-slate-200 text-[10px] text-slate-700 max-w-full"
+                  >
+                    <span className="truncate max-w-[140px]" title={o}>{o}</span>
+                    <button
+                      type="button"
+                      onClick={() => removeOffer(i)}
+                      className="text-slate-400 hover:text-slate-700 shrink-0"
+                      aria-label={`Remove ${o}`}
+                    >
+                      <X className="w-2.5 h-2.5" />
+                    </button>
+                  </span>
+                ))
+              )}
+            </div>
+          </div>
+
+          <div className="w-1/4 rounded-lg border border-slate-200 bg-white p-3 flex flex-col items-center justify-center gap-2 text-center">
+
             <span className="flex items-center justify-center w-9 h-9 rounded-md bg-slate-900 shrink-0">
               <Users className="w-4 h-4 text-white" />
             </span>
