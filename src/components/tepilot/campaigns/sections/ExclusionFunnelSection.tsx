@@ -23,10 +23,10 @@ import {
   SIGNAL_FAMILIES,
   SIGNAL_RELEVANCE_META,
   FAMILY_META,
-  FAMILY_REASONS,
   type ExclusionType,
   type SignalRelevance,
 } from "@/lib/productCatalogExtras";
+
 
 const fmt = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
@@ -88,6 +88,18 @@ export function ExclusionFunnelSection({ product }: Props) {
   const exclusions = getProductExclusions(product.id, product.category);
   const relevance = getProductSignalRelevance(product.id, product.category);
   const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions, relevance, disabled);
+
+  const getFamilySignals = (fam: ExclusionType): { label: string; detail: string }[] => {
+    if (fam === "life-event" || fam === "behavioral") {
+      return product.signals
+        .filter((s) => s.type === fam)
+        .map((s) => ({ label: s.label, detail: s.evidence }));
+    }
+    return exclusions
+      .filter((e) => e.type === fam)
+      .map((e) => ({ label: e.label, detail: e.rationale }));
+  };
+
 
   // Sort: useful → neutral → flag, then declaration order within each tier.
   const orderedFamilies = [...SIGNAL_FAMILIES].sort((a, b) => {
@@ -215,15 +227,40 @@ export function ExclusionFunnelSection({ product }: Props) {
                       <p className="text-[10px] text-slate-500 leading-tight">{relMeta.label}</p>
                     </div>
                   </div>
-                  <p className="text-[11px] text-slate-600 leading-snug mb-2">{relMeta.intro}</p>
-                  <ul className="space-y-1">
-                    {FAMILY_REASONS[fam].reasons.map((r) => (
-                      <li key={r} className="flex items-start gap-1.5 text-[11px] text-slate-700">
-                        <span className={cn("mt-1 w-1 h-1 rounded-full shrink-0", relMeta.bulletColor)} />
-                        <span className="leading-snug">{r}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  {(() => {
+                    const items = getFamilySignals(fam);
+                    const shown = items.slice(0, 5);
+                    const extra = items.length - shown.length;
+                    if (items.length === 0) {
+                      return (
+                        <p className="text-[11px] text-slate-500 italic leading-snug">
+                          No product-specific signals — relying on universal checks.
+                        </p>
+                      );
+                    }
+                    return (
+                      <>
+                        <p className="text-[11px] text-slate-600 leading-snug mb-2">
+                          Signals driving this family for {product.name}:
+                        </p>
+                        <ul className="space-y-1.5">
+                          {shown.map((s) => (
+                            <li key={s.label} className="flex items-start gap-1.5">
+                              <span className={cn("mt-1.5 w-1 h-1 rounded-full shrink-0", relMeta.bulletColor)} />
+                              <div className="min-w-0">
+                                <p className="text-[11px] font-medium text-slate-900 leading-snug">{s.label}</p>
+                                <p className="text-[10px] text-slate-600 leading-snug">{s.detail}</p>
+                              </div>
+                            </li>
+                          ))}
+                          {extra > 0 && (
+                            <li className="text-[10px] text-slate-400 pl-3">+{extra} more</li>
+                          )}
+                        </ul>
+                      </>
+                    );
+                  })()}
+
                   {canToggle && (
                     <p className="text-[10px] text-slate-400 mt-2 pt-2 border-t border-slate-100">
                       Click the badge again to {isDisabled ? "re-enable" : "disable"} this family in the funnel.
