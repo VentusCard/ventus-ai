@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw, FileJson } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { CatalogProduct } from "@/types/campaign-studio";
 import { PRODUCT_CATEGORY_LABELS } from "@/lib/campaignStudioData";
 import {
   type VariantBreakdown,
-  CATALOG_GRAND_TOTAL,
 } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards, type MessageCard } from "./buildMessageCards";
+
 
 // ── visuals ──────────────────────────────────────────────────────────────────
 
