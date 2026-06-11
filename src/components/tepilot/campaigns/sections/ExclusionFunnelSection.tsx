@@ -405,7 +405,7 @@ export function ExclusionFunnelSection({ product }: Props) {
                   <Icon className="w-4 h-4 shrink-0 text-white" />
                 </div>
                 <p className="text-[12px] font-semibold leading-tight text-white">{meta.label}</p>
-                <p className="text-[10px] font-medium text-white/80 mt-0.5">{fmt(famUsers)} users · {shareLabel}</p>
+                <p className="text-[10px] font-medium text-white/80 mt-0.5">{countLabel}</p>
 
               </button>
             </div>
