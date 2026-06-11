@@ -26,15 +26,21 @@ serve(async (req) => {
       .map((s, i) => `${i + 1}. [${s.type}] ${s.label} — ${s.evidence}`)
       .join("\n");
 
-    const userPrompt = `Generate one microsegment per signal for an always-on bank product flow.
+    const userPrompt = `Write the actual outbound campaign email that goes to customers in each microsegment of an always-on bank product flow.
 
 Product: ${productName} (${productCategory})
 Positioning: ${productPositioning ?? "n/a"}
 
-Signals (return one microsegment per signal, matched by exact signalLabel):
+Signals (one microsegment per signal, matched by exact signalLabel):
 ${signalLines}
 
-For each signal, the microsegment audience is customers who fire that specific signal for this product. Title is a 4-7 word archetype. Subject is <=60 chars. Body is 2-3 warm professional sentences. CTA is 3-5 words.`;
+For EACH signal write a real email a customer would receive:
+- title: 4-7 word internal archetype name for the microsegment (e.g. "New-parent education planners").
+- subject: <=60 char email subject line tuned to that signal's life stage / behavior.
+- body: 3-5 sentence email body addressed to "Hi {{first_name}},". Open by acknowledging the life moment or behavior behind the signal in vaguely-specific phrasing (no exact amounts or counts). Then explain why ${productName} fits THIS person right now, with 1-2 concrete benefits relevant to that signal. Close with a soft handoff to the CTA. Warm, professional, banker tone. No em dashes.
+- cta: 3-5 word button label, action verb first.
+
+The bodies must feel meaningfully different across signals - a new-parent 529 email should read differently from a college-tour-age 529 email.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -47,18 +53,19 @@ For each signal, the microsegment audience is customers who fire that specific s
         messages: [
           {
             role: "system",
-            content: `You are an expert bank marketing strategist generating banker-grade microsegment copy.
+            content: `You are an expert bank marketing strategist writing real outbound campaign emails for an always-on product flow.
 
 RULES:
 1. NEVER use em dashes. Use commas, periods, or short dashes.
 2. NEVER include exact dollar amounts or transaction counts. Use "vaguely specific" behavioral phrasing.
-3. NEVER mention competitors or risk/stress framing. Always frame as opportunity or fit.
-4. Title: 4-7 word archetype, no brand names.
-5. Subject: <=60 characters.
-6. Body: 2-3 sentences, professional and warm.
-7. CTA: 3-5 words, action verb first.
-8. signalLabel MUST match the provided signal label exactly.
-9. Return exactly one microsegment per input signal, in the same order.`,
+3. NEVER use risk/stress framing or mention competitors. Frame as opportunity or fit.
+4. Each email body MUST be specific to its signal's life moment or behavior - generic copy is a failure.
+5. title: 4-7 word archetype, no brand names.
+6. subject: <=60 characters, references the life moment or behavior.
+7. body: 3-5 sentences, starts with "Hi {{first_name}},", warm professional banker voice, references the signal's evidence in human language (never quote the raw signal), explains product fit, ends with a soft transition to the CTA.
+8. cta: 3-5 words, action verb first.
+9. signalLabel MUST match the provided signal label EXACTLY.
+10. Return exactly one microsegment per input signal, same order.`,
           },
           { role: "user", content: userPrompt },
         ],
