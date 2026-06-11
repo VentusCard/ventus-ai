@@ -1,44 +1,56 @@
-# Add Life-Event-Driven Flows (Consumer Products Only)
+# Sharpen Every Flow Signal to Ventus-Unique Patterns
 
-Add the missing life-event flows that map to a concrete consumer financial product the bank actually sells. Skip events already covered by an existing flow (e.g. newborn→529, RSU vest→wealth, lease end→auto loan, pre-retirement→annuity/LTC, 401(k) job-change→IRA, inheritance→wealth/trust).
+Rewrite the `signals` array on every flow in `src/lib/productAutomatedFlows.ts` so each `evidence` string reflects something **Ventus is uniquely positioned to detect** via multi-rail, semantically enriched transaction data — not patterns a generic bank analytics layer or Plaid-style aggregator could produce on its own.
 
-## New flows to add
+## What "uniquely Ventus" means (the lens applied to every signal)
+Sharpen evidence to lean on at least one of these capabilities:
+1. **Cross-rail joins** — combining card + ACH + wire + bill-pay + P2P (Zelle/Venmo) to see a complete behavior no single rail reveals.
+2. **Semantic merchant enrichment** — resolving obscured descriptors (e.g., `STRP*XYZ`, `WF8429*ACH`, `VEN*CASH`) to canonical entities, categories, life-stage tags, and counterparty identity.
+3. **Recurring-payment graph** — clustering irregular but related outflows into named obligations (childcare, eldercare, alimony, tuition, club dues) that don't share a clean merchant name.
+4. **Counterparty resolution** — turning anonymous wire/ACH lines into known entities (estate counsel, captive lender, foreign payroll provider, charity).
+5. **Cross-rail life-stage inference** — combining signals across rails into a confident life event (e.g., baby retailer card + pediatric copay ACH + daycare bill-pay = newborn at month X).
+6. **Wallet-share visibility** — detecting that a competitor product is doing what your bank could (external card paydown bill-pay, outbound brokerage ACH, neobank funding ACH).
 
-| # | id | Name | Category | Triggering life event |
-|---|----|------|----------|------------------------|
-| 1 | `wedding-loan` | Wedding Personal Loan | Lending | Engagement → wedding cycle |
-| 2 | `solo-restart-checking` | Solo Restart Checking | Deposits | Divorce / separation |
-| 3 | `inherited-ira` | Inherited IRA | Wealth | Beneficiary distribution |
-| 4 | `second-home-mortgage` | Second Home Mortgage | Lending | Vacation-home purchase |
-| 5 | `student-loan-refi` | Student Loan Refinance | Lending | Post-grad income step-up |
-| 6 | `hsa` | Health Savings Account | Deposits | High-deductible health plan |
-| 7 | `donor-advised-fund` | Donor-Advised Fund | Wealth | Charitable giving uptick |
-| 8 | `personal-line-of-credit` | Personal Line of Credit | Lending | Income disruption / gap |
-| 9 | `global-account` | Multi-Currency Global Account | Deposits | Expat / international move |
-| 10 | `homeowners-insurance` | Homeowners Insurance | Insurance | New home purchase |
-| 11 | `umbrella-insurance` | Umbrella Insurance | Insurance | Multi-asset household, teen driver |
-| 12 | `move-financing` | Moving & Relocation Loan | Lending | Cross-state move |
+Single-rail signals are kept only when no multi-rail version exists.
 
-## Per-flow signals (consumer-account observable)
-Each gets 3 `FlowSignal`s mixing `life-event` and `behavioral`, drawn from personal-account activity only (no business-account assumptions). Examples:
-- **Wedding loan**: engagement ring spend cluster, venue/caterer deposits, save-the-date printing
-- **Solo restart checking**: joint→single ACH shift, recurring family-law attorney ACH, address change
-- **Inherited IRA**: estate-distribution inflow, beneficiary form interactions, deceased-spouse signal
-- **Second home mortgage**: recurring vacation-rental spend at same locale, multi-state property tax, high HHI
-- **Student loan refi**: recurring federal/private servicer ACH + payroll step-up post-graduation
-- **HSA**: HDHP premium pattern, recurring pharmacy + specialist copays, FSA cliff timing
-- **Donor-advised fund**: Q4 charitable spike, recurring nonprofit donations, high investable assets
-- **PLOC**: payroll gap or step-down, rising card utilization, healthy savings ratio
-- **Global account**: international payroll inflow, foreign-currency spend, cross-border wires
-- **Homeowners insurance**: new mortgage on file + no insurer ACH detected
-- **Umbrella**: multi-property tax footprint, teen-driver insurance add, wealth tier
-- **Move financing**: van-rental / moving-services spend, multi-state address change, deposit on new lease
+## Scope
+- All 44 flows × ~3 signals each (~130 evidence lines) get rewritten.
+- `label` may be tightened where the new evidence reframes it.
+- `type` (`life-event` | `behavioral`) preserved per signal where appropriate.
+- Signal *count* per flow stays at 3 (drop the occasional 4th to keep cards consistent) unless a strong cross-rail signal warrants a 4th.
+- Constraints honored: no competitor merchant names in customer-facing text (signals are internal-facing, so descriptor patterns like `STRP*` are OK as evidence examples), "vaguely specific" tone preserved.
 
-## Microsegments
-Generate `FLOW_MICROSEGMENTS` entries for all 12 new flows using the same script and tone rules already in place (≤40-word body, no surveillance phrasing, bright/opportunity-framed, `Hi {{first_name}},` opener).
+## Example transforms
+
+Before → After (529 plan, newborn signal):
+- Before: `"Buy Buy Baby, Carter's, pediatric copays within 90 days"`
+- After: `"Card spend at baby-category merchants (resolved across 200+ DBAs) co-occurring with pediatrician HSA/copay ACH and new daycare bill-pay payee within 90 days"`
+
+Before → After (HELOC, home renovation):
+- Before: `"Home Depot, Lowe's, contractor ACH > $1,000"`
+- After: `"Sustained card spend at home-improvement merchants combined with semantically resolved contractor Zelle/Venmo memos ('framing,' 'plumbing,' 'cabinets') above household baseline"`
+
+Before → After (Wealth Management, RSU vest):
+- Before: `"Quarterly RSU vest, ESPP buyback inflows"`
+- After: `"Quarterly payroll-rail inflows from a brokerage transfer agent (resolved counterparty: Fidelity/Schwab equity-plan accounts) paired with same-day outbound ACH to retail brokerage"`
+
+Before → After (Inherited IRA):
+- Before: `"Single deposit from estate or trust counsel over $50k"`
+- After: `"Wire inflow with descriptor resolved to estate-counsel IOLTA account, paired with prior recurring bill-pay to a probate attorney and a joint→single account state change"`
+
+Before → After (Global Account, expat):
+- Before: `"Recurring deposit from foreign-domiciled employer"`
+- After: `"Wire payroll inflows with originating-bank BIC resolved to a non-US institution, plus FX card spend in the same country and outbound P2P memos in a non-English language"`
+
+Before → After (Wedding Loan):
+- Before: `"Jewelry purchase at premium retailer over $3k"`
+- After: `"Single large card spend at fine-jewelry MCC, followed within 60 days by vendor-deposit bill-pay payees semantically tagged as wedding services (venue, catering, photography)"`
+
+## How
+One-shot per flow via the existing LLM script (`/tmp/regen-ms.py` updated to also rewrite signals) using the Ventus capabilities above as the system prompt. Output keyed by flow id with new `signals: [{label, evidence, type}, ...]`. Apply the patch to `productAutomatedFlows.ts`. Then re-run the microsegments regenerator so `productMicrosegments.ts` picks up the new `signalLabel`s (which encode label + evidence).
 
 ## Files touched
-- `src/lib/productAutomatedFlows.ts` — add 12 entries (icons from lucide-react, no UI changes)
-- `src/lib/productMicrosegments.ts` — append 12 new keys via regen script
+- `src/lib/productAutomatedFlows.ts` — `signals` arrays rewritten for all 44 flows (no schema, no UI changes)
+- `src/lib/productMicrosegments.ts` — regenerated to match new signalLabels with the existing bright/non-surveillance tone
 
-No component, route, schema, or styling changes. Brings catalog from 32 → 44 flows.
+No component, routing, or styling changes.
