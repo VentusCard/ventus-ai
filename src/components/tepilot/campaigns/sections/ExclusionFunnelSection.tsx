@@ -89,6 +89,18 @@ export function ExclusionFunnelSection({ product }: Props) {
   const relevance = getProductSignalRelevance(product.id, product.category);
   const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions, relevance, disabled);
 
+  const getFamilySignals = (fam: ExclusionType): { label: string; detail: string }[] => {
+    if (fam === "life-event" || fam === "behavioral") {
+      return product.signals
+        .filter((s) => s.type === fam)
+        .map((s) => ({ label: s.label, detail: s.evidence }));
+    }
+    return exclusions
+      .filter((e) => e.type === fam)
+      .map((e) => ({ label: e.label, detail: e.rationale }));
+  };
+
+
   // Sort: useful → neutral → flag, then declaration order within each tier.
   const orderedFamilies = [...SIGNAL_FAMILIES].sort((a, b) => {
     const ra = RELEVANCE_RANK[relevance[a]];
