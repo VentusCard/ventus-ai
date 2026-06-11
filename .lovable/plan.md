@@ -1,45 +1,30 @@
-## Goal
+# Gate Campaign Builder tab into 3 sequential steps
 
-When the selected product is the **Cashback (3/2/1) / Customer-Choice card**, render the 5 message cards exactly as supplied — bypassing the dynamic anchor + copy generator. Every other product keeps its current behavior.
+Tab: **Targeting → Campaign Builder** on `/bankdemo`, rendered by `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx`. Today it renders all three sections at once:
 
-## Changes
+1. `ProductPickerSection` — pick product + offers + link
+2. `ExclusionFunnelSection` — eligibility funnel
+3. `MessagePreviewsSection` — generated message cards
 
-**File: `src/components/tepilot/campaigns/sections/buildMessageCards.ts`**
+## Change
 
-1. Add a name matcher helper:
-   ```ts
-   function isCustomerChoiceCard(p: CatalogProduct): boolean {
-     const n = p.name.toLowerCase();
-     return p.category === "credit_cards" &&
-            (n.includes("3/2/1") || n.includes("customer-choice") || n.includes("customer choice"));
-   }
-   ```
-2. Add a constant `CUSTOMER_CHOICE_CARDS: MessageCard[]` with the 5 cards below, mapped to the anchor families enforced by the 2/1/1/1/1 rule:
+In `ProductCampaignBuilderView.tsx`:
 
-   | # | Family | Play | Anchor label | Subject |
-   |---|---|---|---|---|
-   | 1 | BEHAVIOR | ACTIVATE | "Everyday foodie (budget tier)" | 6% on takeout, 4% on groceries — eat happy |
-   | 2 | BEHAVIOR | UPGRADE | "Premium foodie (premium tier)" | 6% on fine dining, 4% at the specialty grocer |
-   | 3 | LIFE_EVENT | ACTIVATE | "New home" | New keys, new projects — 6% back |
-   | 4 | DEMOGRAPHIC | ACQUIRE | "New city" | New city, more gas, more dinners out — 6% back |
-   | 5 | FINANCIAL_SIGNAL | ACTIVATE | "Saving toward a goal" | Turn everyday spending into your goal |
+- Add `const [visibleStep, setVisibleStep] = useState<1 | 2 | 3>(1)`.
+- Render section 2 only when `visibleStep >= 2`, section 3 only when `visibleStep >= 3`.
+- After section 1 and section 2 (only while they are the current last-visible step), render a right-aligned pill button:
+  ```
+  <div className="flex justify-end">
+    <button ...>Next step →</button>
+  </div>
+  ```
+  Styling matches existing demo pills: `rounded-full text-xs font-medium border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300 px-3 py-1.5`.
+- Step 1's Next is **disabled** until `productName` is non-empty (and visually faded). Step 2's Next is always enabled.
+- When the user picks a *different* product via `handleSelectProduct`, reset `visibleStep` to 1 so the gating restarts cleanly.
+- No other files touched — `MessagePreviewsSection`, hardcoded Customer-Choice cards, sidebar, header all unchanged.
 
-   Bodies, CTAs, and `why` strings use the exact copy the user supplied. `why` is a short rationale, e.g. `"Behavioral — everyday foodie (budget tier)."`.
+## Out of scope
 
-3. In `buildMessageCards(...)`, short-circuit at the top:
-   ```ts
-   if (isCustomerChoiceCard(product)) {
-     const href = campaignLink.trim();
-     return href
-       ? CUSTOMER_CHOICE_CARDS.map((c) => ({ ...c, ctaHref: href }))
-       : CUSTOMER_CHOICE_CARDS;
-   }
-   ```
-   This runs **before** the dynamic anchor/play/copy pipeline.
-
-## Behavior notes
-
-- **Regenerate button:** for the Customer-Choice card it returns the same 5 cards every time (copy is fixed). The button still works for all other products.
-- **Promo overlay:** ignored for the Customer-Choice card — the supplied copy already bakes in "doubled for new cardholders through December 31."
-- **Anchor visuals:** existing `ANCHOR_VISUAL` mapping in `MessagePreviewsSection.tsx` already covers `BEHAVIOR`, `LIFE_EVENT`, `DEMOGRAPHIC`, `FINANCIAL_SIGNAL` — no UI changes needed.
-- **Out of scope:** no changes to `MessagePreviewsSection.tsx`, edge functions, variant counts, or other product templates.
+- Other tabs / pages.
+- Animation/transition (a simple conditional mount is enough).
+- Persisting step across tab switches.

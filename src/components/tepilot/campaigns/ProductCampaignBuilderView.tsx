@@ -14,11 +14,13 @@ export function ProductCampaignBuilderView() {
   const [productName, setProductName] = useState<string>("");
   const [offers, setOffers] = useState<string[]>([]);
   const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
+  const [visibleStep, setVisibleStep] = useState<1 | 2 | 3>(1);
 
   const handleSelectProduct = (name: string) => {
     setProductName(name);
     setOffers([]);
     setCampaignLink(DEFAULT_CAMPAIGN_LINK);
+    setVisibleStep(1);
   };
 
   const catalogProduct = useMemo(
@@ -33,6 +35,9 @@ export function ProductCampaignBuilderView() {
     () => (catalogProduct ? getProductVariants(catalogProduct) : undefined),
     [catalogProduct],
   );
+
+  const nextBtnClass =
+    "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:text-slate-600 disabled:hover:border-slate-200";
 
   return (
     <div className="space-y-4">
@@ -52,15 +57,40 @@ export function ProductCampaignBuilderView() {
         campaignLink={campaignLink}
         onCampaignLinkChange={setCampaignLink}
       />
-      <ExclusionFunnelSection product={flow} />
-      <MessagePreviewsSection
-        product={catalogProduct}
-        variants={variants}
-        offers={offers}
-        campaignLink={campaignLink}
-      />
+      {visibleStep === 1 && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className={nextBtnClass}
+            disabled={!productName}
+            onClick={() => setVisibleStep(2)}
+          >
+            Next step →
+          </button>
+        </div>
+      )}
 
+      {visibleStep >= 2 && <ExclusionFunnelSection product={flow} />}
+      {visibleStep === 2 && (
+        <div className="flex justify-end">
+          <button
+            type="button"
+            className={nextBtnClass}
+            onClick={() => setVisibleStep(3)}
+          >
+            Next step →
+          </button>
+        </div>
+      )}
+
+      {visibleStep >= 3 && (
+        <MessagePreviewsSection
+          product={catalogProduct}
+          variants={variants}
+          offers={offers}
+          campaignLink={campaignLink}
+        />
+      )}
     </div>
   );
 }
-
