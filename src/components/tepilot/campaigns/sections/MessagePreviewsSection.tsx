@@ -12,24 +12,24 @@ import { buildMessageCards, type MessageCard } from "./buildMessageCards";
 
 // ── visuals ──────────────────────────────────────────────────────────────────
 
-const ANCHOR_VISUAL: Record<
-  MessageCard["anchorFamily"],
-  {
-    icon: React.ComponentType<{ className?: string }>;
-    border: string;
-    iconBg: string;
-    iconColor: string;
-    dotBg: string;
-    chipBg: string;
-    chipBorder: string;
-    chipText: string;
-    label: string;
-  }
-> = {
-  STACK:      { icon: Layers,        border: "border-l-blue-400",    iconBg: "bg-blue-50",    iconColor: "text-blue-600",    dotBg: "bg-blue-500",    chipBg: "bg-blue-50",    chipBorder: "border-blue-200",    chipText: "text-blue-700",    label: "Category stack" },
-  LIFE_EVENT: { icon: CalendarHeart, border: "border-l-amber-400",   iconBg: "bg-amber-50",   iconColor: "text-amber-600",   dotBg: "bg-amber-500",   chipBg: "bg-amber-50",   chipBorder: "border-amber-200",   chipText: "text-amber-700",   label: "Life-event hook" },
-  GOAL:       { icon: TrendingUp,    border: "border-l-emerald-400", iconBg: "bg-emerald-50", iconColor: "text-emerald-600", dotBg: "bg-emerald-500", chipBg: "bg-emerald-50", chipBorder: "border-emerald-200", chipText: "text-emerald-700", label: "Financial-goal hook" },
-  USAGE:      { icon: Activity,      border: "border-l-slate-400",   iconBg: "bg-slate-50",   iconColor: "text-slate-600",   dotBg: "bg-slate-500",   chipBg: "bg-slate-50",   chipBorder: "border-slate-200",   chipText: "text-slate-700",   label: "Activation nudge" },
+type AnchorVisual = {
+  icon: React.ComponentType<{ className?: string }>;
+  border: string;
+  borderTone: string; // hex-ish slate for left block border
+  iconBg: string;
+  iconColor: string;
+  dotBg: string;
+  chipBg: string;
+  chipBorder: string;
+  chipText: string;
+  label: string;
+};
+
+const ANCHOR_VISUAL: Record<MessageCard["anchorFamily"], AnchorVisual> = {
+  STACK:      { icon: Layers,        border: "border-l-blue-400",    borderTone: "border-l-blue-400",    iconBg: "bg-blue-50",    iconColor: "text-blue-600",    dotBg: "bg-blue-500",    chipBg: "bg-blue-50",    chipBorder: "border-blue-200",    chipText: "text-blue-700",    label: "Category stack" },
+  LIFE_EVENT: { icon: CalendarHeart, border: "border-l-amber-400",   borderTone: "border-l-amber-400",   iconBg: "bg-amber-50",   iconColor: "text-amber-600",   dotBg: "bg-amber-500",   chipBg: "bg-amber-50",   chipBorder: "border-amber-200",   chipText: "text-amber-700",   label: "Life-event hook" },
+  GOAL:       { icon: TrendingUp,    border: "border-l-emerald-400", borderTone: "border-l-emerald-400", iconBg: "bg-emerald-50", iconColor: "text-emerald-600", dotBg: "bg-emerald-500", chipBg: "bg-emerald-50", chipBorder: "border-emerald-200", chipText: "text-emerald-700", label: "Financial-goal hook" },
+  USAGE:      { icon: Activity,      border: "border-l-slate-400",   borderTone: "border-l-slate-400",   iconBg: "bg-slate-50",   iconColor: "text-slate-600",   dotBg: "bg-slate-500",   chipBg: "bg-slate-50",   chipBorder: "border-slate-200",   chipText: "text-slate-700",   label: "Activation nudge" },
 };
 
 interface Props {
@@ -77,26 +77,22 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   }
 
   const shownCount = Math.min(totalSlots, cards.length);
-  // Clamp featured index to what's actually revealed AND exists.
-  const maxFeaturedIdx = Math.max(0, Math.min(shownCount, revealedCount) - 1);
+  const revealedShown = Math.min(shownCount, revealedCount);
+  const maxFeaturedIdx = Math.max(0, revealedShown - 1);
   const safeFeaturedIdx = Math.min(featuredIdx, maxFeaturedIdx);
   const featuredCard = cards[safeFeaturedIdx];
-  const featuredVisual = featuredCard ? ANCHOR_VISUAL[featuredCard.anchorFamily] : null;
+  const featuredVisual = featuredCard ? ANCHOR_VISUAL[featuredCard.anchorFamily] : ANCHOR_VISUAL.STACK;
 
   const goPrev = () => {
-    if (shownCount === 0) return;
-    setFeaturedIdx((i) => {
-      const cap = Math.min(shownCount, Math.max(1, revealedCount));
-      return (i - 1 + cap) % cap;
-    });
+    if (revealedShown <= 1) return;
+    setFeaturedIdx((i) => (i - 1 + revealedShown) % revealedShown);
   };
   const goNext = () => {
-    if (shownCount === 0) return;
-    setFeaturedIdx((i) => {
-      const cap = Math.min(shownCount, Math.max(1, revealedCount));
-      return (i + 1) % cap;
-    });
+    if (revealedShown <= 1) return;
+    setFeaturedIdx((i) => (i + 1) % revealedShown);
   };
+
+  const pad2 = (n: number) => String(n).padStart(2, "0");
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
@@ -105,210 +101,132 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
         <p className="text-sm font-semibold text-slate-900">Micro-Segment Personalized Campaign Output</p>
       </div>
 
-      {/* ── Toggle strip ──────────────────────────────────────────────────── */}
       <div
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "ArrowLeft") { e.preventDefault(); goPrev(); }
           if (e.key === "ArrowRight") { e.preventDefault(); goNext(); }
         }}
-        className="mb-2 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/60 px-2 py-1.5 focus:outline-none focus:ring-2 focus:ring-slate-900/10"
-        aria-label="Featured campaign navigator"
+        className="flex gap-4 focus:outline-none"
+        aria-label="Campaign deck navigator"
       >
-        <button
-          type="button"
-          onClick={goPrev}
-          disabled={shownCount <= 1}
-          className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          aria-label="Previous campaign"
-        >
-          <ChevronLeft className="w-3.5 h-3.5" />
-        </button>
-
-        {featuredCard && featuredVisual ? (
-          <span
-            className={cn(
-              "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wider",
-              featuredVisual.chipBg,
-              featuredVisual.chipBorder,
-              featuredVisual.chipText,
-            )}
-          >
-            <span className={cn("w-1.5 h-1.5 rounded-full", featuredVisual.dotBg)} />
-            {featuredVisual.label}
-          </span>
-        ) : (
-          <span className="text-[10px] text-slate-400 uppercase tracking-wider">Loading…</span>
-        )}
-
-        <div className="flex-1" />
-
-        <Popover>
-          <PopoverTrigger asChild>
-            <button
-              type="button"
-              className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md border border-slate-200 bg-white text-[10px] text-slate-700 tabular-nums hover:bg-slate-100 transition-colors"
-            >
-              <span className="font-semibold text-slate-900">
-                Campaign {Math.min(safeFeaturedIdx + 1, shownCount || 1)} of {shownCount || 0}
-              </span>
-              <span className="text-slate-400">·</span>
-              <span>{variants.total.toLocaleString()} total</span>
-            </button>
-          </PopoverTrigger>
-          <PopoverContent
-            align="end"
-            sideOffset={6}
-            className="w-[360px] bg-white border-slate-200 text-slate-700 p-3"
-          >
-            <p className="text-[11px] font-semibold text-slate-900 mb-2">
-              Variation Logic:
-            </p>
-            <div className="grid grid-cols-3 gap-2">
-              <FormulaCell
-                label="Category stacks × plays"
-                value={variants.stacks > 0 ? variants.stacks * variants.plays : 0}
-                note={variants.stacks > 0 ? `${variants.stacks} × ${variants.plays}` : "not category-bearing"}
-                tone="blue"
-              />
-              <FormulaCell
-                label="Life-event hooks"
-                value={variants.lifeEvents}
-                note="one per qualifying event"
-                tone="amber"
-              />
-              <FormulaCell
-                label="Financial-goal hooks"
-                value={variants.financialGoals}
-                note="one per qualifying goal"
-                tone="emerald"
-              />
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        <button
-          type="button"
-          onClick={goNext}
-          disabled={shownCount <= 1}
-          className="shrink-0 inline-flex items-center justify-center w-6 h-6 rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-          aria-label="Next campaign"
-        >
-          <ChevronRight className="w-3.5 h-3.5" />
-        </button>
-      </div>
-
-      {/* ── Featured single campaign ──────────────────────────────────────── */}
-      {featuredCard && featuredVisual ? (
-        <FeaturedCampaignCard card={featuredCard} visual={featuredVisual} />
-      ) : (
+        {/* ── Prominent left counter ───────────────────────────────────── */}
         <div
-          className="mb-3 rounded-lg border border-dashed border-slate-200 bg-slate-50/50"
-          style={{ minHeight: 160 }}
-          aria-hidden
-        />
-      )}
-
-      {/* ── 5-card grid (unchanged) ───────────────────────────────────────── */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-        {Array.from({ length: totalSlots }).map((_, idx) => {
-          const card = cards[idx];
-          const isRevealed = idx < revealedCount;
-
-          if (!card) {
-            return (
-              <div
-                key={idx}
-                className="rounded-lg border border-dashed border-slate-200 bg-slate-50/50 p-3 flex items-center justify-center text-center"
-                style={{ minHeight: 240 }}
+          className={cn(
+            "shrink-0 w-[160px] rounded-lg border border-slate-200 border-l-4 bg-white p-3 flex flex-col",
+            featuredVisual.border,
+          )}
+        >
+          <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
+            Campaign
+          </p>
+          <div className="flex items-baseline gap-1 mt-1">
+            <span className="text-[40px] leading-none font-semibold font-mono tabular-nums text-slate-900">
+              {pad2(safeFeaturedIdx + 1)}
+            </span>
+            <span className="text-lg leading-none font-mono tabular-nums text-slate-400">
+              / {pad2(shownCount || 0)}
+            </span>
+          </div>
+          <div className="mt-auto pt-3 border-t border-slate-100">
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className="text-left w-full group"
+                >
+                  <p className="text-[10px] text-slate-500 leading-snug">
+                    <span className="font-mono tabular-nums text-slate-700">
+                      {variants.total.toLocaleString()}
+                    </span>
+                    <span className="text-slate-400"> total ·</span>
+                  </p>
+                  <p className="text-[10px] font-semibold text-slate-700 group-hover:text-slate-900 transition-colors underline decoration-dotted decoration-slate-300 underline-offset-2">
+                    view logic
+                  </p>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent
+                align="start"
+                sideOffset={6}
+                className="w-[360px] bg-white border-slate-200 text-slate-700 p-3"
               >
-                <p className="text-[10px] text-slate-400 leading-snug">
-                  No further anchors for this product —<br />
-                  <span className="text-slate-500">honest small numbers</span>
+                <p className="text-[11px] font-semibold text-slate-900 mb-2">
+                  Variation Logic:
                 </p>
-              </div>
-            );
-          }
-
-          const visual = ANCHOR_VISUAL[card.anchorFamily];
-
-          if (!isRevealed) {
-            return (
-              <div
-                key={idx}
-                className="rounded-lg border border-dashed border-slate-200 bg-slate-50/50"
-                style={{ minHeight: 240 }}
-                aria-hidden
-              />
-            );
-          }
-
-          const Icon = visual.icon;
-          const isFeatured = idx === safeFeaturedIdx;
-          return (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => setFeaturedIdx(idx)}
-              className={cn(
-                "text-left rounded-lg border border-slate-200 border-l-4 bg-white p-3 flex flex-col animate-fade-in hover:border-slate-300 hover:shadow-sm transition-all",
-                visual.border,
-                isFeatured && "ring-2 ring-slate-900/10 shadow-sm",
-              )}
-            >
-              <div className="flex items-center gap-2 mb-2">
-                <span className={cn("flex items-center justify-center w-6 h-6 rounded-md shrink-0", visual.iconBg)}>
-                  <Icon className={cn("w-3.5 h-3.5", visual.iconColor)} />
-                </span>
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-700 truncate">
-                  {visual.label}
-                </p>
-              </div>
-
-              <div className="mb-2 flex flex-wrap gap-1">
-                <span className="text-[9px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-900 text-white">
-                  {card.play}
-                </span>
-                <span
-                  className="text-[9px] font-medium text-slate-600 px-1.5 py-0.5 rounded bg-slate-100 truncate max-w-[140px]"
-                  title={card.anchor}
-                >
-                  {card.anchor}
-                </span>
-              </div>
-
-              <div className="rounded-md border border-slate-100 bg-slate-50 px-2.5 py-1.5 mb-2">
-                <p className="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Subject</p>
-                <p className="text-xs font-semibold text-slate-900 leading-snug">{card.subject}</p>
-              </div>
-
-              <p className="text-[11px] text-slate-700 leading-relaxed mb-3 flex-1">{card.body}</p>
-
-              {card.ctaHref ? (
-                <a
-                  href={card.ctaHref}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] font-semibold hover:bg-slate-800 transition-colors mb-2 no-underline"
-                >
-                  {card.cta}
-                </a>
-              ) : (
-                <span className="self-start inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-900 text-white text-[10px] font-semibold mb-2">
-                  {card.cta}
-                </span>
-              )}
-
-              <div className="pt-2 border-t border-slate-100">
-                <div className="flex items-start gap-1.5">
-                  <Sparkles className="w-3 h-3 text-slate-400 mt-0.5 shrink-0" />
-                  <p className="text-[10px] text-slate-500 leading-snug">{card.why}</p>
+                <div className="grid grid-cols-3 gap-2">
+                  <FormulaCell
+                    label="Category stacks × plays"
+                    value={variants.stacks > 0 ? variants.stacks * variants.plays : 0}
+                    note={variants.stacks > 0 ? `${variants.stacks} × ${variants.plays}` : "not category-bearing"}
+                    tone="blue"
+                  />
+                  <FormulaCell
+                    label="Life-event hooks"
+                    value={variants.lifeEvents}
+                    note="one per qualifying event"
+                    tone="amber"
+                  />
+                  <FormulaCell
+                    label="Financial-goal hooks"
+                    value={variants.financialGoals}
+                    note="one per qualifying goal"
+                    tone="emerald"
+                  />
                 </div>
-              </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        </div>
+
+        {/* ── Right: family chip + arrows + fanned deck ────────────────── */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          <div className="flex items-center gap-2 mb-2">
+            {featuredCard ? (
+              <span
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border text-[10px] font-semibold uppercase tracking-wider",
+                  featuredVisual.chipBg,
+                  featuredVisual.chipBorder,
+                  featuredVisual.chipText,
+                )}
+              >
+                <span className={cn("w-1.5 h-1.5 rounded-full", featuredVisual.dotBg)} />
+                {featuredVisual.label}
+              </span>
+            ) : (
+              <span className="text-[10px] text-slate-400 uppercase tracking-wider">Loading…</span>
+            )}
+
+            <div className="flex-1" />
+
+            <button
+              type="button"
+              onClick={goPrev}
+              disabled={revealedShown <= 1}
+              className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              aria-label="Previous campaign"
+            >
+              <ChevronLeft className="w-4 h-4" />
             </button>
-          );
-        })}
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={revealedShown <= 1}
+              className="shrink-0 inline-flex items-center justify-center w-7 h-7 rounded-md border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+              aria-label="Next campaign"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <FannedDeck
+            cards={cards.slice(0, shownCount)}
+            revealedCount={revealedShown}
+            activeIdx={safeFeaturedIdx}
+            onSelect={setFeaturedIdx}
+          />
+        </div>
       </div>
 
       <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
@@ -324,71 +242,107 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   );
 }
 
-// ── featured (single, larger) card ───────────────────────────────────────────
+// ── fanned deck ──────────────────────────────────────────────────────────────
 
-function FeaturedCampaignCard({
-  card,
-  visual,
+function FannedDeck({
+  cards,
+  revealedCount,
+  activeIdx,
+  onSelect,
 }: {
-  card: MessageCard;
-  visual: (typeof ANCHOR_VISUAL)[MessageCard["anchorFamily"]];
+  cards: MessageCard[];
+  revealedCount: number;
+  activeIdx: number;
+  onSelect: (idx: number) => void;
 }) {
-  const Icon = visual.icon;
   return (
     <div
-      key={`${card.subject}-${card.anchor}`}
-      className={cn(
-        "mb-3 rounded-lg border border-slate-200 border-l-4 bg-white p-4 animate-fade-in",
-        visual.border,
-      )}
+      className="relative w-full"
+      style={{ minHeight: 300, perspective: "1200px" }}
     >
-      <div className="flex items-start gap-3">
-        <span className={cn("flex items-center justify-center w-9 h-9 rounded-md shrink-0", visual.iconBg)}>
-          <Icon className={cn("w-4 h-4", visual.iconColor)} />
-        </span>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-1.5 flex-wrap mb-1.5">
-            <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-900 text-white">
-              {card.play}
-            </span>
-            <span
-              className="text-[10px] font-medium text-slate-600 px-1.5 py-0.5 rounded bg-slate-100 truncate max-w-[260px]"
-              title={card.anchor}
-            >
-              {card.anchor}
-            </span>
-          </div>
+      {cards.map((card, idx) => {
+        const visual = ANCHOR_VISUAL[card.anchorFamily];
+        const isRevealed = idx < revealedCount;
+        const offset = idx - activeIdx; // negative = behind-left, positive = behind-right
+        const abs = Math.abs(offset);
 
-          <div className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2 mb-2">
-            <p className="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Subject</p>
-            <p className="text-sm font-semibold text-slate-900 leading-snug">{card.subject}</p>
-          </div>
+        // Active card on top; further cards step further behind.
+        const translateX = offset * 22; // px
+        const translateY = abs * 14;    // px
+        const rotate = offset * 2.4;    // deg
+        const scale = 1 - abs * 0.035;
+        const opacity = isRevealed ? Math.max(0.45, 1 - abs * 0.18) : 0;
+        const zIndex = 50 - abs;
+        const isActive = offset === 0;
 
-          <p className="text-[12px] text-slate-700 leading-relaxed mb-3">{card.body}</p>
-
-          <div className="flex items-center justify-between gap-3 flex-wrap">
-            {card.ctaHref ? (
-              <a
-                href={card.ctaHref}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[11px] font-semibold hover:bg-slate-800 transition-colors no-underline"
-              >
-                {card.cta}
-              </a>
-            ) : (
-              <button className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[11px] font-semibold hover:bg-slate-800 transition-colors">
-                {card.cta}
-              </button>
+        return (
+          <button
+            key={idx}
+            type="button"
+            onClick={() => onSelect(idx)}
+            aria-label={isActive ? "Active campaign" : `Bring campaign ${idx + 1} to front`}
+            aria-current={isActive}
+            tabIndex={isActive ? 0 : -1}
+            className={cn(
+              "absolute left-0 right-0 mx-auto text-left rounded-lg border border-slate-200 border-l-4 bg-white p-4 flex flex-col transition-all duration-300 ease-out",
+              visual.border,
+              isActive ? "shadow-md cursor-default" : "shadow-sm cursor-pointer hover:-translate-y-1",
             )}
-
-            <div className="flex items-start gap-1.5 min-w-0">
-              <Sparkles className="w-3 h-3 text-slate-400 mt-0.5 shrink-0" />
-              <p className="text-[10px] text-slate-500 leading-snug">{card.why}</p>
+            style={{
+              top: 0,
+              maxWidth: 640,
+              transform: `translate3d(${translateX}px, ${translateY}px, 0) rotate(${rotate}deg) scale(${scale})`,
+              transformOrigin: "center top",
+              opacity,
+              zIndex,
+              pointerEvents: isRevealed ? "auto" : "none",
+            }}
+          >
+            <div className="flex items-center gap-1.5 flex-wrap mb-2">
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-slate-900 text-white">
+                {card.play}
+              </span>
+              <span
+                className="text-[10px] font-medium text-slate-600 px-1.5 py-0.5 rounded bg-slate-100 truncate max-w-[280px]"
+                title={card.anchor}
+              >
+                {card.anchor}
+              </span>
             </div>
-          </div>
-        </div>
-      </div>
+
+            <div className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2 mb-2">
+              <p className="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Subject</p>
+              <p className="text-sm font-semibold text-slate-900 leading-snug">{card.subject}</p>
+            </div>
+
+            <p className="text-[12px] text-slate-700 leading-relaxed mb-3">{card.body}</p>
+
+            <div className="flex items-center justify-between gap-3 flex-wrap mt-auto">
+              {card.ctaHref ? (
+                <a
+                  href={card.ctaHref}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  tabIndex={isActive ? 0 : -1}
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[11px] font-semibold hover:bg-slate-800 transition-colors no-underline"
+                >
+                  {card.cta}
+                </a>
+              ) : (
+                <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-slate-900 text-white text-[11px] font-semibold">
+                  {card.cta}
+                </span>
+              )}
+
+              <div className="flex items-start gap-1.5 min-w-0">
+                <Sparkles className="w-3 h-3 text-slate-400 mt-0.5 shrink-0" />
+                <p className="text-[10px] text-slate-500 leading-snug">{card.why}</p>
+              </div>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
