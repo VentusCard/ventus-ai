@@ -10,6 +10,12 @@ import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
 
 export function ProductCampaignBuilderView() {
   const [productName, setProductName] = useState<string>("");
+  const [offers, setOffers] = useState<string[]>([]);
+
+  const handleSelectProduct = (name: string) => {
+    setProductName(name);
+    setOffers([]);
+  };
 
   const catalogProduct = useMemo(
     () => PRODUCT_CATALOG.find((p) => p.name === productName),
@@ -34,9 +40,15 @@ export function ProductCampaignBuilderView() {
         whyItMatters="Lets relationship managers reason about a single product end-to-end — mechanics, eligible audience, and the honest count of campaigns it can power — without leaving the tab."
       />
 
-      <ProductPickerSection selectedName={productName} onSelect={setProductName} />
+      <ProductPickerSection
+        selectedName={productName}
+        onSelect={handleSelectProduct}
+        offers={offers}
+        onOffersChange={setOffers}
+      />
       <ExclusionFunnelSection product={flow} />
-      <MessagePreviewsSection product={catalogProduct} variants={variants} />
+      <MessagePreviewsSection product={catalogProduct} variants={variants} offers={offers} />
+
     </div>
   );
 }
