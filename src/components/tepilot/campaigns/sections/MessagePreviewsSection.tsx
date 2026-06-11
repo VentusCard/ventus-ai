@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight } from "lucide-react";
+import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import type { CatalogProduct } from "@/types/campaign-studio";
@@ -41,13 +41,20 @@ interface Props {
 
 export function MessagePreviewsSection({ product, variants, offers = [], campaignLink = "" }: Props) {
   const productName = product?.name ?? "";
-  const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants, offers, campaignLink) : [];
 
   const totalSlots = 5;
 
   // staggered reveal
   const [revealedCount, setRevealedCount] = useState(0);
   const [featuredIdx, setFeaturedIdx] = useState(0);
+  const [regenSeed, setRegenSeed] = useState(0);
+
+  // Reset seed when product changes
+  useEffect(() => { setRegenSeed(0); }, [productName]);
+
+  const cards: MessageCard[] = product && variants
+    ? buildMessageCards(product, variants, offers, campaignLink, regenSeed)
+    : [];
 
   useEffect(() => {
     setRevealedCount(0);
@@ -59,7 +66,7 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
       timers.push(setTimeout(() => setRevealedCount((c) => Math.max(c, i + 1)), i * stepMs));
     }
     return () => timers.forEach(clearTimeout);
-  }, [productName]);
+  }, [productName, regenSeed]);
 
   // ── empty state ────────────────────────────────────────────────────────────
   if (!product || !variants) {
