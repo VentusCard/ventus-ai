@@ -6,7 +6,7 @@ export const BASE_USERS = 75_000_000;
 
 export const PRODUCT_CATALOG: CatalogProduct[] = [
   // Credit Cards (10)
-  { name: 'Cashback', category: 'credit_cards', penetrationRate: 32 },
+  { name: 'Cashback (3/2/1)', category: 'credit_cards', penetrationRate: 32 },
   { name: 'Custom Cashback', category: 'credit_cards', penetrationRate: 14 },
   { name: 'Travel', category: 'credit_cards', penetrationRate: 18 },
   { name: 'Airline', category: 'credit_cards', penetrationRate: 8 },
