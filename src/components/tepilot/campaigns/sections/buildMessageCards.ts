@@ -65,6 +65,15 @@ const PLAYS_BY_FAMILY: Record<AnchorFamily, string[]> = {
 
 // ── Copy templates ──────────────────────────────────────────────────────────
 
+// Anchor labels sometimes use "×" (e.g. "Groceries × Warehouse club"). That
+// reads as a formula in headlines and is awkward in prose. Convert to "and"
+// when interpolated mid-sentence, and lowercase only the first word so brand
+// nouns ("Streaming", "Ride-share") keep their shape.
+function prose(anchor: string): string {
+  const cleaned = anchor.replace(/\s*×\s*/g, " and ");
+  return cleaned.charAt(0).toLowerCase() + cleaned.slice(1);
+}
+
 function copyFor(
   family: AnchorFamily,
   product: CatalogProduct,
@@ -73,38 +82,40 @@ function copyFor(
 ): { subject: string; body: string; cta: string; why: string } {
   const name = product.name;
   const lower = name.toLowerCase();
+  const anchorProse = prose(anchor);
 
   switch (family) {
     case "STACK":
       return {
-        subject: `${anchor} — your two top categories, one card`,
-        body: `Your everyday spend leans into ${anchor.toLowerCase()}. The ${lower} card was built to earn the most where you already spend, with no category swaps to remember.`,
-        cta: play === "UPGRADE" ? "Upgrade the card" : "See the rewards math",
+        subject: `More back where you already shop`,
+        body: `Your spend in ${anchorProse} has been steady for a while. ${name} quietly pays the most in those categories, so the rewards keep up with how you already live.`,
+        cta: play === "UPGRADE" ? "Make the switch" : "See how it adds up",
         why: `Stack anchor — ${anchor}. Play: ${play}.`,
       };
     case "LIFE_EVENT":
       return {
-        subject: `${anchor} — a timely fit for ${lower}`,
-        body: `Recent activity points to ${anchor.toLowerCase()}. ${name} is the product designed for exactly this moment, opened in minutes without re-doing your setup.`,
-        cta: play === "ACTIVATE" ? "Activate now" : "Open in minutes",
+        subject: `A good moment for ${lower}`,
+        body: `${anchor} is a natural turning point. ${name} fits cleanly into what you already have — nothing to redo, just a setup that catches up with where you are.`,
+        cta: play === "ACTIVATE" ? "Turn it on" : "Open when you're ready",
         why: `Life-event anchor — ${anchor}. Play: ${play}.`,
       };
     case "GOAL":
       return {
-        subject: `${name} supports the ${anchor.toLowerCase()}`,
-        body: `The arc of your finances over the last few quarters lines up with the ${anchor.toLowerCase()}. ${name} reinforces that direction and works quietly in the background.`,
-        cta: play === "UPGRADE" ? "Strengthen the plan" : "Add to my plan",
+        subject: `Quiet support for your ${anchorProse}`,
+        body: `The direction of your saving and spending lines up with a ${anchorProse}. ${name} keeps that momentum going in the background, on your terms.`,
+        cta: play === "UPGRADE" ? "Strengthen the plan" : "Keep it going",
         why: `Goal anchor — ${anchor}. Play: ${play}.`,
       };
     case "USAGE":
       return {
-        subject: `${anchor} — ${lower} is built for this`,
-        body: `We noticed ${anchor.toLowerCase()}. A quick adjustment in ${lower} closes the gap without changing the rest of your setup.`,
-        cta: play === "WINBACK" ? "Bring it back" : "Turn it on",
+        subject: `A small adjustment, more value from ${lower}`,
+        body: `There's a little more room in how ${lower} can work for you. One quick change closes the gap — the rest of your setup stays exactly as it is.`,
+        cta: play === "WINBACK" ? "Pick it back up" : "Turn it on",
         why: `Usage anchor — ${anchor}. Play: ${play}.`,
       };
   }
 }
+
 
 // ── Builder ─────────────────────────────────────────────────────────────────
 
