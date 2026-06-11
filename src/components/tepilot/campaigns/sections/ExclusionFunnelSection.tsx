@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import {
   DollarSign,
@@ -10,10 +11,13 @@ import {
   CalendarHeart,
   ShieldCheck,
   ChevronUp,
+  ChevronDown,
+  ChevronRight,
   Plus,
   Minus,
   Circle,
   Loader2,
+  Filter,
 } from "lucide-react";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
 import {
@@ -26,6 +30,41 @@ import {
   type ExclusionType,
   type SignalRelevance,
 } from "@/lib/productCatalogExtras";
+import {
+  AGE_RANGES,
+  REGIONS,
+  INCOME_BANDS,
+  ACCOUNT_TENURE_OPTIONS,
+  FICO_RANGES,
+} from "@/types/segment";
+
+const RELATIONSHIP_DEPTH_OPTIONS = [
+  { value: "any", label: "Any depth" },
+  { value: "single", label: "Single product" },
+  { value: "multi", label: "Multi-product" },
+  { value: "primary", label: "Primary bank" },
+] as const;
+
+interface DemoFilters {
+  ageRanges: string[];
+  incomeBands: string[];
+  ficoRanges: string[];
+  regions: string[];
+  accountTenure: string;
+  relationshipDepth: string;
+}
+
+const DEFAULT_FILTERS: DemoFilters = {
+  ageRanges: AGE_RANGES.map((a) => a),
+  incomeBands: INCOME_BANDS.map((b) => b.value),
+  ficoRanges: FICO_RANGES.map((f) => f.value),
+  regions: REGIONS.map((r) => r),
+  accountTenure: "all",
+  relationshipDepth: "any",
+};
+
+const TENURE_FACTOR: Record<string, number> = { all: 1, new: 0.25, established: 0.45, loyal: 0.3 };
+const DEPTH_FACTOR: Record<string, number> = { any: 1, single: 0.4, multi: 0.45, primary: 0.25 };
 
 
 const fmt = (n: number) => {
