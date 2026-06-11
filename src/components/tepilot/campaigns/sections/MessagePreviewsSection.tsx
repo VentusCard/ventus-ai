@@ -33,11 +33,13 @@ interface Props {
   product?: CatalogProduct;
   variants?: VariantBreakdown;
   offers?: string[];
+  campaignLink?: string;
 }
 
-export function MessagePreviewsSection({ product, variants, offers = [] }: Props) {
+export function MessagePreviewsSection({ product, variants, offers = [], campaignLink = "" }: Props) {
   const productName = product?.name ?? "";
-  const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants, offers) : [];
+  const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants, offers, campaignLink) : [];
+
 
   const totalSlots = 5;
 
