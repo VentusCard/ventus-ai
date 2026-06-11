@@ -105,16 +105,16 @@ const CATEGORY_DEFAULT_MECHANICS: Record<FlowCategory, ProductMechanics> = {
 
 const MECHANICS_OVERRIDES: Record<string, ProductMechanics> = {
   "category-cashback-card": {
-    tagline: "3% / 2% / 1% — you pick the top category, we handle the rest.",
+    tagline: "3% on your top category, 2% on your next, 1% on everything else.",
     fee: "No annual fee",
     rateTable: [
-      { tier: "Chosen category", rate: "3%", note: "one of six — switch monthly" },
-      { tier: "Grocery + warehouse", rate: "2%", note: "automatic" },
+      { tier: "Your top category", rate: "3%", note: "highest-spend category each month" },
+      { tier: "Your next category", rate: "2%", note: "second-highest, automatic" },
       { tier: "Everything else", rate: "1%" },
     ],
     features: [
-      "Switch your 3% category once per calendar month",
-      "Quarterly cap on bonus-tier spend, unlimited 1% beyond",
+      "Top two categories detected from your spend each month — nothing to pick",
+      "Quarterly cap on the 3% and 2% tiers, unlimited 1% beyond",
       "Cashback redeems as statement credit or to a linked deposit account",
     ],
   },
