@@ -469,48 +469,6 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     estimatedAudience: 3_400_000,
     penetration: 0.014,
   },
-  {
-    id: "sb-cashback-card",
-    name: "Small Business Cash Back Card",
-    category: "Cards",
-    icon: Receipt,
-    positioning: "Cash-back card built for owners on operating expenses and supplier spend.",
-    signals: [
-      { label: "Supplier card spend", evidence: "Recurring charges at wholesale, office supply, fuel cards", type: "behavioral" },
-      { label: "Processor deposits", evidence: "Square / Stripe / Toast settlements to business account", type: "behavioral" },
-      { label: "Employee card request", evidence: "Multiple authorized-user adds within 90 days", type: "behavioral" },
-    ],
-    estimatedAudience: 2_100_000,
-    penetration: 0.008,
-  },
-  {
-    id: "sb-flat-card",
-    name: "Small Business Flat-Rate Card",
-    category: "Cards",
-    icon: FileSpreadsheet,
-    positioning: "Simple unlimited cash back for business owners with diversified spend.",
-    signals: [
-      { label: "Diversified business spend", evidence: "Card spend across 30+ business-coded merchants/mo", type: "behavioral" },
-      { label: "SaaS subscription stack", evidence: "10+ recurring SaaS charges on business account", type: "behavioral" },
-      { label: "Growing payroll outflow", evidence: "Payroll provider ACH increasing quarter over quarter", type: "behavioral" },
-    ],
-    estimatedAudience: 1_600_000,
-    penetration: 0.006,
-  },
-  {
-    id: "sb-travel-card",
-    name: "Small Business Travel Card",
-    category: "Cards",
-    icon: Plane,
-    positioning: "Travel rewards card for owners and teams with frequent client travel.",
-    signals: [
-      { label: "Client travel pattern", evidence: "Hotel + rental car spend on business account weekly", type: "behavioral" },
-      { label: "Conference / trade show spend", evidence: "Annual large registration fees + travel cluster", type: "behavioral" },
-      { label: "International client base", evidence: "FX or international wires to business counterparties", type: "behavioral" },
-    ],
-    estimatedAudience: 900_000,
-    penetration: 0.004,
-  },
 
   // ===== INSURANCE =====
   {
