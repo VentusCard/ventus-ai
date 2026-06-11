@@ -1,9 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { PRODUCT_FLOWS, type ProductFlow } from "@/lib/productAutomatedFlows";
 import { getProductMechanics } from "@/lib/productCatalogExtras";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, ArrowLeftRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const fmt = (n: number) => {
@@ -19,6 +19,7 @@ interface Props {
 
 export function ProductPickerSection({ selectedId, onSelect }: Props) {
   const [query, setQuery] = useState("");
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const selected = PRODUCT_FLOWS.find((p) => p.id === selectedId);
   const mechanics = selected ? getProductMechanics(selected.id, selected.category) : null;
@@ -44,6 +45,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
       <div className="relative mb-3">
         <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
         <Input
+          ref={inputRef}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
@@ -83,6 +85,18 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
                 <span className="text-[10px] text-slate-500 font-mono">{fmt(selected.estimatedAudience)} eligible</span>
               </div>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                onSelect("");
+                setQuery("");
+                requestAnimationFrame(() => inputRef.current?.focus());
+              }}
+              className="shrink-0 inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <ArrowLeftRight className="w-3 h-3" />
+              Change product
+            </button>
           </div>
 
           <p className="text-[11px] text-slate-600 leading-snug mb-2">{selected.positioning}</p>
