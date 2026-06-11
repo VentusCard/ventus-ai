@@ -6,10 +6,12 @@ import { getProductMechanics } from "@/lib/productCatalogExtras";
 import { getProductVariants, CATALOG_GRAND_TOTAL } from "@/lib/campaignCatalogVariants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowLeftRight, Users, Tag, Plus, X } from "lucide-react";
+import { Search, ArrowLeftRight, Users, Tag, Plus, X, Link as LinkIcon } from "lucide-react";
 
 const OFFER_MAX_LEN = 80;
 const OFFER_MAX_COUNT = 5;
+const PRESET_OFFERS = ["Double rewards until EOY"];
+
 
 
 const fmt = (n: number) => {
