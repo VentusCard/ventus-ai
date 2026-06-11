@@ -27,8 +27,6 @@ const RELATIONSHIP_DEPTH_OPTIONS = [
   { value: "primary", label: "Primary bank" },
 ] as const;
 
-const CHANNEL_OPTIONS = ["Mobile", "Online", "Branch", "Phone"] as const;
-
 interface DemoFilters {
   ageRanges: string[];
   incomeBands: string[];
@@ -36,17 +34,15 @@ interface DemoFilters {
   regions: string[];
   accountTenure: string;
   relationshipDepth: string;
-  channels: string[];
 }
 
 const DEFAULT_FILTERS: DemoFilters = {
-  ageRanges: [],
-  incomeBands: [],
-  ficoRanges: [],
-  regions: [],
+  ageRanges: AGE_RANGES.map((a) => a),
+  incomeBands: INCOME_BANDS.map((b) => b.value),
+  ficoRanges: FICO_RANGES.map((f) => f.value),
+  regions: REGIONS.map((r) => r),
   accountTenure: "all",
   relationshipDepth: "any",
-  channels: [],
 };
 
 interface Props {
