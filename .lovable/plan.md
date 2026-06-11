@@ -1,20 +1,49 @@
 ## Goal
-When no product is selected, the page should still render Section 2 (Audience & exclusion funnel) and Section 3 (Personalized message previews) as **dimmed empty-state placeholders** so the full workflow shape is visible from the start.
+Reframe Section 2 (Audience & exclusion funnel) as **5 horizontally laid out signal-family cards** matching the System tab: Life Event · Behavioral · Financial · Demographic · Risk. Each card is collapsed by default; clicking one expands it inline to full width to show its detailed contribution to the audience for the selected product.
 
-## Approach
-Render the section shells unconditionally in `ProductCampaignBuilderView`. Each section gets a `product?: ProductFlow` prop; when undefined, it shows a dimmed shell with the header (numbered badge + title) and a centered "Pick a product above to see this" message inside the card body. When a product is selected, behavior is unchanged.
+## Layout
+
+### Collapsed (default)
+Single row, 5 equal-width cards (grid-cols-5):
+- Colored top border + small icon tile (matching System tab tints: amber, blue, emerald, violet, rose).
+- Family name (e.g. "Behavioral Signals").
+- One-line metric: count of contributing signals + audience impact (e.g. "4 signals · −180K").
+- Chevron-down hint.
+
+### Expanded (one at a time)
+Clicked card replaces the row with a full-width panel:
+- Header: icon + family name + "Collapse" button (chevron-up) on right.
+- Below: list of contributing signals for this family for the current product. Each signal row: label, rationale, audience impact (− count).
+- The other 4 family cards collapse into a thin horizontal strip below the expanded panel so the user can switch.
+
+Funnel bars at the top of the section + the addressable-audience badge stay (compact version), because they summarize the cumulative impact.
+
+## Data
+Existing `getProductExclusions` only returns `financial` + `behavioral`. Extend `productCatalogExtras.ts`:
+- Add `"life-event" | "demographic" | "risk"` to `ExclusionType`.
+- Add `LIFE`, `DEMO`, `RISK` builder helpers.
+- Augment each product's exclusion list with 1-3 plausible signals per family (e.g. Life Event: "Recently moved" boosts mortgage eligibility; Demographic: "Age 25-40" for first-time-homebuyer mortgage; Risk: "No fraud flags in 90 days").
+- `buildAudienceFunnel` extended to compute per-family removed counts so collapsed cards can show "−N".
 
 ## Files
 
-### `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx`
-- Remove the `{product && (...)}` gate. Always render both sections, passing `product` (possibly undefined).
+### `src/lib/productCatalogExtras.ts`
+- Extend `ExclusionType` union; add `LIFE/DEMO/RISK` helpers; append signals to existing product blocks (start with a generic default applied to all, then customize top 5-10 products).
+- Update `buildAudienceFunnel` to expose `byFamily: Record<ExclusionType, { removed: number; signals: ProductExclusion[] }>`.
 
 ### `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx`
-- Change prop to `product?: ProductFlow`.
-- If `!product`: render the outer card with the step-2 header ("Audience & exclusion funnel"), no `Addressable` badge, and a single centered placeholder line: "Pick a product above to model the audience funnel and risk filters." Use `opacity-60` on the card.
-- Else: existing behavior.
+- Add local `expanded: ExclusionType | null` state.
+- Replace the current 2-column financial/behavioral block with the 5-card horizontal row + expandable panel described above.
+- Keep funnel bars + final-addressable footer.
+- Empty-state placeholder unchanged.
 
-### `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx`
-- Same pattern: optional `product`. When absent, render the step-3 header + centered placeholder "Pick a product above to preview three personalized angles." with `opacity-60`.
+No changes to `ProductPickerSection`, `MessagePreviewsSection`, or parent view.
 
-No changes to `ProductPickerSection`, catalog data, or edge functions.
+## Visual mapping (System tab → here)
+| Family | Icon | Border / tint |
+|---|---|---|
+| Life Event | CalendarHeart | amber |
+| Behavioral | Activity | blue |
+| Financial | DollarSign | emerald |
+| Demographic | UserCircle | violet |
+| Risk | AlertTriangle | rose |
