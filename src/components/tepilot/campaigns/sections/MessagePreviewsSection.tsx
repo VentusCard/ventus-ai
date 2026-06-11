@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
-import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
+import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw, FileJson } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 import type { CatalogProduct } from "@/types/campaign-studio";
 import { PRODUCT_CATEGORY_LABELS } from "@/lib/campaignStudioData";
 import {
   type VariantBreakdown,
-  CATALOG_GRAND_TOTAL,
 } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards, type MessageCard } from "./buildMessageCards";
+
 
 // ── visuals ──────────────────────────────────────────────────────────────────
 
@@ -48,6 +49,8 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   const [revealedCount, setRevealedCount] = useState(0);
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [regenSeed, setRegenSeed] = useState(0);
+  const [sampleOpen, setSampleOpen] = useState(false);
+
 
   // Reset seed when product changes
   useEffect(() => { setRegenSeed(0); }, [productName]);
@@ -250,15 +253,31 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-        <span>
-          Catalog total · <span className="font-mono text-slate-700">{CATALOG_GRAND_TOTAL.toLocaleString()}</span> distinct
-          campaigns across 44 products
-        </span>
-        <span className="font-mono">
-          {PRODUCT_CATEGORY_LABELS[product.category]} · {variants.total.toLocaleString()} campaigns
-        </span>
+      <div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">
+        <button
+          type="button"
+          onClick={() => setSampleOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-full border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
+        >
+          <FileJson className="w-3.5 h-3.5" />
+          Sample Output
+        </button>
       </div>
+
+      <Dialog open={sampleOpen} onOpenChange={setSampleOpen}>
+        <DialogContent className="max-w-2xl bg-white border-slate-200">
+          <DialogHeader>
+            <DialogTitle className="text-slate-900">Sample Output</DialogTitle>
+            <DialogDescription className="text-slate-500">
+              Generated campaign payload for {product.name}
+            </DialogDescription>
+          </DialogHeader>
+          <pre className="font-mono text-[11px] text-slate-700 bg-slate-50 border border-slate-200 p-3 rounded-md max-h-[60vh] overflow-auto">
+{JSON.stringify(cards, null, 2)}
+          </pre>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
