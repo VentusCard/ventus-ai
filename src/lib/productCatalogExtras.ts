@@ -677,7 +677,7 @@ export const FAMILY_REASONS: Record<ExclusionType, { intro: string; reasons: str
   },
 };
 
-export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; border: string; iconBg: string; iconColor: string; chip: string }> = {
+export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; border: string; iconBg: string; iconColor: string; chip: string; solid: string }> = {
   "life-event": {
     label: "Life Event Signals",
     tone: "amber",
@@ -685,6 +685,7 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconBg: "bg-amber-50",
     iconColor: "text-amber-600",
     chip: "bg-amber-50 text-amber-700 border-amber-200",
+    solid: "bg-amber-500",
   },
   behavioral: {
     label: "Behavioral Signals",
@@ -693,6 +694,7 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconBg: "bg-blue-50",
     iconColor: "text-blue-600",
     chip: "bg-blue-50 text-blue-700 border-blue-200",
+    solid: "bg-blue-500",
   },
   financial: {
     label: "Financial Signals",
@@ -701,6 +703,7 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconBg: "bg-emerald-50",
     iconColor: "text-emerald-600",
     chip: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    solid: "bg-emerald-600",
   },
   demographic: {
     label: "Demographic Signals",
@@ -709,6 +712,7 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconBg: "bg-violet-50",
     iconColor: "text-violet-600",
     chip: "bg-violet-50 text-violet-700 border-violet-200",
+    solid: "bg-violet-500",
   },
   risk: {
     label: "Risk Signals",
@@ -717,5 +721,6 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
     iconBg: "bg-rose-50",
     iconColor: "text-rose-600",
     chip: "bg-rose-50 text-rose-700 border-rose-200",
+    solid: "bg-rose-500",
   },
 };
