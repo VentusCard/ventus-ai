@@ -42,8 +42,8 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
       </div>
 
       {selected && mechanics ? (
-        <div className="space-y-3">
-          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+        <div className="flex gap-3">
+          <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-900 shrink-0">
                 <selected.icon className="w-3.5 h-3.5 text-white" />
@@ -74,11 +74,11 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
             </div>
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-3 flex items-center gap-3">
+          <div className="w-[40%] rounded-lg border border-slate-200 bg-white p-3 flex flex-col items-center justify-center gap-2 text-center">
             <span className="flex items-center justify-center w-9 h-9 rounded-md bg-slate-900 shrink-0">
               <Users className="w-4 h-4 text-white" />
             </span>
-            <div className="min-w-0 flex-1">
+            <div>
               <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Addressable population</p>
               <p className="text-[11px] text-slate-500 leading-snug">Total eligible customers for this product</p>
             </div>
