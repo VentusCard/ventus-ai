@@ -329,11 +329,6 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
           >
             <Menu className="w-4 h-4" />
           </Button>
-          {onBack && (
-            <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          )}
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
               <Building2 className="w-4 h-4 text-white" />
