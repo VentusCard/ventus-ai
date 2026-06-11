@@ -1,32 +1,33 @@
 ## Objective
-Remove the "Channel preference" filter and set all chip-based demographic filters to preselected by default in the `/bankdemo` Campaign Builder Step 1.
+Add sequential "processing" reveal animations to Section 2 (signal cards) and Section 3 (message previews) of the `/bankdemo` Campaign Builder so cards appear one-by-one after a product is picked, each with a brief processing state.
 
-## Changes
+## Trigger
+Animations replay whenever `product.id` changes (including first selection). Until a product is selected, the existing empty state stays.
 
-### File: `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx`
+## Section 2 — ExclusionFunnelSection
+Five signal cards in `orderedFamilies`. Reveal sequentially in their sort order (useful → neutral → flag).
 
-1. **Remove `channels` from state**
-   - Delete `channels: string[]` from `DemoFilters` interface.
-   - Delete `CHANNEL_OPTIONS` constant.
-   - Delete `channels: []` from `DEFAULT_FILTERS`.
+- Add `useEffect` keyed on `product.id` that resets a `revealedIndex` state and increments it via `setInterval` (~220ms cadence) until all 5 are revealed.
+- Each card has 3 visual states:
+  1. **Pending** (idx > revealedIndex): hidden (opacity 0).
+  2. **Processing** (idx === revealedIndex): card visible with skeleton shimmer overlay (animated `bg-white/20` bar) and a small `Loader2` spinning icon in the relevance-badge spot; pointer-events disabled.
+  3. **Ready** (idx < revealedIndex): final card as today, with `animate-fade-in` + slight `scale-in` on entrance.
+- Final footer ("Final addressable audience") and the expanded panel only render once all 5 cards are ready.
 
-2. **Preselect all chip-based filters by default**
-   - `ageRanges`: default to all `AGE_RANGES` values.
-   - `incomeBands`: default to all `INCOME_BANDS` values.
-   - `ficoRanges`: default to all `FICO_RANGES` values.
-   - `regions`: default to all `REGIONS` values.
-   - Leave `accountTenure` as `"all"` and `relationshipDepth` as `"any"`.
+## Section 3 — MessagePreviewsSection
+Three message cards.
 
-3. **Update `activeCount` logic**
-   - Remove `filters.channels.length` from the count.
-   - Recalculate logic: a chip group is "active" when NOT all options are selected (inverted from current behavior), so the count reflects filters that narrow the audience.
+- Same `useEffect` pattern keyed on `product.id`, ~260ms cadence.
+- Cards begin **pending** (hidden). When their turn arrives, show a **processing skeleton card** (same outer frame + left border color, but inner content replaced by 3 shimmering `bg-slate-100` bars to mimic subject / body / CTA). After ~500ms swap to the real card with `animate-fade-in`.
+- Header chip ("3 angles") and intro paragraph render immediately.
 
-4. **Remove Channel preference UI**
-   - Delete the `<ChipGroup label="Channel preference" ... />` block.
-   - Remove "Channel" from the collapsed filter hint text.
+## Visual details
+- Reuse Tailwind `animate-fade-in` for entrance; add a lightweight `animate-pulse` on skeleton bars (Tailwind built-in).
+- Shimmer color: `bg-slate-100` for Section 3 skeleton bars, `bg-white/30` overlay for Section 2 colored cards.
+- No layout shift — skeleton cards occupy the same grid cell dimensions as final cards.
 
-## Acceptance
-- The Filters panel no longer shows "Channel preference".
-- On first load / after Reset, Age, Income, FICO, and Region chips are all selected.
-- The collapsed Filters button shows 0 active filters when all defaults are applied.
-- No other files change.
+## Files
+- `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx` — add reveal state, per-card processing variant, hide footer until ready.
+- `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — add reveal state, skeleton card variant.
+
+No changes to data, types, or other files.

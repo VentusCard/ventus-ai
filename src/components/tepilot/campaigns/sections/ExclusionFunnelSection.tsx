@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
@@ -13,6 +13,7 @@ import {
   Plus,
   Minus,
   Circle,
+  Loader2,
 } from "lucide-react";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
 import {
@@ -50,6 +51,25 @@ interface Props {
 export function ExclusionFunnelSection({ product }: Props) {
   const [expanded, setExpanded] = useState<ExclusionType | null>(null);
   const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
+  const [revealedCount, setRevealedCount] = useState(0);
+
+  useEffect(() => {
+    if (!product) return;
+    setRevealedCount(0);
+    setExpanded(null);
+    const total = 5;
+    const id = setInterval(() => {
+      setRevealedCount((c) => {
+        if (c >= total) {
+          clearInterval(id);
+          return c;
+        }
+        return c + 1;
+      });
+    }, 220);
+    return () => clearInterval(id);
+  }, [product?.id]);
+
 
   if (!product) {
     return (
@@ -98,30 +118,67 @@ export function ExclusionFunnelSection({ product }: Props) {
 
       {/* 5 signal-family cards, ordered by per-product relevance */}
       <div className="grid grid-cols-5 gap-2 mb-3">
-        {orderedFamilies.map((fam) => {
+        {orderedFamilies.map((fam, idx) => {
           const meta = FAMILY_META[fam];
           const Icon = FAMILY_ICON[fam];
           const rel = relevance[fam];
           const relMeta = SIGNAL_RELEVANCE_META[rel];
           const isExpanded = expanded === fam;
           const isDisabled = disabled.has(fam);
-          // Can only toggle flag families — useful/neutral don't change the funnel.
           const canToggle = rel === "flag";
 
           const BadgeIcon = rel === "useful" ? Plus : rel === "flag" ? Minus : Circle;
+
+          const state: "pending" | "processing" | "ready" =
+            idx < revealedCount ? "ready" : idx === revealedCount ? "processing" : "pending";
+
+          if (state === "pending") {
+            return (
+              <div
+                key={fam}
+                className="relative rounded-lg p-3 bg-slate-100 border border-dashed border-slate-200"
+                style={{ minHeight: 84 }}
+                aria-hidden
+              />
+            );
+          }
+
+          if (state === "processing") {
+            return (
+              <div
+                key={fam}
+                className={cn(
+                  "relative rounded-lg p-3 text-white overflow-hidden animate-fade-in",
+                  meta.solid,
+                )}
+                style={{ minHeight: 84 }}
+              >
+                <div className="absolute top-1.5 right-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full bg-white/20">
+                  <Loader2 className="w-3 h-3 text-white animate-spin" />
+                </div>
+                <div className="flex items-center gap-1.5 mb-2 pr-6">
+                  <Icon className="w-4 h-4 text-white shrink-0 opacity-70" />
+                </div>
+                <div className="space-y-1.5">
+                  <div className="h-2 w-3/4 rounded bg-white/30 animate-pulse" />
+                  <div className="h-2 w-1/2 rounded bg-white/20 animate-pulse" />
+                </div>
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent animate-pulse" />
+              </div>
+            );
+          }
 
           return (
             <div
               key={fam}
               className={cn(
-                "relative rounded-lg p-3 transition-all text-white",
+                "relative rounded-lg p-3 transition-all text-white animate-fade-in",
                 meta.solid,
                 relMeta.cardOpacity,
                 isExpanded && "ring-2 ring-white ring-offset-2 ring-offset-white shadow-md",
                 isDisabled && "opacity-40",
               )}
             >
-              {/* Relevance badge (top-right) */}
               <Popover>
                 <PopoverTrigger asChild>
                   <button
@@ -189,7 +246,7 @@ export function ExclusionFunnelSection({ product }: Props) {
 
 
       {/* Expanded panel */}
-      {expanded && (
+      {expanded && revealedCount >= 5 && (
         <ExpandedPanel
           family={expanded}
           relevance={relevance[expanded]}
@@ -201,18 +258,20 @@ export function ExclusionFunnelSection({ product }: Props) {
       )}
 
       {/* Final addressable footer */}
-      <div className="pt-3 mt-1 border-t border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-2 text-xs text-slate-600">
-          <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-          <span>
-            Final addressable audience
-            {disabled.size > 0 && (
-              <span className="text-slate-400"> · {disabled.size} family{disabled.size > 1 ? "ies" : ""} disabled</span>
-            )}
-          </span>
+      {revealedCount >= 5 && (
+        <div className="pt-3 mt-1 border-t border-slate-100 flex items-center justify-between animate-fade-in">
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+            <span>
+              Final addressable audience
+              {disabled.size > 0 && (
+                <span className="text-slate-400"> · {disabled.size} family{disabled.size > 1 ? "ies" : ""} disabled</span>
+              )}
+            </span>
+          </div>
+          <span className="text-base font-mono font-semibold text-slate-900">{fmt(funnel.finalCount)}</span>
         </div>
-        <span className="text-base font-mono font-semibold text-slate-900">{fmt(funnel.finalCount)}</span>
-      </div>
+      )}
     </div>
   );
 }
