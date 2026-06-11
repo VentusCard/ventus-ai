@@ -337,11 +337,322 @@ const MECHANICS_OVERRIDES: Record<string, ProductMechanics> = {
       "Soft-pull rate check before applying",
     ],
   },
+  // ── New entries: catalog products without a marquee override ──
+  "airline": {
+    tagline: "Earn the carrier's miles on every swipe, accelerated on airline spend.",
+    fee: "$95 annual fee — waived first year",
+    rateTable: [
+      { tier: "Airline purchases", rate: "3x miles" },
+      { tier: "Dining & travel", rate: "2x miles" },
+      { tier: "Everything else", rate: "1x mile" },
+    ],
+    features: [
+      "First checked bag free on the partner carrier",
+      "Priority boarding for the cardholder and one companion",
+      "No foreign transaction fees",
+    ],
+  },
+  "hotel": {
+    tagline: "Free-night certificate yearly plus accelerated earn at the chain.",
+    fee: "$95 annual fee",
+    rateTable: [
+      { tier: "Partner hotel stays", rate: "6x points" },
+      { tier: "Dining & rideshare", rate: "2x points" },
+      { tier: "Everything else", rate: "1x point" },
+    ],
+    features: [
+      "Annual free-night certificate after card anniversary",
+      "Automatic mid-tier elite status with the partner brand",
+      "Late checkout where available",
+    ],
+  },
+  "student": {
+    tagline: "First credit line built around real student spend, no annual fee.",
+    fee: "No annual fee",
+    rateTable: [
+      { tier: "Dining & streaming", rate: "2% cash back" },
+      { tier: "Everything else", rate: "1% cash back" },
+    ],
+    features: [
+      "Good-grade bonus credited each academic year",
+      "Free credit-score view in-app",
+      "Graduates to a standard cashback card after on-time history",
+    ],
+  },
+  "secured": {
+    tagline: "Refundable deposit unlocks a real revolving credit line.",
+    fee: "$0 annual fee",
+    rateTable: [
+      { tier: "Refundable deposit", rate: "$200 – $2,500", note: "becomes the credit limit" },
+      { tier: "All purchases", rate: "1% cash back" },
+    ],
+    features: [
+      "Reports to all three bureaus monthly",
+      "Auto-review for graduation and deposit refund after on-time history",
+      "Free credit-score view in-app",
+    ],
+  },
+  "business": {
+    tagline: "Cash back on the categories small businesses actually spend on.",
+    fee: "No annual fee",
+    rateTable: [
+      { tier: "Office supplies & internet", rate: "3% cash back" },
+      { tier: "Gas & dining", rate: "2% cash back" },
+      { tier: "Everything else", rate: "1% cash back" },
+    ],
+    features: [
+      "Free employee cards with per-card spend controls",
+      "Quarterly category and merchant reporting export",
+      "Liability stays with the business entity",
+    ],
+  },
+  "money-market": {
+    tagline: "Tiered yield with check-writing and a debit card.",
+    fee: "$10 monthly fee, waived at $10,000 balance",
+    rateTable: [
+      { tier: "Under $25k", rate: "2.50% APY" },
+      { tier: "$25k – $100k", rate: "3.50% APY" },
+      { tier: "$100k+", rate: "4.10% APY" },
+    ],
+    features: [
+      "Limited check-writing and debit card included",
+      "Same-day transfers to a linked checking account",
+      "FDIC-insured up to the standard limit",
+    ],
+  },
+  "business-checking": {
+    tagline: "Operating account with the transaction headroom small teams need.",
+    fee: "$15 monthly fee, waived at $5,000 average balance",
+    features: [
+      "Up to 200 free monthly transactions",
+      "Integrated payroll, invoicing, and accounting connections",
+      "Sub-user access with role-based permissions",
+    ],
+  },
+  "business-savings": {
+    tagline: "Reserve account for tax set-asides and short-term operating cash.",
+    fee: "$5 monthly fee, waived at $2,500 balance",
+    rateTable: [{ tier: "All balances", rate: "1.75% APY" }],
+    features: [
+      "Auto-sweep from business checking above a chosen threshold",
+      "Named buckets for tax, payroll, and reserve",
+      "FDIC-insured up to the standard limit",
+    ],
+  },
+  "student-loan-refi": {
+    tagline: "Refinance federal and private student debt into one fixed payment.",
+    fee: "No origination or prepayment fee",
+    rateTable: [
+      { tier: "Fixed APR range", rate: "5.49% – 9.99%", note: "based on credit profile" },
+      { tier: "Terms", rate: "5 – 20 years" },
+    ],
+    features: [
+      "Soft-pull rate check before applying",
+      "Auto-pay rate discount of 0.25%",
+      "Cosigner release available after 24 on-time payments",
+    ],
+  },
+  "small-business-loan": {
+    tagline: "Term financing for a single planned business outlay.",
+    fee: "1% origination; no prepayment penalty",
+    rateTable: [
+      { tier: "APR range", rate: "7.99% – 18.49%" },
+      { tier: "Terms", rate: "12 – 60 months" },
+    ],
+    features: [
+      "Funds disbursed within a few business days of approval",
+      "Fixed monthly payment over the chosen term",
+      "Soft-pull pre-qualification on the business entity",
+    ],
+  },
+  "line-of-credit": {
+    tagline: "Revolving credit you draw against when you need flexibility.",
+    fee: "$0 annual fee",
+    rateTable: [
+      { tier: "Variable APR", rate: "Prime + 1.50% – 8.50%" },
+      { tier: "Limits", rate: "$5,000 – $50,000" },
+    ],
+    features: [
+      "Pay interest only on the drawn balance",
+      "Draw and repay from the same dashboard",
+      "Overdraft-link option to a checking account",
+    ],
+  },
+  "debt-consolidation": {
+    tagline: "Roll multiple high-rate balances into one fixed monthly payment.",
+    fee: "No prepayment penalty; origination fee waived for relationship customers",
+    rateTable: [
+      { tier: "Fixed APR range", rate: "8.49% – 19.99%" },
+      { tier: "Terms", rate: "24 – 72 months" },
+    ],
+    features: [
+      "Funds can be sent directly to existing creditors at closing",
+      "Soft-pull rate check before applying",
+      "Auto-pay rate discount of 0.25%",
+    ],
+  },
+  "brokerage": {
+    tagline: "Self-directed investing with $0 commissions on stocks and ETFs.",
+    fee: "$0 account fee",
+    features: [
+      "$0 commissions on US stocks and ETFs",
+      "Fractional-share investing from $1",
+      "Linked-account funding in seconds",
+    ],
+  },
+  "robo-advisor": {
+    tagline: "Automated, diversified portfolio matched to your goal and horizon.",
+    fee: "0.25% annual advisory fee",
+    features: [
+      "Goal-based glide-path adjusted as the target approaches",
+      "Automatic rebalancing and tax-loss harvesting",
+      "No account minimum to start",
+    ],
+  },
+  "managed-portfolio": {
+    tagline: "Advisor-managed portfolios with planning conversations included.",
+    fee: "0.85% annual advisory fee, tiered down by balance",
+    features: [
+      "Dedicated advisor with annual planning review",
+      "Customized allocation across taxable and retirement accounts",
+      "Quarterly performance and risk reporting",
+    ],
+  },
+  "trust-account": {
+    tagline: "Professional trust administration for estate and legacy plans.",
+    fee: "Annual administration fee, tiered by trust value",
+    features: [
+      "Corporate trustee or co-trustee structure",
+      "Coordination with your existing attorney and CPA",
+      "Beneficiary statements and tax reporting handled in-house",
+    ],
+  },
+  "life-insurance": {
+    tagline: "Term and permanent life coverage sized to your dependents and debt.",
+    fee: "Premium based on age, coverage, and health questionnaire",
+    features: [
+      "10, 20, and 30-year level-term options",
+      "Convertible to permanent without re-underwriting",
+      "Accelerated underwriting up to qualifying coverage amount",
+    ],
+  },
+  "home-insurance": {
+    tagline: "Homeowner coverage bundled with auto for a multi-policy discount.",
+    fee: "Premium based on home value, location, and coverage limits",
+    features: [
+      "Replacement-cost dwelling coverage standard",
+      "Multi-policy discount when bundled with auto",
+      "24/7 claims intake with photo-based first notice of loss",
+    ],
+  },
+  "auto-insurance": {
+    tagline: "Auto coverage with usage-based discount for safe driving.",
+    fee: "Premium based on vehicle, drivers, and coverage limits",
+    features: [
+      "Usage-based discount opt-in through the mobile app",
+      "Accident forgiveness after qualifying claim-free tenure",
+      "Multi-vehicle and multi-policy discounts stack",
+    ],
+  },
+  "travel-insurance": {
+    tagline: "Per-trip coverage for cancellation, medical, and baggage events.",
+    fee: "Per-trip premium based on trip cost and traveler ages",
+    features: [
+      "Trip-cancellation and interruption reimbursement",
+      "Emergency medical and evacuation coverage abroad",
+      "Baggage delay and loss reimbursement",
+    ],
+  },
+  "identity-theft-protection": {
+    tagline: "Continuous monitoring with up to $1M in identity-theft reimbursement.",
+    fee: "$9.99 monthly",
+    features: [
+      "Credit, dark-web, and SSN monitoring with alerts",
+      "Dedicated resolution specialist if identity is compromised",
+      "Up to $1M reimbursement for covered expenses",
+    ],
+  },
+  "mobile-banking-active": {
+    tagline: "Full account control from the app — deposits, transfers, alerts.",
+    fee: "$0",
+    features: [
+      "Mobile check deposit with same-day availability for qualifying amounts",
+      "Real-time spend, deposit, and balance alerts",
+      "Biometric sign-in and in-app card lock",
+    ],
+  },
+  "digital-wallet": {
+    tagline: "Tap-to-pay enrollment for every eligible card in your account.",
+    fee: "$0",
+    features: [
+      "Provision cards to Apple Pay, Google Pay, and Samsung Wallet in one tap",
+      "Tokenized card numbers — merchants never see the real PAN",
+      "Instant replacement-card provisioning after a lost-card report",
+    ],
+  },
+  "zelle-p2p-active": {
+    tagline: "Send money to anyone with a US bank account in minutes.",
+    fee: "$0",
+    features: [
+      "Transfers between enrolled US bank accounts typically settle in minutes",
+      "Request-money flow with reminder support",
+      "Per-day and per-month send limits to limit exposure",
+    ],
+  },
+  "direct-deposit-active": {
+    tagline: "Get paid up to two days early when payroll is direct-deposited.",
+    fee: "$0",
+    features: [
+      "Eligible payroll deposits posted up to two days early",
+      "Automated routing-number setup form for your employer",
+      "Split deposit across checking and savings",
+    ],
+  },
+  "bill-pay-active": {
+    tagline: "Schedule one-time and recurring bill payments from the app.",
+    fee: "$0",
+    features: [
+      "Recurring payment schedules with end-date and cap controls",
+      "Electronic payments to most billers; paper check fallback",
+      "Payment-due reminders pulled from linked billers",
+    ],
+  },
+  "overdraft-protection": {
+    tagline: "Link a savings or line of credit to cover the occasional shortfall.",
+    fee: "$0 transfer fee from a linked savings account",
+    features: [
+      "Auto-transfer from linked savings, credit card, or line of credit",
+      "Choose decline-instead behavior at the account level",
+      "Real-time low-balance alerts before an overdraft posts",
+    ],
+  },
 };
 
 // ────────────────────────────────────────────────────────────────────────────
-//  Exclusions — category defaults + product-specific.
+//  Alias picker slugs to marquee mechanics defined above. Lets the catalog
+//  (which derives slugs from product display names) reuse the same objects
+//  without duplicating copy.
 // ────────────────────────────────────────────────────────────────────────────
+
+const ALIASES: Record<string, string> = {
+  "cashback-3-2-1": "category-cashback-card",
+  "custom-cashback": "flat-cashback-card",
+  "travel": "travel-card",
+  "premium-travel": "premium-travel-card",
+  "co-branded-retail": "cobrand-card",
+  "savings": "core-savings",
+  "cd": "certificate-of-deposit",
+  "checking": "everyday-checking",
+  "youth-teen": "starter-checking",
+  "home-mortgage": "mortgage",
+  "traditional-ira": "ira",
+  "roth-ira": "ira",
+};
+for (const [slug, target] of Object.entries(ALIASES)) {
+  MECHANICS_OVERRIDES[slug] = MECHANICS_OVERRIDES[target];
+}
+
+
 
 const FIN = (id: string, label: string, removedPct: number, rationale: string): ProductExclusion =>
   ({ id, label, removedPct, rationale, type: "financial" });
