@@ -229,12 +229,32 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       <nav className="flex-1 py-1 overflow-y-auto">
         {filteredNavGroups.map((group) => (
           <Collapsible key={group.label} defaultOpen={group.label === "Home"}>
-            {!navCollapsed && (
-              <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[13px] font-semibold uppercase tracking-wider text-slate-600 hover:text-slate-800">
-                {group.label}
-                <ChevronDown className="w-3.5 h-3.5" />
-              </CollapsibleTrigger>
-            )}
+            {!navCollapsed && (() => {
+              const overviewTab: TabValue | null = group.label === "Targeting" ? 'targeting-overview' : null;
+              const isActive = overviewTab !== null && activeTab === overviewTab;
+              return (
+                <div className={cn(
+                  "w-full flex items-center justify-between pr-2 text-[13px] font-semibold uppercase tracking-wider",
+                  isActive ? "text-blue-700" : "text-slate-600"
+                )}>
+                  <button
+                    type="button"
+                    onClick={() => { if (overviewTab) setActiveTab(overviewTab); }}
+                    className={cn(
+                      "flex-1 text-left px-3 py-1.5 transition-colors",
+                      overviewTab
+                        ? (isActive ? "" : "hover:text-slate-900 cursor-pointer")
+                        : "cursor-default"
+                    )}
+                  >
+                    {group.label}
+                  </button>
+                  <CollapsibleTrigger className="p-1 -mr-1 rounded hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 transition-colors">
+                    <ChevronDown className="w-3.5 h-3.5" />
+                  </CollapsibleTrigger>
+                </div>
+              );
+            })()}
             <CollapsibleContent>
               {group.items.map((item) => {
                 const Icon = item.icon;
