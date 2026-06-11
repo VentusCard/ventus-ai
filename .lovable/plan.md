@@ -1,44 +1,47 @@
-## Add "Offers" subsection to Step 1 (Campaign Builder)
+## Add preset + campaign link to the Offers card
 
-Add a promotional **Offers** area inside `ProductPickerSection`, placed **between** the selected-product card and the addressable-population card in a single row.
+Extend the Offers card in Step 1 with (a) a one-click preset and (b) a campaign link field. Both flow downstream into message previews.
 
-### Layout (after a product is selected)
+### UI additions in `ProductPickerSection.tsx`
 
-Three-column row, widths `50% / 25% / 25%`:
+Inside the Offers card (the 25% middle column), above the free-text input:
 
 ```text
-┌─────────────────────────┬──────────────┬──────────────┐
-│ Selected product (50%)  │ Offers (25%) │ Population   │
-│ — name, mechanics       │ free-text +  │ (25%)        │
-│   tagline, fee          │ chip list    │ users count  │
-└─────────────────────────┴──────────────┴──────────────┘
+Preset:  [+ Double rewards until EOY]   ← one-click adds to offers
+[ text input: e.g. Double rewards through EOY ] [+]
+Active: chip · chip (×)
+─────────────────────────────────────
+Campaign link
+[ https://www.ventusai.com/...      ]
 ```
 
-Implementation in `ProductPickerSection.tsx`:
-- The existing wrapper (currently `flex gap-3` at line 68) stays; product card becomes `w-1/2`, the new Offers card `w-1/4`, the population card changes from `w-[40%]` to `w-1/4`.
-- Offers card: white bg, slate-200 border, header "Offers (optional)", small free-text `Input` + Add button (Enter submits), active offers render as removable chips below.
-- Validation: trim, dedupe, cap 5 offers, 80 chars each.
+- Preset chip: small pill button. Clicking it calls the same `addOffer` path with the literal `"Double rewards until EOY"`. Disabled once that exact offer is already active or the 5-cap is hit.
+- Campaign link field: separated by a thin `border-t border-slate-100`. Compact `Input` with placeholder `https://www.ventusai.com/campaign`. Defaults to `https://www.ventusai.com` when the user selects a product. Trimmed; no client-side URL validation beyond basic non-empty.
 - Strict light theme, no `dark:` classes.
 
 ### State lift
 
-`ProductCampaignBuilderView.tsx` owns `offers: string[]`. Resets on product change. Passes to `ProductPickerSection` (controlled) and `MessagePreviewsSection`.
+`ProductCampaignBuilderView.tsx` already owns `offers`. Add a sibling `campaignLink: string` state, default `"https://www.ventusai.com"`, reset alongside `offers` whenever the product changes. Pass `campaignLink` + `onCampaignLinkChange` into `ProductPickerSection`, and `campaignLink` into `MessagePreviewsSection`.
 
 ### Downstream effect
 
-`MessagePreviewsSection` forwards `offers` to `buildMessageCards(product, variants, offers)`:
-- If `offers.length > 0`, prepend one `MessageCard` with `anchorFamily: "USAGE"`, `play: "OFFER"`, `anchor: offers[0]`, copy that names the offer and the product, CTA "Claim offer".
-- Append `" — ${offers[0]}"` tail to the STACK card body.
-- Variant-count math unchanged (offer card is presentational).
+`MessagePreviewsSection` forwards `campaignLink` to `buildMessageCards(product, variants, offers, campaignLink)`.
+
+In `buildMessageCards.ts`:
+- Extend `MessageCard` with an optional `ctaHref?: string`.
+- When `campaignLink` is non-empty, attach it as `ctaHref` to every generated card.
+
+In `MessagePreviewsSection.tsx` render:
+- Convert the existing `<button>` CTA to an `<a href={card.ctaHref} target="_blank" rel="noopener noreferrer">` when `ctaHref` is present, falling back to a `<button>` when absent. Same visual styles.
 
 ### Files touched
 
-- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — restructure selected-state row to 50/25/25; add Offers card; new props `offers`, `onOffersChange`.
-- `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx` — own `offers` state, reset on product change, pass down.
-- `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — accept and forward `offers`.
-- `src/components/tepilot/campaigns/sections/buildMessageCards.ts` — accept optional `offers`, prepend offer card, append STACK body tail.
+- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — add preset chip, campaign link input, two new props.
+- `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx` — own `campaignLink`, reset on product change, pass through.
+- `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — accept and forward `campaignLink`; CTA renders as anchor when href present.
+- `src/components/tepilot/campaigns/sections/buildMessageCards.ts` — add optional `ctaHref`; attach `campaignLink` to each card.
 
 ### Out of scope
 
-- No persistence, no edge functions, no schema changes.
-- Step 2 funnel and the variant-count formula unchanged.
+- No URL validation library, no link analytics, no persistence.
+- No additional presets (only the one requested).
