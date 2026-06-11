@@ -20,12 +20,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
-  Zap, Megaphone, Layers, Menu
+  Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
+  Zap, Megaphone, Layers
 } from "lucide-react";
-import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
-import { TargetingOverviewView } from "./TargetingOverviewView";
 import { toast } from "@/hooks/use-toast";
 import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
 import { ClientProfileData } from "@/types/clientProfile";
@@ -36,7 +34,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-type TabValue = 'ventus-ai' | 'capabilities' | 'ai-assistant-activity' | 'dashboard' | 'targeting' | 'targeting-overview' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+type TabValue = 'ventus-ai' | 'capabilities' | 'ai-assistant-activity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -105,34 +103,10 @@ interface AnalyticsContainerProps {
 }
 
 export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
-  const [activeTab, setActiveTabState] = useState<TabValue>(defaultTab);
+  const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
-  const [mobileOpen, setMobileOpen] = useState(false);
-  const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : true);
-  const [isTablet, setIsTablet] = useState(() => typeof window !== "undefined" ? window.matchMedia("(min-width: 768px) and (max-width: 1023.98px)").matches : false);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const mqDesktop = window.matchMedia("(min-width: 1024px)");
-    const mqTablet = window.matchMedia("(min-width: 768px) and (max-width: 1023.98px)");
-    const onD = () => setIsDesktop(mqDesktop.matches);
-    const onT = () => setIsTablet(mqTablet.matches);
-    mqDesktop.addEventListener("change", onD);
-    mqTablet.addEventListener("change", onT);
-    return () => {
-      mqDesktop.removeEventListener("change", onD);
-      mqTablet.removeEventListener("change", onT);
-    };
-  }, []);
-
-  const setActiveTab = (t: TabValue) => {
-    setActiveTabState(t);
-    setMobileOpen(false);
-  };
-
-  // Effective collapsed state: tablet always icon-rail; desktop respects manual toggle
-  const effectiveCollapsed = isTablet ? true : collapsed;
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
@@ -156,10 +130,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   // All valid tab values from filtered groups
   const validTabs = useMemo(() => {
     const set = new Set<TabValue>();
-    filteredNavGroups.forEach(g => {
-      g.items.forEach(i => set.add(i.value));
-      if (g.label === "Targeting") set.add('targeting-overview');
-    });
+    filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
     set.add('settings'); // footer-anchored, always available
     set.add('feedback'); // footer-anchored, always available
     return set;
@@ -186,7 +157,6 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
-      case 'targeting-overview': return <TargetingOverviewView onNavigate={setActiveTab} />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       case 'wallet-share': return <WalletShareView />;
@@ -218,129 +188,28 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
     }
   };
 
-  const NavBody = ({ navCollapsed }: { navCollapsed: boolean }) => (
-    <>
-      {/* Desktop-only collapse toggle */}
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="hidden lg:flex items-center justify-center h-8 border-b border-slate-200 hover:bg-slate-100 transition-colors"
-        title={navCollapsed ? "Expand sidebar" : "Collapse sidebar"}
-      >
-        {navCollapsed ? <ChevronRight className="w-4 h-4 text-slate-500" /> : <ChevronLeft className="w-4 h-4 text-slate-500" />}
-      </button>
-
-      <nav className="flex-1 py-1 overflow-y-auto">
-        {filteredNavGroups.map((group) => (
-          <Collapsible key={group.label} defaultOpen={group.label === "Home"}>
-            {!navCollapsed && (() => {
-              const overviewTab: TabValue | null = group.label === "Targeting" ? 'targeting-overview' : null;
-              const isActive = overviewTab !== null && activeTab === overviewTab;
-              return (
-                <div className={cn(
-                  "w-full flex items-center justify-between pr-2 text-[13px] font-semibold uppercase tracking-wider",
-                  isActive ? "text-blue-700" : "text-slate-600"
-                )}>
-                  <button
-                    type="button"
-                    onClick={() => { if (overviewTab) setActiveTab(overviewTab); }}
-                    className={cn(
-                      "flex-1 text-left px-3 py-1.5 transition-colors",
-                      overviewTab
-                        ? (isActive ? "" : "hover:text-slate-900 cursor-pointer")
-                        : "cursor-default"
-                    )}
-                  >
-                    {group.label}
-                  </button>
-                  <CollapsibleTrigger className="p-1 -mr-1 rounded hover:bg-slate-200/60 text-slate-500 hover:text-slate-800 transition-colors">
-                    <ChevronDown className="w-3.5 h-3.5" />
-                  </CollapsibleTrigger>
-                </div>
-              );
-            })()}
-            <CollapsibleContent>
-              {group.items.map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.value;
-                return (
-                  <button
-                    key={item.value}
-                    onClick={() => setActiveTab(item.value)}
-                    title={navCollapsed ? item.label : undefined}
-                    className={cn(
-                      "w-full flex items-center gap-2.5 text-left text-[15px] transition-colors",
-                      navCollapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
-                      isActive
-                        ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                        : "text-slate-800 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
-                    )}
-                  >
-                    <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-blue-600" : "text-slate-600")} />
-                    {!navCollapsed && <span className="truncate">{item.label}</span>}
-                  </button>
-                );
-              })}
-            </CollapsibleContent>
-            {!navCollapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
-          </Collapsible>
-        ))}
-      </nav>
-
-      <div className="mt-auto border-t border-slate-200 py-1">
-        {[
-          { label: "Feedback & Ideas", icon: MessageSquare, tab: 'feedback' as const },
-          { label: "Settings", icon: Settings, tab: 'settings' as const },
-        ].map((item) => {
-          const Icon = item.icon;
-          const isActive = activeTab === item.tab;
-          return (
-            <button
-              key={item.label}
-              onClick={() => setActiveTab(item.tab)}
-              title={navCollapsed ? item.label : undefined}
-              className={cn(
-                "w-full flex items-center gap-2.5 text-left text-[15px] transition-colors",
-                navCollapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
-                isActive
-                  ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                  : "text-slate-800 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
-              )}
-            >
-              <Icon className={cn("w-5 h-5 shrink-0", isActive ? "text-blue-600" : "text-slate-600")} />
-              {!navCollapsed && <span className="truncate">{item.label}</span>}
-            </button>
-          );
-        })}
-      </div>
-    </>
-  );
-
   return (
     <div className="w-full h-full flex flex-col border border-slate-200 overflow-hidden bg-white">
       {/* Professional Header */}
       <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200">
         <div className="flex items-center gap-3">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8"
-            onClick={() => setMobileOpen(true)}
-            title="Open navigation"
-          >
-            <Menu className="w-4 h-4" />
-          </Button>
+          {onBack && (
+            <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
+              <ArrowLeft className="w-4 h-4" />
+            </Button>
+          )}
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
               <Building2 className="w-4 h-4 text-white" />
             </div>
             <div>
               <h1 className="text-sm font-bold text-slate-900 leading-tight">Our Bank</h1>
-              <p className="text-[11px] text-slate-400 leading-tight hidden sm:block">Customer Intelligence and Personalization Platform</p>
+              <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
             </div>
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <span className="text-[11px] text-slate-400 hidden md:inline">Last updated: {today}</span>
+          <span className="text-[11px] text-slate-400">Last updated: {today}</span>
           <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
             <Sparkles className="w-3 h-3 text-blue-500" />
             <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
@@ -349,41 +218,103 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       </div>
 
       <div className="flex flex-1 min-h-0">
-        {/* Desktop / tablet sidebar */}
-        <aside
-          className={cn(
-            "hidden md:flex shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex-col",
-            effectiveCollapsed ? "w-[56px]" : "w-[340px]"
-          )}
-        >
-          <NavBody navCollapsed={effectiveCollapsed} />
-        </aside>
-
-        {/* Mobile drawer */}
-        <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetContent side="left" className="w-[280px] p-0 bg-white border-r border-slate-200 flex flex-col">
-            <NavBody navCollapsed={false} />
-          </SheetContent>
-        </Sheet>
-
-        {/* Content */}
-        <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
-          {renderContent()}
-          {activeTab !== 'ventus-ai' && !chatOpen && (
-            <button
-              onClick={() => setChatOpen(true)}
-              className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
-              title="Open Ventus AI"
-            >
-              <span className="text-base font-black text-white leading-none">V</span>
-            </button>
-          )}
-        </div>
-
-        {/* Chat Panel */}
-        {chatOpen && activeTab !== 'ventus-ai' && (
-          <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+      <div
+        className={cn(
+          "shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex flex-col",
+          collapsed ? "w-[52px]" : "w-[240px]"
         )}
+      >
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="flex items-center justify-center h-8 border-b border-slate-200 hover:bg-slate-100 transition-colors"
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? <ChevronRight className="w-4 h-4 text-slate-500" /> : <ChevronLeft className="w-4 h-4 text-slate-500" />}
+        </button>
+
+        <nav className="flex-1 py-1 overflow-y-auto">
+          {filteredNavGroups.map((group) => (
+            <Collapsible key={group.label} defaultOpen>
+              {!collapsed && (
+                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
+                  {group.label}
+                  <ChevronDown className="w-3 h-3" />
+                </CollapsibleTrigger>
+              )}
+              <CollapsibleContent>
+                {group.items.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = activeTab === item.value;
+                  return (
+                    <button
+                      key={item.value}
+                      onClick={() => setActiveTab(item.value)}
+                      title={collapsed ? item.label : undefined}
+                      className={cn(
+                        "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                        collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                        isActive
+                          ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
+                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+                      )}
+                    >
+                      <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+                      {!collapsed && <span className="truncate">{item.label}</span>}
+                    </button>
+                  );
+                })}
+              </CollapsibleContent>
+              {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
+            </Collapsible>
+          ))}
+        </nav>
+
+        <div className="mt-auto border-t border-slate-200 py-1">
+          {[
+            { label: "Feedback & Ideas", icon: MessageSquare, tab: 'feedback' as const },
+            { label: "Settings", icon: Settings, tab: 'settings' as const },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = activeTab === item.tab;
+            return (
+              <button
+                key={item.label}
+                onClick={() => setActiveTab(item.tab)}
+                title={collapsed ? item.label : undefined}
+                className={cn(
+                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                  isActive
+                    ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
+                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+                )}
+              >
+                <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+                {!collapsed && <span className="truncate">{item.label}</span>}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
+        {renderContent()}
+        {activeTab !== 'ventus-ai' && !chatOpen && (
+          <button
+            onClick={() => setChatOpen(true)}
+            className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
+            title="Open Ventus AI"
+          >
+            <span className="text-base font-black text-white leading-none">V</span>
+          </button>
+        )}
+      </div>
+
+      {/* Chat Panel */}
+      {chatOpen && activeTab !== 'ventus-ai' && (
+        <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+      )}
       </div>
     </div>
   );
