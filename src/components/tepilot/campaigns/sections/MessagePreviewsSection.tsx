@@ -62,7 +62,7 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
       <div className="rounded-xl border border-slate-200 bg-white p-4 opacity-60">
         <div className="flex items-center gap-2 mb-3">
           <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">3</span>
-          <p className="text-sm font-semibold text-slate-900">Personalized message previews</p>
+          <p className="text-sm font-semibold text-slate-900">Micro-Segment Personalized Campaign Output</p>
         </div>
         <p className="text-xs text-slate-500 text-center py-8">
           Pick a product above to preview the campaigns it can author.
