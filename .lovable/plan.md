@@ -1,47 +1,47 @@
-## Add preset + campaign link to the Offers card
+## Section 3 — featured-campaign toggle strip
 
-Extend the Offers card in Step 1 with (a) a one-click preset and (b) a campaign link field. Both flow downstream into message previews.
+Add a single-row "featured campaign" strip between the Section 3 header and the existing 5-card grid in `MessagePreviewsSection.tsx`. The strip lets you focus on one of the 5 exemplars at a time, with color-coded logic shown above the campaign and arrows to page between them.
 
-### UI additions in `ProductPickerSection.tsx`
-
-Inside the Offers card (the 25% middle column), above the free-text input:
+### Layout
 
 ```text
-Preset:  [+ Double rewards until EOY]   ← one-click adds to offers
-[ text input: e.g. Double rewards through EOY ] [+]
-Active: chip · chip (×)
-─────────────────────────────────────
-Campaign link
-[ https://www.ventusai.com/...      ]
+┌─ Section 3 header: [3] Micro-Segment Personalized Campaign Output ─────────┐
+│                                                                            │
+│  ┌─ Toggle strip ───────────────────────────────────────────────────────┐  │
+│  │ [◀]   ● Category stack          Campaign 2 of 5  ·  548 total  [▶]  │  │  ← one line, color-coded
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│  ┌─ Featured single campaign (full card, slightly larger) ─────────────┐  │
+│  │ left-border colored to match logic family · subject · body · CTA    │  │
+│  └──────────────────────────────────────────────────────────────────────┘  │
+│                                                                            │
+│  ── 5-card grid (unchanged) ──────────────────────────────────────────────  │
+│  [card 1] [card 2] [card 3] [card 4] [card 5]                              │
+│                                                                            │
+│  footer line (unchanged)                                                   │
+└────────────────────────────────────────────────────────────────────────────┘
 ```
 
-- Preset chip: small pill button. Clicking it calls the same `addOffer` path with the literal `"Double rewards until EOY"`. Disabled once that exact offer is already active or the 5-cap is hit.
-- Campaign link field: separated by a thin `border-t border-slate-100`. Compact `Input` with placeholder `https://www.ventusai.com/campaign`. Defaults to `https://www.ventusai.com` when the user selects a product. Trimmed; no client-side URL validation beyond basic non-empty.
-- Strict light theme, no `dark:` classes.
+### Behavior
 
-### State lift
+- Arrows cycle through the 5 currently-shown exemplars only (wrap-around).
+- The strip's color-coded chip + featured card's left border reuse the existing `ANCHOR_VISUAL` palette (blue stack / amber life-event / emerald goal / slate usage) so the family identity carries from strip → featured card → grid card.
+- Counter in the strip reads `Campaign N of 5 · 548 total` and remains the click target for the existing Variation Logic popover.
+- The header's standalone counter Badge is removed (moved into the strip).
+- Clicking a card in the 5-card grid below promotes it to the featured slot.
+- Keyboard: `←` / `→` page the featured card when the strip has focus.
 
-`ProductCampaignBuilderView.tsx` already owns `offers`. Add a sibling `campaignLink: string` state, default `"https://www.ventusai.com"`, reset alongside `offers` whenever the product changes. Pass `campaignLink` + `onCampaignLinkChange` into `ProductPickerSection`, and `campaignLink` into `MessagePreviewsSection`.
+### Technical notes
 
-### Downstream effect
-
-`MessagePreviewsSection` forwards `campaignLink` to `buildMessageCards(product, variants, offers, campaignLink)`.
-
-In `buildMessageCards.ts`:
-- Extend `MessageCard` with an optional `ctaHref?: string`.
-- When `campaignLink` is non-empty, attach it as `ctaHref` to every generated card.
-
-In `MessagePreviewsSection.tsx` render:
-- Convert the existing `<button>` CTA to an `<a href={card.ctaHref} target="_blank" rel="noopener noreferrer">` when `ctaHref` is present, falling back to a `<button>` when absent. Same visual styles.
-
-### Files touched
-
-- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — add preset chip, campaign link input, two new props.
-- `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx` — own `campaignLink`, reset on product change, pass through.
-- `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — accept and forward `campaignLink`; CTA renders as anchor when href present.
-- `src/components/tepilot/campaigns/sections/buildMessageCards.ts` — add optional `ctaHref`; attach `campaignLink` to each card.
+- File: `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` only.
+- Add `featuredIdx` state (default 0). Reset to 0 whenever `productName` changes (alongside the existing reveal effect).
+- Clamp `featuredIdx` to revealed cards during the stagger so the featured slot never shows a blank.
+- Featured card reuses the existing card markup (extracted into a small inline component or rendered inline with size tweaks: bigger subject, body, full `why` line). No changes to `buildMessageCards.ts` or `MessageCard` shape.
+- Color-coded chip in the strip: small colored dot + family label pulled from `ANCHOR_VISUAL[card.anchorFamily].label` / `.iconColor`.
+- Counter button keeps the existing `Popover` + `FormulaCell` payload; only its position moves.
+- No new packages, no backend changes, no edits to the 5-card grid styling.
 
 ### Out of scope
 
-- No URL validation library, no link analytics, no persistence.
-- No additional presets (only the one requested).
+- Paging the full 548-campaign bank (only the 5 exemplars toggle).
+- Keyboard shortcuts outside the strip's focus.
+- Changes to Steps 1 or 2, the edge function, or `buildMessageCards`.
