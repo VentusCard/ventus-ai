@@ -884,3 +884,31 @@ export const FAMILY_NARRATIVE: Record<ExclusionType, {
     ],
   },
 };
+
+export const FAMILY_DIMENSIONS: Record<ExclusionType, { title: string; description: string }[]> = {
+  behavioral: [
+    { title: "What they spend on", description: "Top categories, concentration, frequency — the daily coffee, the Friday takeout, the Amazon habit." },
+    { title: "How they spend", description: "Budget, premium, or luxury tier; debit vs credit, autopay vs manual, one card vs spreader." },
+    { title: "What they don't spend on", description: "Absent categories and conspicuous silences — no groceries, no gas, off-us gaps where the wallet leaks elsewhere." },
+  ],
+  "life-event": [
+    { title: "New chapter fingerprints", description: "Baby on the way, a move to a new city, a new employer on direct deposit — each event has its own unmistakable transaction signature." },
+    { title: "Pattern breaks", description: "The derivative, not the level: sudden shifts in cadence, deposit jumps, merchant cluster swaps that say the rhythm just changed." },
+    { title: "Horizon events", description: "College tuition forming, an estate inflow landing, retirement runway visible — moments still ahead but already showing on the ledger." },
+  ],
+  demographic: [
+    { title: "Who they are", description: "Age band, income band, household shape — the broad strokes that frame everything else." },
+    { title: "Where they live", description: "Coastal city vs rural, high-cost-of-living vs not — geography that bends what an offer is worth." },
+    { title: "Profile with us", description: "Tenure with the bank, credit-score tier, relationship depth — single-product, multi-product, or primary." },
+  ],
+  financial: [
+    { title: "Posture", description: "Saver, spender, juggler, or accumulator — fat idle cash in checking vs balance dipping low before payday." },
+    { title: "What they're reaching for", description: "A down-payment quietly forming, steady transfers toward something, savings velocity that tells you a goal is in motion." },
+    { title: "Wallet share with us", description: "What they already hold, debt posture, paying-in-full vs carrying — and the white space where we could be more." },
+  ],
+  risk: [
+    { title: "Capacity", description: "Eligibility, over-extension, room on the line — can this customer responsibly take the next product." },
+    { title: "Behavior flags", description: "Delinquency, NSF history, recent stress signals — the patterns that say not now, even if everything else points yes." },
+    { title: "Compliance & exposure", description: "Full-stop regulatory flags, concentration, exposure that changes the answer regardless of how attractive the fit looks." },
+  ],
+};
