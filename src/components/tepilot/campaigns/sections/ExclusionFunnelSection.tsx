@@ -494,25 +494,13 @@ export function ExclusionFunnelSection({ product }: Props) {
 
 
       {/* Expanded panel */}
-      {expanded && revealedCount >= 5 && (() => {
-        const items = (expanded === "life-event" || expanded === "behavioral")
-          ? product.signals
-              .filter((s) => s.type === expanded)
-              .map((s, i) => ({ id: `${expanded}-${i}`, label: s.label, rationale: s.evidence, removedPct: undefined as number | undefined }))
-          : exclusions
-              .filter((e) => e.type === expanded)
-              .map((e) => ({ id: e.id, label: e.label, rationale: e.rationale, removedPct: e.removedPct as number | undefined }));
-        return (
-          <ExpandedPanel
-            family={expanded}
-            relevance={relevance[expanded]}
-            items={items}
-            removed={funnel.byFamily[expanded].removed}
-            baseForRates={product.estimatedAudience}
-            onClose={() => setExpanded(null)}
-          />
-        );
-      })()}
+      {expanded && revealedCount >= 5 && (
+        <ExpandedPanel
+          family={expanded}
+          relevance={relevance[expanded]}
+          onClose={() => setExpanded(null)}
+        />
+      )}
 
       {/* Final addressable footer */}
       {revealedCount >= 5 && (
