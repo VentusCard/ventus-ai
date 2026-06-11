@@ -254,6 +254,62 @@ function copyFor(
 
 // ── Builder ─────────────────────────────────────────────────────────────────
 
+// ── Hardcoded overrides ────────────────────────────────────────────────────
+
+function isCustomerChoiceCard(p: CatalogProduct): boolean {
+  const n = p.name.toLowerCase();
+  return p.category === "credit_cards" &&
+         (n.includes("3/2/1") || n.includes("customer-choice") || n.includes("customer choice"));
+}
+
+const CUSTOMER_CHOICE_CARDS: MessageCard[] = [
+  {
+    anchorFamily: "BEHAVIOR",
+    play: "ACTIVATE",
+    anchor: "Everyday foodie (budget tier)",
+    subject: "6% on takeout, 4% on groceries — eat happy",
+    body: "The daily coffee, the Friday pizza, the grocery run that somehow always has snacks in the cart. The Customer-Choice card lets you set dining at 6% and groceries at 4% — doubled for new cardholders through December 31. The food you're feeding yourself anyway, finally feeding your rewards too.",
+    cta: "Start earning on takeout",
+    why: "Behavioral — everyday foodie (budget tier).",
+  },
+  {
+    anchorFamily: "BEHAVIOR",
+    play: "UPGRADE",
+    anchor: "Premium foodie (premium tier)",
+    subject: "6% on fine dining, 4% at the specialty grocer",
+    body: "The chef's counter on a Friday, the imported cheese and good olive oil for Sunday. The Customer-Choice card lets you set dining at 6% and specialty grocery at 4% — doubled for new cardholders through December 31. However you chase a great meal, in or out, your taste earns its keep.",
+    cta: "Earn on every reservation",
+    why: "Behavioral — premium foodie (premium tier).",
+  },
+  {
+    anchorFamily: "LIFE_EVENT",
+    play: "ACTIVATE",
+    anchor: "New home",
+    subject: "New keys, new projects — 6% back",
+    body: "Congrats on the new place — now comes the fun part (and the trips to the hardware store). The Customer-Choice card lets you set home improvement at 6% and furniture at 4% — doubled for new cardholders through December 31. Get rewarded for making it yours, right when it counts most.",
+    cta: "Earn on the new place",
+    why: "Life event — new home.",
+  },
+  {
+    anchorFamily: "DEMOGRAPHIC",
+    play: "ACQUIRE",
+    anchor: "New city",
+    subject: "New city, more gas, more dinners out — 6% back",
+    body: "A new place to figure out means a lot of driving around and a lot of \"let's just eat out tonight.\" The Customer-Choice card lets you set gas at 6% and dining at 4%, doubled for new cardholders through December 31. Turn all that exploring into cash back while you find your new favorite spots.",
+    cta: "Earn while you explore",
+    why: "Demographic shift — new city.",
+  },
+  {
+    anchorFamily: "FINANCIAL_SIGNAL",
+    play: "ACTIVATE",
+    anchor: "Saving toward a goal",
+    subject: "Turn everyday spending into your goal",
+    body: "You're saving toward something — so why not let your spending help? The Customer-Choice card pays you back on the categories you pick (think 6% groceries, 4% gas), doubled for new cardholders through December 31. Send that cash back straight to your goal and get there a little faster, every time you shop.",
+    cta: "Put rewards toward my goal",
+    why: "Financial signal — saving toward a goal.",
+  },
+];
+
 function pick<T>(pool: T[], i: number, seed: number): T {
   return pool[(i + seed) % pool.length];
 }
@@ -265,6 +321,12 @@ export function buildMessageCards(
   campaignLink: string = "",
   seed: number = 0,
 ): MessageCard[] {
+  if (isCustomerChoiceCard(product)) {
+    const href = campaignLink.trim();
+    return href
+      ? CUSTOMER_CHOICE_CARDS.map((c) => ({ ...c, ctaHref: href }))
+      : CUSTOMER_CHOICE_CARDS;
+  }
   const cat = product.category;
   const stackPool = STACK_ANCHORS[cat] ?? [];
   const usagePool = USAGE_ANCHORS[cat] ?? [];
