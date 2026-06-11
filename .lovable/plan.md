@@ -1,30 +1,35 @@
-## Lead with the product + benefit, not the observation
+## Clarify the 3/2/1 cashback structure
 
-Right now STACK bodies start with *"Your spend in dining and Streaming has been steady for a while…"* — observation first, product second. Flip it: lead with the product and the concrete earn, then close with why it fits the customer.
+Update the `category-cashback-card` entry in `src/lib/productCatalogExtras.ts` (lines 107-120) so the tagline, rate table, and features all read the same way: **3% on your #1 category, 2% on your #2 category, 1% on everything else** — instead of the current copy that locks 2% to grocery + warehouse.
 
-### Change
+### Edit
 
-Only the **STACK** template in `copyFor()` (in `src/components/tepilot/campaigns/sections/buildMessageCards.ts`). Subject, CTAs, and other families stay as they are.
-
-New body shape when a `ratePhrase` resolves:
-
-> **3% on groceries and 2% on warehouse clubs — on your two biggest categories**
-> With the Cashback (3/2/1) card you can get 3% on groceries and 2% on warehouse clubs — the two categories that already carry most of your spend. No annual fee, nothing to switch on.
-
-Fallback shape (product has no rate table — flat-rate variants already handled by `ratePhrase`, so this only kicks in for genuinely table-less cards):
-
-> With the {name} you can get {tagline lowercased} — built around the pattern your spend already follows. {fee}.
-
-### Template
-
-```
-body = ratePhrase
-  ? `With the ${name} you can get ${ratePhrase} — the ${parts === 1 ? "category" : "categories"} that already carry most of your spend. ${fee}, nothing to switch on.`
-  : `With the ${name} you can get ${lc(mechanics.tagline)} — built around the pattern your spend already follows. ${fee}.`
+```ts
+"category-cashback-card": {
+  tagline: "3% on your top category, 2% on your next, 1% on everything else.",
+  fee: "No annual fee",
+  rateTable: [
+    { tier: "Your top category", rate: "3%", note: "highest-spend category each month" },
+    { tier: "Your next category", rate: "2%", note: "second-highest, automatic" },
+    { tier: "Everything else",   rate: "1%" },
+  ],
+  features: [
+    "Top two categories detected from your spend each month — nothing to pick",
+    "Quarterly cap on the 3% and 2% tiers, unlimited 1% beyond",
+    "Cashback redeems as statement credit or to a linked deposit account",
+  ],
+},
 ```
 
-Where `parts` = `splitAnchor(anchor).length` so a single-part anchor reads "the category" instead of "the categories."
+### Downstream effect on message copy
+
+`buildRatePhrase()` matches anchor parts (e.g. "Groceries", "Warehouse club") against tier text. With the new generic tier labels ("Your top category", "Your next category"), keyword lookups won't hit anymore — so the function will fall back to the top two tiers verbatim and produce:
+
+> "3% on your top category and 2% on your next category"
+
+That's actually clearer than naming specific categories in the headline, since the card works the same way for any anchor pair. The body still names the customer's actual categories via `anchorProse` elsewhere in the template.
 
 ### Out of scope
 
-LIFE_EVENT / GOAL / USAGE bodies, subjects, CTAs, and the rate-matching logic — all unchanged.
+- Other mechanics entries.
+- `buildMessageCards.ts` — no changes needed; the fallback path already handles this case.
