@@ -1,35 +1,44 @@
-## Clarify the 3/2/1 cashback structure
+## Add "Offers" subsection to Step 1 (Campaign Builder)
 
-Update the `category-cashback-card` entry in `src/lib/productCatalogExtras.ts` (lines 107-120) so the tagline, rate table, and features all read the same way: **3% on your #1 category, 2% on your #2 category, 1% on everything else** — instead of the current copy that locks 2% to grocery + warehouse.
+Add a promotional **Offers** area inside `ProductPickerSection`, placed **between** the selected-product card and the addressable-population card in a single row.
 
-### Edit
+### Layout (after a product is selected)
 
-```ts
-"category-cashback-card": {
-  tagline: "3% on your top category, 2% on your next, 1% on everything else.",
-  fee: "No annual fee",
-  rateTable: [
-    { tier: "Your top category", rate: "3%", note: "highest-spend category each month" },
-    { tier: "Your next category", rate: "2%", note: "second-highest, automatic" },
-    { tier: "Everything else",   rate: "1%" },
-  ],
-  features: [
-    "Top two categories detected from your spend each month — nothing to pick",
-    "Quarterly cap on the 3% and 2% tiers, unlimited 1% beyond",
-    "Cashback redeems as statement credit or to a linked deposit account",
-  ],
-},
+Three-column row, widths `50% / 25% / 25%`:
+
+```text
+┌─────────────────────────┬──────────────┬──────────────┐
+│ Selected product (50%)  │ Offers (25%) │ Population   │
+│ — name, mechanics       │ free-text +  │ (25%)        │
+│   tagline, fee          │ chip list    │ users count  │
+└─────────────────────────┴──────────────┴──────────────┘
 ```
 
-### Downstream effect on message copy
+Implementation in `ProductPickerSection.tsx`:
+- The existing wrapper (currently `flex gap-3` at line 68) stays; product card becomes `w-1/2`, the new Offers card `w-1/4`, the population card changes from `w-[40%]` to `w-1/4`.
+- Offers card: white bg, slate-200 border, header "Offers (optional)", small free-text `Input` + Add button (Enter submits), active offers render as removable chips below.
+- Validation: trim, dedupe, cap 5 offers, 80 chars each.
+- Strict light theme, no `dark:` classes.
 
-`buildRatePhrase()` matches anchor parts (e.g. "Groceries", "Warehouse club") against tier text. With the new generic tier labels ("Your top category", "Your next category"), keyword lookups won't hit anymore — so the function will fall back to the top two tiers verbatim and produce:
+### State lift
 
-> "3% on your top category and 2% on your next category"
+`ProductCampaignBuilderView.tsx` owns `offers: string[]`. Resets on product change. Passes to `ProductPickerSection` (controlled) and `MessagePreviewsSection`.
 
-That's actually clearer than naming specific categories in the headline, since the card works the same way for any anchor pair. The body still names the customer's actual categories via `anchorProse` elsewhere in the template.
+### Downstream effect
+
+`MessagePreviewsSection` forwards `offers` to `buildMessageCards(product, variants, offers)`:
+- If `offers.length > 0`, prepend one `MessageCard` with `anchorFamily: "USAGE"`, `play: "OFFER"`, `anchor: offers[0]`, copy that names the offer and the product, CTA "Claim offer".
+- Append `" — ${offers[0]}"` tail to the STACK card body.
+- Variant-count math unchanged (offer card is presentational).
+
+### Files touched
+
+- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — restructure selected-state row to 50/25/25; add Offers card; new props `offers`, `onOffersChange`.
+- `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx` — own `offers` state, reset on product change, pass down.
+- `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — accept and forward `offers`.
+- `src/components/tepilot/campaigns/sections/buildMessageCards.ts` — accept optional `offers`, prepend offer card, append STACK body tail.
 
 ### Out of scope
 
-- Other mechanics entries.
-- `buildMessageCards.ts` — no changes needed; the fallback path already handles this case.
+- No persistence, no edge functions, no schema changes.
+- Step 2 funnel and the variant-count formula unchanged.
