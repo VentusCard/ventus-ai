@@ -93,7 +93,7 @@ export function ExclusionFunnelSection({ product }: Props) {
   const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
   const [revealedCount, setRevealedCount] = useState(0);
   const [filters, setFilters] = useState<DemoFilters>(DEFAULT_FILTERS);
-  const [filtersOpen, setFiltersOpen] = useState(true);
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   useEffect(() => {
     if (!product) return;
