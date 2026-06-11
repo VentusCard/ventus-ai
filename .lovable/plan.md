@@ -1,30 +1,36 @@
-# Gate Campaign Builder tab into 3 sequential steps
+# Show applicable-user estimate on each signal-family card
 
-Tab: **Targeting → Campaign Builder** on `/bankdemo`, rendered by `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx`. Today it renders all three sections at once:
+In `ExclusionFunnelSection` (step 2 of the campaign builder), each of the 5 family cards (life-event, behavioral, financial, demographic, risk) currently shows just an icon + label. Add a tiny user-count line so the audience reach per family is visible at a glance.
 
-1. `ProductPickerSection` — pick product + offers + link
-2. `ExclusionFunnelSection` — eligibility funnel
-3. `MessagePreviewsSection` — generated message cards
+## Sizing rules
 
-## Change
+Base = `product.estimatedAudience` (the eligible pool already shown in the header).
 
-In `ProductCampaignBuilderView.tsx`:
+| Family | Share of base | Rationale |
+|---|---|---|
+| Behavioral | **100%** | Behavioral enrichment fires on every transaction — applies to everyone. |
+| Purchase / Financial | **65%** | Most customers have observable financial-state signals. |
+| Demographic | **92%** | Almost everyone has demographic attributes on file. |
+| Life Event | **22%** | Only those with active life-event evidence in the window. |
+| Risk | **8%** | Small high-severity slice. |
 
-- Add `const [visibleStep, setVisibleStep] = useState<1 | 2 | 3>(1)`.
-- Render section 2 only when `visibleStep >= 2`, section 3 only when `visibleStep >= 3`.
-- After section 1 and section 2 (only while they are the current last-visible step), render a right-aligned pill button:
-  ```
-  <div className="flex justify-end">
-    <button ...>Next step →</button>
-  </div>
-  ```
-  Styling matches existing demo pills: `rounded-full text-xs font-medium border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300 px-3 py-1.5`.
-- Step 1's Next is **disabled** until `productName` is non-empty (and visually faded). Step 2's Next is always enabled.
-- When the user picks a *different* product via `handleSelectProduct`, reset `visibleStep` to 1 so the gating restarts cleanly.
-- No other files touched — `MessagePreviewsSection`, hardcoded Customer-Choice cards, sidebar, header all unchanged.
+Numbers are deterministic per product (derived from `estimatedAudience × share`), formatted with the existing `fmt()` helper (e.g. `2.4M`, `880K`).
+
+## UI
+
+File: `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx`, inside the ready-state card (around line 391–399), under the family label:
+
+```text
+[icon]
+Life Event Detection
+528K users · 22%      ← new line, text-[10px] text-white/80 font-medium
+```
+
+For the behavioral card the suffix reads `· all` instead of a percent. The new line is hidden on the processing and pending placeholders (no layout change there since `minHeight: 84` already accommodates it).
+
+No other components, copy, or logic change.
 
 ## Out of scope
-
-- Other tabs / pages.
-- Animation/transition (a simple conditional mount is enough).
-- Persisting step across tab switches.
+- Homepage capability cards (different file).
+- Making the percentages user-configurable.
+- Updating the final addressable footer math (still driven by demographic filters + disabled families as today).

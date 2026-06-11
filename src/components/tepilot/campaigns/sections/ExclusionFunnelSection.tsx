@@ -318,10 +318,20 @@ export function ExclusionFunnelSection({ product }: Props) {
           const isDisabled = disabled.has(fam);
           const canToggle = rel === "flag" && fam !== "financial" && fam !== "risk";
 
-          
+          const FAMILY_SHARE: Record<ExclusionType, number> = {
+            behavioral: 1,
+            demographic: 0.92,
+            financial: 0.65,
+            "life-event": 0.22,
+            risk: 0.08,
+          };
+          const share = FAMILY_SHARE[fam];
+          const famUsers = Math.round(product.estimatedAudience * share);
+          const shareLabel = fam === "behavioral" ? "all" : `${Math.round(share * 100)}%`;
 
           const state: "pending" | "processing" | "ready" =
             idx < revealedCount ? "ready" : idx === revealedCount ? "processing" : "pending";
+
 
           if (state === "pending") {
             return (
@@ -396,6 +406,8 @@ export function ExclusionFunnelSection({ product }: Props) {
                   <Icon className="w-4 h-4 shrink-0 text-white" />
                 </div>
                 <p className="text-[12px] font-semibold leading-tight text-white">{meta.label}</p>
+                <p className="text-[10px] font-medium text-white/80 mt-0.5">{fmt(famUsers)} users · {shareLabel}</p>
+
               </button>
             </div>
           );
