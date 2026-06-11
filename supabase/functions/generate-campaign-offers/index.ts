@@ -210,7 +210,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { product, profile } = await req.json();
+    const { product, profile, offers, campaign_link } = await req.json();
     if (!product || !profile) {
       return new Response(JSON.stringify({ error: "product and profile are required" }), {
         status: 400,
@@ -221,14 +221,30 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
+    // Normalize optional campaigner inputs.
+    const offersList: string[] = Array.isArray(offers)
+      ? offers.map((o: unknown) => String(o ?? "").trim()).filter((s) => s.length > 0).slice(0, 5)
+      : [];
+    const link: string = typeof campaign_link === "string" ? campaign_link.trim() : "";
+
+    const offersBlock = offersList.length > 0
+      ? `\n\nCAMPAIGNER OFFERS (treat as authoritative promo overlays — weave naturally into subject/body where the angle fits; the FIRST offer is the headline promo and should appear in ≥2 of the 5 examples):
+${offersList.map((o, i) => `  ${i + 1}. ${o}`).join("\n")}`
+      : "";
+
+    const linkBlock = link
+      ? `\n\nCAMPAIGN LINK (destination for every CTA — do not invent another URL): ${link}`
+      : "";
+
     const userPrompt = `SELECTED PRODUCT:
 ${JSON.stringify(product, null, 2)}
 
 CUSTOMER PROFILE (15 cards, each with HIGH/MED/LOW level):
-${JSON.stringify(profile, null, 2)}
+${JSON.stringify(profile, null, 2)}${offersBlock}${linkBlock}
 
 Run the 6-level playbook. Compute the full variation bank. Emit the structured
 result via emit_offer_bank with exactly 5 diverse exemplars.`;
+
 
     const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
