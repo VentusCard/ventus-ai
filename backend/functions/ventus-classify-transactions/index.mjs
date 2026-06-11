@@ -98,6 +98,14 @@ async function checkCache(db, rawNames) {
   return cache;
 }
 
+// Classifier-only partner context (e.g. "Acme [partner_context: rail=ach; ...]")
+// is appended to raw_merchant before classification. Strip it before the value
+// is ever used as a user-facing clean merchant name.
+function stripPartnerContext(merchant) {
+  if (typeof merchant !== 'string') return merchant;
+  return merchant.replace(/\s*\[partner_context:[^\]]*\]\s*$/, '').trim();
+}
+
 // ─── WRITE TO MERCHANT CACHE ──────────────────────────────────────────────────
 async function writeToCache(db, classifications) {
   for (const c of classifications) {
@@ -124,7 +132,8 @@ async function writeEnrichedToRDS(db, rawRows, classifications) {
     const c = classifications.find(
       (x) => x.transaction_id === raw.transaction_id
     );
-    const cleanMerchant = c?.normalized_merchant || raw.raw_merchant;
+    const cleanMerchant =
+      c?.normalized_merchant || stripPartnerContext(raw.raw_merchant);
     const pillar = c?.pillar || 'Miscellaneous & Unclassified';
     const subcategory = c?.subcategory || 'General';
     const confidence = c?.confidence || 0.1;
@@ -612,7 +621,8 @@ export const handler = async (event) => {
                 ? {
                     raw_merchant: r.raw_merchant,
                     normalized_merchant:
-                      c.normalized_merchant || r.raw_merchant,
+                      c.normalized_merchant ||
+                      stripPartnerContext(r.raw_merchant),
                     pillar: c.pillar,
                     subcategory: c.subcategory || 'General',
                     confidence: c.confidence || 0.8,
