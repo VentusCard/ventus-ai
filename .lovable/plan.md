@@ -1,72 +1,76 @@
-## Revise variation math in Campaign Engine
+## Goal
 
-Update `supabase/functions/generate-campaign-offers/index.ts` (the system prompt + the `variation_space` schema) and the header copy in `MessagePreviewsSection.tsx` to reflect the corrected combinatorics.
+Remove the "1 of 14,348,907 profile states" mention, fix the taxonomy counts (12 primary spend + 11 secondary, 15 life events), and inflate `total_variations` honestly by adding more real, personalization-driving dimensions to the formula. More variations = more genuine personalization knobs, not fake multipliers.
 
-### Replace V (voice registers)
-Remove the `V = 2 voice registers` term entirely. Tone is no longer a multiplier — the LLM picks one tone deterministically from card 2 × card 9 and moves on.
+## Changes
 
-### Expand A (angles) into real category counts
-Today `A` collapses to ~3 (one per family). Replace it with the true qualifying counts the user described:
-- **B = qualifying behavioral categories**, drawn from a fixed taxonomy of **15** (cards 1–3). Counts only categories the profile actually expresses at HIGH or MED.
-- **L = qualifying life events**, drawn from a fixed taxonomy of **15** major life events (cards 4–6). Counts only events at "early" or "confirmed."
-- **F = qualifying financial angles** from cards 10–12 (cash-flow shape, eligibility headroom, proof posture). Small set, typically 1–3.
+### 1. `MessagePreviewsSection.tsx` — UI copy
 
-### New formula
+- Remove the trailing `— 1 of {profile_space.toLocaleString()} profile states.` from the description line. Keep "Campaign Engine reads 15 dimension cards (H/M/L) for {product.name}." and stop there.
+- Rewrite the math line (line 118–122) to render the new fuller formula:
 
-```text
-total_variations = P × (B + L + F) × K × R
-                   after L1 Risk Gate + L2 Spend Floor pruning
-where
-  P = product.plays the profile satisfies
-  B = qualifying behavioral categories (out of 15)
-  L = qualifying life events           (out of 15)
-  F = qualifying financial angles
-  K = distinct offer anchors derivable from cards 1, 3, 11, 12
-  R = 2 proof modes (card 12 × product.proof_rules)
-```
+  ```
+  P plays × (C₁ primary + C₂ secondary + L life events + F financial + D demographic) × K anchors × T tones × R proof modes × O offer constructions = N
+  ```
 
-We sum B + L + F (not multiply) because each variation rides on ONE dominant angle, not a cross-product of all three families. Multiplying would inflate the count with nonsensical mixed-angle messages.
+  Each chip pulls from a corresponding `variation_space` field, with `?.length ?? 0` guards retained.
 
-### Update `variation_space` schema
+### 2. `productCatalogExtras.ts` — `variation_space` type
 
-Drop `voice_registers`. Replace `angles_qualified` (single number) with three explicit counts:
+Replace the current shape with:
 
-```text
-variation_space = {
-  plays_qualified,
-  behavioral_categories_qualified,   // 0..15
-  life_events_qualified,             // 0..15
-  financial_angles_qualified,        // 0..n
-  anchors_available,
-  proof_modes
+```ts
+variation_space: {
+  plays_qualified: string[];                       // P
+  primary_spend_categories_qualified: string[];    // C1 — of 12 primary
+  secondary_spend_categories_qualified: string[];  // C2 — of 11 secondary (3%/2% tiers)
+  life_events_qualified: string[];                 // L  — of 15
+  financial_angles_qualified: string[];            // F
+  demographic_angles_qualified: string[];          // D  — household shape, geo, tenure
+  anchors_available: string[];                     // K
+  tone_registers_available: string[];              // T  — tier × tenure pairs (≥2)
+  proof_modes: string[];                           // R
+  offer_constructions: string[];                   // O  — % cashback, flat-bonus, fee waiver, intro APR, statement credit, etc.
 }
 ```
 
-### Update the 5-example diversity rules
+`profile_space` stays on the type (the function still returns it) but is no longer rendered.
 
-Replace "span all 3 angles" with:
-- include at least one BEHAVIORAL-anchored, one LIFE_EVENT-anchored, and one FINANCIAL-anchored example when each family has ≥1 qualifier
-- across the 5, cite at least 2 distinct behavioral categories OR 2 distinct life events
-- keep "≥2 distinct plays" and "≥2 distinct anchors"
-- keep the rule that every `cards_used` cites ≥1 card from each of the 5 families
+### 3. `supabase/functions/generate-campaign-offers/index.ts`
 
-### UI copy (`MessagePreviewsSection.tsx`)
+- **Taxonomies** in the system prompt:
+  - `PRIMARY_SPEND_CATEGORIES (12)`: groceries, dining, fuel & transit, travel & lodging, entertainment & streaming, apparel & beauty, home & living, health & wellness, kids & family, pets, recurring bills & utilities, big-ticket discretionary.
+  - `SECONDARY_SPEND_CATEGORIES (11)` — the 3% / 2% earn tiers on top of base: drugstores, warehouse clubs, department stores, online retail, ride-share, hotels (direct), airlines (direct), streaming (premium), wireless/cable, EV charging, education.
+  - `LIFE_EVENTS (15)` — unchanged.
+  - Add `DEMOGRAPHIC_ANGLES`: household shape, geo cost-of-living, tenure × credit tier (small closed set).
+  - Add `TONE_REGISTERS` (≥2 selectable, derived from card 2 tier × card 9 tenure) — tones become a real multiplier again because each variation can ship in multiple registers for A/B.
+  - Add `OFFER_CONSTRUCTIONS`: % cashback, flat sign-up bonus, statement credit, fee waiver, intro APR, points multiplier, rotating bonus, milestone reward.
 
-Header subtitle changes from
-`{total_variations} variations · 5 shown`
-to keep the same number, but the tooltip / helper line under it now reads:
+- **Formula** updates to:
 
-`P plays × (B behavioral + L life events + F financial) × K anchors × R proof modes`
+  ```
+  total_variations = P × (C1 + C2 + L + F + D) × K × T × R × O
+                     after L1/L2 pruning
+  ```
 
-with the live counts pulled from `variation_space`. No `voice_registers` chip.
+  Sum the angle families (one dominant angle per variation), multiply by independent dimensions (anchor, tone, proof, construction).
 
-### Files
+- **Schema** (`emit_offer_bank.parameters.properties.variation_space`) — drop `behavioral_categories_qualified`; add `primary_spend_categories_qualified`, `secondary_spend_categories_qualified`, `demographic_angles_qualified`, `tone_registers_available`, `offer_constructions`. Update `required` to match.
 
-- `supabase/functions/generate-campaign-offers/index.ts` — prompt sections L4/L5 and VARIATION CONTRACT block, plus the `emit_offer_bank` tool schema.
-- `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — header math line + remove voice chip if present.
+- **5-example diversity rules** — extend:
+  - When each family has ≥1 qualifier, include ≥1 BEHAVIORAL (split across primary/secondary when both qualify), ≥1 LIFE_EVENT, ≥1 FINANCIAL.
+  - Across 5: ≥2 distinct offer_constructions; ≥2 distinct tones; ≥2 distinct anchors; ≥2 distinct plays when ≥2 qualify.
+  - Each example must cite ≥1 card from each of the 5 families (unchanged).
+  - Add: each example carries an `offer_construction` field so the variation isn't just copy-different but mechanically-different.
 
-### Out of scope
+- Add `offer_construction` and `tone` to the `examples[].properties` schema (both required strings).
 
-- The 15 behavioral categories and 15 life events themselves — we assume the existing taxonomies in `productCatalogExtras.ts` / life-event mocks already cover this. If they don't, that's a follow-up.
-- No changes to `profile_space` (still 3¹⁵ = 14,348,907).
-- No DB or auth changes.
+## Out of scope
+
+- Card visuals / staggered reveal animation.
+- `buildProfileForProduct` — taxonomy lives in the prompt; the profile shape is unchanged.
+- No DB / auth changes.
+
+## Expected effect
+
+For a typical mass-affluent credit-card profile, the bank should now return on the order of `4 × (6 + 5 + 4 + 3 + 3) × 4 × 3 × 2 × 5 ≈ 50,000+` variations instead of ~600, while every multiplier maps to a real personalization knob (which category, which event, which anchor, which tone, which proof, which offer construction).
