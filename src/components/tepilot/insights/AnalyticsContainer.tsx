@@ -300,6 +300,11 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
       {/* Content */}
       <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
+        {(activeTab === 'targeting' || activeTab === 'targeting-automated-flows' || activeTab === 'targeting-campaign-builder') && (
+          <div className="mb-4">
+            <AutonomousActivityFeed />
+          </div>
+        )}
         {renderContent()}
         {activeTab !== 'ventus-ai' && !chatOpen && (
           <button
