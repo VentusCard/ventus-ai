@@ -156,7 +156,10 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   // All valid tab values from filtered groups
   const validTabs = useMemo(() => {
     const set = new Set<TabValue>();
-    filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
+    filteredNavGroups.forEach(g => {
+      g.items.forEach(i => set.add(i.value));
+      if (g.label === "Targeting") set.add('targeting-overview');
+    });
     set.add('settings'); // footer-anchored, always available
     set.add('feedback'); // footer-anchored, always available
     return set;
