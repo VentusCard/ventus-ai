@@ -241,11 +241,3 @@ function FormulaCell({
     </div>
   );
 }
-
-function formatVariantFormula(v: VariantBreakdown): string {
-  const parts: string[] = [];
-  if (v.stacks > 0 && v.plays > 0) parts.push(`${v.stacks} × ${v.plays}`);
-  if (v.lifeEvents > 0) parts.push(`${v.lifeEvents}`);
-  if (v.financialGoals > 0) parts.push(`${v.financialGoals}`);
-  return `${parts.join(" + ")} = ${v.total}`;
-}
