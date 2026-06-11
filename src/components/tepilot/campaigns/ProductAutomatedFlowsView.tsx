@@ -190,7 +190,7 @@ export function ProductAutomatedFlowsView() {
       <TabHeader
         icon={<Zap className="w-4 h-4" />}
         title="Automated Flows"
-        subtitle="Always-on, product-first detection — Ventus enrolls customers when behavioral signals fire"
+        subtitle="Always-on per product — Ventus auto-enrolls customers the moment behavioral signals fire"
         howItWorks="Each bank product runs as an always-on flow. Ventus watches transaction, lifecycle, and engagement signals; when a customer crosses the threshold for a product, they are enrolled into that flow's personalized outreach."
         whyItMatters="Replaces calendar-driven campaigns with continuous, signal-driven enrollment so every product is offered when it is most relevant to the customer."
       />
