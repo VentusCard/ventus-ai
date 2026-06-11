@@ -24,7 +24,7 @@ const mk = (stacks: number, plays: number, lifeEvents: number, financialGoals: n
 
 export const PRODUCT_VARIANTS: Record<string, VariantBreakdown> = {
   // ── Credit Cards (10) ───────── 805
-  "Cashback":            mk(132, 4, 15, 5),  // 548
+  "Cashback (3/2/1)":    mk(132, 4, 15, 5),  // 548
   "Custom Cashback":     mk(12,  4, 15, 5),  // 68
   "Travel":              mk(8,   4, 10, 4),  // 46
   "Airline":             mk(0,   0,  8, 3),  // 11
