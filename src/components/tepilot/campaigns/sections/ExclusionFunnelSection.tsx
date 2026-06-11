@@ -316,7 +316,7 @@ export function ExclusionFunnelSection({ product }: Props) {
           const relMeta = SIGNAL_RELEVANCE_META[rel];
           const isExpanded = expanded === fam;
           const isDisabled = disabled.has(fam);
-          const canToggle = rel === "flag";
+          const canToggle = rel === "flag" && fam !== "financial" && fam !== "risk";
 
           
 
