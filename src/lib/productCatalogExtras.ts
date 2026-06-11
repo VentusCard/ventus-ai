@@ -696,9 +696,10 @@ export interface OfferBank {
   total_variations: number;
   variation_space: {
     plays_qualified: string[];
-    angles_qualified: OfferAngle[];
+    behavioral_categories_qualified: string[];
+    life_events_qualified: string[];
+    financial_angles_qualified: string[];
     anchors_available: string[];
-    voice_registers: string[];
     proof_modes: string[];
   };
   examples: OfferExample[];

@@ -61,7 +61,8 @@ L4 · ANGLE            reads 4/5/6 then 11 else 1.
                       • FINANCIAL if 11 is HIGH or MED.
                       • BEHAVIORAL otherwise (default).
 L5 · MESSAGE          reads 2, 7, 8, 9, 10 (+ anchor, +11).
-                      Voice: card 2 tier × card 9 tenure → 2 registers.
+                      Voice: pick ONE register deterministically from card 2 tier
+                      × card 9 tenure. Voice is not a multiplier.
                       Writing rules (non-negotiable):
                         • prove with on-us, profit from off-us
                         • NEVER write "we noticed", "we see", "your recent activity",
@@ -75,20 +76,38 @@ L5 · MESSAGE          reads 2, 7, 8, 9, 10 (+ anchor, +11).
                         • honor product.disclosures + any card-15 language
 L6 · PRIORITY         reads 1. Score = spend velocity × product value band.
 
+TAXONOMIES (closed sets — count only what the profile expresses)
+BEHAVIORAL_CATEGORIES (15): groceries, dining, fuel & transit, travel & lodging,
+  entertainment & streaming, apparel & beauty, home & living, health & wellness,
+  kids & family, pets, education, professional services, charitable giving,
+  recurring bills & utilities, big-ticket discretionary.
+LIFE_EVENTS (15): new baby, move / relocation, new job / employer change,
+  marriage, divorce, home purchase forming, home sale, college / tuition forming,
+  retirement runway, estate / inheritance inflow, business formation,
+  vehicle purchase, medical event, return to school, empty nest.
+
 VARIATION CONTRACT
 Compute and return:
-  profile_space    = 14348907                   (3^15, constant)
-  total_variations = P × A × K × V × R after L1/L2 pruning, where
+  profile_space    = 14348907                       (3^15, constant)
+  total_variations = P × (B + L + F) × K × R after L1/L2 pruning, where
                        P = product.plays satisfied by this profile
-                       A = qualifying angles from {BEHAVIORAL, LIFE_EVENT, FINANCIAL}
+                       B = qualifying BEHAVIORAL_CATEGORIES (0..15) — count only
+                           categories the profile expresses at HIGH or MED on cards 1–3
+                       L = qualifying LIFE_EVENTS (0..15) — count only events
+                           at "early" (MED) or "confirmed" (HIGH) on cards 4–6
+                       F = qualifying FINANCIAL angles from cards 10–12
+                           (cash-flow shape, eligibility headroom, proof posture)
                        K = distinct offer_anchors derivable from cards 1, 3, 11, 12
-                       V = 2 voice registers (card 2 × card 9)
                        R = 2 proof modes (card 12 × product.proof_rules)
-  variation_space  = { plays_qualified, angles_qualified, anchors_available,
-                       voice_registers, proof_modes }
+  (B + L + F is a SUM, not a product — each variation rides on ONE dominant angle.)
+  variation_space  = { plays_qualified, behavioral_categories_qualified,
+                       life_events_qualified, financial_angles_qualified,
+                       anchors_available, proof_modes }
 
 Surface EXACTLY 5 examples chosen for diversity:
-  • span all 3 angles when supported
+  • when each family has ≥1 qualifier, include ≥1 BEHAVIORAL-anchored,
+    ≥1 LIFE_EVENT-anchored, and ≥1 FINANCIAL-anchored example
+  • across the 5, cite ≥2 distinct behavioral categories OR ≥2 distinct life events
   • include ≥2 distinct plays when ≥2 qualify
   • include ≥2 distinct anchors
   • each example.cards_used MUST cite ≥1 card from EACH family —
@@ -118,15 +137,13 @@ const EMIT_TOOL = {
           type: "object",
           properties: {
             plays_qualified: { type: "array", items: { type: "string" } },
-            angles_qualified: {
-              type: "array",
-              items: { type: "string", enum: ["BEHAVIORAL", "LIFE_EVENT", "FINANCIAL"] },
-            },
+            behavioral_categories_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 15 BEHAVIORAL_CATEGORIES." },
+            life_events_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 15 LIFE_EVENTS." },
+            financial_angles_qualified: { type: "array", items: { type: "string" } },
             anchors_available: { type: "array", items: { type: "string" } },
-            voice_registers: { type: "array", items: { type: "string" } },
             proof_modes: { type: "array", items: { type: "string" } },
           },
-          required: ["plays_qualified", "angles_qualified", "anchors_available", "voice_registers", "proof_modes"],
+          required: ["plays_qualified", "behavioral_categories_qualified", "life_events_qualified", "financial_angles_qualified", "anchors_available", "proof_modes"],
         },
         examples: {
           type: "array",

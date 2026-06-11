@@ -115,6 +115,11 @@ export function MessagePreviewsSection({ product }: Props) {
         <span className="font-medium text-slate-700">{product.name}</span>
         {bank && ` — 1 of ${bank.profile_space.toLocaleString()} profile states.`}
       </p>
+      {bank && bank.decision === "SEND" && (
+        <p className="text-[10px] text-slate-500 font-mono mb-3">
+          {bank.variation_space.plays_qualified.length} plays × ({bank.variation_space.behavioral_categories_qualified.length} behavioral + {bank.variation_space.life_events_qualified.length} life events + {bank.variation_space.financial_angles_qualified.length} financial) × {bank.variation_space.anchors_available.length} anchors × {bank.variation_space.proof_modes.length} proof modes = {bank.total_variations.toLocaleString()}
+        </p>
+      )}
 
       {bank && bank.decision !== "SEND" ? (
         <div className="rounded-lg border border-rose-200 bg-rose-50 p-4 flex items-start gap-3">
