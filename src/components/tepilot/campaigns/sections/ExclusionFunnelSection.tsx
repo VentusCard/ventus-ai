@@ -485,18 +485,60 @@ export function ExclusionFunnelSection({ product }: Props) {
           <div className="flex items-center gap-2 text-xs text-slate-600">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
             <span>
-              Final addressable audience
+              Final addressable audience after all filters
               {disabled.size > 0 && (
                 <span className="text-slate-400"> · {disabled.size} family{disabled.size > 1 ? "ies" : ""} disabled</span>
               )}
+              {emptyGroup && (
+                <span className="text-rose-600"> · re-enable at least one option in {emptyGroup}</span>
+              )}
             </span>
           </div>
-          <span className="text-base font-mono font-semibold text-slate-900">{fmt(funnel.finalCount)}</span>
+          <span className="text-base font-mono font-semibold text-slate-900">{fmt(combinedFinal)}</span>
         </div>
       )}
     </div>
   );
 }
+
+function ChipGroup({
+  label,
+  options,
+  selected,
+  onToggle,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  selected: string[];
+  onToggle: (v: string) => void;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">{label}</p>
+      <div className="flex flex-wrap gap-1">
+        {options.map((opt) => {
+          const isSel = selected.includes(opt.value);
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onToggle(opt.value)}
+              className={cn(
+                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors",
+                isSel
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-400",
+              )}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 
 function ExpandedPanel({
   family,
