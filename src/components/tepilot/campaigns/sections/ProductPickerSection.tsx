@@ -309,43 +309,71 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
             </div>
           )}
         </div>
-      </div>
 
-      {selected && mechanics && (
-        <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-900 shrink-0">
-              <selected.icon className="w-3.5 h-3.5 text-white" />
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="text-sm font-semibold text-slate-900 truncate leading-tight">{selected.name}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
-                <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">{selected.category}</span>
-                <span className="text-slate-300">·</span>
-                <span className="text-[10px] text-slate-500 font-mono">{fmt(selected.estimatedAudience)} eligible</span>
-              </div>
-            </div>
-            <button
-              type="button"
-              onClick={() => {
-                onSelect("");
-                setQuery("");
-                requestAnimationFrame(() => inputRef.current?.focus());
-              }}
-              className="shrink-0 inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 transition-colors"
-            >
-              <ArrowLeftRight className="w-3 h-3" />
-              Change product
-            </button>
-          </div>
-
-          <p className="text-[11px] text-slate-600 leading-snug mb-2">{selected.positioning}</p>
-
-          <div className="rounded-md bg-white border border-slate-200 px-2.5 py-1.5">
-            <p className="text-xs font-medium text-slate-900 leading-snug">{mechanics.tagline}</p>
-            <p className="text-[10px] text-slate-500 mt-0.5">{mechanics.fee}</p>
-          </div>
+        {selected && (
+          <AudiencePanel
+            baseline={baseline}
+            estimatedReach={estimatedReach}
+            retention={retention}
+            tightest={tightest}
+            emptyGroup={emptyGroup}
+            anyNarrowed={activeCount > 0}
+          />
+        )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function AudiencePanel({
+  baseline,
+  estimatedReach,
+  retention,
+  tightest,
+  emptyGroup,
+  anyNarrowed,
+}: {
+  baseline: number;
+  estimatedReach: number;
+  retention: number;
+  tightest?: [string, { sel: number; total: number }];
+  emptyGroup?: string;
+  anyNarrowed: boolean;
+}) {
+  return (
+    <div className="rounded-md border border-slate-200 bg-white p-3">
+      <div className="flex items-center justify-between mb-1.5">
+        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Addressable population</p>
+        <span className="text-[10px] text-slate-400 font-mono tabular-nums">{(retention * 100).toFixed(0)}% of baseline</span>
+      </div>
+      {emptyGroup ? (
+        <>
+          <p className="text-xl font-semibold text-slate-900 leading-tight tabular-nums">0</p>
+          <p className="text-[11px] text-rose-600 mt-1 leading-snug">
+            No customers match — re-enable at least one option in {emptyGroup}.
+          </p>
+        </>
+      ) : (
+        <>
+          <p className="text-2xl font-semibold text-slate-900 leading-tight tabular-nums">{fmt(estimatedReach)}</p>
+          <p className="text-[11px] text-slate-500 leading-snug">Eligible customers after filters</p>
+          <div className="mt-2 pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[10px]">
+            <div>
+              <p className="text-slate-400 uppercase tracking-wide">Baseline</p>
+              <p className="text-slate-700 font-mono tabular-nums">{fmt(baseline)}</p>
+            </div>
+            <div>
+              <p className="text-slate-400 uppercase tracking-wide">Retention</p>
+              <p className="text-slate-700 font-mono tabular-nums">{(retention * 100).toFixed(1)}%</p>
+            </div>
+          </div>
+          <p className="text-[10px] text-slate-500 mt-2 leading-snug">
+            {anyNarrowed && tightest
+              ? `Tightest: ${tightest[0]} — ${tightest[1].sel} of ${tightest[1].total} selected.`
+              : "All segments included — broaden or narrow with filters above."}
+          </p>
+        </>
       )}
     </div>
   );
