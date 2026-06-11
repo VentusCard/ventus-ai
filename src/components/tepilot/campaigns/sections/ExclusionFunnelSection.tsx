@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+// memo removed: empty-state branch must precede hooks
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { DollarSign, Activity, Users, ShieldCheck } from "lucide-react";
@@ -12,18 +12,26 @@ const fmt = (n: number) => {
 };
 
 interface Props {
-  product: ProductFlow;
+  product?: ProductFlow;
 }
 
 export function ExclusionFunnelSection({ product }: Props) {
-  const exclusions = useMemo(
-    () => getProductExclusions(product.id, product.category),
-    [product.id, product.category],
-  );
-  const funnel = useMemo(
-    () => buildAudienceFunnel(product.estimatedAudience, exclusions),
-    [product.estimatedAudience, exclusions],
-  );
+  if (!product) {
+    return (
+      <div className="rounded-xl border border-slate-200 bg-white p-4 opacity-60">
+        <div className="flex items-center gap-2 mb-3">
+          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
+          <p className="text-sm font-semibold text-slate-900">Audience &amp; exclusion funnel</p>
+        </div>
+        <p className="text-xs text-slate-500 text-center py-8">
+          Pick a product above to model the audience funnel and risk filters.
+        </p>
+      </div>
+    );
+  }
+
+  const exclusions = getProductExclusions(product.id, product.category);
+  const funnel = buildAudienceFunnel(product.estimatedAudience, exclusions);
 
   const financial = exclusions.filter((e) => e.type === "financial");
   const behavioral = exclusions.filter((e) => e.type === "behavioral");

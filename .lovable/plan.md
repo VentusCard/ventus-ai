@@ -1,20 +1,20 @@
-## Problem
-Right now "Change product" sets `productId = ""`, which hides sections 2 (Exclusion Funnel) and 3 (Message Previews) since the parent gates them on `product` existing. User wants the full workflow visible at all times.
+## Goal
+When no product is selected, the page should still render Section 2 (Audience & exclusion funnel) and Section 3 (Personalized message previews) as **dimmed empty-state placeholders** so the full workflow shape is visible from the start.
 
-## Fix
-Keep a product always selected (parent already defaults to `category-cashback-card`). Restructure Section 1 so the search bar is **always visible** above the detail panel, not toggled by selection state.
+## Approach
+Render the section shells unconditionally in `ProductCampaignBuilderView`. Each section gets a `product?: ProductFlow` prop; when undefined, it shows a dimmed shell with the header (numbered badge + title) and a centered "Pick a product above to see this" message inside the card body. When a product is selected, behavior is unchanged.
 
-### Section 1 layout (always)
-- Header row: step badge, "Pick a product", count badge.
-- Search input (always visible, full width, compact h-8).
-- When the user types → dropdown results appear directly below the input; clicking a result swaps the selected product and clears the query.
-- Detail panel of the currently selected product always rendered below (icon, name, category, eligible count, positioning, mechanics tagline + fee, rate card 2-col, key features 2-col).
-- Remove the "Change product" button (no longer needed — search is always there).
+## Files
 
-### Sections 2 + 3
-Unchanged. They always render against the current `product`.
+### `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx`
+- Remove the `{product && (...)}` gate. Always render both sections, passing `product` (possibly undefined).
 
-## File
-- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — single edit. Remove the `selected ? detail : search` branch. Render search input + (optional results dropdown) + detail panel sequentially. Drop the `onSelect("")` clear button and the `X` import.
+### `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx`
+- Change prop to `product?: ProductFlow`.
+- If `!product`: render the outer card with the step-2 header ("Audience & exclusion funnel"), no `Addressable` badge, and a single centered placeholder line: "Pick a product above to model the audience funnel and risk filters." Use `opacity-60` on the card.
+- Else: existing behavior.
 
-No changes to `ProductCampaignBuilderView`, catalog data, or sections 2/3.
+### `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx`
+- Same pattern: optional `product`. When absent, render the step-3 header + centered placeholder "Pick a product above to preview three personalized angles." with `opacity-60`.
+
+No changes to `ProductPickerSection`, catalog data, or edge functions.
