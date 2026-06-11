@@ -333,7 +333,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         <aside
           className={cn(
             "hidden md:flex shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex-col",
-            effectiveCollapsed ? "w-[56px]" : "w-[280px]"
+            effectiveCollapsed ? "w-[56px]" : "w-[340px]"
           )}
         >
           <NavBody navCollapsed={effectiveCollapsed} />
