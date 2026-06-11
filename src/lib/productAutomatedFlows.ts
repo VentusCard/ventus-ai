@@ -29,6 +29,8 @@ import {
   Leaf,
   Scale,
   Globe,
+  Heart,
+  Truck,
   type LucideIcon,
 } from "lucide-react";
 
