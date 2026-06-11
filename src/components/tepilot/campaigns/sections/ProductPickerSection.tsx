@@ -133,7 +133,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3 mb-3 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3 mb-3 items-stretch">
         {/* Search / Selected product column */}
         {selected && mechanics ? (
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
@@ -200,7 +200,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         )}
 
         {/* Right column: Filters + Audience panel */}
-        <div className="space-y-3">
+        <div className="flex flex-col gap-3 h-full">
 
         {/* Filters column */}
         <div className="rounded-md border border-slate-200 bg-white">
@@ -311,11 +311,14 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         </div>
 
         {selected && (
-          <AudiencePanel
-            estimatedReach={estimatedReach}
-            emptyGroup={emptyGroup}
-          />
+          <div className="flex-1 min-h-0 flex">
+            <AudiencePanel
+              estimatedReach={estimatedReach}
+              emptyGroup={emptyGroup}
+            />
+          </div>
         )}
+
         </div>
       </div>
     </div>
@@ -330,7 +333,7 @@ function AudiencePanel({
   emptyGroup?: string;
 }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-3">
+    <div className="rounded-md border border-slate-200 bg-white p-3 flex-1 flex flex-col justify-center">
       <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Addressable population</p>
       {emptyGroup ? (
         <>
