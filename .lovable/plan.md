@@ -1,44 +1,38 @@
-# Show life-event, demographic, financial cards as a realistic subset
+# Replace footer caption with a "Sample Output" button
 
-Currently those three families display the full `eligible` count, which implies every customer has, e.g., a new job or savings goal. They should show a believable share of the eligible base.
+File: `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` (lines 253–261).
 
-## New label rules
+## Change
 
-| Family | Label | Share of eligible |
-|---|---|---|
-| Behavioral | `{eligible} users · all` | 100% (unchanged) |
-| Life Event | `{N} users · {pct}%` | **18%** |
-| Demographic | `{N} users · {pct}%` | **62%** |
-| Financial | `{N} users · {pct}%` | **34%** |
-| Risk (flag) | `−{removed} excluded` | unchanged |
+Delete the `<div className="mt-3 pt-3 border-t border-slate-100 ...">` block that renders:
 
-Numbers are deterministic per product (`round(estimatedAudience × share)`), formatted with the existing `fmt()` helper.
+> Catalog total · 1,142 distinct campaigns across 44 products
+> Credit Cards · 548 campaigns
 
-## Code
+Replace it with a single right-aligned **blue "Sample Output"** pill button at the bottom of the section:
 
-File: `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx`
-
-Inside the `.map`, replace the current `countLabel` branch with:
-
-```ts
-const FAMILY_SHARE: Partial<Record<ExclusionType, number>> = {
-  "life-event": 0.18,
-  demographic: 0.62,
-  financial: 0.34,
-};
-const removed = funnel.byFamily[fam]?.removed ?? 0;
-const isFlag = rel === "flag" && fam !== "financial";
-
-let countLabel: string;
-if (fam === "behavioral") {
-  countLabel = `${fmt(product.estimatedAudience)} users · all`;
-} else if (isFlag) {
-  countLabel = `−${fmt(removed)} excluded`;
-} else {
-  const share = FAMILY_SHARE[fam] ?? 1;
-  const n = Math.round(product.estimatedAudience * share);
-  countLabel = `${fmt(n)} users · ${Math.round(share * 100)}%`;
-}
+```tsx
+<div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">
+  <button
+    type="button"
+    onClick={() => setSampleOpen(true)}
+    className="inline-flex items-center gap-1.5 rounded-full border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
+  >
+    <FileJson className="w-3.5 h-3.5" />
+    Sample Output
+  </button>
+</div>
 ```
 
-No other changes (funnel math, footer, financial-not-subtracting behavior all stay as-is).
+## Sample Output dialog
+
+Clicking opens a light-theme shadcn `<Dialog>` showing the message cards currently in `cards` as a formatted JSON payload (the same shape a downstream system would consume). Code block uses `font-mono text-[11px]` inside a scrollable `max-h-[60vh] overflow-auto` `<pre>` with `bg-slate-50 border border-slate-200 p-3 rounded-md`. Dialog title: "Sample Output", description: "Generated campaign payload for {product.name}". No copy/download actions in this pass — just preview.
+
+State: `const [sampleOpen, setSampleOpen] = useState(false);` added at top of `MessagePreviewsSection`.
+
+## Cleanup
+- Remove the now-unused `CATALOG_GRAND_TOTAL` import if it was only used in this footer.
+- Keep `variants` import only if still referenced elsewhere in the file (it was only on this footer line — also remove if unused after the edit).
+
+## Out of scope
+- Other sections, other files, copy-to-clipboard, real export logic.
