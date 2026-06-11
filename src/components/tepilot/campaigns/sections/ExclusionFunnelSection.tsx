@@ -594,7 +594,7 @@ function ExpandedPanel({
         </button>
       </div>
 
-      <div className="flex flex-col gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {dimensions.map((d) => (
           <div key={d.title} className="rounded-md border border-slate-200 bg-white p-2.5">
             <p className={cn("text-xs font-semibold leading-tight mb-0.5", meta.cardText)}>{d.title}</p>
