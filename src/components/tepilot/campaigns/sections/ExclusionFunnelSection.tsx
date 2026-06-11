@@ -318,7 +318,7 @@ export function ExclusionFunnelSection({ product }: Props) {
           const isDisabled = disabled.has(fam);
           const canToggle = rel === "flag";
 
-          const BadgeIcon = rel === "useful" ? Plus : rel === "flag" ? Minus : Circle;
+          
 
           const state: "pending" | "processing" | "ready" =
             idx < revealedCount ? "ready" : idx === revealedCount ? "processing" : "pending";
