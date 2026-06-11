@@ -51,6 +51,25 @@ interface Props {
 export function ExclusionFunnelSection({ product }: Props) {
   const [expanded, setExpanded] = useState<ExclusionType | null>(null);
   const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
+  const [revealedCount, setRevealedCount] = useState(0);
+
+  useEffect(() => {
+    if (!product) return;
+    setRevealedCount(0);
+    setExpanded(null);
+    const total = 5;
+    const id = setInterval(() => {
+      setRevealedCount((c) => {
+        if (c >= total) {
+          clearInterval(id);
+          return c;
+        }
+        return c + 1;
+      });
+    }, 220);
+    return () => clearInterval(id);
+  }, [product?.id]);
+
 
   if (!product) {
     return (
