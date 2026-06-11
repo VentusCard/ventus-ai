@@ -1,12 +1,20 @@
-## Goal
-Make Section 1 minimal: a single search bar by default. No list, no category chips visible until the user types. Once a product is selected, hide search entirely and show only the detail panel.
+## Problem
+Right now "Change product" sets `productId = ""`, which hides sections 2 (Exclusion Funnel) and 3 (Message Previews) since the parent gates them on `product` existing. User wants the full workflow visible at all times.
 
-## Three states
-1. **Idle (no query, no selection):** just a search input with placeholder "Search 44 products…". Optional 1-line helper text below ("Cards · Deposits · Lending · Wealth · Insurance"). That's it.
-2. **Searching (query typed, no selection):** search input + dropdown-style results list directly under it (max ~8 rows, ~28px each, scrollable). Each row: icon · name · category · audience count. Click to select. Empty query collapses back to idle.
-3. **Selected:** hide search and results. Show full-width detail panel with header (icon · name · category · audience · "Change product" ghost button on right) + mechanics tagline/fee + compact rate-card grid + 3-5 feature lines. "Change product" returns to idle.
+## Fix
+Keep a product always selected (parent already defaults to `category-cashback-card`). Restructure Section 1 so the search bar is **always visible** above the detail panel, not toggled by selection state.
+
+### Section 1 layout (always)
+- Header row: step badge, "Pick a product", count badge.
+- Search input (always visible, full width, compact h-8).
+- When the user types → dropdown results appear directly below the input; clicking a result swaps the selected product and clears the query.
+- Detail panel of the currently selected product always rendered below (icon, name, category, eligible count, positioning, mechanics tagline + fee, rate card 2-col, key features 2-col).
+- Remove the "Change product" button (no longer needed — search is always there).
+
+### Sections 2 + 3
+Unchanged. They always render against the current `product`.
 
 ## File
-- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — single edit. Replace current list/grid + sticky detail layout with the three-state conditional above. Keep all data filtering, `fmt()`, and detail-panel content as-is. Remove category chip filter row (search covers it). Drop the 2-column grid wrapper.
+- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — single edit. Remove the `selected ? detail : search` branch. Render search input + (optional results dropdown) + detail panel sequentially. Drop the `onSelect("")` clear button and the `X` import.
 
-No changes to other sections, catalog data, or parent view.
+No changes to `ProductCampaignBuilderView`, catalog data, or sections 2/3.

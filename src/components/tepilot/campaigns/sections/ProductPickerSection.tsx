@@ -3,7 +3,7 @@ import { PRODUCT_FLOWS, type ProductFlow } from "@/lib/productAutomatedFlows";
 import { getProductMechanics } from "@/lib/productCatalogExtras";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, X } from "lucide-react";
+import { Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const fmt = (n: number) => {
@@ -39,17 +39,37 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">
           {PRODUCT_FLOWS.length} available
         </Badge>
-        {selected && (
-          <button
-            onClick={() => onSelect("")}
-            className="ml-auto inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 transition-colors"
-          >
-            <X className="w-3 h-3" /> Change product
-          </button>
+      </div>
+
+      <div className="relative mb-3">
+        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
+          className="h-8 pl-8 text-xs bg-white border-slate-200"
+        />
+        {query.trim() && (
+          <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-slate-200 bg-white max-h-[280px] overflow-y-auto shadow-md">
+            {results.length === 0 ? (
+              <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
+            ) : (
+              results.map((p) => (
+                <ProductRow
+                  key={p.id}
+                  product={p}
+                  onClick={() => {
+                    onSelect(p.id);
+                    setQuery("");
+                  }}
+                />
+              ))
+            )}
+          </div>
         )}
       </div>
 
-      {selected && mechanics ? (
+      {selected && mechanics && (
         <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
           <div className="flex items-center gap-2 mb-2">
             <span className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-900 shrink-0">
@@ -98,36 +118,6 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
               </li>
             ))}
           </ul>
-        </div>
-      ) : (
-        <div className="relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
-          <Input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
-            className="h-9 pl-8 text-xs bg-white border-slate-200"
-            autoFocus
-          />
-
-          {query.trim() && (
-            <div className="mt-1 rounded-md border border-slate-200 bg-white max-h-[280px] overflow-y-auto shadow-sm">
-              {results.length === 0 ? (
-                <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
-              ) : (
-                results.map((p) => (
-                  <ProductRow
-                    key={p.id}
-                    product={p}
-                    onClick={() => {
-                      onSelect(p.id);
-                      setQuery("");
-                    }}
-                  />
-                ))
-              )}
-            </div>
-          )}
         </div>
       )}
     </div>
