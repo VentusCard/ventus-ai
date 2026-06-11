@@ -1,36 +1,36 @@
-# Show applicable-user estimate on each signal-family card
+# Tie family-card counts to the real funnel math
 
-In `ExclusionFunnelSection` (step 2 of the campaign builder), each of the 5 family cards (life-event, behavioral, financial, demographic, risk) currently shows just an icon + label. Add a tiny user-count line so the audience reach per family is visible at a glance.
+The current hard-coded `FAMILY_SHARE` percentages don't match the funnel the page is actually computing. Replace them with values derived from `buildAudienceFunnel`, which the section already calls.
 
-## Sizing rules
+## New math (per card)
 
-Base = `product.estimatedAudience` (the eligible pool already shown in the header).
+`eligible = product.estimatedAudience`
+`removed = funnel.byFamily[fam].removed` (already available)
 
-| Family | Share of base | Rationale |
-|---|---|---|
-| Behavioral | **100%** | Behavioral enrichment fires on every transaction — applies to everyone. |
-| Purchase / Financial | **65%** | Most customers have observable financial-state signals. |
-| Demographic | **92%** | Almost everyone has demographic attributes on file. |
-| Life Event | **22%** | Only those with active life-event evidence in the window. |
-| Risk | **8%** | Small high-severity slice. |
+| Card type | Label shown |
+|---|---|
+| Behavioral | `{eligible} users · all` |
+| Any other family with `relevance === "flag"` (risk, sometimes financial) | `−{removed} excluded` |
+| Any other family (`useful` / `neutral` — demographic, life-event, etc.) | `{eligible} users` |
 
-Numbers are deterministic per product (derived from `estimatedAudience × share`), formatted with the existing `fmt()` helper (e.g. `2.4M`, `880K`).
+Example for a 24M eligible product where risk removes 1.9M: risk card reads `−1.9M excluded`; behavioral reads `24M users · all`; demographic reads `24M users`.
 
-## UI
+This means the displayed numbers reconcile with the final addressable count in the footer (`eligible − Σ excluded ≈ addressable`, before the demographic filter multiplier).
 
-File: `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx`, inside the ready-state card (around line 391–399), under the family label:
+## Code
 
-```text
-[icon]
-Life Event Detection
-528K users · 22%      ← new line, text-[10px] text-white/80 font-medium
-```
+File: `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx`
 
-For the behavioral card the suffix reads `· all` instead of a percent. The new line is hidden on the processing and pending placeholders (no layout change there since `minHeight: 84` already accommodates it).
+- Delete the `FAMILY_SHARE` constant and `share` / `famUsers` / `shareLabel` locals added last turn.
+- Compute inside the `.map`:
+  ```ts
+  const removed = funnel.byFamily[fam]?.removed ?? 0;
+  const isFlag = rel === "flag";
+  const countLabel =
+    fam === "behavioral" ? `${fmt(product.estimatedAudience)} users · all`
+    : isFlag             ? `−${fmt(removed)} excluded`
+                         : `${fmt(product.estimatedAudience)} users`;
+  ```
+- Render that string in the existing `<p className="text-[10px] font-medium text-white/80 mt-0.5">` line.
 
-No other components, copy, or logic change.
-
-## Out of scope
-- Homepage capability cards (different file).
-- Making the percentages user-configurable.
-- Updating the final addressable footer math (still driven by demographic filters + disabled families as today).
+No other files, no layout changes, footer untouched.
