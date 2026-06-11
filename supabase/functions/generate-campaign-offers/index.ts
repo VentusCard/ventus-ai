@@ -64,10 +64,14 @@ L5 · MESSAGE          reads 2, 7, 8, 9, 10 (+ anchor, +11).
                       Voice: card 2 tier × card 9 tenure → 2 registers.
                       Writing rules (non-negotiable):
                         • prove with on-us, profit from off-us
-                        • inference becomes OFFER-TO-CHOOSE, never observation
+                        • NEVER write "we noticed", "we see", "your recent activity",
+                          "based on your spending", or any phrase that implies
+                          surveillance. Inference must be framed as offer-to-choose.
                         • numbers only if signals + proof_rules permit; else null
                         • plainspoken, no hype, no exclamation marks
                         • subject ≤ 9 words · body ≤ 60 words · cta ≤ 5 words
+                        • body must populate levels_read with the H/M/L values
+                          you actually read from the cited cards_used cards
                         • honor product.disclosures + any card-15 language
 L6 · PRIORITY         reads 1. Score = spend velocity × product value band.
 
