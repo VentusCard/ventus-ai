@@ -28,6 +28,7 @@ import {
   SIGNAL_RELEVANCE_META,
   FAMILY_META,
   FAMILY_NARRATIVE,
+  FAMILY_DIMENSIONS,
   type ExclusionType,
   type SignalRelevance,
 } from "@/lib/productCatalogExtras";
@@ -493,25 +494,13 @@ export function ExclusionFunnelSection({ product }: Props) {
 
 
       {/* Expanded panel */}
-      {expanded && revealedCount >= 5 && (() => {
-        const items = (expanded === "life-event" || expanded === "behavioral")
-          ? product.signals
-              .filter((s) => s.type === expanded)
-              .map((s, i) => ({ id: `${expanded}-${i}`, label: s.label, rationale: s.evidence, removedPct: undefined as number | undefined }))
-          : exclusions
-              .filter((e) => e.type === expanded)
-              .map((e) => ({ id: e.id, label: e.label, rationale: e.rationale, removedPct: e.removedPct as number | undefined }));
-        return (
-          <ExpandedPanel
-            family={expanded}
-            relevance={relevance[expanded]}
-            items={items}
-            removed={funnel.byFamily[expanded].removed}
-            baseForRates={product.estimatedAudience}
-            onClose={() => setExpanded(null)}
-          />
-        );
-      })()}
+      {expanded && revealedCount >= 5 && (
+        <ExpandedPanel
+          family={expanded}
+          relevance={relevance[expanded]}
+          onClose={() => setExpanded(null)}
+        />
+      )}
 
       {/* Final addressable footer */}
       {revealedCount >= 5 && (
@@ -577,22 +566,16 @@ function ChipGroup({
 function ExpandedPanel({
   family,
   relevance,
-  items,
-  removed,
-  baseForRates,
   onClose,
 }: {
   family: ExclusionType;
   relevance: SignalRelevance;
-  items: { id: string; label: string; rationale: string; removedPct?: number }[];
-  removed: number;
-  baseForRates: number;
   onClose: () => void;
 }) {
   const meta = FAMILY_META[family];
   const Icon = FAMILY_ICON[family];
   const relMeta = SIGNAL_RELEVANCE_META[relevance];
-  const sign = relevance === "flag" ? "−" : "+";
+  const dimensions = FAMILY_DIMENSIONS[family];
   return (
     <div className={cn("rounded-lg border border-slate-200 border-l-4 bg-slate-50 p-3 mb-3", meta.border)}>
       <div className="flex items-center gap-2 mb-2">
@@ -601,10 +584,7 @@ function ExpandedPanel({
         </span>
         <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-900 leading-tight">{meta.label}</p>
-          <p className="text-[11px] text-slate-500">
-            {items.length} contributing signals · {relMeta.label}
-            {relevance === "flag" && <> · −{fmt(removed)} from prior stage</>}
-          </p>
+          <p className="text-[11px] text-slate-500">What we examine · {relMeta.label}</p>
         </div>
         <button
           onClick={onClose}
@@ -614,27 +594,14 @@ function ExpandedPanel({
         </button>
       </div>
 
-      {items.length === 0 ? (
-        <p className="text-xs text-slate-500 italic py-3 text-center">
-          No {meta.label.toLowerCase()} are filtering this product right now.
-        </p>
-      ) : (
-        <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {items.map((s) => (
-            <li key={s.id} className="rounded-md border border-slate-200 bg-white p-2">
-              <div className="flex items-baseline justify-between gap-2 mb-0.5">
-                <p className="text-xs font-medium text-slate-900 leading-tight">{s.label}</p>
-                {typeof s.removedPct === "number" && (
-                  <span className="text-[10px] font-mono text-slate-600 shrink-0">
-                    {sign}{fmt(Math.round(baseForRates * s.removedPct))}
-                  </span>
-                )}
-              </div>
-              <p className="text-[11px] text-slate-600 leading-snug">{s.rationale}</p>
-            </li>
-          ))}
-        </ul>
-      )}
+      <div className="flex flex-col gap-2">
+        {dimensions.map((d) => (
+          <div key={d.title} className="rounded-md border border-slate-200 bg-white p-2.5">
+            <p className={cn("text-xs font-semibold leading-tight mb-0.5", meta.cardText)}>{d.title}</p>
+            <p className="text-[11px] text-slate-600 leading-snug">{d.description}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
