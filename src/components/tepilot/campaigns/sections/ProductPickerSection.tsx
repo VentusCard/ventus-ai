@@ -1,6 +1,9 @@
 import { useMemo, useRef, useState } from "react";
-import { PRODUCT_FLOWS, type ProductFlow } from "@/lib/productAutomatedFlows";
+import { PRODUCT_CATALOG, PRODUCT_CATEGORY_LABELS } from "@/lib/campaignStudioData";
+import type { CatalogProduct, ProductCategory } from "@/types/campaign-studio";
+import { adaptCatalogProduct } from "@/lib/catalogProductAdapter";
 import { getProductMechanics } from "@/lib/productCatalogExtras";
+import { getProductVariants, CATALOG_GRAND_TOTAL } from "@/lib/campaignCatalogVariants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Search, ArrowLeftRight, Users } from "lucide-react";
@@ -11,24 +14,44 @@ const fmt = (n: number) => {
   return n.toLocaleString();
 };
 
+const CATEGORY_ORDER: ProductCategory[] = [
+  "credit_cards",
+  "deposit_accounts",
+  "loans",
+  "investments",
+  "insurance",
+  "digital_services",
+];
+
 interface Props {
-  selectedId: string;
-  onSelect: (id: string) => void;
+  selectedName: string;
+  onSelect: (name: string) => void;
 }
 
-export function ProductPickerSection({ selectedId, onSelect }: Props) {
+export function ProductPickerSection({ selectedName, onSelect }: Props) {
   const [query, setQuery] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const selected = PRODUCT_FLOWS.find((p) => p.id === selectedId);
-  const mechanics = selected ? getProductMechanics(selected.id, selected.category) : null;
+  const selected = PRODUCT_CATALOG.find((p) => p.name === selectedName);
+  const selectedFlow = selected ? adaptCatalogProduct(selected) : null;
+  const mechanics = selectedFlow
+    ? getProductMechanics(selectedFlow.id, selectedFlow.category)
+    : null;
+  const variants = selected ? getProductVariants(selected) : null;
 
-  const results = useMemo(() => {
+  const grouped = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return [];
-    return PRODUCT_FLOWS.filter(
-      (p) => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q),
-    ).slice(0, 12);
+    const filtered = q
+      ? PRODUCT_CATALOG.filter(
+          (p) =>
+            p.name.toLowerCase().includes(q) ||
+            PRODUCT_CATEGORY_LABELS[p.category].toLowerCase().includes(q),
+        )
+      : PRODUCT_CATALOG;
+    return CATEGORY_ORDER.map((cat) => ({
+      category: cat,
+      items: filtered.filter((p) => p.category === cat),
+    })).filter((g) => g.items.length > 0);
   }, [query]);
 
   return (
@@ -37,21 +60,23 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">1</span>
         <p className="text-sm font-semibold text-slate-900">Pick a product</p>
         <Badge variant="outline" className="text-[10px] border-slate-200 bg-white">
-          {PRODUCT_FLOWS.length} available
+          {PRODUCT_CATALOG.length} products · {CATALOG_GRAND_TOTAL.toLocaleString()} campaigns total
         </Badge>
       </div>
 
-      {selected && mechanics ? (
+      {selected && selectedFlow && mechanics && variants ? (
         <div className="flex gap-3">
           <div className="flex-1 rounded-lg border border-slate-200 bg-slate-50 p-3">
             <div className="flex items-center gap-2 mb-2">
               <span className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-900 shrink-0">
-                <selected.icon className="w-3.5 h-3.5 text-white" />
+                <selectedFlow.icon className="w-3.5 h-3.5 text-white" />
               </span>
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold text-slate-900 truncate leading-tight">{selected.name}</p>
                 <div className="flex items-center gap-1.5 mt-0.5">
-                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">{selected.category}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                    {PRODUCT_CATEGORY_LABELS[selected.category]}
+                  </span>
                 </div>
               </div>
               <button
@@ -67,7 +92,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
                 Change product
               </button>
             </div>
-            <p className="text-[11px] text-slate-600 leading-snug mb-2">{selected.positioning}</p>
+            <p className="text-[11px] text-slate-600 leading-snug mb-2">{selectedFlow.positioning}</p>
             <div className="rounded-md bg-white border border-slate-200 px-2.5 py-1.5">
               <p className="text-xs font-medium text-slate-900 leading-snug">{mechanics.tagline}</p>
               <p className="text-[10px] text-slate-500 mt-0.5">{mechanics.fee}</p>
@@ -80,9 +105,13 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
             </span>
             <div>
               <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Addressable population</p>
-              <p className="text-[11px] text-slate-500 leading-snug">Total eligible customers for this product</p>
+              <p className="text-[11px] text-slate-500 leading-snug">
+                {selected.penetrationRate}% catalog penetration
+              </p>
             </div>
-            <span className="text-2xl font-semibold text-slate-900 tabular-nums">{fmt(selected.estimatedAudience)}</span>
+            <span className="text-2xl font-semibold text-slate-900 tabular-nums">
+              {fmt(selectedFlow.estimatedAudience)}
+            </span>
           </div>
         </div>
       ) : (
@@ -92,44 +121,58 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
+            placeholder="Search 44 products — cards, deposits, loans, investments, insurance, digital…"
             className="h-8 pl-8 text-xs bg-white border-slate-200"
           />
-          {query.trim() && (
-            <div className="absolute left-0 right-0 top-full mt-1 z-30 rounded-md border border-slate-200 bg-white max-h-[280px] overflow-y-auto shadow-md">
-              {results.length === 0 ? (
-                <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
-              ) : (
-                results.map((p) => (
-                  <ProductRow
-                    key={p.id}
-                    product={p}
-                    onClick={() => {
-                      onSelect(p.id);
-                      setQuery("");
-                    }}
-                  />
-                ))
-              )}
-            </div>
-          )}
+          <div className="mt-2 max-h-[360px] overflow-y-auto rounded-md border border-slate-200 bg-white">
+            {grouped.length === 0 ? (
+              <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
+            ) : (
+              grouped.map((g) => (
+                <div key={g.category}>
+                  <div className="sticky top-0 z-10 bg-slate-50 border-b border-slate-200 px-2.5 py-1 flex items-center justify-between">
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                      {PRODUCT_CATEGORY_LABELS[g.category]}
+                    </p>
+                    <p className="text-[10px] text-slate-400 tabular-nums">{g.items.length}</p>
+                  </div>
+                  {g.items.map((p) => (
+                    <ProductRow
+                      key={p.name}
+                      product={p}
+                      onClick={() => {
+                        onSelect(p.name);
+                        setQuery("");
+                      }}
+                    />
+                  ))}
+                </div>
+              ))
+            )}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-function ProductRow({ product, onClick }: { product: ProductFlow; onClick: () => void }) {
-  const Icon = product.icon;
+function ProductRow({ product, onClick }: { product: CatalogProduct; onClick: () => void }) {
+  const flow = adaptCatalogProduct(product);
+  const variants = getProductVariants(product);
+  const Icon = flow.icon;
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center gap-2 px-2.5 h-8 text-left border-l-2 border-transparent bg-white hover:bg-slate-50 transition-colors"
+      className="w-full flex items-center gap-2 px-2.5 h-8 text-left border-l-2 border-transparent bg-white hover:bg-slate-50 hover:border-slate-900 transition-colors"
     >
       <Icon className="w-3.5 h-3.5 shrink-0 text-slate-500" />
       <span className="text-xs truncate flex-1 text-slate-700">{product.name}</span>
-      <span className="text-[10px] text-slate-400 uppercase tracking-wider shrink-0">{product.category}</span>
-      <span className="text-[10px] font-mono text-slate-400 shrink-0 tabular-nums">{fmt(product.estimatedAudience)}</span>
+      <span className="text-[10px] font-mono text-slate-500 shrink-0 tabular-nums">
+        {variants.total.toLocaleString()} campaigns
+      </span>
+      <span className="text-[10px] font-mono text-slate-400 shrink-0 tabular-nums">
+        {fmt(flow.estimatedAudience)}
+      </span>
     </button>
   );
 }
