@@ -87,42 +87,6 @@ interface Props {
   product?: ProductFlow;
 }
 
-export function ExclusionFunnelSection({ product }: Props) {
-  const [expanded, setExpanded] = useState<ExclusionType | null>(null);
-  const [disabled, setDisabled] = useState<Set<ExclusionType>>(new Set());
-  const [revealedCount, setRevealedCount] = useState(0);
-
-  useEffect(() => {
-    if (!product) return;
-    setRevealedCount(0);
-    setExpanded(null);
-    const total = 5;
-    const id = setInterval(() => {
-      setRevealedCount((c) => {
-        if (c >= total) {
-          clearInterval(id);
-          return c;
-        }
-        return c + 1;
-      });
-    }, 220);
-    return () => clearInterval(id);
-  }, [product?.id]);
-
-
-  if (!product) {
-    return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4 opacity-60">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
-          <p className="text-sm font-semibold text-slate-900">Audience &amp; signal contributions</p>
-        </div>
-        <p className="text-xs text-slate-500 text-center py-8">
-          Pick a product above to see how each signal family shapes the addressable audience.
-        </p>
-      </div>
-    );
-  }
 
 export function ExclusionFunnelSection({ product }: Props) {
   const [expanded, setExpanded] = useState<ExclusionType | null>(null);
