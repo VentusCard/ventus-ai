@@ -138,9 +138,9 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
           )}
         </div>
 
-        {/* Right: standard audience filters sidebar (~30%) */}
-        <aside className="col-span-3 self-start rounded-lg border border-slate-200 bg-slate-50 p-3 space-y-4">
-          <div className="flex items-center gap-1.5">
+        {/* Right: standard audience filters sidebar (~30%) — matches left column height */}
+        <aside className="col-span-3 rounded-lg border border-slate-200 bg-slate-50 p-3 flex flex-col min-h-0">
+          <div className="flex items-center gap-1.5 shrink-0">
             <SlidersHorizontal className="w-3.5 h-3.5 text-slate-500" />
             <p className="text-xs font-semibold text-slate-900">Audience filters</p>
             <button
@@ -151,110 +151,113 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
             </button>
           </div>
 
-          {/* Age */}
-          <div>
-            <div className="flex items-baseline justify-between mb-1.5">
-              <label className="text-[11px] font-medium text-slate-700">Age range</label>
-              <span className="text-[10px] font-mono text-slate-500 tabular-nums">
-                {age[0]} – {age[1]}
-              </span>
+          <div className="flex-1 min-h-0 overflow-y-auto pr-1 mt-3 space-y-4">
+            {/* Age */}
+            <div>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <label className="text-[11px] font-medium text-slate-700">Age range</label>
+                <span className="text-[10px] font-mono text-slate-500 tabular-nums">
+                  {age[0]} – {age[1]}
+                </span>
+              </div>
+              <Slider
+                min={18}
+                max={85}
+                step={1}
+                value={age}
+                onValueChange={(v) => setAge([v[0], v[1]] as [number, number])}
+                className="py-1"
+              />
             </div>
-            <Slider
-              min={18}
-              max={85}
-              step={1}
-              value={age}
-              onValueChange={(v) => setAge([v[0], v[1]] as [number, number])}
-              className="py-1"
-            />
-          </div>
 
-          {/* Income */}
-          <div>
-            <div className="flex items-baseline justify-between mb-1.5">
-              <label className="text-[11px] font-medium text-slate-700">Household income</label>
-              <span className="text-[10px] font-mono text-slate-500 tabular-nums">
-                ${income[0]}K – ${income[1]}K{income[1] >= 500 ? "+" : ""}
-              </span>
+            {/* Income */}
+            <div>
+              <div className="flex items-baseline justify-between mb-1.5">
+                <label className="text-[11px] font-medium text-slate-700">Household income</label>
+                <span className="text-[10px] font-mono text-slate-500 tabular-nums">
+                  ${income[0]}K – ${income[1]}K{income[1] >= 500 ? "+" : ""}
+                </span>
+              </div>
+              <Slider
+                min={0}
+                max={500}
+                step={10}
+                value={income}
+                onValueChange={(v) => setIncome([v[0], v[1]] as [number, number])}
+                className="py-1"
+              />
             </div>
-            <Slider
-              min={0}
-              max={500}
-              step={10}
-              value={income}
-              onValueChange={(v) => setIncome([v[0], v[1]] as [number, number])}
-              className="py-1"
-            />
-          </div>
 
-          {/* Gender */}
-          <div>
-            <label className="text-[11px] font-medium text-slate-700 block mb-1.5">Gender</label>
-            <ToggleGroup
-              type="multiple"
-              value={gender}
-              onValueChange={(v) => setGender(v.length === 0 ? gender : v)}
-              className="grid grid-cols-3 gap-1"
-            >
-              <ToggleGroupItem
-                value="female"
-                className="h-7 text-[10px] data-[state=on]:bg-slate-900 data-[state=on]:text-white border border-slate-200 bg-white text-slate-600"
+            {/* Gender */}
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1.5">Gender</label>
+              <ToggleGroup
+                type="multiple"
+                value={gender}
+                onValueChange={(v) => setGender(v.length === 0 ? gender : v)}
+                className="grid grid-cols-3 gap-1"
               >
-                Female
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="male"
-                className="h-7 text-[10px] data-[state=on]:bg-slate-900 data-[state=on]:text-white border border-slate-200 bg-white text-slate-600"
-              >
-                Male
-              </ToggleGroupItem>
-              <ToggleGroupItem
-                value="other"
-                className="h-7 text-[10px] data-[state=on]:bg-slate-900 data-[state=on]:text-white border border-slate-200 bg-white text-slate-600"
-              >
-                Other
-              </ToggleGroupItem>
-            </ToggleGroup>
-          </div>
+                <ToggleGroupItem
+                  value="female"
+                  className="h-7 text-[10px] data-[state=on]:bg-slate-900 data-[state=on]:text-white border border-slate-200 bg-white text-slate-600"
+                >
+                  Female
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="male"
+                  className="h-7 text-[10px] data-[state=on]:bg-slate-900 data-[state=on]:text-white border border-slate-200 bg-white text-slate-600"
+                >
+                  Male
+                </ToggleGroupItem>
+                <ToggleGroupItem
+                  value="other"
+                  className="h-7 text-[10px] data-[state=on]:bg-slate-900 data-[state=on]:text-white border border-slate-200 bg-white text-slate-600"
+                >
+                  Other
+                </ToggleGroupItem>
+              </ToggleGroup>
+            </div>
 
-          {/* Region */}
-          <div>
-            <label className="text-[11px] font-medium text-slate-700 block mb-1.5">Region</label>
-            <Select value={region} onValueChange={setRegion}>
-              <SelectTrigger className="h-8 text-xs bg-white border-slate-200">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white border-slate-200">
-                <SelectItem value="all">All regions</SelectItem>
-                <SelectItem value="northeast">Northeast</SelectItem>
-                <SelectItem value="midwest">Midwest</SelectItem>
-                <SelectItem value="south">South</SelectItem>
-                <SelectItem value="west">West</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+            {/* Region */}
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1.5">Region</label>
+              <Select value={region} onValueChange={setRegion}>
+                <SelectTrigger className="h-8 text-xs bg-white border-slate-200">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-white border-slate-200">
+                  <SelectItem value="all">All regions</SelectItem>
+                  <SelectItem value="northeast">Northeast</SelectItem>
+                  <SelectItem value="midwest">Midwest</SelectItem>
+                  <SelectItem value="south">South</SelectItem>
+                  <SelectItem value="west">West</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
-          {/* Household type */}
-          <div>
-            <label className="text-[11px] font-medium text-slate-700 block mb-1.5">Household type</label>
-            <div className="space-y-1.5">
-              {HOUSEHOLD_TYPES.map((h) => (
-                <label key={h.id} className="flex items-center gap-2 text-[11px] text-slate-700 cursor-pointer">
-                  <Checkbox
-                    checked={household.includes(h.id)}
-                    onCheckedChange={() => toggleHousehold(h.id)}
-                    className="h-3.5 w-3.5 border-slate-300 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
-                  />
-                  <span>{h.label}</span>
-                </label>
-              ))}
+            {/* Household type */}
+            <div>
+              <label className="text-[11px] font-medium text-slate-700 block mb-1.5">Household type</label>
+              <div className="space-y-1.5">
+                {HOUSEHOLD_TYPES.map((h) => (
+                  <label key={h.id} className="flex items-center gap-2 text-[11px] text-slate-700 cursor-pointer">
+                    <Checkbox
+                      checked={household.includes(h.id)}
+                      onCheckedChange={() => toggleHousehold(h.id)}
+                      className="h-3.5 w-3.5 border-slate-300 data-[state=checked]:bg-slate-900 data-[state=checked]:border-slate-900"
+                    />
+                    <span>{h.label}</span>
+                  </label>
+                ))}
+              </div>
             </div>
           </div>
 
-          <p className="text-[10px] text-slate-400 leading-snug pt-2 border-t border-slate-200">
+          <p className="text-[10px] text-slate-400 leading-snug pt-2 mt-2 border-t border-slate-200 shrink-0">
             Applied to the addressable audience in Section 2.
           </p>
         </aside>
+
       </div>
     </div>
   );

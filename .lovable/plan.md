@@ -1,39 +1,17 @@
-# Section 1 — add a standard filters sidebar (~30% on the right)
+# Match filters sidebar height to the left column
 
-Reshape `ProductPickerSection` from a single column into a 2-column grid: product search/detail on the left (~70%), a new **Audience filters** sidebar on the right (~30%) holding the standard demographic filters.
+The right-hand **Audience filters** panel in Section 1 currently shrinks to fit its own controls (it has `self-start`). The left column (search + selected-product detail) can be taller, so the two columns end at different heights and the sidebar looks short.
 
-## Layout
+Make the sidebar always equal the height of the left column, and have its filter list collapse/scroll inside that fixed height when needed.
 
-```text
-┌──────────────── Section 1 ────────────────────────────────┐
-│ ┌───────────────────────────────┐ ┌─────────────────────┐ │
-│ │ Search + selected product     │ │  Audience filters   │ │
-│ │ detail (tagline, fee,         │ │  (age, income,      │ │
-│ │ positioning)                  │ │   gender, region,   │ │
-│ │                               │ │   household)        │ │
-│ │  ~70% width                   │ │  ~30% width         │ │
-│ └───────────────────────────────┘ └─────────────────────┘ │
-└───────────────────────────────────────────────────────────┘
-```
+## Change
 
-Implementation: wrap the existing content in `grid grid-cols-10` — left column `col-span-7`, right column `col-span-3`. Sidebar is sticky-feeling (`self-start`) with its own header.
+In `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx`:
 
-## Filters in the sidebar
+- On the `<aside>` filters panel:
+  - Remove `self-start` so the grid's default `stretch` alignment matches the left column's height.
+  - Switch it to a flex column (`flex flex-col`) so the inner filter list can take the remaining space.
+- Wrap the five filter groups (age / income / gender / region / household) in an inner `<div>` with `flex-1 overflow-y-auto pr-1 space-y-4` so they scroll inside the panel when the left column is short.
+- Keep the header ("Audience filters" + Reset) pinned at the top and the "Applied to the addressable audience in Section 2." footnote pinned at the bottom.
 
-Compact controls, all light-theme:
-
-1. **Age range** — `Slider` (range), 18–85, default 25–65. Read-out: "25 – 65".
-2. **Household income** — `Slider` (range), $0–$500K with $10K steps, default $50K–$200K. Read-out formatted as "$50K – $200K".
-3. **Gender** — `ToggleGroup` (multi): Female / Male / Other. All on by default.
-4. **Region** — `Select` with US census regions: Northeast / Midwest / South / West / All regions (default).
-5. **Household type** — checkbox list: Single, Couple, Family with kids, Empty nester. All checked by default.
-
-A muted "Reset filters" link sits at the bottom of the sidebar.
-
-State is local to `ProductPickerSection` (no parent wiring) — these filters are presentational for now and do not feed into the funnel math in Section 2. A small footnote under the filters reads: *"Applied to the addressable audience in Section 2."* This keeps the change scoped to UI, matching the user's request.
-
-## Files to edit
-
-- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — wrap children in the 7/3 grid and add an inline `AudienceFiltersSidebar` sub-component with the controls above. Uses existing shadcn `Slider`, `Select`, `ToggleGroup`, `Checkbox`, `Label`.
-
-No changes to Sections 2 or 3 or to the parent view.
+No changes to filter logic, controls, defaults, or any other section.
