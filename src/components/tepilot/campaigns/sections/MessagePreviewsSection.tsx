@@ -9,6 +9,8 @@ import {
   type VariantBreakdown,
 } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards, type MessageCard } from "./buildMessageCards";
+import { buildSamplePayload } from "./buildSamplePayload";
+
 
 
 // ── visuals ──────────────────────────────────────────────────────────────────
