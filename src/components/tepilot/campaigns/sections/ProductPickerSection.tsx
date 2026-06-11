@@ -92,32 +92,6 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
             <p className="text-[10px] text-slate-500 mt-0.5">{mechanics.fee}</p>
           </div>
 
-          {mechanics.rateTable && mechanics.rateTable.length > 0 && (
-            <div className="mb-2">
-              <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Rate card</p>
-              <div className="grid grid-cols-2 gap-x-4 gap-y-0.5">
-                {mechanics.rateTable.map((r) => (
-                  <div key={r.tier} className="flex items-baseline justify-between gap-2 text-[11px]">
-                    <span className="text-slate-700 truncate">
-                      {r.tier}
-                      {r.note && <span className="text-slate-400"> · {r.note}</span>}
-                    </span>
-                    <span className="font-mono font-semibold text-slate-900 shrink-0">{r.rate}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <p className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold mb-1">Key features</p>
-          <ul className="grid grid-cols-2 gap-x-4 gap-y-0.5">
-            {mechanics.features.map((f, i) => (
-              <li key={i} className="flex items-start gap-1.5 text-[11px] text-slate-700 leading-snug">
-                <span className="w-0.5 h-0.5 rounded-full bg-slate-400 mt-1.5 shrink-0" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
         </div>
       )}
     </div>
