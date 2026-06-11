@@ -1,5 +1,4 @@
 import { Zap, Megaphone, Route, ArrowRight, Sparkles } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface TargetingOverviewViewProps {
   onNavigate: (tab: 'targeting-automated-flows' | 'targeting-campaign-builder' | 'targeting') => void;
@@ -13,152 +12,113 @@ const FUNCTIONS: {
   bullets: string[];
   diff: string;
   cta: string;
-  accent: string;
 }[] = [
   {
     key: 'targeting-automated-flows',
     icon: Zap,
     title: 'Automated Flows',
-    tagline: 'Always-on journeys triggered by lifestyle signals.',
+    tagline: 'Always-on, signal-triggered journeys.',
     bullets: [
-      'Listens for life events, category spikes, and wallet-share leaks in real time.',
-      'Routes each customer to the right message, channel, and cadence.',
-      'Cohort × product roll-up shows where flows over- and under-index.',
+      'Listens for life events and category spikes.',
+      'Routes to the right channel and cadence.',
+      'Cohort × product roll-up of every flow.',
     ],
     diff: 'Replaces monthly batch lists with continuous, behavior-triggered outreach.',
-    cta: 'Open Automated Flows',
-    accent: 'from-amber-50 to-white border-amber-200',
+    cta: 'Open',
   },
   {
     key: 'targeting-campaign-builder',
     icon: Megaphone,
     title: 'Campaign Builder',
-    tagline: 'Author one-off campaigns in minutes, not days.',
+    tagline: 'Author one-off campaigns in minutes.',
     bullets: [
-      'AI brief drafts subject, body, and offer from a one-line prompt.',
-      'Audience preview reuses the same lifestyle cohorts as Analytics.',
-      'Channel and timing controls with built-in guardrails.',
+      'AI brief drafts subject, body, and offer.',
+      'Audience preview on lifestyle cohorts.',
+      'Channel and timing with guardrails.',
     ],
     diff: 'Cuts campaign setup from days to minutes without leaving the platform.',
-    cta: 'Open Campaign Builder',
-    accent: 'from-rose-50 to-white border-rose-200',
+    cta: 'Open',
   },
   {
     key: 'targeting',
     icon: Route,
     title: 'Next-product',
-    tagline: 'Per-customer ranked product recommendations.',
+    tagline: 'Per-customer ranked recommendations.',
     bullets: [
-      'Grounded in transaction behavior, not generic propensity models.',
-      'Pairs each recommendation with the behavioral trigger behind it.',
-      'Cohort × product heatmap highlights where each product over-indexes.',
+      'Grounded in transaction behavior.',
+      'Pairs each rec with its behavioral trigger.',
+      'Heatmap of where products over-index.',
     ],
     diff: 'Moves from blanket cross-sell lists to 1:1 next-best product calls.',
-    cta: 'Open Next-product',
-    accent: 'from-blue-50 to-white border-blue-200',
+    cta: 'Open',
   },
 ];
 
 export function TargetingOverviewView({ onNavigate }: TargetingOverviewViewProps) {
   return (
-    <div className="max-w-[1100px] mx-auto py-2">
+    <div className="max-w-[960px] mx-auto py-2">
       {/* Hero */}
-      <div className="mb-8">
+      <div className="mb-6">
         <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-50 border border-blue-200 mb-3">
           <Sparkles className="w-3 h-3 text-blue-600" />
           <span className="text-[11px] font-semibold uppercase tracking-wider text-blue-700">Targeting</span>
         </div>
-        <h1 className="text-3xl font-bold text-slate-900 leading-tight tracking-tight">
+        <h1 className="text-2xl font-bold text-slate-900 leading-tight tracking-tight">
           Reach the right customer at the right moment
         </h1>
-        <p className="mt-3 text-[15px] text-slate-600 leading-relaxed max-w-3xl">
-          The Targeting suite turns enriched lifestyle signals into action — deciding who to contact,
-          what to say, and when to send it. Three execution modes share one cohort engine.
+        <p className="mt-2 text-[14px] text-slate-600 leading-relaxed max-w-2xl">
+          Three execution modes share one cohort engine — pick the one that fits the moment.
         </p>
       </div>
 
-      {/* Why it matters */}
-      <div className="grid grid-cols-3 gap-3 mb-8">
-        {[
-          { k: 'Lifestyle-driven', v: 'Beyond demographics and FICO bands.' },
-          { k: 'Trigger-based', v: 'Replaces batch blasts with live signals.' },
-          { k: 'One cohort engine', v: 'Same audience logic across all three modes.' },
-        ].map((p) => (
-          <div key={p.k} className="border border-slate-200 rounded-lg px-4 py-3 bg-white">
-            <div className="text-[12px] font-semibold text-slate-900">{p.k}</div>
-            <div className="text-[12px] text-slate-600 mt-0.5">{p.v}</div>
-          </div>
-        ))}
-      </div>
-
-      {/* Function cards */}
-      <div className="space-y-4">
+      {/* Three side-by-side cards */}
+      <div className="grid grid-cols-3 gap-4">
         {FUNCTIONS.map((f) => {
           const Icon = f.icon;
           return (
             <button
               key={f.key}
               onClick={() => onNavigate(f.key)}
-              className={cn(
-                "group w-full text-left rounded-xl border bg-gradient-to-br p-5 transition-all hover:shadow-md hover:border-slate-300",
-                f.accent
-              )}
+              className="group h-full flex flex-col text-left rounded-xl border border-slate-200 bg-white p-4 transition-all hover:shadow-md hover:border-slate-300"
             >
-              <div className="flex items-start gap-4">
-                <div className="shrink-0 w-11 h-11 rounded-lg bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-                  <Icon className="w-5 h-5 text-slate-700" />
+              {/* Top: icon + title */}
+              <div className="flex items-center gap-2.5 mb-2">
+                <div className="shrink-0 w-9 h-9 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center">
+                  <Icon className="w-4 h-4 text-slate-700" />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="text-lg font-semibold text-slate-900">{f.title}</h3>
-                    <span className="hidden sm:inline-flex items-center gap-1 text-[13px] font-medium text-blue-700 group-hover:gap-1.5 transition-all">
-                      {f.cta}
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </span>
-                  </div>
-                  <p className="text-[14px] text-slate-700 mt-0.5">{f.tagline}</p>
+                <h3 className="text-[15px] font-semibold text-slate-900 leading-tight">{f.title}</h3>
+              </div>
+              <p className="text-[12px] text-slate-600 leading-snug mb-3">{f.tagline}</p>
 
-                  <ul className="mt-3 space-y-1.5">
-                    {f.bullets.map((b) => (
-                      <li key={b} className="flex gap-2 text-[13px] text-slate-700">
-                        <span className="text-slate-400 mt-1.5">•</span>
-                        <span>{b}</span>
-                      </li>
-                    ))}
-                  </ul>
+              {/* Middle: bullets */}
+              <ul className="space-y-1.5 mb-3">
+                {f.bullets.map((b) => (
+                  <li key={b} className="flex gap-1.5 text-[12px] text-slate-700 leading-snug">
+                    <span className="text-slate-400 shrink-0">•</span>
+                    <span>{b}</span>
+                  </li>
+                ))}
+              </ul>
 
-                  <div className="mt-3 inline-flex items-start gap-2 px-3 py-1.5 rounded-md bg-white/70 border border-slate-200">
-                    <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mt-0.5">What's different</span>
-                    <span className="text-[12px] text-slate-700">{f.diff}</span>
-                  </div>
+              {/* Spacer */}
+              <div className="flex-1" />
+
+              {/* What's different */}
+              <div className="rounded-md bg-blue-50/60 border border-blue-100 px-2.5 py-2 mb-3">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-blue-700 mb-0.5">
+                  What's different
                 </div>
+                <div className="text-[12px] text-slate-700 leading-snug">{f.diff}</div>
+              </div>
+
+              {/* CTA */}
+              <div className="inline-flex items-center gap-1 text-[13px] font-medium text-blue-700 group-hover:gap-1.5 transition-all">
+                {f.cta}
+                <ArrowRight className="w-3.5 h-3.5" />
               </div>
             </button>
           );
         })}
-      </div>
-
-      {/* How they work together */}
-      <div className="mt-10 border-t border-slate-200 pt-6">
-        <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-500 mb-4">How they work together</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {[
-            { n: 1, t: 'Surface', d: 'Analytics identifies a cohort, signal, or wallet-share leak worth acting on.' },
-            { n: 2, t: 'Execute', d: 'Pick the right mode — always-on flow, one-off campaign, or 1:1 next-best product.' },
-            { n: 3, t: 'Measure', d: 'Outcomes flow back to Rewards and Analytics dashboards for tuning.' },
-          ].map((s) => (
-            <div key={s.n} className="border border-slate-200 rounded-lg p-4 bg-white">
-              <div className="w-7 h-7 rounded-full bg-slate-900 text-white text-[13px] font-semibold flex items-center justify-center mb-2">
-                {s.n}
-              </div>
-              <div className="text-[14px] font-semibold text-slate-900">{s.t}</div>
-              <div className="text-[12px] text-slate-600 mt-1 leading-relaxed">{s.d}</div>
-            </div>
-          ))}
-        </div>
-        <p className="mt-4 text-[12px] text-slate-500 italic">
-          All three modes share the same enrichment + cohort engine — no duplicated audience logic.
-        </p>
       </div>
     </div>
   );
