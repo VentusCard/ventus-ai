@@ -333,7 +333,7 @@ function AudiencePanel({
   emptyGroup?: string;
 }) {
   return (
-    <div className="rounded-md border border-slate-200 bg-white p-3">
+    <div className="rounded-md border border-slate-200 bg-white p-3 flex-1 flex flex-col justify-center">
       <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Addressable population</p>
       {emptyGroup ? (
         <>
