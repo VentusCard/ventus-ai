@@ -26,10 +26,10 @@ type AnchorVisual = {
 };
 
 const ANCHOR_VISUAL: Record<MessageCard["anchorFamily"], AnchorVisual> = {
-  STACK:      { icon: Layers,        border: "border-l-blue-400",    borderTone: "border-l-blue-400",    iconBg: "bg-blue-50",    iconColor: "text-blue-600",    dotBg: "bg-blue-500",    chipBg: "bg-blue-50",    chipBorder: "border-blue-200",    chipText: "text-blue-700",    label: "Spending Behavior" },
-  LIFE_EVENT: { icon: CalendarHeart, border: "border-l-amber-400",   borderTone: "border-l-amber-400",   iconBg: "bg-amber-50",   iconColor: "text-amber-600",   dotBg: "bg-amber-500",   chipBg: "bg-amber-50",   chipBorder: "border-amber-200",   chipText: "text-amber-700",   label: "Life-event hook" },
-  GOAL:       { icon: TrendingUp,    border: "border-l-emerald-400", borderTone: "border-l-emerald-400", iconBg: "bg-emerald-50", iconColor: "text-emerald-600", dotBg: "bg-emerald-500", chipBg: "bg-emerald-50", chipBorder: "border-emerald-200", chipText: "text-emerald-700", label: "Financial-goal hook" },
-  USAGE:      { icon: Activity,      border: "border-l-slate-400",   borderTone: "border-l-slate-400",   iconBg: "bg-slate-50",   iconColor: "text-slate-600",   dotBg: "bg-slate-500",   chipBg: "bg-slate-50",   chipBorder: "border-slate-200",   chipText: "text-slate-700",   label: "Activation nudge" },
+  BEHAVIOR:         { icon: Layers,        border: "border-l-blue-400",    borderTone: "border-l-blue-400",    iconBg: "bg-blue-50",    iconColor: "text-blue-600",    dotBg: "bg-blue-500",    chipBg: "bg-blue-50",    chipBorder: "border-blue-200",    chipText: "text-blue-700",    label: "Spending behavior" },
+  LIFE_EVENT:       { icon: CalendarHeart, border: "border-l-amber-400",   borderTone: "border-l-amber-400",   iconBg: "bg-amber-50",   iconColor: "text-amber-600",   dotBg: "bg-amber-500",   chipBg: "bg-amber-50",   chipBorder: "border-amber-200",   chipText: "text-amber-700",   label: "Life-event hook" },
+  DEMOGRAPHIC:      { icon: TrendingUp,    border: "border-l-emerald-400", borderTone: "border-l-emerald-400", iconBg: "bg-emerald-50", iconColor: "text-emerald-600", dotBg: "bg-emerald-500", chipBg: "bg-emerald-50", chipBorder: "border-emerald-200", chipText: "text-emerald-700", label: "Demographic fit" },
+  FINANCIAL_SIGNAL: { icon: Activity,      border: "border-l-slate-400",   borderTone: "border-l-slate-400",   iconBg: "bg-slate-50",   iconColor: "text-slate-600",   dotBg: "bg-slate-500",   chipBg: "bg-slate-50",   chipBorder: "border-slate-200",   chipText: "text-slate-700",   label: "Financial signal" },
 };
 
 interface Props {
@@ -88,7 +88,7 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   const maxFeaturedIdx = Math.max(0, revealedShown - 1);
   const safeFeaturedIdx = Math.min(featuredIdx, maxFeaturedIdx);
   const featuredCard = cards[safeFeaturedIdx];
-  const featuredVisual = featuredCard ? ANCHOR_VISUAL[featuredCard.anchorFamily] : ANCHOR_VISUAL.STACK;
+  const featuredVisual = featuredCard ? ANCHOR_VISUAL[featuredCard.anchorFamily] : ANCHOR_VISUAL.BEHAVIOR;
 
   const goPrev = () => {
     if (revealedShown <= 1) return;
