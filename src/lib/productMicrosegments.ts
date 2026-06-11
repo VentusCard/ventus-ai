@@ -244,7 +244,7 @@ export const FLOW_MICROSEGMENTS: Record<string, FlowMicrosegment[]> = {
       "subject": "Peace of mind for your household",
       "body": "Hi {{first_name}}, you work hard to provide for your household and manage your family's daily needs. When others rely on a single source of income, having a dedicated safety net becomes an essential part of a sound financial plan. Term life insurance is designed to replace that income and maintain your family's standard of living for years to come. Let's look at how we can help safeguard the lifestyle you provide for your dependents."
     }
-  ]
+  ],
   "self-directed-brokerage": [
     {
       "body": "Hi {{first_name}},\n\nWe've noticed you're actively managing your investments. Did you know you can consolidate your portfolio and enjoy commission-free trading with us? Gain more control and simplify your financial life all in one place. Explore a world of investment opportunities designed for self-directed investors like you.",
