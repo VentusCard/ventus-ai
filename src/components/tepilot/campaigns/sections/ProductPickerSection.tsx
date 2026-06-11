@@ -331,10 +331,7 @@ function AudiencePanel({
 }) {
   return (
     <div className="rounded-md border border-slate-200 bg-white p-3">
-      <div className="flex items-center justify-between mb-1.5">
-        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Addressable population</p>
-        <span className="text-[10px] text-slate-400 font-mono tabular-nums">{(retention * 100).toFixed(0)}% of baseline</span>
-      </div>
+      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Addressable population</p>
       {emptyGroup ? (
         <>
           <p className="text-xl font-semibold text-slate-900 leading-tight tabular-nums">0</p>
