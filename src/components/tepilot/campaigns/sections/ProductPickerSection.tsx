@@ -6,7 +6,11 @@ import { getProductMechanics } from "@/lib/productCatalogExtras";
 import { getProductVariants, CATALOG_GRAND_TOTAL } from "@/lib/campaignCatalogVariants";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowLeftRight, Users } from "lucide-react";
+import { Search, ArrowLeftRight, Users, Tag, Plus, X } from "lucide-react";
+
+const OFFER_MAX_LEN = 80;
+const OFFER_MAX_COUNT = 5;
+
 
 const fmt = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
