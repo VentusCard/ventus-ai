@@ -117,16 +117,39 @@ Compute and return:
                        anchors_available, tone_registers_available, proof_modes,
                        offer_constructions }
 
-Surface EXACTLY 5 examples chosen for diversity:
-  • when each family has ≥1 qualifier, include ≥1 BEHAVIORAL-anchored
-    (split across primary/secondary when both qualify), ≥1 LIFE_EVENT-anchored,
-    and ≥1 FINANCIAL-anchored example
-  • across the 5: ≥2 distinct offer_constructions, ≥2 distinct tones,
-    ≥2 distinct anchors, ≥2 distinct plays when ≥2 qualify
-  • across the 5, cite ≥2 distinct primary OR secondary categories OR ≥2 distinct life events
-  • each example.cards_used MUST cite ≥1 card from EACH family —
-    at minimum one of {1,2,3}, {4,5,6}, {7,8,9}, {10,11,12}, {13,14,15}
-  • rank by priority desc
+STEP 0 · CAMPAIGN CONTEXT (compute FIRST, then write all 5 exemplars from it)
+Before writing any exemplar, derive ONE shared campaign_context the whole batch
+must inherit. This stops per-exemplar drift (e.g. headline promo is "double
+rewards til year-end" yet exemplars cite plain 3%/2%).
+  • headline_promo     — short label of the campaigner's headline offer, verbatim shape
+                         (e.g. "double rewards through Dec 31"); null if no promo overlay
+  • promo_window       — end date or window phrase if stated, else null
+  • base_rates         — the product's stock rates as an object
+                         (e.g. { primary_top: "3%", primary_rest: "2%", secondary: "1%" })
+  • effective_rates    — base_rates after applying headline_promo math
+                         (e.g. doubled → { primary_top: "6%", primary_rest: "4%", secondary: "2%" }).
+                         If the promo is a flat bonus / fee waiver / APR, leave rate
+                         fields null and populate effective_bonus instead.
+  • effective_bonus    — string label for non-rate promos (sign-up bonus, fee waiver,
+                         APR window), else null
+  • top_categories     — ordered list of the top 2 qualifying PRIMARY_SPEND_CATEGORIES
+                         from cards 1/3; the effective top rate applies to these
+Every exemplar that cites a rate, $ figure, or promo window MUST use the numbers
+from campaign_context verbatim. Do NOT invent alternate rates. Do NOT fall back
+to base rates when a headline promo overrides them.
+
+Surface EXACTLY 5 examples using a FIXED slot allocation (no soft diversity).
+Each example carries its slot number 1..5 and the angle below:
+  • Slot 1 — BEHAVIORAL  · anchored on top_categories[0] at effective_rates.primary_top
+  • Slot 2 — BEHAVIORAL  · anchored on a SECOND distinct primary OR a secondary bonus tier
+  • Slot 3 — LIFE_EVENT  · anchored on a qualifying card 4/5/6 event
+  • Slot 4 — DEMOGRAPHIC · anchored on cards 7/8/9 (household shape · geo CoL · tenure×tier)
+  • Slot 5 — FINANCIAL   · anchored on cards 10/11/12 (posture · goal in motion · wallet share)
+Fallback: if a slot's family has zero qualifiers, fill it with an extra
+BEHAVIORAL exemplar and set slot_fallback:true in `why`. examples.length === 5 always.
+Each example.cards_used MUST cite ≥1 card from EACH family —
+at minimum one of {1,2,3}, {4,5,6}, {7,8,9}, {10,11,12}, {13,14,15}.
+Rank by priority desc within the fixed slot order.
 
 
 OUTPUT
@@ -164,14 +187,28 @@ const EMIT_TOOL = {
           },
           required: ["plays_qualified", "primary_spend_categories_qualified", "secondary_spend_categories_qualified", "life_events_qualified", "financial_angles_qualified", "demographic_angles_qualified", "anchors_available", "tone_registers_available", "proof_modes", "offer_constructions"],
         },
+        campaign_context: {
+          type: "object",
+          description: "Shared promo math derived FIRST. All exemplars inherit these numbers.",
+          properties: {
+            headline_promo: { type: ["string", "null"] },
+            promo_window: { type: ["string", "null"] },
+            base_rates: { type: "object", additionalProperties: { type: "string" } },
+            effective_rates: { type: "object", additionalProperties: { type: ["string", "null"] } },
+            effective_bonus: { type: ["string", "null"] },
+            top_categories: { type: "array", items: { type: "string" }, maxItems: 2 },
+          },
+          required: ["headline_promo", "promo_window", "base_rates", "effective_rates", "effective_bonus", "top_categories"],
+        },
         examples: {
           type: "array",
-          description: "Exactly 5 send-ready variations when decision=SEND, else [].",
+          description: "Exactly 5 send-ready variations in fixed slot order when decision=SEND, else [].",
           items: {
             type: "object",
             properties: {
+              slot: { type: "number", description: "1..5 matching the fixed slot allocation." },
               play: { type: "string" },
-              angle: { type: "string", enum: ["BEHAVIORAL", "LIFE_EVENT", "FINANCIAL"] },
+              angle: { type: "string", enum: ["BEHAVIORAL", "LIFE_EVENT", "DEMOGRAPHIC", "FINANCIAL"] },
               offer_anchor: { type: "string" },
               offer_construction: { type: "string", description: "One of OFFER_CONSTRUCTIONS." },
               tone: { type: "string", description: "One of tone_registers_available." },
@@ -191,13 +228,13 @@ const EMIT_TOOL = {
                 additionalProperties: { type: "string", enum: ["HIGH", "MED", "LOW"] },
               },
             },
-            required: ["play", "angle", "offer_anchor", "offer_construction", "tone", "subject", "body", "cta", "priority", "why", "cards_used", "levels_read"],
+            required: ["slot", "play", "angle", "offer_anchor", "offer_construction", "tone", "subject", "body", "cta", "priority", "why", "cards_used", "levels_read"],
           },
         },
 
         suppress_reason: { type: ["string", "null"] },
       },
-      required: ["decision", "profile_space", "total_variations", "variation_space", "examples"],
+      required: ["decision", "profile_space", "total_variations", "variation_space", "campaign_context", "examples"],
     },
   },
 };
