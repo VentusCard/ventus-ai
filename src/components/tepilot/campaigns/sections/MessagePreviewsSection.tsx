@@ -88,11 +88,8 @@ export function MessagePreviewsSection({ product, variants }: Props) {
             sideOffset={6}
             className="w-[360px] bg-white border-slate-200 text-slate-700 p-3"
           >
-            <p className="text-[11px] leading-snug text-slate-600 mb-3">
-              A campaign is anchored on <strong>one</strong> thing — a category stack, a life
-              event, or a financial goal. The families <strong>add</strong>; they don't
-              multiply. Tone, proof, and offer construction are A/B wrappers around a single
-              anchored campaign, not separate campaigns.
+            <p className="text-[11px] font-semibold text-slate-900 mb-2">
+              Variation Logic:
             </p>
             <div className="grid grid-cols-3 gap-2">
               <FormulaCell
