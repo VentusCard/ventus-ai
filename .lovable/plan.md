@@ -1,35 +1,78 @@
-## Goal
+# Static signal-family narratives
 
-Restructure Sections 1 and 2 of the Campaign Builder so Step 1 is a clean "pick a product → see full addressable population" view, and Step 2 becomes the consolidated filtering step.
+Today each signal-family card popover only shows product-specific evidence (life-event/behavioral signals from `product.signals`, or financial/demographic/risk exclusions from `productCatalogExtras`). It doesn't explain *what we look at* for that customer in general — the narrative the user just described.
 
-## Step 1 — `ProductPickerSection.tsx` (simplify)
+I'll add a static, family-level "what we're reading about this customer" block to the top of each popover, then keep the product-specific evidence list underneath as the *receipts*.
 
-- Remove the entire right-hand column: Filters collapsible (Age / Income / FICO / Region / Tenure / Relationship) **and** the `AudiencePanel` reach calculator.
-- Remove related local state (`filtersOpen`, `filters`, `setFilters`, `DEFAULT_FILTERS`, `activeCount`, `tenureFactor`, `depthFactor`, `groupRatios`, `retention`, `estimatedReach`, `tightest`, `toggleArr`) and the helper components `AudiencePanel` / `ChipGroup`.
-- Remove now-unused imports (`AGE_RANGES`, `REGIONS`, `INCOME_BANDS`, `ACCOUNT_TENURE_OPTIONS`, `FICO_RANGES`, `Select*`, `ChevronDown`, `ChevronRight`, `Filter`, `cn`).
-- Layout becomes a single column. When a product is selected, render the existing selected-product card at full width, and add a slim "Addressable population" strip directly beneath it showing `{fmt(product.estimatedAudience)}` with the label "Total eligible customers for this product" (no filters applied — this is the raw audience baseline).
-- When no product is selected, keep the existing search input at full width.
+## What gets added
 
-## Step 2 — `ExclusionFunnelSection.tsx` (becomes the filter step)
+A new constant `FAMILY_NARRATIVE` in `src/lib/productCatalogExtras.ts`, keyed by `ExclusionType`, with for each family:
 
-- Rename the header from "Audience & signal contributions" to "Filter the audience" and update the subtitle/badge to reflect filtering, not just signal contribution. Keep the right-side badge showing `{eligible} → {addressable}`.
-- Add a new **demographic filters panel** at the top of Section 2, above the 5 signal-family cards:
-  - Reuse the same controls (Age / Income / FICO / Region chips + Tenure / Relationship selects) previously in Step 1.
-  - Lift their state (`DemoFilters`, `DEFAULT_FILTERS`, `toggleArr`, `tenureFactor`, `depthFactor`, `groupRatios`, `emptyGroup`, `retention`) into this component.
-  - Render as a compact collapsible card (default open) using the same chip/select styling.
-- Keep the existing 5 signal-family cards and expanded-panel behavior unchanged — they continue to act as toggleable signal-family filters.
-- Update the final-addressable footer to combine **both** filter sources:
-  - `finalCount = round(funnel.finalCount * retention)` (signal funnel × demographic retention).
-  - If `emptyGroup` is set, show `0` with the existing "re-enable at least one option in {group}" warning.
-  - Footer label updates to "Final addressable audience after all filters".
-- Keep the staggered reveal animation for the 5 cards; the demographic panel renders immediately when a product is picked.
+- `tagline` — one short italic line (the headline idea)
+- `description` — one sentence framing the lens
+- `themes` — 3 bullets capturing the dimensions we read
+
+Trimmed and tightened from the source the user provided:
+
+**Behavioral — the rhythm of their everyday life**
+*What their week actually looks like, spend by spend.*
+- Where the money goes: the daily coffee, Friday takeout, the gym, the Amazon habit, the kids'-cleats run to Dick's
+- The conspicuous silences: zero groceries, zero gas, no travel for two years then three flights in a month
+- How they pay: debit-for-everything vs. credit-savvy, one card vs. spreader, autopay vs. manual
+
+**Life Event — the chapters that change everything**
+*The moments where their financial center of gravity shifts.*
+- New baby, new city, new job — each with its own unmistakable transaction fingerprint
+- A wedding, a divorce, college tuition, an estate inflow, retirement on the horizon
+- The tell is the change, not the level — the derivative, the moment the pattern breaks
+
+**Demographic — the broad strokes**
+*The slow-moving frame around the picture — the canvas, not the painting.*
+- Age band, income band, household shape
+- Tenure with us, credit-score tier
+- Where they live: coastal city vs. rural, high-cost-of-living vs. not
+
+**Financial — their relationship with money, and with us**
+*Not just how much, but the posture — saver, spender, juggler, accumulator.*
+- Breathing room vs. living tight: idle cash in checking vs. balance dipping low before payday
+- What they're reaching for: the down-payment forming, the steady transfers toward something
+- What they already hold with us — and the white space where we could be more
+
+**Risk — can we, and should we**
+*The conscience of the whole system. Runs first, no exceptions.*
+- Eligibility, over-extension, delinquency, room on the line
+- Compliance flags that mean "not this person, not this offer, full stop"
+- Concentration and exposure that change the answer even when everything else says yes
+
+## Popover layout change
+
+In `ExclusionFunnelSection.tsx`, the popover for each family becomes:
+
+```
+[icon] Family Label
+       Relevance label (useful / neutral / flag)
+
+*tagline*
+One-sentence description.
+
+What we read:
+• theme 1
+• theme 2
+• theme 3
+
+──────────────────────
+Evidence for {product.name}:
+• existing product-specific signals (unchanged, capped at 5 + "more")
+```
+
+The existing product-evidence section is preserved verbatim; the "No product-specific signals — relying on universal checks" fallback stays. Width bumps from `w-64` to `w-72` so the themes don't get cramped.
+
+## Files touched
+
+- `src/lib/productCatalogExtras.ts` — export `FAMILY_NARRATIVE`
+- `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx` — render the narrative block above existing evidence list; widen popover
 
 ## Out of scope
 
-- No changes to `MessagePreviewsSection`, `productAutomatedFlows.ts`, `productCatalogExtras.ts`, or the popover content built in the previous turn.
-- No changes to filter semantics beyond moving them; the retention math stays identical.
-
-## Files
-
-- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx` — strip filters + reach panel.
-- `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx` — add demographic filters panel, combine with funnel for final count.
+- No changes to which signals exist per product, the funnel math, the demographic filter panel, or `ProductPickerSection`.
+- The card faces themselves (label + icon) stay as-is — only the popover content expands.
