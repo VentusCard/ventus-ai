@@ -261,6 +261,7 @@ function copyFor(
 export function buildMessageCards(
   product: CatalogProduct,
   variants: VariantBreakdown,
+  offers: string[] = [],
 ): MessageCard[] {
   const cards: MessageCard[] = [];
   const cat = product.category;
@@ -274,15 +275,34 @@ export function buildMessageCards(
   const usageAnchors = USAGE_ANCHORS[cat];
 
   const target = 5;
+  const primaryOffer = offers[0]?.trim();
+
+  // Offer card — prepended when the user added at least one timely promo.
+  if (primaryOffer) {
+    const lower = product.name.toLowerCase();
+    cards.push({
+      anchorFamily: "USAGE",
+      play: "OFFER",
+      anchor: primaryOffer,
+      subject: `${primaryOffer} — on the ${lower}`,
+      body: `Right now, the ${product.name} comes with ${primaryOffer}. A timely reason to take a closer look — no other change needed.`,
+      cta: "Claim offer",
+      why: `Promo anchor — ${primaryOffer}.`,
+    });
+  }
 
   if (hasStacks) {
     const n = Math.min(2, stackAnchors.length);
     for (let i = 0; i < n; i++) {
       const anchor = stackAnchors[i];
       const play = PLAYS_BY_FAMILY.STACK[i % PLAYS_BY_FAMILY.STACK.length];
-      cards.push({ anchorFamily: "STACK", play, anchor, ...copyFor("STACK", product, anchor, play) });
+      const base = copyFor("STACK", product, anchor, play);
+      // First STACK card carries an offer tail when a promo is active.
+      const body = primaryOffer && i === 0 ? `${base.body} — ${primaryOffer}.` : base.body;
+      cards.push({ anchorFamily: "STACK", play, anchor, ...base, body });
     }
   }
+
 
   // Life-event slots — at least 2 when product has them
   const lifeSlots = hasStacks ? 2 : Math.min(3, lifeAnchors.length);
