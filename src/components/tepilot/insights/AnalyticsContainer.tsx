@@ -104,10 +104,34 @@ interface AnalyticsContainerProps {
 }
 
 export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
-  const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
+  const [activeTab, setActiveTabState] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : true);
+  const [isTablet, setIsTablet] = useState(() => typeof window !== "undefined" ? window.matchMedia("(min-width: 768px) and (max-width: 1023.98px)").matches : false);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mqDesktop = window.matchMedia("(min-width: 1024px)");
+    const mqTablet = window.matchMedia("(min-width: 768px) and (max-width: 1023.98px)");
+    const onD = () => setIsDesktop(mqDesktop.matches);
+    const onT = () => setIsTablet(mqTablet.matches);
+    mqDesktop.addEventListener("change", onD);
+    mqTablet.addEventListener("change", onT);
+    return () => {
+      mqDesktop.removeEventListener("change", onD);
+      mqTablet.removeEventListener("change", onT);
+    };
+  }, []);
+
+  const setActiveTab = (t: TabValue) => {
+    setActiveTabState(t);
+    setMobileOpen(false);
+  };
+
+  // Effective collapsed state: tablet always icon-rail; desktop respects manual toggle
+  const effectiveCollapsed = isTablet ? true : collapsed;
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
