@@ -274,14 +274,14 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
               onClick={() => setActiveTab(item.tab)}
               title={navCollapsed ? item.label : undefined}
               className={cn(
-                "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                "w-full flex items-center gap-2.5 text-left text-[14px] transition-colors",
                 navCollapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
                 isActive
                   ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+                  : "text-slate-700 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
               )}
             >
-              <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+              <Icon className={cn("w-[18px] h-[18px] shrink-0", isActive ? "text-blue-600" : "text-slate-500")} />
               {!navCollapsed && <span className="truncate">{item.label}</span>}
             </button>
           );
