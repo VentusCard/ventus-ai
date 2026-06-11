@@ -3,13 +3,50 @@ import { PRODUCT_FLOWS, type ProductFlow } from "@/lib/productAutomatedFlows";
 import { getProductMechanics } from "@/lib/productCatalogExtras";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Search, ArrowLeftRight } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Search, ArrowLeftRight, Filter, ChevronDown, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  AGE_RANGES,
+  REGIONS,
+  INCOME_BANDS,
+  ACCOUNT_TENURE_OPTIONS,
+  FICO_RANGES,
+} from "@/types/segment";
 
 const fmt = (n: number) => {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
   return n.toLocaleString();
+};
+
+const RELATIONSHIP_DEPTH_OPTIONS = [
+  { value: "any", label: "Any depth" },
+  { value: "single", label: "Single product" },
+  { value: "multi", label: "Multi-product" },
+  { value: "primary", label: "Primary bank" },
+] as const;
+
+const CHANNEL_OPTIONS = ["Mobile", "Online", "Branch", "Phone"] as const;
+
+interface DemoFilters {
+  ageRanges: string[];
+  incomeBands: string[];
+  ficoRanges: string[];
+  regions: string[];
+  accountTenure: string;
+  relationshipDepth: string;
+  channels: string[];
+}
+
+const DEFAULT_FILTERS: DemoFilters = {
+  ageRanges: [],
+  incomeBands: [],
+  ficoRanges: [],
+  regions: [],
+  accountTenure: "all",
+  relationshipDepth: "any",
+  channels: [],
 };
 
 interface Props {
@@ -19,6 +56,8 @@ interface Props {
 
 export function ProductPickerSection({ selectedId, onSelect }: Props) {
   const [query, setQuery] = useState("");
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [filters, setFilters] = useState<DemoFilters>(DEFAULT_FILTERS);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const selected = PRODUCT_FLOWS.find((p) => p.id === selectedId);
@@ -32,6 +71,25 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
     ).slice(0, 12);
   }, [query]);
 
+  const activeCount =
+    filters.ageRanges.length +
+    filters.incomeBands.length +
+    filters.ficoRanges.length +
+    filters.regions.length +
+    filters.channels.length +
+    (filters.accountTenure !== "all" ? 1 : 0) +
+    (filters.relationshipDepth !== "any" ? 1 : 0);
+
+  const toggleArr = (key: keyof DemoFilters, value: string) => {
+    setFilters((f) => {
+      const cur = f[key] as string[];
+      return {
+        ...f,
+        [key]: cur.includes(value) ? cur.filter((v) => v !== value) : [...cur, value],
+      };
+    });
+  };
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex items-center gap-2 mb-3">
@@ -42,33 +100,150 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         </Badge>
       </div>
 
-      <div className="relative mb-3">
-        <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
-        <Input
-          ref={inputRef}
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
-          className="h-8 pl-8 text-xs bg-white border-slate-200"
-        />
-        {query.trim() && (
-          <div className="absolute left-0 right-0 top-full mt-1 z-20 rounded-md border border-slate-200 bg-white max-h-[280px] overflow-y-auto shadow-md">
-            {results.length === 0 ? (
-              <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
+      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3 mb-3 items-start">
+        {/* Search column */}
+        <div className="relative">
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
+          <Input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
+            className="h-8 pl-8 text-xs bg-white border-slate-200"
+          />
+          {query.trim() && (
+            <div className="absolute left-0 right-0 top-full mt-1 z-30 rounded-md border border-slate-200 bg-white max-h-[280px] overflow-y-auto shadow-md">
+              {results.length === 0 ? (
+                <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
+              ) : (
+                results.map((p) => (
+                  <ProductRow
+                    key={p.id}
+                    product={p}
+                    onClick={() => {
+                      onSelect(p.id);
+                      setQuery("");
+                    }}
+                  />
+                ))
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* Filters column */}
+        <div className="rounded-md border border-slate-200 bg-white">
+          <button
+            type="button"
+            onClick={() => setFiltersOpen((o) => !o)}
+            className="w-full flex items-center gap-2 px-2.5 h-8 text-left hover:bg-slate-50 transition-colors rounded-md"
+          >
+            <Filter className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+            <span className="text-xs font-medium text-slate-700 shrink-0">Filters</span>
+            {activeCount > 0 ? (
+              <Badge className="h-4 px-1.5 text-[10px] bg-slate-900 text-white hover:bg-slate-900">
+                {activeCount}
+              </Badge>
             ) : (
-              results.map((p) => (
-                <ProductRow
-                  key={p.id}
-                  product={p}
-                  onClick={() => {
-                    onSelect(p.id);
-                    setQuery("");
-                  }}
-                />
-              ))
+              <span className="text-[10px] text-slate-400 truncate">
+                Age · Income · Tenure · FICO · Region · Depth · Channel
+              </span>
             )}
-          </div>
-        )}
+            <span className="ml-auto flex items-center gap-1 shrink-0">
+              {activeCount > 0 && (
+                <span
+                  role="button"
+                  tabIndex={0}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setFilters(DEFAULT_FILTERS);
+                  }}
+                  className="text-[10px] text-slate-500 hover:text-slate-900 underline"
+                >
+                  Reset
+                </span>
+              )}
+              {filtersOpen ? (
+                <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              ) : (
+                <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+              )}
+            </span>
+          </button>
+
+          {filtersOpen && (
+            <div className="border-t border-slate-200 p-3 space-y-3 max-h-[360px] overflow-y-auto">
+              <ChipGroup
+                label="Age"
+                options={[...AGE_RANGES].map((a) => ({ value: a, label: a }))}
+                selected={filters.ageRanges}
+                onToggle={(v) => toggleArr("ageRanges", v)}
+              />
+              <ChipGroup
+                label="Income"
+                options={[...INCOME_BANDS]}
+                selected={filters.incomeBands}
+                onToggle={(v) => toggleArr("incomeBands", v)}
+              />
+              <ChipGroup
+                label="FICO"
+                options={[...FICO_RANGES]}
+                selected={filters.ficoRanges}
+                onToggle={(v) => toggleArr("ficoRanges", v)}
+              />
+              <ChipGroup
+                label="Region"
+                options={[...REGIONS].map((r) => ({ value: r, label: r }))}
+                selected={filters.regions}
+                onToggle={(v) => toggleArr("regions", v)}
+              />
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">Tenure</p>
+                  <Select
+                    value={filters.accountTenure}
+                    onValueChange={(v) => setFilters((f) => ({ ...f, accountTenure: v }))}
+                  >
+                    <SelectTrigger className="h-7 text-xs bg-white border-slate-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {ACCOUNT_TENURE_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <p className="text-[10px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">Relationship</p>
+                  <Select
+                    value={filters.relationshipDepth}
+                    onValueChange={(v) => setFilters((f) => ({ ...f, relationshipDepth: v }))}
+                  >
+                    <SelectTrigger className="h-7 text-xs bg-white border-slate-200">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {RELATIONSHIP_DEPTH_OPTIONS.map((opt) => (
+                        <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                          {opt.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <ChipGroup
+                label="Channel preference"
+                options={CHANNEL_OPTIONS.map((c) => ({ value: c, label: c }))}
+                selected={filters.channels}
+                onToggle={(v) => toggleArr("channels", v)}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {selected && mechanics && (
@@ -107,6 +282,44 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+function ChipGroup({
+  label,
+  options,
+  selected,
+  onToggle,
+}: {
+  label: string;
+  options: { value: string; label: string }[];
+  selected: string[];
+  onToggle: (v: string) => void;
+}) {
+  return (
+    <div>
+      <p className="text-[10px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">{label}</p>
+      <div className="flex flex-wrap gap-1">
+        {options.map((opt) => {
+          const isSel = selected.includes(opt.value);
+          return (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => onToggle(opt.value)}
+              className={cn(
+                "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border transition-colors",
+                isSel
+                  ? "bg-slate-900 text-white border-slate-900"
+                  : "bg-white text-slate-600 border-slate-200 hover:border-slate-400",
+              )}
+            >
+              {opt.label}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
