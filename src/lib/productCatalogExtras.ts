@@ -832,3 +832,55 @@ export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; b
   },
 };
 
+
+export const FAMILY_NARRATIVE: Record<ExclusionType, {
+  tagline: string;
+  description: string;
+  themes: string[];
+}> = {
+  behavioral: {
+    tagline: "The rhythm of their everyday life.",
+    description: "What their week actually looks like, spend by spend.",
+    themes: [
+      "Where the money goes: the daily coffee, Friday takeout, the gym, the Amazon habit, the kids'-cleats run to Dick's",
+      "The conspicuous silences: zero groceries, zero gas, no travel for two years then three flights in a month",
+      "How they pay: debit-for-everything vs. credit-savvy, one card vs. spreader, autopay vs. manual",
+    ],
+  },
+  "life-event": {
+    tagline: "The chapters that change everything.",
+    description: "The moments where their financial center of gravity shifts — and the window where the right offer feels like a gift, not spam.",
+    themes: [
+      "New baby, new city, new job — each with its own unmistakable transaction fingerprint",
+      "A wedding, a divorce, college tuition, an estate inflow, retirement on the horizon",
+      "The tell is the change, not the level — the derivative, the moment the pattern breaks",
+    ],
+  },
+  demographic: {
+    tagline: "The broad strokes.",
+    description: "The slow-moving frame around the picture — the canvas, not the painting.",
+    themes: [
+      "Age band, income band, household shape",
+      "Tenure with us, credit-score tier",
+      "Where they live: coastal city vs. rural, high-cost-of-living vs. not",
+    ],
+  },
+  financial: {
+    tagline: "Their relationship with money, and with us.",
+    description: "Not just how much, but the posture — saver, spender, juggler, accumulator.",
+    themes: [
+      "Breathing room vs. living tight: idle cash in checking vs. balance dipping low before payday",
+      "What they're reaching for: the down-payment forming, the steady transfers toward something",
+      "What they already hold with us — and the white space where we could be more",
+    ],
+  },
+  risk: {
+    tagline: "Can we, and should we.",
+    description: "The conscience of the whole system. Runs first, no exceptions.",
+    themes: [
+      "Eligibility, over-extension, delinquency, room on the line",
+      "Compliance flags that mean \"not this person, not this offer, full stop\"",
+      "Concentration and exposure that change the answer even when everything else says yes",
+    ],
+  },
+};
