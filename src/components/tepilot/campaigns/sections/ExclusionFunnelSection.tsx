@@ -194,14 +194,124 @@ export function ExclusionFunnelSection({ product }: Props) {
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex items-center gap-2 mb-3">
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">2</span>
-        <p className="text-sm font-semibold text-slate-900">Audience &amp; signal contributions</p>
+        <p className="text-sm font-semibold text-slate-900">Filter the audience</p>
         <Badge variant="outline" className="text-[10px] border-slate-200 bg-white ml-auto">
-          {fmt(product.estimatedAudience)} eligible → {fmt(funnel.finalCount)} addressable
+          {fmt(product.estimatedAudience)} eligible → {fmt(combinedFinal)} addressable
         </Badge>
       </div>
 
+      {/* Demographic filters panel */}
+      <div className="rounded-md border border-slate-200 bg-white mb-3">
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((o) => !o)}
+          className="w-full flex items-center gap-2 px-2.5 h-8 text-left hover:bg-slate-50 transition-colors rounded-md"
+        >
+          <Filter className="w-3.5 h-3.5 text-slate-500 shrink-0" />
+          <span className="text-xs font-medium text-slate-700 shrink-0">Demographic filters</span>
+          {activeFilterCount > 0 ? (
+            <Badge className="h-4 px-1.5 text-[10px] bg-slate-900 text-white hover:bg-slate-900">
+              {activeFilterCount}
+            </Badge>
+          ) : (
+            <span className="text-[10px] text-slate-400 truncate">
+              Age · Income · Tenure · FICO · Region · Depth
+            </span>
+          )}
+          <span className="ml-auto flex items-center gap-1 shrink-0">
+            {activeFilterCount > 0 && (
+              <span
+                role="button"
+                tabIndex={0}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFilters(DEFAULT_FILTERS);
+                }}
+                className="text-[10px] text-slate-500 hover:text-slate-900 underline"
+              >
+                Reset
+              </span>
+            )}
+            {filtersOpen ? (
+              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+            ) : (
+              <ChevronRight className="w-3.5 h-3.5 text-slate-400" />
+            )}
+          </span>
+        </button>
+
+        {filtersOpen && (
+          <div className="border-t border-slate-200 p-3 space-y-3">
+            <ChipGroup
+              label="Age"
+              options={[...AGE_RANGES].map((a) => ({ value: a, label: a }))}
+              selected={filters.ageRanges}
+              onToggle={(v) => toggleArr("ageRanges", v)}
+            />
+            <ChipGroup
+              label="Income"
+              options={[...INCOME_BANDS]}
+              selected={filters.incomeBands}
+              onToggle={(v) => toggleArr("incomeBands", v)}
+            />
+            <ChipGroup
+              label="FICO"
+              options={[...FICO_RANGES]}
+              selected={filters.ficoRanges}
+              onToggle={(v) => toggleArr("ficoRanges", v)}
+            />
+            <ChipGroup
+              label="Region"
+              options={[...REGIONS].map((r) => ({ value: r, label: r }))}
+              selected={filters.regions}
+              onToggle={(v) => toggleArr("regions", v)}
+            />
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <p className="text-[10px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">Tenure</p>
+                <Select
+                  value={filters.accountTenure}
+                  onValueChange={(v) => setFilters((f) => ({ ...f, accountTenure: v }))}
+                >
+                  <SelectTrigger className="h-7 text-xs bg-white border-slate-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ACCOUNT_TENURE_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <p className="text-[10px] font-semibold text-slate-500 mb-1 uppercase tracking-wide">Relationship</p>
+                <Select
+                  value={filters.relationshipDepth}
+                  onValueChange={(v) => setFilters((f) => ({ ...f, relationshipDepth: v }))}
+                >
+                  <SelectTrigger className="h-7 text-xs bg-white border-slate-200">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {RELATIONSHIP_DEPTH_OPTIONS.map((opt) => (
+                      <SelectItem key={opt.value} value={opt.value} className="text-xs">
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Signal-family filters</p>
       {/* 5 signal-family cards, ordered by per-product relevance */}
       <div className="grid grid-cols-5 gap-2 mb-3">
+
         {orderedFamilies.map((fam, idx) => {
           const meta = FAMILY_META[fam];
           const Icon = FAMILY_ICON[fam];
