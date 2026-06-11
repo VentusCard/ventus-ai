@@ -311,11 +311,14 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         </div>
 
         {selected && (
-          <AudiencePanel
-            estimatedReach={estimatedReach}
-            emptyGroup={emptyGroup}
-          />
+          <div className="flex-1 min-h-0 flex">
+            <AudiencePanel
+              estimatedReach={estimatedReach}
+              emptyGroup={emptyGroup}
+            />
+          </div>
         )}
+
         </div>
       </div>
     </div>
