@@ -321,6 +321,12 @@ export function buildMessageCards(
   campaignLink: string = "",
   seed: number = 0,
 ): MessageCard[] {
+  if (isCustomerChoiceCard(product)) {
+    const href = campaignLink.trim();
+    return href
+      ? CUSTOMER_CHOICE_CARDS.map((c) => ({ ...c, ctaHref: href }))
+      : CUSTOMER_CHOICE_CARDS;
+  }
   const cat = product.category;
   const stackPool = STACK_ANCHORS[cat] ?? [];
   const usagePool = USAGE_ANCHORS[cat] ?? [];
