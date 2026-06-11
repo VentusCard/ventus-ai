@@ -141,7 +141,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
               </Badge>
             ) : (
               <span className="text-[10px] text-slate-400 truncate">
-                Age · Income · Tenure · FICO · Region · Depth · Channel
+                Age · Income · Tenure · FICO · Region · Depth
               </span>
             )}
             <span className="ml-auto flex items-center gap-1 shrink-0">
