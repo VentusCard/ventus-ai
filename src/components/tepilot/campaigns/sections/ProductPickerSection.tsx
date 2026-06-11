@@ -134,35 +134,73 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3 mb-3 items-start">
-        {/* Search column */}
-        <div className="relative">
-          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
-          <Input
-            ref={inputRef}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
-            className="h-8 pl-8 text-xs bg-white border-slate-200"
-          />
-          {query.trim() && (
-            <div className="absolute left-0 right-0 top-full mt-1 z-30 rounded-md border border-slate-200 bg-white max-h-[280px] overflow-y-auto shadow-md">
-              {results.length === 0 ? (
-                <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
-              ) : (
-                results.map((p) => (
-                  <ProductRow
-                    key={p.id}
-                    product={p}
-                    onClick={() => {
-                      onSelect(p.id);
-                      setQuery("");
-                    }}
-                  />
-                ))
-              )}
+        {/* Search / Selected product column */}
+        {selected && mechanics ? (
+          <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-900 shrink-0">
+                <selected.icon className="w-3.5 h-3.5 text-white" />
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold text-slate-900 truncate leading-tight">{selected.name}</p>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">{selected.category}</span>
+                  <span className="text-slate-300">·</span>
+                  <span className="text-[10px] text-slate-500 font-mono">{fmt(selected.estimatedAudience)} eligible</span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  onSelect("");
+                  setQuery("");
+                  requestAnimationFrame(() => inputRef.current?.focus());
+                }}
+                className="shrink-0 inline-flex items-center gap-1 text-[11px] text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                <ArrowLeftRight className="w-3 h-3" />
+                Change product
+              </button>
             </div>
-          )}
-        </div>
+            <p className="text-[11px] text-slate-600 leading-snug mb-2">{selected.positioning}</p>
+            <div className="rounded-md bg-white border border-slate-200 px-2.5 py-1.5">
+              <p className="text-xs font-medium text-slate-900 leading-snug">{mechanics.tagline}</p>
+              <p className="text-[10px] text-slate-500 mt-0.5">{mechanics.fee}</p>
+            </div>
+          </div>
+        ) : (
+          <div className="relative">
+            <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 z-10" />
+            <Input
+              ref={inputRef}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder={`Search ${PRODUCT_FLOWS.length} products — cards, deposits, lending, wealth, insurance…`}
+              className="h-8 pl-8 text-xs bg-white border-slate-200"
+            />
+            {query.trim() && (
+              <div className="absolute left-0 right-0 top-full mt-1 z-30 rounded-md border border-slate-200 bg-white max-h-[280px] overflow-y-auto shadow-md">
+                {results.length === 0 ? (
+                  <div className="px-3 py-4 text-center text-xs text-slate-500">No products match "{query}".</div>
+                ) : (
+                  results.map((p) => (
+                    <ProductRow
+                      key={p.id}
+                      product={p}
+                      onClick={() => {
+                        onSelect(p.id);
+                        setQuery("");
+                      }}
+                    />
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Right column: Filters + Audience panel */}
+        <div className="space-y-3">
 
         {/* Filters column */}
         <div className="rounded-md border border-slate-200 bg-white">
