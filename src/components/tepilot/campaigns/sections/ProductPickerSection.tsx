@@ -85,6 +85,44 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
     });
   };
 
+  const tenureFactor: Record<string, number> = {
+    all: 1,
+    new: 0.25,
+    established: 0.45,
+    loyal: 0.3,
+  };
+  const depthFactor: Record<string, number> = {
+    any: 1,
+    single: 0.4,
+    multi: 0.45,
+    primary: 0.25,
+  };
+
+  const groupRatios = {
+    Age: filters.ageRanges.length / AGE_RANGES.length,
+    Income: filters.incomeBands.length / INCOME_BANDS.length,
+    FICO: filters.ficoRanges.length / FICO_RANGES.length,
+    Region: filters.regions.length / REGIONS.length,
+  };
+  const emptyGroup = Object.entries(groupRatios).find(([, r]) => r === 0)?.[0];
+  const retention =
+    groupRatios.Age *
+    groupRatios.Income *
+    groupRatios.FICO *
+    groupRatios.Region *
+    (tenureFactor[filters.accountTenure] ?? 1) *
+    (depthFactor[filters.relationshipDepth] ?? 1);
+  const baseline = selected?.estimatedAudience ?? 0;
+  const estimatedReach = Math.round(baseline * retention);
+  const tightest = (Object.entries({
+    Age: { sel: filters.ageRanges.length, total: AGE_RANGES.length },
+    Income: { sel: filters.incomeBands.length, total: INCOME_BANDS.length },
+    FICO: { sel: filters.ficoRanges.length, total: FICO_RANGES.length },
+    Region: { sel: filters.regions.length, total: REGIONS.length },
+  }) as [string, { sel: number; total: number }][])
+    .filter(([, v]) => v.sel < v.total && v.sel > 0)
+    .sort((a, b) => a[1].sel / a[1].total - b[1].sel / b[1].total)[0];
+
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
       <div className="flex items-center gap-2 mb-3">

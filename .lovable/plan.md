@@ -1,33 +1,61 @@
-## Objective
-Add sequential "processing" reveal animations to Section 2 (signal cards) and Section 3 (message previews) of the `/bankdemo` Campaign Builder so cards appear one-by-one after a product is picked, each with a brief processing state.
+# Add Filter-Driven Audience Panel Beside Selected Product Card
 
-## Trigger
-Animations replay whenever `product.id` changes (including first selection). Until a product is selected, the existing empty state stays.
+## Goal
+After a product is selected in Section 1 of the `/bankdemo` Campaign Builder, the selected-product card currently spans the full row. Reuse the right-hand 40% column (where Filters live) to display the **population / market size** that results from the selected product + active demographic filters.
 
-## Section 2 — ExclusionFunnelSection
-Five signal cards in `orderedFamilies`. Reveal sequentially in their sort order (useful → neutral → flag).
+## Layout
 
-- Add `useEffect` keyed on `product.id` that resets a `revealedIndex` state and increments it via `setInterval` (~220ms cadence) until all 5 are revealed.
-- Each card has 3 visual states:
-  1. **Pending** (idx > revealedIndex): hidden (opacity 0).
-  2. **Processing** (idx === revealedIndex): card visible with skeleton shimmer overlay (animated `bg-white/20` bar) and a small `Loader2` spinning icon in the relevance-badge spot; pointer-events disabled.
-  3. **Ready** (idx < revealedIndex): final card as today, with `animate-fade-in` + slight `scale-in` on entrance.
-- Final footer ("Final addressable audience") and the expanded panel only render once all 5 cards are ready.
+Keep the existing `grid-cols-[3fr_2fr]` two-column grid for the selected state. Same 60/40 split as the search + filters row above it.
 
-## Section 3 — MessagePreviewsSection
-Three message cards.
+```text
+Before select:  [ Search ........... ] [ Filters ............ ]
+After select:   [ Selected product .. ] [ Filters (collapsed) ]
+                                        [ Audience panel ..... ]
+```
 
-- Same `useEffect` pattern keyed on `product.id`, ~260ms cadence.
-- Cards begin **pending** (hidden). When their turn arrives, show a **processing skeleton card** (same outer frame + left border color, but inner content replaced by 3 shimmering `bg-slate-100` bars to mimic subject / body / CTA). After ~500ms swap to the real card with `animate-fade-in`.
-- Header chip ("3 angles") and intro paragraph render immediately.
+So once a product is selected:
+- **Left (60%)** — existing selected product card (unchanged content).
+- **Right (40%)** — Filters card stays at the top (still collapsible), and below it an **Audience panel** showing the size estimate driven by the active filters.
 
-## Visual details
-- Reuse Tailwind `animate-fade-in` for entrance; add a lightweight `animate-pulse` on skeleton bars (Tailwind built-in).
-- Shimmer color: `bg-slate-100` for Section 3 skeleton bars, `bg-white/30` overlay for Section 2 colored cards.
-- No layout shift — skeleton cards occupy the same grid cell dimensions as final cards.
+## Audience Panel Contents
 
-## Files
-- `src/components/tepilot/campaigns/sections/ExclusionFunnelSection.tsx` — add reveal state, per-card processing variant, hide footer until ready.
-- `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` — add reveal state, skeleton card variant.
+Compact card, white bg, slate-200 border, matching the other cards:
+- Big number: estimated reach (e.g. `1.2M`), formatted with existing `fmt()`.
+- Sub-line: "Eligible customers after filters".
+- A breakdown row of 3-4 small stats derived from the active filter selections vs. the product's baseline `estimatedAudience`:
+  - Baseline eligible (product's `estimatedAudience`)
+  - Filter retention % (how much the active demographic filters keep)
+  - Net reach (= baseline × retention)
+  - Tiny hint text listing the most restrictive dimension (e.g. "Tightest: Income — 2 of 4 bands").
+- If no filters are narrowed (all defaults), show full baseline and copy "All segments included — broaden or narrow with filters above".
 
-No changes to data, types, or other files.
+## Estimate Logic (mock, deterministic)
+
+In `ProductPickerSection.tsx`, compute a `retention` multiplier from the filter state:
+
+```
+retention =
+  (filters.ageRanges.length     / AGE_RANGES.length) ×
+  (filters.incomeBands.length   / INCOME_BANDS.length) ×
+  (filters.ficoRanges.length    / FICO_RANGES.length) ×
+  (filters.regions.length       / REGIONS.length) ×
+  tenureFactor(filters.accountTenure) ×
+  depthFactor(filters.relationshipDepth)
+```
+
+- `tenureFactor`: `all`=1, `new`=0.25, `established`=0.45, `loyal`=0.30
+- `depthFactor`: `any`=1, `single`=0.4, `multi`=0.45, `primary`=0.25
+- Floor at 0 (if any chip group is empty, reach = 0 and the panel shows "No customers match — re-enable at least one option in {group}").
+
+`estimatedReach = Math.round(selected.estimatedAudience × retention)`.
+
+## Files Touched
+
+- `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx`
+  - Restructure the post-select layout: keep the `grid-cols-[3fr_2fr]` grid visible after selection; selected product card moves into the left column; right column keeps the Filters card and adds the new `<AudiencePanel>` below it.
+  - Add internal `AudiencePanel` component + retention math helpers.
+  - No changes to props, types, or other sections.
+
+## Out of Scope
+- No changes to Sections 2/3, no changes to `productAutomatedFlows.ts`, no new files, no new dependencies.
+- No wiring of these filters into downstream sections — purely a visual readout in Section 1.
