@@ -322,7 +322,7 @@ export function ExclusionFunnelSection({ product }: Props) {
           const canToggle = rel === "flag" && fam !== "financial" && fam !== "risk";
 
           const removed = funnel.byFamily[fam]?.removed ?? 0;
-          const isFlag = rel === "flag";
+          const isFlag = rel === "flag" && fam !== "financial";
           const countLabel =
             fam === "behavioral"
               ? `${fmt(product.estimatedAudience)} users · all`
