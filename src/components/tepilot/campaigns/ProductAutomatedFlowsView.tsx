@@ -1,12 +1,12 @@
-import { useState, useCallback } from "react";
+import { useState } from "react";
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_FLOWS, type FlowCategory, type ProductFlow } from "@/lib/productAutomatedFlows";
-import { Zap, Play, Sparkles, ChevronDown, RefreshCw, AlertCircle } from "lucide-react";
+import { FLOW_MICROSEGMENTS, type FlowMicrosegment } from "@/lib/productMicrosegments";
+import { Zap, Play, Sparkles, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 
 const CATEGORIES: (FlowCategory | "All")[] = ["All", "Lending", "Wealth", "Deposits", "Cards", "Insurance"];
 
@@ -18,20 +18,6 @@ const CATEGORY_COLOR: Record<FlowCategory, string> = {
   Insurance: "bg-rose-50 text-rose-700 border-rose-200",
 };
 
-interface Microsegment {
-  signalLabel: string;
-  title: string;
-  subject: string;
-  body: string;
-  cta: string;
-}
-
-interface FlowState {
-  status: "idle" | "loading" | "ready" | "error";
-  items?: Microsegment[];
-  error?: string;
-}
-
 function formatAudience(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
@@ -42,12 +28,10 @@ function MicrosegmentCard({
   signal,
   segment,
   subAudience,
-  loading,
 }: {
   signal: ProductFlow["signals"][number];
-  segment?: Microsegment;
+  segment: FlowMicrosegment | undefined;
   subAudience: number;
-  loading: boolean;
 }) {
   return (
     <div className="rounded-lg border border-slate-200 bg-white p-3 flex flex-col gap-2.5 min-w-0">
@@ -68,7 +52,7 @@ function MicrosegmentCard({
 
       <div className="border-t border-slate-100 pt-2 flex items-start justify-between gap-2">
         <p className="text-[11px] font-semibold text-slate-900 leading-tight flex-1 min-w-0">
-          {loading ? <span className="block h-3 w-32 bg-slate-100 rounded animate-pulse" /> : segment?.title}
+          {segment?.title ?? "Microsegment"}
         </p>
         <div className="text-right shrink-0">
           <p className="text-[8px] uppercase tracking-wider text-slate-400 font-semibold leading-none">Audience</p>
@@ -77,28 +61,16 @@ function MicrosegmentCard({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        {loading ? (
-          <>
-            <div className="h-3 w-full bg-slate-100 rounded animate-pulse" />
-            <div className="h-2.5 w-full bg-slate-100 rounded animate-pulse" />
-            <div className="h-2.5 w-5/6 bg-slate-100 rounded animate-pulse" />
-            <div className="h-2.5 w-3/4 bg-slate-100 rounded animate-pulse" />
-          </>
-        ) : (
-          <>
-            <p className="text-[11.5px] font-semibold text-slate-900 leading-snug">{segment?.subject}</p>
-            <p className="text-[11px] text-slate-600 leading-snug">{segment?.body}</p>
-          </>
-        )}
+        <p className="text-[11.5px] font-semibold text-slate-900 leading-snug">{segment?.subject}</p>
+        <p className="text-[11px] text-slate-600 leading-snug whitespace-pre-line">{segment?.body}</p>
       </div>
 
       <Button
         variant="outline"
         size="sm"
-        disabled={loading}
         className="h-7 text-[11px] font-medium border-slate-300 text-slate-700 hover:bg-slate-50 mt-auto"
       >
-        {loading ? "…" : segment?.cta ?? "Learn more"}
+        {segment?.cta ?? "Learn more"}
       </Button>
     </div>
   );
@@ -108,23 +80,18 @@ function FlowRow({
   flow,
   active,
   expanded,
-  state,
   onToggle,
   onExpand,
-  onRegenerate,
 }: {
   flow: ProductFlow;
   active: boolean;
   expanded: boolean;
-  state: FlowState;
   onToggle: () => void;
   onExpand: () => void;
-  onRegenerate: () => void;
 }) {
   const Icon = flow.icon;
   const subAudience = Math.round(flow.estimatedAudience / Math.max(1, flow.signals.length));
-  const segmentFor = (label: string) => state.items?.find((m) => m.signalLabel === label);
-  const loading = state.status === "loading";
+  const microsegments = FLOW_MICROSEGMENTS[flow.id] ?? [];
 
   return (
     <div className="rounded-lg border border-slate-200 bg-white overflow-hidden">
@@ -177,59 +144,23 @@ function FlowRow({
 
       {expanded && (
         <div className="px-4 py-3 border-t border-slate-100 bg-slate-50/60">
-          <div className="flex items-center justify-between gap-2 mb-2.5">
-            <div className="flex items-center gap-1.5">
-              <Sparkles className="w-3 h-3 text-blue-500" />
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
-                Microsegments Ventus is enrolling
-              </p>
-            </div>
-            {state.status === "ready" && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRegenerate();
-                }}
-                className="inline-flex items-center gap-1 text-[10px] font-medium text-slate-500 hover:text-slate-900 transition-colors"
-              >
-                <RefreshCw className="w-2.5 h-2.5" />
-                Regenerate
-              </button>
-            )}
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <Sparkles className="w-3 h-3 text-blue-500" />
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+              Microsegments Ventus is enrolling
+            </p>
           </div>
 
-          {state.status === "error" ? (
-            <div className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2 text-xs text-rose-700">
-                <AlertCircle className="w-3.5 h-3.5" />
-                <span>{state.error ?? "Could not generate microsegments."}</span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onRegenerate();
-                }}
-                className="h-6 text-[11px] border-rose-300 text-rose-700 hover:bg-rose-100"
-              >
-                Retry
-              </Button>
-            </div>
-          ) : (
-            <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
-              {flow.signals.map((sig) => (
-                <MicrosegmentCard
-                  key={sig.label}
-                  signal={sig}
-                  segment={segmentFor(sig.label)}
-                  subAudience={subAudience}
-                  loading={loading}
-                />
-              ))}
-            </div>
-          )}
+          <div className="grid gap-3" style={{ gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))" }}>
+            {flow.signals.map((sig, idx) => (
+              <MicrosegmentCard
+                key={sig.label}
+                signal={sig}
+                segment={microsegments[idx]}
+                subAudience={subAudience}
+              />
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -242,7 +173,6 @@ export function ProductAutomatedFlowsView() {
     () => new Set(PRODUCT_FLOWS.filter((p) => p.defaultActive).map((p) => p.id)),
   );
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [flowStates, setFlowStates] = useState<Record<string, FlowState>>({});
 
   const filtered = category === "All" ? PRODUCT_FLOWS : PRODUCT_FLOWS.filter((p) => p.category === category);
 
@@ -253,42 +183,6 @@ export function ProductAutomatedFlowsView() {
       else next.add(id);
       return next;
     });
-  };
-
-  const fetchMicrosegments = useCallback(async (flow: ProductFlow) => {
-    setFlowStates((prev) => ({ ...prev, [flow.id]: { status: "loading" } }));
-    try {
-      const { data, error } = await supabase.functions.invoke("generate-flow-microsegments", {
-        body: {
-          productName: flow.name,
-          productCategory: flow.category,
-          productPositioning: flow.positioning,
-          signals: flow.signals.map((s) => ({ label: s.label, evidence: s.evidence, type: s.type })),
-        },
-      });
-      if (error) throw error;
-      if (data?.error) {
-        setFlowStates((prev) => ({ ...prev, [flow.id]: { status: "error", error: data.error } }));
-        return;
-      }
-      setFlowStates((prev) => ({
-        ...prev,
-        [flow.id]: { status: "ready", items: data?.microsegments ?? [] },
-      }));
-    } catch (e) {
-      setFlowStates((prev) => ({
-        ...prev,
-        [flow.id]: { status: "error", error: e instanceof Error ? e.message : "Unknown error" },
-      }));
-    }
-  }, []);
-
-  const handleExpand = (flow: ProductFlow) => {
-    const isOpening = expandedId !== flow.id;
-    setExpandedId(isOpening ? flow.id : null);
-    if (isOpening && !flowStates[flow.id]) {
-      fetchMicrosegments(flow);
-    }
   };
 
   return (
@@ -334,10 +228,8 @@ export function ProductAutomatedFlowsView() {
             flow={flow}
             active={active.has(flow.id)}
             expanded={expandedId === flow.id}
-            state={flowStates[flow.id] ?? { status: "idle" }}
             onToggle={() => toggle(flow.id)}
-            onExpand={() => handleExpand(flow)}
-            onRegenerate={() => fetchMicrosegments(flow)}
+            onExpand={() => setExpandedId(expandedId === flow.id ? null : flow.id)}
           />
         ))}
       </div>
