@@ -118,32 +118,19 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
           )}
         >
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-            Campaign
+            Total campaigns
           </p>
-          <div className="flex items-baseline gap-1 mt-1">
-            <span className="text-[40px] leading-none font-semibold font-mono tabular-nums text-slate-900">
-              {pad2(safeFeaturedIdx + 1)}
-            </span>
-            <span className="text-lg leading-none font-mono tabular-nums text-slate-400">
-              / {pad2(shownCount || 0)}
-            </span>
-          </div>
-          <div className="mt-auto pt-3 border-t border-slate-100">
+          <p className="text-[44px] leading-none font-semibold tabular-nums text-slate-900 mt-1">
+            {variants.total.toLocaleString()}
+          </p>
+          <div className="mt-2">
             <Popover>
               <PopoverTrigger asChild>
                 <button
                   type="button"
-                  className="text-left w-full group"
+                  className="text-[10px] font-semibold text-slate-600 hover:text-slate-900 transition-colors underline decoration-dotted decoration-slate-300 underline-offset-2"
                 >
-                  <p className="text-[10px] text-slate-500 leading-snug">
-                    <span className="font-mono tabular-nums text-slate-700">
-                      {variants.total.toLocaleString()}
-                    </span>
-                    <span className="text-slate-400"> total ·</span>
-                  </p>
-                  <p className="text-[10px] font-semibold text-slate-700 group-hover:text-slate-900 transition-colors underline decoration-dotted decoration-slate-300 underline-offset-2">
-                    view logic
-                  </p>
+                  view logic
                 </button>
               </PopoverTrigger>
               <PopoverContent
@@ -177,7 +164,25 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
               </PopoverContent>
             </Popover>
           </div>
+
+          <div className="mt-auto pt-3 border-t border-slate-100">
+            <p className="text-[9px] font-bold uppercase tracking-[0.18em] text-slate-400">
+              Example
+            </p>
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-[18px] leading-none font-mono tabular-nums text-slate-700">
+                {pad2(safeFeaturedIdx + 1)}
+              </span>
+              <span className="text-[13px] leading-none font-mono tabular-nums text-slate-400">
+                / {pad2(shownCount || 0)}
+              </span>
+            </div>
+            <p className="text-[10px] text-slate-500 leading-snug mt-1">
+              shown below
+            </p>
+          </div>
         </div>
+
 
         {/* ── Right: family chip + arrows + fanned deck ────────────────── */}
         <div className="flex-1 min-w-0 flex flex-col">
