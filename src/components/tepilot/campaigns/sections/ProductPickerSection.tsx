@@ -68,11 +68,10 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
   }, [query]);
 
   const activeCount =
-    filters.ageRanges.length +
-    filters.incomeBands.length +
-    filters.ficoRanges.length +
-    filters.regions.length +
-    filters.channels.length +
+    (AGE_RANGES.length - filters.ageRanges.length) +
+    (INCOME_BANDS.length - filters.incomeBands.length) +
+    (FICO_RANGES.length - filters.ficoRanges.length) +
+    (REGIONS.length - filters.regions.length) +
     (filters.accountTenure !== "all" ? 1 : 0) +
     (filters.relationshipDepth !== "any" ? 1 : 0);
 
