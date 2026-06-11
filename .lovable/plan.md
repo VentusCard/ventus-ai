@@ -1,38 +1,38 @@
-# Replace footer caption with a "Sample Output" button
+# Sample Output: 5 CRM-ready rows with send_at timestamp
 
-File: `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx` (lines 253–261).
+Replace the raw `MessageCard` JSON with 5 customer-ready records — one per card.
 
-## Change
+## Payload shape (per row)
 
-Delete the `<div className="mt-3 pt-3 border-t border-slate-100 ...">` block that renders:
-
-> Catalog total · 1,142 distinct campaigns across 44 products
-> Credit Cards · 548 campaigns
-
-Replace it with a single right-aligned **blue "Sample Output"** pill button at the bottom of the section:
-
-```tsx
-<div className="mt-3 pt-3 border-t border-slate-100 flex justify-end">
-  <button
-    type="button"
-    onClick={() => setSampleOpen(true)}
-    className="inline-flex items-center gap-1.5 rounded-full border border-blue-600 bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
-  >
-    <FileJson className="w-3.5 h-3.5" />
-    Sample Output
-  </button>
-</div>
+```json
+{
+  "customer_id": "C-08421739",
+  "email": "jordan.reyes@example.com",
+  "subject": "...",
+  "message": "...",
+  "cta": "Apply now",
+  "cta_url": "https://...",
+  "send_at": "2026-06-12T14:00:00Z"
+}
 ```
 
-## Sample Output dialog
+Field rules:
+- `customer_id`: `C-` + 8 digits (seeded by product.id + card index).
+- `email`: `${first}.${last}@example.com` from small built-in name pools (~20 first × 20 last).
+- `subject` / `message` / `cta` / `cta_url`: copied from the matching `MessageCard` (`subject`, `body`, `cta`, `ctaHref`).
+- `send_at`: ISO timestamp relative to dialog open — card 1 = now + 1h, card 2 = now + 6h, etc. (computed once when dialog opens).
 
-Clicking opens a light-theme shadcn `<Dialog>` showing the message cards currently in `cards` as a formatted JSON payload (the same shape a downstream system would consume). Code block uses `font-mono text-[11px]` inside a scrollable `max-h-[60vh] overflow-auto` `<pre>` with `bg-slate-50 border border-slate-200 p-3 rounded-md`. Dialog title: "Sample Output", description: "Generated campaign payload for {product.name}". No copy/download actions in this pass — just preview.
+Output = 5 rows total, one per card, in card order.
 
-State: `const [sampleOpen, setSampleOpen] = useState(false);` added at top of `MessagePreviewsSection`.
+## Files
 
-## Cleanup
-- Remove the now-unused `CATALOG_GRAND_TOTAL` import if it was only used in this footer.
-- Keep `variants` import only if still referenced elsewhere in the file (it was only on this footer line — also remove if unused after the edit).
+1. New `src/components/tepilot/campaigns/sections/buildSamplePayload.ts` — exports `buildSamplePayload(product, cards): SampleRow[]` with a tiny seeded PRNG and the name pools (~40 lines).
+2. Edit `MessagePreviewsSection.tsx`:
+   - Import `buildSamplePayload`.
+   - Inside the dialog `<pre>`, render `JSON.stringify(buildSamplePayload(product, cards), null, 2)` instead of `cards`.
+   - Dialog description: "CRM-ready audience payload for {product.name} — 5 sample sends."
+
+No other UI/layout changes.
 
 ## Out of scope
-- Other sections, other files, copy-to-clipboard, real export logic.
+- Real customer data, CSV download, copy-to-clipboard, multiple recipients per card.
