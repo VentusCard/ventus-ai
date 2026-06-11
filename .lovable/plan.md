@@ -1,41 +1,74 @@
-# Microsegment cards on Automated Flows
+# Map BoA + Merrill Catalog into Generic Product Flows
 
-Replace the vertical signal list inside an expanded flow on `/bankdemo` Automated Flows with a horizontal grid of microsegment cards — one per signal — each carrying its own AI-generated campaign title, copy, and CTA.
+Expand `src/lib/productAutomatedFlows.ts` so `PRODUCT_FLOWS` covers the full Bank of America + Merrill Lynch retail/wealth catalog, each renamed to a generic, vendor-neutral label (per the no-competitor-names rule). Used by `/bankdemo` → `ProductAutomatedFlowsView` and the static `FLOW_MICROSEGMENTS` data.
 
-## UX
+## Catalog mapping (real product → generic flow name)
 
-When a row in `ProductAutomatedFlowsView` is expanded:
+### Deposits (category: "Deposits")
+- BoA Advantage SafeBalance Banking → **Starter Checking**
+- BoA Advantage Plus Banking → **Everyday Checking**
+- BoA Advantage Relationship Banking → **Relationship Checking**
+- BoA Advantage Savings → **Core Savings** (keep existing **High-Yield Savings** as the premium tier)
+- BoA CDs (Featured / Fixed Term / Flexible) → **Certificate of Deposit**
 
-- Replace the current `<ul>` of signals with a CSS auto-fit grid (`grid-cols-[repeat(auto-fit,minmax(260px,1fr))] gap-3`) of microsegment cards, one per `flow.signals[i]`.
-- On expand, fire a single edge-function call that returns N microsegments (one per signal). While loading, render N skeleton cards. On error, show inline retry.
-- Results are cached per `flow.id` in component state so re-expanding is instant. A small "Regenerate" icon button in the section header re-runs the call.
+### Cards (category: "Cards")
+- Customized Cash Rewards → **Category Cash Back Card**
+- Unlimited Cash Rewards → **Flat-Rate Cash Back Card**
+- Travel Rewards (existing) → **Travel Rewards Card**
+- Premium Rewards → **Premium Travel Card**
+- Premium Rewards Elite → **Ultra-Premium Travel Card**
+- BankAmericard (low APR / balance transfer) → **Low-Rate Balance Transfer Card**
+- Affinity / Alaska / Royal Caribbean co-brands → **Co-Brand Partner Card**
+- Business Advantage Customized Cash → **Small Business Cash Back Card**
+- Business Advantage Unlimited Cash → **Small Business Flat-Rate Card**
+- Business Advantage Travel Rewards → **Small Business Travel Card**
 
-### Card anatomy (top → bottom)
+### Lending (category: "Lending")
+- Mortgage (existing) → **Mortgage**
+- HELOC (existing) → **Home Equity Line of Credit**
+- Auto Loan (existing) → **Auto Loan**
+- Auto Refinance → **Auto Refinance**
+- Personal Loan (existing) → **Personal Loan**
+- Small Business Loan (existing) → **Small Business Loan**
+- Practice Solutions / Equipment financing → **Equipment Financing**
 
-1. **Signal header** — existing type badge (Life Event / Behavioral), signal label, evidence (smaller, muted).
-2. **Microsegment title + audience** — 4–7 word archetype label, plus estimated sub-audience size (flow audience split proportionally across signals, formatted with existing `formatAudience`).
-3. **Campaign copy** — subject line (≤60 chars, semibold) + 2–3 sentence body.
-4. **CTA** — outline button, 3–5 words, non-functional (demo).
+### Wealth — Merrill (category: "Wealth")
+- Merrill Edge Self-Directed → **Self-Directed Brokerage**
+- Merrill Guided Investing → **Robo / Guided Portfolio**
+- Merrill Guided Investing with Advisor → **Hybrid Advisor Portfolio**
+- Merrill Lynch Wealth Management (existing) → **Wealth Management**
+- Merrill Private Wealth Management → **Private Wealth Management**
+- Merrill Edge IRA (Traditional / Roth / Rollover) → **Individual Retirement Account**
+- 529 Plan (existing) → **529 College Savings Plan**
+- Merrill Trust / Estate services → **Trust & Estate Services**
+- Merrill SRI / ESG portfolios → **Values-Aligned Portfolio**
 
-Cards use the existing light theme tokens (`border-slate-200`, `bg-white`, slate text scale). No dark mode utilities.
+### Insurance (category: "Insurance")
+- Term Life (existing) → **Term Life Insurance**
+- Permanent / Whole Life via Merrill → **Permanent Life Insurance**
+- Long-Term Care via Merrill → **Long-Term Care Insurance**
+- Annuities (Fixed / Variable) → **Annuity**
 
-## Data + edge function
+### Net new flows to add (~16)
+Core Savings, Certificate of Deposit, Starter / Everyday / Relationship Checking, Category Cash Back Card, Flat-Rate Cash Back Card, Premium Travel Card, Ultra-Premium Travel Card, Low-Rate Balance Transfer Card, Co-Brand Partner Card, Small Business Cash Back Card, Auto Refinance, Self-Directed Brokerage, Robo / Guided Portfolio, Hybrid Advisor Portfolio, Private Wealth Management, IRA, Trust & Estate Services, Annuity, Permanent Life, Long-Term Care.
 
-New edge function `generate-flow-microsegments`:
+## Per-flow shape (unchanged)
+For each new entry, populate:
+- `id` (kebab-case), `name` (generic label), `category`, `icon` (Lucide), `positioning` (one sentence)
+- 3–4 `signals` mixing `life-event` and `behavioral`, each with `evidence` describing transaction-level cues (no merchant names that name competitors)
+- `estimatedAudience` and `penetration` realistic for the US market
+- `defaultActive` true for the headline products per category (Checking, Core Savings, IRA, Self-Directed Brokerage, Category Cash Back); existing defaults preserved
 
-- Input: `{ productName, productCategory, productPositioning, signals: [{ label, evidence, type }] }`.
-- Calls Lovable AI Gateway (`google/gemini-3-flash-preview`) with a `tool_choice` structured-output tool `emit_microsegments` returning `{ microsegments: [{ signalLabel, title, subject, body, cta }] }` — one entry per input signal, matched by `signalLabel`.
-- System prompt reuses existing project rules: no em dashes, no exact dollar amounts or transaction counts, no risk/stress framing, vaguely specific behavioral phrasing, 4–7 word archetype titles, ≤60 char subjects, 2–3 sentence bodies, 3–5 word CTAs. Mirrors the conventions already in `generate-campaign-segment/index.ts`.
-- CORS + 429/402 handling identical to existing functions.
+## Static microsegments
+Regenerate `src/lib/productMicrosegments.ts` so `FLOW_MICROSEGMENTS` has an entry for every new flow id, using the same one-shot generation script pattern already in use (4–7 word title, ≤60 char subject, 3–5 sentence body, 3–5 word CTA). One microsegment per signal, per flow.
 
-Client calls it via `supabase.functions.invoke("generate-flow-microsegments", { body: ... })` from `ProductAutomatedFlowsView`.
+## Constraints honored
+- No mention of "Bank of America", "Merrill", "BofA", "Preferred Rewards" etc. in any user-visible label, positioning, evidence, or microsegment copy.
+- Strict light theme, Manrope, existing card grid — no UI changes.
+- Pure data expansion; `ProductAutomatedFlowsView.tsx` does not change.
 
-## Technical details
+## Files touched
+- `src/lib/productAutomatedFlows.ts` — add ~20 entries
+- `src/lib/productMicrosegments.ts` — regenerate to cover all flow ids
 
-- File edits:
-  - `src/components/tepilot/campaigns/ProductAutomatedFlowsView.tsx` — replace the expanded `<ul>` with a `<MicrosegmentGrid>` subcomponent; add per-flow state map `Record<flowId, { status, items?, error? }>`; trigger fetch on first expand; add header "Regenerate" button when results exist.
-  - New file `supabase/functions/generate-flow-microsegments/index.ts` — structured-output edge function described above.
-- Sub-audience math: `Math.round(flow.estimatedAudience / flow.signals.length)` for an even split (kept simple; no extra data needed).
-- Loading state: render `flow.signals.length` skeleton cards (signal header visible, copy area uses `animate-pulse` slate blocks) so layout doesn't jump.
-- Error state: small inline alert inside the expanded area with a Retry button calling the same fetch.
-- No changes to `productAutomatedFlows.ts` schema, the filter chips, the row summary, or any other view.
+No edge functions, no schema, no component changes.
