@@ -32,11 +32,13 @@ const ANCHOR_VISUAL: Record<
 interface Props {
   product?: CatalogProduct;
   variants?: VariantBreakdown;
+  offers?: string[];
 }
 
-export function MessagePreviewsSection({ product, variants }: Props) {
+export function MessagePreviewsSection({ product, variants, offers = [] }: Props) {
   const productName = product?.name ?? "";
-  const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants) : [];
+  const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants, offers) : [];
+
   const totalSlots = 5;
 
   // staggered reveal
