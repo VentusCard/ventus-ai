@@ -265,6 +265,7 @@ export function buildMessageCards(
   variants: VariantBreakdown,
   offers: string[] = [],
   campaignLink: string = "",
+  seed: number = 0,
 ): MessageCard[] {
   const cards: MessageCard[] = [];
   const cat = product.category;
@@ -294,8 +295,8 @@ export function buildMessageCards(
   if (hasStacks) {
     const n = Math.min(2, stackAnchors.length);
     for (let i = 0; i < n; i++) {
-      const anchor = stackAnchors[i];
-      const play = PLAYS_BY_FAMILY.STACK[i % PLAYS_BY_FAMILY.STACK.length];
+      const anchor = stackAnchors[(i + seed) % stackAnchors.length];
+      const play = PLAYS_BY_FAMILY.STACK[(i + seed) % PLAYS_BY_FAMILY.STACK.length];
       const base = copyFor("STACK", product, anchor, play);
       const body = primaryOffer && i === 0 ? `${base.body} — ${primaryOffer}.` : base.body;
       cards.push({ anchorFamily: "STACK", play, anchor, ...base, body });
@@ -304,21 +305,21 @@ export function buildMessageCards(
 
   const lifeSlots = hasStacks ? 2 : Math.min(3, lifeAnchors.length);
   for (let i = 0; i < lifeSlots && cards.length < target; i++) {
-    const anchor = lifeAnchors[i % lifeAnchors.length];
-    const play = PLAYS_BY_FAMILY.LIFE_EVENT[i % PLAYS_BY_FAMILY.LIFE_EVENT.length];
+    const anchor = lifeAnchors[(i + seed) % lifeAnchors.length];
+    const play = PLAYS_BY_FAMILY.LIFE_EVENT[(i + seed) % PLAYS_BY_FAMILY.LIFE_EVENT.length];
     cards.push({ anchorFamily: "LIFE_EVENT", play, anchor, ...copyFor("LIFE_EVENT", product, anchor, play) });
   }
 
   if (cards.length < target && variants.financialGoals > 0 && goalAnchors.length > 0) {
-    const anchor = goalAnchors[0];
-    const play = PLAYS_BY_FAMILY.GOAL[0];
+    const anchor = goalAnchors[seed % goalAnchors.length];
+    const play = PLAYS_BY_FAMILY.GOAL[seed % PLAYS_BY_FAMILY.GOAL.length];
     cards.push({ anchorFamily: "GOAL", play, anchor, ...copyFor("GOAL", product, anchor, play) });
   }
 
   let usageIdx = 0;
   while (cards.length < target && usageIdx < usageAnchors.length) {
-    const anchor = usageAnchors[usageIdx];
-    const play = PLAYS_BY_FAMILY.USAGE[usageIdx % PLAYS_BY_FAMILY.USAGE.length];
+    const anchor = usageAnchors[(usageIdx + seed) % usageAnchors.length];
+    const play = PLAYS_BY_FAMILY.USAGE[(usageIdx + seed) % PLAYS_BY_FAMILY.USAGE.length];
     cards.push({ anchorFamily: "USAGE", play, anchor, ...copyFor("USAGE", product, anchor, play) });
     usageIdx++;
   }
