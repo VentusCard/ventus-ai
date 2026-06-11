@@ -38,7 +38,6 @@ export function MessagePreviewsSection({ product, variants }: Props) {
   const productName = product?.name ?? "";
   const cards: MessageCard[] = product && variants ? buildMessageCards(product, variants) : [];
   const totalSlots = 5;
-  const [formulaOpen, setFormulaOpen] = useState(false);
 
   // staggered reveal
   const [revealedCount, setRevealedCount] = useState(0);
@@ -70,61 +69,55 @@ export function MessagePreviewsSection({ product, variants }: Props) {
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <div className="flex items-center gap-2 mb-1">
+      <div className="flex items-center gap-2 mb-3">
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">3</span>
         <p className="text-sm font-semibold text-slate-900">Personalized message previews</p>
-        <Badge variant="outline" className="text-[10px] border-slate-200 bg-white ml-auto tabular-nums">
-          {variants.total.toLocaleString()} campaigns · {Math.min(totalSlots, cards.length)} shown
-        </Badge>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button type="button" className="ml-auto">
+              <Badge
+                variant="outline"
+                className="text-[10px] border-slate-200 bg-white tabular-nums cursor-pointer hover:bg-slate-50 transition-colors"
+              >
+                {variants.total.toLocaleString()} campaigns · {Math.min(totalSlots, cards.length)} shown
+              </Badge>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent
+            align="end"
+            sideOffset={6}
+            className="w-[360px] bg-white border-slate-200 text-slate-700 p-3"
+          >
+            <p className="text-[11px] leading-snug text-slate-600 mb-3">
+              A campaign is anchored on <strong>one</strong> thing — a category stack, a life
+              event, or a financial goal. The families <strong>add</strong>; they don't
+              multiply. Tone, proof, and offer construction are A/B wrappers around a single
+              anchored campaign, not separate campaigns.
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <FormulaCell
+                label="Category stacks × plays"
+                value={variants.stacks > 0 ? variants.stacks * variants.plays : 0}
+                note={variants.stacks > 0 ? `${variants.stacks} × ${variants.plays}` : "not category-bearing"}
+                tone="blue"
+              />
+              <FormulaCell
+                label="Life-event hooks"
+                value={variants.lifeEvents}
+                note="one per qualifying event"
+                tone="amber"
+              />
+              <FormulaCell
+                label="Financial-goal hooks"
+                value={variants.financialGoals}
+                note="one per qualifying goal"
+                tone="emerald"
+              />
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
-      <button
-        type="button"
-        onClick={() => setFormulaOpen((o) => !o)}
-        className="w-full flex items-center gap-1.5 text-left mb-3 group"
-      >
-        <p className="text-[11px] text-slate-500 leading-snug flex-1">
-          Additive anchor model for{" "}
-          <span className="font-medium text-slate-700">{product.name}</span> ·{" "}
-          <span className="font-mono text-slate-700">{formatVariantFormula(variants)}</span>
-        </p>
-        {formulaOpen ? (
-          <ChevronUp className="w-3 h-3 text-slate-400 shrink-0" />
-        ) : (
-          <ChevronDown className="w-3 h-3 text-slate-400 shrink-0" />
-        )}
-      </button>
-
-      {formulaOpen && (
-        <div className="mb-3 rounded-md border border-slate-200 bg-slate-50 p-3 text-[11px] text-slate-600 space-y-2">
-          <p>
-            A campaign is anchored on <strong>one</strong> thing — a category stack, a life
-            event, or a financial goal. The families <strong>add</strong>; they don't
-            multiply. Tone, proof, and offer construction are A/B wrappers around a single
-            anchored campaign, not separate campaigns.
-          </p>
-          <div className="grid grid-cols-3 gap-2 pt-1">
-            <FormulaCell
-              label="Category stacks × plays"
-              value={variants.stacks > 0 ? variants.stacks * variants.plays : 0}
-              note={variants.stacks > 0 ? `${variants.stacks} × ${variants.plays}` : "not category-bearing"}
-              tone="blue"
-            />
-            <FormulaCell
-              label="Life-event hooks"
-              value={variants.lifeEvents}
-              note="one per qualifying event"
-              tone="amber"
-            />
-            <FormulaCell
-              label="Financial-goal hooks"
-              value={variants.financialGoals}
-              note="one per qualifying goal"
-              tone="emerald"
-            />
-          </div>
-        </div>
-      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
         {Array.from({ length: totalSlots }).map((_, idx) => {
