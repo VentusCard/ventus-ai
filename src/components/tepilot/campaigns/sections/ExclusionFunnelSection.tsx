@@ -305,7 +305,7 @@ export function ExclusionFunnelSection({ product }: Props) {
         )}
       </div>
 
-      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Signal-family filters</p>
+      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">BEHAVIORAL INTELLIGENCE LOADED</p>
       {/* 5 signal-family cards, ordered by per-product relevance */}
       <div className="grid grid-cols-5 gap-2 mb-3">
 
