@@ -133,7 +133,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
         </Badge>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3 mb-3 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] gap-3 mb-3 items-stretch">
         {/* Search / Selected product column */}
         {selected && mechanics ? (
           <div className="rounded-lg border border-slate-200 bg-slate-50 p-3">
