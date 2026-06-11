@@ -7,9 +7,7 @@ import { ExclusionFunnelSection } from "./sections/ExclusionFunnelSection";
 import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
 
 export function ProductCampaignBuilderView() {
-  const [productId, setProductId] = useState<string>(
-    PRODUCT_FLOWS.find((p) => p.id === "category-cashback-card")?.id ?? PRODUCT_FLOWS[0].id,
-  );
+  const [productId, setProductId] = useState<string>("");
   const product = getProductFlow(productId);
 
   return (
