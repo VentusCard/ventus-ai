@@ -13,6 +13,7 @@ import {
   Plus,
   Minus,
   Circle,
+  Loader2,
 } from "lucide-react";
 import type { ProductFlow } from "@/lib/productAutomatedFlows";
 import {
