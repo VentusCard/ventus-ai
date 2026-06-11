@@ -8,13 +8,17 @@ import { ProductPickerSection } from "./sections/ProductPickerSection";
 import { ExclusionFunnelSection } from "./sections/ExclusionFunnelSection";
 import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
 
+const DEFAULT_CAMPAIGN_LINK = "https://www.ventusai.com";
+
 export function ProductCampaignBuilderView() {
   const [productName, setProductName] = useState<string>("");
   const [offers, setOffers] = useState<string[]>([]);
+  const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
 
   const handleSelectProduct = (name: string) => {
     setProductName(name);
     setOffers([]);
+    setCampaignLink(DEFAULT_CAMPAIGN_LINK);
   };
 
   const catalogProduct = useMemo(
@@ -45,10 +49,18 @@ export function ProductCampaignBuilderView() {
         onSelect={handleSelectProduct}
         offers={offers}
         onOffersChange={setOffers}
+        campaignLink={campaignLink}
+        onCampaignLinkChange={setCampaignLink}
       />
       <ExclusionFunnelSection product={flow} />
-      <MessagePreviewsSection product={catalogProduct} variants={variants} offers={offers} />
+      <MessagePreviewsSection
+        product={catalogProduct}
+        variants={variants}
+        offers={offers}
+        campaignLink={campaignLink}
+      />
 
     </div>
   );
 }
+
