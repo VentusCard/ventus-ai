@@ -363,123 +363,39 @@ export function ExclusionFunnelSection({ product }: Props) {
             <div
               key={fam}
               className={cn(
-                "relative rounded-lg p-3 transition-all bg-white border-2 animate-fade-in",
-                meta.cardBorder,
-                meta.cardText,
+                "relative rounded-lg p-3 transition-all border-2 animate-fade-in",
+                meta.solid,
+                "text-white",
                 relMeta.cardOpacity,
                 isExpanded && "ring-2 ring-offset-2 ring-offset-white shadow-md",
-                isExpanded && meta.cardBorder.replace("border-", "ring-"),
+                isExpanded && "ring-white",
                 isDisabled && "opacity-40",
               )}
             >
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (canToggle) toggleFamily(fam);
-                    }}
-                    aria-label={`${meta.label}: ${relMeta.label}`}
-                    className={cn(
-                      "absolute top-1.5 right-1.5 inline-flex items-center justify-center w-5 h-5 rounded-full border-2 transition-colors",
-                      relMeta.badgeBg,
-                      relMeta.badgeBorder,
-                      relMeta.badgeText,
-                      canToggle ? "hover:brightness-110 cursor-pointer" : "cursor-help",
-                    )}
-                  >
-                    <BadgeIcon className={cn("w-3 h-3", rel === "neutral" && "fill-current")} />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent
-                  side="top"
-                  align="end"
-                  className="w-80 p-3 bg-white border-slate-200 text-slate-900"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <div className="flex items-center gap-2 mb-2">
-                    <span className={cn("flex items-center justify-center w-6 h-6 rounded-md", meta.iconBg)}>
-                      <Icon className={cn("w-3.5 h-3.5", meta.iconColor)} />
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-xs font-semibold text-slate-900 leading-tight">{meta.label}</p>
-                      <p className="text-[10px] text-slate-500 leading-tight">{relMeta.label}</p>
-                    </div>
-                  </div>
-
-                  {(() => {
-                    const narrative = FAMILY_NARRATIVE[fam];
-                    return (
-                      <div className="mb-2.5 pb-2.5 border-b border-slate-100">
-                        <p className={cn("text-[11px] italic font-medium leading-snug mb-1", meta.cardText)}>
-                          {narrative.tagline}
-                        </p>
-                        <p className="text-[10px] text-slate-600 leading-snug mb-1.5">
-                          {narrative.description}
-                        </p>
-                        <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-1">What we read</p>
-                        <ul className="space-y-1">
-                          {narrative.themes.map((t, i) => (
-                            <li key={i} className="flex items-start gap-1.5">
-                              <span className={cn("mt-1.5 w-1 h-1 rounded-full shrink-0", relMeta.bulletColor)} />
-                              <p className="text-[10px] text-slate-700 leading-snug">{t}</p>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    );
-                  })()}
-
-                  {(() => {
-                    const items = getFamilySignals(fam);
-                    const shown = items.slice(0, 5);
-                    const extra = items.length - shown.length;
-                    if (items.length === 0) {
-                      return (
-                        <p className="text-[10px] text-slate-500 italic leading-snug">
-                          No product-specific signals for {product.name} — relying on universal checks.
-                        </p>
-                      );
-                    }
-                    return (
-                      <>
-                        <p className="text-[9px] font-semibold text-slate-500 uppercase tracking-wide mb-1">
-                          Evidence for {product.name}
-                        </p>
-                        <ul className="space-y-1.5">
-                          {shown.map((s) => (
-                            <li key={s.label} className="flex items-start gap-1.5">
-                              <span className={cn("mt-1.5 w-1 h-1 rounded-full shrink-0", relMeta.bulletColor)} />
-                              <div className="min-w-0">
-                                <p className="text-[11px] font-medium text-slate-900 leading-snug">{s.label}</p>
-                                <p className="text-[10px] text-slate-600 leading-snug">{s.detail}</p>
-                              </div>
-                            </li>
-                          ))}
-                          {extra > 0 && (
-                            <li className="text-[10px] text-slate-400 pl-3">+{extra} more</li>
-                          )}
-                        </ul>
-                      </>
-                    );
-                  })()}
-
-                  {canToggle && (
-                    <p className="text-[10px] text-slate-400 mt-2 pt-2 border-t border-slate-100">
-                      Click the badge again to {isDisabled ? "re-enable" : "disable"} this family in the funnel.
-                    </p>
+              {canToggle && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleFamily(fam);
+                  }}
+                  className={cn(
+                    "absolute top-1.5 right-1.5 w-4 h-4 rounded-full border transition-all",
+                    isDisabled
+                      ? "border-white/30 bg-transparent"
+                      : "border-white bg-white",
                   )}
-                </PopoverContent>
-              </Popover>
+                  aria-label={isDisabled ? "Enable" : "Disable"}
+                />
+              )}
 
               <button
                 onClick={() => setExpanded(isExpanded ? null : fam)}
                 className="w-full text-left"
               >
                 <div className="flex items-center gap-1.5 mb-2 pr-6">
-                  <Icon className={cn("w-4 h-4 shrink-0", meta.cardText)} />
+                  <Icon className="w-4 h-4 shrink-0 text-white" />
                 </div>
-                <p className={cn("text-[12px] font-semibold leading-tight", meta.cardText)}>{meta.label}</p>
+                <p className="text-[12px] font-semibold leading-tight text-white">{meta.label}</p>
               </button>
             </div>
           );
