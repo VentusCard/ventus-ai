@@ -145,6 +145,26 @@ export function ProductPickerSection({
                 {offers.length}/{OFFER_MAX_COUNT}
               </span>
             </div>
+            <div className="flex flex-wrap gap-1 mb-1.5">
+              {PRESET_OFFERS.map((preset) => {
+                const already = offers.includes(preset);
+                const capped = offers.length >= OFFER_MAX_COUNT;
+                const disabled = already || capped;
+                return (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => addOfferValue(preset)}
+                    disabled={disabled}
+                    className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full border border-slate-200 bg-slate-50 text-[10px] text-slate-700 hover:bg-slate-100 hover:border-slate-300 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    title={already ? "Already added" : `Add "${preset}"`}
+                  >
+                    <Plus className="w-2.5 h-2.5" />
+                    {preset}
+                  </button>
+                );
+              })}
+            </div>
             <div className="flex gap-1">
               <Input
                 value={offerDraft}
@@ -155,7 +175,7 @@ export function ProductPickerSection({
                     addOffer();
                   }
                 }}
-                placeholder="e.g. Double rewards through EOY"
+                placeholder="e.g. Limited-edition metal card"
                 disabled={offers.length >= OFFER_MAX_COUNT}
                 className="h-7 text-xs bg-white border-slate-200"
                 maxLength={OFFER_MAX_LEN}
@@ -173,7 +193,7 @@ export function ProductPickerSection({
             <div className="mt-2 flex flex-wrap gap-1">
               {offers.length === 0 ? (
                 <p className="text-[10px] text-slate-400 leading-snug">
-                  Add timely promos — e.g. "Limited-edition metal card", "Waived first-year fee".
+                  Add timely promos — e.g. "Waived first-year fee".
                 </p>
               ) : (
                 offers.map((o, i) => (
@@ -194,7 +214,21 @@ export function ProductPickerSection({
                 ))
               )}
             </div>
+            <div className="mt-2 pt-2 border-t border-slate-100">
+              <div className="flex items-center gap-1.5 mb-1">
+                <LinkIcon className="w-3 h-3 text-slate-500" />
+                <p className="text-[10px] font-semibold text-slate-600 uppercase tracking-wide">Campaign link</p>
+              </div>
+              <Input
+                value={campaignLink}
+                onChange={(e) => onCampaignLinkChange(e.target.value)}
+                placeholder="https://www.ventusai.com/campaign"
+                className="h-7 text-xs bg-white border-slate-200 font-mono"
+                spellCheck={false}
+              />
+            </div>
           </div>
+
 
           <div className="w-1/4 rounded-lg border border-slate-200 bg-white p-3 flex flex-col items-center justify-center gap-2 text-center">
 
