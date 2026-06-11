@@ -576,6 +576,135 @@ export function getProductMessageVariants(
   }));
 }
 
+// ────────────────────────────────────────────────────────────────────────────
+//  15-card customer profile (HIGH / MED / LOW) — input for Campaign Engine LLM.
+// ────────────────────────────────────────────────────────────────────────────
+
+export type SignalLevel = "HIGH" | "MED" | "LOW";
+
+export interface ProfileCard {
+  card: number;     // 1..15
+  name: string;
+  level: SignalLevel;
+  note: string;
+}
+
+export interface CustomerProfile15 {
+  behavioral: ProfileCard[];   // cards 1-3
+  life_events: ProfileCard[];  // cards 4-6
+  demographics: ProfileCard[]; // cards 7-9
+  financial: ProfileCard[];    // cards 10-12
+  risk: ProfileCard[];         // cards 13-15
+}
+
+// Deterministic HIGH/MED/LOW chooser keyed off productId+card so each product
+// gets a stable, plausible-looking profile without random flicker.
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0;
+  return h;
+}
+function pickLevel(productId: string, card: number, bias: SignalLevel[] = ["HIGH", "MED", "LOW"]): SignalLevel {
+  const h = hash(`${productId}:${card}`);
+  return bias[h % bias.length];
+}
+
+const CARD_META: Array<{ card: number; family: keyof CustomerProfile15; name: string; notes: Record<SignalLevel, string> }> = [
+  { card: 1, family: "behavioral", name: "What they spend on",
+    notes: { HIGH: "heavy, concentrated everyday spend", MED: "steady everyday spend across a few categories", LOW: "thin / sparse on-us spend" } },
+  { card: 2, family: "behavioral", name: "How they spend",
+    notes: { HIGH: "premium / luxury tier, credit-led", MED: "mainstream mix, debit + credit", LOW: "budget tier, mostly debit" } },
+  { card: 3, family: "behavioral", name: "What they don't spend on",
+    notes: { HIGH: "major off-us category leakage", MED: "one notable absent category", LOW: "no conspicuous gaps" } },
+
+  { card: 4, family: "life_events", name: "New chapter fingerprints",
+    notes: { HIGH: "confirmed event (e.g. new baby / move / new employer)", MED: "early-stage signal forming", LOW: "no new-chapter signal" } },
+  { card: 5, family: "life_events", name: "Pattern breaks",
+    notes: { HIGH: "sharp cadence / deposit / merchant inflection", MED: "minor pattern shift", LOW: "stable patterns" } },
+  { card: 6, family: "life_events", name: "Horizon events",
+    notes: { HIGH: "imminent horizon event visible", MED: "horizon event forming", LOW: "no horizon event in view" } },
+
+  { card: 7, family: "demographics", name: "Who they are",
+    notes: { HIGH: "high-income band household", MED: "mid-income band household", LOW: "lower-income band household" } },
+  { card: 8, family: "demographics", name: "Where they live",
+    notes: { HIGH: "high cost-of-living geography", MED: "average cost-of-living", LOW: "low cost-of-living geography" } },
+  { card: 9, family: "demographics", name: "Profile with us",
+    notes: { HIGH: "deep / primary multi-product relationship", MED: "multi-product, mid tenure", LOW: "single-product or new" } },
+
+  { card: 10, family: "financial", name: "Posture",
+    notes: { HIGH: "accumulator with idle cash", MED: "balanced saver / spender", LOW: "tight or juggler posture" } },
+  { card: 11, family: "financial", name: "What they're reaching for",
+    notes: { HIGH: "goal imminent (down-payment, tuition, etc.)", MED: "goal in motion / forming", LOW: "no goal in motion detected" } },
+  { card: 12, family: "financial", name: "Wallet share with us",
+    notes: { HIGH: "nearly all spend lands on-us", MED: "mixed on-us / off-us split", LOW: "most spend leaking off-us" } },
+
+  // Risk: HIGH = good (clear / room); LOW = bad direction → gates the send
+  { card: 13, family: "risk", name: "Capacity",
+    notes: { HIGH: "wide eligibility, room on the line", MED: "moderate room", LOW: "over-extended" } },
+  { card: 14, family: "risk", name: "Behavior flags",
+    notes: { HIGH: "clean behavior history", MED: "one minor flag", LOW: "recent stress / NSF / delinquency" } },
+  { card: 15, family: "risk", name: "Compliance & exposure",
+    notes: { HIGH: "clear", MED: "watch", LOW: "full-stop flag" } },
+];
+
+// Per-category bias so each product's profile leans toward signals that make
+// the playbook output interesting (still deterministic).
+const PROFILE_BIAS: Record<FlowCategory, Partial<Record<number, SignalLevel[]>>> = {
+  Cards:     { 1: ["HIGH","MED","HIGH"], 3: ["MED","HIGH","HIGH"], 12: ["MED","LOW","HIGH"] },
+  Deposits:  { 10: ["HIGH","MED","HIGH"], 11: ["MED","HIGH","HIGH"] },
+  Lending:   { 6: ["MED","HIGH","HIGH"], 11: ["HIGH","HIGH","MED"] },
+  Wealth:    { 6: ["HIGH","HIGH","MED"], 7: ["HIGH","HIGH","MED"], 10: ["HIGH","HIGH","MED"] },
+  Insurance: { 4: ["MED","HIGH","HIGH"], 7: ["HIGH","MED","HIGH"] },
+};
+
+export function buildProfileForProduct(productId: string, category: FlowCategory): CustomerProfile15 {
+  const out: CustomerProfile15 = { behavioral: [], life_events: [], demographics: [], financial: [], risk: [] };
+  for (const meta of CARD_META) {
+    const bias = PROFILE_BIAS[category]?.[meta.card];
+    // Risk cards default to HIGH (clear) so SUPPRESS doesn't fire by accident.
+    const level: SignalLevel = meta.family === "risk"
+      ? (["HIGH", "HIGH", "MED"][hash(`${productId}:${meta.card}`) % 3] as SignalLevel)
+      : pickLevel(productId, meta.card, bias);
+    out[meta.family].push({ card: meta.card, name: meta.name, level, note: meta.notes[level] });
+  }
+  return out;
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+//  Campaign Engine output (matches edge function `generate-campaign-offers`).
+// ────────────────────────────────────────────────────────────────────────────
+
+export type OfferAngle = "BEHAVIORAL" | "LIFE_EVENT" | "FINANCIAL";
+
+export interface OfferExample {
+  play: string;
+  angle: OfferAngle;
+  offer_anchor: string;
+  subject: string;
+  body: string;
+  cta: string;
+  proof: string | null;
+  priority: number;
+  why: string;
+  cards_used: number[];
+  levels_read: Record<string, SignalLevel>;
+}
+
+export interface OfferBank {
+  decision: "SEND" | "SUPPRESS" | "TRIM";
+  profile_space: number;
+  total_variations: number;
+  variation_space: {
+    plays_qualified: string[];
+    angles_qualified: OfferAngle[];
+    anchors_available: string[];
+    voice_registers: string[];
+    proof_modes: string[];
+  };
+  examples: OfferExample[];
+  suppress_reason?: string | null;
+}
+
 export interface FunnelStage {
   id: string;
   label: string;
