@@ -1,13 +1,15 @@
-# Remove the Audience filters sidebar from Section 1
+## Restore "Change product" action on the selected product card
 
-Drop the right-hand filters panel entirely so Section 1 goes back to a single full-width column with just the product search and selected-product detail.
+In `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx`, add a small "Change product" button to the selected-product detail block (the slate-50 card at lines 72–95) so users can swap the picked product without first interacting with the search input.
 
-## Change
+### Behavior
+- Button sits top-right of the selected card header, aligned with the product name row.
+- Clicking it clears the selection back to the search state — calls `onSelect("")` so the parent unsets `selectedId`, and focuses the search input.
+- Label: "Change product"; icon: `Pencil` or `ArrowLeftRight` from lucide-react (lean `ArrowLeftRight`).
+- Styling: ghost text button, `text-[11px] text-slate-500 hover:text-slate-900`, no border, to stay within the strict light theme.
 
-In `src/components/tepilot/campaigns/sections/ProductPickerSection.tsx`:
+### Technical notes
+- Add a `ref` on the search `<Input>` and call `.focus()` after clearing.
+- Confirm parent (`CampaignStudio` or wherever `ProductPickerSection` is mounted) accepts `""` as a valid `selectedId` — if it requires a non-empty id, instead surface the search dropdown by seeding `query` with a space or expose an `onClear` prop. Quick check of the parent during implementation will decide which path.
 
-- Remove the `grid grid-cols-10` wrapper and the `<aside>` filters block.
-- Restore the original single-column layout for the search input, results dropdown, and the selected-product detail card.
-- Remove the now-unused state (`age`, `income`, `gender`, `region`, `household`, `resetFilters`, `toggleHousehold`), the `HOUSEHOLD_TYPES` constant, and the unused imports (`Slider`, `Checkbox`, `ToggleGroup`/`ToggleGroupItem`, `Select` family, `SlidersHorizontal`).
-
-No other files touched.
+No other files or filter logic touched.
