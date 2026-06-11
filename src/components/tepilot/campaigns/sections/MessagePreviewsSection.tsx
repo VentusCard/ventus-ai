@@ -271,13 +271,14 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
           <DialogHeader>
             <DialogTitle className="text-slate-900">Sample Output</DialogTitle>
             <DialogDescription className="text-slate-500">
-              Generated campaign payload for {product.name}
+              CRM-ready audience payload for {product.name} — 5 sample sends.
             </DialogDescription>
           </DialogHeader>
           <pre className="font-mono text-[11px] text-slate-700 bg-slate-50 border border-slate-200 p-3 rounded-md max-h-[60vh] overflow-auto">
-{JSON.stringify(cards, null, 2)}
+{JSON.stringify(buildSamplePayload(product, cards), null, 2)}
           </pre>
         </DialogContent>
+
       </Dialog>
 
     </div>
