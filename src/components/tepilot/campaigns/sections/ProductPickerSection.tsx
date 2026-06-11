@@ -312,12 +312,8 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
 
         {selected && (
           <AudiencePanel
-            baseline={baseline}
             estimatedReach={estimatedReach}
-            retention={retention}
-            tightest={tightest}
             emptyGroup={emptyGroup}
-            anyNarrowed={activeCount > 0}
           />
         )}
         </div>
@@ -327,26 +323,15 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
 }
 
 function AudiencePanel({
-  baseline,
   estimatedReach,
-  retention,
-  tightest,
   emptyGroup,
-  anyNarrowed,
 }: {
-  baseline: number;
   estimatedReach: number;
-  retention: number;
-  tightest?: [string, { sel: number; total: number }];
   emptyGroup?: string;
-  anyNarrowed: boolean;
 }) {
   return (
     <div className="rounded-md border border-slate-200 bg-white p-3">
-      <div className="flex items-center justify-between mb-1.5">
-        <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide">Addressable population</p>
-        <span className="text-[10px] text-slate-400 font-mono tabular-nums">{(retention * 100).toFixed(0)}% of baseline</span>
-      </div>
+      <p className="text-[10px] font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Addressable population</p>
       {emptyGroup ? (
         <>
           <p className="text-xl font-semibold text-slate-900 leading-tight tabular-nums">0</p>
@@ -358,21 +343,6 @@ function AudiencePanel({
         <>
           <p className="text-2xl font-semibold text-slate-900 leading-tight tabular-nums">{fmt(estimatedReach)}</p>
           <p className="text-[11px] text-slate-500 leading-snug">Eligible customers after filters</p>
-          <div className="mt-2 pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[10px]">
-            <div>
-              <p className="text-slate-400 uppercase tracking-wide">Baseline</p>
-              <p className="text-slate-700 font-mono tabular-nums">{fmt(baseline)}</p>
-            </div>
-            <div>
-              <p className="text-slate-400 uppercase tracking-wide">Retention</p>
-              <p className="text-slate-700 font-mono tabular-nums">{(retention * 100).toFixed(1)}%</p>
-            </div>
-          </div>
-          <p className="text-[10px] text-slate-500 mt-2 leading-snug">
-            {anyNarrowed && tightest
-              ? `Tightest: ${tightest[0]} — ${tightest[1].sel} of ${tightest[1].total} selected.`
-              : "All segments included — broaden or narrow with filters above."}
-          </p>
         </>
       )}
     </div>
