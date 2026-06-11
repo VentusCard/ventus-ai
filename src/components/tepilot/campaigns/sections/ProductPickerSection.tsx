@@ -327,19 +327,11 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
 }
 
 function AudiencePanel({
-  baseline,
   estimatedReach,
-  retention,
-  tightest,
   emptyGroup,
-  anyNarrowed,
 }: {
-  baseline: number;
   estimatedReach: number;
-  retention: number;
-  tightest?: [string, { sel: number; total: number }];
   emptyGroup?: string;
-  anyNarrowed: boolean;
 }) {
   return (
     <div className="rounded-md border border-slate-200 bg-white p-3">
