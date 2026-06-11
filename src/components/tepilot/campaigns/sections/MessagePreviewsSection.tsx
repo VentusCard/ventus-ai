@@ -88,7 +88,7 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   const maxFeaturedIdx = Math.max(0, revealedShown - 1);
   const safeFeaturedIdx = Math.min(featuredIdx, maxFeaturedIdx);
   const featuredCard = cards[safeFeaturedIdx];
-  const featuredVisual = featuredCard ? ANCHOR_VISUAL[featuredCard.anchorFamily] : ANCHOR_VISUAL.STACK;
+  const featuredVisual = featuredCard ? ANCHOR_VISUAL[featuredCard.anchorFamily] : ANCHOR_VISUAL.BEHAVIOR;
 
   const goPrev = () => {
     if (revealedShown <= 1) return;
