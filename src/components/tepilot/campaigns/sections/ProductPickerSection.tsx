@@ -27,8 +27,6 @@ const RELATIONSHIP_DEPTH_OPTIONS = [
   { value: "primary", label: "Primary bank" },
 ] as const;
 
-const CHANNEL_OPTIONS = ["Mobile", "Online", "Branch", "Phone"] as const;
-
 interface DemoFilters {
   ageRanges: string[];
   incomeBands: string[];
@@ -36,17 +34,15 @@ interface DemoFilters {
   regions: string[];
   accountTenure: string;
   relationshipDepth: string;
-  channels: string[];
 }
 
 const DEFAULT_FILTERS: DemoFilters = {
-  ageRanges: [],
-  incomeBands: [],
-  ficoRanges: [],
-  regions: [],
+  ageRanges: AGE_RANGES.map((a) => a),
+  incomeBands: INCOME_BANDS.map((b) => b.value),
+  ficoRanges: FICO_RANGES.map((f) => f.value),
+  regions: REGIONS.map((r) => r),
   accountTenure: "all",
   relationshipDepth: "any",
-  channels: [],
 };
 
 interface Props {
@@ -72,11 +68,10 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
   }, [query]);
 
   const activeCount =
-    filters.ageRanges.length +
-    filters.incomeBands.length +
-    filters.ficoRanges.length +
-    filters.regions.length +
-    filters.channels.length +
+    (AGE_RANGES.length - filters.ageRanges.length) +
+    (INCOME_BANDS.length - filters.incomeBands.length) +
+    (FICO_RANGES.length - filters.ficoRanges.length) +
+    (REGIONS.length - filters.regions.length) +
     (filters.accountTenure !== "all" ? 1 : 0) +
     (filters.relationshipDepth !== "any" ? 1 : 0);
 
@@ -146,7 +141,7 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
               </Badge>
             ) : (
               <span className="text-[10px] text-slate-400 truncate">
-                Age · Income · Tenure · FICO · Region · Depth · Channel
+                Age · Income · Tenure · FICO · Region · Depth
               </span>
             )}
             <span className="ml-auto flex items-center gap-1 shrink-0">
@@ -235,12 +230,6 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
                   </Select>
                 </div>
               </div>
-              <ChipGroup
-                label="Channel preference"
-                options={CHANNEL_OPTIONS.map((c) => ({ value: c, label: c }))}
-                selected={filters.channels}
-                onToggle={(v) => toggleArr("channels", v)}
-              />
             </div>
           )}
         </div>
