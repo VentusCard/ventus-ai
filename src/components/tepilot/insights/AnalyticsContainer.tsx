@@ -20,7 +20,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
+  Building2, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
   Zap, Megaphone, Layers, Menu
 } from "lucide-react";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
@@ -329,11 +329,6 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
           >
             <Menu className="w-4 h-4" />
           </Button>
-          {onBack && (
-            <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          )}
           <div className="flex items-center gap-2.5">
             <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
               <Building2 className="w-4 h-4 text-white" />
