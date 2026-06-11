@@ -591,6 +591,7 @@ export interface FamilyBreakdown {
 export function buildAudienceFunnel(
   estimatedAudience: number,
   exclusions: ProductExclusion[],
+  disabled?: Set<ExclusionType>,
 ): {
   stages: FunnelStage[];
   finalCount: number;
@@ -604,15 +605,77 @@ export function buildAudienceFunnel(
   for (const fam of SIGNAL_FAMILIES) {
     const signals = exclusions.filter((e) => e.type === fam);
     const pct = signals.reduce((s, e) => s + e.removedPct, 0);
-    const after = Math.round(remaining * (1 - pct));
+    const isDisabled = disabled?.has(fam) ?? false;
+    const potentialRemoved = Math.round(remaining * pct);
+    const after = isDisabled ? remaining : remaining - potentialRemoved;
     const removed = remaining - after;
-    byFamily[fam] = { removed, signals };
+    // Report each family's *potential* removed count for tooltip clarity, even when disabled.
+    byFamily[fam] = { removed: isDisabled ? potentialRemoved : removed, signals };
     stages.push({ id: `after-${fam}`, label: `After ${FAMILY_META[fam].label.toLowerCase()}`, count: after, delta: removed });
     remaining = after;
   }
 
   return { stages, finalCount: remaining, byFamily };
 }
+
+export const FAMILY_POLARITY: Record<ExclusionType, "plus" | "minus"> = {
+  "life-event": "plus",
+  behavioral: "plus",
+  demographic: "plus",
+  financial: "minus",
+  risk: "minus",
+};
+
+export const FAMILY_REASONS: Record<ExclusionType, { intro: string; reasons: string[] }> = {
+  "life-event": {
+    intro: "These signals qualify customers because we detected a timely moment:",
+    reasons: [
+      "New-home indicators",
+      "Growing-family signals",
+      "Job or role change detected",
+      "Relocation footprint",
+      "Recent education milestone",
+    ],
+  },
+  behavioral: {
+    intro: "These signals qualify customers because their engagement pattern fits:",
+    reasons: [
+      "Active digital engagement",
+      "Recurring savings transfers",
+      "Frequent advisor touchpoints",
+      "Healthy category diversification",
+    ],
+  },
+  demographic: {
+    intro: "These signals qualify customers because their household profile fits:",
+    reasons: [
+      "Likely homeowner",
+      "Dual-income household",
+      "Family-stage match",
+      "Tenure above cohort median",
+    ],
+  },
+  financial: {
+    intro: "These signals exclude customers to protect them from added strain:",
+    reasons: [
+      "Recent financial strain",
+      "Cash buffer below two weeks of outflows",
+      "Rising essential-spend share",
+      "Recurring overdraft fees",
+      "Debt-to-income above underwriting band",
+    ],
+  },
+  risk: {
+    intro: "These signals exclude customers based on recent risk posture:",
+    reasons: [
+      "Decreased credit-score trajectory",
+      "NSF or overdraft in last 90 days",
+      "Elevated DTI vs. underwriting band",
+      "Recent card or ACH declines",
+      "Open fraud or dispute case",
+    ],
+  },
+};
 
 export const FAMILY_META: Record<ExclusionType, { label: string; tone: string; border: string; iconBg: string; iconColor: string; chip: string }> = {
   "life-event": {
