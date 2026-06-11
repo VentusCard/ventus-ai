@@ -230,12 +230,6 @@ export function ProductPickerSection({ selectedId, onSelect }: Props) {
                   </Select>
                 </div>
               </div>
-              <ChipGroup
-                label="Channel preference"
-                options={CHANNEL_OPTIONS.map((c) => ({ value: c, label: c }))}
-                selected={filters.channels}
-                onToggle={(v) => toggleArr("channels", v)}
-              />
             </div>
           )}
         </div>
