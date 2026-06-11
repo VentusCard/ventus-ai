@@ -106,6 +106,15 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
       <div className="flex items-center gap-2 mb-3">
         <span className="flex items-center justify-center w-6 h-6 rounded-full bg-slate-900 text-white text-xs font-bold">3</span>
         <p className="text-sm font-semibold text-slate-900">Micro-Segment Personalized Campaign Output</p>
+        <button
+          type="button"
+          onClick={() => setRegenSeed((s) => s + 1)}
+          disabled={!product}
+          className="ml-auto inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          Regenerate
+        </button>
       </div>
 
       <div
@@ -125,7 +134,7 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
           )}
         >
           <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-slate-500">
-            Total campaigns
+            Micro-segments
           </p>
           <p className="text-[44px] leading-none font-semibold tabular-nums text-slate-900 mt-1">
             {variants.total.toLocaleString()}
