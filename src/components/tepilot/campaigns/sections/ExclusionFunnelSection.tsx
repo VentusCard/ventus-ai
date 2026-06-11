@@ -27,6 +27,7 @@ import {
   SIGNAL_FAMILIES,
   SIGNAL_RELEVANCE_META,
   FAMILY_META,
+  FAMILY_NARRATIVE,
   type ExclusionType,
   type SignalRelevance,
 } from "@/lib/productCatalogExtras";
