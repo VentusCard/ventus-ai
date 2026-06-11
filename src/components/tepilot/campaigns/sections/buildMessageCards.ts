@@ -15,8 +15,10 @@ export interface MessageCard {
   subject: string;
   body: string;
   cta: string;
+  ctaHref?: string;      // optional campaign URL — renders the CTA as a link
   why: string;           // 1-line rationale
 }
+
 
 // ── Anchor pools by category ────────────────────────────────────────────────
 
