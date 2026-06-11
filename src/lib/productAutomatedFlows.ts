@@ -75,7 +75,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "College-bound dependent inferred", evidence: "Tuition payments to academic institutions (ACH/bill-pay), standardized test fees (card), and out-of-town travel to university towns.", type: "life-event" },
       { label: "Education savings visibility", evidence: "Outbound ACH transfers to known 529 plan providers or brokerage education accounts, alongside internal transfers.", type: "behavioral" },
     ],
-    estimatedAudience: 14_200_000,
+    estimatedAudience: 28_400_000,
     penetration: 0.057,
     defaultActive: true,
   },
@@ -90,7 +90,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Diversified crypto exposure", evidence: "Card or ACH outflows to multiple cryptocurrency exchanges, including 'VEN*Crypto' or 'SQC*Coinbase'.", type: "behavioral" },
       { label: "Investment research & cash hoarding", evidence: "Sustained high checking balances coupled with subscription payments to investment research services or financial news.", type: "behavioral" },
     ],
-    estimatedAudience: 22_000_000,
+    estimatedAudience: 44_000_000,
     penetration: 0.088,
     defaultActive: true,
   },
@@ -105,7 +105,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Competitive wealth product funding", evidence: "Significant outbound ACH transfers/wires from DDA to external brokerage or robo-advisor (~$5k+) not associated with existing bank-managed investments.", type: "behavioral" },
       { label: "Late-career asset consolidation", evidence: "Large, infrequent inbound ACH credits/wires from pension or 401k administrators, followed by transfers to a new singular brokerage account with robo-advisor features.", type: "life-event" },
     ],
-    estimatedAudience: 17_500_000,
+    estimatedAudience: 35_000_000,
     penetration: 0.070,
   },
   {
@@ -119,7 +119,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Competitive Wealth Product Engagement", evidence: "Recurring outbound ACH transfers to external brokerage firms or investment robo-advisors; no matching inbound investment income.", type: "behavioral" },
       { label: "Professional Financial Guidance Seeking", evidence: "Frequent bill-pay to wealth management firms, financial advisors, or estate planning attorneys, coupled with large-value bank transfers.", type: "behavioral" },
     ],
-    estimatedAudience: 9_200_000,
+    estimatedAudience: 18_400_000,
     penetration: 0.037,
   },
   {
@@ -134,7 +134,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Luxury lifestyle memberships", evidence: "Recurring card charges and ACH payments to canonical private clubs, golf courses, or fractional jet operators.", type: "behavioral" },
       { label: "Complex asset liquidation event", evidence: "Large inbound wire transfer from an estate counsel IOLTA or real estate attorney, following irregular outflows.", type: "life-event" },
     ],
-    estimatedAudience: 6_400_000,
+    estimatedAudience: 12_800_000,
     penetration: 0.026,
     defaultActive: true,
   },
@@ -149,7 +149,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Distributed Real Estate Portfolio", evidence: "Recurring property tax payments via ACH or bill-pay to multiple distinct municipal or county entities.", type: "behavioral" },
       { label: "Complex Financial Management", evidence: "Multiple payroll ACH outflows, inter-entity transfers, and recurring wire payments to various specialized financial counterparties (e.g., trust, legal).", type: "behavioral" },
     ],
-    estimatedAudience: 850_000,
+    estimatedAudience: 1_700_000,
     penetration: 0.003,
   },
   {
@@ -163,7 +163,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Diversified Investment Strategy", evidence: "Regular, simultaneous ACH transfers to multiple investment platforms (brokerage, robo-advisor, alternative assets).", type: "behavioral" },
       { label: "Pre-Retirement Windfall", evidence: "Large, one-time inbound wire or ACH, followed by significant outbound investment vehicle funding transfers.", type: "life-event" },
     ],
-    estimatedAudience: 28_000_000,
+    estimatedAudience: 56_000_000,
     penetration: 0.112,
     defaultActive: true,
   },
@@ -178,7 +178,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Eldercare Gifting/Payments", evidence: "Consistent P2P (Zelle/Venmo) transfers to family/caregivers, coupled with ACH payments to assisted living or home health providers.", type: "behavioral" },
       { label: "Wealth Transfer Indication", evidence: "Large inbound wire deposits from estate accounts, or outgoing ACH to multiple individual beneficiaries following a life event.", type: "life-event" },
     ],
-    estimatedAudience: 2_400_000,
+    estimatedAudience: 4_800_000,
     penetration: 0.010,
   },
   {
@@ -192,7 +192,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Impact-driven philanthropy", evidence: "Regular, multi-rail donations to environmental NGOs and social justice organizations, alongside impact-fund contributions.", type: "behavioral" },
       { label: "Green vehicle adoption", evidence: "EV charging network subscriptions, home charging installations (ACH), and state-level EV rebate deposits.", type: "life-event" },
     ],
-    estimatedAudience: 5_600_000,
+    estimatedAudience: 11_200_000,
     penetration: 0.022,
   },
 
@@ -208,7 +208,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Significant savings for down payment", evidence: "Consistent, increasing balance across savings accounts, coupled with incoming transfers from investment accounts or matured CDs, beyond regular income.", type: "behavioral" },
       { label: "Home-related expense surge", evidence: "Increased card spend at home improvement stores, furniture retailers, and moving services, immediately following a large outflow for a down payment or closing costs.", type: "life-event" },
     ],
-    estimatedAudience: 13_700_000,
+    estimatedAudience: 27_400_000,
     penetration: 0.055,
   },
   {
@@ -223,7 +223,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Established property ownership", evidence: "Mortgage payments, property tax records, and utility bill-pays indicate continuous homeownership for over five years.", type: "life-event" },
       { label: "Home equity unlock potential", evidence: "Large inbound ACH from a different bank followed by series of high-value home improvement transactions via card and ACH.", type: "life-event" },
     ],
-    estimatedAudience: 9_800_000,
+    estimatedAudience: 19_600_000,
     penetration: 0.039,
     defaultActive: true,
   },
@@ -238,7 +238,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Outbound auto loan payoff", evidence: "Large outbound wire or ACH to a captive auto lender, with concurrent DMV payment.", type: "life-event" },
       { label: "New auto loan origination", evidence: "Large inbound ACH from a financial institution followed by regular outbound ACH payments to an auto lender.", type: "life-event" },
     ],
-    estimatedAudience: 11_500_000,
+    estimatedAudience: 23_000_000,
     penetration: 0.046,
   },
   {
@@ -252,7 +252,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Increased disposable income", evidence: "Sustained increase in direct-deposit payroll or P2P inflows, with no corresponding increase in recurring bill-pay or card outflows.", type: "life-event" },
       { label: "Refinance research behavior", evidence: "Frequent card transactions or ACH payments to credit reporting agencies, or inquiries to 'loan comparison' services.", type: "behavioral" },
     ],
-    estimatedAudience: 7_300_000,
+    estimatedAudience: 14_600_000,
     penetration: 0.029,
   },
   {
@@ -266,7 +266,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Emergency cash injection", evidence: "Inbound P2P transfers from multiple individuals or cash-out activity from diverse sources like 'VEN*CASH-OUT' followed by immediate bill payments.", type: "life-event" },
       { label: "Debt spiral risk", evidence: "Consistent high-utilization credit card balances paired with increasing ACH debits to collection agencies or frequent 'STRP*LOAN' type transactions.", type: "behavioral" },
     ],
-    estimatedAudience: 8_900_000,
+    estimatedAudience: 17_800_000,
     penetration: 0.036,
   },
   {
@@ -280,7 +280,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Business supplier network", evidence: "Multiple distinct ACH payments to known business suppliers, combined with online bill-pays to professional services or software vendors.", type: "behavioral" },
       { label: "Dedicated business operations", evidence: "Consistent card spending at office supply stores or SaaS providers, coupled with ACH transfers to a separate business account or payroll service.", type: "behavioral" },
     ],
-    estimatedAudience: 3_200_000,
+    estimatedAudience: 6_400_000,
     penetration: 0.013,
   },
 
@@ -296,7 +296,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Emerging Financial Footprint", evidence: "Limited credit bureau data, with early-stage card and ACH activity showing reliance on cash alternatives and P2P payments.", type: "life-event" },
       { label: "Prepaid Card Ecosystem Engagement", evidence: "Regular bill-pay transfers to known prepaid card providers (e.g., \"CHIME\", \"GREEN DOT\") and P2P loads to digital wallets.", type: "behavioral" },
     ],
-    estimatedAudience: 19_000_000,
+    estimatedAudience: 38_000_000,
     penetration: 0.076,
   },
   {
@@ -310,7 +310,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Bill-pay hub establishment", evidence: "Multiple bill-pay transactions to utilities, rent, and captive auto lenders, indicating primary bill management.", type: "behavioral" },
       { label: "Joint financial anchoring", evidence: "Shared address update alongside new joint account opening and recurring inter-account transfers to other known accounts.", type: "life-event" },
     ],
-    estimatedAudience: 62_000_000,
+    estimatedAudience: 124_000_000,
     penetration: 0.248,
     defaultActive: true,
   },
@@ -325,7 +325,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "High liquidity across rails", evidence: "Consistent high balances in checking, plus inbound transfers from brokerages and outbound bill pays to external investment platforms.", type: "behavioral" },
       { label: "Wealth management engagement", evidence: "Regular ACH transfers to/from known investment platforms and advisory firms, alongside bill pay for estate counsel fees.", type: "behavioral" },
     ],
-    estimatedAudience: 9_500_000,
+    estimatedAudience: 19_000_000,
     penetration: 0.038,
   },
   {
@@ -339,7 +339,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Dedicated savings goal", evidence: "Recurring transfers to a savings account, often with a unique memo like 'down payment' or 'tuition fund'", type: "behavioral" },
       { label: "Significant tax refund received", evidence: "Large annual inflow from tax authorities (IRS, state DOR) via ACH or direct deposit, frequently >$1,500", type: "life-event" },
     ],
-    estimatedAudience: 34_000_000,
+    estimatedAudience: 68_000_000,
     penetration: 0.136,
     defaultActive: true,
   },
@@ -354,7 +354,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Outbound Yield-Seeking Transfers", evidence: "Recurring ACH transfers to known investment platforms, brokerage accounts, or high-yield fintech savings products.", type: "behavioral" },
       { label: "Competitive Product Funding", evidence: "Inbound ACH linked to a prominent challenger bank or investment product, followed by large outbound transfers from checking.", type: "life-event" },
     ],
-    estimatedAudience: 18_600_000,
+    estimatedAudience: 37_200_000,
     penetration: 0.074,
     defaultActive: true,
   },
@@ -369,7 +369,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Senior Wealth Builder", evidence: "Consistent inbound Social Security or pension ACH, coupled with recurring bill-pay to retirement community and medical providers.", type: "behavioral" },
       { label: "Fixed Income Seeker", evidence: "Frequent outbound transfers to online brokerage for bond/Treasury ETFs, or direct ACH to government treasury programs.", type: "behavioral" },
     ],
-    estimatedAudience: 11_000_000,
+    estimatedAudience: 22_000_000,
     penetration: 0.044,
   },
 
@@ -385,7 +385,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Competitor card funding", evidence: "Regular bill-pay or ACH transfers to other card issuers, indicating external card payments and usage.", type: "behavioral" },
       { label: "Growing card engagement", evidence: "Increasing monthly transaction volume and value on a single card, with new linked bill-pay or P2P activity.", type: "behavioral" },
     ],
-    estimatedAudience: 24_000_000,
+    estimatedAudience: 48_000_000,
     penetration: 0.096,
     defaultActive: true,
   },
@@ -401,7 +401,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Simplified rewards preference", evidence: "Ignored category-activation prompts on card, consistent P2P/ACH for structured bills, suggests preference for flat-rate rewards.", type: "behavioral" },
       { label: "Cross-rail discretionary spending", evidence: "Balanced discretionary spending across card (e.g., entertainment, apparel) and P2P (e.g., VEN* for social activities or shared expenses).", type: "behavioral" },
     ],
-    estimatedAudience: 21_000_000,
+    estimatedAudience: 42_000_000,
     penetration: 0.084,
   },
   {
@@ -415,7 +415,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Foreign transaction history", evidence: "Card foreign currency transactions, plus international wire transfers or P2P to foreign persons, within the last six months.", type: "behavioral" },
       { label: "Pre-travel spending surge", evidence: "Elevated card spend at specialty apparel, luggage, and duty-free merchants, correlated with upcoming travel-related debits and P2P payments.", type: "behavioral" },
     ],
-    estimatedAudience: 12_100_000,
+    estimatedAudience: 24_200_000,
     penetration: 0.048,
   },
   {
@@ -429,7 +429,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Luxury travel indulgence", evidence: "Consistent personal card spend at premium airlines, resorts, and fine dining establishments, often exceeding corporate travel budgets.", type: "behavioral" },
       { label: "Broad travel ecosystem spend", evidence: "Frequent transactions for ride-sharing, luggage, adaptive clothing, and travel medical, indicating extensive and diverse travel needs.", type: "behavioral" },
     ],
-    estimatedAudience: 4_800_000,
+    estimatedAudience: 9_600_000,
     penetration: 0.019,
   },
   {
@@ -443,7 +443,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Affluent global traveler profile", evidence: "Frequent, high-value foreign currency transactions and cross-border payments for travel services via cards and wires.", type: "behavioral" },
       { label: "Concierge service dependency", evidence: "Repeated card transactions with known concierge merchant types, often followed by high-end travel or experience purchases.", type: "behavioral" },
     ],
-    estimatedAudience: 1_100_000,
+    estimatedAudience: 2_200_000,
     penetration: 0.004,
   },
   {
@@ -457,7 +457,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "High-Cost Debt Indicators", evidence: "Recurring ACH transfers and bill-pays to non-bank lenders and credit card companies, showing high estimated interest payments.", type: "behavioral" },
       { label: "Opportunity for Wallet Share", evidence: "Significant external credit card payments observed across bill-pay and P2P, indicating potential to consolidate balances.", type: "behavioral" },
     ],
-    estimatedAudience: 6_700_000,
+    estimatedAudience: 13_400_000,
     penetration: 0.027,
   },
   {
@@ -471,7 +471,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Competitive card wallet share", evidence: "Inbound ACH transfers from other financial institutions for credit card payments, indicating competitor usage within the same spend category.", type: "behavioral" },
       { label: "Brand-specific travel investment", evidence: "Card and bill-pay transactions show consistent booking and payment for a single airline, cruise line, or related travel provider.", type: "behavioral" },
     ],
-    estimatedAudience: 3_400_000,
+    estimatedAudience: 6_800_000,
     penetration: 0.014,
   },
 
@@ -487,7 +487,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Increased housing costs", evidence: "New recurring ACH payments to a mortgage servicer or significantly larger rent payments (bill-pay) started recently.", type: "life-event" },
       { label: "Consolidated income dependency", evidence: "One primary income source (ACH payroll) increasingly covers household expenses and transfers to other accounts (P2P, bill-pay).", type: "behavioral" },
     ],
-    estimatedAudience: 7_500_000,
+    estimatedAudience: 15_000_000,
     penetration: 0.030,
   },
   {
@@ -501,7 +501,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Diversified asset management", evidence: "Outflows to multiple brokerages, private equity firms or alternative investment vehicles via ACH and wire transfers.", type: "behavioral" },
       { label: "Intergenerational wealth transfer", evidence: "Regular P2P and wire transfers to multiple family members, often near annual gift tax exclusion limits.", type: "behavioral" },
     ],
-    estimatedAudience: 2_200_000,
+    estimatedAudience: 4_400_000,
     penetration: 0.009,
   },
   {
@@ -515,7 +515,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Family Financial Reorganization", evidence: "New wires/ACH from family members, trust disbursements, or sudden large transfers to estate-counsel IOLTA accounts.", type: "life-event" },
       { label: "Complex Health Spend Uptick", evidence: "Rising card spend at specialized medical practices combined with increasing P2P to nursing support or medical supply vendors.", type: "behavioral" },
     ],
-    estimatedAudience: 4_100_000,
+    estimatedAudience: 8_200_000,
     penetration: 0.016,
   },
   {
@@ -529,7 +529,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Diversified retirement funding", evidence: "Regular inbound transfers from multiple sources including employment income, investment dividends, and external annuity payments across ACH/wire.", type: "behavioral" },
       { label: "Approaching retirement age", evidence: "Consistent payroll deposits declining in frequency or amount, paired with increased medical spending (copays, prescriptions) via card or ACH.", type: "life-event" },
     ],
-    estimatedAudience: 3_600_000,
+    estimatedAudience: 7_200_000,
     penetration: 0.014,
   },
 
@@ -545,7 +545,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Recurring wedding vendor payments", evidence: "Clustered card, Bill-Pay, or ACH outflows to multiple wedding-related categories like venues, caterers, or event planners.", type: "life-event" },
       { label: "Honeymoon travel bookings", evidence: "Clusters of card or online travel agency (OTA) spend for flights, lodging, and experiences in common honeymoon destinations.", type: "life-event" },
     ],
-    estimatedAudience: 2_400_000,
+    estimatedAudience: 4_800_000,
     penetration: 0.010,
   },
   {
@@ -559,7 +559,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Family law/legal services engagement", evidence: "Multiple disaggregated payments to legal services firms, ", type: "life-event" },
       { label: "New solo rent or mortgage payments", evidence: "First-time or new recurring rent/mortgage payments via ACH or bill-pay, linked to a single individual, following a period of joint housing payments.", type: "life-event" },
     ],
-    estimatedAudience: 3_100_000,
+    estimatedAudience: 6_200_000,
     penetration: 0.012,
   },
   {
@@ -573,7 +573,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Recurring wealth transfer", evidence: "Consistent outbound ACHs or bill-pays to a financial advisor or brokerage, following a large estate inflow event.", type: "behavioral" },
       { label: "Beneficiary data update", evidence: "Digital engagement with beneficiary forms or account titling changes observed across multiple financial platforms or bank products.", type: "behavioral" },
     ],
-    estimatedAudience: 1_900_000,
+    estimatedAudience: 3_800_000,
     penetration: 0.008,
   },
   {
@@ -588,7 +588,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Remote property maintenance payments", evidence: "Recurring card or bill-pay transactions to landscaping, pool, or home repair services in a non-primary residential area.", type: "behavioral" },
       { label: "Out-of-area contractor payments", evidence: "Large-value ACH or wire transfers to contractors and builders located outside the primary residence's metropolitan area.", type: "life-event" },
     ],
-    estimatedAudience: 1_400_000,
+    estimatedAudience: 2_800_000,
     penetration: 0.006,
   },
   {
@@ -602,7 +602,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Career launch income surge", evidence: "Significant and sustained increase in payroll deposits, potentially combined with relocation expenses via card and bill pay.", type: "life-event" },
       { label: "Student loan wallet share shift", evidence: "Decreased or terminated ACH payments to original student loan servicers, replaced by new payments to a competing financial institution.", type: "behavioral" },
     ],
-    estimatedAudience: 5_800_000,
+    estimatedAudience: 11_600_000,
     penetration: 0.023,
   },
   {
@@ -616,7 +616,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "High Deductible Plan Medical Outflows", evidence: "Consistent, out-of-pocket card or ACH payments to medical providers ('HOSPITAL', 'PEDIATRIC', 'RX') before typical insurance coverage limits are met.", type: "behavioral" },
       { label: "Catch-Up Contribution Eligibility", evidence: "Periodic, larger-than-normal ACH or P2P contributions to an HSA administrator, often occurring around age 55, indicating catch-up contributions.", type: "life-event" },
     ],
-    estimatedAudience: 9_400_000,
+    estimatedAudience: 18_800_000,
     penetration: 0.038,
   },
   {
@@ -630,7 +630,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Diversified giving portfolio", evidence: "Consistent P2P, bill-pay, and card donations to multiple distinct non-profit categories (e.g., education, arts, social services).", type: "behavioral" },
       { label: "New philanthropic intent", evidence: "Initial large ACH or wire transfer to a DAF sponsor or community foundation, followed by segmented outflows to charities.", type: "life-event" },
     ],
-    estimatedAudience: 2_100_000,
+    estimatedAudience: 4_200_000,
     penetration: 0.008,
   },
   {
@@ -645,7 +645,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Sustained High Credit Utilization", evidence: "Consistent external credit card payments via bill-pay show increasing principal paydowns, indicating rising revolving debt across card rails.", type: "behavioral" },
       { label: "Increased Reliance On Non-Bank Financial Services", evidence: "Recurring outbound transfers to alternative lenders or 'pay-over-time' services, indicating use of external credit providers.", type: "behavioral" },
     ],
-    estimatedAudience: 6_500_000,
+    estimatedAudience: 13_000_000,
     penetration: 0.026,
   },
   {
@@ -659,7 +659,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Multi-currency lifestyle indicator", evidence: "Sustained card spend in non-USD across multiple currencies, combined with P2P to international recipients.", type: "behavioral" },
       { label: "Frequent international transfers", evidence: "Recurring outbound or inbound wires/ACH to/from foreign counterparties, including 'SWIFT' or 'IBAN' references.", type: "behavioral" },
     ],
-    estimatedAudience: 1_700_000,
+    estimatedAudience: 3_400_000,
     penetration: 0.007,
   },
   {
@@ -673,7 +673,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Home Improvement Project Concluding", evidence: "Clustering of final large-dollar ACH payments to contractors and building material suppliers.", type: "life-event" },
       { label: "No Recurring Home Insurance", evidence: "Absence of recurring bill-pay or ACH payments to property & casualty insurers, despite property ownership.", type: "behavioral" },
     ],
-    estimatedAudience: 4_900_000,
+    estimatedAudience: 9_800_000,
     penetration: 0.020,
   },
   {
@@ -687,7 +687,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Increased auto insurance premium", evidence: "Significant increase in recurring auto insurance payments (card or ACH) following a new driver addition or vehicle purchase event.", type: "life-event" },
       { label: "High-value asset transfers", evidence: "Large outbound wire transfers or ACH payments to known luxury good merchants or investment accounts, alongside inbound proceeds from asset sales.", type: "behavioral" },
     ],
-    estimatedAudience: 3_200_000,
+    estimatedAudience: 6_400_000,
     penetration: 0.013,
   },
   {
@@ -701,7 +701,7 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
       { label: "Out-of-state utility & rent payments", evidence: "Concurrent bill-pay enrollment and recurring payments to utility providers and landlords in a new, distant geography.", type: "life-event" },
       { label: "New local-employer payroll deposit", evidence: "New recurring ACH payroll credits from an employer geographically distant from prior employer's location.", type: "life-event" },
     ],
-    estimatedAudience: 2_600_000,
+    estimatedAudience: 5_200_000,
     penetration: 0.010,
   },
 ];
