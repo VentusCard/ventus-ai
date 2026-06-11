@@ -30,11 +30,31 @@ const CATEGORY_ORDER: ProductCategory[] = [
 interface Props {
   selectedName: string;
   onSelect: (name: string) => void;
+  offers: string[];
+  onOffersChange: (offers: string[]) => void;
 }
 
-export function ProductPickerSection({ selectedName, onSelect }: Props) {
+export function ProductPickerSection({ selectedName, onSelect, offers, onOffersChange }: Props) {
   const [query, setQuery] = useState("");
+  const [offerDraft, setOfferDraft] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const addOffer = () => {
+    const trimmed = offerDraft.trim().slice(0, OFFER_MAX_LEN);
+    if (!trimmed) return;
+    if (offers.includes(trimmed)) {
+      setOfferDraft("");
+      return;
+    }
+    if (offers.length >= OFFER_MAX_COUNT) return;
+    onOffersChange([...offers, trimmed]);
+    setOfferDraft("");
+  };
+
+  const removeOffer = (idx: number) => {
+    onOffersChange(offers.filter((_, i) => i !== idx));
+  };
+
 
   const selected = PRODUCT_CATALOG.find((p) => p.name === selectedName);
   const selectedFlow = selected ? adaptCatalogProduct(selected) : null;
