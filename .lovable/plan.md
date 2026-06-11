@@ -1,23 +1,34 @@
-# Remove Business-Only Flows from /bankdemo
+# Rewrite Microsegment Copy: Subtle, Bright, Non-Creepy
 
-We only ingest consumer transaction data, so dedicated business products don't belong in the catalog. The one exception the user called out: detecting that a consumer is *starting or running* a business from their personal-account activity — that signal stays and continues to drive **Small Business Loan**.
+Regenerate the `body` (and tighten `subject` + `title` where needed) for every entry in `src/lib/productMicrosegments.ts`. Same structure, same `signalLabel` keys, same flow IDs — only the customer-facing copy changes.
 
-## Remove these flows entirely
-From `src/lib/productAutomatedFlows.ts` and `src/lib/productMicrosegments.ts`:
-- `sb-cashback-card` — Small Business Cash Back Card
-- `sb-flat-card` — Small Business Flat-Rate Card
-- `sb-travel-card` — Small Business Travel Card
-- `equipment-financing` — relies on commercial lease ACH / practice payroll, which we don't see on consumer accounts
+## Tone rules (enforced in the regeneration prompt)
+- **No surveillance language.** Banned openers: "We've noticed…", "We see you…", "We detected…", "Based on your activity…", "Your transactions show…". Never reference the specific signal evidence back to the customer.
+- **Subtle.** Speak to a life moment or goal in general terms — never call out specific merchants, counts, amounts, frequencies, or behaviors.
+- **Short.** 2 sentences max, ~25–40 words total. No multi-paragraph emails.
+- **Bright & engaging.** Warm, optimistic, opportunity-framed. No stress/risk/scarcity language.
+- **Opener.** Must still start with `Hi {{first_name}},` then go straight to a benefit or moment.
+- **Subject.** ≤ 50 chars, friendly, benefit-led.
+- **Title.** 4–6 words.
+- **CTA.** 2–4 words, action-led.
 
-## Keep, but reframe signals around personal-account evidence
-- `small-business-loan` — Small Business Loan
-  - Keep all current signals (Square/Stripe deposits into personal account, vendor ACH cluster, business-pattern card use on personal card). These already match the "running a business from a personal account" detection the user wants.
-  - No microsegment changes needed; existing copy already speaks to the side-hustle / solo-operator consumer.
+## Examples of the new feel
+- Before: "Hi {{first_name}}, we've noticed you're actively managing your investments. Did you know you can consolidate your portfolio and enjoy commission-free trading…"
+- After: "Hi {{first_name}}, ready to put more of your portfolio to work? Commission-free trades and smarter tools, whenever you want them."
 
-## Touch nothing else
-- 32 remaining flows untouched.
-- No UI/component changes; `ProductAutomatedFlowsView` keeps rendering whatever `PRODUCT_FLOWS` exposes.
+- Before: "Hi {{first_name}}, as you settle into life with your newest family member, long term planning often takes on a new meaning. We noticed your recent focus on nursery and healthcare essentials and want to help you balance those…"
+- After: "Hi {{first_name}}, the early years fly by — a little set aside now can open big doors later. Start a tax-smart education fund in minutes."
 
-## Files
-- `src/lib/productAutomatedFlows.ts` — delete 4 flow objects
-- `src/lib/productMicrosegments.ts` — delete the 4 matching keys
+## Scope
+- Touch only `src/lib/productMicrosegments.ts`.
+- All 32 flows × ~3–4 signals each (~110 entries) get refreshed.
+- Preserve every `signalLabel` exactly (it is the join key with `productAutomatedFlows.ts`).
+- Keep `FlowMicrosegment` shape and the exported `FLOW_MICROSEGMENTS` const.
+
+## How
+One-shot regeneration via the same Lovable AI gateway script pattern used last time: feed each flow's `name`, `positioning`, and ordered signals, ask for new `{title, subject, body, cta}` per signal under the tone rules above, then rewrite the file with `signalLabel`s preserved.
+
+## Files touched
+- `src/lib/productMicrosegments.ts` — full copy refresh, structure unchanged.
+
+No component, routing, or schema changes.
