@@ -1,9 +1,10 @@
-import { Settings, CreditCard, Users } from "lucide-react";
+import { Settings, CreditCard, Users, ShieldCheck } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { TabHeader } from "./TabHeader";
 import { SettingsView } from "./SettingsView";
 import { BillingView } from "./BillingView";
 import { TeamView } from "./TeamView";
+import { TargetingGuardrailsPanel } from "../settings/TargetingGuardrailsPanel";
 
 export function SettingsContainer() {
   return (
@@ -21,6 +22,9 @@ export function SettingsContainer() {
           <TabsTrigger value="general" className="gap-1.5">
             <Settings className="w-3.5 h-3.5" /> General
           </TabsTrigger>
+          <TabsTrigger value="guardrails" className="gap-1.5">
+            <ShieldCheck className="w-3.5 h-3.5" /> Targeting Guardrails
+          </TabsTrigger>
           <TabsTrigger value="billing" className="gap-1.5">
             <CreditCard className="w-3.5 h-3.5" /> Billing
           </TabsTrigger>
@@ -30,6 +34,9 @@ export function SettingsContainer() {
         </TabsList>
         <TabsContent value="general" forceMount className="mt-5 data-[state=inactive]:hidden">
           <SettingsView />
+        </TabsContent>
+        <TabsContent value="guardrails" forceMount className="mt-5 data-[state=inactive]:hidden">
+          <TargetingGuardrailsPanel />
         </TabsContent>
         <TabsContent value="billing" forceMount className="mt-5 data-[state=inactive]:hidden">
           <BillingView />

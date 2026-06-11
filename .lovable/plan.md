@@ -1,79 +1,61 @@
-# Rebuild Next-product
+# Targeting — White-Glove Autonomous Enhancements
 
-## Concept
+Reframes Targeting from "tools the bank operates" to "service Ventus runs for the bank." Two additions, in two different places.
 
-Next-product becomes the **customer-first roll-up of Automated Flows**. Automated Flows fires signals per product, one customer at a time. Next-product zooms out: across the entire book, **where are those flows concentrating, and which product wins per cohort?**
+## 1. Autonomous Activity Feed (Targeting, top of section)
 
-Read-only intelligence surface. No CampaignStudio, no FinancialJourneyHeader, no campaign authoring.
+A persistent, always-visible feed at the top of the Targeting area showing what Ventus has done autonomously — the headline proof that the service is working overnight without the bank lifting a finger.
 
-| Tab | Lens | Output |
-|---|---|---|
-| Automated Flows | Product → signal | "When X happens, enroll" |
-| **Next-product** | **Cohort → ranked products** | **"For this cohort, what's next?"** |
-| Campaign Builder | Product push | "Pick a product, see who qualifies" |
+**Placement:** Renders above the active Targeting sub-tab (Automated Flows / Campaign Builder / Next-product). Shared across all three so the activity stream is the constant frame.
 
-## UI
+**Card design (mock, light theme):**
+- Horizontal scrolling strip OR compact stacked list (5 most recent, "View all" link).
+- Each item: timestamp ("2h ago"), action verb badge, one-line description, affected count, optional drill-link.
+- Action types + example copy:
+  - `Enrolled` — "Enrolled 1,240 customers into HELOC equity-tap flow"
+  - `Paused` — "Paused Auto-Refi campaign — saturation detected in 18–34 segment"
+  - `Drafted` — "Drafted 3 new flows from emerging signals — awaiting review"
+  - `Optimized` — "Shifted Term Life flow from email to in-app — 2.3× lift"
+  - `Suppressed` — "Suppressed 412 customers from outreach — frequency cap reached"
+  - `Detected` — "Detected new cohort: Empty-Nesters relocating coastal — 380 customers"
+- Soft pulse indicator on the newest item; auto-rotates demo entries every ~6s for liveness.
 
-### 1. TabHeader (kept)
-- Title: `Next-product`
-- Subtitle: `Customer cohorts ranked by the product Automated Flows is most likely to fire next — read-only intelligence rolled up from live signals.`
-- howItWorks: `Ventus aggregates every automated-flow signal across the book and scores each customer cohort against the product catalog. The heatmap shows the strongest next-product fit per cohort.`
-- whyItMatters: `Bankers see where opportunity concentrates without authoring a single campaign — and which Automated Flows are doing the heavy lifting.`
+**Data:** Hardcoded mock entries in `next-product/data/autonomousActivity.ts` (or new `targeting/data/`). No backend.
 
-### 2. KPI strip (new)
-Four compact tiles above the heatmap:
-- Customers with a next-product match
-- Avg. signal strength (1–100)
-- Top product this week (name + cohort count)
-- Flows feeding this view (count, links to Automated Flows tab)
+**Tone rules:** Vaguely specific counts (rounded), no exact spend, no customer names. Frame as opportunity language per existing memory.
 
-### 3. Cohort × Product heatmap (new — primary view)
-- Rows: customer cohorts (life-stage × lifestyle pillar combos, ~10–14 rows e.g. "Young Professionals — Travel-led", "New Parents — Home-led", "Pre-Retirees — Wealth-led", "Small Biz Owners — Cards-led", etc.)
-- Columns: ~8 BoA-style products (HELOC, Auto Refi, Premium Card, 529 Plan, HYSA, Wealth Advisory, Mortgage, Small Biz Line)
-- Cell: shaded by score 0–100; numeric score + tiny audience count
-- Top-1 cell per row outlined (the cohort's "next product")
-- Click cell → side panel (see #4)
+## 2. Governance & Guardrails (Settings tab)
 
-```text
-                HELOC  Auto  Card  529   HYSA  Wealth Mort  SMB
-New Parents       42    18   31   [88]   54     22     61    9
-Pre-Retirees      71    12   28    8     49    [82]    18    6
-Travel-led YPs    14    24  [76]   11    63     31     22   12
-...
-```
+Moves the "service contract" into the existing **Settings** sidebar item — the bank sets the rails once, Ventus operates inside them. This is what makes the autonomy feel safe.
 
-### 4. Cohort drill-down panel (new — right side, opens on row click)
-Shows the cohort's ranked product ladder:
-- Cohort name, audience size, dominant pillars
-- Ranked products (top 5) with score, signal-strength bar, and the **list of Automated Flows feeding the score** (linked back to the Automated Flows tab — reinforces the "data from automated flows" framing)
-- Top behavioral & life-event signals contributing
-- No "send campaign" or "create campaign" CTAs — read-only
+**New Settings sub-section: "Targeting Guardrails"**
 
-### 5. Cohort filter chips (above heatmap)
-- Life-stage filter (Young Pros, Families, Pre-Retirees, Retirees, SMB)
-- Pillar lens (Travel, Home, Wealth, Cards, Deposits…)
-- Sort by: top score / audience size / momentum
+Read-mostly card grid (toggles + sliders mocked, no persistence needed for demo):
+- **Frequency cap** — Max messages per customer per week (slider, default 2).
+- **Channel priority** — Drag-ordered list: In-app → Email → SMS → Push.
+- **Quiet hours** — Time window where no outbound fires (e.g. 9pm–8am local).
+- **Cooling-off period** — Days of silence after a conversion before re-targeting (default 30).
+- **Product eligibility** — Which products Ventus may autonomously enroll vs require human approval. Checklist over the product catalog.
+- **Tone & disclaimers** — Brand voice pinned + required compliance footer.
+- **Autonomy threshold** — Slider: "Banker approves everything" ↔ "Ventus runs autonomously." Default: mid.
 
-## Files
+Top of the panel: one-line statement — "Ventus operates inside these rails. Everything else runs autonomously."
 
-**Edit**
-- `src/components/tepilot/campaigns/SegmentTargetingView.tsx` — strip out `FinancialJourneyHeader` + `CampaignStudio`; render new components below the existing TabHeader; update subtitle/howItWorks/whyItMatters copy.
+## Technical Notes
 
-**New** (under `src/components/tepilot/campaigns/next-product/`)
-- `NextProductKpiStrip.tsx`
-- `CohortProductHeatmap.tsx`
-- `CohortDrilldownPanel.tsx`
-- `CohortFilters.tsx`
-- `data/cohorts.ts` — cohort definitions + scoring rows (static demo data, derived in spirit from `PRODUCT_FLOWS`/`FLOW_MICROSEGMENTS` so the "rolled up from automated flows" story holds)
+**Files to create:**
+- `src/components/tepilot/campaigns/AutonomousActivityFeed.tsx` — feed UI
+- `src/components/tepilot/campaigns/data/autonomousActivity.ts` — mock entries
+- `src/components/tepilot/settings/TargetingGuardrailsPanel.tsx` — guardrails UI
 
-**Untouched**
-- `CampaignStudio.tsx`, `FinancialJourneyHeader.tsx` — still used by Campaign Builder.
-- `ProductAutomatedFlowsView.tsx`, `ProductCampaignBuilderView.tsx`, `AnalyticsContainer.tsx` — no changes.
+**Files to edit:**
+- `src/components/tepilot/insights/AnalyticsContainer.tsx` — render `AutonomousActivityFeed` above content when `activeTab` is one of the three Targeting tabs.
+- `src/components/tepilot/insights/SettingsContainer.tsx` — add Targeting Guardrails section.
 
-## Out of scope
-- No new edge functions, no live LLM calls — static demo data with deterministic scores.
-- No changes to Automated Flows or Campaign Builder.
-- No campaign authoring UI in Next-product.
+**Untouched:** `ProductAutomatedFlowsView`, `ProductCampaignBuilderView`, `SegmentTargetingView` internals.
 
-## Memory
-Add memory `mem://features/next-product/cohort-heatmap` describing: customer-first roll-up of Automated Flows, cohort × product heatmap, read-only, no CampaignStudio.
+**Out of scope:** No persistence, no edge functions, no real auto-optimization — all mocked. No changes to other nav groups.
+
+## Memory updates after build
+- New: `mem://features/targeting/autonomous-activity-feed` — placement, action verbs, tone.
+- New: `mem://features/settings/targeting-guardrails` — guardrail fields + autonomy slider concept.

@@ -4,6 +4,7 @@ import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/Availa
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
+import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
@@ -299,6 +300,11 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
       {/* Content */}
       <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
+        {(activeTab === 'targeting' || activeTab === 'targeting-automated-flows' || activeTab === 'targeting-campaign-builder') && (
+          <div className="mb-4">
+            <AutonomousActivityFeed />
+          </div>
+        )}
         {renderContent()}
         {activeTab !== 'ventus-ai' && !chatOpen && (
           <button
