@@ -577,14 +577,14 @@ function ChipGroup({
 function ExpandedPanel({
   family,
   relevance,
-  signals,
+  items,
   removed,
   baseForRates,
   onClose,
 }: {
   family: ExclusionType;
   relevance: SignalRelevance;
-  signals: ReturnType<typeof getProductExclusions>;
+  items: { id: string; label: string; rationale: string; removedPct?: number }[];
   removed: number;
   baseForRates: number;
   onClose: () => void;
@@ -602,7 +602,7 @@ function ExpandedPanel({
         <div className="min-w-0">
           <p className="text-sm font-semibold text-slate-900 leading-tight">{meta.label}</p>
           <p className="text-[11px] text-slate-500">
-            {signals.length} contributing signals · {relMeta.label}
+            {items.length} contributing signals · {relMeta.label}
             {relevance === "flag" && <> · −{fmt(removed)} from prior stage</>}
           </p>
         </div>
@@ -614,19 +614,21 @@ function ExpandedPanel({
         </button>
       </div>
 
-      {signals.length === 0 ? (
+      {items.length === 0 ? (
         <p className="text-xs text-slate-500 italic py-3 text-center">
           No {meta.label.toLowerCase()} are filtering this product right now.
         </p>
       ) : (
         <ul className="grid grid-cols-1 md:grid-cols-2 gap-2">
-          {signals.map((s) => (
+          {items.map((s) => (
             <li key={s.id} className="rounded-md border border-slate-200 bg-white p-2">
               <div className="flex items-baseline justify-between gap-2 mb-0.5">
                 <p className="text-xs font-medium text-slate-900 leading-tight">{s.label}</p>
-                <span className="text-[10px] font-mono text-slate-600 shrink-0">
-                  {sign}{fmt(Math.round(baseForRates * s.removedPct))}
-                </span>
+                {typeof s.removedPct === "number" && (
+                  <span className="text-[10px] font-mono text-slate-600 shrink-0">
+                    {sign}{fmt(Math.round(baseForRates * s.removedPct))}
+                  </span>
+                )}
               </div>
               <p className="text-[11px] text-slate-600 leading-snug">{s.rationale}</p>
             </li>
