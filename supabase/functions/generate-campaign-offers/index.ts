@@ -77,42 +77,57 @@ L5 · MESSAGE          reads 2, 7, 8, 9, 10 (+ anchor, +11).
 L6 · PRIORITY         reads 1. Score = spend velocity × product value band.
 
 TAXONOMIES (closed sets — count only what the profile expresses)
-BEHAVIORAL_CATEGORIES (15): groceries, dining, fuel & transit, travel & lodging,
+PRIMARY_SPEND_CATEGORIES (12): groceries, dining, fuel & transit, travel & lodging,
   entertainment & streaming, apparel & beauty, home & living, health & wellness,
-  kids & family, pets, education, professional services, charitable giving,
-  recurring bills & utilities, big-ticket discretionary.
+  kids & family, pets, recurring bills & utilities, big-ticket discretionary.
+SECONDARY_SPEND_CATEGORIES (11) — the 3% / 2% bonus-earn tiers layered on base:
+  drugstores, warehouse clubs, department stores, online retail, ride-share,
+  hotels (direct), airlines (direct), streaming (premium), wireless & cable,
+  EV charging, education.
 LIFE_EVENTS (15): new baby, move / relocation, new job / employer change,
   marriage, divorce, home purchase forming, home sale, college / tuition forming,
   retirement runway, estate / inheritance inflow, business formation,
   vehicle purchase, medical event, return to school, empty nest.
+DEMOGRAPHIC_ANGLES: household shape, geo cost-of-living, tenure × credit tier.
+TONE_REGISTERS (≥2 selectable per profile): derived from card 2 tier × card 9
+  tenure — e.g. "premium-loyalist", "mainstream-newcomer", "value-juggler",
+  "affluent-multi-product". Each variation may ship in multiple registers for A/B.
+OFFER_CONSTRUCTIONS: % cashback, flat sign-up bonus, statement credit,
+  fee waiver, intro APR, points multiplier, rotating bonus, milestone reward.
 
 VARIATION CONTRACT
 Compute and return:
-  profile_space    = 14348907                       (3^15, constant)
-  total_variations = P × (B + L + F) × K × R after L1/L2 pruning, where
-                       P = product.plays satisfied by this profile
-                       B = qualifying BEHAVIORAL_CATEGORIES (0..15) — count only
-                           categories the profile expresses at HIGH or MED on cards 1–3
-                       L = qualifying LIFE_EVENTS (0..15) — count only events
-                           at "early" (MED) or "confirmed" (HIGH) on cards 4–6
-                       F = qualifying FINANCIAL angles from cards 10–12
-                           (cash-flow shape, eligibility headroom, proof posture)
-                       K = distinct offer_anchors derivable from cards 1, 3, 11, 12
-                       R = 2 proof modes (card 12 × product.proof_rules)
-  (B + L + F is a SUM, not a product — each variation rides on ONE dominant angle.)
-  variation_space  = { plays_qualified, behavioral_categories_qualified,
-                       life_events_qualified, financial_angles_qualified,
-                       anchors_available, proof_modes }
+  profile_space    = 14348907                       (3^15, constant — for the record)
+  total_variations = P × (C1 + C2 + L + F + D) × K × T × R × O after L1/L2 pruning
+                       P  = product.plays satisfied by this profile
+                       C1 = qualifying PRIMARY_SPEND_CATEGORIES (0..12) at HIGH/MED on cards 1–3
+                       C2 = qualifying SECONDARY_SPEND_CATEGORIES (0..11) — bonus-earn tiers the profile would actually use
+                       L  = qualifying LIFE_EVENTS (0..15) — events at MED (early) or HIGH (confirmed) on cards 4–6
+                       F  = qualifying FINANCIAL angles from cards 10–12
+                       D  = qualifying DEMOGRAPHIC_ANGLES from cards 7–9
+                       K  = distinct offer_anchors derivable from cards 1, 3, 11, 12
+                       T  = tone_registers selectable (≥2) from card 2 × card 9
+                       R  = 2 proof modes (card 12 × product.proof_rules)
+                       O  = offer_constructions the product supports
+  (C1+C2+L+F+D is a SUM — each variation rides ONE dominant angle.
+   K, T, R, O are independent multipliers because every variation picks one of each.)
+  variation_space  = { plays_qualified, primary_spend_categories_qualified,
+                       secondary_spend_categories_qualified, life_events_qualified,
+                       financial_angles_qualified, demographic_angles_qualified,
+                       anchors_available, tone_registers_available, proof_modes,
+                       offer_constructions }
 
 Surface EXACTLY 5 examples chosen for diversity:
-  • when each family has ≥1 qualifier, include ≥1 BEHAVIORAL-anchored,
-    ≥1 LIFE_EVENT-anchored, and ≥1 FINANCIAL-anchored example
-  • across the 5, cite ≥2 distinct behavioral categories OR ≥2 distinct life events
-  • include ≥2 distinct plays when ≥2 qualify
-  • include ≥2 distinct anchors
+  • when each family has ≥1 qualifier, include ≥1 BEHAVIORAL-anchored
+    (split across primary/secondary when both qualify), ≥1 LIFE_EVENT-anchored,
+    and ≥1 FINANCIAL-anchored example
+  • across the 5: ≥2 distinct offer_constructions, ≥2 distinct tones,
+    ≥2 distinct anchors, ≥2 distinct plays when ≥2 qualify
+  • across the 5, cite ≥2 distinct primary OR secondary categories OR ≥2 distinct life events
   • each example.cards_used MUST cite ≥1 card from EACH family —
     at minimum one of {1,2,3}, {4,5,6}, {7,8,9}, {10,11,12}, {13,14,15}
   • rank by priority desc
+
 
 OUTPUT
 Strict JSON via the emit_offer_bank tool. No prose, no markdown, no backticks.
@@ -137,13 +152,17 @@ const EMIT_TOOL = {
           type: "object",
           properties: {
             plays_qualified: { type: "array", items: { type: "string" } },
-            behavioral_categories_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 15 BEHAVIORAL_CATEGORIES." },
+            primary_spend_categories_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 12 PRIMARY_SPEND_CATEGORIES." },
+            secondary_spend_categories_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 11 SECONDARY_SPEND_CATEGORIES (3%/2% bonus tiers)." },
             life_events_qualified: { type: "array", items: { type: "string" }, description: "Subset of the 15 LIFE_EVENTS." },
             financial_angles_qualified: { type: "array", items: { type: "string" } },
+            demographic_angles_qualified: { type: "array", items: { type: "string" }, description: "From DEMOGRAPHIC_ANGLES." },
             anchors_available: { type: "array", items: { type: "string" } },
+            tone_registers_available: { type: "array", items: { type: "string" }, description: "≥2 tone registers from card 2 × card 9." },
             proof_modes: { type: "array", items: { type: "string" } },
+            offer_constructions: { type: "array", items: { type: "string" }, description: "Subset of OFFER_CONSTRUCTIONS the product supports." },
           },
-          required: ["plays_qualified", "behavioral_categories_qualified", "life_events_qualified", "financial_angles_qualified", "anchors_available", "proof_modes"],
+          required: ["plays_qualified", "primary_spend_categories_qualified", "secondary_spend_categories_qualified", "life_events_qualified", "financial_angles_qualified", "demographic_angles_qualified", "anchors_available", "tone_registers_available", "proof_modes", "offer_constructions"],
         },
         examples: {
           type: "array",
@@ -154,6 +173,8 @@ const EMIT_TOOL = {
               play: { type: "string" },
               angle: { type: "string", enum: ["BEHAVIORAL", "LIFE_EVENT", "FINANCIAL"] },
               offer_anchor: { type: "string" },
+              offer_construction: { type: "string", description: "One of OFFER_CONSTRUCTIONS." },
+              tone: { type: "string", description: "One of tone_registers_available." },
               subject: { type: "string", description: "≤ 9 words" },
               body: { type: "string", description: "≤ 60 words" },
               cta: { type: "string", description: "≤ 5 words" },
@@ -170,9 +191,10 @@ const EMIT_TOOL = {
                 additionalProperties: { type: "string", enum: ["HIGH", "MED", "LOW"] },
               },
             },
-            required: ["play", "angle", "offer_anchor", "subject", "body", "cta", "priority", "why", "cards_used", "levels_read"],
+            required: ["play", "angle", "offer_anchor", "offer_construction", "tone", "subject", "body", "cta", "priority", "why", "cards_used", "levels_read"],
           },
         },
+
         suppress_reason: { type: ["string", "null"] },
       },
       required: ["decision", "profile_space", "total_variations", "variation_space", "examples"],

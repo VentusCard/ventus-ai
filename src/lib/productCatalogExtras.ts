@@ -680,6 +680,8 @@ export interface OfferExample {
   play: string;
   angle: OfferAngle;
   offer_anchor: string;
+  offer_construction: string;
+  tone: string;
   subject: string;
   body: string;
   cta: string;
@@ -696,15 +698,20 @@ export interface OfferBank {
   total_variations: number;
   variation_space: {
     plays_qualified: string[];
-    behavioral_categories_qualified: string[];
+    primary_spend_categories_qualified: string[];
+    secondary_spend_categories_qualified: string[];
     life_events_qualified: string[];
     financial_angles_qualified: string[];
+    demographic_angles_qualified: string[];
     anchors_available: string[];
+    tone_registers_available: string[];
     proof_modes: string[];
+    offer_constructions: string[];
   };
   examples: OfferExample[];
   suppress_reason?: string | null;
 }
+
 
 export interface FunnelStage {
   id: string;
