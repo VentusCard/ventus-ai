@@ -358,21 +358,6 @@ function AudiencePanel({
         <>
           <p className="text-2xl font-semibold text-slate-900 leading-tight tabular-nums">{fmt(estimatedReach)}</p>
           <p className="text-[11px] text-slate-500 leading-snug">Eligible customers after filters</p>
-          <div className="mt-2 pt-2 border-t border-slate-100 grid grid-cols-2 gap-2 text-[10px]">
-            <div>
-              <p className="text-slate-400 uppercase tracking-wide">Baseline</p>
-              <p className="text-slate-700 font-mono tabular-nums">{fmt(baseline)}</p>
-            </div>
-            <div>
-              <p className="text-slate-400 uppercase tracking-wide">Retention</p>
-              <p className="text-slate-700 font-mono tabular-nums">{(retention * 100).toFixed(1)}%</p>
-            </div>
-          </div>
-          <p className="text-[10px] text-slate-500 mt-2 leading-snug">
-            {anyNarrowed && tightest
-              ? `Tightest: ${tightest[0]} — ${tightest[1].sel} of ${tightest[1].total} selected.`
-              : "All segments included — broaden or narrow with filters above."}
-          </p>
         </>
       )}
     </div>
