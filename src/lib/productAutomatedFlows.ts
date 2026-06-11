@@ -280,20 +280,6 @@ export const PRODUCT_FLOWS: ProductFlow[] = [
     estimatedAudience: 3_200_000,
     penetration: 0.013,
   },
-  {
-    id: "equipment-financing",
-    name: "Equipment Financing",
-    category: "Lending",
-    icon: Wrench,
-    positioning: "Secured financing for vehicles, machinery, and practice equipment.",
-    signals: [
-      { label: "Trade equipment purchases", evidence: "Large card spend at industrial suppliers or dental/medical vendors", type: "behavioral" },
-      { label: "Practice payroll ACH", evidence: "Recurring payroll outflows from professional practice", type: "behavioral" },
-      { label: "Commercial lease ACH", evidence: "Monthly commercial real-estate lease payment", type: "behavioral" },
-    ],
-    estimatedAudience: 1_400_000,
-    penetration: 0.006,
-  },
 
   // ===== DEPOSITS =====
   {
