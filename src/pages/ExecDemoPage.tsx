@@ -1543,6 +1543,7 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
           onRunAnalysis={handleRunAnalysis}
           onLoadCustomCsv={handleLoadCustomCsv}
           embedded={embedded}
+          onBack={onBack}
         />
       </div>
     </SimplePasswordGate>
