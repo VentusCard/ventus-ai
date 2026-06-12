@@ -51,7 +51,11 @@ const TIMINGS = {
   hold: 999999,
 };
 
-export default function ExecDemoPage() {
+interface ExecDemoPageProps {
+  embedded?: boolean;
+}
+
+export default function ExecDemoPage({ embedded = false }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -946,6 +950,18 @@ export default function ExecDemoPage() {
     fireClassification(getCsvForCustomer(0));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Embed mode: auto-launch full analysis pipeline once on mount.
+  const embedAutoFiredRef = useRef(false);
+  useEffect(() => {
+    if (!embedded || embedAutoFiredRef.current) return;
+    embedAutoFiredRef.current = true;
+    setSelectionDialogOpen(false);
+    const t = setTimeout(() => {
+      runAnalysisRef.current?.();
+    }, 0);
+    return () => clearTimeout(t);
+  }, [embedded]);
+
   const isRunning = phase !== "idle" && phase !== "hold";
 
   const handleSelectCustomer = useCallback(
@@ -1350,7 +1366,7 @@ export default function ExecDemoPage() {
                       onSelectCustomer={handleSelectCustomer}
                       onRunAnalysis={handleRunAnalysis}
                       onLoadCustomCsv={handleLoadCustomCsv}
-                      onChangeCustomer={handleChangeCustomer}
+                      onChangeCustomer={embedded ? undefined : handleChangeCustomer}
                       isRunning={isRunning}
                       phase={phase}
                       collectedIndices={collectedIndices}
@@ -1534,6 +1550,7 @@ export default function ExecDemoPage() {
           onSelectCustomer={handleSelectCustomer}
           onRunAnalysis={handleRunAnalysis}
           onLoadCustomCsv={handleLoadCustomCsv}
+          embedded={embedded}
         />
       </div>
     </SimplePasswordGate>
