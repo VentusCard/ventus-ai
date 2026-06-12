@@ -19,7 +19,7 @@ const FAMILY_TONE: Record<SignalFamily, { dot: string; chipSelected: string }> =
   "risk":         { dot: "bg-rose-500",    chipSelected: "bg-rose-50 border-rose-400 text-rose-900" },
 };
 
-export function SignalStudioView() {
+export function SignalStudioView({ embedded = false }: { embedded?: boolean } = {}) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const allSignals = useMemo(
@@ -48,13 +48,15 @@ export function SignalStudioView() {
 
   return (
     <div className="space-y-4">
-      <TabHeader
-        icon={<Wand2 className="w-4 h-4" />}
-        title="Signal Studio"
-        subtitle="Define a campaign from the bottom up: pick any signals you've extracted from transactions and we compute the audience, the best-fit products, and the best outreach channel."
-        howItWorks="Pick signals across the five families. Audience size is computed from each signal's detection rate with partial-independence smoothing; product fit scores tag-level overlap weighted by family; outreach is rule-based on signal mix and product category."
-        whyItMatters="No more starting from a product. Bankers can start from what they actually see in the data — a stack of signals — and let the engine surface which products to push, to how many customers, and through which channel."
-      />
+      {!embedded && (
+        <TabHeader
+          icon={<Wand2 className="w-4 h-4" />}
+          title="Signal Studio"
+          subtitle="Define a campaign from the bottom up: pick any signals you've extracted from transactions and we compute the audience, the best-fit products, and the best outreach channel."
+          howItWorks="Pick signals across the five families. Audience size is computed from each signal's detection rate with partial-independence smoothing; product fit scores tag-level overlap weighted by family; outreach is rule-based on signal mix and product category."
+          whyItMatters="No more starting from a product. Bankers can start from what they actually see in the data — a stack of signals — and let the engine surface which products to push, to how many customers, and through which channel."
+        />
+      )}
 
       {/* Selected summary bar */}
       <div className="flex items-center justify-between rounded-lg border border-slate-200 bg-white px-3 py-2">

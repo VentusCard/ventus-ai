@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Megaphone } from "lucide-react";
+import { Megaphone, Package, Wand2 } from "lucide-react";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { adaptCatalogProduct } from "@/lib/catalogProductAdapter";
@@ -7,10 +7,14 @@ import { getProductVariants } from "@/lib/campaignCatalogVariants";
 import { ProductPickerSection } from "./sections/ProductPickerSection";
 import { ExclusionFunnelSection } from "./sections/ExclusionFunnelSection";
 import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
+import { SignalStudioView } from "./SignalStudioView";
+
+type BuilderMode = "product" | "signals";
 
 const DEFAULT_CAMPAIGN_LINK = "https://www.ventusai.com";
 
 export function ProductCampaignBuilderView() {
+  const [mode, setMode] = useState<BuilderMode>("product");
   const [productName, setProductName] = useState<string>("");
   const [offers, setOffers] = useState<string[]>([]);
   const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
@@ -39,15 +43,40 @@ export function ProductCampaignBuilderView() {
   const nextBtnClass =
     "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-blue-600 disabled:hover:border-blue-600";
 
+  const toggleBtn = (active: boolean) =>
+    `inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium border transition-colors ${
+      active
+        ? "bg-slate-900 text-white border-slate-900"
+        : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
+    }`;
+
   return (
     <div className="space-y-4">
       <TabHeader
         icon={<Megaphone className="w-4 h-4" />}
         title="Campaign Builder"
-        subtitle="Pick a product the bank wants to push, see who qualifies after risk filters, and preview the personalized campaigns it can author."
-        howItWorks="44 products span six categories. Each product carries an additive variant budget — Spending Behavior × plays plus life-event hooks plus financial-goal hooks — that maps to the distinct campaigns the engine can anchor on."
-        whyItMatters="Lets relationship managers reason about a single product end-to-end — mechanics, eligible audience, and the honest count of campaigns it can power — without leaving the tab."
+        subtitle="Build a campaign two ways: start from a product you want to push, or start from the signals you've extracted and let the engine recommend the products, audience, and channel."
+        howItWorks="Product-first walks you through picker → exclusion funnel → personalized message previews. Signal-first lets you stack any signals across the five families and computes audience size, ranked best-fit products, and the recommended outreach channel."
+        whyItMatters="Relationship managers can reason top-down from a product OR bottom-up from what the data is actually showing — without leaving the tab."
       />
+
+      {/* Mode toggle */}
+      <div className="inline-flex items-center gap-1 p-1 rounded-lg border border-slate-200 bg-slate-50">
+        <button type="button" className={toggleBtn(mode === "product")} onClick={() => setMode("product")}>
+          <Package className="w-3.5 h-3.5" />
+          Start from a product
+        </button>
+        <button type="button" className={toggleBtn(mode === "signals")} onClick={() => setMode("signals")}>
+          <Wand2 className="w-3.5 h-3.5" />
+          Start from signals
+        </button>
+      </div>
+
+      {mode === "signals" ? (
+        <SignalStudioView embedded />
+      ) : (
+        <>
+
 
       <ProductPickerSection
         selectedName={productName}
@@ -90,6 +119,8 @@ export function ProductCampaignBuilderView() {
           offers={offers}
           campaignLink={campaignLink}
         />
+      )}
+        </>
       )}
     </div>
   );
