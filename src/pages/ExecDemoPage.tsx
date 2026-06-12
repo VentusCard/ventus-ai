@@ -51,7 +51,11 @@ const TIMINGS = {
   hold: 999999,
 };
 
-export default function ExecDemoPage() {
+interface ExecDemoPageProps {
+  embedded?: boolean;
+}
+
+export default function ExecDemoPage({ embedded = false }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
