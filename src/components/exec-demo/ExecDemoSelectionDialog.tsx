@@ -182,18 +182,20 @@ export default function ExecDemoSelectionDialog({
         {/* Pills row */}
         <div className="px-8 py-3 border-b border-slate-100 shrink-0">
           <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto">
-            {DEMO_CUSTOMERS.map((c, i) => (
+            {(embedded ? DEMO_CUSTOMERS.slice(0, 1) : DEMO_CUSTOMERS).map((c, i) => (
               <button
                 key={c.id}
                 onClick={() => {
+                  if (embedded) return;
                   onSelectCustomer(i);
                   setShowCustomFlow(false);
                 }}
+                disabled={embedded}
                 className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
                   selectedIdx === i && !showCustomFlow
                     ? "bg-blue-600 text-white shadow-sm"
                     : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50"
-                }`}
+                } ${embedded ? "cursor-default" : ""}`}
               >
                 {({
                   "Sarah Mitchell": "User #482719356",
@@ -205,17 +207,19 @@ export default function ExecDemoSelectionDialog({
                 } as Record<string, string>)[c.profile.name] ?? c.profile.name}
               </button>
             ))}
-            <button
-              onClick={() => setShowCustomFlow(true)}
-              className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
-                showCustomFlow
-                  ? "bg-violet-600 text-white shadow-sm"
-                  : "bg-white border border-dashed border-slate-300 text-slate-500 hover:border-violet-400 hover:bg-violet-50"
-              }`}
-            >
-              <Pencil className="w-3 h-3" />
-              Custom
-            </button>
+            {!embedded && (
+              <button
+                onClick={() => setShowCustomFlow(true)}
+                className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
+                  showCustomFlow
+                    ? "bg-violet-600 text-white shadow-sm"
+                    : "bg-white border border-dashed border-slate-300 text-slate-500 hover:border-violet-400 hover:bg-violet-50"
+                }`}
+              >
+                <Pencil className="w-3 h-3" />
+                Custom
+              </button>
+            )}
           </div>
         </div>
 
