@@ -950,17 +950,8 @@ export default function ExecDemoPage({ embedded = false }: ExecDemoPageProps = {
     fireClassification(getCsvForCustomer(0));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Embed mode: auto-launch full analysis pipeline once on mount.
-  const embedAutoFiredRef = useRef(false);
-  useEffect(() => {
-    if (!embedded || embedAutoFiredRef.current) return;
-    embedAutoFiredRef.current = true;
-    setSelectionDialogOpen(false);
-    const t = setTimeout(() => {
-      runAnalysisRef.current?.();
-    }, 0);
-    return () => clearTimeout(t);
-  }, [embedded]);
+
+
 
   const isRunning = phase !== "idle" && phase !== "hold";
 

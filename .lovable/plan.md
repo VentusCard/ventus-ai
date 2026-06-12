@@ -1,30 +1,17 @@
-## Goal
-
-When `ExecDemoPage` is embedded inside `/bankdemo` (Demo tab), still show the existing selection dialog, but lock it to a single customer (no other users selectable, no custom-customer flow) AND pre-fire the full LLM analysis pipeline immediately on mount. The standalone `/demo` route is unchanged and keeps the full multi-customer picker.
+Revise the `/bankdemo` Demo tab embed behavior so the selection dialog still appears and the user clicks "Run analysis" to start.
 
 ## Changes
 
-### 1. `src/pages/ExecDemoPage.tsx`
-- Add optional `embedded?: boolean` prop.
-- Pass `embedded` down to `<ExecDemoSelectionDialog>` and to `<ExecDemoLeftPanel>` (so the "Change customer" button can be hidden in embed mode).
-- On mount, the page already calls `fireClassification(getCsvForCustomer(0))`. When `embedded` is true, also kick off `handleRunAnalysis()` once on mount (via the existing `runAnalysisRef` to avoid TDZ), so persona / offers / products / actions / credit LLMs all start as soon as the Demo tab opens.
-- In embed mode, also pre-warm the dialog's "selected customer" to index 0 (which is already the default).
+1. **`src/pages/ExecDemoPage.tsx`**
+   - Keep `selectionDialogOpen` initial state `true` in embedded mode (same as standalone) so the dialog pops up on mount.
+   - Remove the auto-fire `runAnalysisRef.current?.()` effect (`embedAutoFiredRef`) added previously. The user must click the "Run analysis" CTA inside the dialog.
+   - Keep the existing pre-warm `fireClassification(getCsvForCustomer(0))` on mount so classification is ready by the time they click.
+   - Keep `onChangeCustomer={undefined}` so the left panel's "Change" button stays hidden after the dialog closes.
 
-### 2. `src/components/exec-demo/ExecDemoSelectionDialog.tsx`
-- Add optional `embedded?: boolean` prop.
-- When `embedded` is true:
-  - Render only `DEMO_CUSTOMERS[0]` in the left customer list (hide the other entries) and remove the "+ Custom customer" / `showCustomFlow` affordance.
-  - Hide the per-row click affordances that switch customers (or render them disabled) so the user cannot pick a different one.
-  - Keep everything else (raw transaction table preview, "Run analysis" CTA, dialog chrome) intact so the dialog still looks and behaves the same.
+2. **`src/components/exec-demo/ExecDemoSelectionDialog.tsx`** — no change. Still shows only `DEMO_CUSTOMERS[0]` in embedded mode, with no "Custom" affordance and no row re-selection. The "Run analysis" button at the bottom remains active.
 
-### 3. `src/components/tepilot/insights/AnalyticsContainer.tsx` (line ~161)
-- Render `<ExecDemoPage embedded />` when shown inside the bankdemo Demo tab.
+3. **`src/components/exec-demo/ExecDemoLeftPanel.tsx`** — no change.
 
-### 4. `src/components/exec-demo/ExecDemoLeftPanel.tsx` (only if needed)
-- If the "Change customer" button is unconditionally rendered, hide it when `embedded` is true (or when `onChangeCustomer` is undefined).
+4. **`src/components/tepilot/insights/AnalyticsContainer.tsx`** — no change (still `<ExecDemoPage embedded />`).
 
-## Notes
-
-- Single user shown = `DEMO_CUSTOMERS[0]` (matches the currently pre-fired classification on mount).
-- Pre-firing happens once, guarded by a ref so React StrictMode double-mount doesn't double-invoke the LLM pipeline.
-- Frontend/presentation only — no edge function, data, or routing changes outside the props above.
+Net effect: dialog opens automatically on tab entry with the single locked customer pre-selected; user clicks "Run analysis" to kick off the LLM pipeline.
