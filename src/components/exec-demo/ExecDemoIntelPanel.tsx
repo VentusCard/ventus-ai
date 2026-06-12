@@ -11,7 +11,7 @@ import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import ExecDemoEnrichmentTable from "./ExecDemoEnrichmentTable";
-import EnrichmentIncomeFlowSankey from "./EnrichmentIncomeFlowSankey";
+
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 
@@ -926,29 +926,26 @@ export default function ExecDemoIntelPanel({
                 className={`transition-all duration-500 overflow-hidden flex flex-col ${!activeTab || pillsExpanded ? "flex-1 min-h-0" : ""} ${fullWidthEnrichment ? "" : "mb-0"}`}
                 style={{ maxHeight: !activeTab || pillsExpanded ? undefined : 360 }}
               >
-                {!activeTab ? (
-                  <>
-                    <EnrichmentIncomeFlowSankey enriched={enrichedTransactions || []} />
-                    <ExecDemoEnrichmentTable
-                      transactions={enrichedTransactions || []}
-                      rawRows={(transactions || []).map((t, i) => ({
-                        transaction_id: `tx-${i}`,
-                        source: t.source,
-                        date: t.date,
-                        merchant_name: t.merchant,
-                        description: (t as any).description,
-                        mcc: (t as any).mcc,
-                        amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
-                      }))}
-                      flush={fullWidthEnrichment}
-                      highlightedIndices={highlightedIndices}
-                      highlightColor={highlightColor}
-                      activePillLabel={activePillLabel}
-                      onClearHighlight={onClearHighlight}
-                      onPillarClick={onEnrichmentPillarClick}
-                    />
-                  </>
-                ) : null}
+                {!activeTab && (
+                  <ExecDemoEnrichmentTable
+                    transactions={enrichedTransactions || []}
+                    rawRows={(transactions || []).map((t, i) => ({
+                      transaction_id: `tx-${i}`,
+                      source: t.source,
+                      date: t.date,
+                      merchant_name: t.merchant,
+                      description: (t as any).description,
+                      mcc: (t as any).mcc,
+                      amount: parseFloat(String(t.amount).replace(/[^0-9.\-]/g, "")) || 0,
+                    }))}
+                    flush={fullWidthEnrichment}
+                    highlightedIndices={highlightedIndices}
+                    highlightColor={highlightColor}
+                    activePillLabel={activePillLabel}
+                    onClearHighlight={onClearHighlight}
+                    onPillarClick={onEnrichmentPillarClick}
+                  />
+                )}
               </div>
             )}
           </div>

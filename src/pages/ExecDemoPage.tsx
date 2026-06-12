@@ -51,7 +51,11 @@ const TIMINGS = {
   hold: 999999,
 };
 
-export default function ExecDemoPage() {
+interface ExecDemoPageProps {
+  embedded?: boolean;
+}
+
+export default function ExecDemoPage({ embedded = false }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
@@ -946,6 +950,9 @@ export default function ExecDemoPage() {
     fireClassification(getCsvForCustomer(0));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+
+
+
   const isRunning = phase !== "idle" && phase !== "hold";
 
   const handleSelectCustomer = useCallback(
@@ -1298,7 +1305,7 @@ export default function ExecDemoPage() {
       tagline="Behavioral Intelligence Infrastructure For Banking Personalization"
       bullets={["Multi-Rail Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}
     >
-      <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
+      <div className="h-full min-h-0 bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
         {/* Top bar */}
         <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
           <div className="flex items-center gap-3">
@@ -1350,7 +1357,7 @@ export default function ExecDemoPage() {
                       onSelectCustomer={handleSelectCustomer}
                       onRunAnalysis={handleRunAnalysis}
                       onLoadCustomCsv={handleLoadCustomCsv}
-                      onChangeCustomer={handleChangeCustomer}
+                      onChangeCustomer={embedded ? undefined : handleChangeCustomer}
                       isRunning={isRunning}
                       phase={phase}
                       collectedIndices={collectedIndices}
@@ -1534,6 +1541,7 @@ export default function ExecDemoPage() {
           onSelectCustomer={handleSelectCustomer}
           onRunAnalysis={handleRunAnalysis}
           onLoadCustomCsv={handleLoadCustomCsv}
+          embedded={embedded}
         />
       </div>
     </SimplePasswordGate>

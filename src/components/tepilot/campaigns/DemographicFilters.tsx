@@ -13,12 +13,20 @@ import {
   type AccountTenure
 } from "@/types/segment";
 
+interface ApplicableDemographics {
+  ageRanges?: string[];
+  regions?: string[];
+  incomeBands?: string[];
+  accountTenure?: string[];
+}
+
 interface DemographicFiltersProps {
   filters: DemographicFiltersType;
   onChange: (filters: DemographicFiltersType) => void;
+  applicable?: ApplicableDemographics;
 }
 
-export function DemographicFilters({ filters, onChange }: DemographicFiltersProps) {
+export function DemographicFilters({ filters, onChange, applicable }: DemographicFiltersProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleAgeRange = (age: string) => {
@@ -46,17 +54,28 @@ export function DemographicFilters({ filters, onChange }: DemographicFiltersProp
     onChange({ ...filters, accountTenure: value as AccountTenure });
   };
 
-  const hasActiveFilters = 
-    filters.ageRanges.length > 0 || 
-    filters.regions.length > 0 || 
-    filters.incomeBands.length > 0 || 
+  const ageOptions = [...AGE_RANGES];
+  const regionOptions = [...REGIONS];
+  const incomeOptions = [...INCOME_BANDS];
+  const tenureOptions = [...ACCOUNT_TENURE_OPTIONS];
+
+  const showAge = true;
+  const showRegion = true;
+  const showIncome = true;
+  const showTenure = true;
+
+  const hasActiveFilters =
+    filters.ageRanges.length > 0 ||
+    filters.regions.length > 0 ||
+    filters.incomeBands.length > 0 ||
     filters.accountTenure !== 'all';
 
-  const activeFilterCount = 
-    filters.ageRanges.length + 
-    filters.regions.length + 
-    filters.incomeBands.length + 
+  const activeFilterCount =
+    filters.ageRanges.length +
+    filters.regions.length +
+    filters.incomeBands.length +
     (filters.accountTenure !== 'all' ? 1 : 0);
+
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -78,96 +97,107 @@ export function DemographicFilters({ filters, onChange }: DemographicFiltersProp
       <CollapsibleContent>
         <div className="px-3 pb-3 space-y-3">
           {/* Age Ranges */}
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Age Ranges</p>
-            <div className="flex flex-wrap gap-1.5">
-              {AGE_RANGES.map((age) => {
-                const isSelected = filters.ageRanges.includes(age);
-                return (
-                  <button
-                    key={age}
-                    onClick={() => toggleAgeRange(age)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-blue-50 border-blue-400 text-blue-700'
-                        : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
-                    {age}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Regions */}
-          <div>
-            <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Regions</p>
-            <div className="flex flex-wrap gap-1.5">
-              {REGIONS.map((region) => {
-                const isSelected = filters.regions.includes(region);
-                return (
-                  <button
-                    key={region}
-                    onClick={() => toggleRegion(region)}
-                    className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
-                      isSelected
-                        ? 'bg-blue-50 border-blue-400 text-blue-700'
-                        : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
-                    }`}
-                  >
-                    <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
-                    {region}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Income & Tenure Row */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Income Bands */}
+          {showAge && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Income Bands</p>
+              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Age Ranges</p>
               <div className="flex flex-wrap gap-1.5">
-                {INCOME_BANDS.map((income) => {
-                  const isSelected = filters.incomeBands.includes(income.value);
+                {ageOptions.map((age) => {
+                  const isSelected = filters.ageRanges.includes(age);
                   return (
                     <button
-                      key={income.value}
-                      onClick={() => toggleIncomeBand(income.value)}
-                      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                      key={age}
+                      onClick={() => toggleAgeRange(age)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
                         isSelected
                           ? 'bg-blue-50 border-blue-400 text-blue-700'
                           : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
                       }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
-                      {income.label}
+                      <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
+                      {age}
                     </button>
                   );
                 })}
               </div>
             </div>
+          )}
 
-            {/* Account Tenure */}
+          {/* Regions */}
+          {showRegion && (
             <div>
-              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Account Tenure</p>
-              <Select value={filters.accountTenure} onValueChange={updateTenure}>
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select tenure" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ACCOUNT_TENURE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Regions</p>
+              <div className="flex flex-wrap gap-1.5">
+                {regionOptions.map((region) => {
+                  const isSelected = filters.regions.includes(region);
+                  return (
+                    <button
+                      key={region}
+                      onClick={() => toggleRegion(region)}
+                      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-blue-50 border-blue-400 text-blue-700'
+                          : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
+                      }`}
+                    >
+                      <span className={`w-2 h-2 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
+                      {region}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* Income & Tenure Row */}
+          {(showIncome || showTenure) && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Income Bands */}
+              {showIncome && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Income Bands</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {incomeOptions.map((income) => {
+                      const isSelected = filters.incomeBands.includes(income.value);
+                      return (
+                        <button
+                          key={income.value}
+                          onClick={() => toggleIncomeBand(income.value)}
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-blue-50 border-blue-400 text-blue-700'
+                              : 'bg-secondary/50 border-border text-muted-foreground hover:border-primary/40'
+                          }`}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${isSelected ? 'bg-blue-600' : 'bg-muted-foreground/30'}`} />
+                          {income.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+
+              {/* Account Tenure */}
+              {showTenure && (
+                <div>
+                  <p className="text-xs font-semibold text-muted-foreground mb-1.5 uppercase tracking-wide">Account Tenure</p>
+                  <Select value={filters.accountTenure} onValueChange={updateTenure}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select tenure" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {tenureOptions.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+          )}
 
         </div>
       </CollapsibleContent>
