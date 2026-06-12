@@ -1,0 +1,177 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - dev
+      - staging
+
+permissions:
+  contents: read
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  backend-source:
+    name: Backend Source Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate Backend Helper Scripts
+        run: |
+          node --check backend/scripts/list-functions.mjs
+          node --check backend/scripts/package-functions.mjs
+          node --check backend/scripts/smoke-api.mjs
+          node --check backend/scripts/build-plaid-golden-enrich-fixture.mjs
+          node --check backend/scripts/capture-plaid-enrichment-predictions.mjs
+          node --check backend/scripts/generate-plaid-golden-candidates.mjs
+          node --check backend/scripts/pull-plaid-sandbox-transactions.mjs
+          node --check backend/scripts/validate-openapi.mjs
+          node --check backend/scripts/check-openapi-contract.mjs
+          node --check backend/scripts/generate-api-docs.mjs
+          node --check backend/scripts/generate-postman-collection.mjs
+          node --check backend/scripts/check-route-coverage.mjs
+          node --check backend/scripts/check-api-cors-readiness.mjs
+          node --check backend/scripts/check-relative-imports.mjs
+          node --check backend/scripts/check-pipeline-readiness.mjs
+          node --check backend/scripts/package-monitors.mjs
+          node --check backend/scripts/qa-enrichment-contract.mjs
+          node --check backend/scripts/qa-golden-enrichment.mjs
+          node --check backend/scripts/qa-model-output-report.mjs
+          node --check backend/scripts/qa-partner-ingest.mjs
+          node --check backend/scripts/qa-live-pipeline.mjs
+          node --check backend/scripts/lib/qa-validators.mjs
+          node --check infra/scripts/audit-live-db-rotation-preflight.mjs
+          node --check infra/scripts/audit-live-secrets-cutover.mjs
+          node --check infra/scripts/audit-live-secrets-rotation-kms.mjs
+          node --check infra/scripts/audit-live-tracing-readiness.mjs
+          node --check infra/scripts/check-db-rotation-preflight.mjs
+          node --check infra/scripts/check-secrets-boundary.mjs
+          node --check infra/scripts/check-secrets-rotation-kms-readiness.mjs
+          node --check infra/scripts/check-tracing-readiness.mjs
+
+      - name: Validate Monitor Entrypoints
+        run: |
+          find backend/monitors -name '*.mjs' -print0 | xargs -0 -n1 node --check
+
+      - name: List Recovered Functions
+        run: npm run --prefix backend list:functions
+
+      - name: Validate OpenAPI Draft
+        run: npm run --prefix backend validate:openapi
+
+      - name: Check OpenAPI Contract Completeness
+        run: npm run --prefix backend check:openapi-contract
+
+      - name: Generate API Docs And Postman Collection
+        run: npm run --prefix backend docs:api
+
+      - name: Check API Route Coverage
+        run: npm run --prefix backend check:routes
+
+      - name: Check API CORS Readiness
+        run: npm run --prefix backend check:cors
+
+      - name: Check Backend Relative Imports
+        run: npm run --prefix backend check:imports
+
+      - name: Check Pipeline Readiness Config
+        run: npm run --prefix backend check:pipeline-readiness
+
+      - name: Check Enrichment QA Contracts
+        run: npm run --prefix backend qa:enrichment
+
+      - name: Check Golden Enrichment Expectations
+        run: npm run --prefix backend qa:golden
+
+      - name: Validate Lambda Entrypoints
+        run: |
+          find backend/functions backend/shared -name '*.mjs' -print0 | xargs -0 -n1 node --check
+
+  infra:
+    name: Infra CDK Checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Infra Dependencies
+        run: npm install
+        working-directory: infra
+
+      - name: Typecheck CDK
+        run: npm run check
+        working-directory: infra
+
+      - name: Validate IAM Policy Artifacts
+        run: npm run check:iam
+        working-directory: infra
+
+      - name: Check DB Rotation Preflight Baseline
+        run: npm run check:db-rotation-preflight
+        working-directory: infra
+
+      - name: Check Observability Readiness
+        run: npm run check:observability
+        working-directory: infra
+
+      - name: Check RDS Network Exposure Baseline
+        run: npm run check:rds-network
+        working-directory: infra
+
+      - name: Check Secrets Boundary Baseline
+        run: npm run check:secrets
+        working-directory: infra
+
+      - name: Check Secrets Rotation KMS Baseline
+        run: npm run check:secrets-rotation-kms
+        working-directory: infra
+
+      - name: Check Tracing Readiness Baseline
+        run: npm run check:tracing
+        working-directory: infra
+
+      - name: Synthesize CDK Plan
+        run: npm run synth
+        working-directory: infra
+
+  frontend:
+    name: Frontend Build And Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install Dependencies
+        run: npm ci
+
+      - name: Lint Advisory
+        continue-on-error: true
+        run: npm run lint
+
+      - name: Build
+        run: npm run build

@@ -1,0 +1,116 @@
+{
+  "contract_version": "2026-06-04",
+  "description": "Partner-ingest QA contracts for validating raw Fintech Sandbox and aggregator payloads before they are normalized into the Ventus enrichment input contract.",
+  "partners": {
+    "plaid_transactions_sync": {
+      "source_system": "plaid",
+      "display_name": "Plaid Transactions Sync",
+      "endpoints": ["/transactions/sync", "/processor/transactions/sync"],
+      "required_raw_fields": [
+        "payload.added[].transaction_id",
+        "payload.added[].account_id",
+        "payload.added[].amount",
+        "payload.added[].date",
+        "payload.added[].pending",
+        "mapping_context.account_customer_map",
+        "mapping_context.account_home_zip_map"
+      ],
+      "recommended_raw_fields": [
+        "payload.added[].merchant_name",
+        "payload.added[].name",
+        "payload.added[].original_description",
+        "payload.added[].personal_finance_category",
+        "payload.added[].counterparties",
+        "payload.added[].location.postal_code",
+        "payload.added[].payment_channel",
+        "payload.added[].transaction_type"
+      ],
+      "amount_sign_convention": "Plaid positive values mean money moved out of the account; negative values mean money moved in. Normalization must map this to Ventus transaction_type without flipping merchant-spend semantics.",
+      "normalized_mapping": {
+        "required_output_fields": [
+          "transaction_id",
+          "customer_id",
+          "merchant_name",
+          "amount",
+          "date",
+          "mcc_code",
+          "zip_code",
+          "home_zip",
+          "rail",
+          "source_profile",
+          "transaction_type",
+          "partner_metadata.source_transaction_id"
+        ],
+        "rail_rules": {
+          "card": "Use for card purchase, in-store, online, and POS-like merchant activity.",
+          "ach": "Use for payroll, direct deposit, recurring debit, loan payment, or bank transfer activity.",
+          "p2p": "Use for Zelle, Venmo-like, payment_app, or person-to-person transfer counterparties.",
+          "wire": "Use for wire-like title, escrow, international, or large transfer activity when the raw description supports it."
+        },
+        "merchant_name_fallback_order": [
+          "merchant_name",
+          "counterparties[0].name",
+          "name",
+          "original_description"
+        ]
+      },
+      "qa_gates": [
+        "Every added or modified transaction maps to exactly one normalized transaction unless explicitly excluded.",
+        "Every normalized transaction has a bank customer mapping and home ZIP before enrichment.",
+        "Pending-to-posted changes keep source_transaction_id lineage through partner_metadata.",
+        "Removed transactions are not sent to enrichment as new transactions.",
+        "Payroll, refunds, and credits are not evaluated as consumer spend."
+      ]
+    },
+    "generic_fintech_sandbox_partner": {
+      "source_system": "generic_fintech_sandbox_partner",
+      "display_name": "Generic Fintech Sandbox Partner Export",
+      "endpoints": ["partner_supplied_batch", "partner_supplied_api"],
+      "required_raw_fields": [
+        "payload.records[].record_id",
+        "payload.records[].account_id",
+        "payload.records[].posted_date",
+        "payload.records[].amount.value",
+        "payload.records[].amount.direction",
+        "mapping_context.account_customer_map"
+      ],
+      "recommended_raw_fields": [
+        "payload.records[].raw_description",
+        "payload.records[].counterparty_name",
+        "payload.records[].rail_hint",
+        "payload.records[].category_hint",
+        "payload.records[].location.postal_code",
+        "payload.records[].currency"
+      ],
+      "amount_sign_convention": "Partner-specific. The raw payload must specify either signed amounts or explicit debit/credit direction before normalization.",
+      "normalized_mapping": {
+        "required_output_fields": [
+          "transaction_id",
+          "customer_id",
+          "merchant_name",
+          "amount",
+          "date",
+          "mcc_code",
+          "zip_code",
+          "home_zip",
+          "rail",
+          "source_profile",
+          "transaction_type",
+          "partner_metadata.source_transaction_id"
+        ],
+        "rail_rules": {
+          "card": "Use when the source identifies card or POS purchase activity.",
+          "ach": "Use when the source identifies ACH, direct deposit, external transfer, subscription, or loan payment activity.",
+          "bill_pay": "Use when the source identifies bank bill-pay payee records.",
+          "merchant_integration": "Use for CRM, offer, loyalty, or merchant-side signals that are not financial postings."
+        }
+      },
+      "qa_gates": [
+        "Raw direction semantics are documented before normalization.",
+        "Every raw account maps to a bank customer or is explicitly rejected.",
+        "Partner-specific optional fields are preserved under partner_metadata.",
+        "Normalization failures produce a reject report, not silent drops."
+      ]
+    }
+  }
+}

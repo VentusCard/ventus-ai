@@ -1,0 +1,228 @@
+{
+  "fixture_version": "2026-06-04",
+  "fixture_type": "raw_partner_payload",
+  "source_system": "plaid",
+  "endpoint": "/transactions/sync",
+  "description": "Representative Plaid /transactions/sync response used to validate partner payload handling before Fintech Sandbox data arrives.",
+  "mapping_context": {
+    "bank_id": "qa_bank_plaid",
+    "item_id": "item_qa_plaid_001",
+    "account_customer_map": {
+      "plaid_acc_checking_001": "qa_plaid_customer_001",
+      "plaid_acc_credit_001": "qa_plaid_customer_001"
+    },
+    "account_home_zip_map": {
+      "plaid_acc_checking_001": "10003",
+      "plaid_acc_credit_001": "10003"
+    }
+  },
+  "payload": {
+    "accounts": [
+      {
+        "account_id": "plaid_acc_checking_001",
+        "name": "Plaid Checking",
+        "official_name": "Plaid Gold Standard 0% Interest Checking",
+        "type": "depository",
+        "subtype": "checking"
+      },
+      {
+        "account_id": "plaid_acc_credit_001",
+        "name": "Plaid Credit Card",
+        "official_name": "Plaid Rewards Credit Card",
+        "type": "credit",
+        "subtype": "credit card"
+      }
+    ],
+    "added": [
+      {
+        "transaction_id": "plaid_txn_card_coffee_0001",
+        "account_id": "plaid_acc_credit_001",
+        "amount": 5.75,
+        "iso_currency_code": "USD",
+        "date": "2026-05-01",
+        "authorized_date": "2026-05-01",
+        "name": "STARBUCKS STORE 12345 NEW YORK NY",
+        "merchant_name": "Starbucks",
+        "original_description": "STARBUCKS STORE 12345 NEW YORK NY",
+        "payment_channel": "in store",
+        "transaction_type": "place",
+        "pending": false,
+        "personal_finance_category": {
+          "primary": "FOOD_AND_DRINK",
+          "detailed": "FOOD_AND_DRINK_COFFEE"
+        },
+        "location": {
+          "city": "New York",
+          "region": "NY",
+          "postal_code": "10003",
+          "country": "US"
+        },
+        "counterparties": [
+          {
+            "name": "Starbucks",
+            "type": "merchant",
+            "entity_id": "plaid_counterparty_starbucks"
+          }
+        ]
+      },
+      {
+        "transaction_id": "plaid_txn_payroll_0001",
+        "account_id": "plaid_acc_checking_001",
+        "amount": -4280.15,
+        "iso_currency_code": "USD",
+        "date": "2026-05-02",
+        "name": "ACME CORP PAYROLL",
+        "merchant_name": null,
+        "original_description": "ACH CREDIT ACME CORP PAYROLL",
+        "payment_channel": "other",
+        "transaction_type": "special",
+        "pending": false,
+        "personal_finance_category": {
+          "primary": "INCOME",
+          "detailed": "INCOME_WAGES"
+        },
+        "counterparties": [
+          {
+            "name": "Acme Corp",
+            "type": "employer",
+            "entity_id": "plaid_counterparty_acme_corp"
+          }
+        ]
+      },
+      {
+        "transaction_id": "plaid_txn_zelle_0001",
+        "account_id": "plaid_acc_checking_001",
+        "amount": 75,
+        "iso_currency_code": "USD",
+        "date": "2026-05-03",
+        "name": "ZELLE PAYMENT TO ALEX R",
+        "merchant_name": null,
+        "original_description": "ZELLE PAYMENT TO ALEX R",
+        "payment_channel": "other",
+        "transaction_type": "special",
+        "pending": false,
+        "personal_finance_category": {
+          "primary": "TRANSFER_OUT",
+          "detailed": "TRANSFER_OUT_ACCOUNT_TRANSFER"
+        },
+        "counterparties": [
+          {
+            "name": "Zelle",
+            "type": "payment_app",
+            "entity_id": "plaid_counterparty_zelle"
+          },
+          {
+            "name": "Alex R",
+            "type": "person"
+          }
+        ]
+      },
+      {
+        "transaction_id": "plaid_txn_wire_escrow_0001",
+        "account_id": "plaid_acc_checking_001",
+        "amount": 25000,
+        "iso_currency_code": "USD",
+        "date": "2026-05-06",
+        "name": "WIRE TRANSFER TITLE COMPANY ESCROW",
+        "merchant_name": null,
+        "original_description": "WIRE TRANSFER TITLE COMPANY ESCROW",
+        "payment_channel": "other",
+        "transaction_type": "special",
+        "pending": false,
+        "personal_finance_category": {
+          "primary": "TRANSFER_OUT",
+          "detailed": "TRANSFER_OUT_ACCOUNT_TRANSFER"
+        },
+        "location": {
+          "postal_code": "10003"
+        },
+        "counterparties": [
+          {
+            "name": "Title Company Escrow",
+            "type": "financial_institution"
+          }
+        ]
+      },
+      {
+        "transaction_id": "plaid_reject_unmapped_account_0001",
+        "account_id": "plaid_acc_unknown_999",
+        "amount": 48.22,
+        "iso_currency_code": "USD",
+        "date": "2026-05-08",
+        "name": "UNKNOWN ACCOUNT MERCHANT",
+        "merchant_name": "Unknown Account Merchant",
+        "original_description": "UNKNOWN ACCOUNT MERCHANT",
+        "payment_channel": "online",
+        "transaction_type": "place",
+        "pending": false
+      },
+      {
+        "transaction_id": "plaid_reject_missing_description_0001",
+        "account_id": "plaid_acc_credit_001",
+        "amount": 31.44,
+        "iso_currency_code": "USD",
+        "date": "2026-05-09",
+        "merchant_name": null,
+        "pending": false
+      }
+    ],
+    "modified": [
+      {
+        "transaction_id": "plaid_txn_streaming_posted_0001",
+        "account_id": "plaid_acc_credit_001",
+        "amount": 22.99,
+        "iso_currency_code": "USD",
+        "date": "2026-05-07",
+        "authorized_date": "2026-05-06",
+        "name": "NETFLIX.COM",
+        "merchant_name": "Netflix",
+        "original_description": "NETFLIX.COM",
+        "payment_channel": "online",
+        "transaction_type": "digital",
+        "pending": false,
+        "pending_transaction_id": "plaid_pending_streaming_0001",
+        "personal_finance_category": {
+          "primary": "ENTERTAINMENT",
+          "detailed": "ENTERTAINMENT_TV_AND_MOVIES"
+        },
+        "counterparties": [
+          {
+            "name": "Netflix",
+            "type": "merchant",
+            "entity_id": "plaid_counterparty_netflix"
+          }
+        ]
+      }
+    ],
+    "removed": [
+      {
+        "transaction_id": "plaid_pending_streaming_0001",
+        "account_id": "plaid_acc_credit_001"
+      }
+    ],
+    "next_cursor": "cursor_after_qa_batch_001",
+    "has_more": false,
+    "transactions_update_status": "HISTORICAL_UPDATE_COMPLETE",
+    "request_id": "plaid_req_qa_001"
+  },
+  "mapping_expectations": {
+    "normalized_fixture": "plaid-transactions-sync-normalized.json",
+    "reject_report": "plaid-transactions-sync-reject-report.json",
+    "reject_report_raw_fixture": "plaid-transactions-sync-raw.json",
+    "expected_normalized_transaction_count": 5,
+    "expected_rejected_record_count": 2,
+    "expected_rejected_record_ids": [
+      "plaid_reject_unmapped_account_0001",
+      "plaid_reject_missing_description_0001"
+    ],
+    "expected_removed_transaction_count": 1,
+    "expected_rails": ["card", "ach", "p2p", "wire"],
+    "expected_source_profiles": [
+      "card_dining",
+      "ach_payroll",
+      "p2p_transfer",
+      "wire_transfer",
+      "card_subscription"
+    ]
+  }
+}

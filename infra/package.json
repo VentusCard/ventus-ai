@@ -1,0 +1,35 @@
+{
+  "name": "ventus-infra",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "AWS CDK skeleton for codifying existing Ventus pilot infrastructure.",
+  "scripts": {
+    "check": "tsc --noEmit",
+    "check:db-rotation-preflight": "node ./scripts/check-db-rotation-preflight.mjs",
+    "check:iam": "node ./scripts/validate-iam-policies.mjs",
+    "check:observability": "node ./scripts/check-observability-readiness.mjs",
+    "check:rds-network": "node ./scripts/check-rds-network-exposure.mjs",
+    "check:secrets": "node ./scripts/check-secrets-boundary.mjs",
+    "check:secrets-rotation-kms": "node ./scripts/check-secrets-rotation-kms-readiness.mjs",
+    "check:tracing": "node ./scripts/check-tracing-readiness.mjs",
+    "audit:db-rotation-preflight": "node ./scripts/audit-live-db-rotation-preflight.mjs",
+    "audit:secrets-cutover": "node ./scripts/audit-live-secrets-cutover.mjs",
+    "audit:secrets-rotation-kms": "node ./scripts/audit-live-secrets-rotation-kms.mjs",
+    "audit:tracing": "node ./scripts/audit-live-tracing-readiness.mjs",
+    "audit:rds-network": "node ./scripts/audit-live-rds-network-exposure.mjs",
+    "remediate:rds-public-access": "node ./scripts/remediate-rds-public-access.mjs",
+    "synth": "npm --prefix ../backend run package:monitors && cdk synth",
+    "diff": "npm --prefix ../backend run package:monitors && cdk diff",
+    "deploy": "npm --prefix ../backend run package:monitors && cdk deploy"
+  },
+  "dependencies": {
+    "aws-cdk-lib": "^2.182.0",
+    "constructs": "^10.4.2"
+  },
+  "devDependencies": {
+    "aws-cdk": "^2.182.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.5.4"
+  }
+}

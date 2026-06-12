@@ -206,7 +206,7 @@ const InsightsTab = () => (
                   width: "0%",
                   background: p.color,
                   animation: `barFill 0.8s ease ${800 + i * 100}ms forwards`,
-                  // @ts-ignore
+                  // @ts-expect-error custom CSS property is not in CSSProperties
                   "--bar-width": `${(p.pct / 25) * 100}%`,
                 }}
               />

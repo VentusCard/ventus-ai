@@ -1,0 +1,25 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::373633008995:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": [
+            "repo:VentusCard/ventus-ai:pull_request",
+            "repo:VentusCard/ventus-ai:ref:refs/heads/main",
+            "repo:VentusCard/ventus-ai:ref:refs/heads/staging",
+            "repo:VentusCard/ventus-ai:environment:staging"
+          ]
+        }
+      }
+    }
+  ]
+}

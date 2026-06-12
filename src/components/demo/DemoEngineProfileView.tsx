@@ -117,7 +117,7 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
 
       return { pillar, peak_months: peakMonthNames, frequency: dominantFreq, narrative };
     })
-    .filter(Boolean);
+    .filter((b): b is NonNullable<typeof b> => b !== null);
 
   const monthlyHeatmap: Record<string, number> = {};
   for (const m of MONTH_NAMES) monthlyHeatmap[m] = 0;
@@ -128,7 +128,7 @@ function buildEnrichedProfile(customer: DemoCustomer, enriched: EnrichedTransact
     }
   }
 
-  const dynamicSummary = seasonalBehaviors.map((b: any) => b.narrative as string);
+  const dynamicSummary = seasonalBehaviors.map((b) => b.narrative);
 
   return {
     customer_id: customer.id,

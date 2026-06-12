@@ -1,0 +1,32 @@
+{
+  "name": "ventus-backend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Recovered AWS Lambda backend source for Ventus API pilot-readiness work.",
+  "scripts": {
+    "list:functions": "node ./scripts/list-functions.mjs",
+    "package:functions": "node ./scripts/package-functions.mjs",
+    "package:monitors": "node ./scripts/package-monitors.mjs",
+    "smoke:api": "node ./scripts/smoke-api.mjs",
+    "plaid:sandbox:pull": "node ./scripts/pull-plaid-sandbox-transactions.mjs",
+    "plaid:golden:candidates": "node ./scripts/generate-plaid-golden-candidates.mjs",
+    "plaid:golden:fixture": "node ./scripts/build-plaid-golden-enrich-fixture.mjs",
+    "plaid:enrichment:capture": "node ./scripts/capture-plaid-enrichment-predictions.mjs",
+    "qa:enrichment": "node ./scripts/qa-enrichment-contract.mjs",
+    "qa:partner-ingest": "node ./scripts/qa-partner-ingest.mjs",
+    "qa:golden": "node ./scripts/qa-golden-enrichment.mjs",
+    "qa:model-output": "node ./scripts/qa-model-output-report.mjs",
+    "qa:live": "node ./scripts/qa-live-pipeline.mjs",
+    "docs:api": "node ./scripts/generate-api-docs.mjs && node ./scripts/generate-postman-collection.mjs",
+    "validate:openapi": "node ./scripts/validate-openapi.mjs",
+    "check:openapi-contract": "node ./scripts/check-openapi-contract.mjs",
+    "check:routes": "node ./scripts/check-route-coverage.mjs",
+    "check:cors": "node ./scripts/check-api-cors-readiness.mjs",
+    "check:imports": "node ./scripts/check-relative-imports.mjs",
+    "check:model-gateway": "node ./scripts/check-model-gateway-readiness.mjs",
+    "check:model-gateway-deploy": "node ./scripts/check-model-gateway-deploy-readiness.mjs",
+    "check:pipeline-readiness": "node ./scripts/check-pipeline-readiness.mjs",
+    "test": "node --test \"./shared/*.test.mjs\""
+  }
+}

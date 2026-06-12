@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { X, Sparkles, Gift, Users, Bot, Wifi, Battery, BarChart3 } from "lucide-react";
-import ConsumerAIChatView from "./ConsumerAIChatView";
+import ConsumerAIChatView, { type RiskFlag } from "./ConsumerAIChatView";
 import type { DemoCustomer } from "@/lib/demoData";
 import { getDemoBankConfig } from "@/lib/demoBankConfig";
 import type { DemoNodeType } from "./DemoNetworkDiagram";
@@ -18,7 +18,7 @@ import DemoFinancialJourneyView from "./DemoFinancialJourneyView";
 import DemoEngineProfileView from "./DemoEngineProfileView";
 import DemoPillarCodeView from "./DemoPillarCodeView";
 import DemoEnrichmentTableView from "./DemoEnrichmentTableView";
-import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
+import { AnalyticsContainer, type TabValue } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideWMCopilotView } from "@/components/tepilot/insights/BankwideWMCopilotView";
 
 interface Props {
@@ -28,7 +28,7 @@ interface Props {
   localExperiences?: LocalExperiencesData;
   personalizedDeals?: PersonalizedDealData | null;
   detectedEvents?: DetectedLifeEventResult[];
-  riskFlags?: { flags: any[]; summary: string } | null;
+  riskFlags?: { flags: RiskFlag[]; summary: string } | null;
   apiPayloads?: ApiPayloads;
   tip?: FinancialTip | null;
   onClose: () => void;
@@ -68,7 +68,7 @@ const CARD_DESCRIPTIONS: Record<string, string> = {
   wmCopilot: "Arms relationship managers with AI-prepared context so every client conversation feels informed and personal.",
 };
 
-const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, string>> = {
+const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, TabValue>> = {
   analytics: "dashboard",
   outflow: "wallet-share",
   travel: "rewards-intelligence",
@@ -277,7 +277,7 @@ export default function DemoDetailOverlay({ node, customer, enriched, localExper
   const renderContent = () => {
     if (isConsumer) return renderConsumerOverlay();
     if (node === "wmCopilot") return <BankwideWMCopilotView />;
-    if (isBankWide) return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node] as any} enabledModules={enabledModules} />;
+    if (isBankWide) return <AnalyticsContainer defaultTab={BANK_WIDE_TAB_MAP[node]} enabledModules={enabledModules} />;
     if (node === "engine") return <DemoEnrichmentTableView customer={customer} enriched={enriched} />;
     if (node === "profiling" || node === "predictive" || node === "phase") return <DemoPillarCodeView mode={node} customer={customer} enriched={enriched} apiPayloads={apiPayloads ?? defaultPayloads} />;
     return null;

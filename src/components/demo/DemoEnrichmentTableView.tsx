@@ -71,7 +71,7 @@ function CustomerTable({ transactions }: { transactions: EnrichedTransaction[] }
                 <div className="text-[10px] font-medium text-slate-900 truncate max-w-[100px]" title={tx.normalized_merchant}>{tx.normalized_merchant}</div>
               </td>
               {(() => {
-                const flow = getFlow({ merchant_name: tx.merchant_name, description: (tx as any).description });
+                const flow = getFlow({ merchant_name: tx.merchant_name, description: tx.description });
                 const abs = Math.abs(tx.amount).toFixed(0);
                 return (
                   <td className={`font-mono text-[10px] px-2 py-1 whitespace-nowrap w-[55px] min-w-[55px] text-right ${flow === "income" ? "text-emerald-600 font-semibold" : "text-slate-900"}`}>

@@ -20,6 +20,29 @@ interface ChatMessage {
   kind?: "lifestyle" | "lifeEvent" | "risk" | "general";
 }
 
+export interface RiskFlag {
+  category: string;
+  severity: string;
+  merchant: string;
+  amount: number;
+  date: string;
+  reason: string;
+}
+
+interface SpendingSummary {
+  totalSpend: number;
+  totalTransactions: number;
+  byPillar: {
+    pillar: string;
+    total: number;
+    count: number;
+    topMerchants: string[];
+    categories: { name: string; total: number; count: number }[];
+  }[];
+  subscriptions: { merchant: string; amount: number; frequency: string }[];
+  topMerchants: { merchant: string; total: number; count: number }[];
+}
+
 interface Props {
   customer: DemoCustomer;
   enriched?: EnrichedTransaction[];
@@ -27,7 +50,7 @@ interface Props {
   personalizedDeals?: PersonalizedDealData | null;
   offerGroups?: RollupOfferGroup[] | null;
   productRecommendations?: ProductCard[] | null;
-  riskFlags?: { flags: any[]; summary: string } | null;
+  riskFlags?: { flags: RiskFlag[]; summary: string } | null;
   initialMessage?: string | null;
   messageNonce?: number;
   initialMessageKind?: "lifestyle" | "lifeEvent" | "risk";
@@ -64,7 +87,7 @@ function buildContext(
       : undefined,
   };
 
-  let spendingSummary: any = null;
+  let spendingSummary: SpendingSummary | null = null;
   if (enriched && enriched.length > 0) {
     const totalSpend = enriched.reduce((s, t) => s + Math.abs(t.amount || 0), 0);
     const totalTransactions = enriched.length;
@@ -211,7 +234,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     }
   }, [initialMessage, messageNonce]);
 
-  const formatRiskFlags = (data: { flags: any[]; summary: string }): string => {
+  const formatRiskFlags = (data: { flags: RiskFlag[]; summary: string }): string => {
     if (!data.flags || data.flags.length === 0) {
       return `✅ **No significant risk factors detected.**\n\n${data.summary}`;
     }
@@ -230,7 +253,7 @@ export default function ConsumerAIChatView({ customer, enriched, detectedEvents,
     };
 
     // Group flags by category
-    const grouped: Record<string, any[]> = {};
+    const grouped: Record<string, RiskFlag[]> = {};
     for (const flag of data.flags) {
       const cat = flag.category || "other";
       if (!grouped[cat]) grouped[cat] = [];

@@ -1,0 +1,50 @@
+{
+  "purpose": "Tracing readiness baseline for bank-pilot supportability and enterprise incident evidence.",
+  "region": "us-east-2",
+  "api_gateway": {
+    "rest_api_id": "97rgw0xjbj",
+    "name": "ventus-api",
+    "stage": "prod",
+    "target_tracing_enabled": true,
+    "target_access_logs_enabled": true,
+    "required_access_log_fields": [
+      "requestId",
+      "extendedRequestId",
+      "ip",
+      "caller",
+      "user",
+      "requestTime",
+      "httpMethod",
+      "resourcePath",
+      "status",
+      "protocol",
+      "responseLength",
+      "integrationLatency"
+    ]
+  },
+  "lambda_functions": [
+    "ventus-api",
+    "ventus-ingest-transactions",
+    "ventus-classify-transactions",
+    "ventus-analyze-pillar-transactions",
+    "ventus-analyze-lifestyle-signals",
+    "ventus-risk-detection",
+    "ventus-travel-detection"
+  ],
+  "target_lambda_tracing_mode": "Active",
+  "live_status": {
+    "observed_at": "2026-05-20",
+    "api_gateway_stage_tracing_enabled": true,
+    "api_gateway_access_logs_enabled": true,
+    "api_gateway_access_log_group": "/aws/apigateway/ventus-api-prod-access",
+    "api_gateway_access_log_retention_days": 180,
+    "lambda_tracing_mode": "Active",
+    "verified_with": "npm run --prefix infra audit:tracing"
+  },
+  "target_posture": {
+    "trace_enrichment_requests_end_to_end": true,
+    "capture_stage_level_api_logs": true,
+    "do_not_log_secret_values_or_raw_bank_payloads": true,
+    "use_sampling_before_high_volume_production_rollout": true
+  }
+}
