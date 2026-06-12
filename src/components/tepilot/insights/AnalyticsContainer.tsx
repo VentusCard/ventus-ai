@@ -4,6 +4,7 @@ import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/Availa
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
+import { SignalStudioView } from "../campaigns/SignalStudioView";
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
