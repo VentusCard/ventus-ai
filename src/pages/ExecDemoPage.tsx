@@ -1550,6 +1550,7 @@ export default function ExecDemoPage({ embedded = false }: ExecDemoPageProps = {
           onSelectCustomer={handleSelectCustomer}
           onRunAnalysis={handleRunAnalysis}
           onLoadCustomCsv={handleLoadCustomCsv}
+          embedded={embedded}
         />
       </div>
     </SimplePasswordGate>
