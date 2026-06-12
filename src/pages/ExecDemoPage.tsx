@@ -1298,7 +1298,7 @@ export default function ExecDemoPage() {
       tagline="Behavioral Intelligence Infrastructure For Banking Personalization"
       bullets={["Multi-Rail Enrichment", "Behavioral Intelligence", "Personalization Orchestration"]}
     >
-      <div className="h-screen bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
+      <div className="h-full min-h-0 bg-slate-50 flex flex-col font-[Manrope,sans-serif] overflow-hidden">
         {/* Top bar */}
         <div className="h-16 border-b border-slate-200 bg-white flex items-center justify-between px-6 shrink-0">
           <div className="flex items-center gap-3">
