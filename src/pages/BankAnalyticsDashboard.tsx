@@ -16,7 +16,7 @@ export default function BankAnalyticsDashboard() {
   return (
     <SimplePasswordGate>
       <div className="tepilot-theme h-screen bg-white flex flex-col overflow-hidden">
-        <AnalyticsContainer onBack={handleBack} />
+        <AnalyticsContainer />
       </div>
     </SimplePasswordGate>
   );
