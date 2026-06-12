@@ -158,7 +158,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'capabilities': return <CapabilitiesView />;
       case 'exec-demo': return (
         <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <ExecDemoPage />
+          <ExecDemoPage embedded />
         </div>
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
