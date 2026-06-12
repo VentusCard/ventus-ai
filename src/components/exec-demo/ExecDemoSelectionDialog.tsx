@@ -64,6 +64,7 @@ interface Props {
   onSelectCustomer: (idx: number) => void;
   onRunAnalysis: () => void;
   onLoadCustomCsv?: (csv: string, name: string) => void;
+  embedded?: boolean;
 }
 
 const DEFAULT_PERSONA =
@@ -76,6 +77,7 @@ export default function ExecDemoSelectionDialog({
   onSelectCustomer,
   onRunAnalysis,
   onLoadCustomCsv,
+  embedded = false,
 }: Props) {
   const [showCustomFlow, setShowCustomFlow] = useState(false);
   const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
