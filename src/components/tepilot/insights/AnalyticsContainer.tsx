@@ -156,6 +156,11 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
     switch (activeTab) {
       case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
       case 'capabilities': return <CapabilitiesView />;
+      case 'exec-demo': return (
+        <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-auto bg-white">
+          <ExecDemoPage />
+        </div>
+      );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
