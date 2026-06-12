@@ -161,9 +161,15 @@ export default function DemoPage() {
         </div>
       ) : null}
 
-      {/* Exit button — top-right */}
+      {/* Top-right controls */}
       {!activeNode && (
-        <div className="absolute top-4 right-4 z-50">
+        <div className="absolute top-4 right-4 z-50 flex items-center gap-2">
+          <Link
+            to="/bankdemo"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200 bg-white/80 backdrop-blur-sm text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+          >
+            <ArrowLeft className="h-3 w-3" /> Back to Bank Demo
+          </Link>
           <button
             onClick={() => {
               sessionStorage.removeItem("demo_access");
