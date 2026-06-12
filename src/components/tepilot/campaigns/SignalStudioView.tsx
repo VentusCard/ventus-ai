@@ -19,7 +19,7 @@ const FAMILY_TONE: Record<SignalFamily, { dot: string; chipSelected: string }> =
   "risk":         { dot: "bg-rose-500",    chipSelected: "bg-rose-50 border-rose-400 text-rose-900" },
 };
 
-export function SignalStudioView() {
+export function SignalStudioView({ embedded = false }: { embedded?: boolean } = {}) {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
   const allSignals = useMemo(
