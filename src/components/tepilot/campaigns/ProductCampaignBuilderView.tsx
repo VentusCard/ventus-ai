@@ -120,6 +120,8 @@ export function ProductCampaignBuilderView() {
           campaignLink={campaignLink}
         />
       )}
+        </>
+      )}
     </div>
   );
 }
