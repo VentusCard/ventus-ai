@@ -63,7 +63,7 @@ const AppLayout = () => {
       <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
       <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
       <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
-      <Route path="/demo" element={<ExecDemoPage />} />
+      <Route path="/demo" element={<div className="h-screen"><ExecDemoPage /></div>} />
       <Route path="/deckmo" element={<DemoPage />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
