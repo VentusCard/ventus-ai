@@ -1366,7 +1366,7 @@ export default function ExecDemoPage({ embedded = false }: ExecDemoPageProps = {
                       onSelectCustomer={handleSelectCustomer}
                       onRunAnalysis={handleRunAnalysis}
                       onLoadCustomCsv={handleLoadCustomCsv}
-                      onChangeCustomer={handleChangeCustomer}
+                      onChangeCustomer={embedded ? undefined : handleChangeCustomer}
                       isRunning={isRunning}
                       phase={phase}
                       collectedIndices={collectedIndices}
