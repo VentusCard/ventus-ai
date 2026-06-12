@@ -258,7 +258,7 @@ export default function ExecDemoLeftPanel({
           <div className="text-[10px] font-semibold tracking-widest uppercase text-slate-400">
             Customer
           </div>
-          {!isRunning && (
+          {!isRunning && onChangeCustomer && (
             <button
               onClick={onChangeCustomer}
               className="text-[10px] text-blue-500 hover:text-blue-700 font-medium"
