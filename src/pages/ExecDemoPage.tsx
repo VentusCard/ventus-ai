@@ -53,9 +53,10 @@ const TIMINGS = {
 
 interface ExecDemoPageProps {
   embedded?: boolean;
+  onBack?: () => void;
 }
 
-export default function ExecDemoPage({ embedded = false }: ExecDemoPageProps = {}) {
+export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
