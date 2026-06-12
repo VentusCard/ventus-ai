@@ -65,7 +65,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Targeting",
     items: [
-      { value: "targeting-signal-studio", label: "Signal Studio", icon: Wand2 },
+      
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
       { value: "targeting", label: "Next-product", icon: Route },
