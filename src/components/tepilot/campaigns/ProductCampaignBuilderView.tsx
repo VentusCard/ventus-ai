@@ -14,6 +14,7 @@ type BuilderMode = "product" | "signals";
 const DEFAULT_CAMPAIGN_LINK = "https://www.ventusai.com";
 
 export function ProductCampaignBuilderView() {
+  const [mode, setMode] = useState<BuilderMode>("product");
   const [productName, setProductName] = useState<string>("");
   const [offers, setOffers] = useState<string[]>([]);
   const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
