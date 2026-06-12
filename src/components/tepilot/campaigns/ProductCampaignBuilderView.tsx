@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { Megaphone } from "lucide-react";
+import { Megaphone, Package, Wand2 } from "lucide-react";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { adaptCatalogProduct } from "@/lib/catalogProductAdapter";
@@ -7,6 +7,9 @@ import { getProductVariants } from "@/lib/campaignCatalogVariants";
 import { ProductPickerSection } from "./sections/ProductPickerSection";
 import { ExclusionFunnelSection } from "./sections/ExclusionFunnelSection";
 import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
+import { SignalStudioView } from "./SignalStudioView";
+
+type BuilderMode = "product" | "signals";
 
 const DEFAULT_CAMPAIGN_LINK = "https://www.ventusai.com";
 
