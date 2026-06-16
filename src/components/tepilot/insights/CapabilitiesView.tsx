@@ -3,14 +3,14 @@ import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, 
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
-const INPUTS = [
-  { label: "KYC", icon: UserCircle, source: "Core" },
-  { label: "Card Transactions", icon: CreditCard, source: "Card Processor" },
-  { label: "ACH & Wires", icon: ArrowLeftRight, source: "Core" },
-  { label: "Checks", icon: FileText, source: "Core" },
-  { label: "Zelle", icon: Send, source: "EWS" },
-  { label: "Digital Telemetry", icon: Smartphone, source: "Digital Banking" },
-  { label: "Credit Score", icon: Gauge, source: "Credit Bureau" },
+const INPUTS: Array<{ label: string; icon: React.ElementType; source: string; kind: "internal" | "external" }> = [
+  { label: "KYC", icon: UserCircle, source: "Core", kind: "internal" },
+  { label: "Card Transactions", icon: CreditCard, source: "Card Processor", kind: "internal" },
+  { label: "ACH, Wires & Checks", icon: ArrowLeftRight, source: "Core", kind: "internal" },
+  { label: "Zelle", icon: Send, source: "EWS", kind: "internal" },
+  { label: "Digital Telemetry", icon: Smartphone, source: "Digital Banking", kind: "internal" },
+  { label: "External Loan & Credit Payments", icon: Gauge, source: "Credit Bureau", kind: "external" },
+  { label: "External Transactions", icon: FileText, source: "Credit Bureau", kind: "external" },
 ];
 
 const SIGNALS = [
@@ -121,19 +121,26 @@ export function CapabilitiesView() {
             <div className="flex flex-col gap-2.5 flex-1 justify-center">
               {INPUTS.map((i) => {
                 const Icon = i.icon;
+                const accent = i.kind === "internal"
+                  ? "border-l-2 border-l-emerald-400 hover:border-emerald-300"
+                  : "border-l-2 border-l-violet-400 hover:border-violet-300";
                 return (
-                  <div key={i.label} className="flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white shadow-sm hover:border-emerald-300 transition-colors">
+                  <div key={i.label} className={cn("flex items-center gap-2.5 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white shadow-sm transition-colors", accent)}>
                     <div className="flex items-center justify-center w-7 h-7 rounded-md bg-slate-100 shrink-0">
                       <Icon className="w-3.5 h-3.5 text-slate-600" />
                     </div>
                     <span className="text-sm font-semibold text-slate-800 truncate">{i.label}</span>
                     <div className="flex items-center gap-1.5 ml-auto shrink-0">
-                      <CheckCircle2 className="w-3 h-3 text-emerald-500 shrink-0" />
+                      <CheckCircle2 className={cn("w-3 h-3 shrink-0", i.kind === "internal" ? "text-emerald-500" : "text-violet-500")} />
                       <span className="text-[11px] font-medium text-slate-600 whitespace-nowrap">{i.source}</span>
                     </div>
                   </div>
                 );
               })}
+            </div>
+            <div className="flex items-center justify-center gap-4 mt-3 text-[10px] font-medium text-slate-500">
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-emerald-400" />Internal</span>
+              <span className="flex items-center gap-1.5"><span className="w-2 h-2 rounded-sm bg-violet-400" />External</span>
             </div>
           </div>
 
