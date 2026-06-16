@@ -60,6 +60,17 @@ components:
           type: string
           nullable: true
     EnrichRequest:
+      description: >
+        The accepted request shape is determined by the `ingest_format` configured
+        on the API key (api_keys.ingest_format), not by a field in the body.
+        Keys with `ingest_format = 'normalized'` (the default) send pre-normalized
+        transactions. Keys with `ingest_format = 'plaid'` send a raw Plaid
+        /transactions/sync payload plus a mapping_context, which Ventus normalizes
+        server-side before enrichment.
+      oneOf:
+        - $ref: '#/components/schemas/NormalizedEnrichRequest'
+        - $ref: '#/components/schemas/PlaidEnrichRequest'
+    NormalizedEnrichRequest:
       type: object
       required:
         - transactions
@@ -69,6 +80,39 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/EnrichTransactionInput'
+    PlaidEnrichRequest:
+      type: object
+      description: Request body for API keys with ingest_format = 'plaid'.
+      required:
+        - mapping_context
+        - payload
+      properties:
+        mapping_context:
+          type: object
+          description: >
+            Partner-supplied maps keyed by Plaid account_id. Used to attribute each
+            transaction to a Ventus customer and (optionally) a home ZIP. Accounts
+            absent from account_customer_map have their transactions rejected.
+          required:
+            - account_customer_map
+          properties:
+            account_customer_map:
+              type: object
+              additionalProperties:
+                type: string
+              description: Maps Plaid account_id → Ventus customer_id.
+              example:
+                plaid_acct_001: cust_123
+            account_home_zip_map:
+              type: object
+              additionalProperties:
+                type: string
+              description: Maps Plaid account_id → customer home ZIP.
+              example:
+                plaid_acct_001: '94107'
+        payload:
+          type: object
+          description: Raw Plaid /transactions/sync response (accounts, added, modified, removed, next_cursor, has_more).
     EnrichResponse:
       type: object
       properties:
@@ -79,10 +123,73 @@ components:
           example: ingested
         transaction_count:
           type: integer
+          description: Count of transactions accepted for enrichment (post-normalization for partner formats).
         customers:
           type: integer
         message:
           type: string
+        ingest_report:
+          $ref: '#/components/schemas/IngestReport'
+    IngestReport:
+      type: object
+      description: >
+        Present only for partner ingest formats (e.g. plaid). Reports records that
+        were normalized out before enrichment plus the Plaid sync cursor state.
+      properties:
+        rejected_records:
+          type: array
+          description: Records dropped during normalization (e.g. unmapped account, unsupported currency).
+          items:
+            type: object
+            properties:
+              source_record_id:
+                type: string
+                nullable: true
+              account_id:
+                type: string
+                nullable: true
+              reason_codes:
+                type: array
+                items:
+                  type: string
+              reason:
+                type: string
+              retryable:
+                type: boolean
+        removed_records:
+          type: array
+          description: Plaid "removed" transactions to supersede/delete downstream — never enriched.
+          items:
+            type: object
+            properties:
+              source_transaction_id:
+                type: string
+              account_id:
+                type: string
+                nullable: true
+              reason_code:
+                type: string
+        removed_transaction_ids:
+          type: array
+          items:
+            type: string
+        next_cursor:
+          type: string
+          nullable: true
+          description: Plaid sync cursor to persist for the next incremental read.
+        has_more:
+          type: boolean
+        summary:
+          type: object
+          properties:
+            total_raw_records:
+              type: integer
+            accepted_records:
+              type: integer
+            rejected_records:
+              type: integer
+            removed_records:
+              type: integer
     BatchSummary:
       type: object
       properties:
