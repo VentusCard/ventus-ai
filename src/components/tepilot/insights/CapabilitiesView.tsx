@@ -3,14 +3,14 @@ import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, 
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
-const INPUTS = [
-  { label: "KYC", icon: UserCircle, source: "Core" },
-  { label: "Card Transactions", icon: CreditCard, source: "Card Processor" },
-  { label: "ACH & Wires", icon: ArrowLeftRight, source: "Core" },
-  { label: "Checks", icon: FileText, source: "Core" },
-  { label: "Zelle", icon: Send, source: "EWS" },
-  { label: "Digital Telemetry", icon: Smartphone, source: "Digital Banking" },
-  { label: "Credit Score", icon: Gauge, source: "Credit Bureau" },
+const INPUTS: Array<{ label: string; icon: React.ElementType; source: string; kind: "internal" | "external" }> = [
+  { label: "KYC", icon: UserCircle, source: "Core", kind: "internal" },
+  { label: "Card Transactions", icon: CreditCard, source: "Card Processor", kind: "internal" },
+  { label: "ACH, Wires & Checks", icon: ArrowLeftRight, source: "Core", kind: "internal" },
+  { label: "Zelle", icon: Send, source: "EWS", kind: "internal" },
+  { label: "Digital Telemetry", icon: Smartphone, source: "Digital Banking", kind: "internal" },
+  { label: "External Loan & Credit Payments", icon: Gauge, source: "Credit Bureau", kind: "external" },
+  { label: "External Transactions", icon: FileText, source: "Credit Bureau", kind: "external" },
 ];
 
 const SIGNALS = [
