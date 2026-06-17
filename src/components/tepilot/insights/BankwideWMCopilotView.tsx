@@ -98,6 +98,20 @@ export function BankwideWMCopilotView() {
             <User className="h-4 w-4 mr-2" />
             Client View
           </Button>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setViewMode("notifications")}
+            className={cn(
+              "h-8 px-3 rounded-md",
+              viewMode === "notifications"
+                ? "bg-white shadow-sm text-slate-900"
+                : "text-slate-600 hover:text-slate-900"
+            )}
+          >
+            <Mail className="h-4 w-4 mr-2" />
+            Notifications
+          </Button>
         </div>
         <span className="text-sm text-slate-500 ml-2">
           Wealth Management Copilot
