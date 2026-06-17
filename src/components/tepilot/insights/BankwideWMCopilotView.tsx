@@ -1,17 +1,18 @@
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, User, Briefcase } from "lucide-react";
+import { LayoutDashboard, User, Briefcase, Mail } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorConsole";
 import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
+import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
 
-type ViewMode = "dashboard" | "client";
+type ViewMode = "dashboard" | "client" | "notifications";
 
 export function BankwideWMCopilotView() {
   const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
