@@ -251,13 +251,8 @@ export function AdvisorNotificationsView({
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <span className={cn("w-1.5 h-1.5 rounded-full", section.dot)} />
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900">
-                          {section.title}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {section.subtitle}
-                        </div>
+                      <div className="text-sm font-semibold text-slate-900">
+                        {section.title}
                       </div>
                     </div>
                     <span
