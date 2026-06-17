@@ -233,16 +233,11 @@ export function AdvisorNotificationsView({
           {/* Body */}
           <div className="px-6 py-5 space-y-5">
             <p className="text-sm text-slate-700 leading-relaxed">
-              Good morning — overnight I reviewed transaction activity across
-              your {clients.length} HNW relationships and surfaced{" "}
-              <span className="font-semibold text-slate-900">
-                {totalSignals} signals
-              </span>{" "}
-              touching{" "}
+              Morning — {totalSignals} new signals across{" "}
               <span className="font-semibold text-slate-900">
                 {clientsWithSignals} clients
-              </span>
-              . Here's what I'd act on today.
+              </span>{" "}
+              worth acting on today.
             </p>
 
             {SECTIONS.map((section) => {
