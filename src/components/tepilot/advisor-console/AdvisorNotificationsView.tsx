@@ -1,6 +1,17 @@
 import { useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Mail, Sparkles, AlertTriangle, TrendingUp, Calendar } from "lucide-react";
+import {
+  Sparkles,
+  Reply,
+  ReplyAll,
+  Forward,
+  Trash2,
+  Archive,
+  Flag,
+  Star,
+  Printer,
+  MoreHorizontal,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DashboardClient,
@@ -42,45 +53,64 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-const TODAY = new Date().toLocaleDateString("en-US", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
+const NOW = new Date();
+const TIME_STR = NOW.toLocaleTimeString("en-US", {
+  hour: "numeric",
+  minute: "2-digit",
+});
+const DATE_STR = NOW.toLocaleDateString("en-US", {
+  weekday: "short",
+  month: "short",
   day: "numeric",
+  year: "numeric",
 });
 
 const SECTIONS: {
   key: "high" | "opportunity" | "risk";
   title: string;
   subtitle: string;
-  icon: React.ComponentType<{ className?: string }>;
-  accent: string;
+  accent: string; // left border
+  dot: string;
   pill: string;
 }[] = [
   {
     key: "high",
     title: "High-priority life events",
     subtitle: "Urgent triggers worth a same-day touch",
-    icon: AlertTriangle,
-    accent: "border-amber-200 bg-amber-50",
-    pill: "bg-amber-100 text-amber-800",
+    accent: "border-l-amber-500",
+    dot: "bg-amber-500",
+    pill: "bg-amber-50 text-amber-800 border border-amber-200",
   },
   {
     key: "opportunity",
     title: "Opportunity triggers",
     subtitle: "Wealth events and planning moments to lean into",
-    icon: TrendingUp,
-    accent: "border-emerald-200 bg-emerald-50",
-    pill: "bg-emerald-100 text-emerald-800",
+    accent: "border-l-emerald-500",
+    dot: "bg-emerald-500",
+    pill: "bg-emerald-50 text-emerald-800 border border-emerald-200",
   },
   {
     key: "risk",
     title: "At-risk signals",
     subtitle: "Disengagement or care-driven stressors",
-    icon: Calendar,
-    accent: "border-rose-200 bg-rose-50",
-    pill: "bg-rose-100 text-rose-800",
+    accent: "border-l-rose-500",
+    dot: "bg-rose-500",
+    pill: "bg-rose-50 text-rose-800 border border-rose-200",
   },
+];
+
+const RIBBON_BUTTONS: { icon: React.ComponentType<{ className?: string }>; label: string }[] = [
+  { icon: Reply, label: "Reply" },
+  { icon: ReplyAll, label: "Reply All" },
+  { icon: Forward, label: "Forward" },
+];
+
+const RIBBON_ICONS: { icon: React.ComponentType<{ className?: string }>; label: string }[] = [
+  { icon: Trash2, label: "Delete" },
+  { icon: Archive, label: "Archive" },
+  { icon: Flag, label: "Flag" },
+  { icon: Printer, label: "Print" },
+  { icon: MoreHorizontal, label: "More" },
 ];
 
 export function AdvisorNotificationsView({
@@ -114,38 +144,93 @@ export function AdvisorNotificationsView({
   ).size;
 
   return (
-    <div className="h-full overflow-y-auto bg-slate-50">
-      <div className="max-w-4xl mx-auto p-6">
-        {/* Email envelope */}
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-          {/* Email header */}
-          <div className="border-b border-slate-200 px-6 py-4 bg-white">
+    <div className="h-full overflow-y-auto bg-slate-100">
+      <div className="max-w-[960px] mx-auto p-6">
+        <div className="bg-white border border-slate-200 rounded-md shadow-sm overflow-hidden">
+          {/* Outlook ribbon */}
+          <div className="flex items-center gap-1 px-3 py-1.5 bg-slate-50 border-b border-slate-200">
+            {RIBBON_BUTTONS.map(({ icon: Icon, label }) => (
+              <button
+                key={label}
+                type="button"
+                disabled
+                className="flex items-center gap-1.5 px-2.5 py-1 text-xs text-slate-600 rounded hover:bg-slate-100 disabled:opacity-100 cursor-default"
+              >
+                <Icon className="w-3.5 h-3.5" />
+                {label}
+              </button>
+            ))}
+            <div className="w-px h-5 bg-slate-200 mx-1" />
+            {RIBBON_ICONS.map(({ icon: Icon, label }) => (
+              <button
+                key={label}
+                type="button"
+                disabled
+                aria-label={label}
+                className="p-1.5 text-slate-600 rounded hover:bg-slate-100 disabled:opacity-100 cursor-default"
+              >
+                <Icon className="w-3.5 h-3.5" />
+              </button>
+            ))}
+          </div>
+
+          {/* Subject */}
+          <div className="px-6 pt-5 pb-3 border-b border-slate-200">
+            <h1 className="text-xl font-semibold text-slate-900 leading-snug">
+              Daily Signal Digest — {totalSignals} new triggers across your book
+            </h1>
+          </div>
+
+          {/* Sender block */}
+          <div className="px-6 py-4 border-b border-slate-200">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-slate-900 text-white flex items-center justify-center shrink-0">
-                <Sparkles className="w-5 h-5" />
+              <div
+                className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0"
+                style={{ backgroundColor: "#0078D4" }}
+              >
+                VA
               </div>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center justify-between gap-4">
-                  <div className="text-sm text-slate-900 font-medium">
-                    Ventus AI Copilot{" "}
-                    <span className="text-slate-400 font-normal">
+                  <div className="text-sm text-slate-900">
+                    <span className="font-semibold">Ventus AI Copilot</span>{" "}
+                    <span className="text-slate-500 font-normal">
                       &lt;copilot@ventusai.com&gt;
                     </span>
                   </div>
-                  <div className="text-xs text-slate-500 shrink-0">{TODAY}</div>
+                  <div className="text-xs text-slate-500 shrink-0 flex items-center gap-2">
+                    <Star className="w-3.5 h-3.5 text-slate-300" />
+                    <Flag className="w-3.5 h-3.5 text-slate-300" />
+                    <span>
+                      {TIME_STR} · {DATE_STR}
+                    </span>
+                  </div>
                 </div>
-                <div className="text-xs text-slate-500 mt-0.5">
-                  to: you · daily digest
+                <div className="text-xs text-slate-600 mt-1">
+                  <span className="text-slate-400">To:</span>{" "}
+                  <span className="text-slate-700">You</span>
+                  <span className="text-slate-400 ml-3">Cc:</span>{" "}
+                  <span className="text-slate-500">—</span>
                 </div>
-                <h1 className="text-lg font-semibold text-slate-900 mt-2 leading-snug">
-                  Daily Signal Digest — {totalSignals} new triggers across your
-                  book
-                </h1>
+                <div className="flex items-center gap-1.5 mt-2">
+                  <span
+                    className="text-[11px] font-medium px-2 py-0.5 rounded"
+                    style={{ backgroundColor: "#E5F1FB", color: "#0078D4" }}
+                  >
+                    Inbox
+                  </span>
+                  <span
+                    className="text-[11px] font-medium px-2 py-0.5 rounded"
+                    style={{ backgroundColor: "#F3E8FF", color: "#6B21A8" }}
+                  >
+                    Daily Digest
+                  </span>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Email body */}
+          {/* Body */}
           <div className="px-6 py-5 space-y-5">
             <p className="text-sm text-slate-700 leading-relaxed">
               Good morning — overnight I reviewed transaction activity across
@@ -163,23 +248,19 @@ export function AdvisorNotificationsView({
             {SECTIONS.map((section) => {
               const rows = grouped[section.key];
               if (rows.length === 0) return null;
-              const Icon = section.icon;
               return (
                 <div
                   key={section.key}
-                  className={cn(
-                    "rounded-lg border p-4",
-                    section.accent
-                  )}
+                  className={cn("border-l-2 pl-4", section.accent)}
                 >
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
-                      <Icon className="w-4 h-4 text-slate-700" />
+                      <span className={cn("w-1.5 h-1.5 rounded-full", section.dot)} />
                       <div>
                         <div className="text-sm font-semibold text-slate-900">
                           {section.title}
                         </div>
-                        <div className="text-xs text-slate-600">
+                        <div className="text-xs text-slate-500">
                           {section.subtitle}
                         </div>
                       </div>
@@ -194,20 +275,20 @@ export function AdvisorNotificationsView({
                     </span>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-1.5">
                     {rows.slice(0, 6).map(({ client, event }, idx) => {
                       const cfg = LIFE_EVENT_CONFIG[event.eventType];
                       return (
                         <div
                           key={`${client.id}-${event.eventType}-${idx}`}
-                          className="bg-white border border-slate-200 rounded-md px-3 py-2.5 flex items-center gap-3"
+                          className="border-b border-slate-100 last:border-b-0 py-2 flex items-center gap-3"
                         >
-                          <div className="w-9 h-9 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-center shrink-0">
+                          <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold flex items-center justify-center shrink-0">
                             {initials(client.profile.name)}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="text-sm font-medium text-slate-900 truncate">
+                              <span className="text-sm font-semibold text-slate-900 truncate">
                                 {client.profile.name}
                               </span>
                               <span className="text-[11px] uppercase tracking-wide text-slate-500">
@@ -248,7 +329,7 @@ export function AdvisorNotificationsView({
                       );
                     })}
                     {rows.length > 6 && (
-                      <div className="text-xs text-slate-500 px-1 pt-1">
+                      <div className="text-xs text-slate-500 pt-1">
                         + {rows.length - 6} more in this category
                       </div>
                     )}
@@ -264,10 +345,11 @@ export function AdvisorNotificationsView({
             )}
 
             {/* Signature */}
-            <div className="pt-4 border-t border-slate-200 text-sm text-slate-600">
+            <div className="pt-5 border-t border-slate-200 text-sm text-slate-700 space-y-1">
               <p>Reply to this thread to ask follow-ups, or jump into any client to prep with me.</p>
-              <p className="mt-3 text-slate-900 font-medium flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5" />— Ventus, your copilot
+              <p className="text-slate-900 font-medium">— Ventus, your copilot</p>
+              <p className="text-[11px] text-slate-400 pt-2">
+                Sent by Ventus Copilot · ventusai.com
               </p>
             </div>
           </div>
