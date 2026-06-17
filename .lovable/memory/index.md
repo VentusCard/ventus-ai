@@ -10,6 +10,7 @@ Updated: 3h ago
 - Demos require desktop (>=1024px); enforce with 'Desktop Required' message.
 - AI Tone: "Vaguely specific" behavioral labels. NO specific transaction counts or exact spend amounts.
 - Avoid stress/risk terminology in customer copy; frame as opportunity/optimization.
+- Domain is **ventusai.com** — never `ventus.ai` in copy, emails, or URLs.
 
 ## Memories
 - [Travel Enrichment Logic](mem://technical/data-processing/travel-enrichment-logic) — Trip label rules, price heuristics, and fare matching
