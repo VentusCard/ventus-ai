@@ -127,6 +127,12 @@ export function BankwideWMCopilotView() {
             onScheduleCall={handleScheduleCall}
             onPrepareWithVentus={handlePrepareWithVentus}
           />
+        ) : viewMode === "notifications" ? (
+          <AdvisorNotificationsView
+            clients={dashboardClients}
+            onOpenClient={handleOpenClient}
+            onPrepareWithVentus={handlePrepareWithVentus}
+          />
         ) : (
           <AdvisorConsole
             enrichedTransactions={[]}
