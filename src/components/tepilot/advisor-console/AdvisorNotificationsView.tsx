@@ -177,7 +177,7 @@ export function AdvisorNotificationsView({
           {/* Subject */}
           <div className="px-6 pt-5 pb-3 border-b border-slate-200">
             <h1 className="text-xl font-semibold text-slate-900 leading-snug">
-              Daily Signal Digest — {totalSignals} new triggers across your book
+              Daily digest — {totalSignals} signals to action
             </h1>
           </div>
 
