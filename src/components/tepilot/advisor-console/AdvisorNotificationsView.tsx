@@ -129,7 +129,7 @@ export function AdvisorNotificationsView({
                   <div className="text-sm text-slate-900 font-medium">
                     Ventus AI Copilot{" "}
                     <span className="text-slate-400 font-normal">
-                      &lt;copilot@ventus.ai&gt;
+                      &lt;copilot@ventusai.com&gt;
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 shrink-0">{TODAY}</div>

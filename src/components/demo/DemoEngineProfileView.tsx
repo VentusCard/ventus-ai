@@ -284,7 +284,7 @@ function ProfilePanel({ customer, enriched, accentColor }: { customer: DemoCusto
       <div className="px-4 py-3 border-b border-slate-800 flex items-center gap-2">
         <div className="w-2 h-2 rounded-full" style={{ background: accentColor }} />
         <span className="text-xs font-mono font-semibold text-slate-300">{customer.profile.name}</span>
-        <span className="text-[9px] text-slate-500 ml-auto font-mono">ventus.ai/profile/{customer.id}</span>
+        <span className="text-[9px] text-slate-500 ml-auto font-mono">ventusai.com/profile/{customer.id}</span>
       </div>
       <div className="p-4 overflow-x-auto font-mono text-[11px] leading-[1.8] max-h-[65vh] overflow-y-auto">
         <JsonTree data={profile as unknown as JsonValue} staggerMs={0} />
