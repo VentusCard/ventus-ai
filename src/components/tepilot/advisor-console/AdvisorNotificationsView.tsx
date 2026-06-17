@@ -75,24 +75,24 @@ const SECTIONS: {
 }[] = [
   {
     key: "high",
-    title: "High-priority life events",
-    subtitle: "Urgent triggers worth a same-day touch",
+    title: "Act now",
+    subtitle: "",
     accent: "border-l-amber-500",
     dot: "bg-amber-500",
     pill: "bg-amber-50 text-amber-800 border border-amber-200",
   },
   {
     key: "opportunity",
-    title: "Opportunity triggers",
-    subtitle: "Wealth events and planning moments to lean into",
+    title: "Opportunities",
+    subtitle: "",
     accent: "border-l-emerald-500",
     dot: "bg-emerald-500",
     pill: "bg-emerald-50 text-emerald-800 border border-emerald-200",
   },
   {
     key: "risk",
-    title: "At-risk signals",
-    subtitle: "Disengagement or care-driven stressors",
+    title: "At risk",
+    subtitle: "",
     accent: "border-l-rose-500",
     dot: "bg-rose-500",
     pill: "bg-rose-50 text-rose-800 border border-rose-200",
@@ -177,7 +177,7 @@ export function AdvisorNotificationsView({
           {/* Subject */}
           <div className="px-6 pt-5 pb-3 border-b border-slate-200">
             <h1 className="text-xl font-semibold text-slate-900 leading-snug">
-              Daily Signal Digest — {totalSignals} new triggers across your book
+              Daily digest — {totalSignals} signals to action
             </h1>
           </div>
 
@@ -233,16 +233,11 @@ export function AdvisorNotificationsView({
           {/* Body */}
           <div className="px-6 py-5 space-y-5">
             <p className="text-sm text-slate-700 leading-relaxed">
-              Good morning — overnight I reviewed transaction activity across
-              your {clients.length} HNW relationships and surfaced{" "}
-              <span className="font-semibold text-slate-900">
-                {totalSignals} signals
-              </span>{" "}
-              touching{" "}
+              Morning — {totalSignals} new signals across{" "}
               <span className="font-semibold text-slate-900">
                 {clientsWithSignals} clients
-              </span>
-              . Here's what I'd act on today.
+              </span>{" "}
+              worth acting on today.
             </p>
 
             {SECTIONS.map((section) => {
@@ -256,13 +251,8 @@ export function AdvisorNotificationsView({
                   <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-2">
                       <span className={cn("w-1.5 h-1.5 rounded-full", section.dot)} />
-                      <div>
-                        <div className="text-sm font-semibold text-slate-900">
-                          {section.title}
-                        </div>
-                        <div className="text-xs text-slate-500">
-                          {section.subtitle}
-                        </div>
+                      <div className="text-sm font-semibold text-slate-900">
+                        {section.title}
                       </div>
                     </div>
                     <span
@@ -340,15 +330,14 @@ export function AdvisorNotificationsView({
 
             {totalSignals === 0 && (
               <div className="text-sm text-slate-500 italic">
-                No new triggers picked up overnight. Your book is quiet today.
+                Quiet morning — no new signals.
               </div>
             )}
 
             {/* Signature */}
             <div className="pt-5 border-t border-slate-200 text-sm text-slate-700 space-y-1">
-              <p>Reply to this thread to ask follow-ups, or jump into any client to prep with me.</p>
-              <p className="text-slate-900 font-medium">— Ventus, your copilot</p>
-              <p className="text-[11px] text-slate-400 pt-2">
+              <p className="text-slate-900 font-medium">— Ventus</p>
+              <p className="text-[11px] text-slate-400 pt-1">
                 Sent by Ventus Copilot · ventusai.com
               </p>
             </div>
