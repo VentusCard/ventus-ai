@@ -330,15 +330,14 @@ export function AdvisorNotificationsView({
 
             {totalSignals === 0 && (
               <div className="text-sm text-slate-500 italic">
-                No new triggers picked up overnight. Your book is quiet today.
+                Quiet morning — no new signals.
               </div>
             )}
 
             {/* Signature */}
             <div className="pt-5 border-t border-slate-200 text-sm text-slate-700 space-y-1">
-              <p>Reply to this thread to ask follow-ups, or jump into any client to prep with me.</p>
-              <p className="text-slate-900 font-medium">— Ventus, your copilot</p>
-              <p className="text-[11px] text-slate-400 pt-2">
+              <p className="text-slate-900 font-medium">— Ventus</p>
+              <p className="text-[11px] text-slate-400 pt-1">
                 Sent by Ventus Copilot · ventusai.com
               </p>
             </div>
