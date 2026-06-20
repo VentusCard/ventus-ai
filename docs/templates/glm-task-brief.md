@@ -60,6 +60,8 @@ Add task-specific commands here:
 - Branch name: `glm/<short-task-name>`
 - Commit message: `<concise imperative summary>`
 - Pull request only; do not merge.
+- Include the model/tool used, for example `Claude Code via OpenRouter
+  z-ai/glm-5.2`.
 
 ## Known Risks to Check
 

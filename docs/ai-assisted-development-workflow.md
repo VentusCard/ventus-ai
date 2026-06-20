@@ -102,6 +102,8 @@ use the branch, task brief, and PR-review process immediately.
 
 Actual automated GLM coding does require one of the following:
 
+- an OpenRouter API key exposed only in the local developer environment, using
+  model slug `z-ai/glm-5.2`
 - a GLM/Zhipu API key exposed only in the local developer environment or CI
   secret store
 - a trusted CLI or agent wrapper configured locally
@@ -109,3 +111,6 @@ Actual automated GLM coding does require one of the following:
 
 Do not commit model API keys, Plaid secrets, AWS credentials, or provider keys
 to the repository.
+
+For the current recommended Claude Code setup, see
+[`docs/openrouter-glm-claude-code.md`](./openrouter-glm-claude-code.md).
