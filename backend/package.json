@@ -18,6 +18,7 @@
     "qa:golden": "node ./scripts/qa-golden-enrichment.mjs",
     "qa:model-output": "node ./scripts/qa-model-output-report.mjs",
     "qa:live": "node ./scripts/qa-live-pipeline.mjs",
+    "load:enrich": "node ./scripts/load-test-enrich.mjs",
     "docs:api": "node ./scripts/generate-api-docs.mjs && node ./scripts/generate-postman-collection.mjs",
     "validate:openapi": "node ./scripts/validate-openapi.mjs",
     "check:openapi-contract": "node ./scripts/check-openapi-contract.mjs",
