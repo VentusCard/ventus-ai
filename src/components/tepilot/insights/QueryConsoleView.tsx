@@ -7,6 +7,7 @@ import { QueryEditor } from "./query/QueryEditor";
 import { QueryChart, pickChartSpec, type ChartSpec } from "./query/QueryChart";
 import { ReportDataTable, type Column } from "./reports/ReportDataTable";
 import { executeSql, SCHEMA, type SqlResult } from "./query/sqlEngine";
+import { getDateRange } from "./query/queryDataset";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
