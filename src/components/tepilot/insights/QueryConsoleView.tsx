@@ -275,6 +275,22 @@ export function QueryConsoleView({ initialQuery }: QueryConsoleViewProps = {}) {
 
       {result && (
         <>
+          <ResultActionsBar
+            sql={query}
+            result={result}
+            takeawayOpen={takeawayOpen}
+            onToggleTakeaway={() => setTakeawayOpen((v) => !v)}
+            onEmail={() => setEmailOpen(true)}
+          />
+          {takeawayOpen && (
+            <TakeawayPanel
+              sql={query}
+              columns={result.columns}
+              rows={result.rows}
+              cacheKey={`${runId}::${query}`}
+              onClose={() => setTakeawayOpen(false)}
+            />
+          )}
           {chartSpec && <QueryChart rows={result.rows} spec={chartSpec} />}
           <ReportDataTable
             columns={columns}
@@ -285,6 +301,7 @@ export function QueryConsoleView({ initialQuery }: QueryConsoleViewProps = {}) {
           />
         </>
       )}
+      <EmailResultDialog open={emailOpen} onOpenChange={setEmailOpen} />
     </div>
   );
 }
