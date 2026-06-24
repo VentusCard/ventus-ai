@@ -176,6 +176,17 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
       case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
+      case 'reports': return <ReportsLibrary onOpen={setActiveTab} />;
+      case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
+      case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
+      case 'report-regional-spend': return <RegionalSpendReport onBack={() => setActiveTab('reports')} />;
+      case 'report-outflow': return <OutflowCompetitorReport onBack={() => setActiveTab('reports')} />;
+      case 'report-top-merchants': return <TopMerchantOutflowReport onBack={() => setActiveTab('reports')} />;
+      case 'report-subscription': return <SubscriptionChurnReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cohort-retention': return <CohortRetentionReport onBack={() => setActiveTab('reports')} />;
+      case 'report-life-events': return <LifeEventVolumeReport onBack={() => setActiveTab('reports')} />;
+      case 'report-fvi': return <FviSummaryReport onBack={() => setActiveTab('reports')} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
