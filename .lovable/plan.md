@@ -1,23 +1,15 @@
-# Force the editor overlay text to actually paint
+## Fix: SQL editor selection looks weird
 
-Probing the running editor shows the `<pre>` overlay has the correct `color: rgb(15,23,42)`, the correct font, the right inner HTML, and a 1199×182 bounding box — but the box paints blank. That signature only happens when `-webkit-text-fill-color` is overriding the inherited `color`. Some rule in the cascade (most likely a global `pre`/`code` reset or a Tailwind base) is leaving the pre's fill color at `transparent` or `currentColor` that resolves wrong.
+**Problem:** When you select text in the SQL editor, the selection looks off because two layers are involved:
+- The `<textarea>` (invisible text) paints a strong blue selection background (`bg-blue-200`) under your cursor.
+- The `<pre>` overlay sitting on top shows the colored, syntax-highlighted characters — but those characters are *not* selected, so they keep their normal blue/violet/amber colors on top of the blue selection band. The result clashes and looks broken.
 
-`color` is what we set; `-webkit-text-fill-color` is what actually paints. We need to force both.
+**Fix (UI only, single file):** `src/components/tepilot/insights/query/QueryEditor.tsx`
 
-## Fix
+1. Soften the textarea selection background from `bg-blue-200` to a lighter neutral (`bg-slate-200/70`) so it reads as a calm highlight band instead of a saturated blue stripe.
+2. Add a matching `::selection` style on the `<pre>` overlay (via a small scoped `<style>` block or a `[&_*::selection]` Tailwind arbitrary variant) so the colored tokens above the selection also get the same `bg-slate-200/70` highlight and a unified `#0f172a` text fill. This makes the highlight look like one continuous selection instead of two mismatched layers.
+3. Keep everything else (token colors, transparent textarea text, z-index stacking) unchanged.
 
-In `src/components/tepilot/insights/query/QueryEditor.tsx`, on the `<pre>` overlay:
+**Verification:** Drive Playwright to `/bankdemo` → Analytics → Query, select a range of SQL with mouse drag, screenshot, and confirm the selected text reads cleanly against a soft slate band with no blue/colored clashing.
 
-- Inline style becomes `{ color: "#0f172a", WebkitTextFillColor: "#0f172a" }` — wins over any cascading rule.
-- Each colored `<span>` already has a Tailwind text color class (`text-blue-600`, `text-emerald-600`, `text-violet-600`, `text-amber-600`, `text-slate-400`). Some of those may also be bleached by the same cascade rule, so also inline `-webkit-text-fill-color: currentColor` on the spans via a small wrapper: change the `highlight()` helper to emit `style="-webkit-text-fill-color:currentColor"` alongside the existing class. This makes every colored token paint at whatever color its class resolves to.
-- Leave the `<textarea>` exactly as is (it stays `-webkit-text-fill-color: transparent` so the caret-only input layer remains invisible).
-
-No other files, no engine or business-logic changes.
-
-## Verify
-
-After the edit, drive Playwright to `/bankdemo` → Analytics → Query and screenshot:
-1. The default query (`-- Daily transaction volume…`) — confirm comment, `SELECT`, `day`, `COUNT`, `transactions`, numbers, and identifiers are all readable.
-2. The "Deal redemptions × segment" example — confirm the multi-line JOIN query top is no longer blank.
-
-Inspect computed `-webkit-text-fill-color` of the `<pre>` to confirm it is `rgb(15, 23, 42)`.
+No engine, data, or business-logic changes.
