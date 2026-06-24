@@ -168,6 +168,18 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
     contentRef.current?.scrollTo(0, 0);
     if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
+
+  // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
+  const activeGroupLabel = useMemo(
+    () => filteredNavGroups.find((g) => g.items.some((i) => i.value === activeTab))?.label,
+    [filteredNavGroups, activeTab],
+  );
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(activeGroupLabel ? [activeGroupLabel] : []),
+  );
+  useEffect(() => {
+    setOpenGroups(new Set(activeGroupLabel ? [activeGroupLabel] : []));
+  }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
@@ -277,12 +289,29 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </button>
 
         <nav className="flex-1 py-1 overflow-y-auto">
-          {filteredNavGroups.map((group) => (
-            <Collapsible key={group.label} defaultOpen>
+          {filteredNavGroups.map((group) => {
+            const isOpen = collapsed ? true : openGroups.has(group.label);
+            const ownsActive = group.label === activeGroupLabel;
+            return (
+            <Collapsible
+              key={group.label}
+              open={isOpen}
+              onOpenChange={(next) => {
+                if (collapsed) return;
+                // Don't allow collapsing the group that owns the active tab
+                if (!next && ownsActive) return;
+                setOpenGroups((prev) => {
+                  const out = new Set(prev);
+                  if (next) out.add(group.label);
+                  else out.delete(group.label);
+                  return out;
+                });
+              }}
+            >
               {!collapsed && (
                 <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
                   {group.label}
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-0" : "-rotate-90")} />
                 </CollapsibleTrigger>
               )}
               <CollapsibleContent>
@@ -310,7 +339,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
               </CollapsibleContent>
               {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
             </Collapsible>
-          ))}
+            );
+          })}
         </nav>
 
         <div className="mt-auto border-t border-slate-200 py-1">
