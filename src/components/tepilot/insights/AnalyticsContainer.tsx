@@ -289,12 +289,29 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </button>
 
         <nav className="flex-1 py-1 overflow-y-auto">
-          {filteredNavGroups.map((group) => (
-            <Collapsible key={group.label} defaultOpen>
+          {filteredNavGroups.map((group) => {
+            const isOpen = collapsed ? true : openGroups.has(group.label);
+            const ownsActive = group.label === activeGroupLabel;
+            return (
+            <Collapsible
+              key={group.label}
+              open={isOpen}
+              onOpenChange={(next) => {
+                if (collapsed) return;
+                // Don't allow collapsing the group that owns the active tab
+                if (!next && ownsActive) return;
+                setOpenGroups((prev) => {
+                  const out = new Set(prev);
+                  if (next) out.add(group.label);
+                  else out.delete(group.label);
+                  return out;
+                });
+              }}
+            >
               {!collapsed && (
                 <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
                   {group.label}
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-0" : "-rotate-90")} />
                 </CollapsibleTrigger>
               )}
               <CollapsibleContent>
