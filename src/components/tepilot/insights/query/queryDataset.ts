@@ -70,6 +70,14 @@ function rng(seed: number) {
 function pad(n: number) { return n < 10 ? `0${n}` : `${n}`; }
 function isoDay(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
 
+export function getDateRange(): { today: string; minDay: string; maxDay: string } {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const min = new Date(today);
+  min.setDate(min.getDate() - 89);
+  return { today: isoDay(today), minDay: isoDay(min), maxDay: isoDay(today) };
+}
+
 function tierFor(avg: number): "Budget" | "Mainstream" | "Premium" | "Luxury" {
   if (avg < 35) return "Budget";
   if (avg < 100) return "Mainstream";
