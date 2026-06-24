@@ -1,20 +1,37 @@
 import { useMemo } from "react";
 
-const KEYWORDS = /\b(FROM|SHOW|TIMESERIES|GROUP BY|WHERE|SINCE|UNTIL|COMPARE TO|ORDER BY|LIMIT|VISUALIZE|WITH|TYPE|TOTALS|PERCENT_CHANGE|AND|IN|ASC|DESC|previous_period|day|week|month|line|bar|area)\b/g;
-const FUNCS = /\b(count|sum|avg|min|max|startOfDay|today)\b/g;
-const NUMS = /\b\d+(\.\d+)?\b/g;
-const STRS = /'[^']*'|"[^"]*"/g;
+const TOKEN = new RegExp(
+  [
+    /(?<comment>--[^\n]*)/.source,
+    /(?<string>'[^']*'|"[^"]*")/.source,
+    /(?<kw>\b(?:SELECT|FROM|WHERE|GROUP\s+BY|ORDER\s+BY|HAVING|LIMIT|OFFSET|JOIN|LEFT\s+JOIN|RIGHT\s+JOIN|INNER\s+JOIN|OUTER\s+JOIN|ON|AS|AND|OR|NOT|IN|IS|NULL|LIKE|BETWEEN|ASC|DESC|DISTINCT|CASE|WHEN|THEN|ELSE|END|UNION|ALL|WITH)\b)/.source,
+    /(?<fn>\b(?:COUNT|SUM|AVG|MIN|MAX|ROUND|ABS|COALESCE|IFNULL|CAST|LOWER|UPPER|SUBSTR|LENGTH|DATE|YEAR|MONTH|DAY)\b)/.source,
+    /(?<num>\b\d+(?:\.\d+)?\b)/.source,
+  ].join("|"),
+  "gi",
+);
+
+function esc(s: string): string {
+  return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 
 function highlight(src: string): string {
-  // Order matters: strings first, then keywords, then funcs, then numbers
-  let out = src
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;");
-  out = out.replace(STRS, (m) => `<span class="text-emerald-600">${m}</span>`);
-  out = out.replace(KEYWORDS, (m) => `<span class="text-blue-600 font-medium">${m}</span>`);
-  out = out.replace(FUNCS, (m) => `<span class="text-violet-600">${m}</span>`);
-  out = out.replace(NUMS, (m) => `<span class="text-amber-600">${m}</span>`);
+  let out = "";
+  let last = 0;
+  for (const m of src.matchAll(TOKEN)) {
+    const i = m.index ?? 0;
+    if (i > last) out += esc(src.slice(last, i));
+    const g = m.groups || {};
+    const text = esc(m[0]);
+    if (g.comment) out += `<span class="text-slate-400 italic">${text}</span>`;
+    else if (g.string) out += `<span class="text-emerald-600">${text}</span>`;
+    else if (g.kw) out += `<span class="text-blue-600 font-medium">${text}</span>`;
+    else if (g.fn) out += `<span class="text-violet-600">${text}</span>`;
+    else if (g.num) out += `<span class="text-amber-600">${text}</span>`;
+    else out += text;
+    last = i + m[0].length;
+  }
+  if (last < src.length) out += esc(src.slice(last));
   return out + "\n";
 }
 

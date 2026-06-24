@@ -6,31 +6,22 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM = `You translate plain-English analytics questions into a small ShopifyQL-style DSL used by an in-memory query engine.
+const SYSTEM = `You translate plain-English analytics questions into standard SQL that runs in alasql (in-browser SQL engine).
 
-Output ONLY a valid query in this dialect — no prose, no markdown.
+Output ONLY a valid SELECT statement — no prose, no markdown fences.
 
-Grammar (one clause per line, keywords UPPERCASE):
-  FROM <table>
-  SHOW <metric>[, <metric>...]               -- metrics: count | sum(col) | avg(col) | min(col) | max(col) | <col>
-  TIMESERIES <day|week|month> [WITH TOTALS, PERCENT_CHANGE]
-  GROUP BY <col>[, <col>...]                 -- DO NOT combine with TIMESERIES
-  WHERE <col> <op> <value> [AND <col> <op> <value>...]   -- op: = != > >= < <= IN
-  SINCE <startOfDay(-Nd) | YYYY-MM-DD | today>
-  UNTIL <startOfDay(-Nd) | YYYY-MM-DD | today>
-  COMPARE TO previous_period
-  ORDER BY <col> [ASC|DESC]
-  LIMIT <n>
-  VISUALIZE <metric_alias> TYPE <line|bar|area>
+Engine notes:
+- alasql implements a wide subset of standard SQL: SELECT, FROM, JOIN/LEFT JOIN, WHERE, GROUP BY, HAVING, ORDER BY, LIMIT, COUNT/SUM/AVG/MIN/MAX, COUNT(DISTINCT col), ROUND, CASE WHEN, IN, BETWEEN, LIKE, subqueries.
+- Dates (column "day") are plain ISO strings 'YYYY-MM-DD'. Compare with string operators: WHERE day >= '2026-05-25'.
+- Always alias aggregate columns with AS.
+- Always include ORDER BY when results are ranked.
+- Always include LIMIT when results could be large (top-N queries).
+- Optionally start with a SQL comment "-- @chart line|bar|area[:column]" to hint the chart type.
 
 Rules:
-- Use only the tables and columns provided in the schema. Reject anything else.
-- Metric aliases are auto-named "<fn>_<col>" (e.g. sum(amount) -> sum_amount). Use that alias in ORDER BY and VISUALIZE.
-- Use TIMESERIES for time trends; use GROUP BY for breakdowns; never both.
-- Always include SINCE/UNTIL. Default window: last 30 days (SINCE startOfDay(-30d) UNTIL today).
-- Always include VISUALIZE (pick "line" for timeseries, "bar" for group-by, "area" if asked).
-- Always include LIMIT (default 1000).
-- Cap the result with a reasonable ORDER BY.`;
+- SELECT only. Never emit INSERT/UPDATE/DELETE/CREATE/DROP/ALTER.
+- Only reference tables and columns listed in the schema.
+- Prefer JOINs across tables when the question mixes signals (e.g. life_events + shopping_habits, deal_redemptions + customers + deals).`;
 
 serve(async (req) => {
   if (req.method === "OPTIONS") {
@@ -47,8 +38,12 @@ serve(async (req) => {
       });
     }
 
-    const userPrompt = `Schema (table → columns):
-${Object.entries(schema || {}).map(([t, cols]) => `- ${t}: ${(cols as string[]).join(", ")}`).join("\n")}
+    const schemaText = Object.entries(schema || {})
+      .map(([t, cols]) => `- ${t}(${(cols as string[]).join(", ")})`)
+      .join("\n");
+
+    const userPrompt = `Schema:
+${schemaText}
 
 Current query (may be empty):
 ${currentQuery || "(none)"}
@@ -72,11 +67,11 @@ ${prompt}`;
           type: "function",
           function: {
             name: "deliver_query",
-            description: "Return the generated DSL query plus a one-line explanation.",
+            description: "Return the generated SQL plus a one-line explanation.",
             parameters: {
               type: "object",
               properties: {
-                query: { type: "string", description: "The full DSL query, multi-line, no markdown fences." },
+                query: { type: "string", description: "Full SQL SELECT statement, multi-line, no markdown fences." },
                 explanation: { type: "string", description: "Plain-English summary of what the query computes, under 140 chars." },
               },
               required: ["query", "explanation"],
@@ -116,8 +111,19 @@ ${prompt}`;
     }
 
     const parsed = JSON.parse(toolCall.function.arguments);
-    // Strip accidental markdown fences
     parsed.query = String(parsed.query || "").replace(/```\w*\n?|```/g, "").trim();
+
+    // Reject anything other than SELECT
+    if (!/^\s*(--[^\n]*\n\s*)*SELECT\b/i.test(parsed.query)) {
+      return new Response(JSON.stringify({ error: "Generator returned a non-SELECT statement." }), {
+        status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (/\b(INSERT|UPDATE|DELETE|DROP|CREATE|ALTER|TRUNCATE)\b/i.test(parsed.query)) {
+      return new Response(JSON.stringify({ error: "Generator returned a forbidden statement." }), {
+        status: 422, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify(parsed), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

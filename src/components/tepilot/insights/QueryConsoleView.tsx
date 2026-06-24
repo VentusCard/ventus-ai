@@ -1,65 +1,98 @@
 import { useEffect, useMemo, useState } from "react";
-import { Play, Sparkles, Loader2, Terminal, AlertCircle } from "lucide-react";
+import { Play, Sparkles, Loader2, Terminal, AlertCircle, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { TabHeader } from "./TabHeader";
 import { QueryEditor } from "./query/QueryEditor";
-import { QueryChart } from "./query/QueryChart";
+import { QueryChart, pickChartSpec, type ChartSpec } from "./query/QueryChart";
 import { ReportDataTable, type Column } from "./reports/ReportDataTable";
-import { executeQuery, type QueryResult } from "./query/queryDslEngine";
-import { SCHEMA } from "./query/queryDataset";
+import { executeSql, SCHEMA, type SqlResult } from "./query/sqlEngine";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 
-const DEFAULT_QUERY = `FROM transactions
-SHOW count, sum(amount), avg(amount)
-TIMESERIES day WITH TOTALS, PERCENT_CHANGE
-SINCE startOfDay(-30d) UNTIL today
-COMPARE TO previous_period
-ORDER BY day ASC
-LIMIT 1000
-VISUALIZE count TYPE line`;
+const DEFAULT_QUERY = `-- Daily transaction volume and revenue, last 30 days
+-- @chart line:total_spend
+SELECT day,
+       COUNT(*)           AS orders,
+       ROUND(SUM(amount)) AS total_spend
+FROM   transactions
+GROUP BY day
+ORDER BY day ASC`;
 
 const EXAMPLES: { label: string; query: string }[] = [
-  { label: "Transactions over time", query: DEFAULT_QUERY },
+  { label: "Volume over time", query: DEFAULT_QUERY },
   {
-    label: "Top pillars last 30d",
-    query: `FROM transactions
-SHOW count, sum(amount)
+    label: "Top pillars",
+    query: `-- Spend and order volume by lifestyle pillar
+SELECT pillar,
+       COUNT(*)           AS orders,
+       ROUND(SUM(amount)) AS spend,
+       ROUND(AVG(amount)) AS avg_ticket
+FROM   transactions
 GROUP BY pillar
-SINCE startOfDay(-30d) UNTIL today
-ORDER BY sum_amount DESC
-LIMIT 20
-VISUALIZE sum_amount TYPE bar`,
+ORDER BY spend DESC`,
   },
   {
-    label: "Daily spend by region",
-    query: `FROM transactions
-SHOW sum(amount)
-GROUP BY region
-SINCE startOfDay(-14d) UNTIL today
-ORDER BY sum_amount DESC
-LIMIT 20
-VISUALIZE sum_amount TYPE bar`,
-  },
-  {
-    label: "Life events last 7 days",
-    query: `FROM life_events
-SHOW count
+    label: "Life events by type",
+    query: `-- Detected life events with average confidence
+SELECT event_type,
+       COUNT(*)            AS events,
+       ROUND(AVG(confidence), 2) AS avg_confidence,
+       SUM(evidence_count) AS evidence_signals
+FROM   life_events
 GROUP BY event_type
-SINCE startOfDay(-7d) UNTIL today
-ORDER BY count DESC
-LIMIT 20
-VISUALIZE count TYPE bar`,
+ORDER BY events DESC`,
   },
   {
-    label: "Affluent customers AUM",
-    query: `FROM customers
-SHOW count, avg(aum), sum(aum)
-GROUP BY segment
-ORDER BY sum_aum DESC
-LIMIT 10
-VISUALIZE sum_aum TYPE bar`,
+    label: "Premium shoppers × pillar",
+    query: `-- Premium/Luxury shoppers per lifestyle pillar
+SELECT pillar,
+       spending_tier,
+       COUNT(*)                AS customers,
+       ROUND(AVG(avg_ticket))  AS typical_ticket
+FROM   shopping_habits
+WHERE  spending_tier IN ('Premium','Luxury')
+GROUP BY pillar, spending_tier
+ORDER BY customers DESC`,
+  },
+  {
+    label: "Wallet-share leakage",
+    query: `-- Where customers are sending money outside the bank
+SELECT competitor_merchant,
+       category,
+       COUNT(DISTINCT customer_id) AS customers,
+       ROUND(SUM(outflow_amount))  AS leaked_dollars
+FROM   wallet_share
+GROUP BY competitor_merchant, category
+ORDER BY leaked_dollars DESC`,
+  },
+  {
+    label: "Deal redemptions × segment",
+    query: `-- Deal performance by customer segment
+SELECT c.segment,
+       d.brand,
+       COUNT(*)                    AS redemptions,
+       ROUND(SUM(r.redeemed_amount)) AS revenue
+FROM   deal_redemptions r
+JOIN   customers c ON c.customer_id = r.customer_id
+JOIN   deals     d ON d.deal_id     = r.deal_id
+GROUP BY c.segment, d.brand
+ORDER BY revenue DESC
+LIMIT 20`,
+  },
+  {
+    label: "Life events × spend",
+    query: `-- Average pillar spend for customers with each life event
+SELECT le.event_type,
+       sh.pillar,
+       COUNT(DISTINCT sh.customer_id) AS customers,
+       ROUND(AVG(sh.total_spend))     AS avg_pillar_spend
+FROM   life_events le
+JOIN   shopping_habits sh ON sh.customer_id = le.customer_id
+GROUP BY le.event_type, sh.pillar
+ORDER BY avg_pillar_spend DESC
+LIMIT 25`,
   },
 ];
 
@@ -71,7 +104,8 @@ function fmtCell(v: unknown): string {
 
 export function QueryConsoleView() {
   const [query, setQuery] = useState(DEFAULT_QUERY);
-  const [result, setResult] = useState<QueryResult | null>(null);
+  const [result, setResult] = useState<SqlResult | null>(null);
+  const [chartSpec, setChartSpec] = useState<ChartSpec | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
@@ -79,13 +113,15 @@ export function QueryConsoleView() {
 
   const run = (src: string = query) => {
     try {
-      const r = executeQuery(src);
+      const r = executeSql(src);
       setResult(r);
+      setChartSpec(pickChartSpec(src, r.columns, r.rows));
       setError(null);
       setLastRun(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
     } catch (e) {
       setError(e instanceof Error ? e.message : "Query failed");
       setResult(null);
+      setChartSpec(null);
     }
   };
 
@@ -125,31 +161,39 @@ export function QueryConsoleView() {
     }));
   }, [result]);
 
-  const summaryRows: Record<string, unknown>[] = useMemo(() => {
-    if (!result) return [];
-    const out: Record<string, unknown>[] = [];
-    if (result.totalsRow) out.push(result.totalsRow as Record<string, unknown>);
-    if (result.comparisonRow) out.push(result.comparisonRow as Record<string, unknown>);
-    if (result.pctChangeRow) out.push(result.pctChangeRow as Record<string, unknown>);
-    return out;
-  }, [result]);
-
   return (
     <div className="space-y-4">
       <TabHeader
         icon={<Terminal className="w-4 h-4" />}
         title="Query"
-        subtitle="Ask in plain English or write ShopifyQL-style SQL against the bank's demo tables."
-        howItWorks="The console runs a small SQL dialect over an in-memory copy of the demo transactions, customers, life events and deals. Use the AI box to translate plain English into the dialect."
-        whyItMatters="Analysts can answer one-off questions in seconds without filing a ticket or learning a new BI tool."
+        subtitle="Standard SQL over Ventus tables — transactions, customers, life events, shopping habits, wallet share, deals."
+        howItWorks="The console runs SELECT statements (with JOINs, GROUP BY, aggregates) against an in-memory copy of the bank's Ventus-enriched data. Use the AI box to translate plain English into SQL."
+        whyItMatters="Analysts can answer ad-hoc questions across transactions and behavioral signals without filing a ticket."
       />
 
       {/* Toolbar */}
       <div className="flex items-center justify-between rounded-md border border-slate-200 bg-white px-3 py-2">
         <div className="flex items-center gap-2 text-[12px] text-slate-600">
-          <span className="px-2 py-1 rounded border border-slate-200 bg-slate-50">Last 30 days</span>
-          <span className="px-2 py-1 rounded border border-slate-200 bg-slate-50">Currency: USD</span>
-          <span className="text-slate-400">Tables: {Object.keys(SCHEMA).join(", ")}</span>
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-1.5 px-2 py-1 rounded border border-slate-200 bg-slate-50 hover:bg-slate-100">
+                <Database className="w-3.5 h-3.5 text-slate-500" />
+                Schema · {Object.keys(SCHEMA).length} tables
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[420px] p-0 bg-white border-slate-200" align="start">
+              <div className="px-3 py-2 border-b border-slate-100 text-[11px] uppercase tracking-wider font-semibold text-slate-400">Tables</div>
+              <div className="max-h-[360px] overflow-auto divide-y divide-slate-100">
+                {Object.entries(SCHEMA).map(([table, cols]) => (
+                  <div key={table} className="px-3 py-2">
+                    <div className="text-[12.5px] font-medium text-slate-800 font-mono">{table}</div>
+                    <div className="text-[11.5px] text-slate-500 mt-0.5 leading-relaxed">{cols.join(", ")}</div>
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+          <span className="text-slate-400">SELECT only · joins + aggregates supported</span>
         </div>
         <div className="flex items-center gap-3">
           {lastRun && <span className="text-[11px] text-slate-400">Last run · {lastRun}</span>}
@@ -187,7 +231,7 @@ export function QueryConsoleView() {
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && !generating) generate(); }}
-          placeholder="Describe what you want, e.g. 'wellness spend per region for the last 60 days'"
+          placeholder="Describe what you want, e.g. 'top 5 brands redeemed by Affluent customers in the last 60 days'"
           className="flex-1 bg-transparent outline-none text-[13px] text-slate-700 placeholder:text-slate-400"
         />
         <Button onClick={generate} disabled={generating || !prompt.trim()} size="sm" variant="outline">
@@ -201,29 +245,19 @@ export function QueryConsoleView() {
           <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
           <div>
             <div className="font-medium">Query error</div>
-            <div className="text-rose-600/90">{error}</div>
+            <div className="text-rose-600/90 font-mono">{error}</div>
           </div>
         </div>
       )}
 
       {result && (
         <>
-          {result.query.visualize && <QueryChart result={result} />}
-
-          {summaryRows.length > 0 && (
-            <ReportDataTable
-              columns={columns}
-              rows={summaryRows}
-              rowKey={(_r, i) => `s-${i}`}
-              caption={`Summary · ${result.resolvedRange.since} → ${result.resolvedRange.until}${result.comparisonRange ? ` vs ${result.comparisonRange.since} → ${result.comparisonRange.until}` : ""}`}
-            />
-          )}
-
+          {chartSpec && <QueryChart rows={result.rows} spec={chartSpec} />}
           <ReportDataTable
             columns={columns}
-            rows={result.rows as Record<string, unknown>[]}
+            rows={result.rows}
             rowKey={(_r, i) => `r-${i}`}
-            caption={`${result.query.from} · ${result.rows.length} row${result.rows.length === 1 ? "" : "s"}`}
+            caption={`${result.rowCount} row${result.rowCount === 1 ? "" : "s"}`}
             emptyLabel="No matching rows"
           />
         </>
