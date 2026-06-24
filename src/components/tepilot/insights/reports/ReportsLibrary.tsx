@@ -6,6 +6,7 @@ import {
   Layers,
   Grid3x3,
   TrendingDown,
+  TrendingUp,
   Store,
   Users,
   Map,
@@ -13,6 +14,11 @@ import {
   CalendarHeart,
   ShieldAlert,
   ArrowRight,
+  ArrowUpRight,
+  GitBranch,
+  Plane,
+  MessageSquare,
+  Sparkles,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
@@ -22,7 +28,7 @@ interface ReportsLibraryProps {
   onOpen: (tab: TabValue) => void;
 }
 
-type Category = "Lifestyle" | "Outflow" | "Retention" | "Risk";
+type Category = "Lifestyle" | "Outflow" | "Retention" | "Risk" | "Opportunities";
 
 interface ReportTemplate {
   tab: TabValue;
@@ -31,6 +37,7 @@ interface ReportTemplate {
   category: Category;
   icon: React.ElementType;
   lastRun: string;
+  signature?: boolean;
 }
 
 const TEMPLATES: ReportTemplate[] = [
@@ -67,6 +74,24 @@ const TEMPLATES: ReportTemplate[] = [
     lastRun: "Today, 6:00 AM",
   },
   {
+    tab: "report-tier-migration",
+    title: "Behavioral tier migration",
+    description: "Customers shifting between Essential, Comfort, Premium and Luxury tiers — early upmarket / downmarket signal.",
+    category: "Lifestyle",
+    icon: TrendingUp,
+    lastRun: "Today, 6:45 AM",
+    signature: true,
+  },
+  {
+    tab: "report-travel-trips",
+    title: "Travel trip reconstruction",
+    description: "Transactions grouped into labeled trips: origin, destination, dates, fare class, total spend.",
+    category: "Lifestyle",
+    icon: Plane,
+    lastRun: "Today, 7:05 AM",
+    signature: true,
+  },
+  {
     tab: "report-outflow",
     title: "Outflow to competitors",
     description: "ACH and payee-detected outflow by destination institution.",
@@ -81,6 +106,15 @@ const TEMPLATES: ReportTemplate[] = [
     category: "Outflow",
     icon: Store,
     lastRun: "Today, 7:30 AM",
+  },
+  {
+    tab: "report-wallet-share",
+    title: "Wallet share & outbound funds",
+    description: "Funds leaving the bank to brokerages, neobanks and rival cards — with win-back AUM per destination.",
+    category: "Outflow",
+    icon: ArrowUpRight,
+    lastRun: "Today, 7:10 AM",
+    signature: true,
   },
   {
     tab: "report-subscription",
@@ -107,12 +141,30 @@ const TEMPLATES: ReportTemplate[] = [
     lastRun: "Today, 4:10 AM",
   },
   {
+    tab: "report-life-event-funnel",
+    title: "Life event detection funnel",
+    description: "Signals raised → corroborated → confirmed → actioned, by event type. Pinpoints outreach leakage.",
+    category: "Retention",
+    icon: GitBranch,
+    lastRun: "Today, 5:20 AM",
+    signature: true,
+  },
+  {
     tab: "report-fvi",
     title: "Financial vulnerability summary",
     description: "Vulnerability cohorts, customer counts, and risk severity.",
     category: "Risk",
     icon: ShieldAlert,
     lastRun: "Today, 3:00 AM",
+  },
+  {
+    tab: "report-next-conversation",
+    title: "Next-best-conversation triggers",
+    description: "Customer-level triggers ready for advisors this week, each with a 10-word AI action script.",
+    category: "Opportunities",
+    icon: MessageSquare,
+    lastRun: "Today, 8:30 AM",
+    signature: true,
   },
 ];
 
@@ -121,9 +173,10 @@ const CATEGORY_TONE: Record<Category, string> = {
   Outflow: "bg-amber-50 text-amber-700 border-amber-100",
   Retention: "bg-emerald-50 text-emerald-700 border-emerald-100",
   Risk: "bg-rose-50 text-rose-700 border-rose-100",
+  Opportunities: "bg-violet-50 text-violet-700 border-violet-100",
 };
 
-const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retention", "Risk"];
+const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retention", "Risk", "Opportunities"];
 
 export function ReportsLibrary({ onOpen }: ReportsLibraryProps) {
   const [query, setQuery] = useState("");
