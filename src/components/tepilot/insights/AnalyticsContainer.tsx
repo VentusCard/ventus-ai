@@ -129,7 +129,13 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const openInQuery = (sql: string) => {
+    setPendingQuery(sql);
+    setActiveTab('query');
+  };
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
@@ -195,8 +201,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
       case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
-      case 'reports': return <ReportsLibrary onOpen={setActiveTab} />;
-      case 'query': return <QueryConsoleView />;
+      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} />;
+      case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;

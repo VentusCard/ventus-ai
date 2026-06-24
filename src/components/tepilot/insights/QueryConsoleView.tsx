@@ -103,8 +103,12 @@ function fmtCell(v: unknown): string {
   return String(v);
 }
 
-export function QueryConsoleView() {
-  const [query, setQuery] = useState(DEFAULT_QUERY);
+interface QueryConsoleViewProps {
+  initialQuery?: string;
+}
+
+export function QueryConsoleView({ initialQuery }: QueryConsoleViewProps = {}) {
+  const [query, setQuery] = useState(initialQuery || DEFAULT_QUERY);
   const [result, setResult] = useState<SqlResult | null>(null);
   const [chartSpec, setChartSpec] = useState<ChartSpec | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -126,7 +130,16 @@ export function QueryConsoleView() {
     }
   };
 
-  useEffect(() => { run(DEFAULT_QUERY); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+  useEffect(() => { run(initialQuery || DEFAULT_QUERY); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
+  // React to a new initialQuery from the parent (e.g. opening a report into the console)
+  useEffect(() => {
+    if (initialQuery && initialQuery !== query) {
+      setQuery(initialQuery);
+      run(initialQuery);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialQuery]);
 
   const generate = async () => {
     if (!prompt.trim()) return;
