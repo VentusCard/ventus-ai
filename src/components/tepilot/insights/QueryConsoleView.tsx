@@ -275,22 +275,6 @@ export function QueryConsoleView({ initialQuery }: QueryConsoleViewProps = {}) {
 
       {result && (
         <>
-          <ResultActionsBar
-            sql={query}
-            result={result}
-            takeawayOpen={takeawayOpen}
-            onToggleTakeaway={() => setTakeawayOpen((v) => !v)}
-            onEmail={() => setEmailOpen(true)}
-          />
-          {takeawayOpen && (
-            <TakeawayPanel
-              sql={query}
-              columns={result.columns}
-              rows={result.rows}
-              cacheKey={`${runId}::${query}`}
-              onClose={() => setTakeawayOpen(false)}
-            />
-          )}
           {chartSpec && <QueryChart rows={result.rows} spec={chartSpec} />}
           <ReportDataTable
             columns={columns}
@@ -299,6 +283,32 @@ export function QueryConsoleView({ initialQuery }: QueryConsoleViewProps = {}) {
             caption={`${result.rowCount} row${result.rowCount === 1 ? "" : "s"}`}
             emptyLabel="No matching rows"
           />
+          <div className="rounded-md border border-slate-200 bg-white px-3.5 py-3">
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="min-w-0">
+                <div className="text-[10.5px] uppercase tracking-wider font-semibold text-slate-400">What's next</div>
+                <div className="text-[12.5px] text-slate-600">Summarize, export, or email this result.</div>
+              </div>
+              <ResultActionsBar
+                sql={query}
+                result={result}
+                takeawayOpen={takeawayOpen}
+                onToggleTakeaway={() => setTakeawayOpen((v) => !v)}
+                onEmail={() => setEmailOpen(true)}
+              />
+            </div>
+            {takeawayOpen && (
+              <div className="mt-3">
+                <TakeawayPanel
+                  sql={query}
+                  columns={result.columns}
+                  rows={result.rows}
+                  cacheKey={`${runId}::${query}`}
+                  onClose={() => setTakeawayOpen(false)}
+                />
+              </div>
+            )}
+          </div>
         </>
       )}
       <EmailResultDialog open={emailOpen} onOpenChange={setEmailOpen} />
