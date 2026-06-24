@@ -196,6 +196,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
       case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
       case 'reports': return <ReportsLibrary onOpen={setActiveTab} />;
+      case 'query': return <QueryConsoleView />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
