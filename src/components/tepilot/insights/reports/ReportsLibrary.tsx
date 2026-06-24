@@ -453,7 +453,7 @@ export function ReportsLibrary({ onOpenQuery }: ReportsLibraryProps) {
               <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
                 <span className="text-[10px] text-slate-400">Last run: {t.lastRun}</span>
                 <span className="text-[11px] text-blue-600 inline-flex items-center gap-0.5 group-hover:gap-1 transition-all">
-                  Open report <ArrowRight className="w-3 h-3" />
+                  Open in Query <ArrowRight className="w-3 h-3" />
                 </span>
               </div>
             </button>
