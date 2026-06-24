@@ -8,6 +8,9 @@ import { QueryChart, pickChartSpec, type ChartSpec } from "./query/QueryChart";
 import { ReportDataTable, type Column } from "./reports/ReportDataTable";
 import { executeSql, SCHEMA, SCHEMA_HINTS, type SqlResult } from "./query/sqlEngine";
 import { getDateRange } from "./query/queryDataset";
+import { ResultActionsBar } from "./query/ResultActionsBar";
+import { TakeawayPanel } from "./query/TakeawayPanel";
+import { EmailResultDialog } from "./query/EmailResultDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -115,6 +118,9 @@ export function QueryConsoleView({ initialQuery }: QueryConsoleViewProps = {}) {
   const [prompt, setPrompt] = useState("");
   const [generating, setGenerating] = useState(false);
   const [lastRun, setLastRun] = useState<string | null>(null);
+  const [takeawayOpen, setTakeawayOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(false);
+  const [runId, setRunId] = useState(0);
 
   const run = (src: string = query) => {
     try {
@@ -123,10 +129,13 @@ export function QueryConsoleView({ initialQuery }: QueryConsoleViewProps = {}) {
       setChartSpec(pickChartSpec(src, r.columns, r.rows));
       setError(null);
       setLastRun(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+      setTakeawayOpen(false);
+      setRunId((n) => n + 1);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Query failed");
       setResult(null);
       setChartSpec(null);
+      setTakeawayOpen(false);
     }
   };
 
