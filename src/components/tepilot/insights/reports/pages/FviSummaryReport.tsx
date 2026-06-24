@@ -7,6 +7,7 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
+  Cell,
 } from "recharts";
 import { cohorts as FVI_COHORTS } from "@/lib/fviData";
 import { ReportPageShell } from "../ReportPageShell";
