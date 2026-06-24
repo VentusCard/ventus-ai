@@ -8,6 +8,7 @@ export interface SqlResult {
   rows: Record<string, unknown>[];
   rowCount: number;
   truncated: boolean;
+  groupByCols: string[];
 }
 
 const ROW_CAP = 5000;
@@ -115,7 +116,81 @@ export function executeSql(sql: string): SqlResult {
   const columns = rows.length
     ? Object.keys(rows[0])
     : extractSelectedColumns(clean);
-  return { columns, rows, rowCount: rows.length, truncated };
+  return { columns, rows, rowCount: rows.length, truncated, groupByCols: extractGroupByCols(scan) };
+}
+
+/** Tables in the dataset that expose a customer_id column. */
+const TABLES_WITH_CUSTOMER = new Set([
+  "transactions",
+  "customers",
+  "life_events",
+  "shopping_habits",
+  "wallet_share",
+  "deal_redemptions",
+]);
+
+/**
+ * Rewrite the user's SQL to return a deduped list of customer_ids matching the
+ * same FROM/JOIN/WHERE graph. Optional `segmentFilters` add equality predicates
+ * (e.g. {pillar: 'Travel'}) for per-row segment exports.
+ *
+ * Throws when no joined table exposes customer_id (e.g. pure `deals` aggregate).
+ */
+export function buildCohortQuery(
+  sql: string,
+  segmentFilters: Record<string, unknown> = {},
+): string {
+  const origFromIdx = sql.search(/\bFROM\b/i);
+  if (origFromIdx === -1) throw new Error("Cohort export requires a FROM clause.");
+  const origAfterFrom = sql.slice(origFromIdx);
+  const endRe = /\b(GROUP\s+BY|ORDER\s+BY|HAVING|LIMIT|WINDOW|FETCH)\b/i;
+  const endMatchOrig = origAfterFrom.match(endRe);
+  const origEndOffset = endMatchOrig ? origAfterFrom.search(endRe) : origAfterFrom.length;
+  let fromBlock = origAfterFrom.slice(0, origEndOffset).trim();
+
+  // Identify the first table in FROM/JOIN that has customer_id, capture its alias.
+  const tableRe = /\b(transactions|customers|life_events|shopping_habits|wallet_share|deal_redemptions|deals)\b(?:\s+(?:AS\s+)?([A-Za-z_][\w]*))?/gi;
+  let chosenAlias: string | null = null;
+  let mm: RegExpExecArray | null;
+  while ((mm = tableRe.exec(fromBlock)) !== null) {
+    const table = mm[1].toLowerCase();
+    const alias = mm[2] || table;
+    // Skip aliases that collide with SQL keywords following the table name.
+    if (/^(WHERE|ON|JOIN|INNER|LEFT|RIGHT|FULL|CROSS|GROUP|ORDER|HAVING|LIMIT|AS)$/i.test(alias)) {
+      if (TABLES_WITH_CUSTOMER.has(table)) { chosenAlias = table; break; }
+      continue;
+    }
+    if (TABLES_WITH_CUSTOMER.has(table)) { chosenAlias = alias; break; }
+  }
+  if (!chosenAlias) {
+    throw new Error("This query doesn't reach a table with customer_id — cohort export isn't available.");
+  }
+
+  const extra = Object.entries(segmentFilters).map(([col, val]) => {
+    const v = typeof val === "number" ? String(val) : `'${String(val).replace(/'/g, "''")}'`;
+    return `${col} = ${v}`;
+  });
+
+  if (extra.length) {
+    if (/\bWHERE\b/i.test(fromBlock)) {
+      fromBlock = `${fromBlock} AND ${extra.join(" AND ")}`;
+    } else {
+      fromBlock = `${fromBlock} WHERE ${extra.join(" AND ")}`;
+    }
+  }
+
+  return `SELECT DISTINCT ${chosenAlias}.customer_id AS customer_id\n${fromBlock}\nORDER BY customer_id ASC`;
+}
+
+/** Extract column expressions from a GROUP BY clause for per-segment exports. */
+function extractGroupByCols(scrubbed: string): string[] {
+  const m = scrubbed.match(/\bGROUP\s+BY\b([\s\S]+?)(?:\bORDER\s+BY\b|\bHAVING\b|\bLIMIT\b|$)/i);
+  if (!m) return [];
+  return m[1]
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map((s) => s.replace(/^.*\./, ""));
 }
 
 /**
