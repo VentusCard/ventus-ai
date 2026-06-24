@@ -261,14 +261,22 @@ export function ReportsLibrary({ onOpen }: ReportsLibraryProps) {
                 <div className="w-8 h-8 rounded border border-slate-200 bg-slate-50 flex items-center justify-center shrink-0">
                   <Icon className="w-4 h-4 text-slate-600" />
                 </div>
-                <span
-                  className={cn(
-                    "text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border",
-                    CATEGORY_TONE[t.category],
+                <div className="flex items-center gap-1 flex-wrap justify-end">
+                  {t.signature && (
+                    <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border bg-slate-900 text-white border-slate-900 inline-flex items-center gap-0.5">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      Ventus
+                    </span>
                   )}
-                >
-                  {t.category}
-                </span>
+                  <span
+                    className={cn(
+                      "text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border",
+                      CATEGORY_TONE[t.category],
+                    )}
+                  >
+                    {t.category}
+                  </span>
+                </div>
               </div>
               <div className="mt-3 text-[13px] font-semibold text-slate-900 leading-tight">
                 {t.title}
