@@ -15,40 +15,43 @@ function fmtNum(n: number) {
   return n.toLocaleString();
 }
 
-function scoreColor(score: number) {
-  // 0..10
-  if (score >= 8) return "bg-emerald-500";
-  if (score >= 6) return "bg-emerald-300";
-  if (score >= 4) return "bg-amber-300";
-  if (score >= 2) return "bg-rose-300";
-  return "bg-slate-200";
-}
+const LEVEL_COLOR: Record<string, string> = {
+  high: "bg-emerald-500 text-white",
+  medium: "bg-emerald-300 text-emerald-900",
+  low: "bg-amber-200 text-amber-900",
+  none: "bg-slate-100 text-slate-400",
+};
+
+const LEVEL_LABEL: Record<string, string> = {
+  high: "High",
+  medium: "Med",
+  low: "Low",
+  none: "—",
+};
 
 export function CrossSellReport({ onBack }: { onBack: () => void }) {
   const matrix = useMemo(() => getCrossSellMatrix(), []);
   const rowProducts = CARD_PRODUCTS;
   const colProducts = CARD_PRODUCTS;
 
-  // Flatten for table
   const rows = useMemo(() => {
     const out: {
       from: string;
       to: string;
       users: number;
       uplift: number;
-      conv: number;
-      score: number;
+      level: string;
     }[] = [];
     matrix.forEach((row) =>
       row.forEach((cell) => {
         if (cell.fromCard === cell.toCard) return;
+        if (cell.opportunityLevel === "none") return;
         out.push({
           from: cell.fromCard,
           to: cell.toCard,
-          users: cell.userCount,
-          uplift: cell.estimatedAnnualIncrease,
-          conv: cell.conversionProbability,
-          score: cell.propensityScore,
+          users: cell.potentialUsers,
+          uplift: cell.annualOpportunity,
+          level: cell.opportunityLevel,
         });
       }),
     );
@@ -59,12 +62,11 @@ export function CrossSellReport({ onBack }: { onBack: () => void }) {
     <ReportPageShell
       title="Cross-sell propensity matrix"
       category="Lifestyle"
-      description="Card-to-card cross-sell propensity scores with estimated annual uplift."
+      description="Card-to-card cross-sell opportunity with estimated annual uplift."
       onBack={onBack}
     >
       {() => (
         <>
-          {/* Heatmap */}
           <div className="rounded-md border border-slate-200 bg-white p-3 overflow-auto">
             <table className="text-[11px] w-full">
               <thead>
@@ -74,7 +76,7 @@ export function CrossSellReport({ onBack }: { onBack: () => void }) {
                     <th
                       key={p.name}
                       className="text-slate-500 font-medium p-1 align-bottom"
-                      style={{ minWidth: 80 }}
+                      style={{ minWidth: 96 }}
                     >
                       <div className="truncate">{p.name}</div>
                     </th>
@@ -90,7 +92,7 @@ export function CrossSellReport({ onBack }: { onBack: () => void }) {
                       if (!cell || rp.name === cp.name) {
                         return (
                           <td key={cp.name} className="p-0.5">
-                            <div className="h-7 rounded bg-slate-50 text-slate-300 flex items-center justify-center">
+                            <div className="h-8 rounded bg-slate-50 text-slate-300 flex items-center justify-center">
                               —
                             </div>
                           </td>
@@ -99,10 +101,15 @@ export function CrossSellReport({ onBack }: { onBack: () => void }) {
                       return (
                         <td key={cp.name} className="p-0.5">
                           <div
-                            className={`h-7 rounded flex items-center justify-center text-white text-[10px] font-medium ${scoreColor(cell.propensityScore)}`}
-                            title={`${rp.name} → ${cp.name}: ${cell.propensityScore.toFixed(1)}/10, ${fmtNum(cell.userCount)} users`}
+                            className={`h-8 rounded flex flex-col items-center justify-center text-[9px] ${LEVEL_COLOR[cell.opportunityLevel] ?? "bg-slate-100"}`}
+                            title={`${rp.name} → ${cp.name}: ${cell.opportunityLevel}, ${fmtMoney(cell.annualOpportunity)}`}
                           >
-                            {cell.propensityScore.toFixed(1)}
+                            <span className="font-medium leading-none">
+                              {LEVEL_LABEL[cell.opportunityLevel]}
+                            </span>
+                            <span className="leading-none opacity-80 mt-0.5">
+                              {fmtMoney(cell.annualOpportunity)}
+                            </span>
                           </div>
                         </td>
                       );
@@ -120,10 +127,20 @@ export function CrossSellReport({ onBack }: { onBack: () => void }) {
             columns={[
               { key: "from", header: "From", render: (r) => r.from },
               { key: "to", header: "To", render: (r) => r.to },
-              { key: "users", header: "Users", align: "right", render: (r) => fmtNum(r.users) },
+              { key: "users", header: "Potential users", align: "right", render: (r) => fmtNum(r.users) },
               { key: "uplift", header: "Est. annual uplift", align: "right", render: (r) => fmtMoney(r.uplift) },
-              { key: "conv", header: "Conv %", align: "right", render: (r) => `${r.conv.toFixed(1)}%` },
-              { key: "score", header: "Score", align: "right", render: (r) => r.score.toFixed(1) },
+              {
+                key: "level",
+                header: "Level",
+                align: "right",
+                render: (r) => (
+                  <span
+                    className={`inline-block text-[10px] uppercase px-1.5 py-0.5 rounded ${LEVEL_COLOR[r.level] ?? "bg-slate-100"}`}
+                  >
+                    {r.level}
+                  </span>
+                ),
+              },
             ]}
           />
         </>
