@@ -339,7 +339,8 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
               </CollapsibleContent>
               {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
             </Collapsible>
-          ))}
+            );
+          })}
         </nav>
 
         <div className="mt-auto border-t border-slate-200 py-1">
