@@ -1,38 +1,73 @@
-## Reports tab → Query tab handoff
+## Post-result actions for the Query tab
 
-Each tile in the Reports library now opens the **Query** tab with a pre-loaded SQL statement that runs against the Ventus in-engine schema, instead of opening a hard-coded report page.
+Add a results action bar that appears above the chart/table after a successful run. Four actions, each scoped to what makes sense for the current result.
 
-### Mechanics
+### Action bar layout
 
-1. **`QueryConsoleView.tsx`** — accept optional `initialQuery?: string`. When it changes, set `query` state, call `run(initialQuery)`, and scroll the editor into view. The default behavior (load `DEFAULT_QUERY` on first mount) only fires when `initialQuery` is empty.
-2. **`AnalyticsContainer.tsx`** — add `pendingQuery` state. Pass it into `<QueryConsoleView initialQuery={pendingQuery} />`. When `ReportsLibrary` requests an open, set `pendingQuery` then `setActiveTab('query')`.
-3. **`ReportsLibrary.tsx`** — change the contract: each template carries a `query: string` (its best-fit SQL). The `onOpen` prop becomes `onOpenQuery(query: string)`. The tile still shows title / description / category / "Last run" — only the click handler changes (now reads "Open in Query"). The Reports tab itself, search, and category filter are untouched.
+Right-aligned chip row inside the same card region as the result, just under the "X rows" caption:
 
-### SQL mapping (each template → 1 SQL statement using the live engine schema)
+```
+[ AI takeaway ] [ Export CSV ] [ Export cohort ▾ ] [ Email summary ]
+```
 
-All queries use only tables in `SCHEMA`: `transactions`, `customers`, `life_events`, `shopping_habits`, `wallet_share`, `deals`, `deal_redemptions`. Each starts with a `-- @chart …` hint where it improves the auto-chart, ends with `LIMIT`, and aliases aggregates.
+### 1. Export CSV (result rows)
 
-| Template | Query intent |
-|---|---|
-| Lifestyle pillar share | `SUM(amount), COUNT(*)` from `transactions` grouped by `pillar`, ordered by spend desc. Chart: bar. |
-| Pillar deep-dive (age × region) | Join `transactions` to `customers`, bucket `age` into bands via `CASE`, group by `region, age_band, pillar`. |
-| Cross-sell propensity matrix | Self-join `shopping_habits` on `customer_id` to surface pillar pairs the same customer spends in (proxy for cross-sell). |
-| Spend by region | `transactions` grouped by `region`: customers, total spend, $/customer. Chart: bar. |
-| Behavioral tier migration | `shopping_habits` grouped by `spending_tier, pillar`: customers + avg ticket per tier. |
-| Travel trip reconstruction | `transactions` filtered to `pillar='Travel'`, grouped by `customer_id, day`, listing total + merchant counts. |
-| Outflow to competitors | `wallet_share` grouped by `competitor_merchant, category`: customers + outflow. Chart: bar. |
-| Top merchant outflow | `wallet_share` grouped by `competitor_merchant`: total outflow, affected customers, ordered desc, LIMIT 20. |
-| Wallet share & outbound funds | `wallet_share` grouped by `category`: outflow, count, distinct customers. |
-| Subscription churn cohort | `transactions WHERE pillar='Subscriptions'` grouped by `category, day` to show monthly run-rate. |
-| Cohort retention (sign-up month) | `customers` grouped by `tenure_years`: customer count + avg AUM. (Proxy — no signup date.) |
-| Life-event volume | `life_events` grouped by `event_type, urgency`: events + avg confidence. Chart: bar. |
-| Life event detection funnel | `life_events` grouped by `event_type`: events, avg confidence, total evidence — proxy for funnel stages. |
-| Financial vulnerability summary | Aggregate `wallet_share` + customer AUM to flag high-outflow vs low-AUM customers (CASE buckets). |
-| Next-best-conversation triggers | `life_events` JOIN `customers`: top customers by `confidence * evidence_count`, with segment + event_type. |
+- Pure client-side. Serialize `result.columns` + `result.rows` to CSV (RFC 4180 quoting), trigger download via Blob + `<a download>`.
+- Filename: `ventus-query-<YYYYMMDD-HHmm>.csv`.
+- Disabled if `result.rowCount === 0`.
 
-### Verification
+### 2. Export cohort (customer_id list)
 
-- Run Playwright: open `/bankdemo` → Analytics → Reports, click each tile, confirm it switches to the **Query** tab with the editor populated and a result table or chart rendered (no SQL error banner).
-- Test the search input still filters; category chips still work; the "Last run" line and Ventus badge still render.
+Split button — primary action "Export all matching customers", dropdown to pick a single row's segment when the query is aggregated.
 
-No data, RLS, edge-function, or design-system changes.
+**"Export all":**
+- Reuse the user's current SQL but rewrite to a cohort query. New helper `buildCohortQuery(sql)` in `query/sqlEngine.ts`:
+  - Strip `SELECT … FROM` projection, replace with `SELECT DISTINCT customer_id`.
+  - Drop `GROUP BY`, `ORDER BY`, `LIMIT`, `HAVING`.
+  - Keep `FROM` + all `JOIN`s + `WHERE`.
+  - Reject (toast) if no table in the FROM/JOIN graph exposes `customer_id` — `deals`, pure aggregates of `life_events` without join, etc.
+- Execute via `executeSql`, then CSV download: one column `customer_id`. Filename `ventus-cohort-<YYYYMMDD-HHmm>.csv`.
+
+**"Export this segment" (per row):**
+- Enabled only when the result has a GROUP BY (detected during `executeSql` — extend `SqlResult` with `groupByCols: string[]`).
+- Add a tiny "Export" link in the leftmost cell of each data row (hover-revealed) AND surface the same option in the action-bar dropdown by listing each row's grouping-key values.
+- Builds a cohort query and appends `AND <groupCol> = <value>` for each grouping column. Same CSV format as above.
+
+### 3. AI takeaway
+
+- New button → opens a slide-down panel under the action bar with a single paragraph (3–5 sentences) interpreting the result.
+- Calls a new edge function `summarize-query-result` (parallels `generate-analytics-query`):
+  - Input: `{ sql, columns, rows: rows.slice(0, 100), dateContext }`.
+  - System prompt: Ventus analyst voice; no fabricated numbers; cite figures only from rows; close with one suggested next action ("Consider exporting the 412 Affluent customers in the Travel pillar for a campaign"). Honors the "vaguely specific, no creepy specifics" memory rule for customer-facing copy — but here the audience is the banker, so concrete numbers from the result are allowed.
+  - Uses Lovable AI Gateway, `Lovable-API-Key` auth, same pattern as existing function.
+- Cache the takeaway per `(sql, lastRun)` so re-opening the panel is instant.
+
+### 4. Email summary
+
+- Button opens a small dialog: recipient(s) input (comma-separated, validates), optional note, "Include CSV attachment" checkbox (default on).
+- Requires Lovable email infrastructure. If no domain configured, dialog shows the standard email setup CTA instead of the form.
+- Sends via a new edge function `email-query-result` that:
+  - Renders an HTML email: subject `Ventus query · <first column or "Result"> · <date>`, body = AI takeaway (reuses cached one or generates inline) + first 20 rows as an HTML table + "View full export attached".
+  - Attaches the CSV when requested.
+  - Enqueues through the existing transactional email queue.
+- Toast on success / failure.
+
+### Technical surface
+
+Files touched:
+
+- `src/components/tepilot/insights/QueryConsoleView.tsx` — render `<ResultActionsBar />`, hold takeaway/email dialog state.
+- `src/components/tepilot/insights/query/ResultActionsBar.tsx` *(new)* — the 4-button row + per-segment dropdown.
+- `src/components/tepilot/insights/query/EmailResultDialog.tsx` *(new)*.
+- `src/components/tepilot/insights/query/TakeawayPanel.tsx` *(new)*.
+- `src/components/tepilot/insights/query/exportCsv.ts` *(new)* — CSV helper + download trigger.
+- `src/components/tepilot/insights/query/sqlEngine.ts` — add `buildCohortQuery(sql)`, extend `SqlResult` with `groupByCols`.
+- `supabase/functions/summarize-query-result/index.ts` *(new)* + `supabase/functions/email-query-result/index.ts` *(new)*, both registered in `supabase/config.toml` with `verify_jwt = false` (matches existing analytics function pattern).
+
+No schema, RLS, or design-system changes. Strict light theme preserved.
+
+### Out of scope
+
+- Saving queries / scheduled reports.
+- Cohort push to campaign studio (separate follow-up).
+- Editing email templates from inside the Query tab.
