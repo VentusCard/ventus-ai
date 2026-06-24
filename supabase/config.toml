@@ -59,3 +59,6 @@ verify_jwt = false
 
 [functions.assess-creditworthiness]
 verify_jwt = false
+
+[functions.summarize-query-result]
+verify_jwt = false
