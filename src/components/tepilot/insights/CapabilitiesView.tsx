@@ -1,9 +1,7 @@
 import { TabHeader } from "./TabHeader";
-import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle, CheckCircle2, Presentation, ArrowDown } from "lucide-react";
+import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
-import ExecDemoPage from "@/pages/ExecDemoPage";
-import { Button } from "@/components/ui/button";
 
 const INPUTS = [
   { label: "KYC", icon: UserCircle, source: "Core" },
@@ -188,35 +186,6 @@ export function CapabilitiesView() {
           </div>
         </div>
       </div>
-
-      <div className="flex flex-col items-center gap-3 pt-2">
-        <p className="text-sm text-slate-600">See the system in action with a live executive walkthrough.</p>
-        <Button
-          size="lg"
-          className="gap-2 bg-blue-900 hover:bg-blue-800 text-white"
-          onClick={() => {
-            document.getElementById('exec-demo-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }}
-        >
-          <Presentation className="w-4 h-4" />
-          Launch interactive demo
-          <ArrowDown className="w-4 h-4" />
-        </Button>
-      </div>
-
-      <section
-        id="exec-demo-section"
-        className="bg-white border border-slate-200 rounded-xl overflow-hidden"
-      >
-        <div className="h-[calc(100vh-8rem)] min-h-[640px] w-full bg-white">
-          <ExecDemoPage
-            embedded
-            onBack={() => {
-              window.scrollTo({ top: 0, behavior: 'smooth' });
-            }}
-          />
-        </div>
-      </section>
     </div>
   );
 }
