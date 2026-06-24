@@ -129,7 +129,13 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const openInQuery = (sql: string) => {
+    setPendingQuery(sql);
+    setActiveTab('query');
+  };
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
