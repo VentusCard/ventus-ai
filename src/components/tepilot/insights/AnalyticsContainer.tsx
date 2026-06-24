@@ -168,6 +168,18 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
     contentRef.current?.scrollTo(0, 0);
     if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
+
+  // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
+  const activeGroupLabel = useMemo(
+    () => filteredNavGroups.find((g) => g.items.some((i) => i.value === activeTab))?.label,
+    [filteredNavGroups, activeTab],
+  );
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(activeGroupLabel ? [activeGroupLabel] : []),
+  );
+  useEffect(() => {
+    setOpenGroups(new Set(activeGroupLabel ? [activeGroupLabel] : []));
+  }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
