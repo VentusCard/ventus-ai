@@ -69,7 +69,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "ventus-ai", label: "Ventus AI", icon: ({ className }: { className?: string }) => <span className={cn("inline-flex items-center justify-center font-black leading-none text-[14px]", className)}>V</span> },
       { value: "capabilities", label: "System", icon: Layers },
-      { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
   },
   {
