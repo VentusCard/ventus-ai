@@ -428,12 +428,6 @@ export function ReportsLibrary({ onOpenQuery }: ReportsLibraryProps) {
                   <Icon className="w-4 h-4 text-slate-600" />
                 </div>
                 <div className="flex items-center gap-1 flex-wrap justify-end">
-                  {t.signature && (
-                    <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border bg-slate-900 text-white border-slate-900 inline-flex items-center gap-0.5">
-                      <Sparkles className="w-2.5 h-2.5" />
-                      Ventus
-                    </span>
-                  )}
                   <span
                     className={cn(
                       "text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border",
