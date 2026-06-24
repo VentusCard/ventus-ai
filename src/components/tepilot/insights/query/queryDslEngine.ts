@@ -73,18 +73,21 @@ function parseMetric(token: string): MetricSpec {
 }
 
 function tokenizeLines(src: string): string[] {
-  return src
+  const joined = src
     .split(/\r?\n/)
     .map((l) => l.replace(/--.*$/, "").trim())
     .filter(Boolean)
     .reduce<string[]>((acc, line) => {
-      // join continuation lines (lines that start with a non-keyword) into prev
       const KW = /^(FROM|SHOW|TIMESERIES|GROUP|WHERE|SINCE|UNTIL|COMPARE|ORDER|LIMIT|VISUALIZE)\b/i;
       if (acc.length && !KW.test(line)) acc[acc.length - 1] += " " + line;
       else acc.push(line);
       return acc;
     }, []);
+  // Split any line that contains multiple top-level clauses on one row.
+  const SPLIT = /\s+(?=(?:FROM|SHOW|TIMESERIES|GROUP\s+BY|WHERE|SINCE|UNTIL|COMPARE\s+TO|ORDER\s+BY|LIMIT|VISUALIZE)\b)/i;
+  return joined.flatMap((l) => l.split(SPLIT)).map((s) => s.trim()).filter(Boolean);
 }
+
 
 export function parseQuery(src: string): ParsedQuery {
   const lines = tokenizeLines(src);
