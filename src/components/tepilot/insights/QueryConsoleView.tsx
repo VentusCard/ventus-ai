@@ -133,7 +133,7 @@ export function QueryConsoleView() {
     setGenerating(true);
     try {
       const { data, error: fnErr } = await supabase.functions.invoke("generate-analytics-query", {
-        body: { prompt, currentQuery: query, schema: SCHEMA },
+        body: { prompt, currentQuery: query, schema: SCHEMA, dateContext: getDateRange() },
       });
       if (fnErr) throw fnErr;
       if (!data?.query) throw new Error(data?.error || "No query returned");
