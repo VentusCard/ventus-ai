@@ -1,18 +1,23 @@
-# Fix invisible SQL text in the Query editor
+# Force the editor overlay text to actually paint
 
-The `<pre>` overlay relies on `text-slate-800` for identifiers and unstyled tokens, but on the user's preview those characters render white (or near-white), leaving only the colored keywords/numbers visible.
+Probing the running editor shows the `<pre>` overlay has the correct `color: rgb(15,23,42)`, the correct font, the right inner HTML, and a 1199×182 bounding box — but the box paints blank. That signature only happens when `-webkit-text-fill-color` is overriding the inherited `color`. Some rule in the cascade (most likely a global `pre`/`code` reset or a Tailwind base) is leaving the pre's fill color at `transparent` or `currentColor` that resolves wrong.
 
-## Change
+`color` is what we set; `-webkit-text-fill-color` is what actually paints. We need to force both.
 
-In `src/components/tepilot/insights/query/QueryEditor.tsx`:
+## Fix
 
-- Drop the Tailwind `text-slate-800` class on the `<pre>` overlay and set the color via an inline style so no global rule can override it: `style={{ color: "#0f172a" }}` (slate-900). Inline styles win over any cascading rule from `index.css` or parent containers.
-- Force the same color on the textarea's caret with `caret-slate-900` (already present) and on the textarea's selection background by adding `selection:bg-blue-200 selection:text-slate-900` so selected text stays legible.
-- Add `color: "#0f172a"` to the parent flex wrapper too, so any token that isn't wrapped in a colored span still inherits a dark color.
-- Keep the textarea text transparent (it's the invisible input layer); the `<pre>` is the visible layer.
+In `src/components/tepilot/insights/query/QueryEditor.tsx`, on the `<pre>` overlay:
 
-No other components, no business logic, no engine changes.
+- Inline style becomes `{ color: "#0f172a", WebkitTextFillColor: "#0f172a" }` — wins over any cascading rule.
+- Each colored `<span>` already has a Tailwind text color class (`text-blue-600`, `text-emerald-600`, `text-violet-600`, `text-amber-600`, `text-slate-400`). Some of those may also be bleached by the same cascade rule, so also inline `-webkit-text-fill-color: currentColor` on the spans via a small wrapper: change the `highlight()` helper to emit `style="-webkit-text-fill-color:currentColor"` alongside the existing class. This makes every colored token paint at whatever color its class resolves to.
+- Leave the `<textarea>` exactly as is (it stays `-webkit-text-fill-color: transparent` so the caret-only input layer remains invisible).
+
+No other files, no engine or business-logic changes.
 
 ## Verify
 
-After the edit, drive Playwright to `/bankdemo` → Analytics → Query, screenshot the editor, and confirm the full default query is readable in dark slate including identifiers like `day`, `transactions`, and `customer_id`.
+After the edit, drive Playwright to `/bankdemo` → Analytics → Query and screenshot:
+1. The default query (`-- Daily transaction volume…`) — confirm comment, `SELECT`, `day`, `COUNT`, `transactions`, numbers, and identifiers are all readable.
+2. The "Deal redemptions × segment" example — confirm the multi-line JOIN query top is no longer blank.
+
+Inspect computed `-webkit-text-fill-color` of the `<pre>` to confirm it is `rgb(15, 23, 42)`.

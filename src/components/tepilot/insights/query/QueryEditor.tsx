@@ -55,15 +55,15 @@ export function QueryEditor({ value, onChange }: Props) {
         <div className="relative flex-1 min-w-0">
           <pre
             aria-hidden
-            className="absolute inset-0 m-0 py-2 px-3 whitespace-pre-wrap break-words pointer-events-none"
-            style={{ color: "#0f172a" }}
+            className="absolute inset-0 m-0 py-2 px-3 whitespace-pre-wrap break-words pointer-events-none z-10"
+            style={{ color: "#0f172a", WebkitTextFillColor: "#0f172a" }}
             dangerouslySetInnerHTML={{ __html: html }}
           />
           <textarea
             value={value}
             onChange={(e) => onChange(e.target.value)}
             spellCheck={false}
-            className="relative w-full min-h-[176px] py-2 px-3 bg-transparent text-transparent caret-slate-900 selection:bg-blue-200 selection:text-slate-900 resize-y outline-none font-mono leading-[20px]"
+            className="relative w-full min-h-[176px] py-2 px-3 text-transparent caret-slate-900 selection:bg-blue-200 selection:text-slate-900 resize-y outline-none font-mono leading-[20px]"
             style={{ WebkitTextFillColor: "transparent" }}
           />
         </div>
