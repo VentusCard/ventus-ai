@@ -1,33 +1,21 @@
-# Add Ventus-Signature Reports
+# Sidebar: expand-on-browse, collapse-on-select
 
-Extend the Reports library with 5 new templates that surface insights only Ventus can produce for a bank — all framed as business outcomes, not pipeline internals. Brings the total to 15.
+Change the sidebar groups in `AnalyticsContainer.tsx` to a controlled accordion-style model.
 
-Each report reuses `ReportPageShell` + `DashboardToolbar` + `ReportDataTable`, existing mock data, and adds one signature visual.
+## Behavior
 
-## New report templates
+1. **Default state**: only the group containing the currently active tab is expanded; all other groups are collapsed (just their label + chevron visible).
+2. **Click a collapsed group label** → that group expands to reveal its sub-items. The previously active group stays open too, so the user can compare options while browsing. No navigation happens.
+3. **Click a sub-item** → navigates to that tab AND collapses every other group, leaving only the newly active group expanded.
+4. **Click an already-open group label** → collapses it (standard toggle), unless it contains the active tab (then it stays open to preserve context).
 
-1. **Behavioral Tier Migration** (category: *Lifestyle*)
-   Customers shifting between Essential / Comfort / Premium / Luxury tiers across the period — early signal of upmarket or downmarket drift before income data confirms it. Visual: 4×4 migration matrix heatmap + table of largest tier jumps with suggested next product.
+## Implementation
 
-2. **Life Event Detection Funnel** (category: *Retention*)
-   The detection pipeline as a business view: signals raised → corroborated → confirmed → actioned, by event type (new baby, home purchase, job change, relocation, retirement). Visual: 4-step funnel + table of recent confirmed events with evidence-transaction count and recommended outreach.
+- Track open groups in local state: `const [openGroups, setOpenGroups] = useState<Set<string>>(new Set([activeGroupLabel]))`.
+- Helper `activeGroupLabel = filteredNavGroups.find(g => g.items.some(i => i.value === activeTab))?.label`.
+- `useEffect` on `activeTab`: reset `openGroups` to `new Set([activeGroupLabel])` — this is what collapses everything else after a selection.
+- Replace each group's `<Collapsible defaultOpen>` with a controlled `<Collapsible open={openGroups.has(group.label)} onOpenChange={...}>`. The `onOpenChange` handler toggles that label in the set, but blocks closing the group that owns the active tab.
+- Sub-item click already calls `setActiveTab(item.value)` — the effect above handles the collapse side-effect, so no extra logic in the button.
+- Icon-collapsed sidebar (`collapsed` state) is unaffected: group labels are hidden in that mode, so the accordion logic doesn't apply visually.
 
-3. **Wallet Share & Outbound Funds** (category: *Outflow*)
-   Detects outbound transfers leaving the bank — brokerage ACH, neobank funding, competitor card paydowns, Zelle to rival institutions. Visual: horizontal bar of destinations + win-back table with estimated AUM/deposits at risk per customer.
-
-4. **Travel Trip Reconstruction** (category: *Lifestyle*)
-   Groups raw transactions into labeled trips (origin → destination, dates, total spend, fare-class heuristic) — lets the bank target travel rewards, FX, and trip insurance at the right moment. Visual: trip timeline list + table with per-trip airline / hotel / dining breakdown.
-
-5. **Next-Best-Conversation Triggers** (category: *Opportunities*)
-   Behavioral triggers ready for the advisor / contact center this week — surfaced from spend pattern changes, life events, and tier drift. Visual: priority bar by trigger type + table of customer-level triggers with the 10-word AI action item (per existing advisor-console rules).
-
-## Wiring
-
-- Extend `TabValue` in `AnalyticsContainer.tsx` with: `report-tier-migration`, `report-life-event-funnel`, `report-wallet-share`, `report-travel-trips`, `report-next-conversation`.
-- Add 5 cards to `ReportsLibrary.tsx` with icons (TrendingUp, GitBranch, ArrowUpRight, Plane, MessageSquare) and a "Ventus signature" badge to distinguish from generic BI templates.
-- Add one new category chip: *Opportunities*.
-- Add `case` branches mapping each tab value to its new page component.
-
-## Out of scope
-
-No new mock data, no real pipelines, no edits to the existing 10 reports beyond category-chip parity. No enrichment-quality or pipeline-health reports — these are business insights for the bank, not internal data-ops views.
+No style changes, no nav structure changes, no changes to Settings/Feedback footer.
