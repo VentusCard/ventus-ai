@@ -273,3 +273,90 @@ export const SCHEMA: Record<string, string[]> = {
   deals: ["deal_id", "brand", "pillar", "category", "discount_pct", "redemptions", "active"],
   deal_redemptions: ["redemption_id", "deal_id", "customer_id", "day", "redeemed_amount"],
 };
+
+export interface ColumnHint {
+  name: string;
+  type: "string" | "number" | "date" | "boolean-int";
+  enums?: readonly string[];
+  note?: string;
+}
+
+const PILLAR_VALUES = PILLARS;
+const SEGMENT_VALUES = SEGMENTS;
+const REGION_VALUES = REGIONS;
+const URGENCY_VALUES = URGENCY;
+const LIFE_EVENT_VALUES = LIFE_EVENTS;
+const TIER_VALUES = ["Budget", "Mainstream", "Premium", "Luxury"] as const;
+const FREQ_VALUES = ["Rare", "Monthly", "Weekly", "Daily"] as const;
+const COMPETITOR_NAMES = COMPETITOR_MERCHANTS.map((c) => c.name);
+const OUTFLOW_CATEGORIES = Array.from(new Set(COMPETITOR_MERCHANTS.map((c) => c.category)));
+const DEAL_BRANDS = DEALS_SEED.map((d) => d.brand);
+const ALL_CATEGORIES = Array.from(new Set(Object.values(CATEGORIES).flat()));
+
+export const SCHEMA_HINTS: Record<string, ColumnHint[]> = {
+  transactions: [
+    { name: "transaction_id", type: "string" },
+    { name: "customer_id", type: "string", note: "joins customers.customer_id, shopping_habits.customer_id" },
+    { name: "day", type: "date", note: "ISO 'YYYY-MM-DD'" },
+    { name: "amount", type: "number", note: "USD, positive" },
+    { name: "pillar", type: "string", enums: PILLAR_VALUES },
+    { name: "category", type: "string", enums: ALL_CATEGORIES },
+    { name: "merchant", type: "string" },
+    { name: "region", type: "string", enums: REGION_VALUES },
+    { name: "segment", type: "string", enums: SEGMENT_VALUES },
+  ],
+  customers: [
+    { name: "customer_id", type: "string" },
+    { name: "name", type: "string" },
+    { name: "segment", type: "string", enums: SEGMENT_VALUES },
+    { name: "region", type: "string", enums: REGION_VALUES },
+    { name: "age", type: "number" },
+    { name: "tenure_years", type: "number" },
+    { name: "aum", type: "number", note: "assets under management, USD" },
+  ],
+  life_events: [
+    { name: "event_id", type: "string" },
+    { name: "customer_id", type: "string" },
+    { name: "event_type", type: "string", enums: LIFE_EVENT_VALUES },
+    { name: "day", type: "date" },
+    { name: "confidence", type: "number", note: "0.0–1.0" },
+    { name: "urgency", type: "string", enums: URGENCY_VALUES },
+    { name: "evidence_count", type: "number" },
+    { name: "evidence_sample", type: "string" },
+  ],
+  shopping_habits: [
+    { name: "customer_id", type: "string", note: "composite key with pillar" },
+    { name: "pillar", type: "string", enums: PILLAR_VALUES },
+    { name: "txn_count", type: "number" },
+    { name: "total_spend", type: "number" },
+    { name: "avg_ticket", type: "number" },
+    { name: "top_merchant", type: "string" },
+    { name: "spending_tier", type: "string", enums: TIER_VALUES },
+    { name: "purchase_frequency", type: "string", enums: FREQ_VALUES },
+    { name: "last_seen_day", type: "date" },
+  ],
+  wallet_share: [
+    { name: "customer_id", type: "string" },
+    { name: "competitor_merchant", type: "string", enums: COMPETITOR_NAMES },
+    { name: "category", type: "string", enums: OUTFLOW_CATEGORIES },
+    { name: "outflow_amount", type: "number" },
+    { name: "outflow_count", type: "number" },
+    { name: "last_outflow_day", type: "date" },
+  ],
+  deals: [
+    { name: "deal_id", type: "string" },
+    { name: "brand", type: "string", enums: DEAL_BRANDS },
+    { name: "pillar", type: "string", enums: PILLAR_VALUES },
+    { name: "category", type: "string", enums: ALL_CATEGORIES },
+    { name: "discount_pct", type: "number" },
+    { name: "redemptions", type: "number" },
+    { name: "active", type: "boolean-int", note: "1 = active, 0 = inactive (NOT TRUE/FALSE)" },
+  ],
+  deal_redemptions: [
+    { name: "redemption_id", type: "string" },
+    { name: "deal_id", type: "string", note: "joins deals.deal_id" },
+    { name: "customer_id", type: "string", note: "joins customers.customer_id" },
+    { name: "day", type: "date" },
+    { name: "redeemed_amount", type: "number" },
+  ],
+};
