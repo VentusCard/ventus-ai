@@ -1,10 +1,9 @@
-Remove the "Ventus" signature badge shown on certain report cards in the Reports library, since every report is run by us and the label adds noise.
+The "Failed to send a request to the Edge Function" error happens because `summarize-query-result` has source code but was never deployed (no logs exist, and it's not registered in `supabase/config.toml`).
 
-## Change
+## Fix
 
-**`src/components/tepilot/insights/reports/ReportsLibrary.tsx`**
-- Delete the `{t.signature && (... Ventus ...)}` badge block (lines ~431-436) from the report card header. The category badge stays.
-- Remove the now-unused `Sparkles` import if no other usage remains.
-- Leave the `signature` field on `ReportTemplate` and on individual templates alone (data-only; not surfaced). No other UI or logic changes.
+1. Add a `[functions.summarize-query-result]` block to `supabase/config.toml` with `verify_jwt = false` so it matches the other public demo functions on this page.
+2. Deploy the `summarize-query-result` edge function so the client can actually reach it.
+3. In `TakeawayPanel.tsx`, improve the error message: when `supabase.functions.invoke` returns a `FunctionsHttpError`, read `error.context.json()` (or `.text()`) and show the real backend reason instead of the generic "Failed to send a request…" string. Keeps the rest of the panel unchanged.
 
-No edits to query engine, ResultActionsBar, or other components.
+No changes to query engine, ResultActionsBar, or other components.

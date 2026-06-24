@@ -27,7 +27,17 @@ export function TakeawayPanel({ sql, columns, rows, cacheKey, onClose }: Takeawa
         const { data, error: fnErr } = await supabase.functions.invoke("summarize-query-result", {
           body: { sql, columns, rows: rows.slice(0, 100), dateContext: getDateRange() },
         });
-        if (fnErr) throw fnErr;
+        if (fnErr) {
+          let detail = fnErr.message;
+          const ctx = (fnErr as { context?: Response }).context;
+          if (ctx && typeof ctx.text === "function") {
+            try {
+              const raw = await ctx.text();
+              try { detail = JSON.parse(raw)?.error || raw || detail; } catch { detail = raw || detail; }
+            } catch { /* ignore */ }
+          }
+          throw new Error(detail);
+        }
         if (!data?.takeaway) throw new Error(data?.error || "No takeaway returned");
         if (cancelled) return;
         cache.set(cacheKey, data.takeaway);
@@ -38,6 +48,7 @@ export function TakeawayPanel({ sql, columns, rows, cacheKey, onClose }: Takeawa
       } finally {
         if (!cancelled) setLoading(false);
       }
+
     })();
     return () => { cancelled = true; };
     // eslint-disable-next-line react-hooks/exhaustive-deps
