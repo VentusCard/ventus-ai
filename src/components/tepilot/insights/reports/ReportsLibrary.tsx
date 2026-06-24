@@ -419,8 +419,8 @@ export function ReportsLibrary({ onOpenQuery }: ReportsLibraryProps) {
           const Icon = t.icon;
           return (
             <button
-              key={t.tab}
-              onClick={() => onOpen(t.tab)}
+              key={t.id}
+              onClick={() => onOpenQuery(t.query)}
               className="text-left rounded-md border border-slate-200 bg-white p-4 hover:border-slate-300 hover:shadow-sm transition group"
             >
               <div className="flex items-start justify-between gap-2">
