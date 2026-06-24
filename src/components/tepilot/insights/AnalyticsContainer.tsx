@@ -17,6 +17,7 @@ import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
+import { ProductsCatalogView } from "./ProductsCatalogView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
@@ -55,7 +56,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -69,6 +70,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "ventus-ai", label: "Ventus AI", icon: ({ className }: { className?: string }) => <span className={cn("inline-flex items-center justify-center font-black leading-none text-[14px]", className)}>V</span> },
       { value: "capabilities", label: "System", icon: Layers },
+      { value: "products", label: "Products", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
   },
@@ -194,6 +196,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
     switch (activeTab) {
       case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
       case 'capabilities': return <CapabilitiesView />;
+      case 'products': return <ProductsCatalogView />;
       case 'exec-demo': return (
         <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
           <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai')} />
