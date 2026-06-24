@@ -77,6 +77,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "analytics-dashboard", label: "Dashboard", icon: LayoutDashboard },
       { value: "reports", label: "Reports", icon: FileBarChart },
+      { value: "query", label: "Query", icon: Terminal },
     ],
   },
   {
