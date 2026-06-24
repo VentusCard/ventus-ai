@@ -20,9 +20,20 @@ import { CapabilitiesView } from "./CapabilitiesView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
+import { ReportsLibrary } from "./reports/ReportsLibrary";
+import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
+import { PillarDeepDiveReport } from "./reports/pages/PillarDeepDiveReport";
+import { CrossSellReport } from "./reports/pages/CrossSellReport";
+import { RegionalSpendReport } from "./reports/pages/RegionalSpendReport";
+import { OutflowCompetitorReport } from "./reports/pages/OutflowCompetitorReport";
+import { TopMerchantOutflowReport } from "./reports/pages/TopMerchantOutflowReport";
+import { SubscriptionChurnReport } from "./reports/pages/SubscriptionChurnReport";
+import { CohortRetentionReport } from "./reports/pages/CohortRetentionReport";
+import { LifeEventVolumeReport } from "./reports/pages/LifeEventVolumeReport";
+import { FviSummaryReport } from "./reports/pages/FviSummaryReport";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, LayoutDashboard,
+  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, LayoutDashboard, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
   Zap, Megaphone, Layers, Presentation
@@ -38,7 +49,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -59,9 +70,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Analytics",
     items: [
       { value: "analytics-dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
-      { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
-      { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
+      { value: "reports", label: "Reports", icon: FileBarChart },
     ],
   },
   {
@@ -167,6 +176,17 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
       case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
+      case 'reports': return <ReportsLibrary onOpen={setActiveTab} />;
+      case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
+      case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
+      case 'report-regional-spend': return <RegionalSpendReport onBack={() => setActiveTab('reports')} />;
+      case 'report-outflow': return <OutflowCompetitorReport onBack={() => setActiveTab('reports')} />;
+      case 'report-top-merchants': return <TopMerchantOutflowReport onBack={() => setActiveTab('reports')} />;
+      case 'report-subscription': return <SubscriptionChurnReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cohort-retention': return <CohortRetentionReport onBack={() => setActiveTab('reports')} />;
+      case 'report-life-events': return <LifeEventVolumeReport onBack={() => setActiveTab('reports')} />;
+      case 'report-fvi': return <FviSummaryReport onBack={() => setActiveTab('reports')} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;

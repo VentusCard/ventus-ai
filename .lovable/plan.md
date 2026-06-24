@@ -1,76 +1,75 @@
 ## Goal
 
-Add a new top-level **Dashboard** tab to `/bankdemo` that gives a SQL/R-style analyst a Shopify-Analytics-shaped landing surface. Existing tabs (Lifestyle Analysis, Outflow Analysis, Subscription Analytics, etc.) stay untouched; the new tab links into them as deep-dives.
+Replace the three existing Analytics sidebar entries (Lifestyle Analysis, Outflow Analysis, Subscription Analytics) with a single **Reports** entry that opens a Shopify-style report library: a categorized index of 10 prebuilt templates, each one a full report page with toolbar + chart + data table.
 
-## Scope
+## Sidebar changes
 
-- One new tab under the **Analytics** nav group, label **Dashboard**, icon `LayoutDashboard`, value `analytics-dashboard`. Becomes the default landing destination from the Analytics group (Lifestyle Analysis stays as-is, accessible from the sidebar).
-- All data reuses `getBankwideMetrics`, `getRevenueOpportunities`, `getCrossSellMatrix`, pillar mock data, plus existing outflow/subscription mocks. No new data files.
-- Bank-context (no FX selector), no "powered by Shopify" chrome.
+`src/components/tepilot/insights/AnalyticsContainer.tsx`
+- Analytics group becomes:
+  - `Dashboard` (existing)
+  - `Reports` (new, icon `FileBarChart`)
+- Remove nav items: `dashboard` (Lifestyle Analysis), `wallet-share` (Outflow Analysis), `subscription-analytics`. Their render cases stay in the switch (so existing `setActiveTab` deep-links from the dashboard still work) — they're just no longer in the sidebar.
+- Add `TabValue` values: `'reports'` plus one per template (`'report-lifestyle-pillars'`, `'report-outflow'`, `'report-subscription'`, `'report-pillar-deep-dive'`, `'report-cross-sell'`, `'report-regional-spend'`, `'report-cohort-retention'`, `'report-top-merchants'`, `'report-life-events'`, `'report-fvi'`).
 
-## Layout (analyst-dense, gridded, Shopify-style)
+## Reports library page
 
-```text
-┌────────────────────────────────────────────────────────────────────────┐
-│  Toolbar: [Date range ▼]  [Compare: Previous period ▼]   Last refresh │
-├────────────────────────────────────────────────────────────────────────┤
-│  Insight strip (3 rotating callouts pulled from revenueOpportunities) │
-├──────────────┬──────────────┬──────────────┬──────────────┬──────────┤
-│ Accounts     │ Annual spend │ Avg spend /  │ Cross-sell   │ Wallet   │  ← KPI tiles
-│ 120.0M  ▲2% │ $385B   ▲4% │ user $5.1K  │ index 7.8    │ share 38%│     w/ sparkline + delta
-├──────────────┴──────────────┴──────────────┴──────────────┴──────────┤
-│ Spend by lifestyle pillar (donut)  │  Spend over time (line)         │
-├────────────────────────────────────┼─────────────────────────────────┤
-│ Top pillars table                  │  Spend by card product (bars)   │
-├────────────────────────────────────┼─────────────────────────────────┤
-│ Cross-sell matrix preview          │  Outflow by competitor (bars)   │
-├────────────────────────────────────┼─────────────────────────────────┤
-│ Subscription churn cohort          │  Revenue opportunities list     │
-└────────────────────────────────────┴─────────────────────────────────┘
-```
+`src/components/tepilot/insights/reports/ReportsLibrary.tsx`
+- Shopify-style index: title, short blurb, search box, category filter chips (`All`, `Lifestyle`, `Outflow`, `Retention`, `Risk`).
+- Grid of 10 cards (3-up). Each card: small icon, category chip, title, 1-line description, "Last run" timestamp (mock), `Open report` button.
 
-Card chrome matches Shopify Analytics: thin `border border-slate-200`, white surface, 12px label, large number, small delta chip vs comparison, sparkline, and a `…` menu in the top-right of every card with `Open detail` (deep-links into the corresponding existing tab via `setActiveTab`) and `Export CSV` (stub that fires a toast).
+The 10 templates (all built on existing mock data):
 
-## Toolbar behavior
+| # | Title | Category | Source data |
+|---|-------|----------|-------------|
+| 1 | Lifestyle pillar share | Lifestyle | `getPillarDistribution` + `getBankwideMetrics` |
+| 2 | Pillar deep-dive (age × region) | Lifestyle | `getPillarDeepDiveMatrix` |
+| 3 | Cross-sell propensity matrix | Lifestyle | `getCrossSellMatrix` |
+| 4 | Outflow to competitors | Outflow | existing `WalletShareView` data |
+| 5 | Top merchant outflow | Outflow | `CompetitorOutflowTable` data + top-N |
+| 6 | Subscription churn cohort | Retention | `SubscriptionAnalyticsView` data |
+| 7 | Spend by region | Lifestyle | `GEOGRAPHIC_REGIONS` |
+| 8 | Cohort retention (sign-up month) | Retention | synthesized from `CARD_PRODUCTS` (seeded) |
+| 9 | Life-event volume | Lifestyle | existing life-event mocks |
+| 10 | Financial vulnerability summary | Risk | existing FVI cohort data |
 
-- **Date range**: presets `Last 7 days`, `Last 30 days`, `Last 90 days`, `Quarter-to-date`, `Year-to-date`, `Custom…` (shadcn `Calendar` in a popover). Default `Last 30 days`.
-- **Compare**: `No comparison`, `Previous period`, `Previous year`. Default `Previous period`.
-- Range + compare live in local component state and feed a context object passed to each card. Because mocks are static, deltas are derived deterministically (seeded by range length) so numbers move plausibly when the user changes the range.
+## Reusable report page chrome
 
-## Insight strip
+`src/components/tepilot/insights/reports/ReportPageShell.tsx`
+- Header: back-arrow (returns to Reports library), report title, last-run timestamp, `Export CSV` / `Schedule` (stubbed) buttons.
+- Reuses `DashboardToolbar` (date range + compare) from `dashboard/`.
+- Slot for primary chart (top) and slot for data table (bottom).
+- Single chrome shared by all 10 reports for a uniform Shopify-Reports feel.
 
-Top of page: 3 horizontally-scrollable insight chips generated from `getRevenueOpportunities(filters)` — title + one-line "why" + "See why" link that switches the active tab to the relevant deep-dive (Lifestyle Analysis, Outflow Analysis, etc.).
+`src/components/tepilot/insights/reports/ReportDataTable.tsx`
+- Compact dense table: small caps headers, tabular-nums, row hover, sticky header, optional sparkline column, delta column when comparison is on. Used by every report.
 
-## Files
+## 10 report page components
 
-New:
-- `src/components/tepilot/insights/dashboard/AnalystDashboardView.tsx` — page composition.
-- `src/components/tepilot/insights/dashboard/DashboardToolbar.tsx` — date-range + compare control.
-- `src/components/tepilot/insights/dashboard/MetricTile.tsx` — KPI tile w/ sparkline + delta chip + `…` menu.
-- `src/components/tepilot/insights/dashboard/ChartCard.tsx` — card wrapper (title, action menu, body slot).
-- `src/components/tepilot/insights/dashboard/InsightStrip.tsx` — rotating insights row.
-- `src/components/tepilot/insights/dashboard/useDashboardRange.ts` — range + comparison state + seeded delta helper.
+`src/components/tepilot/insights/reports/pages/`
+- `LifestylePillarReport.tsx` — donut + table (pillar, share, $ spend, Δ).
+- `PillarDeepDiveReport.tsx` — age × region heatmap (reuse `PillarDeepDiveHeatmap`) + table.
+- `CrossSellReport.tsx` — heatmap matrix + table (from-card → to-card, users, est uplift, conv %).
+- `OutflowCompetitorReport.tsx` — horizontal bar + table (competitor, outflow $, share, Δ).
+- `TopMerchantOutflowReport.tsx` — bar + table (merchant, category, outflow $, users).
+- `SubscriptionChurnReport.tsx` — cohort grid + table.
+- `RegionalSpendReport.tsx` — bar + table (region, accounts, spend $, $/user, Δ).
+- `CohortRetentionReport.tsx` — triangle cohort heatmap (seeded from `CARD_PRODUCTS`) + retention table.
+- `LifeEventVolumeReport.tsx` — stacked bar by month + table (event type, count, MoM Δ).
+- `FviSummaryReport.tsx` — bar + table (cohort, customers, severity, Δ).
 
-Edited:
-- `src/components/tepilot/insights/AnalyticsContainer.tsx`
-  - Add `'analytics-dashboard'` to `TabValue`.
-  - Add nav item `{ value: 'analytics-dashboard', label: 'Dashboard', icon: LayoutDashboard }` as the first item in the **Analytics** group.
-  - Switch `defaultTab` from `'ventus-ai'`-only behavior unchanged, but allow `AnalystDashboardView`'s `onNavigate` callback to call `setActiveTab` for deep-dive links.
-  - Pass `setActiveTab` into the new view.
+Each page reuses `ReportPageShell`, `DashboardToolbar`, `useDashboardRange`, `deltaFor`, and `ReportDataTable`. Where heatmaps already exist (pillar deep dive, FVI dashboard chart), wrap the existing component; do NOT rebuild.
 
-No edits to `BankwideView` or any other existing tab.
+## Wiring
 
-## Charts
+In `AnalyticsContainer.renderContent()`:
+- `'reports'` → `<ReportsLibrary onOpen={setActiveTab} />`
+- `'report-*'` → corresponding report page, each receiving `onBack={() => setActiveTab('reports')}`.
+- Keep `case 'dashboard'`, `case 'wallet-share'`, `case 'subscription-analytics'` in the switch (no sidebar entry) so dashboard deep-links still work.
 
-Use existing `recharts` (already in the project — already imported by `BankwideMetrics`, `WalletShareTrendChart`, etc.):
-- Donut: pillar share.
-- Line + area: synthetic time series derived from `TOTAL_ANNUAL_SPEND` × seeded daily noise across the selected range.
-- Horizontal bars: card products, competitor outflow.
-- Sparklines inside KPI tiles: `<LineChart>` 40px tall, no axes.
+Dashboard tile deep-links in `AnalystDashboardView` are repointed from `'dashboard'`/`'wallet-share'`/`'subscription-analytics'` to the new corresponding `'report-*'` values.
 
 ## Out of scope
 
-- No SQL viewer, CSV export wiring (button stubs only — toast "Export queued").
-- No changes to existing analytics tabs.
-- No new mock datasets.
-- No currency selector.
+- No new data files. All reports use existing mock data.
+- No real CSV export, no real scheduling. Buttons fire `toast` stubs.
+- No edits to the rendered content of `BankwideView`, `WalletShareView`, `SubscriptionAnalyticsView` — they remain reachable through dashboard deep-links and continue to render via their existing components.
