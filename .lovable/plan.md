@@ -1,75 +1,33 @@
-## Goal
+# Add Ventus-Signature Reports
 
-Replace the three existing Analytics sidebar entries (Lifestyle Analysis, Outflow Analysis, Subscription Analytics) with a single **Reports** entry that opens a Shopify-style report library: a categorized index of 10 prebuilt templates, each one a full report page with toolbar + chart + data table.
+Extend the Reports library with 5 new templates that surface insights only Ventus can produce for a bank — all framed as business outcomes, not pipeline internals. Brings the total to 15.
 
-## Sidebar changes
+Each report reuses `ReportPageShell` + `DashboardToolbar` + `ReportDataTable`, existing mock data, and adds one signature visual.
 
-`src/components/tepilot/insights/AnalyticsContainer.tsx`
-- Analytics group becomes:
-  - `Dashboard` (existing)
-  - `Reports` (new, icon `FileBarChart`)
-- Remove nav items: `dashboard` (Lifestyle Analysis), `wallet-share` (Outflow Analysis), `subscription-analytics`. Their render cases stay in the switch (so existing `setActiveTab` deep-links from the dashboard still work) — they're just no longer in the sidebar.
-- Add `TabValue` values: `'reports'` plus one per template (`'report-lifestyle-pillars'`, `'report-outflow'`, `'report-subscription'`, `'report-pillar-deep-dive'`, `'report-cross-sell'`, `'report-regional-spend'`, `'report-cohort-retention'`, `'report-top-merchants'`, `'report-life-events'`, `'report-fvi'`).
+## New report templates
 
-## Reports library page
+1. **Behavioral Tier Migration** (category: *Lifestyle*)
+   Customers shifting between Essential / Comfort / Premium / Luxury tiers across the period — early signal of upmarket or downmarket drift before income data confirms it. Visual: 4×4 migration matrix heatmap + table of largest tier jumps with suggested next product.
 
-`src/components/tepilot/insights/reports/ReportsLibrary.tsx`
-- Shopify-style index: title, short blurb, search box, category filter chips (`All`, `Lifestyle`, `Outflow`, `Retention`, `Risk`).
-- Grid of 10 cards (3-up). Each card: small icon, category chip, title, 1-line description, "Last run" timestamp (mock), `Open report` button.
+2. **Life Event Detection Funnel** (category: *Retention*)
+   The detection pipeline as a business view: signals raised → corroborated → confirmed → actioned, by event type (new baby, home purchase, job change, relocation, retirement). Visual: 4-step funnel + table of recent confirmed events with evidence-transaction count and recommended outreach.
 
-The 10 templates (all built on existing mock data):
+3. **Wallet Share & Outbound Funds** (category: *Outflow*)
+   Detects outbound transfers leaving the bank — brokerage ACH, neobank funding, competitor card paydowns, Zelle to rival institutions. Visual: horizontal bar of destinations + win-back table with estimated AUM/deposits at risk per customer.
 
-| # | Title | Category | Source data |
-|---|-------|----------|-------------|
-| 1 | Lifestyle pillar share | Lifestyle | `getPillarDistribution` + `getBankwideMetrics` |
-| 2 | Pillar deep-dive (age × region) | Lifestyle | `getPillarDeepDiveMatrix` |
-| 3 | Cross-sell propensity matrix | Lifestyle | `getCrossSellMatrix` |
-| 4 | Outflow to competitors | Outflow | existing `WalletShareView` data |
-| 5 | Top merchant outflow | Outflow | `CompetitorOutflowTable` data + top-N |
-| 6 | Subscription churn cohort | Retention | `SubscriptionAnalyticsView` data |
-| 7 | Spend by region | Lifestyle | `GEOGRAPHIC_REGIONS` |
-| 8 | Cohort retention (sign-up month) | Retention | synthesized from `CARD_PRODUCTS` (seeded) |
-| 9 | Life-event volume | Lifestyle | existing life-event mocks |
-| 10 | Financial vulnerability summary | Risk | existing FVI cohort data |
+4. **Travel Trip Reconstruction** (category: *Lifestyle*)
+   Groups raw transactions into labeled trips (origin → destination, dates, total spend, fare-class heuristic) — lets the bank target travel rewards, FX, and trip insurance at the right moment. Visual: trip timeline list + table with per-trip airline / hotel / dining breakdown.
 
-## Reusable report page chrome
-
-`src/components/tepilot/insights/reports/ReportPageShell.tsx`
-- Header: back-arrow (returns to Reports library), report title, last-run timestamp, `Export CSV` / `Schedule` (stubbed) buttons.
-- Reuses `DashboardToolbar` (date range + compare) from `dashboard/`.
-- Slot for primary chart (top) and slot for data table (bottom).
-- Single chrome shared by all 10 reports for a uniform Shopify-Reports feel.
-
-`src/components/tepilot/insights/reports/ReportDataTable.tsx`
-- Compact dense table: small caps headers, tabular-nums, row hover, sticky header, optional sparkline column, delta column when comparison is on. Used by every report.
-
-## 10 report page components
-
-`src/components/tepilot/insights/reports/pages/`
-- `LifestylePillarReport.tsx` — donut + table (pillar, share, $ spend, Δ).
-- `PillarDeepDiveReport.tsx` — age × region heatmap (reuse `PillarDeepDiveHeatmap`) + table.
-- `CrossSellReport.tsx` — heatmap matrix + table (from-card → to-card, users, est uplift, conv %).
-- `OutflowCompetitorReport.tsx` — horizontal bar + table (competitor, outflow $, share, Δ).
-- `TopMerchantOutflowReport.tsx` — bar + table (merchant, category, outflow $, users).
-- `SubscriptionChurnReport.tsx` — cohort grid + table.
-- `RegionalSpendReport.tsx` — bar + table (region, accounts, spend $, $/user, Δ).
-- `CohortRetentionReport.tsx` — triangle cohort heatmap (seeded from `CARD_PRODUCTS`) + retention table.
-- `LifeEventVolumeReport.tsx` — stacked bar by month + table (event type, count, MoM Δ).
-- `FviSummaryReport.tsx` — bar + table (cohort, customers, severity, Δ).
-
-Each page reuses `ReportPageShell`, `DashboardToolbar`, `useDashboardRange`, `deltaFor`, and `ReportDataTable`. Where heatmaps already exist (pillar deep dive, FVI dashboard chart), wrap the existing component; do NOT rebuild.
+5. **Next-Best-Conversation Triggers** (category: *Opportunities*)
+   Behavioral triggers ready for the advisor / contact center this week — surfaced from spend pattern changes, life events, and tier drift. Visual: priority bar by trigger type + table of customer-level triggers with the 10-word AI action item (per existing advisor-console rules).
 
 ## Wiring
 
-In `AnalyticsContainer.renderContent()`:
-- `'reports'` → `<ReportsLibrary onOpen={setActiveTab} />`
-- `'report-*'` → corresponding report page, each receiving `onBack={() => setActiveTab('reports')}`.
-- Keep `case 'dashboard'`, `case 'wallet-share'`, `case 'subscription-analytics'` in the switch (no sidebar entry) so dashboard deep-links still work.
-
-Dashboard tile deep-links in `AnalystDashboardView` are repointed from `'dashboard'`/`'wallet-share'`/`'subscription-analytics'` to the new corresponding `'report-*'` values.
+- Extend `TabValue` in `AnalyticsContainer.tsx` with: `report-tier-migration`, `report-life-event-funnel`, `report-wallet-share`, `report-travel-trips`, `report-next-conversation`.
+- Add 5 cards to `ReportsLibrary.tsx` with icons (TrendingUp, GitBranch, ArrowUpRight, Plane, MessageSquare) and a "Ventus signature" badge to distinguish from generic BI templates.
+- Add one new category chip: *Opportunities*.
+- Add `case` branches mapping each tab value to its new page component.
 
 ## Out of scope
 
-- No new data files. All reports use existing mock data.
-- No real CSV export, no real scheduling. Buttons fire `toast` stubs.
-- No edits to the rendered content of `BankwideView`, `WalletShareView`, `SubscriptionAnalyticsView` — they remain reachable through dashboard deep-links and continue to render via their existing components.
+No new mock data, no real pipelines, no edits to the existing 10 reports beyond category-chip parity. No enrichment-quality or pipeline-health reports — these are business insights for the bank, not internal data-ops views.

@@ -31,6 +31,11 @@ import { SubscriptionChurnReport } from "./reports/pages/SubscriptionChurnReport
 import { CohortRetentionReport } from "./reports/pages/CohortRetentionReport";
 import { LifeEventVolumeReport } from "./reports/pages/LifeEventVolumeReport";
 import { FviSummaryReport } from "./reports/pages/FviSummaryReport";
+import { TierMigrationReport } from "./reports/pages/TierMigrationReport";
+import { LifeEventFunnelReport } from "./reports/pages/LifeEventFunnelReport";
+import { WalletShareReport } from "./reports/pages/WalletShareReport";
+import { TravelTripsReport } from "./reports/pages/TravelTripsReport";
+import { NextConversationReport } from "./reports/pages/NextConversationReport";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, LayoutDashboard, FileBarChart,
@@ -49,7 +54,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -187,6 +192,11 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'report-cohort-retention': return <CohortRetentionReport onBack={() => setActiveTab('reports')} />;
       case 'report-life-events': return <LifeEventVolumeReport onBack={() => setActiveTab('reports')} />;
       case 'report-fvi': return <FviSummaryReport onBack={() => setActiveTab('reports')} />;
+      case 'report-tier-migration': return <TierMigrationReport onBack={() => setActiveTab('reports')} />;
+      case 'report-life-event-funnel': return <LifeEventFunnelReport onBack={() => setActiveTab('reports')} />;
+      case 'report-wallet-share': return <WalletShareReport onBack={() => setActiveTab('reports')} />;
+      case 'report-travel-trips': return <TravelTripsReport onBack={() => setActiveTab('reports')} />;
+      case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
