@@ -64,7 +64,7 @@ export function QueryEditor({ value, onChange }: Props) {
             onChange={(e) => onChange(e.target.value)}
             spellCheck={false}
             className="relative w-full min-h-[176px] py-2 px-3 bg-transparent text-transparent caret-slate-900 selection:bg-blue-200 selection:text-slate-900 resize-y outline-none font-mono leading-[20px]"
-            style={{ WebkitTextFillColor: "transparent" }}
+            style={{ WebkitTextFillColor: "transparent", backgroundColor: "transparent" }}
           />
         </div>
       </div>
