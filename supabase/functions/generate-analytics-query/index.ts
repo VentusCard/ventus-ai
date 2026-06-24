@@ -31,7 +31,7 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const { prompt, currentQuery, schema } = await req.json();
+    const { prompt, currentQuery, schema, dateContext } = await req.json();
     if (!prompt || typeof prompt !== "string") {
       return new Response(JSON.stringify({ error: "Missing prompt" }), {
         status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -42,9 +42,19 @@ serve(async (req) => {
       .map(([t, cols]) => `- ${t}(${(cols as string[]).join(", ")})`)
       .join("\n");
 
+    const dateBlock = dateContext?.today
+      ? `Date context (resolve ALL relative time phrases — "today", "yesterday", "last week", "last month", "last 30 days", "this quarter", etc. — using these values, and emit concrete 'YYYY-MM-DD' literals):
+- today: ${dateContext.today}
+- dataset spans: ${dateContext.minDay} → ${dateContext.maxDay} (inclusive)
+- NEVER use a date outside [${dateContext.minDay}, ${dateContext.maxDay}]. If a request implies a window outside this range, clamp to the dataset bounds.
+- "last month" = the previous calendar month relative to today, clamped to the dataset range.
+`
+      : "";
+
     const userPrompt = `Schema:
 ${schemaText}
 
+${dateBlock}
 Current query (may be empty):
 ${currentQuery || "(none)"}
 

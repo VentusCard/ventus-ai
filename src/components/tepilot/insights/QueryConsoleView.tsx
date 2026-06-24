@@ -7,6 +7,7 @@ import { QueryEditor } from "./query/QueryEditor";
 import { QueryChart, pickChartSpec, type ChartSpec } from "./query/QueryChart";
 import { ReportDataTable, type Column } from "./reports/ReportDataTable";
 import { executeSql, SCHEMA, type SqlResult } from "./query/sqlEngine";
+import { getDateRange } from "./query/queryDataset";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -132,7 +133,7 @@ export function QueryConsoleView() {
     setGenerating(true);
     try {
       const { data, error: fnErr } = await supabase.functions.invoke("generate-analytics-query", {
-        body: { prompt, currentQuery: query, schema: SCHEMA },
+        body: { prompt, currentQuery: query, schema: SCHEMA, dateContext: getDateRange() },
       });
       if (fnErr) throw fnErr;
       if (!data?.query) throw new Error(data?.error || "No query returned");
