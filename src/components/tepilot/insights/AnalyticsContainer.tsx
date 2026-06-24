@@ -19,9 +19,10 @@ import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
+import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
+  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, LayoutDashboard,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
   Zap, Megaphone, Layers, Presentation
@@ -37,7 +38,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -57,6 +58,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Analytics",
     items: [
+      { value: "analytics-dashboard", label: "Dashboard", icon: LayoutDashboard },
       { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
       { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
       { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
@@ -164,6 +166,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </div>
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
+      case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
