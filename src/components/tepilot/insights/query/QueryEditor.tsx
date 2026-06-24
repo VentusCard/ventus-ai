@@ -52,7 +52,12 @@ export function QueryEditor({ value, onChange }: Props) {
             <div key={i}>{i + 1}</div>
           ))}
         </div>
-        <div className="relative flex-1 min-w-0">
+        <div className="relative flex-1 min-w-0 sql-editor-surface">
+          <style>{`
+            .sql-editor-surface pre ::selection,
+            .sql-editor-surface pre::selection { background: rgba(226, 232, 240, 0.9); color: #0f172a; -webkit-text-fill-color: #0f172a; }
+            .sql-editor-surface textarea::selection { background: rgba(226, 232, 240, 0.9); color: transparent; -webkit-text-fill-color: transparent; }
+          `}</style>
           <pre
             aria-hidden
             className="absolute inset-0 m-0 py-2 px-3 whitespace-pre-wrap break-words pointer-events-none z-10"
@@ -63,7 +68,7 @@ export function QueryEditor({ value, onChange }: Props) {
             value={value}
             onChange={(e) => onChange(e.target.value)}
             spellCheck={false}
-            className="relative w-full min-h-[176px] py-2 px-3 text-transparent caret-slate-900 selection:bg-blue-200 selection:text-slate-900 resize-y outline-none font-mono leading-[20px]"
+            className="relative w-full min-h-[176px] py-2 px-3 text-transparent caret-slate-900 resize-y outline-none font-mono leading-[20px]"
             style={{ WebkitTextFillColor: "transparent" }}
           />
         </div>
