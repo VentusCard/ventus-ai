@@ -81,7 +81,7 @@ export function FviSummaryReport({ onBack }: { onBack: () => void }) {
                   />
                   <Bar dataKey="customers" radius={[0, 2, 2, 0]} isAnimationActive={false}>
                     {data.map((d, i) => (
-                      <Bar key={i} dataKey="customers" fill={d.fill} />
+                      <Cell key={i} fill={d.fill} />
                     ))}
                   </Bar>
                 </BarChart>
