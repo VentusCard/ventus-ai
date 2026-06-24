@@ -290,8 +290,45 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
         <nav className="flex-1 py-1 overflow-y-auto">
           {filteredNavGroups.map((group) => {
-            const isOpen = collapsed ? true : openGroups.has(group.label);
+            const isHome = group.label === "Home";
+            const isOpen = collapsed || isHome ? true : openGroups.has(group.label);
             const ownsActive = group.label === activeGroupLabel;
+            const renderItems = () => group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.value;
+              return (
+                <button
+                  key={item.value}
+                  onClick={() => setActiveTab(item.value)}
+                  title={collapsed ? item.label : undefined}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                    collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                    isActive
+                      ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+                  )}
+                >
+                  <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </button>
+              );
+            });
+
+            if (isHome) {
+              return (
+                <div key={group.label}>
+                  {!collapsed && (
+                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                      {group.label}
+                    </div>
+                  )}
+                  {renderItems()}
+                  {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200" />}
+                </div>
+              );
+            }
+
             return (
             <Collapsible
               key={group.label}
@@ -315,32 +352,13 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
                 </CollapsibleTrigger>
               )}
               <CollapsibleContent>
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.value;
-                  return (
-                    <button
-                      key={item.value}
-                      onClick={() => setActiveTab(item.value)}
-                      title={collapsed ? item.label : undefined}
-                      className={cn(
-                        "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
-                        collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
-                        isActive
-                          ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
-                      )}
-                    >
-                      <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
-                      {!collapsed && <span className="truncate">{item.label}</span>}
-                    </button>
-                  );
-                })}
+                {renderItems()}
               </CollapsibleContent>
               {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
             </Collapsible>
             );
           })}
+
         </nav>
 
         <div className="mt-auto border-t border-slate-200 py-1">
