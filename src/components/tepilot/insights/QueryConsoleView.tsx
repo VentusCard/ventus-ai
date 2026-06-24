@@ -203,6 +203,22 @@ export function QueryConsoleView() {
         </div>
       </div>
 
+      {/* Refine */}
+      <div className="rounded-md border border-slate-200 bg-white p-3 flex items-center gap-2">
+        <Sparkles className="w-4 h-4 text-blue-500 shrink-0" />
+        <input
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && !generating) generate(); }}
+          placeholder="Describe what you want, e.g. 'top 5 brands redeemed by Affluent customers in the last 60 days'"
+          className="flex-1 bg-transparent outline-none text-[13px] text-slate-700 placeholder:text-slate-400"
+        />
+        <Button onClick={generate} disabled={generating || !prompt.trim()} size="sm" variant="outline">
+          {generating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
+          {generating ? "Generating…" : "Generate"}
+        </Button>
+      </div>
+
       {/* Examples */}
       <div className="flex flex-wrap gap-1.5">
         {EXAMPLES.map((ex) => (
@@ -223,22 +239,6 @@ export function QueryConsoleView() {
 
       {/* Editor */}
       <QueryEditor value={query} onChange={setQuery} />
-
-      {/* Refine */}
-      <div className="rounded-md border border-slate-200 bg-white p-3 flex items-center gap-2">
-        <Sparkles className="w-4 h-4 text-blue-500 shrink-0" />
-        <input
-          value={prompt}
-          onChange={(e) => setPrompt(e.target.value)}
-          onKeyDown={(e) => { if (e.key === "Enter" && !generating) generate(); }}
-          placeholder="Describe what you want, e.g. 'top 5 brands redeemed by Affluent customers in the last 60 days'"
-          className="flex-1 bg-transparent outline-none text-[13px] text-slate-700 placeholder:text-slate-400"
-        />
-        <Button onClick={generate} disabled={generating || !prompt.trim()} size="sm" variant="outline">
-          {generating ? <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 mr-1.5" />}
-          {generating ? "Generating…" : "Generate"}
-        </Button>
-      </div>
 
       {error && (
         <div className="rounded-md border border-rose-200 bg-rose-50 text-rose-700 px-3 py-2 text-[12.5px] flex items-start gap-2">
