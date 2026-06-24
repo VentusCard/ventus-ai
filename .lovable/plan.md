@@ -1,66 +1,38 @@
-## Audit + hardening pass on the SQL engine and the AI generation function
+## Reports tab → Query tab handoff
 
-Below are concrete issues found and the corresponding fixes. Scope is `sqlEngine.ts`, `queryDataset.ts` (export-only addition), and `supabase/functions/generate-analytics-query/index.ts`. No UI/business-logic changes.
+Each tile in the Reports library now opens the **Query** tab with a pre-loaded SQL statement that runs against the Ventus in-engine schema, instead of opening a hard-coded report page.
 
----
+### Mechanics
 
-### 1. `src/components/tepilot/insights/query/sqlEngine.ts`
+1. **`QueryConsoleView.tsx`** — accept optional `initialQuery?: string`. When it changes, set `query` state, call `run(initialQuery)`, and scroll the editor into view. The default behavior (load `DEFAULT_QUERY` on first mount) only fires when `initialQuery` is empty.
+2. **`AnalyticsContainer.tsx`** — add `pendingQuery` state. Pass it into `<QueryConsoleView initialQuery={pendingQuery} />`. When `ReportsLibrary` requests an open, set `pendingQuery` then `setActiveTab('query')`.
+3. **`ReportsLibrary.tsx`** — change the contract: each template carries a `query: string` (its best-fit SQL). The `onOpen` prop becomes `onOpenQuery(query: string)`. The tile still shows title / description / category / "Last run" — only the click handler changes (now reads "Open in Query"). The Reports tab itself, search, and category filter are untouched.
 
-**Issues**
-- **False-positive keyword rejection.** `FORBIDDEN` regex is run on the raw SQL, so a perfectly safe query like `WHERE name LIKE '%delete%'` or a SQL comment `-- update notes` is rejected as forbidden. In a professional console this is unacceptable.
-- **CTE / `WITH` queries blocked.** The `SELECT`-start check rejects valid `WITH … SELECT …` queries, even though alasql supports them.
-- **Multiple statements not guarded.** `clean` only trims trailing `;`. Embedded `;` (e.g. `SELECT 1; SELECT 2`) is silently passed through. Should reject any query containing a `;` outside of string literals / comments.
-- **Column extraction is fragile.** `extractSelectedColumns` splits on `,` blindly — breaks for `COUNT(a, b)`, nested functions, or `CASE WHEN … END AS x` containing commas.
-- **No execution-time guard.** alasql is synchronous; an accidental cartesian join freezes the tab. We can't add real timeouts in JS, but we can cap input size and add an upfront row-explosion guard via the existing `LIMIT 5000` injection AND a hard ceiling on returned rows (truncate `rows` to 5000 even if the LIMIT was higher).
-- **LIMIT injection appends after `;` or trailing whitespace already trimmed — OK, but it doesn't respect uppercase/lowercase + line break.** Append on its own line for safety.
+### SQL mapping (each template → 1 SQL statement using the live engine schema)
 
-**Fix**
-- Add a `stripLiteralsAndComments(sql)` helper (used only for the safety scan, never for execution). Run the FORBIDDEN regex and the `;` check against the stripped version.
-- Allow queries that start with `WITH` (still require they contain a `SELECT` and no forbidden DDL/DML).
-- Reject queries with more than one statement (any `;` in the stripped form).
-- Replace the brittle `extractSelectedColumns` with a paren-aware tokenizer (track depth, only split on top-level commas; extract `AS alias` or last identifier).
-- Truncate returned `rows` to a hard cap of 5000 even if the user wrote `LIMIT 100000`, and surface a `truncated: true` flag on `SqlResult` so the UI can show "first 5000 rows" if needed (UI change is out of scope; flag is additive and harmless).
-- Inject `LIMIT 5000` on a new line, only when the query is a plain `SELECT` (CTEs already include their own).
+All queries use only tables in `SCHEMA`: `transactions`, `customers`, `life_events`, `shopping_habits`, `wallet_share`, `deals`, `deal_redemptions`. Each starts with a `-- @chart …` hint where it improves the auto-chart, ends with `LIMIT`, and aliases aggregates.
 
-### 2. `src/components/tepilot/insights/query/queryDataset.ts`
+| Template | Query intent |
+|---|---|
+| Lifestyle pillar share | `SUM(amount), COUNT(*)` from `transactions` grouped by `pillar`, ordered by spend desc. Chart: bar. |
+| Pillar deep-dive (age × region) | Join `transactions` to `customers`, bucket `age` into bands via `CASE`, group by `region, age_band, pillar`. |
+| Cross-sell propensity matrix | Self-join `shopping_habits` on `customer_id` to surface pillar pairs the same customer spends in (proxy for cross-sell). |
+| Spend by region | `transactions` grouped by `region`: customers, total spend, $/customer. Chart: bar. |
+| Behavioral tier migration | `shopping_habits` grouped by `spending_tier, pillar`: customers + avg ticket per tier. |
+| Travel trip reconstruction | `transactions` filtered to `pillar='Travel'`, grouped by `customer_id, day`, listing total + merchant counts. |
+| Outflow to competitors | `wallet_share` grouped by `competitor_merchant, category`: customers + outflow. Chart: bar. |
+| Top merchant outflow | `wallet_share` grouped by `competitor_merchant`: total outflow, affected customers, ordered desc, LIMIT 20. |
+| Wallet share & outbound funds | `wallet_share` grouped by `category`: outflow, count, distinct customers. |
+| Subscription churn cohort | `transactions WHERE pillar='Subscriptions'` grouped by `category, day` to show monthly run-rate. |
+| Cohort retention (sign-up month) | `customers` grouped by `tenure_years`: customer count + avg AUM. (Proxy — no signup date.) |
+| Life-event volume | `life_events` grouped by `event_type, urgency`: events + avg confidence. Chart: bar. |
+| Life event detection funnel | `life_events` grouped by `event_type`: events, avg confidence, total evidence — proxy for funnel stages. |
+| Financial vulnerability summary | Aggregate `wallet_share` + customer AUM to flag high-outflow vs low-AUM customers (CASE buckets). |
+| Next-best-conversation triggers | `life_events` JOIN `customers`: top customers by `confidence * evidence_count`, with segment + event_type. |
 
-**Issues**
-- `deals.active` is `1/0` but the LLM is likely to write `WHERE active = TRUE`. Not a bug per se (alasql treats 1 as truthy in `WHERE active` but not in `= TRUE`), but the LLM has no hint.
-- Enum values (segments, pillars, urgency, spending_tier, frequency, event_type, category) are not surfaced to the LLM, so it guesses casing like `'premium'` vs `'Premium'`.
+### Verification
 
-**Fix (data file)**
-- Add a new exported `SCHEMA_HINTS` (or extend `SCHEMA`) with per-column type + a small `enum` sample where applicable, derived from the existing constants (`PILLARS`, `SEGMENTS`, `LIFE_EVENTS`, `URGENCY`, tier/frequency literals, `COMPETITOR_MERCHANTS.category`, `DEALS_SEED.brand`). No change to data generation.
+- Run Playwright: open `/bankdemo` → Analytics → Reports, click each tile, confirm it switches to the **Query** tab with the editor populated and a result table or chart rendered (no SQL error banner).
+- Test the search input still filters; category chips still work; the "Last run" line and Ventus badge still render.
 
-### 3. `supabase/functions/generate-analytics-query/index.ts`
-
-**Issues**
-- **Same false-positive risk** as the engine: the post-generation FORBIDDEN regex matches inside string literals. Strip literals/comments before scanning.
-- **No enum/type grounding.** Without the value samples the model picks wrong casing or invents columns. Will be fixed by accepting and rendering `SCHEMA_HINTS` from the client.
-- **Stack-internal name leak.** System prompt names "alasql"; per memory, we must not name backend infra in user-facing copy. The prompt itself is server-side, but the model can echo "alasql" into its explanation. Rephrase as "an in-browser SQL engine".
-- **`Authorization: Bearer` header.** Lovable AI Gateway expects `Lovable-API-Key`. Current pattern works today but is fragile and inconsistent with the documented contract. Switch to the documented header.
-- **Tool-call shape doesn't constrain SQL safety.** Add a tighter system rule list: no `;`, no DDL/DML, must reference only schema tables/columns, must use exact enum casing, prefer single statement, must include `LIMIT` for top-N.
-- **Few-shot grounding missing.** Add 2 short examples (user → SQL) in the system prompt so the model learns the table joins (`shopping_habits` keyed by `customer_id + pillar`, `deal_redemptions` joined to `deals` + `customers`). This dramatically improves correctness on JOIN-heavy questions.
-- **No upper bound on prompt length.** Add a 2000-char cap on `prompt` and `currentQuery` to avoid abuse / runaway tokens.
-- **Inconsistent error messaging.** Keep 4xx for client-fixable errors, 5xx only for actual failures; preserve the existing 402/429 mapping.
-
-**Fix (edge function)**
-- Accept `schemaHints` from the client; render schema as `table.column : type (enum: a, b, c)` lines.
-- Replace `Authorization: Bearer …` with `Lovable-API-Key: …` header (keep `Content-Type: application/json`).
-- Rewrite system prompt: remove "alasql" name, add safety rules, add 2 few-shot examples.
-- Add `stripLiteralsAndComments` helper, run all safety checks against the stripped form, reject embedded `;`.
-- Cap `prompt` and `currentQuery` to 2000 chars each; reject > limit with a clear 400.
-- Keep `dateContext` block (already correct).
-
-### 4. Verification
-
-- Deploy the edge function, then `curl` it with 6 prompts and confirm each returned `query` parses and runs in the engine without false rejection:
-  1. `"top 5 brands redeemed by Affluent customers last 30 days"`
-  2. `"customers with a new_baby life event and their average Family pillar spend"`
-  3. `"wallet-share leakage by category, top 10"`
-  4. `"any customer named 'delete'"` (false-positive guard test — must NOT be rejected)
-  5. `"daily transactions for the last week"`
-  6. `"WITH high_spend AS (...) SELECT ..."` style — confirm `WITH` is accepted.
-- In the running app, click each of the 7 pre-set pills and confirm rows + chart still render.
-- Run a Playwright probe on `/bankdemo` → Analytics → Query and screenshot final state for visual confirmation.
-
-No changes to UI components, the SQL editor, the chart picker, or the data table.
+No data, RLS, edge-function, or design-system changes.
