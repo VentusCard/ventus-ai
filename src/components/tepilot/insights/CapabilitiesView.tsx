@@ -1,7 +1,9 @@
 import { TabHeader } from "./TabHeader";
-import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Layers, CreditCard, ArrowLeftRight, FileText, Send, Smartphone, Gauge, Gift, Package, Wallet, Bot, ShieldAlert, Users, CalendarHeart, Activity, DollarSign, UserCircle, AlertTriangle, CheckCircle2, Presentation, ArrowDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import ExecDemoPage from "@/pages/ExecDemoPage";
+import { Button } from "@/components/ui/button";
 
 const INPUTS = [
   { label: "KYC", icon: UserCircle, source: "Core" },
