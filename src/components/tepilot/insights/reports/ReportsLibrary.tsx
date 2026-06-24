@@ -344,7 +344,7 @@ const CATEGORY_TONE: Record<Category, string> = {
 
 const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retention", "Risk", "Opportunities"];
 
-export function ReportsLibrary({ onOpen }: ReportsLibraryProps) {
+export function ReportsLibrary({ onOpenQuery }: ReportsLibraryProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
 
