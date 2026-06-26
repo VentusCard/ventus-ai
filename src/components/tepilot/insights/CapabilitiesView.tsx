@@ -299,6 +299,10 @@ function NodeCard({
 }
 
 export function CapabilitiesView() {
+  const [activeSignalLabel, setActiveSignalLabel] = useState<string>("Life Event");
+  const activeSignal = SIGNALS.find((s) => s.label === activeSignalLabel) ?? SIGNALS[0];
+  const ActiveIcon = activeSignal.icon;
+
   return (
     <div className="space-y-6">
       <TabHeader
@@ -364,17 +368,23 @@ export function CapabilitiesView() {
                   </p>
                 </div>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80 mt-4 mb-2.5 text-center">
-                  Five signal families
+                  Five signal families · click to inspect
                 </p>
                 <div className="grid grid-cols-1 gap-1.5">
                   {SIGNALS.map((s) => {
                     const Icon = s.icon;
+                    const isActive = s.label === activeSignalLabel;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={s.label}
+                        onClick={() => setActiveSignalLabel(s.label)}
                         className={cn(
-                          "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white",
+                          "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
                           s.tint,
+                          isActive
+                            ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
+                            : "opacity-80 hover:opacity-100 hover:brightness-105",
                         )}
                       >
                         <div
@@ -385,8 +395,13 @@ export function CapabilitiesView() {
                         >
                           <Icon className="w-2.5 h-2.5 text-white" />
                         </div>
-                        <span className="text-[12px] font-semibold">{s.label}</span>
-                      </div>
+                        <span className="text-[12px] font-semibold flex-1">{s.label}</span>
+                        {isActive && (
+                          <span className="text-[9px] font-bold uppercase tracking-wider opacity-70">
+                            shown ↓
+                          </span>
+                        )}
+                      </button>
                     );
                   })}
                 </div>
@@ -406,6 +421,60 @@ export function CapabilitiesView() {
                 />
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Signal detail panel */}
+        <div
+          key={activeSignal.label}
+          className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
+        >
+          <div className="flex items-start gap-3 mb-5">
+            <div
+              className={cn(
+                "flex items-center justify-center w-9 h-9 rounded-lg shrink-0",
+                activeSignal.color,
+              )}
+            >
+              <ActiveIcon className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="text-[15px] font-bold text-slate-900">{activeSignal.label} signals</h3>
+                <span
+                  className={cn(
+                    "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
+                    activeSignal.tint,
+                  )}
+                >
+                  {activeSignal.items.length} detections
+                </span>
+              </div>
+              <p className="text-[12px] text-slate-600 mt-1 leading-snug">
+                {activeSignal.description}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+            {activeSignal.items.map((item) => (
+              <div key={item.label} className="flex items-start gap-2.5">
+                <span
+                  className={cn(
+                    "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
+                    activeSignal.dot,
+                  )}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                    {item.label}
+                  </div>
+                  <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
+                    {item.sublabel}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
