@@ -19,6 +19,8 @@ import {
   Megaphone,
   Briefcase,
   ShieldAlert,
+  Home,
+  PiggyBank,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
