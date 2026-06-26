@@ -215,6 +215,97 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
+type ApplicationDetail = {
+  label: string;
+  shortLabel?: string;
+  icon: React.ElementType;
+  color: string;
+  tint: string;
+  dot: string;
+  description: string;
+  items: { label: string; sublabel: string }[];
+};
+
+const APPLICATIONS: ApplicationDetail[] = [
+  {
+    label: "Analytics & Targeting",
+    icon: BarChart3,
+    color: "bg-indigo-500",
+    tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
+    dot: "bg-indigo-500",
+    description: "Self-serve analytics console for ad-hoc business questions and segment building, powered by the same enriched signal layer.",
+    items: [
+      { label: "AI-assisted SQL", sublabel: "Natural language → SQL → results, grounded in the Ventus schema" },
+      { label: "Pre-built reports library", sublabel: "15+ ready-to-run reports across Lifestyle, Outflow, Retention, Opportunities" },
+      { label: "Cohort CSV export", sublabel: "Any query result can be rewritten to a DISTINCT customer_id list for activation" },
+      { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting" },
+      { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline" },
+    ],
+  },
+  {
+    label: "Next-Offer",
+    icon: Tag,
+    color: "bg-emerald-500",
+    tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    dot: "bg-emerald-500",
+    description: "Personalized deal and reward recommendations matched to lifestyle pillars, recent behavior, and local context.",
+    items: [
+      { label: "Lifestyle-matched deals", sublabel: "Offers selected from the active rewards catalog using dominant pillars" },
+      { label: "Local experiences", sublabel: "City-aware perks ranked by detected travel destinations and home metro" },
+      { label: "Behavioral re-ranking", sublabel: "Recency, frequency, and tier signals reorder the top picks per customer" },
+      { label: "Vaguely-specific copy", sublabel: "AI-generated headlines that feel hand-picked without exposing transaction detail" },
+      { label: "Channel-ready payloads", sublabel: "Hero card + collection feed for mobile, web, and rewards provider APIs" },
+    ],
+  },
+  {
+    label: "Next-Product",
+    icon: Sparkles,
+    color: "bg-violet-500",
+    tint: "bg-violet-50 text-violet-700 border-violet-200",
+    dot: "bg-violet-500",
+    description: "Lifecycle-aware product recommendations triggered by life events, financial posture, and behavioral tier.",
+    items: [
+      { label: "Product catalog mapping", sublabel: "HELOC, 529, Wealth, Auto, Mortgage, HYSA, Travel Card, SBL, Term Life" },
+      { label: "Life-event triggers", sublabel: "Home purchase, new baby, college prep, retirement, business formation" },
+      { label: "Financial-posture gates", sublabel: "Investable-assets tier, DTI, low utilization, payroll cadence" },
+      { label: "Behavioral evidence per match", sublabel: "Specific transaction clusters justify each product recommendation" },
+      { label: "Automated flows + Campaign Builder", sublabel: "Product-first segments routed to marketing automation and CRM" },
+    ],
+  },
+  {
+    label: "Next-Conversation (Regular)",
+    shortLabel: "Next-Conversation",
+    icon: MessageSquare,
+    color: "bg-amber-500",
+    tint: "bg-amber-50 text-amber-700 border-amber-200",
+    dot: "bg-amber-500",
+    description: "Branch and contact-center talking points for everyday customers, surfaced when a customer is already on the line.",
+    items: [
+      { label: "10-word AI action items", sublabel: "Tight, decision-ready prompts for the next interaction" },
+      { label: "Outreach pointers", sublabel: "Why this customer, why now, what to mention first" },
+      { label: "Behavioral context summary", sublabel: "Dominant pillars + recent activity without exposing raw transactions" },
+      { label: "Life-event acknowledgements", sublabel: "Cues to congratulate or check in on detected life moments" },
+      { label: "AI Banking Assistant handoff", sublabel: "Same context available to the in-app copilot for self-service" },
+    ],
+  },
+  {
+    label: "Next-Conversation (Wealth)",
+    shortLabel: "Next-Conversation · Wealth",
+    icon: Crown,
+    color: "bg-rose-500",
+    tint: "bg-rose-50 text-rose-700 border-rose-200",
+    dot: "bg-rose-500",
+    description: "Relationship-manager copilot for high-net-worth clients: portfolio context, life-event prep, and meeting briefs.",
+    items: [
+      { label: "Meeting prep brief", sublabel: "One-page AI briefing covering posture, events, and conversation hooks" },
+      { label: "Wallet-share intelligence", sublabel: "Outbound flows to Schwab, Fidelity, Robinhood flagged for win-back" },
+      { label: "Life-event windows", sublabel: "Inheritance, business sale, retirement signals timed for advisor outreach" },
+      { label: "Portfolio-aware suggestions", sublabel: "Asset-tier and posture signals matched to wealth products" },
+      { label: "Financial Planning workspace", sublabel: "RM-side notes, follow-ups, and scheduled check-ins" },
+    ],
+  },
+];
+
 const DESTINATIONS: Destination[] = [
   { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
   { label: "Rewards Provider", sublabel: "Augeo / Premium Payback", icon: Gift },
