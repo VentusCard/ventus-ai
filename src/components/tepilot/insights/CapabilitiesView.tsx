@@ -584,7 +584,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         <div className="relative">
           <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
 
-          <div className="relative z-10 grid grid-cols-[240px_minmax(440px,1fr)_240px] gap-8 items-stretch">
+          <div className="relative z-10 grid grid-cols-[220px_minmax(380px,1fr)_220px] gap-6 items-stretch">
             {/* Sources */}
             <div className="flex flex-col gap-2 justify-around">
               {sourceGroups.map((g) => (
