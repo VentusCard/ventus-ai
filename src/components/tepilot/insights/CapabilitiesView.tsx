@@ -32,16 +32,8 @@ import { BANK_PRODUCT_CATEGORIES, BANK_PRODUCT_TOTAL } from "@/lib/bankProductCa
 type SourceInput = {
   label: string;
   icon: React.ElementType;
-  nonFcra?: boolean;
-};
-
-type SourceGroup = {
   provider: string;
-  sublabel: string;
-  icon: React.ElementType;
-  inputs: SourceInput[];
-  onOpen?: () => void;
-  openLabel?: string;
+  nonFcra?: boolean;
 };
 
 type Destination = {
@@ -50,49 +42,18 @@ type Destination = {
   icon: React.ElementType;
 };
 
-const SOURCE_GROUPS: SourceGroup[] = [
-  {
-    provider: "Core Banking",
-    sublabel: "FIS",
-    icon: Database,
-    inputs: [
-      { label: "KYC & Profile", icon: UserCircle },
-      { label: "ACH & Wires", icon: ArrowLeftRight },
-      { label: "Deposits & Statements", icon: Database },
-    ],
-  },
-  {
-    provider: "Card Processor",
-    sublabel: "Fiserv",
-    icon: CreditCard,
-    inputs: [{ label: "Card Transactions", icon: CreditCard }],
-  },
-  {
-    provider: "Payments Network",
-    sublabel: "Early Warning Services",
-    icon: Send,
-    inputs: [{ label: "Zelle", icon: Send }],
-  },
-  {
-    provider: "Digital Banking",
-    sublabel: "App & web telemetry",
-    icon: Smartphone,
-    inputs: [{ label: "Digital Telemetry", icon: Smartphone }],
-  },
-  {
-    provider: "Credit Bureau",
-    sublabel: "Experian / TransUnion",
-    icon: Gauge,
-    inputs: [
-      { label: "Credit File", icon: Gauge },
-      { label: "Wealth Data", icon: PiggyBank, nonFcra: true },
-      { label: "Property Data", icon: Home, nonFcra: true },
-      { label: "Demographics Data", icon: Users, nonFcra: true },
-    ],
-  },
+const EXTERNAL_SOURCES: SourceInput[] = [
+  { label: "KYC & Profile", provider: "FIS · Core Banking", icon: UserCircle },
+  { label: "ACH & Wires", provider: "FIS · Core Banking", icon: ArrowLeftRight },
+  { label: "Deposits & Statements", provider: "FIS · Core Banking", icon: Database },
+  { label: "Card Transactions", provider: "Fiserv · Card Processor", icon: CreditCard },
+  { label: "Zelle", provider: "Early Warning Services", icon: Send },
+  { label: "Digital Telemetry", provider: "App & web channels", icon: Smartphone },
+  { label: "Credit File", provider: "Experian / TransUnion", icon: Gauge },
+  { label: "Wealth Data", provider: "Credit Bureau", icon: PiggyBank, nonFcra: true },
+  { label: "Property Data", provider: "Credit Bureau", icon: Home, nonFcra: true },
+  { label: "Demographics Data", provider: "Credit Bureau", icon: Users, nonFcra: true },
 ];
-
-const TOTAL_SOURCE_INPUTS = SOURCE_GROUPS.reduce((n, g) => n + g.inputs.length, 0);
 
 type SignalDetail = {
   label: string;
