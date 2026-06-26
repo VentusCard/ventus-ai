@@ -626,7 +626,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </div>
 
                 {/* Inner 2-band grid: signals → applications */}
-                <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_28px_minmax(0,1fr)] gap-1 items-stretch">
+                <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
                   {/* Signals column */}
                   <div className="flex flex-col min-w-0">
                     <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
@@ -659,7 +659,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     </div>
                   </div>
 
-                  {/* Fan-line SVG */}
+                  {/* Manifold bus connector */}
                   <div className="relative">
                     <svg
                       className="absolute inset-0 w-full h-full pointer-events-none"
@@ -668,39 +668,100 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       aria-hidden
                     >
                       <defs>
-                        <linearGradient id="core-fan" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="rgba(165,180,252,0.7)" />
-                          <stop offset="100%" stopColor="rgba(196,181,253,0.7)" />
+                        <linearGradient id="core-bus" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="rgba(165,180,252,0.55)" />
+                          <stop offset="50%" stopColor="rgba(224,231,255,0.85)" />
+                          <stop offset="100%" stopColor="rgba(196,181,253,0.55)" />
                         </linearGradient>
+                        <filter id="bus-glow" x="-50%" y="-50%" width="200%" height="200%">
+                          <feGaussianBlur stdDeviation="1.2" result="blur" />
+                          <feMerge>
+                            <feMergeNode in="blur" />
+                            <feMergeNode in="SourceGraphic" />
+                          </feMerge>
+                        </filter>
                       </defs>
-                      {SIGNALS.map((_, i) =>
-                        APPLICATIONS.map((__, j) => {
-                          const y1 = ((i + 0.5) / SIGNALS.length) * 100;
-                          const y2 = ((j + 0.5) / APPLICATIONS.length) * 100;
-                          return (
-                            <path
-                              key={`f${i}-${j}`}
-                              d={`M 0 ${y1} C 50 ${y1}, 50 ${y2}, 100 ${y2}`}
-                              fill="none"
-                              stroke="url(#core-fan)"
-                              strokeWidth="0.6"
-                              strokeLinecap="round"
-                              strokeDasharray="1.2 1.6"
-                              opacity="0.55"
-                              vectorEffect="non-scaling-stroke"
-                            >
-                              <animate
-                                attributeName="stroke-dashoffset"
-                                from="0"
-                                to="-10"
-                                dur="2.8s"
-                                begin={`${((i + j) * 0.1).toFixed(2)}s`}
-                                repeatCount="indefinite"
-                              />
-                            </path>
-                          );
-                        }),
-                      )}
+
+                      {/* Inbound stubs: signal row → bus (x=50) */}
+                      {SIGNALS.map((s, i) => {
+                        const y = ((i + 0.5) / SIGNALS.length) * 100;
+                        const active =
+                          s.label === activeSignalLabel || activeApplicationLabel !== null;
+                        return (
+                          <path
+                            key={`in-${i}`}
+                            d={`M 0 ${y} C 28 ${y}, 28 50, 50 50`}
+                            fill="none"
+                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus)"}
+                            strokeWidth={active ? 1.75 : 1}
+                            strokeLinecap="round"
+                            vectorEffect="non-scaling-stroke"
+                            style={{ transition: "stroke 200ms, stroke-width 200ms" }}
+                          />
+                        );
+                      })}
+
+                      {/* Vertical bus bar */}
+                      <line
+                        x1="50"
+                        y1="10"
+                        x2="50"
+                        y2="90"
+                        stroke="url(#core-bus)"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        vectorEffect="non-scaling-stroke"
+                        filter="url(#bus-glow)"
+                      />
+                      {/* Flowing dash overlay on bus */}
+                      <line
+                        x1="50"
+                        y1="10"
+                        x2="50"
+                        y2="90"
+                        stroke="rgba(255,255,255,0.7)"
+                        strokeWidth="1"
+                        strokeLinecap="round"
+                        strokeDasharray="2 6"
+                        vectorEffect="non-scaling-stroke"
+                      >
+                        <animate
+                          attributeName="stroke-dashoffset"
+                          from="0"
+                          to="-16"
+                          dur="2.4s"
+                          repeatCount="indefinite"
+                        />
+                      </line>
+
+                      {/* Center hub */}
+                      <circle cx="50" cy="50" r="2.2" fill="rgba(255,255,255,0.95)" filter="url(#bus-glow)">
+                        <animate
+                          attributeName="r"
+                          values="2.2;2.8;2.2"
+                          dur="2.4s"
+                          repeatCount="indefinite"
+                        />
+                      </circle>
+
+                      {/* Outbound stubs: bus → application row */}
+                      {APPLICATIONS.map((a, j) => {
+                        const y = ((j + 0.5) / APPLICATIONS.length) * 100;
+                        const active =
+                          a.label === activeApplicationLabel || activeSignalLabel !== null;
+                        return (
+                          <path
+                            key={`out-${j}`}
+                            d={`M 50 50 C 72 ${y}, 72 ${y}, 100 ${y}`}
+                            fill="none"
+                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus)"}
+                            strokeWidth={active ? 1.75 : 1}
+                            strokeLinecap="round"
+                            vectorEffect="non-scaling-stroke"
+                            style={{ transition: "stroke 200ms, stroke-width 200ms" }}
+                          />
+                        );
+                      })}
                     </svg>
                   </div>
 
