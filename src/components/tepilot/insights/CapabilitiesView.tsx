@@ -39,6 +39,8 @@ type SourceGroup = {
   sublabel: string;
   icon: React.ElementType;
   inputs: SourceInput[];
+  onOpen?: () => void;
+  openLabel?: string;
 };
 
 type Destination = {
