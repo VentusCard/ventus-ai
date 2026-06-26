@@ -401,6 +401,19 @@ function SourceGroupCard({
               </div>
             );
           })}
+          {group.onOpen && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                group.onOpen?.();
+              }}
+              className="mt-1 w-full flex items-center justify-between gap-1 text-[10.5px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-1.5 py-1 rounded transition-colors"
+            >
+              <span>{group.openLabel ?? "Open"}</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </button>
+          )}
         </div>
       )}
     </div>
