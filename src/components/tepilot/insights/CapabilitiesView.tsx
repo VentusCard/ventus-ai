@@ -472,12 +472,12 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
         {/* Network canvas */}
         <div className="relative">
-          <NetworkWires leftCount={SOURCE_GROUPS.length} rightCount={DESTINATIONS.length} />
+          <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
 
           <div className="relative z-10 grid grid-cols-[260px_1fr_260px] gap-8 items-stretch">
             {/* Sources */}
             <div className="flex flex-col gap-2 justify-around">
-              {SOURCE_GROUPS.map((g) => (
+              {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
                   group={g}
