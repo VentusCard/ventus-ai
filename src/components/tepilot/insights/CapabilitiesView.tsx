@@ -21,6 +21,8 @@ import {
   ShieldAlert,
   Home,
   PiggyBank,
+  Package,
+  ArrowUpRight,
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
