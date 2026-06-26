@@ -560,21 +560,21 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
       <div className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8">
         {/* Column headers */}
-        <div className="grid grid-cols-[220px_minmax(380px,1fr)_220px] gap-6 mb-4">
-          <div className="flex items-center gap-1.5">
+        <div className="grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 mb-4">
+          <div className="flex items-center gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
               Bank-native sources · {totalSourceInputs} inputs across {sourceGroups.length} providers
             </p>
           </div>
-          <div className="text-center">
+          <div className="text-center min-w-0">
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
               Ventus AI System
             </p>
           </div>
-          <div className="flex items-center justify-end gap-1.5">
+          <div className="flex items-center justify-end gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
+            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
               Activation destinations · {DESTINATIONS.length} wired
             </p>
           </div>
@@ -584,9 +584,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         <div className="relative">
           <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
 
-          <div className="relative z-10 grid grid-cols-[220px_minmax(380px,1fr)_220px] gap-6 items-stretch">
+          <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
             {/* Sources */}
-            <div className="flex flex-col gap-2 justify-around">
+            <div className="flex min-w-0 flex-col gap-2 justify-around">
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
@@ -605,9 +605,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
             {/* Core */}
-            <div className="flex items-center justify-center">
+            <div className="flex min-w-0 items-center justify-center overflow-hidden">
               <div
-                className="rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-xl w-full mx-auto overflow-hidden"
+                className="w-full max-w-[520px] rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-4 shadow-xl mx-auto overflow-hidden"
                 style={{
                   boxShadow:
                     "0 0 0 6px rgba(99,102,241,0.08), 0 25px 60px -15px rgba(30,58,138,0.5), 0 0 80px rgba(99,102,241,0.25)",
@@ -626,7 +626,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </div>
 
                 {/* Inner 2-band grid: signals → applications */}
-                <div className="relative mt-4 grid grid-cols-[1fr_32px_1fr] gap-1 items-stretch">
+                <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_28px_minmax(0,1fr)] gap-1 items-stretch">
                   {/* Signals column */}
                   <div className="flex flex-col min-w-0">
                     <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
@@ -642,7 +642,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
                               s.tint,
                               isActive
                                 ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
@@ -652,7 +652,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", s.color)}>
                               <Icon className="w-2.5 h-2.5 text-white" />
                             </div>
-                            <span className="text-[11.5px] font-semibold flex-1 truncate">{s.label}</span>
+                            <span className="min-w-0 text-[11px] font-semibold flex-1 truncate">{s.label}</span>
                           </button>
                         );
                       })}
@@ -719,7 +719,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={a.label}
                             onClick={() => selectApplication(a.label)}
                             className={cn(
-                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
                               a.tint,
                               isActive
                                 ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
@@ -729,7 +729,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", a.color)}>
                               <Icon className="w-2.5 h-2.5 text-white" />
                             </div>
-                            <span className="text-[11.5px] font-semibold flex-1 truncate">
+                            <span className="min-w-0 text-[11px] font-semibold flex-1 truncate">
                               {a.shortLabel ?? a.label}
                             </span>
                           </button>
@@ -742,21 +742,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
             {/* Destinations */}
-            <div className="flex flex-col gap-2 justify-around">
-              {DESTINATIONS.map((d) => (
-                <NodeCard
-                  key={d.label}
-                  icon={d.icon}
-                  label={d.label}
-                  sublabel={d.sublabel}
-                  accent="indigo"
-                  side="right"
-                />
-              ))}
-            </div>
-
-            {/* Destinations */}
-            <div className="flex flex-col gap-2 justify-around">
+            <div className="flex min-w-0 flex-col gap-2 justify-around">
               {DESTINATIONS.map((d) => (
                 <NodeCard
                   key={d.label}
