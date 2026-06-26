@@ -88,6 +88,8 @@ const SOURCE_GROUPS: SourceGroup[] = [
 ];
 
 const TOTAL_SOURCE_INPUTS = SOURCE_GROUPS.reduce((n, g) => n + g.inputs.length, 0);
+
+type SignalDetail = {
   label: string;
   icon: React.ElementType;
   color: string;
