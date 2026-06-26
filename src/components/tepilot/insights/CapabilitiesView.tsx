@@ -344,6 +344,7 @@ function NodeCard({
 
 export function CapabilitiesView() {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(["Credit Bureau"]));
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const ActiveIcon = activeSignal?.icon;
 
