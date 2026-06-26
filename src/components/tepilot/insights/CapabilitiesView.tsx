@@ -750,11 +750,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     </svg>
                   </div>
 
-                  {/* Applications column */}
-                  <div className="flex flex-col min-w-0">
-                    <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
-                      Applications · click
-                    </p>
+                  {/* Applications column — warm amber "what we activate" */}
+                  <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-amber-400/15 to-transparent p-2 -m-1">
+                    <div className="flex items-center justify-center gap-1.5 mb-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
+                      <p className="text-[9.5px] font-semibold uppercase tracking-wider text-amber-200">
+                        Applications · what we activate
+                      </p>
+                    </div>
                     <div className="grid grid-cols-1 gap-1.5">
                       {APPLICATIONS.map((a) => {
                         const Icon = a.icon;
@@ -765,11 +768,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={a.label}
                             onClick={() => selectApplication(a.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
-                              a.tint,
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
+                              "bg-white/10 border-amber-300/40 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
                               isActive
-                                ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
-                                : "opacity-80 hover:opacity-100 hover:brightness-105",
+                                ? "ring-2 ring-amber-200/70 bg-white/20 shadow-lg scale-[1.02]"
+                                : "opacity-90 hover:opacity-100 hover:bg-white/15",
                             )}
                           >
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", a.color)}>
