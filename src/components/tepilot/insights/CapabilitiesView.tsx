@@ -607,7 +607,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             {/* Core */}
             <div className="flex items-center justify-center">
               <div
-                className="rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-xl w-full max-w-[340px] mx-auto"
+                className="rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-xl w-full mx-auto"
                 style={{
                   boxShadow:
                     "0 0 0 6px rgba(99,102,241,0.08), 0 25px 60px -15px rgba(30,58,138,0.5), 0 0 80px rgba(99,102,241,0.25)",
@@ -624,45 +624,135 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     Classifies · Enriches · Scores · Distributes
                   </p>
                 </div>
-                <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80 mt-4 mb-2.5 text-center">
-                  Five signal families · click to inspect
-                </p>
-                <div className="grid grid-cols-1 gap-1.5">
-                  {SIGNALS.map((s) => {
-                    const Icon = s.icon;
-                    const isActive = s.label === activeSignalLabel;
-                    return (
-                      <button
-                        type="button"
-                        key={s.label}
-                        onClick={() => setActiveSignalLabel((prev) => (prev === s.label ? null : s.label))}
-                        className={cn(
-                          "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
-                          s.tint,
-                          isActive
-                            ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
-                            : "opacity-80 hover:opacity-100 hover:brightness-105",
-                        )}
-                      >
-                        <div
-                          className={cn(
-                            "flex items-center justify-center w-5 h-5 rounded shrink-0",
-                            s.color,
-                          )}
-                        >
-                          <Icon className="w-2.5 h-2.5 text-white" />
-                        </div>
-                        <span className="text-[12px] font-semibold flex-1">{s.label}</span>
-                        {isActive && (
-                          <span className="text-[9px] font-bold uppercase tracking-wider opacity-70">
-                            shown ↓
-                          </span>
-                        )}
-                      </button>
-                    );
-                  })}
+
+                {/* Inner 2-band grid: signals → applications */}
+                <div className="relative mt-4 grid grid-cols-[1fr_24px_1fr] gap-0 items-stretch">
+                  {/* Signals column */}
+                  <div className="flex flex-col">
+                    <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
+                      Signal families · click
+                    </p>
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {SIGNALS.map((s) => {
+                        const Icon = s.icon;
+                        const isActive = s.label === activeSignalLabel;
+                        return (
+                          <button
+                            type="button"
+                            key={s.label}
+                            onClick={() => selectSignal(s.label)}
+                            className={cn(
+                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
+                              s.tint,
+                              isActive
+                                ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
+                                : "opacity-80 hover:opacity-100 hover:brightness-105",
+                            )}
+                          >
+                            <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", s.color)}>
+                              <Icon className="w-2.5 h-2.5 text-white" />
+                            </div>
+                            <span className="text-[11.5px] font-semibold flex-1 truncate">{s.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Fan-line SVG */}
+                  <div className="relative">
+                    <svg
+                      className="absolute inset-0 w-full h-full pointer-events-none"
+                      viewBox="0 0 100 100"
+                      preserveAspectRatio="none"
+                      aria-hidden
+                    >
+                      <defs>
+                        <linearGradient id="core-fan" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="rgba(165,180,252,0.7)" />
+                          <stop offset="100%" stopColor="rgba(196,181,253,0.7)" />
+                        </linearGradient>
+                      </defs>
+                      {SIGNALS.map((_, i) =>
+                        APPLICATIONS.map((__, j) => {
+                          const y1 = ((i + 0.5) / SIGNALS.length) * 100;
+                          const y2 = ((j + 0.5) / APPLICATIONS.length) * 100;
+                          return (
+                            <path
+                              key={`f${i}-${j}`}
+                              d={`M 0 ${y1} C 50 ${y1}, 50 ${y2}, 100 ${y2}`}
+                              fill="none"
+                              stroke="url(#core-fan)"
+                              strokeWidth="0.6"
+                              strokeLinecap="round"
+                              strokeDasharray="1.2 1.6"
+                              opacity="0.55"
+                              vectorEffect="non-scaling-stroke"
+                            >
+                              <animate
+                                attributeName="stroke-dashoffset"
+                                from="0"
+                                to="-10"
+                                dur="2.8s"
+                                begin={`${((i + j) * 0.1).toFixed(2)}s`}
+                                repeatCount="indefinite"
+                              />
+                            </path>
+                          );
+                        }),
+                      )}
+                    </svg>
+                  </div>
+
+                  {/* Applications column */}
+                  <div className="flex flex-col">
+                    <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
+                      Applications · click
+                    </p>
+                    <div className="grid grid-cols-1 gap-1.5">
+                      {APPLICATIONS.map((a) => {
+                        const Icon = a.icon;
+                        const isActive = a.label === activeApplicationLabel;
+                        return (
+                          <button
+                            type="button"
+                            key={a.label}
+                            onClick={() => selectApplication(a.label)}
+                            className={cn(
+                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
+                              a.tint,
+                              isActive
+                                ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
+                                : "opacity-80 hover:opacity-100 hover:brightness-105",
+                            )}
+                          >
+                            <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", a.color)}>
+                              <Icon className="w-2.5 h-2.5 text-white" />
+                            </div>
+                            <span className="text-[11.5px] font-semibold flex-1 truncate">
+                              {a.shortLabel ?? a.label}
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
+            </div>
+
+            {/* Destinations */}
+            <div className="flex flex-col gap-2 justify-around">
+              {DESTINATIONS.map((d) => (
+                <NodeCard
+                  key={d.label}
+                  icon={d.icon}
+                  label={d.label}
+                  sublabel={d.sublabel}
+                  accent="indigo"
+                  side="right"
+                />
+              ))}
             </div>
 
             {/* Destinations */}
