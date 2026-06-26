@@ -45,6 +45,9 @@ const SOURCES: Source[] = [
   { label: "Digital Telemetry", sublabel: "Digital Banking", icon: Smartphone },
   { label: "Credit Bureau", sublabel: "Experian / TransUnion", icon: Gauge },
   { label: "Deposits & Statements", sublabel: "Core · FIS", icon: Database },
+  { label: "Wealth Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: PiggyBank },
+  { label: "Property Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: Home },
+  { label: "Demographics Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: Users },
 ];
 
 type SignalDetail = {
