@@ -626,9 +626,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </div>
 
                 {/* Inner 2-band grid: signals → applications */}
-                <div className="relative mt-4 grid grid-cols-[1fr_24px_1fr] gap-0 items-stretch">
+                <div className="relative mt-4 grid grid-cols-[1fr_32px_1fr] gap-1 items-stretch">
                   {/* Signals column */}
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0">
                     <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
                       Signal families · click
                     </p>
