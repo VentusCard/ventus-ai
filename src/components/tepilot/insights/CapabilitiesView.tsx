@@ -560,7 +560,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
       <div className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8">
         {/* Column headers */}
-        <div className="grid grid-cols-[240px_minmax(440px,1fr)_240px] gap-8 mb-4">
+        <div className="grid grid-cols-[220px_minmax(380px,1fr)_220px] gap-6 mb-4">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
@@ -584,7 +584,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         <div className="relative">
           <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
 
-          <div className="relative z-10 grid grid-cols-[240px_minmax(440px,1fr)_240px] gap-8 items-stretch">
+          <div className="relative z-10 grid grid-cols-[220px_minmax(380px,1fr)_220px] gap-6 items-stretch">
             {/* Sources */}
             <div className="flex flex-col gap-2 justify-around">
               {sourceGroups.map((g) => (
@@ -607,7 +607,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             {/* Core */}
             <div className="flex items-center justify-center">
               <div
-                className="rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-xl w-full mx-auto"
+                className="rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-xl w-full mx-auto overflow-hidden"
                 style={{
                   boxShadow:
                     "0 0 0 6px rgba(99,102,241,0.08), 0 25px 60px -15px rgba(30,58,138,0.5), 0 0 80px rgba(99,102,241,0.25)",
@@ -626,9 +626,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </div>
 
                 {/* Inner 2-band grid: signals → applications */}
-                <div className="relative mt-4 grid grid-cols-[1fr_24px_1fr] gap-0 items-stretch">
+                <div className="relative mt-4 grid grid-cols-[1fr_32px_1fr] gap-1 items-stretch">
                   {/* Signals column */}
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0">
                     <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
                       Signal families · click
                     </p>
@@ -642,7 +642,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
+                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
                               s.tint,
                               isActive
                                 ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
@@ -705,7 +705,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   </div>
 
                   {/* Applications column */}
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0">
                     <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
                       Applications · click
                     </p>
@@ -719,7 +719,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={a.label}
                             onClick={() => selectApplication(a.label)}
                             className={cn(
-                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
+                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
                               a.tint,
                               isActive
                                 ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
