@@ -434,7 +434,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     },
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(["Credit Bureau"]));
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const ActiveIcon = activeSignal?.icon;
 
