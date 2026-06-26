@@ -21,14 +21,22 @@ import {
   ShieldAlert,
   Home,
   PiggyBank,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
-type Source = {
+type SourceInput = {
   label: string;
+  icon: React.ElementType;
+  nonFcra?: boolean;
+};
+
+type SourceGroup = {
+  provider: string;
   sublabel: string;
   icon: React.ElementType;
+  inputs: SourceInput[];
 };
 
 type Destination = {
@@ -37,18 +45,49 @@ type Destination = {
   icon: React.ElementType;
 };
 
-const SOURCES: Source[] = [
-  { label: "KYC & Profile", sublabel: "Core · FIS", icon: UserCircle },
-  { label: "Card Transactions", sublabel: "Card Processor · Fiserv", icon: CreditCard },
-  { label: "ACH & Wires", sublabel: "Core · FIS", icon: ArrowLeftRight },
-  { label: "Zelle", sublabel: "EWS Network", icon: Send },
-  { label: "Digital Telemetry", sublabel: "Digital Banking", icon: Smartphone },
-  { label: "Credit Bureau", sublabel: "Experian / TransUnion", icon: Gauge },
-  { label: "Deposits & Statements", sublabel: "Core · FIS", icon: Database },
-  { label: "Wealth Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: PiggyBank },
-  { label: "Property Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: Home },
-  { label: "Demographics Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: Users },
+const SOURCE_GROUPS: SourceGroup[] = [
+  {
+    provider: "Core Banking",
+    sublabel: "FIS",
+    icon: Database,
+    inputs: [
+      { label: "KYC & Profile", icon: UserCircle },
+      { label: "ACH & Wires", icon: ArrowLeftRight },
+      { label: "Deposits & Statements", icon: Database },
+    ],
+  },
+  {
+    provider: "Card Processor",
+    sublabel: "Fiserv",
+    icon: CreditCard,
+    inputs: [{ label: "Card Transactions", icon: CreditCard }],
+  },
+  {
+    provider: "Payments Network",
+    sublabel: "Early Warning Services",
+    icon: Send,
+    inputs: [{ label: "Zelle", icon: Send }],
+  },
+  {
+    provider: "Digital Banking",
+    sublabel: "App & web telemetry",
+    icon: Smartphone,
+    inputs: [{ label: "Digital Telemetry", icon: Smartphone }],
+  },
+  {
+    provider: "Credit Bureau",
+    sublabel: "Experian / TransUnion",
+    icon: Gauge,
+    inputs: [
+      { label: "Credit File", icon: Gauge },
+      { label: "Wealth Data", icon: PiggyBank, nonFcra: true },
+      { label: "Property Data", icon: Home, nonFcra: true },
+      { label: "Demographics Data", icon: Users, nonFcra: true },
+    ],
+  },
 ];
+
+const TOTAL_SOURCE_INPUTS = SOURCE_GROUPS.reduce((n, g) => n + g.inputs.length, 0);
 
 type SignalDetail = {
   label: string;
@@ -303,8 +342,69 @@ function NodeCard({
   );
 }
 
+function SourceGroupCard({
+  group,
+  isOpen,
+  onToggle,
+}: {
+  group: SourceGroup;
+  isOpen: boolean;
+  onToggle: () => void;
+}) {
+  const Icon = group.icon;
+  return (
+    <div className="relative rounded-lg border border-slate-200 bg-white shadow-sm hover:border-emerald-300 transition-colors">
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left"
+      >
+        <div className="flex items-center justify-center w-7 h-7 rounded-md shrink-0 border bg-slate-100 text-slate-600 border-slate-200">
+          <Icon className="w-3.5 h-3.5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
+            {group.provider}
+          </div>
+          <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">
+            {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
+          </div>
+        </div>
+        <ChevronDown
+          className={cn(
+            "w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform",
+            isOpen && "rotate-180",
+          )}
+        />
+        <span className="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+      </button>
+      {isOpen && (
+        <div className="border-t border-slate-100 px-3 py-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
+          {group.inputs.map((input) => {
+            const InputIcon = input.icon;
+            return (
+              <div key={input.label} className="flex items-center gap-2">
+                <InputIcon className="w-3 h-3 text-slate-400 shrink-0" />
+                <span className="text-[11.5px] font-medium text-slate-700 flex-1 truncate">
+                  {input.label}
+                </span>
+                {input.nonFcra && (
+                  <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
+                    non-FCRA
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function CapabilitiesView() {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(["Credit Bureau"]));
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const ActiveIcon = activeSignal?.icon;
 
@@ -324,7 +424,7 @@ export function CapabilitiesView() {
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
-              Bank-native sources · {SOURCES.length} connected
+              Bank-native sources · {TOTAL_SOURCE_INPUTS} inputs across {SOURCE_GROUPS.length} providers
             </p>
           </div>
           <div className="text-center">
@@ -342,13 +442,25 @@ export function CapabilitiesView() {
 
         {/* Network canvas */}
         <div className="relative">
-          <NetworkWires leftCount={SOURCES.length} rightCount={DESTINATIONS.length} />
+          <NetworkWires leftCount={SOURCE_GROUPS.length} rightCount={DESTINATIONS.length} />
 
           <div className="relative z-10 grid grid-cols-[260px_1fr_260px] gap-8 items-stretch">
             {/* Sources */}
             <div className="flex flex-col gap-2 justify-around">
-              {SOURCES.map((s) => (
-                <NodeCard key={s.label} icon={s.icon} label={s.label} sublabel={s.sublabel} side="left" />
+              {SOURCE_GROUPS.map((g) => (
+                <SourceGroupCard
+                  key={g.provider}
+                  group={g}
+                  isOpen={openGroups.has(g.provider)}
+                  onToggle={() =>
+                    setOpenGroups((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(g.provider)) next.delete(g.provider);
+                      else next.add(g.provider);
+                      return next;
+                    })
+                  }
+                />
               ))}
             </div>
 
