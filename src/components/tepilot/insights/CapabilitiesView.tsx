@@ -771,46 +771,49 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           </div>
         </div>
 
-        {/* Signal detail panel — only shown when a chip is selected */}
-        {activeSignal && ActiveIcon && (
+        {/* Shared detail panel — signal or application */}
+        {activeDetail && ActiveIcon && (
           <div
-            key={activeSignal.label}
+            key={activeDetail.label}
             className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
           >
             <div className="flex items-start gap-3 mb-5">
               <div
                 className={cn(
                   "flex items-center justify-center w-9 h-9 rounded-lg shrink-0",
-                  activeSignal.color,
+                  activeDetail.color,
                 )}
               >
                 <ActiveIcon className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
-                  <h3 className="text-[15px] font-bold text-slate-900">{activeSignal.label} signals</h3>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-400">
+                    {activeDetailKind}
+                  </span>
+                  <h3 className="text-[15px] font-bold text-slate-900">{activeDetail.label}</h3>
                   <span
                     className={cn(
                       "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
-                      activeSignal.tint,
+                      activeDetail.tint,
                     )}
                   >
-                    {activeSignal.items.length} detections
+                    {activeDetail.items.length} {activeSignal ? "detections" : "capabilities"}
                   </span>
                 </div>
                 <p className="text-[12px] text-slate-600 mt-1 leading-snug">
-                  {activeSignal.description}
+                  {activeDetail.description}
                 </p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-              {activeSignal.items.map((item) => (
+              {activeDetail.items.map((item) => (
                 <div key={item.label} className="flex items-start gap-2.5">
                   <span
                     className={cn(
                       "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
-                      activeSignal.dot,
+                      activeDetail.dot,
                     )}
                   />
                   <div className="min-w-0 flex-1">
@@ -826,6 +829,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
           </div>
         )}
+
 
         <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
           <span>Live streams · packets shown flowing left to right</span>
