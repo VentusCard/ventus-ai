@@ -627,11 +627,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
                 {/* Inner 2-band grid: signals → applications */}
                 <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
-                  {/* Signals column */}
-                  <div className="flex flex-col min-w-0">
-                    <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
-                      Signal families · click
-                    </p>
+                  {/* Signals column — cool indigo "what we detect" */}
+                  <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-indigo-500/15 to-transparent p-2 -m-1">
+                    <div className="flex items-center justify-center gap-1.5 mb-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-300" />
+                      <p className="text-[9.5px] font-semibold uppercase tracking-wider text-indigo-200">
+                        Signals · what we detect
+                      </p>
+                    </div>
                     <div className="grid grid-cols-1 gap-1.5">
                       {SIGNALS.map((s) => {
                         const Icon = s.icon;
@@ -642,11 +645,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
-                              s.tint,
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
+                              "bg-white/5 border-indigo-300/25 text-indigo-50",
                               isActive
-                                ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
-                                : "opacity-80 hover:opacity-100 hover:brightness-105",
+                                ? "ring-2 ring-indigo-200/70 bg-white/10 shadow-lg scale-[1.02]"
+                                : "opacity-85 hover:opacity-100 hover:bg-white/10",
                             )}
                           >
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", s.color)}>
@@ -668,10 +671,17 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       aria-hidden
                     >
                       <defs>
-                        <linearGradient id="core-bus" x1="0" y1="0" x2="1" y2="0">
+                        <linearGradient id="core-bus-in" x1="0" y1="0" x2="1" y2="0">
                           <stop offset="0%" stopColor="rgba(165,180,252,0.55)" />
-                          <stop offset="50%" stopColor="rgba(224,231,255,0.85)" />
-                          <stop offset="100%" stopColor="rgba(196,181,253,0.55)" />
+                          <stop offset="100%" stopColor="rgba(224,231,255,0.85)" />
+                        </linearGradient>
+                        <linearGradient id="core-bus-out" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="rgba(253,230,138,0.85)" />
+                          <stop offset="100%" stopColor="rgba(252,211,77,0.55)" />
+                        </linearGradient>
+                        <linearGradient id="core-bus-bar" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="rgba(165,180,252,0.8)" />
+                          <stop offset="100%" stopColor="rgba(252,211,77,0.8)" />
                         </linearGradient>
                         <filter id="bus-glow" x="-50%" y="-50%" width="200%" height="200%">
                           <feGaussianBlur stdDeviation="1.2" result="blur" />
@@ -692,7 +702,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={`in-${i}`}
                             d={`M 0 ${y} C 28 ${y}, 28 50, 50 50`}
                             fill="none"
-                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus)"}
+                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus-in)"}
                             strokeWidth={active ? 1.75 : 1}
                             strokeLinecap="round"
                             vectorEffect="non-scaling-stroke"
@@ -707,7 +717,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         y1="10"
                         x2="50"
                         y2="90"
-                        stroke="url(#core-bus)"
+                        stroke="url(#core-bus-bar)"
                         strokeWidth="1.5"
                         strokeLinecap="round"
                         vectorEffect="non-scaling-stroke"
@@ -736,7 +746,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={`out-${j}`}
                             d={`M 50 50 C 72 ${y}, 72 ${y}, 100 ${y}`}
                             fill="none"
-                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus)"}
+                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus-out)"}
                             strokeWidth={active ? 1.75 : 1}
                             strokeLinecap="round"
                             vectorEffect="non-scaling-stroke"
@@ -747,11 +757,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     </svg>
                   </div>
 
-                  {/* Applications column */}
-                  <div className="flex flex-col min-w-0">
-                    <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
-                      Applications · click
-                    </p>
+                  {/* Applications column — warm amber "what we activate" */}
+                  <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-amber-400/15 to-transparent p-2 -m-1">
+                    <div className="flex items-center justify-center gap-1.5 mb-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
+                      <p className="text-[9.5px] font-semibold uppercase tracking-wider text-amber-200">
+                        Applications · what we activate
+                      </p>
+                    </div>
                     <div className="grid grid-cols-1 gap-1.5">
                       {APPLICATIONS.map((a) => {
                         const Icon = a.icon;
@@ -762,11 +775,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={a.label}
                             onClick={() => selectApplication(a.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
-                              a.tint,
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
+                              "bg-white/10 border-amber-300/40 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
                               isActive
-                                ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
-                                : "opacity-80 hover:opacity-100 hover:brightness-105",
+                                ? "ring-2 ring-amber-200/70 bg-white/20 shadow-lg scale-[1.02]"
+                                : "opacity-90 hover:opacity-100 hover:bg-white/15",
                             )}
                           >
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", a.color)}>
