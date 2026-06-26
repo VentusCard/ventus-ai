@@ -671,10 +671,17 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       aria-hidden
                     >
                       <defs>
-                        <linearGradient id="core-bus" x1="0" y1="0" x2="1" y2="0">
+                        <linearGradient id="core-bus-in" x1="0" y1="0" x2="1" y2="0">
                           <stop offset="0%" stopColor="rgba(165,180,252,0.55)" />
-                          <stop offset="50%" stopColor="rgba(224,231,255,0.85)" />
-                          <stop offset="100%" stopColor="rgba(196,181,253,0.55)" />
+                          <stop offset="100%" stopColor="rgba(224,231,255,0.85)" />
+                        </linearGradient>
+                        <linearGradient id="core-bus-out" x1="0" y1="0" x2="1" y2="0">
+                          <stop offset="0%" stopColor="rgba(253,230,138,0.85)" />
+                          <stop offset="100%" stopColor="rgba(252,211,77,0.55)" />
+                        </linearGradient>
+                        <linearGradient id="core-bus-bar" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="0%" stopColor="rgba(165,180,252,0.8)" />
+                          <stop offset="100%" stopColor="rgba(252,211,77,0.8)" />
                         </linearGradient>
                         <filter id="bus-glow" x="-50%" y="-50%" width="200%" height="200%">
                           <feGaussianBlur stdDeviation="1.2" result="blur" />
