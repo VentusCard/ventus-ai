@@ -560,7 +560,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
       <div className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8">
         {/* Column headers */}
-        <div className="grid grid-cols-[240px_minmax(440px,1fr)_240px] gap-8 mb-4">
+        <div className="grid grid-cols-[220px_minmax(380px,1fr)_220px] gap-6 mb-4">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">

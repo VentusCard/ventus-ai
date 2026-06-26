@@ -1,39 +1,22 @@
-Keep the existing 3-column layout (Sources · Ventus Core · Destinations). Inside the **Ventus Core card**, split the interior into two side-by-side bands so the 5 Applications live within Core, visually fed by the 5 signals.
+## Fix broken System diagram layout
 
-```text
-Sources  →   ┌─ Ventus Core ───────────────────┐   →   Destinations
-             │ 5 Signals  ──fan──▶  5 Apps     │
-             └─────────────────────────────────┘
-```
+**Root cause**: Inside the Core card, the inner `grid grid-cols-[1fr_24px_1fr]` has two button columns with long labels (e.g. "Next-Conversation · Wealth"). The buttons use `flex-1 truncate` on the span, but the button and column wrappers are missing `min-w-0`. So `truncate` doesn't kick in, the columns expand to their min-content, the Core card overflows, and the right Destinations column gets pushed out of the row — causing it to wrap underneath the Sources column (which is why CRM / Rewards Provider / Digital Banking App appear duplicated at the bottom-left in the screenshot).
 
-## The 5 Applications (new band inside Core)
+### Changes in `src/components/tepilot/insights/CapabilitiesView.tsx`
 
-1. **Analytics & Targeting** — Reports library, AI-assisted SQL Query console, cohort export, segment templates.
-2. **Next-Offer** — Personalized deals/rewards matched to lifestyle pillars and recent behavior.
-3. **Next-Product** — Lifecycle product recommendations (HELOC, 529, Wealth, Auto, Mortgage, HYSA, Travel Card, SBL, Term Life) triggered by life events + financial posture.
-4. **Next-Conversation (Regular)** — Branch and contact-center talking points + outreach pointers for everyday customers.
-5. **Next-Conversation (Wealth)** — RM copilot for HNW clients: portfolio context, life-event prep, meeting briefs.
+1. **Constrain the inner two columns** so labels truncate instead of forcing the card wider:
+   - Add `min-w-0` to each inner column wrapper (Signals column `div`, Applications column `div`).
+   - Add `min-w-0 w-full` to each `<button>` in both `SIGNALS.map` and `APPLICATIONS.map`.
+   - Keep `flex-1 truncate` on the label span (already present).
 
-Each is a clickable chip; selecting one toggles an expandable detail panel below the diagram with 4–6 concrete capabilities (same UX as the existing signal panel).
+2. **Rebalance the outer 3-column grid** so the Core card doesn't crowd the side columns at 1280–1500px widths:
+   - Change both occurrences of `grid-cols-[240px_minmax(440px,1fr)_240px]` to `grid-cols-[220px_minmax(380px,1fr)_220px]`.
+   - Reduce gap from `gap-8` to `gap-6`.
 
-## Visual wiring
+3. **Tighten the inner band gap** so Signals/Applications don't visually collide with the fan SVG:
+   - Change the inner `grid-cols-[1fr_24px_1fr] gap-0` to `grid-cols-[1fr_32px_1fr] gap-1`.
 
-- Sources → Core: unchanged (left edge of the Core card).
-- Inside Core: a small inline SVG draws faint dashed fan lines from each of the 5 signal chips (left band) to each of the 5 application chips (right band), making it visually obvious that all signals feed all applications.
-- Core → Destinations: continues from the right edge of the Core card to the 7 destinations.
+4. **Guard against overflow** on the Core card itself:
+   - Add `overflow-hidden` to the Core card container `div` (line 610).
 
-## Technical implementation
-
-In `src/components/tepilot/insights/CapabilitiesView.tsx`:
-
-1. Add `ApplicationDetail` type + `APPLICATIONS` constant (5 entries; violet/teal/amber/rose/indigo accents to distinguish from signal tints).
-2. Widen the Core grid column (e.g. `grid-cols-[240px_minmax(440px,1fr)_240px]`) and restructure the Core card's interior:
-   - Keep the existing header (logo, "Behavioral Intelligence Core", "Classifies · Enriches · Scores · Distributes").
-   - Below the header, introduce a 2-column inner grid: left column = "Signals" (existing 5 chips), right column = "Applications" (5 new chips).
-   - Section labels above each column: "Signal families · click to inspect" and "Applications · click to inspect".
-3. Add a small inline SVG overlay positioned absolutely over the inner 2-column grid that draws `5 × 5 = 25` dashed fan lines (same gradient/animation style as `NetworkWires`) from each signal row's right edge to each application row's left edge.
-4. Add `activeApplicationLabel` state; selecting an application clears `activeSignalLabel` (and vice versa) so only one detail panel renders at a time. Render a shared `activeDetail` panel below the network with the existing layout (icon, title, count badge, description, 2-col items grid).
-5. Leave the outer `NetworkWires` (Sources→Core, Core→Destinations) unchanged.
-6. Update the `howItWorks` subtitle to mention applications.
-
-No changes to sources, signal definitions, destinations, Products tab, or other tabs. Strict light theme preserved.
+No changes to signal/application data, destinations, sources, or detail panel logic.
