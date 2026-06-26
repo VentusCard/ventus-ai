@@ -68,8 +68,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Home",
     items: [
-      { value: "ventus-ai", label: "Ventus AI", icon: ({ className }: { className?: string }) => <span className={cn("inline-flex items-center justify-center font-black leading-none text-[14px]", className)}>V</span> },
       { value: "capabilities", label: "System", icon: Layers },
+      { value: "ventus-ai", label: "Ventus AI", icon: ({ className }: { className?: string }) => <span className={cn("inline-flex items-center justify-center font-black leading-none text-[14px]", className)}>V</span> },
       { value: "products", label: "Products", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
