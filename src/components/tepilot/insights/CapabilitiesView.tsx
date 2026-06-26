@@ -627,11 +627,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
                 {/* Inner 2-band grid: signals → applications */}
                 <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
-                  {/* Signals column */}
-                  <div className="flex flex-col min-w-0">
-                    <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
-                      Signal families · click
-                    </p>
+                  {/* Signals column — cool indigo "what we detect" */}
+                  <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-indigo-500/15 to-transparent p-2 -m-1">
+                    <div className="flex items-center justify-center gap-1.5 mb-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-300" />
+                      <p className="text-[9.5px] font-semibold uppercase tracking-wider text-indigo-200">
+                        Signals · what we detect
+                      </p>
+                    </div>
                     <div className="grid grid-cols-1 gap-1.5">
                       {SIGNALS.map((s) => {
                         const Icon = s.icon;
@@ -642,11 +645,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
-                              s.tint,
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
+                              "bg-white/5 border-indigo-300/25 text-indigo-50",
                               isActive
-                                ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
-                                : "opacity-80 hover:opacity-100 hover:brightness-105",
+                                ? "ring-2 ring-indigo-200/70 bg-white/10 shadow-lg scale-[1.02]"
+                                : "opacity-85 hover:opacity-100 hover:bg-white/10",
                             )}
                           >
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", s.color)}>
