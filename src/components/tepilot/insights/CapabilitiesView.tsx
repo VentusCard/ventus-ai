@@ -378,7 +378,7 @@ export function CapabilitiesView() {
                       <button
                         type="button"
                         key={s.label}
-                        onClick={() => setActiveSignalLabel(s.label)}
+                        onClick={() => setActiveSignalLabel((prev) => (prev === s.label ? null : s.label))}
                         className={cn(
                           "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
                           s.tint,
@@ -424,59 +424,61 @@ export function CapabilitiesView() {
           </div>
         </div>
 
-        {/* Signal detail panel */}
-        <div
-          key={activeSignal.label}
-          className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
-        >
-          <div className="flex items-start gap-3 mb-5">
-            <div
-              className={cn(
-                "flex items-center justify-center w-9 h-9 rounded-lg shrink-0",
-                activeSignal.color,
-              )}
-            >
-              <ActiveIcon className="w-4 h-4 text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h3 className="text-[15px] font-bold text-slate-900">{activeSignal.label} signals</h3>
-                <span
-                  className={cn(
-                    "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
-                    activeSignal.tint,
-                  )}
-                >
-                  {activeSignal.items.length} detections
-                </span>
+        {/* Signal detail panel — only shown when a chip is selected */}
+        {activeSignal && ActiveIcon && (
+          <div
+            key={activeSignal.label}
+            className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
+          >
+            <div className="flex items-start gap-3 mb-5">
+              <div
+                className={cn(
+                  "flex items-center justify-center w-9 h-9 rounded-lg shrink-0",
+                  activeSignal.color,
+                )}
+              >
+                <ActiveIcon className="w-4 h-4 text-white" />
               </div>
-              <p className="text-[12px] text-slate-600 mt-1 leading-snug">
-                {activeSignal.description}
-              </p>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-[15px] font-bold text-slate-900">{activeSignal.label} signals</h3>
+                  <span
+                    className={cn(
+                      "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
+                      activeSignal.tint,
+                    )}
+                  >
+                    {activeSignal.items.length} detections
+                  </span>
+                </div>
+                <p className="text-[12px] text-slate-600 mt-1 leading-snug">
+                  {activeSignal.description}
+                </p>
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
-            {activeSignal.items.map((item) => (
-              <div key={item.label} className="flex items-start gap-2.5">
-                <span
-                  className={cn(
-                    "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
-                    activeSignal.dot,
-                  )}
-                />
-                <div className="min-w-0 flex-1">
-                  <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                    {item.label}
-                  </div>
-                  <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
-                    {item.sublabel}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+              {activeSignal.items.map((item) => (
+                <div key={item.label} className="flex items-start gap-2.5">
+                  <span
+                    className={cn(
+                      "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
+                      activeSignal.dot,
+                    )}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                      {item.label}
+                    </div>
+                    <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
+                      {item.sublabel}
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
           <span>Live streams · packets shown flowing left to right</span>
