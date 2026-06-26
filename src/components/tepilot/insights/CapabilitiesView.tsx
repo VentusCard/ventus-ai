@@ -363,7 +363,7 @@ export function CapabilitiesView() {
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
-              Bank-native sources · {SOURCES.length} connected
+              Bank-native sources · {TOTAL_SOURCE_INPUTS} inputs across {SOURCE_GROUPS.length} providers
             </p>
           </div>
           <div className="text-center">
