@@ -642,7 +642,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
+                              "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all min-w-0 w-full",
                               s.tint,
                               isActive
                                 ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
