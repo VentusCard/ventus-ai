@@ -1,88 +1,86 @@
-# Redesign System tab as a network diagram
+## Goal
+Make the 5 signal chips inside the Ventus Core card clickable. Selecting one expands a detail panel below the network diagram listing the **actual things Ventus detects** in that family, sourced from the live edge-function logic (not generic placeholders).
 
-Reframe `src/components/tepilot/insights/CapabilitiesView.tsx` (the **System** tab under `/bankdemo`) from the current 3-column "Inputs → Core → Downstream" pill stack into a true **network diagram** with animated wires, similar in spirit to `IntegrationSection.tsx` on the marketing site but denser and enterprise-styled.
+## Single file changed
+`src/components/tepilot/insights/CapabilitiesView.tsx`
 
-## Layout
+## 1. Extend `SIGNALS` with real detection data
 
-Single full-width canvas (`bg-white border-slate-200 rounded-xl p-6 lg:p-8`), three vertical columns connected by animated SVG paths:
+Each entry gains `description` + `items[]` (label + sublabel). Content sourced from `analyze-lifestyle-signals`, `synthesize-persona`, `ventus-classify-transactions`, `ventus-travel-detection`, `generate-lifestyle-signals`, and `ventus-risk-detection`.
 
-```text
-   SOURCES              VENTUS CORE              DESTINATIONS
- ┌──────────┐                                    ┌──────────────┐
- │ Core     │──┐                              ┌──│ CRM          │
- │ (FIS)    │  │                              │  │ (Salesforce) │
- ├──────────┤  │     ┌───────────────────┐    │  ├──────────────┤
- │ Card     │  │     │  ┌─────────────┐  │    │  │ Rewards      │
- │ Processor│──┼────▶│  │ Behavioral  │  │────┼──│ Provider     │
- ├──────────┤  │     │  │ Intelligence│  │    │  ├──────────────┤
- │ ACH/Wires│──┤     │  │   Core      │  │    ├──│ Digital      │
- ├──────────┤  │     │  └─────────────┘  │    │  │ Banking App  │
- │ Zelle    │──┤     │  5 signal chips   │    │  ├──────────────┤
- ├──────────┤  │     └───────────────────┘    ├──│ Marketing    │
- │ Digital  │──┤                              │  │ Automation   │
- │ Telemetry│  │                              │  ├──────────────┤
- ├──────────┤  │                              ├──│ Advisor      │
- │ Credit   │──┘                              │  │ Console      │
- │ Bureau   │                                 │  ├──────────────┤
- └──────────┘                                 └──│ Risk Ops     │
-                                                 └──────────────┘
-```
+**Life Event** — "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds."
+- Home Purchase — Realtor, title/escrow, mortgage, HOA setup, first mortgage payment
+- New Baby — OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D
+- Wedding / Engagement — Jeweler ($2k+), venue, bridal salon, photographer, registry
+- College Prep for Dependent — SAT/ACT/Kaplan, Common App, bursar deposits, college tours
+- Business Formation — LegalZoom/Stripe Atlas, business banking, commercial leasing
+- Elder Care — Assisted living, home health aide, geriatric care, hospice, DME
+- Retirement Planning — Advisor fees, estate attorney, Medicare supplement, downsizing
+- Relocation — Long-distance movers, vehicle shipping, extended-stay 7+ nights, utility setup in new metro
+- Inheritance / Windfall — Large one-time inflow + estate attorney or trust services
 
-### Node styling
+**Behavioral (Lifestyle Pillars)** — "Recurring spending habits across 11 lifestyle pillars from merchant + subcategory clusters."
+- Sports & Active Living — Equinox, Lululemon, REI, fitness classes, team leagues
+- Food & Dining — Whole Foods, Starbucks, Chipotle, delivery, meal kits
+- Travel & Exploration — Flights, hotels, car rentals, tours, travel insurance
+- Home & Living — Mortgage, utilities, Home Depot, furniture, commuting
+- Style & Beauty — Zara, Sephora, salon, jewelry, accessories
+- Health & Wellness — Doctor visits, pharmacy, therapy, spa, supplements
+- Technology & Digital Life — Spotify, Netflix, Adobe, devices, cloud
+- Family & Community — Childcare, gifts, religious orgs, kids activities
+- Pets — Chewy, vet care, grooming, pet insurance
+- Entertainment & Culture — Movies, concerts, museums, books, gaming
+- Travel Trip Reconstruction — Anchor + non-home-zip clustering into dated trips with spend breakdown
 
-- **Source nodes** (left): white card, `border-slate-200`, small category icon in a tinted square, two lines — bold label (e.g. "Card Transactions") and `text-[11px] text-slate-500` source pill (e.g. "FIS · Card Processor"). Pulsing green dot in the corner = live feed.
-- **Ventus Core** (center): keep the existing dark `from-blue-900 to-indigo-900` panel with the Ventus mark and the 5 signal-family chips (Life Event, Behavioral, Financial, Demographic, Risk). Slightly wider than today; chips stack vertically.
-- **Destination nodes** (right): same card chrome as sources but with an indigo-tinted icon square and a small "Powered by Ventus" `text-[10px]` line under the label. Examples:
-  - CRM — *Salesforce Financial Services Cloud*
-  - Rewards Provider — *Augeo / FIS Premium Payback*
-  - Digital Banking App — *Mobile + Web*
-  - Marketing Automation — *Marketing Cloud / Braze*
-  - Advisor Console — *Merrill Workstation-style*
-  - Risk Ops — *Actimize / SAS*
+**Financial** — "Cash-flow, balance, and credit posture inferred from payroll, deposits, and outflow streams."
+- Active payroll deposit — Recurring employer ACH on consistent cadence
+- Recent large inflow — One-off deposit well above payroll baseline (windfall/bonus)
+- Deposit balance trending up — Checking/savings growing across statements
+- Investable assets tier — Idle balances above operating-cash needs
+- Funds external brokerage — Outbound ACH to Schwab/Fidelity/Robinhood (wallet share)
+- Active mortgage payer — Recurring mortgage servicer outflow
+- Low credit utilization — Headroom on revolving lines
+- Healthy DTI — Debt service comfortably below underwriting thresholds
+- Subscription stack load — 10+ active recurring digital subscriptions
 
-### Wires (the network feel)
+**Demographic (Inferred)** — "Household and life-stage attributes inferred from spend patterns, beyond KYC."
+- Age range — Bucketed 18–24 / 25–34 / 35–44 / 45–54 / 55–64 / 65+
+- Income band — <$50K / $50–100K / $100–150K / $150K+ (from payroll + spend volume)
+- Region — Northeast / Southeast / Midwest / Southwest / West / Northwest
+- Account tenure — New (<1y), Established (1–5y), Loyal (5+y)
+- Likely homeowner — Mortgage, Home Depot/Lowe's, HOA fees
+- Parent of young children — Daycare, pediatric, Carter's, infant formula volume
+- Parent of school-age — Tuition, kids activities, SAT/ACT prep
+- Dual-income household — Two distinct payroll streams
+- Pre-retiree / empty nester — Medicare supplement, downsizing, no dependent-linked spend
+- Beneficiary reasoning — Spend benefits self vs. dependent vs. third-party gift
 
-Single absolutely-positioned SVG layered behind the cards, `preserveAspectRatio="none"`, `viewBox="0 0 100 100"`.
+**Risk** — "Deterministic keyword/MCC flags for Vice, Financial Distress, and model-routed AML — bucketed with severity scores."
+- Adult entertainment — OnlyFans, cam sites, adult processors (CCBill/Epoch), MCC 5967
+- Offshore / high-risk gambling — Bovada, Stake.com, Roobet, Curaçao books (weight 5)
+- Sports betting — DraftKings SB, FanDuel SB, BetMGM, PrizePicks (weight 3)
+- Casino & table games — MGM, Bellagio, Foxwoods, DraftKings Casino (weight 3)
+- Payday & short-term credit — ACE Cash Express, Advance America, Earnin, Dave (weight 5)
+- Debt collection & relief — Portfolio Recovery, Freedom Debt Relief, bankruptcy filings (weight 5)
+- Check cashing & money services — Western Union, MoneyGram, MoneyPak reloads (weight 4)
+- Overdraft & NSF activity — Aggregated fee events; severity escalates at 5+
+- Subprime credit & rent-to-own — Credit One, OpenSky, Rent-A-Center, DriveTime (weight 3)
+- Crypto mixing — Tornado Cash, Wasabi, CoinJoin, Monero exchanges (weight 4)
+- Suspicious international — Merchant name contains INTL/OFFSHORE + non-US zip
+- AML structuring — Multiple deposits/withdrawals just below $10K (model-routed)
+- AML round-number layering — Repeated round-number cash-equivalent patterns
+- AML cross-border wires — Wire patterns inconsistent with home zip
 
-- One curved path per source → core anchor (left side of core, y=50).
-- One curved path per core → destination (right side of core, y=50).
-- Stroke: `#6366f1` (indigo-500) at `strokeWidth=0.6`, `strokeDasharray="1.2 1.6"`, `vectorEffect="non-scaling-stroke"`, opacity 0.7.
-- `<animate attributeName="stroke-dashoffset" from="0" to="-6" dur="2.4s" repeatCount="indefinite" />` so packets visibly flow toward the core, then out to destinations.
-- Stagger animation `begin` per line (0s, 0.2s, 0.4s, …) so the flow doesn't pulse in lockstep.
-- Small filled circles at every wire endpoint on the core for a "port" look.
+## 2. Interaction & UI
 
-### Column headers
-
-Above each column: tiny uppercase eyebrow + count, matching the current style:
-- `BANK-NATIVE SOURCES · 7 connected` (green pulse dot)
-- `VENTUS AI SYSTEM`
-- `ACTIVATION DESTINATIONS · 6 wired` (indigo pulse dot)
-
-### TabHeader
-
-Keep `TabHeader` with the existing icon, but update copy:
-- **title**: "System" *(unchanged)*
-- **subtitle**: "Network view: how bank-native sources flow through Ventus and back out to activation systems"
-- **howItWorks**: rewrite to describe the wiring (sources → core enrichment → destinations).
-- **whyItMatters**: unchanged intent — one enrichment layer fans out to every channel of record.
-
-## Data changes
-
-Inside `CapabilitiesView.tsx` only:
-
-- Replace `INPUTS` with a `SOURCES` array of `{ label, sublabel, icon, system }` covering: Core (FIS), Card Processor (Fiserv), ACH/Wires (Core), Zelle (EWS), Digital Banking Telemetry, Credit Bureau, KYC.
-- Keep `SIGNALS` as is.
-- Replace `DOWNSTREAM` with a `DESTINATIONS` array of `{ label, sublabel, icon }`: CRM (Salesforce FSC), Rewards Provider (Augeo), Digital Banking App, Marketing Automation, Advisor Console, Risk Ops.
-- Delete the old `Brace` and `CoreConnectors` helpers; replace with a single `<NetworkWires />` SVG component that takes counts on each side and renders the dashed-flow paths.
+- Add `const [activeSignal, setActiveSignal] = useState<string>("Life Event")` — default opens Life Event so the panel is visible on first paint.
+- Convert each chip from `<div>` to `<button>` with `onClick={() => setActiveSignal(s.label)}`.
+- Selected chip: add `ring-2 ring-white/50 shadow-lg`; unselected: current style + `hover:brightness-110`.
+- Render a detail panel **inside the same outer white card**, between the network canvas and the existing footer row, separated by `border-t border-slate-100 mt-6 pt-6`:
+  - Header: signal-colored icon tile + signal label (15px bold) + description (12px slate-600) + small badge `{items.length} detections`
+  - 2-column grid (`md:grid-cols-2 gap-x-6 gap-y-3`) of items: small colored dot (signal color), label (semibold 12.5px), sublabel (11.5px slate-500)
+  - Subtle entrance: `animate-in fade-in slide-in-from-top-1 duration-200`, keyed by `activeSignal` so it replays on switch
 
 ## Out of scope
-
-- No changes to other tabs, no new files, no edge functions, no data wiring. Pure visual refactor of `CapabilitiesView.tsx`.
-- Strict light theme preserved (core panel stays dark as today — that's the established Ventus mark treatment, matches existing memory).
-- No `dark:` utilities, Manrope only.
-
-## Technical notes
-
-- Use CSS grid `grid-cols-[260px_1fr_260px]` with `relative` wrapper; the SVG is `absolute inset-0` behind cards (`z-0`), cards `relative z-10`.
-- Wire endpoints computed from column `(i + 0.5) / count * 100` for y, x fixed at ~18 (sources right edge), 38 (core left), 62 (core right), 82 (destinations left edge) in the 0–100 viewBox.
-- All animation via inline `<animate>` SVG elements, no JS, no extra deps.
+- No navigation, no backend calls, no edits to wires/sources/destinations
+- Content is static within the component

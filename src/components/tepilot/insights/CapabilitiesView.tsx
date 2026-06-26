@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { useId, useState } from "react";
 import { TabHeader } from "./TabHeader";
 import {
   Layers,
@@ -45,12 +45,120 @@ const SOURCES: Source[] = [
   { label: "Deposits & Statements", sublabel: "Core · FIS", icon: Database },
 ];
 
-const SIGNALS = [
-  { label: "Life Event", icon: CalendarHeart, color: "bg-amber-500", tint: "bg-amber-50 text-amber-700 border-amber-200" },
-  { label: "Behavioral", icon: Activity, color: "bg-blue-500", tint: "bg-blue-50 text-blue-700 border-blue-200" },
-  { label: "Financial", icon: DollarSign, color: "bg-emerald-500", tint: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-  { label: "Demographic", icon: UserCircle, color: "bg-violet-500", tint: "bg-violet-50 text-violet-700 border-violet-200" },
-  { label: "Risk", icon: AlertTriangle, color: "bg-rose-500", tint: "bg-rose-50 text-rose-700 border-rose-200" },
+type SignalDetail = {
+  label: string;
+  icon: React.ElementType;
+  color: string;
+  tint: string;
+  dot: string;
+  description: string;
+  items: { label: string; sublabel: string }[];
+};
+
+const SIGNALS: SignalDetail[] = [
+  {
+    label: "Life Event",
+    icon: CalendarHeart,
+    color: "bg-amber-500",
+    tint: "bg-amber-50 text-amber-700 border-amber-200",
+    dot: "bg-amber-500",
+    description: "Major life-stage transitions inferred from merchant-level transaction clusters with minimum-evidence thresholds.",
+    items: [
+      { label: "Home Purchase", sublabel: "Realtor, title/escrow, mortgage, HOA setup, first mortgage payment" },
+      { label: "New Baby", sublabel: "OB/midwife, buybuy BABY, pediatrician, daycare, hospital L&D" },
+      { label: "Wedding / Engagement", sublabel: "Jeweler ($2k+), venue, bridal salon, photographer, registry" },
+      { label: "College Prep (Dependent)", sublabel: "SAT/ACT/Kaplan, Common App, bursar deposits, college tours" },
+      { label: "Business Formation", sublabel: "LegalZoom, Stripe Atlas, business banking, commercial leasing" },
+      { label: "Elder Care", sublabel: "Assisted living, home health aide, geriatric care, hospice, DME" },
+      { label: "Retirement Planning", sublabel: "Advisor fees, estate attorney, Medicare supplement, downsizing" },
+      { label: "Relocation", sublabel: "Long-distance movers, vehicle shipping, extended-stay 7+ nights, new-metro utilities" },
+      { label: "Inheritance / Windfall", sublabel: "Large one-time inflow paired with estate attorney or trust services" },
+    ],
+  },
+  {
+    label: "Behavioral",
+    icon: Activity,
+    color: "bg-blue-500",
+    tint: "bg-blue-50 text-blue-700 border-blue-200",
+    dot: "bg-blue-500",
+    description: "Recurring spending habits classified across 11 lifestyle pillars from merchant and subcategory clusters.",
+    items: [
+      { label: "Sports & Active Living", sublabel: "Equinox, Lululemon, REI, fitness classes, team leagues" },
+      { label: "Food & Dining", sublabel: "Whole Foods, Starbucks, Chipotle, delivery, meal kits" },
+      { label: "Travel & Exploration", sublabel: "Flights, hotels, car rentals, tours, travel insurance" },
+      { label: "Home & Living", sublabel: "Mortgage, utilities, Home Depot, furniture, commuting" },
+      { label: "Style & Beauty", sublabel: "Zara, Sephora, salon, jewelry, accessories" },
+      { label: "Health & Wellness", sublabel: "Doctor visits, pharmacy, therapy, spa, supplements" },
+      { label: "Technology & Digital", sublabel: "Spotify, Netflix, Adobe, devices, cloud storage" },
+      { label: "Family & Community", sublabel: "Childcare, gifts, religious orgs, kids activities" },
+      { label: "Pets", sublabel: "Chewy, vet care, grooming, pet insurance" },
+      { label: "Entertainment & Culture", sublabel: "Movies, concerts, museums, books, gaming" },
+      { label: "Trip Reconstruction", sublabel: "Anchor + non-home-zip clustering into dated trips with spend breakdown" },
+    ],
+  },
+  {
+    label: "Financial",
+    icon: DollarSign,
+    color: "bg-emerald-500",
+    tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
+    dot: "bg-emerald-500",
+    description: "Cash-flow, balance, and credit posture inferred from payroll, deposit, and outflow streams.",
+    items: [
+      { label: "Active payroll deposit", sublabel: "Recurring employer ACH on a consistent cadence" },
+      { label: "Recent large inflow", sublabel: "One-off deposit well above payroll baseline (windfall, bonus)" },
+      { label: "Deposit balance trending up", sublabel: "Checking and savings growing across recent statements" },
+      { label: "Investable assets tier", sublabel: "Idle balances above typical operating-cash needs" },
+      { label: "Funds external brokerage", sublabel: "Outbound ACH to Schwab, Fidelity, Robinhood (wallet share leak)" },
+      { label: "Active mortgage payer", sublabel: "Recurring mortgage servicer outflow on file" },
+      { label: "Low credit utilization", sublabel: "Headroom on existing revolving credit lines" },
+      { label: "Healthy DTI", sublabel: "Debt service comfortably below underwriting thresholds" },
+      { label: "Subscription stack load", sublabel: "10+ active recurring digital subscriptions" },
+    ],
+  },
+  {
+    label: "Demographic",
+    icon: UserCircle,
+    color: "bg-violet-500",
+    tint: "bg-violet-50 text-violet-700 border-violet-200",
+    dot: "bg-violet-500",
+    description: "Household and life-stage attributes inferred from spend patterns, going beyond KYC fields.",
+    items: [
+      { label: "Age range", sublabel: "18–24 · 25–34 · 35–44 · 45–54 · 55–64 · 65+" },
+      { label: "Income band", sublabel: "<$50K · $50–100K · $100–150K · $150K+ (payroll + spend volume)" },
+      { label: "Region", sublabel: "Northeast · Southeast · Midwest · Southwest · West · Northwest" },
+      { label: "Account tenure", sublabel: "New (<1y), Established (1–5y), Loyal (5+y)" },
+      { label: "Likely homeowner", sublabel: "Mortgage, Home Depot/Lowe's, HOA fees" },
+      { label: "Parent of young children", sublabel: "Daycare, pediatric, Carter's, infant formula volume" },
+      { label: "Parent of school-age", sublabel: "Tuition, kids activities, SAT/ACT prep" },
+      { label: "Dual-income household", sublabel: "Two distinct payroll streams to one household" },
+      { label: "Pre-retiree / empty nester", sublabel: "Medicare supplement, downsizing, no dependent-linked spend" },
+      { label: "Beneficiary reasoning", sublabel: "Spend benefits self vs. dependent vs. third-party gift" },
+    ],
+  },
+  {
+    label: "Risk",
+    icon: AlertTriangle,
+    color: "bg-rose-500",
+    tint: "bg-rose-50 text-rose-700 border-rose-200",
+    dot: "bg-rose-500",
+    description: "Deterministic keyword/MCC flags for Vice and Financial Distress plus model-routed AML, bucketed with severity scores.",
+    items: [
+      { label: "Adult entertainment", sublabel: "OnlyFans, cam sites, adult processors (CCBill/Epoch), MCC 5967" },
+      { label: "Offshore gambling", sublabel: "Bovada, Stake.com, Roobet, Curaçao books (weight 5)" },
+      { label: "Sports betting", sublabel: "DraftKings SB, FanDuel SB, BetMGM, PrizePicks (weight 3)" },
+      { label: "Casino & table games", sublabel: "MGM, Bellagio, Foxwoods, DraftKings Casino (weight 3)" },
+      { label: "Payday & short-term credit", sublabel: "ACE Cash Express, Advance America, Earnin, Dave (weight 5)" },
+      { label: "Debt collection & relief", sublabel: "Portfolio Recovery, Freedom Debt Relief, bankruptcy filings (weight 5)" },
+      { label: "Check cashing & money services", sublabel: "Western Union, MoneyGram, MoneyPak reloads (weight 4)" },
+      { label: "Overdraft & NSF activity", sublabel: "Aggregated fee events; severity escalates at 5+" },
+      { label: "Subprime credit & rent-to-own", sublabel: "Credit One, OpenSky, Rent-A-Center, DriveTime (weight 3)" },
+      { label: "Crypto mixing", sublabel: "Tornado Cash, Wasabi, CoinJoin, Monero exchanges (weight 4)" },
+      { label: "Suspicious international", sublabel: "Merchant contains INTL/OFFSHORE + non-US zip" },
+      { label: "AML structuring", sublabel: "Multiple deposits/withdrawals just below $10K (model-routed)" },
+      { label: "AML round-number layering", sublabel: "Repeated round-number cash-equivalent patterns" },
+      { label: "AML cross-border wires", sublabel: "Wire patterns inconsistent with home zip" },
+    ],
+  },
 ];
 
 const DESTINATIONS: Destination[] = [
@@ -191,6 +299,10 @@ function NodeCard({
 }
 
 export function CapabilitiesView() {
+  const [activeSignalLabel, setActiveSignalLabel] = useState<string>("Life Event");
+  const activeSignal = SIGNALS.find((s) => s.label === activeSignalLabel) ?? SIGNALS[0];
+  const ActiveIcon = activeSignal.icon;
+
   return (
     <div className="space-y-6">
       <TabHeader
@@ -256,17 +368,23 @@ export function CapabilitiesView() {
                   </p>
                 </div>
                 <p className="text-[10px] font-semibold uppercase tracking-wider text-blue-200/80 mt-4 mb-2.5 text-center">
-                  Five signal families
+                  Five signal families · click to inspect
                 </p>
                 <div className="grid grid-cols-1 gap-1.5">
                   {SIGNALS.map((s) => {
                     const Icon = s.icon;
+                    const isActive = s.label === activeSignalLabel;
                     return (
-                      <div
+                      <button
+                        type="button"
                         key={s.label}
+                        onClick={() => setActiveSignalLabel(s.label)}
                         className={cn(
-                          "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white",
+                          "flex items-center gap-2 px-2.5 py-1.5 rounded-md border bg-white text-left transition-all",
                           s.tint,
+                          isActive
+                            ? "ring-2 ring-white/60 shadow-lg scale-[1.02]"
+                            : "opacity-80 hover:opacity-100 hover:brightness-105",
                         )}
                       >
                         <div
@@ -277,8 +395,13 @@ export function CapabilitiesView() {
                         >
                           <Icon className="w-2.5 h-2.5 text-white" />
                         </div>
-                        <span className="text-[12px] font-semibold">{s.label}</span>
-                      </div>
+                        <span className="text-[12px] font-semibold flex-1">{s.label}</span>
+                        {isActive && (
+                          <span className="text-[9px] font-bold uppercase tracking-wider opacity-70">
+                            shown ↓
+                          </span>
+                        )}
+                      </button>
                     );
                   })}
                 </div>
@@ -298,6 +421,60 @@ export function CapabilitiesView() {
                 />
               ))}
             </div>
+          </div>
+        </div>
+
+        {/* Signal detail panel */}
+        <div
+          key={activeSignal.label}
+          className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
+        >
+          <div className="flex items-start gap-3 mb-5">
+            <div
+              className={cn(
+                "flex items-center justify-center w-9 h-9 rounded-lg shrink-0",
+                activeSignal.color,
+              )}
+            >
+              <ActiveIcon className="w-4 h-4 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                <h3 className="text-[15px] font-bold text-slate-900">{activeSignal.label} signals</h3>
+                <span
+                  className={cn(
+                    "text-[10px] font-semibold px-1.5 py-0.5 rounded border",
+                    activeSignal.tint,
+                  )}
+                >
+                  {activeSignal.items.length} detections
+                </span>
+              </div>
+              <p className="text-[12px] text-slate-600 mt-1 leading-snug">
+                {activeSignal.description}
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
+            {activeSignal.items.map((item) => (
+              <div key={item.label} className="flex items-start gap-2.5">
+                <span
+                  className={cn(
+                    "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
+                    activeSignal.dot,
+                  )}
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                    {item.label}
+                  </div>
+                  <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
+                    {item.sublabel}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
