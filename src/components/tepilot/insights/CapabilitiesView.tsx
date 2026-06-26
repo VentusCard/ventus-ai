@@ -24,6 +24,11 @@ import {
   Package,
   ArrowUpRight,
   ChevronDown,
+  BarChart3,
+  Tag,
+  Sparkles,
+  MessageSquare,
+  Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
