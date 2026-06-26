@@ -705,7 +705,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   </div>
 
                   {/* Applications column */}
-                  <div className="flex flex-col">
+                  <div className="flex flex-col min-w-0">
                     <p className="text-[9.5px] font-semibold uppercase tracking-wider text-blue-200/80 mb-2 text-center">
                       Applications · click
                     </p>
