@@ -1,46 +1,40 @@
-## Replace the 25-line fan with a clean "manifold bus" connector
+## Visually differentiate Signals vs Applications inside the Ventus Core card
 
-The current connector draws 5×5 = 25 animated dashed curves between signals and applications. At the narrow 28px column width this collapses into visual noise, with overlapping curves that read as a smudge rather than a relationship.
+Right now both inner bands use the same chip style on the same dark gradient, so the eye can't tell "what we detect" from "what we do with it". The fix is to give each band its own role-based treatment while keeping them inside one Core card.
 
-### New design: converging bus + active highlight
+### Direction: "Inputs band" vs "Outputs band"
 
-```text
- Signal ──╮
- Signal ──┤
- Signal ──┼──● ──┬── App
- Signal ──┤      ├── App
- Signal ──╯      ├── App
-                 ├── App
-                 └── App
-```
+Treat the left band as raw intelligence (cool, quiet, indigo) and the right band as activated actions (warm, bright, amber/white) — same language Ventus uses elsewhere (sources are indigo, destinations are warm).
 
-- **Left side**: each signal row emits a short horizontal stub that curves into a single vertical "bus bar" sitting in the middle of the 28px gutter.
-- **Center hub**: a small glowing node on the bus (subtle pulse) signals "all signals merge here".
-- **Right side**: the bus fans out, one short curve per application row, into each app card.
-- Total strokes drop from 25 to 10 (5 in + 5 out), all non-overlapping.
+Changes in `CapabilitiesView.tsx` only, inside the Core card:
 
-### Interaction
+1. **Two-tone background inside the Core card**
+   - Left half: subtle indigo wash (`bg-gradient-to-b from-indigo-950/40 to-transparent`) with a faint inner border on the right edge.
+   - Right half: subtle amber/white wash (`bg-gradient-to-b from-amber-500/10 to-transparent`).
+   - A thin vertical hairline (`border-l border-white/10`) runs down the 48px gutter so the bus connector sits on a real seam, not floating.
 
-- **Idle**: thin indigo→violet gradient strokes, gentle flow animation along the bus only (not on every line).
-- **Signal active**: that signal's inbound stub brightens to white, the bus segment glows, and all 5 outbound stubs brighten — communicating "this signal feeds every application".
-- **Application active**: that app's outbound stub plus all 5 inbound stubs brighten — communicating "this application uses every signal".
-- **Idle hover**: light brighten on the hovered stub only.
+2. **Band headers**
+   - Left header: small indigo dot + label `SIGNALS · what we detect` in indigo-200.
+   - Right header: small amber dot + label `APPLICATIONS · what we activate` in amber-200.
+   - Same 10px uppercase tracking already used elsewhere, so it reads as a sub-section, not a new card.
 
-### Visual treatment
+3. **Chip styling per band**
+   - Signal chips: ghost style — `bg-white/5`, `border border-indigo-400/25`, indigo-100 text, indigo-300 icon. Reads as "data".
+   - Application chips: solid style — `bg-white/10`, `border border-amber-300/40`, white text, amber-300 icon, subtle inner highlight. Reads as "product".
+   - Active state keeps the existing white ring but tints to the band color so users always know which side they clicked.
 
-- Stroke: `vectorEffect="non-scaling-stroke"`, 1px idle / 1.75px active.
-- Gradient: `rgba(165,180,252,0.35)` → `rgba(196,181,253,0.35)` idle; `rgba(255,255,255,0.95)` active.
-- Bus bar: 1.5px vertical line with a 6px soft glow filter; center node is a 4px circle with `animate-pulse`.
-- Animation: replace the 25 staggered `stroke-dashoffset` loops with a single subtle dash flow on the bus bar (2.4s loop). Stubs are static unless active.
-- Remove the heavy `strokeDasharray="1.2 1.6"` — solid strokes read cleaner at this scale.
+4. **Connector recoloring (already in place, light touch)**
+   - Inbound stubs (signals → bus): indigo gradient.
+   - Outbound stubs (bus → applications): amber gradient.
+   - Hub node: indigo→amber radial so it visually "translates" signals into applications.
 
-### Implementation
+5. **Optional micro-label on the bus**
+   - A tiny vertical `→` glyph or the word `ACTIVATE` rotated 90° centered on the bus, white/40 opacity. Skippable if it feels noisy.
 
-Single file edit: `src/components/tepilot/insights/CapabilitiesView.tsx`, lines ~662–705 (the fan-line `<svg>` block).
+### Why this works
+- Color does the heavy lifting (cool=sense, warm=act), so the split is legible at a glance even without reading labels.
+- Both bands stay inside one Core card, preserving the "everything Ventus does lives here" story.
+- Reuses the indigo/amber palette already on the page (sources are indigo, destinations are warm), so the Core card now visibly bridges them.
 
-- Widen the gutter column from `28px` to `48px` so the bus + stubs have room to breathe.
-- Rewrite the SVG: 5 inbound paths `M 0 y → C 30 y, 30 50, 50 50` style stubs to the bus, vertical bus line `x=50 y=8→92`, center hub circle, 5 outbound paths mirrored to the right.
-- Drive active state from existing `activeSignalLabel` / `activeApplicationLabel` — no new state needed.
-- Keep all signal/application button markup and the rest of the Core card unchanged.
-
-No other files touched.
+### Files touched
+- `src/components/tepilot/insights/CapabilitiesView.tsx` (Core card interior only — no layout, grid, or connector geometry changes)
