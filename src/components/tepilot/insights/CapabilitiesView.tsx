@@ -21,10 +21,13 @@ import {
   ShieldAlert,
   Home,
   PiggyBank,
+  Package,
+  ArrowUpRight,
   ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
+import { BANK_PRODUCT_CATEGORIES, BANK_PRODUCT_TOTAL } from "@/lib/bankProductCatalog";
 
 type SourceInput = {
   label: string;
@@ -37,6 +40,8 @@ type SourceGroup = {
   sublabel: string;
   icon: React.ElementType;
   inputs: SourceInput[];
+  onOpen?: () => void;
+  openLabel?: string;
 };
 
 type Destination = {
@@ -396,14 +401,39 @@ function SourceGroupCard({
               </div>
             );
           })}
+          {group.onOpen && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                group.onOpen?.();
+              }}
+              className="mt-1 w-full flex items-center justify-between gap-1 text-[10.5px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-1.5 py-1 rounded transition-colors"
+            >
+              <span>{group.openLabel ?? "Open"}</span>
+              <ArrowUpRight className="w-3 h-3" />
+            </button>
+          )}
         </div>
       )}
     </div>
   );
 }
 
-export function CapabilitiesView() {
+export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  const sourceGroups: SourceGroup[] = [
+    ...SOURCE_GROUPS,
+    {
+      provider: "Bank Product",
+      sublabel: "Internal catalog · single source of truth",
+      icon: Package,
+      onOpen: onOpenProducts,
+      openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
+      inputs: BANK_PRODUCT_CATEGORIES.map((c) => ({ label: c.label, icon: Package })),
+    },
+  ];
+  const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(["Credit Bureau"]));
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const ActiveIcon = activeSignal?.icon;
@@ -424,7 +454,7 @@ export function CapabilitiesView() {
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
-              Bank-native sources · {TOTAL_SOURCE_INPUTS} inputs across {SOURCE_GROUPS.length} providers
+              Bank-native sources · {totalSourceInputs} inputs across {sourceGroups.length} providers
             </p>
           </div>
           <div className="text-center">
@@ -442,12 +472,12 @@ export function CapabilitiesView() {
 
         {/* Network canvas */}
         <div className="relative">
-          <NetworkWires leftCount={SOURCE_GROUPS.length} rightCount={DESTINATIONS.length} />
+          <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
 
           <div className="relative z-10 grid grid-cols-[260px_1fr_260px] gap-8 items-stretch">
             {/* Sources */}
             <div className="flex flex-col gap-2 justify-around">
-              {SOURCE_GROUPS.map((g) => (
+              {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
                   group={g}
