@@ -607,7 +607,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             {/* Core */}
             <div className="flex items-center justify-center">
               <div
-                className="rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-xl w-full mx-auto"
+                className="rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-5 shadow-xl w-full mx-auto overflow-hidden"
                 style={{
                   boxShadow:
                     "0 0 0 6px rgba(99,102,241,0.08), 0 25px 60px -15px rgba(30,58,138,0.5), 0 0 80px rgba(99,102,241,0.25)",
