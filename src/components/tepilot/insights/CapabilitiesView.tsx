@@ -299,9 +299,9 @@ function NodeCard({
 }
 
 export function CapabilitiesView() {
-  const [activeSignalLabel, setActiveSignalLabel] = useState<string>("Life Event");
-  const activeSignal = SIGNALS.find((s) => s.label === activeSignalLabel) ?? SIGNALS[0];
-  const ActiveIcon = activeSignal.icon;
+  const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
+  const ActiveIcon = activeSignal?.icon;
 
   return (
     <div className="space-y-6">
