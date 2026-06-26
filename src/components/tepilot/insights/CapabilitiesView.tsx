@@ -420,8 +420,20 @@ function SourceGroupCard({
   );
 }
 
-export function CapabilitiesView() {
+export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  const sourceGroups: SourceGroup[] = [
+    ...SOURCE_GROUPS,
+    {
+      provider: "Bank Product",
+      sublabel: "Internal catalog · single source of truth",
+      icon: Package,
+      onOpen: onOpenProducts,
+      openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
+      inputs: BANK_PRODUCT_CATEGORIES.map((c) => ({ label: c.label, icon: Package })),
+    },
+  ];
+  const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set(["Credit Bureau"]));
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const ActiveIcon = activeSignal?.icon;
