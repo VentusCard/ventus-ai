@@ -21,6 +21,7 @@ import {
   ShieldAlert,
   Home,
   PiggyBank,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
