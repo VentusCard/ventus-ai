@@ -381,13 +381,25 @@ export function CapabilitiesView() {
 
         {/* Network canvas */}
         <div className="relative">
-          <NetworkWires leftCount={SOURCES.length} rightCount={DESTINATIONS.length} />
+          <NetworkWires leftCount={SOURCE_GROUPS.length} rightCount={DESTINATIONS.length} />
 
           <div className="relative z-10 grid grid-cols-[260px_1fr_260px] gap-8 items-stretch">
             {/* Sources */}
             <div className="flex flex-col gap-2 justify-around">
-              {SOURCES.map((s) => (
-                <NodeCard key={s.label} icon={s.icon} label={s.label} sublabel={s.sublabel} side="left" />
+              {SOURCE_GROUPS.map((g) => (
+                <SourceGroupCard
+                  key={g.provider}
+                  group={g}
+                  isOpen={openGroups.has(g.provider)}
+                  onToggle={() =>
+                    setOpenGroups((prev) => {
+                      const next = new Set(prev);
+                      if (next.has(g.provider)) next.delete(g.provider);
+                      else next.add(g.provider);
+                      return next;
+                    })
+                  }
+                />
               ))}
             </div>
 
