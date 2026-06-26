@@ -26,10 +26,17 @@ import {
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
-type Source = {
+type SourceInput = {
   label: string;
+  icon: React.ElementType;
+  nonFcra?: boolean;
+};
+
+type SourceGroup = {
+  provider: string;
   sublabel: string;
   icon: React.ElementType;
+  inputs: SourceInput[];
 };
 
 type Destination = {
@@ -38,20 +45,49 @@ type Destination = {
   icon: React.ElementType;
 };
 
-const SOURCES: Source[] = [
-  { label: "KYC & Profile", sublabel: "Core · FIS", icon: UserCircle },
-  { label: "Card Transactions", sublabel: "Card Processor · Fiserv", icon: CreditCard },
-  { label: "ACH & Wires", sublabel: "Core · FIS", icon: ArrowLeftRight },
-  { label: "Zelle", sublabel: "EWS Network", icon: Send },
-  { label: "Digital Telemetry", sublabel: "Digital Banking", icon: Smartphone },
-  { label: "Credit Bureau", sublabel: "Experian / TransUnion", icon: Gauge },
-  { label: "Deposits & Statements", sublabel: "Core · FIS", icon: Database },
-  { label: "Wealth Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: PiggyBank },
-  { label: "Property Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: Home },
-  { label: "Demographics Data (non-FCRA)", sublabel: "Credit Bureau · marketing only", icon: Users },
+const SOURCE_GROUPS: SourceGroup[] = [
+  {
+    provider: "Core Banking",
+    sublabel: "FIS",
+    icon: Database,
+    inputs: [
+      { label: "KYC & Profile", icon: UserCircle },
+      { label: "ACH & Wires", icon: ArrowLeftRight },
+      { label: "Deposits & Statements", icon: Database },
+    ],
+  },
+  {
+    provider: "Card Processor",
+    sublabel: "Fiserv",
+    icon: CreditCard,
+    inputs: [{ label: "Card Transactions", icon: CreditCard }],
+  },
+  {
+    provider: "Payments Network",
+    sublabel: "Early Warning Services",
+    icon: Send,
+    inputs: [{ label: "Zelle", icon: Send }],
+  },
+  {
+    provider: "Digital Banking",
+    sublabel: "App & web telemetry",
+    icon: Smartphone,
+    inputs: [{ label: "Digital Telemetry", icon: Smartphone }],
+  },
+  {
+    provider: "Credit Bureau",
+    sublabel: "Experian / TransUnion",
+    icon: Gauge,
+    inputs: [
+      { label: "Credit File", icon: Gauge },
+      { label: "Wealth Data", icon: PiggyBank, nonFcra: true },
+      { label: "Property Data", icon: Home, nonFcra: true },
+      { label: "Demographics Data", icon: Users, nonFcra: true },
+    ],
+  },
 ];
 
-type SignalDetail = {
+const TOTAL_SOURCE_INPUTS = SOURCE_GROUPS.reduce((n, g) => n + g.inputs.length, 0);
   label: string;
   icon: React.ElementType;
   color: string;
