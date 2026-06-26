@@ -713,26 +713,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         vectorEffect="non-scaling-stroke"
                         filter="url(#bus-glow)"
                       />
-                      {/* Flowing dash overlay on bus */}
-                      <line
-                        x1="50"
-                        y1="10"
-                        x2="50"
-                        y2="90"
-                        stroke="rgba(255,255,255,0.7)"
-                        strokeWidth="1"
-                        strokeLinecap="round"
-                        strokeDasharray="2 6"
-                        vectorEffect="non-scaling-stroke"
-                      >
-                        <animate
-                          attributeName="stroke-dashoffset"
-                          from="0"
-                          to="-16"
-                          dur="2.4s"
-                          repeatCount="indefinite"
-                        />
-                      </line>
+                      {/* (removed flowing dashed overlay) */}
+
 
                       {/* Center hub */}
                       <circle cx="50" cy="50" r="2.2" fill="rgba(255,255,255,0.95)" filter="url(#bus-glow)">
