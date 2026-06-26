@@ -560,7 +560,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
       <div className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8">
         {/* Column headers */}
-        <div className="grid grid-cols-[260px_1fr_260px] gap-8 mb-4">
+        <div className="grid grid-cols-[240px_minmax(440px,1fr)_240px] gap-8 mb-4">
           <div className="flex items-center gap-1.5">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
@@ -584,7 +584,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         <div className="relative">
           <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
 
-          <div className="relative z-10 grid grid-cols-[260px_1fr_260px] gap-8 items-stretch">
+          <div className="relative z-10 grid grid-cols-[240px_minmax(440px,1fr)_240px] gap-8 items-stretch">
             {/* Sources */}
             <div className="flex flex-col gap-2 justify-around">
               {sourceGroups.map((g) => (
