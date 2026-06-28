@@ -1,40 +1,37 @@
-## Visually differentiate Signals vs Applications inside the Ventus Core card
+In the System tab (`/bankdemo`), the Ventus Core card currently shows two inner bands: **Signals** (left) and **Applications** (right). Restructure the right-hand band to display teams instead of applications.
 
-Right now both inner bands use the same chip style on the same dark gradient, so the eye can't tell "what we detect" from "what we do with it". The fix is to give each band its own role-based treatment while keeping them inside one Core card.
+### 1. Rebuild the right-hand column entries
+Keep the first entry as-is and replace the remaining four with the requested team names:
 
-### Direction: "Inputs band" vs "Outputs band"
+- **Analytics & Targeting** (kept)
+- **Merchant Deals** (new)
+- **Product Growth** (new)
+- **Wealth Management** (new)
+- **Risk & Compliance** (new)
 
-Treat the left band as raw intelligence (cool, quiet, indigo) and the right band as activated actions (warm, bright, amber/white) — same language Ventus uses elsewhere (sources are indigo, destinations are warm).
+Each entry needs:
+- A concise label and short label (for the chip button)
+- A distinct color class, tint class, and dot color
+- A team-oriented description paragraph
+- A list of 4–5 team responsibility items (label + sublabel)
 
-Changes in `CapabilitiesView.tsx` only, inside the Core card:
+### 2. Detail-panel content rewrite
+For every team, replace the current capability bullets with concrete team responsibilities. Examples:
+- **Merchant Deals**: sourcing merchant partners, deal rate negotiation, offer catalog maintenance, seasonal campaign alignment, redemption tracking.
+- **Product Growth**: product adoption funnels, cross-sell pipeline health, campaign performance review, segment-size validation, go-to-market briefs.
+- **Wealth Management**: high-net-worth client segmentation, advisor briefing workflows, portfolio-context notes, life-event timing, meeting-prep distribution.
+- **Risk & Compliance**: alert triage SLAs, model governance reviews, SAR escalations, policy threshold tuning, audit trail maintenance.
+- **Analytics & Targeting**: can keep its existing bullets or be lightly reframed as a shared services team.
 
-1. **Two-tone background inside the Core card**
-   - Left half: subtle indigo wash (`bg-gradient-to-b from-indigo-950/40 to-transparent`) with a faint inner border on the right edge.
-   - Right half: subtle amber/white wash (`bg-gradient-to-b from-amber-500/10 to-transparent`).
-   - A thin vertical hairline (`border-l border-white/10`) runs down the 48px gutter so the bus connector sits on a real seam, not floating.
+### 3. UI copy updates
+Update the band header label from `Applications · what we activate` to `Teams · who we serve`.
+Update the detail panel kind label from `Application` to `Team`.
+Update the badge suffix from `capabilities` to `responsibilities`.
 
-2. **Band headers**
-   - Left header: small indigo dot + label `SIGNALS · what we detect` in indigo-200.
-   - Right header: small amber dot + label `APPLICATIONS · what we activate` in amber-200.
-   - Same 10px uppercase tracking already used elsewhere, so it reads as a sub-section, not a new card.
-
-3. **Chip styling per band**
-   - Signal chips: ghost style — `bg-white/5`, `border border-indigo-400/25`, indigo-100 text, indigo-300 icon. Reads as "data".
-   - Application chips: solid style — `bg-white/10`, `border border-amber-300/40`, white text, amber-300 icon, subtle inner highlight. Reads as "product".
-   - Active state keeps the existing white ring but tints to the band color so users always know which side they clicked.
-
-4. **Connector recoloring (already in place, light touch)**
-   - Inbound stubs (signals → bus): indigo gradient.
-   - Outbound stubs (bus → applications): amber gradient.
-   - Hub node: indigo→amber radial so it visually "translates" signals into applications.
-
-5. **Optional micro-label on the bus**
-   - A tiny vertical `→` glyph or the word `ACTIVATE` rotated 90° centered on the bus, white/40 opacity. Skippable if it feels noisy.
-
-### Why this works
-- Color does the heavy lifting (cool=sense, warm=act), so the split is legible at a glance even without reading labels.
-- Both bands stay inside one Core card, preserving the "everything Ventus does lives here" story.
-- Reuses the indigo/amber palette already on the page (sources are indigo, destinations are warm), so the Core card now visibly bridges them.
+### 4. Visual consistency
+- Keep the amber-toned background gradient on the right band so it still reads as "activation/output".
+- Assign each team a distinct icon and color chip so the 5 rows are visually distinguishable.
+- Keep the manifold bus connector wiring as-is (5 outbound stubs).
 
 ### Files touched
-- `src/components/tepilot/insights/CapabilitiesView.tsx` (Core card interior only — no layout, grid, or connector geometry changes)
+- `src/components/tepilot/insights/CapabilitiesView.tsx` — constants, headers, detail rendering, and subtitle/howItWorks copy in `TabHeader`.

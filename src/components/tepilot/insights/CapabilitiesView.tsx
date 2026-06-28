@@ -29,6 +29,10 @@ import {
   Sparkles,
   MessageSquare,
   Crown,
+  Store,
+  TrendingUp,
+  Gem,
+  ShieldCheck,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
