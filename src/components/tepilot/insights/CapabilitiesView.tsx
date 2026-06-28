@@ -219,6 +219,10 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
+type WorkflowChipKind = "signal" | "destination" | "product" | "system";
+type WorkflowChip = { label: string; kind: WorkflowChipKind };
+type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
+
 type TeamDetail = {
   label: string;
   shortLabel?: string;
@@ -228,7 +232,26 @@ type TeamDetail = {
   dot: string;
   description: string;
   items: { label: string; sublabel: string }[];
+  workflow?: WorkflowStep[];
 };
+
+const SIGNAL_CHIP_TINTS: Record<string, string> = {
+  "Life Event": "bg-amber-50 text-amber-700 border-amber-200",
+  Behavioral: "bg-blue-50 text-blue-700 border-blue-200",
+  Financial: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Demographic: "bg-violet-50 text-violet-700 border-violet-200",
+  Risk: "bg-rose-50 text-rose-700 border-rose-200",
+};
+const CHIP_KIND_TINTS: Record<WorkflowChipKind, string> = {
+  signal: "bg-slate-50 text-slate-700 border-slate-200",
+  destination: "bg-slate-100 text-slate-700 border-slate-200",
+  product: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  system: "bg-zinc-100 text-zinc-700 border-zinc-200",
+};
+function chipClass(chip: WorkflowChip) {
+  if (chip.kind === "signal" && SIGNAL_CHIP_TINTS[chip.label]) return SIGNAL_CHIP_TINTS[chip.label];
+  return CHIP_KIND_TINTS[chip.kind];
+}
 
 const TEAMS: TeamDetail[] = [
   {
