@@ -533,21 +533,21 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
-  const [activeApplicationLabel, setActiveApplicationLabel] = useState<string | null>(null);
+  const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
-  const activeApplication = activeApplicationLabel
-    ? APPLICATIONS.find((a) => a.label === activeApplicationLabel) ?? null
+  const activeTeam = activeTeamLabel
+    ? TEAMS.find((t) => t.label === activeTeamLabel) ?? null
     : null;
-  const activeDetail = activeSignal ?? activeApplication;
-  const activeDetailKind = activeSignal ? "Signal family" : activeApplication ? "Application" : null;
+  const activeDetail = activeSignal ?? activeTeam;
+  const activeDetailKind = activeSignal ? "Signal family" : activeTeam ? "Team" : null;
   const ActiveIcon = activeDetail?.icon;
   const selectSignal = (label: string) => {
-    setActiveApplicationLabel(null);
+    setActiveTeamLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
   };
-  const selectApplication = (label: string) => {
+  const selectTeam = (label: string) => {
     setActiveSignalLabel(null);
-    setActiveApplicationLabel((prev) => (prev === label ? null : label));
+    setActiveTeamLabel((prev) => (prev === label ? null : label));
   };
 
   return (
