@@ -842,7 +842,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       activeDetail.tint,
                     )}
                   >
-                    {activeDetail.items.length} {activeSignal ? "detections" : "capabilities"}
+                    {activeDetail.items.length} {activeSignal ? "detections" : "responsibilities"}
                   </span>
                 </div>
                 <p className="text-[12px] text-slate-600 mt-1 leading-snug">
