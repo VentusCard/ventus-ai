@@ -126,7 +126,7 @@ type SignalDetail = {
   tint: string;
   dot: string;
   description: string;
-  items: { label: string; sublabel: string }[];
+  items: { label: string; sublabel: string; icon?: React.ElementType }[];
 };
 
 const SIGNALS: SignalDetail[] = [
