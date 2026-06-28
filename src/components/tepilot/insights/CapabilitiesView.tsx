@@ -312,6 +312,41 @@ const TEAMS: TeamDetail[] = [
       { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events" },
       { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time" },
     ],
+    workflow: [
+      {
+        stage: "Behavioral & Life Event signals in",
+        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
+        chips: [
+          { label: "Behavioral", kind: "signal" },
+          { label: "Life Event", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Curate deal collection",
+        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
+      },
+      {
+        stage: "Personalize ranking",
+        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
+        chips: [
+          { label: "Financial", kind: "signal" },
+          { label: "Demographic", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Risk exclusion pass",
+        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Push to rewards rails",
+        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
+        chips: [
+          { label: "Rewards Provider", kind: "destination" },
+          { label: "Digital Banking App", kind: "destination" },
+        ],
+      },
+    ],
   },
   {
     label: "Product Growth",
