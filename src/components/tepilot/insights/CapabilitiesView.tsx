@@ -33,6 +33,22 @@ import {
   TrendingUp,
   Gem,
   ShieldCheck,
+  FileText,
+  Download,
+  Mail,
+  Search,
+  Calendar,
+  LineChart,
+  PieChart,
+  FilePlus,
+  RefreshCw,
+  Bell,
+  Settings,
+  Sliders,
+  FileCheck,
+  Filter,
+  GitBranch,
+  PenTool,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
