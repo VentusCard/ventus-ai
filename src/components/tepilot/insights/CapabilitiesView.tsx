@@ -247,7 +247,7 @@ type TeamDetail = {
   tint: string;
   dot: string;
   description: string;
-  items: { label: string; sublabel: string }[];
+  items: { label: string; sublabel: string; icon?: React.ElementType }[];
   workflow?: WorkflowStep[];
 };
 
