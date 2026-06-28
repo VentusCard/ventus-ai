@@ -219,7 +219,7 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
-type ApplicationDetail = {
+type TeamDetail = {
   label: string;
   shortLabel?: string;
   icon: React.ElementType;
@@ -230,14 +230,14 @@ type ApplicationDetail = {
   items: { label: string; sublabel: string }[];
 };
 
-const APPLICATIONS: ApplicationDetail[] = [
+const TEAMS: TeamDetail[] = [
   {
     label: "Analytics & Targeting",
     icon: BarChart3,
     color: "bg-indigo-500",
     tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
     dot: "bg-indigo-500",
-    description: "Self-serve analytics console for ad-hoc business questions and segment building, powered by the same enriched signal layer.",
+    description: "Shared services team building segments, running ad-hoc business queries, and exporting cohorts for every downstream channel.",
     items: [
       { label: "AI-assisted SQL", sublabel: "Natural language → SQL → results, grounded in the Ventus schema" },
       { label: "Pre-built reports library", sublabel: "15+ ready-to-run reports across Lifestyle, Outflow, Retention, Opportunities" },
@@ -247,65 +247,63 @@ const APPLICATIONS: ApplicationDetail[] = [
     ],
   },
   {
-    label: "Next-Offer",
-    icon: Tag,
-    color: "bg-emerald-500",
-    tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    dot: "bg-emerald-500",
-    description: "Personalized deal and reward recommendations matched to lifestyle pillars, recent behavior, and local context.",
+    label: "Merchant Deals",
+    icon: Store,
+    color: "bg-orange-500",
+    tint: "bg-orange-50 text-orange-700 border-orange-200",
+    dot: "bg-orange-500",
+    description: "Partnerships team sourcing merchant offers, negotiating rates, and maintaining the live rewards catalog that feeds digital banking and marketing.",
     items: [
-      { label: "Lifestyle-matched deals", sublabel: "Offers selected from the active rewards catalog using dominant pillars" },
-      { label: "Local experiences", sublabel: "City-aware perks ranked by detected travel destinations and home metro" },
-      { label: "Behavioral re-ranking", sublabel: "Recency, frequency, and tier signals reorder the top picks per customer" },
-      { label: "Vaguely-specific copy", sublabel: "AI-generated headlines that feel hand-picked without exposing transaction detail" },
-      { label: "Channel-ready payloads", sublabel: "Hero card + collection feed for mobile, web, and rewards provider APIs" },
+      { label: "Merchant partner sourcing", sublabel: "Identify and onboard new local and national merchant partners" },
+      { label: "Deal rate & term negotiation", sublabel: "Structure revenue-share and fixed-rate offer terms" },
+      { label: "Offer catalog maintenance", sublabel: "Keep the live deal feed accurate, categorized, and channel-ready" },
+      { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events" },
+      { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time" },
     ],
   },
   {
-    label: "Next-Product",
-    icon: Sparkles,
+    label: "Product Growth",
+    icon: TrendingUp,
     color: "bg-violet-500",
     tint: "bg-violet-50 text-violet-700 border-violet-200",
     dot: "bg-violet-500",
-    description: "Lifecycle-aware product recommendations triggered by life events, financial posture, and behavioral tier.",
+    description: "Product marketing team owning adoption funnels, cross-sell health, and go-to-market briefs across the retail banking portfolio.",
     items: [
-      { label: "Product catalog mapping", sublabel: "HELOC, 529, Wealth, Auto, Mortgage, HYSA, Travel Card, SBL, Term Life" },
-      { label: "Life-event triggers", sublabel: "Home purchase, new baby, college prep, retirement, business formation" },
-      { label: "Financial-posture gates", sublabel: "Investable-assets tier, DTI, low utilization, payroll cadence" },
-      { label: "Behavioral evidence per match", sublabel: "Specific transaction clusters justify each product recommendation" },
-      { label: "Automated flows + Campaign Builder", sublabel: "Product-first segments routed to marketing automation and CRM" },
+      { label: "Product adoption funnel review", sublabel: "Track application-to-funding rates and drop-off by segment" },
+      { label: "Cross-sell pipeline health", sublabel: "Monitor qualified-opportunity volume from signal-driven triggers" },
+      { label: "Campaign performance & sizing", sublabel: "Validate segment size, response rate, and revenue lift" },
+      { label: "Go-to-market brief creation", sublabel: "Package product rationale, target criteria, and channel plan" },
+      { label: "Segment validation & feedback", sublabel: "Close the loop with CRM and digital on actual conversion outcomes" },
     ],
   },
   {
-    label: "Next-Conversation (Regular)",
-    shortLabel: "Next-Conversation",
-    icon: MessageSquare,
+    label: "Wealth Management",
+    icon: Gem,
     color: "bg-amber-500",
     tint: "bg-amber-50 text-amber-700 border-amber-200",
     dot: "bg-amber-500",
-    description: "Branch and contact-center talking points for everyday customers, surfaced when a customer is already on the line.",
+    description: "Private banking and advisory operations team preparing client briefings, life-event timing, and portfolio-aware talking points for relationship managers.",
     items: [
-      { label: "10-word AI action items", sublabel: "Tight, decision-ready prompts for the next interaction" },
-      { label: "Outreach pointers", sublabel: "Why this customer, why now, what to mention first" },
-      { label: "Behavioral context summary", sublabel: "Dominant pillars + recent activity without exposing raw transactions" },
-      { label: "Life-event acknowledgements", sublabel: "Cues to congratulate or check in on detected life moments" },
-      { label: "AI Banking Assistant handoff", sublabel: "Same context available to the in-app copilot for self-service" },
+      { label: "High-net-worth client segmentation", sublabel: "Tier clients by AUM signals, investable assets, and outbound flows" },
+      { label: "Advisor meeting-prep briefs", sublabel: "One-page AI briefs covering posture, events, and conversation hooks" },
+      { label: "Life-event outreach timing", sublabel: "Trigger advisor check-ins at inheritance, retirement, or business sale" },
+      { label: "Portfolio-context summaries", sublabel: "Surface wallet-share leaks and win-back opportunities" },
+      { label: "RM workflow distribution", sublabel: "Route briefs and follow-ups to the right relationship manager" },
     ],
   },
   {
-    label: "Next-Conversation (Wealth)",
-    shortLabel: "Next-Conversation · Wealth",
-    icon: Crown,
+    label: "Risk & Compliance",
+    icon: ShieldCheck,
     color: "bg-rose-500",
     tint: "bg-rose-50 text-rose-700 border-rose-200",
     dot: "bg-rose-500",
-    description: "Relationship-manager copilot for high-net-worth clients: portfolio context, life-event prep, and meeting briefs.",
+    description: "Second-line team monitoring model governance, alert triage, and audit-ready thresholds for vice, AML, and financial-distress signals.",
     items: [
-      { label: "Meeting prep brief", sublabel: "One-page AI briefing covering posture, events, and conversation hooks" },
-      { label: "Wallet-share intelligence", sublabel: "Outbound flows to Schwab, Fidelity, Robinhood flagged for win-back" },
-      { label: "Life-event windows", sublabel: "Inheritance, business sale, retirement signals timed for advisor outreach" },
-      { label: "Portfolio-aware suggestions", sublabel: "Asset-tier and posture signals matched to wealth products" },
-      { label: "Financial Planning workspace", sublabel: "RM-side notes, follow-ups, and scheduled check-ins" },
+      { label: "Alert triage SLAs", sublabel: "Meet response-time commitments for vice, AML, and distress flags" },
+      { label: "Model governance reviews", sublabel: "Validate detection logic, false-positive rates, and retraining cadence" },
+      { label: "SAR escalation workflows", sublabel: "Route confirmed suspicious activity to investigators and regulators" },
+      { label: "Policy threshold tuning", sublabel: "Adjust scoring cutoffs based on risk appetite and audit feedback" },
+      { label: "Audit trail & documentation", sublabel: "Maintain immutable logs of decisions, overrides, and model versions" },
     ],
   },
 ];
