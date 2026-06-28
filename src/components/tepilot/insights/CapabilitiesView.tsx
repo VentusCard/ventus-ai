@@ -219,6 +219,10 @@ const SIGNALS: SignalDetail[] = [
   },
 ];
 
+type WorkflowChipKind = "signal" | "destination" | "product" | "system";
+type WorkflowChip = { label: string; kind: WorkflowChipKind };
+type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
+
 type TeamDetail = {
   label: string;
   shortLabel?: string;
@@ -228,7 +232,26 @@ type TeamDetail = {
   dot: string;
   description: string;
   items: { label: string; sublabel: string }[];
+  workflow?: WorkflowStep[];
 };
+
+const SIGNAL_CHIP_TINTS: Record<string, string> = {
+  "Life Event": "bg-amber-50 text-amber-700 border-amber-200",
+  Behavioral: "bg-blue-50 text-blue-700 border-blue-200",
+  Financial: "bg-emerald-50 text-emerald-700 border-emerald-200",
+  Demographic: "bg-violet-50 text-violet-700 border-violet-200",
+  Risk: "bg-rose-50 text-rose-700 border-rose-200",
+};
+const CHIP_KIND_TINTS: Record<WorkflowChipKind, string> = {
+  signal: "bg-slate-50 text-slate-700 border-slate-200",
+  destination: "bg-slate-100 text-slate-700 border-slate-200",
+  product: "bg-indigo-50 text-indigo-700 border-indigo-200",
+  system: "bg-zinc-100 text-zinc-700 border-zinc-200",
+};
+function chipClass(chip: WorkflowChip) {
+  if (chip.kind === "signal" && SIGNAL_CHIP_TINTS[chip.label]) return SIGNAL_CHIP_TINTS[chip.label];
+  return CHIP_KIND_TINTS[chip.kind];
+}
 
 const TEAMS: TeamDetail[] = [
   {
@@ -245,6 +268,35 @@ const TEAMS: TeamDetail[] = [
       { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting" },
       { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline" },
     ],
+    workflow: [
+      {
+        stage: "Question + signal scope",
+        text: "Analyst frames a business question and picks any of the 5 signal families via SQL or the reports library.",
+        chips: [
+          { label: "Life Event", kind: "signal" },
+          { label: "Behavioral", kind: "signal" },
+          { label: "Financial", kind: "signal" },
+          { label: "Demographic", kind: "signal" },
+          { label: "Risk", kind: "signal" },
+        ],
+      },
+      {
+        stage: "AI-assisted SQL execution",
+        text: "Natural language is translated to SQL and executed against the Ventus schema with grounded date and enum hints.",
+      },
+      {
+        stage: "AI takeaway + cohort split",
+        text: "Results get a business-friendly interpretation; GROUP BY segments become per-segment cohorts.",
+      },
+      {
+        stage: "Cohort export to activation channels",
+        text: "DISTINCT customer_id lists ship to downstream systems for outreach.",
+        chips: [
+          { label: "CRM", kind: "destination" },
+          { label: "Marketing Automation", kind: "destination" },
+        ],
+      },
+    ],
   },
   {
     label: "Merchant Deals",
@@ -259,6 +311,41 @@ const TEAMS: TeamDetail[] = [
       { label: "Offer catalog maintenance", sublabel: "Keep the live deal feed accurate, categorized, and channel-ready" },
       { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events" },
       { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time" },
+    ],
+    workflow: [
+      {
+        stage: "Behavioral & Life Event signals in",
+        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
+        chips: [
+          { label: "Behavioral", kind: "signal" },
+          { label: "Life Event", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Curate deal collection",
+        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
+      },
+      {
+        stage: "Personalize ranking",
+        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
+        chips: [
+          { label: "Financial", kind: "signal" },
+          { label: "Demographic", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Risk exclusion pass",
+        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Push to rewards rails",
+        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
+        chips: [
+          { label: "Rewards Provider", kind: "destination" },
+          { label: "Digital Banking App", kind: "destination" },
+        ],
+      },
     ],
   },
   {
@@ -275,6 +362,40 @@ const TEAMS: TeamDetail[] = [
       { label: "Go-to-market brief creation", sublabel: "Package product rationale, target criteria, and channel plan" },
       { label: "Segment validation & feedback", sublabel: "Close the loop with CRM and digital on actual conversion outcomes" },
     ],
+    workflow: [
+      {
+        stage: "Life Event + Financial signals in",
+        text: "New home, new baby, retirement, payroll growth, and wallet-share leaks flag cross-sell moments.",
+        chips: [
+          { label: "Life Event", kind: "signal" },
+          { label: "Financial", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Map signal → eligible product",
+        text: "Join each signal against the Bank Product catalog — the single source of truth for what's offered.",
+        chips: [{ label: "Bank Product", kind: "product" }],
+      },
+      {
+        stage: "Eligibility & demographic fit",
+        text: "Filter by income band, account tenure, and regional product availability.",
+        chips: [{ label: "Demographic", kind: "signal" }],
+      },
+      {
+        stage: "Risk gate",
+        text: "Suppress new credit pushes for customers in distress or under active risk review.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Brief + cross-sell distribution",
+        text: "Go-to-market briefs route to CRM, marketing automation, and the in-app assistant.",
+        chips: [
+          { label: "CRM", kind: "destination" },
+          { label: "Marketing Automation", kind: "destination" },
+          { label: "AI Banking Assistant", kind: "destination" },
+        ],
+      },
+    ],
   },
   {
     label: "Wealth Management",
@@ -290,6 +411,40 @@ const TEAMS: TeamDetail[] = [
       { label: "Portfolio-context summaries", sublabel: "Surface wallet-share leaks and win-back opportunities" },
       { label: "RM workflow distribution", sublabel: "Route briefs and follow-ups to the right relationship manager" },
     ],
+    workflow: [
+      {
+        stage: "Life Event + Financial signals in",
+        text: "Inheritance, retirement, business sale, and outbound brokerage flows surface the moments that matter for advisors.",
+        chips: [
+          { label: "Life Event", kind: "signal" },
+          { label: "Financial", kind: "signal" },
+        ],
+      },
+      {
+        stage: "HNW client identification",
+        text: "Segment by investable-asset tier and wallet-share posture to scope the advisor's book.",
+      },
+      {
+        stage: "Portfolio-aware brief assembly",
+        text: "One-page advisor brief: client posture, active events, talking points, and win-back hooks.",
+      },
+      {
+        stage: "Compliance & demographic context",
+        text: "Layer in tenure and AUM tier; exclude clients under any open risk review.",
+        chips: [
+          { label: "Demographic", kind: "signal" },
+          { label: "Risk", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Route to relationship manager",
+        text: "Brief and follow-up tasks land in the advisor console and CRM queue for the right RM.",
+        chips: [
+          { label: "Advisor Console", kind: "destination" },
+          { label: "CRM", kind: "destination" },
+        ],
+      },
+    ],
   },
   {
     label: "Risk & Compliance",
@@ -304,6 +459,30 @@ const TEAMS: TeamDetail[] = [
       { label: "SAR escalation workflows", sublabel: "Route confirmed suspicious activity to investigators and regulators" },
       { label: "Policy threshold tuning", sublabel: "Adjust scoring cutoffs based on risk appetite and audit feedback" },
       { label: "Audit trail & documentation", sublabel: "Maintain immutable logs of decisions, overrides, and model versions" },
+    ],
+    workflow: [
+      {
+        stage: "Risk signals in",
+        text: "Vice, AML structuring, payday lending, and financial-distress signals stream into the alert queue.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Severity scoring & bucketing",
+        text: "Weighted scores, model-routed AML, and deterministic vice flags assign severity buckets.",
+      },
+      {
+        stage: "Alert triage queue",
+        text: "Analysts work alerts against SLA thresholds with full evidence trails.",
+      },
+      {
+        stage: "Policy tuning & FP suppression",
+        text: "Threshold adjustments and audit-logged overrides keep precision high.",
+      },
+      {
+        stage: "Escalate to risk ops & SAR",
+        text: "Confirmed cases route to risk ops tooling and into the SAR filing workflow.",
+        chips: [{ label: "Risk Ops", kind: "destination" }],
+      },
     ],
   },
 ];
@@ -850,6 +1029,53 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </p>
               </div>
             </div>
+
+            {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
+              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
+                    Workflow · left to right
+                  </span>
+                </div>
+                <div className="flex flex-col lg:flex-row lg:items-stretch gap-2">
+                  {activeTeam.workflow.map((step, i) => (
+                    <div key={step.stage} className="flex lg:flex-1 items-stretch gap-2">
+                      <div className="flex-1 rounded-md border border-slate-200 bg-white p-3 min-w-0">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[10px] font-bold text-slate-400 tabular-nums">
+                            {String(i + 1).padStart(2, "0")}
+                          </span>
+                          <span className="text-[10.5px] font-semibold uppercase tracking-wide text-slate-700 leading-tight">
+                            {step.stage}
+                          </span>
+                        </div>
+                        <p className="text-[11.5px] text-slate-600 leading-snug">{step.text}</p>
+                        {step.chips && step.chips.length > 0 && (
+                          <div className="mt-2 flex flex-wrap gap-1">
+                            {step.chips.map((chip) => (
+                              <span
+                                key={chip.label}
+                                className={cn(
+                                  "text-[10px] font-medium px-1.5 py-0.5 rounded border",
+                                  chipClass(chip),
+                                )}
+                              >
+                                {chip.label}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                      {i < activeTeam.workflow!.length - 1 && (
+                        <div className="hidden lg:flex items-center text-slate-300 text-sm shrink-0">
+                          →
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
               {activeDetail.items.map((item) => (
