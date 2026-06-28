@@ -278,11 +278,11 @@ const TEAMS: TeamDetail[] = [
     dot: "bg-indigo-500",
     description: "Shared services team building segments, running ad-hoc business queries, and exporting cohorts for every downstream channel.",
     items: [
-      { label: "AI-assisted SQL", sublabel: "Natural language → SQL → results, grounded in the Ventus schema" },
-      { label: "Pre-built reports library", sublabel: "15+ ready-to-run reports across Lifestyle, Outflow, Retention, Opportunities" },
-      { label: "Cohort CSV export", sublabel: "Any query result can be rewritten to a DISTINCT customer_id list for activation" },
-      { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting" },
-      { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline" },
+      { label: "AI-assisted SQL", sublabel: "Natural language → SQL → results, grounded in the Ventus schema", icon: Database },
+      { label: "Pre-built reports library", sublabel: "15+ ready-to-run reports across Lifestyle, Outflow, Retention, Opportunities", icon: FileText },
+      { label: "Cohort CSV export", sublabel: "Any query result can be rewritten to a DISTINCT customer_id list for activation", icon: Download },
+      { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting", icon: Users },
+      { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline", icon: Mail },
     ],
     workflow: [
       {
@@ -322,11 +322,11 @@ const TEAMS: TeamDetail[] = [
     dot: "bg-orange-500",
     description: "Partnerships team sourcing merchant offers, negotiating rates, and maintaining the live rewards catalog that feeds digital banking and marketing.",
     items: [
-      { label: "Merchant partner sourcing", sublabel: "Identify and onboard new local and national merchant partners" },
-      { label: "Deal rate & term negotiation", sublabel: "Structure revenue-share and fixed-rate offer terms" },
-      { label: "Offer catalog maintenance", sublabel: "Keep the live deal feed accurate, categorized, and channel-ready" },
-      { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events" },
-      { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time" },
+      { label: "Merchant partner sourcing", sublabel: "Identify and onboard new local and national merchant partners", icon: Search },
+      { label: "Deal rate & term negotiation", sublabel: "Structure revenue-share and fixed-rate offer terms", icon: PenTool },
+      { label: "Offer catalog maintenance", sublabel: "Keep the live deal feed accurate, categorized, and channel-ready", icon: Package },
+      { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events", icon: Calendar },
+      { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time", icon: LineChart },
     ],
     workflow: [
       {
@@ -372,11 +372,11 @@ const TEAMS: TeamDetail[] = [
     dot: "bg-violet-500",
     description: "Product marketing team owning adoption funnels, cross-sell health, and go-to-market briefs across the retail banking portfolio.",
     items: [
-      { label: "Product adoption funnel review", sublabel: "Track application-to-funding rates and drop-off by segment" },
-      { label: "Cross-sell pipeline health", sublabel: "Monitor qualified-opportunity volume from signal-driven triggers" },
-      { label: "Campaign performance & sizing", sublabel: "Validate segment size, response rate, and revenue lift" },
-      { label: "Go-to-market brief creation", sublabel: "Package product rationale, target criteria, and channel plan" },
-      { label: "Segment validation & feedback", sublabel: "Close the loop with CRM and digital on actual conversion outcomes" },
+      { label: "Product adoption funnel review", sublabel: "Track application-to-funding rates and drop-off by segment", icon: Filter },
+      { label: "Cross-sell pipeline health", sublabel: "Monitor qualified-opportunity volume from signal-driven triggers", icon: GitBranch },
+      { label: "Campaign performance & sizing", sublabel: "Validate segment size, response rate, and revenue lift", icon: PieChart },
+      { label: "Go-to-market brief creation", sublabel: "Package product rationale, target criteria, and channel plan", icon: FilePlus },
+      { label: "Segment validation & feedback", sublabel: "Close the loop with CRM and digital on actual conversion outcomes", icon: RefreshCw },
     ],
     workflow: [
       {
@@ -421,11 +421,11 @@ const TEAMS: TeamDetail[] = [
     dot: "bg-amber-500",
     description: "Private banking and advisory operations team preparing client briefings, life-event timing, and portfolio-aware talking points for relationship managers.",
     items: [
-      { label: "High-net-worth client segmentation", sublabel: "Tier clients by AUM signals, investable assets, and outbound flows" },
-      { label: "Advisor meeting-prep briefs", sublabel: "One-page AI briefs covering posture, events, and conversation hooks" },
-      { label: "Life-event outreach timing", sublabel: "Trigger advisor check-ins at inheritance, retirement, or business sale" },
-      { label: "Portfolio-context summaries", sublabel: "Surface wallet-share leaks and win-back opportunities" },
-      { label: "RM workflow distribution", sublabel: "Route briefs and follow-ups to the right relationship manager" },
+      { label: "High-net-worth client segmentation", sublabel: "Tier clients by AUM signals, investable assets, and outbound flows", icon: Crown },
+      { label: "Advisor meeting-prep briefs", sublabel: "One-page AI briefs covering posture, events, and conversation hooks", icon: FileText },
+      { label: "Life-event outreach timing", sublabel: "Trigger advisor check-ins at inheritance, retirement, or business sale", icon: CalendarHeart },
+      { label: "Portfolio-context summaries", sublabel: "Surface wallet-share leaks and win-back opportunities", icon: Briefcase },
+      { label: "RM workflow distribution", sublabel: "Route briefs and follow-ups to the right relationship manager", icon: Send },
     ],
     workflow: [
       {
@@ -470,11 +470,11 @@ const TEAMS: TeamDetail[] = [
     dot: "bg-rose-500",
     description: "Second-line team monitoring model governance, alert triage, and audit-ready thresholds for vice, AML, and financial-distress signals.",
     items: [
-      { label: "Alert triage SLAs", sublabel: "Meet response-time commitments for vice, AML, and distress flags" },
-      { label: "Model governance reviews", sublabel: "Validate detection logic, false-positive rates, and retraining cadence" },
-      { label: "SAR escalation workflows", sublabel: "Route confirmed suspicious activity to investigators and regulators" },
-      { label: "Policy threshold tuning", sublabel: "Adjust scoring cutoffs based on risk appetite and audit feedback" },
-      { label: "Audit trail & documentation", sublabel: "Maintain immutable logs of decisions, overrides, and model versions" },
+      { label: "Alert triage SLAs", sublabel: "Meet response-time commitments for vice, AML, and distress flags", icon: Bell },
+      { label: "Model governance reviews", sublabel: "Validate detection logic, false-positive rates, and retraining cadence", icon: Settings },
+      { label: "SAR escalation workflows", sublabel: "Route confirmed suspicious activity to investigators and regulators", icon: ArrowUpRight },
+      { label: "Policy threshold tuning", sublabel: "Adjust scoring cutoffs based on risk appetite and audit feedback", icon: Sliders },
+      { label: "Audit trail & documentation", sublabel: "Maintain immutable logs of decisions, overrides, and model versions", icon: FileCheck },
     ],
     workflow: [
       {
