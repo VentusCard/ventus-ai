@@ -738,11 +738,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         />
                       </circle>
 
-                      {/* Outbound stubs: bus → application row */}
-                      {APPLICATIONS.map((a, j) => {
-                        const y = ((j + 0.5) / APPLICATIONS.length) * 100;
+                      {/* Outbound stubs: bus → team row */}
+                      {TEAMS.map((t, j) => {
+                        const y = ((j + 0.5) / TEAMS.length) * 100;
                         const active =
-                          a.label === activeApplicationLabel || activeSignalLabel !== null;
+                          t.label === activeTeamLabel || activeSignalLabel !== null;
                         return (
                           <path
                             key={`out-${j}`}
