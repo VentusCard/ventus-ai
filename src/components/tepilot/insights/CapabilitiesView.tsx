@@ -268,6 +268,35 @@ const TEAMS: TeamDetail[] = [
       { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting" },
       { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline" },
     ],
+    workflow: [
+      {
+        stage: "Question + signal scope",
+        text: "Analyst frames a business question and picks any of the 5 signal families via SQL or the reports library.",
+        chips: [
+          { label: "Life Event", kind: "signal" },
+          { label: "Behavioral", kind: "signal" },
+          { label: "Financial", kind: "signal" },
+          { label: "Demographic", kind: "signal" },
+          { label: "Risk", kind: "signal" },
+        ],
+      },
+      {
+        stage: "AI-assisted SQL execution",
+        text: "Natural language is translated to SQL and executed against the Ventus schema with grounded date and enum hints.",
+      },
+      {
+        stage: "AI takeaway + cohort split",
+        text: "Results get a business-friendly interpretation; GROUP BY segments become per-segment cohorts.",
+      },
+      {
+        stage: "Cohort export to activation channels",
+        text: "DISTINCT customer_id lists ship to downstream systems for outreach.",
+        chips: [
+          { label: "CRM", kind: "destination" },
+          { label: "Marketing Automation", kind: "destination" },
+        ],
+      },
+    ],
   },
   {
     label: "Merchant Deals",
