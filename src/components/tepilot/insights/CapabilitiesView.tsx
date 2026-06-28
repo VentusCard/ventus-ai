@@ -362,6 +362,40 @@ const TEAMS: TeamDetail[] = [
       { label: "Go-to-market brief creation", sublabel: "Package product rationale, target criteria, and channel plan" },
       { label: "Segment validation & feedback", sublabel: "Close the loop with CRM and digital on actual conversion outcomes" },
     ],
+    workflow: [
+      {
+        stage: "Life Event + Financial signals in",
+        text: "New home, new baby, retirement, payroll growth, and wallet-share leaks flag cross-sell moments.",
+        chips: [
+          { label: "Life Event", kind: "signal" },
+          { label: "Financial", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Map signal → eligible product",
+        text: "Join each signal against the Bank Product catalog — the single source of truth for what's offered.",
+        chips: [{ label: "Bank Product", kind: "product" }],
+      },
+      {
+        stage: "Eligibility & demographic fit",
+        text: "Filter by income band, account tenure, and regional product availability.",
+        chips: [{ label: "Demographic", kind: "signal" }],
+      },
+      {
+        stage: "Risk gate",
+        text: "Suppress new credit pushes for customers in distress or under active risk review.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Brief + cross-sell distribution",
+        text: "Go-to-market briefs route to CRM, marketing automation, and the in-app assistant.",
+        chips: [
+          { label: "CRM", kind: "destination" },
+          { label: "Marketing Automation", kind: "destination" },
+          { label: "AI Banking Assistant", kind: "destination" },
+        ],
+      },
+    ],
   },
   {
     label: "Wealth Management",
