@@ -759,23 +759,23 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     </svg>
                   </div>
 
-                  {/* Applications column — warm amber "what we activate" */}
+                  {/* Teams column — warm amber "who we serve" */}
                   <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-amber-400/15 to-transparent p-2 -m-1">
                     <div className="flex items-center justify-center gap-1.5 mb-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-amber-300" />
                       <p className="text-[9.5px] font-semibold uppercase tracking-wider text-amber-200">
-                        Applications · what we activate
+                        Teams · who we serve
                       </p>
                     </div>
                     <div className="grid grid-cols-1 gap-1.5">
-                      {APPLICATIONS.map((a) => {
-                        const Icon = a.icon;
-                        const isActive = a.label === activeApplicationLabel;
+                      {TEAMS.map((t) => {
+                        const Icon = t.icon;
+                        const isActive = t.label === activeTeamLabel;
                         return (
                           <button
                             type="button"
-                            key={a.label}
-                            onClick={() => selectApplication(a.label)}
+                            key={t.label}
+                            onClick={() => selectTeam(t.label)}
                             className={cn(
                               "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
                               "bg-white/10 border-amber-300/40 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
@@ -784,11 +784,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                                 : "opacity-90 hover:opacity-100 hover:bg-white/15",
                             )}
                           >
-                            <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", a.color)}>
+                            <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", t.color)}>
                               <Icon className="w-2.5 h-2.5 text-white" />
                             </div>
                             <span className="min-w-0 text-[11px] font-semibold flex-1 truncate">
-                              {a.shortLabel ?? a.label}
+                              {t.shortLabel ?? t.label}
                             </span>
                           </button>
                         );
