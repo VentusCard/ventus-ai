@@ -411,6 +411,40 @@ const TEAMS: TeamDetail[] = [
       { label: "Portfolio-context summaries", sublabel: "Surface wallet-share leaks and win-back opportunities" },
       { label: "RM workflow distribution", sublabel: "Route briefs and follow-ups to the right relationship manager" },
     ],
+    workflow: [
+      {
+        stage: "Life Event + Financial signals in",
+        text: "Inheritance, retirement, business sale, and outbound brokerage flows surface the moments that matter for advisors.",
+        chips: [
+          { label: "Life Event", kind: "signal" },
+          { label: "Financial", kind: "signal" },
+        ],
+      },
+      {
+        stage: "HNW client identification",
+        text: "Segment by investable-asset tier and wallet-share posture to scope the advisor's book.",
+      },
+      {
+        stage: "Portfolio-aware brief assembly",
+        text: "One-page advisor brief: client posture, active events, talking points, and win-back hooks.",
+      },
+      {
+        stage: "Compliance & demographic context",
+        text: "Layer in tenure and AUM tier; exclude clients under any open risk review.",
+        chips: [
+          { label: "Demographic", kind: "signal" },
+          { label: "Risk", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Route to relationship manager",
+        text: "Brief and follow-up tasks land in the advisor console and CRM queue for the right RM.",
+        chips: [
+          { label: "Advisor Console", kind: "destination" },
+          { label: "CRM", kind: "destination" },
+        ],
+      },
+    ],
   },
   {
     label: "Risk & Compliance",
@@ -425,6 +459,30 @@ const TEAMS: TeamDetail[] = [
       { label: "SAR escalation workflows", sublabel: "Route confirmed suspicious activity to investigators and regulators" },
       { label: "Policy threshold tuning", sublabel: "Adjust scoring cutoffs based on risk appetite and audit feedback" },
       { label: "Audit trail & documentation", sublabel: "Maintain immutable logs of decisions, overrides, and model versions" },
+    ],
+    workflow: [
+      {
+        stage: "Risk signals in",
+        text: "Vice, AML structuring, payday lending, and financial-distress signals stream into the alert queue.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Severity scoring & bucketing",
+        text: "Weighted scores, model-routed AML, and deterministic vice flags assign severity buckets.",
+      },
+      {
+        stage: "Alert triage queue",
+        text: "Analysts work alerts against SLA thresholds with full evidence trails.",
+      },
+      {
+        stage: "Policy tuning & FP suppression",
+        text: "Threshold adjustments and audit-logged overrides keep precision high.",
+      },
+      {
+        stage: "Escalate to risk ops & SAR",
+        text: "Confirmed cases route to risk ops tooling and into the SAR filing workflow.",
+        chips: [{ label: "Risk Ops", kind: "destination" }],
+      },
     ],
   },
 ];
