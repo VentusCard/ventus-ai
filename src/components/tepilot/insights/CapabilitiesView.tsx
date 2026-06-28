@@ -698,7 +698,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       {SIGNALS.map((s, i) => {
                         const y = ((i + 0.5) / SIGNALS.length) * 100;
                         const active =
-                          s.label === activeSignalLabel || activeApplicationLabel !== null;
+                          s.label === activeSignalLabel || activeTeamLabel !== null;
                         return (
                           <path
                             key={`in-${i}`}
