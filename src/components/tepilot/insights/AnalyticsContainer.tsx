@@ -13,6 +13,7 @@ import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 import { LocationExperienceManager } from "./LocationExperienceManager";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+import { WealthIntelligenceView } from "./WealthIntelligenceView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
@@ -56,7 +57,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -69,7 +70,15 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Home",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
-      { value: "ventus-ai", label: "Ask Ventus AI", icon: ({ className }: { className?: string }) => <span className={cn("inline-flex items-center justify-center font-black leading-none text-[14px]", className)}>V</span> },
+      {
+        value: "ventus-ai",
+        label: "Ask Ventus AI",
+        icon: ({ className }: { className?: string }) => (
+          <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
+            V
+          </span>
+        ),
+      },
       { value: "products", label: "Products", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
@@ -106,6 +115,12 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "life-events", label: "Life Event Detection", icon: CalendarHeart },
       { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
       { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
+    ],
+  },
+  {
+    label: "Wealth Intelligence",
+    items: [
+      { value: "wealth-intelligence", label: "Merrill Growth Desk", icon: Briefcase },
     ],
   },
   {
@@ -176,7 +191,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
-    if (activeTab === 'ventus-ai') setChatOpen(false);
+    if (activeTab === 'ventus-ai' || activeTab === 'wealth-intelligence') setChatOpen(false);
   }, [activeTab]);
 
   // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
@@ -234,6 +249,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'location-experience': return <LocationExperienceManager />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
+      case 'wealth-intelligence': return <WealthIntelligenceView />;
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
       case 'fraud-aml': return (
@@ -415,7 +431,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
             className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
             title="Open Ventus AI"
           >
-            <span className="text-base font-black text-white leading-none">V</span>
+            <span className="text-base font-black text-white leading-tight">V</span>
           </button>
         )}
       </div>

@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence';
 
 interface VentusAIWelcomeViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -81,6 +81,7 @@ const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: Reac
   { tab: "life-events", label: "Life Events", description: "Predictive life event detection", icon: CalendarHeart },
   { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route },
   { tab: "wm-copilot", label: "WM Copilot", description: "Wealth management AI assistant", icon: Briefcase },
+  { tab: "wealth-intelligence", label: "Wealth Intelligence", description: "Book-level growth signals and activation", icon: Briefcase },
 ];
 
 const PLATFORM_CONTEXT = {
@@ -113,6 +114,7 @@ const PLATFORM_CONTEXT = {
     lifeEvents: "Predictive life event detection (home purchase, new baby, retirement, etc.) with proactive product recommendations.",
     nextBestProduct: "Segment builder with demographic, lifestyle, and product targeting for next-best-offer campaigns.",
     wmCopilot: "Wealth management AI assistant for advisor-level client analysis and portfolio intelligence.",
+    wealthIntelligence: "Book-level wealth intelligence that combines money movement, life events, targeting, and campaign activation.",
   },
   cardProducts: [
     "Cashback Card (38.5M accounts, top pillar: Food & Dining)",
@@ -151,7 +153,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
           {/* Header */}
           <div className="flex items-center gap-3 mb-2">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30">
-              <span className="text-lg font-black text-blue-400 leading-none">V</span>
+              <span className="text-lg font-black text-blue-400 leading-tight">V</span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-tight">Ventus AI</h1>
