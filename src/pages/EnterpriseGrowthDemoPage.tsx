@@ -85,6 +85,8 @@ type Opportunity = {
   ownerReason: string;
   destination: DestId;
   destinationWhy: string;
+  outflow?: string; // wallet-share leak (folded from Outflow Analysis) — retention evidence
+  fvi?: "low" | "elevated"; // financial vulnerability (folded from FVI) — drives customer-protection suppression
 };
 
 const opportunities: Opportunity[] = [
@@ -116,6 +118,7 @@ const opportunities: Opportunity[] = [
     ownerReason: "Mapped relationship owner for this market and household.",
     destination: "advisor",
     destinationWhy: "Advisor-led One-Bank referral with a time-sensitive leak to stop.",
+    outflow: "$5.2K/mo → external IRA (Fidelity)",
   },
   {
     id: "liquidity",
@@ -232,6 +235,7 @@ const opportunities: Opportunity[] = [
     ownerReason: "Retention-critical; the heir already banks with BofA.",
     destination: "advisor",
     destinationWhy: "Great Wealth Transfer retention — advisor-led, heir already on-bank.",
+    outflow: "$310K inflow at risk → heir's outside advisor",
   },
 ];
 
@@ -382,6 +386,7 @@ const prospectOpportunities: Opportunity[] = [
     ownerReason: "New relationship — not yet a client.",
     destination: "advisor",
     destinationWhy: "Net-new household — yours to win.",
+    fvi: "elevated",
   },
 ];
 
@@ -971,6 +976,11 @@ function FindScene({
                   <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-3">
                     {/* Secondary status moved off the row — surfaced here on expand. */}
                     <div className="mb-3 flex flex-wrap items-center gap-1.5">
+                      {o.outflow && (
+                        <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: `${RED}14`, color: RED }}>
+                          Outflow · {o.outflow}
+                        </span>
+                      )}
                       <span
                         className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold"
                         style={why ? { backgroundColor: `${GREEN}14`, color: GREEN } : { backgroundColor: "#f1f5f9", color: "#94a3b8" }}
@@ -2052,7 +2062,12 @@ function evaluateGuardrails(opp: Opportunity, policy: Policy): Guard[] {
     guards.push({ label: "Client consent + Preferred Rewards eligibility", status: "pass" });
   }
   if (policy.fhSuppression) {
-    guards.push({ label: "Financial-health suppression (customer protection)", status: "pass", note: "no protection flags" });
+    const vulnerable = opp.fvi === "elevated";
+    guards.push({
+      label: "Financial-health suppression (customer protection)",
+      status: vulnerable ? "flag" : "pass",
+      note: vulnerable ? "FVI elevated — suppress until reviewed" : "no protection flags",
+    });
   }
   guards.push({
     label: "Reg BI suitability",
