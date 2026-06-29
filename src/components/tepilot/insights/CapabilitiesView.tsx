@@ -365,7 +365,7 @@ const TEAMS: TeamDetail[] = [
     ],
   },
   {
-    label: "Product Growth",
+    label: "Product & Growth",
     icon: TrendingUp,
     color: "bg-violet-500",
     tint: "bg-violet-50 text-violet-700 border-violet-200",
