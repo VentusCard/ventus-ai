@@ -751,7 +751,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         icon={<Layers className="w-4 h-4" />}
         title="System"
         subtitle="Network view: bank-native sources flow through Ventus and are surfaced to internal teams for activation"
-        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to five internal teams — Analytics & Targeting, Merchant Deals, Product Growth, Wealth Management, and Risk & Compliance — who activate through CRM, rewards provider, digital banking, marketing automation, advisor consoles, and risk ops."
+        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to five internal teams — Analytics & Targeting, Merchant Deals, Product & Growth, Wealth Management, and Risk & Compliance — who activate through CRM, rewards provider, digital banking, marketing automation, advisor consoles, and risk ops."
         whyItMatters="One enrichment layer feeds every channel of record. No bespoke pipelines per destination — each team reads from the same canonical customer signal."
       />
 
