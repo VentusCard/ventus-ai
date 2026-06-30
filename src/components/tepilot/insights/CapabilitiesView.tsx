@@ -513,7 +513,19 @@ const DESTINATIONS: Destination[] = [
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
 ];
 
-function NetworkWires({ leftCount, rightCount }: { leftCount: number; rightCount: number }) {
+function getTeamDestinations(teamLabel: string): string[] {
+  const team = TEAMS.find((t) => t.label === teamLabel);
+  if (!team || !team.workflow) return [];
+  const dests = new Set<string>();
+  for (const step of team.workflow) {
+    for (const chip of step.chips ?? []) {
+      if (chip.kind === "destination") dests.add(chip.label);
+    }
+  }
+  return Array.from(dests);
+}
+
+function NetworkWires({ leftCount, rightCount, centered }: { leftCount: number; rightCount: number; centered?: boolean }) {
   const gradId = useId().replace(/:/g, "");
   const SRC_X = 0;
   const CORE_LEFT = 38;
@@ -521,7 +533,14 @@ function NetworkWires({ leftCount, rightCount }: { leftCount: number; rightCount
   const DST_X = 100;
 
   const leftYs = Array.from({ length: leftCount }, (_, i) => ((i + 0.5) / leftCount) * 100);
-  const rightYs = Array.from({ length: rightCount }, (_, i) => ((i + 0.5) / rightCount) * 100);
+  let rightYs: number[];
+  if (centered && rightCount > 0) {
+    const blockHeight = Math.min(72, Math.max(24, rightCount * 12));
+    const startY = (100 - blockHeight) / 2;
+    rightYs = Array.from({ length: rightCount }, (_, i) => startY + ((i + 0.5) / rightCount) * blockHeight);
+  } else {
+    rightYs = Array.from({ length: rightCount }, (_, i) => ((i + 0.5) / rightCount) * 100);
+  }
 
   return (
     <svg
@@ -736,6 +755,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   const activeDetail = activeSignal ?? activeTeam;
   const activeDetailKind = activeSignal ? "Signal family" : activeTeam ? "Team" : null;
   const ActiveIcon = activeDetail?.icon;
+  const visibleDestinations = activeTeamLabel
+    ? DESTINATIONS.filter((d) => getTeamDestinations(activeTeamLabel).includes(d.label))
+    : DESTINATIONS;
   const selectSignal = (label: string) => {
     setActiveTeamLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
@@ -779,7 +801,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
         {/* Network canvas */}
         <div className="relative">
-          <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
+          <NetworkWires leftCount={sourceGroups.length} rightCount={visibleDestinations.length} centered={!!activeTeamLabel} />
 
           <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
             {/* Sources */}
@@ -995,8 +1017,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
             {/* Destinations */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around">
-              {DESTINATIONS.map((d) => (
+            <div className={cn(
+              "flex min-w-0 flex-col gap-2",
+              activeTeamLabel ? "justify-center" : "justify-around"
+            )}>
+              {visibleDestinations.map((d) => (
                 <NodeCard
                   key={d.label}
                   icon={d.icon}

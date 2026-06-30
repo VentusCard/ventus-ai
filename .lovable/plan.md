@@ -1,10 +1,33 @@
-When a team is clicked in the Systems tab, the workflow strip currently renders at a fixed compact height below the network diagram. The user wants it to be visibly larger and consume the remaining viewport height so the step cards feel more substantial.
+## Plan: Filter Activation Downstream Diagram by Team
 
-Changes in `src/components/tepilot/insights/CapabilitiesView.tsx`:
+### Problem
+The Systems tab network diagram currently shows all 7 destination nodes (CRM, Rewards Provider, etc.) at all times. When a user clicks a team in the Core card, they want to see only the destinations that team actually activates to, with those remaining nodes vertically centered in the right column.
 
-1. Make the detail panel a flex column (`flex flex-col`) so its children can grow.
-2. Give the workflow container `flex-1` and a `min-h` (e.g. `min-h-[280px]`) so it stretches to fill available vertical space.
-3. Make each workflow step card stretch vertically (`h-full`) and increase internal vertical padding (`py-5` instead of `py-3`) so the cards feel roomier.
-4. Ensure the workflow text and chips stay vertically centered within the taller cards.
+### Approach
 
-No data model or navigation changes. Build verification via `npx tsc --noEmit` after edits.
+1. **Build a team-to-destinations mapping** from the existing `TEAMS[].workflow[].chips` data. Each team's workflow already references destinations via chips with `kind: "destination"`. We will derive a runtime lookup table so the UI knows which destinations are relevant for each team.
+
+2. **Filter the Destinations column (right side)** in `CapabilitiesView.tsx`:
+   - When `activeTeamLabel` is set, render only the `DESTINATIONS` entries whose `label` appears in that team's workflow destination chips.
+   - When no team is selected, render all destinations as before.
+   - Vertically center the filtered list within the right column using `justify-center` instead of `justify-around`.
+
+3. **Filter the right-side SVG wires** in `NetworkWires`:
+   - Accept a new prop: `activeDestinations?: string[]` (labels of the currently relevant destinations).
+   - When provided, compute `rightYs` only for the matching destination subset.
+   - When empty/null, fall back to all destinations.
+   - Keep the left-side wires unchanged since all sources always feed into the core.
+
+4. **Ensure visual consistency**:
+   - The destination cards that remain should keep their existing styling (`NodeCard` component).
+   - The wire animation timing (`begin` offsets) will re-index based on the filtered count so the stagger still looks smooth.
+
+### Files to edit
+- `src/components/tepilot/insights/CapabilitiesView.tsx`
+
+### Verification
+- Build passes (`npx tsc --noEmit`).
+- Browser: click each team in the Core card and confirm only the relevant destinations appear on the right, centered vertically.
+- Click "Analytics & Targeting" → expect CRM and Marketing Automation only.
+- Click "Risk & Compliance" → expect Risk Ops only.
+- Click a Signal (not a team) → all 7 destinations visible again.
