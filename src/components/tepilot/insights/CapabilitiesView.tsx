@@ -755,6 +755,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   const activeDetail = activeSignal ?? activeTeam;
   const activeDetailKind = activeSignal ? "Signal family" : activeTeam ? "Team" : null;
   const ActiveIcon = activeDetail?.icon;
+  const visibleDestinations = activeTeamLabel
+    ? DESTINATIONS.filter((d) => getTeamDestinations(activeTeamLabel).includes(d.label))
+    : DESTINATIONS;
   const selectSignal = (label: string) => {
     setActiveTeamLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
