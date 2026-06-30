@@ -1,17 +1,8 @@
-## Objective
-Move the "Ask Ventus AI" navigation item from the **Home** sidebar group into the **Analytics** sidebar group within the `/bankdemo` analytics container.
+When a team chip ("who we serve") is clicked in the /bankdemo Systems tab, the expanded detail panel currently shows both a workflow strip and a grid of icon-based capability cards below it. Remove the cards grid so only the workflow remains for teams.
 
-## Current State
-- **Home** group contains: System, Ask Ventus AI, Products, Demo
-- **Analytics** group contains: Dashboard, Reports, Query
+Keep the cards intact for signal detections ("what we detect"), since the user only mentioned the team section.
 
-## Proposed Change
-1. In `src/components/tepilot/insights/AnalyticsContainer.tsx`, relocate the `ventus-ai` `NavItem` from the `Home` group array to the `Analytics` group array.
-2. Verify that the active-tab fallback logic (line 188: `setActiveTab('ventus-ai')`) still resolves to a valid tab after the move. Since `ventus-ai` will remain in `filteredNavGroups` and `validTabs`, it will still be valid — no logic change needed.
-3. No routing or component changes are required; this is purely a sidebar navigation reordering.
+### Change
+In `src/components/tepilot/insights/CapabilitiesView.tsx`, wrap the `activeDetail.items` card grid (lines ~1096–1140) with a conditional so it renders when a signal is active but is skipped when a team is active. The workflow section just above it stays unconditional.
 
-## Acceptance Criteria
-- "Ask Ventus AI" appears under the **Analytics** collapsible group in the sidebar.
-- "Home" group no longer contains "Ask Ventus AI".
-- Clicking "Ask Ventus AI" continues to render the `VentusAIWelcomeView` correctly.
-- Active-tab styling and accordion behavior remain intact.
+No other UI or data changes.
