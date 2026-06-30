@@ -1,25 +1,17 @@
-Redesign the bullet-point capability lists (the `items` arrays under each team in the Systems tab) into a grid of feature cards, each with a Lucide icon, bold title, and description.
+## Objective
+Move the "Ask Ventus AI" navigation item from the **Home** sidebar group into the **Analytics** sidebar group within the `/bankdemo` analytics container.
 
-### What we change
+## Current State
+- **Home** group contains: System, Ask Ventus AI, Products, Demo
+- **Analytics** group contains: Dashboard, Reports, Query
 
-1. **Data model** — Add an `icon` (Lucide component reference) to every capability item in the `TEAMS[].items` arrays across all 5 teams:
-   - Analytics & Targeting
-   - Merchant Deals
-   - Product Growth
-   - Wealth Management
-   - Risk & Compliance
+## Proposed Change
+1. In `src/components/tepilot/insights/AnalyticsContainer.tsx`, relocate the `ventus-ai` `NavItem` from the `Home` group array to the `Analytics` group array.
+2. Verify that the active-tab fallback logic (line 188: `setActiveTab('ventus-ai')`) still resolves to a valid tab after the move. Since `ventus-ai` will remain in `filteredNavGroups` and `validTabs`, it will still be valid — no logic change needed.
+3. No routing or component changes are required; this is purely a sidebar navigation reordering.
 
-2. **Render style** — Replace the existing 2-column dot-bullet grid with a responsive card grid:
-   - Each card shows a left-aligned icon inside a small colored badge (matching the team tint), the capability label in semibold, and the sublabel in muted text.
-   - Cards sit on a white background with a subtle border, matching the existing enterprise aesthetic.
-   - Responsive: 1 column on mobile, 2 columns on tablet, 3 columns on desktop.
-
-3. **No other page changes** — The workflow strip above stays exactly as-is. Only the bullets below the workflow are redesigned.
-
-### Files touched
-- `src/components/tepilot/insights/CapabilitiesView.tsx` only.
-
-### Visual approach
-- Clean, enterprise-light cards consistent with the existing dot/border palette.
-- Each team's cards inherit that team's accent tint for the icon badge background.
-- No animations added; keep the same fade-in/slide-in that already exists for the detail panel.
+## Acceptance Criteria
+- "Ask Ventus AI" appears under the **Analytics** collapsible group in the sidebar.
+- "Home" group no longer contains "Ask Ventus AI".
+- Clicking "Ask Ventus AI" continues to render the `VentusAIWelcomeView` correctly.
+- Active-tab styling and accordion behavior remain intact.
