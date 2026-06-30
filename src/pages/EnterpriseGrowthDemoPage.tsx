@@ -2087,7 +2087,11 @@ function clearActionLabel(label: string): string {
 
 function ReviewScene({ opp, policy }: { opp: Opportunity; policy: Policy }) {
   const [resolved, setResolved] = useState<Set<string>>(new Set());
-  useEffect(() => setResolved(new Set()), [opp.id, policy]);
+  const [showChecks, setShowChecks] = useState(false);
+  useEffect(() => {
+    setResolved(new Set());
+    setShowChecks(false);
+  }, [opp.id, policy]);
 
   const guards = evaluateGuardrails(opp, policy);
   const flags = guards.filter((g) => g.status === "flag" && !resolved.has(g.label));
@@ -2127,49 +2131,77 @@ function ReviewScene({ opp, policy }: { opp: Opportunity; policy: Policy }) {
             </span>
           </div>
 
-          {/* Needs to clear — prominent + actionable */}
-          {flags.length > 0 && (
+          {cleared ? (
+            /* Ambient: guardrails ran and passed — no full review needed */
             <div className="mt-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: RED }}>
-                Needs to clear
-              </p>
-              <div className="mt-2 space-y-2">
-                {flags.map((g) => (
-                  <div key={g.label} className="flex items-center gap-3 rounded-xl border-2 px-4 py-3" style={{ borderColor: `${RED}33`, backgroundColor: `${RED}08` }}>
-                    <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ backgroundColor: RED }}>
-                      !
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-slate-800">{g.label}</p>
-                      {g.note && <p className="text-xs text-slate-500">{g.note}</p>}
-                    </div>
-                    <button
-                      onClick={() => resolve(g.label)}
-                      className="flex-none rounded-lg px-2.5 py-1 text-xs font-semibold text-white transition"
-                      style={{ backgroundColor: NAVY }}
-                    >
-                      {clearActionLabel(g.label)}
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Cleared — compact, receded */}
-          <div className="mt-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Cleared · {passes.length}</p>
-            <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
-              {passes.map((g) => (
-                <div key={g.label} className="flex items-center gap-2 text-sm text-slate-500">
-                  <Check className="h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
-                  <span className="truncate" title={g.label}>
-                    {g.label}
-                  </span>
+              <div className="flex items-center gap-3 rounded-2xl border-2 px-4 py-4" style={{ borderColor: `${GREEN}33`, backgroundColor: `${GREEN}08` }}>
+                <span className="flex h-8 w-8 flex-none items-center justify-center rounded-full" style={{ backgroundColor: GREEN }}>
+                  <Check className="h-4 w-4 text-white" />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-slate-800">Cleared to act — no holds</p>
+                  <p className="text-xs text-slate-500">Reg BI, consent, suppression, and supervision passed automatically.</p>
                 </div>
-              ))}
+              </div>
+              <button onClick={() => setShowChecks((v) => !v)} className="mt-2 text-[11px] font-medium text-slate-400 transition hover:text-slate-600">
+                {showChecks ? "Hide checks" : `View ${passes.length} checks`}
+              </button>
+              {showChecks && (
+                <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                  {passes.map((g) => (
+                    <div key={g.label} className="flex items-center gap-2 text-sm text-slate-500">
+                      <Check className="h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
+                      <span className="truncate" title={g.label}>
+                        {g.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-          </div>
+          ) : (
+            /* Exception: something needs to clear — surface the full review */
+            <>
+              <div className="mt-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em]" style={{ color: RED }}>
+                  Needs to clear
+                </p>
+                <div className="mt-2 space-y-2">
+                  {flags.map((g) => (
+                    <div key={g.label} className="flex items-center gap-3 rounded-xl border-2 px-4 py-3" style={{ borderColor: `${RED}33`, backgroundColor: `${RED}08` }}>
+                      <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ backgroundColor: RED }}>
+                        !
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-slate-800">{g.label}</p>
+                        {g.note && <p className="text-xs text-slate-500">{g.note}</p>}
+                      </div>
+                      <button
+                        onClick={() => resolve(g.label)}
+                        className="flex-none rounded-lg px-2.5 py-1 text-xs font-semibold text-white transition"
+                        style={{ backgroundColor: NAVY }}
+                      >
+                        {clearActionLabel(g.label)}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div className="mt-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-400">Cleared · {passes.length}</p>
+                <div className="mt-2 grid grid-cols-1 gap-1.5 sm:grid-cols-2">
+                  {passes.map((g) => (
+                    <div key={g.label} className="flex items-center gap-2 text-sm text-slate-500">
+                      <Check className="h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
+                      <span className="truncate" title={g.label}>
+                        {g.label}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="mt-5 flex items-center gap-3 text-xs text-slate-400">
             <ClipboardCheck className="h-4 w-4" /> Associate validates → Advisor acts in CEW → Risk monitors. Logged at each step.
