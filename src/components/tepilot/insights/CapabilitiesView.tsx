@@ -1014,7 +1014,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         {activeDetail && ActiveIcon && (
           <div
             key={activeDetail.label}
-            className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
+            className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col"
           >
             <div className="flex items-start gap-3 mb-5">
               <div

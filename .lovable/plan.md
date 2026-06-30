@@ -1,8 +1,10 @@
-When a team chip ("who we serve") is clicked in the /bankdemo Systems tab, the expanded detail panel currently shows both a workflow strip and a grid of icon-based capability cards below it. Remove the cards grid so only the workflow remains for teams.
+When a team is clicked in the Systems tab, the workflow strip currently renders at a fixed compact height below the network diagram. The user wants it to be visibly larger and consume the remaining viewport height so the step cards feel more substantial.
 
-Keep the cards intact for signal detections ("what we detect"), since the user only mentioned the team section.
+Changes in `src/components/tepilot/insights/CapabilitiesView.tsx`:
 
-### Change
-In `src/components/tepilot/insights/CapabilitiesView.tsx`, wrap the `activeDetail.items` card grid (lines ~1096–1140) with a conditional so it renders when a signal is active but is skipped when a team is active. The workflow section just above it stays unconditional.
+1. Make the detail panel a flex column (`flex flex-col`) so its children can grow.
+2. Give the workflow container `flex-1` and a `min-h` (e.g. `min-h-[280px]`) so it stretches to fill available vertical space.
+3. Make each workflow step card stretch vertically (`h-full`) and increase internal vertical padding (`py-5` instead of `py-3`) so the cards feel roomier.
+4. Ensure the workflow text and chips stay vertically centered within the taller cards.
 
-No other UI or data changes.
+No data model or navigation changes. Build verification via `npx tsc --noEmit` after edits.
