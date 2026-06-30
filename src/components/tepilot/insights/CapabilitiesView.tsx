@@ -23,7 +23,6 @@ import {
   Package,
   ArrowUpRight,
   ChevronDown,
-  BarChart3,
   Tag,
   Sparkles,
   MessageSquare,
@@ -32,8 +31,6 @@ import {
   TrendingUp,
   Gem,
   FileText,
-  Download,
-  Mail,
   Search,
   Calendar,
   LineChart,
@@ -265,100 +262,6 @@ function chipClass(chip: WorkflowChip) {
 
 const TEAMS: TeamDetail[] = [
   {
-    label: "Analytics & Targeting",
-    icon: BarChart3,
-    color: "bg-indigo-500",
-    tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    dot: "bg-indigo-500",
-    description: "Shared services team building segments, running ad-hoc business queries, and exporting cohorts for every downstream channel.",
-    items: [
-      { label: "AI-assisted SQL", sublabel: "Natural language → SQL → results, grounded in the Ventus schema", icon: Database },
-      { label: "Pre-built reports library", sublabel: "15+ ready-to-run reports across Lifestyle, Outflow, Retention, Opportunities", icon: FileText },
-      { label: "Cohort CSV export", sublabel: "Any query result can be rewritten to a DISTINCT customer_id list for activation", icon: Download },
-      { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting", icon: Users },
-      { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline", icon: Mail },
-    ],
-    workflow: [
-      {
-        stage: "Question + signal scope",
-        text: "Analyst frames a business question and picks any of the 5 signal families via SQL or the reports library.",
-        chips: [
-          { label: "Life Event", kind: "signal" },
-          { label: "Behavioral", kind: "signal" },
-          { label: "Financial", kind: "signal" },
-          { label: "Demographic", kind: "signal" },
-          { label: "Risk", kind: "signal" },
-        ],
-      },
-      {
-        stage: "AI-assisted SQL execution",
-        text: "Natural language is translated to SQL and executed against the Ventus schema with grounded date and enum hints.",
-      },
-      {
-        stage: "AI takeaway + cohort split",
-        text: "Results get a business-friendly interpretation; GROUP BY segments become per-segment cohorts.",
-      },
-      {
-        stage: "Cohort export to activation channels",
-        text: "DISTINCT customer_id lists ship to downstream systems for outreach.",
-        chips: [
-          { label: "CRM", kind: "destination" },
-          { label: "Marketing Automation", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Merchant Deals",
-    icon: Store,
-    color: "bg-orange-500",
-    tint: "bg-orange-50 text-orange-700 border-orange-200",
-    dot: "bg-orange-500",
-    description: "Partnerships team sourcing merchant offers, negotiating rates, and maintaining the live rewards catalog that feeds digital banking and marketing.",
-    items: [
-      { label: "Merchant partner sourcing", sublabel: "Identify and onboard new local and national merchant partners", icon: Search },
-      { label: "Deal rate & term negotiation", sublabel: "Structure revenue-share and fixed-rate offer terms", icon: PenTool },
-      { label: "Offer catalog maintenance", sublabel: "Keep the live deal feed accurate, categorized, and channel-ready", icon: Package },
-      { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events", icon: Calendar },
-      { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time", icon: LineChart },
-    ],
-    workflow: [
-      {
-        stage: "Behavioral & Life Event signals in",
-        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
-        chips: [
-          { label: "Behavioral", kind: "signal" },
-          { label: "Life Event", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Curate deal collection",
-        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
-      },
-      {
-        stage: "Personalize ranking",
-        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
-        chips: [
-          { label: "Financial", kind: "signal" },
-          { label: "Demographic", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Risk exclusion pass",
-        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
-        chips: [{ label: "Risk", kind: "signal" }],
-      },
-      {
-        stage: "Push to rewards rails",
-        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
-        chips: [
-          { label: "Rewards Provider", kind: "destination" },
-          { label: "Digital Banking App", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
     label: "Product & Growth",
     icon: TrendingUp,
     color: "bg-violet-500",
@@ -452,6 +355,56 @@ const TEAMS: TeamDetail[] = [
         chips: [
           { label: "Advisor Console", kind: "destination" },
           { label: "CRM", kind: "destination" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Deals & Rewards",
+    icon: Store,
+    color: "bg-orange-500",
+    tint: "bg-orange-50 text-orange-700 border-orange-200",
+    dot: "bg-orange-500",
+    description: "Rewards team curating personalized offers, managing the live deal catalog, and driving engagement through digital banking and marketing channels.",
+    items: [
+      { label: "Offer catalog curation", sublabel: "Assemble and maintain personalized deal collections by lifestyle and life event", icon: Package },
+      { label: "Deal personalization & ranking", sublabel: "Re-rank offers using financial tier and demographic context", icon: Tag },
+      { label: "Seasonal campaign alignment", sublabel: "Time offer pushes to holidays, travel windows, and life events", icon: Calendar },
+      { label: "Redemption & engagement tracking", sublabel: "Monitor take rates, redemption velocity, and merchant-funded liability", icon: LineChart },
+      { label: "Rewards rail distribution", sublabel: "Ship individualized offer sets to the rewards provider and digital banking", icon: Send },
+    ],
+    workflow: [
+      {
+        stage: "Behavioral & Life Event signals in",
+        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
+        chips: [
+          { label: "Behavioral", kind: "signal" },
+          { label: "Life Event", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Curate deal collection",
+        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
+      },
+      {
+        stage: "Personalize ranking",
+        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
+        chips: [
+          { label: "Financial", kind: "signal" },
+          { label: "Demographic", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Risk exclusion pass",
+        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Push to rewards rails",
+        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
+        chips: [
+          { label: "Rewards Provider", kind: "destination" },
+          { label: "Digital Banking App", kind: "destination" },
         ],
       },
     ],
@@ -728,7 +681,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         icon={<Layers className="w-4 h-4" />}
         title="System"
         subtitle="Network view: bank-native sources flow through Ventus and are surfaced to internal teams for activation"
-        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to four internal teams — Analytics & Targeting, Merchant Deals, Product & Growth, and Wealth Management — who activate through CRM, rewards provider, digital banking, marketing automation, and advisor consoles."
+        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to three internal teams — Product & Growth, Wealth Management, and Deals & Rewards — who activate through CRM, rewards provider, digital banking, marketing automation, and advisor consoles."
         whyItMatters="One enrichment layer feeds every channel of record. No bespoke pipelines per destination — each team reads from the same canonical customer signal."
       />
 
