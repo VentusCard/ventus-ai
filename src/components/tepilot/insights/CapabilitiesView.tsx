@@ -1144,10 +1144,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         )}
 
 
-        <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-          <span>Live streams · packets shown flowing left to right</span>
-          <span>One enrichment layer · many channels of record</span>
-        </div>
       </div>
     </div>
   );
