@@ -31,8 +31,6 @@ import {
   TrendingUp,
   Gem,
   FileText,
-  Download,
-  Mail,
   Search,
   Calendar,
   LineChart,
