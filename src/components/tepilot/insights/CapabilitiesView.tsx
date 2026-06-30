@@ -18,7 +18,6 @@ import {
   Bot,
   Megaphone,
   Briefcase,
-  ShieldAlert,
   Home,
   PiggyBank,
   Package,
@@ -32,7 +31,6 @@ import {
   Store,
   TrendingUp,
   Gem,
-  ShieldCheck,
   FileText,
   Download,
   Mail,
@@ -42,10 +40,6 @@ import {
   PieChart,
   FilePlus,
   RefreshCw,
-  Bell,
-  Settings,
-  Sliders,
-  FileCheck,
   Filter,
   GitBranch,
   PenTool,
@@ -462,45 +456,6 @@ const TEAMS: TeamDetail[] = [
       },
     ],
   },
-  {
-    label: "Risk & Compliance",
-    icon: ShieldCheck,
-    color: "bg-rose-500",
-    tint: "bg-rose-50 text-rose-700 border-rose-200",
-    dot: "bg-rose-500",
-    description: "Second-line team monitoring model governance, alert triage, and audit-ready thresholds for vice, AML, and financial-distress signals.",
-    items: [
-      { label: "Alert triage SLAs", sublabel: "Meet response-time commitments for vice, AML, and distress flags", icon: Bell },
-      { label: "Model governance reviews", sublabel: "Validate detection logic, false-positive rates, and retraining cadence", icon: Settings },
-      { label: "SAR escalation workflows", sublabel: "Route confirmed suspicious activity to investigators and regulators", icon: ArrowUpRight },
-      { label: "Policy threshold tuning", sublabel: "Adjust scoring cutoffs based on risk appetite and audit feedback", icon: Sliders },
-      { label: "Audit trail & documentation", sublabel: "Maintain immutable logs of decisions, overrides, and model versions", icon: FileCheck },
-    ],
-    workflow: [
-      {
-        stage: "Risk signals in",
-        text: "Vice, AML structuring, payday lending, and financial-distress signals stream into the alert queue.",
-        chips: [{ label: "Risk", kind: "signal" }],
-      },
-      {
-        stage: "Severity scoring & bucketing",
-        text: "Weighted scores, model-routed AML, and deterministic vice flags assign severity buckets.",
-      },
-      {
-        stage: "Alert triage queue",
-        text: "Analysts work alerts against SLA thresholds with full evidence trails.",
-      },
-      {
-        stage: "Policy tuning & FP suppression",
-        text: "Threshold adjustments and audit-logged overrides keep precision high.",
-      },
-      {
-        stage: "Escalate to risk ops & SAR",
-        text: "Confirmed cases route to risk ops tooling and into the SAR filing workflow.",
-        chips: [{ label: "Risk Ops", kind: "destination" }],
-      },
-    ],
-  },
 ];
 
 const DESTINATIONS: Destination[] = [
@@ -509,7 +464,7 @@ const DESTINATIONS: Destination[] = [
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
   { label: "Advisor Console", sublabel: "Banker Workstation", icon: Briefcase },
-  { label: "Risk Ops", sublabel: "Actimize / SAS", icon: ShieldAlert },
+  
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
 ];
 
@@ -773,7 +728,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         icon={<Layers className="w-4 h-4" />}
         title="System"
         subtitle="Network view: bank-native sources flow through Ventus and are surfaced to internal teams for activation"
-        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to five internal teams — Analytics & Targeting, Merchant Deals, Product & Growth, Wealth Management, and Risk & Compliance — who activate through CRM, rewards provider, digital banking, marketing automation, advisor consoles, and risk ops."
+        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to four internal teams — Analytics & Targeting, Merchant Deals, Product & Growth, and Wealth Management — who activate through CRM, rewards provider, digital banking, marketing automation, and advisor consoles."
         whyItMatters="One enrichment layer feeds every channel of record. No bespoke pipelines per destination — each team reads from the same canonical customer signal."
       />
 
