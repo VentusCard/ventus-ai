@@ -23,7 +23,6 @@ import {
   Package,
   ArrowUpRight,
   ChevronDown,
-  BarChart3,
   Tag,
   Sparkles,
   MessageSquare,
