@@ -1047,7 +1047,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
             {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
-              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4 flex-1 flex flex-col min-h-[280px]">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
                     Workflow · left to right
