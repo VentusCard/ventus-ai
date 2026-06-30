@@ -1014,7 +1014,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         {activeDetail && ActiveIcon && (
           <div
             key={activeDetail.label}
-            className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
+            className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col"
           >
             <div className="flex items-start gap-3 mb-5">
               <div
@@ -1047,16 +1047,16 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
             {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
-              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4 flex-1 flex flex-col min-h-[280px]">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
                     Workflow · left to right
                   </span>
                 </div>
-                <div className="flex flex-col lg:flex-row lg:items-stretch gap-2">
+                <div className="flex flex-col lg:flex-row lg:items-stretch gap-2 flex-1">
                   {activeTeam.workflow.map((step, i) => (
                     <div key={step.stage} className="flex lg:flex-1 items-stretch gap-2">
-                      <div className="flex-1 rounded-md border border-slate-200 bg-white p-3 min-w-0">
+                      <div className="flex-1 rounded-md border border-slate-200 bg-white p-5 min-w-0 h-full flex flex-col justify-center">
                         <div className="flex items-center gap-1.5 mb-1">
                           <span className="text-[10px] font-bold text-slate-400 tabular-nums">
                             {String(i + 1).padStart(2, "0")}
