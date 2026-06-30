@@ -264,50 +264,6 @@ function chipClass(chip: WorkflowChip) {
 
 const TEAMS: TeamDetail[] = [
   {
-    label: "Analytics & Targeting",
-    icon: BarChart3,
-    color: "bg-indigo-500",
-    tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    dot: "bg-indigo-500",
-    description: "Shared services team building segments, running ad-hoc business queries, and exporting cohorts for every downstream channel.",
-    items: [
-      { label: "AI-assisted SQL", sublabel: "Natural language → SQL → results, grounded in the Ventus schema", icon: Database },
-      { label: "Pre-built reports library", sublabel: "15+ ready-to-run reports across Lifestyle, Outflow, Retention, Opportunities", icon: FileText },
-      { label: "Cohort CSV export", sublabel: "Any query result can be rewritten to a DISTINCT customer_id list for activation", icon: Download },
-      { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting", icon: Users },
-      { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline", icon: Mail },
-    ],
-    workflow: [
-      {
-        stage: "Question + signal scope",
-        text: "Analyst frames a business question and picks any of the 5 signal families via SQL or the reports library.",
-        chips: [
-          { label: "Life Event", kind: "signal" },
-          { label: "Behavioral", kind: "signal" },
-          { label: "Financial", kind: "signal" },
-          { label: "Demographic", kind: "signal" },
-          { label: "Risk", kind: "signal" },
-        ],
-      },
-      {
-        stage: "AI-assisted SQL execution",
-        text: "Natural language is translated to SQL and executed against the Ventus schema with grounded date and enum hints.",
-      },
-      {
-        stage: "AI takeaway + cohort split",
-        text: "Results get a business-friendly interpretation; GROUP BY segments become per-segment cohorts.",
-      },
-      {
-        stage: "Cohort export to activation channels",
-        text: "DISTINCT customer_id lists ship to downstream systems for outreach.",
-        chips: [
-          { label: "CRM", kind: "destination" },
-          { label: "Marketing Automation", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
     label: "Merchant Deals",
     icon: Store,
     color: "bg-orange-500",
