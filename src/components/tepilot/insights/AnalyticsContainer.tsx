@@ -70,15 +70,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Home",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
-      {
-        value: "ventus-ai",
-        label: "Ask Ventus AI",
-        icon: ({ className }: { className?: string }) => (
-          <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
-            V
-          </span>
-        ),
-      },
       { value: "products", label: "Products", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
@@ -89,6 +80,15 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "analytics-dashboard", label: "Dashboard", icon: LayoutDashboard },
       { value: "reports", label: "Reports", icon: FileBarChart },
       { value: "query", label: "Query", icon: Terminal },
+      {
+        value: "ventus-ai",
+        label: "Ask Ventus AI",
+        icon: ({ className }: { className?: string }) => (
+          <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
+            V
+          </span>
+        ),
+      },
     ],
   },
   {
