@@ -801,7 +801,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
         {/* Network canvas */}
         <div className="relative">
-          <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
+          <NetworkWires leftCount={sourceGroups.length} rightCount={visibleDestinations.length} centered={!!activeTeamLabel} />
 
           <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
             {/* Sources */}
