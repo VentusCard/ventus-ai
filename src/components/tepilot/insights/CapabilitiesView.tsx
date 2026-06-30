@@ -1017,8 +1017,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
             {/* Destinations */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around">
-              {DESTINATIONS.map((d) => (
+            <div className={cn(
+              "flex min-w-0 flex-col gap-2",
+              activeTeamLabel ? "justify-center" : "justify-around"
+            )}>
+              {visibleDestinations.map((d) => (
                 <NodeCard
                   key={d.label}
                   icon={d.icon}
