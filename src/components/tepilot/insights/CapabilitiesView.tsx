@@ -262,56 +262,6 @@ function chipClass(chip: WorkflowChip) {
 
 const TEAMS: TeamDetail[] = [
   {
-    label: "Merchant Deals",
-    icon: Store,
-    color: "bg-orange-500",
-    tint: "bg-orange-50 text-orange-700 border-orange-200",
-    dot: "bg-orange-500",
-    description: "Partnerships team sourcing merchant offers, negotiating rates, and maintaining the live rewards catalog that feeds digital banking and marketing.",
-    items: [
-      { label: "Merchant partner sourcing", sublabel: "Identify and onboard new local and national merchant partners", icon: Search },
-      { label: "Deal rate & term negotiation", sublabel: "Structure revenue-share and fixed-rate offer terms", icon: PenTool },
-      { label: "Offer catalog maintenance", sublabel: "Keep the live deal feed accurate, categorized, and channel-ready", icon: Package },
-      { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events", icon: Calendar },
-      { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time", icon: LineChart },
-    ],
-    workflow: [
-      {
-        stage: "Behavioral & Life Event signals in",
-        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
-        chips: [
-          { label: "Behavioral", kind: "signal" },
-          { label: "Life Event", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Curate deal collection",
-        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
-      },
-      {
-        stage: "Personalize ranking",
-        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
-        chips: [
-          { label: "Financial", kind: "signal" },
-          { label: "Demographic", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Risk exclusion pass",
-        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
-        chips: [{ label: "Risk", kind: "signal" }],
-      },
-      {
-        stage: "Push to rewards rails",
-        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
-        chips: [
-          { label: "Rewards Provider", kind: "destination" },
-          { label: "Digital Banking App", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
     label: "Product & Growth",
     icon: TrendingUp,
     color: "bg-violet-500",
@@ -405,6 +355,56 @@ const TEAMS: TeamDetail[] = [
         chips: [
           { label: "Advisor Console", kind: "destination" },
           { label: "CRM", kind: "destination" },
+        ],
+      },
+    ],
+  },
+  {
+    label: "Deals & Rewards",
+    icon: Store,
+    color: "bg-orange-500",
+    tint: "bg-orange-50 text-orange-700 border-orange-200",
+    dot: "bg-orange-500",
+    description: "Rewards team curating personalized offers, managing the live deal catalog, and driving engagement through digital banking and marketing channels.",
+    items: [
+      { label: "Offer catalog curation", sublabel: "Assemble and maintain personalized deal collections by lifestyle and life event", icon: Package },
+      { label: "Deal personalization & ranking", sublabel: "Re-rank offers using financial tier and demographic context", icon: Tag },
+      { label: "Seasonal campaign alignment", sublabel: "Time offer pushes to holidays, travel windows, and life events", icon: Calendar },
+      { label: "Redemption & engagement tracking", sublabel: "Monitor take rates, redemption velocity, and merchant-funded liability", icon: LineChart },
+      { label: "Rewards rail distribution", sublabel: "Ship individualized offer sets to the rewards provider and digital banking", icon: Send },
+    ],
+    workflow: [
+      {
+        stage: "Behavioral & Life Event signals in",
+        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
+        chips: [
+          { label: "Behavioral", kind: "signal" },
+          { label: "Life Event", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Curate deal collection",
+        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
+      },
+      {
+        stage: "Personalize ranking",
+        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
+        chips: [
+          { label: "Financial", kind: "signal" },
+          { label: "Demographic", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Risk exclusion pass",
+        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
+        chips: [{ label: "Risk", kind: "signal" }],
+      },
+      {
+        stage: "Push to rewards rails",
+        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
+        chips: [
+          { label: "Rewards Provider", kind: "destination" },
+          { label: "Digital Banking App", kind: "destination" },
         ],
       },
     ],
