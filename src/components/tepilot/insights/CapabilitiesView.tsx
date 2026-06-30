@@ -1093,51 +1093,53 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {activeDetail.items.map((item) => {
-                const ItemIcon = (item as any).icon as React.ElementType | undefined;
-                return ItemIcon ? (
-                  <div
-                    key={item.label}
-                    className="rounded-lg border border-slate-200 bg-white p-3.5 flex items-start gap-3"
-                  >
+            {!activeTeam && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {activeDetail.items.map((item) => {
+                  const ItemIcon = (item as any).icon as React.ElementType | undefined;
+                  return ItemIcon ? (
                     <div
-                      className={cn(
-                        "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 border",
-                        activeDetail.tint,
-                      )}
+                      key={item.label}
+                      className="rounded-lg border border-slate-200 bg-white p-3.5 flex items-start gap-3"
                     >
-                      <ItemIcon className="w-4 h-4" />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                        {item.label}
+                      <div
+                        className={cn(
+                          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 border",
+                          activeDetail.tint,
+                        )}
+                      >
+                        <ItemIcon className="w-4 h-4" />
                       </div>
-                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
-                        {item.sublabel}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div key={item.label} className="flex items-start gap-2.5">
-                    <span
-                      className={cn(
-                        "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
-                        activeDetail.dot,
-                      )}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                        {item.label}
-                      </div>
-                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
-                        {item.sublabel}
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                          {item.label}
+                        </div>
+                        <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
+                          {item.sublabel}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  ) : (
+                    <div key={item.label} className="flex items-start gap-2.5">
+                      <span
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
+                          activeDetail.dot,
+                        )}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                          {item.label}
+                        </div>
+                        <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
+                          {item.sublabel}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
