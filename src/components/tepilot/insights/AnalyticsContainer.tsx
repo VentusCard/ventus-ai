@@ -4,6 +4,7 @@ import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/Availa
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
+
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
@@ -12,18 +13,38 @@ import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 import { LocationExperienceManager } from "./LocationExperienceManager";
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+import { WealthIntelligenceView } from "./WealthIntelligenceView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
+import { ProductsCatalogView } from "./ProductsCatalogView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
+import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
+import { ReportsLibrary } from "./reports/ReportsLibrary";
+import { QueryConsoleView } from "./QueryConsoleView";
+import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
+import { PillarDeepDiveReport } from "./reports/pages/PillarDeepDiveReport";
+import { CrossSellReport } from "./reports/pages/CrossSellReport";
+import { RegionalSpendReport } from "./reports/pages/RegionalSpendReport";
+import { OutflowCompetitorReport } from "./reports/pages/OutflowCompetitorReport";
+import { TopMerchantOutflowReport } from "./reports/pages/TopMerchantOutflowReport";
+import { SubscriptionChurnReport } from "./reports/pages/SubscriptionChurnReport";
+import { CohortRetentionReport } from "./reports/pages/CohortRetentionReport";
+import { LifeEventVolumeReport } from "./reports/pages/LifeEventVolumeReport";
+import { FviSummaryReport } from "./reports/pages/FviSummaryReport";
+import { TierMigrationReport } from "./reports/pages/TierMigrationReport";
+import { LifeEventFunnelReport } from "./reports/pages/LifeEventFunnelReport";
+import { WalletShareReport } from "./reports/pages/WalletShareReport";
+import { TravelTripsReport } from "./reports/pages/TravelTripsReport";
+import { NextConversationReport } from "./reports/pages/NextConversationReport";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
+  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, LayoutDashboard, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
-  Zap, Megaphone, Layers, Presentation
+  Zap, Megaphone, Layers, Presentation, Terminal
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { toast } from "@/hooks/use-toast";
@@ -36,7 +57,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -48,22 +69,32 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Home",
     items: [
-      { value: "ventus-ai", label: "Ventus AI", icon: ({ className }: { className?: string }) => <span className={cn("inline-flex items-center justify-center font-black leading-none text-[14px]", className)}>V</span> },
       { value: "capabilities", label: "System", icon: Layers },
+      {
+        value: "ventus-ai",
+        label: "Ask Ventus AI",
+        icon: ({ className }: { className?: string }) => (
+          <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
+            V
+          </span>
+        ),
+      },
+      { value: "products", label: "Products", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
   },
   {
     label: "Analytics",
     items: [
-      { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
-      { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
-      { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
+      { value: "analytics-dashboard", label: "Dashboard", icon: LayoutDashboard },
+      { value: "reports", label: "Reports", icon: FileBarChart },
+      { value: "query", label: "Query", icon: Terminal },
     ],
   },
   {
     label: "Targeting",
     items: [
+      
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
       { value: "targeting", label: "Next-product", icon: Route },
@@ -87,6 +118,12 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
+    label: "Wealth Intelligence",
+    items: [
+      { value: "wealth-intelligence", label: "Merrill Growth Desk", icon: Briefcase },
+    ],
+  },
+  {
     label: "Health",
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
@@ -105,11 +142,17 @@ interface AnalyticsContainerProps {
   enabledModules?: Set<ModuleKey>;
 }
 
-export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(true);
+  const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const openInQuery = (sql: string) => {
+    setPendingQuery(sql);
+    setActiveTab('query');
+  };
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
@@ -148,25 +191,57 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
-    if (activeTab === 'ventus-ai') setChatOpen(false);
+    if (activeTab === 'ventus-ai' || activeTab === 'wealth-intelligence') setChatOpen(false);
   }, [activeTab]);
+
+  // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
+  const activeGroupLabel = useMemo(
+    () => filteredNavGroups.find((g) => g.items.some((i) => i.value === activeTab))?.label,
+    [filteredNavGroups, activeTab],
+  );
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(activeGroupLabel ? [activeGroupLabel] : []),
+  );
+  useEffect(() => {
+    setOpenGroups(new Set(activeGroupLabel ? [activeGroupLabel] : []));
+  }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
     switch (activeTab) {
       case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
-      case 'capabilities': return <CapabilitiesView />;
+      case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
+      case 'products': return <ProductsCatalogView />;
       case 'exec-demo': return (
         <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <ExecDemoPage embedded />
+          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai')} />
         </div>
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
+      case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
+      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} />;
+      case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
+      case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
+      case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
+      case 'report-regional-spend': return <RegionalSpendReport onBack={() => setActiveTab('reports')} />;
+      case 'report-outflow': return <OutflowCompetitorReport onBack={() => setActiveTab('reports')} />;
+      case 'report-top-merchants': return <TopMerchantOutflowReport onBack={() => setActiveTab('reports')} />;
+      case 'report-subscription': return <SubscriptionChurnReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cohort-retention': return <CohortRetentionReport onBack={() => setActiveTab('reports')} />;
+      case 'report-life-events': return <LifeEventVolumeReport onBack={() => setActiveTab('reports')} />;
+      case 'report-fvi': return <FviSummaryReport onBack={() => setActiveTab('reports')} />;
+      case 'report-tier-migration': return <TierMigrationReport onBack={() => setActiveTab('reports')} />;
+      case 'report-life-event-funnel': return <LifeEventFunnelReport onBack={() => setActiveTab('reports')} />;
+      case 'report-wallet-share': return <WalletShareReport onBack={() => setActiveTab('reports')} />;
+      case 'report-travel-trips': return <TravelTripsReport onBack={() => setActiveTab('reports')} />;
+      case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
+      
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
@@ -174,6 +249,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       case 'location-experience': return <LocationExperienceManager />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
+      case 'wealth-intelligence': return <WealthIntelligenceView />;
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
       case 'fraud-aml': return (
@@ -241,40 +317,76 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </button>
 
         <nav className="flex-1 py-1 overflow-y-auto">
-          {filteredNavGroups.map((group) => (
-            <Collapsible key={group.label} defaultOpen>
+          {filteredNavGroups.map((group) => {
+            const isHome = group.label === "Home";
+            const isOpen = collapsed || isHome ? true : openGroups.has(group.label);
+            const ownsActive = group.label === activeGroupLabel;
+            const renderItems = () => group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.value;
+              return (
+                <button
+                  key={item.value}
+                  onClick={() => setActiveTab(item.value)}
+                  title={collapsed ? item.label : undefined}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                    collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                    isActive
+                      ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+                  )}
+                >
+                  <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </button>
+              );
+            });
+
+            if (isHome) {
+              return (
+                <div key={group.label}>
+                  {!collapsed && (
+                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                      {group.label}
+                    </div>
+                  )}
+                  {renderItems()}
+                  {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200" />}
+                </div>
+              );
+            }
+
+            return (
+            <Collapsible
+              key={group.label}
+              open={isOpen}
+              onOpenChange={(next) => {
+                if (collapsed) return;
+                // Don't allow collapsing the group that owns the active tab
+                if (!next && ownsActive) return;
+                setOpenGroups((prev) => {
+                  const out = new Set(prev);
+                  if (next) out.add(group.label);
+                  else out.delete(group.label);
+                  return out;
+                });
+              }}
+            >
               {!collapsed && (
                 <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
                   {group.label}
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-0" : "-rotate-90")} />
                 </CollapsibleTrigger>
               )}
               <CollapsibleContent>
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.value;
-                  return (
-                    <button
-                      key={item.value}
-                      onClick={() => setActiveTab(item.value)}
-                      title={collapsed ? item.label : undefined}
-                      className={cn(
-                        "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
-                        collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
-                        isActive
-                          ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
-                      )}
-                    >
-                      <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
-                      {!collapsed && <span className="truncate">{item.label}</span>}
-                    </button>
-                  );
-                })}
+                {renderItems()}
               </CollapsibleContent>
               {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
             </Collapsible>
-          ))}
+            );
+          })}
+
         </nav>
 
         <div className="mt-auto border-t border-slate-200 py-1">
@@ -319,7 +431,7 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
             className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
             title="Open Ventus AI"
           >
-            <span className="text-base font-black text-white leading-none">V</span>
+            <span className="text-base font-black text-white leading-tight">V</span>
           </button>
         )}
       </div>

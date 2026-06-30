@@ -16,6 +16,7 @@ const TAB_QUICK_ACTIONS: Record<string, string[]> = {
   "life-events": ["Upcoming life event alerts", "Home purchase signals", "Retirement planning signals", "Product recommendations by event"],
   targeting: ["Top cross-sell opportunities", "Segment performance", "Next-best-offer gaps", "Campaign ROI summary"],
   "wm-copilot": ["High-value client risks", "Portfolio rebalancing alerts", "Advisor workload summary", "Client meeting prep"],
+  "wealth-intelligence": ["Top wealth signals", "Private-credit audience", "Campaign handoff", "Advisor routing"],
   "customer-insights": ["Wellness alert summary", "At-risk customers", "Behavioral stress signals", "Intervention recommendations"],
   "fvi-dashboard": ["Vulnerability cohort overview", "Rising risk segments", "Sensitivity drivers", "Policy impact analysis"],
   "fraud-aml": ["Fraud alert summary", "Suspicious activity trends"],
@@ -53,6 +54,7 @@ const PLATFORM_CONTEXT = {
     lifeEvents: "Predictive life event detection with proactive product recommendations.",
     nextBestProduct: "Segment builder for next-best-offer campaigns.",
     wmCopilot: "Wealth management AI assistant for advisor-level analysis.",
+    wealthIntelligence: "Book-level wealth intelligence with campaign and advisor activation.",
   },
 };
 
@@ -67,6 +69,7 @@ const TAB_LABELS: Record<string, string> = {
   "life-events": "Life Event Detection",
   targeting: "Next-Best Product Engine",
   "wm-copilot": "WM Copilot",
+  "wealth-intelligence": "Wealth Intelligence",
   "customer-insights": "Customer Insights",
   "fvi-dashboard": "Financial Vulnerability",
   "fraud-aml": "Fraud/AML",
@@ -114,7 +117,7 @@ export function VentusAIChatPanel({ activeTab, onClose }: VentusAIChatPanelProps
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 bg-slate-50">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-6 h-6 rounded-md bg-slate-900">
-            <span className="text-[10px] font-black text-white leading-none">V</span>
+            <span className="text-[10px] font-black text-white leading-tight">V</span>
           </div>
           <span className="text-xs font-semibold text-slate-700">Ventus AI</span>
         </div>
