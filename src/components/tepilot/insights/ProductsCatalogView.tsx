@@ -1,4 +1,4 @@
-import { Package } from "lucide-react";
+import { Package, DollarSign, FileText } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import {
   BANK_PRODUCT_CATEGORIES,
