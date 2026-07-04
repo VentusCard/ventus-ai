@@ -919,7 +919,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         Teams · who we serve
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 gap-1.5">
+                    <div className="flex flex-col gap-2 flex-1">
                       {TEAMS.map((t) => {
                         const Icon = t.icon;
                         const isActive = t.label === activeTeamLabel;
@@ -929,7 +929,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={t.label}
                             onClick={() => selectTeam(t.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full flex-1",
                               "bg-white/10 border-amber-300/40 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
                               isActive
                                 ? "ring-2 ring-amber-200/70 bg-white/20 shadow-lg scale-[1.02]"
