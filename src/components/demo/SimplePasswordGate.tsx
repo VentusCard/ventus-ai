@@ -124,7 +124,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
                     }
                   }}
                   className={cn(
-                    "border rounded-xl bg-white h-14 flex items-center justify-center px-4 cursor-pointer select-none transition-colors duration-300",
+                    "border rounded-xl bg-white h-11 flex items-center justify-center px-4 cursor-pointer select-none transition-colors duration-300",
                     isExpanded ? "border-blue-400" : "border-slate-200"
                   )}
                 >
@@ -148,7 +148,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
               expandedSection ? "max-h-[500px] opacity-100 py-4" : "max-h-0 opacity-0"
             )}
           >
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-base text-slate-600 leading-relaxed">
               {[
                 {
                   title: "Our Mission",
