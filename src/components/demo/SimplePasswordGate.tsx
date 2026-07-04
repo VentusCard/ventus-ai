@@ -148,7 +148,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
               expandedSection ? "max-h-[500px] opacity-100 py-4" : "max-h-0 opacity-0"
             )}
           >
-            <p className="text-base text-slate-600 leading-relaxed">
+            <p className="text-sm text-slate-600 leading-relaxed">
               {[
                 {
                   title: "Our Mission",
