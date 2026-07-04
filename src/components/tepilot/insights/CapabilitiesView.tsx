@@ -40,6 +40,15 @@ import {
   Filter,
   GitBranch,
   PenTool,
+  ShieldCheck,
+  FileCheck,
+  MapPin,
+  Wallet,
+  Landmark,
+  Receipt,
+  Bell,
+  Car,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -604,29 +613,50 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       provider: "KYC",
       sublabel: "Identity & compliance",
       icon: UserCircle,
-      inputs: [{ label: "KYC & Profile", icon: UserCircle }],
+      inputs: [
+        { label: "Name, DOB, SSN", icon: UserCircle },
+        { label: "Address & contact", icon: MapPin },
+        { label: "Document verification — ID / passport", icon: FileCheck },
+        { label: "Sanctions, PEP & watchlists", icon: ShieldCheck },
+        { label: "Employer & occupation", icon: Briefcase },
+      ],
     },
     {
       provider: "Transactions",
       sublabel: "Card, ACH, wire & digital payments",
       icon: ArrowLeftRight,
       inputs: [
-        { label: "Card Transactions", icon: CreditCard },
-        { label: "ACH & Wires", icon: ArrowLeftRight },
+        { label: "Card auth & posted", icon: CreditCard },
+        { label: "ACH debit / credit", icon: ArrowLeftRight },
+        { label: "Wires in / out", icon: Landmark },
         { label: "Zelle", icon: Send },
+        { label: "RTP / FedNow", icon: Zap },
+        { label: "Bill pay & checks", icon: Receipt },
       ],
     },
     {
       provider: "Product Holdings",
       sublabel: "Customer portfolio",
       icon: Database,
-      inputs: [{ label: "Deposits & Statements", icon: Database }],
+      inputs: [
+        { label: "Checking & savings", icon: Wallet },
+        { label: "Credit & debit cards", icon: CreditCard },
+        { label: "Loans & mortgage", icon: Home },
+        { label: "Investments & brokerage", icon: PiggyBank },
+        { label: "Statements & balances", icon: FileText },
+      ],
     },
     {
       provider: "Digital Banking",
       sublabel: "App & web telemetry",
       icon: Smartphone,
-      inputs: [{ label: "Digital Telemetry", icon: Smartphone }],
+      inputs: [
+        { label: "App sessions & screens", icon: Smartphone },
+        { label: "Web sessions & pages", icon: Gauge },
+        { label: "Search & clicks", icon: Search },
+        { label: "Push & in-app notifications", icon: Bell },
+        { label: "Feature usage & funnels", icon: Layers },
+      ],
     },
     {
       provider: "External Intelligence",
@@ -637,6 +667,10 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         { label: "Wealth Data", icon: PiggyBank, nonFcra: true },
         { label: "Property Data", icon: Home, nonFcra: true },
         { label: "Demographics Data", icon: Users, nonFcra: true },
+        { label: "Auto & VIN", icon: Car, nonFcra: true },
+        { label: "Employment & income", icon: Briefcase, nonFcra: true },
+        { label: "Life events", icon: Sparkles, nonFcra: true },
+        { label: "Digital identity & device", icon: ShieldCheck, nonFcra: true },
       ],
     },
     {
@@ -645,7 +679,10 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       icon: Package,
       onOpen: onOpenProducts,
       openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
-      inputs: BANK_PRODUCT_CATEGORIES.map((c) => ({ label: c.label, icon: c.icon })),
+      inputs: [
+        { label: "Products & pricing", icon: Package },
+        { label: "Promotions & incentives", icon: Megaphone },
+      ],
     },
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
