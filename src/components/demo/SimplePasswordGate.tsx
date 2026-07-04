@@ -1,7 +1,8 @@
 import { useState, useEffect, type ReactNode } from "react";
-import { Settings, X } from "lucide-react";
+import { Settings, X, ChevronDown } from "lucide-react";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { getDemoBankConfig, setDemoBankConfig, type DemoBankConfig } from "@/lib/demoBankConfig";
+import { cn } from "@/lib/utils";
 
 const CORRECT_PASSWORD = "ventus2026";
 const SESSION_KEY = "demo_password_access";
@@ -16,6 +17,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
+  const [aboutExpanded, setAboutExpanded] = useState(false);
 
   // Settings dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -92,6 +94,50 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
             </div>
           </div>
         )}
+
+        <div className="w-full max-w-2xl">
+          {[
+            {
+              title: "Our Mission",
+              text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
+            },
+            {
+              title: "Our Team",
+              text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
+            },
+            {
+              title: "Our Vision",
+              text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
+            },
+          ].map((section) => (
+            <div key={section.title} className="border-b border-slate-200 last:border-b-0">
+              <button
+                onClick={() => setAboutExpanded(!aboutExpanded)}
+                className="w-full flex items-center justify-between py-3 text-left group cursor-pointer"
+              >
+                <span className="text-sm font-semibold text-slate-800 tracking-tight group-hover:text-slate-900 transition-colors">
+                  {section.title}
+                </span>
+                <ChevronDown
+                  className={cn(
+                    "w-4 h-4 text-slate-400 transition-transform duration-300",
+                    aboutExpanded && "rotate-180"
+                  )}
+                />
+              </button>
+              <div
+                className={cn(
+                  "overflow-hidden transition-all duration-500 ease-in-out",
+                  aboutExpanded ? "max-h-64 opacity-100 pb-4" : "max-h-0 opacity-0"
+                )}
+              >
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {section.text}
+                </p>
+              </div>
+            </div>
+          ))}
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
           <input
