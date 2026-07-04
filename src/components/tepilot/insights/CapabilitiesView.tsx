@@ -750,14 +750,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 <SourceGroupCard
                   key={g.provider}
                   group={g}
-                  isOpen={openGroups.has(g.provider)}
+                  isOpen={openGroup === g.provider}
                   onToggle={() =>
-                    setOpenGroups((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(g.provider)) next.delete(g.provider);
-                      else next.add(g.provider);
-                      return next;
-                    })
+                    setOpenGroup((prev) => (prev === g.provider ? null : g.provider))
                   }
                 />
               ))}
