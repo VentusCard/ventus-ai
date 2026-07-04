@@ -1,4 +1,4 @@
-import { Package } from "lucide-react";
+import { Package, DollarSign, FileText } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import {
   BANK_PRODUCT_CATEGORIES,
@@ -23,6 +23,10 @@ export function ProductsCatalogView() {
         <StatTile label="Role" value="Source of truth" />
         <StatTile label="Reference institution" value="Bank of America" />
       </div>
+
+      <p className="text-[11px] text-slate-400">
+        Pricing shown is reference/sample. Not a live rate quote.
+      </p>
 
       <div className="space-y-8">
         {BANK_PRODUCT_CATEGORIES.map((cat) => {
@@ -70,6 +74,36 @@ export function ProductsCatalogView() {
                     <p className="text-[12px] text-slate-500 leading-snug">
                       {p.tagline}
                     </p>
+                    {(p.pricing || p.terms) && (
+                      <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
+                        {p.pricing && (
+                          <div className="flex items-start gap-2">
+                            <DollarSign className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium leading-tight">
+                                Pricing
+                              </p>
+                              <p className="text-[12px] text-slate-700 leading-snug">
+                                {p.pricing}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        {p.terms && (
+                          <div className="flex items-start gap-2">
+                            <FileText className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium leading-tight">
+                                Terms
+                              </p>
+                              <p className="text-[12px] text-slate-700 leading-snug">
+                                {p.terms}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
