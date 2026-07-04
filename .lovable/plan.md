@@ -1,28 +1,62 @@
-## Plan: Reshape System Tab Source Inputs
+# Enrich System tab expanded context
 
-### Goal
+File: `src/components/tepilot/insights/CapabilitiesView.tsx` (rewrite `sourceGroups` array inside `CapabilitiesView`, ~lines 602–650)
 
-Replace the current source-inputs panel (left column of the network canvas on the **System** tab) with six data-source categories while keeping the existing provider-card format.
+Each card's collapsed header stays the same. Only the expanded list (`inputs`) changes. Icons come from existing `lucide-react` imports (add any missing ones: `ShieldCheck`, `FileCheck`, `MapPin`, `Wallet`, `Briefcase`, `Landmark`, `Receipt`, `FileText`, `MousePointerClick`, `Bell`, `Search`, `Car`, `Sparkles`).
 
-### What changes
+### KYC — Identity & compliance
 
-**File:** `src/components/tepilot/insights/CapabilitiesView.tsx`
+- Name, DOB, SSN (`UserCircle`)
+- Address & contact (`MapPin`)
+- Document verification — ID / passport (`FileCheck`)
+- Sanctions, PEP & watchlists (`ShieldCheck`)
+- Employer & occupation (`Briefcase`)
 
-1. **Replace `SOURCE_GROUPS**`
-  Update the constant array so each of the six requested items becomes its own provider card, preserving the `SourceGroup` structure (provider name, sublabel, icon, inputs). Map existing input chips under the new categories:
-  - **KYC** → KYC & Profile
-  - **Transactions** → Card Transactions, ACH & Wires, Zelle
-  - **Product Holdings** → Cards, Loans, Mortagages  
-  - **Digital Banking** → Digital Telemetry
-  - **External Intelligence** → Credit File, Wealth Data, Property Data, Demographics Data
-  - **Bank Context** → Bank Products, Prices, Promotions and Campagins 
-2. **Update the dynamic `sourceGroups` array inside `CapabilitiesView**`
-  Remove the manual append of the "Bank Product" group since it will already live inside the reshaped `SOURCE_GROUPS`.
-3. **Preserve everything else**
-  The signals, teams, products, destinations, and network-canvas layout remain untouched.
+### Transactions — Card, ACH, wire & digital payments
 
-### What stays the same
+- Card auth & posted (`CreditCard`)
+- ACH debit / credit (`ArrowLeftRight`)
+- Wires in / out (`Landmark`)
+- Zelle (`Send`)
+- RTP / FedNow (`Zap`) — reuse existing `Zap` if imported, else `Send`
+- Bill pay & checks (`Receipt`)
 
-- Card styling, expand/collapse behavior, icons, and non-FCRA badges
-- The network wires, center "Behavioral Intelligence Core" block, and right-side destinations column
-- All other tabs and pages
+### Product Holdings — Customer portfolio
+
+- Checking & savings (`Wallet`)
+- Credit & debit cards (`CreditCard`)
+- Loans & mortgage (`Home`)
+- Investments & brokerage (`PiggyBank`)
+- Statements & balances (`FileText`)
+
+### Digital Banking — App & web telemetry
+
+- App sessions & screens (`Smartphone`)
+- Web sessions & pages (`Gauge`)
+- Search & clicks (`Search` or `MousePointerClick`)
+- Push & in-app notifications (`Bell`)
+- Feature usage & funnels (`Layers`)
+
+### External Intelligence — Credit bureau & consumer data
+
+- Credit File (`Gauge`) — FCRA
+- Wealth Data (`PiggyBank`) — non-FCRA
+- Property Data (`Home`) — non-FCRA
+- Demographics Data (`Users`) — non-FCRA
+- Auto & VIN (`Car`) — non-FCRA
+- Employment & income (`Briefcase`) — non-FCRA
+- Life events (`Sparkles`) — non-FCRA
+- Digital identity & device (`ShieldCheck`) — non-FCRA
+
+### Bank Context — Products, pricing & campaigns
+
+- Products & Pricies (find icon)
+- Promotions and Incentives (find icon)
+
+Unchanged — keeps `BANK_PRODUCT_CATEGORIES` and "Open Products tab" link.
+
+### Notes
+
+- Card layout, expand/collapse, non-FCRA badge styling, network wires, and every other tab remain untouched.
+- Header count string (`{totalSourceInputs} inputs across {sourceGroups.length} providers`) will auto-update.
+- Verify with `tsgo` after edit.
