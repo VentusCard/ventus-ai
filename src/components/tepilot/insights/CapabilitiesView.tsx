@@ -40,6 +40,15 @@ import {
   Filter,
   GitBranch,
   PenTool,
+  ShieldCheck,
+  FileCheck,
+  MapPin,
+  Wallet,
+  Landmark,
+  Receipt,
+  Bell,
+  Car,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
