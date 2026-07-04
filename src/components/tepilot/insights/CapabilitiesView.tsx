@@ -686,7 +686,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     },
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
+  const [openGroup, setOpenGroup] = useState<string | null>(null);
   const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const activeTeam = activeTeamLabel
@@ -750,14 +750,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 <SourceGroupCard
                   key={g.provider}
                   group={g}
-                  isOpen={openGroups.has(g.provider)}
+                  isOpen={openGroup === g.provider}
                   onToggle={() =>
-                    setOpenGroups((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(g.provider)) next.delete(g.provider);
-                      else next.add(g.provider);
-                      return next;
-                    })
+                    setOpenGroup((prev) => (prev === g.provider ? null : g.provider))
                   }
                 />
               ))}
