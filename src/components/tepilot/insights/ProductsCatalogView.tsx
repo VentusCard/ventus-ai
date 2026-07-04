@@ -74,6 +74,36 @@ export function ProductsCatalogView() {
                     <p className="text-[12px] text-slate-500 leading-snug">
                       {p.tagline}
                     </p>
+                    {(p.pricing || p.terms) && (
+                      <div className="mt-3 pt-3 border-t border-slate-100 space-y-1.5">
+                        {p.pricing && (
+                          <div className="flex items-start gap-2">
+                            <DollarSign className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium leading-tight">
+                                Pricing
+                              </p>
+                              <p className="text-[12px] text-slate-700 leading-snug">
+                                {p.pricing}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        {p.terms && (
+                          <div className="flex items-start gap-2">
+                            <FileText className="w-3.5 h-3.5 text-slate-400 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <p className="text-[10px] uppercase tracking-wider text-slate-400 font-medium leading-tight">
+                                Terms
+                              </p>
+                              <p className="text-[12px] text-slate-700 leading-snug">
+                                {p.terms}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
