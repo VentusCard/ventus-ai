@@ -95,42 +95,37 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
           </div>
         )}
 
-        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
-          {[
-            {
-              title: "Our Mission",
-              text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
-            },
-            {
-              title: "Our Team",
-              text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
-            },
-            {
-              title: "Our Vision",
-              text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
-            },
-          ].map((section) => {
-            const isExpanded = expandedSection === section.title;
-            return (
-              <div
-                key={section.title}
-                onClick={() => setExpandedSection(isExpanded ? null : section.title)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    setExpandedSection(isExpanded ? null : section.title);
-                  }
-                }}
-                className={cn(
-                  "border border-slate-200 rounded-xl bg-white transition-all duration-500 ease-in-out overflow-hidden cursor-pointer select-none",
-                  isExpanded ? "h-auto" : "h-14"
-                )}
-              >
+        <div className="w-full max-w-5xl flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+            {[
+              {
+                title: "Our Mission",
+                text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
+              },
+              {
+                title: "Our Team",
+                text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
+              },
+              {
+                title: "Our Vision",
+                text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
+              },
+            ].map((section) => {
+              const isExpanded = expandedSection === section.title;
+              return (
                 <div
+                  key={section.title}
+                  onClick={() => setExpandedSection(isExpanded ? null : section.title)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setExpandedSection(isExpanded ? null : section.title);
+                    }
+                  }}
                   className={cn(
-                    "flex items-center px-4",
-                    isExpanded ? "py-3 justify-between" : "h-full justify-center"
+                    "border rounded-xl bg-white h-14 flex items-center justify-center px-4 cursor-pointer select-none transition-colors duration-300",
+                    isExpanded ? "border-blue-400" : "border-slate-200"
                   )}
                 >
                   <span className="text-sm font-semibold text-slate-800 tracking-tight">
@@ -138,24 +133,38 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
                   </span>
                   <ChevronDown
                     className={cn(
-                      "w-4 h-4 text-slate-400 transition-transform duration-300",
-                      isExpanded ? "rotate-180 ml-2" : "hidden"
+                      "w-4 h-4 text-slate-400 transition-transform duration-300 ml-2",
+                      isExpanded ? "rotate-180" : "hidden"
                     )}
                   />
                 </div>
-                <div
-                  className={cn(
-                    "overflow-hidden transition-all duration-500 ease-in-out px-4",
-                    isExpanded ? "max-h-[500px] opacity-100 pb-4" : "max-h-0 opacity-0"
-                  )}
-                >
-                  <p className="text-sm text-slate-600 leading-relaxed">
-                    {section.text}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+
+          <div
+            className={cn(
+              "border border-slate-200 rounded-xl bg-white overflow-hidden transition-all duration-500 ease-in-out px-4",
+              expandedSection ? "max-h-[500px] opacity-100 py-4" : "max-h-0 opacity-0"
+            )}
+          >
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {[
+                {
+                  title: "Our Mission",
+                  text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
+                },
+                {
+                  title: "Our Team",
+                  text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
+                },
+                {
+                  title: "Our Vision",
+                  text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
+                },
+              ].find((s) => s.title === expandedSection)?.text}
+            </p>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
