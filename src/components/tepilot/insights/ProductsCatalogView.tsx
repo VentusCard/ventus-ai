@@ -24,6 +24,10 @@ export function ProductsCatalogView() {
         <StatTile label="Reference institution" value="Bank of America" />
       </div>
 
+      <p className="text-[11px] text-slate-400">
+        Pricing shown is reference/sample. Not a live rate quote.
+      </p>
+
       <div className="space-y-8">
         {BANK_PRODUCT_CATEGORIES.map((cat) => {
           const Icon = cat.icon;
