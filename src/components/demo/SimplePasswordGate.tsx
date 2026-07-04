@@ -17,7 +17,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
-  const [aboutExpanded, setAboutExpanded] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   // Settings dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
