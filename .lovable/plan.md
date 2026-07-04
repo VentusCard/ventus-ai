@@ -1,38 +1,30 @@
-## Goal
-Convert the three "Our" sections (Mission, Team, Vision) on the `/bankdemo` password gate from a single vertical accordion into independently expandable horizontal cards.
+### Goal
+When a card is clicked, its body text expands into a full-width panel below the three title buttons, without changing the button row layout.
 
-## What we're changing
-File: `src/components/demo/SimplePasswordGate.tsx`
+### Current State
+Each card is a single bordered box containing both the title and the expandable text. When expanded, the text grows inside that one-third-width column.
 
-## Plan
+### Changes
+1. **Split title buttons from body content**
+   - Keep the three titles in a `md:grid-cols-3` row with fixed `h-14` height, borders, and centered text. These act as toggle buttons only.
+   - Remove the expandable text from inside each card div.
+2. **Add a shared full-width content panel**
+   - Directly below the title row, render a single container that spans all columns.
+   - When a title is selected, this panel displays that section’s text.
+   - Use `max-h-0` → `max-h-[500px]` and `opacity` transitions for smooth reveal.
+3. **Preserve collapsed appearance**
+   - Unselected titles remain `h-14` and visually identical.
+   - The selected title can show an active state (e.g., border-blue-400 or rotated chevron) but stays the same size and position.
+4. **Mobile behavior**
+   - Title row stacks vertically (`grid-cols-1`).
+   - Full-width panel still sits below the selected title and spans the container.
+5. **Styling consistency**
+   - Retain border-slate-200, rounded-xl, bg-white, Manrope font, and existing transition timing.
 
-### 1. State refactor
-Replace the single `aboutExpanded` boolean with per-section expansion tracking (e.g., `expandedSection: string | null`). Clicking a section header toggles only that section; the other two stay in their current state.
+### File
+- `src/components/demo/SimplePasswordGate.tsx`
 
-### 2. Horizontal card layout
-- Wrap the three sections in a responsive container: horizontal row on `md` and up (`md:grid-cols-3`), vertical stack on smaller screens.
-- Each card gets a fixed minimum height in collapsed state so the title remains vertically centered.
-- Use `border border-slate-200 rounded-xl bg-white` for each card; remove the current `border-b` dividers.
-- Keep the container within `max-w-5xl` so it aligns with the rest of the password gate content.
-
-### 3. Collapsed appearance
-- Collapsed card: `flex items-center justify-center` with the section title centered. Keep the `ChevronDown` icon to indicate expandability.
-- Set a short fixed height (e.g., `h-20` or `h-24`) for the collapsed state so all three cards align horizontally.
-
-### 4. Expanded appearance
-- Expanded card: title shifts to top-left, chevron rotates, and body text fades in below.
-- Use `max-height` / opacity transitions matching the existing 500ms ease-in-out timing.
-- The expanded card should grow taller to accommodate its paragraph while the sibling cards stay in their short collapsed state.
-
-### 5. Responsive behavior
-- On screens below `md`: cards stack vertically in a single column.
-- In vertical/mobile mode, each card behaves the same way (centered title when collapsed, expands downward).
-
-### 6. Visual polish
-- Keep light-theme styling consistent: `slate-800` headings, `slate-600` body text, `slate-200` borders, no dark-mode utilities.
-- Maintain the existing font stack (`Manrope`).
-
-### 7. Verification
-- After build, verify the password gate at `/bankdemo` shows three short horizontal cards.
-- Click each card individually to confirm independent expand/collapse.
-- Resize to mobile width to confirm vertical stacking.
+### Verification
+- Build passes.
+- Screenshot: collapsed state shows 3 equal short buttons in a row.
+- Screenshot: clicking a button expands a full-width text panel below the entire row, while the button row itself does not shift or resize.
