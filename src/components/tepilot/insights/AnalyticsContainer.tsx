@@ -298,6 +298,17 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
             <Sparkles className="w-3 h-3 text-blue-500" />
             <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
           </div>
+          <button
+            onClick={() => {
+              sessionStorage.removeItem("demo_password_access");
+              window.location.reload();
+            }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-slate-200 bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+            title="Exit demo"
+          >
+            <LogOut className="w-3 h-3" />
+            Exit
+          </button>
         </div>
       </div>
 
