@@ -1,33 +1,17 @@
-Update the `/bankdemo` password gate (`SimplePasswordGate.tsx`) to add three expandable content sections above the password input.
+## Goal
+Add an exit button to the top-right of the `/bankdemo` header (after the "Powered by Ventus AI" badge) that clears the demo session and returns the user to the password gate.
 
-**Assumption:** Clicking any section header expands all three sections simultaneously. If accordion-style (one-at-a-time) is preferred, reject this plan and I'll adjust.
+## Files to Change
+- `src/components/tepilot/insights/AnalyticsContainer.tsx` — add the exit button in the header's right-side flex container
+- `src/pages/BankAnalyticsDashboard.tsx` — no changes needed; the `SimplePasswordGate` wrapper already handles session clearing via `sessionStorage`
 
-### Changes
+## Implementation
+1. In `AnalyticsContainer.tsx` line ~295-301, the header already has a right-side flex container with the date and "Powered by Ventus AI" badge.
+2. Insert an exit button (icon or text+icon) immediately after the badge.
+3. The button should:
+   - Remove the `demo_password_access` key from `sessionStorage`
+   - Call `window.location.reload()` so the `SimplePasswordGate` re-evaluates and shows the password form
+4. Styling: match the existing light theme — `slate-200` border, white background, `slate-500` text, hover to `slate-700`, rounded-full or subtle button style consistent with the header aesthetic. Use `lucide-react`'s `LogOut` or `X` icon.
 
-**1. Insert three sections between the optional bullets and the password form**
-- **Our Mission**
-- **Our Team**  
-- **Our Vision**
-
-Use the exact copy provided by the user for each section's expanded content.
-
-**2. Default state ("sliver")**
-- Show only the three section titles as clickable headers in a compact, vertical stack.
-- No body text visible.
-
-**3. Expanded state**
-- Clicking any header expands **all three** sections at once, revealing their full paragraphs.
-- Clicking any header again collapses all three back to the sliver view.
-- Smooth CSS height/opacity transition for expand/collapse.
-
-**4. Styling**
-- Strict light theme: white backgrounds, `slate-200` borders.
-- Font: `Manrope` (consistent with the gate page).
-- Clean hover/focus states on headers.
-- No dark-mode utilities.
-
-**5. Layout preservation**
-- Keep the existing logo, tagline, optional bullets, and password form in their current order.
-- Ensure responsive centered layout is maintained.
-
-### No other files affected
+## No structural changes
+No new state, no routing changes, no backend changes. Purely a UI trigger that reuses the existing password gate logic.
