@@ -95,7 +95,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
           </div>
         )}
 
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
           {[
             {
               title: "Our Mission",
@@ -109,34 +109,53 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
               title: "Our Vision",
               text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
             },
-          ].map((section) => (
-            <div key={section.title} className="border-b border-slate-200 last:border-b-0">
-              <button
-                onClick={() => setAboutExpanded(!aboutExpanded)}
-                className="w-full flex items-center justify-between py-3 text-left group cursor-pointer"
-              >
-                <span className="text-sm font-semibold text-slate-800 tracking-tight group-hover:text-slate-900 transition-colors">
-                  {section.title}
-                </span>
-                <ChevronDown
-                  className={cn(
-                    "w-4 h-4 text-slate-400 transition-transform duration-300",
-                    aboutExpanded && "rotate-180"
-                  )}
-                />
-              </button>
+          ].map((section) => {
+            const isExpanded = expandedSection === section.title;
+            return (
               <div
+                key={section.title}
+                onClick={() => setExpandedSection(isExpanded ? null : section.title)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    setExpandedSection(isExpanded ? null : section.title);
+                  }
+                }}
                 className={cn(
-                  "overflow-hidden transition-all duration-500 ease-in-out",
-                  aboutExpanded ? "max-h-64 opacity-100 pb-4" : "max-h-0 opacity-0"
+                  "border border-slate-200 rounded-xl bg-white transition-all duration-500 ease-in-out overflow-hidden cursor-pointer select-none",
+                  isExpanded ? "h-auto" : "h-24"
                 )}
               >
-                <p className="text-sm text-slate-600 leading-relaxed">
-                  {section.text}
-                </p>
+                <div
+                  className={cn(
+                    "flex items-center px-4",
+                    isExpanded ? "py-3 justify-between" : "h-full justify-center"
+                  )}
+                >
+                  <span className="text-sm font-semibold text-slate-800 tracking-tight">
+                    {section.title}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "w-4 h-4 text-slate-400 transition-transform duration-300",
+                      isExpanded ? "rotate-180 ml-2" : "hidden"
+                    )}
+                  />
+                </div>
+                <div
+                  className={cn(
+                    "overflow-hidden transition-all duration-500 ease-in-out px-4",
+                    isExpanded ? "max-h-[500px] opacity-100 pb-4" : "max-h-0 opacity-0"
+                  )}
+                >
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {section.text}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
