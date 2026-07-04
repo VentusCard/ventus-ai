@@ -124,7 +124,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
                 }}
                 className={cn(
                   "border border-slate-200 rounded-xl bg-white transition-all duration-500 ease-in-out overflow-hidden cursor-pointer select-none",
-                  isExpanded ? "h-auto" : "h-24"
+                  isExpanded ? "h-auto" : "h-14"
                 )}
               >
                 <div
