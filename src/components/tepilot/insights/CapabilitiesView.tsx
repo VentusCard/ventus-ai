@@ -600,14 +600,52 @@ function SourceGroupCard({
 export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
-    ...SOURCE_GROUPS,
     {
-      provider: "Bank Product",
-      sublabel: "Internal catalog · single source of truth",
+      provider: "KYC",
+      sublabel: "Identity & compliance",
+      icon: UserCircle,
+      inputs: [{ label: "KYC & Profile", icon: UserCircle }],
+    },
+    {
+      provider: "Transactions",
+      sublabel: "Card, ACH, wire & digital payments",
+      icon: ArrowLeftRight,
+      inputs: [
+        { label: "Card Transactions", icon: CreditCard },
+        { label: "ACH & Wires", icon: ArrowLeftRight },
+        { label: "Zelle", icon: Send },
+      ],
+    },
+    {
+      provider: "Product Holdings",
+      sublabel: "Customer portfolio",
+      icon: Database,
+      inputs: [{ label: "Deposits & Statements", icon: Database }],
+    },
+    {
+      provider: "Digital Banking",
+      sublabel: "App & web telemetry",
+      icon: Smartphone,
+      inputs: [{ label: "Digital Telemetry", icon: Smartphone }],
+    },
+    {
+      provider: "External Intelligence",
+      sublabel: "Credit bureau & consumer data",
+      icon: Gauge,
+      inputs: [
+        { label: "Credit File", icon: Gauge },
+        { label: "Wealth Data", icon: PiggyBank, nonFcra: true },
+        { label: "Property Data", icon: Home, nonFcra: true },
+        { label: "Demographics Data", icon: Users, nonFcra: true },
+      ],
+    },
+    {
+      provider: "Bank Context",
+      sublabel: "Products, pricing & campaigns",
       icon: Package,
       onOpen: onOpenProducts,
       openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
-      inputs: BANK_PRODUCT_CATEGORIES.map((c) => ({ label: c.label, icon: Package })),
+      inputs: BANK_PRODUCT_CATEGORIES.map((c) => ({ label: c.label, icon: c.icon })),
     },
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
