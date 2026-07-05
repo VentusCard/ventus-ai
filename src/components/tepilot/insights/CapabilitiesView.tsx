@@ -770,10 +770,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 <SourceGroupCard
                   key={g.provider}
                   group={g}
-                  isOpen={openGroup === g.provider}
-                  onToggle={() =>
-                    setOpenGroup((prev) => (prev === g.provider ? null : g.provider))
-                  }
+                  isActive={activeSourceLabel === g.provider}
+                  onSelect={() => selectSource(g.provider)}
                 />
               ))}
             </div>
