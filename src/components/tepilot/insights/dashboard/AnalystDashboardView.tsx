@@ -35,6 +35,7 @@ import {
 
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
+  renderVentusSliver?: () => React.ReactNode;
 }
 
 function fmtCurrency(n: number) {
@@ -57,7 +58,7 @@ function fmtDateTick(d: Date) {
 
 const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
-export function AnalystDashboardView({ onNavigate }: AnalystDashboardViewProps) {
+export function AnalystDashboardView({ onNavigate, renderVentusSliver }: AnalystDashboardViewProps) {
   const { range, preset, setPreset, setCustom, compare, setCompare } =
     useDashboardRange("30d");
 
@@ -190,6 +191,8 @@ export function AnalystDashboardView({ onNavigate }: AnalystDashboardViewProps) 
         opportunities={opportunities}
         onSeeWhy={() => onNavigate("dashboard")}
       />
+
+      {renderVentusSliver?.()}
 
       {/* KPI tiles */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
