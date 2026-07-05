@@ -1,17 +1,16 @@
-## Goal
-Tighten the `Deals & Perks` view — the parent `TabHeader` plus colored descriptor strips duplicate the child views' own `TabHeader`s (Deal Management, Location Experience Manager already render one). Collapse to a single compact bar.
+## Compact Stats + Search Bar Row
 
-## Changes
+### Problem
+The three stat pills (`200 Deals`, `5.4M Activations`, `70% Avg Rate`) currently render on their own full-width row above the search bar, wasting vertical space.
 
-### `src/components/tepilot/insights/DealsAndPerksView.tsx`
-- Remove the parent `<TabHeader>` block.
-- Remove both colored descriptor strips (blue Shopping / emerald Perks callouts).
-- Render only a compact `TabsList` (max-w-md, h-9) as the sole chrome at the top; sub-tab labels stay `Shopping Deals` / `Location Perks` with their icons. Add a one-line `text-xs text-slate-500` hint to the right of the tabs: "Shopping = merchant discounts · Perks = place-based benefits" so the distinction is preserved without a full header.
-- Each `TabsContent` renders its child view directly (no wrapper padding beyond `mt-4`); child views keep their existing `TabHeader`.
+### Solution
+Merge the stats row and the search/sort row into a single horizontal line.
 
-### No other files touched
-- `AvailableDealsGrid` and `LocationExperienceManager` remain untouched — their existing `TabHeader`s now serve as the section header for each sub-tab.
+- Move the stats `<div>` into the same row as the search `<Input>` + `<Select>`.
+- Stats align left; search + sort align right (or vice-versa — whatever fits).
+- Use `flex-wrap` with `gap-3` so it collapses gracefully on narrow viewports.
+- Keep the existing stat pill styling (`bg-slate-50`, rounded-lg, icon + text).
+- Remove the now-empty stats-only `<div>` wrapper.
 
-## Verification
-- `tsgo --noEmit` clean.
-- /bankdemo → Deals & Perks: single compact tab bar; switching tabs shows only the child's own header, no duplicated title strip.
+### Files
+- `src/components/tepilot/rewards-pipeline/AvailableDealsGrid.tsx` — restructure the two adjacent rows into one shared row.
