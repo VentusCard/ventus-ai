@@ -93,10 +93,10 @@ export function AvailableDealsGrid() {
         howItWorks="Curated merchant deal library scored by customer affinity, category fit, and activation potential using Ventus behavioral data."
         whyItMatters="Enables rewards teams to quickly evaluate, activate, and manage deals with data-backed prioritization."
       />
-      <div className="flex flex-col md:flex-row md:items-center justify-end gap-4">
-        
+      {/* Stats + Search + Sort */}
+      <div className="flex flex-wrap items-center gap-3">
         {/* Stats */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-lg">
             <Package className="w-4 h-4 text-slate-400" />
             <span className="text-sm font-medium text-slate-700">{filteredDeals.length} Deals</span>
@@ -112,10 +112,11 @@ export function AvailableDealsGrid() {
             <span className="text-sm font-medium text-slate-700">{stats.avgRedemption}% Avg Rate</span>
           </div>
         </div>
-      </div>
 
-      {/* Search and Sort */}
-      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 min-w-[20px]" />
+
+        {/* Search and Sort */}
+        <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:flex-none sm:min-w-[320px]">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
@@ -146,6 +147,7 @@ export function AvailableDealsGrid() {
             <SelectItem value="newest">Newest First</SelectItem>
           </SelectContent>
         </Select>
+      </div>
       </div>
 
       {/* Semantic Search Reasoning */}
