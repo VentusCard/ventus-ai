@@ -13,6 +13,7 @@ Updated: 3h ago
 - Domain is **ventusai.com** — never `ventus.ai` in copy, emails, or URLs.
 
 ## Memories
+- [External Consumer Intelligence](mem://reference/external-consumer-intelligence) — Third-party enrichment source: 8 sources, 175+ attributes, 300M+ consumers / 125M+ households
 - [Travel Enrichment Logic](mem://technical/data-processing/travel-enrichment-logic) — Trip label rules, price heuristics, and fare matching
 - [Deal Personalization](mem://features/deal-personalization/implementation) — Copywriting rules for lifestyle-driven marketing messages
 - [Product Narrative](mem://strategy/product-narrative) — 4-act structure for product value proposition
