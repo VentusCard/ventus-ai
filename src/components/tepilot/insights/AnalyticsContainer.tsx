@@ -100,7 +100,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Rewards",
+    label: "Deals & Rewards",
     items: [
       { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
       { value: "deal-management", label: "Deals & Perks", icon: Package },
