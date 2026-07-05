@@ -78,18 +78,17 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Analytics",
     items: [
-      { value: "analytics-dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { value: "reports", label: "Reports", icon: FileBarChart },
-      { value: "query", label: "Query", icon: Terminal },
       {
-        value: "ventus-ai",
-        label: "Ask Ventus AI",
+        value: "ventus-ai-dashboard",
+        label: "Ventus AI Dashboard",
         icon: ({ className }: { className?: string }) => (
           <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
             V
           </span>
         ),
       },
+      { value: "reports", label: "Reports", icon: FileBarChart },
+      { value: "query", label: "Query", icon: Terminal },
     ],
   },
   {
