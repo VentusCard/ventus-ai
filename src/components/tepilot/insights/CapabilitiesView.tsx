@@ -1086,6 +1086,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {activeDetail.items.map((item) => {
                   const ItemIcon = (item as any).icon as React.ElementType | undefined;
+                  const itemNonFcra = (item as any).nonFcra as boolean | undefined;
                   return ItemIcon ? (
                     <div
                       key={item.label}
@@ -1100,14 +1101,22 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         <ItemIcon className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                          {item.label}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                            {item.label}
+                          </div>
+                          {itemNonFcra && (
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                              non-FCRA
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                           {item.sublabel}
                         </div>
                       </div>
                     </div>
+
                   ) : (
                     <div key={item.label} className="flex items-start gap-2.5">
                       <span
