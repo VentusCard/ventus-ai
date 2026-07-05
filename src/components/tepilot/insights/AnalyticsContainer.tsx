@@ -91,7 +91,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Targeting",
+    label: "Product & Growth",
     items: [
       
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
