@@ -21,7 +21,7 @@ import { CapabilitiesView } from "./CapabilitiesView";
 import { ProductsCatalogView } from "./ProductsCatalogView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
-import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
+
 import { ReportsLibrary } from "./reports/ReportsLibrary";
 import { QueryConsoleView } from "./QueryConsoleView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
@@ -41,14 +41,14 @@ import { TravelTripsReport } from "./reports/pages/TravelTripsReport";
 import { NextConversationReport } from "./reports/pages/NextConversationReport";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, LayoutDashboard, FileBarChart,
+  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
   Zap, Megaphone, Layers, Presentation, Terminal, LogOut
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { toast } from "@/hooks/use-toast";
-import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
+import { VentusAIDashboardView } from "./VentusAIDashboardView";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
@@ -57,7 +57,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -77,18 +77,17 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Analytics",
     items: [
-      { value: "analytics-dashboard", label: "Dashboard", icon: LayoutDashboard },
-      { value: "reports", label: "Reports", icon: FileBarChart },
-      { value: "query", label: "Query", icon: Terminal },
       {
-        value: "ventus-ai",
-        label: "Ask Ventus AI",
+        value: "ventus-ai-dashboard",
+        label: "Ventus AI Dashboard",
         icon: ({ className }: { className?: string }) => (
           <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
             V
           </span>
         ),
       },
+      { value: "reports", label: "Reports", icon: FileBarChart },
+      { value: "query", label: "Query", icon: Terminal },
     ],
   },
   {
@@ -209,16 +208,18 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
+      case 'ventus-ai-dashboard':
+      case 'ventus-ai':
+      case 'analytics-dashboard':
+        return <VentusAIDashboardView onNavigate={setActiveTab} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <ProductsCatalogView />;
       case 'exec-demo': return (
         <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai')} />
+          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai-dashboard')} />
         </div>
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
-      case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
       case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} />;
       case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
@@ -436,7 +437,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           </div>
         )}
         {renderContent()}
-        {activeTab !== 'ventus-ai' && !chatOpen && (
+        {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
           <button
             onClick={() => setChatOpen(true)}
             className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
@@ -448,7 +449,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       </div>
 
       {/* Chat Panel */}
-      {chatOpen && activeTab !== 'ventus-ai' && (
+      {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && (
         <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
       )}
       </div>
