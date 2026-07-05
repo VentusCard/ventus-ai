@@ -1,30 +1,17 @@
 ## Goal
-In /bankdemo Analytics sidebar, collapse the two Rewards items — **Deal Management** and **Locational Perk Aggregation** — into a single entry called **Deals & Perks**, with two clearly-labeled sub-tabs that spell out the difference (shopping/merchant offers vs. city/location experiences).
+Tighten the `Deals & Perks` view — the parent `TabHeader` plus colored descriptor strips duplicate the child views' own `TabHeader`s (Deal Management, Location Experience Manager already render one). Collapse to a single compact bar.
 
 ## Changes
 
-### 1. `src/components/tepilot/insights/AnalyticsContainer.tsx`
-- In the Rewards nav group, remove the `location-experience` item and rename `deal-management` → `Deals & Perks` (keep `value: "deal-management"` for URL stability; icon stays `Package`, or switch to `Tags`).
-- Keep the legacy `location-experience` value routable so old links still work — its `renderContent` case will render the new combined view with the Perks sub-tab pre-selected.
-- Replace the `deal-management` / `location-experience` render cases with a single new component `<DealsAndPerksView defaultTab={...} />`.
+### `src/components/tepilot/insights/DealsAndPerksView.tsx`
+- Remove the parent `<TabHeader>` block.
+- Remove both colored descriptor strips (blue Shopping / emerald Perks callouts).
+- Render only a compact `TabsList` (max-w-md, h-9) as the sole chrome at the top; sub-tab labels stay `Shopping Deals` / `Location Perks` with their icons. Add a one-line `text-xs text-slate-500` hint to the right of the tabs: "Shopping = merchant discounts · Perks = place-based benefits" so the distinction is preserved without a full header.
+- Each `TabsContent` renders its child view directly (no wrapper padding beyond `mt-4`); child views keep their existing `TabHeader`.
 
-### 2. New file: `src/components/tepilot/insights/DealsAndPerksView.tsx`
-- Wraps a shadcn `Tabs` with two triggers:
-  - **Shopping Deals** — "Merchant offers customers redeem when they shop (e.g. 10% off Nike)." Renders `<AvailableDealsGrid />`.
-  - **Location Perks** — "City-based experiences and partner benefits tied to where the customer lives or travels (e.g. lounge access in NYC)." Renders `<LocationExperienceManager />`.
-- Short `TabHeader` above the tabs titled **Deals & Perks** with a one-line subtitle contrasting the two ("Shopping deals are transactional discounts. Location perks are place-based experiences.").
-- `defaultTab` prop selects which sub-tab is active on mount (`"shopping"` default; `"perks"` when arriving via legacy `location-experience` value).
-
-### 3. Sub-tab copy inside each panel
-- Add a slim descriptor strip at the top of each sub-tab body making the distinction unmistakable:
-  - Shopping: "Merchant discounts and cashback offers customers activate and redeem at checkout."
-  - Perks: "Curated local experiences, partner benefits, and city-specific privileges — not tied to a purchase."
-
-## Out of scope
-- No changes to `AvailableDealsGrid` or `LocationExperienceManager` internals.
-- No data model, routing, or edge-function changes.
-- No changes to floating chat, other tabs, or `/rewards-pipeline` standalone page.
+### No other files touched
+- `AvailableDealsGrid` and `LocationExperienceManager` remain untouched — their existing `TabHeader`s now serve as the section header for each sub-tab.
 
 ## Verification
 - `tsgo --noEmit` clean.
-- Navigate /bankdemo → Rewards → **Deals & Perks**: default lands on Shopping Deals; switching to Location Perks renders the manager. Old `location-experience` tab value routes to the same view with Perks active.
+- /bankdemo → Deals & Perks: single compact tab bar; switching tabs shows only the child's own header, no duplicated title strip.
