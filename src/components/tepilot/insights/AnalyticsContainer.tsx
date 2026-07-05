@@ -162,11 +162,11 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Health/Others/Targeting groups follow Analytics (always on since Analytics is always enabled)
+    // Health/Others/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
       allowedLabels.add("Health");
       allowedLabels.add("Others");
-      allowedLabels.add("Targeting");
+      allowedLabels.add("Product & Growth");
     }
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
