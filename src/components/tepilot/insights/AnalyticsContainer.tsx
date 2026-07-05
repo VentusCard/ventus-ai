@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { BankwideView } from "./BankwideView";
-import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
+import { DealsAndPerksView } from "./DealsAndPerksView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
@@ -10,7 +10,7 @@ import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
-import { LocationExperienceManager } from "./LocationExperienceManager";
+
 import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { WealthIntelligenceView } from "./WealthIntelligenceView";
@@ -103,8 +103,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Rewards",
     items: [
       { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
-      { value: "deal-management", label: "Deal Management", icon: Package },
-      { value: "location-experience", label: "Locational Perk Aggregation", icon: MapPin },
+      { value: "deal-management", label: "Deals & Perks", icon: Package },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
@@ -246,8 +245,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
-      case 'deal-management': return <AvailableDealsGrid />;
-      case 'location-experience': return <LocationExperienceManager />;
+      case 'deal-management': return <DealsAndPerksView defaultTab="shopping" />;
+      case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
       case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
       case 'wealth-intelligence': return <WealthIntelligenceView />;
