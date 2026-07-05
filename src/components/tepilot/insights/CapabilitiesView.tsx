@@ -56,6 +56,7 @@ import { BANK_PRODUCT_CATEGORIES, BANK_PRODUCT_TOTAL } from "@/lib/bankProductCa
 
 type SourceInput = {
   label: string;
+  sublabel: string;
   icon: React.ElementType;
   nonFcra?: boolean;
 };
@@ -64,6 +65,7 @@ type SourceGroup = {
   provider: string;
   sublabel: string;
   icon: React.ElementType;
+  description: string;
   inputs: SourceInput[];
   onOpen?: () => void;
   openLabel?: string;
