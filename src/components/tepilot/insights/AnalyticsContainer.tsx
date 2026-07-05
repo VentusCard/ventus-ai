@@ -21,7 +21,7 @@ import { CapabilitiesView } from "./CapabilitiesView";
 import { ProductsCatalogView } from "./ProductsCatalogView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
-import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
+
 import { ReportsLibrary } from "./reports/ReportsLibrary";
 import { QueryConsoleView } from "./QueryConsoleView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
