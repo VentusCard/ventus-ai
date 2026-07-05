@@ -1015,14 +1015,25 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       activeDetail.tint,
                     )}
                   >
-                    {activeDetail.items.length} {activeSignal ? "detections" : "responsibilities"}
+                    {activeDetail.items.length} {activeDetailCountNoun}
                   </span>
                 </div>
                 <p className="text-[12px] text-slate-600 mt-1 leading-snug">
                   {activeDetail.description}
                 </p>
               </div>
+              {activeSource?.onOpen && (
+                <button
+                  type="button"
+                  onClick={activeSource.onOpen}
+                  className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2 py-1 rounded transition-colors"
+                >
+                  <span>{activeSource.openLabel ?? "Open"}</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </button>
+              )}
             </div>
+
 
             {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
               <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4 flex-1 flex flex-col min-h-[280px]">
