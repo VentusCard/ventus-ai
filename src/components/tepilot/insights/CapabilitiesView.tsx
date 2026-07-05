@@ -56,6 +56,7 @@ import { BANK_PRODUCT_CATEGORIES, BANK_PRODUCT_TOTAL } from "@/lib/bankProductCa
 
 type SourceInput = {
   label: string;
+  sublabel: string;
   icon: React.ElementType;
   nonFcra?: boolean;
 };
@@ -64,6 +65,7 @@ type SourceGroup = {
   provider: string;
   sublabel: string;
   icon: React.ElementType;
+  description: string;
   inputs: SourceInput[];
   onOpen?: () => void;
   openLabel?: string;
@@ -535,74 +537,45 @@ function NodeCard({
 
 function SourceGroupCard({
   group,
-  isOpen,
-  onToggle,
+  isActive,
+  onSelect,
 }: {
   group: SourceGroup;
-  isOpen: boolean;
-  onToggle: () => void;
+  isActive: boolean;
+  onSelect: () => void;
 }) {
   const Icon = group.icon;
   return (
-    <div className="relative rounded-lg border border-slate-200 bg-white shadow-sm hover:border-emerald-300 transition-colors">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left"
-      >
-        <div className="flex items-center justify-center w-7 h-7 rounded-md shrink-0 border bg-slate-100 text-slate-600 border-slate-200">
-          <Icon className="w-3.5 h-3.5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
-            {group.provider}
-          </div>
-          <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">
-            {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
-          </div>
-        </div>
-        <ChevronDown
-          className={cn(
-            "w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform",
-            isOpen && "rotate-180",
-          )}
-        />
-        <span className="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-      </button>
-      {isOpen && (
-        <div className="border-t border-slate-100 px-3 py-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
-          {group.inputs.map((input) => {
-            const InputIcon = input.icon;
-            return (
-              <div key={input.label} className="flex items-center gap-2">
-                <InputIcon className="w-3 h-3 text-slate-400 shrink-0" />
-                <span className="text-[11.5px] font-medium text-slate-700 flex-1 truncate">
-                  {input.label}
-                </span>
-                {input.nonFcra && (
-                  <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
-                    non-FCRA
-                  </span>
-                )}
-              </div>
-            );
-          })}
-          {group.onOpen && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                group.onOpen?.();
-              }}
-              className="mt-1 w-full flex items-center justify-between gap-1 text-[10.5px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-1.5 py-1 rounded transition-colors"
-            >
-              <span>{group.openLabel ?? "Open"}</span>
-              <ArrowUpRight className="w-3 h-3" />
-            </button>
-          )}
-        </div>
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "relative w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-lg border bg-white shadow-sm transition-all",
+        isActive
+          ? "border-emerald-400 ring-2 ring-emerald-200 shadow-md scale-[1.01]"
+          : "border-slate-200 hover:border-emerald-300",
       )}
-    </div>
+    >
+      <div
+        className={cn(
+          "flex items-center justify-center w-7 h-7 rounded-md shrink-0 border",
+          isActive
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : "bg-slate-100 text-slate-600 border-slate-200",
+        )}
+      >
+        <Icon className="w-3.5 h-3.5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
+          {group.provider}
+        </div>
+        <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">
+          {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
+        </div>
+      </div>
+      <span className="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+    </button>
   );
 }
 
@@ -613,98 +586,145 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       provider: "KYC",
       sublabel: "Identity & compliance",
       icon: UserCircle,
+      description: "Verified identity, contact, and compliance attributes collected at onboarding and refreshed through periodic KYC review.",
       inputs: [
-        { label: "Name, DOB, SSN", icon: UserCircle },
-        { label: "Address & contact", icon: MapPin },
-        { label: "Document verification — ID / passport", icon: FileCheck },
-        { label: "Sanctions, PEP & watchlists", icon: ShieldCheck },
-        { label: "Employer & occupation", icon: Briefcase },
+        { label: "Name, DOB, SSN", sublabel: "Core identity tuple used for identity resolution across systems", icon: UserCircle },
+        { label: "Address & contact", sublabel: "Residential address, phone, and email of record", icon: MapPin },
+        { label: "Document verification — ID / passport", sublabel: "Government ID scan + liveness check outcome", icon: FileCheck },
+        { label: "Sanctions, PEP & watchlists", sublabel: "OFAC, PEP, and adverse-media screening status", icon: ShieldCheck },
+        { label: "Employer & occupation", sublabel: "Self-reported employer and occupation from onboarding forms", icon: Briefcase },
       ],
     },
     {
       provider: "Transactions",
       sublabel: "Card, ACH, wire & digital payments",
       icon: ArrowLeftRight,
+      description: "Real-time and settled payment streams across every rail the bank runs — the primary substrate for behavioral enrichment.",
       inputs: [
-        { label: "Card auth & posted", icon: CreditCard },
-        { label: "ACH debit / credit", icon: ArrowLeftRight },
-        { label: "Wires in / out", icon: Landmark },
-        { label: "Zelle", icon: Send },
-        { label: "RTP / FedNow", icon: Zap },
-        { label: "Bill pay & checks", icon: Receipt },
+        { label: "Card auth & posted", sublabel: "Live authorization stream and settled postings from the card processor", icon: CreditCard },
+        { label: "ACH debit / credit", sublabel: "NACHA-cleared debits and credits including recurring payroll", icon: ArrowLeftRight },
+        { label: "Wires in / out", sublabel: "Domestic and international wire activity with counterparty detail", icon: Landmark },
+        { label: "Zelle", sublabel: "P2P transfers with contact-level counterparties", icon: Send },
+        { label: "RTP / FedNow", sublabel: "Real-time payment rails, 24/7 clearing", icon: Zap },
+        { label: "Bill pay & checks", sublabel: "Scheduled bill pay and posted paper/e-check activity", icon: Receipt },
       ],
     },
     {
       provider: "Product Holdings",
       sublabel: "Customer portfolio",
       icon: Database,
+      description: "Every product the customer currently holds with the bank, balances, and statement history — the portfolio view of the relationship.",
       inputs: [
-        { label: "Checking & savings", icon: Wallet },
-        { label: "Credit & debit cards", icon: CreditCard },
-        { label: "Loans & mortgage", icon: Home },
-        { label: "Investments & brokerage", icon: PiggyBank },
-        { label: "Statements & balances", icon: FileText },
+        { label: "Checking & savings", sublabel: "Deposit accounts, balances, and interest posture", icon: Wallet },
+        { label: "Credit & debit cards", sublabel: "Card products held, limits, and utilization", icon: CreditCard },
+        { label: "Loans & mortgage", sublabel: "Auto, personal, HELOC, and mortgage servicing", icon: Home },
+        { label: "Investments & brokerage", sublabel: "In-house brokerage and managed-portfolio holdings", icon: PiggyBank },
+        { label: "Statements & balances", sublabel: "Historical statement cycles for balance trending", icon: FileText },
       ],
     },
     {
       provider: "Digital Banking",
       sublabel: "App & web telemetry",
       icon: Smartphone,
+      description: "Behavioral telemetry from the mobile app and web banking — how customers engage with the bank's digital surface.",
       inputs: [
-        { label: "App sessions & screens", icon: Smartphone },
-        { label: "Web sessions & pages", icon: Gauge },
-        { label: "Search & clicks", icon: Search },
-        { label: "Push & in-app notifications", icon: Bell },
-        { label: "Feature usage & funnels", icon: Layers },
+        { label: "App sessions & screens", sublabel: "Session duration, screen views, and navigation paths in mobile", icon: Smartphone },
+        { label: "Web sessions & pages", sublabel: "Online banking session telemetry and page views", icon: Gauge },
+        { label: "Search & clicks", sublabel: "In-app search terms and CTA click-through", icon: Search },
+        { label: "Push & in-app notifications", sublabel: "Notifications sent, opened, and dismissed", icon: Bell },
+        { label: "Feature usage & funnels", sublabel: "Feature adoption and funnel drop-off analytics", icon: Layers },
       ],
     },
     {
       provider: "External Intelligence",
-      sublabel: "Credit bureau & consumer data",
+      sublabel: "Credit bureau & third-party enrichment",
       icon: Gauge,
+      description: "Credit bureau file plus third-party consumer enrichment covering wealth, property, demographics, auto, employment, life events, and digital identity.",
       inputs: [
-        { label: "Credit File", icon: Gauge },
-        { label: "Wealth Data", icon: PiggyBank, nonFcra: true },
-        { label: "Property Data", icon: Home, nonFcra: true },
-        { label: "Demographics Data", icon: Users, nonFcra: true },
-        { label: "Auto & VIN", icon: Car, nonFcra: true },
-        { label: "Employment & income", icon: Briefcase, nonFcra: true },
-        { label: "Life events", icon: Sparkles, nonFcra: true },
-        { label: "Digital identity & device", icon: ShieldCheck, nonFcra: true },
+        { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge },
+        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank, nonFcra: true },
+        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home, nonFcra: true },
+        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users, nonFcra: true },
+        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car, nonFcra: true },
+        { label: "Employment & income", sublabel: "Employer, occupation, and income estimate", icon: Briefcase, nonFcra: true },
+        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles, nonFcra: true },
+        { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck, nonFcra: true },
       ],
     },
     {
       provider: "Bank Context",
       sublabel: "Products, pricing & campaigns",
       icon: Package,
+      description: `The bank's own product catalog, pricing, and active promotions — the single source of truth for what Ventus can recommend. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
       onOpen: onOpenProducts,
       openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
       inputs: [
-        { label: "Products & pricing", icon: Package },
-        { label: "Promotions & incentives", icon: Megaphone },
+        { label: "Products & pricing", sublabel: "Full retail product catalog with rates, fees, and eligibility rules", icon: Package },
+        { label: "Promotions & incentives", sublabel: "Active campaigns, bonus offers, and merchant-funded promotions", icon: Megaphone },
       ],
     },
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
-  const [openGroup, setOpenGroup] = useState<string | null>(null);
+  const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
   const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const activeTeam = activeTeamLabel
     ? TEAMS.find((t) => t.label === activeTeamLabel) ?? null
     : null;
-  const activeDetail = activeSignal ?? activeTeam;
-  const activeDetailKind = activeSignal ? "Signal family" : activeTeam ? "Team" : null;
+  const activeSourceGroup = activeSourceLabel
+    ? sourceGroups.find((g) => g.provider === activeSourceLabel) ?? null
+    : null;
+  const activeSource = activeSourceGroup
+    ? {
+        label: activeSourceGroup.provider,
+        icon: activeSourceGroup.icon,
+        color: "bg-emerald-500",
+        tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        dot: "bg-emerald-500",
+        description: activeSourceGroup.description,
+        items: activeSourceGroup.inputs.map((i) => ({
+          label: i.label,
+          sublabel: i.sublabel,
+          icon: i.icon,
+          nonFcra: i.nonFcra,
+        })),
+        onOpen: activeSourceGroup.onOpen,
+        openLabel: activeSourceGroup.openLabel,
+      }
+    : null;
+  const activeDetail = activeSignal ?? activeTeam ?? activeSource;
+  const activeDetailKind = activeSignal
+    ? "Signal family"
+    : activeTeam
+    ? "Team"
+    : activeSource
+    ? "Source"
+    : null;
+  const activeDetailCountNoun = activeSignal
+    ? "detections"
+    : activeTeam
+    ? "responsibilities"
+    : activeSource
+    ? "inputs"
+    : "";
   const ActiveIcon = activeDetail?.icon;
   const visibleDestinations = activeTeamLabel
     ? DESTINATIONS.filter((d) => getTeamDestinations(activeTeamLabel).includes(d.label))
     : DESTINATIONS;
   const selectSignal = (label: string) => {
     setActiveTeamLabel(null);
+    setActiveSourceLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
   };
   const selectTeam = (label: string) => {
     setActiveSignalLabel(null);
+    setActiveSourceLabel(null);
     setActiveTeamLabel((prev) => (prev === label ? null : label));
+  };
+  const selectSource = (label: string) => {
+    setActiveSignalLabel(null);
+    setActiveTeamLabel(null);
+    setActiveSourceLabel((prev) => (prev === label ? null : label));
   };
 
   return (
@@ -750,10 +770,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 <SourceGroupCard
                   key={g.provider}
                   group={g}
-                  isOpen={openGroup === g.provider}
-                  onToggle={() =>
-                    setOpenGroup((prev) => (prev === g.provider ? null : g.provider))
-                  }
+                  isActive={activeSourceLabel === g.provider}
+                  onSelect={() => selectSource(g.provider)}
                 />
               ))}
             </div>
@@ -997,14 +1015,25 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       activeDetail.tint,
                     )}
                   >
-                    {activeDetail.items.length} {activeSignal ? "detections" : "responsibilities"}
+                    {activeDetail.items.length} {activeDetailCountNoun}
                   </span>
                 </div>
                 <p className="text-[12px] text-slate-600 mt-1 leading-snug">
                   {activeDetail.description}
                 </p>
               </div>
+              {activeSource?.onOpen && (
+                <button
+                  type="button"
+                  onClick={activeSource.onOpen}
+                  className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2 py-1 rounded transition-colors"
+                >
+                  <span>{activeSource.openLabel ?? "Open"}</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </button>
+              )}
             </div>
+
 
             {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
               <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4 flex-1 flex flex-col min-h-[280px]">
@@ -1057,6 +1086,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {activeDetail.items.map((item) => {
                   const ItemIcon = (item as any).icon as React.ElementType | undefined;
+                  const itemNonFcra = (item as any).nonFcra as boolean | undefined;
                   return ItemIcon ? (
                     <div
                       key={item.label}
@@ -1071,14 +1101,22 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         <ItemIcon className="w-4 h-4" />
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                          {item.label}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                            {item.label}
+                          </div>
+                          {itemNonFcra && (
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                              non-FCRA
+                            </span>
+                          )}
                         </div>
                         <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
                           {item.sublabel}
                         </div>
                       </div>
                     </div>
+
                   ) : (
                     <div key={item.label} className="flex items-start gap-2.5">
                       <span
