@@ -1,39 +1,58 @@
-## Goal
+# Sources → shared detail panel (like Ventus AI cards)
 
-Record the third-party consumer intelligence dataset (from the uploaded Data Axle reference slides) as a project memory entry so future work can cite its sources, attributes, and scale — without touching any UI.
+## Context
 
-Per the naming choice, the vendor is abstracted as **"External Consumer Intelligence"** in all copy (aligns with the existing infrastructure-abstraction rule).
+On `/bankdemo` → **System** tab (`CapabilitiesView.tsx`), the middle "Ventus AI System" column has two rows of cards — **Signals** and **Teams** — that share one interaction: click a card, it becomes active (ring highlight, mutually exclusive), and a shared detail panel opens below the network canvas with the item's description + an icon-card grid.
+
+The left **Sources** column ("Inputs") currently behaves differently: each card is a self-contained accordion that expands inline into a bullet list. No shared panel, no description, no icon grid.
+
+Goal: give each Source card the same click-to-open behavior, rendering into the **same** detail panel with the **same** format and structure as Signals/Teams.
+
+## Panel format guarantee
+
+The Source detail panel is not a new panel — it is the existing block at rows 974–1104 reused as-is. That means Source expansions get, in this exact order and styling:
+
+1. Top-border separator + fade/slide-in animation (`mt-8 pt-6 border-t border-slate-100 animate-in ...`).
+2. Header row: 36px colored icon tile → uppercase kind label ("Source") → bold 15px title → tinted count pill ("N inputs").
+3. Description line (`text-[12px] text-slate-600`).
+4. Item grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3`, each item rendered by the existing icon-card branch (rows 1060–1081) — 8×8 tinted icon tile, 12.5px semibold label, 11.5px sublabel.
+
+No parallel/duplicate panel is introduced. The only additions inside that shared block are:
+
+- Third branch in the kind label ("Source") and count noun ("inputs").
+- Optional `nonFcra` amber badge appended to the item card's label row (needed for External Intelligence items).
+- Optional "Open Products tab" CTA in the panel header's right side when the active source has `onOpen` (replaces the CTA currently living inside the inline accordion for Bank Context).
+
+Signals and Teams panels are visually unchanged.
+
+## Scope
+
+Frontend only. Single file: `src/components/tepilot/insights/CapabilitiesView.tsx`.
 
 ## Changes
 
-### 1. New memory file: `mem://reference/external-consumer-intelligence`
+1. **Data enrichment.** Add a `SourceDetail`-shaped view mirroring `SignalDetail` (`label`, `icon`, `color`, `tint`, `dot`, `description`, `items[{ label, sublabel, icon, nonFcra? }]`). Enrich the 6 existing source groups (KYC, Transactions, Product Holdings, Digital Banking, External Intelligence, Bank Context) with a one-sentence group description and a short sublabel per input. Emerald palette to match the existing sources column accent (`bg-emerald-500`, `bg-emerald-50 text-emerald-700 border-emerald-200`).
 
-Type: `reference`. Captures:
+2. **State model.** Add `activeSourceLabel` alongside `activeSignalLabel` / `activeTeamLabel`. Selecting any one clears the other two (three-way mutual exclusion). Extend `activeDetail` / `activeDetailKind` resolution so a source drives the same shared panel.
 
-- **Purpose**: third-party enrichment layer that can augment first-party transaction signals with household, demographic, and lifestyle attributes.
-- **Sources** (8): Real Estate — Tax Assessments & Deed Transfers · US Census · Voter Registration · Credit Card Transactions · Registrations & Subscriptions · Bankruptcy · Telephone White Pages · License & Registration Data (pilot, hunting, boat, etc.).
-- **Attribute categories** (6):
-  - Contact & Identity — name, address, phone, email
-  - Home / Real Estate — owner/renter, home value, length of residence, mortgage info, year built, property details
-  - Person & Family — age, DOB, children, marital status, gender, vehicle, political party, ethnicity
-  - Financial / Wealth — income, credit card info, net worth, disposable income
-  - Interests / Behaviors — hobbies, estimated shopping/travel/leisure behaviors
-  - Plus 175+ total consumer attributes
-- **Dataset tiers**: Individual (person-level demographics, DOB, HoH indicator, marital status, spouse, ethnicity) · Household (unique household ID, phone, income, dwelling size, location type, adults/children, age of HoH, home value, lifestyle) · Neighborhood (Census: 700+ stats, age, composition, education, employment, income, race/ethnicity, SES indicators, community dimensions).
-- **Scale**: 300M+ US consumers · 125M+ primary US households · 11M+ Canadian consumers.
-- **Signal families it can enrich**: Demographic (primary), Life Event (new mover / new homeowner / pre-mover), Financial (income band, net worth tier), Behavioral (interest clusters).
-- **Usage rule**: reference only — do not name the vendor in customer-facing copy; always refer to it as "External Consumer Intelligence" or "third-party enrichment."
+3. **`SourceGroupCard` refactor.** Remove the inline accordion (rows 572–604). Card becomes a single button that fires `onSelect(provider)`, shows an emerald active-state ring when this source is the active detail (same pattern as Signals/Teams), drops the `ChevronDown`, keeps the pulsing status dot and the header (icon tile + provider + `sublabel · N inputs`).
 
-### 2. Update `mem://index.md`
-
-Add one line under `## Memories`:
-
-```
-- [External Consumer Intelligence](mem://reference/external-consumer-intelligence) — Third-party enrichment source: 8 sources, 175+ attributes, 300M+ consumers / 125M+ households
-```
+4. **Shared panel reuse.** No new panel. The existing block at rows 974–1104 renders the source detail through its existing icon-card grid branch. Additions: third kind/count branch, `nonFcra` badge in item card, and Bank Context's `onOpen` CTA moved into the panel header.
 
 ## Not in scope
 
-- No changes to `CapabilitiesView.tsx` or any other UI file.
-- No new SourceGroup rendered on `/bankdemo`.
-- Vendor name (Data Axle) is not written into any code or user-facing memory field.
+- No changes to Signals, Teams, Destinations, wires, core visual, sidebar, memory files, or `AnalyticsContainer.tsx`.
+- No new panel component, no alternate layout for source details.
+- Group content stays the same — only per-input sublabels + group description are added.
+
+## Files
+
+- `src/components/tepilot/insights/CapabilitiesView.tsx` — only file touched.
+
+## Technical notes
+
+- Drop `openGroup` state; replace with `activeSourceLabel`.
+- `activeDetail = activeSignal ?? activeTeam ?? activeSource`.
+- Count noun map: signal → "detections", team → "responsibilities", source → "inputs".
+- Kind label map: signal → "Signal family", team → "Team", source → "Source".
+- Since every source item has an `icon`, the existing `ItemIcon`-present render branch handles them — no code path forks.
