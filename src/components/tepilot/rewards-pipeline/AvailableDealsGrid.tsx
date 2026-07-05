@@ -148,6 +148,7 @@ export function AvailableDealsGrid() {
           </SelectContent>
         </Select>
       </div>
+      </div>
 
       {/* Semantic Search Reasoning */}
       {isSemanticActive && searchReasoning && (
