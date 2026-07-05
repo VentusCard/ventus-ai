@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { BankwideView } from "./BankwideView";
-import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
+import { DealsAndPerksView } from "./DealsAndPerksView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
