@@ -9,6 +9,7 @@ const backendRoot = resolve(scriptDir, '..');
 const benchmarkRoot = join(backendRoot, 'artifacts', 'plaid-synthetic-benchmark');
 
 const DEFAULT_MODELS = [
+  'google/gemini-2.5-flash',
   'google/gemini-2.5-flash-lite',
   'meta-llama/llama-3.3-70b-instruct',
   'deepseek/deepseek-chat-v3.1',
