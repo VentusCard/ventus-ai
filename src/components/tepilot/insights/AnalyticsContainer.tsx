@@ -209,16 +209,18 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
+      case 'ventus-ai-dashboard':
+      case 'ventus-ai':
+      case 'analytics-dashboard':
+        return <VentusAIDashboardView onNavigate={setActiveTab} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <ProductsCatalogView />;
       case 'exec-demo': return (
         <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai')} />
+          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai-dashboard')} />
         </div>
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
-      case 'analytics-dashboard': return <AnalystDashboardView onNavigate={setActiveTab} />;
       case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} />;
       case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
