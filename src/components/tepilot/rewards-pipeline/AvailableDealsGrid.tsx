@@ -116,7 +116,7 @@ export function AvailableDealsGrid() {
         <div className="flex-1 min-w-[20px]" />
 
         {/* Search and Sort */}
-        <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:flex-none sm:min-w-[320px]">
+        <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:flex-none sm:min-w-[640px]">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
