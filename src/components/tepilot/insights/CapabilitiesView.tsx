@@ -277,7 +277,7 @@ const TEAMS: TeamDetail[] = [
     ],
   },
   {
-    label: "Wealth Management",
+    label: "Wealth & Relationship",
     icon: Gem,
     color: "bg-amber-500",
     tint: "bg-amber-50 text-amber-700 border-amber-200",
