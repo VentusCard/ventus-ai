@@ -1,16 +1,16 @@
-## Compact Stats + Search Bar Row
+## Goal
+In the Location Experience Manager, move the "Add Experience" button from its own row onto the same horizontal row as the search bar and filter dropdowns.
 
-### Problem
-The three stat pills (`200 Deals`, `5.4M Activations`, `70% Avg Rate`) currently render on their own full-width row above the search bar, wasting vertical space.
+## Change
+**File:** `src/components/tepilot/insights/LocationExperienceManager.tsx`
 
-### Solution
-Merge the stats row and the search/sort row into a single horizontal line.
+- Remove the separate `<div className="flex items-start justify-end">` wrapper (lines 116-121) that currently holds the "Add Experience" button.
+- Place the `<Button>` inside the existing filters `<div className="flex items-center gap-3">` (lines 124-143), positioned at the far right of the row.
+- Keep all existing styling and behavior of the button, search input, city select, and category select unchanged.
 
-- Move the stats `<div>` into the same row as the search `<Input>` + `<Select>`.
-- Stats align left; search + sort align right (or vice-versa — whatever fits).
-- Use `flex-wrap` with `gap-3` so it collapses gracefully on narrow viewports.
-- Keep the existing stat pill styling (`bg-slate-50`, rounded-lg, icon + text).
-- Remove the now-empty stats-only `<div>` wrapper.
+## Result
+The "Add Experience" button shares the same line as the search bar and filter dropdowns, matching the space-efficient layout pattern already applied to the Deals & Perks tab.
 
-### Files
-- `src/components/tepilot/rewards-pipeline/AvailableDealsGrid.tsx` — restructure the two adjacent rows into one shared row.
+## Verification
+- `tsgo --noEmit` passes cleanly.
+- The button remains clickable and opens the Create Experience dialog.
