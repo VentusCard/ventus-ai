@@ -104,7 +104,7 @@ export function LocationExperienceManager() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header */}
       <TabHeader
         icon={<MapPin className="w-4 h-4" />}
