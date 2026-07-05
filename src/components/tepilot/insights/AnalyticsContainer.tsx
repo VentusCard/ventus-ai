@@ -41,7 +41,7 @@ import { TravelTripsReport } from "./reports/pages/TravelTripsReport";
 import { NextConversationReport } from "./reports/pages/NextConversationReport";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, LayoutDashboard, FileBarChart,
+  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
   Zap, Megaphone, Layers, Presentation, Terminal, LogOut
