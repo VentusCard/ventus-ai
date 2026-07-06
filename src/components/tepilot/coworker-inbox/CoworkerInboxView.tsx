@@ -1,169 +1,271 @@
-import { useMemo, useState } from "react";
-import { Users, Crown, Inbox } from "lucide-react";
+import { Sparkles, TrendingUp, MessageCircle, Zap, Clock, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ROSTER, THREADS, type Person } from "./coworkerInboxData";
-import { ThreadList } from "./ThreadList";
-import { ThreadDetail } from "./ThreadDetail";
+import {
+  ROSTER,
+  THREADS,
+  ACTIVITY_FEED,
+  WEEKLY_STATS,
+  PERSON_ACTIVITY,
+  type ActivityKind,
+  type Person,
+} from "./coworkerInboxData";
+import { MessageBubble } from "./MessageBubble";
 
-type Folder = "all" | "advisor" | "leadership";
-
-const FOLDERS: { id: Folder; label: string; icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "all", label: "All threads", icon: Inbox },
-  { id: "advisor", label: "Advisors", icon: Users },
-  { id: "leadership", label: "Leadership", icon: Crown },
-];
+const KIND_STYLES: Record<ActivityKind, { dot: string; label: string; badge: string }> = {
+  advisor:    { dot: "bg-purple-500", label: "Advisor",    badge: "bg-purple-50 text-purple-700 border-purple-200" },
+  leadership: { dot: "bg-amber-500",  label: "Leadership", badge: "bg-amber-50 text-amber-700 border-amber-200" },
+  signal:     { dot: "bg-blue-500",   label: "Signal",     badge: "bg-blue-50 text-blue-700 border-blue-200" },
+  reply:      { dot: "bg-emerald-500",label: "Reply",      badge: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+};
 
 export function CoworkerInboxView() {
-  const [folder, setFolder] = useState<Folder>("all");
-  const [personFilter, setPersonFilter] = useState<string | null>(null);
-  const [selectedThreadId, setSelectedThreadId] = useState<string | null>(THREADS[0]?.id ?? null);
+  const advisorThread = THREADS.find((t) => t.id === "t1")!;
+  const leadershipThread = THREADS.find((t) => t.id === "t4")!;
 
-  const peopleById = useMemo(() => {
-    const map: Record<string, Person> = {};
-    for (const p of ROSTER) map[p.id] = p;
-    return map;
-  }, []);
+  const peopleById: Record<string, Person> = {};
+  for (const p of ROSTER) peopleById[p.id] = p;
 
-  const filteredThreads = useMemo(() => {
-    return THREADS.filter((t) => {
-      const person = peopleById[t.recipientId];
-      if (!person) return false;
-      if (folder !== "all" && person.role !== folder) return false;
-      if (personFilter && t.recipientId !== personFilter) return false;
-      return true;
-    });
-  }, [folder, personFilter, peopleById]);
-
-  const selectedThread = filteredThreads.find((t) => t.id === selectedThreadId) ?? filteredThreads[0] ?? null;
-
-  const advisors = ROSTER.filter((p) => p.role === "advisor");
-  const leaders = ROSTER.filter((p) => p.role === "leadership");
-
-  const handleFolderClick = (f: Folder) => {
-    setFolder(f);
-    setPersonFilter(null);
-    const first = THREADS.find((t) => {
-      const p = peopleById[t.recipientId];
-      return f === "all" || (p && p.role === f);
-    });
-    setSelectedThreadId(first?.id ?? null);
-  };
-
-  const handlePersonClick = (id: string) => {
-    setPersonFilter(id === personFilter ? null : id);
-    const first = THREADS.find((t) => t.recipientId === id);
-    if (first) setSelectedThreadId(first.id);
-  };
+  const emailDelta = WEEKLY_STATS.emailsSent - WEEKLY_STATS.emailsSentPrev;
 
   return (
-    <div className="h-full rounded-lg border border-slate-200 bg-white overflow-hidden">
-      <div className="grid grid-cols-[220px_320px_1fr] h-full">
-        {/* Folders + roster */}
-        <aside className="border-r border-slate-200 bg-slate-50/60 overflow-y-auto">
-          <div className="p-3">
-            <div className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 mb-2 px-2">
-              Folders
+    <div className="h-full overflow-y-auto pr-1">
+      <div className="space-y-4 pb-6">
+        {/* 1. Status header strip */}
+        <div className="rounded-lg border border-slate-200 bg-white px-4 py-3 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+            </span>
+            <span className="text-[13px] font-semibold text-slate-900">Ventus AI Coworker</span>
+            <span className="text-[12px] text-emerald-700 font-medium">Active</span>
+          </div>
+          <div className="hidden md:block text-[12px] text-slate-500">
+            Working alongside {WEEKLY_STATS.advisorsCount} advisors and {WEEKLY_STATS.leadersCount} leaders · Last activity {WEEKLY_STATS.lastActivityAgo}
+          </div>
+          <div className="text-[12px] text-slate-600">
+            <span className="font-semibold text-slate-900">{WEEKLY_STATS.emailsSent}</span> emails this week ·{" "}
+            <span className="font-semibold text-slate-900">{WEEKLY_STATS.repliesCount}</span> replies ·{" "}
+            <span className="font-semibold text-slate-900">{WEEKLY_STATS.activeThreads}</span> active threads
+          </div>
+        </div>
+
+        {/* 2. KPI cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <KpiCard
+            icon={<MessageCircle className="w-3.5 h-3.5" />}
+            label="Emails sent this week"
+            value={String(WEEKLY_STATS.emailsSent)}
+            delta={`↑ ${emailDelta} vs last week`}
+            deltaTone="up"
+          />
+          <KpiCard
+            icon={<TrendingUp className="w-3.5 h-3.5" />}
+            label="Reply rate"
+            value={`${WEEKLY_STATS.replyRatePct}%`}
+            delta={`${WEEKLY_STATS.repliesCount} of ${WEEKLY_STATS.emailsSent}`}
+            deltaTone="neutral"
+          />
+          <KpiCard
+            icon={<Zap className="w-3.5 h-3.5" />}
+            label="Signals surfaced"
+            value={String(WEEKLY_STATS.signalsSurfaced)}
+            delta="across advisor books"
+            deltaTone="neutral"
+          />
+          <KpiCard
+            icon={<Clock className="w-3.5 h-3.5" />}
+            label="Avg time to first reply"
+            value={`${WEEKLY_STATS.avgTimeToReplyHrs} hrs`}
+            delta="down from 3.1 hrs"
+            deltaTone="up"
+          />
+        </div>
+
+        {/* 3. Activity feed + Team status */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
+          {/* Activity feed */}
+          <div className="lg:col-span-2 rounded-lg border border-slate-200 bg-white">
+            <div className="px-4 py-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-3.5 h-3.5 text-purple-600" />
+                <h3 className="text-[13px] font-semibold text-slate-900">What Ventus is working on</h3>
+              </div>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">Recent actions across your wealth team</p>
             </div>
-            <ul className="space-y-0.5">
-              {FOLDERS.map((f) => {
-                const Icon = f.icon;
-                const active = folder === f.id && !personFilter;
+            <ul className="divide-y divide-slate-100">
+              {ACTIVITY_FEED.map((a) => {
+                const s = KIND_STYLES[a.kind];
                 return (
-                  <li key={f.id}>
-                    <button
-                      type="button"
-                      onClick={() => handleFolderClick(f.id)}
-                      className={cn(
-                        "w-full flex items-center gap-2 px-2 py-1.5 rounded text-[13px] transition-colors",
-                        active ? "bg-purple-100 text-purple-800 font-medium" : "text-slate-700 hover:bg-slate-100"
-                      )}
-                    >
-                      <Icon className="w-3.5 h-3.5" />
-                      <span>{f.label}</span>
-                    </button>
+                  <li key={a.id} className="px-4 py-2.5 flex items-start gap-3 hover:bg-slate-50/60 transition-colors">
+                    <div className="relative mt-1.5 shrink-0">
+                      <span className={cn("block h-2 w-2 rounded-full", s.dot)} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={cn("text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded", s.badge)}>
+                          {s.label}
+                        </span>
+                        <span className="text-[13px] text-slate-800">{a.title}</span>
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">{a.ago}</div>
+                    </div>
                   </li>
                 );
               })}
             </ul>
           </div>
 
-          <div className="p-3 border-t border-slate-200">
-            <div className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 mb-2 px-2">
-              Advisors
+          {/* Team status */}
+          <div className="rounded-lg border border-slate-200 bg-white">
+            <div className="px-4 py-3 border-b border-slate-100">
+              <h3 className="text-[13px] font-semibold text-slate-900">Team status</h3>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">Who Ventus is collaborating with</p>
             </div>
-            <ul className="space-y-0.5">
-              {advisors.map((p) => (
-                <RosterItem key={p.id} person={p} active={personFilter === p.id} onClick={() => handlePersonClick(p.id)} />
-              ))}
+            <ul className="divide-y divide-slate-100">
+              {ROSTER.map((p) => {
+                const act = PERSON_ACTIVITY[p.id] ?? { threads: 0, pendingReplies: 0 };
+                return (
+                  <li key={p.id} className="px-3.5 py-2.5 flex items-center gap-2.5">
+                    <div className="shrink-0 w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10.5px] font-bold">
+                      {p.initials}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[12.5px] font-medium text-slate-900 truncate">{p.name}</span>
+                        <span className={cn(
+                          "text-[9.5px] font-semibold uppercase tracking-wider px-1 py-0.5 rounded border",
+                          p.role === "advisor"
+                            ? "bg-purple-50 text-purple-700 border-purple-200"
+                            : "bg-amber-50 text-amber-700 border-amber-200"
+                        )}>
+                          {p.role === "advisor" ? "ADV" : "LEAD"}
+                        </span>
+                      </div>
+                      <div className="text-[10.5px] text-slate-500 truncate">{p.title}</div>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <div className="text-[11px] font-semibold text-slate-800">{act.threads}</div>
+                      <div className="text-[9.5px] text-slate-500">threads</div>
+                      {act.pendingReplies > 0 && (
+                        <div className="text-[9.5px] text-emerald-700 font-medium mt-0.5">
+                          {act.pendingReplies} pending
+                        </div>
+                      )}
+                    </div>
+                  </li>
+                );
+              })}
             </ul>
           </div>
-
-          <div className="p-3 border-t border-slate-200">
-            <div className="text-[10.5px] font-bold uppercase tracking-wider text-slate-500 mb-2 px-2">
-              Leadership
-            </div>
-            <ul className="space-y-0.5">
-              {leaders.map((p) => (
-                <RosterItem key={p.id} person={p} active={personFilter === p.id} onClick={() => handlePersonClick(p.id)} />
-              ))}
-            </ul>
-          </div>
-        </aside>
-
-        {/* Thread list */}
-        <div className="border-r border-slate-200 overflow-y-auto">
-          <div className="sticky top-0 bg-white border-b border-slate-200 px-4 py-2.5">
-            <div className="text-[12px] font-semibold text-slate-900">
-              {personFilter
-                ? `Threads with ${peopleById[personFilter]?.name}`
-                : folder === "all"
-                ? "All threads"
-                : folder === "advisor"
-                ? "Advisor threads"
-                : "Leadership threads"}
-            </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
-              {filteredThreads.length} {filteredThreads.length === 1 ? "thread" : "threads"}
-            </div>
-          </div>
-          <ThreadList
-            threads={filteredThreads}
-            peopleById={peopleById}
-            selectedThreadId={selectedThread?.id ?? null}
-            onSelect={setSelectedThreadId}
-          />
         </div>
 
-        {/* Thread detail */}
-        <div className="overflow-hidden">
-          <ThreadDetail thread={selectedThread} peopleById={peopleById} />
+        {/* 4. Example conversations */}
+        <div>
+          <div className="flex items-baseline justify-between mb-2 px-1">
+            <div>
+              <h3 className="text-[13px] font-semibold text-slate-900">Example conversations</h3>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">How Ventus works with the wealth team</p>
+            </div>
+            <span className="text-[11px] text-slate-400 inline-flex items-center gap-1">
+              <ArrowUpRight className="w-3 h-3" /> Static preview
+            </span>
+          </div>
+          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+            <ExampleThreadCard
+              roleLabel="Advisor"
+              roleBadgeClass="bg-purple-50 text-purple-700 border-purple-200"
+              recipient={peopleById[advisorThread.recipientId]}
+              subject={advisorThread.subject}
+              messages={advisorThread.messages}
+            />
+            <ExampleThreadCard
+              roleLabel="Leadership"
+              roleBadgeClass="bg-amber-50 text-amber-700 border-amber-200"
+              recipient={peopleById[leadershipThread.recipientId]}
+              subject={leadershipThread.subject}
+              messages={leadershipThread.messages}
+            />
+          </div>
+        </div>
+
+        {/* 5. Footer disclaimer */}
+        <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-1">
+          <Sparkles className="w-3 h-3" />
+          Static demo — activity, threads, and stats are illustrative.
         </div>
       </div>
     </div>
   );
 }
 
-function RosterItem({ person, active, onClick }: { person: Person; active: boolean; onClick: () => void }) {
+// ----- Sub-components -----
+
+function KpiCard({
+  icon,
+  label,
+  value,
+  delta,
+  deltaTone,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  delta: string;
+  deltaTone: "up" | "down" | "neutral";
+}) {
+  const deltaColor =
+    deltaTone === "up" ? "text-emerald-700" : deltaTone === "down" ? "text-rose-700" : "text-slate-500";
   return (
-    <li>
-      <button
-        type="button"
-        onClick={onClick}
-        className={cn(
-          "w-full flex items-center gap-2 px-2 py-1.5 rounded text-left transition-colors",
-          active ? "bg-purple-100" : "hover:bg-slate-100"
-        )}
-      >
-        <div className="shrink-0 w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-bold">
-          {person.initials}
+    <div className="rounded-lg border border-slate-200 bg-white px-4 py-3">
+      <div className="flex items-center gap-1.5 text-slate-500 text-[11px] font-medium uppercase tracking-wider">
+        {icon}
+        {label}
+      </div>
+      <div className="mt-1.5 text-[22px] font-bold text-slate-900 leading-none">{value}</div>
+      <div className={cn("mt-1 text-[11px]", deltaColor)}>{delta}</div>
+    </div>
+  );
+}
+
+function ExampleThreadCard({
+  roleLabel,
+  roleBadgeClass,
+  recipient,
+  subject,
+  messages,
+}: {
+  roleLabel: string;
+  roleBadgeClass: string;
+  recipient: Person;
+  subject: string;
+  messages: import("./coworkerInboxData").Message[];
+}) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-slate-50/60 overflow-hidden">
+      <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2.5">
+        <div className="shrink-0 w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[11px] font-bold">
+          {recipient.initials}
         </div>
         <div className="min-w-0 flex-1">
-          <div className={cn("text-[12.5px] truncate", active ? "text-purple-800 font-medium" : "text-slate-800")}>
-            {person.name}
+          <div className="flex items-center gap-2">
+            <span className="text-[13px] font-semibold text-slate-900 truncate">{recipient.name}</span>
+            <span className={cn("text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border", roleBadgeClass)}>
+              {roleLabel}
+            </span>
           </div>
-          <div className="text-[10.5px] text-slate-500 truncate">{person.title}</div>
+          <div className="text-[11.5px] text-slate-500 truncate">{recipient.title}</div>
         </div>
-      </button>
-    </li>
+      </div>
+      <div className="px-4 py-3 border-b border-slate-200 bg-white">
+        <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-0.5">Subject</div>
+        <div className="text-[13.5px] font-semibold text-slate-900">{subject}</div>
+      </div>
+      <div className="px-4 py-4 space-y-4">
+        {messages.map((m) => (
+          <MessageBubble key={m.id} message={m} recipient={recipient} />
+        ))}
+      </div>
+    </div>
   );
 }
