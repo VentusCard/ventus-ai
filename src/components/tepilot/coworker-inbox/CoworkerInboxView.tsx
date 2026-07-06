@@ -84,12 +84,12 @@ export function CoworkerInboxView() {
                 <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
               </div>
               <div className="px-4 py-3 border-t border-slate-100 space-y-2">
-                <div className="flex items-start gap-2">
-                  <span className="shrink-0 mt-0.5 text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border-purple-200">Advisor</span>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border-purple-200">Advisor</span>
                   <p className="text-[13px] text-slate-600 leading-snug">Ventus emails each advisor personalized briefs with life-event signals, client-specific talking points, and ready-to-send outreach drafts — plus instant replies when they ask for deeper context or next-step recommendations.</p>
                 </div>
-                <div className="flex items-start gap-2">
-                  <span className="shrink-0 mt-0.5 text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border-amber-200">Leadership</span>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border-amber-200">Leadership</span>
                   <p className="text-[13px] text-slate-600 leading-snug">Ventus emails leadership weekly trend dashboards, enterprise-wide product-gap alerts, campaign recommendations with projected AUM uplift, and retention-risk summaries across the region.</p>
                 </div>
               </div>
