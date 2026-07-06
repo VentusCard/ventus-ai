@@ -1,25 +1,39 @@
-## Plan: Add AI Coworker Deliverables to Capabilities Panel
+## Problem
+The Ventus AI Coworker section incorrectly implies Ventus can schedule calls, manage calendars, and send invites. Ventus only provides insights and signals — it does not take scheduling actions.
 
-### Goal
-Inside the existing "Ventus AI Coworker Capabilities" collapsible panel, add a concise summary of what Ventus AI sends to advisors versus what it sends to leadership — visible immediately when the panel is expanded.
+## Scope
+Two files in `src/components/tepilot/coworker-inbox/`:
+1. `CoworkerInboxView.tsx` — capabilities tile + deliverables summary rows
+2. `coworkerInboxData.ts` — example thread messages + activity feed
 
-### Changes
+## Changes
 
-#### File: `src/components/tepilot/coworker-inbox/CoworkerInboxView.tsx`
+### `CoworkerInboxView.tsx`
+1. **Capability tile "Instant conversational replies"** (line ~82):
+   - Current: `...next actions, or scheduling on demand`
+   - Change to: `...next actions, or deeper context on demand`
+2. **Advisor deliverables sentence** (line ~89):
+   - Current: `...plus instant replies when they ask for scheduling help or deeper context`
+   - Change to: `...plus instant replies when they ask for deeper context or next-step recommendations`
 
-1. **Insert a new subsection** inside the `{capabilitiesOpen && (...)}` block, placed below the 6-tile capability grid.
+### `coworkerInboxData.ts`
+3. **Thread t1 (Sarah) — message t1m3** (line ~67):
+   - Current: `Want me to schedule the calls?`
+   - Change to: `Let me know if you'd like suggested next steps or outreach timing.`
+4. **Thread t2 (Marco) — message t2m2** (line ~89):
+   - Current: `Let's schedule a call this week. Can you find time?`
+   - Change to: `Let's reach out this week. What timing should I suggest?`
+5. **Thread t2 (Marco) — message t2m3** (lines ~92-97):
+   - Current: proposes calendar slots and says "I'll send the invite"
+   - Change to: Ventus suggests outreach timing, draft agenda, and asks Marco to confirm — no calendar slots or invites.
+6. **Activity feed entry a4** (line ~263):
+   - Current: `Received reply from Marco Rossi — scheduling next step`
+   - Change to: `Received reply from Marco Rossi — confirming outreach timing`
 
-2. **Subsection content — two rows, one sentence each:**
-   - **Advisor row:** A single sentence describing the deliverables Ventus sends to individual advisors (personalized briefs, life-event signals, talking points, outreach drafts, scheduling support).
-   - **Leadership row:** A single sentence describing the deliverables Ventus sends to leadership (weekly trend reports, enterprise-wide intelligence, campaign recommendations, product-gap analysis, retention alerts).
+## Out of scope
+- KPI cards, team status, other capability tiles, and non-scheduling thread content remain untouched.
+- No new components, no styling changes, no data structure changes.
 
-3. **Styling:**
-   - Display as two stacked rows (not cards, not bullets).
-   - Use a subtle top border to separate from the tile grid above.
-   - Left-align each sentence with a small role badge ("Advisor" / "Leadership") for quick scanning.
-   - Keep the same 13px text size and slate-600 color used elsewhere in the panel.
-
-### Out of scope
-- No changes to the capabilities panel collapse behavior (stays collapsed by default).
-- No changes to thread data, KPI cards, activity feed, team status, or example conversations.
-- No new data structures in `coworkerInboxData.ts` — the two sentences are static copy inline.
+## Validation
+- Build passes with no TypeScript errors.
+- No remaining "schedul" or "calendar" or "invite" references remain in the two files.
