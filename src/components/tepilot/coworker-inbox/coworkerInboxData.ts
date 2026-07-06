@@ -220,24 +220,30 @@ export interface WeeklyStats {
   replyRatePct: number;
   repliesCount: number;
   signalsSurfaced: number;
-  avgTimeToReplyHrs: number;
+  ventusReplyLatency: string;
+  advisorReplyMedianHrs: number;
   activeThreads: number;
   advisorsCount: number;
   leadersCount: number;
+  collaboratorsTotal: number;
+  actionsToday: number;
   lastActivityAgo: string;
 }
 
 export const WEEKLY_STATS: WeeklyStats = {
-  emailsSent: 23,
-  emailsSentPrev: 18,
+  emailsSent: 28450,
+  emailsSentPrev: 24180,
   replyRatePct: 61,
-  repliesCount: 14,
-  signalsSurfaced: 47,
-  avgTimeToReplyHrs: 2.3,
-  activeThreads: 9,
-  advisorsCount: 4,
-  leadersCount: 2,
-  lastActivityAgo: "4 min ago",
+  repliesCount: 17320,
+  signalsSurfaced: 142800,
+  ventusReplyLatency: "< 1 sec",
+  advisorReplyMedianHrs: 1.8,
+  activeThreads: 9640,
+  advisorsCount: 12400,
+  leadersCount: 340,
+  collaboratorsTotal: 12740,
+  actionsToday: 4120,
+  lastActivityAgo: "4 sec ago",
 };
 
 export type ActivityKind = "advisor" | "leadership" | "signal" | "reply";
@@ -251,14 +257,14 @@ export interface ActivityEntry {
 }
 
 export const ACTIVITY_FEED: ActivityEntry[] = [
-  { id: "a1", kind: "advisor",    title: "Sent brief to Sarah Chen — 3 college-prep signals",              ago: "9 min ago",  actorId: "sarah" },
-  { id: "a2", kind: "leadership", title: "Drafted campaign brief for Elena Vasquez's review",              ago: "32 min ago", actorId: "elena" },
-  { id: "a3", kind: "signal",     title: "Detected liquidity event: Robert Hayes ($2.4M inbound wire)",    ago: "1 hr ago" },
-  { id: "a4", kind: "reply",      title: "Received reply from Marco Rossi — scheduling next step",         ago: "1 hr ago",   actorId: "marco" },
-  { id: "a5", kind: "advisor",    title: "Prepared retirement outreach drafts for Priya Patel (4 clients)", ago: "2 hr ago",   actorId: "priya" },
-  { id: "a6", kind: "leadership", title: "Sent weekly wealth pulse to Elena Vasquez",                      ago: "3 hr ago",   actorId: "elena" },
-  { id: "a7", kind: "signal",     title: "Flagged NW outbound-transfer trend — $12M to competitors",       ago: "5 hr ago" },
-  { id: "a8", kind: "leadership", title: "Routed retention brief for David Kim's approval",                ago: "6 hr ago",   actorId: "david" },
+  { id: "a1", kind: "advisor",    title: "Sent brief to Sarah Chen — 3 college-prep signals",              ago: "42 sec ago", actorId: "sarah" },
+  { id: "a2", kind: "leadership", title: "Drafted campaign brief for Elena Vasquez's review",              ago: "3 min ago",  actorId: "elena" },
+  { id: "a3", kind: "signal",     title: "Detected liquidity event: Robert Hayes ($2.4M inbound wire)",    ago: "6 min ago" },
+  { id: "a4", kind: "reply",      title: "Received reply from Marco Rossi — scheduling next step",         ago: "8 min ago",  actorId: "marco" },
+  { id: "a5", kind: "advisor",    title: "Prepared retirement outreach drafts for Priya Patel (4 clients)", ago: "14 min ago", actorId: "priya" },
+  { id: "a6", kind: "leadership", title: "Sent weekly wealth pulse to Elena Vasquez",                      ago: "21 min ago", actorId: "elena" },
+  { id: "a7", kind: "signal",     title: "Flagged NW outbound-transfer trend — $12M to competitors",       ago: "38 min ago" },
+  { id: "a8", kind: "leadership", title: "Routed retention brief for David Kim's approval",                ago: "52 min ago", actorId: "david" },
 ];
 
 // Rough per-person thread activity counts for the Team Status panel.
