@@ -1,62 +1,34 @@
-import { useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, User, Briefcase, Mail, Inbox } from "lucide-react";
+import { LayoutDashboard, Briefcase, Mail, Inbox } from "lucide-react";
 import { TabHeader } from "./TabHeader";
-import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorConsole";
 import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
 import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
 import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
-import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
+import { EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
+import { useMemo } from "react";
 
-type ViewMode = "inbox" | "dashboard" | "client" | "notifications";
+type ViewMode = "inbox" | "dashboard" | "notifications";
 
 export function BankwideWMCopilotView() {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [pendingVentusMessage, setPendingVentusMessage] = useState<string | null>(null);
 
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
 
-  const selectedClient = useMemo(() => {
-    if (!selectedClientId) return null;
-    return dashboardClients.find(c => c.id === selectedClientId) || null;
-  }, [selectedClientId, dashboardClients]);
-
-  const handleOpenClient = useCallback((clientId: string) => {
-    const client = dashboardClients.find(c => c.id === clientId);
-    if (client) {
-      sessionStorage.setItem("tepilot_client_profile", JSON.stringify(client.profile));
-      sessionStorage.setItem("tepilot_detected_events", JSON.stringify(client.detectedEvents));
-      setSelectedClientId(clientId);
-      setViewMode("client");
-    }
-  }, [dashboardClients]);
+  const handleOpenClient = useCallback(() => {
+    toast.info("Client detail view is disabled in this demo.");
+  }, []);
 
   const handleScheduleCall = useCallback((clientId: string) => {
     const client = dashboardClients.find(c => c.id === clientId);
     toast.success(`Scheduling call with ${client?.profile.name || 'client'}...`);
   }, [dashboardClients]);
 
-  const handleBackToDashboard = useCallback(() => {
-    sessionStorage.removeItem("tepilot_detected_events");
-    setViewMode("dashboard");
-    setSelectedClientId(null);
-    setPendingVentusMessage(null);
-  }, []);
-
-  const handlePrepareWithVentus = useCallback((data: EventPreparationData) => {
-    sessionStorage.setItem("tepilot_client_profile", JSON.stringify(data.client.profile));
-    sessionStorage.setItem("tepilot_detected_events", JSON.stringify(data.client.detectedEvents));
-    sessionStorage.setItem("tepilot_event_preparation", JSON.stringify(data));
-    const prompt = buildEventPreparationPrompt(data);
-    setPendingVentusMessage(prompt);
-    setSelectedClientId(data.client.id);
-    setViewMode("client");
+  const handlePrepareWithVentus = useCallback((_data: EventPreparationData) => {
+    toast.info("Client detail view is disabled in this demo.");
   }, []);
 
   return (
@@ -102,20 +74,6 @@ export function BankwideWMCopilotView() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setViewMode("client")}
-            className={cn(
-              "h-8 px-3 rounded-md",
-              viewMode === "client"
-                ? "bg-white shadow-sm text-slate-900"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Client View
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
             onClick={() => setViewMode("notifications")}
             className={cn(
               "h-8 px-3 rounded-md",
@@ -144,22 +102,11 @@ export function BankwideWMCopilotView() {
             onScheduleCall={handleScheduleCall}
             onPrepareWithVentus={handlePrepareWithVentus}
           />
-        ) : viewMode === "notifications" ? (
+        ) : (
           <AdvisorNotificationsView
             clients={dashboardClients}
             onOpenClient={handleOpenClient}
             onPrepareWithVentus={handlePrepareWithVentus}
-          />
-        ) : (
-          <AdvisorConsole
-            enrichedTransactions={[]}
-            aiInsights={null}
-            isLoadingInsights={false}
-            onBackToDashboard={handleBackToDashboard}
-            initialPendingMessage={pendingVentusMessage}
-            onPendingMessageConsumed={() => setPendingVentusMessage(null)}
-            selectedClientProfile={selectedClient?.profile}
-            selectedDashboardEvents={selectedClient?.detectedEvents}
           />
         )}
       </div>
