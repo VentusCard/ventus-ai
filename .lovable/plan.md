@@ -1,13 +1,21 @@
-## Problem
-When a `SourceGroupCard` (left column) or signal/team button (core) is selected, the combined `scale-[1.01–1.02]`, `ring-2`, and thicker border expand the element slightly beyond its bounding box. The parent grid has `overflow-hidden`, so the expanded card/ring gets clipped.
+## Change input source indicator from dot to numbered circle badge
 
-## Fix
-1. **Sources column** (`<div className="flex min-w-0 flex-col gap-2 justify-around">` on line ~782): add horizontal padding (`px-1` or `px-2`) so the selected card and its ring stay inside the column bounds.
-2. **Core signal buttons** (inside `<div className="... p-2 -m-1">` on line ~817): the negative margin (`-m-1`) already fights the padding, but `scale-[1.02]` on the active button can still clip. Add `px-1` (or increase the existing `p-2` to `p-2.5` and keep `-m-1`) to give the scaled buttons enough room.
-3. **Teams column** (`<div className="... p-2 -m-1">` on line ~947): same treatment as the signals column.
-4. **Grid overflow** (`overflow-hidden` on line ~780): verify if it’s still needed after the padding changes; if the wire SVG connectors rely on it, keep it, but the added internal padding should prevent clipping of the cards themselves.
+### What
+Replace the small green pulse-dot in the top-right corner of each SourceGroupCard with a green circular badge showing the number of inputs that source provides.
 
-## Verification
-- Click each of the 6 source cards on the left and confirm none are clipped.
-- Click each signal button inside the core and confirm none are clipped.
-- Click each team button on the right and confirm none are clipped.
+### Where
+`src/components/tepilot/insights/CapabilitiesView.tsx`
+
+### How
+1. Locate the `SourceGroupCard` component (line ~542).
+2. Replace the `absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse` span with a styled badge:
+   - `absolute top-2 right-2`
+   - Circular shape with a border and emerald green styling
+   - Display `group.inputs.length` as centered text
+   - Keep sizing proportional to the card (e.g. `w-5 h-5` with `text-[10px]` font)
+   - Remove the `animate-pulse`
+3. Ensure the badge remains readable against both the default white card background and the active/emerald-tinted state.
+
+### Verification
+- Visual check: each source card on the left shows a green circle with its input count.
+- No clipping or overlap with card content.
