@@ -109,7 +109,7 @@ export function CoworkerInboxView() {
                 <Sparkles className="w-3.5 h-3.5 text-purple-600" />
                 <h3 className="text-[13px] font-semibold text-slate-900">What Ventus is working on</h3>
               </div>
-              <p className="text-[11.5px] text-slate-500 mt-0.5">Recent actions across your wealth team</p>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">Live · updated continuously · showing {ACTIVITY_FEED.length} of {WEEKLY_STATS.actionsToday.toLocaleString()} today</p>
             </div>
             <ul className="divide-y divide-slate-100">
               {ACTIVITY_FEED.map((a) => {
@@ -138,7 +138,7 @@ export function CoworkerInboxView() {
           <div className="rounded-lg border border-slate-200 bg-white">
             <div className="px-4 py-3 border-b border-slate-100">
               <h3 className="text-[13px] font-semibold text-slate-900">Team status</h3>
-              <p className="text-[11.5px] text-slate-500 mt-0.5">Who Ventus is collaborating with</p>
+              <p className="text-[11.5px] text-slate-500 mt-0.5">Sample of active collaborators ({ROSTER.length} of {WEEKLY_STATS.collaboratorsTotal.toLocaleString()})</p>
             </div>
             <ul className="divide-y divide-slate-100">
               {ROSTER.map((p) => {
