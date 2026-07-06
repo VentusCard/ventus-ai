@@ -47,7 +47,7 @@ export function BankwideWMCopilotView() {
             )}
           >
             <Inbox className="h-4 w-4 mr-2" />
-            Coworker Inbox
+            Coworker Dashboard
           </Button>
           <Button
             variant="ghost"
