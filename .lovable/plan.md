@@ -1,17 +1,32 @@
-## Plan
+## What to add to External Intelligence
 
-### Goal
-Add a "Business Owner Identification" input to the **External Intelligence** source group in the CapabilitiesView.
+Reviewing the Data Axle screenshots against the current 9 inputs (Credit File, Wealth, Property, Demographics, Auto/VIN, Employment/income, Life events, Digital identity, Business owner identification), these attributes from the decks are **not yet represented** and are high-signal for a bank use case:
 
-### Change
-In `src/components/tepilot/insights/CapabilitiesView.tsx`, insert one new entry into the `inputs` array of the `"External Intelligence"` source group:
+### Proposed new inputs (all non-FCRA)
 
-- **Label:** Business Owner Identification  
-- **Sublabel:** Business ownership flags, registered entity name, and industry classification  
-- **Icon:** `Briefcase` (already imported; re-use is acceptable within the same group)  
-- **Flag:** `nonFcra: true` (consistent with other third-party enrichment items in this group)
+1. **Neighborhood & community dimensions** — Census geo-aggregates: 700+ statistics, socio-economic status indicator, education/occupation/income by tract *(icon: MapPin)*
+2. **Interests & hobbies** — Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions *(icon: Heart)*
+3. **Public records** — Bankruptcies, liens, judgments, UCC filings *(icon: FileText)*
+4. **Firmographics (business owner)** — SIC code, employee count, estimated sales volume, years in business, website — pairs with the Business Owner ID input *(icon: Building2)*
+5. **Licenses & registrations** — Pilot, hunting, boat, driver's license history — wealth/lifestyle proxies *(icon: BadgeCheck)*
+6. **New movers & pre-movers** — In-market relocation signal (pre-move intent + recent move flag) *(icon: Truck)*
 
-This will increase the External Intelligence input count from 8 → 9 and the total source inputs count accordingly. No other files are affected.
+### Skipped on purpose
 
-### Icon note
-If re-using `Briefcase` in the same group feels confusing, the plan can swap it for a new import (e.g., `Building2` from `lucide-react`) during build. The default proposal above keeps the change minimal.
+- **Voter registration / political party** — regulated/sensitive for bank marketing; skip unless you want it
+- **Ethnicity / race** — fair-lending risk; do not add
+- **Marital status / children ages** — already covered by Demographics Data
+- **Executive emails** — B2B contact enrichment, not relevant to consumer bank targeting  
+
+
+Delete: Business Owner Identification chip
+
+### Implementation
+
+Edit `src/components/tepilot/insights/CapabilitiesView.tsx`:
+
+- Add `MapPin, Heart, FileText, BadgeCheck, Truck` to the lucide-react import (Building2 already imported)
+- Append the 6 items to the `inputs` array of the `External Intelligence` provider (lines 643–653)
+- All 6 keep the default (non-FCRA) badge; only Credit File stays FCRA
+
+Confirm the list (or tell me which to drop / whether to include voter registration) and I'll build.
