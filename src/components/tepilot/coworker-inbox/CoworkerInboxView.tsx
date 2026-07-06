@@ -1,4 +1,4 @@
-import { Sparkles, TrendingUp, MessageCircle, Zap, Clock, ArrowUpRight } from "lucide-react";
+import { Sparkles, TrendingUp, MessageCircle, Zap, Bolt, ArrowUpRight, Radar, UserRoundCheck, LineChart, MessageSquare, FileText, Workflow } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ROSTER,
