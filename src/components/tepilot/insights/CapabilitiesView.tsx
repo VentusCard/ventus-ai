@@ -821,7 +821,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         Signals · what we detect
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 gap-1.5">
+                    <div className="grid grid-cols-1 gap-1.5 px-1">
                       {SIGNALS.map((s) => {
                         const Icon = s.icon;
                         const isActive = s.label === activeSignalLabel;
