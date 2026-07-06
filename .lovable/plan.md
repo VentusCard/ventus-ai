@@ -1,14 +1,18 @@
-## Fix deliverables section alignment in `CoworkerInboxView.tsx`
+## Move Deliverables Block Above Capability Cards & Darken Text
 
-### Problem
-In the "Ventus AI Coworker Capabilities" panel's deliverables sub-section:
-1. The text is not vertically aligned with the role pills (Advisor / Leadership).
-2. The two rows of text do not start at the same horizontal position because the pills are different widths.
+### What we're changing
+In the Coworker Inbox capabilities panel (`CoworkerInboxView.tsx`), the two-row **Advisor / Leadership deliverables block** currently sits below the 6 capability cards. We will move it above the cards and darken its body text.
 
-### Changes
-1. Give both pills a fixed `w-[84px]` (or similar) and `text-center` so they are the same width, and add `flex items-center` to vertically center them.
-2. Remove `mt-0.5` from the pills and use `items-center` on the flex rows so the pill and text share a common baseline.
-3. Ensure the `gap-2` remains consistent so the text block starts flush on both rows.
+### Current layout (expanded capabilities panel)
+1. 6 capability cards in a 3-column grid
+2. Two-row deliverables block (Advisor pill + text, Leadership pill + text)
 
-### Files
-- `src/components/tepilot/coworker-inbox/CoworkerInboxView.tsx` (lines 86-95)
+### New layout
+1. Two-row deliverables block (Advisor pill + text, Leadership pill + text)
+2. 6 capability cards in a 3-column grid
+
+### Text darkening
+Change the body text color in the deliverables block from `text-slate-600` to a darker shade (`text-slate-700` or `text-slate-800`) for better readability.
+
+### Files touched
+- `src/components/tepilot/coworker-inbox/CoworkerInboxView.tsx` — reorder the JSX block and update text color class.
