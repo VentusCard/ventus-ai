@@ -691,7 +691,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           label: i.label,
           sublabel: i.sublabel,
           icon: i.icon,
-          nonFcra: i.nonFcra,
+          fcra: i.fcra,
         })),
         onOpen: activeSourceGroup.onOpen,
         openLabel: activeSourceGroup.openLabel,
