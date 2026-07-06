@@ -64,7 +64,7 @@ export const THREADS: Thread[] = [
         author: "ventus",
         timestamp: "Mon 9:52 AM",
         body:
-          "Prioritize the Hendersons and the Alvarez family.\n\n1. Hendersons — highest projected funding gap ($95K), decision window is next 60 days.\n2. Alvarez — new 529 contribution just started; strong receptivity signal.\n3. Nguyens — early stage; a nurture email is enough for now, I can draft it.\n\nSuggested opener for the Hendersons: 'Wanted to share a couple of tuition-funding options before senior year kicks off.' Want me to schedule the calls?",
+          "Prioritize the Hendersons and the Alvarez family.\n\n1. Hendersons — highest projected funding gap ($95K), decision window is next 60 days.\n2. Alvarez — new 529 contribution just started; strong receptivity signal.\n3. Nguyens — early stage; a nurture email is enough for now, I can draft it.\n\nSuggested opener for the Hendersons: 'Wanted to share a couple of tuition-funding options before senior year kicks off.' Let me know if you'd like suggested next steps or outreach timing.",
       },
     ],
   },
