@@ -1,11 +1,9 @@
-Change the third KPI card from "Human reply rate" to "Avg Conv. Depth".
+Remove the "Dashboard" toggle from the WM Coworker view in `/bankdemo`, leaving only "Coworker Inbox" and "Notifications".
 
-1. Add `avgConvDepth: number` to the `WeeklyStats` interface in `coworkerInboxData.ts`.
-2. Add `avgConvDepth: 1.77` to the `WEEKLY_STATS` object.
-3. In `CoworkerInboxView.tsx`, replace the "Human reply rate" `KpiCard`:
-   - Label: "Avg Conv. Depth"
-   - Value: `{WEEKLY_STATS.avgConvDepth}`
-   - Delta: "turns per conversation on average"
-   - Swap `TrendingUp` icon for `ArrowLeftRight` (add import if needed) or another appropriate back-and-forth icon.
-4. Update the header strip copy that currently reads "{repliesCount} replies" to reference the new metric instead, or adjust to maintain consistency.
-5. Verify TypeScript compiles cleanly.
+Changes in `src/components/tepilot/insights/BankwideWMCopilotView.tsx`:
+1. Narrow `ViewMode` to `"inbox" | "notifications"`.
+2. Delete the Dashboard `<Button>` block (lines ~60–73) and remove the `LayoutDashboard` import.
+3. Simplify the content render to a two-branch conditional (inbox vs notifications), dropping the `LifeEventsAlertDashboard` branch and its import.
+4. Remove now-unused handlers (`handleOpenClient`, `handleScheduleCall`, `handlePrepareWithVentus`) and the `EventPreparationData` import if no longer referenced — keep `dashboardClients` since `AdvisorNotificationsView` still uses it (and its `onOpenClient` / `onPrepareWithVentus` props, which will keep minimal toast-based stubs).
+
+No other files affected.
