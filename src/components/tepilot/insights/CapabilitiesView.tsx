@@ -653,14 +653,18 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     },
     {
       provider: "Bank Context",
-      sublabel: "Products, pricing & campaigns",
+      sublabel: "Products, locations, org & tiers",
       icon: Package,
-      description: `The bank's own product catalog, pricing, and active promotions — the single source of truth for what Ventus can recommend. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
+      description: `The bank's operational context — products, locations, organizational structure, and customer tiers — that shapes what Ventus can recommend and to whom. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
       onOpen: onOpenProducts,
       openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
       inputs: [
-        { label: "Products & pricing", sublabel: "Full retail product catalog with rates, fees, and eligibility rules", icon: Package },
-        { label: "Promotions & incentives", sublabel: "Active campaigns, bonus offers, and merchant-funded promotions", icon: Megaphone },
+        { label: "Consumer Banking Products", sublabel: "Checking, savings, debit, credit cards, and digital wallets", icon: Wallet },
+        { label: "Consumer Lending Products", sublabel: "Mortgages, auto, personal, HELOC, and student loans", icon: Home },
+        { label: "Wealth & Investment Products", sublabel: "Brokerage, managed portfolios, trusts, and advisory tiers", icon: Gem },
+        { label: "Locations & Hours", sublabel: "Branch network, ATM coverage, and regional operating schedules", icon: MapPin },
+        { label: "Departments", sublabel: "RM assignment rules, advisor specializations, and escalation paths", icon: Users },
+        { label: "Customer Segments & Tiers", sublabel: "Mass market, affluent, and private-banking thresholds", icon: Crown },
       ],
     },
   ];
