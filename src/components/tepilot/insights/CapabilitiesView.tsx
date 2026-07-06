@@ -402,6 +402,7 @@ function getTeamDestinations(teamLabel: string): string[] {
       if (chip.kind === "destination") dests.add(chip.label);
     }
   }
+  dests.add("Digital Banking App");
   return Array.from(dests);
 }
 
