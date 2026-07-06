@@ -143,6 +143,19 @@ export function AdvisorNotificationsView({
     )
   ).size;
 
+  const topTwo = useMemo(() => {
+    const pool = grouped.high.length >= 2 ? grouped.high : [...grouped.high, ...grouped.opportunity];
+    return pool.slice(0, 2);
+  }, [grouped]);
+
+  const clientA = topTwo[0];
+  const clientB = topTwo[1];
+  const nameA = clientA?.client.profile.name ?? "the first client";
+  const nameB = clientB?.client.profile.name ?? "the second client";
+  const labelA = clientA ? LIFE_EVENT_CONFIG[clientA.event.eventType].label : "";
+  const labelB = clientB ? LIFE_EVENT_CONFIG[clientB.event.eventType].label : "";
+
+
   return (
     <div className="h-full overflow-y-auto bg-slate-100">
       <div className="max-w-[960px] mx-auto p-6">
