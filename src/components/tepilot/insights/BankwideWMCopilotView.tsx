@@ -1,17 +1,14 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, Briefcase, Mail, Inbox } from "lucide-react";
+import { Briefcase, Mail, Inbox } from "lucide-react";
 import { TabHeader } from "./TabHeader";
-import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
 import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
 import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
-import { EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { useMemo } from "react";
 
-type ViewMode = "inbox" | "dashboard" | "notifications";
+type ViewMode = "inbox" | "notifications";
 
 export function BankwideWMCopilotView() {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
@@ -22,12 +19,7 @@ export function BankwideWMCopilotView() {
     toast.info("Client detail view is disabled in this demo.");
   }, []);
 
-  const handleScheduleCall = useCallback((clientId: string) => {
-    const client = dashboardClients.find(c => c.id === clientId);
-    toast.success(`Scheduling call with ${client?.profile.name || 'client'}...`);
-  }, [dashboardClients]);
-
-  const handlePrepareWithVentus = useCallback((_data: EventPreparationData) => {
+  const handlePrepareWithVentus = useCallback(() => {
     toast.info("Client detail view is disabled in this demo.");
   }, []);
 
@@ -60,20 +52,6 @@ export function BankwideWMCopilotView() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setViewMode("dashboard")}
-            className={cn(
-              "h-8 px-3 rounded-md",
-              viewMode === "dashboard"
-                ? "bg-white shadow-sm text-slate-900"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <LayoutDashboard className="h-4 w-4 mr-2" />
-            Dashboard
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
             onClick={() => setViewMode("notifications")}
             className={cn(
               "h-8 px-3 rounded-md",
@@ -95,13 +73,6 @@ export function BankwideWMCopilotView() {
       <div className="flex-1 min-h-0">
         {viewMode === "inbox" ? (
           <CoworkerInboxView />
-        ) : viewMode === "dashboard" ? (
-          <LifeEventsAlertDashboard
-            clients={dashboardClients}
-            onOpenClient={handleOpenClient}
-            onScheduleCall={handleScheduleCall}
-            onPrepareWithVentus={handlePrepareWithVentus}
-          />
         ) : (
           <AdvisorNotificationsView
             clients={dashboardClients}
