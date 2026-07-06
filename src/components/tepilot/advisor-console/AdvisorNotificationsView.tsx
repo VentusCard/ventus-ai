@@ -198,7 +198,7 @@ export function AdvisorNotificationsView({
           </div>
 
           {/* Sender block */}
-          <div className="px-6 py-4 border-b border-slate-200">
+          <div id="msg-0" className="px-6 py-4 border-b border-slate-200 scroll-mt-4">
             <div className="flex items-start gap-3">
               <div
                 className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0"
