@@ -1,8 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Sparkles,
   Reply,
+
   ReplyAll,
   Forward,
   Trash2,
@@ -298,8 +297,9 @@ const REPLY_MESSAGES: MessageDef[] = [
 
 export function AdvisorNotificationsView({
   clients,
-  onOpenClient,
-  onPrepareWithVentus,
+  onOpenClient: _onOpenClient,
+  onPrepareWithVentus: _onPrepareWithVentus,
+
 }: AdvisorNotificationsViewProps) {
   const grouped = useMemo(() => {
     const out: Record<"high" | "opportunity" | "risk", SignalRow[]> = {
@@ -538,11 +538,11 @@ export function AdvisorNotificationsView({
             {activeMsg.kind === "digest" ? (
               <>
                 <p className="text-sm text-slate-700 leading-relaxed">
-                  Morning — {totalSignals} new signals across{" "}
-                  <span className="font-semibold text-slate-900">
-                    {clientsWithSignals} clients
-                  </span>{" "}
-                  worth acting on today.
+                  Morning — <span className="font-semibold text-slate-900">{totalSignals}</span> new signals across{" "}
+                  <span className="font-semibold text-slate-900">{clientsWithSignals} clients</span>.
+                  Grouped by how time-sensitive they are so you can plan the day.
+                  Every row has the underlying signal count, the window it covers, and my confidence —
+                  reply if you want me to go deeper on any of them.
                 </p>
 
                 {SECTIONS.map((section) => {
@@ -570,64 +570,63 @@ export function AdvisorNotificationsView({
                         </span>
                       </div>
 
-                      <div className="space-y-1.5">
+                      <div>
                         {rows.slice(0, 6).map(({ client, event }, idx) => {
                           const cfg = LIFE_EVENT_CONFIG[event.eventType];
+                          const signalCount = event.keyEvidence.length || 3;
+                          const windowDays =
+                            event.urgencyScore >= 5 ? 14
+                            : event.urgencyScore === 4 ? 30
+                            : event.urgencyScore === 3 ? 60
+                            : 90;
+                          const confidencePct = Math.round(
+                            (event.confidence ?? Math.min(0.95, event.urgencyScore * 0.18 + 0.1)) * 100
+                          );
+                          const rawTiming = event.estimatedTiming?.trim() ?? "";
+                          const looksConcrete = /\d|week|month|day|quarter/i.test(rawTiming);
+                          const timingPhrase = looksConcrete
+                            ? rawTiming
+                            : event.urgencyScore >= 5 ? "this week"
+                            : event.urgencyScore === 4 ? "next 2–3 weeks"
+                            : event.urgencyScore === 3 ? "this quarter"
+                            : "no rush";
                           return (
                             <div
                               key={`${client.id}-${event.eventType}-${idx}`}
-                              className="border-b border-slate-100 last:border-b-0 py-2 flex items-center gap-3"
+                              className="border-b border-slate-100 last:border-b-0 py-2.5 flex items-start gap-3"
                             >
-                              <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold flex items-center justify-center shrink-0">
+                              <div className="w-8 h-8 rounded-full bg-slate-100 text-slate-700 text-[11px] font-semibold flex items-center justify-center shrink-0 mt-0.5">
                                 {initials(client.profile.name)}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="text-sm font-semibold text-slate-900 truncate">
+                                  <span className="text-sm font-semibold text-slate-900">
                                     {client.profile.name}
                                   </span>
                                   <span className="text-[11px] uppercase tracking-wide text-slate-500">
                                     {cfg.label}
                                   </span>
+                                  <span
+                                    className={cn(
+                                      "text-[11px] font-medium px-2 py-0.5 rounded-full",
+                                      section.pill
+                                    )}
+                                  >
+                                    {timingPhrase}
+                                  </span>
                                 </div>
-                                <div className="text-xs text-slate-600 truncate">
-                                  {event.keyEvidence[0] || event.eventName} ·{" "}
-                                  {event.estimatedTiming}
+                                <div className="text-sm text-slate-700 leading-relaxed mt-1">
+                                  {event.keyEvidence[0] || event.eventName}.{" "}
+                                  <span className="text-slate-500">
+                                    <span className="font-semibold text-slate-900">{signalCount}</span> signals
+                                    over the past <span className="font-semibold text-slate-900">{windowDays}</span> days
+                                    · <span className="font-semibold text-slate-900">{confidencePct}%</span> confidence.
+                                  </span>
                                 </div>
-                              </div>
-                              <div className="flex items-center gap-1 shrink-0">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  className="h-7 px-2 text-xs"
-                                  onClick={() => onOpenClient(client.id)}
-                                >
-                                  Open
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  className="h-7 px-2 text-xs bg-slate-900 hover:bg-slate-800 text-white"
-                                  onClick={() =>
-                                    onPrepareWithVentus({
-                                      client,
-                                      event,
-                                      transactions: [],
-                                      recommendedSteps: [],
-                                    })
-                                  }
-                                >
-                                  <Sparkles className="w-3 h-3 mr-1" />
-                                  Prepare
-                                </Button>
                               </div>
                             </div>
                           );
                         })}
-                        {rows.length > 6 && (
-                          <div className="text-xs text-slate-500 pt-1">
-                            + {rows.length - 6} more in this category
-                          </div>
-                        )}
                       </div>
                     </div>
                   );
@@ -638,8 +637,14 @@ export function AdvisorNotificationsView({
                     Quiet morning — no new signals.
                   </div>
                 )}
+
+                <p className="text-sm text-slate-700 leading-relaxed">
+                  Nothing here needs an immediate call except the Act Now list.
+                  Reply on any name and I'll pull household context, prior conversations, or draft prep notes.
+                </p>
               </>
             ) : (
+
               <>
                 {activeMsg.quoted && (
                   <div className="border-l-2 border-slate-200 pl-3 text-xs text-slate-500 italic">
