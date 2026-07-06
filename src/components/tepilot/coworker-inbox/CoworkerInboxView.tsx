@@ -41,12 +41,30 @@ export function CoworkerInboxView() {
             <span className="text-[12px] text-emerald-700 font-medium">Active</span>
           </div>
           <div className="hidden md:block text-[12px] text-slate-500">
-            Working alongside {WEEKLY_STATS.advisorsCount} advisors and {WEEKLY_STATS.leadersCount} leaders · Last activity {WEEKLY_STATS.lastActivityAgo}
+            Working alongside {WEEKLY_STATS.advisorsCount.toLocaleString()} advisors and {WEEKLY_STATS.leadersCount.toLocaleString()} leaders · Last activity {WEEKLY_STATS.lastActivityAgo}
           </div>
           <div className="text-[12px] text-slate-600">
-            <span className="font-semibold text-slate-900">{WEEKLY_STATS.emailsSent}</span> emails this week ·{" "}
-            <span className="font-semibold text-slate-900">{WEEKLY_STATS.repliesCount}</span> replies ·{" "}
-            <span className="font-semibold text-slate-900">{WEEKLY_STATS.activeThreads}</span> active threads
+            <span className="font-semibold text-slate-900">{WEEKLY_STATS.emailsSent.toLocaleString()}</span> emails this week ·{" "}
+            <span className="font-semibold text-slate-900">{WEEKLY_STATS.repliesCount.toLocaleString()}</span> replies ·{" "}
+            <span className="font-semibold text-slate-900">{WEEKLY_STATS.activeThreads.toLocaleString()}</span> active threads
+          </div>
+        </div>
+
+        {/* 1.5 Capabilities panel */}
+        <div className="rounded-lg border border-slate-200 bg-white">
+          <div className="px-4 py-3 border-b border-slate-100">
+            <h3 className="text-[13px] font-semibold text-slate-900">What your AI coworker does</h3>
+            <p className="text-[11.5px] text-slate-500 mt-0.5">
+              Ventus works alongside {WEEKLY_STATS.advisorsCount.toLocaleString()} advisors and {WEEKLY_STATS.leadersCount.toLocaleString()} leaders — via email, always on.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
+            <CapabilityTile icon={<UserRoundCheck className="w-3.5 h-3.5" />} title="Personalized advisor briefs" body="Emails each advisor the specific signals in their book with context, evidence, and recommended talking points." accentClass="text-purple-600" />
+            <CapabilityTile icon={<LineChart className="w-3.5 h-3.5" />} title="Leadership intelligence" body="Sends leadership weekly trends, product-gap analysis, and campaign recommendations across the enterprise." accentClass="text-amber-600" />
+            <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or scheduling on demand." accentClass="text-emerald-600" />
+            <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Draft generation" body="Produces client outreach copy, agendas, and campaign briefs ready for human review — never sends to end clients autonomously." />
+            <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
           </div>
         </div>
 
@@ -55,29 +73,29 @@ export function CoworkerInboxView() {
           <KpiCard
             icon={<MessageCircle className="w-3.5 h-3.5" />}
             label="Emails sent this week"
-            value={String(WEEKLY_STATS.emailsSent)}
-            delta={`↑ ${emailDelta} vs last week`}
+            value={WEEKLY_STATS.emailsSent.toLocaleString()}
+            delta={`↑ ${((emailDelta / WEEKLY_STATS.emailsSentPrev) * 100).toFixed(1)}% vs last week`}
             deltaTone="up"
           />
           <KpiCard
             icon={<TrendingUp className="w-3.5 h-3.5" />}
-            label="Reply rate"
+            label="Human reply rate"
             value={`${WEEKLY_STATS.replyRatePct}%`}
-            delta={`${WEEKLY_STATS.repliesCount} of ${WEEKLY_STATS.emailsSent}`}
+            delta={`${WEEKLY_STATS.repliesCount.toLocaleString()} replies received`}
             deltaTone="neutral"
           />
           <KpiCard
             icon={<Zap className="w-3.5 h-3.5" />}
             label="Signals surfaced"
-            value={String(WEEKLY_STATS.signalsSurfaced)}
-            delta="across advisor books"
+            value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
+            delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
             deltaTone="neutral"
           />
           <KpiCard
-            icon={<Clock className="w-3.5 h-3.5" />}
-            label="Avg time to first reply"
-            value={`${WEEKLY_STATS.avgTimeToReplyHrs} hrs`}
-            delta="down from 3.1 hrs"
+            icon={<Bolt className="w-3.5 h-3.5" />}
+            label="Ventus reply latency"
+            value={WEEKLY_STATS.ventusReplyLatency}
+            delta="instant · always on"
             deltaTone="up"
           />
         </div>
