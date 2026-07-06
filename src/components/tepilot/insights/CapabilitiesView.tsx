@@ -642,28 +642,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       ],
     },
     {
-      provider: "External Intelligence",
-      sublabel: "Credit bureau & third-party enrichment",
-      icon: Gauge,
-      description: "Credit bureau file plus third-party consumer enrichment covering wealth, property, demographics, auto, employment, life events, and digital identity.",
-        inputs: [
-        { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge, fcra: true },
-        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank },
-        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home },
-        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users },
-        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car },
-        
-        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles },
-        { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck },
-        
-        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart },
-        { label: "Public records", sublabel: "Bankruptcies, liens, judgments, and UCC filings", icon: FileText },
-        { label: "Firmographics (business owner)", sublabel: "SIC code, employee count, estimated sales volume, years in business, website", icon: Building2 },
-        { label: "Licenses & registrations", sublabel: "Pilot, hunting, boat, and driver's license history — wealth/lifestyle proxies", icon: BadgeCheck },
-        { label: "New movers & pre-movers", sublabel: "In-market relocation signal: pre-move intent and recent-move flag", icon: Truck },
-      ],
-    },
-    {
       provider: "Bank Context",
       sublabel: "Products, locations, org & tiers",
       icon: Package,
