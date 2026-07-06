@@ -779,7 +779,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
           <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
             {/* Sources */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around">
+            <div className="flex min-w-0 flex-col gap-2 justify-around px-1">
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
@@ -821,7 +821,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         Signals · what we detect
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 gap-1.5">
+                    <div className="grid grid-cols-1 gap-1.5 px-1">
                       {SIGNALS.map((s) => {
                         const Icon = s.icon;
                         const isActive = s.label === activeSignalLabel;
@@ -951,7 +951,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         Teams · who we serve
                       </p>
                     </div>
-                    <div className="flex flex-col gap-2 flex-1">
+                    <div className="flex flex-col gap-2 flex-1 px-1">
                       {TEAMS.map((t) => {
                         const Icon = t.icon;
                         const isActive = t.label === activeTeamLabel;
@@ -985,7 +985,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
             {/* Destinations */}
             <div className={cn(
-              "flex min-w-0 flex-col gap-2",
+              "flex min-w-0 flex-col gap-2 px-1",
               activeTeamLabel ? "justify-center" : "justify-around"
             )}>
               {visibleDestinations.map((d) => (
