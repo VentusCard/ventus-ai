@@ -779,7 +779,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
           <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
             {/* Sources */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around">
+            <div className="flex min-w-0 flex-col gap-2 justify-around px-1">
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
