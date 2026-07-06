@@ -63,7 +63,7 @@ export function CoworkerInboxView() {
             <div>
               <h3 className="text-[13px] font-semibold text-slate-900">Ventus AI Coworker Capabilities</h3>
               <p className="text-[11.5px] text-slate-500 mt-0.5">
-                Ventus works alongside {WEEKLY_STATS.advisorsCount.toLocaleString()} advisors and {WEEKLY_STATS.leadersCount.toLocaleString()} leaders — via email, always on.
+                Ventus works alongside {WEEKLY_STATS.advisorsCount.toLocaleString()} advisors and {WEEKLY_STATS.leadersCount.toLocaleString()} leaders — always thinking, always on.
               </p>
             </div>
             <ChevronDown
