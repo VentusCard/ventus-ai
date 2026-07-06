@@ -1,21 +1,22 @@
 import { useState, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, User, Briefcase, Mail } from "lucide-react";
+import { LayoutDashboard, User, Briefcase, Mail, Inbox } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorConsole";
 import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
 import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
+import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
 
-type ViewMode = "dashboard" | "client" | "notifications";
+type ViewMode = "inbox" | "dashboard" | "client" | "notifications";
 
 export function BankwideWMCopilotView() {
-  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
+  const [viewMode, setViewMode] = useState<ViewMode>("inbox");
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [pendingVentusMessage, setPendingVentusMessage] = useState<string | null>(null);
 
@@ -62,14 +63,28 @@ export function BankwideWMCopilotView() {
     <div className="flex flex-col h-full">
       <TabHeader
         icon={<Briefcase className="w-4 h-4" />}
-        title="WM Copilot"
-        subtitle="Real-time HNW client triggers and AI-powered advisor preparation"
-        howItWorks="Ventus continuously monitors HNW client transactions for life events, risk signals, and opportunity triggers, surfacing them to advisors in real time."
-        whyItMatters="Advisors spend less time on research and more on relationship building, with AI-powered preparation for every client interaction."
+        title="WM Coworker"
+        subtitle="An email-based Ventus AI teammate for advisors and wealth leadership"
+        howItWorks="Ventus AI works alongside the wealth team as a coworker: it sends personalized emails to specific advisors with signals in their book, and to leadership with portfolio-wide trends and campaign recommendations. Every email is a conversation — recipients reply directly to explore further."
+        whyItMatters="Advisors and leaders get proactive, context-rich intelligence in the tool they already live in — email — instead of yet another dashboard to log into."
       />
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setViewMode("inbox")}
+            className={cn(
+              "h-8 px-3 rounded-md",
+              viewMode === "inbox"
+                ? "bg-white shadow-sm text-slate-900"
+                : "text-slate-600 hover:text-slate-900"
+            )}
+          >
+            <Inbox className="h-4 w-4 mr-2" />
+            Coworker Inbox
+          </Button>
           <Button
             variant="ghost"
             size="sm"
@@ -114,13 +129,15 @@ export function BankwideWMCopilotView() {
           </Button>
         </div>
         <span className="text-sm text-slate-500 ml-2">
-          Wealth Management Copilot
+          Wealth Management Coworker
         </span>
       </div>
 
       {/* Content */}
       <div className="flex-1 min-h-0">
-        {viewMode === "dashboard" ? (
+        {viewMode === "inbox" ? (
+          <CoworkerInboxView />
+        ) : viewMode === "dashboard" ? (
           <LifeEventsAlertDashboard
             clients={dashboardClients}
             onOpenClient={handleOpenClient}
