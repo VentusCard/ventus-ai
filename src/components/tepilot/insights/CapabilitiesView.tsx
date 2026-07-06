@@ -649,6 +649,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         { label: "Employment & income", sublabel: "Employer, occupation, and income estimate", icon: Briefcase, nonFcra: true },
         { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles, nonFcra: true },
         { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck, nonFcra: true },
+        { label: "Business owner identification", sublabel: "Business ownership flags, registered entity name, and industry classification", icon: Briefcase, nonFcra: true },
       ],
     },
     {
