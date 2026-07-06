@@ -531,7 +531,7 @@ function NodeCard({
       <span
         className={cn(
           "absolute top-1.5 w-1.5 h-1.5 rounded-full",
-          side === "left" ? "right-2 bg-emerald-500" : "left-2 bg-indigo-500",
+          side === "left" ? "right-2 bg-emerald-500" : "left-2 bg-emerald-500",
           "animate-pulse",
         )}
       />
