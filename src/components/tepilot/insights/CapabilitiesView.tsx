@@ -759,7 +759,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
-              Bank-native sources · {totalSourceInputs} inputs across {sourceGroups.length} providers
+              Internal & external inputs · {totalSourceInputs} sources across {sourceGroups.length} providers
             </p>
           </div>
           <div className="text-center min-w-0">
