@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, TrendingUp, MessageCircle, Zap, Bolt, ArrowUpRight, Radar, UserRoundCheck, LineChart, MessageSquare, FileText, Workflow, ChevronDown, Clock, History } from "lucide-react";
+import { Sparkles, ArrowLeftRight, MessageCircle, Zap, Bolt, ArrowUpRight, Radar, UserRoundCheck, LineChart, MessageSquare, FileText, Workflow, ChevronDown, Clock, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ROSTER,
@@ -114,10 +114,10 @@ export function CoworkerInboxView() {
             deltaTone="up"
           />
           <KpiCard
-            icon={<TrendingUp className="w-3.5 h-3.5" />}
-            label="Human reply rate"
-            value={`${WEEKLY_STATS.replyRatePct}%`}
-            delta={`${WEEKLY_STATS.repliesCount.toLocaleString()} replies received`}
+            icon={<ArrowLeftRight className="w-3.5 h-3.5" />}
+            label="Avg Conv. Depth"
+            value="1.77"
+            delta="turns per conversation on average"
             deltaTone="neutral"
           />
           <KpiCard
