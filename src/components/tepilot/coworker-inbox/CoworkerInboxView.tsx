@@ -100,6 +100,13 @@ export function CoworkerInboxView() {
         {/* 2. KPI cards */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
           <KpiCard
+            icon={<Zap className="w-3.5 h-3.5" />}
+            label="Signals surfaced"
+            value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
+            delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
+            deltaTone="neutral"
+          />
+          <KpiCard
             icon={<MessageCircle className="w-3.5 h-3.5" />}
             label="Emails sent this week"
             value={WEEKLY_STATS.emailsSent.toLocaleString()}
@@ -111,13 +118,6 @@ export function CoworkerInboxView() {
             label="Human reply rate"
             value={`${WEEKLY_STATS.replyRatePct}%`}
             delta={`${WEEKLY_STATS.repliesCount.toLocaleString()} replies received`}
-            deltaTone="neutral"
-          />
-          <KpiCard
-            icon={<Zap className="w-3.5 h-3.5" />}
-            label="Signals surfaced"
-            value={WEEKLY_STATS.signalsSurfaced.toLocaleString()}
-            delta={`across ${WEEKLY_STATS.advisorsCount.toLocaleString()} advisor books`}
             deltaTone="neutral"
           />
           <KpiCard
