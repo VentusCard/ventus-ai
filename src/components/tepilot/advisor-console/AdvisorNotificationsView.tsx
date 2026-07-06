@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Sparkles,
@@ -11,7 +11,10 @@ import {
   Star,
   Printer,
   MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import {
   DashboardClient,
@@ -195,7 +198,7 @@ export function AdvisorNotificationsView({
           </div>
 
           {/* Sender block */}
-          <div className="px-6 py-4 border-b border-slate-200">
+          <div id="msg-0" className="px-6 py-4 border-b border-slate-200 scroll-mt-4">
             <div className="flex items-start gap-3">
               <div
                 className="w-11 h-11 rounded-full flex items-center justify-center text-white text-sm font-semibold shrink-0"
@@ -384,6 +387,19 @@ interface ThreadProps {
 }
 
 function ConversationThread({ nameA, nameB, labelA, labelB }: ThreadProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  const goTo = (idx: number) => {
+    setActiveIndex(idx);
+    if (idx === 0) {
+      document.getElementById("msg-0")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      cardRefs.current[idx - 1]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+
   const messages: {
     from: "ventus" | "advisor";
     time: string;
@@ -486,11 +502,76 @@ function ConversationThread({ nameA, nameB, labelA, labelB }: ThreadProps) {
     },
   ];
 
+  const totalCount = messages.length + 1;
+  const navItems = [
+    { idx: 0, label: "Digest", time: "9:14", who: "ventus" as const },
+    ...messages.map((m, i) => ({
+      idx: i + 1,
+      label: m.from === "ventus" ? "Ventus" : "You",
+      time: m.time.replace(" AM", "").replace(" PM", ""),
+      who: m.from,
+    })),
+  ];
+
   return (
     <div className="pt-5 border-t border-slate-200 space-y-4">
-      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
-        Conversation ({messages.length + 1})
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+          Conversation ({totalCount})
+        </div>
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            type="button"
+            onClick={() => goTo(Math.max(0, activeIndex - 1))}
+            disabled={activeIndex === 0}
+            aria-label="Previous message"
+            className="p-1 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-3.5 h-3.5" />
+          </button>
+          <button
+            type="button"
+            onClick={() => goTo(Math.min(totalCount - 1, activeIndex + 1))}
+            disabled={activeIndex === totalCount - 1}
+            aria-label="Next message"
+            className="p-1 rounded border border-slate-200 bg-white text-slate-600 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
+
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 -mx-1 px-1 [&::-webkit-scrollbar]:hidden [scrollbar-width:none]">
+        {navItems.map((item) => {
+          const active = item.idx === activeIndex;
+          const isVentus = item.who === "ventus";
+          return (
+            <button
+              key={item.idx}
+              type="button"
+              onClick={() => goTo(item.idx)}
+              className={cn(
+                "flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs whitespace-nowrap transition-colors",
+                active
+                  ? "bg-slate-900 text-white"
+                  : "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50"
+              )}
+            >
+              <span
+                className="w-1.5 h-1.5 rounded-full shrink-0"
+                style={{ backgroundColor: isVentus ? "#0078D4" : "#94a3b8" }}
+              />
+              <span className="font-medium">{item.idx + 1}</span>
+              <span className={cn(active ? "text-slate-200" : "text-slate-500")}>·</span>
+              <span>{item.label}</span>
+              <span className={cn(active ? "text-slate-300" : "text-slate-500")}>
+                {item.time}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {messages.map((m, i) => {
         const isVentus = m.from === "ventus";
         const senderName = isVentus ? "Ventus AI Copilot" : ADVISOR.name;
@@ -498,9 +579,11 @@ function ConversationThread({ nameA, nameB, labelA, labelB }: ThreadProps) {
         return (
           <div
             key={i}
+            ref={(el) => { cardRefs.current[i] = el; }}
             className={cn(
-              "border border-slate-200 rounded-md p-4",
-              isVentus ? "bg-white" : "bg-slate-50"
+              "border rounded-md p-4 scroll-mt-4 transition-colors",
+              isVentus ? "bg-white" : "bg-slate-50",
+              activeIndex === i + 1 ? "border-slate-900" : "border-slate-200"
             )}
           >
             <div className="flex items-start gap-3">
@@ -542,4 +625,5 @@ function ConversationThread({ nameA, nameB, labelA, labelB }: ThreadProps) {
     </div>
   );
 }
+
 
