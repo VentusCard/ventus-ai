@@ -985,7 +985,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
 
             {/* Destinations */}
             <div className={cn(
-              "flex min-w-0 flex-col gap-2",
+              "flex min-w-0 flex-col gap-2 px-1",
               activeTeamLabel ? "justify-center" : "justify-around"
             )}>
               {visibleDestinations.map((d) => (
