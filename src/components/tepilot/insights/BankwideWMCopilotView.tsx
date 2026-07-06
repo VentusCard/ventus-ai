@@ -61,7 +61,7 @@ export function BankwideWMCopilotView() {
             )}
           >
             <Mail className="h-4 w-4 mr-2" />
-            Notifications
+            Advisor Conv. Demo
           </Button>
         </div>
         <span className="text-sm text-slate-500 ml-2">
