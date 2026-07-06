@@ -369,3 +369,177 @@ export function AdvisorNotificationsView({
     </div>
   );
 }
+
+const ADVISOR = {
+  name: "Morgan Chen",
+  email: "morgan.chen@bank.com",
+  initials: "MC",
+};
+
+interface ThreadProps {
+  nameA: string;
+  nameB: string;
+  labelA: string;
+  labelB: string;
+}
+
+function ConversationThread({ nameA, nameB, labelA, labelB }: ThreadProps) {
+  const messages: {
+    from: "ventus" | "advisor";
+    time: string;
+    quoted?: string;
+    body: React.ReactNode;
+  }[] = [
+    {
+      from: "advisor",
+      time: "9:22 AM",
+      quoted: `Ventus AI, 9:14 AM — Daily digest: signals to action across your book…`,
+      body: (
+        <>
+          <p>
+            Good list. Before I reach out — walk me through what's actually behind the top two on Act Now.
+          </p>
+          <ul className="list-disc pl-5 space-y-1.5">
+            <li>
+              On <span className="font-medium text-slate-900">{nameA}</span> — what actually changed for them?
+              Last time we spoke it was mostly steady-state. What's the {labelA.toLowerCase()} signal picking up on?
+            </li>
+            <li>
+              On <span className="font-medium text-slate-900">{nameB}</span> — is this the same {labelB.toLowerCase()} thread
+              we flagged last quarter, or something new? And do we know if the spouse is involved in this one?
+            </li>
+          </ul>
+          <p>Give me the story behind each, not just the headline.</p>
+        </>
+      ),
+    },
+    {
+      from: "ventus",
+      time: "9:38 AM",
+      quoted: `Morgan, 9:22 AM — Give me the story behind each, not just the headline.`,
+      body: (
+        <>
+          <p>Here's what's underneath each one:</p>
+          <div>
+            <p className="font-medium text-slate-900">{nameA}</p>
+            <ul className="list-disc pl-5 space-y-1 mt-1">
+              <li>Household spending mix has been drifting toward a different lifestyle pattern over the past couple of months — the sort of shift we usually see when someone is quietly planning a bigger change.</li>
+              <li>In similar households this pattern typically precedes a {labelA.toLowerCase()} decision within the next few conversations, not immediately.</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium text-slate-900">{nameB}</p>
+            <ul className="list-disc pl-5 space-y-1 mt-1">
+              <li>Different thread from last quarter — the earlier one has quieted down. This one is a fresh {labelB.toLowerCase()} signal driven by new activity on the joint side of the household.</li>
+              <li>Spouse is on the joint account and appears to be the one initiating most of the recent behavior, which will change who you're really speaking to.</li>
+            </ul>
+          </div>
+          <p>Want the fuller household picture for each — who's involved, what's changing around them?</p>
+        </>
+      ),
+    },
+    {
+      from: "advisor",
+      time: "9:44 AM",
+      quoted: `Ventus AI, 9:38 AM — Want the fuller household picture for each…`,
+      body: (
+        <p>
+          Yes. Household composition, anything about the spouse or dependents, and whatever context would change how I frame the conversation. I don't want to walk in cold on either of them.
+        </p>
+      ),
+    },
+    {
+      from: "ventus",
+      time: "10:02 AM",
+      quoted: `Morgan, 9:44 AM — I don't want to walk in cold on either of them.`,
+      body: (
+        <>
+          <div>
+            <p className="font-medium text-slate-900">{nameA}</p>
+            <ul className="list-disc pl-5 space-y-1 mt-1">
+              <li>Two-adult household, individual primary account with a shared secondary. Decisions historically made solo, but recent activity suggests they're consulting a partner more than before.</li>
+              <li>Behavioral shift reads as someone reassessing lifestyle priorities — not a distress signal, more of a rethink.</li>
+              <li>Careful nuance: they've been pitched a similar concept before and passed. Lead with curiosity, not a product.</li>
+            </ul>
+          </div>
+          <div>
+            <p className="font-medium text-slate-900">{nameB}</p>
+            <ul className="list-disc pl-5 space-y-1 mt-1">
+              <li>Married, joint primary account, one dependent. Spouse is currently the more active user on the household.</li>
+              <li>The shift looks tied to a family-side change rather than a market view — worth acknowledging gently rather than analytically.</li>
+              <li>Careful nuance: prior exposure to a related product that underperformed. Don't reopen that thread unless they do.</li>
+            </ul>
+          </div>
+          <p>Want a prep sheet for each — angle, 3 talking points, and a soft intro you can paste?</p>
+        </>
+      ),
+    },
+    {
+      from: "advisor",
+      time: "10:07 AM",
+      quoted: `Ventus AI, 10:02 AM — Want a prep sheet for each…`,
+      body: (
+        <p>
+          Please. Angle, 3 talking points, and a short intro paragraph per client. Log both as follow-ups so I have the prep notes when I pick these up.
+        </p>
+      ),
+    },
+  ];
+
+  return (
+    <div className="pt-5 border-t border-slate-200 space-y-4">
+      <div className="text-xs font-semibold text-slate-500 uppercase tracking-wide">
+        Conversation ({messages.length + 1})
+      </div>
+      {messages.map((m, i) => {
+        const isVentus = m.from === "ventus";
+        const senderName = isVentus ? "Ventus AI Copilot" : ADVISOR.name;
+        const senderEmail = isVentus ? "copilot@ventusai.com" : ADVISOR.email;
+        return (
+          <div
+            key={i}
+            className={cn(
+              "border border-slate-200 rounded-md p-4",
+              isVentus ? "bg-white" : "bg-slate-50"
+            )}
+          >
+            <div className="flex items-start gap-3">
+              <div
+                className={cn(
+                  "w-8 h-8 rounded-full flex items-center justify-center text-white text-[11px] font-semibold shrink-0"
+                )}
+                style={{
+                  backgroundColor: isVentus ? "#0078D4" : "#475569",
+                }}
+              >
+                {isVentus ? "VA" : ADVISOR.initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="text-sm text-slate-900">
+                    <span className="font-semibold">{senderName}</span>{" "}
+                    <span className="text-slate-500 font-normal text-xs">
+                      &lt;{senderEmail}&gt;
+                    </span>
+                  </div>
+                  <div className="text-xs text-slate-500 shrink-0">
+                    Today · {m.time}
+                  </div>
+                </div>
+                {m.quoted && (
+                  <div className="border-l-2 border-slate-200 pl-3 mt-2 text-xs text-slate-500 italic">
+                    {m.quoted}
+                  </div>
+                )}
+                <div className="text-sm text-slate-700 leading-relaxed mt-3 space-y-2">
+                  {m.body}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
