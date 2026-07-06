@@ -1091,7 +1091,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {activeDetail.items.map((item) => {
                   const ItemIcon = (item as any).icon as React.ElementType | undefined;
-                  const itemNonFcra = (item as any).nonFcra as boolean | undefined;
+                  const itemFcra = (item as any).fcra as boolean | undefined;
                   return ItemIcon ? (
                     <div
                       key={item.label}
@@ -1110,7 +1110,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                           <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
                             {item.label}
                           </div>
-                          {itemNonFcra && (
+                          {itemFcra ? (
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                              FCRA
+                            </span>
+                          ) : (
                             <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
                               non-FCRA
                             </span>
