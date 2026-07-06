@@ -1,27 +1,17 @@
-## Plan: Expand "Bank Context" to 6 elements in the Systems tab
+## Plan
 
 ### Goal
+Add a "Business Owner Identification" input to the **External Intelligence** source group in the CapabilitiesView.
 
-Replace the current 2-item "Bank Context" source group in `CapabilitiesView.tsx` with 6 distinct elements that give Ventus richer bank-native context for personalization.
+### Change
+In `src/components/tepilot/insights/CapabilitiesView.tsx`, insert one new entry into the `inputs` array of the `"External Intelligence"` source group:
 
-### Proposed 6 elements
+- **Label:** Business Owner Identification  
+- **Sublabel:** Business ownership flags, registered entity name, and industry classification  
+- **Icon:** `Briefcase` (already imported; re-use is acceptable within the same group)  
+- **Flag:** `nonFcra: true` (consistent with other third-party enrichment items in this group)
 
-1. **Consumer Banking Products** — Checking, savings, debit, credit cards, digital wallets
-2. **Consumer Lending Products** — Mortgages, auto, personal, HELOC, student loans
-3. **Wealth & Investment Products** — Brokerage, managed portfolios, trusts, advisory tiers
-4. **Locations & Hours** — Branch network, ATM coverage, regional operating hours, holiday schedules
-5. **Departments** — RM assignment rules, advisor specializations, support queues, escalation paths
-6. **Customer Segments & Tiers** — Mass market, affluent, private-banking thresholds, qualification criteria, service-level differences
+This will increase the External Intelligence input count from 8 → 9 and the total source inputs count accordingly. No other files are affected.
 
-### Implementation steps
-
-1. **Update `CapabilitiesView.tsx**` — In the `sourceGroups` array, expand the "Bank Context" group's `inputs` array from 2 to 6 items. Update the description to reflect the broader scope.
-2. **No new files** — This is a data-only change inside the existing component.
-3. **No backend changes** — Purely presentational, consistent with the existing static source-group pattern.
-
-### Out of scope
-
-- No changes to other source groups (KYC, Transactions, etc.)
-- No changes to the detail panel behavior or the network visualization wiring.
-
-If you prefer a different 6th element (e.g., "Rate & Fee Schedule" or "Campaign Calendar"), let me know and I'll adjust before implementing.
+### Icon note
+If re-using `Briefcase` in the same group feels confusing, the plan can swap it for a new import (e.g., `Building2` from `lucide-react`) during build. The default proposal above keeps the change minimal.
