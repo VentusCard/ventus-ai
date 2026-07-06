@@ -1,8 +1,7 @@
 import { useMemo, useState, useRef, useEffect } from "react";
-import { Button } from "@/components/ui/button";
 import {
-  Sparkles,
   Reply,
+
   ReplyAll,
   Forward,
   Trash2,
