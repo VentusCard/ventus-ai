@@ -11,7 +11,10 @@ import {
   Star,
   Printer,
   MoreHorizontal,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import {
   DashboardClient,
