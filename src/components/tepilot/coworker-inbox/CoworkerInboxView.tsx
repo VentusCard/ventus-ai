@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, ArrowLeftRight, MessageCircle, Zap, Bolt, ArrowUpRight, Radar, UserRoundCheck, LineChart, MessageSquare, FileText, Workflow, ChevronDown, Clock, History } from "lucide-react";
+import { Sparkles, ArrowLeftRight, MessageCircle, Zap, Bolt, Radar, UserRoundCheck, LineChart, MessageSquare, FileText, Workflow, ChevronDown, Clock, History } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   ROSTER,
@@ -10,7 +10,7 @@ import {
   type ActivityKind,
   type Person,
 } from "./coworkerInboxData";
-import { MessageBubble } from "./MessageBubble";
+
 
 const KIND_STYLES: Record<ActivityKind, { dot: string; label: string; badge: string }> = {
   advisor:    { dot: "bg-purple-500", label: "Advisor",    badge: "bg-purple-50 text-purple-700 border-purple-200" },
@@ -21,9 +21,6 @@ const KIND_STYLES: Record<ActivityKind, { dot: string; label: string; badge: str
 
 export function CoworkerInboxView() {
   const [capabilitiesOpen, setCapabilitiesOpen] = useState(false);
-
-  const advisorThread = THREADS.find((t) => t.id === "t1")!;
-  const leadershipThread = THREADS.find((t) => t.id === "t4")!;
 
   const peopleById: Record<string, Person> = {};
   for (const p of ROSTER) peopleById[p.id] = p;
@@ -207,35 +204,6 @@ export function CoworkerInboxView() {
           </div>
         </div>
 
-        {/* 4. Example conversations */}
-        <div>
-          <div className="flex items-baseline justify-between mb-2 px-1">
-            <div>
-              <h3 className="text-[13px] font-semibold text-slate-900">Example conversations</h3>
-              <p className="text-[11.5px] text-slate-500 mt-0.5">How Ventus works with the wealth team</p>
-            </div>
-            <span className="text-[11px] text-slate-400 inline-flex items-center gap-1">
-              <ArrowUpRight className="w-3 h-3" /> Static preview
-            </span>
-          </div>
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
-            <ExampleThreadCard
-              roleLabel="Advisor"
-              roleBadgeClass="bg-purple-50 text-purple-700 border-purple-200"
-              recipient={peopleById[advisorThread.recipientId]}
-              subject={advisorThread.subject}
-              messages={advisorThread.messages}
-            />
-            <ExampleThreadCard
-              roleLabel="Leadership"
-              roleBadgeClass="bg-amber-50 text-amber-700 border-amber-200"
-              recipient={peopleById[leadershipThread.recipientId]}
-              subject={leadershipThread.subject}
-              messages={leadershipThread.messages}
-            />
-          </div>
-        </div>
-
         {/* 5. Footer disclaimer */}
         <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400 pt-1">
           <Sparkles className="w-3 h-3" />
@@ -297,44 +265,3 @@ function CapabilityTile({
   );
 }
 
-function ExampleThreadCard({
-  roleLabel,
-  roleBadgeClass,
-  recipient,
-  subject,
-  messages,
-}: {
-  roleLabel: string;
-  roleBadgeClass: string;
-  recipient: Person;
-  subject: string;
-  messages: import("./coworkerInboxData").Message[];
-}) {
-  return (
-    <div className="rounded-lg border border-slate-200 bg-slate-50/60 overflow-hidden">
-      <div className="bg-white px-4 py-3 border-b border-slate-200 flex items-center gap-2.5">
-        <div className="shrink-0 w-8 h-8 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[11px] font-bold">
-          {recipient.initials}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span className="text-[13px] font-semibold text-slate-900 truncate">{recipient.name}</span>
-            <span className={cn("text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded border", roleBadgeClass)}>
-              {roleLabel}
-            </span>
-          </div>
-          <div className="text-[11.5px] text-slate-500 truncate">{recipient.title}</div>
-        </div>
-      </div>
-      <div className="px-4 py-3 border-b border-slate-200 bg-white">
-        <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 mb-0.5">Subject</div>
-        <div className="text-[13.5px] font-semibold text-slate-900">{subject}</div>
-      </div>
-      <div className="px-4 py-4 space-y-4">
-        {messages.map((m) => (
-          <MessageBubble key={m.id} message={m} recipient={recipient} />
-        ))}
-      </div>
-    </div>
-  );
-}
