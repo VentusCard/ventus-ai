@@ -1,58 +1,93 @@
-# Sources → shared detail panel (like Ventus AI cards)
-
-## Context
-
-On `/bankdemo` → **System** tab (`CapabilitiesView.tsx`), the middle "Ventus AI System" column has two rows of cards — **Signals** and **Teams** — that share one interaction: click a card, it becomes active (ring highlight, mutually exclusive), and a shared detail panel opens below the network canvas with the item's description + an icon-card grid.
-
-The left **Sources** column ("Inputs") currently behaves differently: each card is a self-contained accordion that expands inline into a bullet list. No shared panel, no description, no icon grid.
-
-Goal: give each Source card the same click-to-open behavior, rendering into the **same** detail panel with the **same** format and structure as Signals/Teams.
-
-## Panel format guarantee
-
-The Source detail panel is not a new panel — it is the existing block at rows 974–1104 reused as-is. That means Source expansions get, in this exact order and styling:
-
-1. Top-border separator + fade/slide-in animation (`mt-8 pt-6 border-t border-slate-100 animate-in ...`).
-2. Header row: 36px colored icon tile → uppercase kind label ("Source") → bold 15px title → tinted count pill ("N inputs").
-3. Description line (`text-[12px] text-slate-600`).
-4. Item grid: `grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3`, each item rendered by the existing icon-card branch (rows 1060–1081) — 8×8 tinted icon tile, 12.5px semibold label, 11.5px sublabel.
-
-No parallel/duplicate panel is introduced. The only additions inside that shared block are:
-
-- Third branch in the kind label ("Source") and count noun ("inputs").
-- Optional `nonFcra` amber badge appended to the item card's label row (needed for External Intelligence items).
-- Optional "Open Products tab" CTA in the panel header's right side when the active source has `onOpen` (replaces the CTA currently living inside the inline accordion for Bank Context).
-
-Signals and Teams panels are visually unchanged.
-
 ## Scope
 
-Frontend only. Single file: `src/components/tepilot/insights/CapabilitiesView.tsx`.
+Reframe the existing **WM Copilot** as **WM Coworker** — a Ventus AI teammate that communicates by email with the wealth team. The demo shows a static, fully navigable inbox with example threads (Ventus → recipient → Ventus reply → recipient) so the bank-demo user can click through and understand the co-worker model.
 
-## Changes
+This supersedes the earlier "Wealth & Relationship / Advisor + Leadership" merge plan. Nav stays as **WM Coworker** in the same slot the current WM Copilot occupies. The prior merge with Wealth Intelligence is dropped from this pass.
 
-1. **Data enrichment.** Add a `SourceDetail`-shaped view mirroring `SignalDetail` (`label`, `icon`, `color`, `tint`, `dot`, `description`, `items[{ label, sublabel, icon, nonFcra? }]`). Enrich the 6 existing source groups (KYC, Transactions, Product Holdings, Digital Banking, External Intelligence, Bank Context) with a one-sentence group description and a short sublabel per input. Emerald palette to match the existing sources column accent (`bg-emerald-500`, `bg-emerald-50 text-emerald-700 border-emerald-200`).
+## What ships
 
-2. **State model.** Add `activeSourceLabel` alongside `activeSignalLabel` / `activeTeamLabel`. Selecting any one clears the other two (three-way mutual exclusion). Extend `activeDetail` / `activeDetailKind` resolution so a source drives the same shared panel.
+### 1. Rename in nav + headers
+- `AnalyticsContainer.tsx` sidebar entry: `WM Copilot` → `WM Coworker`.
+- `BankwideWMCopilotView.tsx` `TabHeader`: title `WM Coworker`, subtitle updated to describe the email-based AI teammate, howItWorks/whyItMatters rewritten around the coworker/email model.
+- No route value changes needed (internal key `wm-copilot` stays).
 
-3. **`SourceGroupCard` refactor.** Remove the inline accordion (rows 572–604). Card becomes a single button that fires `onSelect(provider)`, shows an emerald active-state ring when this source is the active detail (same pattern as Signals/Teams), drops the `ChevronDown`, keeps the pulsing status dot and the header (icon tile + provider + `sublabel · N inputs`).
+### 2. New top-level view mode: "Coworker Inbox"
+Add a fourth toggle to the existing pill group in `BankwideWMCopilotView.tsx`:
+`Dashboard | Client View | Notifications | Coworker Inbox` (new, default landing).
 
-4. **Shared panel reuse.** No new panel. The existing block at rows 974–1104 renders the source detail through its existing icon-card grid branch. Additions: third kind/count branch, `nonFcra` badge in item card, and Bank Context's `onOpen` CTA moved into the panel header.
+Existing three modes are untouched.
 
-## Not in scope
+### 3. Coworker Inbox UI (new components)
+Three-pane static email client, all mock data, all in-app:
 
-- No changes to Signals, Teams, Destinations, wires, core visual, sidebar, memory files, or `AnalyticsContainer.tsx`.
-- No new panel component, no alternate layout for source details.
-- Group content stays the same — only per-input sublabels + group description are added.
+```
+┌─────────────┬──────────────────────────┬────────────────────────┐
+│ Folders     │ Thread list              │ Thread detail          │
+│ • Advisors  │ Ventus → Sarah Chen …    │ Subject line           │
+│ • Leadership│ Ventus → Marco …         │ ─────────────          │
+│ • All       │ Ventus → Priya …         │ [Ventus] initial email │
+│             │                          │ [Advisor] reply        │
+│ Roster      │                          │ [Ventus] follow-up     │
+│ (avatars)   │                          │ [Advisor] reply        │
+└─────────────┴──────────────────────────┴────────────────────────┘
+```
 
-## Files
+New files under `src/components/tepilot/coworker-inbox/`:
+- `CoworkerInboxView.tsx` — layout shell + folder/roster state.
+- `ThreadList.tsx` — list of threads for the selected folder.
+- `ThreadDetail.tsx` — renders a thread's messages with Ventus vs. human styling; a disabled "Reply" composer at bottom with a small "Static demo — replies are pre-scripted" note.
+- `MessageBubble.tsx` — one email in a thread; Ventus messages get a purple accent + Sparkles icon, humans get neutral styling.
+- `coworkerInboxData.ts` — hardcoded mock roster + threads (see below).
 
-- `src/components/tepilot/insights/CapabilitiesView.tsx` — only file touched.
+### 4. Mock data (`coworkerInboxData.ts`)
+Hardcoded roster:
+- **Advisors (4):** Sarah Chen, Marco Rossi, Priya Patel, James O'Brien — each with title, avatar initials, book size.
+- **Leadership (2):** Elena Vasquez (Head of Wealth), David Kim (Regional Director).
 
-## Technical notes
+Static threads (~6 total):
 
-- Drop `openGroup` state; replace with `activeSourceLabel`.
-- `activeDetail = activeSignal ?? activeTeam ?? activeSource`.
-- Count noun map: signal → "detections", team → "responsibilities", source → "inputs".
-- Kind label map: signal → "Signal family", team → "Team", source → "Source".
-- Since every source item has an `icon`, the existing `ItemIcon`-present render branch handles them — no code path forks.
+**Advisor threads (context = signals in that advisor's book):**
+1. Ventus → Sarah Chen — "3 college-prep signals in your book this week" (lists 3 clients, evidence, recommended talking points). Sarah replies asking which to prioritize. Ventus responds with a ranked shortlist + suggested outreach copy.
+2. Ventus → Marco Rossi — "Liquidity event detected: client Robert Hayes" (wire pattern + recommendation). Marco replies "schedule a call this week." Ventus responds with 3 proposed time slots + a draft agenda.
+3. Ventus → Priya Patel — "Retirement-planning cluster in your book" (4 clients hitting age/behavior thresholds).
+
+**Leadership threads (context = portfolio-wide trends & campaigns):**
+4. Ventus → Elena Vasquez — "Weekly trends: HNW life-event volume +18%, top pillar = education planning." Elena replies "any product gaps?" Ventus responds with 2 product-line recommendations and a suggested campaign brief.
+5. Ventus → David Kim — "Regional signal: outbound wealth transfer to competitors up in NW region" (with campaign recommendation).
+6. Ventus → Elena Vasquez — "Recommended campaign: 529 plan cross-sell to 42 identified households" (with expected uplift).
+
+Each thread is 3–5 messages. All content is copy in the data file; nothing is generated.
+
+### 5. Interactions
+- Click folder → filter thread list.
+- Click thread → render detail pane.
+- Click advisor/leader in roster → filter threads to that person.
+- Reply composer is visible but disabled with a tooltip; no send.
+- No routing to `AdvisorConsole` from inbox — inbox is self-contained.
+
+## Explicitly out of scope
+- No real email sending. `send-follow-up-email` untouched.
+- No changes to `AdvisorConsole`, `LifeEventsAlertDashboard`, `AdvisorNotificationsView`, or `AIAssistantActivityView` internals.
+- No merge with Wealth Intelligence section (deferred).
+- No LLM/edge-function calls.
+- No new backend, tables, or memory files.
+- No sidebar restructure beyond the label rename.
+
+## Files touched
+
+**Edited (2):**
+- `src/pages/analytics/AnalyticsContainer.tsx` — rename nav label.
+- `src/components/tepilot/insights/BankwideWMCopilotView.tsx` — add 4th toggle, default to Coworker Inbox, update `TabHeader` copy, render `<CoworkerInboxView />`.
+
+**Created (5):**
+- `src/components/tepilot/coworker-inbox/CoworkerInboxView.tsx`
+- `src/components/tepilot/coworker-inbox/ThreadList.tsx`
+- `src/components/tepilot/coworker-inbox/ThreadDetail.tsx`
+- `src/components/tepilot/coworker-inbox/MessageBubble.tsx`
+- `src/components/tepilot/coworker-inbox/coworkerInboxData.ts`
+
+## Verification
+- `tsgo --noEmit` clean.
+- WM Coworker nav label appears in sidebar in the current WM Copilot slot.
+- Default landing is Coworker Inbox; existing three tabs still function unchanged.
+- Clicking through folders, roster, and threads updates panes; all 6 threads render fully.
