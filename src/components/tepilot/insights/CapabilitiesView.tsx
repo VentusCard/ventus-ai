@@ -58,7 +58,7 @@ type SourceInput = {
   label: string;
   sublabel: string;
   icon: React.ElementType;
-  nonFcra?: boolean;
+  fcra?: boolean;
 };
 
 type SourceGroup = {
@@ -640,16 +640,16 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       sublabel: "Credit bureau & third-party enrichment",
       icon: Gauge,
       description: "Credit bureau file plus third-party consumer enrichment covering wealth, property, demographics, auto, employment, life events, and digital identity.",
-      inputs: [
-        { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge },
-        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank, nonFcra: true },
-        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home, nonFcra: true },
-        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users, nonFcra: true },
-        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car, nonFcra: true },
-        { label: "Employment & income", sublabel: "Employer, occupation, and income estimate", icon: Briefcase, nonFcra: true },
-        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles, nonFcra: true },
-        { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck, nonFcra: true },
-        { label: "Business owner identification", sublabel: "Business ownership flags, registered entity name, and industry classification", icon: Briefcase, nonFcra: true },
+        inputs: [
+        { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge, fcra: true },
+        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank },
+        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home },
+        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users },
+        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car },
+        { label: "Employment & income", sublabel: "Employer, occupation, and income estimate", icon: Briefcase },
+        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles },
+        { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck },
+        { label: "Business owner identification", sublabel: "Business ownership flags, registered entity name, and industry classification", icon: Briefcase },
       ],
     },
     {
@@ -691,7 +691,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           label: i.label,
           sublabel: i.sublabel,
           icon: i.icon,
-          nonFcra: i.nonFcra,
+          fcra: i.fcra,
         })),
         onOpen: activeSourceGroup.onOpen,
         openLabel: activeSourceGroup.openLabel,
@@ -1091,7 +1091,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                 {activeDetail.items.map((item) => {
                   const ItemIcon = (item as any).icon as React.ElementType | undefined;
-                  const itemNonFcra = (item as any).nonFcra as boolean | undefined;
+                  const itemFcra = (item as any).fcra as boolean | undefined;
                   return ItemIcon ? (
                     <div
                       key={item.label}
@@ -1110,7 +1110,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                           <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
                             {item.label}
                           </div>
-                          {itemNonFcra && (
+                          {itemFcra ? (
+                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                              FCRA
+                            </span>
+                          ) : (
                             <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
                               non-FCRA
                             </span>
