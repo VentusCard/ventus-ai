@@ -951,7 +951,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         Teams · who we serve
                       </p>
                     </div>
-                    <div className="flex flex-col gap-2 flex-1">
+                    <div className="flex flex-col gap-2 flex-1 px-1">
                       {TEAMS.map((t) => {
                         const Icon = t.icon;
                         const isActive = t.label === activeTeamLabel;
