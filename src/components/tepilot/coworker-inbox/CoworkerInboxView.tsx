@@ -87,10 +87,10 @@ export function CoworkerInboxView() {
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-slate-100">
                 <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
-                <CapabilityTile icon={<Clock className="w-3.5 h-3.5" />} title="Always-on coverage" body="Operates continuously across time zones — no queues, no downtime, no missed signals." />
+                <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Concrete guidance" body="Recommends specific next steps in product and relationship, and builds personalized outreach plans — ready for advisor review before any client contact." />
                 <CapabilityTile icon={<History className="w-3.5 h-3.5" />} title="Context memory" body="Remembers every thread, client history, and past recommendation — conversations pick up exactly where they left off." />
                 <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or follow-up questions on demand." accentClass="text-emerald-600" />
-                <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Draft generation" body="Produces client outreach copy, agendas, and campaign briefs ready for human review — never sends to end clients autonomously." />
+                <CapabilityTile icon={<Clock className="w-3.5 h-3.5" />} title="Always-on coverage" body="Operates continuously across time zones — no queues, no downtime, no missed signals." />
                 <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
               </div>
             </>
