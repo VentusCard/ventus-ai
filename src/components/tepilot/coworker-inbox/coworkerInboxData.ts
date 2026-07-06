@@ -213,3 +213,60 @@ export const THREADS: Thread[] = [
     ],
   },
 ];
+
+export interface WeeklyStats {
+  emailsSent: number;
+  emailsSentPrev: number;
+  replyRatePct: number;
+  repliesCount: number;
+  signalsSurfaced: number;
+  avgTimeToReplyHrs: number;
+  activeThreads: number;
+  advisorsCount: number;
+  leadersCount: number;
+  lastActivityAgo: string;
+}
+
+export const WEEKLY_STATS: WeeklyStats = {
+  emailsSent: 23,
+  emailsSentPrev: 18,
+  replyRatePct: 61,
+  repliesCount: 14,
+  signalsSurfaced: 47,
+  avgTimeToReplyHrs: 2.3,
+  activeThreads: 9,
+  advisorsCount: 4,
+  leadersCount: 2,
+  lastActivityAgo: "4 min ago",
+};
+
+export type ActivityKind = "advisor" | "leadership" | "signal" | "reply";
+
+export interface ActivityEntry {
+  id: string;
+  kind: ActivityKind;
+  title: string;
+  ago: string;
+  actorId?: string; // person id when relevant
+}
+
+export const ACTIVITY_FEED: ActivityEntry[] = [
+  { id: "a1", kind: "advisor",    title: "Sent brief to Sarah Chen — 3 college-prep signals",              ago: "9 min ago",  actorId: "sarah" },
+  { id: "a2", kind: "leadership", title: "Drafted campaign brief for Elena Vasquez's review",              ago: "32 min ago", actorId: "elena" },
+  { id: "a3", kind: "signal",     title: "Detected liquidity event: Robert Hayes ($2.4M inbound wire)",    ago: "1 hr ago" },
+  { id: "a4", kind: "reply",      title: "Received reply from Marco Rossi — scheduling next step",         ago: "1 hr ago",   actorId: "marco" },
+  { id: "a5", kind: "advisor",    title: "Prepared retirement outreach drafts for Priya Patel (4 clients)", ago: "2 hr ago",   actorId: "priya" },
+  { id: "a6", kind: "leadership", title: "Sent weekly wealth pulse to Elena Vasquez",                      ago: "3 hr ago",   actorId: "elena" },
+  { id: "a7", kind: "signal",     title: "Flagged NW outbound-transfer trend — $12M to competitors",       ago: "5 hr ago" },
+  { id: "a8", kind: "leadership", title: "Routed retention brief for David Kim's approval",                ago: "6 hr ago",   actorId: "david" },
+];
+
+// Rough per-person thread activity counts for the Team Status panel.
+export const PERSON_ACTIVITY: Record<string, { threads: number; pendingReplies: number }> = {
+  sarah: { threads: 3, pendingReplies: 0 },
+  marco: { threads: 2, pendingReplies: 1 },
+  priya: { threads: 2, pendingReplies: 0 },
+  james: { threads: 1, pendingReplies: 0 },
+  elena: { threads: 4, pendingReplies: 1 },
+  david: { threads: 2, pendingReplies: 0 },
+};
