@@ -235,7 +235,66 @@ const REPLY_MESSAGES: MessageDef[] = [
       </p>
     ),
   },
+  {
+    sender: "ventus",
+    time: "10:19 AM",
+    navLabel: "10:19",
+    subjectPrefix: "Re: ",
+    quoted: `Morgan, 10:07 AM — Angle, 3 talking points, and a short intro paragraph per client…`,
+    render: ({ nameA, nameB }) => (
+      <>
+        <p>Prep sheets below — logged both as follow-ups.</p>
+
+        <div className="border border-slate-200 rounded-md p-3 bg-slate-50 space-y-3">
+          <p className="text-sm font-semibold text-slate-900">{nameA}</p>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Angle</p>
+            <p>Lead with curiosity about what's shifting for them — not a product. You're checking in because things look different, and you want to understand before offering anything.</p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Talking points</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Acknowledge the rhythm of their household feels different lately, without naming specifics — invite them to share what's on their mind.</li>
+              <li>Ask how they're thinking about the next chapter, and whether anyone else in the household is part of that thinking now.</li>
+              <li>Signal you're available to help think it through — no agenda, no proposal on this call.</li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Intro paragraph</p>
+            <div className="border-l-2 border-slate-300 pl-3 text-slate-700 italic">
+              Hi {nameA.split(" ")[0]} — wanted to reach out and say hello, no agenda. It's been a little while and I've been thinking about the conversations we've had over the past year. If you have twenty minutes this week, I'd love to hear how things are landing on your end and where your head's at going into next quarter.
+            </div>
+          </div>
+        </div>
+
+        <div className="border border-slate-200 rounded-md p-3 bg-slate-50 space-y-3">
+          <p className="text-sm font-semibold text-slate-900">{nameB}</p>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Angle</p>
+            <p>Warm and household-aware. Recognize the spouse is central here and frame the conversation around the family, not the portfolio.</p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Talking points</p>
+            <ul className="list-disc pl-5 space-y-1">
+              <li>Open with a gentle check-in on the household — leave room for them to share whatever they want to share.</li>
+              <li>Ask how decisions are being made together right now, and whether it would help to have both of them on the next conversation.</li>
+              <li>Skip anything adjacent to the prior product thread unless they raise it — hold that ground and let them lead.</li>
+            </ul>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Intro paragraph</p>
+            <div className="border-l-2 border-slate-300 pl-3 text-slate-700 italic">
+              Hi {nameB.split(" ")[0]} — hope you and the family are doing well. I wanted to check in and see how things are feeling on your end lately. If it's easier to have a quick call together with your spouse rather than just the two of us, happy to make that work — whatever fits your rhythm right now.
+            </div>
+          </div>
+        </div>
+
+        <p>Ping me if you want either sheet reshaped after the calls.</p>
+      </>
+    ),
+  },
 ];
+
 
 export function AdvisorNotificationsView({
   clients,
