@@ -1,18 +1,15 @@
-## Update the source column header
+## Change
 
-Replace the "Bank-native sources" label in the CapabilitiesView three-column header to accurately reflect that the list now includes both bank-native and external intelligence sources.
+In `src/components/tepilot/insights/CapabilitiesView.tsx` line ~762, update the left-column header from:
 
-### Change
-In `src/components/tepilot/insights/CapabilitiesView.tsx`, update line ~762:
-
-**From:**
-```
-Bank-native sources · {totalSourceInputs} inputs across {sourceGroups.length} providers
-```
-
-**To:**
 ```
 Internal & external inputs · {totalSourceInputs} sources across {sourceGroups.length} providers
 ```
 
-This drops the "bank-native" framing (since External Intelligence is now included and ranked last) and uses "sources" instead of repeating "inputs".
+To:
+
+```
+{totalSourceInputs} Internal & External Sources
+```
+
+This uses the already-computed `totalSourceInputs` value (line 683) so the number stays accurate if source groups change later.
