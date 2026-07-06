@@ -770,7 +770,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <div className="flex items-center justify-end gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
-              Activation destinations · {DESTINATIONS.length} wired
+              {DESTINATIONS.length} Activation Destinations
             </p>
           </div>
         </div>
