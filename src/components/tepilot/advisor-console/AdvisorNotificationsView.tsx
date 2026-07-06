@@ -297,8 +297,9 @@ const REPLY_MESSAGES: MessageDef[] = [
 
 export function AdvisorNotificationsView({
   clients,
-  onOpenClient,
-  onPrepareWithVentus,
+  onOpenClient: _onOpenClient,
+  onPrepareWithVentus: _onPrepareWithVentus,
+
 }: AdvisorNotificationsViewProps) {
   const grouped = useMemo(() => {
     const out: Record<"high" | "opportunity" | "risk", SignalRow[]> = {
