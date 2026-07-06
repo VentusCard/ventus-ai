@@ -58,7 +58,7 @@ type SourceInput = {
   label: string;
   sublabel: string;
   icon: React.ElementType;
-  nonFcra?: boolean;
+  fcra?: boolean;
 };
 
 type SourceGroup = {
