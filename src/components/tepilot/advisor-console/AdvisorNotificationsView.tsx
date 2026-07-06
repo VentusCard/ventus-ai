@@ -347,6 +347,15 @@ export function AdvisorNotificationsView({
               </div>
             )}
 
+            {/* Conversation thread */}
+            <ConversationThread
+              nameA={nameA}
+              nameB={nameB}
+              labelA={labelA}
+              labelB={labelB}
+            />
+
+
             {/* Signature */}
             <div className="pt-5 border-t border-slate-200 text-sm text-slate-700 space-y-1">
               <p className="text-slate-900 font-medium">— Ventus</p>
