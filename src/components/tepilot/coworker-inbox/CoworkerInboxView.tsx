@@ -75,6 +75,16 @@ export function CoworkerInboxView() {
           </button>
           {capabilitiesOpen && (
             <>
+              <div className="px-4 py-3 border-t border-slate-100 space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border-purple-200">Advisor</span>
+                  <p className="text-[13px] text-slate-800 leading-snug">Ventus emails each advisor personalized briefs with life-event signals, client-specific talking points, and ready-to-send outreach drafts — plus instant replies when they ask for deeper context or next-step recommendations.</p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border-amber-200">Leadership</span>
+                  <p className="text-[13px] text-slate-800 leading-snug">Ventus emails leadership weekly trend dashboards, enterprise-wide product-gap alerts, campaign recommendations with projected AUM uplift, and retention-risk summaries across the region.</p>
+                </div>
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 border-t border-slate-100">
                 <CapabilityTile icon={<Radar className="w-3.5 h-3.5" />} title="Continuous signal detection" body="Scans every transaction across all client books in real time for life events, liquidity, and risk signals." />
                 <CapabilityTile icon={<UserRoundCheck className="w-3.5 h-3.5" />} title="Personalized advisor briefs" body="Emails each advisor the specific signals in their book with context, evidence, and recommended talking points." accentClass="text-purple-600" />
@@ -82,16 +92,6 @@ export function CoworkerInboxView() {
                 <CapabilityTile icon={<MessageSquare className="w-3.5 h-3.5" />} title="Instant conversational replies" body="Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or follow-up questions on demand." accentClass="text-emerald-600" />
                 <CapabilityTile icon={<FileText className="w-3.5 h-3.5" />} title="Draft generation" body="Produces client outreach copy, agendas, and campaign briefs ready for human review — never sends to end clients autonomously." />
                 <CapabilityTile icon={<Workflow className="w-3.5 h-3.5" />} title="Coordinated hand-offs" body="Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase." />
-              </div>
-              <div className="px-4 py-3 border-t border-slate-100 space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-purple-50 text-purple-700 border-purple-200">Advisor</span>
-                  <p className="text-[13px] text-slate-600 leading-snug">Ventus emails each advisor personalized briefs with life-event signals, client-specific talking points, and ready-to-send outreach drafts — plus instant replies when they ask for deeper context or next-step recommendations.</p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="shrink-0 min-w-[80px] text-center text-[10px] font-semibold uppercase tracking-wider border px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border-amber-200">Leadership</span>
-                  <p className="text-[13px] text-slate-600 leading-snug">Ventus emails leadership weekly trend dashboards, enterprise-wide product-gap alerts, campaign recommendations with projected AUM uplift, and retention-risk summaries across the region.</p>
-                </div>
               </div>
             </>
           )}
