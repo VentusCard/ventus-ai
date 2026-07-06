@@ -653,7 +653,12 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         { label: "Employment & income", sublabel: "Employer, occupation, and income estimate", icon: Briefcase },
         { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles },
         { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck },
-        { label: "Business owner identification", sublabel: "Business ownership flags, registered entity name, and industry classification", icon: Briefcase },
+        { label: "Neighborhood & community dimensions", sublabel: "Census geo-aggregates: 700+ tract-level stats on income, education, occupation, socio-economic status", icon: MapPin },
+        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart },
+        { label: "Public records", sublabel: "Bankruptcies, liens, judgments, and UCC filings", icon: FileText },
+        { label: "Firmographics (business owner)", sublabel: "SIC code, employee count, estimated sales volume, years in business, website", icon: Building2 },
+        { label: "Licenses & registrations", sublabel: "Pilot, hunting, boat, and driver's license history — wealth/lifestyle proxies", icon: BadgeCheck },
+        { label: "New movers & pre-movers", sublabel: "In-market relocation signal: pre-move intent and recent-move flag", icon: Truck },
       ],
     },
     {
