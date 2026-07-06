@@ -1,14 +1,15 @@
 import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/button";
-import { Briefcase, Mail, Inbox } from "lucide-react";
+import { Briefcase, Mail, Inbox, Building2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
+import { LeadershipNotificationsView } from "@/components/tepilot/advisor-console/LeadershipNotificationsView";
 import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-type ViewMode = "inbox" | "notifications";
+type ViewMode = "inbox" | "advisor" | "leadership";
 
 export function BankwideWMCopilotView() {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
@@ -23,6 +24,12 @@ export function BankwideWMCopilotView() {
     toast.info("Client detail view is disabled in this demo.");
   }, []);
 
+  const toggles: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
+    { key: "inbox", label: "Coworker Dashboard", icon: <Inbox className="h-4 w-4 mr-2" /> },
+    { key: "advisor", label: "Advisor Conv. Demo", icon: <Mail className="h-4 w-4 mr-2" /> },
+    { key: "leadership", label: "Leadership Conv. Demo", icon: <Building2 className="h-4 w-4 mr-2" /> },
+  ];
+
   return (
     <div className="flex flex-col h-full">
       <TabHeader
@@ -35,34 +42,23 @@ export function BankwideWMCopilotView() {
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setViewMode("inbox")}
-            className={cn(
-              "h-8 px-3 rounded-md",
-              viewMode === "inbox"
-                ? "bg-white shadow-sm text-slate-900"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <Inbox className="h-4 w-4 mr-2" />
-            Coworker Dashboard
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setViewMode("notifications")}
-            className={cn(
-              "h-8 px-3 rounded-md",
-              viewMode === "notifications"
-                ? "bg-white shadow-sm text-slate-900"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <Mail className="h-4 w-4 mr-2" />
-            Advisor Conv. Demo
-          </Button>
+          {toggles.map((t) => (
+            <Button
+              key={t.key}
+              variant="ghost"
+              size="sm"
+              onClick={() => setViewMode(t.key)}
+              className={cn(
+                "h-8 px-3 rounded-md",
+                viewMode === t.key
+                  ? "bg-white shadow-sm text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              )}
+            >
+              {t.icon}
+              {t.label}
+            </Button>
+          ))}
         </div>
         <span className="text-sm text-slate-500 ml-2">
           Wealth Management Coworker
@@ -71,15 +67,15 @@ export function BankwideWMCopilotView() {
 
       {/* Content */}
       <div className="flex-1 min-h-0">
-        {viewMode === "inbox" ? (
-          <CoworkerInboxView />
-        ) : (
+        {viewMode === "inbox" && <CoworkerInboxView />}
+        {viewMode === "advisor" && (
           <AdvisorNotificationsView
             clients={dashboardClients}
             onOpenClient={handleOpenClient}
             onPrepareWithVentus={handlePrepareWithVentus}
           />
         )}
+        {viewMode === "leadership" && <LeadershipNotificationsView />}
       </div>
     </div>
   );
