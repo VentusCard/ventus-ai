@@ -246,6 +246,28 @@ function KpiCard({
   );
 }
 
+function CapabilityTile({
+  icon,
+  title,
+  body,
+  accentClass = "text-slate-700",
+}: {
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+  accentClass?: string;
+}) {
+  return (
+    <div className="p-4 border-b border-r border-slate-100 last:border-r-0 [&:nth-child(3n)]:border-r-0 [&:nth-last-child(-n+3)]:border-b-0">
+      <div className={cn("flex items-center gap-1.5 mb-1.5", accentClass)}>
+        {icon}
+        <span className="text-[12.5px] font-semibold text-slate-900">{title}</span>
+      </div>
+      <p className="text-[12px] leading-snug text-slate-600">{body}</p>
+    </div>
+  );
+}
+
 function ExampleThreadCard({
   roleLabel,
   roleBadgeClass,
