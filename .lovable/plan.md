@@ -1,73 +1,92 @@
 ## Scope
 
-Reframe the **Coworker Inbox** tab as a **Ventus AI Coworker — Status Dashboard**. It should read as "here's what your AI teammate has been doing," not as an email client. Keep exactly one advisor thread and one leadership thread as illustrative examples embedded in the dashboard.
+Rescale the Ventus AI Coworker dashboard to Merrill-Lynch–size numbers, fix the reply-time metric (Ventus replies instantly), and add a clear "capabilities" panel so viewers immediately understand what the AI coworker does.
 
-Nav label stays `Coworker Inbox` in the toggle group (unchanged), but the surface it renders becomes a status dashboard.
+## Changes
 
-## New layout — top to bottom, single scrolling column inside the tab
+### 1. Rescale metrics for a Merrill-scale wirehouse
+Merrill Lynch reference: ~14,000 advisors, ~$1.5T AUM, ~3M households.
 
-### 1. Status header strip
-Compact banner with:
-- Left: pulsing green dot + "Ventus AI Coworker · Active"
-- Middle: subtle line "Working alongside 4 advisors and 2 leaders · Last activity 4 min ago"
-- Right: small stat "This week: 23 emails sent · 14 replies · 9 threads active"
+Update `WEEKLY_STATS` in `coworkerInboxData.ts`:
+- `advisorsCount`: 4 → **12,400** (advisors served)
+- `leadersCount`: 2 → **340** (regional leaders + market execs)
+- `emailsSent`: 23 → **28,450** (this week)
+- `emailsSentPrev`: 18 → **24,180**
+- `repliesCount`: 14 → **17,320**
+- `replyRatePct`: 61 → **61** (unchanged, still reads well)
+- `signalsSurfaced`: 47 → **142,800** (across all advisor books this week)
+- `activeThreads`: 9 → **9,640**
+- `lastActivityAgo`: keep "4 sec ago" (was "4 min ago") to reinforce always-on
 
-### 2. Activity stats row (4 KPI cards)
-- **Emails sent this week** — 23 (↑ from 18)
-- **Reply rate** — 61% (14 of 23)
-- **Signals surfaced** — 47 (across advisor books)
-- **Avg time-to-first-reply** — 2.3 hrs
+Remove `avgTimeToReplyHrs` and add:
+- `ventusReplyLatency`: **"< 1 sec"** — Ventus's own response time
+- `advisorReplyMedianHrs`: **1.8** — median human reply time back to Ventus (kept as context, but relabeled clearly)
 
-Each is a small light-theme card: label, big number, delta chip.
+### 2. Fix the "reply time" KPI card
+The 4th KPI card no longer shows "Avg time to first reply — 2.3 hrs" (misleading — that implied Ventus was slow). Replace with:
+- **Card 4: "Ventus reply latency"** — value: `< 1 sec` · subtext: `instant · always on` · icon: Zap/Bolt
 
-### 3. "What Ventus is working on" — live activity feed (left) + roster status (right), 2-col grid
-- **Left col (spans 2/3):** vertical timeline, 6–8 mock entries showing recent Ventus actions with timestamps and small type badges:
-  - "Sent brief to Sarah Chen — 3 college-prep signals" · 9 min ago · [Advisor]
-  - "Drafted campaign brief for Elena Vasquez review" · 32 min ago · [Leadership]
-  - "Detected liquidity event: Robert Hayes ($2.4M wire)" · 1 hr ago · [Signal]
-  - "Received reply from Marco Rossi — scheduling next step" · 1 hr ago · [Reply]
-  - "Prepared retirement outreach drafts for Priya Patel (4)" · 2 hr ago · [Advisor]
-  - "Sent weekly wealth pulse to Elena Vasquez" · 3 hr ago · [Leadership]
-  - "Flagged NW outbound-transfer trend — $12M to competitors" · 5 hr ago · [Signal]
-  - "Routed retention brief for David Kim's approval" · 6 hr ago · [Leadership]
-  Each row: colored dot (purple advisor / amber leadership / blue signal / green reply), title, timestamp.
-- **Right col (spans 1/3):** "Team status" — roster (from existing `coworkerInboxData.ts`) rendered as compact rows: avatar initials, name, title, and a small badge showing # of active Ventus threads with them (e.g. "2 threads", "1 pending reply").
+Bump other cards' numbers to match new scale and add short subtext:
+- Card 1: `Emails sent this week` — 28,450 · `↑ 17.6% vs last week`
+- Card 2: `Human reply rate` — 61% · `17,320 replies received`
+- Card 3: `Signals surfaced` — 142,800 · `across 12,400 advisor books`
+- Card 4: `Ventus reply latency` — < 1 sec · `instant · always on`
 
-### 4. Example threads section
-Header: **Example conversations** · subtitle: "How Ventus works with the wealth team"
+### 3. Rescale status header strip
+- Left: pulsing dot + "Ventus AI Coworker · Active"
+- Middle: "Working alongside 12,400 advisors and 340 leaders · Last activity 4 sec ago"
+- Right: "28,450 emails this week · 17,320 replies · 9,640 active threads"
 
-Two side-by-side cards (2-col grid, gap-4):
-- **Left card:** advisor example — thread `t1` (Sarah Chen · "3 college-prep signals in your book this week")
-- **Right card:** leadership example — thread `t4` (Elena Vasquez · "Weekly trends — HNW life-event volume +18%")
+### 4. Rescale Team Status roster
+Keep the same 6 mock people (Sarah, Marco, Priya, James, Elena, David) — they're now sampled from thousands. Add a header caption above the list: "Sample of active collaborators (6 of 12,740)".
 
-Each card:
-- Header: recipient avatar + name + role badge ("Advisor" / "Leadership")
-- Subject line (bold)
-- Full inline thread of messages using the existing `MessageBubble` component (all 3 messages of each thread visible, no click required)
-- Slightly muted background (bg-slate-50) with border to feel like a "preview" card rather than an interactive inbox
-- No reply composer
+Per-person thread counts stay small (2–4) since these are individual advisor/leader threads.
 
-### 5. Bottom footer strip
-Small text: "Static demo — activity, threads, and stats are illustrative." with a subtle sparkle icon.
+### 5. Rescale Activity feed
+Keep the same 8 entries — they read as recent individual actions. Update timestamps to feel faster (Ventus operates constantly):
+- "9 min ago" → "42 sec ago"
+- "32 min ago" → "3 min ago"
+- "1 hr ago" (both) → "6 min ago" / "8 min ago"
+- "2 hr ago" → "14 min ago"
+- "3 hr ago" → "21 min ago"
+- "5 hr ago" → "38 min ago"
+- "6 hr ago" → "52 min ago"
+
+Add feed header caption: "Live · updated continuously · showing 8 of 4,120 today"
+
+### 6. New "Ventus AI Coworker Capabilities" panel
+Insert a new section between the status header and the KPI cards (so it's the second thing viewers see). Full-width light card with a 3-column grid of capability tiles. Each tile: icon + short title + one-sentence description.
+
+Six capabilities:
+
+1. **Continuous signal detection** (icon: Radar) — "Scans every transaction across all client books in real time for life events, liquidity, and risk signals."
+2. **Personalized advisor briefs** (icon: UserRoundCheck) — "Emails each advisor the specific signals in their book with context, evidence, and recommended talking points."
+3. **Leadership intelligence** (icon: LineChart) — "Sends leadership weekly trends, product-gap analysis, and campaign recommendations across the enterprise."
+4. **Instant conversational replies** (icon: MessageSquare) — "Replies in under a second when an advisor or leader responds — deeper context, drafts, next actions, or scheduling on demand."
+5. **Draft generation** (icon: FileText) — "Produces client outreach copy, agendas, and campaign briefs ready for human review — never sends to end clients autonomously."
+6. **Coordinated hand-offs** (icon: Workflow) — "Routes retention playbooks, escalations, and cross-advisor coordination without leadership having to chase."
+
+Panel header: "**What your AI coworker does**" · subtitle: "Ventus works alongside 12,400 advisors and 340 leaders — via email, always on."
+
+### 7. Update TabHeader copy on the parent (`BankwideWMCopilotView.tsx`)
+- `subtitle`: unchanged.
+- `howItWorks`: rewrite to emphasize scale + capabilities: "Ventus AI is an email-based coworker to the wealth team. It continuously scans behavior across 3M+ households, sends personalized signal briefs to individual advisors, delivers portfolio-wide trends and campaign recommendations to leadership, and replies instantly when anyone writes back."
+- `whyItMatters`: "Enterprise-scale coverage without adding headcount. Every advisor gets a personal research assistant, every leader gets a real-time chief of staff — inside the tool they already use."
 
 ## Files touched
 
-**Edited (2):**
-- `src/components/tepilot/coworker-inbox/CoworkerInboxView.tsx` — replaced entirely with the new dashboard layout. Drops folder/thread-list/detail 3-pane layout, roster filtering, and thread selection state. Imports `MessageBubble` and pulls `THREADS`/`ROSTER` from the existing data file.
-- `src/components/tepilot/coworker-inbox/coworkerInboxData.ts` — small additions only: an `ACTIVITY_FEED` array of 8 hardcoded activity entries (id, kind, title, timestamp, actorId?) and a `WEEKLY_STATS` object (emails sent, reply rate, signals, avg time-to-reply). Existing `THREADS` and `ROSTER` untouched.
-
-**Unchanged / removed usage (no file deletions this pass):**
-- `ThreadList.tsx`, `ThreadDetail.tsx` — no longer imported by the dashboard; kept in place unused (safe to remove in a follow-up if desired).
-- `MessageBubble.tsx` — still used, embedded inside the two example thread cards.
+**Edited (3):**
+- `src/components/tepilot/coworker-inbox/coworkerInboxData.ts` — update `WeeklyStats` interface and `WEEKLY_STATS` object; update `ACTIVITY_FEED` timestamps. Existing threads + roster + `PERSON_ACTIVITY` untouched.
+- `src/components/tepilot/coworker-inbox/CoworkerInboxView.tsx` — add Capabilities panel section; swap 4th KPI card content; update status strip and Team Status caption; update Activity feed caption; use new stats fields with locale-formatted numbers (`.toLocaleString()`).
+- `src/components/tepilot/insights/BankwideWMCopilotView.tsx` — update `TabHeader` `howItWorks` and `whyItMatters` copy only (title/subtitle/icon unchanged).
 
 ## Explicitly out of scope
-- No changes to the WM Coworker parent (`BankwideWMCopilotView.tsx`), the toggle group, or the Dashboard / Notifications tabs.
-- No changes to sidebar nav.
-- No real interactivity beyond hover states; no filters, no clicks that open panes.
-- No new data types, backend, or memory files.
+- No changes to Dashboard / Notifications tabs, sidebar, or `MessageBubble`.
+- No changes to the two example threads (still Sarah Chen + Elena Vasquez, unchanged text).
+- No new files, no backend, no memory.
 
 ## Verification
 - `tsgo --noEmit` clean.
-- Coworker Inbox tab shows: status header → 4 KPI cards → activity feed + team status grid → two example thread cards side-by-side → footer disclaimer.
-- Both example threads render all 3 messages inline via `MessageBubble`.
-- Toggle group still shows Coworker Inbox | Dashboard | Notifications and switches work.
+- Status strip and KPIs show 12,400 advisors, 28,450 emails, < 1 sec Ventus latency.
+- Capabilities panel visible directly under the status strip with 6 tiles.
+- Activity feed timestamps are seconds/minutes, not hours.
