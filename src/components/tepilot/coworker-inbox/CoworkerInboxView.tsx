@@ -20,6 +20,8 @@ const KIND_STYLES: Record<ActivityKind, { dot: string; label: string; badge: str
 };
 
 export function CoworkerInboxView() {
+  const [capabilitiesOpen, setCapabilitiesOpen] = useState(false);
+
   const advisorThread = THREADS.find((t) => t.id === "t1")!;
   const leadershipThread = THREADS.find((t) => t.id === "t4")!;
 
