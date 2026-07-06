@@ -37,8 +37,8 @@ export function BankwideWMCopilotView() {
         icon={<Briefcase className="w-4 h-4" />}
         title="WM Coworker"
         subtitle="An email-based Ventus AI teammate for advisors and wealth leadership"
-        howItWorks="Ventus AI works alongside the wealth team as a coworker: it sends personalized emails to specific advisors with signals in their book, and to leadership with portfolio-wide trends and campaign recommendations. Every email is a conversation — recipients reply directly to explore further."
-        whyItMatters="Advisors and leaders get proactive, context-rich intelligence in the tool they already live in — email — instead of yet another dashboard to log into."
+        howItWorks="Ventus AI is an email-based coworker to the wealth team. It continuously scans behavior across 3M+ households, sends personalized signal briefs to individual advisors, delivers portfolio-wide trends and campaign recommendations to leadership, and replies instantly when anyone writes back."
+        whyItMatters="Enterprise-scale coverage without adding headcount. Every advisor gets a personal research assistant, every leader gets a real-time chief of staff — inside the tool they already use."
       />
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
