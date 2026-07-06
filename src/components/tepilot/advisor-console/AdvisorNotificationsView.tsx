@@ -387,6 +387,19 @@ interface ThreadProps {
 }
 
 function ConversationThread({ nameA, nameB, labelA, labelB }: ThreadProps) {
+  const [activeIndex, setActiveIndex] = useState(0);
+  const cardRefs = useRef<Array<HTMLDivElement | null>>([]);
+
+  const goTo = (idx: number) => {
+    setActiveIndex(idx);
+    if (idx === 0) {
+      document.getElementById("msg-0")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    } else {
+      cardRefs.current[idx - 1]?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  };
+
+
   const messages: {
     from: "ventus" | "advisor";
     time: string;
