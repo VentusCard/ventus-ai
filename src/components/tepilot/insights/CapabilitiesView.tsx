@@ -578,7 +578,9 @@ function SourceGroupCard({
           {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
         </div>
       </div>
-      <span className="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+      <span className="absolute top-1.5 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold shadow-sm">
+        {group.inputs.length}
+      </span>
     </button>
   );
 }
