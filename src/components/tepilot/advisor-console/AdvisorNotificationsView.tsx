@@ -218,7 +218,7 @@ const RIBBON_ICONS = [
 
 type Sender = "ventus" | "advisor";
 
-type AutoCohortRow = { name: string; timing: string; amount: string; confidence: string };
+type TravelCardRow = { name: string; recentTrip: string; tripWindow: string; estSavings: number; timing: string };
 type DigestRow = { name: string; eventLabel: string; sectionLabel: string };
 
 interface MessageDef {
@@ -234,20 +234,23 @@ interface MessageDef {
     labelB: string;
     eventTypeA: string;
     eventTypeB: string;
-    autoCohort: AutoCohortRow[];
+    travelCardCohort: TravelCardRow[];
     digestRows: DigestRow[];
   }) => React.ReactNode;
 }
 
 
-const AUTO_COHORT_ROTATION: Array<Omit<AutoCohortRow, "name">> = [
-  { timing: "0–3 mo", amount: "$33k–$42k", confidence: "72%" },
-  { timing: "3–6 mo", amount: "$68k–$82k", confidence: "58%" },
-  { timing: "0–3 mo", amount: "$27k–$36k", confidence: "81%" },
-  { timing: "3–6 mo", amount: "$90k–$110k", confidence: "64%" },
-  { timing: "0–3 mo", amount: "$42k–$51k", confidence: "77%" },
-  { timing: "3–6 mo", amount: "$48k–$60k", confidence: "69%" },
+const TRAVEL_CARD_ROTATION: Array<Omit<TravelCardRow, "name">> = [
+  { recentTrip: "Italy", tripWindow: "Mar 2026", estSavings: 320, timing: "Reach out this week" },
+  { recentTrip: "Spain", tripWindow: "Feb 2026", estSavings: 280, timing: "Reach out this week" },
+  { recentTrip: "Hawaii", tripWindow: "Apr 2026", estSavings: 260, timing: "Reach out this week" },
+  { recentTrip: "Canada", tripWindow: "Jan 2026", estSavings: 175, timing: "Next 2 weeks" },
+  { recentTrip: "Portugal", tripWindow: "Mar 2026", estSavings: 240, timing: "Next 2 weeks" },
+  { recentTrip: "Japan", tripWindow: "Feb 2026", estSavings: 340, timing: "Reach out this week" },
+  { recentTrip: "Iceland", tripWindow: "Dec 2025", estSavings: 195, timing: "Next 2 weeks" },
+  { recentTrip: "Mexico", tripWindow: "Apr 2026", estSavings: 155, timing: "Next 2 weeks" },
 ];
+
 
 
 const REPLY_MESSAGES: MessageDef[] = [
