@@ -18,7 +18,7 @@ import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
-import { ProductsCatalogView } from "./ProductsCatalogView";
+import { BankContextView } from "./BankContextView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
@@ -212,7 +212,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'analytics-dashboard':
         return <VentusAIDashboardView onNavigate={setActiveTab} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
-      case 'products': return <ProductsCatalogView />;
+      case 'products': return <BankContextView />;
       case 'exec-demo': return (
         <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
           <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai-dashboard')} />
