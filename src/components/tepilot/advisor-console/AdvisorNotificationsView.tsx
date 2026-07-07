@@ -224,7 +224,7 @@ interface MessageDef {
   navLabel: string;
   subjectPrefix: "" | "Re: ";
   quoted?: string;
-  render?: (ctx: { nameA: string; nameB: string; labelA: string; labelB: string }) => React.ReactNode;
+  render?: (ctx: { nameA: string; nameB: string; labelA: string; labelB: string; eventTypeA: string; eventTypeB: string }) => React.ReactNode;
 }
 
 const REPLY_MESSAGES: MessageDef[] = [
