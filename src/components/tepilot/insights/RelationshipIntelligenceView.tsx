@@ -136,9 +136,12 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
     { key: 'wallet', icon: TrendingUp, label: 'Wallet Depth Tiers',
       hero: '3 bands', insight: 'Preferred / Premium / Private penetration snapshot.',
       accent: 'text-cyan-600', tint: 'bg-cyan-50 border-cyan-200' },
-    { key: 'atrisk', icon: AlertTriangle, label: 'At-Risk & Thin',
-      hero: '18%', insight: 'Single-product customers with declining engagement.',
+    { key: 'atrisk', icon: AlertTriangle, label: 'Relationship Attrition',
+      hero: '18%', insight: 'Thin, dormant, and leaking wallets showing decline.',
       accent: 'text-red-600', tint: 'bg-red-50 border-red-200' },
+    { key: 'exposure', icon: ShieldAlert, label: 'Portfolio Exposure',
+      hero: '42k', insight: 'Vice, AML, international, and vulnerability cohorts.',
+      accent: 'text-amber-600', tint: 'bg-amber-50 border-amber-200' },
   ];
 
   return (
