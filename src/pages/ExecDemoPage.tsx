@@ -724,7 +724,7 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
         // Inject dynamic external-intelligence signals (bureau/property/auto/etc.)
         // so they flow through pills, Next-Product, Next-Offer, actions, and WM CoPilot.
         const external = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id).map(externalSignalToLifeEvent);
-        const merged: LifeEvent[] = [events[0], ...external, ...events.slice(1)]
+        const merged: LifeEvent[] = [...external, ...events]
           .filter(Boolean)
           .slice(0, 3) as LifeEvent[];
         setDetectedLifeEvents(merged);
