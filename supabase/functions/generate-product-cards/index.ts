@@ -19,17 +19,21 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate UP TO TWO product recommendation cards (or up to THREE if a RISK CARD is appended) that appear as notifications in a mobile banking app.
+    const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate exactly THREE product recommendation cards (2 life event + 1 behavioral) that appear as notifications in a mobile banking app.
 
-CARD ORDER (STRICT INTERLEAVING):
-Emit cards in exactly this order, skipping a slot only if the source doesn't exist:
-  1. Life Event card based on life_events[0] (first detected life event)
-  2. Behavioral card based on persona_rollups[0] (first behavioral habit)
-  3. RISK CARD — ONLY if risk_signal is provided in the user prompt. Always last.
+CARD ORDER (STRICT):
+Emit cards in exactly this order:
+  1. Life Event card based on life_events[0]
+  2. Life Event card based on life_events[1]
+  3. Behavioral card based on persona_rollups[0]
 
-If no life events exist → emit 1 behavioral card (behavioral_1) only.
-If no rollups exist → emit 1 life event card (life_event_1) only.
-Always emit at least 1 card if any source exists. NEVER emit more than 2 non-risk cards.
+RULES:
+- Always emit 3 cards when 2+ life events AND 1+ rollup exist.
+- If only 1 life event exists → emit [life_event_1, behavioral_1] (2 cards).
+- If no life events exist → emit [behavioral_1] only (1 card).
+- If no rollups exist → emit life event cards only (up to 2).
+- NEVER emit a risk card. NEVER return more than 3 cards.
+- The two life-event cards MUST recommend DIFFERENT products covering DIFFERENT financial needs — do not repeat the same product family.
 
 CRITICAL — signal_label must match source verbatim:
 - Behavioral card: signal_label = persona_rollups[i].label EXACTLY (character-for-character, including capitalization)
