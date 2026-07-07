@@ -554,12 +554,12 @@ function AtRiskModule({
   const atRisk = clientEventPairs.slice(0, 6);
   return (
     <div>
-      <ModuleHeader title="At-Risk & Thin Relationships" subtitle="Single-product or dormant customers showing engagement decline." />
+      <ModuleHeader title="Relationship Attrition" subtitle="Thin, dormant, and leaking wallets — the households most likely to walk." />
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-5">
         <MiniStat label="Thin (1 product)" value="912k" tone="red" />
         <MiniStat label="Dormant 90d+" value="184k" tone="amber" />
-        <MiniStat label="Deposit outflow" value="62k" tone="amber" />
-        <MiniStat label="Priority follow-ups" value="28k" tone="emerald" />
+        <MiniStat label="Outbound to competitor rails" value="62k" tone="amber" />
+        <MiniStat label="Declining engagement" value="28k" tone="emerald" />
       </div>
       <div className="flex flex-col gap-2">
         {atRisk.map((item, idx) => (
