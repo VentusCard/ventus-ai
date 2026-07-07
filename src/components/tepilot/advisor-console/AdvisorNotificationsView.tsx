@@ -530,7 +530,7 @@ export function AdvisorNotificationsView({
           subject: `Re: Daily digest — ${totalSignals} signals to action`,
           kind: "reply",
           quoted: m.quoted,
-          body: m.render?.({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB, autoCohort }),
+          body: m.render?.({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB, autoCohort, digestRows }),
         };
       })();
 
