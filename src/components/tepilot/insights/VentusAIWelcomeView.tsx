@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
 
 interface VentusAIWelcomeViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -72,7 +72,7 @@ const SUGGESTED_PROMPTS = [
 
 type NavGroup = "featured" | "grow" | "protect" | "operate";
 const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: React.ElementType; group: NavGroup }[] = [
-  { tab: "wealth-intelligence", label: "Merrill Growth Desk", description: "Advisor & exec wealth workflow — signal to action", icon: Briefcase, group: "featured" },
+  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "featured" },
   { tab: "life-events", label: "Life Events", description: "Predictive life-event detection", icon: CalendarHeart, group: "grow" },
   { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route, group: "grow" },
   { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "grow" },
@@ -168,7 +168,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
             </div>
           </div>
           <p className="text-sm text-slate-400 mt-1 max-w-2xl">
-            State an objective in plain language, or jump straight to a desk below. Start with the Merrill Growth Desk for wealth growth.
+            State an objective in plain language, or jump straight to a desk below.
           </p>
 
           {/* Hot Trends Strip */}
@@ -284,7 +284,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
       {/* Navigation Grid */}
       <div className="px-8 pt-6 pb-8 bg-slate-50">
         <div className="max-w-5xl mx-auto">
-          {/* Flagship: Merrill Growth Desk */}
+          {/* Flagship */}
           {(() => {
             const w = NAV_CARDS.find((c) => c.group === "featured");
             if (!w) return null;

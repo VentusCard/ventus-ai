@@ -13,7 +13,7 @@ import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 
 import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
-import { WealthIntelligenceView } from "./WealthIntelligenceView";
+
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
@@ -57,7 +57,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -113,12 +113,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "life-events", label: "Relationship Intelligence", icon: Gem },
       { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
       { value: "wm-copilot", label: "WM Coworker", icon: Briefcase },
-    ],
-  },
-  {
-    label: "Wealth Intelligence",
-    items: [
-      { value: "wealth-intelligence", label: "Merrill Growth Desk", icon: Briefcase },
     ],
   },
   {
@@ -189,7 +183,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
-    if (activeTab === 'ventus-ai' || activeTab === 'wealth-intelligence') setChatOpen(false);
+    if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
 
   // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
@@ -249,7 +243,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
       case 'life-events': return <RelationshipIntelligenceView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
-      case 'wealth-intelligence': return <WealthIntelligenceView />;
+      
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
       case 'fraud-aml': return (
