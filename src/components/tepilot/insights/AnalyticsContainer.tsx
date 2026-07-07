@@ -180,10 +180,31 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const validTabs = useMemo(() => {
     const set = new Set<TabValue>();
     filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
-    set.add('settings'); // footer-anchored, always available
-    set.add('feedback'); // footer-anchored, always available
+    // Footer-anchored, always available
+    set.add('settings');
+    set.add('feedback');
+    // Deep-linked report pages (not in sidebar) — reachable from Reports library
+    // or from cards on other pages. Always valid so the auto-reset effect doesn't
+    // bounce the user back.
+    set.add('report-lifestyle-pillars');
+    set.add('report-pillar-deep-dive');
+    set.add('report-cross-sell');
+    set.add('report-regional-spend');
+    set.add('report-outflow');
+    set.add('report-top-merchants');
+    set.add('report-subscription');
+    set.add('report-cohort-retention');
+    set.add('report-life-events');
+    set.add('report-fvi');
+    set.add('report-tier-migration');
+    set.add('report-life-event-funnel');
+    set.add('report-wallet-share');
+    set.add('report-travel-trips');
+    set.add('report-next-conversation');
+    set.add('report-priority-opportunity');
     return set;
   }, [filteredNavGroups]);
+
 
   // Auto-reset tab if it became hidden
   useEffect(() => {
