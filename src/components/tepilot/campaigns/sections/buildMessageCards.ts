@@ -18,8 +18,9 @@ export interface MessageCard {
   cta: string;
   ctaHref?: string;      // optional campaign URL — renders the CTA as a link
   why: string;           // 1-line rationale
-  estimatedReach: number; // customers eligible for this micro-segment
+  estimatedReach?: number; // customers eligible for this micro-segment
 }
+
 
 // Deterministic reach per (family, slot, seed). Rounded to nearest 100.
 const REACH_BANDS: Record<AnchorFamily, [number, number]> = {
