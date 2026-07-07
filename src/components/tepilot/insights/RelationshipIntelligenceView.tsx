@@ -146,17 +146,17 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
       <TabHeader
         icon={<Gem className="w-4 h-4" />}
         title="Relationship Intelligence"
-        subtitle="Holistic view of customer depth, product penetration, and life-stage signals across 2.4M scanned customers"
-        howItWorks="Ventus fuses transaction pattern shifts, product-holding profiles, and share-of-wallet indicators to surface where each relationship stands today and where the next opportunity lives."
-        whyItMatters="Moves the bank from single-signal alerts to a portfolio view — turning depth, whitespace, and life events into one prioritized action list."
+        subtitle="One engine, two lenses: where to grow each relationship and where to protect it — across 2.4M scanned customers"
+        howItWorks="Ventus enriches every transaction, then routes the resulting signals two ways: growth signals feed cross-sell propensity and life-event triggers, while protection signals feed attrition, wallet-share leakage, and portfolio-exposure cohorts."
+        whyItMatters="A portfolio view that pairs revenue upside with the risk it's sitting next to — so the bank acts before the customer leaves, defaults, or self-reports a life event."
       />
 
       {/* Portfolio strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard icon={<Scan className="h-5 w-5 text-slate-600" />} label="Customers Scanned" value="2.4M" bg="bg-slate-50" />
-        <MetricCard icon={<Layers className="h-5 w-5 text-blue-600" />} label="Avg Products / Customer" value="2.7" bg="bg-blue-50" />
-        <MetricCard icon={<Users className="h-5 w-5 text-emerald-600" />} label="Deep (4+ products)" value="19%" bg="bg-emerald-50" />
-        <MetricCard icon={<CalendarDays className="h-5 w-5 text-purple-600" />} label="Life Events (90d)" value={totalUrgent.toLocaleString()} bg="bg-purple-50" />
+        <MetricCard icon={<Sparkles className="h-5 w-5 text-emerald-600" />} label="Growth Signals (90d)" value="184k" bg="bg-emerald-50" />
+        <MetricCard icon={<ShieldAlert className="h-5 w-5 text-amber-600" />} label="Protection Signals (90d)" value="42k" bg="bg-amber-50" />
+        <MetricCard icon={<DollarSign className="h-5 w-5 text-blue-600" />} label="Est. Annual Opportunity" value="$412M" bg="bg-blue-50" />
       </div>
 
       {/* Bento grid */}
