@@ -319,6 +319,127 @@ const REPLY_MESSAGES: MessageDef[] = [
       </>
     ),
   },
+
+  {
+    sender: "leader",
+    time: "9:47 AM",
+    navLabel: "9:47",
+    quoted: `Ventus AI, 9:32 AM — I'll send a rollup next Monday…`,
+    render: () => (
+      <p>
+        Different topic. I'm presenting to the board Thursday on the wallet-share loss in the tech corridor. Give me a one-slide read — size the outflow, tell me where it's actually going, and what we'd propose doing about it.
+      </p>
+    ),
+  },
+  {
+    sender: "ventus",
+    time: "9:48 AM",
+    navLabel: "9:48",
+    quoted: `Priya, 9:47 AM — Board-ready read on the tech-corridor wallet-share loss…`,
+    render: () => (
+      <>
+        <p>Here's the board-ready read:</p>
+        <div>
+          <p className="font-medium text-slate-900">Size &amp; velocity</p>
+          <ul className="list-disc pl-5 space-y-1 mt-1">
+            <li>~<span className="font-semibold text-slate-900">780</span> households in the emerging-affluent tech corridor showing recurring outbound flow.</li>
+            <li>~<span className="font-semibold text-slate-900">$1.2B</span> in cumulative outbound over the last two quarters.</li>
+            <li>Run-rate accelerating <span className="font-semibold text-slate-900">~14% QoQ</span> — pattern has held for six weeks and is still steepening.</li>
+          </ul>
+        </div>
+        <div>
+          <p className="font-medium text-slate-900">Where it's going</p>
+          <div className="border border-slate-200 rounded-md divide-y divide-slate-200 overflow-hidden mt-1">
+            <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-3 py-1.5 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+              <div>Destination type</div>
+              <div className="text-right">% of flow</div>
+              <div className="text-right">Trend</div>
+            </div>
+            <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-3 py-2 items-center">
+              <div className="text-slate-900">Brokerage-first neobanks</div>
+              <div className="text-right tabular-nums text-slate-700">46%</div>
+              <div className="text-right text-rose-600">↑ accel.</div>
+            </div>
+            <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-3 py-2 items-center">
+              <div className="text-slate-900">Self-directed investing platforms</div>
+              <div className="text-right tabular-nums text-slate-700">31%</div>
+              <div className="text-right text-rose-600">↑ steady</div>
+            </div>
+            <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-3 py-2 items-center">
+              <div className="text-slate-900">Alt-asset &amp; crypto apps</div>
+              <div className="text-right tabular-nums text-slate-700">15%</div>
+              <div className="text-right text-amber-600">→ flat</div>
+            </div>
+            <div className="grid grid-cols-[1fr_auto_auto] gap-4 px-3 py-2 items-center">
+              <div className="text-slate-900">Other / uncategorized</div>
+              <div className="text-right tabular-nums text-slate-700">8%</div>
+              <div className="text-right text-slate-500">—</div>
+            </div>
+          </div>
+          <p className="text-[11px] text-slate-500 mt-1.5">Destination categories inferred from outbound transaction patterns; no named platforms in the board deck.</p>
+        </div>
+        <div>
+          <p className="font-medium text-slate-900">Who's leaking</p>
+          <ul className="list-disc pl-5 space-y-1 mt-1">
+            <li>Concentrated in <span className="font-semibold text-slate-900">33</span> advisor books, all West-region tech corridor.</li>
+            <li><span className="font-semibold text-slate-900">~60%</span> of leaking households are under 45; avg client tenure <span className="font-semibold text-slate-900">4.2 yrs</span>.</li>
+            <li>Top-decile leakers hold meaningful investable assets still on-platform — this is a wallet-share problem, not a full attrition problem yet.</li>
+          </ul>
+        </div>
+        <div>
+          <p className="font-medium text-slate-900">Proposed response</p>
+          <ul className="list-disc pl-5 space-y-1 mt-1">
+            <li><span className="font-medium text-slate-900">Fee-review pilot</span> for the top-decile leakers — pricing has been flagged in outbound transfer memos.</li>
+            <li><span className="font-medium text-slate-900">Self-directed-lite surface</span> inside our app — close the "I want to trade without calling my advisor" gap.</li>
+            <li><span className="font-medium text-slate-900">Advisor-led 1:1 outreach</span> for the top <span className="font-semibold text-slate-900">120</span> households before end of quarter — highest-conviction save list.</li>
+          </ul>
+        </div>
+        <p>Want me to package this as a board-ready one-pager and pre-brief your Chief of Staff?</p>
+      </>
+    ),
+  },
+
+  {
+    sender: "leader",
+    time: "10:11 AM",
+    navLabel: "10:11",
+    quoted: `Ventus AI, 9:48 AM — Want me to package this as a board-ready one-pager…`,
+    render: () => (
+      <p>
+        Yes, package it and loop in my CoS. Before my 1:1s, summarize today's to-do list across both tasks — the pre-retiree cohort and the board prep. Keep it tight, no detail.
+      </p>
+    ),
+  },
+  {
+    sender: "ventus",
+    time: "10:12 AM",
+    navLabel: "10:12",
+    quoted: `Priya, 10:11 AM — Summarize today's to-do list across both tasks…`,
+    render: () => (
+      <>
+        <p>Here's today's list:</p>
+        <div>
+          <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 1 — Pre-retiree structured income</p>
+          <ul className="list-disc pl-5 space-y-0.5 mt-1">
+            <li><span className="font-medium text-slate-900">Working session</span> — Thu 2:00 PM PT with Chen, Ortiz, Whitfield.</li>
+            <li><span className="font-medium text-slate-900">Per-book prep sheets</span> — going out Wed AM as pre-read.</li>
+            <li><span className="font-medium text-slate-900">Exec review item</span> — logged with the nested Act Now + Opportunities framing.</li>
+          </ul>
+        </div>
+        <div>
+          <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 2 — Board deck: wallet-share outflow</p>
+          <ul className="list-disc pl-5 space-y-0.5 mt-1">
+            <li><span className="font-medium text-slate-900">One-pager</span> — drafted for Thursday's board slot.</li>
+            <li><span className="font-medium text-slate-900">CoS pre-brief</span> — 15 min scheduled tomorrow.</li>
+            <li><span className="font-medium text-slate-900">Fee-review pilot shortlist</span> — 33 advisor books compiled, ready for pricing review.</li>
+            <li><span className="font-medium text-slate-900">Top-120 save list</span> — queued for advisor assignment on Monday.</li>
+          </ul>
+        </div>
+        <p>All logged. Monday rollup will cover both.</p>
+      </>
+    ),
+  },
+
 ];
 
 export function LeadershipNotificationsView() {
