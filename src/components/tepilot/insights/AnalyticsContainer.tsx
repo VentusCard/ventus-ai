@@ -88,8 +88,8 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      { value: "reports", label: "Reports", icon: FileBarChart },
       { value: "query", label: "Query", icon: Terminal },
+      { value: "reports", label: "Reports", icon: FileBarChart },
     ],
   },
   {
