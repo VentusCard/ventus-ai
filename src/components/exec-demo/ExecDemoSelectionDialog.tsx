@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
-import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown } from "lucide-react";
+import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown, Sparkles } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { getFlow, formatAccounting, isIncome } from "@/lib/transactionFlow";
+import { getExternalSignalsFor } from "@/lib/externalIntelligenceSignals";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
@@ -534,20 +535,51 @@ export default function ExecDemoSelectionDialog({
                   );
                 })}
 
-                {/* Digital Telemetry — Coming soon */}
-                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 overflow-hidden opacity-70 cursor-not-allowed">
-                  <div className="w-full flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-slate-200 text-slate-500">
-                        Digital Telemetry
-                      </span>
-                      <span className="text-base font-semibold text-slate-400">Coming soon</span>
-                      <span className="text-sm text-slate-400">·</span>
-                      <span className="text-sm text-slate-400">App, web & device signals</span>
+                {/* External Intelligence — dynamic signals from bureau + third-party enrichment */}
+                {(() => {
+                  const extSignals = getExternalSignalsFor(customer.id);
+                  if (extSignals.length === 0) return null;
+                  const extOpen = openSources["__external__"] ?? true;
+                  return (
+                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, __external__: !(p["__external__"] ?? true) }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-violet-50 text-violet-700">
+                            External Intelligence
+                          </span>
+                          <span className="text-base font-semibold text-slate-700">
+                            {extSignals.length} signal{extSignals.length === 1 ? "" : "s"}
+                          </span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm text-slate-500">Bureau + third-party enrichment</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${extOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {extOpen && (
+                        <div className="border-t border-slate-100 divide-y divide-slate-100">
+                          {extSignals.map((s) => (
+                            <div key={s.id} className="flex items-center gap-3 px-4 py-2.5">
+                              <Sparkles className="w-4 h-4 text-violet-500 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold text-slate-800 truncate">{s.headline}</div>
+                                <div className="text-[12px] text-slate-500 truncate">{s.detail}</div>
+                              </div>
+                              <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium whitespace-nowrap bg-slate-100 text-slate-600 shrink-0">
+                                {s.provider}
+                              </span>
+                              <span className="text-[11px] font-mono tabular-nums text-violet-600 shrink-0">
+                                {Math.round(s.confidence * 100)}%
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    <ChevronDown className="w-4 h-4 text-slate-300" />
-                  </div>
-                </div>
+                  );
+                })()}
               </div>
 
               {rawRows.length === 0 && (
