@@ -382,6 +382,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     quoted: `Morgan, 10:07 AM — Summarize today's to-do list from both tasks…`,
     render: ({ travelCardCohort, digestRows }) => (
       <>
+        <p>Hi Morgan,</p>
         <div>
           <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 1 — Digest signals ({digestRows.length})</p>
           <ul className="list-disc pl-5 space-y-0.5 mt-1">
