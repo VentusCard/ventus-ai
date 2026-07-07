@@ -1,20 +1,17 @@
-## Restructure Reports Library into two sub-tabs
+### Objective
+On the Reports page, make "Templates" the first (default) sub-tab instead of "Reports".
 
-Split `ReportsLibrary` into two clearly separated sub-tabs at the top of the Reports page:
+### What changes
+1. **Default state in `ReportsLibrary.tsx`**  
+   Change `subTab` initial value from `hasInteractive ? "reports" : "templates"` to always `"templates"`. When the page loads, the Templates tab is active.
 
-1. **Reports** (default) — the new interactive reports (currently just "Priority Opportunity Briefing", room to grow)
-2. **Templates** — the existing SQL query template grid (unchanged content, just renamed and moved under this sub-tab)
+2. **Preserve conditional rendering**  
+   The "Reports" tab button stays hidden when there are no interactive reports (`!hasInteractive`). The Templates tab button is always visible. Switching between tabs continues to work the same.
 
-### Changes
+### What does not change
+- Tab labels, counts, styling, search/filter behavior on Templates.
+- Interactive report cards or registry.
+- Routing / deep-linking logic in `AnalyticsContainer`.
 
-**`src/components/tepilot/insights/reports/ReportsLibrary.tsx`**
-- Add a local `activeSubTab: 'reports' | 'templates'` state (default `'reports'`).
-- Render a segmented sub-tab control directly under the page header (styled to match existing light-theme pill/tab patterns already used elsewhere in the analytics surface — no new dependency).
-- When `activeSubTab === 'reports'`: render only the Interactive Reports card grid (drop the "Interactive Reports" section heading since the sub-tab label now conveys it; keep card styling).
-- When `activeSubTab === 'templates'`: render only the existing SQL template grid (drop its section heading for the same reason).
-- Remove the stacked "Interactive Reports … then Templates" layout — the two are now mutually exclusive views under the sub-tabs.
-
-### Out of scope
-- No changes to `AnalyticsContainer` routing, `PriorityOpportunityReport`, `interactiveReportsRegistry`, `InsightStrip`, dashboards, or the SQL template behavior itself.
-- No new sidebar entries, no URL/deep-link changes for the sub-tab (local state only, matching how other sibling toggles inside Reports work today).
-- No visual redesign of the individual cards.
+### Verification
+Load the Reports page and confirm Templates is active by default, with Reports available as the second tab when interactive reports exist.
