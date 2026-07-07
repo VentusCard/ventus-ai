@@ -87,6 +87,90 @@ function offerFor(eventType: string): string {
   return EVENT_OFFER[eventType] ?? "Preferred Rewards tier review + Merrill Guided Investing with Advisor intro";
 }
 
+const EVIDENCE: Record<string, { transactions: string[]; household: string }> = {
+  retirement: {
+    transactions: [
+      "Recurring pickleball club dues",
+      "Viking / Princess cruise deposits",
+      "National-park lodge bookings",
+      "Medigap premium debits started",
+      "Two large IRA-adjacent transfers in",
+    ],
+    household: "30-yr tenure, mortgage nearly paid, spouse on joint account.",
+  },
+  wealth_transfer: {
+    transactions: [
+      "Recurring debit to an estate-planning law firm",
+      "Residential real-estate appraisal fee",
+      "Safe-deposit-box annual renewal",
+      "Wire out to a title company",
+      "Charitable-gift-fund contribution",
+    ],
+    household: "Three adult children on statements, primary POA not yet on file.",
+  },
+  business_liquidity: {
+    transactions: [
+      "Retainer to a business-brokerage firm",
+      "Monthly CPA advisory debit",
+      "Escrow-adjacent inflow last week",
+      "Recurring commercial-insurance premium",
+      "Charter-flight charge",
+    ],
+    household: "Business owner, spouse on business payroll.",
+  },
+  home_purchase: {
+    transactions: [
+      "Home-inspection service charge",
+      "Two moving-quote deposits",
+      "Zillow Premier subscription",
+      "Storage-unit rental started",
+      "Earnest-money-adjacent debit",
+    ],
+    household: "Renter locally, one child entering school next fall.",
+  },
+  education: {
+    transactions: [
+      "SAT/ACT prep provider",
+      "Admissions-consultant retainer",
+      "College-tour airfare to Boston and Providence same weekend",
+      "Campus-bookstore charge",
+      "Common App fee",
+    ],
+    household: "High-school junior at home, dual-income.",
+  },
+  family_formation: {
+    transactions: [
+      "Obstetrics copays every 4 weeks",
+      "Nursery-furniture retailer",
+      "Prenatal-class provider",
+      "Maternity-apparel spend",
+      "Baby-registry retailer activity",
+    ],
+    household: "Married, no dependents yet on file.",
+  },
+  elder_care: {
+    transactions: [
+      "In-home-care agency debit",
+      "Geriatric-care-manager retainer",
+      "Medical-equipment supplier",
+      "Memory-care assessment center",
+      "Pharmacy spend up sharply",
+    ],
+    household: "Parent recently widowed, POA not yet on file.",
+  },
+};
+function evidenceFor(eventType: string): { transactions: string[]; household: string } {
+  return EVIDENCE[eventType] ?? {
+    transactions: [
+      "Broad shift in category mix over the last 60 days",
+      "New recurring debits started",
+      "Balance drift across accounts",
+    ],
+    household: "Standard profile on file.",
+  };
+}
+
+
 
 const SECTIONS: {
   key: "high" | "opportunity" | "risk";
@@ -140,7 +224,7 @@ interface MessageDef {
   navLabel: string;
   subjectPrefix: "" | "Re: ";
   quoted?: string;
-  render?: (ctx: { nameA: string; nameB: string; labelA: string; labelB: string }) => React.ReactNode;
+  render?: (ctx: { nameA: string; nameB: string; labelA: string; labelB: string; eventTypeA: string; eventTypeB: string }) => React.ReactNode;
 }
 
 const REPLY_MESSAGES: MessageDef[] = [
@@ -153,19 +237,16 @@ const REPLY_MESSAGES: MessageDef[] = [
     render: ({ nameA, nameB, labelA, labelB }) => (
       <>
         <p>
-          Good list. Before I reach out — walk me through what's actually behind the top two on Act Now.
+          Good list. Before I reach out, give me the supporting evidence on both.
         </p>
         <ul className="list-disc pl-5 space-y-1.5">
           <li>
-            On <span className="font-medium text-slate-900">{nameA}</span> — what actually changed for them?
-            Last time we spoke it was mostly steady-state. What's the {labelA.toLowerCase()} signal picking up on?
+            On <span className="font-medium text-slate-900">{nameA}</span> ({labelA.toLowerCase()}) — which transactions triggered this, and what do we know about the household?
           </li>
           <li>
-            On <span className="font-medium text-slate-900">{nameB}</span> — is this the same {labelB.toLowerCase()} thread
-            we flagged last quarter, or something new? And do we know if the spouse is involved in this one?
+            On <span className="font-medium text-slate-900">{nameB}</span> ({labelB.toLowerCase()}) — same thing: the transactions we're seeing, and what's on file for the household.
           </li>
         </ul>
-        <p>Give me the story behind each, not just the headline.</p>
       </>
     ),
   },
@@ -174,28 +255,37 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "9:23 AM",
     navLabel: "9:23",
     subjectPrefix: "Re: ",
-    quoted: `Morgan, 9:22 AM — Give me the story behind each, not just the headline.`,
-    render: ({ nameA, nameB, labelA, labelB }) => (
-      <>
-        <p>Here's what's underneath each one:</p>
-        <div>
-          <p className="font-medium text-slate-900">{nameA}</p>
-          <ul className="list-disc pl-5 space-y-1 mt-1">
-            <li>Household spending mix has been drifting toward a different lifestyle pattern over the past couple of months — the sort of shift we usually see when someone is quietly planning a bigger change.</li>
-            <li>In similar households this pattern typically precedes a {labelA.toLowerCase()} decision within the next few conversations, not immediately.</li>
-          </ul>
-        </div>
-        <div>
-          <p className="font-medium text-slate-900">{nameB}</p>
-          <ul className="list-disc pl-5 space-y-1 mt-1">
-            <li>Different thread from last quarter — the earlier one has quieted down. This one is a fresh {labelB.toLowerCase()} signal driven by new activity on the joint side of the household.</li>
-            <li>Spouse is on the joint account and appears to be the one initiating most of the recent behavior, which will change who you're really speaking to.</li>
-          </ul>
-        </div>
-        <p>Want the fuller household picture for each — who's involved, what's changing around them?</p>
-      </>
-    ),
+    quoted: `Morgan, 9:22 AM — Give me the supporting evidence on both.`,
+    render: ({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB }) => {
+      const evA = evidenceFor(eventTypeA);
+      const evB = evidenceFor(eventTypeB);
+      return (
+        <>
+          <p>Here's what we're actually seeing on the ledger:</p>
+          <div>
+            <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+            <ul className="list-disc pl-5 space-y-1 mt-0.5">
+              {evA.transactions.map((t) => <li key={t}>{t}</li>)}
+            </ul>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+            <p className="mt-0.5">{evA.household}</p>
+          </div>
+          <div>
+            <p className="font-medium text-slate-900">{nameB} <span className="text-slate-500 font-normal">· {labelB}</span></p>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+            <ul className="list-disc pl-5 space-y-1 mt-0.5">
+              {evB.transactions.map((t) => <li key={t}>{t}</li>)}
+            </ul>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+            <p className="mt-0.5">{evB.household}</p>
+          </div>
+          <p>Want the fuller household picture for each — who's involved, what's changing around them?</p>
+        </>
+      );
+    },
   },
+
   {
     sender: "advisor",
     time: "9:44 AM",
@@ -368,6 +458,9 @@ export function AdvisorNotificationsView({
   const nameB = topTwo[1]?.client.profile.name ?? "the second client";
   const labelA = topTwo[0] ? LIFE_EVENT_CONFIG[topTwo[0].event.eventType].label : "";
   const labelB = topTwo[1] ? LIFE_EVENT_CONFIG[topTwo[1].event.eventType].label : "";
+  const eventTypeA = topTwo[0]?.event.eventType ?? "";
+  const eventTypeB = topTwo[1]?.event.eventType ?? "";
+
 
   const [activeIndex, setActiveIndex] = useState(0);
   const total = REPLY_MESSAGES.length + 1;
@@ -400,7 +493,7 @@ export function AdvisorNotificationsView({
           subject: `Re: Daily digest — ${totalSignals} signals to action`,
           kind: "reply",
           quoted: m.quoted,
-          body: m.render?.({ nameA, nameB, labelA, labelB }),
+          body: m.render?.({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB }),
         };
       })();
 
