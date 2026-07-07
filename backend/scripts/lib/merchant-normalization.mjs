@@ -38,6 +38,10 @@ const MERCHANT_NORMALIZATION_RULES = [
   [/^quest diagnostics\b/i, 'Quest Diagnostics'],
   [/^u-?haul\b/i, 'U-Haul'],
   [/^usps change of address\b/i, 'USPS Change of Address'],
+  [/^chewy\b/i, 'Chewy'],
+  [/^petco\b/i, 'Petco'],
+  [/^petsmart\b/i, 'PetSmart'],
+  [/^banfield\b/i, 'Banfield Pet Hospital'],
 ];
 
 export function normalizeCleanMerchantName({ predictedName, rawMerchantName }) {

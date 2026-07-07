@@ -1,0 +1,69 @@
+{
+  "task": "risk_detection",
+  "fixture_version": "2026-07-05",
+  "label_status": "synthetic_requires_human_review",
+  "description": "Synthetic per-customer risk-detection cases for model evaluation. Labels are illustrative and MUST be replaced with real, human-reviewed data before these scores are treated as decision-grade.",
+  "collection_key": "risk_factors",
+  "cases": [
+    {
+      "customer_id": "eval_risk_01",
+      "inputs": {
+        "transactions": [
+          { "description": "OVERDRAFT FEE", "amount": 35, "date": "2026-02-03" },
+          { "description": "RETURNED ITEM FEE", "amount": 30, "date": "2026-02-05" },
+          { "description": "ACME CORP PAYROLL DIRECT DEP", "amount": -4200, "date": "2026-02-01" }
+        ]
+      },
+      "expected": {
+        "risk_factors": [
+          { "type": "overdraft", "severity": "high" },
+          { "type": "returned_payment", "severity": "medium" }
+        ]
+      }
+    },
+    {
+      "customer_id": "eval_risk_02",
+      "inputs": {
+        "transactions": [
+          { "description": "CASH ADVANCE FEE", "amount": 20, "date": "2026-03-10" },
+          { "description": "ATM WITHDRAWAL 7 ELEVEN", "amount": 400, "date": "2026-03-10" },
+          { "description": "MONEYGRAM TRANSFER", "amount": 900, "date": "2026-03-12" }
+        ]
+      },
+      "expected": {
+        "risk_factors": [
+          { "type": "cash_advance", "severity": "medium" },
+          { "type": "high_risk_transfer", "severity": "high" }
+        ]
+      }
+    },
+    {
+      "customer_id": "eval_risk_03",
+      "inputs": {
+        "transactions": [
+          { "description": "STARBUCKS STORE #1234", "amount": 6.5, "date": "2026-04-01" },
+          { "description": "WHOLEFDS MARKET 10048", "amount": 87.35, "date": "2026-04-02" },
+          { "description": "ACME CORP PAYROLL DIRECT DEP", "amount": -4200, "date": "2026-04-01" }
+        ]
+      },
+      "expected": {
+        "risk_factors": []
+      }
+    },
+    {
+      "customer_id": "eval_risk_04",
+      "inputs": {
+        "transactions": [
+          { "description": "MONTHLY MAINTENANCE FEE", "amount": 12, "date": "2026-05-01" },
+          { "description": "FOREIGN TRANSACTION FEE", "amount": 3.2, "date": "2026-05-04" },
+          { "description": "OVERDRAFT FEE", "amount": 35, "date": "2026-05-06" }
+        ]
+      },
+      "expected": {
+        "risk_factors": [
+          { "type": "overdraft", "severity": "high" }
+        ]
+      }
+    }
+  ]
+}

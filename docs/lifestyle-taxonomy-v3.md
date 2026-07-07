@@ -18,6 +18,33 @@ Business reason:
 
 - Banks can act on these signals differently from generic household spend. Family-oriented activity can support 529 education, savings goals, family budgeting, insurance review, and branch/advisor conversations.
 
+### Align the Benchmark to Production's 12 Pillars (v3.1)
+
+Earlier benchmark versions scored a narrower 9-value lifestyle list. The production classifier (`ventus-classify-transactions`) uses 12 pillars, and the QA scorer (`qa-validators.mjs`) already supports all 12. The benchmark prompt and the synthetic expectation generator have now been brought in line so we score against the same contract production emits.
+
+Three pillars were missing from the benchmark and are now promoted:
+
+- `Sports & Active Living` — gyms, fitness studios, athletic apparel, sporting goods, outdoor recreation. Previously these (e.g. `EQUINOX GYM MEMBERSHIP`) were labeled `Health & Wellness`.
+- `Style & Beauty` — clothing, shoes, accessories, jewelry, hair/nail salons, beauty products. Previously these (e.g. `DRYBAR`, `NORDSTROM`, `SAKS FIFTH AVENUE`) were split between `Health & Wellness` and `Miscellaneous & Unclassified`.
+- `Pets` — pet food, veterinary care, pet supplies, grooming, pet services.
+
+Accepted fallback:
+
+- The prior labels (`Health & Wellness`, `Miscellaneous & Unclassified`, `Home & Living`) remain accepted aliases on the affected rows during transition, so a model giving the old answer is not hard-failed before the labels are human-reviewed. These aliases should be removed once the design-key labels are promoted to frozen golden truth.
+
+Synthetic coverage:
+
+- A `pets` group (`CHEWY.COM`, `PETCO`, `BANFIELD PET HOSPITAL`) was added to `generate-plaid-benchmark-manifest.mjs` and attached to the `consumer_baseline` and `family_life_event` personas, so `Pets` is now exercised by 12 expectation rows. A dedicated `Pet Supplies & Veterinary` merchant_category was added to the prompt/merchant-category lists so pet rows are scorable on both axes.
+- The production model `google/gemini-2.5-flash` was added to the default benchmarked model set so we compare challengers against what production ships.
+
+Remaining gap:
+
+- These remain synthetic descriptors. Real Plaid Sandbox pulls (`npm run plaid:sandbox:pull`) plus human-reviewed golden labels are still needed before the labels are promoted from `synthetic_design_key_requires_human_review` to frozen golden truth.
+
+Out of scope (intentional):
+
+- `merchant_category` remains a separate evaluation axis per `plaid-benchmark-data-strategy.md` and is not reconciled with the lifestyle pillars.
+
 ### Do Not Promote Transportation Yet
 
 `Transportation` is useful analytically, but the current production classifier maps local commuting into `Home & Living / Local Commuting`. The benchmark now follows that existing behavior instead of creating a new top-level category immediately.
@@ -36,6 +63,8 @@ Business reason:
 The OpenRouter benchmark prompt now exposes `Family & Community` as an allowed lifestyle category and instructs models to classify childcare, baby retail, education, donations, and community services there.
 
 For transportation, the prompt tells models to classify routine commuting as `Home & Living` unless there is clear trip context such as flights, hotels, lodging, foreign transaction behavior, or travel clusters.
+
+As of v3.1 the prompt also exposes `Sports & Active Living`, `Style & Beauty`, and `Pets`, with tie-breakers that keep fitness out of `Health & Wellness`, apparel/beauty out of `Miscellaneous & Unclassified`, and route pet spend to `Pets`.
 
 ## Evaluation Implications
 

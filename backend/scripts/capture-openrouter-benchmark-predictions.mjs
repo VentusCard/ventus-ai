@@ -33,6 +33,9 @@ const LIFESTYLE_TAXONOMY = [
   'Health & Wellness',
   'Home & Living',
   'Miscellaneous & Unclassified',
+  'Pets',
+  'Sports & Active Living',
+  'Style & Beauty',
   'Technology & Digital Life',
   'Travel & Exploration',
 ];
@@ -67,6 +70,7 @@ const MERCHANT_CATEGORY_TAXONOMY = [
   'Moving',
   'Parking',
   'Personal Care & Lifestyle',
+  'Pet Supplies & Veterinary',
   'Rent',
   'Retail',
   'Rideshare',
@@ -127,6 +131,9 @@ Lifestyle tie-breakers:
 - Apple Store and consumer electronics can be Technology & Digital Life even when the raw PFC is general merchandise.
 - QuickBooks, payroll software, and business SaaS should usually be Technology & Digital Life; use Financial & Aspirational only when the financial/admin signal is stronger than the software signal.
 - Childcare, education, baby retail, donations, and community/family-oriented services should be Family & Community.
+- Gyms, fitness studios, athletic apparel, sporting goods, and outdoor recreation are Sports & Active Living, not Health & Wellness. Reserve Health & Wellness for medical, pharmacy, therapy, and spa.
+- Clothing, shoes, accessories, jewelry, hair/nail salons, and beauty products are Style & Beauty, not Miscellaneous & Unclassified or Health & Wellness.
+- Pet food, veterinary care, pet supplies, grooming, and pet services are Pets.
 - Miscellaneous & Unclassified is the fallback for broad retail or unclear consumer intent, not a preferred category when a stronger lifestyle signal exists.`;
 
 assert.ok(Number.isInteger(limit) && limit > 0, 'OPENROUTER_BENCHMARK_LIMIT must be positive');

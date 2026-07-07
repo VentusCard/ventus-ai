@@ -13,6 +13,9 @@ const LIFESTYLE_TAXONOMY = [
   'Health & Wellness',
   'Home & Living',
   'Miscellaneous & Unclassified',
+  'Pets',
+  'Sports & Active Living',
+  'Style & Beauty',
   'Technology & Digital Life',
   'Travel & Exploration',
 ];
@@ -47,6 +50,7 @@ const MERCHANT_CATEGORY_TAXONOMY = [
   'Moving',
   'Parking',
   'Personal Care & Lifestyle',
+  'Pet Supplies & Veterinary',
   'Rent',
   'Retail',
   'Rideshare',

@@ -1,0 +1,64 @@
+{
+  "task": "life_event_detection",
+  "fixture_version": "2026-07-05",
+  "label_status": "synthetic_requires_human_review",
+  "description": "Synthetic per-customer life-event cases for model evaluation. Labels are illustrative and MUST be replaced with real, human-reviewed data before these scores are treated as decision-grade.",
+  "collection_key": "life_events",
+  "cases": [
+    {
+      "customer_id": "eval_life_01",
+      "inputs": {
+        "transactions": [
+          { "description": "UHAUL MOVING & STORAGE", "amount": 164.5, "date": "2026-01-14" },
+          { "description": "USPS CHANGE OF ADDRESS", "amount": 1.1, "date": "2026-01-15" },
+          { "description": "HOME DEPOT #1234", "amount": 234.5, "date": "2026-01-20" }
+        ]
+      },
+      "expected": {
+        "life_events": [
+          { "type": "moving", "confidence_band": "high" }
+        ]
+      }
+    },
+    {
+      "customer_id": "eval_life_02",
+      "inputs": {
+        "transactions": [
+          { "description": "BRIGHT HORIZONS CHILDCARE", "amount": 1400, "date": "2026-02-03" },
+          { "description": "BUYBUY BABY STORE", "amount": 380, "date": "2026-02-05" }
+        ]
+      },
+      "expected": {
+        "life_events": [
+          { "type": "new_child", "confidence_band": "high" }
+        ]
+      }
+    },
+    {
+      "customer_id": "eval_life_03",
+      "inputs": {
+        "transactions": [
+          { "description": "WIRE TO TITLE CO ESCROW", "amount": 25000, "date": "2026-03-01" },
+          { "description": "MORTGAGE PAYMENT CHASE", "amount": 2200, "date": "2026-04-01" }
+        ]
+      },
+      "expected": {
+        "life_events": [
+          { "type": "home_purchase", "confidence_band": "high" }
+        ]
+      }
+    },
+    {
+      "customer_id": "eval_life_04",
+      "inputs": {
+        "transactions": [
+          { "description": "STARBUCKS STORE #1234", "amount": 6.5, "date": "2026-05-01" },
+          { "description": "NETFLIX.COM", "amount": 22.99, "date": "2026-05-02" }
+        ]
+      },
+      "expected": {
+        "life_events": []
+      }
+    }
+  ]
+}
