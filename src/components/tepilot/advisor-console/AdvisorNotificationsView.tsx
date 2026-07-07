@@ -87,6 +87,90 @@ function offerFor(eventType: string): string {
   return EVENT_OFFER[eventType] ?? "Preferred Rewards tier review + Merrill Guided Investing with Advisor intro";
 }
 
+const EVIDENCE: Record<string, { transactions: string[]; household: string }> = {
+  retirement: {
+    transactions: [
+      "Recurring pickleball club dues",
+      "Viking / Princess cruise deposits",
+      "National-park lodge bookings",
+      "Medigap premium debits started",
+      "Two large IRA-adjacent transfers in",
+    ],
+    household: "30-yr tenure, mortgage nearly paid, spouse on joint account.",
+  },
+  wealth_transfer: {
+    transactions: [
+      "Recurring debit to an estate-planning law firm",
+      "Residential real-estate appraisal fee",
+      "Safe-deposit-box annual renewal",
+      "Wire out to a title company",
+      "Charitable-gift-fund contribution",
+    ],
+    household: "Three adult children on statements, primary POA not yet on file.",
+  },
+  business_liquidity: {
+    transactions: [
+      "Retainer to a business-brokerage firm",
+      "Monthly CPA advisory debit",
+      "Escrow-adjacent inflow last week",
+      "Recurring commercial-insurance premium",
+      "Charter-flight charge",
+    ],
+    household: "Business owner, spouse on business payroll.",
+  },
+  home_purchase: {
+    transactions: [
+      "Home-inspection service charge",
+      "Two moving-quote deposits",
+      "Zillow Premier subscription",
+      "Storage-unit rental started",
+      "Earnest-money-adjacent debit",
+    ],
+    household: "Renter locally, one child entering school next fall.",
+  },
+  education: {
+    transactions: [
+      "SAT/ACT prep provider",
+      "Admissions-consultant retainer",
+      "College-tour airfare to Boston and Providence same weekend",
+      "Campus-bookstore charge",
+      "Common App fee",
+    ],
+    household: "High-school junior at home, dual-income.",
+  },
+  family_formation: {
+    transactions: [
+      "Obstetrics copays every 4 weeks",
+      "Nursery-furniture retailer",
+      "Prenatal-class provider",
+      "Maternity-apparel spend",
+      "Baby-registry retailer activity",
+    ],
+    household: "Married, no dependents yet on file.",
+  },
+  elder_care: {
+    transactions: [
+      "In-home-care agency debit",
+      "Geriatric-care-manager retainer",
+      "Medical-equipment supplier",
+      "Memory-care assessment center",
+      "Pharmacy spend up sharply",
+    ],
+    household: "Parent recently widowed, POA not yet on file.",
+  },
+};
+function evidenceFor(eventType: string): { transactions: string[]; household: string } {
+  return EVIDENCE[eventType] ?? {
+    transactions: [
+      "Broad shift in category mix over the last 60 days",
+      "New recurring debits started",
+      "Balance drift across accounts",
+    ],
+    household: "Standard profile on file.",
+  };
+}
+
+
 
 const SECTIONS: {
   key: "high" | "opportunity" | "risk";
