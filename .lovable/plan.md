@@ -1,41 +1,28 @@
-Make the 9:22 / 9:23 exchange substantive in the WM Coworker Advisor demo — grounded strictly in transactions we can actually observe.
+Pivot the 9:44 / 9:45 exchange in `AdvisorNotificationsView.tsx` to a car-loan cohort request.
 
-## Change
+## 9:44 Advisor (Morgan)
+Short pivot: "Different topic. Marketing is launching a car-loan campaign next month and asked us to seed it from the book. Pull me a working list of clients likely to need auto financing in the next 6 months — name, timing, estimated loan amount, and how confident you are." Update its `quoted` to reference the 9:23 Ventus line.
 
-In `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx`:
+## 9:45 Ventus (Coworker)
+Reply with a compact 6-row list. Each row shows exactly:
+- **Client name** (from the `clients` prop, deterministic slice: skip the two clients already in the digest, take the first 6 remaining by id).
+- **Timing** — "0–3 mo" or "3–6 mo".
+- **Estimated amount** — a rounded range, ~50% higher than a normal cohort: "$33k–$42k", "$68k–$82k", "$27k–$36k", "$90k–$110k", "$42k–$51k", "$48k–$60k".
+- **Confidence** — above 50%, realistic spread: "72%", "58%", "81%", "64%", "77%", "69%".
 
-### 1. 9:22 Advisor (Morgan)
-Direct evidence request: "Before I reach out, give me the supporting evidence on both. For each: which transactions triggered this, and what do we know about the household?" Keep the two named bullets (nameA, nameB).
+Hand-authored `AUTO_COHORT` array of 6 entries (timing / amount / confidence) indexed by row position; client name comes from the sliced `clients` list.
 
-### 2. 9:23 Ventus (Coworker)
-Per client show:
-- Event label
-- **Transactions (last 90 days):** a 3–5 item bulleted list of concrete, observable charges/credits/debits indicative of the life event. Merchant category + rough cadence only, no dollar amounts, no intent inferred.
-- **Household:** one short line of what we know (e.g., "joint account with spouse, two dependents on file").
+Layout: one row per client, single line — name (left), then three inline chips/columns (Timing, Est. amount, Confidence) on the right. Match existing message body styling (slate borders, small type). Close with: "Full list is 34 across the book — this is the top 6 by signal strength. Want me to log this cohort as a campaign audience?"
 
-No speculative insight line. We only surface what shows up on the ledger.
+No evidence bullets, no fit label, no product recommendation.
 
-Add an `EVIDENCE: Record<eventType, { transactions: string[]; household: string }>` map:
+## Note
+This uses realistic-percentage confidence (>50%). The digest section still uses the corrected sub-single-digit scale from a previous pass; leaving that alone unless you want it re-aligned.
 
-- retirement → txns: recurring pickleball club dues; Viking / Princess cruise deposits; national-park lodge bookings; Medigap premium debits; two large IRA-adjacent transfers in. Household: 30-yr tenure, mortgage nearly paid, spouse on joint account.
-- wealth_transfer → txns: recurring debit to an estate-planning law firm; residential real-estate appraisal fee; safe-deposit-box annual renewal; wire out to a title company; charitable-gift-fund contribution. Household: three adult children on statements, primary POA not yet on file.
-- business_liquidity → txns: retainer to a business-brokerage firm; monthly CPA advisory debit; escrow-adjacent inflow last week; recurring commercial-insurance premium; charter-flight charge. Household: business owner, spouse on business payroll.
-- home_purchase → txns: home-inspection service charge; two moving-quote deposits; Zillow Premier subscription; storage-unit rental started; earnest-money-adjacent debit. Household: renter locally, one child entering school next fall.
-- education → txns: SAT/ACT prep provider; admissions-consultant retainer; college-tour airfare to Boston and Providence same weekend; campus-bookstore charge; Common App fee. Household: high-school junior at home, dual-income.
-- family_formation → txns: obstetrics copays every 4 weeks; nursery-furniture retailer; prenatal-class provider; maternity-apparel spend; baby-registry retailer activity. Household: married, no dependents yet on file.
-- elder_care → txns: in-home-care agency debit; geriatric-care-manager retainer; medical-equipment supplier; memory-care assessment center; pharmacy spend up sharply. Household: parent recently widowed, POA not yet on file.
-- fallback → txns: broad shift in category mix over the last 60 days; new recurring debits started; balance drift across accounts. Household: standard profile on file.
-
-### 3. Helper
-Add `EVIDENCE` and `evidenceFor(eventType)` next to `EVENT_OFFER` / `offerFor`.
-
-## Constraints observed
-- Only observable spend/credit/debit lines. No inferred plans, trips, or intent language.
-- No exact dollar amounts or transaction counts (vaguely specific tone).
-- No competitor brand names beyond acceptable public merchants (Zillow, Viking, Princess, Common App).
+## Constraints
+- Estimated amount stays a rounded range (no precise numbers).
 - No em dashes in AI copy.
 
-## Out of scope
-- Messages 3–7 (9:44 onward), Leadership demo, Coworker Inbox threads.
-- Bank Context catalog, `EVENT_OFFER`, event-type taxonomy.
-- Wiring evidence to real client profile fields — hand-authored per event type is enough for this pass.
+## Out of scope (flagged)
+- 10:07 / 10:08 prep-sheet messages will now read disconnected (still framed around the earlier two-client household prep). Will rewrite into a car-loan continuation on request.
+- No changes to digest logic, `EVENT_OFFER`, `EVIDENCE`, later Advisor/Leadership/Inbox surfaces.
