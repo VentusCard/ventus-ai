@@ -1252,6 +1252,7 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
 
   const execProfile = profile || getIntelligenceForCustomer(selectedIdx);
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
+  const externalSignals = useMemo(() => getExternalSignalsFor(demoCustomer?.id), [demoCustomer?.id]);
 
   // Click any Pillar pill inside the enrichment table → bring all txns in that pillar to the top.
   const handleEnrichmentPillarClick = useCallback(
@@ -1459,6 +1460,7 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
                   onEnrichmentPillarClick={handleEnrichmentPillarClick}
                   productDeliveryChannel={productDeliveryChannel}
                   onProductDeliveryChannelChange={setProductDeliveryChannel}
+                  externalSignals={externalSignals}
                 />
               </div>
 
