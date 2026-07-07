@@ -1,26 +1,32 @@
-## Audit
 
-The "Regenerate" button in the "Micro-Segment Personalized Campaign Output" card (step 3, `MessagePreviewsSection.tsx`) increments a `regenSeed` state that flows into `buildMessageCards(product, variants, offers, campaignLink, seed)`. Two real bugs:
+## Goal
 
-1. **Customer Choice Card products regenerate to identical output.** In `buildMessageCards.ts`, when `isCustomerChoiceCard(product)` is true, the function returns the hardcoded `CUSTOMER_CHOICE_CARDS` array without applying `seed` at all. Regenerate re-triggers the reveal animation but produces the exact same five cards — looks broken.
-2. **Non-Customer-Choice path shifts instead of reshuffling.** BEHAVIOR slots 0 and 1 both call `pick(pool, slot, seed)` from the same pool, so on each click both slots advance by +1 together. Slot 0 after regen frequently equals slot 1 before regen — the deck appears to just "slide" by one card.
-
-Additional UX issue: `featuredIdx` in `MessagePreviewsSection.tsx` is not reset on Regenerate, so if the user was viewing card 4 they may land on a card whose copy happens not to change, hiding the fact that content updated.
+Each of the 5 sample cards in the "Micro-Segment Personalized Campaign Output" deck should surface an **estimated reach** (population count) — the reason each card earned a top-5 slot. Also surface the featured card's reach in the left "Example 01/05" counter block so the viewer sees the number tied to the currently shown card.
 
 ## Changes
 
-### 1. `src/components/tepilot/campaigns/sections/buildMessageCards.ts`
+### 1. `buildMessageCards.ts`
+- Add `estimatedReach: number` to the `MessageCard` interface.
+- Add a small deterministic helper `computeReach(family, slot, seed, variantsTotal)` that returns a plausible customer count per card. Rules:
+  - BEHAVIOR cards → largest audiences (broad spend patterns), ~40–120K range
+  - DEMOGRAPHIC → mid, ~15–45K
+  - LIFE_EVENT → smaller, ~4–14K (event-triggered)
+  - FINANCIAL_SIGNAL → smallest, ~2–9K (narrow trigger)
+  - Values seeded by `seed` + `slot` so Regenerate produces new but stable numbers.
+  - Rounded to nearest 100 for realism.
+- Populate `estimatedReach` when constructing every card, including the `CUSTOMER_CHOICE_CARDS` overrides (assign at return-time, don't hardcode into the constant).
+- Sort the final 5-card array descending by `estimatedReach` so slot 01 is always the largest — reinforcing "top 5 for a reason."
 
-- **Customer Choice branch (~line 324):** rotate `CUSTOMER_CHOICE_CARDS` by `seed` before slicing to 5, so each click yields a different 5-card window (the constant has more than 5 entries and covers each anchor family, so rotation preserves family coverage).
-- **General path — BEHAVIOR slots (~lines 351–362):** decouple the two behavior slots. Use `pick(pool, 0, seed)` for slot 0 and `pick(pool, 0, seed + 1)` for slot 1 when both slots draw from the same pool, and if the resolved anchors collide, bump slot 1 to `pick(pool, 0, seed + 2)`. Keep the existing `PLAYS_BY_FAMILY.BEHAVIOR` rotation.
-
-### 2. `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx`
-
-- Extract the Regenerate `onClick` into a handler that both increments `regenSeed` and resets `featuredIdx` to `0`.
-- Add a brief spin animation on the `RefreshCw` icon (200ms) tied to the click, so users get visible feedback even when copy differences are subtle.
+### 2. `MessagePreviewsSection.tsx`
+- **Per-card display (FannedDeck):** Add a small reach chip in the top row next to the `play` + `anchor` badges, e.g. `Users` icon + `"~48.2K reach"`. Formatting reuses the same K/M rule as `AudienceEstimateBar` (inline, no shared util needed).
+- **Left counter block:** Under the existing "Example / 01 / 05 / shown below" section, add one line with the featured card's reach, e.g. `~48.2K customers` in slate-700, tabular-nums. Updates as the user pages through cards.
+- No other layout changes; keep light theme, existing colors, spacing.
 
 ## Out of scope
+- No changes to `AudienceEstimateBar`, targeting logic, or variant math.
+- No new sort controls or filters.
+- No copy changes to card subjects/bodies.
 
-- No changes to `CUSTOMER_CHOICE_CARDS` content, anchor pools, or copy templates.
-- No changes to `PersonalizationPreviewPanel` or `AICampaignPreview` (their Regenerate buttons already trigger real re-generation).
-- No visual redesign of the panel beyond the tiny icon-spin feedback.
+## Technical notes
+- `computeReach` is pure and deterministic — same `(family, slot, seed)` yields same number, so screenshots and demo runs stay stable.
+- Sorting by reach happens after all 5 cards are built, so play/anchor pairing logic is unchanged.

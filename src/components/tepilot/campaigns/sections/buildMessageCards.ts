@@ -18,7 +18,26 @@ export interface MessageCard {
   cta: string;
   ctaHref?: string;      // optional campaign URL — renders the CTA as a link
   why: string;           // 1-line rationale
+  estimatedReach?: number; // customers eligible for this micro-segment
 }
+
+
+// Deterministic reach per (family, slot, seed). Rounded to nearest 100.
+const REACH_BANDS: Record<AnchorFamily, [number, number]> = {
+  BEHAVIOR:         [40_000, 120_000],
+  DEMOGRAPHIC:      [15_000, 45_000],
+  LIFE_EVENT:       [4_000, 14_000],
+  FINANCIAL_SIGNAL: [2_000, 9_000],
+};
+
+function computeReach(family: AnchorFamily, slot: number, seed: number): number {
+  const [lo, hi] = REACH_BANDS[family];
+  // simple deterministic hash
+  const h = Math.abs(Math.sin((slot + 1) * 12.9898 + (seed + 1) * 78.233)) % 1;
+  const raw = lo + h * (hi - lo);
+  return Math.round(raw / 100) * 100;
+}
+
 
 
 // ── Anchor pools by category ────────────────────────────────────────────────
@@ -323,17 +342,19 @@ export function buildMessageCards(
 ): MessageCard[] {
   if (isCustomerChoiceCard(product)) {
     const href = campaignLink.trim();
-    // Rotate the deck by seed so Regenerate actually reorders the 5 cards
-    // (featured card + reveal sequence shift on each click).
     const len = CUSTOMER_CHOICE_CARDS.length;
     const offset = ((seed % len) + len) % len;
     const rotated = CUSTOMER_CHOICE_CARDS
       .slice(offset)
       .concat(CUSTOMER_CHOICE_CARDS.slice(0, offset));
-    return href
-      ? rotated.map((c) => ({ ...c, ctaHref: href }))
-      : rotated;
+    const withReach = rotated.map((c, i) => ({
+      ...c,
+      estimatedReach: computeReach(c.anchorFamily, i, seed),
+      ...(href ? { ctaHref: href } : {}),
+    }));
+    return withReach.sort((a, b) => (b.estimatedReach ?? 0) - (a.estimatedReach ?? 0));
   }
+
   const cat = product.category;
   const stackPool = STACK_ANCHORS[cat] ?? [];
   const usagePool = USAGE_ANCHORS[cat] ?? [];
@@ -400,7 +421,13 @@ export function buildMessageCards(
   }
 
   const href = campaignLink.trim();
-  const out = href ? cards.map((c) => ({ ...c, ctaHref: href })) : cards;
+  const enriched = cards.map((c, i) => ({
+    ...c,
+    estimatedReach: computeReach(c.anchorFamily, i, seed),
+    ...(href ? { ctaHref: href } : {}),
+  }));
+  enriched.sort((a, b) => (b.estimatedReach ?? 0) - (a.estimatedReach ?? 0));
 
-  return out.slice(0, 5);
+  return enriched.slice(0, 5);
 }
+
