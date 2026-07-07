@@ -100,7 +100,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
             {[
               {
                 title: "Problem",
-                text: "Every banking experience feels generic because banks never really see the whole customer. What data they do have arrives as cryptic, messy transaction strings, so there's no real understanding of the person behind the account, and no way to personalize anything. The cost is everywhere: card spend stays low, offers go unredeemed, share of wallet shrinks, and customers drift to the next bank who offers incentives.",
+                text: "Every banking experience feels generic because banks never really see the whole customer. What data they do have arrives as cryptic, messy transaction strings, so there's no real understanding of the person behind the account, and no way to personalize anything. The cost is everywhere: card spend stays low, offers go unredeemed, share of wallet shrinks, and customers drift to the next bank that offers incentives.",
               },
               {
                 title: "Team",
@@ -152,7 +152,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
               {[
                 {
                   title: "Problem",
-                  text: "Every banking experience feels generic because banks never really see the whole customer. What data they do have arrives as cryptic, messy transaction strings, so there's no real understanding of the person behind the account, and no way to personalize anything. The cost is everywhere: card spend stays low, offers go unredeemed, share of wallet shrinks, and customers drift to the next bank who offers incentives.",
+                  text: "Every banking experience feels generic because banks never really see the whole customer. What data they do have arrives as cryptic, messy transaction strings, so there's no real understanding of the person behind the account, and no way to personalize anything. The cost is everywhere: card spend stays low, offers go unredeemed, share of wallet shrinks, and customers drift to the next bank that offers incentives.",
                 },
                 {
                   title: "Team",
