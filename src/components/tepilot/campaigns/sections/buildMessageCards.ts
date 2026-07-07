@@ -323,9 +323,16 @@ export function buildMessageCards(
 ): MessageCard[] {
   if (isCustomerChoiceCard(product)) {
     const href = campaignLink.trim();
+    // Rotate the deck by seed so Regenerate actually reorders the 5 cards
+    // (featured card + reveal sequence shift on each click).
+    const len = CUSTOMER_CHOICE_CARDS.length;
+    const offset = ((seed % len) + len) % len;
+    const rotated = CUSTOMER_CHOICE_CARDS
+      .slice(offset)
+      .concat(CUSTOMER_CHOICE_CARDS.slice(0, offset));
     return href
-      ? CUSTOMER_CHOICE_CARDS.map((c) => ({ ...c, ctaHref: href }))
-      : CUSTOMER_CHOICE_CARDS;
+      ? rotated.map((c) => ({ ...c, ctaHref: href }))
+      : rotated;
   }
   const cat = product.category;
   const stackPool = STACK_ANCHORS[cat] ?? [];
@@ -348,17 +355,27 @@ export function buildMessageCards(
     behaviorSources.push(usagePool);
   }
 
+  // Decouple slot 0 and slot 1 so Regenerate reshuffles instead of shifting
+  // both slots in lockstep. Slot 1 uses a different seed offset, and if the
+  // two anchors still collide (same pool), bump slot 1 further.
+  const slotSeedOffsets = [0, 1];
+  let prevAnchor: string | null = null;
   for (let slot = 0; slot < 2; slot++) {
     const pool = behaviorSources[slot];
     if (pool.length === 0) continue;
-    // Slot 1 offsets by 1 in the same pool to avoid duplicates when both come from usage.
-    const anchor = pick(pool, slot, seed);
+    let extra = slotSeedOffsets[slot];
+    let anchor = pick(pool, 0, seed + extra);
+    if (slot === 1 && anchor === prevAnchor && pool.length > 1) {
+      extra += 1;
+      anchor = pick(pool, 0, seed + extra);
+    }
     const play = pick(PLAYS_BY_FAMILY.BEHAVIOR, slot, seed);
     const base = copyFor("BEHAVIOR", product, anchor, play);
     const body = primaryOffer && slot === 0
       ? `${base.body} Currently: ${primaryOffer}.`
       : base.body;
     cards.push({ anchorFamily: "BEHAVIOR", play, anchor, ...base, body });
+    prevAnchor = anchor;
   }
 
   // Slot 2: life event
