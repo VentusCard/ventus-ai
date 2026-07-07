@@ -24,7 +24,9 @@ interface PriorityOpportunityReportProps {
   opportunityId: string | null;
   onBack: () => void;
   onNavigate: (tab: TabValue) => void;
+  onSelectOpportunity: (id: string) => void;
 }
+
 
 const EMPTY = { cardProducts: [], regions: [], ageRanges: [] };
 
@@ -99,7 +101,7 @@ function buildQuarterPipeline(op: RevenueOpportunity) {
 
 const MERCHANT_COLORS = ["#2563eb", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6"];
 
-export function PriorityOpportunityReport({ opportunityId, onBack, onNavigate }: PriorityOpportunityReportProps) {
+export function PriorityOpportunityReport({ opportunityId, onBack, onNavigate, onSelectOpportunity }: PriorityOpportunityReportProps) {
   const opportunities = useMemo(() => getRevenueOpportunities(EMPTY), []);
   const top = opportunities.slice(0, 3);
   const selected = useMemo(() => {
