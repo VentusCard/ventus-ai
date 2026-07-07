@@ -320,14 +320,24 @@ export function AdvisorNotificationsView({
       opportunity: [],
       risk: [],
     };
+    const seenClients = new Set<string>();
+    // One signal per client: pick each client's single top event (by urgency, then confidence).
+    const perClient: SignalRow[] = [];
     for (const client of clients) {
-      for (const event of client.detectedEvents) {
-        out[bucketFor(event)].push({ client, event });
-      }
+      if (!client.detectedEvents?.length) continue;
+      const top = [...client.detectedEvents].sort((a, b) => {
+        if (b.urgencyScore !== a.urgencyScore) return b.urgencyScore - a.urgencyScore;
+        return (b.confidence ?? 0) - (a.confidence ?? 0);
+      })[0];
+      perClient.push({ client, event: top });
     }
-    (Object.keys(out) as Array<keyof typeof out>).forEach((k) =>
-      out[k].sort((a, b) => b.event.urgencyScore - a.event.urgencyScore)
-    );
+    // Sort clients globally by urgency so highest-priority claim their bucket first.
+    perClient.sort((a, b) => b.event.urgencyScore - a.event.urgencyScore);
+    for (const row of perClient) {
+      if (seenClients.has(row.client.id)) continue;
+      seenClients.add(row.client.id);
+      out[bucketFor(row.event)].push(row);
+    }
     return out;
   }, [clients]);
 
@@ -340,9 +350,18 @@ export function AdvisorNotificationsView({
   ).size;
 
   const topTwo = useMemo(() => {
-    const pool = grouped.high.length >= 2 ? grouped.high : [...grouped.high, ...grouped.opportunity];
-    return pool.slice(0, 2);
+    const pool = [...grouped.high, ...grouped.opportunity, ...grouped.risk];
+    const picked: SignalRow[] = [];
+    const seen = new Set<string>();
+    for (const row of pool) {
+      if (seen.has(row.client.id)) continue;
+      seen.add(row.client.id);
+      picked.push(row);
+      if (picked.length === 2) break;
+    }
+    return picked;
   }, [grouped]);
+
 
   const nameA = topTwo[0]?.client.profile.name ?? "the first client";
   const nameB = topTwo[1]?.client.profile.name ?? "the second client";
