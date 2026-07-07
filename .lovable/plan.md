@@ -1,25 +1,25 @@
-Fix repeated / too-similar names in the WM Coworker Advisor digest by rendering one signal per client, and diversify the underlying name pool.
+Rewrite `EVENT_OFFER` in `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx` so every "Recommended offer" line names specific products that exist in the Bank Context catalog (`src/lib/bankProductCatalog.ts`, surfaced in the Bank Context tab).
 
-## Root causes
-1. `AdvisorNotificationsView.tsx` currently renders one row per detected event, so a client with multiple events appears multiple times, making names look repeated.
-2. `topTwo` (drives `nameA`/`nameB` in reply messages 2–7) slices the first two rows without checking `client.id`, so both can be the same person.
-3. `firstNames` (15) × `lastNames` (15) in `src/lib/randomProfileGenerator.ts` is a small pool; last names visibly repeat across the digest even when full names are unique.
+## Findings
+- The digest's event types come from `DetectedLifeEvent['eventType']`: `retirement | education | home_purchase | wealth_transfer | business_liquidity | family_formation | elder_care`.
+- Current `EVENT_OFFER` uses two keys that never fire (`college_prep`, `new_child`) and generic phrases ("Household planning check-in", "Care-cost planning").
+- Bank Context products available today include: Merrill Guided Investing with Advisor, Merrill Lynch Wealth Management, Traditional / Roth / Rollover IRA, 529 College Savings Plan, Custodial UGMA / UTMA, Fixed-Rate / Jumbo / Affordable mortgages, HELOC, Preferred Rewards Program, Advantage Relationship Banking, Featured / Fixed / Flexible CD, Advantage Savings, Trust Services, Estate Planning Services, Philanthropic Solutions, Specialty Asset Management, Family Office Services, Private Bank, SBA Loans, Business Line of Credit, Practice Solutions, Balance Assist, Overdraft Protection.
 
-## Changes
+## Change (single edit)
 
-### `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx`
-- One signal per client, everywhere in the digest:
-  - When flattening clients → rows, pick each client's single highest-urgency (then highest-confidence) event and drop the rest.
-  - Section assignment uses only that chosen event.
-  - Dedupe by `client.id` across the entire digest so the same client never appears in two sections.
-- `topTwo` picks two rows with distinct `client.id`s (falls back gracefully if only one client is available).
-- Section caps stay as previously planned (Act Now 3, Opportunities 3, At Risk 2).
+Replace the `EVENT_OFFER` map and its keys to match the real event types and to name catalog products verbatim:
 
-### `src/lib/randomProfileGenerator.ts`
-- Expand `firstNames` to ~40 diverse entries (e.g. Priya, Marcus, Elena, Rafael, Yuki, Diane, Nadia, Charles, Peter, Sofia, Thomas, Rachel, Andre, Beatrice, Kenji, Olivia, Nathan, Camille, Julian, Isla, Vikram, Naomi, Grace, Ethan, Miriam, …).
-- Expand `lastNames` to ~40 diverse entries (e.g. O'Brien, Kim, Rossi, Vasquez, Nakamura, Freeman, Ito, Alvarez, Henderson, Nguyen, Okafor, Sørensen, Blackwood, Delgado, Petrov, Bhatia, Rivera, Whitman, Ross, Sato, Larsen, Gomez, Novak, Fischer, …).
-- Keep existing `usedNames` unique-full-name dedup.
+- `retirement` → "Rollover IRA + Merrill Guided Investing with Advisor; review Preferred Rewards tier"
+- `education` → "529 College Savings Plan top-up; Custodial UGMA/UTMA for flexible funds"
+- `home_purchase` → "Jumbo Mortgage or Affordable Loan Solution pre-qual; HELOC on current home for bridge"
+- `wealth_transfer` → "Trust Services + Estate Planning Services; Philanthropic Solutions for legacy gifts"
+- `business_liquidity` → "Fixed-Term CD ladder + Advantage Savings for parking; Merrill Lynch Wealth Management for deployment"
+- `family_formation` → "529 College Savings Plan open; Advantage Relationship Banking bundle"
+- `elder_care` → "Trust Services checkpoint + Specialty Asset Management; Preferred Rewards tier review"
+- fallback → "Preferred Rewards tier review + Merrill Guided Investing with Advisor intro"
+
+`offerFor()` stays as-is; only the map contents change.
 
 ## Out of scope
-- `src/lib/fviData.ts` name lists (separate demo).
-- Coworker Inbox thread personas in `coworkerInboxData.ts` (hand-authored).
+- Bank Context tab content itself, product catalog data, event-type taxonomy.
+- Later Advisor conversation messages, Leadership demo, Coworker Inbox threads.
