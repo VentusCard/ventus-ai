@@ -234,7 +234,7 @@ Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using 
                         },
                         quote: {
                           type: "string",
-                          description: "1-2 sentence consumer-facing copy following the Ventus thesis tone",
+                          description: "1-2 sentence consumer-facing copy following the Ventus thesis tone. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
                         },
                         signal_label: {
                           type: "string",
@@ -247,14 +247,14 @@ Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using 
                         },
                         offer_headline: {
                           type: "string",
-                          description: "Bold offer line tied to product economics, 6-12 words. e.g. 'Earn 2x miles on every purchase' or '4.50% APY — 10x the national average'",
+                          description: "Bold offer line tied to product economics, 6-12 words. MUST include a specific rate, percentage, multiplier, or dollar figure. e.g. 'Earn 3x on travel, 2x on dining' or '4.50% APY — 10x the national average' or 'Auto refinance from 2.99% APR'",
                         },
                         benefits: {
                           type: "array",
                           minItems: 3,
                           maxItems: 3,
                           items: { type: "string" },
-                          description: "Exactly 3 concrete bank-grade product features specific to the actual product",
+                          description: "Exactly 3 concrete bank-grade product features. Each benefit MUST contain at least one specific number (%, $, x, months, or points). e.g. '75,000 bonus points after $4K spend in 90 days'",
                         },
                         eligibility: {
                           type: "string",
