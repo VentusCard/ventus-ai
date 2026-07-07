@@ -555,7 +555,7 @@ export function AdvisorNotificationsView({
     { idx: 0, label: "Digest", who: "ventus" as Sender, timeLabel: "9:14" },
     ...REPLY_MESSAGES.map((m, i) => ({
       idx: i + 1,
-      label: m.sender === "ventus" ? "Ventus" : "You",
+      label: m.sender === "ventus" ? "Ventus" : "Advisor",
       who: m.sender,
       timeLabel: m.navLabel,
     })),
