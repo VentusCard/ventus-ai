@@ -714,8 +714,9 @@ export function AdvisorNotificationsView({
           <div key={activeIndex} className="px-6 py-5 space-y-5 transition-opacity">
             {activeMsg.kind === "digest" ? (
               <>
+                <p className="text-sm text-slate-700 leading-relaxed">Hi Morgan,</p>
                 <p className="text-sm text-slate-700 leading-relaxed">
-                  A short list this morning — the handful worth your attention, grouped by how time-sensitive they are.
+                  A short list this morning – the handful worth your attention, grouped by how time-sensitive they are.
                   Each row has a suggested offer and my confidence. Reply on any name to go deeper.
                 </p>
 
