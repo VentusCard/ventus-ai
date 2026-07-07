@@ -219,6 +219,7 @@ const RIBBON_ICONS = [
 type Sender = "ventus" | "advisor";
 
 type AutoCohortRow = { name: string; timing: string; amount: string; confidence: string };
+type DigestRow = { name: string; eventLabel: string; sectionLabel: string };
 
 interface MessageDef {
   sender: Sender;
@@ -234,8 +235,10 @@ interface MessageDef {
     eventTypeA: string;
     eventTypeB: string;
     autoCohort: AutoCohortRow[];
+    digestRows: DigestRow[];
   }) => React.ReactNode;
 }
+
 
 const AUTO_COHORT_ROTATION: Array<Omit<AutoCohortRow, "name">> = [
   { timing: "0–3 mo", amount: "$33k–$42k", confidence: "72%" },
