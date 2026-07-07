@@ -199,8 +199,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "8:53 AM",
-    navLabel: "8:53",
+    time: "8:42 AM",
+    navLabel: "8:42",
     quoted: `Priya, 8:41 AM — Focus me on the top Act Now item — the pre-retiree product gap.`,
     render: () => (
       <>
