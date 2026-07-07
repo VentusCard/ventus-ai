@@ -219,6 +219,7 @@ const RIBBON_ICONS = [
 type Sender = "ventus" | "advisor";
 
 type AutoCohortRow = { name: string; timing: string; amount: string; confidence: string };
+type DigestRow = { name: string; eventLabel: string; sectionLabel: string };
 
 interface MessageDef {
   sender: Sender;
@@ -234,8 +235,10 @@ interface MessageDef {
     eventTypeA: string;
     eventTypeB: string;
     autoCohort: AutoCohortRow[];
+    digestRows: DigestRow[];
   }) => React.ReactNode;
 }
+
 
 const AUTO_COHORT_ROTATION: Array<Omit<AutoCohortRow, "name">> = [
   { timing: "0–3 mo", amount: "$33k–$42k", confidence: "72%" },
@@ -353,10 +356,10 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "10:07 AM",
     navLabel: "10:07",
     subjectPrefix: "Re: ",
-    quoted: `Ventus AI, 9:45 AM — Want a prep sheet for each…`,
+    quoted: `Ventus AI, 9:45 AM — Top 6 by signal strength…`,
     render: () => (
       <p>
-        Please. Angle, 3 talking points, and a short intro paragraph per client. Log both as follow-ups so I have the prep notes when I pick these up.
+        Before I sign off, summarize today's to-do list from both tasks — the full digest and the car-loan cohort. Keep it tight, no detail.
       </p>
     ),
   },
@@ -365,59 +368,36 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "10:08 AM",
     navLabel: "10:08",
     subjectPrefix: "Re: ",
-    quoted: `Morgan, 10:07 AM — Angle, 3 talking points, and a short intro paragraph per client…`,
-    render: ({ nameA, nameB }) => (
+    quoted: `Morgan, 10:07 AM — Summarize today's to-do list from both tasks…`,
+    render: ({ autoCohort, digestRows }) => (
       <>
-        <p>Prep sheets below — logged both as follow-ups.</p>
-
-        <div className="border border-slate-200 rounded-md p-3 bg-slate-50 space-y-3">
-          <p className="text-sm font-semibold text-slate-900">{nameA}</p>
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Angle</p>
-            <p>Lead with curiosity about what's shifting for them — not a product. You're checking in because things look different, and you want to understand before offering anything.</p>
-          </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Talking points</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Acknowledge the rhythm of their household feels different lately, without naming specifics — invite them to share what's on their mind.</li>
-              <li>Ask how they're thinking about the next chapter, and whether anyone else in the household is part of that thinking now.</li>
-              <li>Signal you're available to help think it through — no agenda, no proposal on this call.</li>
-            </ul>
-          </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Intro paragraph</p>
-            <div className="border-l-2 border-slate-300 pl-3 text-slate-700 italic">
-              Hi {nameA.split(" ")[0]} — wanted to reach out and say hello, no agenda. It's been a little while and I've been thinking about the conversations we've had over the past year. If you have twenty minutes this week, I'd love to hear how things are landing on your end and where your head's at going into next quarter.
-            </div>
-          </div>
+        <div>
+          <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 1 — Digest signals ({digestRows.length})</p>
+          <ul className="list-disc pl-5 space-y-0.5 mt-1">
+            {digestRows.map((r) => (
+              <li key={`d-${r.name}`}>
+                <span className="font-medium text-slate-900">{r.name}</span>
+                <span className="text-slate-600"> — {r.eventLabel} · {r.sectionLabel}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        <div className="border border-slate-200 rounded-md p-3 bg-slate-50 space-y-3">
-          <p className="text-sm font-semibold text-slate-900">{nameB}</p>
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Angle</p>
-            <p>Warm and household-aware. Recognize the spouse is central here and frame the conversation around the family, not the portfolio.</p>
-          </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Talking points</p>
-            <ul className="list-disc pl-5 space-y-1">
-              <li>Open with a gentle check-in on the household — leave room for them to share whatever they want to share.</li>
-              <li>Ask how decisions are being made together right now, and whether it would help to have both of them on the next conversation.</li>
-              <li>Skip anything adjacent to the prior product thread unless they raise it — hold that ground and let them lead.</li>
-            </ul>
-          </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-1">Intro paragraph</p>
-            <div className="border-l-2 border-slate-300 pl-3 text-slate-700 italic">
-              Hi {nameB.split(" ")[0]} — hope you and the family are doing well. I wanted to check in and see how things are feeling on your end lately. If it's easier to have a quick call together with your spouse rather than just the two of us, happy to make that work — whatever fits your rhythm right now.
-            </div>
-          </div>
+        <div>
+          <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 2 — Car-loan campaign cohort ({autoCohort.length})</p>
+          <ul className="list-disc pl-5 space-y-0.5 mt-1">
+            {autoCohort.map((r) => (
+              <li key={`a-${r.name}`}>
+                <span className="font-medium text-slate-900">{r.name}</span>
+                <span className="text-slate-600"> — {r.timing}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-
-        <p>Ping me if you want either sheet reshaped after the calls.</p>
+        <p>All logged.</p>
       </>
     ),
   },
+
 ];
 
 
@@ -496,6 +476,27 @@ export function AdvisorNotificationsView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, topTwo]);
 
+  const digestRows: DigestRow[] = useMemo(() => {
+    const sectionLabel: Record<"high" | "opportunity" | "risk", string> = {
+      high: "Act Now",
+      opportunity: "Opportunity",
+      risk: "At Risk",
+    };
+    const out: DigestRow[] = [];
+    (["high", "opportunity", "risk"] as const).forEach((k) => {
+      grouped[k].forEach(({ client, event }) => {
+        out.push({
+          name: client.profile.name,
+          eventLabel: LIFE_EVENT_CONFIG[event.eventType].label,
+          sectionLabel: sectionLabel[k],
+        });
+      });
+    });
+    return out;
+  }, [grouped]);
+
+
+
 
 
   const [activeIndex, setActiveIndex] = useState(0);
@@ -529,7 +530,7 @@ export function AdvisorNotificationsView({
           subject: `Re: Daily digest — ${totalSignals} signals to action`,
           kind: "reply",
           quoted: m.quoted,
-          body: m.render?.({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB, autoCohort }),
+          body: m.render?.({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB, autoCohort, digestRows }),
         };
       })();
 
