@@ -28,6 +28,7 @@ import {
   type EnrichedTransaction,
 } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
+import { getExternalSignalsFor, externalSignalToLifeEvent } from "@/lib/externalIntelligenceSignals";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
@@ -720,17 +721,23 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
       setDetectedLifeEvents(null);
       try {
         const events: LifeEvent[] = preDetectedEvents ?? (await detectLifeEventsOnly());
-        setDetectedLifeEvents(events.slice(0, 3));
-        detectedLifeEventsRef.current = events.slice(0, 3);
-        console.log("[PRELOAD] Life events hydrated:", events.length, preDetectedEvents ? "(reused)" : "(fresh)");
+        // Inject dynamic external-intelligence signals (bureau/property/auto/etc.)
+        // so they flow through pills, Next-Product, Next-Offer, actions, and WM CoPilot.
+        const external = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id).map(externalSignalToLifeEvent);
+        const merged: LifeEvent[] = [events[0], ...external, ...events.slice(1)]
+          .filter(Boolean)
+          .slice(0, 3) as LifeEvent[];
+        setDetectedLifeEvents(merged);
+        detectedLifeEventsRef.current = merged;
+        console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
         // Fire product cards generation with life events + persona data
-        fireProductCards(events, personaSynthesisRef.current);
+        fireProductCards(merged, personaSynthesisRef.current);
         // Fire indicative creditworthiness assessment in parallel
         fireCreditAssessment();
         // Fire offers with both pillars and detected life events in a single call
         const syn = synthesis || personaSynthesisRef.current;
         if (syn && pillars) {
-          fireNextOffers(syn, pillars, events.length > 0 ? events : undefined);
+          fireNextOffers(syn, pillars, merged.length > 0 ? merged : undefined);
         }
       } catch (err) {
         console.error("[PRELOAD] Life event detection failed:", err);
