@@ -66,6 +66,10 @@ interface Props {
   onClearHighlight?: () => void;
   /** Called when the user clicks a Pillar pill inside the table to filter by that pillar. */
   onPillarClick?: (pillar: string) => void;
+  /** External Intelligence signals rendered as extra rows at the bottom (no merchant/amount schema). */
+  externalSignals?: ExternalIntelSignal[];
+  /** Id of the external signal currently activated by a pill click — highlights that row. */
+  activeExternalSignalId?: string | null;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
