@@ -158,10 +158,7 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
-${topRisk ? `RISK SIGNAL (append a RISK CARD as the LAST card; signal_label MUST equal category_label verbatim):
-${JSON.stringify(topRisk, null, 2)}` : "RISK SIGNAL: none — do NOT emit a risk card."}
-
-Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the generate_product_cards function.`;
+Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using the generate_product_cards function. NEVER emit a risk card.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
