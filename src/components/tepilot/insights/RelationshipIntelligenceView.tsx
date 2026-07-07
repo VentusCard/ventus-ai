@@ -41,9 +41,10 @@ type ModuleKey = 'penetration' | 'crosssell' | 'primary' | 'lifeevents' | 'atris
 interface Props {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
+  onNavigate?: (tab: TabValue) => void;
 }
 
-export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals }: Props) {
+export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals, onNavigate }: Props) {
   const [activeModule, setActiveModule] = useState<ModuleKey>('lifeevents');
   const [prepareDialogOpen, setPrepareDialogOpen] = useState(false);
   const [prepareData, setPrepareData] = useState<EventPreparationData | null>(null);
