@@ -349,9 +349,7 @@ export function ReportsLibrary({ onOpenQuery, onOpenInteractiveReport }: Reports
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
   const hasInteractive = !!onOpenInteractiveReport && INTERACTIVE_REPORTS.length > 0;
-  const [subTab, setSubTab] = useState<"reports" | "templates">(
-    hasInteractive ? "reports" : "templates",
-  );
+  const [subTab, setSubTab] = useState<"reports" | "templates">("templates");
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
