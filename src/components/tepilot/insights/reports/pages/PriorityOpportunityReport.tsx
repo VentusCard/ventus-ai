@@ -220,14 +220,8 @@ export function PriorityOpportunityReport({ opportunityId, onBack, onNavigate, o
             return (
               <button
                 key={op.id}
-                onClick={() => {
-                  // Re-enter the same report page with a different id via history state
-                  // Simpler: rely on parent to re-render. We fake it by mutating URL hash.
-                  // Since AnalyticsContainer owns selectedOpportunityId, we dispatch a custom event.
-                  window.dispatchEvent(
-                    new CustomEvent("ventus:select-opportunity", { detail: { id: op.id } }),
-                  );
-                }}
+                onClick={() => onSelectOpportunity(op.id)}
+
                 className={cn(
                   "h-7 px-3 rounded-full text-[12px] border transition truncate max-w-[240px]",
                   active

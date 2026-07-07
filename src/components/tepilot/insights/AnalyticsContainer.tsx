@@ -241,7 +241,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'report-wallet-share': return <WalletShareReport onBack={() => setActiveTab('reports')} />;
       case 'report-travel-trips': return <TravelTripsReport onBack={() => setActiveTab('reports')} />;
       case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
-      case 'report-priority-opportunity': return <PriorityOpportunityReport opportunityId={selectedOpportunityId} onBack={() => setActiveTab('reports')} onNavigate={setActiveTab} />;
+      case 'report-priority-opportunity': return <PriorityOpportunityReport opportunityId={selectedOpportunityId} onBack={() => setActiveTab('reports')} onNavigate={setActiveTab} onSelectOpportunity={setSelectedOpportunityId} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
