@@ -421,7 +421,13 @@ export function buildMessageCards(
   }
 
   const href = campaignLink.trim();
-  const out = href ? cards.map((c) => ({ ...c, ctaHref: href })) : cards;
+  const enriched = cards.map((c, i) => ({
+    ...c,
+    estimatedReach: computeReach(c.anchorFamily, i, seed),
+    ...(href ? { ctaHref: href } : {}),
+  }));
+  enriched.sort((a, b) => (b.estimatedReach ?? 0) - (a.estimatedReach ?? 0));
 
-  return out.slice(0, 5);
+  return enriched.slice(0, 5);
 }
+
