@@ -69,10 +69,23 @@ const ADVISOR = {
 };
 
 const VENTUS = {
-  name: "Ventus AI Copilot",
-  email: "copilot@ventusai.com",
+  name: "Ventus AI Coworker",
+  email: "wmcoworker@ventusai.com",
   initials: "VA",
 };
+
+const EVENT_OFFER: Record<string, string> = {
+  business_liquidity: "Short-term T-bill / money-market parking + diversified deployment plan",
+  wealth_transfer: "Trust review + estate & gifting strategy",
+  retirement: "Retirement income plan + Medicare / Social Security timing review",
+  elder_care: "Care-cost planning + POA / trust checkpoint",
+  college_prep: "529 top-up + 529-to-Roth rollover eligibility check",
+  home_purchase: "Bridge financing / jumbo mortgage pre-qual",
+  new_child: "529 open + term life review",
+};
+function offerFor(eventType: string): string {
+  return EVENT_OFFER[eventType] ?? "Household planning check-in";
+}
 
 const SECTIONS: {
   key: "high" | "opportunity" | "risk";
