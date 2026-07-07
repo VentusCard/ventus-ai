@@ -1,76 +1,54 @@
+## Audit of current page
 
-## Goal
+The page reads as a generic depth/penetration dashboard. Two problems:
 
-Transform `/bankdemo` → "Life Event Detection" into a broader **Relationship Intelligence** dashboard. Life events stay a key module, joined by product-penetration/depth insights. Layout is a bento overview with clickable tiles that expand into detail views.
+- **Cross-sell** shows one flat table of gaps → no "why now" trigger, no per-customer propensity, no confidence. It looks like a static report, not an engine.
+- **Risk** is only the At-Risk & Thin tile (single-product / dormancy). Vice, AML, wallet-share leakage, and financial vulnerability — all things the Ventus risk engine already covers — are absent.
+- The portfolio strip is purely growth-flavored. There's no counterweight showing what the engine is protecting.
+- Life events, cross-sell, and risk currently live as isolated tiles. There's no visible flow from *signal → next-best-action*, which is the actual Ventus story.
 
-## Sidebar rename
+No new banner, no "What Ventus does" heading. Everything below is expressed through the existing modules and their labels.
 
-`src/components/tepilot/insights/AnalyticsContainer.tsx` (line ~113):
-- Label `"Life Event Detection"` → `"Relationship Intelligence"`
-- Icon: swap `CalendarHeart` → `Gem` (or keep `CalendarHeart`; TBD in build)
-- `tab value` `'life-events'` unchanged so routing/state stays intact.
+## Changes (single file: `src/components/tepilot/insights/RelationshipIntelligenceView.tsx`)
 
-## New page: `RelationshipIntelligenceView`
+### 1. Portfolio strip — rebalance to growth + protection
+Replace the 4 metrics with a 4-up strip that shows both lenses without labelling them:
+- Customers Scanned — 2.4M
+- Growth Signals (90d) — e.g. "184k" (cross-sell + life-event triggers ready to action)
+- Protection Signals (90d) — e.g. "42k" (risk/leakage/vulnerability flags)
+- Est. Annual Opportunity — $ figure rolled from cross-sell tiles
 
-Create `src/components/tepilot/insights/RelationshipIntelligenceView.tsx` and wire it into `AnalyticsContainer` case `'life-events'`, replacing `BankwideLifeEventsView` (kept in repo for reference but no longer routed).
+### 2. Cross-Sell Whitespace tile — turn it into a propensity engine view
+Rewrite `CrossSellModule` drill-in (keep the tile card as-is, just refresh copy):
+- Keep the gap table but add two columns: **Trigger** (2-3 behavioral chips per row, e.g. "recurring rideshare", "raise in payroll deposits", "new mortgage escrow") and **Propensity** (High/Med/Low pill).
+- Below the table, add a compact **"Signal → Next-best product"** flow strip: 3 example rows showing `behavioral signal → life event context → recommended product → est. per-household uplift`. Reinforces that the recommendation comes from enrichment, not a static rule.
+- Small footer line: refreshed daily from transaction enrichment. No brand slogan.
 
-Reuses the existing enrichment inputs (`userDemographics`, `lifestyleSignals`) plus `generateDashboardClients` from `randomProfileGenerator` so no backend/data changes are needed. Product references pull from `BANK_PRODUCT_CATEGORIES` in `src/lib/bankProductCatalog.ts` (matches the Products page vocabulary).
+### 3. Split the risk story into two tiles instead of one
+Rename `atrisk` tile to **Relationship Attrition** (thin/dormant/wallet-share leakage — the "we're losing them" lens). Add a **new tile** `exposure` = **Portfolio Exposure** covering the risk-engine categories.
 
-### Layout (bento overview + drill-in)
+Bento becomes 7 tiles (grid stays 3-col; last row has 1 tile spanning naturally or 3+4 layout — keep simple `grid-cols-3` and let the 7th wrap).
 
-```text
-┌─ TabHeader: Relationship Intelligence ──────────────────────┐
-├─ Portfolio strip (4 metrics) ───────────────────────────────┤
-│  Customers scanned · Avg products/customer ·                │
-│  Deep relationships (4+ products) · Life events (90d)       │
-├─ Bento grid (2 rows × 3 tiles) ─────────────────────────────┤
-│ [Product Penetration] [Cross-Sell Whitespace] [Primary Bank]│
-│ [Life Stage & Events] [Wallet Depth Tiers]   [At-Risk / Thin]│
-└─ Drill-in panel (below grid, expands on tile click) ────────┘
-```
+**Relationship Attrition drill-in** (evolved from current AtRiskModule):
+- Keep the current at-risk client list but reframe MiniStats to: Thin (1 product), Dormant 90d+, **Outbound to competitor rails** (wallet-share leakage — ACH/Zelle to other institutions, per Wallet Share Intelligence memory), Declining Engagement.
+- Add a small "Recommended play" column per cohort (Win-back offer / Re-engagement campaign / Retention outreach).
 
-Each tile: icon + label + hero stat + 1-line insight + `ArrowUpRight`. Clicking a tile toggles the drill-in panel to that module (single-panel drill-in, keeps page compact). Selected tile gets a ring highlight.
+**Portfolio Exposure drill-in** (new module):
+- 4 cohort rows aligned with the risk-detection memory (Vice, Suspicious International, AML) plus Financial Vulnerability from FVI memory:
+  - Vice velocity — gambling / payday / pawn recurrence
+  - Suspicious international — OFAC-adjacent corridors, unusual FX
+  - AML patterns — structuring, layering, round-number velocity
+  - Financial vulnerability — overdraft-reliant, thin buffer, income shock
+- Each row: definition, household count band, severity badge, recommended routing (AML review / hardship program / compliance queue / advisor outreach).
+- Copy stays vaguely specific (no exact counts of transactions or dollars), per project memory.
 
-### Modules
+### 4. Life Events tile — thin bridge to the other two lenses
+In `LifeEventsModule`, add a single-line footer strip under the 7-event grid: "Each detected event feeds the cross-sell engine and re-scores relationship risk." No extra UI, just a one-liner reinforcing the flow.
 
-1. **Product Penetration** — histogram of customers by product count (1/2/3/4+), sourced from mock clients. Drill-in: stacked bar per product category from `BANK_PRODUCT_CATEGORIES` (Credit Cards, Deposit, Mortgage, Investments…). Reuses `holdings` fields from `ClientProfileData`.
-2. **Cross-Sell Whitespace** — top gaps ("Has checking, no credit card: 38%"). Drill-in: table of gap → recommended product from catalog → est. eligible customers.
-3. **Primary Bank Status** — donut: Primary / Secondary / Thin. Drill-in: definition (multi-product + high deposit share) and cohort counts.
-4. **Life Stage & Events** — this replaces today's page as one tile. Reuses `BANKWIDE_EVENT_STATS`, `LIFE_EVENT_CONFIG`, and the `LifeEventAlertCard` list. Drill-in renders the existing category grid + client examples list (essentially today's `BankwideLifeEventsView` body, extracted into a subcomponent `LifeEventsModule`).
-5. **Wallet Depth Tiers** — segmentation by AUM bands (Preferred / Premium / Private) using `profile.segment`, with avg products/customer per band.
-6. **At-Risk / Thin Relationships** — customers with 1 product, low engagement, or overdue `engagementStatus`. Drill-in reuses `LifeEventAlertCard`-style rows.
-
-### Component structure
-
-```text
-RelationshipIntelligenceView.tsx
-├─ PortfolioStrip (4 MetricCards)
-├─ BentoGrid
-│    └─ InsightTile × 6  (active tile controls drill-in)
-└─ DrillInPanel
-     ├─ ProductPenetrationModule
-     ├─ CrossSellWhitespaceModule
-     ├─ PrimaryBankModule
-     ├─ LifeEventsModule           ← extracted from BankwideLifeEventsView
-     ├─ WalletDepthModule
-     └─ AtRiskModule
-```
-
-All modules live in a new `src/components/tepilot/insights/relationship/` folder to keep the file tree tidy.
-
-### Data
-
-- No new fetches. Everything derives from `generateDashboardClients(24)` + enriched user + `BANK_PRODUCT_CATEGORIES` + hardcoded bank-wide aggregates (same pattern as `BANKWIDE_EVENT_STATS`).
-- Aggregates for penetration/cross-sell/primary-bank/wallet-tier defined as top-level constants in the module files, mirroring today's style.
-
-### Styling
-
-- Strict light theme (per project memory): white bg, `border-slate-200`, no `dark:` utilities.
-- Reuse `TabHeader`, `Card`, `Badge`, `cn`, existing icon palette.
-- Tile accents follow existing bento patterns in `CapabilitiesView` (soft `bg-{color}-50` + `text-{color}-600`).
+### 5. TabHeader copy
+Tighten `howItWorks` / `whyItMatters` so they read as one engine with two lenses (growth + protection) rather than a portfolio browser. Keep to existing tone rules (no infrastructure names, no competitor names, no exact spend).
 
 ## Out of scope
-
-- No backend/edge-function changes.
-- `BankwideLifeEventsView.tsx` left in place (unrouted) in case we want to revert quickly; can be deleted in a follow-up.
-- Engagement/channel-health and household-graph modules deferred (not selected).
+- No sidebar, routing, backend, or type changes.
+- No new files. No changes to `bankProductCatalog.ts`, `randomProfileGenerator.ts`, or `AnalyticsContainer.tsx`.
+- All new numbers mocked in-file, consistent with existing tiles.
