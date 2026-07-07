@@ -69,10 +69,23 @@ const ADVISOR = {
 };
 
 const VENTUS = {
-  name: "Ventus AI Copilot",
-  email: "copilot@ventusai.com",
+  name: "Ventus AI Coworker",
+  email: "wmcoworker@ventusai.com",
   initials: "VA",
 };
+
+const EVENT_OFFER: Record<string, string> = {
+  business_liquidity: "Short-term T-bill / money-market parking + diversified deployment plan",
+  wealth_transfer: "Trust review + estate & gifting strategy",
+  retirement: "Retirement income plan + Medicare / Social Security timing review",
+  elder_care: "Care-cost planning + POA / trust checkpoint",
+  college_prep: "529 top-up + 529-to-Roth rollover eligibility check",
+  home_purchase: "Bridge financing / jumbo mortgage pre-qual",
+  new_child: "529 open + term life review",
+};
+function offerFor(eventType: string): string {
+  return EVENT_OFFER[eventType] ?? "Household planning check-in";
+}
 
 const SECTIONS: {
   key: "high" | "opportunity" | "risk";
@@ -507,7 +520,7 @@ export function AdvisorNotificationsView({
                 <div className="text-xs text-slate-600 mt-1">
                   <span className="text-slate-400">To:</span>{" "}
                   <span className="text-slate-700">
-                    {activeMsg.sender === "ventus" ? "You" : "Ventus AI Copilot"}
+                    {activeMsg.sender === "ventus" ? "You" : "Ventus AI Coworker"}
                   </span>
                   <span className="text-slate-400 ml-3">Cc:</span>{" "}
                   <span className="text-slate-500">—</span>
@@ -538,11 +551,8 @@ export function AdvisorNotificationsView({
             {activeMsg.kind === "digest" ? (
               <>
                 <p className="text-sm text-slate-700 leading-relaxed">
-                  Morning — <span className="font-semibold text-slate-900">{totalSignals}</span> new signals across{" "}
-                  <span className="font-semibold text-slate-900">{clientsWithSignals} clients</span>.
-                  Grouped by how time-sensitive they are so you can plan the day.
-                  Every row has the underlying signal count, the window it covers, and my confidence —
-                  reply if you want me to go deeper on any of them.
+                  A short list this morning — the handful worth your attention, grouped by how time-sensitive they are.
+                  Each row has a suggested offer and my confidence. Reply on any name to go deeper.
                 </p>
 
                 {SECTIONS.map((section) => {
@@ -571,7 +581,7 @@ export function AdvisorNotificationsView({
                       </div>
 
                       <div>
-                        {rows.slice(0, 6).map(({ client, event }, idx) => {
+                        {rows.slice(0, section.key === "risk" ? 2 : 3).map(({ client, event }, idx) => {
                           const cfg = LIFE_EVENT_CONFIG[event.eventType];
                           const signalCount = event.keyEvidence.length || 3;
                           const windowDays =
@@ -579,9 +589,9 @@ export function AdvisorNotificationsView({
                             : event.urgencyScore === 4 ? 30
                             : event.urgencyScore === 3 ? 60
                             : 90;
-                          const confidencePct = Math.round(
-                            (event.confidence ?? Math.min(0.95, event.urgencyScore * 0.18 + 0.1)) * 100
-                          );
+                          const confidencePct = (
+                            event.confidence ?? Math.min(0.95, event.urgencyScore * 0.18 + 0.1)
+                          ).toFixed(1);
                           const rawTiming = event.estimatedTiming?.trim() ?? "";
                           const looksConcrete = /\d|week|month|day|quarter/i.test(rawTiming);
                           const timingPhrase = looksConcrete
@@ -590,6 +600,7 @@ export function AdvisorNotificationsView({
                             : event.urgencyScore === 4 ? "next 2–3 weeks"
                             : event.urgencyScore === 3 ? "this quarter"
                             : "no rush";
+                          const offer = offerFor(event.eventType);
                           return (
                             <div
                               key={`${client.id}-${event.eventType}-${idx}`}
@@ -622,6 +633,10 @@ export function AdvisorNotificationsView({
                                     over the past <span className="font-semibold text-slate-900">{windowDays}</span> days
                                     · <span className="font-semibold text-slate-900">{confidencePct}%</span> confidence.
                                   </span>
+                                </div>
+                                <div className="text-[13px] text-slate-700 mt-1">
+                                  <span className="text-[11px] uppercase tracking-wide text-slate-500 mr-1">Recommended offer:</span>
+                                  {offer}
                                 </div>
                               </div>
                             </div>
@@ -664,7 +679,7 @@ export function AdvisorNotificationsView({
               </p>
               <p className="text-[11px] text-slate-400 pt-1">
                 {activeMsg.sender === "ventus"
-                  ? "Sent by Ventus Copilot · ventusai.com"
+                  ? "Sent by Ventus Coworker · ventusai.com"
                   : `Sent from Outlook · ${ADVISOR.email}`}
               </p>
             </div>

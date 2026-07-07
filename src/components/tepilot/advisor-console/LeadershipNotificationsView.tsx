@@ -30,8 +30,8 @@ const LEADER = {
 };
 
 const VENTUS = {
-  name: "Ventus AI Copilot",
-  email: "copilot@ventusai.com",
+  name: "Ventus AI Coworker",
+  email: "wmcoworker@ventusai.com",
   initials: "VA",
 };
 
@@ -503,7 +503,7 @@ export function LeadershipNotificationsView() {
                 <div className="text-xs text-slate-600 mt-1">
                   <span className="text-slate-400">To:</span>{" "}
                   <span className="text-slate-700">
-                    {activeMsg.sender === "ventus" ? "You" : "Ventus AI Copilot"}
+                    {activeMsg.sender === "ventus" ? "You" : "Ventus AI Coworker"}
                   </span>
                   <span className="text-slate-400 ml-3">Cc:</span>{" "}
                   <span className="text-slate-500">—</span>
@@ -624,7 +624,7 @@ export function LeadershipNotificationsView() {
               </p>
               <p className="text-[11px] text-slate-400 pt-1">
                 {activeMsg.sender === "ventus"
-                  ? "Sent by Ventus Copilot · ventusai.com"
+                  ? "Sent by Ventus Coworker · ventusai.com"
                   : `${LEADER.title} · ${LEADER.email}`}
               </p>
             </div>
