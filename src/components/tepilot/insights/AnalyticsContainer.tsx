@@ -11,7 +11,7 @@ import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 
-import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
+import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { WealthIntelligenceView } from "./WealthIntelligenceView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
@@ -44,7 +44,7 @@ import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
-  Zap, Megaphone, Layers, Presentation, Terminal, LogOut
+  Zap, Megaphone, Layers, Presentation, Terminal, LogOut, Gem
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { toast } from "@/hooks/use-toast";
@@ -110,7 +110,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "WEALTH & RELATIONSHIP",
     items: [
-      { value: "life-events", label: "Life Event Detection", icon: CalendarHeart },
+      { value: "life-events", label: "Relationship Intelligence", icon: Gem },
       { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
       { value: "wm-copilot", label: "WM Coworker", icon: Briefcase },
     ],
@@ -247,7 +247,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'gamification': return <GamificationManagement />;
       case 'deal-management': return <DealsAndPerksView defaultTab="shopping" />;
       case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
-      case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
+      case 'life-events': return <RelationshipIntelligenceView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
       case 'wealth-intelligence': return <WealthIntelligenceView />;
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
