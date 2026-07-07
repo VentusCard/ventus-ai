@@ -20,6 +20,7 @@ import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { toast } from "sonner";
+import type { TabValue } from "./AnalyticsContainer";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart,
