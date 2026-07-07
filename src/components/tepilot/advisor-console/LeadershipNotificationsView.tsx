@@ -229,7 +229,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     sender: "leader",
     time: "9:04 AM",
     navLabel: "9:04",
-    quoted: `Ventus AI, 8:53 AM — Want me to draft a campaign brief and an advisor-comms note?`,
+    quoted: `Ventus AI, 8:42 AM — Want me to draft a campaign brief and an advisor-comms note?`,
     render: () => (
       <p>
         Yes to both. And give me a read on the pre-retiree opportunity in the second section — is that the same cohort, or a different slice? I want to make sure we're not double-counting when I take this to the exec review.
