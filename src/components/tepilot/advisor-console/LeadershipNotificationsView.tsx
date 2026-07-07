@@ -287,7 +287,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     sender: "leader",
     time: "9:31 AM",
     navLabel: "9:31",
-    quoted: `Ventus AI, 9:22 AM — Both drafts below, plus a note on the overlap.`,
+    quoted: `Ventus AI, 9:05 AM — Both drafts below, plus a note on the overlap.`,
     render: () => (
       <p>
         Campaign brief is approved in principle. Schedule a 20-minute working session with Chen, Ortiz, and Whitfield later this week to align on the outreach — send them the note beforehand. And log the broader pre-retiree opportunity for next week's exec review with the nested framing you outlined.
