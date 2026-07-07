@@ -20,6 +20,7 @@ import { generateDashboardClients } from "@/lib/randomProfileGenerator";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { toast } from "sonner";
+import type { TabValue } from "./AnalyticsContainer";
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
   Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart,
@@ -40,9 +41,10 @@ type ModuleKey = 'penetration' | 'crosssell' | 'primary' | 'lifeevents' | 'atris
 interface Props {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
+  onNavigate?: (tab: TabValue) => void;
 }
 
-export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals }: Props) {
+export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals, onNavigate }: Props) {
   const [activeModule, setActiveModule] = useState<ModuleKey>('lifeevents');
   const [prepareDialogOpen, setPrepareDialogOpen] = useState(false);
   const [prepareData, setPrepareData] = useState<EventPreparationData | null>(null);
@@ -150,6 +152,9 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
         howItWorks="Ventus enriches every transaction, then routes the resulting signals two ways: growth signals feed cross-sell propensity and life-event triggers, while protection signals feed attrition, wallet-share leakage, and portfolio-exposure cohorts."
         whyItMatters="A portfolio view that pairs revenue upside with the risk it's sitting next to — so the bank acts before the customer leaves, defaults, or self-reports a life event."
       />
+
+      {/* Top recommended actions */}
+      <RecommendedActionsCard onNavigate={onNavigate} />
 
       {/* Portfolio strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -595,4 +600,109 @@ function mapEventType(raw: string): DetectedLifeEvent['eventType'] | null {
     eldercare: 'elder_care',
   };
   return map[lower] || null;
+}
+
+/* ---------------- Recommended Actions Card ---------------- */
+
+type RecAction = {
+  id: string;
+  priority: 'high' | 'medium' | 'low';
+  title: string;
+  context: string;
+  amount: string;
+  users: string;
+  productName: string;
+  offers?: string[];
+};
+
+const RECOMMENDED_ACTIONS: RecAction[] = [
+  {
+    id: 'heloc-crosssell',
+    priority: 'high',
+    title: 'Cross-sell HELOC to mortgage holders',
+    context: 'High-equity mortgage holders with no HELOC',
+    amount: '$182M',
+    users: '1.4M users',
+    productName: 'HELOC',
+    offers: ['No closing costs', '0.25% intro rate discount'],
+  },
+  {
+    id: 'hysa-winback',
+    priority: 'medium',
+    title: 'Win back deposit outflow with High-Yield Savings',
+    context: 'Outbound to neobank rails, no HYSA on file',
+    amount: '$96M',
+    users: '620K users',
+    productName: 'High-Yield Savings',
+    offers: ['4.50% APY intro for 6 months'],
+  },
+  {
+    id: 'premium-travel-convert',
+    priority: 'medium',
+    title: 'Convert cashback → Premium Travel',
+    context: 'Cashback holders with heavy travel spend',
+    amount: '$74M',
+    users: '480K users',
+    productName: 'Premium Travel',
+    offers: ['75,000 bonus points', 'First-year annual fee waived'],
+  },
+];
+
+const PRIORITY_DOT: Record<RecAction['priority'], string> = {
+  high: 'bg-amber-500',
+  medium: 'bg-blue-500',
+  low: 'bg-slate-300',
+};
+
+function RecommendedActionsCard({ onNavigate }: { onNavigate?: (tab: TabValue) => void }) {
+  const handleClick = (action: RecAction) => {
+    try {
+      sessionStorage.setItem(
+        'ventus.campaignBuilder.prefill',
+        JSON.stringify({ productName: action.productName, offers: action.offers }),
+      );
+    } catch {
+      /* ignore */
+    }
+    if (onNavigate) {
+      onNavigate('targeting-campaign-builder');
+    } else {
+      toast.info('Open Campaign Builder from the sidebar to see this pre-filled campaign.');
+    }
+  };
+
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4">
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-blue-600" />
+          <h3 className="text-sm font-semibold text-slate-900">Top 3 Recommended Actions</h3>
+        </div>
+        <span className="text-[11px] text-slate-500">
+          {RECOMMENDED_ACTIONS.length} flagged · opens Campaign Builder
+        </span>
+      </div>
+      <div className="space-y-1">
+        {RECOMMENDED_ACTIONS.map((a) => (
+          <button
+            key={a.id}
+            type="button"
+            onClick={() => handleClick(a)}
+            className="group w-full text-left flex items-start gap-3 py-2 px-2 -mx-2 rounded-md border-b border-slate-50 last:border-0 hover:bg-slate-50/70 transition-colors"
+          >
+            <span className={cn('mt-1.5 w-1.5 h-1.5 rounded-full shrink-0', PRIORITY_DOT[a.priority])} />
+            <div className="flex-1 min-w-0">
+              <div className="text-[13px] font-medium text-slate-900 truncate">{a.title}</div>
+              <div className="text-[11px] text-slate-500 truncate">{a.context}</div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-[13px] font-semibold text-emerald-700 tabular-nums">{a.amount}</div>
+              <div className="text-[10px] text-slate-400 tabular-nums">{a.users}</div>
+            </div>
+            <ArrowUpRight className="w-4 h-4 text-slate-300 group-hover:text-slate-700 shrink-0 mt-0.5" />
+          </button>
+        ))}
+      </div>
+    </div>
+  );
 }
