@@ -237,19 +237,16 @@ const REPLY_MESSAGES: MessageDef[] = [
     render: ({ nameA, nameB, labelA, labelB }) => (
       <>
         <p>
-          Good list. Before I reach out — walk me through what's actually behind the top two on Act Now.
+          Good list. Before I reach out, give me the supporting evidence on both.
         </p>
         <ul className="list-disc pl-5 space-y-1.5">
           <li>
-            On <span className="font-medium text-slate-900">{nameA}</span> — what actually changed for them?
-            Last time we spoke it was mostly steady-state. What's the {labelA.toLowerCase()} signal picking up on?
+            On <span className="font-medium text-slate-900">{nameA}</span> ({labelA.toLowerCase()}) — which transactions triggered this, and what do we know about the household?
           </li>
           <li>
-            On <span className="font-medium text-slate-900">{nameB}</span> — is this the same {labelB.toLowerCase()} thread
-            we flagged last quarter, or something new? And do we know if the spouse is involved in this one?
+            On <span className="font-medium text-slate-900">{nameB}</span> ({labelB.toLowerCase()}) — same thing: the transactions we're seeing, and what's on file for the household.
           </li>
         </ul>
-        <p>Give me the story behind each, not just the headline.</p>
       </>
     ),
   },
@@ -258,28 +255,37 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "9:23 AM",
     navLabel: "9:23",
     subjectPrefix: "Re: ",
-    quoted: `Morgan, 9:22 AM — Give me the story behind each, not just the headline.`,
-    render: ({ nameA, nameB, labelA, labelB }) => (
-      <>
-        <p>Here's what's underneath each one:</p>
-        <div>
-          <p className="font-medium text-slate-900">{nameA}</p>
-          <ul className="list-disc pl-5 space-y-1 mt-1">
-            <li>Household spending mix has been drifting toward a different lifestyle pattern over the past couple of months — the sort of shift we usually see when someone is quietly planning a bigger change.</li>
-            <li>In similar households this pattern typically precedes a {labelA.toLowerCase()} decision within the next few conversations, not immediately.</li>
-          </ul>
-        </div>
-        <div>
-          <p className="font-medium text-slate-900">{nameB}</p>
-          <ul className="list-disc pl-5 space-y-1 mt-1">
-            <li>Different thread from last quarter — the earlier one has quieted down. This one is a fresh {labelB.toLowerCase()} signal driven by new activity on the joint side of the household.</li>
-            <li>Spouse is on the joint account and appears to be the one initiating most of the recent behavior, which will change who you're really speaking to.</li>
-          </ul>
-        </div>
-        <p>Want the fuller household picture for each — who's involved, what's changing around them?</p>
-      </>
-    ),
+    quoted: `Morgan, 9:22 AM — Give me the supporting evidence on both.`,
+    render: ({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB }) => {
+      const evA = evidenceFor(eventTypeA);
+      const evB = evidenceFor(eventTypeB);
+      return (
+        <>
+          <p>Here's what we're actually seeing on the ledger:</p>
+          <div>
+            <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+            <ul className="list-disc pl-5 space-y-1 mt-0.5">
+              {evA.transactions.map((t) => <li key={t}>{t}</li>)}
+            </ul>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+            <p className="mt-0.5">{evA.household}</p>
+          </div>
+          <div>
+            <p className="font-medium text-slate-900">{nameB} <span className="text-slate-500 font-normal">· {labelB}</span></p>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+            <ul className="list-disc pl-5 space-y-1 mt-0.5">
+              {evB.transactions.map((t) => <li key={t}>{t}</li>)}
+            </ul>
+            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+            <p className="mt-0.5">{evB.household}</p>
+          </div>
+          <p>Want the fuller household picture for each — who's involved, what's changing around them?</p>
+        </>
+      );
+    },
   },
+
   {
     sender: "advisor",
     time: "9:44 AM",
