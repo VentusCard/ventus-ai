@@ -100,7 +100,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
             {[
               {
                 title: "Problem",
-                text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
+                text: "Every banking experience is generic, because banks only ever see a piece of the customer, and even that piece arrives as cryptic, messy transaction ledgers. No understanding of the person means no ability to personalize, and it shows up everywhere that matters: low card spend, low redemption, low share of wallet, and customers who leave the moment a competitor offers something more relevant",
               },
               {
                 title: "Team",
@@ -152,7 +152,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
               {[
                 {
                   title: "Problem",
-                  text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
+                  text: "Every banking experience is generic, because banks only ever see a piece of the customer, and even that piece arrives as cryptic, messy transaction ledgers. No understanding of the person means no ability to personalize, and it shows up everywhere that matters: low card spend, low redemption, low share of wallet, and customers who leave the moment a competitor offers something more relevant",
                 },
                 {
                   title: "Team",
