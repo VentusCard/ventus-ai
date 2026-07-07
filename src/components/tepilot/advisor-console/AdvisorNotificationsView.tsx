@@ -334,7 +334,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     render: ({ travelCardCohort }) => (
       <>
         <p>Hi Morgan,</p>
-        <p>Card hooks worth leading with:</p>
+        <p>I see the new Premium Travel Card has these features:</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>60,000 bonus points on sign-up</li>
           <li>2x points on travel & dining, 1.5x on everything else</li>
