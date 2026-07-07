@@ -13,7 +13,7 @@ import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 
 import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
-import { WealthIntelligenceView } from "./WealthIntelligenceView";
+
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
