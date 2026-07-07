@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { TabHeader } from "./TabHeader";
 import { cn } from "@/lib/utils";
 import {
-  Gem, Layers, Grid3x3, Crown, CalendarHeart, TrendingUp, AlertTriangle,
+  Gem, Layers, Grid3x3, Crown, CalendarHeart, AlertTriangle,
   ArrowUpRight, Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart,
   Scan, CalendarDays, AlertCircle, CreditCard, PiggyBank, Landmark,
   LineChart, Wallet, ShieldAlert, ArrowRight, Sparkles, DollarSign,
