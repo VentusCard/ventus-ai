@@ -157,8 +157,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "9:38 AM",
-    navLabel: "9:38",
+    time: "9:23 AM",
+    navLabel: "9:23",
     subjectPrefix: "Re: ",
     quoted: `Morgan, 9:22 AM — Give me the story behind each, not just the headline.`,
     render: ({ nameA, nameB, labelA, labelB }) => (
@@ -187,7 +187,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "9:44 AM",
     navLabel: "9:44",
     subjectPrefix: "Re: ",
-    quoted: `Ventus AI, 9:38 AM — Want the fuller household picture for each…`,
+    quoted: `Ventus AI, 9:23 AM — Want the fuller household picture for each…`,
     render: () => (
       <p>
         Yes. Household composition, anything about the spouse or dependents, and whatever context would change how I frame the conversation. I don't want to walk in cold on either of them.
@@ -196,8 +196,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "10:02 AM",
-    navLabel: "10:02",
+    time: "9:45 AM",
+    navLabel: "9:45",
     subjectPrefix: "Re: ",
     quoted: `Morgan, 9:44 AM — I don't want to walk in cold on either of them.`,
     render: ({ nameA, nameB }) => (
@@ -227,7 +227,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "10:07 AM",
     navLabel: "10:07",
     subjectPrefix: "Re: ",
-    quoted: `Ventus AI, 10:02 AM — Want a prep sheet for each…`,
+    quoted: `Ventus AI, 9:45 AM — Want a prep sheet for each…`,
     render: () => (
       <p>
         Please. Angle, 3 talking points, and a short intro paragraph per client. Log both as follow-ups so I have the prep notes when I pick these up.
@@ -236,8 +236,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "10:19 AM",
-    navLabel: "10:19",
+    time: "10:08 AM",
+    navLabel: "10:08",
     subjectPrefix: "Re: ",
     quoted: `Morgan, 10:07 AM — Angle, 3 talking points, and a short intro paragraph per client…`,
     render: ({ nameA, nameB }) => (
