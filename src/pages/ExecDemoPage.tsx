@@ -1460,6 +1460,7 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
                   onEnrichmentPillarClick={handleEnrichmentPillarClick}
                   productDeliveryChannel={productDeliveryChannel}
                   onProductDeliveryChannelChange={setProductDeliveryChannel}
+                  externalSignals={externalSignals}
                 />
               </div>
 
