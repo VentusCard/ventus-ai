@@ -476,6 +476,27 @@ export function AdvisorNotificationsView({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [clients, topTwo]);
 
+  const digestRows: DigestRow[] = useMemo(() => {
+    const sectionLabel: Record<"high" | "opportunity" | "risk", string> = {
+      high: "Act Now",
+      opportunity: "Opportunity",
+      risk: "At Risk",
+    };
+    const out: DigestRow[] = [];
+    (["high", "opportunity", "risk"] as const).forEach((k) => {
+      grouped[k].forEach(({ client, event }) => {
+        out.push({
+          name: client.profile.name,
+          eventLabel: LIFE_EVENT_CONFIG[event.eventType].label,
+          sectionLabel: sectionLabel[k],
+        });
+      });
+    });
+    return out;
+  }, [grouped]);
+
+
+
 
 
   const [activeIndex, setActiveIndex] = useState(0);
