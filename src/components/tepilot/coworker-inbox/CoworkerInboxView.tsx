@@ -133,7 +133,7 @@ export function CoworkerInboxView() {
             <div className="px-4 py-3 border-b border-slate-100">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-                <h3 className="text-[13px] font-semibold text-slate-900">What Ventus is working on</h3>
+                <h3 className="text-[13px] font-semibold text-slate-900">What Ventus AI and Coworker is working on</h3>
               </div>
               <p className="text-[11.5px] text-slate-500 mt-0.5">Live · updated continuously · showing {ACTIVITY_FEED.length} of {WEEKLY_STATS.actionsToday.toLocaleString()} today</p>
             </div>
