@@ -1,57 +1,25 @@
-Scrub the first WM Coworker conversation (Advisor Conv. Demo → Daily Digest).
+Fix repeated / too-similar names in the WM Coworker Advisor digest by rendering one signal per client, and diversify the underlying name pool.
 
-## 1. Rename Copilot → Coworker (sender identity)
+## Root causes
+1. `AdvisorNotificationsView.tsx` currently renders one row per detected event, so a client with multiple events appears multiple times, making names look repeated.
+2. `topTwo` (drives `nameA`/`nameB` in reply messages 2–7) slices the first two rows without checking `client.id`, so both can be the same person.
+3. `firstNames` (15) × `lastNames` (15) in `src/lib/randomProfileGenerator.ts` is a small pool; last names visibly repeat across the digest even when full names are unique.
 
-In `AdvisorNotificationsView.tsx` and `LeadershipNotificationsView.tsx`:
+## Changes
 
-- `VENTUS.name`: "Ventus AI Copilot" → "Ventus AI Coworker"
-- `VENTUS.email`: "[copilot@ventusai.com](mailto:copilot@ventusai.com)" → "[wmcoworker@ventusai.com](mailto:coworker@ventusai.com)"
-- To-line label: "Ventus AI Copilot" → "Ventus AI Coworker"
-- Footer: "Sent by Ventus Copilot · ventusai.com" → "Sent by Ventus Coworker · ventusai.com"
+### `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx`
+- One signal per client, everywhere in the digest:
+  - When flattening clients → rows, pick each client's single highest-urgency (then highest-confidence) event and drop the rest.
+  - Section assignment uses only that chosen event.
+  - Dedupe by `client.id` across the entire digest so the same client never appears in two sections.
+- `topTwo` picks two rows with distinct `client.id`s (falls back gracefully if only one client is available).
+- Section caps stay as previously planned (Act Now 3, Opportunities 3, At Risk 2).
 
-## 2. Trim digest to a short, coverable list
+### `src/lib/randomProfileGenerator.ts`
+- Expand `firstNames` to ~40 diverse entries (e.g. Priya, Marcus, Elena, Rafael, Yuki, Diane, Nadia, Charles, Peter, Sofia, Thomas, Rachel, Andre, Beatrice, Kenji, Olivia, Nathan, Camille, Julian, Isla, Vikram, Naomi, Grace, Ethan, Miriam, …).
+- Expand `lastNames` to ~40 diverse entries (e.g. O'Brien, Kim, Rossi, Vasquez, Nakamura, Freeman, Ito, Alvarez, Henderson, Nguyen, Okafor, Sørensen, Blackwood, Delgado, Petrov, Bhatia, Rivera, Whitman, Ross, Sato, Larsen, Gomez, Novak, Fischer, …).
+- Keep existing `usedNames` unique-full-name dedup.
 
-In the digest render (`rows.slice(0, 6)`):
-
-- Cap each section at 3 rows.
-- Cap total displayed to ~8 rows: Act Now up to 3, Opportunities up to 3, At Risk up to 2.
-- Update intro paragraph to a shorter framing ("A short list this morning — the handful worth your attention. Reply on any name to go deeper.").
-
-## 3. Add specific product offer per row
-
-Add helper `offerFor(eventType)` mapping event types to a concrete recommendation:
-
-- business_liquidity → Short-term T-bill / money-market parking + diversified deployment
-- wealth_transfer → Trust review + estate/gifting strategy
-- retirement → Retirement income plan + Medicare/Social Security timing
-- elder_care → Care-cost planning + POA/trust checkpoint
-- college_prep → 529 top-up + 529-to-Roth rollover eligibility check
-- home_purchase → Bridge financing / jumbo mortgage pre-qual
-- new_child → 529 open + term life review
-- fallback → Household planning check-in
-
-Render below the evidence/confidence line as: `Recommended offer: <text>`.
-
-## 4. Fix confidence scale (100× lower, as stated)
-
-Change display so raw 0.90 renders as "0.9%" instead of "90%":
-
-```
-const confidencePct = (event.confidence ?? Math.min(0.95, event.urgencyScore * 0.18 + 0.1)).toFixed(1);
-```
-
-Render `{confidencePct}% confidence`.
-
-## Files touched
-
-- `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx` — identity strings, row cap, offer helper + line, confidence formatting, intro sentence.
-- `src/components/tepilot/advisor-console/LeadershipNotificationsView.tsx` — identity strings only (Copilot → Coworker).
-
-## Out of scope (ask if wanted)
-
-- Renaming internal tab id `wm-copilot`, `BankwideWMCopilotView`, `WMCopilotSignInDialog`, sessionStorage key `wm_copilot_launch_client`.
-- Later conversations in the Advisor demo (messages 2–7), Leadership demo, and Coworker Inbox threads — will scrub next on your go-ahead.
-
-## Confidence interpretation check
-
-"100x too high" is taken literally (90% → 0.9%). If you meant "tone to realistic AI numbers like 8–25%" instead, tell me before I implement and I'll swap the formula.
+## Out of scope
+- `src/lib/fviData.ts` name lists (separate demo).
+- Coworker Inbox thread personas in `coworkerInboxData.ts` (hand-authored).
