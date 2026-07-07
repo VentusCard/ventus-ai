@@ -1,39 +1,26 @@
-## Goal
+## Audit
 
-The "Bank Context" tab (currently `ProductsCatalogView`, showing only the product catalog) should mirror the six-part definition of Bank Context that already appears under the "System" tab source card:
+The "Regenerate" button in the "Micro-Segment Personalized Campaign Output" card (step 3, `MessagePreviewsSection.tsx`) increments a `regenSeed` state that flows into `buildMessageCards(product, variants, offers, campaignLink, seed)`. Two real bugs:
 
-> Consumer Banking Products · Consumer Lending Products · Wealth & Investment Products · Locations & Hours · Departments · Customer Segments & Tiers
+1. **Customer Choice Card products regenerate to identical output.** In `buildMessageCards.ts`, when `isCustomerChoiceCard(product)` is true, the function returns the hardcoded `CUSTOMER_CHOICE_CARDS` array without applying `seed` at all. Regenerate re-triggers the reveal animation but produces the exact same five cards — looks broken.
+2. **Non-Customer-Choice path shifts instead of reshuffling.** BEHAVIOR slots 0 and 1 both call `pick(pool, slot, seed)` from the same pool, so on each click both slots advance by +1 together. Slot 0 after regen frequently equals slot 1 before regen — the deck appears to just "slide" by one card.
 
-We'll restructure the tab into a sub-tabbed detail view so each facet is browsable, and rename it to make the scope clear.
+Additional UX issue: `featuredIdx` in `MessagePreviewsSection.tsx` is not reset on Regenerate, so if the user was viewing card 4 they may land on a card whose copy happens not to change, hiding the fact that content updated.
 
-## New sub-tab structure
+## Changes
 
-Inside the Bank Context tab, add a segmented sub-nav with 4 sub-tabs (Products already covers the three product buckets from the source card via its existing categories):
+### 1. `src/components/tepilot/campaigns/sections/buildMessageCards.ts`
 
-1. **Products** — existing `BANK_PRODUCT_CATEGORIES` grid (Consumer Banking, Lending, Wealth & Investment all live here as categories). Keeps current UI.
-2. **Locations & Hours** — branch network, ATM coverage, regional operating schedules. Simple stat tiles + a table of sample regions (Northeast/Southeast/Midwest/Southwest/West/Northwest) with branch count, ATM count, weekend hours.
-3. **Departments** — RM assignment rules, advisor specializations, escalation paths. Card list: Retail RM, Small Business, Wealth Advisor, Private Bank, Mortgage Loan Officer, Fraud/AML — each with coverage tier, escalation path, specialization.
-4. **Customer Segments & Tiers** — Mass Market, Preferred Rewards (Gold/Platinum/Platinum Honors/Diamond), Merrill, Private Bank. Table with balance thresholds, benefits, servicing model.
+- **Customer Choice branch (~line 324):** rotate `CUSTOMER_CHOICE_CARDS` by `seed` before slicing to 5, so each click yields a different 5-card window (the constant has more than 5 entries and covers each anchor family, so rotation preserves family coverage).
+- **General path — BEHAVIOR slots (~lines 351–362):** decouple the two behavior slots. Use `pick(pool, 0, seed)` for slot 0 and `pick(pool, 0, seed + 1)` for slot 1 when both slots draw from the same pool, and if the resolved anchors collide, bump slot 1 to `pick(pool, 0, seed + 2)`. Keep the existing `PLAYS_BY_FAMILY.BEHAVIOR` rotation.
 
-All three new sub-tabs use presentation-only mock data hand-authored in the same file (or a small sibling data file), following the existing card/table look — no business-logic changes, strict light theme, Manrope UI.
+### 2. `src/components/tepilot/campaigns/sections/MessagePreviewsSection.tsx`
 
-## Files to change
-
-- `src/components/tepilot/insights/ProductsCatalogView.tsx`
-  - Rename component to `BankContextView` (keep file or rename to `BankContextView.tsx`).
-  - Add internal `subTab` state and a segmented control (same visual language as other in-page tabs — slate-200 border pill row).
-  - Render existing catalog for the Products sub-tab; render three new sub-views for the others.
-  - Update `TabHeader` title to "Bank Context" and rewrite subtitle/howItWorks/whyItMatters to cover all four facets, not just products.
-
-- `src/components/tepilot/insights/AnalyticsContainer.tsx`
-  - Update the import and `case 'products'` render to the renamed view (if renamed).
-  - Nav label already reads "Bank Context" — no change.
-
-- `src/components/tepilot/insights/CapabilitiesView.tsx`
-  - Update the Bank Context source card's `openLabel` from `Open Products tab · N products` to `Open Bank Context tab`, since it now covers more than products.
+- Extract the Regenerate `onClick` into a handler that both increments `regenSeed` and resets `featuredIdx` to `0`.
+- Add a brief spin animation on the `RefreshCw` icon (200ms) tied to the click, so users get visible feedback even when copy differences are subtle.
 
 ## Out of scope
 
-- No changes to `bankProductCatalog.ts` or any downstream consumer of it.
-- No new routes, no backend/data-model changes.
-- Locations, Departments, and Segments data is static illustrative content only.
+- No changes to `CUSTOMER_CHOICE_CARDS` content, anchor pools, or copy templates.
+- No changes to `PersonalizationPreviewPanel` or `AICampaignPreview` (their Regenerate buttons already trigger real re-generation).
+- No visual redesign of the panel beyond the tiny icon-spin feedback.
