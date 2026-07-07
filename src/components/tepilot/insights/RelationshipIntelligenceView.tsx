@@ -35,7 +35,7 @@ const BANKWIDE_EVENT_STATS: Record<DetectedLifeEvent['eventType'], { detected: n
   elder_care:         { detected: 2600, avgConfidence: 73, urgent: 780 },
 };
 
-type ModuleKey = 'penetration' | 'crosssell' | 'primary' | 'lifeevents' | 'wallet' | 'atrisk';
+type ModuleKey = 'penetration' | 'crosssell' | 'primary' | 'lifeevents' | 'wallet' | 'atrisk' | 'exposure';
 
 interface Props {
   userDemographics?: ClientProfileData | null;
