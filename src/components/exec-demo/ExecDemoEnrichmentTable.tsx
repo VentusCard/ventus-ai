@@ -3,6 +3,8 @@ import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { getFlow } from "@/lib/transactionFlow";
+import type { ExternalIntelSignal } from "@/lib/externalIntelligenceSignals";
+import { Sparkles } from "lucide-react";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
