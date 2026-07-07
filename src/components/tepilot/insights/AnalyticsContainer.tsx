@@ -116,12 +116,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Wealth Intelligence",
-    items: [
-      { value: "wealth-intelligence", label: "Merrill Growth Desk", icon: Briefcase },
-    ],
-  },
-  {
     label: "Health",
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
