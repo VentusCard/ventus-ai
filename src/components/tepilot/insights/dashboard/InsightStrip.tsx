@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 
 interface InsightStripProps {
   opportunities: RevenueOpportunity[];
-  onSeeWhy?: () => void;
+  onOpen?: (opportunityId: string) => void;
 }
 
 const PRIORITY_STYLE: Record<
@@ -23,7 +23,7 @@ function compactDollars(n: number) {
   return `$${n.toFixed(0)}`;
 }
 
-export function InsightStrip({ opportunities, onSeeWhy }: InsightStripProps) {
+export function InsightStrip({ opportunities, onOpen }: InsightStripProps) {
   const top = opportunities.slice(0, 3);
   if (top.length === 0) return null;
 
@@ -34,7 +34,12 @@ export function InsightStrip({ opportunities, onSeeWhy }: InsightStripProps) {
           const style = PRIORITY_STYLE[op.priority];
           const Icon = style.icon;
           return (
-            <div key={op.id} className="flex-1 min-w-0 p-3 flex gap-3">
+            <button
+              key={op.id}
+              type="button"
+              onClick={() => onOpen?.(op.id)}
+              className="flex-1 min-w-0 p-3 flex gap-3 text-left hover:bg-slate-50/70 transition-colors group"
+            >
               <div
                 className={cn(
                   "shrink-0 w-7 h-7 rounded border flex items-center justify-center",
@@ -59,16 +64,11 @@ export function InsightStrip({ opportunities, onSeeWhy }: InsightStripProps) {
                   {op.strategicInsight}
                 </div>
               </div>
-              {onSeeWhy && (
-                <button
-                  onClick={onSeeWhy}
-                  className="shrink-0 self-start text-[11px] text-blue-600 hover:text-blue-700 inline-flex items-center gap-0.5 mt-0.5"
-                >
-                  See why
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              )}
-            </div>
+              <span className="shrink-0 self-start text-[11px] text-blue-600 inline-flex items-center gap-0.5 mt-0.5 group-hover:gap-1 transition-all">
+                Open report
+                <ArrowRight className="w-3 h-3" />
+              </span>
+            </button>
           );
         })}
       </div>
