@@ -21,9 +21,11 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { INTERACTIVE_REPORTS, type InteractiveReportId } from "./interactiveReportsRegistry";
 
 interface ReportsLibraryProps {
   onOpenQuery: (sql: string) => void;
+  onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
 }
 
 type Category = "Lifestyle" | "Outflow" | "Retention" | "Risk" | "Opportunities";
@@ -343,7 +345,7 @@ const CATEGORY_TONE: Record<Category, string> = {
 
 const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retention", "Risk", "Opportunities"];
 
-export function ReportsLibrary({ onOpenQuery }: ReportsLibraryProps) {
+export function ReportsLibrary({ onOpenQuery, onOpenInteractiveReport }: ReportsLibraryProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
 
