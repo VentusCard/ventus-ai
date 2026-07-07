@@ -251,6 +251,7 @@ export default function ExecDemoIntelPanel({
   activePillLabel,
   onClearHighlight,
   onEnrichmentPillarClick,
+  externalSignals,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
