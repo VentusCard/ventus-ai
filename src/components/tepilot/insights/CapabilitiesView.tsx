@@ -648,7 +648,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       icon: Package,
       description: `The bank's operational context — products, locations, organizational structure, and customer tiers — that shapes what Ventus can recommend and to whom. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
       onOpen: onOpenProducts,
-      openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
+      openLabel: `Open Bank Context tab`,
       inputs: [
         { label: "Consumer Banking Products", sublabel: "Checking, savings, debit, credit cards, and digital wallets", icon: Wallet },
         { label: "Consumer Lending Products", sublabel: "Mortgages, auto, personal, HELOC, and student loans", icon: Home },
