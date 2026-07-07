@@ -204,7 +204,7 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
             onScheduleCall={handleScheduleCall}
           />
         )}
-        {activeModule === 'wallet' && <WalletDepthModule />}
+        
         {activeModule === 'atrisk' && (
           <AtRiskModule
             clientEventPairs={clientEventPairs}
