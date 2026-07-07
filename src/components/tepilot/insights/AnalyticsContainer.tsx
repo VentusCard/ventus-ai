@@ -70,7 +70,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Home",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
-      { value: "products", label: "Products", icon: Package },
+      { value: "products", label: "Bank\u00A0Context", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
   },
