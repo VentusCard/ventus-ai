@@ -563,7 +563,7 @@ export function AdvisorNotificationsView({
 
   return (
     <div className="h-full overflow-y-auto bg-slate-100">
-      <div className="max-w-[960px] mx-auto p-6 space-y-3">
+      <div className="max-w-[960px] mx-auto p-6 space-y-5">
         {/* Primary navigation */}
         <div className="sticky top-0 z-10 -mx-6 px-6 py-2 bg-slate-100/95 backdrop-blur border-b border-slate-200">
           <div className="flex items-center gap-2">
