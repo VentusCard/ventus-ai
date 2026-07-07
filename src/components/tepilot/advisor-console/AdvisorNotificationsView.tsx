@@ -263,7 +263,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     render: ({ nameA, nameB, labelA, labelB }) => (
       <>
         <p>
-          Good list. Before I reach out, give me the supporting evidence on both.
+          Share with me me the supporting evidence these clients.
         </p>
         <ul className="list-disc pl-5 space-y-1.5">
           <li>
