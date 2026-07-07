@@ -6,8 +6,8 @@ import { cn } from "@/lib/utils";
 import {
   Gem, Layers, Grid3x3, Crown, CalendarHeart, TrendingUp, AlertTriangle,
   ArrowUpRight, Sunset, GraduationCap, Home, Gift, Briefcase, Baby, Heart,
-  Scan, Users, CalendarDays, AlertCircle, CreditCard, PiggyBank, Landmark,
-  LineChart, Wallet,
+  Scan, CalendarDays, AlertCircle, CreditCard, PiggyBank, Landmark,
+  LineChart, Wallet, ShieldAlert, ArrowRight, Sparkles, DollarSign,
 } from "lucide-react";
 import {
   LIFE_EVENT_CONFIG, DetectedLifeEvent, DashboardClient, EventPreparationData,
