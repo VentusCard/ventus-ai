@@ -216,6 +216,7 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
             onScheduleCall={handleScheduleCall}
           />
         )}
+        {activeModule === 'exposure' && <PortfolioExposureModule />}
       </div>
 
       <PrepareEventDialog
