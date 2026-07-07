@@ -268,7 +268,7 @@ const TravelLocalPreview = () => (
         <span className="text-sm font-semibold text-gray-900">Miami, FL</span>
       </div>
       <p className="text-[13px] font-bold text-slate-800">Hi John, welcome to Miami!</p>
-      <p className="text-[11px] text-slate-500 mb-2">Your Ventus Bank Membership gets you the following deals:</p>
+      <p className="text-[11px] text-slate-500 mb-2">Your Our Bank Membership gets you the following deals:</p>
       <p className="text-[9px] text-gray-400 flex items-center gap-1">
         <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
         Inferred from spending patterns — no location tracking
