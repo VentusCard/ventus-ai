@@ -99,7 +99,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
             {[
               {
-                title: "Our Mission",
+                title: "Problem Statement",
                 text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
               },
               {
@@ -151,7 +151,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
             <p className="text-sm text-slate-600 leading-relaxed">
               {[
                 {
-                  title: "Our Mission",
+                  title: "Problem Statement",
                   text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
                 },
                 {
