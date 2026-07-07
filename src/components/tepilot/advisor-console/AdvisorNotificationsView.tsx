@@ -218,14 +218,34 @@ const RIBBON_ICONS = [
 
 type Sender = "ventus" | "advisor";
 
+type AutoCohortRow = { name: string; timing: string; amount: string; confidence: string };
+
 interface MessageDef {
   sender: Sender;
   time: string;
   navLabel: string;
   subjectPrefix: "" | "Re: ";
   quoted?: string;
-  render?: (ctx: { nameA: string; nameB: string; labelA: string; labelB: string; eventTypeA: string; eventTypeB: string }) => React.ReactNode;
+  render?: (ctx: {
+    nameA: string;
+    nameB: string;
+    labelA: string;
+    labelB: string;
+    eventTypeA: string;
+    eventTypeB: string;
+    autoCohort: AutoCohortRow[];
+  }) => React.ReactNode;
 }
+
+const AUTO_COHORT_ROTATION: Array<Omit<AutoCohortRow, "name">> = [
+  { timing: "0–3 mo", amount: "$33k–$42k", confidence: "72%" },
+  { timing: "3–6 mo", amount: "$68k–$82k", confidence: "58%" },
+  { timing: "0–3 mo", amount: "$27k–$36k", confidence: "81%" },
+  { timing: "3–6 mo", amount: "$90k–$110k", confidence: "64%" },
+  { timing: "0–3 mo", amount: "$42k–$51k", confidence: "77%" },
+  { timing: "3–6 mo", amount: "$48k–$60k", confidence: "69%" },
+];
+
 
 const REPLY_MESSAGES: MessageDef[] = [
   {
