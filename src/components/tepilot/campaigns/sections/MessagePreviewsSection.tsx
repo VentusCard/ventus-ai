@@ -11,6 +11,13 @@ import {
 import { buildMessageCards, type MessageCard } from "./buildMessageCards";
 import { buildSamplePayload } from "./buildSamplePayload";
 
+function formatReach(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 1 : 1)}K`;
+  return n.toLocaleString();
+}
+
+
 
 
 // ── visuals ──────────────────────────────────────────────────────────────────
