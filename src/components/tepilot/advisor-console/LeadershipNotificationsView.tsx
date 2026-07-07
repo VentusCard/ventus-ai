@@ -199,8 +199,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "8:53 AM",
-    navLabel: "8:53",
+    time: "8:42 AM",
+    navLabel: "8:42",
     quoted: `Priya, 8:41 AM — Focus me on the top Act Now item — the pre-retiree product gap.`,
     render: () => (
       <>
@@ -229,7 +229,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     sender: "leader",
     time: "9:04 AM",
     navLabel: "9:04",
-    quoted: `Ventus AI, 8:53 AM — Want me to draft a campaign brief and an advisor-comms note?`,
+    quoted: `Ventus AI, 8:42 AM — Want me to draft a campaign brief and an advisor-comms note?`,
     render: () => (
       <p>
         Yes to both. And give me a read on the pre-retiree opportunity in the second section — is that the same cohort, or a different slice? I want to make sure we're not double-counting when I take this to the exec review.
@@ -238,8 +238,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "9:22 AM",
-    navLabel: "9:22",
+    time: "9:05 AM",
+    navLabel: "9:05",
     quoted: `Priya, 9:04 AM — Yes to both. And give me a read on the pre-retiree opportunity in the second section…`,
     render: () => (
       <>
@@ -287,7 +287,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     sender: "leader",
     time: "9:31 AM",
     navLabel: "9:31",
-    quoted: `Ventus AI, 9:22 AM — Both drafts below, plus a note on the overlap.`,
+    quoted: `Ventus AI, 9:05 AM — Both drafts below, plus a note on the overlap.`,
     render: () => (
       <p>
         Campaign brief is approved in principle. Schedule a 20-minute working session with Chen, Ortiz, and Whitfield later this week to align on the outreach — send them the note beforehand. And log the broader pre-retiree opportunity for next week's exec review with the nested framing you outlined.
@@ -296,8 +296,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "9:47 AM",
-    navLabel: "9:47",
+    time: "9:32 AM",
+    navLabel: "9:32",
     quoted: `Priya, 9:31 AM — Campaign brief is approved in principle…`,
     render: () => (
       <>
