@@ -11,6 +11,7 @@ import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import ExecDemoEnrichmentTable from "./ExecDemoEnrichmentTable";
+import type { ExternalIntelSignal } from "@/lib/externalIntelligenceSignals";
 
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
