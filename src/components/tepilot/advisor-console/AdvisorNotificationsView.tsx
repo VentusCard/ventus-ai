@@ -555,7 +555,7 @@ export function AdvisorNotificationsView({
     { idx: 0, label: "Digest", who: "ventus" as Sender, timeLabel: "9:14" },
     ...REPLY_MESSAGES.map((m, i) => ({
       idx: i + 1,
-      label: m.sender === "ventus" ? "Ventus" : "You",
+      label: m.sender === "ventus" ? "Ventus" : "Advisor",
       who: m.sender,
       timeLabel: m.navLabel,
     })),
@@ -684,7 +684,7 @@ export function AdvisorNotificationsView({
                 <div className="text-xs text-slate-600 mt-1">
                   <span className="text-slate-400">To:</span>{" "}
                   <span className="text-slate-700">
-                    {activeMsg.sender === "ventus" ? "You" : "Ventus AI Coworker"}
+                    {activeMsg.sender === "ventus" ? "Advisor" : "Ventus AI Coworker"}
                   </span>
                   <span className="text-slate-400 ml-3">Cc:</span>{" "}
                   <span className="text-slate-500">—</span>
