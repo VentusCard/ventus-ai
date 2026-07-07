@@ -581,7 +581,7 @@ export function AdvisorNotificationsView({
                       </div>
 
                       <div>
-                        {rows.slice(0, 6).map(({ client, event }, idx) => {
+                        {rows.slice(0, section.key === "risk" ? 2 : 3).map(({ client, event }, idx) => {
                           const cfg = LIFE_EVENT_CONFIG[event.eventType];
                           const signalCount = event.keyEvidence.length || 3;
                           const windowDays =
@@ -589,9 +589,9 @@ export function AdvisorNotificationsView({
                             : event.urgencyScore === 4 ? 30
                             : event.urgencyScore === 3 ? 60
                             : 90;
-                          const confidencePct = Math.round(
-                            (event.confidence ?? Math.min(0.95, event.urgencyScore * 0.18 + 0.1)) * 100
-                          );
+                          const confidencePct = (
+                            event.confidence ?? Math.min(0.95, event.urgencyScore * 0.18 + 0.1)
+                          ).toFixed(1);
                           const rawTiming = event.estimatedTiming?.trim() ?? "";
                           const looksConcrete = /\d|week|month|day|quarter/i.test(rawTiming);
                           const timingPhrase = looksConcrete
@@ -600,6 +600,7 @@ export function AdvisorNotificationsView({
                             : event.urgencyScore === 4 ? "next 2–3 weeks"
                             : event.urgencyScore === 3 ? "this quarter"
                             : "no rush";
+                          const offer = offerFor(event.eventType);
                           return (
                             <div
                               key={`${client.id}-${event.eventType}-${idx}`}
@@ -632,6 +633,10 @@ export function AdvisorNotificationsView({
                                     over the past <span className="font-semibold text-slate-900">{windowDays}</span> days
                                     · <span className="font-semibold text-slate-900">{confidencePct}%</span> confidence.
                                   </span>
+                                </div>
+                                <div className="text-[13px] text-slate-700 mt-1">
+                                  <span className="text-[11px] uppercase tracking-wide text-slate-500 mr-1">Recommended offer:</span>
+                                  {offer}
                                 </div>
                               </div>
                             </div>
