@@ -375,7 +375,17 @@ function FannedDeck({
               >
                 {card.anchor}
               </span>
+              {card.estimatedReach ? (
+                <span
+                  className="ml-auto inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 px-1.5 py-0.5 rounded border border-slate-200 bg-white tabular-nums"
+                  title="Estimated eligible customers"
+                >
+                  <Users className="w-3 h-3 text-slate-400" />
+                  ~{formatReach(card.estimatedReach)} reach
+                </span>
+              ) : null}
             </div>
+
 
             <div className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2 mb-2">
               <p className="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Subject</p>
