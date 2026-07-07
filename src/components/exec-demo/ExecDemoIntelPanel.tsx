@@ -420,6 +420,15 @@ export default function ExecDemoIntelPanel({
   // On Next-Product, keep them colored & clickable since the rationale panel surfaces risk as "Additional Tools".
   const riskPillsMuted = activeTab === "analytics";
 
+  // If the active life-event pill matches an external signal, highlight that row instead of tx rows.
+  const activeExternalSignalId = useMemo(() => {
+    if (!activeTriggerLabel || !externalSignals || externalSignals.length === 0) return null;
+    const match = externalSignals.find((s) => s.event_name === activeTriggerLabel);
+    return match?.id ?? null;
+  }, [activeTriggerLabel, externalSignals]);
+
+
+
   return (
     <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
       {/* Tab bar — moved ABOVE persona/pills card when a tab is active */}
