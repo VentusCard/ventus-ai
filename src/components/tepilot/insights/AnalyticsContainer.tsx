@@ -11,7 +11,7 @@ import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 
-import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
+import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { WealthIntelligenceView } from "./WealthIntelligenceView";
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
