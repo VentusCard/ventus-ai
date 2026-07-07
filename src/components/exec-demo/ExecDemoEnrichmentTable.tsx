@@ -426,6 +426,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         tr.exec-row-dimmed > td {
           opacity: 0.32;
         }
+        tr.exec-ext-highlighted > td {
+          background-color: color-mix(in srgb, var(--exec-hl) 14%, transparent) !important;
+          box-shadow: inset 3px 0 0 0 var(--exec-hl);
+        }
         td.exec-enriched-cell {
           background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);
         }
