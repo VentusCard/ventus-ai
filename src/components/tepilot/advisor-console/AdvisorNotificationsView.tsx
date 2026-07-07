@@ -287,6 +287,7 @@ const REPLY_MESSAGES: MessageDef[] = [
       const evB = evidenceFor(eventTypeB);
       return (
         <>
+          <p>Hi Morgan,</p>
           <p>Here's what we're actually seeing on the ledger:</p>
           <div>
             <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
@@ -332,6 +333,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     quoted: `Morgan, 9:44 AM — Pull me a working list of clients who'd genuinely benefit from the new premium travel card…`,
     render: ({ travelCardCohort }) => (
       <>
+        <p>Hi Morgan,</p>
         <p>Card hooks worth leading with:</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>60,000 bonus points on sign-up</li>
@@ -380,6 +382,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     quoted: `Morgan, 10:07 AM — Summarize today's to-do list from both tasks…`,
     render: ({ travelCardCohort, digestRows }) => (
       <>
+        <p>Hi Morgan,</p>
         <div>
           <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 1 — Digest signals ({digestRows.length})</p>
           <ul className="list-disc pl-5 space-y-0.5 mt-1">
@@ -711,8 +714,9 @@ export function AdvisorNotificationsView({
           <div key={activeIndex} className="px-6 py-5 space-y-5 transition-opacity">
             {activeMsg.kind === "digest" ? (
               <>
+                <p className="text-sm text-slate-700 leading-relaxed">Hi Morgan,</p>
                 <p className="text-sm text-slate-700 leading-relaxed">
-                  A short list this morning — the handful worth your attention, grouped by how time-sensitive they are.
+                  A short list this morning – the handful worth your attention, grouped by how time-sensitive they are.
                   Each row has a suggested offer and my confidence. Reply on any name to go deeper.
                 </p>
 
