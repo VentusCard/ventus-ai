@@ -218,14 +218,34 @@ const RIBBON_ICONS = [
 
 type Sender = "ventus" | "advisor";
 
+type AutoCohortRow = { name: string; timing: string; amount: string; confidence: string };
+
 interface MessageDef {
   sender: Sender;
   time: string;
   navLabel: string;
   subjectPrefix: "" | "Re: ";
   quoted?: string;
-  render?: (ctx: { nameA: string; nameB: string; labelA: string; labelB: string; eventTypeA: string; eventTypeB: string }) => React.ReactNode;
+  render?: (ctx: {
+    nameA: string;
+    nameB: string;
+    labelA: string;
+    labelB: string;
+    eventTypeA: string;
+    eventTypeB: string;
+    autoCohort: AutoCohortRow[];
+  }) => React.ReactNode;
 }
+
+const AUTO_COHORT_ROTATION: Array<Omit<AutoCohortRow, "name">> = [
+  { timing: "0–3 mo", amount: "$33k–$42k", confidence: "72%" },
+  { timing: "3–6 mo", amount: "$68k–$82k", confidence: "58%" },
+  { timing: "0–3 mo", amount: "$27k–$36k", confidence: "81%" },
+  { timing: "3–6 mo", amount: "$90k–$110k", confidence: "64%" },
+  { timing: "0–3 mo", amount: "$42k–$51k", confidence: "77%" },
+  { timing: "3–6 mo", amount: "$48k–$60k", confidence: "69%" },
+];
+
 
 const REPLY_MESSAGES: MessageDef[] = [
   {
@@ -294,7 +314,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     quoted: `Ventus AI, 9:23 AM — Want the fuller household picture for each…`,
     render: () => (
       <p>
-        Yes. Household composition, anything about the spouse or dependents, and whatever context would change how I frame the conversation. I don't want to walk in cold on either of them.
+        Different topic. Marketing is launching a car-loan campaign next month and asked us to seed it from the book. Pull me a working list of clients likely to need auto financing in the next 6 months — name, timing, estimated loan amount, and how confident you are.
       </p>
     ),
   },
@@ -303,29 +323,31 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "9:45 AM",
     navLabel: "9:45",
     subjectPrefix: "Re: ",
-    quoted: `Morgan, 9:44 AM — I don't want to walk in cold on either of them.`,
-    render: ({ nameA, nameB }) => (
+    quoted: `Morgan, 9:44 AM — Pull me a working list of clients likely to need auto financing in the next 6 months…`,
+    render: ({ autoCohort }) => (
       <>
-        <div>
-          <p className="font-medium text-slate-900">{nameA}</p>
-          <ul className="list-disc pl-5 space-y-1 mt-1">
-            <li>Two-adult household, individual primary account with a shared secondary. Decisions historically made solo, but recent activity suggests they're consulting a partner more than before.</li>
-            <li>Behavioral shift reads as someone reassessing lifestyle priorities — not a distress signal, more of a rethink.</li>
-            <li>Careful nuance: they've been pitched a similar concept before and passed. Lead with curiosity, not a product.</li>
-          </ul>
+        <p>Top 6 by signal strength:</p>
+        <div className="border border-slate-200 rounded-md divide-y divide-slate-200 overflow-hidden">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-3 py-1.5 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+            <div>Client</div>
+            <div className="text-right">Timing</div>
+            <div className="text-right">Est. amount</div>
+            <div className="text-right">Confidence</div>
+          </div>
+          {autoCohort.map((row) => (
+            <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-3 py-2 items-center">
+              <div className="font-medium text-slate-900">{row.name}</div>
+              <div className="text-right text-slate-700 tabular-nums">{row.timing}</div>
+              <div className="text-right text-slate-700 tabular-nums">{row.amount}</div>
+              <div className="text-right text-slate-700 tabular-nums">{row.confidence}</div>
+            </div>
+          ))}
         </div>
-        <div>
-          <p className="font-medium text-slate-900">{nameB}</p>
-          <ul className="list-disc pl-5 space-y-1 mt-1">
-            <li>Married, joint primary account, one dependent. Spouse is currently the more active user on the household.</li>
-            <li>The shift looks tied to a family-side change rather than a market view — worth acknowledging gently rather than analytically.</li>
-            <li>Careful nuance: prior exposure to a related product that underperformed. Don't reopen that thread unless they do.</li>
-          </ul>
-        </div>
-        <p>Want a prep sheet for each — angle, 3 talking points, and a soft intro you can paste?</p>
+        <p>Full list is 34 across the book — this is the top 6 by signal strength. Want me to log this cohort as a campaign audience?</p>
       </>
     ),
   },
+
   {
     sender: "advisor",
     time: "10:07 AM",
@@ -461,6 +483,20 @@ export function AdvisorNotificationsView({
   const eventTypeA = topTwo[0]?.event.eventType ?? "";
   const eventTypeB = topTwo[1]?.event.eventType ?? "";
 
+  const excludeIds = new Set(topTwo.map((r) => r.client.id));
+  const autoCohort: AutoCohortRow[] = useMemo(() => {
+    const pool = [...clients]
+      .filter((c) => !excludeIds.has(c.id))
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .slice(0, AUTO_COHORT_ROTATION.length);
+    return pool.map((c, i) => ({
+      name: c.profile.name,
+      ...AUTO_COHORT_ROTATION[i],
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clients, topTwo]);
+
+
 
   const [activeIndex, setActiveIndex] = useState(0);
   const total = REPLY_MESSAGES.length + 1;
@@ -493,7 +529,7 @@ export function AdvisorNotificationsView({
           subject: `Re: Daily digest — ${totalSignals} signals to action`,
           kind: "reply",
           quoted: m.quoted,
-          body: m.render?.({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB }),
+          body: m.render?.({ nameA, nameB, labelA, labelB, eventTypeA, eventTypeB, autoCohort }),
         };
       })();
 
