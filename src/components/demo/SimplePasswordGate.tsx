@@ -103,11 +103,11 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
                 text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
               },
               {
-                title: "Our Team",
+                title: "Team",
                 text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
               },
               {
-                title: "Our Vision",
+                title: "Vision",
                 text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
               },
             ].map((section) => {
@@ -155,11 +155,11 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
                   text: "Most banking experiences are generic: same offers, same alerts, same treatment for every account holder.. Ventus AI turns the transaction data already flowing through their core into clear customer intent, delivering megabank-level personalization inside the tools their teams already use.",
                 },
                 {
-                  title: "Our Team",
+                  title: "Team",
                   text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
                 },
                 {
-                  title: "Our Vision",
+                  title: "Vision",
                   text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
                 },
               ].find((s) => s.title === expandedSection)?.text}
