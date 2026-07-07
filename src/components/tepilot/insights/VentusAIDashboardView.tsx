@@ -42,9 +42,11 @@ const SLIVER_CHIPS = QUICK_ACTIONS.slice(0, 2);
 
 interface VentusAIDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
+  onOpenOpportunity?: (opportunityId: string) => void;
 }
 
-export function VentusAIDashboardView({ onNavigate }: VentusAIDashboardViewProps) {
+export function VentusAIDashboardView({ onNavigate, onOpenOpportunity }: VentusAIDashboardViewProps) {
+
   const [input, setInput] = useState("");
   const [expanded, setExpanded] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -134,7 +136,7 @@ export function VentusAIDashboardView({ onNavigate }: VentusAIDashboardViewProps
 
   return (
     <>
-      <AnalystDashboardView onNavigate={onNavigate} renderVentusSliver={renderSliver} />
+      <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
 
       {expanded && (
         <div className="fixed inset-0 z-50 flex flex-col bg-slate-50">
