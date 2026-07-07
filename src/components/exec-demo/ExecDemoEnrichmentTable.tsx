@@ -146,17 +146,24 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
 
   const hasPending = rawCount > 0 && enrichedCount < rawCount;
   const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
-  const matchedCount = highlightSet ? highlightSet.size : 0;
+  const externals = externalSignals ?? [];
+  const externalActive = !!activeExternalSignalId;
+  const matchedCount = highlightSet ? highlightSet.size : externalActive ? 1 : 0;
+  const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
 
   return (
     <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} style={{ maxHeight: "100%" }}>
-      {highlightSet && activePillLabel && (
+      {showStrip && (
         <div
           className="flex items-center justify-between px-3 py-2 border-b"
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
           <span className="text-[13px] font-semibold" style={{ color: highlightColor }}>
-            Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"
+            {externalActive ? (
+              <>Showing <span className="tabular-nums">1</span> external signal for "{activePillLabel}"</>
+            ) : (
+              <>Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
+            )}
           </span>
           {onClearHighlight && (
             <button
