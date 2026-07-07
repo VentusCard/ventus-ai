@@ -665,19 +665,19 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       description: "Credit bureau file plus third-party consumer enrichment covering wealth, property, demographics, auto, employment, life events, and digital identity.",
         inputs: [
         { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge, fcra: true },
-        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank },
-        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home },
-        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users },
-        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car },
+        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank, fcra: false },
+        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home, fcra: false },
+        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users, fcra: false },
+        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car, fcra: false },
         
-        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles },
-        { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck },
+        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles, fcra: false },
+        { label: "Digital identity & device", sublabel: "Device fingerprint, email/phone risk, and identity graph", icon: ShieldCheck, fcra: false },
         
-        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart },
-        { label: "Public records", sublabel: "Bankruptcies, liens, judgments, and UCC filings", icon: FileText },
-        { label: "Firmographics (business owner)", sublabel: "SIC code, employee count, estimated sales volume, years in business, website", icon: Building2 },
-        { label: "Licenses & registrations", sublabel: "Pilot, hunting, boat, and driver's license history — wealth/lifestyle proxies", icon: BadgeCheck },
-        { label: "New movers & pre-movers", sublabel: "In-market relocation signal: pre-move intent and recent-move flag", icon: Truck },
+        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart, fcra: false },
+        { label: "Public records", sublabel: "Bankruptcies, liens, judgments, and UCC filings", icon: FileText, fcra: false },
+        { label: "Firmographics (business owner)", sublabel: "SIC code, employee count, estimated sales volume, years in business, website", icon: Building2, fcra: false },
+        { label: "Licenses & registrations", sublabel: "Pilot, hunting, boat, and driver's license history — wealth/lifestyle proxies", icon: BadgeCheck, fcra: false },
+        { label: "New movers & pre-movers", sublabel: "In-market relocation signal: pre-move intent and recent-move flag", icon: Truck, fcra: false },
       ],
     },
   ];
@@ -1122,14 +1122,16 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                           <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
                             {item.label}
                           </div>
-                          {itemFcra ? (
-                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                              FCRA
-                            </span>
-                          ) : (
-                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                              non-FCRA
-                            </span>
+                          {activeSourceLabel === "External Intelligence" && (
+                            itemFcra ? (
+                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                FCRA
+                              </span>
+                            ) : (
+                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                                non-FCRA
+                              </span>
+                            )
                           )}
                         </div>
                         <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">

@@ -1,32 +1,27 @@
-
 ## Goal
+Restrict the FCRA / non-FCRA labels so they only appear in the **External Intelligence** source group detail panel. Remove them from Signal families, Team workflows, and all other source groups (KYC, Transactions, Product Holdings, Digital Banking, Bank Context).
 
-Each of the 5 sample cards in the "Micro-Segment Personalized Campaign Output" deck should surface an **estimated reach** (population count) — the reason each card earned a top-5 slot. Also surface the featured card's reach in the left "Example 01/05" counter block so the viewer sees the number tied to the currently shown card.
+## Current Behavior
+In `CapabilitiesView.tsx`, the detail-item renderer (lines ~1102–1139) shows an FCRA or non-FCRA badge for **every** item when a non-team detail is active (`!activeTeam`). This incorrectly applies the label to:
+- Signal families (Life Event, Behavioral, Financial, Demographic, Risk)
+- All source groups other than External Intelligence
 
-## Changes
+## Proposed Change
 
-### 1. `buildMessageCards.ts`
-- Add `estimatedReach: number` to the `MessageCard` interface.
-- Add a small deterministic helper `computeReach(family, slot, seed, variantsTotal)` that returns a plausible customer count per card. Rules:
-  - BEHAVIOR cards → largest audiences (broad spend patterns), ~40–120K range
-  - DEMOGRAPHIC → mid, ~15–45K
-  - LIFE_EVENT → smaller, ~4–14K (event-triggered)
-  - FINANCIAL_SIGNAL → smallest, ~2–9K (narrow trigger)
-  - Values seeded by `seed` + `slot` so Regenerate produces new but stable numbers.
-  - Rounded to nearest 100 for realism.
-- Populate `estimatedReach` when constructing every card, including the `CUSTOMER_CHOICE_CARDS` overrides (assign at return-time, don't hardcode into the constant).
-- Sort the final 5-card array descending by `estimatedReach` so slot 01 is always the largest — reinforcing "top 5 for a reason."
+1. **Render logic** — In the item-mapper inside the `!activeTeam` block, wrap the FCRA/non-FCRA badge in a condition:
+   ```tsx
+   {activeSourceLabel === "External Intelligence" && (
+     <span …>{itemFcra ? "FCRA" : "non-FCRA"}</span>
+   )}
+   ```
+   When the active detail is a signal family or any other source group, no badge is rendered.
 
-### 2. `MessagePreviewsSection.tsx`
-- **Per-card display (FannedDeck):** Add a small reach chip in the top row next to the `play` + `anchor` badges, e.g. `Users` icon + `"~48.2K reach"`. Formatting reuses the same K/M rule as `AudienceEstimateBar` (inline, no shared util needed).
-- **Left counter block:** Under the existing "Example / 01 / 05 / shown below" section, add one line with the featured card's reach, e.g. `~48.2K customers` in slate-700, tabular-nums. Updates as the user pages through cards.
-- No other layout changes; keep light theme, existing colors, spacing.
+2. **Data clarity** — Add `fcra: false` explicitly to all External Intelligence inputs that are not already marked `fcra: true`, so the fallback logic is unambiguous.
 
-## Out of scope
-- No changes to `AudienceEstimateBar`, targeting logic, or variant math.
-- No new sort controls or filters.
-- No copy changes to card subjects/bodies.
+## Files Modified
+- `src/components/tepilot/insights/CapabilitiesView.tsx`
 
-## Technical notes
-- `computeReach` is pure and deterministic — same `(family, slot, seed)` yields same number, so screenshots and demo runs stay stable.
-- Sorting by reach happens after all 5 cards are built, so play/anchor pairing logic is unchanged.
+## Verification
+- Open System tab → click **External Intelligence** → confirm each input shows either FCRA or non-FCRA.
+- Click **KYC**, **Transactions**, **Product Holdings**, **Digital Banking**, **Bank Context** → confirm no FCRA/non-FCRA badges appear.
+- Click any **Signal family** (e.g., Life Event) → confirm no badges appear.
