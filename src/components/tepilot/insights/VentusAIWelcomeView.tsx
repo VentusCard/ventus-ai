@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'wealth-intelligence';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
 
 interface VentusAIWelcomeViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -72,7 +72,7 @@ const SUGGESTED_PROMPTS = [
 
 type NavGroup = "featured" | "grow" | "protect" | "operate";
 const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: React.ElementType; group: NavGroup }[] = [
-  { tab: "wealth-intelligence", label: "Merrill Growth Desk", description: "Advisor & exec wealth workflow — signal to action", icon: Briefcase, group: "featured" },
+  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "featured" },
   { tab: "life-events", label: "Life Events", description: "Predictive life-event detection", icon: CalendarHeart, group: "grow" },
   { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route, group: "grow" },
   { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "grow" },
