@@ -452,6 +452,9 @@ export function AdvisorNotificationsView({
   const nameB = topTwo[1]?.client.profile.name ?? "the second client";
   const labelA = topTwo[0] ? LIFE_EVENT_CONFIG[topTwo[0].event.eventType].label : "";
   const labelB = topTwo[1] ? LIFE_EVENT_CONFIG[topTwo[1].event.eventType].label : "";
+  const eventTypeA = topTwo[0]?.event.eventType ?? "";
+  const eventTypeB = topTwo[1]?.event.eventType ?? "";
+
 
   const [activeIndex, setActiveIndex] = useState(0);
   const total = REPLY_MESSAGES.length + 1;
