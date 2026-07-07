@@ -383,6 +383,37 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             );
             });
           })()}
+          {externals.map((s) => {
+            const isActive = activeExternalSignalId === s.id;
+            const isDimmed = !isActive && (!!highlightSet || externalActive);
+            const conf = s.confidence > 1 ? Math.round(s.confidence) : Math.round(s.confidence * 100);
+            return (
+              <tr
+                key={`ext-${s.id}`}
+                className={`border-t border-violet-200 transition-all duration-200 ${isActive ? "exec-ext-highlighted" : ""} ${isDimmed ? "exec-row-dimmed" : ""}`}
+                style={isActive ? ({ ["--exec-hl" as any]: "#8b5cf6" } as React.CSSProperties) : undefined}
+              >
+                <td colSpan={10} className="px-3 py-2 bg-violet-50/40">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center gap-1 shrink-0 text-[11.5px] font-semibold uppercase tracking-wider px-2 py-1 rounded bg-violet-100 text-violet-700 border border-violet-200">
+                      <Sparkles className="w-3 h-3" />
+                      External Intelligence
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[13px] font-semibold text-slate-900 truncate">{s.headline}</div>
+                      <div className="text-[12px] text-slate-500 truncate">{s.detail}</div>
+                    </div>
+                    <span className="shrink-0 text-[11.5px] font-medium px-2 py-0.5 rounded-full bg-white text-violet-700 border border-violet-200 whitespace-nowrap">
+                      {s.provider}
+                    </span>
+                    <span className="shrink-0 tabular-nums text-[12.5px] font-semibold text-violet-700">
+                      {conf}%
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <style>{`
