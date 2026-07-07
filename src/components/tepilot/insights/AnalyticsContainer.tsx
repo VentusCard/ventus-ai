@@ -183,7 +183,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
   useEffect(() => {
     contentRef.current?.scrollTo(0, 0);
-    if (activeTab === 'ventus-ai' || activeTab === 'wealth-intelligence') setChatOpen(false);
+    if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
 
   // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
