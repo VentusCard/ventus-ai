@@ -68,7 +68,7 @@ function KpiTile({ label, value, delta, positive = true }: { label: string; valu
 export function AIAssistantActivityView() {
   const customer = DEMO_CUSTOMERS[0];
   const bankCfg = getDemoBankConfig();
-  const bankLabel = bankCfg.mode === "custom" ? bankCfg.bankShortName || bankCfg.bankName || "Our Bank" : "Our Bank";
+  const bankLabel = "Our Bank";
   const firstName = (customer.profile?.name ?? "").split(" ")[0] || "there";
 
   const [activeTopicIdx, setActiveTopicIdx] = useState(0);
