@@ -30,8 +30,8 @@ const LEADER = {
 };
 
 const VENTUS = {
-  name: "Ventus AI Copilot",
-  email: "copilot@ventusai.com",
+  name: "Ventus AI Coworker",
+  email: "wmcoworker@ventusai.com",
   initials: "VA",
 };
 
