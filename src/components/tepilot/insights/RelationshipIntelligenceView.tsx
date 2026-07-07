@@ -510,35 +510,6 @@ function LifeEventsModule({
   );
 }
 
-const WALLET_TIERS = [
-  { label: 'Preferred', aum: '<$250k',      customers: '1.6M', avgProducts: 2.1, share: 68 },
-  { label: 'Premium',   aum: '$250k–$1M',   customers: '620k', avgProducts: 3.4, share: 26 },
-  { label: 'Private',   aum: '$1M+',        customers: '180k', avgProducts: 4.6, share: 6 },
-];
-
-function WalletDepthModule() {
-  return (
-    <div>
-      <ModuleHeader title="Wallet Depth Tiers" subtitle="Depth of relationship by wealth band — where product velocity accelerates." />
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        {WALLET_TIERS.map(t => (
-          <div key={t.label} className="border border-slate-200 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-sm font-semibold text-slate-900">{t.label}</span>
-              <Badge variant="outline" className="text-[10px] bg-slate-50 text-slate-600">{t.aum}</Badge>
-            </div>
-            <p className="text-2xl font-bold text-slate-900 mt-2">{t.avgProducts}</p>
-            <p className="text-[11px] text-slate-500">avg products per customer</p>
-            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-              <span>{t.customers} customers</span>
-              <span>{t.share}% of base</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
 
 function AtRiskModule({
   clientEventPairs, onPrepare, onView, onScheduleCall,
