@@ -1,58 +1,39 @@
-
 ## Goal
 
-Mirror the "Revenue opportunities" list card on the Ventus AI Dashboard by adding a **Top 3 Recommended Actions** card at the top of the Relationship Intelligence tab. Each action jumps the user into the **Campaign Builder** with the right product (and default offer/link) already selected — so the action becomes an immediately-editable draft campaign.
+The "Bank Context" tab (currently `ProductsCatalogView`, showing only the product catalog) should mirror the six-part definition of Bank Context that already appears under the "System" tab source card:
 
-## Scope
+> Consumer Banking Products · Consumer Lending Products · Wealth & Investment Products · Locations & Hours · Departments · Customer Segments & Tiers
 
-Frontend-only. No backend, no new data models. Three files touched, no new files.
+We'll restructure the tab into a sub-tabbed detail view so each facet is browsable, and rename it to make the scope clear.
 
-## Files
+## New sub-tab structure
 
-### 1. `src/components/tepilot/insights/RelationshipIntelligenceView.tsx`
-- Add `onNavigate?: (tab: TabValue) => void` to the props.
-- Add a new module-agnostic `RecommendedActionsCard` component rendered as the first block on the page, above the Portfolio strip.
-- Card style copies the "Revenue opportunities" pattern from `AnalystDashboardView` (priority dot, title, one-line context, right-side numeric) so it feels native to the Ventus dashboards.
-- 3 hand-authored actions that map cleanly to what the tiles already show:
-  1. **Cross-sell HELOC to mortgage holders** — high priority, ~$182M annual opportunity, 1.4M eligible → prefills `Home Mortgage`-relative HELOC campaign.
-  2. **Win back deposit outflow with High-Yield Savings** — medium priority, ~$96M protected balances, 620K users → prefills `High-Yield Savings`.
-  3. **Convert cashback holders with heavy travel to Premium Travel** — medium priority, ~$74M, 480K users → prefills `Premium Travel`.
-- Each row is a button. On click:
-  - Write a prefill payload to `sessionStorage` under key `ventus.campaignBuilder.prefill` (`{ productName, offers?, campaignLink? }`).
-  - Call `onNavigate('targeting-campaign-builder')`.
-- No changes to existing tiles or copy.
+Inside the Bank Context tab, add a segmented sub-nav with 4 sub-tabs (Products already covers the three product buckets from the source card via its existing categories):
 
-### 2. `src/components/tepilot/insights/AnalyticsContainer.tsx`
-- Pass `onNavigate={setActiveTab}` to `<RelationshipIntelligenceView ... />` in the `life-events` case.
+1. **Products** — existing `BANK_PRODUCT_CATEGORIES` grid (Consumer Banking, Lending, Wealth & Investment all live here as categories). Keeps current UI.
+2. **Locations & Hours** — branch network, ATM coverage, regional operating schedules. Simple stat tiles + a table of sample regions (Northeast/Southeast/Midwest/Southwest/West/Northwest) with branch count, ATM count, weekend hours.
+3. **Departments** — RM assignment rules, advisor specializations, escalation paths. Card list: Retail RM, Small Business, Wealth Advisor, Private Bank, Mortgage Loan Officer, Fraud/AML — each with coverage tier, escalation path, specialization.
+4. **Customer Segments & Tiers** — Mass Market, Preferred Rewards (Gold/Platinum/Platinum Honors/Diamond), Merrill, Private Bank. Table with balance thresholds, benefits, servicing model.
 
-### 3. `src/components/tepilot/campaigns/ProductCampaignBuilderView.tsx`
-- On mount, read `sessionStorage.getItem('ventus.campaignBuilder.prefill')`. If present:
-  - `setProductName(payload.productName)`
-  - If `payload.offers` → `setOffers(payload.offers)`
-  - If `payload.campaignLink` → `setCampaignLink(payload.campaignLink)`
-  - `setMode('product')` and `setVisibleStep(3)` so the user lands on the message previews with everything filled in.
-  - Clear the sessionStorage key so it doesn't re-apply on next visit.
+All three new sub-tabs use presentation-only mock data hand-authored in the same file (or a small sibling data file), following the existing card/table look — no business-logic changes, strict light theme, Manrope UI.
 
-## Visual
+## Files to change
 
-```text
-Relationship Intelligence
-──────────────────────────────────────────────────────────
-[ Top 3 Recommended Actions                     3 flagged ]
- ● Cross-sell HELOC to mortgage holders           $182M
-    High-equity mortgage holders, no HELOC        1.4M users →
- ● Win back deposit outflow with HYSA              $96M
-    Outbound to neobank rails, no HYSA            620K users →
- ● Convert cashback → Premium Travel               $74M
-    Cashback holders w/ heavy travel spend        480K users →
-──────────────────────────────────────────────────────────
-[ Portfolio strip (unchanged)                             ]
-[ Bento tiles (unchanged)                                 ]
-```
+- `src/components/tepilot/insights/ProductsCatalogView.tsx`
+  - Rename component to `BankContextView` (keep file or rename to `BankContextView.tsx`).
+  - Add internal `subTab` state and a segmented control (same visual language as other in-page tabs — slate-200 border pill row).
+  - Render existing catalog for the Products sub-tab; render three new sub-views for the others.
+  - Update `TabHeader` title to "Bank Context" and rewrite subtitle/howItWorks/whyItMatters to cover all four facets, not just products.
 
-## Notes / Constraints
+- `src/components/tepilot/insights/AnalyticsContainer.tsx`
+  - Update the import and `case 'products'` render to the renamed view (if renamed).
+  - Nav label already reads "Bank Context" — no change.
 
-- Strict light theme, no `dark:` utilities — matches existing bento tiles.
-- Uses the same priority-dot color scale as the AnalystDashboard: high=amber-500, medium=blue-500, low=slate-300.
-- `sessionStorage` handoff keeps the two views loosely coupled and avoids threading extra state through `AnalyticsContainer`.
-- All 3 product names exist verbatim in `PRODUCT_CATALOG` (`Home Mortgage` → HELOC map targets the `HELOC` entry; `High-Yield Savings`; `Premium Travel`).
+- `src/components/tepilot/insights/CapabilitiesView.tsx`
+  - Update the Bank Context source card's `openLabel` from `Open Products tab · N products` to `Open Bank Context tab`, since it now covers more than products.
+
+## Out of scope
+
+- No changes to `bankProductCatalog.ts` or any downstream consumer of it.
+- No new routes, no backend/data-model changes.
+- Locations, Departments, and Segments data is static illustrative content only.
