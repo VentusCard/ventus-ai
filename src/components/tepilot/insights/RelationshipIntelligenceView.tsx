@@ -153,6 +153,9 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
         whyItMatters="A portfolio view that pairs revenue upside with the risk it's sitting next to — so the bank acts before the customer leaves, defaults, or self-reports a life event."
       />
 
+      {/* Top recommended actions */}
+      <RecommendedActionsCard onNavigate={onNavigate} />
+
       {/* Portfolio strip */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard icon={<Scan className="h-5 w-5 text-slate-600" />} label="Customers Scanned" value="2.4M" bg="bg-slate-50" />
