@@ -296,8 +296,8 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
   {
     sender: "ventus",
-    time: "9:47 AM",
-    navLabel: "9:47",
+    time: "9:32 AM",
+    navLabel: "9:32",
     quoted: `Priya, 9:31 AM — Campaign brief is approved in principle…`,
     render: () => (
       <>
