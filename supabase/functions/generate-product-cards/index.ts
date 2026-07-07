@@ -191,6 +191,8 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
+Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, demographics income). Do not invent unrelated figures.
+
 Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using the generate_product_cards function. NEVER emit a risk card.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
