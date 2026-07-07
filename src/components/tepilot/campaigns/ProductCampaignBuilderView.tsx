@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Megaphone, Package, Wand2 } from "lucide-react";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
