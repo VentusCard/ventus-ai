@@ -483,6 +483,20 @@ export function AdvisorNotificationsView({
   const eventTypeA = topTwo[0]?.event.eventType ?? "";
   const eventTypeB = topTwo[1]?.event.eventType ?? "";
 
+  const excludeIds = new Set(topTwo.map((r) => r.client.id));
+  const autoCohort: AutoCohortRow[] = useMemo(() => {
+    const pool = [...clients]
+      .filter((c) => !excludeIds.has(c.id))
+      .sort((a, b) => a.id.localeCompare(b.id))
+      .slice(0, AUTO_COHORT_ROTATION.length);
+    return pool.map((c, i) => ({
+      name: c.profile.name,
+      ...AUTO_COHORT_ROTATION[i],
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clients, topTwo]);
+
+
 
   const [activeIndex, setActiveIndex] = useState(0);
   const total = REPLY_MESSAGES.length + 1;
