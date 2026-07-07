@@ -568,8 +568,7 @@ export function AdvisorNotificationsView({
         <div className="sticky top-0 z-10 -mx-6 px-6 pt-4 pb-3 bg-slate-100/95 backdrop-blur border-b border-slate-200">
           <div className="flex items-center justify-between mb-3">
             <div>
-              <h2 className="text-sm font-bold text-slate-900">Conversation thread</h2>
-              <p className="text-xs text-slate-500 mt-0.5">Between Advisor and Ventus AI Coworker</p>
+              <h2 className="text-sm font-bold text-slate-900">Example Conversation thread between Advisor and Ventus AI Coworker</h2>
             </div>
             <span className="text-xs font-medium text-slate-600 bg-white border border-slate-200 rounded-full px-3 py-1">
               Message {activeIndex + 1} of {total}
