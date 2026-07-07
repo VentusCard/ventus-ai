@@ -18,7 +18,25 @@ export interface MessageCard {
   cta: string;
   ctaHref?: string;      // optional campaign URL — renders the CTA as a link
   why: string;           // 1-line rationale
+  estimatedReach: number; // customers eligible for this micro-segment
 }
+
+// Deterministic reach per (family, slot, seed). Rounded to nearest 100.
+const REACH_BANDS: Record<AnchorFamily, [number, number]> = {
+  BEHAVIOR:         [40_000, 120_000],
+  DEMOGRAPHIC:      [15_000, 45_000],
+  LIFE_EVENT:       [4_000, 14_000],
+  FINANCIAL_SIGNAL: [2_000, 9_000],
+};
+
+function computeReach(family: AnchorFamily, slot: number, seed: number): number {
+  const [lo, hi] = REACH_BANDS[family];
+  // simple deterministic hash
+  const h = Math.abs(Math.sin((slot + 1) * 12.9898 + (seed + 1) * 78.233)) % 1;
+  const raw = lo + h * (hi - lo);
+  return Math.round(raw / 100) * 100;
+}
+
 
 
 // ── Anchor pools by category ────────────────────────────────────────────────
