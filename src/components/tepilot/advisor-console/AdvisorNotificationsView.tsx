@@ -320,7 +320,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     quoted: `Ventus AI, 9:23 AM — Want the fuller household picture for each…`,
     render: () => (
       <p>
-        Different topic. Marketing is launching a car-loan campaign next month and asked us to seed it from the book. Pull me a working list of clients likely to need auto financing in the next 6 months — name, timing, estimated loan amount, and how confident you are.
+        Different topic. Marketing is launching the new premium travel card next month and asked us to seed it from the book. Pull me a working list of clients who'd genuinely benefit — recent leisure/international travelers where the perks pay for themselves. Name, recent trip, and a talking point I can lead with.
       </p>
     ),
   },
@@ -329,27 +329,33 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "9:45 AM",
     navLabel: "9:45",
     subjectPrefix: "Re: ",
-    quoted: `Morgan, 9:44 AM — Pull me a working list of clients likely to need auto financing in the next 6 months…`,
-    render: ({ autoCohort }) => (
+    quoted: `Morgan, 9:44 AM — Pull me a working list of clients who'd genuinely benefit from the new premium travel card…`,
+    render: ({ travelCardCohort }) => (
       <>
-        <p>Top 6 by signal strength:</p>
+        <p>Card hooks worth leading with:</p>
+        <ul className="list-disc pl-5 space-y-1">
+          <li>60,000 bonus points on sign-up</li>
+          <li>2x points on travel & dining, 1.5x on everything else</li>
+          <li>Up to $200/yr in Airline Incidental + TSA PreCheck / Global Entry statement credits</li>
+        </ul>
+        <p>8 candidates with recent trips where the card would have paid off:</p>
         <div className="border border-slate-200 rounded-md divide-y divide-slate-200 overflow-hidden">
           <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-3 py-1.5 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
             <div>Client</div>
-            <div className="text-right">Timing</div>
-            <div className="text-right">Est. amount</div>
-            <div className="text-right">Confidence</div>
+            <div className="text-right">Recent trip</div>
+            <div className="text-right">Window</div>
+            <div className="text-right">Est. saved</div>
           </div>
-          {autoCohort.map((row) => (
+          {travelCardCohort.map((row) => (
             <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-3 py-2 items-center">
               <div className="font-medium text-slate-900">{row.name}</div>
-              <div className="text-right text-slate-700 tabular-nums">{row.timing}</div>
-              <div className="text-right text-slate-700 tabular-nums">{row.amount}</div>
-              <div className="text-right text-slate-700 tabular-nums">{row.confidence}</div>
+              <div className="text-right text-slate-700">{row.recentTrip}</div>
+              <div className="text-right text-slate-700 tabular-nums">{row.tripWindow}</div>
+              <div className="text-right text-slate-700 tabular-nums">${row.estSavings}</div>
             </div>
           ))}
         </div>
-        <p>Full list is 34 across the book — this is the top 6 by signal strength. Want me to log this cohort as a campaign audience?</p>
+        <p>Savings estimate assumes 2x travel/dining on the trip spend plus the $200 travel credits. Want me to log this as a campaign audience?</p>
       </>
     ),
   },
@@ -359,10 +365,10 @@ const REPLY_MESSAGES: MessageDef[] = [
     time: "10:07 AM",
     navLabel: "10:07",
     subjectPrefix: "Re: ",
-    quoted: `Ventus AI, 9:45 AM — Top 6 by signal strength…`,
+    quoted: `Ventus AI, 9:45 AM — 8 candidates with recent trips where the card would have paid off…`,
     render: () => (
       <p>
-        Before I sign off, summarize today's to-do list from both tasks — the full digest and the car-loan cohort. Keep it tight, no detail.
+        Before I sign off, summarize today's to-do list from both tasks — the full digest and the travel card candidates. Keep it tight, no detail.
       </p>
     ),
   },
@@ -372,7 +378,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     navLabel: "10:08",
     subjectPrefix: "Re: ",
     quoted: `Morgan, 10:07 AM — Summarize today's to-do list from both tasks…`,
-    render: ({ autoCohort, digestRows }) => (
+    render: ({ travelCardCohort, digestRows }) => (
       <>
         <div>
           <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 1 — Digest signals ({digestRows.length})</p>
@@ -386,12 +392,12 @@ const REPLY_MESSAGES: MessageDef[] = [
           </ul>
         </div>
         <div>
-          <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 2 — Car-loan campaign cohort ({autoCohort.length})</p>
+          <p className="text-[11px] uppercase tracking-wide text-slate-500">Task 2 — Premium travel card candidates ({travelCardCohort.length})</p>
           <ul className="list-disc pl-5 space-y-0.5 mt-1">
-            {autoCohort.map((r) => (
+            {travelCardCohort.map((r) => (
               <li key={`a-${r.name}`}>
                 <span className="font-medium text-slate-900">{r.name}</span>
-                <span className="text-slate-600"> — {r.timing}</span>
+                <span className="text-slate-600"> — {r.recentTrip} · est. ${r.estSavings} saved</span>
               </li>
             ))}
           </ul>
@@ -402,6 +408,7 @@ const REPLY_MESSAGES: MessageDef[] = [
   },
 
 ];
+
 
 
 export function AdvisorNotificationsView({
