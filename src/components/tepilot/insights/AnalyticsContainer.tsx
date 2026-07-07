@@ -215,7 +215,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
       case 'analytics-dashboard':
-        return <VentusAIDashboardView onNavigate={setActiveTab} />;
+        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
       case 'exec-demo': return (
@@ -224,7 +224,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
-      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} />;
+      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} onOpenInteractiveReport={openInteractiveReport} />;
       case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
@@ -241,6 +241,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'report-wallet-share': return <WalletShareReport onBack={() => setActiveTab('reports')} />;
       case 'report-travel-trips': return <TravelTripsReport onBack={() => setActiveTab('reports')} />;
       case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
+      case 'report-priority-opportunity': return <PriorityOpportunityReport opportunityId={selectedOpportunityId} onBack={() => setActiveTab('reports')} onNavigate={setActiveTab} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
