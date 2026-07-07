@@ -81,6 +81,8 @@ interface Props {
   onClearHighlight?: () => void;
   /** Called when a Pillar pill inside the enrichment table is clicked. */
   onEnrichmentPillarClick?: (pillar: string) => void;
+  /** External Intelligence signals to render as extra rows at the bottom of the enrichment table. */
+  externalSignals?: ExternalIntelSignal[];
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
