@@ -16,7 +16,8 @@
 import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { makeDetectionScorer, scoreEnrichment } from './scorers.mjs';
+import { makeDetectionScorer, scoreEnrichment, scoreClassificationFidelity } from './scorers.mjs';
+import { captureClassificationFidelity } from './capture/classify-fidelity.mjs';
 
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..', '..');
@@ -36,6 +37,39 @@ export const TASKS = {
     },
     score: (golden, predictions, metadata) => scoreEnrichment(golden, predictions, metadata),
     note: 'Capture handled by the existing OpenRouter benchmark suite; scoring reuses evaluateGoldenPredictionResults.',
+  },
+
+  // Production-fidelity variant of merchant_classification: drives the shared
+  // production classification core (classify-core.mjs) with the chosen model, so
+  // the eval measures the exact prompt/tool-schema/batching/post-processing the
+  // Lambda runs. Scores merchant name + lifestyle + subcategory + confidence;
+  // signals are out of scope (produced by downstream detection Lambdas).
+  merchant_classification_fidelity: {
+    id: 'merchant_classification_fidelity',
+    unit: 'transaction',
+    routingTask: 'merchant_classification',
+    capture: 'internal',
+    goldenPath: join(syntheticBenchmarkDir, 'plaid-synthetic-benchmark-expectations.json'),
+    inputsPath: join(syntheticBenchmarkDir, 'plaid-synthetic-benchmark-enrich-fixture.json'),
+    loadGolden() {
+      return readJson(this.goldenPath);
+    },
+    loadInputs(limit) {
+      const doc = readJson(this.inputsPath);
+      const transactions = Array.isArray(doc) ? doc : doc.transactions ?? [];
+      return typeof limit === 'number' && limit > 0 ? transactions.slice(0, limit) : transactions;
+    },
+    async capture({ gateway, model, provider, limit }) {
+      return captureClassificationFidelity({
+        gateway,
+        model,
+        provider,
+        transactions: this.loadInputs(limit),
+      });
+    },
+    score: (golden, predictions, metadata) =>
+      scoreClassificationFidelity(golden, predictions, metadata),
+    note: 'Runs the shared production classification core; matches the Lambda code path (prompt, tool schema, batching, post-processing).',
   },
 
   risk_detection: detectionTask({

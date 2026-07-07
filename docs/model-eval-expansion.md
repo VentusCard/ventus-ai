@@ -35,6 +35,37 @@ Run: `npm run model-eval:test` and `npm run model-eval:run -- --task <id> --mode
 | `risk_detection` | customer | generic runner | set F1 on `risk_factors` + severity | `fixtures/evaluation/model-eval/risk-detection-golden.json` |
 | `life_event_detection` | customer | generic runner | set F1 on `life_events` + confidence band | `fixtures/evaluation/model-eval/life-event-detection-golden.json` |
 | `travel_detection` | customer | generic runner | set F1 on `trips` + month | `fixtures/evaluation/model-eval/travel-detection-golden.json` |
+| `merchant_classification_fidelity` | transaction | **internal (production core)** | `scoreClassificationFidelity` (merchant/category/confidence; signals out of scope) | synthetic benchmark expectations + enrich fixture |
+
+### Production-fidelity capture (`merchant_classification_fidelity`)
+
+The other tasks measure a model's capability under an **eval-authored** prompt. To
+measure what production actually ships, the classification engine was extracted
+into a shared module, `backend/shared/classify-core.mjs`, that **both** the
+`ventus-classify-transactions` Lambda and the eval import. It holds the exact
+production prompt, tool/JSON schema (12-pillar enum, confidence clamped 0.4–0.9),
+input summarization, batching (24/sub-batch 8), retry + sub-batch fallback, and
+post-processing. The Lambda passes its real, CloudWatch-wired dependencies; the
+eval passes an env-keyed gateway and a no-op rate-limit hook. Only the **model**
+changes between runs — everything else is byte-identical to the Lambda's HTTP path.
+
+Run it:
+
+```bash
+# Match production exactly (Gemini route, the shipped model):
+GEMINI_API_KEY=... npm run model-eval:fidelity -- --provider gemini --models gemini-2.5-flash
+
+# Compare challenger models through the identical prod code path:
+OPENROUTER_API_KEY=... npm run model-eval:fidelity -- \
+  --provider openrouter --models openai/gpt-4.1-mini,z-ai/glm-5.2 --limit 100
+```
+
+Scoring is classify-only: `clean_merchant_name`, `lifestyle_category`,
+`merchant_category`, and `confidence_score` are graded against the golden
+expectations; the `travel/risk/life_event` signals in the golden set are **out of
+scope** (they are produced by downstream detection Lambdas, not the classifier) and
+are neutralized so they neither inflate nor deflate the score. Latency reported is
+end-to-end wall time, which already reflects production batching/concurrency/retries.
 
 ### Pre-existing enrichment benchmark
 

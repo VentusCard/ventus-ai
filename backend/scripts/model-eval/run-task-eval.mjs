@@ -70,7 +70,11 @@ async function main() {
       }),
     });
     for (const model of models) {
-      runSummaries.push(await captureAndScore(gateway, model));
+      runSummaries.push(
+        task.capture === 'internal'
+          ? await captureInternalAndScore(gateway, model)
+          : await captureAndScore(gateway, model)
+      );
     }
   }
 
@@ -131,6 +135,46 @@ async function captureAndScore(gateway, model) {
   writeJson(join(runDir, 'predictions.json'), { run_label: runLabel, predictions });
   writeJson(join(runDir, 'report.json'), { run_summary: runSummary, detail: scored.detail });
   console.log(`accuracy=${scored.accuracy} sample=${scored.sample_size} latency=${latency.avg_ms}ms`);
+  return runSummary;
+}
+
+// 'internal' capture: the task drives a shared production code path (e.g. the
+// classification core) itself. It returns predictions + an end-to-end wall
+// latency that already reflects production batching/concurrency/retries.
+async function captureInternalAndScore(gateway, model) {
+  const runLabel = `${provider}/${model}`;
+  console.log(`\n=== ${runLabel} (${taskId}) [production-fidelity] ===`);
+
+  const limit = numberOrNull(Number(args.limit ?? process.env.MODEL_EVAL_LIMIT));
+  const capture = await task.capture({ gateway, model, provider, limit: limit ?? undefined });
+  const scored = task.score(golden, capture.predictions);
+  const latency = latencyStats([capture.latency_ms]);
+
+  const runSummary = {
+    run_label: runLabel,
+    provider,
+    model,
+    accuracy: scored.accuracy,
+    sample_size: scored.sample_size,
+    latency,
+    cost: { total: null, per_unit: null },
+  };
+
+  const runDir = join(outputDir, 'runs', slugify(runLabel));
+  mkdirSync(runDir, { recursive: true });
+  writeJson(join(runDir, 'predictions.json'), { run_label: runLabel, predictions: capture.predictions });
+  writeJson(join(runDir, 'report.json'), {
+    run_summary: runSummary,
+    detail: scored.detail,
+    capture: {
+      classified: capture.classified,
+      total: capture.total,
+      wall_latency_ms: capture.latency_ms,
+    },
+  });
+  console.log(
+    `accuracy=${scored.accuracy} sample=${scored.sample_size} classified=${capture.classified}/${capture.total} wall=${capture.latency_ms}ms`
+  );
   return runSummary;
 }
 

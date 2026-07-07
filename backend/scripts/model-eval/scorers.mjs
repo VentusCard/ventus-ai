@@ -98,6 +98,62 @@ export function scoreEnrichment(golden, predictions, metadata = {}) {
   };
 }
 
+/**
+ * Classify-only fidelity scorer.
+ *
+ * The production classify Lambda emits merchant name, lifestyle pillar,
+ * subcategory, and confidence — it does NOT emit the travel/risk/life-event
+ * signals that live in the golden expectations (those are produced by downstream
+ * detection Lambdas). To grade classification fairly we score the four fields the
+ * Lambda owns and treat signals as out of scope.
+ *
+ * Signals are neutralized by copying each expectation's expected_signals into the
+ * matching prediction, so the row-level pass_rate reflects only
+ * merchant/category/confidence. The signal field breakdown is stripped from the
+ * returned detail so it is not mistaken for a graded metric.
+ */
+export function scoreClassificationFidelity(golden, predictions, metadata = {}) {
+  const rows = Array.isArray(predictions) ? predictions : predictions?.predictions ?? [];
+  const predictedIds = new Set(rows.map((row) => row.transaction_id));
+  const expectations = (golden.expectations || []).filter((e) => predictedIds.has(e.transaction_id));
+  const signalsById = new Map(expectations.map((e) => [e.transaction_id, e.expected_signals]));
+
+  const neutralized = rows.map((row) => ({
+    ...row,
+    signals:
+      signalsById.get(row.transaction_id) || {
+        travel_candidate: false,
+        risk_candidate: false,
+        life_event_candidate: false,
+      },
+  }));
+
+  const subset = { ...golden, expectations };
+  const report = evaluateGoldenPredictionResults(subset, neutralized, metadata);
+  const byField = report.breakdowns?.by_field ?? {};
+  const nonSignalFields = Object.fromEntries(
+    Object.entries(byField).filter(([field]) => !field.startsWith('signals.'))
+  );
+
+  return {
+    accuracy: report.summary.pass_rate,
+    sample_size: report.summary.checked_predictions,
+    detail: {
+      report_summary: {
+        total_expectations: report.summary.total_expectations,
+        checked_predictions: report.summary.checked_predictions,
+        passed_expectations: report.summary.passed_expectations,
+        failed_expectations: report.summary.failed_expectations,
+        missing_predictions: report.summary.missing_predictions,
+        pass_rate: report.summary.pass_rate,
+      },
+      by_field: nonSignalFields,
+      signals_scored: false,
+      scored_fields: ['clean_merchant_name', 'lifestyle_category', 'merchant_category', 'confidence_score'],
+    },
+  };
+}
+
 function ratio(numerator, denominator) {
   return denominator > 0 ? numerator / denominator : 0;
 }
