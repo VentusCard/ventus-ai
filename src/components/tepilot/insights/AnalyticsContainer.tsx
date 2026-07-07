@@ -116,7 +116,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Health",
+    label: "Risk",
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
@@ -156,9 +156,9 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Health/Others/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
+    // Risk/Others/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
-      allowedLabels.add("Health");
+      allowedLabels.add("Risk");
       allowedLabels.add("Others");
       allowedLabels.add("Product & Growth");
     }
