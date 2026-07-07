@@ -1122,14 +1122,16 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                           <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
                             {item.label}
                           </div>
-                          {itemFcra ? (
-                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
-                              FCRA
-                            </span>
-                          ) : (
-                            <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
-                              non-FCRA
-                            </span>
+                          {activeSourceLabel === "External Intelligence" && (
+                            itemFcra ? (
+                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                FCRA
+                              </span>
+                            ) : (
+                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                                non-FCRA
+                              </span>
+                            )
                           )}
                         </div>
                         <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
