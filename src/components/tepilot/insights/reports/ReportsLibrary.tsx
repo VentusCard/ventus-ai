@@ -21,9 +21,11 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import { INTERACTIVE_REPORTS, type InteractiveReportId } from "./interactiveReportsRegistry";
 
 interface ReportsLibraryProps {
   onOpenQuery: (sql: string) => void;
+  onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
 }
 
 type Category = "Lifestyle" | "Outflow" | "Retention" | "Risk" | "Opportunities";
@@ -343,7 +345,7 @@ const CATEGORY_TONE: Record<Category, string> = {
 
 const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retention", "Risk", "Opportunities"];
 
-export function ReportsLibrary({ onOpenQuery }: ReportsLibraryProps) {
+export function ReportsLibrary({ onOpenQuery, onOpenInteractiveReport }: ReportsLibraryProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
 
@@ -386,8 +388,61 @@ export function ReportsLibrary({ onOpenQuery }: ReportsLibraryProps) {
         </div>
       </div>
 
+      {/* Interactive Reports — narrative + numbers + graphs + next steps */}
+      {onOpenInteractiveReport && INTERACTIVE_REPORTS.length > 0 && (
+        <div className="space-y-2">
+          <div className="flex items-baseline justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] uppercase tracking-wider font-semibold text-slate-500">
+                Interactive Reports
+              </span>
+              <span className="text-[11px] text-slate-400">
+                Read end-to-end — narrative, numbers, graphs, and recommended next steps
+              </span>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3">
+            {INTERACTIVE_REPORTS.map((r) => {
+              const Icon = r.icon;
+              return (
+                <button
+                  key={r.id}
+                  onClick={() => onOpenInteractiveReport(r.id)}
+                  className="text-left rounded-md border border-slate-200 bg-gradient-to-br from-white to-slate-50 p-4 hover:border-blue-300 hover:shadow-sm transition group"
+                >
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="w-8 h-8 rounded border border-blue-200 bg-blue-50 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-blue-600" />
+                    </div>
+                    <span className="text-[10px] uppercase tracking-wide font-medium px-1.5 py-0.5 rounded border bg-violet-50 text-violet-700 border-violet-100">
+                      {r.category}
+                    </span>
+                  </div>
+                  <div className="mt-3 text-[10px] uppercase tracking-wider font-medium text-slate-400">
+                    {r.eyebrow}
+                  </div>
+                  <div className="mt-0.5 text-[13px] font-semibold text-slate-900 leading-tight">
+                    {r.title}
+                  </div>
+                  <div className="text-[11px] text-slate-500 mt-1 leading-snug">
+                    {r.description}
+                  </div>
+                  <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-2.5">
+                    <span className="text-[10px] text-slate-400">Interactive</span>
+                    <span className="text-[11px] text-blue-600 inline-flex items-center gap-0.5 group-hover:gap-1 transition-all">
+                      Open report <ArrowRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Category chips */}
       <div className="flex items-center gap-1.5 flex-wrap">
+
         {CATEGORIES.map((c) => {
           const active = category === c;
           return (

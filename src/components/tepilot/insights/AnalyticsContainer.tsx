@@ -39,6 +39,8 @@ import { LifeEventFunnelReport } from "./reports/pages/LifeEventFunnelReport";
 import { WalletShareReport } from "./reports/pages/WalletShareReport";
 import { TravelTripsReport } from "./reports/pages/TravelTripsReport";
 import { NextConversationReport } from "./reports/pages/NextConversationReport";
+import { PriorityOpportunityReport } from "./reports/pages/PriorityOpportunityReport";
+import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
@@ -57,7 +59,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -139,12 +141,21 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const openInQuery = (sql: string) => {
     setPendingQuery(sql);
     setActiveTab('query');
   };
+
+  const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
+    if (id === 'priority-opportunity') {
+      setSelectedOpportunityId(payload?.opportunityId ?? null);
+      setActiveTab('report-priority-opportunity');
+    }
+  };
+
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
@@ -169,10 +180,31 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const validTabs = useMemo(() => {
     const set = new Set<TabValue>();
     filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
-    set.add('settings'); // footer-anchored, always available
-    set.add('feedback'); // footer-anchored, always available
+    // Footer-anchored, always available
+    set.add('settings');
+    set.add('feedback');
+    // Deep-linked report pages (not in sidebar) — reachable from Reports library
+    // or from cards on other pages. Always valid so the auto-reset effect doesn't
+    // bounce the user back.
+    set.add('report-lifestyle-pillars');
+    set.add('report-pillar-deep-dive');
+    set.add('report-cross-sell');
+    set.add('report-regional-spend');
+    set.add('report-outflow');
+    set.add('report-top-merchants');
+    set.add('report-subscription');
+    set.add('report-cohort-retention');
+    set.add('report-life-events');
+    set.add('report-fvi');
+    set.add('report-tier-migration');
+    set.add('report-life-event-funnel');
+    set.add('report-wallet-share');
+    set.add('report-travel-trips');
+    set.add('report-next-conversation');
+    set.add('report-priority-opportunity');
     return set;
   }, [filteredNavGroups]);
+
 
   // Auto-reset tab if it became hidden
   useEffect(() => {
@@ -204,7 +236,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
       case 'analytics-dashboard':
-        return <VentusAIDashboardView onNavigate={setActiveTab} />;
+        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
       case 'exec-demo': return (
@@ -213,7 +245,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
       );
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
-      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} />;
+      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} onOpenInteractiveReport={openInteractiveReport} />;
       case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
@@ -230,6 +262,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'report-wallet-share': return <WalletShareReport onBack={() => setActiveTab('reports')} />;
       case 'report-travel-trips': return <TravelTripsReport onBack={() => setActiveTab('reports')} />;
       case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
+      case 'report-priority-opportunity': return <PriorityOpportunityReport opportunityId={selectedOpportunityId} onBack={() => setActiveTab('reports')} onNavigate={setActiveTab} onSelectOpportunity={setSelectedOpportunityId} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
