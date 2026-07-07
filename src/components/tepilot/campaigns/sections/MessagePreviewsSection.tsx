@@ -51,8 +51,15 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   const [revealedCount, setRevealedCount] = useState(0);
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [regenSeed, setRegenSeed] = useState(0);
+  const [isSpinning, setIsSpinning] = useState(false);
   const [sampleOpen, setSampleOpen] = useState(false);
 
+  const handleRegenerate = () => {
+    setRegenSeed((s) => s + 1);
+    setFeaturedIdx(0);
+    setIsSpinning(true);
+    window.setTimeout(() => setIsSpinning(false), 400);
+  };
 
   // Reset seed when product changes
   useEffect(() => { setRegenSeed(0); }, [productName]);
