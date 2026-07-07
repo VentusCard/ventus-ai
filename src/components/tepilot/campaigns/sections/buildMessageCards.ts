@@ -231,20 +231,71 @@ function copyFor(
 
   switch (family) {
     case "BEHAVIOR": {
-      const partCount = splitAnchor(anchor).length;
-      const noun = partCount === 1 ? "category" : "categories";
-      const subject = ratePhrase
-        ? `${ratePhrase} — on your top ${noun}`
-        : `More from your everyday spend`;
-      const body = ratePhrase
-        ? `With the ${name} you can get ${ratePhrase} — the ${noun} that already carry most of your spend. ${fee}, nothing to switch on.`
-        : `With the ${name} you can get ${lc(mechanics.tagline)} — built around the pattern your spend already follows. ${fee}.`;
-      return {
-        subject,
-        body,
-        cta: play === "UPGRADE" ? "Make the switch" : "See how it adds up",
-        why: `Behavior anchor — ${anchor}. Play: ${play}.`,
-      };
+      const why = `Behavior anchor — ${anchor}. Play: ${play}.`;
+      const anchorLc = lc(anchor);
+      const anchorCap = anchor.charAt(0).toUpperCase() + anchor.slice(1);
+
+      if (product.category === "credit_cards") {
+        const partCount = splitAnchor(anchor).length;
+        const noun = partCount === 1 ? "category" : "categories";
+        const subject = ratePhrase
+          ? `${ratePhrase} — on your top ${noun}`
+          : `More from your everyday spend`;
+        const body = ratePhrase
+          ? `With the ${name} you can get ${ratePhrase} — the ${noun} that already carry most of your spend. ${fee}, nothing to switch on.`
+          : `With the ${name} you can get ${lc(mechanics.tagline)} — built around the pattern your spend already follows. ${fee}.`;
+        return {
+          subject,
+          body,
+          cta: play === "UPGRADE" ? "Make the switch" : "See how it adds up",
+          why,
+        };
+      }
+
+      switch (product.category) {
+        case "loans":
+          return {
+            subject: `${anchorCap} — worth refinancing`,
+            body: `Your recent pattern shows ${anchorLc}. The ${name} can consolidate or replace it at a better rate, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Run the numbers" : "See your rate",
+            why,
+          };
+        case "deposit_accounts":
+          return {
+            subject: `${anchorCap} — put it to work`,
+            body: `You're sitting on ${anchorLc}. Moving it into ${name} earns more without locking it up, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Move it over" : "Open in a minute",
+            why,
+          };
+        case "investments":
+          return {
+            subject: `${anchorCap} — a smarter home for it`,
+            body: `${anchorCap} shows up in your recent activity. ${name} gives that money a tax-advantaged or higher-return path, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Start the transfer" : "See the fit",
+            why,
+          };
+        case "insurance":
+          return {
+            subject: `${anchorCap} — worth a second look`,
+            body: `${anchorCap} is a common gap. ${name} closes it with ${lc(feature)}, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Review coverage" : "Get a quote",
+            why,
+          };
+        case "digital_services":
+          return {
+            subject: `${anchorCap} — one tap to fix`,
+            body: `${anchorCap} means you're missing what ${name} already gives you: ${lc(feature)}. Takes under a minute.`,
+            cta: play === "UPGRADE" ? "Enable now" : "Turn it on",
+            why,
+          };
+        default:
+          return {
+            subject: `${anchorCap} — a fit for ${lower}`,
+            body: `Your recent pattern shows ${anchorLc}. ${name} matches with ${lc(feature)}, ${lc(fee)}.`,
+            cta: "Take a look",
+            why,
+          };
+      }
     }
     case "LIFE_EVENT":
       return {

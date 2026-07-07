@@ -1,36 +1,49 @@
-## Goal
-Extend the Leadership ↔ Ventus AI thread with the same "two distinct tasks + wrap-up takeaway" structure the Advisor thread uses — but reframed for an executive (Priya, Head of Wealth) so it showcases Ventus at leadership scope, not advisor scope.
+## Problem
 
-## Today
-The Leadership thread is one deep-dive: pre-retiree product gap → cohort scoping → campaign brief + advisor-comms note + scheduling. That's effectively Task 1.
+In Campaign Builder → Message Previews, every BEHAVIOR-family microsegment card renders subject/body copy tuned for credit cards:
 
-## Add 4 messages to `REPLY_MESSAGES` in `LeadershipNotificationsView.tsx`
+- Subject: `"{rate} — on your top category"` or `"More from your everyday spend"`
+- Body: `"With the {product} you can get {rate} — the category that already carries most of your spend..."`
 
-### Task 2 — Board update data pull (new topic)
-- **Leader, 9:47 AM** — "Different topic. I'm presenting to the board Thursday on the wallet-share loss in the tech corridor. Give me a one-slide read — size the outflow, tell me where it's actually going, and what we'd propose doing about it."
-- **Ventus, 9:48 AM** — executive one-slide read:
-  - Size & velocity: ~780 households, ~$1.2B outbound over 2 quarters, ~14% QoQ acceleration.
-  - Where it's going: small table (Destination type / % of flow / trend) — brokerage-first neobanks 46%, self-directed platforms 31%, alt-asset apps 15%, other 8%. Generic labels only (no competitor names, per project rules).
-  - Who's leaking: 33 advisor books, 60% under 45, avg tenure 4.2 yrs.
-  - Proposed response (3 bullets): fee-review pilot for top-decile leakers, self-directed-lite product surface in-app, advisor-led 1:1 outreach for top 120 households by quarter-end.
-  - Closer: "Want me to package this as a board-ready one-pager and pre-brief your CoS?"
+For non-card products this reads wrong. A HELOC card ends up saying "on your top category," an IRA card says "your everyday spend," etc. The anchor text itself (e.g. "High-rate balance elsewhere" for HELOC) is already category-correct — only the subject/body wrapper is generic.
 
-### Task 3 — Wrap-up to-do list (mirrors Advisor Task 3)
-- **Leader, 10:11 AM** — "Before my 1:1s, summarize today's to-do list across both tasks — the pre-retiree cohort and the board prep. Keep it tight, no detail."
-- **Ventus, 10:12 AM** — two-section digest, same visual pattern as Advisor:
-  - `Task 1 — Pre-retiree structured income`: working session Thu 2pm PT with Chen/Ortiz/Whitfield, per-book prep sheets Wed AM, exec review item logged with nested framing.
-  - `Task 2 — Board deck: wallet-share outflow`: one-pager drafted for Thursday, CoS pre-brief scheduled, fee-review pilot shortlist (33 books), 120-household outreach list queued for advisor assignment.
-  - Closer: "All logged. Monday rollup will cover both."
+Scope: `src/components/tepilot/campaigns/sections/buildMessageCards.ts`, the `case "BEHAVIOR"` block inside `copyFor` (lines ~232-248). No other files, no data changes, no UI/layout changes.
 
-## Technical notes
-- Only `REPLY_MESSAGES` is extended; pill nav, header counter, and `total` derive from `REPLY_MESSAGES.length` and update automatically.
-- No new state, no new data files, no styling changes. `navLabel` uses HH:MM like existing entries. Sender alternates leader/ventus as in the current thread.
-- Advisor thread is untouched.
+## Fix
 
-## Compliance / tone
-- No named competitors — outflow destinations described by category only (project memory: Competitor References).
-- Executive tone: quantified, no jargon, framed as strategic implications, matches existing Leadership voice.
-- "Vaguely specific" numbers consistent with project narrative rules — round figures, no false precision on individual clients.
+Replace the single BEHAVIOR template with a per-`ProductCategory` template map. The anchor string flows through unchanged; only the framing changes. Rate phrase is preserved for credit_cards (where the rate table is meaningful) and dropped for the others, which don't have rate-table mechanics that map to a spend anchor.
 
-## Files
-- `src/components/tepilot/advisor-console/LeadershipNotificationsView.tsx` — append 4 entries to `REPLY_MESSAGES`.
+Per-category subject + body:
+
+- **credit_cards** — keep today's copy (rate phrase + "on your top category/categories" / "More from your everyday spend"). This is the only case where "top category" is accurate.
+- **loans** (Personal Loan, Auto, HELOC, Mortgage, Refi, etc.) — subject: `"{anchor} — worth refinancing"` (e.g. "High-rate balance elsewhere — worth refinancing"). Body: `"Your recent pattern shows {anchor lowercased}. The {product} can consolidate or replace it at a better rate, {fee}."` CTA: "See your rate" / "Run the numbers" by play.
+- **deposit_accounts** — subject: `"{anchor} — put it to work"` (e.g. "Idle checking buffer — put it to work"). Body: `"You're sitting on {anchor lowercased}. Moving it into {product} earns more without locking it up, {fee}."` CTA: "Move it over" / "Open in a minute".
+- **investments** — subject: `"{anchor} — a smarter home for it"`. Body: `"{Anchor} shows up in your recent activity. {product} gives that money a tax-advantaged or higher-return path, {fee}."` CTA: "See the fit" / "Start the transfer".
+- **insurance** — subject: `"{anchor} — worth a second look"`. Body: `"{Anchor} is a common gap. {product} closes it with {feature}, {fee}."` CTA: "Get a quote" / "Review coverage".
+- **digital_services** — subject: `"{anchor} — one tap to fix"`. Body: `"{Anchor} means you're missing what {product} already gives you: {feature}. Takes under a minute."` CTA: "Turn it on" / "Enable now".
+
+CTA text stays play-aware (UPGRADE vs everything else) as it is today. `why` stays: `"Behavior anchor — {anchor}. Play: {play}."`
+
+Implementation shape (single function, no new exports):
+
+```ts
+case "BEHAVIOR": {
+  const cat = product.category;
+  if (cat === "credit_cards") {
+    // existing rate-phrase + "top category" copy stays here unchanged
+  }
+  const anchorLc = lc(anchor);
+  const anchorSentence = anchor.charAt(0).toUpperCase() + anchor.slice(1);
+  // switch(cat) returns { subject, body, cta } from the table above
+  return { subject, body, cta, why: `Behavior anchor — ${anchor}. Play: ${play}.` };
+}
+```
+
+No changes to LIFE_EVENT / DEMOGRAPHIC / FINANCIAL_SIGNAL branches, no changes to anchor pools, reach bands, or the 2-behavior-per-product slot rule.
+
+## Verification
+
+- Open Campaign Builder → pick HELOC → step 3, confirm two behavior cards read as loan/refi language, not "top category."
+- Repeat for Personal Loan, HYSA (deposit_accounts), Roth IRA (investments), Life Insurance, Digital Wallet.
+- Credit-card products (Cashback 3/2/1, Travel, Premium Travel) still show the existing rate-phrase + "top category" copy.
+- No TS errors; existing tests / typecheck pass.
