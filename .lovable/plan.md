@@ -1,101 +1,44 @@
 ## Goal
-Replace the disabled "Digital Telemetry — Coming soon" card in the `/demo` popup with an **External Intelligence** card that renders a configurable list of external signals. The current dataset has one signal (car loan renewal in 2 months), but the design must accept any number of future signals (property, marriage, employment change, bureau tradeline updates, VIN registrations, etc.) with zero code changes to the pipeline. Every configured signal must automatically flow into every downstream consumer (Next-Product, Next-Offer, product actions, intel-panel pills, phone view, WM CoPilot).
+Clicking an External Intelligence life-event pill should surface a dedicated row in the enrichment table. Currently no row appears because the synthetic evidence merchant (e.g. "Toyota Financial Services") isn't in the customer's CSV.
 
-## Architecture — dynamic signal source
+## Approach
+Render a distinct "External Intelligence" row per external signal at the bottom of the enrichment table. This row does NOT follow the transaction schema — no merchant name, no amount, no MCC, no source badge. It's a signal row, styled differently, that the pill click targets.
 
-### 1. New module: `src/lib/externalIntelligenceSignals.ts`
-Single source of truth for external-intelligence signals.
+## Row format (new)
+Full-width row spanning the table, visually separated from transactions:
 
-```ts
-export interface ExternalIntelSignal {
-  id: string;
-  event_name: string;          // becomes LifeEvent.event_name
-  confidence: number;          // 0..1
-  category: "bureau" | "property" | "auto" | "demographics" | "life_event" | "employment" | "other";
-  provider: string;            // e.g. "Bureau Tradeline", "Property Data", "Auto & VIN"
-  headline: string;            // popup card row title
-  detail: string;              // popup card row sub-line
-  evidence: { merchant: string; amount: number; date: string; relevance: string }[];
-  talking_points: string[];
-  // optional per-customer scoping; empty/undefined => applies to all
-  appliesTo?: string[];        // DEMO_CUSTOMERS ids
-}
-
-// Signals shipped today
-export const EXTERNAL_INTEL_SIGNALS: ExternalIntelSignal[] = [
-  {
-    id: "auto-loan-renewal",
-    event_name: "Car Loan Renewal in ~2 Months",
-    confidence: 0.92,
-    category: "auto",
-    provider: "Bureau Tradeline",
-    headline: "Car loan renewal in ~2 months",
-    detail: "Bureau tradeline · estimated maturity window · Toyota Financial Services",
-    evidence: [{
-      merchant: "Toyota Financial Services",
-      amount: 485,
-      date: "<latest>",
-      relevance: "External bureau tradeline — auto loan maturity within 60 days",
-    }],
-    talking_points: [
-      "Refi window opens now — pre-qualify for a lower APR before payoff.",
-      "If trading in, pair with a new-auto loan pre-approval.",
-      "Free cash flow (~$485/mo) can seed a HYSA or 529 top-up.",
-    ],
-  },
-  // Future signals just get appended here — no other file needs to change.
-];
-
-// Helpers
-export function getExternalSignalsFor(customerId: string): ExternalIntelSignal[];
-export function externalSignalToLifeEvent(s: ExternalIntelSignal): LifeEvent;
+```
+[External Intelligence]  Car loan renewal in ~2 months   Bureau Tradeline · Toyota Financial Services   92%
 ```
 
-### 2. `src/components/exec-demo/ExecDemoSelectionDialog.tsx`
-- Remove the "Digital Telemetry" dashed card (lines ~537-550).
-- Add an active **External Intelligence** card rendered from `getExternalSignalsFor(customer.id)`:
-  - Card header (like KYC/Income): badge "External Intelligence" (indigo/violet), then `{N} signal{s} · Bureau + third-party enrichment`.
-  - Body: one row per signal — `{headline}` (bold) + `{detail}` (muted) + right-aligned `{provider}` chip.
-  - If no signals, hide the card entirely.
-  - Collapsible like the other cards, expanded by default.
+- Left: violet "External Intelligence" chip (replaces pillar column).
+- Middle: signal headline (`s.headline`) + subline (`s.detail`).
+- Right: provider chip (`s.provider`) + confidence %.
+- No date, merchant, description, MCC, amount, category, subcategory, tier, or frequency columns for these rows.
 
-### 3. `src/pages/ExecDemoPage.tsx` — single injection point
-Inside `fireLifeEventDetection` (~line 722), immediately after `events` is fetched and **before** `setDetectedLifeEvents` / `detectedLifeEventsRef.current` are written:
+## Changes
 
-```ts
-const external = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx].id)
-  .map(externalSignalToLifeEvent);
+### 1. `src/lib/externalIntelligenceSignals.ts`
+No new helper needed for enrichment rows — signals are passed through as-is.
 
-// Interleave: keep the top detected event first, then external signals,
-// then remaining detected events. Cap at 3 (matching current .slice(0,3)).
-const merged = [events[0], ...external, ...events.slice(1)]
-  .filter(Boolean)
-  .slice(0, 3);
+### 2. `src/pages/ExecDemoPage.tsx`
+Memoize `externalSignals = getExternalSignalsFor(customerId)` and pass as a new `externalSignals` prop into `<ExecDemoIntelPanel />`.
 
-setDetectedLifeEvents(merged);
-detectedLifeEventsRef.current = merged;
-```
+### 3. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+- Accept `externalSignals?: ExternalIntelSignal[]`.
+- Pass through to `<ExecDemoEnrichmentTable externalSignals={externalSignals} />`.
+- Extend pill-click match logic (~line 625): when the active pill's `event_name` matches an external signal, set `highlightedIndices` to a sentinel range referring to external-signal rows (e.g. negative indices `-1, -2, …` mapped to signal position). Table interprets negatives as external rows.
 
-Pass `merged` (not `events`) into:
-- `fireProductCards(merged, personaSynthesisRef.current)` (line 727)
-- `fireNextOffers(syn, pillars, merged.length > 0 ? merged : undefined)` (line 733)
-
-For custom-CSV customers where `selectedIdx` doesn't map cleanly, `getExternalSignalsFor` falls back to signals with no `appliesTo` (i.e. universal), so the pipeline still works.
-
-### Downstream flow (already handled, no extra changes)
-Because everything reads from the same `detectedLifeEvents` / `detectedLifeEventsRef` / the `events` arg, every added external signal automatically reaches:
-- **Next-Product** — `generate-product-cards` (`life_events: events` at line 833)
-- **Product Actions** — `generate-product-actions` (`life_events` at line 885)
-- **Next-Offer** — `fireNextOffers(..., events)` (line 733)
-- **Risk-triggered product regen** — reads `detectedLifeEventsRef.current` (line 787)
-- **Intel-panel pills, phone view, WM CoPilot** — read `detectedLifeEvents` state (lines 1416, 1510)
-
-## Adding future signals
-A new external signal is added by appending one object to `EXTERNAL_INTEL_SIGNALS`. No changes to the popup, the intel panel, the edge functions, or any downstream component.
+### 4. `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
+- New prop `externalSignals?: ExternalIntelSignal[]`.
+- After the last transaction row, render one `<ExternalSignalRow>` per external signal, using the layout above (no per-column cells; uses `colSpan` across the transaction columns).
+- Highlight logic: when `highlightedIndices` contains a negative index, the matching external row uses the accent border/tint and transaction rows dim; conversely, positive indices dim external rows.
+- Style: violet accent (`bg-violet-50/40` row background, `text-violet-700` chip) so it reads as a different data class from bank transactions.
 
 ## Acceptance
-- Popup no longer shows "Digital Telemetry".
-- Popup shows the External Intelligence card, rendered from the config module, currently with one signal.
-- After running analysis, the car-loan-renewal pill appears (92%) as the second life-event pill.
-- Adding a second entry to `EXTERNAL_INTEL_SIGNALS` renders a second popup row AND a second injected pill AND is passed into Next-Product/Next-Offer calls without any other edits.
-- Light-theme and pill styling rules preserved.
+- After analysis, one External Intelligence row appears at the bottom of the enrichment table per signal in `EXTERNAL_INTEL_SIGNALS`.
+- Row shows headline + detail + provider + confidence — no merchant/amount/MCC columns.
+- Clicking the External Intelligence life-event pill highlights that row and dims transaction rows.
+- Clicking "Clear" restores full view.
+- Adding a second entry to `EXTERNAL_INTEL_SIGNALS` renders a second row automatically.
+- Downstream data (persona, product cards, Next-Offer, risk) unchanged.
