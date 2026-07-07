@@ -18,7 +18,26 @@ export interface MessageCard {
   cta: string;
   ctaHref?: string;      // optional campaign URL — renders the CTA as a link
   why: string;           // 1-line rationale
+  estimatedReach?: number; // customers eligible for this micro-segment
 }
+
+
+// Deterministic reach per (family, slot, seed). Rounded to nearest 100.
+const REACH_BANDS: Record<AnchorFamily, [number, number]> = {
+  BEHAVIOR:         [40_000, 120_000],
+  DEMOGRAPHIC:      [15_000, 45_000],
+  LIFE_EVENT:       [4_000, 14_000],
+  FINANCIAL_SIGNAL: [2_000, 9_000],
+};
+
+function computeReach(family: AnchorFamily, slot: number, seed: number): number {
+  const [lo, hi] = REACH_BANDS[family];
+  // simple deterministic hash
+  const h = Math.abs(Math.sin((slot + 1) * 12.9898 + (seed + 1) * 78.233)) % 1;
+  const raw = lo + h * (hi - lo);
+  return Math.round(raw / 100) * 100;
+}
+
 
 
 // ── Anchor pools by category ────────────────────────────────────────────────
@@ -212,20 +231,71 @@ function copyFor(
 
   switch (family) {
     case "BEHAVIOR": {
-      const partCount = splitAnchor(anchor).length;
-      const noun = partCount === 1 ? "category" : "categories";
-      const subject = ratePhrase
-        ? `${ratePhrase} — on your top ${noun}`
-        : `More from your everyday spend`;
-      const body = ratePhrase
-        ? `With the ${name} you can get ${ratePhrase} — the ${noun} that already carry most of your spend. ${fee}, nothing to switch on.`
-        : `With the ${name} you can get ${lc(mechanics.tagline)} — built around the pattern your spend already follows. ${fee}.`;
-      return {
-        subject,
-        body,
-        cta: play === "UPGRADE" ? "Make the switch" : "See how it adds up",
-        why: `Behavior anchor — ${anchor}. Play: ${play}.`,
-      };
+      const why = `Behavior anchor — ${anchor}. Play: ${play}.`;
+      const anchorLc = lc(anchor);
+      const anchorCap = anchor.charAt(0).toUpperCase() + anchor.slice(1);
+
+      if (product.category === "credit_cards") {
+        const partCount = splitAnchor(anchor).length;
+        const noun = partCount === 1 ? "category" : "categories";
+        const subject = ratePhrase
+          ? `${ratePhrase} — on your top ${noun}`
+          : `More from your everyday spend`;
+        const body = ratePhrase
+          ? `With the ${name} you can get ${ratePhrase} — the ${noun} that already carry most of your spend. ${fee}, nothing to switch on.`
+          : `With the ${name} you can get ${lc(mechanics.tagline)} — built around the pattern your spend already follows. ${fee}.`;
+        return {
+          subject,
+          body,
+          cta: play === "UPGRADE" ? "Make the switch" : "See how it adds up",
+          why,
+        };
+      }
+
+      switch (product.category) {
+        case "loans":
+          return {
+            subject: `${anchorCap} — worth refinancing`,
+            body: `Your recent pattern shows ${anchorLc}. The ${name} can consolidate or replace it at a better rate, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Run the numbers" : "See your rate",
+            why,
+          };
+        case "deposit_accounts":
+          return {
+            subject: `${anchorCap} — put it to work`,
+            body: `You're sitting on ${anchorLc}. Moving it into ${name} earns more without locking it up, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Move it over" : "Open in a minute",
+            why,
+          };
+        case "investments":
+          return {
+            subject: `${anchorCap} — a smarter home for it`,
+            body: `${anchorCap} shows up in your recent activity. ${name} gives that money a tax-advantaged or higher-return path, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Start the transfer" : "See the fit",
+            why,
+          };
+        case "insurance":
+          return {
+            subject: `${anchorCap} — worth a second look`,
+            body: `${anchorCap} is a common gap. ${name} closes it with ${lc(feature)}, ${lc(fee)}.`,
+            cta: play === "UPGRADE" ? "Review coverage" : "Get a quote",
+            why,
+          };
+        case "digital_services":
+          return {
+            subject: `${anchorCap} — one tap to fix`,
+            body: `${anchorCap} means you're missing what ${name} already gives you: ${lc(feature)}. Takes under a minute.`,
+            cta: play === "UPGRADE" ? "Enable now" : "Turn it on",
+            why,
+          };
+        default:
+          return {
+            subject: `${anchorCap} — a fit for ${lower}`,
+            body: `Your recent pattern shows ${anchorLc}. ${name} matches with ${lc(feature)}, ${lc(fee)}.`,
+            cta: "Take a look",
+            why,
+          };
+      }
     }
     case "LIFE_EVENT":
       return {
@@ -323,10 +393,19 @@ export function buildMessageCards(
 ): MessageCard[] {
   if (isCustomerChoiceCard(product)) {
     const href = campaignLink.trim();
-    return href
-      ? CUSTOMER_CHOICE_CARDS.map((c) => ({ ...c, ctaHref: href }))
-      : CUSTOMER_CHOICE_CARDS;
+    const len = CUSTOMER_CHOICE_CARDS.length;
+    const offset = ((seed % len) + len) % len;
+    const rotated = CUSTOMER_CHOICE_CARDS
+      .slice(offset)
+      .concat(CUSTOMER_CHOICE_CARDS.slice(0, offset));
+    const withReach = rotated.map((c, i) => ({
+      ...c,
+      estimatedReach: computeReach(c.anchorFamily, i, seed),
+      ...(href ? { ctaHref: href } : {}),
+    }));
+    return withReach.sort((a, b) => (b.estimatedReach ?? 0) - (a.estimatedReach ?? 0));
   }
+
   const cat = product.category;
   const stackPool = STACK_ANCHORS[cat] ?? [];
   const usagePool = USAGE_ANCHORS[cat] ?? [];
@@ -348,17 +427,27 @@ export function buildMessageCards(
     behaviorSources.push(usagePool);
   }
 
+  // Decouple slot 0 and slot 1 so Regenerate reshuffles instead of shifting
+  // both slots in lockstep. Slot 1 uses a different seed offset, and if the
+  // two anchors still collide (same pool), bump slot 1 further.
+  const slotSeedOffsets = [0, 1];
+  let prevAnchor: string | null = null;
   for (let slot = 0; slot < 2; slot++) {
     const pool = behaviorSources[slot];
     if (pool.length === 0) continue;
-    // Slot 1 offsets by 1 in the same pool to avoid duplicates when both come from usage.
-    const anchor = pick(pool, slot, seed);
+    let extra = slotSeedOffsets[slot];
+    let anchor = pick(pool, 0, seed + extra);
+    if (slot === 1 && anchor === prevAnchor && pool.length > 1) {
+      extra += 1;
+      anchor = pick(pool, 0, seed + extra);
+    }
     const play = pick(PLAYS_BY_FAMILY.BEHAVIOR, slot, seed);
     const base = copyFor("BEHAVIOR", product, anchor, play);
     const body = primaryOffer && slot === 0
       ? `${base.body} Currently: ${primaryOffer}.`
       : base.body;
     cards.push({ anchorFamily: "BEHAVIOR", play, anchor, ...base, body });
+    prevAnchor = anchor;
   }
 
   // Slot 2: life event
@@ -383,7 +472,13 @@ export function buildMessageCards(
   }
 
   const href = campaignLink.trim();
-  const out = href ? cards.map((c) => ({ ...c, ctaHref: href })) : cards;
+  const enriched = cards.map((c, i) => ({
+    ...c,
+    estimatedReach: computeReach(c.anchorFamily, i, seed),
+    ...(href ? { ctaHref: href } : {}),
+  }));
+  enriched.sort((a, b) => (b.estimatedReach ?? 0) - (a.estimatedReach ?? 0));
 
-  return out.slice(0, 5);
+  return enriched.slice(0, 5);
 }
+

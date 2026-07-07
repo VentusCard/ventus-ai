@@ -10,41 +10,30 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { life_events, persona_rollups, pillars, demographics, risk_flags, bankContext } = await req.json();
+    const { life_events, persona_rollups, pillars, demographics, bankContext } = await req.json();
     const bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
     const bankShort = bankContext && typeof bankContext.bankShortName === "string" ? bankContext.bankShortName.trim().slice(0, 40) : "";
     const bankWebsite = bankContext && typeof bankContext.website === "string" ? bankContext.website.trim().slice(0, 200) : "";
     const bankLabel = bankName || "Our Bank";
-    const hasRisk = Array.isArray(risk_flags) && risk_flags.length > 0;
-    // Pick the top risk (most evidence). Group by category_label and tally.
-    let topRisk: { category_group: string; category_label: string; evidence: string[] } | null = null;
-    if (hasRisk) {
-      const grouped = new Map<string, { category_group: string; category_label: string; evidence: string[] }>();
-      for (const f of risk_flags as any[]) {
-        const label = String(f.category_label || "Risk");
-        const ex = grouped.get(label) || { category_group: f.category_group || "aml", category_label: label, evidence: [] as string[] };
-        const ev = String(f.merchant_name || f.description || "").trim();
-        if (ev && !ex.evidence.includes(ev)) ex.evidence.push(ev);
-        grouped.set(label, ex);
-      }
-      const sorted = Array.from(grouped.values()).sort((a, b) => b.evidence.length - a.evidence.length);
-      topRisk = sorted[0] || null;
-    }
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate UP TO TWO product recommendation cards (or up to THREE if a RISK CARD is appended) that appear as notifications in a mobile banking app.
+    const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate exactly THREE product recommendation cards (2 life event + 1 behavioral) that appear as notifications in a mobile banking app.
 
-CARD ORDER (STRICT INTERLEAVING):
-Emit cards in exactly this order, skipping a slot only if the source doesn't exist:
-  1. Life Event card based on life_events[0] (first detected life event)
-  2. Behavioral card based on persona_rollups[0] (first behavioral habit)
-  3. RISK CARD — ONLY if risk_signal is provided in the user prompt. Always last.
+CARD ORDER (STRICT):
+Emit cards in exactly this order:
+  1. Life Event card based on life_events[0]
+  2. Life Event card based on life_events[1]
+  3. Behavioral card based on persona_rollups[0]
 
-If no life events exist → emit 1 behavioral card (behavioral_1) only.
-If no rollups exist → emit 1 life event card (life_event_1) only.
-Always emit at least 1 card if any source exists. NEVER emit more than 2 non-risk cards.
+RULES:
+- Always emit 3 cards when 2+ life events AND 1+ rollup exist.
+- If only 1 life event exists → emit [life_event_1, behavioral_1] (2 cards).
+- If no life events exist → emit [behavioral_1] only (1 card).
+- If no rollups exist → emit life event cards only (up to 2).
+- NEVER emit a risk card. NEVER return more than 3 cards.
+- The two life-event cards MUST recommend DIFFERENT products covering DIFFERENT financial needs — do not repeat the same product family.
 
 CRITICAL — signal_label must match source verbatim:
 - Behavioral card: signal_label = persona_rollups[i].label EXACTLY (character-for-character, including capitalization)
@@ -90,39 +79,45 @@ CARD 2 — LIFE EVENT:
   - The reader should feel the card is relevant without the bank explicitly stating what it knows
 - The signal_label field MUST still use the explicit event name (e.g. "College Preparation", "New Baby", "Retirement Planning")
 
-CARD 5 — RISK CARD (only if risk_signal is present in the user prompt):
-- This is NOT a marketing card. It is a wellness, transparency, and customer-care card.
-- Tone: caring, calm, non-judgmental, never alarming. Like a trusted advisor quietly checking in.
-- type: must be "risk"
-- product_name: a non-credit, wellness/safety-themed product. Examples:
-   - "${bankLabel} SafeBalance Account Controls"
-   - "${bankLabel} Account Wellness Tools"
-   - "${bankLabel} Spending Limits & Merchant Controls"
-   - "${bankLabel} Confidential Customer Care"
-   - For financial-distress signals, prefer hardship-themed products such as: "${bankLabel} Hardship Assistance Program", "${bankLabel} Overdraft Protection & Fee Waivers", "${bankLabel} Confidential Financial Coaching", "${bankLabel} Balance Assist Short-Term Loan", "${bankLabel} Customized Cash Wellness Plan"
-- signal_label: MUST equal the risk_signal.category_label verbatim (e.g. "Sports Betting", "High-Risk / Offshore Gambling", "Casino & Table Games", "Lottery & Raffles", "Casual / Social Gaming", "Horse Racing & Pari-mutuel", "Gambling", "Suspicious International", "Adult Entertainment", "AML", "Pawn Shops & Short-Term Credit", "Debt Collection & Debt Relief", "Check Cashing & Money Services", "Subprime Credit & Buy-Here-Pay-Here", "Overdraft & NSF Activity", "Crypto Mixing & High-Risk Crypto", "Financial Distress")
-- theme: use "wellness"
-- quote: 1-2 sentences framed as care/transparency. Examples:
-   - "We make it simple to put guardrails on your spending whenever you want — no questions asked."
-   - "Account controls are here to help you stay in charge of your day-to-day banking."
-   - For financial-distress signals: "If money's tight, we have programs to help — confidentially and with no judgment." / "A short-term cash crunch shouldn't cost you in fees. We have options."
-- offer_headline: focus on tools, not economics. Examples: "Tools to help you stay in control", "Confidential support whenever you need it", "Hardship options — discreet and judgment-free"
-- benefits (exactly 3): non-marketing wellness/security features ONLY. Examples:
-   - "Set daily and category-level spending limits in seconds"
-   - "Block specific merchants or transaction types instantly"
-   - "Confidential 24/7 support — talk to a real person"
-   - "Pause new charges with one tap from the app"
-   - For financial-distress: "Waive your next overdraft fee with one tap", "Free 1-on-1 financial coaching — no upsell, ever", "Short-term hardship plans with no credit-score impact", "Lower-cost alternative to payday — funded in minutes"
-- eligibility: trust/availability framing. Examples: "Available to all customers · No fees", "Always on · Adjust anytime", "No credit check · Confidential"
-- cta: care-oriented, never "Apply"/"Open". Examples: "Set Up Account Controls", "Talk to Someone Confidentially", "Adjust My Limits", "Explore Hardship Options", "Waive a Fee", "Get Free Coaching"
-- cta_sub: reassurance about discretion. Examples: "Confidential · No impact to credit", "Takes under a minute", "Judgment-free · No sales pitch"
-- ABSOLUTELY FORBIDDEN: any credit card, investment, loan, or upsell language. No celebratory tone. No "rewards", "earn", "bonus", "miles", "cash back".
 
 TONE RULES:
 - Write like a smart friend who happens to work in finance, not a bank marketing department
 - Conversational, warm, never corporate or pushy
 - No exclamation marks in quotes
 - No urgency tactics ("limited time", "act now")
+
+NUMERIC SPECIFICITY (MANDATORY):
+Every card MUST include concrete numbers. Never use vague language like "great rates" or "earn more".
+
+Required by field:
+- offer_headline: Include the headline rate/percentage/multiplier.
+  GOOD: "Auto refinance from 2.99% APR", "Earn 3x on travel, 2x on dining", "4.50% APY — 10x national average"
+  BAD:  "Great auto refi rates", "Earn more when you travel"
+- benefits (all 3): Each benefit MUST contain at least one specific number (%, $, x, months, or points).
+  GOOD: "$0 annual fee for the first year", "75,000 bonus points after $4K spend in 90 days", "0.25% rate discount for autopay"
+  BAD:  "No annual fee", "Big signup bonus", "Autopay discount"
+- quote: MUST contain ONE personalized dollar-estimate tied to the customer's actual behavior/signal.
+  Derive the estimate from persona rollups (totalSpend), life-event financial_projection, or the signal context.
+  Format: "You could save an estimated $XXX ..." or "That's roughly $XXX/year back on ..."
+  Examples by card type:
+    - Auto loan renewal (current payment ~$485/mo): "Refinancing at today's rates could save you an estimated $1,400 over the life of the loan."
+    - Travel rewards card + tropical-getaway rollup ($4,200 travel spend): "At 3x on travel, that's roughly $215 back on your next island trip."
+    - 529 for college prep: "Starting now with $250/mo could grow to an estimated $58,000 by freshman year."
+    - HYSA: "On a $10K balance, that's about $450 more per year than the average savings account."
+  The estimate must be plausible and grounded in the input data — do NOT invent unrelated numbers.
+- eligibility: When possible include a numeric anchor: "Pre-qualified — rates from 2.99% APR", "FDIC insured up to $250,000", "Open with as little as $25".
+- cta_sub: May include a number when relevant: "Funded in under 5 minutes", "Rate locked for 60 days".
+
+Rate/economics guidance (use realistic 2026 figures):
+- Auto refi APR: 5.49%–7.99% (well-qualified from 4.99%)
+- HYSA APY: 4.00%–4.75%
+- 529 avg annual growth: ~6%
+- Travel card: 2x–5x travel, 2x–3x dining, 1x other; sign-up 60k–100k pts after $4k in 90 days
+- HELOC: prime + 0%–2% variable
+- Mortgage: 6.25%–7.25% 30yr fixed
+- IRA/Roth contribution limits: $7,000 ($8,000 age 50+)
+Never guarantee returns — use "estimated", "roughly", "could", "approximately".
+
 
 OFFER DETAIL FIELDS (REQUIRED — must be personalized to THIS customer's signal):
 
@@ -196,10 +191,9 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
-${topRisk ? `RISK SIGNAL (append a RISK CARD as the LAST card; signal_label MUST equal category_label verbatim):
-${JSON.stringify(topRisk, null, 2)}` : "RISK SIGNAL: none — do NOT emit a risk card."}
+Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, demographics income). Do not invent unrelated figures.
 
-Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the generate_product_cards function.`;
+Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using the generate_product_cards function. NEVER emit a risk card.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -218,20 +212,20 @@ Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the 
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return up to 2 consumer product recommendation cards in strict interleaved order: life_event_1, behavioral_1 (plus optional risk card as 3rd)",
+              description: "Return up to 3 consumer product recommendation cards in strict order: life_event_1, life_event_2, behavioral_1",
               parameters: {
                 type: "object",
                 properties: {
                   cards: {
                     type: "array",
                     minItems: 1,
-                    maxItems: 5,
+                    maxItems: 3,
                     items: {
                       type: "object",
                       properties: {
                         type: {
                           type: "string",
-                          enum: ["behavioral", "life_event", "risk"],
+                          enum: ["behavioral", "life_event"],
                           description: "Card type",
                         },
                         product_name: {
@@ -240,7 +234,7 @@ Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the 
                         },
                         quote: {
                           type: "string",
-                          description: "1-2 sentence consumer-facing copy following the Ventus thesis tone",
+                          description: "1-2 sentence consumer-facing copy following the Ventus thesis tone. MUST include one personalized dollar-estimate (e.g. 'estimated $215', 'roughly $1,400') tied to the customer's actual signal or spending pattern.",
                         },
                         signal_label: {
                           type: "string",
@@ -253,14 +247,14 @@ Return up to ${topRisk ? 3 : 2} cards in the strict interleaved order using the 
                         },
                         offer_headline: {
                           type: "string",
-                          description: "Bold offer line tied to product economics, 6-12 words. e.g. 'Earn 2x miles on every purchase' or '4.50% APY — 10x the national average'",
+                          description: "Bold offer line tied to product economics, 6-12 words. MUST include a specific rate, percentage, multiplier, or dollar figure. e.g. 'Earn 3x on travel, 2x on dining' or '4.50% APY — 10x the national average' or 'Auto refinance from 2.99% APR'",
                         },
                         benefits: {
                           type: "array",
                           minItems: 3,
                           maxItems: 3,
                           items: { type: "string" },
-                          description: "Exactly 3 concrete bank-grade product features specific to the actual product",
+                          description: "Exactly 3 concrete bank-grade product features. Each benefit MUST contain at least one specific number (%, $, x, months, or points). e.g. '75,000 bonus points after $4K spend in 90 days'",
                         },
                         eligibility: {
                           type: "string",

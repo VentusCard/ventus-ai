@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Megaphone, Package, Wand2 } from "lucide-react";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
@@ -19,6 +19,29 @@ export function ProductCampaignBuilderView() {
   const [offers, setOffers] = useState<string[]>([]);
   const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
   const [visibleStep, setVisibleStep] = useState<1 | 2 | 3>(1);
+
+  // Apply prefill payload from other views (e.g., Relationship Intelligence)
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem('ventus.campaignBuilder.prefill');
+      if (!raw) return;
+      const payload = JSON.parse(raw) as {
+        productName?: string;
+        offers?: string[];
+        campaignLink?: string;
+      };
+      if (payload.productName) {
+        setMode('product');
+        setProductName(payload.productName);
+        if (payload.offers) setOffers(payload.offers);
+        if (payload.campaignLink) setCampaignLink(payload.campaignLink);
+        setVisibleStep(3);
+      }
+      sessionStorage.removeItem('ventus.campaignBuilder.prefill');
+    } catch {
+      /* ignore */
+    }
+  }, []);
 
   const handleSelectProduct = (name: string) => {
     setProductName(name);

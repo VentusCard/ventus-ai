@@ -3,6 +3,8 @@ import { getColor } from "./ExecDemoIntelPanel";
 import type { EnrichedTransaction } from "./execDemoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { getFlow } from "@/lib/transactionFlow";
+import type { ExternalIntelSignal } from "@/lib/externalIntelligenceSignals";
+import { Sparkles } from "lucide-react";
 
 const SOURCE_COLORS: Record<string, string> = {
   "Checking": "bg-slate-100 text-slate-600",
@@ -64,6 +66,10 @@ interface Props {
   onClearHighlight?: () => void;
   /** Called when the user clicks a Pillar pill inside the table to filter by that pillar. */
   onPillarClick?: (pillar: string) => void;
+  /** External Intelligence signals rendered as extra rows at the bottom (no merchant/amount schema). */
+  externalSignals?: ExternalIntelSignal[];
+  /** Id of the external signal currently activated by a pill click — highlights that row. */
+  activeExternalSignalId?: string | null;
 }
 
 // Column widths (kept in sync with skeleton in ExecDemoIntelPanel)
@@ -102,7 +108,7 @@ const ShimmerCell = ({ width = "80%", height = 14, rounded = "rounded" }: { widt
   />
 );
 
-export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight, onPillarClick }: Props) {
+export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, highlightedIndices, highlightColor = "#0ea5e9", activePillLabel, onClearHighlight, onPillarClick, externalSignals, activeExternalSignalId }: Props) {
   // Determine source rows: prefer enriched if we have any; otherwise use raw rows.
   // When both exist, build a unified list keyed by index — enriched cells from `transactions`,
   // raw fields from `rawRows` for any rows where enrichment hasn't arrived yet.
@@ -140,17 +146,24 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
 
   const hasPending = rawCount > 0 && enrichedCount < rawCount;
   const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
-  const matchedCount = highlightSet ? highlightSet.size : 0;
+  const externals = externalSignals ?? [];
+  const externalActive = !!activeExternalSignalId;
+  const matchedCount = highlightSet ? highlightSet.size : externalActive ? 1 : 0;
+  const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
 
   return (
     <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} style={{ maxHeight: "100%" }}>
-      {highlightSet && activePillLabel && (
+      {showStrip && (
         <div
           className="flex items-center justify-between px-3 py-2 border-b"
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
           <span className="text-[13px] font-semibold" style={{ color: highlightColor }}>
-            Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"
+            {externalActive ? (
+              <>Showing <span className="tabular-nums">1</span> external signal for "{activePillLabel}"</>
+            ) : (
+              <>Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
+            )}
           </span>
           {onClearHighlight && (
             <button
@@ -252,7 +265,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
             const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
-            const isDimmed = highlightSet ? !isHighlighted : false;
+            const isDimmed = highlightSet ? !isHighlighted : externalActive;
             return (
               <tr
                 key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
@@ -370,6 +383,37 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             );
             });
           })()}
+          {externals.map((s) => {
+            const isActive = activeExternalSignalId === s.id;
+            const isDimmed = !isActive && (!!highlightSet || externalActive);
+            const conf = s.confidence > 1 ? Math.round(s.confidence) : Math.round(s.confidence * 100);
+            return (
+              <tr
+                key={`ext-${s.id}`}
+                className={`border-t border-violet-200 transition-all duration-200 ${isActive ? "exec-ext-highlighted" : ""} ${isDimmed ? "exec-row-dimmed" : ""}`}
+                style={isActive ? ({ ["--exec-hl" as any]: "#8b5cf6" } as React.CSSProperties) : undefined}
+              >
+                <td colSpan={10} className="px-3 py-2 bg-violet-50/40">
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center gap-1 shrink-0 text-[11.5px] font-semibold uppercase tracking-wider px-2 py-1 rounded bg-violet-100 text-violet-700 border border-violet-200">
+                      <Sparkles className="w-3 h-3" />
+                      External Intelligence
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="text-[13px] font-semibold text-slate-900 truncate">{s.headline}</div>
+                      <div className="text-[12px] text-slate-500 truncate">{s.detail}</div>
+                    </div>
+                    <span className="shrink-0 text-[11.5px] font-medium px-2 py-0.5 rounded-full bg-white text-violet-700 border border-violet-200 whitespace-nowrap">
+                      {s.provider}
+                    </span>
+                    <span className="shrink-0 tabular-nums text-[12.5px] font-semibold text-violet-700">
+                      {conf}%
+                    </span>
+                  </div>
+                </td>
+              </tr>
+            );
+          })}
         </tbody>
       </table>
       <style>{`
@@ -381,6 +425,10 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         }
         tr.exec-row-dimmed > td {
           opacity: 0.32;
+        }
+        tr.exec-ext-highlighted > td {
+          background-color: color-mix(in srgb, var(--exec-hl) 14%, transparent) !important;
+          box-shadow: inset 3px 0 0 0 var(--exec-hl);
         }
         td.exec-enriched-cell {
           background-image: linear-gradient(180deg, rgba(59,130,246,0.06) 0%, rgba(59,130,246,0.02) 100%);

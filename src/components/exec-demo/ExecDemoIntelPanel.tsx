@@ -11,6 +11,7 @@ import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import ExecDemoEnrichmentTable from "./ExecDemoEnrichmentTable";
+import type { ExternalIntelSignal } from "@/lib/externalIntelligenceSignals";
 
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
@@ -80,6 +81,8 @@ interface Props {
   onClearHighlight?: () => void;
   /** Called when a Pillar pill inside the enrichment table is clicked. */
   onEnrichmentPillarClick?: (pillar: string) => void;
+  /** External Intelligence signals to render as extra rows at the bottom of the enrichment table. */
+  externalSignals?: ExternalIntelSignal[];
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -248,6 +251,7 @@ export default function ExecDemoIntelPanel({
   activePillLabel,
   onClearHighlight,
   onEnrichmentPillarClick,
+  externalSignals,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -415,6 +419,15 @@ export default function ExecDemoIntelPanel({
   // Risk pills should only be visually muted on the Next-Offer tab.
   // On Next-Product, keep them colored & clickable since the rationale panel surfaces risk as "Additional Tools".
   const riskPillsMuted = activeTab === "analytics";
+
+  // If the active life-event pill matches an external signal, highlight that row instead of tx rows.
+  const activeExternalSignalId = useMemo(() => {
+    if (!activeTriggerLabel || !externalSignals || externalSignals.length === 0) return null;
+    const match = externalSignals.find((s) => s.event_name === activeTriggerLabel);
+    return match?.id ?? null;
+  }, [activeTriggerLabel, externalSignals]);
+
+
 
   return (
     <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
@@ -944,6 +957,8 @@ export default function ExecDemoIntelPanel({
                     activePillLabel={activePillLabel}
                     onClearHighlight={onClearHighlight}
                     onPillarClick={onEnrichmentPillarClick}
+                    externalSignals={externalSignals}
+                    activeExternalSignalId={activeExternalSignalId}
                   />
                 )}
               </div>

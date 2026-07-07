@@ -3,7 +3,7 @@ name: Bankdemo Targeting Group
 description: New Targeting sidebar group below Analytics on /bankdemo with two product-first views (Automated Flows and Campaign Builder), independent from the legacy Next-Best Product Engine tab
 type: feature
 ---
-On /bankdemo `AnalyticsContainer`, the "Targeting" nav group sits directly below "Analytics" and contains:
+On /bankdemo `AnalyticsContainer`, the "Product & Growth" nav group sits directly below "Analytics" and contains:
 - Automated Flows → `ProductAutomatedFlowsView` (product-first cards: 529, HELOC, Wealth, Auto, Mortgage, Personal Loan, HYSA, Travel Card, SBL, Term Life)
 - Campaign Builder → `ProductCampaignBuilderView` (3-step flow: pick product → layer signals → generate segment + personalized output)
 

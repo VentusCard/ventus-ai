@@ -10,6 +10,10 @@ import {
   UserCircle,
   Database,
   CalendarHeart,
+  Heart,
+  BadgeCheck,
+  Truck,
+  Building2,
   Activity,
   DollarSign,
   AlertTriangle,
@@ -18,13 +22,11 @@ import {
   Bot,
   Megaphone,
   Briefcase,
-  ShieldAlert,
   Home,
   PiggyBank,
   Package,
   ArrowUpRight,
   ChevronDown,
-  BarChart3,
   Tag,
   Sparkles,
   MessageSquare,
@@ -32,23 +34,25 @@ import {
   Store,
   TrendingUp,
   Gem,
-  ShieldCheck,
   FileText,
-  Download,
-  Mail,
   Search,
   Calendar,
   LineChart,
   PieChart,
   FilePlus,
   RefreshCw,
-  Bell,
-  Settings,
-  Sliders,
-  FileCheck,
   Filter,
   GitBranch,
   PenTool,
+  ShieldCheck,
+  FileCheck,
+  MapPin,
+  Wallet,
+  Landmark,
+  Receipt,
+  Bell,
+  Car,
+  Zap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -56,14 +60,16 @@ import { BANK_PRODUCT_CATEGORIES, BANK_PRODUCT_TOTAL } from "@/lib/bankProductCa
 
 type SourceInput = {
   label: string;
+  sublabel: string;
   icon: React.ElementType;
-  nonFcra?: boolean;
+  fcra?: boolean;
 };
 
 type SourceGroup = {
   provider: string;
   sublabel: string;
   icon: React.ElementType;
+  description: string;
   inputs: SourceInput[];
   onOpen?: () => void;
   openLabel?: string;
@@ -75,49 +81,6 @@ type Destination = {
   icon: React.ElementType;
 };
 
-const SOURCE_GROUPS: SourceGroup[] = [
-  {
-    provider: "Core Banking",
-    sublabel: "FIS",
-    icon: Database,
-    inputs: [
-      { label: "KYC & Profile", icon: UserCircle },
-      { label: "ACH & Wires", icon: ArrowLeftRight },
-      { label: "Deposits & Statements", icon: Database },
-    ],
-  },
-  {
-    provider: "Card Processor",
-    sublabel: "Fiserv",
-    icon: CreditCard,
-    inputs: [{ label: "Card Transactions", icon: CreditCard }],
-  },
-  {
-    provider: "Payments Network",
-    sublabel: "Early Warning Services",
-    icon: Send,
-    inputs: [{ label: "Zelle", icon: Send }],
-  },
-  {
-    provider: "Digital Banking",
-    sublabel: "App & web telemetry",
-    icon: Smartphone,
-    inputs: [{ label: "Digital Telemetry", icon: Smartphone }],
-  },
-  {
-    provider: "Credit Bureau",
-    sublabel: "Experian / TransUnion",
-    icon: Gauge,
-    inputs: [
-      { label: "Credit File", icon: Gauge },
-      { label: "Wealth Data", icon: PiggyBank, nonFcra: true },
-      { label: "Property Data", icon: Home, nonFcra: true },
-      { label: "Demographics Data", icon: Users, nonFcra: true },
-    ],
-  },
-];
-
-const TOTAL_SOURCE_INPUTS = SOURCE_GROUPS.reduce((n, g) => n + g.inputs.length, 0);
 
 type SignalDetail = {
   label: string;
@@ -271,100 +234,6 @@ function chipClass(chip: WorkflowChip) {
 
 const TEAMS: TeamDetail[] = [
   {
-    label: "Analytics & Targeting",
-    icon: BarChart3,
-    color: "bg-indigo-500",
-    tint: "bg-indigo-50 text-indigo-700 border-indigo-200",
-    dot: "bg-indigo-500",
-    description: "Shared services team building segments, running ad-hoc business queries, and exporting cohorts for every downstream channel.",
-    items: [
-      { label: "AI-assisted SQL", sublabel: "Natural language → SQL → results, grounded in the Ventus schema", icon: Database },
-      { label: "Pre-built reports library", sublabel: "15+ ready-to-run reports across Lifestyle, Outflow, Retention, Opportunities", icon: FileText },
-      { label: "Cohort CSV export", sublabel: "Any query result can be rewritten to a DISTINCT customer_id list for activation", icon: Download },
-      { label: "Per-segment cohort export", sublabel: "GROUP BY results split into per-segment cohorts for targeting", icon: Users },
-      { label: "AI takeaway + email summary", sublabel: "Business-friendly interpretation of every result, shareable inline", icon: Mail },
-    ],
-    workflow: [
-      {
-        stage: "Question + signal scope",
-        text: "Analyst frames a business question and picks any of the 5 signal families via SQL or the reports library.",
-        chips: [
-          { label: "Life Event", kind: "signal" },
-          { label: "Behavioral", kind: "signal" },
-          { label: "Financial", kind: "signal" },
-          { label: "Demographic", kind: "signal" },
-          { label: "Risk", kind: "signal" },
-        ],
-      },
-      {
-        stage: "AI-assisted SQL execution",
-        text: "Natural language is translated to SQL and executed against the Ventus schema with grounded date and enum hints.",
-      },
-      {
-        stage: "AI takeaway + cohort split",
-        text: "Results get a business-friendly interpretation; GROUP BY segments become per-segment cohorts.",
-      },
-      {
-        stage: "Cohort export to activation channels",
-        text: "DISTINCT customer_id lists ship to downstream systems for outreach.",
-        chips: [
-          { label: "CRM", kind: "destination" },
-          { label: "Marketing Automation", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Merchant Deals",
-    icon: Store,
-    color: "bg-orange-500",
-    tint: "bg-orange-50 text-orange-700 border-orange-200",
-    dot: "bg-orange-500",
-    description: "Partnerships team sourcing merchant offers, negotiating rates, and maintaining the live rewards catalog that feeds digital banking and marketing.",
-    items: [
-      { label: "Merchant partner sourcing", sublabel: "Identify and onboard new local and national merchant partners", icon: Search },
-      { label: "Deal rate & term negotiation", sublabel: "Structure revenue-share and fixed-rate offer terms", icon: PenTool },
-      { label: "Offer catalog maintenance", sublabel: "Keep the live deal feed accurate, categorized, and channel-ready", icon: Package },
-      { label: "Seasonal campaign alignment", sublabel: "Time merchant pushes to holidays, travel windows, and life events", icon: Calendar },
-      { label: "Redemption & revenue tracking", sublabel: "Monitor take rates and merchant-funded liability in real time", icon: LineChart },
-    ],
-    workflow: [
-      {
-        stage: "Behavioral & Life Event signals in",
-        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
-        chips: [
-          { label: "Behavioral", kind: "signal" },
-          { label: "Life Event", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Curate deal collection",
-        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
-      },
-      {
-        stage: "Personalize ranking",
-        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
-        chips: [
-          { label: "Financial", kind: "signal" },
-          { label: "Demographic", kind: "signal" },
-        ],
-      },
-      {
-        stage: "Risk exclusion pass",
-        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
-        chips: [{ label: "Risk", kind: "signal" }],
-      },
-      {
-        stage: "Push to rewards rails",
-        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
-        chips: [
-          { label: "Rewards Provider", kind: "destination" },
-          { label: "Digital Banking App", kind: "destination" },
-        ],
-      },
-    ],
-  },
-  {
     label: "Product & Growth",
     icon: TrendingUp,
     color: "bg-violet-500",
@@ -414,7 +283,7 @@ const TEAMS: TeamDetail[] = [
     ],
   },
   {
-    label: "Wealth Management",
+    label: "Wealth & Relationship",
     icon: Gem,
     color: "bg-amber-500",
     tint: "bg-amber-50 text-amber-700 border-amber-200",
@@ -463,41 +332,52 @@ const TEAMS: TeamDetail[] = [
     ],
   },
   {
-    label: "Risk & Compliance",
-    icon: ShieldCheck,
-    color: "bg-rose-500",
-    tint: "bg-rose-50 text-rose-700 border-rose-200",
-    dot: "bg-rose-500",
-    description: "Second-line team monitoring model governance, alert triage, and audit-ready thresholds for vice, AML, and financial-distress signals.",
+    label: "Deals & Rewards",
+    icon: Store,
+    color: "bg-orange-500",
+    tint: "bg-orange-50 text-orange-700 border-orange-200",
+    dot: "bg-orange-500",
+    description: "Rewards team curating personalized offers, managing the live deal catalog, and driving engagement through digital banking and marketing channels.",
     items: [
-      { label: "Alert triage SLAs", sublabel: "Meet response-time commitments for vice, AML, and distress flags", icon: Bell },
-      { label: "Model governance reviews", sublabel: "Validate detection logic, false-positive rates, and retraining cadence", icon: Settings },
-      { label: "SAR escalation workflows", sublabel: "Route confirmed suspicious activity to investigators and regulators", icon: ArrowUpRight },
-      { label: "Policy threshold tuning", sublabel: "Adjust scoring cutoffs based on risk appetite and audit feedback", icon: Sliders },
-      { label: "Audit trail & documentation", sublabel: "Maintain immutable logs of decisions, overrides, and model versions", icon: FileCheck },
+      { label: "Offer catalog curation", sublabel: "Assemble and maintain personalized deal collections by lifestyle and life event", icon: Package },
+      { label: "Deal personalization & ranking", sublabel: "Re-rank offers using financial tier and demographic context", icon: Tag },
+      { label: "Seasonal campaign alignment", sublabel: "Time offer pushes to holidays, travel windows, and life events", icon: Calendar },
+      { label: "Redemption & engagement tracking", sublabel: "Monitor take rates, redemption velocity, and merchant-funded liability", icon: LineChart },
+      { label: "Rewards rail distribution", sublabel: "Ship individualized offer sets to the rewards provider and digital banking", icon: Send },
     ],
     workflow: [
       {
-        stage: "Risk signals in",
-        text: "Vice, AML structuring, payday lending, and financial-distress signals stream into the alert queue.",
+        stage: "Behavioral & Life Event signals in",
+        text: "Each customer arrives with their behavioral clusters (golf, coffee runs, ski trips) and active life events (new home, new baby).",
+        chips: [
+          { label: "Behavioral", kind: "signal" },
+          { label: "Life Event", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Curate deal collection",
+        text: "Assemble a deal set per behavioral cluster and per life event from the merchant partner catalog.",
+      },
+      {
+        stage: "Personalize ranking",
+        text: "Re-rank offers using Financial tier and Demographic context — Luxury, income band, region.",
+        chips: [
+          { label: "Financial", kind: "signal" },
+          { label: "Demographic", kind: "signal" },
+        ],
+      },
+      {
+        stage: "Risk exclusion pass",
+        text: "Drop offers adjacent to vice, gambling, or distress signals for that specific customer.",
         chips: [{ label: "Risk", kind: "signal" }],
       },
       {
-        stage: "Severity scoring & bucketing",
-        text: "Weighted scores, model-routed AML, and deterministic vice flags assign severity buckets.",
-      },
-      {
-        stage: "Alert triage queue",
-        text: "Analysts work alerts against SLA thresholds with full evidence trails.",
-      },
-      {
-        stage: "Policy tuning & FP suppression",
-        text: "Threshold adjustments and audit-logged overrides keep precision high.",
-      },
-      {
-        stage: "Escalate to risk ops & SAR",
-        text: "Confirmed cases route to risk ops tooling and into the SAR filing workflow.",
-        chips: [{ label: "Risk Ops", kind: "destination" }],
+        stage: "Push to rewards rails",
+        text: "Individualized offer set ships to the rewards provider and surfaces in digital banking.",
+        chips: [
+          { label: "Rewards Provider", kind: "destination" },
+          { label: "Digital Banking App", kind: "destination" },
+        ],
       },
     ],
   },
@@ -509,11 +389,24 @@ const DESTINATIONS: Destination[] = [
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
   { label: "Advisor Console", sublabel: "Banker Workstation", icon: Briefcase },
-  { label: "Risk Ops", sublabel: "Actimize / SAS", icon: ShieldAlert },
+  
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
 ];
 
-function NetworkWires({ leftCount, rightCount }: { leftCount: number; rightCount: number }) {
+function getTeamDestinations(teamLabel: string): string[] {
+  const team = TEAMS.find((t) => t.label === teamLabel);
+  if (!team || !team.workflow) return [];
+  const dests = new Set<string>();
+  for (const step of team.workflow) {
+    for (const chip of step.chips ?? []) {
+      if (chip.kind === "destination") dests.add(chip.label);
+    }
+  }
+  dests.add("Digital Banking App");
+  return Array.from(dests);
+}
+
+function NetworkWires({ leftCount, rightCount, centered }: { leftCount: number; rightCount: number; centered?: boolean }) {
   const gradId = useId().replace(/:/g, "");
   const SRC_X = 0;
   const CORE_LEFT = 38;
@@ -521,7 +414,14 @@ function NetworkWires({ leftCount, rightCount }: { leftCount: number; rightCount
   const DST_X = 100;
 
   const leftYs = Array.from({ length: leftCount }, (_, i) => ((i + 0.5) / leftCount) * 100);
-  const rightYs = Array.from({ length: rightCount }, (_, i) => ((i + 0.5) / rightCount) * 100);
+  let rightYs: number[];
+  if (centered && rightCount > 0) {
+    const blockHeight = Math.min(72, Math.max(24, rightCount * 12));
+    const startY = (100 - blockHeight) / 2;
+    rightYs = Array.from({ length: rightCount }, (_, i) => startY + ((i + 0.5) / rightCount) * blockHeight);
+  } else {
+    rightYs = Array.from({ length: rightCount }, (_, i) => ((i + 0.5) / rightCount) * 100);
+  }
 
   return (
     <svg
@@ -632,7 +532,7 @@ function NodeCard({
       <span
         className={cn(
           "absolute top-1.5 w-1.5 h-1.5 rounded-full",
-          side === "left" ? "right-2 bg-emerald-500" : "left-2 bg-indigo-500",
+          side === "left" ? "right-2 bg-emerald-500" : "left-2 bg-emerald-500",
           "animate-pulse",
         )}
       />
@@ -642,107 +542,204 @@ function NodeCard({
 
 function SourceGroupCard({
   group,
-  isOpen,
-  onToggle,
+  isActive,
+  onSelect,
 }: {
   group: SourceGroup;
-  isOpen: boolean;
-  onToggle: () => void;
+  isActive: boolean;
+  onSelect: () => void;
 }) {
   const Icon = group.icon;
   return (
-    <div className="relative rounded-lg border border-slate-200 bg-white shadow-sm hover:border-emerald-300 transition-colors">
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center gap-2.5 px-3 py-2.5 text-left"
-      >
-        <div className="flex items-center justify-center w-7 h-7 rounded-md shrink-0 border bg-slate-100 text-slate-600 border-slate-200">
-          <Icon className="w-3.5 h-3.5" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
-            {group.provider}
-          </div>
-          <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">
-            {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
-          </div>
-        </div>
-        <ChevronDown
-          className={cn(
-            "w-3.5 h-3.5 text-slate-400 shrink-0 transition-transform",
-            isOpen && "rotate-180",
-          )}
-        />
-        <span className="absolute top-1.5 right-2 w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-      </button>
-      {isOpen && (
-        <div className="border-t border-slate-100 px-3 py-2 space-y-1.5 animate-in fade-in slide-in-from-top-1 duration-150">
-          {group.inputs.map((input) => {
-            const InputIcon = input.icon;
-            return (
-              <div key={input.label} className="flex items-center gap-2">
-                <InputIcon className="w-3 h-3 text-slate-400 shrink-0" />
-                <span className="text-[11.5px] font-medium text-slate-700 flex-1 truncate">
-                  {input.label}
-                </span>
-                {input.nonFcra && (
-                  <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200 shrink-0">
-                    non-FCRA
-                  </span>
-                )}
-              </div>
-            );
-          })}
-          {group.onOpen && (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                group.onOpen?.();
-              }}
-              className="mt-1 w-full flex items-center justify-between gap-1 text-[10.5px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-1.5 py-1 rounded transition-colors"
-            >
-              <span>{group.openLabel ?? "Open"}</span>
-              <ArrowUpRight className="w-3 h-3" />
-            </button>
-          )}
-        </div>
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "relative w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-lg border bg-white shadow-sm transition-all",
+        isActive
+          ? "border-emerald-400 ring-2 ring-emerald-200 shadow-md scale-[1.01]"
+          : "border-slate-200 hover:border-emerald-300",
       )}
-    </div>
+    >
+      <div
+        className={cn(
+          "flex items-center justify-center w-7 h-7 rounded-md shrink-0 border",
+          isActive
+            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+            : "bg-slate-100 text-slate-600 border-slate-200",
+        )}
+      >
+        <Icon className="w-3.5 h-3.5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
+          {group.provider}
+        </div>
+        <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">
+          {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
+        </div>
+      </div>
+      <span className="absolute top-1.5 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold shadow-sm">
+        {group.inputs.length}
+      </span>
+    </button>
   );
 }
 
 export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
-    ...SOURCE_GROUPS,
     {
-      provider: "Bank Product",
-      sublabel: "Internal catalog · single source of truth",
+      provider: "KYC",
+      sublabel: "Identity & compliance",
+      icon: UserCircle,
+      description: "Verified identity, contact, and compliance attributes collected at onboarding and refreshed through periodic KYC review.",
+      inputs: [
+        { label: "Name, DOB, SSN", sublabel: "Core identity tuple used for identity resolution across systems", icon: UserCircle },
+        { label: "Address & contact", sublabel: "Residential address, phone, and email of record", icon: MapPin },
+        { label: "Document verification — ID / passport", sublabel: "Government ID scan + liveness check outcome", icon: FileCheck },
+        { label: "Sanctions, PEP & watchlists", sublabel: "OFAC, PEP, and adverse-media screening status", icon: ShieldCheck },
+        { label: "Employer & occupation", sublabel: "Self-reported employer and occupation from onboarding forms", icon: Briefcase },
+      ],
+    },
+    {
+      provider: "Transactions",
+      sublabel: "Card, ACH, wire & digital payments",
+      icon: ArrowLeftRight,
+      description: "Real-time and settled payment streams across every rail the bank runs — the primary substrate for behavioral enrichment.",
+      inputs: [
+        { label: "Card auth & posted", sublabel: "Live authorization stream and settled postings from the card processor", icon: CreditCard },
+        { label: "ACH debit / credit", sublabel: "NACHA-cleared debits and credits including recurring payroll", icon: ArrowLeftRight },
+        { label: "Wires in / out", sublabel: "Domestic and international wire activity with counterparty detail", icon: Landmark },
+        { label: "Zelle", sublabel: "P2P transfers with contact-level counterparties", icon: Send },
+        { label: "RTP / FedNow", sublabel: "Real-time payment rails, 24/7 clearing", icon: Zap },
+        { label: "Bill pay & checks", sublabel: "Scheduled bill pay and posted paper/e-check activity", icon: Receipt },
+      ],
+    },
+    {
+      provider: "Product Holdings",
+      sublabel: "Customer portfolio",
+      icon: Database,
+      description: "Every product the customer currently holds with the bank, balances, and statement history — the portfolio view of the relationship.",
+      inputs: [
+        { label: "Checking & savings", sublabel: "Deposit accounts, balances, and interest posture", icon: Wallet },
+        { label: "Credit & debit cards", sublabel: "Card products held, limits, and utilization", icon: CreditCard },
+        { label: "Loans & mortgage", sublabel: "Auto, personal, HELOC, and mortgage servicing", icon: Home },
+        { label: "Investments & brokerage", sublabel: "In-house brokerage and managed-portfolio holdings", icon: PiggyBank },
+        { label: "Statements & balances", sublabel: "Historical statement cycles for balance trending", icon: FileText },
+      ],
+    },
+    {
+      provider: "Digital Banking",
+      sublabel: "App & web telemetry",
+      icon: Smartphone,
+      description: "Behavioral telemetry from the mobile app and web banking — how customers engage with the bank's digital surface.",
+      inputs: [
+        { label: "App sessions & screens", sublabel: "Session duration, screen views, and navigation paths in mobile", icon: Smartphone },
+        { label: "Web sessions & pages", sublabel: "Online banking session telemetry and page views", icon: Gauge },
+        { label: "Search & clicks", sublabel: "In-app search terms and CTA click-through", icon: Search },
+        { label: "Push & in-app notifications", sublabel: "Notifications sent, opened, and dismissed", icon: Bell },
+        { label: "Feature usage & funnels", sublabel: "Feature adoption and funnel drop-off analytics", icon: Layers },
+      ],
+    },
+    {
+      provider: "Bank Context",
+      sublabel: "Products, locations, org & tiers",
       icon: Package,
+      description: `The bank's operational context — products, locations, organizational structure, and customer tiers — that shapes what Ventus can recommend and to whom. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
       onOpen: onOpenProducts,
-      openLabel: `Open Products tab · ${BANK_PRODUCT_TOTAL} products`,
-      inputs: BANK_PRODUCT_CATEGORIES.map((c) => ({ label: c.label, icon: Package })),
+      openLabel: `Open Bank Context tab`,
+      inputs: [
+        { label: "Consumer Banking Products", sublabel: "Checking, savings, debit, credit cards, and digital wallets", icon: Wallet },
+        { label: "Consumer Lending Products", sublabel: "Mortgages, auto, personal, HELOC, and student loans", icon: Home },
+        { label: "Wealth & Investment Products", sublabel: "Brokerage, managed portfolios, trusts, and advisory tiers", icon: Gem },
+        { label: "Locations & Hours", sublabel: "Branch network, ATM coverage, and regional operating schedules", icon: MapPin },
+        { label: "Departments", sublabel: "RM assignment rules, advisor specializations, and escalation paths", icon: Users },
+        { label: "Customer Segments & Tiers", sublabel: "Mass market, affluent, and private-banking thresholds", icon: Crown },
+      ],
+    },
+    {
+      provider: "External Intelligence",
+      sublabel: "Credit bureau & third-party enrichment",
+      icon: Gauge,
+      description: "Credit bureau file plus third-party consumer enrichment covering wealth, property, demographics, auto, employment, life events, and loans & payments.",
+        inputs: [
+        { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge, fcra: true },
+        { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank, fcra: false },
+        { label: "Loans & Payments", sublabel: "Auto loans, mortgage history, HELOC, and personal loan servicing", icon: Receipt, fcra: false },
+        { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home, fcra: false },
+        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart, fcra: false },
+        { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users, fcra: false },
+        { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car, fcra: false },
+        { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles, fcra: false },
+        { label: "Public records", sublabel: "Bankruptcies, liens, judgments, and UCC filings", icon: FileText, fcra: false },
+        { label: "Firmographics (business owner)", sublabel: "SIC code, employee count, estimated sales volume, years in business, website", icon: Building2, fcra: false },
+        { label: "Licenses & registrations", sublabel: "Pilot, hunting, boat, and driver's license history — wealth/lifestyle proxies", icon: BadgeCheck, fcra: false },
+        { label: "New movers & pre-movers", sublabel: "In-market relocation signal: pre-move intent and recent-move flag", icon: Truck, fcra: false },
+      ],
     },
   ];
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
-  const [openGroups, setOpenGroups] = useState<Set<string>>(() => new Set());
+  const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
   const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
   const activeTeam = activeTeamLabel
     ? TEAMS.find((t) => t.label === activeTeamLabel) ?? null
     : null;
-  const activeDetail = activeSignal ?? activeTeam;
-  const activeDetailKind = activeSignal ? "Signal family" : activeTeam ? "Team" : null;
+  const activeSourceGroup = activeSourceLabel
+    ? sourceGroups.find((g) => g.provider === activeSourceLabel) ?? null
+    : null;
+  const activeSource = activeSourceGroup
+    ? {
+        label: activeSourceGroup.provider,
+        icon: activeSourceGroup.icon,
+        color: "bg-emerald-500",
+        tint: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        dot: "bg-emerald-500",
+        description: activeSourceGroup.description,
+        items: activeSourceGroup.inputs.map((i) => ({
+          label: i.label,
+          sublabel: i.sublabel,
+          icon: i.icon,
+          fcra: i.fcra,
+        })),
+        onOpen: activeSourceGroup.onOpen,
+        openLabel: activeSourceGroup.openLabel,
+      }
+    : null;
+  const activeDetail = activeSignal ?? activeTeam ?? activeSource;
+  const activeDetailKind = activeSignal
+    ? "Signal family"
+    : activeTeam
+    ? "Team"
+    : activeSource
+    ? "Source"
+    : null;
+  const activeDetailCountNoun = activeSignal
+    ? "detections"
+    : activeTeam
+    ? "responsibilities"
+    : activeSource
+    ? "inputs"
+    : "";
   const ActiveIcon = activeDetail?.icon;
+  const visibleDestinations = activeTeamLabel
+    ? DESTINATIONS.filter((d) => getTeamDestinations(activeTeamLabel).includes(d.label))
+    : DESTINATIONS;
   const selectSignal = (label: string) => {
     setActiveTeamLabel(null);
+    setActiveSourceLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
   };
   const selectTeam = (label: string) => {
     setActiveSignalLabel(null);
+    setActiveSourceLabel(null);
     setActiveTeamLabel((prev) => (prev === label ? null : label));
+  };
+  const selectSource = (label: string) => {
+    setActiveSignalLabel(null);
+    setActiveTeamLabel(null);
+    setActiveSourceLabel((prev) => (prev === label ? null : label));
   };
 
   return (
@@ -751,7 +748,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         icon={<Layers className="w-4 h-4" />}
         title="System"
         subtitle="Network view: bank-native sources flow through Ventus and are surfaced to internal teams for activation"
-        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to five internal teams — Analytics & Targeting, Merchant Deals, Product & Growth, Wealth Management, and Risk & Compliance — who activate through CRM, rewards provider, digital banking, marketing automation, advisor consoles, and risk ops."
+        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to three internal teams — Product & Growth, Wealth Management, and Deals & Rewards — who activate through CRM, rewards provider, digital banking, marketing automation, and advisor consoles."
         whyItMatters="One enrichment layer feeds every channel of record. No bespoke pipelines per destination — each team reads from the same canonical customer signal."
       />
 
@@ -761,7 +758,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <div className="flex items-center gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
-              Bank-native sources · {totalSourceInputs} inputs across {sourceGroups.length} providers
+              {totalSourceInputs} Internal & External Sources
             </p>
           </div>
           <div className="text-center min-w-0">
@@ -772,31 +769,24 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <div className="flex items-center justify-end gap-1.5 min-w-0">
             <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
             <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
-              Activation destinations · {DESTINATIONS.length} wired
+              {DESTINATIONS.length} Activation Destinations
             </p>
           </div>
         </div>
 
         {/* Network canvas */}
         <div className="relative">
-          <NetworkWires leftCount={sourceGroups.length} rightCount={DESTINATIONS.length} />
+          <NetworkWires leftCount={sourceGroups.length} rightCount={visibleDestinations.length} centered={!!activeTeamLabel} />
 
           <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
             {/* Sources */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around">
+            <div className="flex min-w-0 flex-col gap-2 justify-around px-1">
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
                   group={g}
-                  isOpen={openGroups.has(g.provider)}
-                  onToggle={() =>
-                    setOpenGroups((prev) => {
-                      const next = new Set(prev);
-                      if (next.has(g.provider)) next.delete(g.provider);
-                      else next.add(g.provider);
-                      return next;
-                    })
-                  }
+                  isActive={activeSourceLabel === g.provider}
+                  onSelect={() => selectSource(g.provider)}
                 />
               ))}
             </div>
@@ -832,7 +822,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         Signals · what we detect
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 gap-1.5">
+                    <div className="grid grid-cols-1 gap-1.5 px-1">
                       {SIGNALS.map((s) => {
                         const Icon = s.icon;
                         const isActive = s.label === activeSignalLabel;
@@ -962,7 +952,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         Teams · who we serve
                       </p>
                     </div>
-                    <div className="grid grid-cols-1 gap-1.5">
+                    <div className="flex flex-col gap-2 flex-1 px-1">
                       {TEAMS.map((t) => {
                         const Icon = t.icon;
                         const isActive = t.label === activeTeamLabel;
@@ -972,7 +962,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={t.label}
                             onClick={() => selectTeam(t.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
+                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full flex-1",
                               "bg-white/10 border-amber-300/40 text-white shadow-[inset_0_1px_0_rgba(255,255,255,0.08)]",
                               isActive
                                 ? "ring-2 ring-amber-200/70 bg-white/20 shadow-lg scale-[1.02]"
@@ -995,8 +985,11 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
 
             {/* Destinations */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around">
-              {DESTINATIONS.map((d) => (
+            <div className={cn(
+              "flex min-w-0 flex-col gap-2 px-1",
+              activeTeamLabel ? "justify-center" : "justify-around"
+            )}>
+              {visibleDestinations.map((d) => (
                 <NodeCard
                   key={d.label}
                   icon={d.icon}
@@ -1014,7 +1007,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         {activeDetail && ActiveIcon && (
           <div
             key={activeDetail.label}
-            className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200"
+            className="mt-8 pt-6 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-200 flex flex-col"
           >
             <div className="flex items-start gap-3 mb-5">
               <div
@@ -1037,26 +1030,37 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       activeDetail.tint,
                     )}
                   >
-                    {activeDetail.items.length} {activeSignal ? "detections" : "responsibilities"}
+                    {activeDetail.items.length} {activeDetailCountNoun}
                   </span>
                 </div>
                 <p className="text-[12px] text-slate-600 mt-1 leading-snug">
                   {activeDetail.description}
                 </p>
               </div>
+              {activeSource?.onOpen && (
+                <button
+                  type="button"
+                  onClick={activeSource.onOpen}
+                  className="shrink-0 flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 px-2 py-1 rounded transition-colors"
+                >
+                  <span>{activeSource.openLabel ?? "Open"}</span>
+                  <ArrowUpRight className="w-3 h-3" />
+                </button>
+              )}
             </div>
 
+
             {activeTeam?.workflow && activeTeam.workflow.length > 0 && (
-              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4">
+              <div className="mb-6 rounded-lg border border-slate-200 bg-slate-50/60 p-4 flex-1 flex flex-col min-h-[280px]">
                 <div className="flex items-center gap-2 mb-3">
                   <span className="text-[9.5px] font-bold uppercase tracking-wider text-slate-500">
                     Workflow · left to right
                   </span>
                 </div>
-                <div className="flex flex-col lg:flex-row lg:items-stretch gap-2">
+                <div className="flex flex-col lg:flex-row lg:items-stretch gap-2 flex-1">
                   {activeTeam.workflow.map((step, i) => (
                     <div key={step.stage} className="flex lg:flex-1 items-stretch gap-2">
-                      <div className="flex-1 rounded-md border border-slate-200 bg-white p-3 min-w-0">
+                      <div className="flex-1 rounded-md border border-slate-200 bg-white p-5 min-w-0 h-full flex flex-col justify-center">
                         <div className="flex items-center gap-1.5 mb-1">
                           <span className="text-[10px] font-bold text-slate-400 tabular-nums">
                             {String(i + 1).padStart(2, "0")}
@@ -1093,59 +1097,72 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {activeDetail.items.map((item) => {
-                const ItemIcon = (item as any).icon as React.ElementType | undefined;
-                return ItemIcon ? (
-                  <div
-                    key={item.label}
-                    className="rounded-lg border border-slate-200 bg-white p-3.5 flex items-start gap-3"
-                  >
+            {!activeTeam && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                {activeDetail.items.map((item) => {
+                  const ItemIcon = (item as any).icon as React.ElementType | undefined;
+                  const itemFcra = (item as any).fcra as boolean | undefined;
+                  return ItemIcon ? (
                     <div
-                      className={cn(
-                        "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 border",
-                        activeDetail.tint,
-                      )}
+                      key={item.label}
+                      className="rounded-lg border border-slate-200 bg-white p-3.5 flex items-start gap-3"
                     >
-                      <ItemIcon className="w-4 h-4" />
+                      <div
+                        className={cn(
+                          "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 border",
+                          activeDetail.tint,
+                        )}
+                      >
+                        <ItemIcon className="w-4 h-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                            {item.label}
+                          </div>
+                          {activeSourceLabel === "External Intelligence" && (
+                            itemFcra ? (
+                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                                FCRA
+                              </span>
+                            ) : (
+                              <span className="text-[8.5px] font-bold uppercase tracking-wider px-1 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200">
+                                non-FCRA
+                              </span>
+                            )
+                          )}
+                        </div>
+                        <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
+                          {item.sublabel}
+                        </div>
+                      </div>
                     </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                        {item.label}
-                      </div>
-                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
-                        {item.sublabel}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div key={item.label} className="flex items-start gap-2.5">
-                    <span
-                      className={cn(
-                        "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
-                        activeDetail.dot,
-                      )}
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
-                        {item.label}
-                      </div>
-                      <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
-                        {item.sublabel}
+
+                  ) : (
+                    <div key={item.label} className="flex items-start gap-2.5">
+                      <span
+                        className={cn(
+                          "w-1.5 h-1.5 rounded-full shrink-0 mt-[7px]",
+                          activeDetail.dot,
+                        )}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="text-[12.5px] font-semibold text-slate-900 leading-tight">
+                          {item.label}
+                        </div>
+                        <div className="text-[11.5px] text-slate-500 leading-snug mt-0.5">
+                          {item.sublabel}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
 
 
-        <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500">
-          <span>Live streams · packets shown flowing left to right</span>
-          <span>One enrichment layer · many channels of record</span>
-        </div>
       </div>
     </div>
   );

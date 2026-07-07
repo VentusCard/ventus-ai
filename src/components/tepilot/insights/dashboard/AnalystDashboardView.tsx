@@ -35,7 +35,10 @@ import {
 
 interface AnalystDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
+  onOpenOpportunity?: (opportunityId: string) => void;
+  renderVentusSliver?: () => React.ReactNode;
 }
+
 
 function fmtCurrency(n: number) {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
@@ -57,7 +60,7 @@ function fmtDateTick(d: Date) {
 
 const EMPTY_FILTERS = { cardProducts: [], regions: [], ageRanges: [] };
 
-export function AnalystDashboardView({ onNavigate }: AnalystDashboardViewProps) {
+export function AnalystDashboardView({ onNavigate, onOpenOpportunity, renderVentusSliver }: AnalystDashboardViewProps) {
   const { range, preset, setPreset, setCustom, compare, setCompare } =
     useDashboardRange("30d");
 
@@ -188,8 +191,11 @@ export function AnalystDashboardView({ onNavigate }: AnalystDashboardViewProps) 
 
       <InsightStrip
         opportunities={opportunities}
-        onSeeWhy={() => onNavigate("dashboard")}
+        onOpen={(id) => onOpenOpportunity?.(id)}
       />
+
+
+      {renderVentusSliver?.()}
 
       {/* KPI tiles */}
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">

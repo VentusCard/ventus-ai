@@ -1,7 +1,8 @@
 import { useState, useEffect, type ReactNode } from "react";
-import { Settings, X } from "lucide-react";
+import { Settings, X, ChevronDown } from "lucide-react";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import { getDemoBankConfig, setDemoBankConfig, type DemoBankConfig } from "@/lib/demoBankConfig";
+import { cn } from "@/lib/utils";
 
 const CORRECT_PASSWORD = "ventus2026";
 const SESSION_KEY = "demo_password_access";
@@ -16,6 +17,7 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
+  const [expandedSection, setExpandedSection] = useState<string | null>(null);
 
   // Settings dialog state
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -92,6 +94,78 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
             </div>
           </div>
         )}
+
+        <div className="w-full max-w-5xl flex flex-col gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+            {[
+              {
+                title: "Problem",
+                text: "Every banking experience feels generic because banks never really see the whole customer. What data they do have arrives as cryptic, messy transaction strings, so there's no real understanding of the person behind the account, and no way to personalize anything. The cost is everywhere: card spend stays low, offers go unredeemed, share of wallet shrinks, and customers drift to the next bank that offers incentives.",
+              },
+              {
+                title: "Team",
+                text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
+              },
+              {
+                title: "Vision",
+                text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
+              },
+            ].map((section) => {
+              const isExpanded = expandedSection === section.title;
+              return (
+                <div
+                  key={section.title}
+                  onClick={() => setExpandedSection(isExpanded ? null : section.title)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      setExpandedSection(isExpanded ? null : section.title);
+                    }
+                  }}
+                  className={cn(
+                    "border rounded-xl bg-white h-11 flex items-center justify-center px-4 cursor-pointer select-none transition-colors duration-300",
+                    isExpanded ? "border-blue-400" : "border-slate-200"
+                  )}
+                >
+                  <span className="text-sm font-semibold text-slate-800 tracking-tight">
+                    {section.title}
+                  </span>
+                  <ChevronDown
+                    className={cn(
+                      "w-4 h-4 text-slate-400 transition-transform duration-300 ml-2",
+                      isExpanded ? "rotate-180" : "hidden"
+                    )}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          <div
+            className={cn(
+              "border border-slate-200 rounded-xl bg-white overflow-hidden transition-all duration-500 ease-in-out px-4",
+              expandedSection ? "max-h-[500px] opacity-100 py-4" : "max-h-0 opacity-0"
+            )}
+          >
+            <p className="text-sm text-slate-600 leading-relaxed">
+              {[
+                {
+                  title: "Problem",
+                  text: "Every banking experience feels generic because banks never really see the whole customer. What data they do have arrives as cryptic, messy transaction strings, so there's no real understanding of the person behind the account, and no way to personalize anything. The cost is everywhere: card spend stays low, offers go unredeemed, share of wallet shrinks, and customers drift to the next bank that offers incentives.",
+                },
+                {
+                  title: "Team",
+                  text: "Four builders with backgrounds from Visa, McKinsey, AWS, and Credit Suisse, advised by the former CEO of Citibank N.A. We've sat on both sides of the table: payments, strategy, cloud engineering, and banking.",
+                },
+                {
+                  title: "Vision",
+                  text: "Banking is personal. Behind every transaction is a life: a growing family, a first home, a hard month. We envision a banking system that sees the person, not just the account, and empowers every institution to deliver the right resources, at the right moment, with the right message.",
+                },
+              ].find((s) => s.title === expandedSection)?.text}
+            </p>
+          </div>
+        </div>
 
         <form onSubmit={handleSubmit} className="flex flex-col items-center gap-4 w-72">
           <input
