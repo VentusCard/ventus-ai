@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw, FileJson } from "lucide-react";
+import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw, FileJson, Users } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
