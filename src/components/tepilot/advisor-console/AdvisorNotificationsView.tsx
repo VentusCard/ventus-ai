@@ -320,7 +320,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     quoted: `Ventus AI, 9:23 AM — Want the fuller household picture for each…`,
     render: () => (
       <p>
-        Different topic. Marketing is launching the new premium travel card next month and asked us to seed it from the book. Pull me a working list of clients who'd genuinely benefit — recent leisure/international travelers where the perks pay for themselves. Name, recent trip, and a talking point I can lead with.
+        Different topic. We are pushing the new premium travel card next month and corporate has asked us to seed it from the book. Pull me a working list of clients who'd genuinely benefit — recent leisure/international travelers where the perks pay for themselves. Name, recent trip, and a talking point I can lead with.
       </p>
     ),
   },
