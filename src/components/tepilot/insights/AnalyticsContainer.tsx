@@ -39,6 +39,8 @@ import { LifeEventFunnelReport } from "./reports/pages/LifeEventFunnelReport";
 import { WalletShareReport } from "./reports/pages/WalletShareReport";
 import { TravelTripsReport } from "./reports/pages/TravelTripsReport";
 import { NextConversationReport } from "./reports/pages/NextConversationReport";
+import { PriorityOpportunityReport } from "./reports/pages/PriorityOpportunityReport";
+import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
@@ -139,12 +141,21 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
 
   const openInQuery = (sql: string) => {
     setPendingQuery(sql);
     setActiveTab('query');
   };
+
+  const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
+    if (id === 'priority-opportunity') {
+      setSelectedOpportunityId(payload?.opportunityId ?? null);
+      setActiveTab('report-priority-opportunity');
+    }
+  };
+
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
