@@ -177,20 +177,20 @@ Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using 
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return up to 2 consumer product recommendation cards in strict interleaved order: life_event_1, behavioral_1 (plus optional risk card as 3rd)",
+              description: "Return up to 3 consumer product recommendation cards in strict order: life_event_1, life_event_2, behavioral_1",
               parameters: {
                 type: "object",
                 properties: {
                   cards: {
                     type: "array",
                     minItems: 1,
-                    maxItems: 5,
+                    maxItems: 3,
                     items: {
                       type: "object",
                       properties: {
                         type: {
                           type: "string",
-                          enum: ["behavioral", "life_event", "risk"],
+                          enum: ["behavioral", "life_event"],
                           description: "Card type",
                         },
                         product_name: {
