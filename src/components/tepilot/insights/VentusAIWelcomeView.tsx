@@ -168,7 +168,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
             </div>
           </div>
           <p className="text-sm text-slate-400 mt-1 max-w-2xl">
-            State an objective in plain language, or jump straight to a desk below. Start with the Merrill Growth Desk for wealth growth.
+            State an objective in plain language, or jump straight to a desk below.
           </p>
 
           {/* Hot Trends Strip */}
