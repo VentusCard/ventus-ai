@@ -508,6 +508,7 @@ function LifeEventsModule({
           />
         ))}
       </div>
+      <p className="text-[11px] text-slate-400 mt-3">Each detected event feeds the cross-sell engine and re-scores relationship risk.</p>
     </div>
   );
 }
