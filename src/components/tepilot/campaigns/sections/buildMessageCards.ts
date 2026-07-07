@@ -342,17 +342,19 @@ export function buildMessageCards(
 ): MessageCard[] {
   if (isCustomerChoiceCard(product)) {
     const href = campaignLink.trim();
-    // Rotate the deck by seed so Regenerate actually reorders the 5 cards
-    // (featured card + reveal sequence shift on each click).
     const len = CUSTOMER_CHOICE_CARDS.length;
     const offset = ((seed % len) + len) % len;
     const rotated = CUSTOMER_CHOICE_CARDS
       .slice(offset)
       .concat(CUSTOMER_CHOICE_CARDS.slice(0, offset));
-    return href
-      ? rotated.map((c) => ({ ...c, ctaHref: href }))
-      : rotated;
+    const withReach = rotated.map((c, i) => ({
+      ...c,
+      estimatedReach: computeReach(c.anchorFamily, i, seed),
+      ...(href ? { ctaHref: href } : {}),
+    }));
+    return withReach.sort((a, b) => (b.estimatedReach ?? 0) - (a.estimatedReach ?? 0));
   }
+
   const cat = product.category;
   const stackPool = STACK_ANCHORS[cat] ?? [];
   const usagePool = USAGE_ANCHORS[cat] ?? [];
