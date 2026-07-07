@@ -284,7 +284,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
       {/* Navigation Grid */}
       <div className="px-8 pt-6 pb-8 bg-slate-50">
         <div className="max-w-5xl mx-auto">
-          {/* Flagship: Merrill Growth Desk */}
+          {/* Flagship */}
           {(() => {
             const w = NAV_CARDS.find((c) => c.group === "featured");
             if (!w) return null;
