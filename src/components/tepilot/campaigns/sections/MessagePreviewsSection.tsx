@@ -215,6 +215,16 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
             <p className="text-[10px] text-slate-500 leading-snug mt-1">
               shown below
             </p>
+            {featuredCard?.estimatedReach ? (
+              <div className="mt-2 flex items-center gap-1 text-slate-700">
+                <Users className="w-3 h-3 text-slate-400" />
+                <span className="text-[12px] font-semibold tabular-nums">
+                  ~{formatReach(featuredCard.estimatedReach)}
+                </span>
+                <span className="text-[10px] text-slate-500">customers</span>
+              </div>
+            ) : null}
+
           </div>
         </div>
 
