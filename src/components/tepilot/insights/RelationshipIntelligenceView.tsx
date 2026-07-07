@@ -100,7 +100,45 @@ export function RelationshipIntelligenceView({ userDemographics, lifestyleSignal
         pairs.push({ client, event, sourceLabel: 'Static Example' });
       });
     });
-    return pairs;
+
+    // Enforce unique first names and varied event names for the top-displayed rows
+    const uniqueFirstNames = [
+      'Sarah','James','Michelle','Robert','Emily','David','Jennifer','Michael',
+      'Amanda','Christopher','Jessica','Daniel','Ashley','Matthew','Lauren','Ethan',
+      'Olivia','Noah','Sophia','Benjamin','Ava','Lucas','Isabella','Henry',
+    ];
+    const educationVariants = ['529 Plan Funding', 'Private School Tuition', 'College Prep', 'Graduate School Funding', 'College Funding'];
+    const eduCounters = new Map<string, number>();
+    const usedNames = new Set<string>();
+    let nameIdx = 0;
+
+    return pairs.map((p) => {
+      const originalFirst = (p.client.profile.name || '').split(' ')[0];
+      let firstName = originalFirst;
+      if (!firstName || usedNames.has(firstName)) {
+        while (nameIdx < uniqueFirstNames.length && usedNames.has(uniqueFirstNames[nameIdx])) nameIdx++;
+        firstName = uniqueFirstNames[nameIdx] ?? originalFirst;
+        nameIdx++;
+      }
+      usedNames.add(firstName);
+      const lastName = (p.client.profile.name || '').split(' ').slice(1).join(' ') || 'Client';
+      const newClient: DashboardClient = {
+        ...p.client,
+        profile: { ...p.client.profile, name: `${firstName} ${lastName}` },
+      };
+
+      let event = p.event;
+      if (event.eventType === 'education') {
+        const seen = eduCounters.get(event.eventName) ?? 0;
+        if (seen > 0) {
+          const variant = educationVariants[(seen - 1 + educationVariants.indexOf(event.eventName) + 1) % educationVariants.length];
+          event = { ...event, eventName: variant };
+        }
+        eduCounters.set(p.event.eventName, seen + 1);
+      }
+
+      return { ...p, client: newClient, event };
+    });
   }, [enrichedClient, staticClients]);
 
   const handlePrepare = (clientId: string, event: DetectedLifeEvent) => {

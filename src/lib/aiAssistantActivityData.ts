@@ -45,16 +45,16 @@ export const ASSISTANT_KPIS = {
 
 export const TRENDING_TOPICS: TrendingTopic[] = [
   {
-    id: "ski-trip",
-    emoji: "🎿",
-    label: "Ski trip spend recap",
+    id: "summer-trip",
+    emoji: "🏖️",
+    label: "Summer trip spend recap",
     intent: "spend-recap",
     volume: 3240,
     deltaPct: 42,
     spark: [128, 112, 175, 158, 244, 218, 332],
-    sampleQuestion: "How much did I spend on my Tahoe ski trip?",
+    sampleQuestion: "How much did I spend on my Lake Tahoe summer trip?",
     script: [
-      "How much did I spend on my Tahoe ski trip?",
+      "How much did I spend on my Lake Tahoe summer trip?",
       "Break that down by category for me.",
       "Any deals that would have saved me money?",
     ],
@@ -75,16 +75,16 @@ export const TRENDING_TOPICS: TrendingTopic[] = [
     ],
   },
   {
-    id: "holiday-travel",
+    id: "summer-travel",
     emoji: "✈️",
-    label: "Holiday travel planning",
+    label: "Summer travel planning",
     intent: "resource-request",
     volume: 2150,
     deltaPct: 58,
     spark: [72, 108, 92, 168, 142, 226, 290],
-    sampleQuestion: "I'm planning a trip home for the holidays — any tips on booking smarter?",
+    sampleQuestion: "I'm planning a summer trip — any tips on booking smarter?",
     script: [
-      "I'm planning a trip home for the holidays — any tips on booking smarter?",
+      "I'm planning a summer trip — any tips on booking smarter?",
       "Which of my cards earns the most on flights?",
       "Show me lounges I'd have access to.",
     ],

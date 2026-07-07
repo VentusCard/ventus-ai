@@ -81,10 +81,8 @@ export function LifeEventAlertCard({
           <div className="min-w-0 w-36 shrink-0">
             <div className="flex items-center gap-1.5">
               <h3 className="font-medium text-slate-900 truncate text-sm">{client.profile.name}</h3>
-              {sourceLabel && (
-                <Badge className={cn('text-[9px] px-1 py-0 shrink-0 whitespace-nowrap', 
-                  sourceLabel.includes('Enrichment') ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-500'
-                )}>
+              {sourceLabel && sourceLabel.includes('Enrichment') && (
+                <Badge className="text-[9px] px-1 py-0 shrink-0 whitespace-nowrap bg-emerald-100 text-emerald-700">
                   {sourceLabel}
                 </Badge>
               )}
