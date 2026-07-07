@@ -480,9 +480,6 @@ export function LeadershipNotificationsView() {
             <h1 className="text-xl font-semibold text-slate-900 leading-snug">
               {activeMsg.subject}
             </h1>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Message {activeIndex + 1} of {total}
-            </p>
           </div>
 
           {/* Sender block */}
