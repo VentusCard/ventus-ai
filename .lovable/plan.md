@@ -1,29 +1,34 @@
-Rewrite the 10:07 / 10:08 messages in `AdvisorNotificationsView.tsx` so Ventus's closing summary lists the full client set from both tasks.
 
-## 10:07 Advisor (Morgan)
-"Before I sign off, summarize today's to-do list from both tasks — the full digest and the car-loan cohort. Keep it tight, no detail."
+Replace the car-loan campaign task in `AdvisorNotificationsView.tsx` with a premium travel card candidate task. Only the second exchange (Morgan ask → Ventus reply) changes. Wrap-up messages (10:07/10:08) continue to render Task 2 from the same cohort variable, so they update automatically via the data swap.
 
-Update `quoted` to reference the 9:45 Ventus car-loan reply.
+## Card facts Ventus references
+- 60,000 bonus points offer
+- 2x points on travel & dining, 1.5x on all other purchases
+- Up to $200 combined in Airline Incidental + TSA PreCheck/Global Entry statement credits
 
-## 10:08 Ventus (Coworker)
-Two sections, one line per client, no extra detail:
+## New cohort `travelCardCohort` (8 clients)
+Replaces `autoCohort`. Each row:
+```
+{ name, recentTrip: "Italy" | "Spain" | "Canada" | "Hawaii" | ...,
+  tripWindow: string (e.g. "Mar 2026"),
+  estSavings: number ($150–$350),
+  timing: string }
+```
+8 believable names spread across Italy, Spain, Canada, Hawaii (+ 1–2 more like Portugal / Japan). Savings framed as "would have earned ~$X back with 2x travel/dining + $200 travel credits on that trip."
 
-**Task 1 — Digest signals (N)**
-Iterate all rows across the digest (Act Now, Opportunities, At Risk after the one-per-client dedup):
-- {client name} — {LIFE_EVENT_CONFIG[event.eventType].label} · {section label}
-  where section label = "Act Now" | "Opportunity" | "At Risk".
-
-**Task 2 — Car-loan campaign cohort (6)**
-Iterate `autoCohort`:
-- {row.name} — {row.timing}
-
-Close: "All logged."
+## Message updates (second exchange only)
+- **Morgan ask:** pull candidates for the new premium travel card launch — recent leisure/international travelers who'd benefit most.
+- **Ventus reply:** short intro naming the three card hooks (60k bonus, 2x travel/dining, $200 travel credits), followed by a list of 8 candidates: `name — recent trip (window) · est. $X saved if they'd used the card`.
 
 ## Plumbing
-Extend the render ctx with a new field `digestRows: Array<{ name: string; eventLabel: string; sectionLabel: string }>`, built at the call site by flattening `grouped.high` / `grouped.opportunity` / `grouped.risk` in that order.
+- Rename `autoCohort` → `travelCardCohort` with the new shape and update its memo.
+- Update the ctx passed into `m.render?.()` from `{ autoCohort, digestRows }` → `{ travelCardCohort, digestRows }` and adjust `MessageDef.render` typing.
+- Wrap-up 10:08 Task 2 line becomes `{name} — {recentTrip} · est. $X saved` (still one line per row, no other detail changes).
 
 ## Files
 - `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx` only.
 
 ## Out of scope
-- Digest section captions / order, sender identity, offers, evidence, and messages 9:22 – 9:45.
+- First exchange (digest / Task 1) content and ordering.
+- 9:45 Morgan follow-up phrasing and 10:07 Morgan wrap-up ask — leave as-is beyond any minimal noun swap needed to stay coherent with the new task.
+- Any other views, pages, or real data wiring.
