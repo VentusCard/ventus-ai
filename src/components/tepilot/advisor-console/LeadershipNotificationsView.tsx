@@ -503,7 +503,7 @@ export function LeadershipNotificationsView() {
                 <div className="text-xs text-slate-600 mt-1">
                   <span className="text-slate-400">To:</span>{" "}
                   <span className="text-slate-700">
-                    {activeMsg.sender === "ventus" ? "You" : "Ventus AI Copilot"}
+                    {activeMsg.sender === "ventus" ? "You" : "Ventus AI Coworker"}
                   </span>
                   <span className="text-slate-400 ml-3">Cc:</span>{" "}
                   <span className="text-slate-500">—</span>
