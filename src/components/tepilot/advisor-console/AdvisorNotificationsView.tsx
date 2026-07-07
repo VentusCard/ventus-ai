@@ -287,6 +287,7 @@ const REPLY_MESSAGES: MessageDef[] = [
       const evB = evidenceFor(eventTypeB);
       return (
         <>
+          <p>Hi Morgan,</p>
           <p>Here's what we're actually seeing on the ledger:</p>
           <div>
             <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
@@ -332,6 +333,7 @@ const REPLY_MESSAGES: MessageDef[] = [
     quoted: `Morgan, 9:44 AM — Pull me a working list of clients who'd genuinely benefit from the new premium travel card…`,
     render: ({ travelCardCohort }) => (
       <>
+        <p>Hi Morgan,</p>
         <p>Card hooks worth leading with:</p>
         <ul className="list-disc pl-5 space-y-1">
           <li>60,000 bonus points on sign-up</li>
