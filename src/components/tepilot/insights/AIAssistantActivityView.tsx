@@ -141,7 +141,7 @@ export function AIAssistantActivityView() {
             Travel and life-event questions are driving this week's volume spike.
           </div>
           <div className="text-[11.5px] text-slate-600 mt-0.5 leading-relaxed">
-            Holiday travel planning (+58%) and ski trip recaps (+42%) led the last 24 hours of growth. First-home buying resources crossed 2.8k conversations — the highest of any life-event topic this quarter.
+            Summer travel planning (+58%) and summer trip recaps (+42%) led the last 24 hours of growth. First-home buying resources crossed 2.8k conversations — the highest of any life-event topic this quarter.
           </div>
         </div>
         <div className="flex items-stretch gap-3 shrink-0 pl-3 border-l border-slate-200">
