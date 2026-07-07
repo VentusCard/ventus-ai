@@ -75,17 +75,18 @@ const VENTUS = {
 };
 
 const EVENT_OFFER: Record<string, string> = {
-  business_liquidity: "Short-term T-bill / money-market parking + diversified deployment plan",
-  wealth_transfer: "Trust review + estate & gifting strategy",
-  retirement: "Retirement income plan + Medicare / Social Security timing review",
-  elder_care: "Care-cost planning + POA / trust checkpoint",
-  college_prep: "529 top-up + 529-to-Roth rollover eligibility check",
-  home_purchase: "Bridge financing / jumbo mortgage pre-qual",
-  new_child: "529 open + term life review",
+  retirement: "Rollover IRA + Merrill Guided Investing with Advisor; review Preferred Rewards tier",
+  education: "529 College Savings Plan top-up; Custodial UGMA/UTMA for flexible funds",
+  home_purchase: "Jumbo Mortgage or Affordable Loan Solution pre-qual; HELOC on current home for bridge",
+  wealth_transfer: "Trust Services + Estate Planning Services; Philanthropic Solutions for legacy gifts",
+  business_liquidity: "Fixed-Term CD ladder + Advantage Savings for parking; Merrill Lynch Wealth Management for deployment",
+  family_formation: "529 College Savings Plan open; Advantage Relationship Banking bundle",
+  elder_care: "Trust Services checkpoint + Specialty Asset Management; Preferred Rewards tier review",
 };
 function offerFor(eventType: string): string {
-  return EVENT_OFFER[eventType] ?? "Household planning check-in";
+  return EVENT_OFFER[eventType] ?? "Preferred Rewards tier review + Merrill Guided Investing with Advisor intro";
 }
+
 
 const SECTIONS: {
   key: "high" | "opportunity" | "risk";
