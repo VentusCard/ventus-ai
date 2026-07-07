@@ -551,11 +551,8 @@ export function AdvisorNotificationsView({
             {activeMsg.kind === "digest" ? (
               <>
                 <p className="text-sm text-slate-700 leading-relaxed">
-                  Morning — <span className="font-semibold text-slate-900">{totalSignals}</span> new signals across{" "}
-                  <span className="font-semibold text-slate-900">{clientsWithSignals} clients</span>.
-                  Grouped by how time-sensitive they are so you can plan the day.
-                  Every row has the underlying signal count, the window it covers, and my confidence —
-                  reply if you want me to go deeper on any of them.
+                  A short list this morning — the handful worth your attention, grouped by how time-sensitive they are.
+                  Each row has a suggested offer and my confidence. Reply on any name to go deeper.
                 </p>
 
                 {SECTIONS.map((section) => {
