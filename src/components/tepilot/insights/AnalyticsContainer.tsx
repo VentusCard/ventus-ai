@@ -243,7 +243,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
       case 'life-events': return <RelationshipIntelligenceView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
-      case 'wealth-intelligence': return <WealthIntelligenceView />;
+      
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
       case 'fraud-aml': return (
