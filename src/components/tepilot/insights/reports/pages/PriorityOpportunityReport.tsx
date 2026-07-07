@@ -112,15 +112,19 @@ export function PriorityOpportunityReport({ opportunityId, onBack, onNavigate, o
     );
   }, [opportunities, opportunityId]);
 
+  const monthlySeries = useMemo(() => (selected ? buildMonthlySeries(selected) : []), [selected]);
+  const tierSeries = useMemo(() => (selected ? buildTierSeries(selected) : []), [selected]);
+  const pipeline = useMemo(
+    () => (selected ? buildQuarterPipeline(selected) : { rows: [], merchants: [] }),
+    [selected],
+  );
+
   if (!selected) {
     return (
       <div className="p-8 text-sm text-slate-500">No priority opportunity found.</div>
     );
   }
 
-  const monthlySeries = useMemo(() => buildMonthlySeries(selected), [selected]);
-  const tierSeries = useMemo(() => buildTierSeries(selected), [selected]);
-  const pipeline = useMemo(() => buildQuarterPipeline(selected), [selected]);
 
   const avgSpendGap = selected.totalOpportunityAmount / Math.max(1, selected.affectedUsers);
   const merchantCount = selected.merchantPartnerships.length;
