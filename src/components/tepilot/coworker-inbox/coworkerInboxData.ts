@@ -236,7 +236,7 @@ export const WEEKLY_STATS: WeeklyStats = {
   replyRatePct: 61,
   repliesCount: 17320,
   signalsSurfaced: 142800,
-  ventusReplyLatency: "< 2 min",
+  ventusReplyLatency: "< 1 min",
   advisorReplyMedianHrs: 1.8,
   activeThreads: 9640,
   advisorsCount: 12400,
