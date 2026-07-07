@@ -119,7 +119,7 @@ export function CoworkerInboxView() {
           />
           <KpiCard
             icon={<Bolt className="w-3.5 h-3.5" />}
-            label="Ventus reply latency"
+            label="VENTUS REPLY RECEIVED"
             value={WEEKLY_STATS.ventusReplyLatency}
             delta="instant · always on"
             deltaTone="up"
