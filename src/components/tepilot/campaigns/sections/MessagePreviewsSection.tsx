@@ -51,8 +51,15 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   const [revealedCount, setRevealedCount] = useState(0);
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [regenSeed, setRegenSeed] = useState(0);
+  const [isSpinning, setIsSpinning] = useState(false);
   const [sampleOpen, setSampleOpen] = useState(false);
 
+  const handleRegenerate = () => {
+    setRegenSeed((s) => s + 1);
+    setFeaturedIdx(0);
+    setIsSpinning(true);
+    window.setTimeout(() => setIsSpinning(false), 400);
+  };
 
   // Reset seed when product changes
   useEffect(() => { setRegenSeed(0); }, [productName]);
@@ -113,11 +120,11 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
         <p className="text-sm font-semibold text-slate-900">Micro-Segment Personalized Campaign Output</p>
         <button
           type="button"
-          onClick={() => setRegenSeed((s) => s + 1)}
+          onClick={handleRegenerate}
           disabled={!product}
           className="ml-auto inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className={cn("w-3.5 h-3.5 transition-transform", isSpinning && "animate-spin")} />
           Regenerate
         </button>
       </div>
