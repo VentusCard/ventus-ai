@@ -374,7 +374,7 @@ export function LeadershipNotificationsView() {
     { idx: 0, label: "Brief", who: "ventus" as Sender, timeLabel: "8:15" },
     ...REPLY_MESSAGES.map((m, i) => ({
       idx: i + 1,
-      label: m.sender === "ventus" ? "Ventus" : "You",
+      label: m.sender === "ventus" ? "Ventus" : "Leadership",
       who: m.sender,
       timeLabel: m.navLabel,
     })),
