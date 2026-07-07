@@ -677,7 +677,7 @@ export function AdvisorNotificationsView({
               </p>
               <p className="text-[11px] text-slate-400 pt-1">
                 {activeMsg.sender === "ventus"
-                  ? "Sent by Ventus Copilot · ventusai.com"
+                  ? "Sent by Ventus Coworker · ventusai.com"
                   : `Sent from Outlook · ${ADVISOR.email}`}
               </p>
             </div>
