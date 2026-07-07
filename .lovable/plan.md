@@ -1,24 +1,26 @@
 ## Goal
-Redesign the horizontal message pill navigation in `AdvisorNotificationsView.tsx` so it is immediately obvious to any viewer what they are looking at and how to move through the conversation thread.
+Port the redesigned sticky header + pill navigation from `AdvisorNotificationsView.tsx` into `LeadershipNotificationsView.tsx` so both conversation threads share the same ultra-clear look.
 
-## What to Change
-The sticky pill strip (lines ~569-618) currently shows a dense row of small numbered pills with colored dots. Users have trouble understanding its purpose at a glance.
+## Changes — `src/components/tepilot/advisor-console/LeadershipNotificationsView.tsx`
 
-## Proposed Redesign
-1. **Add a descriptive headline** above the pill row — e.g. "Conversation with Ventus AI" or "Thread" — so the navigation has context.
-2. **Enlarge and simplify the pills** — remove the middle dot separator, use bolder typography for the sender label, and make the active state unmistakable (solid fill + white text + stronger shadow vs. inactive ghost/outline style).
-3. **Add subtle directional cues** — replace the plain chevron buttons with more prominent prev/next affordances, or add a "Message X of Y" counter between them.
-4. **Increase vertical spacing** between the nav bar and the email content so the navigation feels like a distinct control layer, not part of the message.
-5. **Color-code by sender more strongly** — Ventus pills use a blue accent, Advisor pills use a slate accent, making it obvious at a glance who sent what.
+1. **Sticky header block (lines ~387–437)** — replace the current compact nav row with the Advisor version:
+   - Title row above the pills:
+     - `h2`: "Example Conversation thread between Leadership and Ventus AI Coworker"
+     - Right-aligned "Message X of Y" chip (white pill with slate-200 border)
+   - Larger Prev / Next buttons with icon + label ("Prev", "Next") instead of icon-only
+   - Bigger pills: `px-3.5 py-2 rounded-full text-sm`, colored variants:
+     - Active + Ventus → `bg-sky-600 border-sky-600 text-white shadow-md`
+     - Active + Leader → `bg-slate-700 border-slate-700 text-white shadow-md`
+     - Inactive + Ventus → `bg-sky-50 border-sky-200 text-sky-700`
+     - Inactive + Leader → `bg-white border-slate-200 text-slate-700`
+   - Pill contents: bold index number, label ("Ventus" / "Leadership"), muted time — matching the Advisor pattern (drop the tiny colored dot).
+   - Container padding matches Advisor: `pt-4 pb-3` with `mb-3` between title row and pills.
 
-## Implementation Notes
-- Keep the component fully in `AdvisorNotificationsView.tsx` — no new files needed.
-- Preserve all existing functionality (click to jump, prev/next arrows, scroll-into-view behavior, sticky positioning).
-- Maintain the strict light-theme policy (white/slate tones, no dark mode utilities).
-- The change is purely presentational; no data/logic changes.
+2. **Subject block (lines 469–476)** — remove the now-redundant `Message X of Y` line under the subject (the counter now lives in the header, same as Advisor view).
 
-## Acceptance Criteria
-- A headline or title is visible above the pill row explaining the thread.
-- The active pill is visually dominant and instantly distinguishable from inactive pills.
-- The navigation feels like a clear, separate control bar rather than a cramped row of labels.
-- Build passes cleanly.
+3. Outer wrapper spacing: bump `space-y-3` → `space-y-5` to match Advisor spacing.
+
+No other logic, data, or components change. Nav item labels stay driven by `m.sender` (Ventus/Leadership).
+
+## Summary
+Leadership thread gets the same titled, high-contrast pill navigation as the Advisor thread, with the message counter moved into the header chip.
