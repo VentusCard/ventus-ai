@@ -957,6 +957,8 @@ export default function ExecDemoIntelPanel({
                     activePillLabel={activePillLabel}
                     onClearHighlight={onClearHighlight}
                     onPillarClick={onEnrichmentPillarClick}
+                    externalSignals={externalSignals}
+                    activeExternalSignalId={activeExternalSignalId}
                   />
                 )}
               </div>
