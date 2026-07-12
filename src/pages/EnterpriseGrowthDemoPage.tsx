@@ -4504,7 +4504,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                       {[
                         { label: "Assign before action", detail: `${100 - skill.measurement.holdoutPct}% treatment · ${skill.measurement.holdoutPct}% holdout`, Icon: GitBranch },
                         { label: "Receive bank outcomes", detail: path === "wealth-growth" ? "Qualified NNA posted" : "Deposit balance observed", Icon: Network },
-                        { label: "Calculate incremental value", detail: "Treatment minus held-out baseline", Icon: LineChart },
+                        { label: "Calculate incremental value", detail: "Coverage gate + 95% interval vs holdout", Icon: LineChart },
                       ].map((item, index) => (
                         <div key={item.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
                           <span className="flex h-7 w-7 flex-none items-center justify-center rounded-md bg-white"><item.Icon className="h-3.5 w-3.5" style={{ color: index === 2 ? GREEN : NAVY }} /></span>
@@ -4526,12 +4526,13 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                       </div>
                     ) : (
                       <div>
-                        <div className="flex items-center justify-between gap-2"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Sample-gated result</p><span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-700">450 / 50 observed</span></div>
+                        <div className="flex items-center justify-between gap-2"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Sample-gated result</p><span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-700">450 treatment · 50 holdout</span></div>
                         <div className="mt-3 grid grid-cols-3 gap-2">
                           <BriefMetric label="Treatment" value={path === "wealth-growth" ? "$32.4K" : "$18.4K"} />
                           <BriefMetric label="Holdout" value={path === "wealth-growth" ? "$21.1K" : "$15.2K"} />
                           <BriefMetric label="Incremental" value={path === "wealth-growth" ? "+$11.3K" : "+$3.2K"} />
                         </div>
+                        <p className="mt-2 text-[10px] text-slate-400">100% outcome coverage · illustrative 95% interval {path === "wealth-growth" ? "+$4.1K to +$18.5K" : "+$0.8K to +$5.6K"}</p>
                         <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
                           <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">What the institution can decide</p>
                           <p className="mt-1 text-base font-semibold text-slate-900">{path === "wealth-growth" ? "Scale the qualified Merrill handoff only after bank validation." : "Scale primacy defense only after bank validation."}</p>

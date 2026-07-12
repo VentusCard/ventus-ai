@@ -18,7 +18,7 @@ export function assignExperiment({
   salt,
   assignedAt = new Date().toISOString(),
 }) {
-  assertIdentifier(tenantId, 'tenantId');
+  validateTenantId(tenantId);
   assertIdentifier(experimentId, 'experimentId');
   assert.match(householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'householdToken must be opaque');
   assert.ok(Number.isFinite(holdoutPct) && holdoutPct >= 1 && holdoutPct <= 50, 'holdoutPct must be 1-50');
@@ -78,44 +78,100 @@ export function validateOutcomeEvent(event, assignment) {
   return event;
 }
 
-export function summarizeIncrementalLift({ assignments, outcomes, metric, minimumPerArm = 30 }) {
+export function summarizeIncrementalLift({
+  assignments,
+  outcomes,
+  metric,
+  minimumPerArm = 30,
+  minimumCoverage = 0.9,
+}) {
   assert.ok(Array.isArray(assignments), 'assignments must be an array');
   assert.ok(Array.isArray(outcomes), 'outcomes must be an array');
+  assert.ok(assignments.length > 0, 'assignments must not be empty');
   assert.ok(METRICS.has(metric), 'metric is unsupported');
   assert.ok(Number.isInteger(minimumPerArm) && minimumPerArm > 0, 'minimumPerArm must be positive');
+  assert.ok(Number.isFinite(minimumCoverage) && minimumCoverage > 0 && minimumCoverage <= 1, 'minimumCoverage must be 0-1');
 
-  const assignmentByHousehold = new Map(assignments.map((assignment) => [assignment.householdToken, assignment]));
+  const tenantIds = new Set();
+  const experimentIds = new Set();
+  const assignmentByHousehold = new Map();
+  const assignedCounts = { treatment: 0, holdout: 0 };
+  for (const assignment of assignments) {
+    validateMeasurementAssignment(assignment);
+    tenantIds.add(assignment.tenantId);
+    experimentIds.add(assignment.experimentId);
+    const key = assignmentKey(assignment.tenantId, assignment.experimentId, assignment.householdToken);
+    assert.ok(!assignmentByHousehold.has(key), `duplicate assignment for ${assignment.householdToken}`);
+    assignmentByHousehold.set(key, assignment);
+    assignedCounts[assignment.arm] += 1;
+  }
+  assert.equal(tenantIds.size, 1, 'measurement summary must contain exactly one tenant');
+  assert.equal(experimentIds.size, 1, 'measurement summary must contain exactly one experiment');
+  assert.ok(assignedCounts.treatment > 0 && assignedCounts.holdout > 0, 'both experiment arms require assignments');
+
   const latest = new Map();
   for (const event of outcomes) {
     if (event.value?.metric !== metric) continue;
-    const assignment = assignmentByHousehold.get(event.household_token);
-    if (!assignment) continue;
+    const key = assignmentKey(event.tenant_id, event.assignment?.experiment_id, event.household_token);
+    const assignment = assignmentByHousehold.get(key);
+    assert.ok(assignment, `target outcome ${event.event_id ?? 'unknown'} has no matching assignment`);
     validateOutcomeEvent(event, assignment);
-    const previous = latest.get(event.household_token);
+    const previous = latest.get(key);
     if (!previous || Date.parse(event.occurred_at) > Date.parse(previous.occurred_at)) {
-      latest.set(event.household_token, event);
+      latest.set(key, event);
     }
   }
 
   const values = { treatment: [], holdout: [] };
-  for (const [householdToken, event] of latest) {
-    const arm = assignmentByHousehold.get(householdToken).arm;
+  for (const [key, event] of latest) {
+    const arm = assignmentByHousehold.get(key).arm;
     values[arm].push(event.value.amount);
   }
   const treatmentMean = mean(values.treatment);
   const holdoutMean = mean(values.holdout);
-  const sufficient = values.treatment.length >= minimumPerArm && values.holdout.length >= minimumPerArm;
+  const treatmentCoverage = values.treatment.length / assignedCounts.treatment;
+  const holdoutCoverage = values.holdout.length / assignedCounts.holdout;
+  const sufficientSample = values.treatment.length >= minimumPerArm && values.holdout.length >= minimumPerArm;
+  const sufficientCoverage = treatmentCoverage >= minimumCoverage && holdoutCoverage >= minimumCoverage;
+  const ready = sufficientSample && sufficientCoverage;
   const absoluteLift = treatmentMean === null || holdoutMean === null ? null : treatmentMean - holdoutMean;
   const relativeLiftPct = absoluteLift === null || holdoutMean === 0 ? null : (absoluteLift / Math.abs(holdoutMean)) * 100;
+  const inference = ready ? differenceInMeansInference(values.treatment, values.holdout) : null;
+  const status = !sufficientSample
+    ? 'insufficient_sample'
+    : !sufficientCoverage
+      ? 'incomplete_outcome_coverage'
+      : 'measured';
 
   return {
+    tenantId: [...tenantIds][0],
+    experimentId: [...experimentIds][0],
     metric,
-    status: sufficient ? 'measured' : 'insufficient_sample',
+    status,
     minimumPerArm,
-    treatment: { observed: values.treatment.length, mean: round(treatmentMean) },
-    holdout: { observed: values.holdout.length, mean: round(holdoutMean) },
-    absoluteLift: sufficient ? round(absoluteLift) : null,
-    relativeLiftPct: sufficient ? round(relativeLiftPct) : null,
+    minimumCoverage,
+    treatment: {
+      assigned: assignedCounts.treatment,
+      observed: values.treatment.length,
+      coverage: round(treatmentCoverage),
+      mean: round(treatmentMean),
+    },
+    holdout: {
+      assigned: assignedCounts.holdout,
+      observed: values.holdout.length,
+      coverage: round(holdoutCoverage),
+      mean: round(holdoutMean),
+    },
+    absoluteLift: ready ? round(absoluteLift) : null,
+    relativeLiftPct: ready ? round(relativeLiftPct) : null,
+    inference,
+    evidenceStatus: !ready
+      ? 'not_ready'
+      : inference.signal === 'inconclusive'
+        ? 'inconclusive'
+        : 'statistical_signal_detected',
+    causalClaimAllowed: false,
+    reviewRequired: 'independent_statistical_and_experiment_review',
   };
 }
 
@@ -214,6 +270,48 @@ function assertIdentifier(value, label) {
 
 function assertIsoDate(value, label) {
   assert.ok(typeof value === 'string' && !Number.isNaN(Date.parse(value)), `${label} must be ISO date-time`);
+}
+
+function validateMeasurementAssignment(assignment) {
+  assert.ok(assignment && typeof assignment === 'object' && !Array.isArray(assignment), 'assignment must be an object');
+  validateTenantId(assignment.tenantId);
+  assertIdentifier(assignment.experimentId, 'assignment.experimentId');
+  assert.match(assignment.householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'assignment.householdToken must be opaque');
+  assert.ok(ARMS.has(assignment.arm), 'assignment.arm is unsupported');
+  assertIsoDate(assignment.assignedAt, 'assignment.assignedAt');
+}
+
+function assignmentKey(tenantId, experimentId, householdToken) {
+  return `${tenantId}\u001f${experimentId}\u001f${householdToken}`;
+}
+
+function differenceInMeansInference(treatment, holdout) {
+  const treatmentMean = mean(treatment);
+  const holdoutMean = mean(holdout);
+  const difference = treatmentMean - holdoutMean;
+  const standardError = Math.sqrt(
+    sampleVariance(treatment, treatmentMean) / treatment.length
+    + sampleVariance(holdout, holdoutMean) / holdout.length,
+  );
+  const margin = 1.96 * standardError;
+  const lower = difference - margin;
+  const upper = difference + margin;
+  return {
+    method: 'difference_in_means_normal_approximation',
+    confidenceLevel: 0.95,
+    standardError: round(standardError),
+    confidenceInterval: { lower: round(lower), upper: round(upper) },
+    signal: lower > 0 ? 'positive' : upper < 0 ? 'negative' : 'inconclusive',
+    limitations: [
+      'Requires valid pre-activation assignment and complete outcome mapping.',
+      'Does not adjust for multiple testing, spillovers, noncompliance, or covariate imbalance.',
+    ],
+  };
+}
+
+function sampleVariance(values, average) {
+  if (values.length < 2) return 0;
+  return values.reduce((sum, value) => sum + (value - average) ** 2, 0) / (values.length - 1);
 }
 
 function mean(values) {

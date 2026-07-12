@@ -74,8 +74,71 @@ test('incremental lift remains unavailable until both arms satisfy sample gates'
   assert.equal(measured.status, 'measured');
   assert.equal(measured.treatment.mean, 1200);
   assert.equal(measured.holdout.mean, 1000);
+  assert.equal(measured.treatment.assigned, 40);
+  assert.equal(measured.treatment.coverage, 1);
   assert.equal(measured.absoluteLift, 200);
   assert.equal(measured.relativeLiftPct, 20);
+  assert.deepEqual(measured.inference.confidenceInterval, { lower: 200, upper: 200 });
+  assert.equal(measured.inference.signal, 'positive');
+  assert.equal(measured.evidenceStatus, 'statistical_signal_detected');
+  assert.equal(measured.causalClaimAllowed, false);
+  assert.equal(measured.reviewRequired, 'independent_statistical_and_experiment_review');
+});
+
+test('measurement with incomplete outcome coverage withholds lift', () => {
+  const fixture = measurementFixture(40, 40);
+  fixture.outcomes = fixture.outcomes.filter((event, index) => event.assignment.arm !== 'treatment' || index >= 5);
+  const result = summarizeIncrementalLift({
+    ...fixture,
+    metric: 'deposit_retained',
+    minimumPerArm: 30,
+    minimumCoverage: 0.9,
+  });
+  assert.equal(result.treatment.observed, 35);
+  assert.equal(result.treatment.coverage, 0.875);
+  assert.equal(result.status, 'incomplete_outcome_coverage');
+  assert.equal(result.absoluteLift, null);
+  assert.equal(result.inference, null);
+  assert.equal(result.evidenceStatus, 'not_ready');
+});
+
+test('measurement rejects mixed experiments and unmatched target outcomes', () => {
+  const mixed = measurementFixture(40, 40);
+  mixed.assignments[0] = { ...mixed.assignments[0], experimentId: 'other_experiment' };
+  assert.throws(
+    () => summarizeIncrementalLift({ ...mixed, metric: 'deposit_retained' }),
+    /exactly one experiment/,
+  );
+
+  const unmatched = measurementFixture(40, 40);
+  const outsider = {
+    ...unmatched.assignments[0],
+    householdToken: 'tok_outsider_000001',
+    assignmentId: 'asn_outsider_000001',
+  };
+  unmatched.outcomes.push(outcomeFor(outsider, 500, '2026-08-01T00:00:00.000Z'));
+  assert.throws(
+    () => summarizeIncrementalLift({ ...unmatched, metric: 'deposit_retained' }),
+    /has no matching assignment/,
+  );
+});
+
+test('uncertain lift remains inconclusive rather than promoted as a signal', () => {
+  const fixture = measurementFixture(40, 40);
+  fixture.outcomes = fixture.outcomes.map((event, index) => ({
+    ...event,
+    value: {
+      ...event.value,
+      amount: index % 2 === 0 ? 0 : 2000,
+    },
+  }));
+  const result = summarizeIncrementalLift({ ...fixture, metric: 'deposit_retained' });
+  assert.equal(result.status, 'measured');
+  assert.equal(result.absoluteLift, 0);
+  assert.equal(result.inference.signal, 'inconclusive');
+  assert.equal(result.evidenceStatus, 'inconclusive');
+  assert.ok(result.inference.confidenceInterval.lower < 0);
+  assert.ok(result.inference.confidenceInterval.upper > 0);
 });
 
 test('repository records assignment before accepting an idempotent outcome', async () => {

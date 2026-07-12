@@ -19,7 +19,7 @@ The first two Growth Plays are:
 | Plaid custom-user shards | `npm run plaid:mvp:manifests` | The same 500-household design translated into ten official 50-user Plaid Sandbox manifests | Plaid-returned category fidelity until the shards are pulled |
 | Local scale baseline | `npm run benchmark:mvp` | Repeatable single-process throughput over at least 100k synthetic transactions | Production capacity or SLA |
 | Outcome contract | `npm run test:outcomes` | Tokenized, holdout-aware event schema suitable for bank mapping | A live bank outcome feed |
-| Experiment measurement | `backend/shared/experiment-measurement.test.mjs` | Stable pre-activation assignment, idempotent outcome ingestion, and sample-gated lift calculation | A deployed store or causal result from bank data |
+| Experiment measurement | `backend/shared/experiment-measurement.test.mjs`; `docs/outcome-measurement-methodology.md` | Stable pre-activation assignment, idempotent outcomes, one-tenant/experiment integrity, coverage gates, and uncertainty intervals | A deployed store, completed bank outcome window, independent review, or causal result |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
 | Decision/outcome graph | `backend/shared/decision-ledger.test.mjs` | SHA-256 lineage, tenant serialization, tamper detection, and sample-gated descriptive effectiveness | Causality, deployment, or longitudinal bank evidence |
 | Tenant-isolated persistence | `npm run --prefix backend check:persistence`; `backend/sql/verify-tenant-isolation.sql` | Transaction-local tenant context, forced-RLS policies, non-bypass role checks, and rollback-only cross-tenant probes are present and CI-checked | A successful probe against the deployed non-production runtime role |
@@ -37,6 +37,8 @@ A Growth Play cannot advance from shadow evaluation to assisted activation until
 - No fabricated evidence identifiers and no action without supporting transactions.
 - An approved policy pack, destination contract, and named business owner.
 - Treatment/holdout assignment recorded before activation.
+- At least the pre-registered sample and outcome-coverage thresholds in both arms.
+- Independent review of the uncertainty interval, attrition, balance, contamination, and multiple testing.
 - A rollback path and complete delivery receipts.
 - For model-assisted planning, zero grounding or policy hard failures and a documented quality/cost win over the deterministic baseline.
 
