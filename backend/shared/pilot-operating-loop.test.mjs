@@ -52,6 +52,46 @@ test('wealth loop runs source-to-receipt once, preserves holdout, and measures o
   assert.ok(state.ledger.filter((event) => event.eventType === 'outcome').every((event) => event.status === 'simulated'));
 });
 
+test('Merrill relationship growth runs and measures without Consumer Banking records', async () => {
+  const state = createState();
+  const loop = createPilotOperatingLoop({
+    ...dependencies(state),
+    detector: async ({ policies }) => merrillRelationshipDecision(
+      policies.some((policy) => policy.verdict === 'block'),
+    ),
+  });
+  const treatmentInput = merrillRelationshipInput(
+    tokenForArm('treatment', 'merrill_growth_pilot_01'),
+    'merrill_growth_treatment',
+  );
+  const holdoutInput = merrillRelationshipInput(
+    tokenForArm('holdout', 'merrill_growth_pilot_01'),
+    'merrill_growth_holdout',
+  );
+
+  const treatment = await loop.runHousehold(treatmentInput);
+  const holdout = await loop.runHousehold(holdoutInput);
+  assert.equal(treatment.growthPlayId, 'merrill-relationship-growth');
+  assert.equal(treatment.decision.actionId, 'assign_advisor_consolidation_review');
+  assert.equal(treatment.decision.connector, 'salesforce');
+  assert.equal(treatment.activation, 'delivered');
+  assert.equal(holdout.activation, 'holdout');
+  assert.ok(treatmentInput.records.every((item) => item.source_system.startsWith('merrill_')));
+
+  await loop.recordOutcome(outcomeEvent(treatment, 275000));
+  await loop.recordOutcome(outcomeEvent(holdout, 0));
+  const measurement = await loop.measureExperiment({
+    tenantId: 'bank_1',
+    experimentId: 'merrill_growth_pilot_01',
+    metric: 'net_new_assets',
+    minimumPerArm: 1,
+    minimumCoverage: 1,
+  });
+  assert.equal(measurement.status, 'measured');
+  assert.equal(measurement.absoluteLift, 275000);
+  assert.equal(measurement.businessClaimAllowed, false);
+});
+
 test('deposit loop reaches a banker workbench action through the same institution-neutral contract', async () => {
   const state = createState();
   const loop = createLoop(state);
@@ -211,6 +251,20 @@ function wealthInput(householdToken, caseId) {
   });
 }
 
+function merrillRelationshipInput(householdToken, caseId) {
+  return baseInput({
+    householdToken,
+    caseId,
+    objective: 'Convert qualified Merrill demand into advised relationships and NNA',
+    experimentId: 'merrill_growth_pilot_01',
+    records: [
+      record('tx_acats', 'acats', 275000, 'merrill_transfer_workflow'),
+      record('tx_relationship', 'account', 85000, 'merrill_books'),
+      record('tx_engagement', 'digital', 3, 'merrill_digital'),
+    ],
+  });
+}
+
 function depositInput(householdToken, caseId) {
   return baseInput({
     householdToken,
@@ -273,6 +327,26 @@ function wealthDecision(blocked) {
   };
 }
 
+function merrillRelationshipDecision(blocked) {
+  return {
+    growthPlayId: 'merrill-relationship-growth',
+    abstain: blocked,
+    abstainReason: blocked ? 'Eligibility policy blocks activation.' : null,
+    confidence: 0.89,
+    evidence: [
+      { transaction_id: 'tx_acats', signal_type: 'asset_transfer_intent', summary: 'Outside-asset transfer is in progress.' },
+      { transaction_id: 'tx_relationship', signal_type: 'self_directed_relationship', summary: 'Self-directed Merrill relationship has no assigned advisor.' },
+      { transaction_id: 'tx_engagement', signal_type: 'planning_engagement', summary: 'Recent planning engagement indicates active advice demand.' },
+    ],
+    actionId: blocked ? null : 'assign_advisor_consolidation_review',
+    ownerRole: blocked ? null : 'merrill_growth_desk',
+    connector: blocked ? null : 'salesforce',
+    destination: blocked ? null : 'cew_book_360_task',
+    cohort: blocked ? null : 'qualified_self_directed_no_advisor',
+    deliveryPayload: blocked ? null : { household_token: 'tok_placeholder_000003', action: 'assign_advisor_consolidation_review' },
+  };
+}
+
 function depositDecision(blocked) {
   return {
     growthPlayId: 'deposit-primacy-defense',
@@ -311,7 +385,7 @@ function outcomeEvent(result, amount) {
     event_id: `event_${result.caseId}`,
     tenant_id: result.tenantId,
     household_token: result.householdToken,
-    growth_play_id: 'liquidity-to-wealth',
+    growth_play_id: result.growthPlayId,
     decision_id: result.decisionId,
     activation_id: result.receipt?.delivery_id ?? null,
     event_type: 'assets_transferred',

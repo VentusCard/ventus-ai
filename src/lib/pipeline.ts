@@ -63,7 +63,9 @@ function pnlFor(input: PipelineInput): PnlMetric {
 function skillFor(input: PipelineInput, pnl: PnlMetric): string {
   if (input.destination === "merrill") return "consumer-to-merrill-handoff";
   if (pnl === "Deposit balances retained ($)" || pnl === "Primary-checking households retained (#)") return "deposit-primacy-defense";
-  if (pnl === "Net new assets to Merrill ($)") return "consumer-to-merrill-handoff";
+  if (pnl === "Net new assets to Merrill ($)") {
+    return input.lob === "wealth" ? "merrill-relationship-growth" : "consumer-to-merrill-handoff";
+  }
   return input.lob === "consumer" ? "deposit-primacy-defense" : "consumer-to-merrill-handoff";
 }
 

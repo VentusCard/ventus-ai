@@ -22,7 +22,7 @@
     "event_id": { "type": "string", "minLength": 8, "maxLength": 128 },
     "tenant_id": { "type": "string", "minLength": 2, "maxLength": 64 },
     "household_token": { "type": "string", "pattern": "^tok_[A-Za-z0-9_-]{8,120}$" },
-    "growth_play_id": { "enum": ["deposit-primacy-defense", "liquidity-to-wealth"] },
+    "growth_play_id": { "enum": ["deposit-primacy-defense", "merrill-relationship-growth", "liquidity-to-wealth"] },
     "decision_id": { "type": "string", "minLength": 8, "maxLength": 128 },
     "activation_id": { "type": ["string", "null"], "maxLength": 128 },
     "event_type": {

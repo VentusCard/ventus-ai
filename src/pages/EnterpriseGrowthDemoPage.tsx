@@ -56,6 +56,7 @@ import {
   SKILL_STAGES,
   DEPOSIT_PRIMACY_SKILL,
   CONSUMER_MERRILL_SKILL,
+  MERRILL_RELATIONSHIP_GROWTH_SKILL,
   type SkillArtifact,
 } from "@/lib/skills";
 
@@ -87,7 +88,7 @@ type RawTxn = {
   pillar: string;
   tag: string;
   conf: number;
-  src?: string; // system of origin — the cross-system read only this franchise can make IS the product
+  src?: string; // system of origin — retained so every recommendation can be traced to permitted evidence
 };
 
 type Opportunity = {
@@ -111,7 +112,7 @@ type Opportunity = {
   destination: DestId;
   destinationWhy: string;
   lob?: Lob; // which business owns the moment — defaults to wealth
-  moat?: string; // the advantage line — signal only this franchise owns; competitors are the foil, never the bank's own org
+  moat?: string; // concise explanation of the decision capability Ventus adds
   outflow?: string; // wallet-share leak (folded from Outflow Analysis) — retention evidence
   fvi?: "low" | "elevated"; // financial vulnerability (folded from FVI) — drives customer-protection suppression
 };
@@ -119,6 +120,32 @@ type Opportunity = {
 const oppLob = (o: Opportunity): Lob => o.lob ?? "wealth";
 
 const opportunities: Opportunity[] = [
+  {
+    id: "merrill-growth",
+    type: "Qualified advisory conversion",
+    client: "Harrington household",
+    value: "$275K",
+    valueLabel: "prospective NNA",
+    confidence: 89,
+    icon: TrendingUp,
+    reason: "A self-directed Merrill client started an outside-asset transfer and engaged with planning content. No advisor is assigned.",
+    whyNow: "The transfer is still in progress and the planning need is active.",
+    moat: "Ventus turns Merrill's transfer, relationship, and engagement evidence into one governed advisor action.",
+    rawTransactions: [
+      { raw: "ACATS TRANSFER STARTED — $275K", merchant: "External asset transfer", category: "Investments · Transfer intent", pillar: "Wealth", tag: "$275K transfer initiated", conf: 0.96, src: "Merrill transfer workflow" },
+      { raw: "MERRILL EDGE — SELF-DIRECTED", merchant: "Merrill Edge relationship", category: "Investments · Self-directed", pillar: "Wealth", tag: "No advisor assigned", conf: 0.94, src: "Merrill books" },
+      { raw: "RETIREMENT PLANNING — 3 SESSIONS", merchant: "Planning engagement", category: "Digital · Advice intent", pillar: "Wealth", tag: "Planning intent rising", conf: 0.88, src: "Merrill digital" },
+    ],
+    action: "Assign the best-fit advisor and prepare a consolidation review.",
+    outcome: "Capture $275K NNA and establish an advised relationship.",
+    talkingPoints: ["Start with the planning need.", "Review the in-progress transfer together.", "Make the first meeting specific, not generic."],
+    owner: "Dana Whitfield",
+    ownerRole: "Merrill Advisor",
+    ownerInitials: "DW",
+    ownerReason: "Capacity, market, and planning specialty match.",
+    destination: "advisor",
+    destinationWhy: "Qualified Merrill demand → named advisor.",
+  },
   {
     id: "transition",
     type: "One-Bank transition",
@@ -3913,35 +3940,56 @@ const VENTUS_LOOP = leadershipCapabilities().map((capability) => ({
 }));
 
 type LeadershipConfig = {
+  businessLine: string;
   objective: string;
   coverCopy: string;
   opp: Opportunity;
   playTitle: string;
   skill: SkillArtifact;
   pilotOwner: string;
+  sourceLabel: string;
+  sourceDetail: string;
+  workflowLabel: string;
+  workflowDetail: string;
+  standaloneProof: string;
+  expansionUpside: string;
   actEarlier: string; // division of value: the institution owns the signals; Ventus turns them into action
 };
 
 function leadershipConfig(path: LeadershipPath): LeadershipConfig {
   if (path === "deposit-retention") {
     return {
+      businessLine: "Consumer Banking",
       objective: "Protect primary deposits",
-      coverCopy: "Detect relationship erosion early and prepare one timely banker action.",
+      coverCopy: "Use Consumer-owned signals to detect relationship erosion and prepare one timely banker action.",
       opp: consumerBook.find((item) => item.id === "primacy") ?? consumerBook[0],
       playTitle: "Deposit Primacy Defense",
       skill: DEPOSIT_PRIMACY_SKILL,
       pilotOwner: "Consumer Bank P&L owner",
-      actEarlier: "Your institution owns the payroll, card, and P2P signals. Ventus connects them into one governed moment — before the second paycheck leaves.",
+      sourceLabel: "Consumer data",
+      sourceDetail: "Epsilon · deposits · card · P2P",
+      workflowLabel: "Banker workflow",
+      workflowDetail: "Workbench · email · Salesforce",
+      standaloneProof: "No Merrill data required",
+      expansionUpside: "Later, authorized wealth signals can improve qualification without changing Consumer ownership.",
+      actEarlier: "Consumer Banking owns the payroll, card, and P2P evidence. Ventus turns it into one governed retention action before the second paycheck leaves.",
     };
   }
   return {
-    objective: "Grow Merrill NNA",
-    coverCopy: "Surface evidenced liquidity moments and create warm advisor introductions.",
-    opp: advisorBook.find((item) => item.id === "transition") ?? advisorBook[0],
-    playTitle: "Consumer-to-Merrill Growth",
-    skill: CONSUMER_MERRILL_SKILL,
-    pilotOwner: "Consumer + Merrill growth sponsor",
-    actEarlier: "Your institution owns the deposit and wealth relationships. Ventus connects them into one governed moment — before the transfer completes.",
+    businessLine: "Merrill",
+    objective: "Grow qualified wealth relationships",
+    coverCopy: "Use Merrill-owned signals to convert active demand into qualified NNA and advised relationships.",
+    opp: advisorBook.find((item) => item.id === "merrill-growth") ?? advisorBook[0],
+    playTitle: "Merrill Relationship Growth",
+    skill: MERRILL_RELATIONSHIP_GROWTH_SKILL,
+    pilotOwner: "Merrill growth P&L owner",
+    sourceLabel: "Merrill data",
+    sourceDetail: "Books · transfers · digital engagement",
+    workflowLabel: "Advisor workflow",
+    workflowDetail: "CEW · Book 360 · Salesforce FSC",
+    standaloneProof: "No Consumer data required",
+    expansionUpside: "Later, authorized Consumer signals can reveal earlier demand and quantify incremental connected lift.",
+    actEarlier: "Merrill owns the relationship, transfer, and engagement evidence. Ventus turns it into one governed advisor action before intent goes cold.",
   };
 }
 
@@ -4069,7 +4117,7 @@ function CustomerExperiencePreview({ path }: { path: LeadershipPath }) {
           </p>
           <p className="mt-2 text-xs leading-5 text-slate-600">
             {wealth
-              ? "Your relationship team can help review the cash building in your accounts and your longer-term goals."
+              ? "An advisor can review the transfer you started and align it with your longer-term plan."
               : "A banker can review your everyday banking setup and make sure it still fits how you use your accounts."}
           </p>
           <button className="mt-3 w-full rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: BLUE }}>
@@ -4116,6 +4164,9 @@ function LeadershipPipelineRun({
   destination,
   activeControls,
   playTitle,
+  businessLine,
+  standaloneProof,
+  valueLine,
   onViewPlay,
   onComplete,
 }: {
@@ -4123,6 +4174,9 @@ function LeadershipPipelineRun({
   destination: string;
   activeControls: string[];
   playTitle: string;
+  businessLine: string;
+  standaloneProof: string;
+  valueLine: string;
   onViewPlay: () => void;
   onComplete: () => void;
 }) {
@@ -4155,6 +4209,7 @@ function LeadershipPipelineRun({
         <div className="min-w-0 flex-1">
           <Eyebrow>Ventus live run · synthetic data</Eyebrow>
           <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>3 records in. One ranked action out.</h1>
+          <p className="mt-1.5 text-xs font-semibold text-slate-500">{businessLine} inputs · {standaloneProof}</p>
         </div>
         <button
           onClick={() => setRunStage(1)}
@@ -4169,7 +4224,7 @@ function LeadershipPipelineRun({
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <section className="order-1 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Raw bank feed</p>
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Raw {businessLine} feed</p>
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">{rails.length} rails · 3 shown</span>
           </div>
           <div className="mt-3 space-y-2">
@@ -4233,14 +4288,11 @@ function LeadershipPipelineRun({
                   <ConfidencePill value={derived.confidence} />
                 </div>
                 <p className="mt-2 text-xs leading-5 text-slate-600">{opp.reason}</p>
-                <div className="mt-3 grid grid-cols-2 gap-2">
-                  <BriefMetric label="Priority" value={`${derived.score} / 100`} />
-                  <BriefMetric label="Confidence" value={`${derived.confidence}%`} />
-                </div>
               </div>
               <div className="mt-3 rounded-xl border border-slate-200 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Prepared action</p>
                 <p className="mt-1 text-sm font-semibold text-slate-900">{opp.action}</p>
+                <p className="mt-1 text-[10px] leading-4 text-slate-500">{valueLine}</p>
                 <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-slate-500">
                   <span>{destination}</span>
                   <span className="font-semibold" style={{ color: GREEN }}>Checks passed · staged</span>
@@ -4344,7 +4396,9 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
   };
 
   const nextLabels = ["See the experience", "Connect pilot", "Rehearse route", "Preview measurement"];
-  const activeControls = ["Consent required", "Suitability review", "Vulnerability suppression"];
+  const activeControls = path === "wealth-growth"
+    ? ["Reg BI review", "Consent + eligibility", "Vulnerability suppression"]
+    : ["UDAAP review", "Uniform offer criteria", "Financial-health suppression"];
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-50/70">
@@ -4358,6 +4412,9 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                 destination={destination}
                 activeControls={activeControls}
                 playTitle={config.playTitle}
+                businessLine={config.businessLine}
+                standaloneProof={config.standaloneProof}
+                valueLine={config.actEarlier}
                 onViewPlay={() => setPlayOpen(true)}
                 onComplete={handlePipelineComplete}
               />
@@ -4374,14 +4431,14 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                     <GitBranch className="h-3 w-3" style={{ color: NAVY }} /> View the Growth Play
                   </button>
                 </div>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Wire this decision into BofA.</h1>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Wire this decision into {config.businessLine}.</h1>
                 <section className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                   <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr]">
                     {[
-                      { title: "Epsilon", detail: "Zero-PII sample", Icon: Layers },
+                      { title: config.sourceLabel, detail: config.sourceDetail, Icon: Layers },
                       { title: "Ventus", detail: "Map · enrich · decide", Icon: Cpu },
                       { title: "Ranked IDs", detail: "Action + rationale", Icon: Target },
-                      { title: "BofA workflows", detail: "CEW · email · Salesforce", Icon: Network },
+                      { title: config.workflowLabel, detail: config.workflowDetail, Icon: Network },
                     ].map((node, index) => (
                       <div key={node.title} className="contents">
                         {index > 0 && <ArrowRight className="hidden h-4 w-4 text-slate-300 sm:block" />}
@@ -4395,7 +4452,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                   </div>
                   {integrationReady && (
                     <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                      {["Epsilon schema accepted", "Ventus field map v1 created", "CEW payload contract mapped"].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
+                      {[`${config.sourceLabel} schema accepted`, "Ventus field map v1 created", `${config.workflowLabel} payload mapped`].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
                     </div>
                   )}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
@@ -4432,7 +4489,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                           {evidenceOpen && <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">{opp.rawTransactions.map((transaction) => <div key={transaction.raw} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span>{transaction.tag}</span><span className="ml-auto text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>)}</div>}
                         </>
                       ) : (
-                        <div className="flex min-h-48 flex-col items-center justify-center text-center"><p className="text-3xl font-semibold text-slate-300">47</p><p className="mt-1 text-xs font-semibold text-slate-500">unranked names</p><p className="mt-3 text-[11px] text-slate-400">No connected evidence · no prepared action</p></div>
+                        <div className="flex min-h-48 flex-col items-center justify-center text-center"><p className="text-3xl font-semibold text-slate-300">47</p><p className="mt-1 text-xs font-semibold text-slate-500">unranked names</p><p className="mt-3 text-[11px] text-slate-400">No decision-ready evidence · no prepared action</p></div>
                       )}
                     </section>
                   )}
@@ -4446,7 +4503,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                 <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Rehearse the full route.</h1>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Epsilon sandbox → Ventus → CEW sandbox</p><p className="mt-1 text-sm font-semibold text-slate-900">50 golden cases · shadow mode</p></div><div className="flex flex-none items-center gap-1.5">{liveReceipts.length > 0 && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase text-emerald-700">Live route</span>}<span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase text-slate-500">0 customer actions</span></div></div>
+                    <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{config.sourceLabel} sandbox → Ventus → {config.workflowLabel} sandbox</p><p className="mt-1 text-sm font-semibold text-slate-900">50 golden cases · shadow mode</p></div><div className="flex flex-none items-center gap-1.5">{liveReceipts.length > 0 && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase text-emerald-700">Live route</span>}<span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase text-slate-500">0 customer actions</span></div></div>
                     {dryRunState === "complete" ? (
                       <div className="mt-3">
                         <div className="grid grid-cols-3 gap-2"><BriefMetric label="Processed" value="50 / 50" /><BriefMetric label="Qualified" value="12 IDs" /><BriefMetric label="Errors" value="0" /></div>
@@ -4457,7 +4514,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                               <div key={row.id} className="flex items-center gap-3 border-b border-slate-100 px-3 py-2 text-[11px] last:border-0">
                                 <span className="font-mono font-semibold text-slate-700">{row.id}</span>
                                 <span className="font-bold" style={{ color: GREEN }}>{row.score}</span>
-                                <span className="min-w-0 flex-1 truncate text-slate-500">{path === "wealth-growth" ? "Merrill review" : "Primacy review"}</span>
+                                <span className="min-w-0 flex-1 truncate text-slate-500">{path === "wealth-growth" ? "Advisor conversion review" : "Primacy review"}</span>
                                 {live ? (
                                   <span className="font-mono font-semibold text-emerald-700" title="Receipt returned by the sandbox receiver">{live.receipt}</span>
                                 ) : (
@@ -4647,7 +4704,7 @@ function PilotScopePanel({ config, destination, market, capacity, onClose }: { c
             <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
               <p className="text-[11px] font-bold text-slate-800">Your institution</p>
               <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
-                <li>· Epsilon de-identified sample</li>
+                <li>· {config.sourceLabel} de-identified sample</li>
                 <li>· Policy owner + subject-matter experts</li>
                 <li>· Sandbox endpoint for {destination}</li>
               </ul>
@@ -4675,6 +4732,13 @@ function PilotScopePanel({ config, destination, market, capacity, onClose }: { c
             <p className="text-xs leading-5 text-slate-700">
               <span className="font-semibold text-slate-900">Commercial model:</span> fixed pilot fee, then platform + a success component on verified lift.
               Expansion is priced on measured value, not seats.
+            </p>
+          </div>
+
+          <div className="mt-3 flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <GitBranch className="mt-0.5 h-4 w-4 flex-none text-slate-500" />
+            <p className="text-xs leading-5 text-slate-600">
+              <span className="font-semibold text-slate-800">Optional expansion:</span> {config.expansionUpside} Cross-business access is not required for this pilot.
             </p>
           </div>
 
@@ -4804,7 +4868,7 @@ function LeadershipCover({ onPick }: { onPick: (path: LeadershipPath) => void })
           Turn transaction data into measurable growth.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Ventus finds the moment, prepares the action, and proves the result.
+          Start with the data and workflows each team already controls. Ventus finds the moment, prepares the action, and proves the result.
         </p>
 
         <div className="mt-6 grid gap-3 md:grid-cols-2">
@@ -4817,17 +4881,29 @@ function LeadershipCover({ onPick }: { onPick: (path: LeadershipPath) => void })
                 onClick={() => onPick(path)}
                 className="group flex min-h-40 flex-col rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
               >
-                <span className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${NAVY}0d` }}>
-                  <Icon className="h-4 w-4" style={{ color: NAVY }} />
-                </span>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${NAVY}0d` }}>
+                    <Icon className="h-4 w-4" style={{ color: NAVY }} />
+                  </span>
+                  <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-emerald-700">{config.businessLine}</span>
+                </div>
                 <h2 className="mt-3 text-xl font-semibold text-slate-950">{config.objective}</h2>
                 <p className="mt-1 flex-1 text-sm leading-6 text-slate-600">{config.coverCopy}</p>
+                <p className="mt-2 text-[11px] font-semibold text-slate-400">{config.standaloneProof}</p>
                 <span className="mt-3 flex items-center gap-1.5 text-xs font-bold" style={{ color: GREEN }}>
                   Run scenario <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
                 </span>
               </button>
             );
           })}
+        </div>
+
+        <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
+          <GitBranch className="h-4 w-4 flex-none" style={{ color: NAVY }} />
+          <div className="min-w-0">
+            <p className="text-xs font-bold text-slate-800">Connected intelligence comes after standalone proof.</p>
+            <p className="mt-0.5 text-[11px] leading-4 text-slate-500">With authorization, Ventus can test whether cross-business signals add lift while preserving each team’s ownership and controls.</p>
+          </div>
         </div>
 
         <div className="mt-4 grid grid-cols-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -5085,13 +5161,13 @@ function PilotScene() {
     <SceneShell fill>
       <div className="grid h-full grid-cols-1 items-center gap-6 lg:grid-cols-2">
         <div>
-          <Eyebrow>Paid founding-partner pilot</Eyebrow>
+          <Eyebrow>Paid MVP pilot</Eyebrow>
           <h1 className="mt-1.5 text-3xl font-semibold leading-tight tracking-tight" style={{ color: NAVY }}>
             Prove one Ventus Skill in 90 days.
           </h1>
           <p className="mt-2 text-xs leading-5 text-slate-600">
-            Start with <span className="font-semibold text-slate-800">deposit-primacy defense</span> in one market. Expand to the
-            <span className="font-semibold text-slate-800"> Consumer-to-Merrill handoff</span> only after the first outcome is measured.
+            Prove one business line at a time: <span className="font-semibold text-slate-800">deposit-primacy defense</span> for Consumer or
+            <span className="font-semibold text-slate-800"> Merrill relationship growth</span> for Wealth. Test a connected handoff only after standalone lift is measured.
           </p>
 
           <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3.5">
@@ -5101,10 +5177,10 @@ function PilotScene() {
             </div>
             <div className="mt-2 space-y-1.5">
               {[
-                "BofA: sanctioned sample, SMEs, policy owner, and sandbox endpoints",
-                "Ventus: data mapping, golden evaluation, two configured skills, and measurement",
+                "Pilot institution: sanctioned sample, SMEs, policy owner, and sandbox endpoints",
+                "Ventus: data mapping, golden evaluation, one configured Growth Play, and measurement",
                 "Activation begins only after policy and precision gates clear",
-                "BofA-specific data, policies, and performance remain isolated",
+                "Institution-specific data, policies, and performance remain isolated",
               ].map((item) => (
                 <div key={item} className="flex items-start gap-2 text-xs leading-4 text-slate-700">
                   <Check className="mt-0.5 h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />

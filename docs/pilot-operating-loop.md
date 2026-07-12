@@ -14,8 +14,10 @@ journey:
 7. Reserve an at-most-once employee-workflow delivery and preserve its external receipt.
 8. Ingest bank outcomes and calculate coverage-gated treatment-versus-holdout evidence.
 
-The same contract is tested for Deposit Primacy and Liquidity-to-Wealth. Connectors, policy packs,
-detectors, source systems, and destinations are injected rather than hard-coded to one institution.
+The same contract is tested for standalone Deposit Primacy, standalone Merrill Relationship
+Growth, and connected Liquidity-to-Wealth examples. Connectors, policy packs, detectors, source
+systems, and destinations are injected rather than hard-coded to one institution or dependent on
+cross-business data.
 
 ## Evidence boundaries
 

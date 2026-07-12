@@ -166,7 +166,30 @@ export const CONSUMER_MERRILL_SKILL: SkillArtifact = {
   ],
 };
 
-export const SKILL_LIBRARY: SkillArtifact[] = [DEPOSIT_PRIMACY_SKILL, CONSUMER_MERRILL_SKILL];
+export const MERRILL_RELATIONSHIP_GROWTH_SKILL: SkillArtifact = {
+  slug: "merrill-relationship-growth",
+  version: "0.1.0",
+  stage: "draft",
+  objective: "Convert qualified Merrill demand into advised relationships and net new assets",
+  pnlMetric: "Net new assets to Merrill ($)",
+  trigger: "Self-directed relationship + evidenced asset-transfer intent + planning engagement",
+  cohort: "Merrill clients or prospects with a qualified wealth need and no assigned advisor",
+  evidenceRequired: "Merrill-held relationship + transfer intent + recent planning engagement",
+  intervention: "Assign the best-fit advisor and prepare a plan-led consolidation review",
+  ownerChannel: "Merrill growth desk → CEW · Book 360",
+  policyPack: ["Reg BI best-interest", "Consent + eligibility", "Vulnerability suppression", "OSJ supervision"],
+  deliveryAdapter: "Salesforce FSC advisor task",
+  measurement: { design: "Incremental qualified NNA vs. held-out control", holdoutPct: 10 },
+  history: [
+    { version: "0.1.0", stage: "draft", ts: "2026-07-12", note: "Prototype definition — no bank results yet" },
+  ],
+};
+
+export const SKILL_LIBRARY: SkillArtifact[] = [
+  DEPOSIT_PRIMACY_SKILL,
+  MERRILL_RELATIONSHIP_GROWTH_SKILL,
+  CONSUMER_MERRILL_SKILL,
+];
 
 function slugify(text: string): string {
   return (

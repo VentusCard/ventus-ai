@@ -6,10 +6,14 @@ The MVP proves one operating loop: bank data enters Ventus, a governed Growth Pl
 a qualified moment, an employee receives one action in an existing workflow, and a pre-assigned
 holdout makes incremental value measurable.
 
-The first two Growth Plays are:
+The first two standalone Growth Plays are:
 
 1. **Deposit primacy defense:** detect relationship erosion early and prepare one permitted banker action.
-2. **Liquidity to wealth:** detect evidenced liquidity and prepare a warm Merrill/wealth introduction.
+2. **Merrill relationship growth:** detect qualified demand inside Merrill-controlled data and prepare one permitted advisor action.
+
+**Connected expansion:** liquidity to wealth remains a separate Consumer-to-Merrill Growth Play. It
+is evaluated only after standalone value and data authorization are established; neither standalone
+pilot depends on it.
 
 ## Evidence delivered in this repository
 
@@ -19,13 +23,13 @@ The first two Growth Plays are:
 | Plaid custom-user shards | `npm run plaid:mvp:manifests` | The same 500-household design translated into ten official 50-user Plaid Sandbox manifests | Plaid-returned category fidelity until the shards are pulled |
 | Local scale baseline | `npm run benchmark:mvp` | Repeatable single-process throughput over at least 100k synthetic transactions | Production capacity or SLA |
 | Outcome contract | `npm run test:outcomes` | Tokenized, holdout-aware event schema suitable for bank mapping | A live bank outcome feed |
-| Executable operating loop | `backend/shared/pilot-operating-loop.test.mjs`; `docs/pilot-operating-loop.md` | Source receipt → grounded signal → policy → immutable assignment → decision → at-most-once sandbox delivery → outcome → coverage-gated lift across both MVP plays | Live source, bank identity, deployed persistence, model accuracy, or real business lift |
+| Executable operating loop | `backend/shared/pilot-operating-loop.test.mjs`; `docs/pilot-operating-loop.md` | Source receipt → grounded signal → policy → immutable assignment → decision → at-most-once sandbox delivery → outcome → coverage-gated lift across standalone Consumer, standalone Merrill, and connected-expansion examples | Live source, bank identity, deployed persistence, model accuracy, or real business lift |
 | Experiment measurement | `backend/shared/experiment-measurement.test.mjs`; `docs/outcome-measurement-methodology.md` | Stable pre-activation assignment, idempotent outcomes, one-tenant/experiment integrity, coverage gates, and uncertainty intervals | A deployed store, completed bank outcome window, independent review, or causal result |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
 | Decision/outcome graph | `backend/shared/decision-ledger.test.mjs` | SHA-256 lineage, tenant serialization, tamper detection, and sample-gated descriptive effectiveness | Causality, deployment, or longitudinal bank evidence |
 | Tenant-isolated persistence | `npm run --prefix backend check:persistence`; `backend/sql/verify-tenant-isolation.sql` | Transaction-local tenant context, forced-RLS policies, non-bypass role checks, and rollback-only cross-tenant probes are present and CI-checked | A successful probe against the deployed non-production runtime role |
 | Shadow intervention planner | `backend/shared/intervention-planner.test.mjs` | Closed action and channel choices, transaction-level evidence grounding, policy-forced abstention, deterministic-baseline comparison, and a locked runtime-promotion gate | Superior model quality, bank-data performance, model-risk approval, or production use |
-| Intervention benchmark packet | `npm run test:interventions`; `docs/intervention-benchmark-review.md` | Fourteen draft cases across both MVP plays, an executable baseline, qualitative-conflict cases, expectation hashing, and a two-reviewer freeze gate | Independent ground truth while the packet remains draft, or performance on sanctioned data |
+| Intervention benchmark packet | `npm run test:interventions`; `docs/intervention-benchmark-review.md` | Fourteen draft cases across deposit primacy and connected liquidity-to-wealth, an executable baseline, qualitative-conflict cases, expectation hashing, and a two-reviewer freeze gate | Independent ground truth while the packet remains draft, performance on sanctioned data, or coverage of the new standalone Merrill Growth Play |
 | Connector controls | `npm run test:salesforce`; `npm run test:connector-sessions`; `backend/shared/connector-delivery.test.mjs` | Default-off connectors, tenant/scope/destination-bound short sessions, compatibility controls, at-most-once reservation contract, and immutable receipts | Bank SSO claim mapping, deployed receipt store, and authenticated sandbox delivery |
 
 ## Promotion gates
