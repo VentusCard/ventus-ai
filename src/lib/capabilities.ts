@@ -62,10 +62,10 @@ export const CAPABILITIES: readonly CapabilityDefinition[] = [
     id: "decision-ledger",
     title: "Decision Ledger",
     leadershipPromise: "Create a traceable record from signal through activation and measured outcome.",
-    internalReality: "Local in-memory integrity chain for prototyping; no persistent tenant-isolated audit store yet.",
+    internalReality: "SHA-256 server append, idempotency, tenant serialization, integrity export, and SQL migration are implemented and tested; the tenant-isolated store is not deployed.",
     status: "evaluation-locked",
     leadershipVisible: false,
-    evidenceGate: ["Persistent append-only store", "Cryptographic integrity proof", "Tenant isolation and retention policy"],
+    evidenceGate: ["Deploy append-only store", "Verify RLS and restore integrity", "Approve tenant retention policy"],
   },
   {
     id: "multi-model",

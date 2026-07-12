@@ -14,7 +14,7 @@ test, or design artifact counts only for the scope it actually proves.
 | Demonstrated vs. simulated claims remain separate | Evaluation flags, default-off connectors, illustrative measurement disclosure, capability registry | Implemented and tested | Ongoing release review and customer-facing claim approval |
 | Every Growth Play is a measurable loop | `skills.ts`, immutable assignments, outcome ingestion, lift calculation, policy and delivery contracts | Implemented contract; not deployed | Persistent deployment and live outcome feed |
 | Employee adoption, economics, explainability, security, compliance, integration | Leadership/employee views, evidence trails, connector controls, procurement tracker | Partial | SSO/RBAC, SOC 2 control operation, policy approval, usability and integration evidence |
-| Decision and outcome graph compounds learning | Local ledger, SQL persistence targets, outcome-weighted loop | Prototype | Deployed tenant-isolated graph/ledger and longitudinal outcomes |
+| Decision and outcome graph compounds learning | SHA-256 append repository, integrity export, descriptive cohort/action/channel graph, outcome-weighted loop | Implemented and tested; not deployed | RLS-verified deployment and longitudinal bank outcomes |
 | MVP standard on sanctioned data | Synthetic cohort suite, Plaid custom-user manifests, connected rehearsal, illustrative measurement | Not yet achieved | Sanctioned dataset enters Ventus, bank workflow receives action, and measured lift clears holdout review |
 
 ## Current release gate
