@@ -15,6 +15,10 @@
     "test:mvp-cohorts": "node --experimental-strip-types backend/scripts/qa-growth-play-cohorts.mjs",
     "test:outcomes": "node backend/scripts/qa-outcome-feed-contract.mjs",
     "test:interventions": "node backend/scripts/qa-intervention-planner.mjs",
+    "test:plaid-source": "node backend/scripts/verify-plaid-source.mjs",
+    "db:migrate": "node backend/scripts/apply-evidence-migrations.mjs",
+    "db:verify": "node backend/scripts/verify-persistence-live.mjs",
+    "pilot:e2e": "node --experimental-strip-types backend/scripts/pilot-e2e.mjs",
     "plaid:mvp:manifests": "node --experimental-strip-types backend/scripts/generate-plaid-mvp-manifests.mjs",
     "benchmark:mvp": "VENTUS_SCALE_HOUSEHOLDS=50000 node --experimental-strip-types backend/scripts/benchmark-growth-play-pipeline.mjs",
     "preview": "vite preview"
@@ -94,6 +98,7 @@
     "eslint-plugin-react-refresh": "^0.4.9",
     "globals": "^15.9.0",
     "lovable-tagger": "^1.1.7",
+    "pg": "^8.22.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
     "typescript": "^5.5.3",

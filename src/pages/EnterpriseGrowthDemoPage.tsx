@@ -44,6 +44,7 @@ import { buildDeliveryPayload, type DeliveryPayload } from "@/lib/integrations";
 import { appendEvents, ledgerRollup, verifyChain, isPipelineKind, type LedgerEvent, type LedgerKind, type LedgerDraft } from "@/lib/ledger";
 import { pipelineEvents, runPipeline, type PipelineInput, type PipelineDerived } from "@/lib/pipeline";
 import { leadershipCapabilities } from "@/lib/capabilities";
+import { INTEGRATION_EVIDENCE, type IntegrationProofLevel } from "@/lib/integrationEvidence";
 import {
   compileObjectiveToSkill,
   promoteSkill,
@@ -4284,6 +4285,11 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
   const config = leadershipConfig(path);
   const { opp, skill } = config;
   const destination = destinationLabel(opp.destination);
+  const evidenceTone: Record<IntegrationProofLevel, string> = {
+    "live-attested": "bg-emerald-50 text-emerald-700",
+    "unit-proven": "bg-blue-50 text-blue-700",
+    "infra-required": "bg-amber-50 text-amber-800",
+  };
 
   useEffect(() => {
     setStep(0);
@@ -4389,13 +4395,13 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                   </div>
                   {integrationReady && (
                     <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                      {["Epsilon schema accepted", "Ventus field map v1 created", "CEW sandbox receipt acknowledged"].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
+                      {["Epsilon schema accepted", "Ventus field map v1 created", "CEW payload contract mapped"].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
                     </div>
                   )}
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-600"><span className={`h-2 w-2 rounded-full ${integrationReady ? "bg-emerald-500" : "bg-slate-300"}`} />{integrationReady ? "Pilot route validated" : "Ready to validate with test payload"}</div>
+                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-600"><span className={`h-2 w-2 rounded-full ${integrationReady ? "bg-emerald-500" : "bg-slate-300"}`} />{integrationReady ? "Pilot route configured" : "Ready to map the test payload"}</div>
                     <button onClick={() => setIntegrationReady(true)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: integrationReady ? GREEN : NAVY }}>
-                      {integrationReady ? <><Check className="h-3.5 w-3.5" /> Pilot path validated</> : <><Network className="h-3.5 w-3.5" /> Validate pilot path</>}
+                      {integrationReady ? <><Check className="h-3.5 w-3.5" /> Pilot path configured</> : <><Network className="h-3.5 w-3.5" /> Configure pilot path</>}
                     </button>
                   </div>
                 </section>
@@ -4466,21 +4472,26 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                         )}
                       </div>
                     ) : (
-                      <p className="mt-3 text-xs leading-5 text-slate-500">One connected rehearsal from source receipt to destination receipt.</p>
+                      <p className="mt-3 text-xs leading-5 text-slate-500">Rehearse the source-to-destination contract without customer action.</p>
                     )}
                     <button onClick={runRehearsal} disabled={dryRunState === "running"} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait" style={{ backgroundColor: dryRunState === "complete" ? GREEN : NAVY }}>
-                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Running connected rehearsal</> : dryRunState === "complete" ? <><Check className="h-4 w-4" /> 12 ranked IDs delivered to CEW sandbox</> : <><Rocket className="h-4 w-4" /> Run connected rehearsal</>}
+                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Running connected rehearsal</> : dryRunState === "complete" ? <><Check className="h-4 w-4" /> {liveReceipts.length > 0 ? "Sandbox receipts returned" : "Shadow rehearsal complete · no live write"}</> : <><Rocket className="h-4 w-4" /> Run connected rehearsal</>}
                     </button>
                   </section>
                   <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Pilot readiness</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Connection evidence</p>
                     <div className="mt-3 space-y-2">
-                      {[
-                        { label: "Technical route", detail: "Input and output receipts verified", status: dryRunState === "complete" ? "Passed" : "Pending", tone: dryRunState === "complete" ? "text-emerald-700 bg-emerald-50" : "text-slate-500 bg-slate-100" },
-                        { label: "BofA calibration", detail: "Load ~1M zero-PII records + reviewer labels", status: "Next", tone: "text-blue-700 bg-blue-50" },
-                        { label: "Controlled activation", detail: `Measure ${skill.pnlMetric} vs. ${skill.measurement.holdoutPct}% holdout`, status: "Locked", tone: "text-slate-500 bg-slate-100" },
-                      ].map((gate) => <div key={gate.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5"><div className="min-w-0 flex-1"><p className="text-xs font-semibold text-slate-800">{gate.label}</p><p className="truncate text-[10px] text-slate-400">{gate.detail}</p></div><span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${gate.tone}`}>{gate.status}</span></div>)}
+                      {INTEGRATION_EVIDENCE.map((item) => (
+                        <div key={item.id} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-semibold text-slate-800">{item.label}</p>
+                            <p className="truncate text-[10px] text-slate-400" title={item.detail}>{item.detail}</p>
+                          </div>
+                          <span className={`flex-none rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${evidenceTone[item.level]}`}>{item.status}</span>
+                        </div>
+                      ))}
                     </div>
+                    <p className="mt-2 text-[9px] leading-4 text-slate-400">Current Ventus verification, not bank-production approval.</p>
                   </section>
                 </div>
               </div>
