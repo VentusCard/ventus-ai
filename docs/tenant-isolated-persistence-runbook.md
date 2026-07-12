@@ -2,7 +2,7 @@
 
 ## Scope
 
-This runbook deploys the decision ledger, experiment assignments, and outcome events to a
+This runbook deploys the decision ledger, experiment assignments, outcome events, and connector delivery receipts to a
 non-production PostgreSQL database. It does not authorize a production migration or prove tenant
 isolation until the rollback-only probe succeeds under the actual runtime role.
 
@@ -24,10 +24,11 @@ isolation until the rollback-only probe succeeds under the actual runtime role.
    - `backend/sql/decision-ledger.sql`
    - `backend/sql/experiment-measurement.sql`
    - `backend/sql/tenant-isolation.sql`
+   - `backend/sql/connector-delivery.sql`
 4. Grant the minimum required `SELECT` and `INSERT` privileges to the runtime role. Do not grant
    `UPDATE`, `DELETE`, table ownership, superuser, or `BYPASSRLS`.
 5. Connect as the runtime role and execute `backend/sql/verify-tenant-isolation.sql`. The script
-   verifies same-tenant visibility, cross-tenant read denial, cross-tenant write denial, and
+   verifies same-tenant visibility, cross-tenant read denial, cross-tenant write denial, connector-receipt isolation, and
    fail-closed behavior without a tenant context. It rolls back all probe data.
 6. Run `npm run --prefix backend check:persistence` and `npm test --prefix backend` from the exact
    commit proposed for deployment.

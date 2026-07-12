@@ -11,7 +11,7 @@
 // The route also requires connector authorization; credentials alone do not expose it.
 // No Link UI is needed in sandbox — /sandbox/public_token/create mints a token directly.
 declare const process: { env: Record<string, string | undefined> };
-import { connectorAuthorized, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.ts";
+import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.ts";
 
 export const maxDuration = 20;
 
@@ -39,7 +39,8 @@ async function plaid(path: string, body: Record<string, unknown>): Promise<Recor
 
 export async function POST(request: Request): Promise<Response> {
   if (!liveConnectorsEnabled()) return connectorDisabledResponse();
-  if (!connectorAuthorized(request)) return Response.json({ error: "forbidden" }, { status: 403 });
+  const principal = authorizeConnector(request, { scope: "plaid_read", destination: "plaid" });
+  if (!principal) return Response.json({ error: "forbidden" }, { status: 403 });
 
   const c = creds();
   if (!c) return Response.json({ error: "Plaid not configured — set PLAID_CLIENT_ID and PLAID_SECRET (sandbox)" }, { status: 503 });
@@ -77,6 +78,11 @@ export async function POST(request: Request): Promise<Response> {
       env: PLAID_ENV,
       transactions: txns.transactions ?? [],
       count: Array.isArray(txns.transactions) ? txns.transactions.length : 0,
+      authorization: {
+        tenantId: principal.tenantId,
+        sessionId: principal.sessionId,
+        mode: principal.authMode,
+      },
     });
   } catch (e) {
     return Response.json({ error: String(e).slice(0, 200) }, { status: 502 });

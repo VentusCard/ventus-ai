@@ -25,7 +25,7 @@ The first two Growth Plays are:
 | Tenant-isolated persistence | `npm run --prefix backend check:persistence`; `backend/sql/verify-tenant-isolation.sql` | Transaction-local tenant context, forced-RLS policies, non-bypass role checks, and rollback-only cross-tenant probes are present and CI-checked | A successful probe against the deployed non-production runtime role |
 | Shadow intervention planner | `backend/shared/intervention-planner.test.mjs` | Closed action and channel choices, transaction-level evidence grounding, policy-forced abstention, deterministic-baseline comparison, and a locked runtime-promotion gate | Superior model quality, bank-data performance, model-risk approval, or production use |
 | Intervention benchmark packet | `npm run test:interventions`; `docs/intervention-benchmark-review.md` | Fourteen draft cases across both MVP plays, an executable baseline, qualitative-conflict cases, expectation hashing, and a two-reviewer freeze gate | Independent ground truth while the packet remains draft, or performance on sanctioned data |
-| Connector controls | `npm run test:salesforce` | Default-off connector, bearer authorization, production header rejection | Bank SSO or production Salesforce authorization |
+| Connector controls | `npm run test:salesforce`; `npm run test:connector-sessions`; `backend/shared/connector-delivery.test.mjs` | Default-off connectors, tenant/scope/destination-bound short sessions, compatibility controls, at-most-once reservation contract, and immutable receipts | Bank SSO claim mapping, deployed receipt store, and authenticated sandbox delivery |
 
 ## Promotion gates
 

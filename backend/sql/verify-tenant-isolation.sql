@@ -27,6 +27,15 @@ INSERT INTO decision_ledger_events (
   '{"probe":true}'::jsonb, repeat('0', 64), repeat('a', 64), now()
 );
 
+INSERT INTO connector_delivery_receipts (
+  tenant_id, delivery_id, idempotency_key, connector, destination, decision_id,
+  action_id, requested_by_session_id, request_hash, status, payload, requested_at
+) VALUES (
+  'tenant_isolation_probe_a', 'dlv_aaaaaaaaaaaaaaaaaaaaaaaa', 'probe_delivery_a',
+  'salesforce', 'Salesforce FSC Task', 'probe_decision_a', 'probe_action_a',
+  'probe_session_a', repeat('c', 64), 'pending', '{"probe":true}'::jsonb, now()
+);
+
 SELECT set_config('app.current_tenant_id', 'tenant_isolation_probe_b', true);
 
 DO $$
@@ -36,6 +45,12 @@ BEGIN
     WHERE tenant_id = 'tenant_isolation_probe_a'
   ) THEN
     RAISE EXCEPTION 'cross-tenant read was visible';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM connector_delivery_receipts
+    WHERE tenant_id = 'tenant_isolation_probe_a'
+  ) THEN
+    RAISE EXCEPTION 'cross-tenant delivery receipt was visible';
   END IF;
 END
 $$;
@@ -64,6 +79,9 @@ BEGIN
   IF (SELECT count(*) FROM decision_ledger_events WHERE tenant_id = 'tenant_isolation_probe_a') <> 1 THEN
     RAISE EXCEPTION 'same-tenant read did not return the probe record';
   END IF;
+  IF (SELECT count(*) FROM connector_delivery_receipts WHERE tenant_id = 'tenant_isolation_probe_a') <> 1 THEN
+    RAISE EXCEPTION 'same-tenant read did not return the delivery probe';
+  END IF;
 END
 $$;
 
@@ -73,6 +91,9 @@ DO $$
 BEGIN
   IF EXISTS (SELECT 1 FROM decision_ledger_events) THEN
     RAISE EXCEPTION 'missing tenant context did not fail closed';
+  END IF;
+  IF EXISTS (SELECT 1 FROM connector_delivery_receipts) THEN
+    RAISE EXCEPTION 'missing tenant context exposed delivery receipts';
   END IF;
 END
 $$;

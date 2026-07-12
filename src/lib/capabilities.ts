@@ -35,7 +35,7 @@ export const CAPABILITIES: readonly CapabilityDefinition[] = [
     id: "activation",
     title: "Existing-channel activation",
     leadershipPromise: "Stage decisions into banker, advisor, CRM, and digital channels without a new frontline login.",
-    internalReality: "System-native payload contracts and staged delivery exist; bank sandbox authentication is not connected.",
+    internalReality: "System-native payloads, short-lived tenant/scope/destination session checks, and an at-most-once persistent receipt contract exist. Bank identity, the receipt store, and authenticated sandbox delivery are not connected.",
     status: "pilot-scope",
     leadershipVisible: true,
     evidenceGate: ["Sandbox write succeeds", "Idempotency verified", "Bank identity and authorization integrated"],

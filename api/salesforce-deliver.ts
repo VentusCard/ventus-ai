@@ -16,7 +16,7 @@
 //               SF_CLIENT_ID=<consumer key>  SF_CLIENT_SECRET=<consumer secret>
 // Uses only STANDARD Task fields, so any untouched dev org accepts the write.
 declare const process: { env: Record<string, string | undefined> };
-import { connectorAuthorized, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.ts";
+import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.ts";
 
 export const maxDuration = 20;
 
@@ -51,7 +51,8 @@ async function getToken(c: { loginUrl: string; clientId: string; clientSecret: s
 
 export async function POST(request: Request): Promise<Response> {
   if (!liveConnectorsEnabled()) return connectorDisabledResponse();
-  if (!connectorAuthorized(request)) return Response.json({ error: "forbidden" }, { status: 403 });
+  const principal = authorizeConnector(request, { scope: "salesforce_write", destination: "salesforce" });
+  if (!principal) return Response.json({ error: "forbidden" }, { status: 403 });
 
   const c = creds();
   if (!c) {
@@ -101,6 +102,11 @@ export async function POST(request: Request): Promise<Response> {
       id: created.id,
       url: `${instanceUrl}/lightning/r/Task/${created.id}/view`,
       instanceUrl,
+      authorization: {
+        tenantId: principal.tenantId,
+        sessionId: principal.sessionId,
+        mode: principal.authMode,
+      },
     });
   } catch (e) {
     return Response.json({ error: String(e).slice(0, 200) }, { status: 502 });

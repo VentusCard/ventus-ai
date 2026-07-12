@@ -114,6 +114,9 @@ jobs:
       - name: Check Intervention Benchmark
         run: npm run --prefix backend qa:interventions
 
+      - name: Check Connector Sessions
+        run: npm run test:connector-sessions
+
       - name: Validate Lambda Entrypoints
         run: |
           find backend/functions backend/shared -name '*.mjs' -print0 | xargs -0 -n1 node --check

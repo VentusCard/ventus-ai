@@ -43,7 +43,9 @@ deterministic baseline on quality and cost.
 | `DELIVERY_WEBHOOK_URL` | Server runtime | Optional approved sandbox destination for staged delivery payloads. No value means payload preview only. |
 | `VITE_REHEARSAL_URL` | Client build | Optional receiver for the Prove step's connected rehearsal and the Live Lab's delivery. When set, real network writes are performed and receiver receipt ids are shown; unset, it is simulated and nothing leaves the browser. |
 | `ENABLE_LIVE_CONNECTORS=true` | Server runtime | Enables credentialed Plaid, Salesforce, and generic delivery endpoints. They return `404` by default. |
-| `VENTUS_CONNECTOR_TOKEN` | Server runtime | Bearer token required for connector API calls. Do not expose it through a `VITE_*` variable or browser bundle. |
+| `VENTUS_CONNECTOR_TOKEN` | Server runtime | Legacy compatibility bearer used when signed sessions are not configured. Do not expose it through a `VITE_*` variable or browser bundle. |
+| `VENTUS_CONNECTOR_SESSION_SECRET` | Server runtime | Enables short-lived signed connector sessions bound to tenant, subject, scope, and destination. Store only in the approved secret manager. |
+| `VENTUS_ALLOW_LEGACY_CONNECTOR_TOKEN=true` | Temporary production rollback only | Keeps the static bearer usable after session auth is enabled. Remove after callers migrate. |
 | `VENTUS_ALLOW_LOCAL_CONNECTORS=true` | Local server only | Allows the explicit `x-ventus-client` demo header outside Vercel production. Never use this setting for a public deployment. |
 | `PLAID_CLIENT_ID` / `PLAID_SECRET` | Server runtime | Enable `/api/plaid-transactions` (real Plaid sandbox ingestion). Unset → the API returns 503 and the Live Lab falls back to Plaid-schema fixtures; the pipeline logic is identical either way. |
 | `PLAID_ENV` | Server runtime | Plaid environment for ingestion (`sandbox` default). |
@@ -62,6 +64,9 @@ deterministic baseline on quality and cost.
 
 Uses only standard Task fields, so an untouched dev org accepts the write — which is the point:
 swapping the mock for the bank's sandbox is configuration, demonstrated rather than claimed.
+
+For enterprise activation, use the session rollout in `docs/connector-session-rollout.md`. The
+static bearer remains a compatibility path, not the target authorization model.
 
 ### Live Pipeline Lab (real connections, laptop-only)
 
