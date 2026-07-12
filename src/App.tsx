@@ -37,13 +37,14 @@ import BankAnalyticsDashboard from "./pages/BankAnalyticsDashboard";
 import InternalCapabilitiesPage from "./pages/InternalCapabilitiesPage";
 import InternalGrowthDeskPage from "./pages/InternalGrowthDeskPage";
 import LivePipelineLab from "./pages/LivePipelineLab";
+import EnterpriseGrowthDemoPage from "./pages/EnterpriseGrowthDemoPage";
 
 const queryClient = new QueryClient();
 
 const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
-  const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
+  const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo" || location.pathname === "/demo/enterprise";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const isInternalCapabilities = location.pathname.startsWith("/internal/");
@@ -68,6 +69,7 @@ const AppLayout = () => {
       <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
       <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
       <Route path="/demo" element={<div className="h-screen"><ExecDemoPage /></div>} />
+      <Route path="/demo/enterprise" element={<EnterpriseGrowthDemoPage audience="leadership" />} />
       <Route path="/deckmo" element={<DemoPage />} />
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
