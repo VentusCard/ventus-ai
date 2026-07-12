@@ -22,6 +22,7 @@ The first two Growth Plays are:
 | Experiment measurement | `backend/shared/experiment-measurement.test.mjs` | Stable pre-activation assignment, idempotent outcome ingestion, and sample-gated lift calculation | A deployed store or causal result from bank data |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
 | Decision/outcome graph | `backend/shared/decision-ledger.test.mjs` | SHA-256 lineage, tenant serialization, tamper detection, and sample-gated descriptive effectiveness | Causality, deployment, or longitudinal bank evidence |
+| Shadow intervention planner | `backend/shared/intervention-planner.test.mjs` | Closed action and channel choices, transaction-level evidence grounding, policy-forced abstention, deterministic-baseline comparison, and a locked runtime-promotion gate | Superior model quality, bank-data performance, model-risk approval, or production use |
 | Connector controls | `npm run test:salesforce` | Default-off connector, bearer authorization, production header rejection | Bank SSO or production Salesforce authorization |
 
 ## Promotion gates
@@ -35,6 +36,7 @@ A Growth Play cannot advance from shadow evaluation to assisted activation until
 - An approved policy pack, destination contract, and named business owner.
 - Treatment/holdout assignment recorded before activation.
 - A rollback path and complete delivery receipts.
+- For model-assisted planning, zero grounding or policy hard failures and a documented quality/cost win over the deterministic baseline.
 
 Synthetic cohort results are contract tests. Real performance claims begin only after sanctioned,
 representative records are labeled independently and evaluated without changing the expectations
@@ -46,4 +48,5 @@ after predictions are observed.
 2. Deploy the decision ledger migration in a non-production account and test tenant isolation.
 3. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the cohort expectations.
 4. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, and minimum sample review.
-5. Complete the procurement evidence gaps in `docs/security-procurement-evidence-index.md`.
+5. Run the shadow intervention planner and deterministic baseline over independently labeled cases, then review errors and cost without changing frozen expectations.
+6. Complete the procurement evidence gaps in `docs/security-procurement-evidence-index.md`.

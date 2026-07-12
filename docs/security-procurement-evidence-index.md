@@ -13,7 +13,7 @@ have operated for a required audit period.
 | Incident response | No approved runbook identified | Missing | Name owner, severity model, communications, tabletop |
 | Data retention and deletion | No approved policy identified | Missing | Define retention by data class and deletion SLA |
 | Vendor/subprocessor inventory | Model gateway configuration and AWS dependencies are discoverable | Incomplete | Freeze provider list and document data boundaries |
-| AI/model governance | Golden tests, evaluation rubric, model evaluation records | Evaluation foundation | Add model inventory, approvals, drift and incident process |
+| AI/model governance | Golden tests, evaluation rubric, model evaluation records, evidence-bound shadow planner, deterministic-baseline and hard-failure gates | Evaluation foundation; no runtime planner approval | Add model inventory, independent approvals, sanctioned-data benchmark, drift monitoring, and model incident process |
 | Business continuity | AWS infrastructure assets exist | Incomplete | Define RTO/RPO and test restore/failover |
 | Privacy and DPA | No approved templates identified | Missing | Counsel review of DPA, privacy notice, data-subject handling |
 | SOC 2 | Readiness work exists; no certification asserted | Gap | Scope Type I, assign control owners, collect operating evidence |

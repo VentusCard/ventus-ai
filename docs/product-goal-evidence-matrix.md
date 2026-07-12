@@ -9,7 +9,7 @@ test, or design artifact counts only for the scope it actually proves.
 | User-facing value inside employee workflows | Employee/customer previews, CEW/Salesforce payloads, banker and advisor actions | Demonstrated prototype | Employee usability study and authenticated bank sandbox |
 | Material P&L focus | Deposit primacy and liquidity-to-wealth Growth Plays; outcome metrics | Implemented MVP scope | Bank-approved metric definitions and baselines |
 | Ventus contribution is explicit | Pipeline shows mapping, enrichment, decisioning, policy, routing, and measurement | Demonstrated | Bank architecture review confirming system boundaries |
-| AI creates new decisions, not only summaries | Multi-model evaluation harness and gated Skill architecture | Incomplete | A model-assisted task must beat the deterministic baseline on sanctioned data and pass governance |
+| AI creates new decisions, not only summaries | Multi-model evaluation harness; closed-action, evidence-bound intervention planner; deterministic-baseline comparison; hard failure and cost gates | Shadow contract implemented; model quality unproven | A candidate model must beat the deterministic baseline on independently labeled sanctioned data and pass policy, fairness, security, and model-risk review |
 | Institution-agnostic core with bank configuration | Provider-neutral cohort, outcome, Skill, connector, and delivery contracts | Designed and partially implemented | Second-institution mapping exercise and tenant-isolation test |
 | Demonstrated vs. simulated claims remain separate | Evaluation flags, default-off connectors, illustrative measurement disclosure, capability registry | Implemented and tested | Ongoing release review and customer-facing claim approval |
 | Every Growth Play is a measurable loop | `skills.ts`, immutable assignments, outcome ingestion, lift calculation, policy and delivery contracts | Implemented contract; not deployed | Persistent deployment and live outcome feed |
@@ -28,3 +28,4 @@ the following exist:
 3. Authenticated sandbox delivery with a bank-issued receipt.
 4. Persistent tenant-isolated assignment, decision, and outcome records.
 5. Independent review of precision, fairness, sample sufficiency, and incremental lift.
+6. A model-assisted planner may remain shadow-only until it has zero grounding or policy hard failures, passes the documented quality/cost gate against the deterministic baseline, and receives independent model-risk approval.
