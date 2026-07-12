@@ -3946,7 +3946,7 @@ function leadershipConfig(path: LeadershipPath): LeadershipConfig {
 
 // Story-shaped, not builder-shaped: open on what a person sees, then reveal what drove
 // it, then let the exec set boundaries — comprehension before configuration.
-const EXECUTIVE_STEPS = ["Run", "Act", "Configure", "Prove"] as const;
+const EXECUTIVE_STEPS = ["Run", "Act", "Configure", "Prove", "Measure"] as const;
 
 // Progressive employee-surface preview with a before/after contrast: the same queue
 // without Ventus (a static, context-free list) vs. with Ventus (one prepared, evidenced
@@ -4278,6 +4278,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
   const [integrationReady, setIntegrationReady] = useState(false);
   const [dryRunState, setDryRunState] = useState<"idle" | "running" | "complete">("idle");
   const [shadowReady, setShadowReady] = useState(false);
+  const [measurementPreview, setMeasurementPreview] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string }[]>([]);
   const config = leadershipConfig(path);
@@ -4294,6 +4295,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
     setIntegrationReady(false);
     setDryRunState("idle");
     setShadowReady(false);
+    setMeasurementPreview(false);
     setPlayOpen(false);
     setLiveReceipts([]);
   }, [path]);
@@ -4335,7 +4337,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
     setShadowReady(true);
   };
 
-  const nextLabels = ["See the experience", "Connect pilot", "Rehearse route"];
+  const nextLabels = ["See the experience", "Connect pilot", "Rehearse route", "Preview measurement"];
   const activeControls = ["Consent required", "Suitability review", "Vulnerability suppression"];
 
   return (
@@ -4483,6 +4485,65 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                 </div>
               </div>
             )}
+
+            {step === 4 && (
+              <div className="w-full">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <div>
+                    <Eyebrow>Outcome measurement</Eyebrow>
+                    <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Know what Ventus changed.</h1>
+                  </div>
+                  <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-amber-800">
+                    {measurementPreview ? "Illustrative outcome file" : "No pilot outcome claimed"}
+                  </span>
+                </div>
+                <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                  <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Measured operating loop</p>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { label: "Assign before action", detail: `${100 - skill.measurement.holdoutPct}% treatment · ${skill.measurement.holdoutPct}% holdout`, Icon: GitBranch },
+                        { label: "Receive bank outcomes", detail: path === "wealth-growth" ? "Qualified NNA posted" : "Deposit balance observed", Icon: Network },
+                        { label: "Calculate incremental value", detail: "Treatment minus held-out baseline", Icon: LineChart },
+                      ].map((item, index) => (
+                        <div key={item.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+                          <span className="flex h-7 w-7 flex-none items-center justify-center rounded-md bg-white"><item.Icon className="h-3.5 w-3.5" style={{ color: index === 2 ? GREEN : NAVY }} /></span>
+                          <div><p className="text-xs font-semibold text-slate-800">{item.label}</p><p className="text-[10px] text-slate-400">{item.detail}</p></div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-[10px] leading-4 text-slate-400">Assignment is immutable and tokenized. Outcomes arriving before assignment or with a changed arm are rejected.</p>
+                  </section>
+                  <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                    {!measurementPreview ? (
+                      <div className="flex min-h-56 flex-col items-center justify-center text-center">
+                        <Repeat className="h-8 w-8 text-slate-200" />
+                        <p className="mt-2 text-sm font-semibold text-slate-700">Awaiting a completed outcome window</p>
+                        <p className="mt-1 max-w-sm text-[11px] leading-5 text-slate-400">The product remains honest until the bank returns treatment and holdout outcomes.</p>
+                        <button onClick={() => setMeasurementPreview(true)} className="mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: NAVY }}>
+                          <FileText className="h-3.5 w-3.5" /> Load illustrative outcome file
+                        </button>
+                      </div>
+                    ) : (
+                      <div>
+                        <div className="flex items-center justify-between gap-2"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Sample-gated result</p><span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-700">450 / 50 observed</span></div>
+                        <div className="mt-3 grid grid-cols-3 gap-2">
+                          <BriefMetric label="Treatment" value={path === "wealth-growth" ? "$32.4K" : "$18.4K"} />
+                          <BriefMetric label="Holdout" value={path === "wealth-growth" ? "$21.1K" : "$15.2K"} />
+                          <BriefMetric label="Incremental" value={path === "wealth-growth" ? "+$11.3K" : "+$3.2K"} />
+                        </div>
+                        <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">What the institution can decide</p>
+                          <p className="mt-1 text-base font-semibold text-slate-900">{path === "wealth-growth" ? "Scale the qualified Merrill handoff only after bank validation." : "Scale primacy defense only after bank validation."}</p>
+                          <p className="mt-1 text-[11px] leading-5 text-slate-500">Replace this illustrative file with the bank outcome feed; independent review determines whether lift is sufficient.</p>
+                        </div>
+                        <button onClick={() => setMeasurementPreview(false)} className="mt-3 text-[11px] font-semibold text-slate-500 hover:text-slate-800">Clear illustrative data</button>
+                      </div>
+                    )}
+                  </section>
+                </div>
+              </div>
+            )}
           </SceneFade>
         </div>
       </div>
@@ -4496,7 +4557,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
             <button
               key={label}
               onClick={() => setStep(index)}
-              disabled={(index > 0 && !pipelineReady) || (index === 3 && !integrationReady)}
+              disabled={(index > 0 && !pipelineReady) || (index === 3 && !integrationReady) || (index === 4 && !shadowReady)}
               className="flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: index <= step ? (index === step ? NAVY : GREEN) : "#cbd5e1" }}>
@@ -4526,7 +4587,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
           </div>
         ) : (
           <button
-            onClick={() => setStep((current) => current + 1)} disabled={(step === 0 && !pipelineReady) || (step === 2 && !integrationReady)}
+            onClick={() => setStep((current) => current + 1)} disabled={(step === 0 && !pipelineReady) || (step === 2 && !integrationReady) || (step === 3 && !shadowReady)}
             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
             style={{ backgroundColor: NAVY }}
           >

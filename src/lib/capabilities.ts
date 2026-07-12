@@ -44,7 +44,7 @@ export const CAPABILITIES: readonly CapabilityDefinition[] = [
     id: "measurement",
     title: "Incremental outcome measurement",
     leadershipPromise: "Measure retention and NNA lift against a governed holdout before scaling.",
-    internalReality: "Measurement contracts are defined; experiment assignment and outcome ingestion are not implemented.",
+    internalReality: "Deterministic assignment, idempotent outcome ingestion, and lift calculation are implemented and tested; database deployment and a bank outcome feed remain pilot work.",
     status: "prototype",
     leadershipVisible: true,
     evidenceGate: ["Holdout assigned before activation", "Outcome window completed", "Lift statistically reviewed"],

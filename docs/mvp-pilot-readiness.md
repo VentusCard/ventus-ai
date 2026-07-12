@@ -19,6 +19,7 @@ The first two Growth Plays are:
 | Plaid custom-user shards | `npm run plaid:mvp:manifests` | The same 500-household design translated into ten official 50-user Plaid Sandbox manifests | Plaid-returned category fidelity until the shards are pulled |
 | Local scale baseline | `npm run benchmark:mvp` | Repeatable single-process throughput over at least 100k synthetic transactions | Production capacity or SLA |
 | Outcome contract | `npm run test:outcomes` | Tokenized, holdout-aware event schema suitable for bank mapping | A live bank outcome feed |
+| Experiment measurement | `backend/shared/experiment-measurement.test.mjs` | Stable pre-activation assignment, idempotent outcome ingestion, and sample-gated lift calculation | A deployed store or causal result from bank data |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
 | Connector controls | `npm run test:salesforce` | Default-off connector, bearer authorization, production header rejection | Bank SSO or production Salesforce authorization |
 
@@ -43,5 +44,5 @@ after predictions are observed.
 1. Select the server-side identity provider and map roles for evaluators, operators, and auditors.
 2. Deploy the decision ledger migration in a non-production account and test tenant isolation.
 3. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the cohort expectations.
-4. Agree with the pilot bank on the outcome-feed mapping and experiment unit.
+4. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, and minimum sample review.
 5. Complete the procurement evidence gaps in `docs/security-procurement-evidence-index.md`.

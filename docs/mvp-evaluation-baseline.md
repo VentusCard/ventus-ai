@@ -28,3 +28,6 @@ The next meaningful accuracy result must come from Plaid-returned records and, a
 sanctioned representative bank sample with expectations labeled before predictions are reviewed.
 The generated Plaid manifests deliberately preserve the cohort identity so failures can be
 attributed to ingestion, Plaid categorization, Ventus detection, policy, or routing.
+
+The leadership demo's Measure step uses a clearly disclosed illustrative outcome file to show the
+product behavior. It is not included in the accuracy or lift evidence above.
