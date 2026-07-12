@@ -15,6 +15,8 @@
     "test:mvp-cohorts": "node --experimental-strip-types backend/scripts/qa-growth-play-cohorts.mjs",
     "test:outcomes": "node backend/scripts/qa-outcome-feed-contract.mjs",
     "test:interventions": "node backend/scripts/qa-intervention-planner.mjs",
+    "interventions:review:prepare": "node backend/scripts/prepare-intervention-review.mjs",
+    "interventions:review:adjudicate": "node backend/scripts/adjudicate-intervention-review.mjs",
     "test:plaid-source": "node backend/scripts/verify-plaid-source.mjs",
     "db:migrate": "node backend/scripts/apply-evidence-migrations.mjs",
     "db:verify": "node backend/scripts/verify-persistence-live.mjs",

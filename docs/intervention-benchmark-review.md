@@ -17,14 +17,52 @@ to test useful contextual judgment rather than rewarding a model for repeating r
 The current labels are authored preparation material, not independent ground truth. They cannot
 support a model promotion claim while `status` is `draft`.
 
-1. Two reviewers who did not generate candidate predictions independently assess each case's
-   `action_id`, `abstain`, and `evidence_transaction_ids` without seeing model answers.
-2. Reviewers document disagreements and resolve them before any model results are opened.
-3. Record two distinct reviewer entries with `reviewer_id`, `decision: "approved"`, and an ISO 8601
-   `reviewed_at` timestamp.
-4. Run `npm run test:interventions` and copy the printed `expectations_sha256` into the manifest.
-5. Change `status` to `frozen` and rerun the command. Any later expectation change will invalidate
-   the hash and fail validation.
+The repository enforces a blind, consensus-derived freeze:
+
+1. Generate at least two packets. They contain the case evidence, allowed actions, and supplied
+   policy verdicts, but omit authored expectations and all candidate predictions.
+
+   ```bash
+   npm run interventions:review:prepare
+   ```
+
+   Packets are written under the gitignored `backend/artifacts/intervention-review/` directory by
+   default. Set `VENTUS_INTERVENTION_REVIEW_DIR` to use another approved location. Existing packets
+   are not overwritten unless `VENTUS_INTERVENTION_REVIEW_OVERWRITE=1` is explicitly set.
+
+2. Each reviewer independently fills `reviewer_id`, `reviewed_at`, and every case's `review` object:
+   one allowed `action_id` or an abstention, supplied evidence ids, and optional notes. Reviewers
+   must not open candidate model outputs or the authored expectations.
+
+3. Adjudicate the completed packets without writing a frozen benchmark:
+
+   ```bash
+   VENTUS_INTERVENTION_REVIEW_PATHS=/path/reviewer-1.json,/path/reviewer-2.json \
+   VENTUS_INTERVENTION_REVIEW_REPORT_PATH=/path/adjudication.json \
+   npm run interventions:review:adjudicate
+   ```
+
+   The command verifies that both reviewers saw the same hash-bound case packet, covered every
+   case, cited only supplied evidence, selected only allowed actions, and used distinct identities.
+   It reports disagreements and differences between reviewer consensus and the original authored
+   labels. Authored differences are informative, not an error: independent consensus is the label.
+
+4. Resolve every disagreement before opening model predictions. Then write a separate frozen
+   candidate for review:
+
+   ```bash
+   VENTUS_INTERVENTION_REVIEW_PATHS=/path/reviewer-1.json,/path/reviewer-2.json \
+   VENTUS_INTERVENTION_FREEZE_OUTPUT_PATH=/path/intervention-benchmark.frozen.json \
+   npm run interventions:review:adjudicate
+   ```
+
+   Freezing fails while any disagreement remains. The output expectations are derived from reviewer
+   consensus, and the reviewer identities, source-packet hash, adjudication method, and expectation
+   hash are recorded. Review the frozen diff through GitHub before replacing the draft manifest.
+
+The review packet may contain tokenized financial evidence. For sanctioned pilot cases, keep packets
+inside the bank-approved storage and collaboration boundary; do not distribute them through ordinary
+email or personal cloud storage.
 
 For a bank pilot, replace or supplement the synthetic packet with sanctioned, tokenized cases and
 repeat the same blind review and freeze process.
