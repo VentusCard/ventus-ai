@@ -22,6 +22,7 @@ The first two Growth Plays are:
 | Experiment measurement | `backend/shared/experiment-measurement.test.mjs` | Stable pre-activation assignment, idempotent outcome ingestion, and sample-gated lift calculation | A deployed store or causal result from bank data |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
 | Decision/outcome graph | `backend/shared/decision-ledger.test.mjs` | SHA-256 lineage, tenant serialization, tamper detection, and sample-gated descriptive effectiveness | Causality, deployment, or longitudinal bank evidence |
+| Tenant-isolated persistence | `npm run --prefix backend check:persistence`; `backend/sql/verify-tenant-isolation.sql` | Transaction-local tenant context, forced-RLS policies, non-bypass role checks, and rollback-only cross-tenant probes are present and CI-checked | A successful probe against the deployed non-production runtime role |
 | Shadow intervention planner | `backend/shared/intervention-planner.test.mjs` | Closed action and channel choices, transaction-level evidence grounding, policy-forced abstention, deterministic-baseline comparison, and a locked runtime-promotion gate | Superior model quality, bank-data performance, model-risk approval, or production use |
 | Intervention benchmark packet | `npm run test:interventions`; `docs/intervention-benchmark-review.md` | Fourteen draft cases across both MVP plays, an executable baseline, qualitative-conflict cases, expectation hashing, and a two-reviewer freeze gate | Independent ground truth while the packet remains draft, or performance on sanctioned data |
 | Connector controls | `npm run test:salesforce` | Default-off connector, bearer authorization, production header rejection | Bank SSO or production Salesforce authorization |
@@ -46,7 +47,7 @@ after predictions are observed.
 ## Next deployment decisions
 
 1. Select the server-side identity provider and map roles for evaluators, operators, and auditors.
-2. Deploy the decision ledger migration in a non-production account and test tenant isolation.
+2. Apply the three evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
 3. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the cohort expectations.
 4. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, and minimum sample review.
 5. Have two independent reviewers adjudicate and freeze the draft intervention benchmark before opening candidate predictions.

@@ -45,6 +45,7 @@ jobs:
           node --check backend/scripts/check-api-cors-readiness.mjs
           node --check backend/scripts/check-relative-imports.mjs
           node --check backend/scripts/check-pipeline-readiness.mjs
+          node --check backend/scripts/check-persistence-readiness.mjs
           node --check backend/scripts/package-monitors.mjs
           node --check backend/scripts/qa-enrichment-contract.mjs
           node --check backend/scripts/qa-golden-enrichment.mjs
@@ -94,6 +95,9 @@ jobs:
 
       - name: Check Pipeline Readiness Config
         run: npm run --prefix backend check:pipeline-readiness
+
+      - name: Check Tenant-Isolated Persistence
+        run: npm run --prefix backend check:persistence
 
       - name: Check Enrichment QA Contracts
         run: npm run --prefix backend qa:enrichment

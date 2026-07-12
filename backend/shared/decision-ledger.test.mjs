@@ -35,6 +35,9 @@ test('repository serializes per tenant, deduplicates, and exports a verified cha
   assert.equal(exported.verified, true);
   assert.equal(exported.events.length, 2);
   assert.ok(state.some((entry) => entry.sql.includes('pg_advisory_xact_lock')));
+  const tenantContexts = state.filter((entry) => entry.sql.includes('app.current_tenant_id'));
+  assert.equal(tenantContexts.length, 4);
+  assert.ok(tenantContexts.every((entry) => entry.params[0] === 'bank_1'));
 });
 
 test('decision-outcome graph withholds effectiveness until enough outcomes exist', () => {
@@ -113,7 +116,7 @@ function fakeDb(entries) {
     async end() {},
     async query(sql, params = []) {
       entries.push({ sql, params });
-      if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(sql) || sql.includes('pg_advisory_xact_lock')) return { rows: [] };
+      if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(sql) || sql.includes('pg_advisory_xact_lock') || sql.includes('set_config')) return { rows: [] };
       if (sql.includes('WHERE tenant_id = $1 AND idempotency_key = $2')) {
         return { rows: entries.filter((entry) => entry.row?.tenant_id === params[0] && entry.row?.idempotency_key === params[1]).map((entry) => entry.row) };
       }

@@ -1,0 +1,49 @@
+# Tenant-isolated evidence persistence
+
+## Scope
+
+This runbook deploys the decision ledger, experiment assignments, and outcome events to a
+non-production PostgreSQL database. It does not authorize a production migration or prove tenant
+isolation until the rollback-only probe succeeds under the actual runtime role.
+
+## Required roles
+
+- A migration role may own and alter the tables.
+- The application runtime role must be `NOSUPERUSER NOBYPASSRLS` and must not be granted table
+  ownership. Database credentials stay in AWS Secrets Manager and are never placed in this repo.
+- The API must derive the tenant identifier from authenticated server-side context. It must never
+  accept a client-supplied tenant identifier as authoritative.
+
+## Non-production procedure
+
+1. Take a restorable snapshot and record the database identifier, migration owner, runtime role,
+   timestamp, and rollback owner in the change record.
+2. Confirm the target is non-production and the runtime role reports `rolsuper = false` and
+   `rolbypassrls = false` in `pg_roles`.
+3. Apply these files in order with `ON_ERROR_STOP=1`:
+   - `backend/sql/decision-ledger.sql`
+   - `backend/sql/experiment-measurement.sql`
+   - `backend/sql/tenant-isolation.sql`
+4. Grant the minimum required `SELECT` and `INSERT` privileges to the runtime role. Do not grant
+   `UPDATE`, `DELETE`, table ownership, superuser, or `BYPASSRLS`.
+5. Connect as the runtime role and execute `backend/sql/verify-tenant-isolation.sql`. The script
+   verifies same-tenant visibility, cross-tenant read denial, cross-tenant write denial, and
+   fail-closed behavior without a tenant context. It rolls back all probe data.
+6. Run `npm run --prefix backend check:persistence` and `npm test --prefix backend` from the exact
+   commit proposed for deployment.
+7. Capture redacted command output, schema version, role attributes, and reviewer approval as pilot
+   evidence. Do not capture credentials or customer data.
+
+## Application invariant
+
+Every persistent repository starts a transaction and calls
+`set_config('app.current_tenant_id', tenant_id, true)` before the first data query. The third
+argument makes the value transaction-local so a pooled connection cannot leak tenant context into a
+later request. Repositories must roll back on any error and close the client after completion.
+
+## Production gate
+
+Production remains blocked until a database owner and security reviewer approve the role grants,
+the isolation probe passes in the target topology, backup restore is tested, retention and deletion
+requirements are approved, and authenticated API claims are shown to be the only tenant-context
+source.

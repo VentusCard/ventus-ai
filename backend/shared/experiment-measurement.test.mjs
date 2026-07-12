@@ -79,7 +79,7 @@ test('incremental lift remains unavailable until both arms satisfy sample gates'
 });
 
 test('repository records assignment before accepting an idempotent outcome', async () => {
-  const state = { assignments: [], outcomes: [] };
+  const state = { assignments: [], outcomes: [], queries: [] };
   const repository = createMeasurementRepository({ getDB: async () => fakeDb(state) });
   const assignment = assignExperiment({
     tenantId: 'bank_1',
@@ -97,6 +97,9 @@ test('repository records assignment before accepting an idempotent outcome', asy
   assert.equal(duplicate.inserted, false);
   assert.equal(state.assignments.length, 1);
   assert.equal(state.outcomes.length, 1);
+  const tenantContexts = state.queries.filter((entry) => entry.sql.includes('app.current_tenant_id'));
+  assert.equal(tenantContexts.length, 3);
+  assert.ok(tenantContexts.every((entry) => entry.params[0] === 'bank_1'));
 });
 
 function measurementFixture(treatmentCount, holdoutCount) {
@@ -148,7 +151,9 @@ function fakeDb(state) {
   return {
     async connect() {},
     async end() {},
-    async query(sql, params) {
+    async query(sql, params = []) {
+      state.queries.push({ sql, params });
+      if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(sql) || sql.includes('set_config')) return { rows: [] };
       if (sql.includes('INSERT INTO experiment_assignments')) {
         const existing = state.assignments.find((row) => row.tenant_id === params[0] && row.experiment_id === params[1] && row.household_token === params[2]);
         if (existing) return { rows: [] };

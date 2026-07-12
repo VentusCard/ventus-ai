@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const EVENT_TYPES = new Set([
   'signal', 'enrich', 'score', 'gate', 'decision', 'policy',
@@ -52,7 +53,7 @@ export function createDecisionLedgerRepository({ getDB }) {
       const db = await getDB();
       await db.connect();
       try {
-        await db.query('BEGIN');
+        await beginTenantTransaction(db, draft.tenantId);
         await db.query('SELECT pg_advisory_xact_lock(hashtext($1))', [draft.tenantId]);
         const duplicate = await db.query(
           `SELECT * FROM decision_ledger_events
@@ -95,16 +96,21 @@ export function createDecisionLedgerRepository({ getDB }) {
     },
 
     async exportTenant(tenantId) {
-      assertIdentifier(tenantId, 'tenantId');
+      validateTenantId(tenantId);
       const db = await getDB();
       await db.connect();
       try {
+        await beginTenantTransaction(db, tenantId);
         const result = await db.query(
           `SELECT * FROM decision_ledger_events
            WHERE tenant_id = $1 ORDER BY sequence_number ASC`,
           [tenantId],
         );
+        await db.query('COMMIT');
         return { tenantId, verified: verifyLedgerChain(result.rows), events: result.rows };
+      } catch (error) {
+        await db.query('ROLLBACK').catch(() => {});
+        throw error;
       } finally {
         await db.end();
       }

@@ -8,8 +8,8 @@ have operated for a required audit period.
 | Architecture and data flow | `docs/bofa-integration-map.md`, `docs/aws-enterprise-readiness-audit.md` | Draft | Validate against deployed AWS resources |
 | Secrets and credential rotation | `docs/aws-secrets-cutover-runbook.md`, `infra/security/*` | Partially implemented | Execute rotation and preserve evidence |
 | CI/CD and change control | `.github/workflows/*`, `docs/lovable-promotion-workflow.md` | Implemented with gaps | Enforce protected branches and required review |
-| Authentication and authorization | Connector bearer gate; internal UI presentation gate | Not pilot-ready | Choose SSO/OIDC provider and implement tenant RBAC |
-| Auditability | Local UI ledger, SHA-256 server repository, immutable measurement contracts, and SQL migrations | Implemented and tested, not deployed | Deploy, test RLS, backups, export, and retention |
+| Authentication and authorization | Connector bearer gate; internal UI presentation gate; transaction-scoped tenant context and forced-RLS migration | Backend tenant-isolation contract implemented, not deployed; user RBAC missing | Choose SSO/OIDC provider, bind authenticated claims to tenant context, and test runtime-role isolation |
+| Auditability | Local UI ledger, SHA-256 server repository, immutable measurement contracts, forced-RLS SQL migrations, and rollback-only isolation probe | Implemented and tested statically, not deployed | Deploy non-production store, run RLS probe, test backups, export, and retention |
 | Incident response | No approved runbook identified | Missing | Name owner, severity model, communications, tabletop |
 | Data retention and deletion | No approved policy identified | Missing | Define retention by data class and deletion SLA |
 | Vendor/subprocessor inventory | Model gateway configuration and AWS dependencies are discoverable | Incomplete | Freeze provider list and document data boundaries |

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHmac } from 'node:crypto';
+import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const ARMS = new Set(['treatment', 'holdout']);
 const METRICS = new Set([
@@ -123,9 +124,11 @@ export function createMeasurementRepository({ getDB }) {
 
   return {
     async recordAssignment(assignment) {
+      validateTenantId(assignment.tenantId);
       const db = await getDB();
       await db.connect();
       try {
+        await beginTenantTransaction(db, assignment.tenantId);
         const result = await db.query(
           `INSERT INTO experiment_assignments
              (tenant_id, experiment_id, household_token, assignment_id, arm, holdout_pct, bucket, assigned_at)
@@ -135,16 +138,23 @@ export function createMeasurementRepository({ getDB }) {
           [assignment.tenantId, assignment.experimentId, assignment.householdToken, assignment.assignmentId,
             assignment.arm, assignment.holdoutPct, assignment.bucket, assignment.assignedAt],
         );
-        if (result.rows[0]) return result.rows[0];
-        const existing = await db.query(
-          `SELECT * FROM experiment_assignments
-           WHERE tenant_id = $1 AND experiment_id = $2 AND household_token = $3`,
-          [assignment.tenantId, assignment.experimentId, assignment.householdToken],
-        );
-        assert.equal(existing.rows.length, 1, 'assignment conflict could not be read back');
-        assert.equal(existing.rows[0].arm, assignment.arm, 'existing assignment arm differs');
-        assert.equal(Number(existing.rows[0].holdout_pct), assignment.holdoutPct, 'existing holdout differs');
-        return existing.rows[0];
+        let record = result.rows[0];
+        if (!record) {
+          const existing = await db.query(
+            `SELECT * FROM experiment_assignments
+             WHERE tenant_id = $1 AND experiment_id = $2 AND household_token = $3`,
+            [assignment.tenantId, assignment.experimentId, assignment.householdToken],
+          );
+          assert.equal(existing.rows.length, 1, 'assignment conflict could not be read back');
+          assert.equal(existing.rows[0].arm, assignment.arm, 'existing assignment arm differs');
+          assert.equal(Number(existing.rows[0].holdout_pct), assignment.holdoutPct, 'existing holdout differs');
+          record = existing.rows[0];
+        }
+        await db.query('COMMIT');
+        return record;
+      } catch (error) {
+        await db.query('ROLLBACK').catch(() => {});
+        throw error;
       } finally {
         await db.end();
       }
@@ -152,9 +162,11 @@ export function createMeasurementRepository({ getDB }) {
 
     async recordOutcome(event) {
       validateOutcomeEvent(event);
+      validateTenantId(event.tenant_id);
       const db = await getDB();
       await db.connect();
       try {
+        await beginTenantTransaction(db, event.tenant_id);
         const assignmentResult = await db.query(
           `SELECT * FROM experiment_assignments
            WHERE tenant_id = $1 AND experiment_id = $2 AND household_token = $3`,
@@ -183,7 +195,12 @@ export function createMeasurementRepository({ getDB }) {
             event.value?.metric ?? null, event.value?.amount ?? null, event.value?.currency ?? null,
             event.source_system, event.source_record_id ?? null, event.reason_code ?? null, event],
         );
-        return { inserted: inserted.rows.length === 1, record: inserted.rows[0] ?? null };
+        const response = { inserted: inserted.rows.length === 1, record: inserted.rows[0] ?? null };
+        await db.query('COMMIT');
+        return response;
+      } catch (error) {
+        await db.query('ROLLBACK').catch(() => {});
+        throw error;
       } finally {
         await db.end();
       }
