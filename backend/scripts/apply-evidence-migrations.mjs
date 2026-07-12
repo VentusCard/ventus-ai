@@ -9,8 +9,8 @@
 // backend/sql/verify-tenant-isolation.sql as that runtime role afterward (npm run db:probe).
 //
 // If DATABASE_URL is unset this prints the setup path and exits 0 (nothing is provisioned
-// for you). Order follows the comments in the SQL files: ledger → measurement → delivery →
-// tenant-isolation (which depends on the three tables existing).
+// for you). Order follows the SQL dependencies: ledger → measurement → tenant isolation →
+// delivery (whose policy calls the tenant-context function).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -23,8 +23,8 @@ const sql = (name) => readFileSync(resolve(here, '../sql', name), 'utf8');
 const MIGRATIONS = [
   'decision-ledger.sql',
   'experiment-measurement.sql',
-  'connector-delivery.sql',
   'tenant-isolation.sql',
+  'connector-delivery.sql',
 ];
 
 async function main() {

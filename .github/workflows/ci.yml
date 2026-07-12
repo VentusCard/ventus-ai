@@ -119,7 +119,7 @@ jobs:
 
       - name: Validate Lambda Entrypoints
         run: |
-          find backend/functions backend/shared -name '*.mjs' -print0 | xargs -0 -n1 node --check
+          find backend/functions backend/shared backend/monitors -name '*.mjs' -print0 | xargs -0 -n1 node --check
 
   infra:
     name: Infra CDK Checks
@@ -172,6 +172,10 @@ jobs:
 
       - name: Synthesize CDK Plan
         run: npm run synth
+        working-directory: infra
+
+      - name: Synthesize Isolated Evidence Store Plan
+        run: npm run synth -- VentusEvidenceStoreStack -c enableEvidenceStoreMigrator=true
         working-directory: infra
 
   frontend:

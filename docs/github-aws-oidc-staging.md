@@ -92,7 +92,10 @@ The machine-readable copy lives at `infra/iam/github-staging-deploy-policy.json`
         "cloudformation:GetTemplateSummary",
         "cloudformation:UpdateStack"
       ],
-      "Resource": "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*"
+      "Resource": [
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusEvidenceStoreStack/*"
+      ]
     },
     {
       "Sid": "CdkBootstrapAssets",

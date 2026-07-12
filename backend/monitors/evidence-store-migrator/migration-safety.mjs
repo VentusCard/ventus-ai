@@ -1,0 +1,23 @@
+export const APPLY_EVIDENCE_SCHEMA_CONFIRMATION = 'APPLY_VENTUS_EVIDENCE_SCHEMA';
+
+export const EVIDENCE_STORE_MIGRATIONS = [
+  'decision-ledger.sql',
+  'experiment-measurement.sql',
+  'tenant-isolation.sql',
+  'connector-delivery.sql',
+];
+
+export function checkedPgIdentifier(value, label = 'identifier') {
+  if (!/^[a-z][a-z0-9_]{2,62}$/.test(value)) {
+    throw new Error(`${label} must be a lowercase PostgreSQL identifier`);
+  }
+  return value;
+}
+
+export function quotePgIdentifier(value) {
+  return `"${checkedPgIdentifier(value)}"`;
+}
+
+export function quotePgLiteral(value) {
+  return `'${String(value).replaceAll("'", "''")}'`;
+}
