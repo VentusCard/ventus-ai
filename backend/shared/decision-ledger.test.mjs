@@ -40,6 +40,16 @@ test('repository serializes per tenant, deduplicates, and exports a verified cha
   assert.ok(tenantContexts.every((entry) => entry.params[0] === 'bank_1'));
 });
 
+test('ledger idempotency key cannot hide changed event content', async () => {
+  const state = [];
+  const repository = createDecisionLedgerRepository({ getDB: async () => fakeDb(state) });
+  await repository.append(draft('evt_stable'));
+  await assert.rejects(
+    () => repository.append(draft('evt_stable', { action: 'Changed action' })),
+    /idempotency key reused for different event content/,
+  );
+});
+
 test('decision-outcome graph withholds effectiveness until enough outcomes exist', () => {
   const early = graphFixture(10);
   const earlyRow = buildDecisionOutcomeGraph({ ...early, minimumOutcomes: 30 })[0];
@@ -58,10 +68,14 @@ test('decision-outcome graph withholds effectiveness until enough outcomes exist
   assert.equal(row.causalClaimAllowed, false);
 });
 
-test('simulated decisions are excluded from the learning graph', () => {
+test('only confirmed decisions enter the learning graph', () => {
   const { decisionEvents, outcomeEvents } = graphFixture(1);
   const simulated = { ...decisionEvents[0], status: 'simulated' };
   assert.deepEqual(buildDecisionOutcomeGraph({ decisionEvents: [simulated], outcomeEvents }), []);
+  const suppressed = { ...decisionEvents[0], status: 'suppressed' };
+  assert.deepEqual(buildDecisionOutcomeGraph({ decisionEvents: [suppressed], outcomeEvents }), []);
+  const failed = { ...decisionEvents[0], status: 'failed' };
+  assert.deepEqual(buildDecisionOutcomeGraph({ decisionEvents: [failed], outcomeEvents }), []);
 });
 
 function draft(idempotencyKey, payloadOverrides = {}) {

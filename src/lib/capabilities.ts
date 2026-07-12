@@ -17,7 +17,7 @@ export const CAPABILITIES: readonly CapabilityDefinition[] = [
     id: "financial-state",
     title: "Financial-state intelligence",
     leadershipPromise: "Recognize timely relationship changes across sanctioned bank data.",
-    internalReality: "Deterministic synthetic pipeline; raw partner adapters and bank calibration remain pilot work.",
+    internalReality: "A provider-neutral source-to-outcome operating loop and deterministic synthetic pipeline are implemented. Live partner adapters and bank calibration remain pilot work.",
     status: "pilot-scope",
     leadershipVisible: true,
     evidenceGate: ["Golden-set precision >= 90%", "Source provenance complete", "Drift baseline established"],

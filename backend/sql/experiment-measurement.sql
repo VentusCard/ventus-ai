@@ -10,11 +10,17 @@ CREATE TABLE IF NOT EXISTS experiment_assignments (
   arm text NOT NULL CHECK (arm IN ('treatment', 'holdout')),
   holdout_pct numeric(5,2) NOT NULL CHECK (holdout_pct BETWEEN 1 AND 50),
   bucket integer NOT NULL CHECK (bucket BETWEEN 0 AND 9999),
+  evidence_class text NOT NULL DEFAULT 'synthetic'
+    CHECK (evidence_class IN ('synthetic', 'sandbox', 'sanctioned')),
   assigned_at timestamptz NOT NULL,
   recorded_at timestamptz NOT NULL DEFAULT now(),
   PRIMARY KEY (tenant_id, experiment_id, household_token),
   UNIQUE (tenant_id, assignment_id)
 );
+
+ALTER TABLE experiment_assignments
+  ADD COLUMN IF NOT EXISTS evidence_class text NOT NULL DEFAULT 'synthetic'
+  CHECK (evidence_class IN ('synthetic', 'sandbox', 'sanctioned'));
 
 CREATE TABLE IF NOT EXISTS outcome_events (
   tenant_id text NOT NULL,

@@ -81,6 +81,8 @@ test('incremental lift remains unavailable until both arms satisfy sample gates'
   assert.deepEqual(measured.inference.confidenceInterval, { lower: 200, upper: 200 });
   assert.equal(measured.inference.signal, 'positive');
   assert.equal(measured.evidenceStatus, 'statistical_signal_detected');
+  assert.equal(measured.evidenceClass, 'synthetic');
+  assert.equal(measured.businessClaimAllowed, false);
   assert.equal(measured.causalClaimAllowed, false);
   assert.equal(measured.reviewRequired, 'independent_statistical_and_experiment_review');
 });
@@ -153,6 +155,10 @@ test('repository records assignment before accepting an idempotent outcome', asy
     assignedAt: ASSIGNED_AT,
   });
   await repository.recordAssignment(assignment);
+  await assert.rejects(
+    () => repository.recordAssignment({ ...assignment, assignedAt: '2026-07-02T00:00:00.000Z' }),
+    /existing assignment timestamp differs/,
+  );
   const event = outcomeFor(assignment, 18_400, '2026-08-01T00:00:00.000Z');
   const first = await repository.recordOutcome(event);
   const duplicate = await repository.recordOutcome(event);
@@ -160,9 +166,19 @@ test('repository records assignment before accepting an idempotent outcome', asy
   assert.equal(duplicate.inserted, false);
   assert.equal(state.assignments.length, 1);
   assert.equal(state.outcomes.length, 1);
+  assert.equal(duplicate.record.payload.event_id, event.event_id);
   const tenantContexts = state.queries.filter((entry) => entry.sql.includes('app.current_tenant_id'));
-  assert.equal(tenantContexts.length, 3);
+  assert.equal(tenantContexts.length, 4);
   assert.ok(tenantContexts.every((entry) => entry.params[0] === 'bank_1'));
+  const loaded = await repository.loadExperiment({ tenantId: 'bank_1', experimentId: 'primacy_01' });
+  assert.equal(loaded.assignments.length, 1);
+  assert.equal(loaded.assignments[0].evidenceClass, 'synthetic');
+  assert.equal(loaded.outcomes.length, 1);
+  assert.equal(loaded.outcomes[0].event_id, event.event_id);
+  await assert.rejects(
+    () => repository.recordOutcome({ ...event, value: { ...event.value, amount: 99 } }),
+    /idempotency key reused for different event content/,
+  );
 });
 
 function measurementFixture(treatmentCount, holdoutCount) {
@@ -178,6 +194,7 @@ function measurementFixture(treatmentCount, holdoutCount) {
         arm,
         holdoutPct: 10,
         bucket: index,
+        evidenceClass: 'synthetic',
         assignedAt: ASSIGNED_AT,
       };
       assignments.push(assignment);
@@ -222,19 +239,31 @@ function fakeDb(state) {
         if (existing) return { rows: [] };
         const row = {
           tenant_id: params[0], experiment_id: params[1], household_token: params[2], assignment_id: params[3],
-          arm: params[4], holdout_pct: params[5], bucket: params[6], assigned_at: new Date(params[7]),
+          arm: params[4], holdout_pct: params[5], bucket: params[6], evidence_class: params[7],
+          assigned_at: new Date(params[8]),
         };
         state.assignments.push(row);
         return { rows: [row] };
       }
       if (sql.includes('SELECT * FROM experiment_assignments')) {
-        return { rows: state.assignments.filter((row) => row.tenant_id === params[0] && row.experiment_id === params[1] && row.household_token === params[2]) };
+        const rows = state.assignments.filter((row) => (
+          row.tenant_id === params[0]
+          && row.experiment_id === params[1]
+          && (params.length < 3 || row.household_token === params[2])
+        ));
+        return { rows };
       }
       if (sql.includes('INSERT INTO outcome_events')) {
         if (state.outcomes.some((row) => row.tenant_id === params[0] && row.event_id === params[1])) return { rows: [] };
-        const row = { tenant_id: params[0], event_id: params[1] };
+        const row = { tenant_id: params[0], event_id: params[1], experiment_id: params[2], payload: params[17] };
         state.outcomes.push(row);
         return { rows: [row] };
+      }
+      if (sql.includes('SELECT * FROM outcome_events') && sql.includes('event_id = $2')) {
+        return { rows: state.outcomes.filter((row) => row.tenant_id === params[0] && row.event_id === params[1]) };
+      }
+      if (sql.includes('SELECT payload FROM outcome_events')) {
+        return { rows: state.outcomes.filter((row) => row.tenant_id === params[0] && row.experiment_id === params[1]) };
       }
       throw new Error(`unexpected SQL: ${sql}`);
     },

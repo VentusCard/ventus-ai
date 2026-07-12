@@ -7,6 +7,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..');
 const slasPath = join(backendRoot, 'config', 'pipeline-slas.json');
 const stuckJobsSqlPath = join(backendRoot, 'sql', 'stuck-pipeline-runs.sql');
+const operatingLoopPath = join(backendRoot, 'shared', 'pilot-operating-loop.mjs');
 
 const REQUIRED_STAGES = [
   'ingested',
@@ -89,8 +90,19 @@ function validateStuckJobsSql(sql, config) {
   assert.ok(hasAllStageFields, 'stuck jobs SQL should include all configured timestamp fields');
 }
 
+function validateOperatingLoop(source) {
+  assert.match(source, /assignExperiment/, 'operating loop should assign treatment or holdout before activation');
+  assert.match(source, /ledgerRepository\.append/, 'operating loop should persist decision lineage');
+  assert.match(source, /deliveryRepository\.reserve/, 'operating loop should reserve connector delivery before side effects');
+  assert.match(source, /measurementRepository\.recordOutcome/, 'operating loop should ingest measured outcomes');
+  assert.match(source, /summarizeIncrementalLift/, 'operating loop should close the measurement loop');
+  assert.match(source, /synthetic evidence cannot activate a connector/, 'synthetic evidence should be activation-blocked');
+  assert.match(source, /businessClaimAllowed:\s*false/, 'operating loop should not promote technical evidence into business claims');
+}
+
 const config = readJson(slasPath);
 validateSlas(config);
 validateStuckJobsSql(readFileSync(stuckJobsSqlPath, 'utf8'), config);
+validateOperatingLoop(readFileSync(operatingLoopPath, 'utf8'));
 
-console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms`);
+console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms, governed pilot operating loop`);

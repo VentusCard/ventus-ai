@@ -19,6 +19,7 @@ The first two Growth Plays are:
 | Plaid custom-user shards | `npm run plaid:mvp:manifests` | The same 500-household design translated into ten official 50-user Plaid Sandbox manifests | Plaid-returned category fidelity until the shards are pulled |
 | Local scale baseline | `npm run benchmark:mvp` | Repeatable single-process throughput over at least 100k synthetic transactions | Production capacity or SLA |
 | Outcome contract | `npm run test:outcomes` | Tokenized, holdout-aware event schema suitable for bank mapping | A live bank outcome feed |
+| Executable operating loop | `backend/shared/pilot-operating-loop.test.mjs`; `docs/pilot-operating-loop.md` | Source receipt → grounded signal → policy → immutable assignment → decision → at-most-once sandbox delivery → outcome → coverage-gated lift across both MVP plays | Live source, bank identity, deployed persistence, model accuracy, or real business lift |
 | Experiment measurement | `backend/shared/experiment-measurement.test.mjs`; `docs/outcome-measurement-methodology.md` | Stable pre-activation assignment, idempotent outcomes, one-tenant/experiment integrity, coverage gates, and uncertainty intervals | A deployed store, completed bank outcome window, independent review, or causal result |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
 | Decision/outcome graph | `backend/shared/decision-ledger.test.mjs` | SHA-256 lineage, tenant serialization, tamper detection, and sample-gated descriptive effectiveness | Causality, deployment, or longitudinal bank evidence |
@@ -49,7 +50,7 @@ after predictions are observed.
 ## Next deployment decisions
 
 1. Select the server-side identity provider and map roles for evaluators, operators, and auditors.
-2. Apply the three evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
+2. Apply the four evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
 3. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the cohort expectations.
 4. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, and minimum sample review.
 5. Have two independent reviewers adjudicate and freeze the draft intervention benchmark before opening candidate predictions.

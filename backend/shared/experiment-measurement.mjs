@@ -3,6 +3,7 @@ import { createHmac } from 'node:crypto';
 import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const ARMS = new Set(['treatment', 'holdout']);
+const EVIDENCE_CLASSES = new Set(['synthetic', 'sandbox', 'sanctioned']);
 const METRICS = new Set([
   'deposit_balance',
   'deposit_retained',
@@ -16,6 +17,7 @@ export function assignExperiment({
   householdToken,
   holdoutPct,
   salt,
+  evidenceClass = 'synthetic',
   assignedAt = new Date().toISOString(),
 }) {
   validateTenantId(tenantId);
@@ -23,6 +25,7 @@ export function assignExperiment({
   assert.match(householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'householdToken must be opaque');
   assert.ok(Number.isFinite(holdoutPct) && holdoutPct >= 1 && holdoutPct <= 50, 'holdoutPct must be 1-50');
   assert.ok(typeof salt === 'string' && salt.length >= 16, 'assignment salt must be at least 16 characters');
+  assert.ok(EVIDENCE_CLASSES.has(evidenceClass), 'evidenceClass is unsupported');
   assertIsoDate(assignedAt, 'assignedAt');
 
   const identity = `${tenantId}\u001f${experimentId}\u001f${householdToken}`;
@@ -38,6 +41,7 @@ export function assignExperiment({
     arm,
     holdoutPct,
     bucket,
+    evidenceClass,
     assignedAt,
   };
 }
@@ -94,12 +98,14 @@ export function summarizeIncrementalLift({
 
   const tenantIds = new Set();
   const experimentIds = new Set();
+  const evidenceClasses = new Set();
   const assignmentByHousehold = new Map();
   const assignedCounts = { treatment: 0, holdout: 0 };
   for (const assignment of assignments) {
     validateMeasurementAssignment(assignment);
     tenantIds.add(assignment.tenantId);
     experimentIds.add(assignment.experimentId);
+    evidenceClasses.add(assignment.evidenceClass);
     const key = assignmentKey(assignment.tenantId, assignment.experimentId, assignment.householdToken);
     assert.ok(!assignmentByHousehold.has(key), `duplicate assignment for ${assignment.householdToken}`);
     assignmentByHousehold.set(key, assignment);
@@ -107,6 +113,7 @@ export function summarizeIncrementalLift({
   }
   assert.equal(tenantIds.size, 1, 'measurement summary must contain exactly one tenant');
   assert.equal(experimentIds.size, 1, 'measurement summary must contain exactly one experiment');
+  assert.equal(evidenceClasses.size, 1, 'measurement summary must contain exactly one evidence class');
   assert.ok(assignedCounts.treatment > 0 && assignedCounts.holdout > 0, 'both experiment arms require assignments');
 
   const latest = new Map();
@@ -146,6 +153,7 @@ export function summarizeIncrementalLift({
   return {
     tenantId: [...tenantIds][0],
     experimentId: [...experimentIds][0],
+    evidenceClass: [...evidenceClasses][0],
     metric,
     status,
     minimumPerArm,
@@ -170,6 +178,7 @@ export function summarizeIncrementalLift({
       : inference.signal === 'inconclusive'
         ? 'inconclusive'
         : 'statistical_signal_detected',
+    businessClaimAllowed: false,
     causalClaimAllowed: false,
     reviewRequired: 'independent_statistical_and_experiment_review',
   };
@@ -187,12 +196,14 @@ export function createMeasurementRepository({ getDB }) {
         await beginTenantTransaction(db, assignment.tenantId);
         const result = await db.query(
           `INSERT INTO experiment_assignments
-             (tenant_id, experiment_id, household_token, assignment_id, arm, holdout_pct, bucket, assigned_at)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+             (tenant_id, experiment_id, household_token, assignment_id, arm, holdout_pct, bucket,
+              evidence_class, assigned_at)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
            ON CONFLICT (tenant_id, experiment_id, household_token) DO NOTHING
            RETURNING *`,
           [assignment.tenantId, assignment.experimentId, assignment.householdToken, assignment.assignmentId,
-            assignment.arm, assignment.holdoutPct, assignment.bucket, assignment.assignedAt],
+            assignment.arm, assignment.holdoutPct, assignment.bucket, assignment.evidenceClass,
+            assignment.assignedAt],
         );
         let record = result.rows[0];
         if (!record) {
@@ -203,7 +214,11 @@ export function createMeasurementRepository({ getDB }) {
           );
           assert.equal(existing.rows.length, 1, 'assignment conflict could not be read back');
           assert.equal(existing.rows[0].arm, assignment.arm, 'existing assignment arm differs');
+          assert.equal(existing.rows[0].assignment_id, assignment.assignmentId, 'existing assignment id differs');
           assert.equal(Number(existing.rows[0].holdout_pct), assignment.holdoutPct, 'existing holdout differs');
+          assert.equal(Number(existing.rows[0].bucket), assignment.bucket, 'existing assignment bucket differs');
+          assert.equal(existing.rows[0].evidence_class, assignment.evidenceClass, 'existing evidence class differs');
+          assert.equal(new Date(existing.rows[0].assigned_at).toISOString(), assignment.assignedAt, 'existing assignment timestamp differs');
           record = existing.rows[0];
         }
         await db.query('COMMIT');
@@ -251,9 +266,52 @@ export function createMeasurementRepository({ getDB }) {
             event.value?.metric ?? null, event.value?.amount ?? null, event.value?.currency ?? null,
             event.source_system, event.source_record_id ?? null, event.reason_code ?? null, event],
         );
-        const response = { inserted: inserted.rows.length === 1, record: inserted.rows[0] ?? null };
+        let record = inserted.rows[0];
+        if (!record) {
+          const existing = await db.query(
+            `SELECT * FROM outcome_events
+             WHERE tenant_id = $1 AND event_id = $2`,
+            [event.tenant_id, event.event_id],
+          );
+          assert.equal(existing.rows.length, 1, 'outcome conflict could not be read back');
+          assert.deepEqual(existing.rows[0].payload, event, 'outcome idempotency key reused for different event content');
+          record = existing.rows[0];
+        }
+        const response = { inserted: inserted.rows.length === 1, record };
         await db.query('COMMIT');
         return response;
+      } catch (error) {
+        await db.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        await db.end();
+      }
+    },
+
+    async loadExperiment({ tenantId, experimentId }) {
+      validateTenantId(tenantId);
+      assertIdentifier(experimentId, 'experimentId');
+      const db = await getDB();
+      await db.connect();
+      try {
+        await beginTenantTransaction(db, tenantId);
+        const assignmentRows = await db.query(
+          `SELECT * FROM experiment_assignments
+           WHERE tenant_id = $1 AND experiment_id = $2
+           ORDER BY household_token ASC`,
+          [tenantId, experimentId],
+        );
+        const outcomeRows = await db.query(
+          `SELECT payload FROM outcome_events
+           WHERE tenant_id = $1 AND experiment_id = $2
+           ORDER BY occurred_at ASC, event_id ASC`,
+          [tenantId, experimentId],
+        );
+        await db.query('COMMIT');
+        return {
+          assignments: assignmentRows.rows.map(normalizeAssignmentRow),
+          outcomes: outcomeRows.rows.map((row) => row.payload),
+        };
       } catch (error) {
         await db.query('ROLLBACK').catch(() => {});
         throw error;
@@ -278,7 +336,22 @@ function validateMeasurementAssignment(assignment) {
   assertIdentifier(assignment.experimentId, 'assignment.experimentId');
   assert.match(assignment.householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'assignment.householdToken must be opaque');
   assert.ok(ARMS.has(assignment.arm), 'assignment.arm is unsupported');
+  assert.ok(EVIDENCE_CLASSES.has(assignment.evidenceClass), 'assignment.evidenceClass is unsupported');
   assertIsoDate(assignment.assignedAt, 'assignment.assignedAt');
+}
+
+function normalizeAssignmentRow(row) {
+  return {
+    assignmentId: row.assignment_id,
+    tenantId: row.tenant_id,
+    experimentId: row.experiment_id,
+    householdToken: row.household_token,
+    arm: row.arm,
+    holdoutPct: Number(row.holdout_pct),
+    bucket: Number(row.bucket),
+    evidenceClass: row.evidence_class,
+    assignedAt: new Date(row.assigned_at).toISOString(),
+  };
 }
 
 function assignmentKey(tenantId, experimentId, householdToken) {

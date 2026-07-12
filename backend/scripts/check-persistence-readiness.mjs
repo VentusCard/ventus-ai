@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const tenantSql = read('../backend/sql/tenant-isolation.sql');
+const measurementSql = read('../backend/sql/experiment-measurement.sql');
 const verificationSql = read('../backend/sql/verify-tenant-isolation.sql');
 const deliverySql = read('../backend/sql/connector-delivery.sql');
 const tenantContextSource = read('../backend/shared/tenant-context.mjs');
@@ -12,6 +13,11 @@ const deliverySource = read('../backend/shared/connector-delivery.mjs');
 const runbook = read('../docs/tenant-isolated-persistence-runbook.md');
 
 assert.match(tenantSql, /current_setting\('app\.current_tenant_id', true\)/, 'RLS should read transaction tenant context');
+assert.match(
+  measurementSql,
+  /evidence_class text NOT NULL DEFAULT 'synthetic'[\s\S]*?'sandbox'[\s\S]*?'sanctioned'/,
+  'experiment assignments should persist a fail-safe evidence class'
+);
 assert.equal(
   [...tenantSql.matchAll(/FORCE ROW LEVEL SECURITY/g)].length,
   3,

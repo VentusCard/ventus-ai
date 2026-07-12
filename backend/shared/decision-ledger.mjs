@@ -61,6 +61,16 @@ export function createDecisionLedgerRepository({ getDB }) {
           [draft.tenantId, draft.idempotencyKey],
         );
         if (duplicate.rows[0]) {
+          const existing = normalizeRow(duplicate.rows[0]);
+          const expected = buildLedgerEvent(draft, {
+            sequenceNumber: existing.sequenceNumber,
+            previousHash: existing.previousHash,
+          });
+          assert.equal(
+            existing.eventHash,
+            expected.eventHash,
+            'ledger idempotency key reused for different event content',
+          );
           await db.query('COMMIT');
           return { inserted: false, record: duplicate.rows[0] };
         }
@@ -135,7 +145,7 @@ export function buildDecisionOutcomeGraph({ decisionEvents, outcomeEvents, minim
   const groups = new Map();
   for (const raw of decisionEvents) {
     const event = normalizeRow(raw);
-    if (event.eventType !== 'decision' || event.status === 'simulated') continue;
+    if (event.eventType !== 'decision' || event.status !== 'confirmed') continue;
     const payload = event.payload;
     for (const field of ['decision_id', 'cohort', 'action', 'channel']) {
       assertIdentifier(payload?.[field], `decision payload.${field}`);
