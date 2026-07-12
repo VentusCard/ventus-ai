@@ -6,9 +6,7 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
-
-const DATABASE_SECRET_ID =
-  'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
+import { VENTUS_DATABASE_SECRET_ID } from './ventus-existing-infra-stack.ts';
 
 /**
  * Isolated, additive stack for the durable Ventus decision/outcome evidence store.
@@ -76,7 +74,7 @@ export class VentusEvidenceStoreStack extends cdk.Stack {
       logGroup: migratorLogGroup,
       environment: {
         VENTUS_ENVIRONMENT: 'staging',
-        RDS_SECRET_ID: DATABASE_SECRET_ID,
+        RDS_SECRET_ID: VENTUS_DATABASE_SECRET_ID,
         RDS_DATABASE: 'ventus_bofa',
         EVIDENCE_RUNTIME_SECRET_ID: runtimeSecret.secretName,
         EVIDENCE_SCHEMA: 'ventus_evidence',
@@ -85,7 +83,7 @@ export class VentusEvidenceStoreStack extends cdk.Stack {
     const databaseSecretArn = this.formatArn({
       service: 'secretsmanager',
       resource: 'secret',
-      resourceName: `${DATABASE_SECRET_ID}*`,
+      resourceName: `${VENTUS_DATABASE_SECRET_ID}*`,
       arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
     });
     migrator.addToRolePolicy(new iam.PolicyStatement({
