@@ -31,6 +31,25 @@ export function validateInterventionInput(input) {
     assertIdentifier(action.label, 'allowed_actions.label');
     assertIdentifier(action.owner_role, 'allowed_actions.owner_role');
     assert.ok(!actionIds.has(action.action_id), `duplicate allowed action ${action.action_id}`);
+    if (action.required_signal_types !== undefined) {
+      assert.ok(
+        Array.isArray(action.required_signal_types) && action.required_signal_types.length > 0,
+        `allowed action ${action.action_id} required_signal_types must be a non-empty array`
+      );
+      const signalTypes = new Set();
+      for (const signalType of action.required_signal_types) {
+        assertIdentifier(signalType, 'allowed_actions.required_signal_types');
+        assert.ok(!signalTypes.has(signalType), `duplicate required signal ${signalType} for ${action.action_id}`);
+        signalTypes.add(signalType);
+      }
+    }
+    if (action.default_channel !== undefined) {
+      assertIdentifier(action.default_channel, 'allowed_actions.default_channel');
+      assert.ok(input.allowed_channels.includes(action.default_channel), `default channel is not allowed for ${action.action_id}`);
+    }
+    if (action.baseline_priority !== undefined) {
+      assert.ok(Number.isInteger(action.baseline_priority), `baseline priority is invalid for ${action.action_id}`);
+    }
     actionIds.add(action.action_id);
   }
   const channelIds = new Set();
@@ -175,6 +194,62 @@ export function scoreInterventionPlan(input, output) {
   };
 }
 
+export function runDeterministicInterventionBaseline(input) {
+  validateInterventionInput(input);
+  const policyChecks = input.required_policies.map((policy) => ({
+    policy_id: policy.policy_id,
+    verdict: policy.verdict,
+    explanation: 'Deterministic baseline copied the supplied policy verdict.',
+  }));
+  const blockingPolicy = input.required_policies.find((policy) => policy.verdict === 'block');
+  if (blockingPolicy) {
+    return abstentionOutput({
+      input,
+      policyChecks,
+      reason: `Required policy ${blockingPolicy.policy_id} blocks activation.`,
+      evidenceTransactionIds: [],
+      confidence: 1,
+    });
+  }
+
+  const evidenceSignalTypes = new Set(input.evidence.map((item) => item.signal_type));
+  const eligibleActions = input.allowed_actions
+    .filter((action) => (
+      Array.isArray(action.required_signal_types)
+      && action.required_signal_types.every((signalType) => evidenceSignalTypes.has(signalType))
+    ))
+    .sort((left, right) => (
+      (right.baseline_priority ?? 0) - (left.baseline_priority ?? 0)
+      || left.action_id.localeCompare(right.action_id)
+    ));
+  if (eligibleActions.length === 0) {
+    return abstentionOutput({
+      input,
+      policyChecks,
+      reason: 'No approved action met its deterministic evidence rule.',
+      evidenceTransactionIds: [],
+      confidence: 0.8,
+    });
+  }
+
+  const action = eligibleActions[0];
+  const requiredSignals = new Set(action.required_signal_types);
+  const evidenceTransactionIds = input.evidence
+    .filter((item) => requiredSignals.has(item.signal_type))
+    .map((item) => item.transaction_id);
+  return {
+    action_id: action.action_id,
+    channel: action.default_channel ?? input.allowed_channels[0],
+    owner_role: action.owner_role,
+    rationale: `Approved evidence rule matched ${action.required_signal_types.join(' and ')}.`,
+    evidence_transaction_ids: evidenceTransactionIds,
+    policy_checks: policyChecks,
+    confidence: 0.8,
+    abstain: false,
+    abstain_reason: null,
+  };
+}
+
 export function comparePlannerRuns({ cases, candidatePredictions, baselinePredictions, candidateCostUsd, baselineCostUsd = 0 }) {
   assert.ok(Array.isArray(cases) && cases.length > 0, 'cases are required');
   assert.ok(candidatePredictions && typeof candidatePredictions === 'object', 'candidatePredictions are required');
@@ -247,6 +322,22 @@ function evaluateRun(cases, predictions) {
 
 function zeroMetrics() {
   return { action_accuracy: 0, abstention_accuracy: 0, evidence_precision: 0, evidence_recall: 0, policy_coverage: 0 };
+}
+
+function abstentionOutput({ input, policyChecks, reason, evidenceTransactionIds, confidence }) {
+  return {
+    action_id: null,
+    channel: null,
+    owner_role: null,
+    rationale: reason,
+    evidence_transaction_ids: evidenceTransactionIds.filter((transactionId) => (
+      input.evidence.some((item) => item.transaction_id === transactionId)
+    )),
+    policy_checks: policyChecks,
+    confidence,
+    abstain: true,
+    abstain_reason: reason,
+  };
 }
 
 function assertIdentifier(value, label) {

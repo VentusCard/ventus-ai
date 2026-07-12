@@ -4,6 +4,7 @@ import {
   buildInterventionMessages,
   comparePlannerRuns,
   createInterventionPlanner,
+  runDeterministicInterventionBaseline,
   scoreInterventionPlan,
   validateInterventionOutput,
 } from './intervention-planner.mjs';
@@ -96,6 +97,41 @@ test('run comparison requires candidate to beat deterministic baseline and still
   assert.equal(report.runtimePromotionAllowed, false);
   assert.ok(!report.blockers.includes('candidate_does_not_beat_baseline_by_2pts'));
   assert.ok(report.blockers.includes('independent_policy_and_model_review_required'));
+});
+
+test('deterministic baseline selects only an evidence-eligible action', () => {
+  const input = clearCase();
+  input.allowed_actions = input.allowed_actions.map((action, index) => ({
+    ...action,
+    required_signal_types: index === 0 ? ['liquidity_event', 'relationship_depth'] : ['advisor_relationship'],
+    default_channel: index === 0 ? 'CEW' : 'Salesforce FSC',
+    baseline_priority: index === 0 ? 100 : 50,
+  }));
+  const output = runDeterministicInterventionBaseline(input);
+  assert.equal(output.action_id, 'warm_merrill_referral');
+  assert.equal(output.channel, 'CEW');
+  assert.deepEqual(output.evidence_transaction_ids, ['tx_001', 'tx_002']);
+  assert.equal(validateInterventionOutput(input, output).valid, true);
+});
+
+test('deterministic baseline abstains on policy blocks or missing evidence rules', () => {
+  const blocked = blockedCase();
+  blocked.allowed_actions = blocked.allowed_actions.map((action) => ({
+    ...action,
+    required_signal_types: ['liquidity_event'],
+  }));
+  const blockedOutput = runDeterministicInterventionBaseline(blocked);
+  assert.equal(blockedOutput.abstain, true);
+  assert.match(blockedOutput.abstain_reason, /consent blocks activation/);
+
+  const unmatched = clearCase();
+  unmatched.allowed_actions = unmatched.allowed_actions.map((action) => ({
+    ...action,
+    required_signal_types: ['advisor_relationship'],
+  }));
+  const unmatchedOutput = runDeterministicInterventionBaseline(unmatched);
+  assert.equal(unmatchedOutput.abstain, true);
+  assert.match(unmatchedOutput.abstain_reason, /No approved action met/);
 });
 
 test('gateway planner refuses a non-shadow route and validates model output', async () => {

@@ -26,7 +26,7 @@ export const CAPABILITIES: readonly CapabilityDefinition[] = [
     id: "decisioning",
     title: "Governed next-best intervention",
     leadershipPromise: "Recommend one explainable action tied to a measurable P&L objective.",
-    internalReality: "Rules and authored scenarios are working. A closed-action, evidence-bound model planner is implemented for shadow evaluation only; no model has yet beaten the deterministic baseline on sanctioned data or been approved for runtime use.",
+    internalReality: "Rules and authored scenarios are working. A closed-action, evidence-bound model planner and draft 14-case benchmark are implemented for shadow evaluation only; labels are not independently frozen and no model is approved for runtime use.",
     status: "pilot-scope",
     leadershipVisible: true,
     evidenceGate: ["Action acceptance >= 35%", "Policy owner approves exclusions", "No material fairness exceptions"],

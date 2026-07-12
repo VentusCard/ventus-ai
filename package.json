@@ -13,6 +13,7 @@
     "test:salesforce": "node --experimental-strip-types scripts/verify-salesforce.mjs",
     "test:mvp-cohorts": "node --experimental-strip-types backend/scripts/qa-growth-play-cohorts.mjs",
     "test:outcomes": "node backend/scripts/qa-outcome-feed-contract.mjs",
+    "test:interventions": "node backend/scripts/qa-intervention-planner.mjs",
     "plaid:mvp:manifests": "node --experimental-strip-types backend/scripts/generate-plaid-mvp-manifests.mjs",
     "benchmark:mvp": "VENTUS_SCALE_HOUSEHOLDS=50000 node --experimental-strip-types backend/scripts/benchmark-growth-play-pipeline.mjs",
     "preview": "vite preview"

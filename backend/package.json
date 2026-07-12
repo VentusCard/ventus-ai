@@ -17,6 +17,7 @@
     "qa:partner-ingest": "node ./scripts/qa-partner-ingest.mjs",
     "qa:golden": "node ./scripts/qa-golden-enrichment.mjs",
     "qa:model-output": "node ./scripts/qa-model-output-report.mjs",
+    "qa:interventions": "node ./scripts/qa-intervention-planner.mjs",
     "qa:mvp-cohorts": "node --experimental-strip-types ./scripts/qa-growth-play-cohorts.mjs",
     "qa:outcomes": "node ./scripts/qa-outcome-feed-contract.mjs",
     "plaid:mvp:manifests": "node --experimental-strip-types ./scripts/generate-plaid-mvp-manifests.mjs",
