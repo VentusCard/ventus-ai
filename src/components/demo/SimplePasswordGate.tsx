@@ -11,9 +11,10 @@ interface Props {
   children: ReactNode;
   bullets?: string[];
   tagline?: string;
+  allowDemoBypass?: boolean;
 }
 
-export default function SimplePasswordGate({ children, bullets, tagline }: Props) {
+export default function SimplePasswordGate({ children, bullets, tagline, allowDemoBypass = true }: Props) {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem(SESSION_KEY) === "true");
   const [value, setValue] = useState("");
   const [error, setError] = useState(false);
@@ -31,15 +32,17 @@ export default function SimplePasswordGate({ children, bullets, tagline }: Props
     setCfg(getDemoBankConfig());
     try {
       const params = new URLSearchParams(window.location.search);
-      if (params.get("from") === "demo") {
+      if (allowDemoBypass && params.get("from") === "demo") {
         sessionStorage.setItem(SESSION_KEY, "true");
         setAuthed(true);
         params.delete("from");
         const qs = params.toString();
         window.history.replaceState({}, "", window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash);
       }
-    } catch {}
-  }, []);
+    } catch {
+      // Malformed URL state leaves the gate closed.
+    }
+  }, [allowDemoBypass]);
 
   const activeCfg = getDemoBankConfig();
 

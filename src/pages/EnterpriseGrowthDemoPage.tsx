@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Activity,
   ArrowLeft,
@@ -13,11 +13,13 @@ import {
   Eye,
   FileText,
   GitBranch,
+  Home,
   Landmark,
   Layers,
   LayoutDashboard,
   LineChart,
   Loader2,
+  LockKeyhole,
   MessageSquare,
   Megaphone,
   Network,
@@ -25,6 +27,7 @@ import {
   Rocket,
   RotateCcw,
   ShieldCheck,
+  Smartphone,
   Sparkles,
   Target,
   TrendingUp,
@@ -37,10 +40,28 @@ import {
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
 import salesforceLogo from "@/assets/salesforce-logo.png";
 import { supabase } from "@/integrations/supabase/client";
+import { buildDeliveryPayload, type DeliveryPayload } from "@/lib/integrations";
+import { appendEvents, ledgerRollup, verifyChain, isPipelineKind, type LedgerEvent, type LedgerKind, type LedgerDraft } from "@/lib/ledger";
+import { pipelineEvents, runPipeline, type PipelineInput, type PipelineDerived } from "@/lib/pipeline";
+import { leadershipCapabilities } from "@/lib/capabilities";
+import {
+  compileObjectiveToSkill,
+  promoteSkill,
+  validateSkill,
+  canPromote,
+  promotionBlockers,
+  nextStage,
+  skillToSource,
+  SKILL_STAGES,
+  DEPOSIT_PRIMACY_SKILL,
+  CONSUMER_MERRILL_SKILL,
+  type SkillArtifact,
+} from "@/lib/skills";
 
 const NAVY = "#012169";
-const RED = "#E31837";
-const GREEN = "#0B6B43";
+const RED = "#E31837"; // risk/hold states + the BofA brand mark only
+const GREEN = "#0B6B43"; // Merrill + the Ventus AI tag
+const BLUE = "#0073CF"; // Consumer & Small Business accent
 const AMBER = "#b45309";
 
 const PILLAR_COLOR: Record<string, string> = {
@@ -53,8 +74,10 @@ const PILLAR_COLOR: Record<string, string> = {
   Review: "#94a3b8",
 };
 
-type DestId = "advisor" | "queue" | "rewards" | "campaign";
-type Mode = "frontline" | "leadership";
+type DestId = "advisor" | "queue" | "rewards" | "campaign" | "banker" | "erica" | "lending" | "merrill";
+type Mode = "consumer" | "frontline" | "operator" | "leadership";
+type Lob = "consumer" | "wealth";
+type LeadershipPath = "wealth-growth" | "deposit-retention";
 
 type RawTxn = {
   raw: string;
@@ -63,6 +86,7 @@ type RawTxn = {
   pillar: string;
   tag: string;
   conf: number;
+  src?: string; // system of origin — the cross-system read only this franchise can make IS the product
 };
 
 type Opportunity = {
@@ -85,9 +109,13 @@ type Opportunity = {
   ownerReason: string;
   destination: DestId;
   destinationWhy: string;
+  lob?: Lob; // which business owns the moment — defaults to wealth
+  moat?: string; // the advantage line — signal only this franchise owns; competitors are the foil, never the bank's own org
   outflow?: string; // wallet-share leak (folded from Outflow Analysis) — retention evidence
   fvi?: "low" | "elevated"; // financial vulnerability (folded from FVI) — drives customer-protection suppression
 };
+
+const oppLob = (o: Opportunity): Lob => o.lob ?? "wealth";
 
 const opportunities: Opportunity[] = [
   {
@@ -98,26 +126,23 @@ const opportunities: Opportunity[] = [
     valueLabel: "NNA at risk",
     confidence: 86,
     icon: TrendingUp,
-    reason: "BofA deposits are surging while assets quietly leak to an outside brokerage — a One-Bank household ready for Merrill.",
-    whyNow: "The outbound transfer pattern usually completes within ~30 days.",
+    reason: "Deposits surging on-bank. Assets quietly leaking to an outside brokerage.",
+    whyNow: "Transfer pattern completes in ~30 days.",
+    moat: "Deposits and brokerage flows in one view — only a bank with both sides catches the leak.",
     rawTransactions: [
-      { raw: "ACH DEP PAYROLL — UP 24%", merchant: "Payroll deposit", category: "Income · Payroll", pillar: "Income", tag: "Income ↑ 24%", conf: 0.97 },
-      { raw: "BofA CHECKING BAL +$56K (90d)", merchant: "BofA deposits", category: "Deposits · Idle balance", pillar: "Cash", tag: "Deposits surging on-bank", conf: 0.92 },
-      { raw: "WEB XFER → EXTERNAL BROKERAGE", merchant: "External brokerage", category: "Investments · Outbound transfer", pillar: "Wealth", tag: "Assets leaking off-bank", conf: 0.93 },
+      { raw: "ACH DEP PAYROLL — UP 24%", merchant: "Payroll deposit", category: "Income · Payroll", pillar: "Income", tag: "Income ↑ 24%", conf: 0.97, src: "Deposit core" },
+      { raw: "BofA CHECKING BAL +$56K (90d)", merchant: "BofA deposits", category: "Deposits · Idle balance", pillar: "Cash", tag: "Deposits surging on-bank", conf: 0.92, src: "Deposit core" },
+      { raw: "WEB XFER → EXTERNAL BROKERAGE", merchant: "External brokerage", category: "Investments · Outbound transfer", pillar: "Wealth", tag: "Assets leaking off-bank", conf: 0.93, src: "Payments" },
     ],
-    action: "Refer to a Merrill advisor for a consolidation + planning review.",
-    outcome: "Keep $420K of net new assets inside the franchise.",
-    talkingPoints: [
-      "Lead with the banking relationship — they already trust BofA.",
-      "Offer a consolidation review vs. the external brokerage.",
-      "Frame Preferred Rewards fee discounts as a reason to bring assets home.",
-    ],
+    action: "Refer to Merrill: consolidation + planning review.",
+    outcome: "Keep $420K NNA in the franchise.",
+    talkingPoints: ["Lead with the banking relationship.", "Consolidation review vs. the outside brokerage.", "Diamond-tier discounts sweeten coming home."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "Mapped relationship owner for this market and household.",
+    ownerReason: "Owns this market + household.",
     destination: "advisor",
-    destinationWhy: "Advisor-led One-Bank referral with a time-sensitive leak to stop.",
+    destinationWhy: "Advisor-led · time-sensitive leak.",
     outflow: "$5.2K/mo → external IRA (Fidelity)",
   },
   {
@@ -128,26 +153,23 @@ const opportunities: Opportunity[] = [
     valueLabel: "new liquidity",
     confidence: 92,
     icon: Sparkles,
-    reason: "A BofA Business Banking client just received an escrow wire and shut down payroll — a business sale closed.",
-    whyNow: "The proceeds are sitting idle in checking right now.",
+    reason: "Escrow wire in. Payroll stopped. A business just sold.",
+    whyNow: "$1.2M idle in checking right now.",
+    moat: "You banked the business — so you see the sale first, before any outside advisor hears about it.",
     rawTransactions: [
-      { raw: "WIRE IN — ESCROW (BofA BIZ client)", merchant: "Escrow disbursement", category: "Deposits · One-time wire", pillar: "Cash", tag: "$1.2M inflow", conf: 0.96 },
-      { raw: "ACH PAYROLL OUT — STOPPED", merchant: "Business payroll", category: "Income · Ended", pillar: "Business", tag: "Payroll outflow halted", conf: 0.91 },
-      { raw: "ACCT CLOSE — LLC OPERATING", merchant: "LLC operating acct", category: "Accounts · Closed", pillar: "Business", tag: "Business wind-down", conf: 0.89 },
+      { raw: "WIRE IN — ESCROW (BofA BIZ client)", merchant: "Escrow disbursement", category: "Deposits · One-time wire", pillar: "Cash", tag: "$1.2M inflow", conf: 0.96, src: "Business banking" },
+      { raw: "ACH PAYROLL OUT — STOPPED", merchant: "Business payroll", category: "Income · Ended", pillar: "Business", tag: "Payroll outflow halted", conf: 0.91, src: "Business banking" },
+      { raw: "ACCT CLOSE — LLC OPERATING", merchant: "LLC operating acct", category: "Accounts · Closed", pillar: "Business", tag: "Business wind-down", conf: 0.89, src: "Business banking" },
     ],
-    action: "Introduce BofA Private Bank for liquidity and tax planning.",
-    outcome: "Capture $1.2M before it leaves for a competitor.",
-    talkingPoints: [
-      "Lead with tax planning on the sale proceeds.",
-      "Introduce trust and concentrated-position strategies.",
-      "Warm handoff from the business banker to a Private Bank RM.",
-    ],
+    action: "Introduce Private Bank: liquidity + tax planning.",
+    outcome: "Capture $1.2M before a competitor does.",
+    talkingPoints: ["Lead with tax on the proceeds.", "Trust + concentrated-position strategies.", "Warm handoff from the business banker."],
     owner: "Marcus Reed",
     ownerRole: "Private Bank RM",
     ownerInitials: "MR",
-    ownerReason: "Liquidity exceeds the Private Bank referral threshold.",
+    ownerReason: "Above Private Bank threshold.",
     destination: "queue",
-    destinationWhy: "Above threshold — routes to the BofA Private Bank specialist pool.",
+    destinationWhy: "Above threshold → specialist pool.",
   },
   {
     id: "rewards",
@@ -157,26 +179,23 @@ const opportunities: Opportunity[] = [
     valueLabel: "to deepen",
     confidence: 84,
     icon: Coins,
-    reason: "Combined BofA + Merrill balances are near the Diamond threshold, but the household still self-directs.",
-    whyNow: "Crossing the tier unlocks fee discounts now — a concrete reason to deepen.",
+    reason: "Near the Diamond threshold. Still self-directed.",
+    whyNow: "Crossing the tier unlocks discounts now.",
+    moat: "Tier math spans banking + Merrill balances. One franchise holds both — no competitor does.",
     rawTransactions: [
-      { raw: "COMBINED BAL ~ $1M THRESHOLD", merchant: "BofA + Merrill balances", category: "Relationship · Tier", pillar: "Cash", tag: "Diamond tier on the cusp", conf: 0.9 },
-      { raw: "MERRILL GUIDED INVESTING — SELF", merchant: "Merrill Guided Investing", category: "Investments · Self-directed", pillar: "Wealth", tag: "No advisor yet", conf: 0.86 },
-      { raw: "DEPOSIT + CARD + MORTGAGE HELD", merchant: "Multi-product household", category: "Relationship · Depth", pillar: "Cash", tag: "Deep banking relationship", conf: 0.84 },
+      { raw: "COMBINED BAL ~ $1M THRESHOLD", merchant: "BofA + Merrill balances", category: "Relationship · Tier", pillar: "Cash", tag: "Diamond tier on the cusp", conf: 0.9, src: "Rewards engine" },
+      { raw: "MERRILL GUIDED INVESTING — SELF", merchant: "Merrill Guided Investing", category: "Investments · Self-directed", pillar: "Wealth", tag: "No advisor yet", conf: 0.86, src: "Merrill books" },
+      { raw: "DEPOSIT + CARD + MORTGAGE HELD", merchant: "Multi-product household", category: "Relationship · Depth", pillar: "Cash", tag: "Deep banking relationship", conf: 0.84, src: "Deposit core" },
     ],
-    action: "Introduce an advisor and cross the Diamond threshold.",
-    outcome: "Unlock Diamond benefits and deepen to advised.",
-    talkingPoints: [
-      "Quantify the Preferred Rewards fee discount at Diamond.",
-      "Show the value of advice vs. self-directed today.",
-      "Bundle the banking + investing relationship into one plan.",
-    ],
+    action: "Introduce an advisor. Cross the Diamond threshold.",
+    outcome: "Deepen to advised, at Diamond.",
+    talkingPoints: ["Quantify the Diamond discount.", "Advice vs. self-directed, in numbers.", "One plan: banking + investing."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "One-Bank deepening — banking relationship ready for advice.",
+    ownerReason: "One-Bank deepening play.",
     destination: "rewards",
-    destinationWhy: "Deepening play — route to Preferred Rewards / banking with an advisor intro.",
+    destinationWhy: "Tier moment → Preferred Rewards.",
   },
   {
     id: "college",
@@ -186,26 +205,23 @@ const opportunities: Opportunity[] = [
     valueLabel: "opportunity",
     confidence: 78,
     icon: Target,
-    reason: "Test-prep and application spending signal a college-bound child in the household.",
-    whyNow: "Application season — 529 contributions are time-sensitive for the tax year.",
+    reason: "Test prep + application fees. A college-bound household.",
+    whyNow: "529 contributions are tax-year sensitive.",
+    moat: "Card spend shows the life event years before assets move — signal only you own.",
     rawTransactions: [
-      { raw: "SQ *KAPLAN TEST PREP", merchant: "Kaplan", category: "Education · Test prep", pillar: "Family & Community", tag: "College-bound", conf: 0.9 },
-      { raw: "COMMON APP *FEE x7", merchant: "Application fees", category: "Education · Admissions", pillar: "Family & Community", tag: "Applying broadly", conf: 0.88 },
-      { raw: "DELTA AIR 0061 + HOTEL", merchant: "Campus-visit travel", category: "Travel · Trip cluster", pillar: "Travel & Exploration", tag: "Campus visits", conf: 0.79 },
+      { raw: "SQ *KAPLAN TEST PREP", merchant: "Kaplan", category: "Education · Test prep", pillar: "Family & Community", tag: "College-bound", conf: 0.9, src: "Card rails" },
+      { raw: "COMMON APP *FEE x7", merchant: "Application fees", category: "Education · Admissions", pillar: "Family & Community", tag: "Applying broadly", conf: 0.88, src: "Card rails" },
+      { raw: "DELTA AIR 0061 + HOTEL", merchant: "Campus-visit travel", category: "Travel · Trip cluster", pillar: "Travel & Exploration", tag: "Campus visits", conf: 0.79, src: "Card rails" },
     ],
-    action: "Enroll in a 529 education-planning nurture.",
-    outcome: "Open a long-horizon education-planning relationship.",
-    talkingPoints: [
-      "Educational, not salesy — tax-year deadline reminder.",
-      "Advisor-branded, fully consent-based outreach.",
-      "Hand to an advisor only on engagement.",
-    ],
+    action: "Enroll in a 529 education nurture.",
+    outcome: "Open a long-horizon planning relationship.",
+    talkingPoints: ["Educational, never salesy.", "Advisor-branded, consent-based.", "Hand to an advisor on engagement."],
     owner: "Lifecycle marketing",
     ownerRole: "Campaign owner",
     ownerInitials: "LM",
-    ownerReason: "Lower-intensity signal — best nurtured, not cold-called.",
+    ownerReason: "Early signal — nurture it.",
     destination: "campaign",
-    destinationWhy: "Early-stage intent — nurtured until the client engages.",
+    destinationWhy: "Early intent → nurture.",
   },
   {
     id: "inheritance",
@@ -215,26 +231,23 @@ const opportunities: Opportunity[] = [
     valueLabel: "retention risk",
     confidence: 81,
     icon: Repeat,
-    reason: "An estate distribution landed, and the beneficiary is already a BofA customer — a Great Wealth Transfer moment.",
-    whyNow: "Heirs move assets out within months unless engaged early.",
+    reason: "Estate distribution landed. The heir already banks here.",
+    whyNow: "Heirs move assets within months.",
+    moat: "The estate lands in your checking; the heir already banks with you. You see it first.",
     rawTransactions: [
-      { raw: "ACH DEP — ESTATE DISTRIBUTION", merchant: "Estate distribution", category: "Deposits · Inheritance", pillar: "Cash", tag: "Inheritance inflow", conf: 0.92 },
-      { raw: "BENEFICIARY = BofA CUSTOMER", merchant: "Linked BofA household", category: "Relationship · Next-gen", pillar: "Family & Community", tag: "Heir already on-bank", conf: 0.88 },
-      { raw: "IDLE CASH POST-INFLOW", merchant: "Uninvested cash", category: "Deposits · Idle balance", pillar: "Cash", tag: "Needs a plan", conf: 0.8 },
+      { raw: "ACH DEP — ESTATE DISTRIBUTION", merchant: "Estate distribution", category: "Deposits · Inheritance", pillar: "Cash", tag: "Inheritance inflow", conf: 0.92, src: "Deposit core" },
+      { raw: "BENEFICIARY = BofA CUSTOMER", merchant: "Linked BofA household", category: "Relationship · Next-gen", pillar: "Family & Community", tag: "Heir already on-bank", conf: 0.88, src: "Household graph" },
+      { raw: "IDLE CASH POST-INFLOW", merchant: "Uninvested cash", category: "Deposits · Idle balance", pillar: "Cash", tag: "Needs a plan", conf: 0.8, src: "Deposit core" },
     ],
-    action: "Open an intergenerational planning conversation with the heir.",
-    outcome: "Retain $310K across generations — don't lose the next-gen client.",
-    talkingPoints: [
-      "Lead with estate settlement and tax sensitivity.",
-      "Keep the heir's existing BofA relationship at the center.",
-      "Offer a single banking + wealth plan for the next generation.",
-    ],
+    action: "Open the intergenerational conversation with the heir.",
+    outcome: "Retain $310K across generations.",
+    talkingPoints: ["Lead with estate settlement.", "Keep their BofA relationship central.", "One next-gen plan: bank + wealth."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "Retention-critical; the heir already banks with BofA.",
+    ownerReason: "Retention-critical heir.",
     destination: "advisor",
-    destinationWhy: "Great Wealth Transfer retention — advisor-led, heir already on-bank.",
+    destinationWhy: "Great-Wealth-Transfer retention.",
     outflow: "$310K inflow at risk → heir's outside advisor",
   },
 ];
@@ -250,26 +263,23 @@ const prospectOpportunities: Opportunity[] = [
     valueLabel: "to start investing",
     confidence: 84,
     icon: TrendingUp,
-    reason: "A new employer's payroll just started and cash is building at BofA — but there's no investing relationship yet.",
-    whyNow: "First paychecks are the moment to set up automatic investing.",
+    reason: "New payroll started. Cash building. No investing yet.",
+    whyNow: "First paychecks set the habits.",
+    moat: "The first paycheck lands with you — decades before a wirehouse would meet them.",
     rawTransactions: [
-      { raw: "ACH DEP — NEW EMPLOYER *5521", merchant: "New employer payroll", category: "Income · Payroll", pillar: "Income", tag: "New job", conf: 0.95 },
-      { raw: "BofA CHECKING +$9K / MONTH", merchant: "BofA deposits", category: "Deposits · Building", pillar: "Cash", tag: "Cash building on-bank", conf: 0.9 },
-      { raw: "NO INVESTMENT ACCOUNT FOUND", merchant: "Held products", category: "Relationship · Banking only", pillar: "Cash", tag: "Banking-only today", conf: 0.86 },
+      { raw: "ACH DEP — NEW EMPLOYER *5521", merchant: "New employer payroll", category: "Income · Payroll", pillar: "Income", tag: "New job", conf: 0.95, src: "Deposit core" },
+      { raw: "BofA CHECKING +$9K / MONTH", merchant: "BofA deposits", category: "Deposits · Building", pillar: "Cash", tag: "Cash building on-bank", conf: 0.9, src: "Deposit core" },
+      { raw: "NO INVESTMENT ACCOUNT FOUND", merchant: "Held products", category: "Relationship · Banking only", pillar: "Cash", tag: "Banking-only today", conf: 0.86, src: "Product catalog" },
     ],
-    action: "Open a first investment account with automated investing.",
-    outcome: "Win a 30-year relationship at the very start.",
-    talkingPoints: [
-      "Congratulate the new role — keep it human, not a pitch.",
-      "Start small with automatic monthly investing.",
-      "Show how Preferred Rewards grows with them.",
-    ],
+    action: "Open a first investment account, automated.",
+    outcome: "Win a 30-year relationship at day one.",
+    talkingPoints: ["Congratulate the new role.", "Start small, automatic.", "Preferred Rewards grows with them."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "New relationship — not yet a client.",
+    ownerReason: "Net-new household.",
     destination: "advisor",
-    destinationWhy: "Net-new household — yours to win.",
+    destinationWhy: "Yours to win.",
   },
   {
     id: "firsthome",
@@ -279,26 +289,23 @@ const prospectOpportunities: Opportunity[] = [
     valueLabel: "idle savings",
     confidence: 81,
     icon: Coins,
-    reason: "Steady saving and a mortgage pre-qual inquiry point to a first-home buyer with idle cash.",
-    whyNow: "The down-payment timeline makes this a now conversation, not later.",
+    reason: "Saving steadily. Pre-qual inquiry in. Renting today.",
+    whyNow: "The down-payment clock is running.",
+    moat: "Savings pattern + lending inquiry — the full-picture read only One Bank has.",
     rawTransactions: [
-      { raw: "SAVINGS +$60K (12 mo)", merchant: "BofA savings", category: "Deposits · Idle balance", pillar: "Cash", tag: "Idle savings", conf: 0.9 },
-      { raw: "MORTGAGE PRE-QUAL INQUIRY", merchant: "Home-loan interest", category: "Lending · Inquiry", pillar: "Cash", tag: "First-home intent", conf: 0.85 },
-      { raw: "RENT PAYMENTS RECURRING", merchant: "Rent", category: "Housing · Rent", pillar: "Family & Community", tag: "Renter today", conf: 0.82 },
+      { raw: "SAVINGS +$60K (12 mo)", merchant: "BofA savings", category: "Deposits · Idle balance", pillar: "Cash", tag: "Idle savings", conf: 0.9, src: "Deposit core" },
+      { raw: "MORTGAGE PRE-QUAL INQUIRY", merchant: "Home-loan interest", category: "Lending · Inquiry", pillar: "Cash", tag: "First-home intent", conf: 0.85, src: "Home lending" },
+      { raw: "RENT PAYMENTS RECURRING", merchant: "Rent", category: "Housing · Rent", pillar: "Family & Community", tag: "Renter today", conf: 0.82, src: "Deposit core" },
     ],
-    action: "Connect home-buying help and invest the surplus.",
-    outcome: "Become their advisor before the biggest purchase of their life.",
-    talkingPoints: [
-      "Lead with the home goal — money has a purpose.",
-      "Coordinate with BofA home lending (One-Bank).",
-      "Invest the cash that isn't needed for the down payment.",
-    ],
+    action: "Connect home-buying help. Invest the surplus.",
+    outcome: "Their advisor before the biggest buy of their life.",
+    talkingPoints: ["Lead with the home goal.", "Coordinate with BofA home lending.", "Invest what the down payment doesn't need."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "New relationship — not yet a client.",
+    ownerReason: "Net-new household.",
     destination: "advisor",
-    destinationWhy: "Net-new household — yours to win.",
+    destinationWhy: "Yours to win.",
   },
   {
     id: "rsu",
@@ -308,26 +315,23 @@ const prospectOpportunities: Opportunity[] = [
     valueLabel: "first equity",
     confidence: 79,
     icon: Sparkles,
-    reason: "A young saver just had their first RSU vest from a tech employer and is paying down student loans.",
-    whyNow: "First equity comp is the moment to build good habits — before it's spent.",
+    reason: "First RSU vest. Paying down student loans. No Roth.",
+    whyNow: "First equity sets habits — before it's spent.",
+    moat: "Equity comp lands in your deposit core — you meet the rising professional first.",
     rawTransactions: [
-      { raw: "EMPLOYER RSU VEST", merchant: "Equity comp", category: "Investments · RSU", pillar: "Wealth", tag: "First RSU vest", conf: 0.9 },
-      { raw: "STUDENT LOAN PAYMENT", merchant: "Student loan", category: "Lending · Repayment", pillar: "Cash", tag: "Paying down debt", conf: 0.84 },
-      { raw: "NO RETIREMENT ACCOUNT", merchant: "Held products", category: "Relationship · Gap", pillar: "Cash", tag: "No Roth yet", conf: 0.8 },
+      { raw: "EMPLOYER RSU VEST", merchant: "Equity comp", category: "Investments · RSU", pillar: "Wealth", tag: "First RSU vest", conf: 0.9, src: "Deposit core" },
+      { raw: "STUDENT LOAN PAYMENT", merchant: "Student loan", category: "Lending · Repayment", pillar: "Cash", tag: "Paying down debt", conf: 0.84, src: "Payments" },
+      { raw: "NO RETIREMENT ACCOUNT", merchant: "Held products", category: "Relationship · Gap", pillar: "Cash", tag: "No Roth yet", conf: 0.8, src: "Product catalog" },
     ],
-    action: "Coach on RSUs and open a Roth IRA.",
-    outcome: "Capture an early-career professional on the rise.",
-    talkingPoints: [
-      "Explain RSU basics — taxes, diversification, holding.",
-      "Open a Roth IRA while income still qualifies.",
-      "Balance loan payoff with starting to invest.",
-    ],
+    action: "Coach on RSUs. Open a Roth IRA.",
+    outcome: "Capture a rising professional early.",
+    talkingPoints: ["RSU basics: taxes, diversify.", "Roth while income qualifies.", "Balance payoff with investing."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "New relationship — not yet a client.",
+    ownerReason: "Net-new household.",
     destination: "advisor",
-    destinationWhy: "Net-new household — yours to win.",
+    destinationWhy: "Yours to win.",
   },
   {
     id: "smallinherit",
@@ -337,26 +341,23 @@ const prospectOpportunities: Opportunity[] = [
     valueLabel: "first relationship",
     confidence: 82,
     icon: Repeat,
-    reason: "A modest estate distribution landed for someone who already banks at BofA but has never been advised.",
-    whyNow: "New money sits idle for a few weeks — then it moves or gets spent.",
+    reason: "Modest estate landed. Banks here. Never advised.",
+    whyNow: "New money moves within weeks.",
+    moat: "Below every wealth manager's radar — visible to the bank that already holds the deposit.",
     rawTransactions: [
-      { raw: "ACH DEP — ESTATE (SMALL)", merchant: "Estate distribution", category: "Deposits · Inheritance", pillar: "Cash", tag: "Inheritance inflow", conf: 0.9 },
-      { raw: "EXISTING BofA CUSTOMER", merchant: "Linked BofA household", category: "Relationship · On-bank", pillar: "Family & Community", tag: "Already banks here", conf: 0.88 },
-      { raw: "IDLE CASH POST-INFLOW", merchant: "Uninvested cash", category: "Deposits · Idle balance", pillar: "Cash", tag: "Needs a plan", conf: 0.8 },
+      { raw: "ACH DEP — ESTATE (SMALL)", merchant: "Estate distribution", category: "Deposits · Inheritance", pillar: "Cash", tag: "Inheritance inflow", conf: 0.9, src: "Deposit core" },
+      { raw: "EXISTING BofA CUSTOMER", merchant: "Linked BofA household", category: "Relationship · On-bank", pillar: "Family & Community", tag: "Already banks here", conf: 0.88, src: "Household graph" },
+      { raw: "IDLE CASH POST-INFLOW", merchant: "Uninvested cash", category: "Deposits · Idle balance", pillar: "Cash", tag: "Needs a plan", conf: 0.8, src: "Deposit core" },
     ],
-    action: "Offer a simple plan for the inherited cash.",
-    outcome: "Turn a banking-only customer into your first advised client.",
-    talkingPoints: [
-      "Be sensitive — there was a loss behind this money.",
-      "Keep it simple: emergency fund, then invest.",
-      "Use the existing BofA trust to make it easy.",
-    ],
+    action: "Offer a simple plan for the cash.",
+    outcome: "First advised client from banking-only.",
+    talkingPoints: ["Be sensitive — there's a loss here.", "Simple: emergency fund, then invest.", "Existing trust makes it easy."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "New relationship — not yet a client.",
+    ownerReason: "Net-new household.",
     destination: "advisor",
-    destinationWhy: "Net-new household — yours to win.",
+    destinationWhy: "Yours to win.",
   },
   {
     id: "sidebiz",
@@ -366,26 +367,23 @@ const prospectOpportunities: Opportunity[] = [
     valueLabel: "to organize",
     confidence: 78,
     icon: LineChart,
-    reason: "Recurring transfer-app inflows show growing side income with no retirement account in place.",
-    whyNow: "Self-employment income needs a plan before tax season.",
+    reason: "Recurring P2P inflows. Side income growing. No retirement plan.",
+    whyNow: "Self-employment needs a plan before tax season.",
+    moat: "The side business runs on your payment rails — visible to you alone.",
     rawTransactions: [
-      { raw: "ZELLE / CASH APP INFLOWS (RECURRING)", merchant: "Side income", category: "Income · Self-employment", pillar: "Income", tag: "Side income growing", conf: 0.86 },
-      { raw: "INCOME IRREGULAR — TRENDING UP", merchant: "Cash flow", category: "Income · Variable", pillar: "Income", tag: "Variable cash flow", conf: 0.82 },
-      { raw: "NO RETIREMENT ACCOUNT", merchant: "Held products", category: "Relationship · Gap", pillar: "Cash", tag: "No SEP/solo yet", conf: 0.79 },
+      { raw: "ZELLE / CASH APP INFLOWS (RECURRING)", merchant: "Side income", category: "Income · Self-employment", pillar: "Income", tag: "Side income growing", conf: 0.86, src: "Payments" },
+      { raw: "INCOME IRREGULAR — TRENDING UP", merchant: "Cash flow", category: "Income · Variable", pillar: "Income", tag: "Variable cash flow", conf: 0.82, src: "Deposit core" },
+      { raw: "NO RETIREMENT ACCOUNT", merchant: "Held products", category: "Relationship · Gap", pillar: "Cash", tag: "No SEP/solo yet", conf: 0.79, src: "Product catalog" },
     ],
-    action: "Set up cash-flow planning and a SEP/solo retirement plan.",
+    action: "Cash-flow plan + SEP / solo 401(k).",
     outcome: "Anchor a future business owner early.",
-    talkingPoints: [
-      "Help smooth irregular income with a simple system.",
-      "Open a SEP or solo 401(k) for the side income.",
-      "Tee up BofA small-business banking if it grows.",
-    ],
+    talkingPoints: ["Smooth the irregular income.", "SEP or solo 401(k).", "Tee up small-business banking."],
     owner: "Dana Whitfield",
     ownerRole: "Merrill Advisor",
     ownerInitials: "DW",
-    ownerReason: "New relationship — not yet a client.",
+    ownerReason: "Net-new household.",
     destination: "advisor",
-    destinationWhy: "Net-new household — yours to win.",
+    destinationWhy: "Yours to win.",
     fvi: "elevated",
   },
 ];
@@ -394,26 +392,205 @@ const prospectOpportunities: Opportunity[] = [
 const advisorBook: Opportunity[] = [...opportunities, ...prospectOpportunities];
 const PROSPECT_IDS = new Set(prospectOpportunities.map((o) => o.id));
 
-const destinations: { id: DestId; label: string; short: string; sub: string; icon: typeof Sparkles }[] = [
-  { id: "advisor", label: "Client Engagement Workstation", short: "CEW", sub: "Book 360 priority task · Ask Merrill", icon: Building2 },
-  { id: "queue", label: "Private Bank queue", short: "Private Bank", sub: "BofA Private Bank specialist pool", icon: Landmark },
-  { id: "rewards", label: "Preferred Rewards / banking", short: "Preferred Rewards", sub: "One-Bank deepening + advisor intro", icon: Coins },
-  { id: "campaign", label: "Lifecycle campaign", short: "Campaign", sub: "Consent-based, advisor-branded", icon: Megaphone },
+// Consumer & Small Business works its own market — primacy, deepening, lending,
+// and the One-Bank handoffs that feed Merrill. Same engine, different surfaces.
+const consumerOpportunities: Opportunity[] = [
+  {
+    id: "primacy",
+    type: "Checking primacy at risk",
+    client: "Whitaker household",
+    value: "$84K",
+    valueLabel: "deposits at risk",
+    confidence: 88,
+    icon: TrendingUp,
+    lob: "consumer",
+    reason: "Direct deposit split to a fintech. Spend migrating off-bank.",
+    whyNow: "Second paycheck off-bank = primacy gone.",
+    moat: "Payroll, card, and P2P rails in one franchise — no fintech sees what you see.",
+    rawTransactions: [
+      { raw: "ACH DEP PAYROLL — SPLIT 60/40", merchant: "Payroll deposit", category: "Income · Split direct deposit", pillar: "Income", tag: "Direct deposit splitting", conf: 0.95, src: "Deposit core" },
+      { raw: "CHIME *DEBIT — RECURRING", merchant: "Fintech banking app", category: "Banking · Off-bank", pillar: "Cash", tag: "Spend moving off-bank", conf: 0.9, src: "Card rails" },
+      { raw: "BofA CHECKING BAL −38% (60d)", merchant: "BofA checking", category: "Deposits · Drawdown", pillar: "Cash", tag: "Balances draining", conf: 0.92, src: "Deposit core" },
+    ],
+    action: "Book a banker conversation. Retention offer staged.",
+    outcome: "Keep the checking that anchors everything.",
+    talkingPoints: ["Ask what the app does better.", "Show the Rewards value they'd lose.", "Move the direct deposit back in-session."],
+    owner: "Jordan Ellis",
+    ownerRole: "Relationship Banker",
+    ownerInitials: "JE",
+    ownerReason: "Their home financial center.",
+    destination: "banker",
+    destinationWhy: "Retention is a human conversation.",
+    outflow: "$3.1K/mo → fintech debit + external P2P",
+  },
+  {
+    id: "idlecash",
+    type: "Raise landed · cash idle",
+    client: "Mehta household",
+    value: "$28K",
+    valueLabel: "earning nothing",
+    confidence: 85,
+    icon: Coins,
+    lob: "consumer",
+    reason: "Raise landed. Checking up 3 straight months. No goal attached.",
+    whyNow: "Idle cash is a rate ad's target.",
+    moat: "A raise never hits a CRM. It hits your deposit core — and now it acts.",
+    rawTransactions: [
+      { raw: "ACH DEP PAYROLL — UP 18%", merchant: "Payroll deposit", category: "Income · Payroll", pillar: "Income", tag: "Raise detected", conf: 0.96, src: "Deposit core" },
+      { raw: "CHECKING BAL +$28K (90d)", merchant: "BofA checking", category: "Deposits · Idle balance", pillar: "Cash", tag: "Cash accumulating", conf: 0.93, src: "Deposit core" },
+      { raw: "NO SAVINGS GOAL / CD FOUND", merchant: "Held products", category: "Relationship · Gap", pillar: "Cash", tag: "Nothing working for them", conf: 0.87, src: "Product catalog" },
+    ],
+    action: "Erica nudge: auto-transfer into a goal.",
+    outcome: "Deepen before a competitor's rate ad does.",
+    talkingPoints: ["Anchor the goal to the raise.", "Default to automatic.", "Show the tier the balance unlocks."],
+    owner: "Erica",
+    ownerRole: "Proactive insight · mobile app",
+    ownerInitials: "E",
+    ownerReason: "Digital-first: 41 app sessions, zero branch visits.",
+    destination: "erica",
+    destinationWhy: "They live in the app.",
+  },
+  {
+    id: "homeintent",
+    type: "First-home intent",
+    client: "Douglas household",
+    value: "$310K",
+    valueLabel: "mortgage in play",
+    confidence: 82,
+    icon: Home,
+    lob: "consumer",
+    reason: "Rent up 12%. Saving $2.5K/mo. Browsing listings daily.",
+    whyNow: "Pre-approval happens somewhere within 30 days.",
+    moat: "Rent + savings + card reveal intent weeks before any credit pull — a head start only you get.",
+    rawTransactions: [
+      { raw: "RENT ACH — UP 12% AT RENEWAL", merchant: "Rent payment", category: "Housing · Rent", pillar: "Family & Community", tag: "Rent pressure", conf: 0.9, src: "Deposit core" },
+      { raw: "SAVINGS XFER $2.5K/MO — 10 MO", merchant: "BofA savings", category: "Deposits · Goal saving", pillar: "Cash", tag: "Down-payment pattern", conf: 0.88, src: "Deposit core" },
+      { raw: "ZILLOW / REDFIN — DAILY", merchant: "Home-search activity", category: "Lending · Research", pillar: "Family & Community", tag: "Actively shopping", conf: 0.8, src: "Card rails" },
+    ],
+    action: "Route to home lending for pre-approval.",
+    outcome: "Win the mortgage — and the next decade.",
+    talkingPoints: ["Lead with the house, not the loan.", "Pre-approval first.", "Rewards mortgage benefits on-bank."],
+    owner: "Home Lending",
+    ownerRole: "Lending specialist pool",
+    ownerInitials: "HL",
+    ownerReason: "Licensed conversation.",
+    destination: "lending",
+    destinationWhy: "Credit routes to specialists.",
+  },
+  {
+    id: "prtier",
+    type: "Preferred Rewards cusp",
+    client: "Silva household",
+    value: "$96K",
+    valueLabel: "to bring on-bank",
+    confidence: 84,
+    icon: Sparkles,
+    lob: "consumer",
+    reason: "$4K below Platinum Honors. Savings sitting at another bank.",
+    whyNow: "Tier math moves money this month.",
+    moat: "Your payment rails reveal the held-away savings no rate ad ever will.",
+    rawTransactions: [
+      { raw: "COMBINED BAL — $4K BELOW TIER", merchant: "Preferred Rewards", category: "Relationship · Tier", pillar: "Cash", tag: "Platinum Honors cusp", conf: 0.92, src: "Rewards engine" },
+      { raw: "XFER → EXTERNAL SAVINGS (ALLY)", merchant: "External savings", category: "Deposits · Off-bank", pillar: "Cash", tag: "Held-away savings", conf: 0.88, src: "Payments" },
+      { raw: "CARD + AUTO LOAN ON-BANK", merchant: "Multi-product household", category: "Relationship · Depth", pillar: "Cash", tag: "Deep relationship already", conf: 0.86, src: "Product catalog" },
+    ],
+    action: "Show the tier math. Move savings on-bank.",
+    outcome: "Deepen a loyal household.",
+    talkingPoints: ["Do the math together.", "One transfer crosses the tier.", "Tee up Merrill Edge after."],
+    owner: "Jordan Ellis",
+    ownerRole: "Relationship Banker",
+    ownerInitials: "JE",
+    ownerReason: "Bankers convert tier moments.",
+    destination: "rewards",
+    destinationWhy: "Preferred Rewards owns tiers.",
+  },
+  {
+    id: "wealthready",
+    type: "Wealth-ready moment",
+    client: "Chen household",
+    value: "$230K",
+    valueLabel: "NNA to Merrill",
+    confidence: 90,
+    icon: Repeat,
+    lob: "consumer",
+    reason: "401(k) rollover landed in checking. Idle 21 days. No advisor.",
+    whyNow: "Rollover cash finds an advisor fast — yours or theirs.",
+    moat: "The rollover appears in the deposit relationship before an external wealth platform sees it. Ventus turns that timing advantage into a qualified, governed handoff.",
+    rawTransactions: [
+      { raw: "ACH DEP — 401K ROLLOVER", merchant: "Retirement rollover", category: "Deposits · Rollover", pillar: "Wealth", tag: "$230K rollover landed", conf: 0.96, src: "Deposit core" },
+      { raw: "IDLE 21 DAYS — NO INVESTMENT ACCT", merchant: "Uninvested cash", category: "Deposits · Idle balance", pillar: "Cash", tag: "Sitting in checking", conf: 0.93, src: "Deposit core" },
+      { raw: "12-YEAR BofA RELATIONSHIP", merchant: "Relationship tenure", category: "Relationship · Depth", pillar: "Family & Community", tag: "Trusts the bank", conf: 0.9, src: "Household graph" },
+    ],
+    action: "Warm banker intro to a Merrill advisor.",
+    outcome: "Convert a $230K on-bank liquidity moment into measurable NNA without a cold referral.",
+    talkingPoints: ["Banker makes the intro — warm, named.", "Twelve years of trust is the pitch.", "Preferred Rewards ties it together."],
+    owner: "Dana Whitfield",
+    ownerRole: "Merrill Advisor",
+    ownerInitials: "DW",
+    ownerReason: "Mapped advisor for this market.",
+    destination: "merrill",
+    destinationWhy: "Lands in Book 360, referred.",
+  },
+];
+
+const consumerBook: Opportunity[] = consumerOpportunities;
+
+const destinations: { id: DestId; label: string; short: string; sub: string; icon: typeof Sparkles; lob?: Lob }[] = [
+  { id: "advisor", label: "Client Engagement Workstation", short: "CEW", sub: "Book 360 priority task · Ask Merrill", icon: Building2, lob: "wealth" },
+  { id: "queue", label: "Private Bank queue", short: "Private Bank", sub: "BofA Private Bank specialist pool", icon: Landmark, lob: "wealth" },
+  { id: "rewards", label: "Preferred Rewards / banking", short: "Preferred Rewards", sub: "One-Bank deepening + banker follow-up", icon: Coins },
+  { id: "campaign", label: "Lifecycle campaign", short: "Campaign", sub: "Consent-based, advisor-branded", icon: Megaphone, lob: "wealth" },
+  { id: "banker", label: "Banker workbench", short: "Banker", sub: "Financial center · appointment + call list", icon: UserRoundCheck, lob: "consumer" },
+  { id: "erica", label: "Erica proactive insight", short: "Erica", sub: "In-app nudge · Life Plan goal", icon: Smartphone, lob: "consumer" },
+  { id: "lending", label: "Home Lending specialists", short: "Home Lending", sub: "Licensed pre-approval pool", icon: Home, lob: "consumer" },
+  { id: "merrill", label: "Merrill advisor referral", short: "Merrill handoff", sub: "CEW · Book 360 warm referral", icon: GitBranch, lob: "consumer" },
 ];
 
 const scenes = [
   { key: "find", nav: "Opportunities", question: "What opportunities did Ventus find?" },
-  { key: "confidence", nav: "Confidence", question: "How confident are we?" },
-  { key: "action", nav: "Action", question: "What is the recommended action?" },
-  { key: "review", nav: "Review", question: "Who should review it?" },
-  { key: "route", nav: "Route", question: "Where does it go next?" },
-  { key: "book", nav: "Whole book", question: "What is the whole book telling you?" },
+  { key: "confidence", nav: "Evidence", question: "Why does this matter now?" },
+  { key: "action", nav: "Recommend", question: "What should happen next?" },
+  { key: "review", nav: "Govern", question: "Can this action proceed?" },
+  { key: "route", nav: "Activate", question: "Where does it go next?" },
+  { key: "book", nav: "Growth OS", question: "What should the institution do next?" },
   { key: "pilot", nav: "Pilot", question: "What would a 90-day pilot look like?" },
 ];
 
 const totalBook = 1240;
 
-export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedded?: boolean }) {
+/* ───────────────────────── Decision Ledger — the record class Ventus owns ─────────────────────────
+   The spine lives in src/lib/ledger.ts (append-only, hash-chained, full event taxonomy).
+   Skills, Studio, and dashboards are all views that read/write it. This map is just the
+   visual dressing for each event kind. */
+const LEDGER_META: Record<LedgerKind, { label: string; color: string; Icon: typeof Sparkles }> = {
+  signal: { label: "Signal", color: "#0369a1", Icon: Activity },
+  enrich: { label: "Enrich", color: "#0369a1", Icon: Cpu },
+  score: { label: "Score", color: "#0369a1", Icon: LineChart },
+  gate: { label: "Gate", color: "#64748b", Icon: ShieldCheck },
+  decision: { label: "Decision", color: NAVY, Icon: Wand2 },
+  policy: { label: "Policy", color: GREEN, Icon: ShieldCheck },
+  activation: { label: "Activation", color: BLUE, Icon: Network },
+  outcome: { label: "Outcome", color: AMBER, Icon: Repeat },
+  counterfactual: { label: "Control", color: "#7c3aed", Icon: GitBranch },
+  skill: { label: "Skill", color: "#7c3aed", Icon: GitBranch },
+};
+
+function destinationLabel(id: DestId): string {
+  return destinations.find((d) => d.id === id)?.label ?? "the bank's system of record";
+}
+
+type DemoAudience = "leadership" | "internal";
+
+export default function EnterpriseGrowthDemoPage({
+  embedded = false,
+  audience = "leadership",
+  evaluationEnabled = false,
+}: {
+  embedded?: boolean;
+  audience?: DemoAudience;
+  evaluationEnabled?: boolean;
+}) {
+  const rootRef = useRef<HTMLElement | null>(null);
   const [entered, setEntered] = useState(false);
   const [mode, setMode] = useState<Mode>("frontline");
   const [scene, setScene] = useState(0);
@@ -427,6 +604,11 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
   const [governanceOpen, setGovernanceOpen] = useState(false);
   const [governanceTab, setGovernanceTab] = useState<"monitor" | "policy">("policy");
   const [focusId, setFocusId] = useState<string>(opportunities[0].id);
+  const [ledger, setLedger] = useState<LedgerEvent[]>([]);
+  const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [leadershipPath, setLeadershipPath] = useState<LeadershipPath>("wealth-growth");
+  const internal = audience === "internal";
+  const modelEvaluationAllowed = internal && evaluationEnabled;
 
   const addToCew = (items: { id: string; client: string; type: string; action: string }[]) =>
     setCewTasks((prev) => {
@@ -435,19 +617,66 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
     });
   const cewIds = new Set(cewTasks.map((t) => t.id));
 
-  const activeOpps = advisorBook;
+  const appendLedger = useCallback((drafts: LedgerDraft[]) => {
+    if (!internal) return;
+    setLedger((prev) => appendEvents(prev, drafts));
+  }, [internal]);
+
+  const seededRef = useRef<Set<Lob>>(new Set());
+  useEffect(() => {
+    if (!internal || !entered) return;
+    const bookKey: Lob = mode === "consumer" ? "consumer" : "wealth";
+    if (seededRef.current.has(bookKey)) return;
+    const book = bookKey === "consumer" ? consumerBook : advisorBook;
+    const drafts = book.flatMap((o) => {
+      const d = DERIVED[o.id];
+      return d ? pipelineEvents(OPP_INPUT(o), d) : [];
+    });
+    if (drafts.length) appendLedger(drafts);
+    seededRef.current.add(bookKey);
+  }, [internal, entered, mode, appendLedger]);
+  const showsCew = mode === "consumer" || mode === "frontline";
+
+  const activeOpps = mode === "consumer" ? consumerBook : advisorBook;
   const opp = activeOpps.find((o) => o.id === selectedId) ?? activeOpps[0];
+  const lob: Lob = mode === "consumer" ? "consumer" : "wealth";
 
   const altMeta =
     mode === "leadership"
-      ? { Icon: LineChart, label: "Leadership view" }
-      : { Icon: UserRoundCheck, label: "Advisor view" };
+      ? { Icon: LineChart, label: "Growth portfolio" }
+      : mode === "operator"
+        ? { Icon: Wand2, label: "Skill Studio" }
+      : mode === "consumer"
+        ? { Icon: Landmark, label: "Consumer banking view" }
+        : { Icon: UserRoundCheck, label: "Advisor view" };
   const AltIcon = altMeta.Icon;
 
+  const brand =
+    !internal
+      ? { title: "Ventus Growth Intelligence", initial: "V", flag: false }
+      : !entered
+        ? { title: "Internal evaluation environment", initial: "V", flag: false }
+      : mode === "leadership"
+        ? { title: "Enterprise Growth Portfolio", initial: "B", flag: true }
+        : mode === "operator"
+          ? { title: "Ventus Skill Studio", initial: "V", flag: false }
+      : mode === "consumer"
+        ? { title: "Consumer & Small Business", initial: "B", flag: true }
+        : { title: "Merrill Wealth Signals", initial: "M", flag: false };
+
   const enterAt = (s: number, m: Mode) => {
+    const book = m === "consumer" ? consumerBook : advisorBook;
     setMode(m);
-    setSelectedId(advisorBook[0].id);
+    setSelectedId(book[0].id);
     setScene(s);
+    setEntered(true);
+  };
+
+  const enterLeadership = (path: LeadershipPath) => {
+    const id = path === "wealth-growth" ? "transition" : "primacy";
+    setLeadershipPath(path);
+    setMode("leadership");
+    setSelectedId(id);
     setEntered(true);
   };
 
@@ -477,24 +706,41 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
 
   useEffect(() => setRouted(false), [selectedId]);
 
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root) return;
+    (document.activeElement as HTMLElement | null)?.blur();
+    let parent = root.parentElement;
+    while (parent) {
+      const overflowY = window.getComputedStyle(parent).overflowY;
+      if (overflowY === "auto" || overflowY === "scroll") {
+        parent.scrollTo({ top: 0 });
+        break;
+      }
+      parent = parent.parentElement;
+    }
+  }, [entered, scene]);
+
   return (
     <main
-      className={`flex flex-col overflow-hidden bg-gradient-to-b from-white via-white to-slate-50 text-slate-950 ${embedded ? "h-full w-full rounded-xl border border-slate-200" : "h-screen w-screen"}`}
+      ref={rootRef}
+      className={`flex flex-col bg-gradient-to-b from-white via-white to-slate-50 text-slate-950 ${embedded ? "h-full w-full overflow-auto rounded-xl border border-slate-200 xl:overflow-hidden" : "h-screen w-screen overflow-auto xl:overflow-hidden"}`}
       style={{ fontFamily: "Manrope, sans-serif" }}
     >
       <header className="flex flex-none items-center justify-between gap-3 border-b border-slate-200 px-6 py-3 sm:px-10">
         <div className="flex items-center gap-3">
           <img src={ventusLogo} className="h-5 w-auto" alt="Ventus AI" />
           <span className="hidden h-4 w-px bg-slate-200 sm:block" />
-          <span className="flex h-6 w-6 items-center justify-center rounded-md text-xs font-black text-white" style={{ backgroundColor: NAVY }}>
-            M
+          <span className="relative flex h-6 w-6 items-center justify-center overflow-hidden rounded-md text-xs font-black text-white" style={{ backgroundColor: NAVY }}>
+            {brand.flag && <span className="absolute -right-1 top-0 h-8 w-[7px] rotate-[24deg]" style={{ backgroundColor: RED }} />}
+            <span className="relative">{brand.initial}</span>
           </span>
           <span className="hidden text-sm font-semibold sm:inline" style={{ color: NAVY }}>
-            Merrill Wealth Signals
+            {brand.title}
           </span>
           {entered && (
             <span
-              className="flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold"
+              className="hidden items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold lg:flex"
               style={{ backgroundColor: `${NAVY}0d`, color: NAVY }}
             >
               <AltIcon className="h-3 w-3" /> {altMeta.label}
@@ -502,7 +748,7 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
           )}
         </div>
         <div className="flex items-center gap-2">
-          {entered && scene > 0 && scene < 5 && (
+          {entered && internal && scene > 0 && scene < 5 && (
             <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs sm:flex">
               <Eye className="h-3.5 w-3.5" style={{ color: GREEN }} />
               <span className="font-semibold text-slate-700">Following:</span>
@@ -511,7 +757,7 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
               </span>
             </div>
           )}
-          {entered && (
+          {entered && internal && (
             <button
               onClick={() => setEntered(false)}
               className="hidden items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 sm:flex"
@@ -519,7 +765,7 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
               <GitBranch className="h-3.5 w-3.5" style={{ color: NAVY }} /> Switch view
             </button>
           )}
-          {entered && (
+          {entered && internal && (
             <button
               onClick={() => {
                 setGovernanceTab("policy");
@@ -530,12 +776,26 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
               <ShieldCheck className="h-3.5 w-3.5" style={{ color: NAVY }} /> Governance
             </button>
           )}
-          {entered && (
+          {entered && internal && (
+            <button
+              onClick={() => setLedgerOpen(true)}
+              className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+              title="Local evaluation ledger"
+            >
+              <Layers className="h-3.5 w-3.5" style={{ color: NAVY }} /> Ledger
+              {ledger.length > 0 && (
+                <span className="flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white" style={{ backgroundColor: NAVY }}>
+                  {ledger.length}
+                </span>
+              )}
+            </button>
+          )}
+          {entered && showsCew && (
             <button
               onClick={() => setCewOpen(true)}
               className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
             >
-              <LayoutDashboard className="h-3.5 w-3.5" style={{ color: NAVY }} /> CEW
+              <LayoutDashboard className="h-3.5 w-3.5" style={{ color: NAVY }} /> {lob === "consumer" ? "Queue" : "CEW"}
               {cewTasks.length > 0 && (
                 <span className="flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-bold text-white" style={{ backgroundColor: GREEN }}>
                   {cewTasks.length}
@@ -543,17 +803,19 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
               )}
             </button>
           )}
-          <button
+          {modelEvaluationAllowed && <button
             onClick={() => setLiveOpen(true)}
-            className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+            className="hidden items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 sm:flex"
           >
             <Wand2 className="h-3.5 w-3.5" style={{ color: GREEN }} /> Live enricher
-          </button>
+          </button>}
         </div>
       </header>
 
       {!entered ? (
-        <Cover onPick={enterAt} />
+        <Cover onPick={enterAt} onLeadershipPick={enterLeadership} audience={audience} />
+      ) : !internal ? (
+        <LeadershipFlow path={leadershipPath} onExit={() => setEntered(false)} />
       ) : (
         <>
           <div className="relative min-h-0 flex-1">
@@ -561,8 +823,11 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
               {scene === 0 && (
                 <FindScene
                   opps={activeOpps}
+                  lob={lob}
                   cewIds={cewIds}
                   onAddToCew={addToCew}
+                  onLedger={appendLedger}
+                  allowModelEvaluation={modelEvaluationAllowed}
                   onFocus={setFocusId}
                   onOpen={(id) => {
                     setSelectedId(id);
@@ -577,17 +842,29 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
                 <RouteScene
                   opp={opp}
                   routed={routed}
-                  accepts={accepts}
+                  allowSandboxDelivery={modelEvaluationAllowed}
                   onRoute={() => {
                     setRouted(true);
                     setAccepts((n) => n + 1);
-                    if (opp.destination === "advisor") {
+                    if (opp.destination === "advisor" || opp.destination === "banker" || opp.destination === "merrill") {
                       addToCew([{ id: opp.id, client: opp.client, type: opp.type, action: opp.action }]);
                     }
+                    appendLedger([
+                      { eventKey: `${opp.id}:decision`, kind: "decision", title: opp.action, detail: `${opp.type} · moves ${pnlOf(opp.id)}`, ref: opp.client, skill: skillOf(opp.id), status: "simulated" },
+                      { eventKey: `${opp.id}:policy`, kind: "policy", title: "Guardrails cleared", detail: oppLob(opp) === "consumer" ? "UDAAP · fair lending · consent" : "Reg BI · consent · supervision", ref: opp.client, skill: skillOf(opp.id), status: "simulated" },
+                      { eventKey: `${opp.id}:activation`, kind: "activation", title: `Activated → ${destinationLabel(opp.destination)}`, detail: "Staged write to the configured system of record", ref: opp.client, skill: skillOf(opp.id), value: valueNum(opp.value), status: "simulated" },
+                    ]);
                   }}
                 />
               )}
-              {scene === 5 && <BookScene />}
+              {scene === 5 && (
+                <BookScene
+                  mode={mode}
+                  onLedger={appendLedger}
+                  allowInternalTools={internal}
+                  allowSimulatedEvidence={modelEvaluationAllowed}
+                />
+              )}
               {scene === 6 && <PilotScene />}
             </SceneFade>
           </div>
@@ -639,9 +916,11 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
         </>
       )}
 
-      {liveOpen && <LiveEnricher onClose={() => setLiveOpen(false)} />}
+      {modelEvaluationAllowed && liveOpen && <LiveEnricher onClose={() => setLiveOpen(false)} />}
+      {internal && ledgerOpen && <DecisionLedgerPanel events={ledger} onClose={() => setLedgerOpen(false)} />}
       {cewOpen && (
         <CewPanel
+          lob={lob}
           tasks={cewTasks}
           onRemove={(id) => setCewTasks((prev) => prev.filter((t) => t.id !== id))}
           onClose={() => setCewOpen(false)}
@@ -665,7 +944,10 @@ export default function EnterpriseGrowthDemoPage({ embedded = false }: { embedde
 type Goal = "nna" | "retention" | "growth" | "deepen";
 
 // One example to seed the idea — free-form: works as a priority or a filter query.
-const PRIORITY_EXAMPLE = "Households with idle cash and no advisor yet";
+const PRIORITY_EXAMPLES: Record<Lob, string> = {
+  wealth: "Households with idle cash and no advisor yet",
+  consumer: "Households about to move their checking elsewhere",
+};
 
 // Differentiated local reason per opportunity (used when ranking offline).
 function localReason(o: Opportunity): string {
@@ -689,7 +971,41 @@ const OPP_GOALS: Record<string, Goal[]> = {
   rsu: ["growth", "nna"],
   smallinherit: ["retention", "growth"],
   sidebiz: ["growth", "deepen"],
+  primacy: ["retention"],
+  idlecash: ["deepen"],
+  homeintent: ["growth", "deepen"],
+  prtier: ["deepen", "retention"],
+  wealthready: ["nna", "growth"],
 };
+
+// Exercise the stage contract with authored synthetic inputs. The derived fields prove
+// deterministic UI and payload behavior; they do not establish enrichment accuracy.
+const OPP_INPUT = (o: Opportunity): PipelineInput => ({
+  id: o.id,
+  client: o.client,
+  type: o.type,
+  value: o.value,
+  valueLabel: o.valueLabel,
+  lob: oppLob(o),
+  destination: o.destination,
+  goals: OPP_GOALS[o.id] ?? [],
+  rawTransactions: o.rawTransactions,
+});
+const DERIVED: Record<string, PipelineDerived> = {};
+for (const o of [...advisorBook, ...consumerBook]) {
+  const d = runPipeline(OPP_INPUT(o));
+  DERIVED[o.id] = d;
+  o.confidence = d.confidence; // pipeline score replaces the authored placeholder
+}
+function derivedOf(id: string): PipelineDerived | undefined {
+  return DERIVED[id];
+}
+function pnlOf(id: string): string {
+  return DERIVED[id]?.pnlMetric ?? "Net new assets to Merrill ($)";
+}
+function skillOf(id: string): string {
+  return DERIVED[id]?.skillSlug ?? "consumer-to-merrill-handoff";
+}
 
 function valueNum(v: string): number {
   const m = v.match(/([\d.]+)\s*([MK])?/i);
@@ -728,16 +1044,22 @@ const TEAMMATE = "Priya N. (CA)";
 
 function FindScene({
   opps,
+  lob,
   onOpen,
   onFocus,
   cewIds,
   onAddToCew,
+  onLedger,
+  allowModelEvaluation,
 }: {
   opps: Opportunity[];
+  lob: Lob;
   onOpen: (id: string) => void;
   onFocus: (id: string) => void;
   cewIds: Set<string>;
   onAddToCew: (items: { id: string; client: string; type: string; action: string }[]) => void;
+  onLedger: (events: LedgerDraft[]) => void;
+  allowModelEvaluation: boolean;
 }) {
   const [draft, setDraft] = useState("");
   const [priority, setPriority] = useState("");
@@ -763,6 +1085,12 @@ function FindScene({
     const t = text.trim();
     if (!t || rankLoading) return;
     setPriority(t);
+    if (!allowModelEvaluation) {
+      setRanking(localRank(t, opps));
+      setAiRanked(false);
+      setAiModel("");
+      return;
+    }
     setRankLoading(true);
     const items = opps.map((o) => ({
       id: o.id,
@@ -787,6 +1115,7 @@ function FindScene({
     setRankLoading(false);
   };
 
+  const ingestedTotal = opps.reduce((s, o) => s + (derivedOf(o.id)?.provenance.ingested ?? 0), 0);
   const visible = opps.filter((o) => !dismissed.has(o.id));
   const ranked = [...visible].sort((a, b) => {
     const am = ranking[a.id]?.match === false ? 0 : 1;
@@ -817,23 +1146,26 @@ function FindScene({
       return next;
     });
 
-  const doBulk = (label: string) => {
+  const doBulk = (label: string, display: string) => {
     const chosen = opps.filter((o) => sel.has(o.id));
     const ids = chosen.map((o) => o.id);
     setUndoIds(null);
     if (label === "Add to CEW tasks") {
       onAddToCew(chosen.map((o) => ({ id: o.id, client: o.client, type: o.type, action: o.action })));
+      onLedger(chosen.map((o) => ({ kind: "activation" as const, title: display, detail: `${o.type} · ${o.value} ${o.valueLabel}`, ref: o.client })));
     } else if (label === "Assign to teammate") {
       setAssigned((prev) => {
         const next = { ...prev };
         ids.forEach((id) => (next[id] = TEAMMATE));
         return next;
       });
+      onLedger(chosen.map((o) => ({ kind: "decision" as const, title: `Assigned to ${TEAMMATE}`, detail: o.type, ref: o.client })));
     } else if (label === "Dismiss") {
       setDismissed((prev) => new Set([...prev, ...ids]));
       setUndoIds(ids);
+      onLedger(chosen.map((o) => ({ kind: "decision" as const, title: "Dismissed — not pursued", detail: o.type, ref: o.client })));
     }
-    setBulkMsg(`${chosen.length} household${chosen.length === 1 ? "" : "s"} · ${label}`);
+    setBulkMsg(`${chosen.length} household${chosen.length === 1 ? "" : "s"} · ${display}`);
     setSel(new Set());
   };
 
@@ -841,7 +1173,7 @@ function FindScene({
     <SceneShell>
       <div className="flex flex-col gap-4">
         <div>
-          <Eyebrow>Your book · this week</Eyebrow>
+          <Eyebrow>{lob === "consumer" ? "Your market · this week" : "Your book · this week"}</Eyebrow>
           <Question>What should you act on today?</Question>
         </div>
 
@@ -849,8 +1181,11 @@ function FindScene({
         <div className="rounded-2xl border border-slate-200 bg-white p-4">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm text-slate-500">
+              <span className="font-semibold text-slate-800">{ingestedTotal.toLocaleString()} transactions</span> →{" "}
               <span className="font-semibold text-slate-800">{totalBook.toLocaleString()} households</span> →{" "}
-              <span className="font-semibold text-slate-800">{opps.length} qualified — clients + prospects</span>
+              <span className="font-semibold text-slate-800">
+                {opps.length} qualified — {lob === "consumer" ? "ranked for your market" : "clients + prospects"}
+              </span>
             </div>
             {aiRanked && (
               <AiTag
@@ -881,12 +1216,12 @@ function FindScene({
 
           <button
             onClick={() => {
-              setDraft(PRIORITY_EXAMPLE);
-              runPriority(PRIORITY_EXAMPLE);
+              setDraft(PRIORITY_EXAMPLES[lob]);
+              runPriority(PRIORITY_EXAMPLES[lob]);
             }}
             className="mt-2 text-[11px] text-slate-400 transition hover:text-slate-600"
           >
-            e.g. “{PRIORITY_EXAMPLE}” →
+            e.g. “{PRIORITY_EXAMPLES[lob]}” →
           </button>
         </div>
 
@@ -914,7 +1249,7 @@ function FindScene({
                 {showHeader && (
                   <div className="sticky top-0 z-10 flex items-center justify-between border-b border-slate-100 bg-slate-50 px-4 py-1.5">
                     <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">
-                      {isProspect ? "Prospects · win new" : "Clients · deepen & retain"}
+                      {isProspect ? "Prospects · win new" : lob === "consumer" ? "Households · defend & deepen" : "Clients · deepen & retain"}
                     </span>
                     <span className="text-[10px] font-semibold text-slate-400">{isProspect ? prospectRows.length : clientRows.length}</span>
                   </div>
@@ -957,7 +1292,7 @@ function FindScene({
                   )}
                   <button
                     onClick={() => setExpandedId(expanded ? null : o.id)}
-                    aria-label="Show evidence"
+                    aria-label={`${expanded ? "Hide" : "Show"} evidence for ${o.type}`}
                     className="flex flex-none items-center rounded-lg border border-slate-200 px-2 py-1.5 text-slate-500 transition hover:bg-slate-50"
                     title="Evidence"
                   >
@@ -965,6 +1300,7 @@ function FindScene({
                   </button>
                   <button
                     onClick={() => onOpen(o.id)}
+                    aria-label={`Open ${o.type} for ${o.client}`}
                     className="flex flex-none items-center gap-1 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition"
                     style={{ backgroundColor: NAVY }}
                   >
@@ -1007,6 +1343,11 @@ function FindScene({
                         const c = PILLAR_COLOR[tx.pillar] ?? PILLAR_COLOR.Review;
                         return (
                           <div key={tx.raw} className="flex items-center gap-2 rounded-lg bg-white px-2.5 py-1.5">
+                            {tx.src && (
+                              <span className="hidden w-20 flex-none truncate rounded bg-slate-100 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-400 sm:block" title={tx.src}>
+                                {tx.src}
+                              </span>
+                            )}
                             <span className="w-44 flex-none truncate font-mono text-[10px] text-slate-500" title={tx.raw}>
                               {tx.raw}
                             </span>
@@ -1047,13 +1388,14 @@ function FindScene({
               <span className="hidden max-w-[36vw] truncate text-xs text-slate-500 md:inline">{selectedNames.join(", ")}</span>
               {BULK_ACTIONS.map((b) => {
                 const Icon = b.icon;
+                const display = b.label === "Add to CEW tasks" && lob === "consumer" ? "Add to banker queue" : b.label;
                 return (
                   <button
                     key={b.label}
-                    onClick={() => doBulk(b.label)}
+                    onClick={() => doBulk(b.label, display)}
                     className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
                   >
-                    <Icon className="h-3.5 w-3.5" /> {b.label}
+                    <Icon className="h-3.5 w-3.5" /> {display}
                   </button>
                 );
               })}
@@ -1111,6 +1453,24 @@ function ConfidenceScene({ opp }: { opp: Opportunity }) {
               <AuthorityRow icon={Clock} text="~0.3s per transaction · de-identified" />
             </div>
           </div>
+
+          {opp.moat && (
+            <div className="mt-5 rounded-2xl border-2 p-4" style={{ borderColor: `${NAVY}22`, backgroundColor: `${NAVY}05` }}>
+              <p className="text-[10px] font-bold uppercase tracking-[0.14em]" style={{ color: NAVY }}>
+                Why this signal is defensible
+              </p>
+              <p className="mt-1 text-sm font-medium leading-6 text-slate-800">{opp.moat}</p>
+              <div className="mt-2.5 flex flex-wrap items-center gap-1.5">
+                {[...new Set(opp.rawTransactions.map((t) => t.src).filter(Boolean))].map((s) => (
+                  <span key={s} className="rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-slate-500">
+                    {s}
+                  </span>
+                ))}
+                <ArrowRight className="h-3 w-3 text-slate-300" />
+                <AiTag label="activated by Ventus" title="Your systems, your perimeter, your policies — Ventus assembles the signal under your governance." />
+              </div>
+            </div>
+          )}
         </div>
 
         <EnrichmentPanel opp={opp} />
@@ -1128,6 +1488,8 @@ const MERCHANT_MAP: { match: string[]; merchant: string; category: string; pilla
   { match: ["starbucks", "blue bottle", "chipotle", "doordash", "uber eats"], merchant: "Dining", category: "Food · Restaurants", pillar: "Family & Community", tag: "Frequent dining", conf: 0.93 },
   { match: ["kaplan", "common app", "tuition", "529", "sat", "act prep"], merchant: "Education", category: "Education · Admissions", pillar: "Family & Community", tag: "College-planning signal", conf: 0.9 },
   { match: ["escrow", "wire in"], merchant: "Escrow disbursement", category: "Deposits · One-time wire", pillar: "Cash", tag: "Liquidity event", conf: 0.95 },
+  { match: ["chime", "varo", "current *", "sofi", "cash app card"], merchant: "Fintech banking app", category: "Banking · Off-bank", pillar: "Cash", tag: "Primacy at risk", conf: 0.9 },
+  { match: ["zillow", "redfin", "rocket mortgage", "mortgage"], merchant: "Home-search activity", category: "Lending · Research", pillar: "Family & Community", tag: "Home-buying signal", conf: 0.85 },
 ];
 
 function enrichRaw(input: string): RawTxn {
@@ -1321,10 +1683,12 @@ async function invokeMeetingPrep(household: unknown): Promise<MeetingPrep | null
 }
 
 function CewPanel({
+  lob,
   tasks,
   onRemove,
   onClose,
 }: {
+  lob: Lob;
   tasks: { id: string; client: string; type: string; action: string }[];
   onRemove: (id: string) => void;
   onClose: () => void;
@@ -1340,7 +1704,9 @@ function CewPanel({
         <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
           <div className="flex items-center gap-2">
             <LayoutDashboard className="h-4 w-4" />
-            <span className="text-sm font-semibold">Client Engagement Workstation · Book 360</span>
+            <span className="text-sm font-semibold">
+              {lob === "consumer" ? "Banker workbench · Priority queue" : "Client Engagement Workstation · Book 360"}
+            </span>
           </div>
           <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10">
             <X className="h-5 w-5" />
@@ -1371,7 +1737,112 @@ function CewPanel({
               ))}
             </div>
           )}
-          <p className="mt-3 text-[11px] text-slate-400">In production, these land as Book 360 tasks in Salesforce.</p>
+          <p className="mt-3 text-[11px] text-slate-400">
+            {lob === "consumer"
+              ? "Pilot target: stage these in the banker's workbench and appointment scheduler."
+              : "Pilot target: stage these as Book 360 tasks in Salesforce."}
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// The Decision Ledger surface — the append-only record class Ventus owns.
+function DecisionLedgerPanel({ events, onClose }: { events: LedgerEvent[]; onClose: () => void }) {
+  const [showPipeline, setShowPipeline] = useState(false);
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const roll = ledgerRollup(events);
+  const intact = verifyChain(events);
+  const pipelineCount = events.filter((e) => isPipelineKind(e.kind)).length;
+  const visible = showPipeline ? events : events.filter((e) => !isPipelineKind(e.kind));
+  const rows = [...visible].reverse();
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
+      <div className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
+          <div className="flex items-center gap-2">
+            <Layers className="h-4 w-4" />
+            <span className="text-sm font-semibold">Local evaluation ledger</span>
+            <span className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">prototype</span>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-5">
+          <p className="text-xs leading-5 text-slate-500">
+            Session-level trace of simulated signals, decisions, and staged activations. Production persistence remains pilot work.
+          </p>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            <div className="rounded-xl bg-slate-50 p-2.5">
+              <p className="text-lg font-bold leading-none" style={{ color: NAVY }}>{roll.total}</p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">events</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-2.5">
+              <p className="text-lg font-bold leading-none" style={{ color: NAVY }}>{roll.decisions}</p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">decisions</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-2.5">
+              <p className="text-lg font-bold leading-none" style={{ color: BLUE }}>{roll.valueInMotion >= 1_000_000 ? `$${(roll.valueInMotion / 1_000_000).toFixed(1)}M` : roll.valueInMotion >= 1000 ? `$${Math.round(roll.valueInMotion / 1000)}K` : "$0"}</p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">in motion</p>
+            </div>
+            <div className="rounded-xl bg-slate-50 p-2.5">
+              <p className="text-lg font-bold leading-none" style={{ color: AMBER }}>{roll.measuring}</p>
+              <p className="mt-1 text-[10px] font-semibold uppercase tracking-wide text-slate-400">measuring</p>
+            </div>
+          </div>
+
+          <div className="mt-2 flex items-center justify-between gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={intact ? { backgroundColor: `${GREEN}14`, color: GREEN } : { backgroundColor: `${RED}14`, color: RED }}>
+              <ShieldCheck className="h-3 w-3" /> {intact ? "Integrity chain valid" : "Integrity check failed"}
+            </span>
+            {pipelineCount > 0 && (
+              <button onClick={() => setShowPipeline((v) => !v)} className="text-[11px] font-semibold text-slate-400 transition hover:text-slate-600">
+                {showPipeline ? "Hide" : "Show"} {pipelineCount} pipeline events
+              </button>
+            )}
+          </div>
+
+          {rows.length === 0 ? (
+            <p className="mt-4 rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center text-sm text-slate-400">
+              Nothing logged yet. Activate a recommendation or promote a skill — every step is recorded here.
+            </p>
+          ) : (
+            <div className="mt-3 space-y-1.5">
+              {rows.map((e) => {
+                const m = LEDGER_META[e.kind];
+                const Icon = m.Icon;
+                return (
+                  <div key={e.id} className="flex items-start gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2">
+                    <span className="mt-0.5 flex h-6 w-6 flex-none items-center justify-center rounded-lg" style={{ backgroundColor: `${m.color}14` }}>
+                      <Icon className="h-3.5 w-3.5" style={{ color: m.color }} />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide" style={{ backgroundColor: `${m.color}14`, color: m.color }}>
+                          {m.label}
+                        </span>
+                        <p className="truncate text-sm font-semibold text-slate-900">{e.title}</p>
+                      </div>
+                      <p className="mt-0.5 text-xs leading-4 text-slate-500">
+                        {e.detail}
+                        {e.ref ? <span className="text-slate-400"> · {e.ref}</span> : null}
+                      </p>
+                    </div>
+                    <span className="flex-none font-mono text-[10px] text-slate-400">#{String(e.seq).padStart(3, "0")} · {new Date(e.ts).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+          <p className="mt-3 text-[11px] text-slate-400">
+            This in-memory checksum chain is for prototype evaluation only. A production ledger requires persistent storage, tenant isolation, retention controls, and cryptographic signing.
+          </p>
         </div>
       </div>
     </div>
@@ -1487,18 +1958,18 @@ function PolicyBody({ policy, onChange }: { policy: Policy; onChange: (p: Policy
             />
           </div>
 
-          <p className="mt-4 text-[11px] text-slate-400">Merrill tunes the rules; every change is logged. Applies live to Review.</p>
+          <p className="mt-4 text-[11px] text-slate-400">Your risk team tunes the rules — per business line; every change is logged. Applies live to Review.</p>
         </div>
   );
 }
 
 const healthChecks: { label: string; value: string; status: "ok" | "watch"; note: string }[] = [
-  { label: "Signal precision", value: "92%", status: "ok", note: "within tolerance" },
-  { label: "Advisor acceptance", value: "41%", status: "ok", note: "7-day avg" },
-  { label: "Model drift", value: "Low", status: "watch", note: "Charlotte market" },
-  { label: "Fairness / disparate impact", value: "Passed", status: "ok", note: "no protected-class skew" },
-  { label: "Model risk (SR 11-7)", value: "Validated", status: "ok", note: "documented · monitored" },
-  { label: "Data handling", value: "Isolated", status: "ok", note: "de-identified · tenant-only" },
+  { label: "Signal precision", value: "Baseline needed", status: "watch", note: "sanctioned sample + golden labels" },
+  { label: "Front-line acceptance", value: "Not measured", status: "watch", note: "shadow feedback first" },
+  { label: "Model drift", value: "Baseline needed", status: "watch", note: "market and segment slices" },
+  { label: "Fairness / disparate impact", value: "Review required", status: "watch", note: "before activation" },
+  { label: "Model risk (SR 11-7)", value: "Validation required", status: "watch", note: "BofA governance process" },
+  { label: "Data handling", value: "Architecture review", status: "watch", note: "boundary and retention controls" },
 ];
 
 function MonitorBody() {
@@ -1507,9 +1978,9 @@ function MonitorBody() {
         <div className="p-5">
           <div className="flex items-center gap-2">
             <span className="rounded-full px-2 py-0.5 text-[10px] font-bold" style={watch ? { backgroundColor: `${AMBER}1a`, color: AMBER } : { backgroundColor: `${GREEN}14`, color: GREEN }}>
-              {watch ? `Within tolerance · ${watch} to watch` : "All within tolerance"}
+              {watch ? `${watch} pilot evidence gates open` : "Evidence gates complete"}
             </span>
-            <span className="text-[11px] text-slate-400">monitored continuously</span>
+            <span className="text-[11px] text-slate-400">no bank performance claimed</span>
           </div>
           <div className="mt-3 space-y-2">
             {healthChecks.map((c) => (
@@ -1849,8 +2320,15 @@ function EnrichRow({ tx, state }: { tx: RawTxn; state: "done" | "active" | "queu
         state === "queued" ? "border-slate-100 bg-slate-50/50 opacity-50" : "border-slate-200 bg-white"
       }`}
     >
-      <span className="truncate font-mono text-[11px] text-slate-500" title={tx.raw}>
-        {tx.raw}
+      <span className="min-w-0">
+        {tx.src && (
+          <span className="mb-0.5 block w-fit rounded bg-slate-100 px-1 py-px text-[9px] font-bold uppercase tracking-wide text-slate-400">
+            {tx.src}
+          </span>
+        )}
+        <span className="block truncate font-mono text-[11px] text-slate-500" title={tx.raw}>
+          {tx.raw}
+        </span>
       </span>
       <ArrowRight className={`h-3 w-3 ${state === "active" ? "animate-pulse" : ""}`} style={{ color: state === "queued" ? "#cbd5e1" : NAVY }} />
       {state === "done" ? (
@@ -1884,41 +2362,23 @@ function AuthorityRow({ icon: Icon, text }: { icon: typeof Sparkles; text: strin
 /* ───────────────────────── Scene 3 · Action ───────────────────────── */
 
 function ActionScene({ opp, accepts }: { opp: Opportunity; accepts: number }) {
-  const [prep, setPrep] = useState<MeetingPrep | null>(null);
-  const [prepLoading, setPrepLoading] = useState(false);
-  const [prepError, setPrepError] = useState(false);
-  const precision = Math.min(96, 86 + accepts * 2);
-
-  useEffect(() => {
-    setPrep(null);
-    setPrepError(false);
-  }, [opp.id]);
-
-  const generate = async () => {
-    if (prepLoading) return;
-    setPrepLoading(true);
-    setPrepError(false);
-    const res = await invokeMeetingPrep({
-      type: opp.type,
-      client: opp.client,
-      value: opp.value,
-      reason: opp.reason,
-      action: opp.action,
-      evidence: opp.rawTransactions.map((t) => t.tag),
-    });
-    if (res) setPrep(res);
-    else setPrepError(true);
-    setPrepLoading(false);
-  };
+  const alternatives =
+    opp.destination === "merrill"
+      ? ["Cold advisor outreach — no trusted introduction", "Generic campaign — loses timing and relationship context"]
+      : ["Generic campaign — lower relevance", "Immediate offer — skips employee and policy context"];
 
   return (
     <SceneShell>
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <div>
-          <Eyebrow>Next best action</Eyebrow>
-          <Question>What is the recommended action?</Question>
+          <Eyebrow>Ventus recommendation</Eyebrow>
+          <Question>What should happen next?</Question>
           <p className="mt-4 text-2xl font-semibold leading-9 text-slate-900">{opp.action}</p>
-          <div className="mt-6 inline-flex items-center gap-3 rounded-2xl border p-4" style={{ borderColor: `${GREEN}33`, backgroundColor: `${GREEN}0d` }}>
+          <div className="mt-4 inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold" style={{ borderColor: `${NAVY}22`, color: NAVY, backgroundColor: `${NAVY}08` }}>
+            <Target className="h-3.5 w-3.5" /> Moves: {pnlOf(opp.id)}
+            <span className="text-slate-400">· skill {skillOf(opp.id)}</span>
+          </div>
+          <div className="mt-4 inline-flex items-center gap-3 rounded-2xl border p-4" style={{ borderColor: `${GREEN}33`, backgroundColor: `${GREEN}0d` }}>
             <Target className="h-5 w-5 flex-none" style={{ color: GREEN }} />
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Outcome at stake</p>
@@ -1927,106 +2387,58 @@ function ActionScene({ opp, accepts }: { opp: Opportunity; accepts: number }) {
           </div>
         </div>
 
-        <div className="rounded-3xl border border-slate-200 bg-white p-7 shadow-sm">
+        <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
-              <Sparkles className="h-4 w-4" style={{ color: NAVY }} />
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">
-                {prep ? "AI meeting prep" : "Meeting prep"}
-              </p>
-              {prep?.model && (
-                <AiTag label={shortModel(prep.model)} title={`Routed to ${prep.model} — instruction-following generation.`} />
-              )}
+              <Wand2 className="h-4 w-4" style={{ color: NAVY }} />
+              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">Decision package</p>
             </div>
-            <button
-              onClick={generate}
-              disabled={prepLoading}
-              className="flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs font-semibold text-white disabled:opacity-60"
-              style={{ backgroundColor: NAVY }}
-            >
-              {prepLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
-              {prepLoading ? "Generating" : prep ? "Regenerate" : "Generate meeting prep"}
-            </button>
+            <AiTag label="Ventus Skill · v0.1" title="Versioned recommendation logic, policy, delivery, and measurement" />
           </div>
 
-          {prepLoading ? (
-            <div className="mt-4 space-y-2.5">
-              {[88, 72, 80, 64].map((w, k) => (
-                <div key={k} className="h-3 animate-pulse rounded bg-slate-100" style={{ width: `${w}%` }} />
-              ))}
-              <p className="pt-1 text-[11px] text-slate-400">Drafting a prep tailored to {opp.client}…</p>
+          <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="rounded-xl bg-slate-50 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Why this action</p>
+              <p className="mt-1 text-xs leading-5 text-slate-700">{opp.reason} {opp.whyNow}</p>
             </div>
-          ) : prep ? (
-            <>
-              {prep.summary && <p className="mt-3 text-sm leading-6 text-slate-600">{prep.summary}</p>}
-              {prep.agenda?.length ? (
-                <>
-                  <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Agenda</p>
-                  <ul className="mt-2 space-y-1.5">
-                    {prep.agenda.map((a) => (
-                      <li key={a} className="flex items-start gap-2 text-sm leading-6 text-slate-700">
-                        <Check className="mt-1 h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
-                        {a}
-                      </li>
-                    ))}
-                  </ul>
-                </>
-              ) : null}
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Talking points</p>
-              <ol className="mt-3 space-y-2.5">
-                {(prep.talkingPoints?.length ? prep.talkingPoints : opp.talkingPoints).map((t, i) => (
-                  <li key={t} className="flex items-start gap-3">
-                    <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ backgroundColor: NAVY }}>
-                      {i + 1}
-                    </span>
-                    <span className="text-sm leading-6 text-slate-700">{t}</span>
-                  </li>
-                ))}
-              </ol>
-              {prep.nextStep && (
-                <p className="mt-3 text-sm text-slate-600">
-                  <span className="font-semibold text-slate-900">Next step:</span> {prep.nextStep}
-                </p>
-              )}
-            </>
-          ) : prepError ? (
-            <>
-              <p className="mt-3 text-xs font-medium text-amber-700">
-                Couldn't reach the AI — showing the standard brief. (Check OPENROUTER_API_KEY, or the session cap.)
-              </p>
-              <p className="mt-4 text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">Talking points</p>
-              <ol className="mt-3 space-y-2.5">
-                {opp.talkingPoints.map((t, i) => (
-                  <li key={t} className="flex items-start gap-3">
-                    <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full text-[11px] font-bold text-white" style={{ backgroundColor: NAVY }}>
-                      {i + 1}
-                    </span>
-                    <span className="text-sm leading-6 text-slate-700">{t}</span>
-                  </li>
-                ))}
-              </ol>
-            </>
-          ) : (
-            <div className="mt-4 rounded-xl border border-dashed border-slate-200 px-4 py-8 text-center">
-              <Sparkles className="mx-auto h-5 w-5" style={{ color: NAVY }} />
-              <p className="mt-2 text-sm font-medium text-slate-700">No brief yet</p>
-              <p className="mt-1 text-xs leading-5 text-slate-400">
-                Generate an AI meeting prep tailored to {opp.client} — summary, agenda, talking points, and a next step.
-              </p>
+            <div className="rounded-xl bg-slate-50 p-3">
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Why this owner + channel</p>
+              <p className="mt-1 text-xs leading-5 text-slate-700">{opp.ownerReason} {opp.destinationWhy}</p>
             </div>
-          )}
+          </div>
 
-          <div className="mt-5 rounded-xl border border-slate-200 bg-slate-50 p-3">
+          <div className="mt-3 grid grid-cols-2 gap-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Prepared for the employee</p>
+              <ul className="mt-2 space-y-1.5">
+                {opp.talkingPoints.slice(0, 3).map((point) => (
+                  <li key={point} className="flex items-start gap-2 text-xs leading-4 text-slate-600">
+                    <Check className="mt-0.5 h-3 w-3 flex-none" style={{ color: GREEN }} /> {point}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Alternatives not selected</p>
+              <ul className="mt-2 space-y-1.5">
+                {alternatives.map((item) => (
+                  <li key={item} className="flex items-start gap-2 text-xs leading-4 text-slate-500">
+                    <X className="mt-0.5 h-3 w-3 flex-none text-slate-300" /> {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-3">
             <div className="flex items-center gap-2">
               <Repeat className="h-3.5 w-3.5" style={{ color: GREEN }} />
-              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Gets sharper with every decision</p>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-500">Outcome learning</p>
               <span className="ml-auto rounded-full px-2 py-0.5 text-[10px] font-bold" style={{ backgroundColor: `${GREEN}14`, color: GREEN }}>
-                precision {precision}%
+                {accepts} simulated acceptances
               </span>
             </div>
-            <p className="mt-2 text-xs leading-5 text-slate-500">
-              Learns from your advisors' accepts and rejects — tuned to your book, on your data only.
-            </p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">The pilot will capture acceptance, outreach, conversion, and holdout outcomes before any Skill advances.</p>
           </div>
         </div>
       </div>
@@ -2051,8 +2463,38 @@ const DEFAULT_POLICY: Policy = {
 };
 const SUITABILITY_OPTIONS = [500_000, 1_000_000, 2_000_000];
 
-// Guardrails are evaluated per household, against the current (tunable) policy.
+// Guardrails are evaluated per household, against the current (tunable) policy —
+// each business runs its own regulatory regime on the same engine.
 function evaluateGuardrails(opp: Opportunity, policy: Policy): Guard[] {
+  if (oppLob(opp) === "consumer") {
+    const guards: Guard[] = [{ label: "Relationship owner + UDAAP review", status: "pass", note: opp.owner }];
+    guards.push({
+      label: "Fair lending (ECOA) — uniform offer criteria",
+      status: "pass",
+      note: "offer logic screened for disparate impact",
+    });
+    if (policy.fhSuppression) {
+      const vulnerable = opp.fvi === "elevated";
+      guards.push({
+        label: "Financial-health suppression (customer protection)",
+        status: vulnerable ? "flag" : "pass",
+        note: vulnerable ? "FVI elevated — suppress until reviewed" : "no protection flags",
+      });
+    }
+    if (opp.destination === "lending") {
+      guards.push({
+        label: "Credit pre-screen consent before outreach",
+        status: "flag",
+        note: "soft-pull consent not yet on file",
+      });
+    }
+    if (policy.campaignConsent && (opp.destination === "erica" || opp.destination === "campaign")) {
+      guards.push({ label: "Digital marketing consent (opt-in)", status: "pass" });
+    }
+    guards.push({ label: "Complaint & sensitive-event check", status: "pass", note: "no open complaints" });
+    return guards;
+  }
+
   const complex = valueNum(opp.value) >= policy.suitabilityThreshold || opp.destination === "queue";
   const campaign = opp.destination === "campaign";
   const guards: Guard[] = [{ label: "Relationship owner + Reg BI best-interest", status: "pass", note: opp.owner }];
@@ -2081,6 +2523,7 @@ function evaluateGuardrails(opp: Opportunity, policy: Policy): Guard[] {
 function clearActionLabel(label: string): string {
   const l = label.toLowerCase();
   if (l.includes("co-sign")) return "Request co-sign";
+  if (l.includes("consent")) return "Request consent";
   if (l.includes("suitability")) return "Submit for review";
   return "Resolve";
 }
@@ -2103,8 +2546,8 @@ function ReviewScene({ opp, policy }: { opp: Opportunity; policy: Policy }) {
     <SceneShell>
       <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
         <div>
-          <Eyebrow>Routing & accountability</Eyebrow>
-          <Question>Who should review it?</Question>
+          <Eyebrow>Policy + accountability</Eyebrow>
+          <Question>Can this action proceed?</Question>
           <div className="mt-6 flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
             <div className="flex h-14 w-14 flex-none items-center justify-center rounded-full text-base font-bold text-white" style={{ backgroundColor: NAVY }}>
               {opp.ownerInitials}
@@ -2127,7 +2570,7 @@ function ReviewScene({ opp, policy }: { opp: Opportunity; policy: Policy }) {
               className="rounded-full px-2 py-0.5 text-[10px] font-bold"
               style={cleared ? { backgroundColor: `${GREEN}14`, color: GREEN } : { backgroundColor: `${RED}14`, color: RED }}
             >
-              {cleared ? "Cleared for review" : `Hold · ${flags.length} to clear`}
+              {cleared ? "Cleared to act" : `Hold · ${flags.length} to clear`}
             </span>
           </div>
 
@@ -2140,7 +2583,11 @@ function ReviewScene({ opp, policy }: { opp: Opportunity; policy: Policy }) {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-semibold text-slate-800">Cleared to act — no holds</p>
-                  <p className="text-xs text-slate-500">Reg BI, consent, suppression, and supervision passed automatically.</p>
+                  <p className="text-xs text-slate-500">
+                    {oppLob(opp) === "consumer"
+                      ? "UDAAP, fair lending, consent, and suppression passed automatically."
+                      : "Reg BI, consent, suppression, and supervision passed automatically."}
+                  </p>
                 </div>
               </div>
               <button onClick={() => setShowChecks((v) => !v)} className="mt-2 text-[11px] font-medium text-slate-400 transition hover:text-slate-600">
@@ -2204,7 +2651,12 @@ function ReviewScene({ opp, policy }: { opp: Opportunity; policy: Policy }) {
           )}
 
           <div className="mt-5 flex items-center gap-3 text-xs text-slate-400">
-            <ClipboardCheck className="h-4 w-4" /> Associate validates → Advisor acts in CEW → Risk monitors. Logged at each step.
+            <ClipboardCheck className="h-4 w-4" />
+            {opp.destination === "merrill"
+              ? "Banker validates → Merrill advisor accepts the referral → Compliance monitors. Logged at each step."
+              : oppLob(opp) === "consumer"
+                ? "Banker validates → acts from the workbench → Compliance monitors. Logged at each step."
+              : "Associate validates → Advisor acts in CEW → Risk monitors. Logged at each step."}
           </div>
         </div>
       </div>
@@ -2214,49 +2666,121 @@ function ReviewScene({ opp, policy }: { opp: Opportunity; policy: Policy }) {
 
 /* ───────────────────────── Scene 5 · Route ───────────────────────── */
 
-type RouteAction = { label: string; verb: string; system: string; desc: string; icon: typeof Sparkles; primary?: boolean };
+type RouteAction = { label: string; verb: string; system: string; icon: typeof Sparkles; primary?: boolean };
 
+// Action-first: label + system of record. One primary CTA per destination.
 function routeActions(opp: Opportunity): RouteAction[] {
   switch (opp.destination) {
+    case "banker":
+      return [
+        { label: "Book financial-center appointment", verb: "Book", system: "Appointment scheduler", icon: UserRoundCheck, primary: true },
+        { label: "Add to banker call list", verb: "Add", system: "Banker workbench", icon: LayoutDashboard },
+        { label: "Stage retention offer", verb: "Stage", system: "Preferred Rewards", icon: Coins },
+      ];
+    case "erica":
+      return [
+        { label: "Push Erica insight", verb: "Push", system: "Erica · mobile app", icon: Smartphone, primary: true },
+        { label: "Create Life Plan goal", verb: "Create", system: "Life Plan", icon: Target },
+      ];
+    case "lending":
+      return [
+        { label: "Route to lending specialist", verb: "Route", system: "Home Lending queue", icon: Home, primary: true },
+        { label: "Schedule pre-approval call", verb: "Schedule", system: "Appointment scheduler", icon: Video },
+      ];
+    case "merrill":
+      return [
+        { label: "Create Merrill referral", verb: "Refer", system: "CEW · Book 360", icon: GitBranch, primary: true },
+        { label: "Draft banker warm intro", verb: "Draft", system: "Banker workbench", icon: MessageSquare },
+      ];
     case "queue":
       return [
-        { label: "Route to specialist queue", verb: "Route", system: "Private Bank · Salesforce", desc: "Hands off to the Private Bank specialist pool.", icon: Landmark, primary: true },
-        { label: "Schedule intro", verb: "Schedule", system: "Zoom", desc: "Books an intro call with the specialist.", icon: Video },
+        { label: "Route to specialist queue", verb: "Route", system: "Private Bank · Salesforce", icon: Landmark, primary: true },
+        { label: "Schedule intro", verb: "Schedule", system: "Zoom", icon: Video },
       ];
     case "rewards":
       return [
-        { label: "Flag for deepening", verb: "Flag", system: "Preferred Rewards", desc: "Queues a Preferred Rewards deepening review.", icon: Coins, primary: true },
-        { label: "Notify advisor", verb: "Notify", system: "CEW · Book 360", desc: "Pings the relationship advisor in CEW.", icon: LayoutDashboard },
+        { label: "Flag for deepening", verb: "Flag", system: "Preferred Rewards", icon: Coins, primary: true },
+        { label: "Notify advisor", verb: "Notify", system: "CEW · Book 360", icon: LayoutDashboard },
       ];
     case "campaign":
       return [
-        { label: "Enroll in nurture", verb: "Enroll", system: "Marketing Cloud", desc: "Adds to a consent-based, advisor-branded nurture.", icon: Megaphone, primary: true },
-        { label: "Set consent reminder", verb: "Set", system: "Salesforce", desc: "Schedules a consent-check reminder.", icon: ShieldCheck },
+        { label: "Enroll in nurture", verb: "Enroll", system: "Marketing Cloud", icon: Megaphone, primary: true },
+        { label: "Set consent reminder", verb: "Set", system: "Salesforce", icon: ShieldCheck },
       ];
     default:
       return [
-        { label: "Create task", verb: "Create", system: "CEW · Book 360", desc: "Adds a priority task to the advisor's Book 360.", icon: LayoutDashboard, primary: true },
-        { label: "Schedule meeting", verb: "Schedule", system: "Zoom", desc: "Books a Zoom meeting; AI prep + notes sync to Salesforce.", icon: Video },
-        { label: "Pull collateral", verb: "Pull", system: "Seismic", desc: "Attaches approved talking materials from Seismic.", icon: FileText },
+        { label: "Create task", verb: "Create", system: "CEW · Book 360", icon: LayoutDashboard, primary: true },
+        { label: "Schedule meeting", verb: "Schedule", system: "Zoom", icon: Video },
+        { label: "Pull collateral", verb: "Pull", system: "Seismic", icon: FileText },
       ];
   }
 }
 
-function RouteScene({ opp, routed, accepts, onRoute }: { opp: Opportunity; routed: boolean; accepts: number; onRoute: () => void }) {
+// The routed opportunity as the delivery API sees it.
+function toDeliveryOpp(o: Opportunity) {
+  return {
+    id: o.id,
+    type: o.type,
+    client: o.client,
+    value: o.value,
+    valueLabel: o.valueLabel,
+    confidence: o.confidence,
+    action: o.action,
+    reason: o.reason,
+    owner: o.owner,
+    destination: o.destination,
+  };
+}
+
+// Best-effort live delivery through api/deliver (Salesforce-sandbox bridgeable);
+// the locally built payload is always shown regardless.
+async function invokeDeliver(opp: Opportunity): Promise<{ forwarded?: boolean } | null> {
+  if (!budgetOk()) return null;
+  try {
+    const res = await fetch("/api/deliver", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-ventus-client": "web-app" },
+      body: JSON.stringify({ opportunity: toDeliveryOpp(opp) }),
+    });
+    if (res.ok) return (await res.json()) as { forwarded?: boolean };
+  } catch {
+    // stay staged — payload preview still renders locally
+  }
+  return null;
+}
+
+function RouteScene({
+  opp,
+  routed,
+  onRoute,
+  allowSandboxDelivery,
+}: {
+  opp: Opportunity;
+  routed: boolean;
+  onRoute: () => void;
+  allowSandboxDelivery: boolean;
+}) {
   const target = destinations.find((d) => d.id === opp.destination) ?? destinations[0];
   const TargetIcon = target.icon;
-  const precision = Math.min(96, 86 + accepts * 2);
   const actions = routeActions(opp);
   const [actionMsg, setActionMsg] = useState<string | null>(null);
   const [doneActions, setDoneActions] = useState<Set<string>>(new Set());
+  const [payload, setPayload] = useState<DeliveryPayload | null>(null);
+  const [payloadOpen, setPayloadOpen] = useState(false);
+  const [sandboxed, setSandboxed] = useState(false);
   useEffect(() => {
     setActionMsg(null);
     setDoneActions(new Set());
+    setPayload(null);
+    setPayloadOpen(false);
+    setSandboxed(false);
   }, [opp.id]);
 
   const handle = (a: { label: string; system: string; primary?: boolean }) => {
     if (a.primary) {
       onRoute();
+      setPayload(buildDeliveryPayload(toDeliveryOpp(opp)));
+      if (allowSandboxDelivery) void invokeDeliver(opp).then((r) => setSandboxed(Boolean(r?.forwarded)));
     } else {
       setDoneActions((p) => new Set(p).add(a.label));
       setActionMsg(`${a.label} · ${a.system}`);
@@ -2290,12 +2814,9 @@ function RouteScene({ opp, routed, accepts, onRoute }: { opp: Opportunity; route
               return (
                 <div key={a.label} className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-2.5">
                   <Icon className="h-4 w-4 flex-none" style={{ color: NAVY }} />
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                      <p className="text-sm font-semibold text-slate-800">{a.label}</p>
-                      <span className="rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">{a.system}</span>
-                    </div>
-                    <p className="text-xs text-slate-500">{a.desc}</p>
+                  <div className="flex min-w-0 flex-1 items-center gap-2">
+                    <p className="truncate text-sm font-semibold text-slate-800">{a.label}</p>
+                    <span className="flex-none rounded-full bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">{a.system}</span>
                   </div>
                   <button
                     onClick={() => handle(a)}
@@ -2324,7 +2845,7 @@ function RouteScene({ opp, routed, accepts, onRoute }: { opp: Opportunity; route
 
           {routed && (
             <p className="mt-3 flex items-center gap-2 text-sm font-medium" style={{ color: GREEN }}>
-              <Repeat className="h-4 w-4" /> Learned from your accept — precision now {precision}%.
+              <Repeat className="h-4 w-4" /> Staged for pilot measurement — no outcome claimed.
             </p>
           )}
           {actionMsg && (
@@ -2332,11 +2853,38 @@ function RouteScene({ opp, routed, accepts, onRoute }: { opp: Opportunity; route
               <Check className="h-3.5 w-3.5" /> {actionMsg}
             </p>
           )}
+
+          {/* Integration proof: the exact write that hits the bank's system of record */}
+          {payload && (
+            <div className="mt-3">
+              <button
+                onClick={() => setPayloadOpen((v) => !v)}
+                className="flex items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 py-1.5 text-xs font-semibold text-slate-600 transition hover:bg-slate-50"
+              >
+                <FileText className="h-3.5 w-3.5" style={{ color: NAVY }} />
+                {payloadOpen ? "Hide payload" : `View ${payload.system.split("·")[0].trim()} payload`}
+                <span className="rounded-full px-1.5 py-0.5 text-[10px] font-bold" style={sandboxed ? { backgroundColor: `${GREEN}14`, color: GREEN } : { backgroundColor: "#f1f5f9", color: "#64748b" }}>
+                  {sandboxed ? "delivered to sandbox" : "staged"}
+                </span>
+              </button>
+              {payloadOpen && (
+                <div className="mt-2 overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+                  <div className="flex items-center justify-between border-b border-slate-700/60 px-3 py-1.5">
+                    <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{payload.object}</span>
+                    <span className="truncate font-mono text-[10px] text-slate-500">{payload.endpoint}</span>
+                  </div>
+                  <pre className="scrollbar-light max-h-40 overflow-auto p-3 font-mono text-[10px] leading-4 text-emerald-300">
+                    {JSON.stringify(payload.payload, null, 2)}
+                  </pre>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <div>
           <div className="mb-3 flex flex-wrap gap-2">
-            {destinations.map((d) => {
+            {destinations.filter((d) => !d.lob || d.lob === oppLob(opp)).map((d) => {
               const Icon = d.icon;
               const isTarget = d.id === opp.destination;
               return (
@@ -2403,10 +2951,113 @@ function MeetingJourneyCard({ opp }: { opp: Opportunity }) {
 
 function DestinationPreview({ opp, routed }: { opp: Opportunity; routed: boolean }) {
   if (opp.destination === "advisor") return <Book360Mock opp={opp} routed={routed} />;
+  if (opp.destination === "merrill") return <Book360Mock opp={opp} routed={routed} referral />;
+  if (opp.destination === "erica") return <EricaMock opp={opp} routed={routed} />;
+  if (opp.destination === "banker") return <BankerDeskMock opp={opp} routed={routed} />;
   return <RecipientCard opp={opp} routed={routed} />;
 }
 
-function Book360Mock({ opp, routed }: { opp: Opportunity; routed: boolean }) {
+// Erica proactive insight, rendered as the client would see it — in their app.
+function EricaMock({ opp, routed }: { opp: Opportunity; routed: boolean }) {
+  return (
+    <div className="mx-auto w-full max-w-xs overflow-hidden rounded-[28px] border-4 border-slate-800 bg-white shadow-lg">
+      <div className="flex items-center justify-between px-4 py-2.5 text-white" style={{ backgroundColor: NAVY }}>
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-5 w-5 items-center justify-center overflow-hidden rounded text-[10px] font-black">
+            <span className="absolute inset-0" style={{ backgroundColor: "#fff" }} />
+            <span className="absolute -right-0.5 top-0 h-6 w-[5px] rotate-[24deg]" style={{ backgroundColor: RED }} />
+            <span className="relative" style={{ color: NAVY }}>B</span>
+          </span>
+          <span className="text-xs font-semibold">Erica</span>
+        </div>
+        <span className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">Mobile app</span>
+      </div>
+      <div className="space-y-2 p-3" style={{ backgroundColor: "#f6f8fb" }}>
+        <div className="flex items-center justify-between">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">Proactive insight</p>
+          <AiTag label="via Ventus" title="Signal detected and prepared by Ventus; delivered through Erica." />
+        </div>
+        <div className="rounded-2xl rounded-tl-md border border-slate-200 bg-white p-3">
+          <p className="text-xs leading-5 text-slate-700">
+            Nice one — your balance is growing. Want that money working for you? I can set up an automatic transfer toward a goal.
+          </p>
+          <p className="mt-1.5 text-[11px] font-semibold" style={{ color: BLUE }}>
+            {opp.value} {opp.valueLabel}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <span className="rounded-full px-3 py-1.5 text-[11px] font-semibold text-white" style={{ backgroundColor: BLUE }}>
+            Set up auto-save
+          </span>
+          <span className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600">
+            Add to Life Plan
+          </span>
+          <span className="rounded-full border border-slate-300 bg-white px-3 py-1.5 text-[11px] font-semibold text-slate-600">
+            Talk to a banker
+          </span>
+        </div>
+        {routed ? (
+          <p className="flex items-center gap-1 text-[11px] font-medium" style={{ color: GREEN }}>
+            <Check className="h-3 w-3" /> Delivered to their app just now
+          </p>
+        ) : (
+          <p className="text-[10px] text-slate-400">Held until consent + suppression checks clear.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// The banker's side of the same engine — a workbench with the conversation prepared.
+function BankerDeskMock({ opp, routed }: { opp: Opportunity; routed: boolean }) {
+  return (
+    <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+      <div className="flex items-center justify-between px-3 py-2 text-white" style={{ backgroundColor: NAVY }}>
+        <div className="flex items-center gap-2">
+          <UserRoundCheck className="h-4 w-4" />
+          <span className="text-xs font-semibold">Banker workbench</span>
+        </div>
+        <span className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">Financial center · Midtown</span>
+      </div>
+      <div className="p-3">
+        <div className="mb-2 flex items-center justify-between">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Today · {opp.owner}</p>
+          <AiTag label="via Ventus" title="Prioritized and prepared by Ventus; lands in the banker's day." />
+        </div>
+        <div className="mb-2 flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 opacity-60">
+          <Clock className="h-3.5 w-3.5 flex-none text-slate-400" />
+          <p className="truncate text-xs text-slate-500">10:30 · Notary appointment — walk-in</p>
+        </div>
+        <div className="rounded-xl border-2 p-3" style={{ borderColor: routed ? GREEN : `${BLUE}44` }}>
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-semibold text-slate-900">{opp.client}</span>
+            <span className="rounded-full border border-blue-200 bg-blue-50 px-2 py-0.5 text-[10px] font-bold text-blue-700">{opp.confidence}%</span>
+          </div>
+          <p className="mt-1 text-xs leading-5 text-slate-600">{opp.reason}</p>
+          <p className="mt-2 text-[11px] font-semibold" style={{ color: BLUE }}>
+            {opp.value} · {opp.valueLabel} · offer math staged
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-md px-2.5 py-1 text-[11px] font-semibold text-white" style={{ backgroundColor: BLUE }}>
+              Book appointment
+            </span>
+            <span className="flex items-center gap-1 rounded-md border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-600">
+              <MessageSquare className="h-3 w-3" /> Start outreach call
+            </span>
+          </div>
+          {routed && (
+            <p className="mt-2 flex items-center gap-1 text-[11px] font-medium" style={{ color: GREEN }}>
+              <Check className="h-3 w-3" /> On {opp.owner.split(" ")[0]}'s calendar just now
+            </p>
+          )}
+        </div>
+        <p className="mt-2 text-[10px] text-slate-400">Talking points + retention offer attached — no cold prep.</p>
+      </div>
+    </div>
+  );
+}
+
+function Book360Mock({ opp, routed, referral = false }: { opp: Opportunity; routed: boolean; referral?: boolean }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="flex items-center justify-between px-3 py-2 text-white" style={{ backgroundColor: NAVY }}>
@@ -2432,7 +3083,7 @@ function Book360Mock({ opp, routed }: { opp: Opportunity; routed: boolean }) {
         <div className="mb-2 flex items-center justify-between">
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">Insights</p>
           <span className="flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold" style={{ backgroundColor: `${GREEN}14`, color: GREEN }}>
-            <Sparkles className="h-3 w-3" /> via Ventus
+            <Sparkles className="h-3 w-3" /> {referral ? "Consumer Banking referral · via Ventus" : "via Ventus"}
           </span>
         </div>
 
@@ -2455,12 +3106,16 @@ function Book360Mock({ opp, routed }: { opp: Opportunity; routed: boolean }) {
           </div>
           {routed && (
             <p className="mt-2 flex items-center gap-1 text-[11px] font-medium" style={{ color: GREEN }}>
-              <Check className="h-3 w-3" /> Added to Book 360 just now
+              <Check className="h-3 w-3" /> {referral ? "Referred to Book 360 just now — banker intro attached" : "Added to Book 360 just now"}
             </p>
           )}
         </div>
 
-        <p className="mt-2 text-[10px] text-slate-400">1 new insight today · sits beside your reviews &amp; birthdays</p>
+        <p className="mt-2 text-[10px] text-slate-400">
+          {referral
+            ? "One Bank at work — the moment was sensed in consumer banking, completed here"
+            : "1 new insight today · sits beside your reviews & birthdays"}
+        </p>
       </div>
     </div>
   );
@@ -2508,18 +3163,18 @@ function fmtUsd(n: number): string {
   return `$${Math.round(n)}`;
 }
 
-// Market-executive KPIs computed from the live book (clients + prospects).
+// One-Bank executive KPIs computed from the live books — consumer + wealth together.
 function bookMetrics() {
-  const book = advisorBook;
+  const book = [...advisorBook, ...consumerBook];
   const pipeline = book.reduce((s, o) => s + valueNum(o.value), 0);
   const atRisk = book
     .filter((o) => (OPP_GOALS[o.id] ?? []).includes("retention"))
     .reduce((s, o) => s + valueNum(o.value), 0);
+  const handoffs = book.filter((o) => o.destination === "merrill" || o.id === "transition").length;
   return [
-    { value: fmtUsd(pipeline), label: "Pipeline in motion", sub: `${book.length} qualified this week` },
-    { value: fmtUsd(atRisk), label: "Assets at risk", sub: "could leave the book" },
-    { value: "62%", label: "Coverage", sub: "opportunities being worked" },
-    { value: "41%", label: "Advisor acceptance", sub: "7-day average" },
+    { value: fmtUsd(pipeline), label: "Illustrative value surfaced", sub: `${book.length} synthetic scenarios · consumer + wealth` },
+    { value: fmtUsd(atRisk), label: "Illustrative value at risk", sub: "synthetic retention scenarios" },
+    { value: "≥35%", label: "Pilot acceptance gate", sub: `${handoffs} illustrative Consumer → Merrill handoffs · not measured` },
   ];
 }
 
@@ -2557,16 +3212,10 @@ type DemandPlay = {
 };
 
 const strategicObjectives: { id: StrategicObjective; label: string }[] = [
-  { id: "retain", label: "Max NNA" },
-  { id: "speed", label: "Speed" },
-  { id: "control", label: "Control" },
+  { id: "retain", label: "Max relationship value" },
+  { id: "speed", label: "Fastest learning" },
+  { id: "control", label: "Control first" },
 ];
-
-const preferredStrategyByObjective: Record<StrategicObjective, string> = {
-  retain: "Private-credit coverage strategy",
-  speed: "Private-market access strategy",
-  control: "Digital-asset coverage strategy",
-};
 
 function objectiveFromText(text: string): StrategicObjective {
   const normalized = text.toLowerCase();
@@ -2576,6 +3225,76 @@ function objectiveFromText(text: string): StrategicObjective {
 }
 
 const demandPlays: DemandPlay[] = [
+  {
+    icon: GitBranch,
+    signal: "Liquidity, rollover, and asset-leakage moments surfacing in consumer relationships",
+    qualitative: "Relationship and service context distinguishes a timely wealth need from a large balance alone.",
+    guardrail: "Consent, eligibility, vulnerability, and relationship-owner checks apply.",
+    households: "1,120 qualified moments · illustrative",
+    product: "Consumer-to-Merrill transition skill",
+    proof: "Consumer activity reveals the need before an external wealth platform sees the transfer.",
+    execMove: "Pilot warm, named referrals",
+    aiAction: "Combines liquidity, relationship depth, held products, and risk into one explainable handoff.",
+    nextStep: "Founding pilot focus",
+    owner: "Consumer + Merrill growth",
+    scenarios: [
+      { name: "Observe only", impact: "Baseline capture", tradeoff: "No employee learning" },
+      { name: "Shadow referral", impact: "Acceptance benchmark", tradeoff: "No customer action" },
+      { name: "Controlled warm handoff", impact: "Incremental NNA", tradeoff: "Capacity + policy gate" },
+    ],
+    recommendations: {
+      retain: {
+        path: "Qualified Consumer-to-Merrill handoff",
+        impact: "Incremental NNA measured in pilot",
+        rationale: "Identify a real wealth need while the assets are still on-bank, then give the relationship owner one evidence-backed, policy-cleared warm introduction.",
+      },
+      speed: {
+        path: "Shadow signals + named referral pilot",
+        impact: "Acceptance baseline in eight weeks",
+        rationale: "Start in shadow mode, compare Ventus moments with current referrals, and activate only after advisors and policy owners validate precision.",
+      },
+      control: {
+        path: "Consent- and suitability-gated referral",
+        impact: "Qualified cohort only",
+        rationale: "Suppress vulnerable, ineligible, or poorly evidenced cases before a task reaches a banker or Merrill advisor.",
+      },
+    },
+  },
+  {
+    icon: Landmark,
+    signal: "$96M/yr in checking outflows to neobanks & fintech debit",
+    qualitative: "Branch notes: younger households quietly splitting their direct deposit.",
+    guardrail: "UDAAP review and uniform offer criteria required.",
+    households: "12,400 households",
+    product: "Deposit-primacy defense strategy",
+    proof: "Primacy predicts every other product the bank sells.",
+    execMove: "Fund retention plays",
+    aiAction: "Finds at-risk households before the second paycheck moves.",
+    nextStep: "Recommended focus",
+    owner: "Consumer Products",
+    scenarios: [
+      { name: "Watch only", impact: "$96M/yr leakage", tradeoff: "Compounding loss" },
+      { name: "Targeted banker outreach", impact: "$38M defended", tradeoff: "Banker capacity" },
+      { name: "Primacy bundle (rate + rewards boost)", impact: "$61M defended", tradeoff: "Margin giveback" },
+    ],
+    recommendations: {
+      retain: {
+        path: "Targeted banker outreach + primacy bundle",
+        impact: "$61M defended",
+        rationale: "Catch at-risk households weeks early. Banker + quantified Rewards bundle defends the deposits that anchor everything else.",
+      },
+      speed: {
+        path: "Targeted banker outreach",
+        impact: "$38M defended",
+        rationale: "Bankers and the scheduler already exist. Ranked outreach starts this quarter — no product approval.",
+      },
+      control: {
+        path: "Uniform-criteria retention rulebook",
+        impact: "$38M controlled defense",
+        rationale: "Uniform offer criteria first — the play scales without UDAAP or pricing-fairness risk.",
+      },
+    },
+  },
   {
     icon: Coins,
     signal: "$210M moving to private-market & alt platforms",
@@ -2597,17 +3316,17 @@ const demandPlays: DemandPlay[] = [
       retain: {
         path: "Build tokenized Merrill access",
         impact: "$118M upside",
-        rationale: "Clients are already moving toward private-market access, and Citi is pushing tokenized private shares. Merrill should test its own access path before assets and mindshare move to external platforms.",
+        rationale: "Clients are moving; Citi is already tokenizing. Test your own access path before assets and mindshare leave.",
       },
       speed: {
         path: "Partner access pilot",
         impact: "$74M upside",
-        rationale: "Citi's tokenization move suggests the category is forming now. A partner pilot lets Merrill learn demand and controls quickly without waiting on a full internal build.",
+        rationale: "The category is forming now. A partner pilot learns demand and controls without an internal build.",
       },
       control: {
         path: "Eligibility rulebook + partner diligence",
         impact: "$74M controlled upside",
-        rationale: "Because access products carry eligibility and suitability risk, Merrill should define the rulebook before exposing clients to any partner or proprietary option.",
+        rationale: "Access products carry eligibility and suitability risk — define the rulebook before exposing clients.",
       },
     },
   },
@@ -2632,17 +3351,17 @@ const demandPlays: DemandPlay[] = [
       retain: {
         path: "Managed sleeve pilot",
         impact: "$92M demand",
-        rationale: "Crypto on-ramp outflows show assets leaving for unmanaged venues. A managed sleeve gives Merrill a supervised retention path instead of ceding the relationship to Coinbase, ETFs, or outside advisors.",
+        rationale: "Assets are leaving for unmanaged venues. A supervised sleeve keeps the relationship in-house.",
       },
       speed: {
         path: "Advisor referral",
         impact: "$51M upside",
-        rationale: "The quickest near-term move is not a new product; it is routing high-fit clients to trained advisors with approved education and referral language.",
+        rationale: "Fastest move: route high-fit clients to trained advisors with approved language. No new product.",
       },
       control: {
         path: "Digital-asset education guardrails",
         impact: "Lower risk",
-        rationale: "Client demand is visible, but suitability risk is high. Education guardrails let Merrill keep the relationship warm without implying a product recommendation.",
+        rationale: "Demand is visible; suitability risk is high. Education keeps it warm without implying a recommendation.",
       },
     },
   },
@@ -2667,17 +3386,17 @@ const demandPlays: DemandPlay[] = [
       retain: {
         path: "Private-credit pilot",
         impact: "$145M tested",
-        rationale: "HNW clients are signaling demand for yield beyond public markets while private-credit platforms compete for allocation. A controlled pilot lets Merrill test capture before that demand leaves the franchise.",
+        rationale: "HNW yield demand is visible now. A controlled pilot tests capture before it leaves the franchise.",
       },
       speed: {
         path: "Specialist triage desk",
         impact: "$63M routed",
-        rationale: "If speed matters, Merrill can use existing specialists now instead of waiting for a full product rollout. The AI routes only high-fit cases with clear evidence.",
+        rationale: "Use existing specialists now — the AI routes only high-fit cases with clear evidence.",
       },
       control: {
         path: "Supervised specialist review",
         impact: "$63M supervised",
-        rationale: "Private credit has liquidity and concentration risk, so the safest route is a supervised specialist review before any broader coverage motion.",
+        rationale: "Liquidity + concentration risk → supervised specialist review before any broader motion.",
       },
     },
   },
@@ -2722,72 +3441,118 @@ async function rankStrategyResponse(play: DemandPlay, objectiveLabel: string): P
   };
 }
 
-function BookScene() {
+function BookScene({
+  mode,
+  onLedger,
+  allowInternalTools,
+  allowSimulatedEvidence,
+}: {
+  mode: Mode;
+  onLedger: (events: LedgerDraft[]) => void;
+  allowInternalTools: boolean;
+  allowSimulatedEvidence: boolean;
+}) {
+  const isOperator = mode === "operator";
   const bookOutcomes = bookMetrics();
   const [objective, setObjective] = useState<StrategicObjective>("retain");
   const [customObjective, setCustomObjective] = useState("");
   const [analyses, setAnalyses] = useState<Set<string>>(new Set());
   const [rankedRecommendations, setRankedRecommendations] = useState<Record<string, ObjectiveRecommendation>>({});
   const [rankingBusy, setRankingBusy] = useState<string | null>(null);
+  const [skillOpen, setSkillOpen] = useState(false);
   const selectedObjective = strategicObjectives.find((item) => item.id === objective) ?? strategicObjectives[0];
   const isCustom = customObjective.trim().length > 0;
   const objectiveText = customObjective.trim() || selectedObjective.label;
   const localObjective = customObjective.trim() ? objectiveFromText(customObjective) : objective;
-  const selectedPlay = demandPlays.find((p) => p.product === preferredStrategyByObjective[localObjective]) ?? demandPlays[0];
+  const ask = customObjective.toLowerCase();
+  const selectedProduct = /(deposit|checking|primacy|neobank|fintech|branch|debit|erica|card)/.test(ask)
+    ? "Deposit-primacy defense strategy"
+    : /(token|private market|pre-ipo)/.test(ask)
+      ? "Private-market access strategy"
+      : /(crypto|digital asset)/.test(ask)
+        ? "Digital-asset coverage strategy"
+        : /(private credit|yield)/.test(ask)
+          ? "Private-credit coverage strategy"
+          : "Consumer-to-Merrill transition skill";
+  const selectedPlay = demandPlays.find((p) => p.product === selectedProduct) ?? demandPlays[0];
   const runAnalysis = useCallback(
-    async (play: DemandPlay) => {
+    (play: DemandPlay) => {
       const key = `${play.product}:${objectiveText}`;
       setRankingBusy(key);
-      try {
-        const ranked = await rankStrategyResponse(play, objectiveText);
-        setRankedRecommendations((prev) => ({ ...prev, [key]: ranked }));
-      } catch {
-        const fallback = play.recommendations[localObjective];
-        setRankedRecommendations((prev) => ({
-          ...prev,
-          [key]: { ...fallback, source: "Local fallback · OpenRouter route unavailable in this session" },
-        }));
-      } finally {
-        setAnalyses((prev) => new Set(prev).add(key));
-        setRankingBusy(null);
-      }
+      const fallback = play.recommendations[localObjective];
+      setRankedRecommendations((prev) => ({
+        ...prev,
+        [key]: { ...fallback, source: "Ventus Skill Planner · prototype" },
+      }));
+      setAnalyses((prev) => new Set(prev).add(key));
+      setRankingBusy(null);
     },
     [localObjective, objectiveText],
   );
 
   return (
     <SceneShell fill>
-      <div className="grid h-full max-h-full grid-cols-[260px_minmax(0,1fr)] items-stretch gap-5">
-        <section className="flex min-h-0 flex-col rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <Eyebrow>Leadership view</Eyebrow>
-          <h1 className="mt-2 text-2xl font-semibold leading-tight tracking-tight" style={{ color: NAVY }}>
-            Whole-book signal.
+      <div className="grid h-full max-h-full grid-cols-[280px_minmax(0,1fr)] items-stretch gap-4">
+        <section className="flex min-h-0 flex-col rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+          <Eyebrow>{isOperator ? "Ventus Skill Studio" : "Enterprise growth portfolio"}</Eyebrow>
+          <h1 className="mt-1.5 text-xl font-semibold leading-tight tracking-tight" style={{ color: NAVY }}>
+            {isOperator ? "Turn an objective into a deployable skill." : "Fund what creates incremental value."}
           </h1>
-          <p className="mt-2 text-xs leading-5 text-slate-500">Market demand, product whitespace, and coverage capacity.</p>
+          <p className="mt-2 text-xs leading-5 text-slate-500">
+            {isOperator
+              ? "A reusable decision package: signal, audience, intervention, policy, delivery, and measurement."
+              : "Consumer + wealth strategies compared on economics, capacity, control, and measured lift."}
+          </p>
 
-          <div className="mt-5 grid flex-1 content-start gap-3">
-            {bookOutcomes.map((o) => (
-              <div key={o.label} className="rounded-xl bg-slate-50 p-3">
-                <p className="text-2xl font-bold leading-tight" style={{ color: NAVY }}>
-                  {o.value}
-                </p>
-                <p className="mt-1 text-xs font-semibold leading-4 text-slate-700">{o.label}</p>
+          {isOperator ? (
+            <div className="mt-3 grid flex-1 grid-cols-2 content-start gap-1.5">
+              {[
+                ["1", "Objective", "The outcome the institution wants"],
+                ["2", "Financial state", "The evidence that makes it timely"],
+                ["3", "Intervention", "One action, owner, and channel"],
+                ["4", "Policy", "Eligibility, consent, and suppression"],
+                ["5", "Learning", "Control group and incremental lift"],
+              ].map(([n, label, copy]) => (
+                <div key={n} className="flex gap-1.5 rounded-lg bg-slate-50 p-1.5">
+                  <span className="flex h-5 w-5 flex-none items-center justify-center rounded-full text-[9px] font-bold text-white" style={{ backgroundColor: NAVY }}>
+                    {n}
+                  </span>
+                  <div>
+                    <p className="text-[11px] font-semibold text-slate-800">{label}</p>
+                    <p className="text-[9px] leading-3 text-slate-500">{copy}</p>
+                  </div>
+                </div>
+              ))}
+              <div className="col-span-2 flex items-center gap-1.5 text-[9px] font-semibold" style={{ color: GREEN }}>
+                <Repeat className="h-3.5 w-3.5" /> Versioned · auditable · reusable across markets
               </div>
-            ))}
-          </div>
+            </div>
+          ) : (
+            <div className="mt-3 grid flex-1 grid-cols-2 content-start gap-2">
+              {bookOutcomes.map((o) => (
+                <div key={o.label} className={`rounded-lg bg-slate-50 p-2.5 ${o.label === "Front-line acceptance" ? "col-span-2" : ""}`}>
+                  <p className="text-xl font-bold leading-tight" style={{ color: NAVY }}>{o.value}</p>
+                  <p className="mt-1 text-[11px] font-semibold leading-4 text-slate-700">{o.label}</p>
+                  <p className="mt-0.5 text-[9px] leading-3 text-slate-400">{o.sub}</p>
+                </div>
+              ))}
+            </div>
+          )}
         </section>
 
-        <section className="grid min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] gap-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <section className="grid min-h-0 grid-rows-[auto_auto_minmax(0,1fr)] gap-3 rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
           <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3">
             <div>
               <div className="flex items-center gap-2">
                 <Wand2 className="h-4 w-4" style={{ color: GREEN }} />
-                <p className="text-sm font-semibold text-slate-900">Define objective</p>
+                <p className="text-sm font-semibold text-slate-900">
+                  {isOperator ? "Describe the business outcome" : "Set the enterprise objective"}
+                </p>
               </div>
               <input
                 value={customObjective}
                 onChange={(event) => setCustomObjective(event.target.value)}
-                placeholder="e.g. grow UHNW pipeline without new product approval"
+                placeholder="e.g. grow wealth referrals without unsuitable outreach"
                 className="mt-2 w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 outline-none placeholder:text-slate-400 focus:border-blue-300"
               />
             </div>
@@ -2797,7 +3562,7 @@ function BookScene() {
               className="self-end rounded-xl px-4 py-2 text-sm font-semibold text-white"
               style={{ backgroundColor: NAVY }}
             >
-              {rankingBusy === `${selectedPlay.product}:${objectiveText}` ? "Thinking" : "Ask Ventus"}
+              {rankingBusy === `${selectedPlay.product}:${objectiveText}` ? "Designing" : isOperator ? "Design skill" : "Ask Ventus"}
             </button>
           </div>
 
@@ -2839,35 +3604,48 @@ function BookScene() {
             const recommendation = rankedRecommendations[analysisKey] ?? p.recommendations[localObjective];
             const Icon = p.icon;
             return (
-              <div className="grid h-full min-h-0 grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-4">
-                <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="grid h-full min-h-0 grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)] gap-3">
+                <div className="rounded-xl bg-slate-50 p-3">
                   <div className="flex items-start gap-2">
                     <Icon className="mt-0.5 h-4 w-4 flex-none" style={{ color: NAVY }} />
                     <div>
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Context</p>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-400">Financial state</p>
+                        <span className="rounded-full bg-white px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wide text-slate-400">Illustrative data</span>
+                      </div>
                       <p className="mt-1 text-sm font-semibold leading-5 text-slate-900">{p.signal}</p>
                     </div>
                   </div>
                   <div className="mt-3 grid grid-cols-2 gap-2">
-                    <BriefMetric label="Households" value={p.households} />
-                    <BriefMetric label="Area" value={p.product} />
+                    <BriefMetric label="Eligible population" value={p.households} />
+                    <BriefMetric label="Skill family" value={p.product} />
                   </div>
-                  <p className="mt-3 text-xs leading-5 text-slate-500">{p.qualitative}</p>
+                  <p className="mt-2 flex items-start gap-1.5 text-[10px] font-medium leading-4 text-slate-500">
+                    <Sparkles className="mt-0.5 h-3 w-3 flex-none" style={{ color: GREEN }} /> {p.aiAction}
+                  </p>
                 </div>
 
                 <div className="flex min-w-0 flex-col">
-                  <div className="flex flex-1 flex-col rounded-2xl border border-blue-100 bg-blue-50 p-5">
+                  <div className="flex flex-1 flex-col rounded-xl border border-blue-100 bg-blue-50 p-4">
                     <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">Ventus recommends</p>
+                      <p className="text-xs font-semibold uppercase tracking-[0.14em] text-blue-500">
+                        {isOperator ? "Deployable Ventus Skill" : "Recommended portfolio move"}
+                      </p>
                       {recommendation.source ? (
-                        <AiTag label={recommendation.source} title="Generated live for your objective" />
+                        <AiTag label={recommendation.source} title="Generated from the current objective using the prototype planner" />
                       ) : (
-                        <span className="text-[10px] font-medium text-slate-400">Ask Ventus for a live take →</span>
+                        <span className="text-[10px] font-medium text-slate-400">Design skill to customize →</span>
                       )}
                     </div>
-                    <h2 className="mt-2 text-2xl font-bold leading-tight text-slate-950">{recommendation.path}</h2>
-                    <p className="mt-2 text-sm font-semibold" style={{ color: NAVY }}>{recommendation.impact}</p>
-                    <p className="mt-2 text-sm leading-5 text-slate-700">{recommendation.rationale}</p>
+                    <h2 className="mt-1.5 text-xl font-bold leading-tight text-slate-950">{recommendation.path}</h2>
+                    <p className="mt-1.5 text-xs font-semibold" style={{ color: NAVY }}>{recommendation.impact} · illustrative</p>
+                    <p className="mt-1.5 text-xs leading-4 text-slate-700">{recommendation.rationale}</p>
+
+                    <div className="mt-2 grid grid-cols-3 gap-1.5">
+                      <BriefMetric label="Activate" value={selectedProduct === "Consumer-to-Merrill transition skill" ? "Warm named referrals" : p.execMove} />
+                      <BriefMetric label="Guardrail" value={selectedProduct === "Consumer-to-Merrill transition skill" ? "Consent · eligibility · vulnerability" : "Policy-gated cohort"} />
+                      <BriefMetric label="Measure" value="Lift vs control" />
+                    </div>
 
                     {recommendation.keyRisks?.length ? (
                       <div className="mt-3">
@@ -2882,36 +3660,227 @@ function BookScene() {
                       </div>
                     ) : null}
 
-                    <div className="mt-auto flex items-center justify-between pt-3 text-[11px] text-slate-400">
-                      <span>Evolves with your objective</span>
-                      {typeof recommendation.confidence === "number" && (
-                        <span className="font-semibold" style={{ color: NAVY }}>
-                          {Math.round(recommendation.confidence * 100)}% confidence
-                        </span>
-                      )}
-                    </div>
+                    {isOperator && allowInternalTools && (
+                      <button
+                        onClick={() => setSkillOpen(true)}
+                        className="mt-auto flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white transition"
+                        style={{ backgroundColor: NAVY }}
+                      >
+                        <GitBranch className="h-3.5 w-3.5" /> View compiled skill
+                      </button>
+                    )}
                   </div>
-
-                  {analyses.size > 0 && (
-                    <p className="mt-3 text-xs font-medium" style={{ color: GREEN }}>
-                      {analyses.size} recommendation{analyses.size > 1 ? "s" : ""} saved to learning loop.
-                    </p>
-                  )}
                 </div>
               </div>
             );
           })()}
         </section>
       </div>
+      {allowInternalTools && skillOpen && (
+        <SkillArtifactPanel
+          play={selectedPlay}
+          recommendation={rankedRecommendations[`${selectedPlay.product}:${objectiveText}`] ?? selectedPlay.recommendations[localObjective]}
+          objective={objectiveText}
+          onLedger={onLedger}
+          onClose={() => setSkillOpen(false)}
+          allowSimulatedEvidence={allowSimulatedEvidence}
+        />
+      )}
     </SceneShell>
+  );
+}
+
+/* The compiled Skill artifact — a real, versioned SkillArtifact from src/lib/skills.ts.
+   It cannot validate without naming the P&L metric it moves and a holdout %. Promotion
+   walks shadow → assisted → automated with git-like version history. This is the platform
+   object: parameterize it and the same file runs at the next bank. */
+const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+function seedSkillFor(play: DemandPlay, objective: string, recommendation: ObjectiveRecommendation): SkillArtifact {
+  if (play.product === "Deposit-primacy defense strategy") return DEPOSIT_PRIMACY_SKILL;
+  if (play.product === "Consumer-to-Merrill transition skill") return CONSUMER_MERRILL_SKILL;
+  return compileObjectiveToSkill(objective, {
+    trigger: play.signal,
+    cohort: `${play.households} · eligibility-screened`,
+    evidenceRequired: play.aiAction,
+    intervention: recommendation.path,
+    policyPack: play.guardrail.split(/[,.]/).map((s) => s.trim()).filter(Boolean).slice(0, 4),
+  });
+}
+
+function SkillArtifactPanel({
+  play,
+  recommendation,
+  objective,
+  onLedger,
+  onClose,
+  allowSimulatedEvidence,
+}: {
+  play: DemandPlay;
+  recommendation: ObjectiveRecommendation;
+  objective: string;
+  onLedger: (events: LedgerDraft[]) => void;
+  onClose: () => void;
+  allowSimulatedEvidence: boolean;
+}) {
+  const [skill, setSkill] = useState<SkillArtifact>(() => seedSkillFor(play, objective, recommendation));
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const v = validateSkill(skill);
+  const stageIdx = SKILL_STAGES.indexOf(skill.stage);
+  const promotionOptions = { allowSimulatedEvidence };
+  const promotable = canPromote(skill, promotionOptions);
+  const blockers = promotionBlockers(skill, promotionOptions);
+  const simulatedEvidenceAttached = skill.promotionEvidence?.source === "simulated";
+  const promote = () => {
+    const next = promoteSkill(skill, simulatedEvidenceAttached ? "Simulated evaluation promotion" : "Promoted from Studio", promotionOptions);
+    setSkill(next);
+    onLedger([{
+      eventKey: `${next.slug}:${next.version}:promotion`,
+      kind: "skill",
+      title: `Skill promoted → ${cap(next.stage)}`,
+      detail: `${next.slug} @${next.version} · moves ${next.pnlMetric}`,
+      ref: next.slug,
+      skill: next.slug,
+      status: simulatedEvidenceAttached ? "simulated" : "confirmed",
+    }]);
+  };
+  const attachSimulatedEvidence = () => {
+    setSkill((current) => ({
+      ...current,
+      promotionEvidence: {
+        source: "simulated",
+        evaluationApproved: true,
+        sampleSize: 1200,
+        precision: 0.93,
+        acceptanceRate: 0.39,
+        incrementalLiftPct: 4.2,
+        fairnessReviewed: true,
+        policyApprovalId: "SIMULATED-EVAL-001",
+        holdoutActive: true,
+        outcomeWindowComplete: true,
+      },
+    }));
+  };
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
+      <div className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
+          <div className="flex min-w-0 items-center gap-2">
+            <GitBranch className="h-4 w-4 flex-none" />
+            <span className="truncate font-mono text-sm font-semibold">{skill.slug}</span>
+            <span className="flex-none rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">@{skill.version} · {cap(skill.stage)}</span>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-5">
+          <p className="text-xs leading-5 text-slate-500">
+            A compiled Skill: one declarative, versioned decision package — reusable across markets, portable across banks.
+          </p>
+
+          {/* P&L metric + validity — the constraint that ties every Skill to a revenue driver */}
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-xl border p-3" style={{ borderColor: `${NAVY}22`, backgroundColor: `${NAVY}05` }}>
+            <Target className="h-4 w-4 flex-none" style={{ color: NAVY }} />
+            <div className="min-w-0 flex-1">
+              <p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">Moves one P&amp;L metric</p>
+              <p className="truncate text-sm font-semibold text-slate-900">{skill.pnlMetric}</p>
+            </div>
+            <span className="flex-none rounded-full px-2 py-0.5 text-[10px] font-bold" style={v.valid ? { backgroundColor: `${GREEN}14`, color: GREEN } : { backgroundColor: `${RED}14`, color: RED }}>
+              {v.valid ? `valid · ${skill.measurement.holdoutPct}% holdout` : "invalid"}
+            </span>
+          </div>
+          {!v.valid && <p className="mt-1 text-[11px] font-medium" style={{ color: RED }}>{v.errors[0]}</p>}
+
+          {allowSimulatedEvidence && (
+            <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 p-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-amber-800">Evaluation-only evidence</p>
+                <p className="mt-0.5 text-[11px] leading-4 text-amber-800">
+                  {simulatedEvidenceAttached
+                    ? "Simulated sample, precision, fairness, holdout, and lift are attached. They cannot unlock production promotion."
+                    : "Attach a labeled evidence package to exercise the lifecycle without claiming bank results."}
+                </p>
+              </div>
+              <button
+                onClick={attachSimulatedEvidence}
+                disabled={simulatedEvidenceAttached}
+                className="flex-none rounded-lg border border-amber-300 bg-white px-3 py-2 text-xs font-semibold text-amber-900 transition hover:bg-amber-100 disabled:opacity-60"
+              >
+                {simulatedEvidenceAttached ? "Evidence attached" : "Attach simulated evidence"}
+              </button>
+            </div>
+          )}
+
+          {/* promote pipeline */}
+          <div className="mt-3 flex items-center gap-1.5">
+            {SKILL_STAGES.map((s, i) => (
+              <div key={s} className="flex flex-1 items-center gap-1.5">
+                <span
+                  className="flex-1 rounded-md py-1 text-center text-[10px] font-bold uppercase tracking-wide transition"
+                  style={i <= stageIdx ? { backgroundColor: `${GREEN}14`, color: GREEN } : { backgroundColor: "#f1f5f9", color: "#94a3b8" }}
+                >
+                  {s}
+                </span>
+                {i < SKILL_STAGES.length - 1 && <ArrowRight className="h-3 w-3 flex-none text-slate-300" />}
+              </div>
+            ))}
+          </div>
+
+          {/* the artifact, verbatim */}
+          <div className="mt-4 overflow-hidden rounded-xl border border-slate-800 bg-slate-900">
+            <pre className="scrollbar-light max-h-56 overflow-auto p-3 font-mono text-[11px] leading-5 text-emerald-300">{skillToSource(skill)}</pre>
+          </div>
+
+          {/* git-like version history */}
+          <p className="mt-3 text-[10px] font-bold uppercase tracking-wide text-slate-400">Version history</p>
+          <div className="mt-1.5 space-y-1">
+            {[...skill.history].reverse().map((h) => (
+              <div key={h.version + h.stage} className="flex items-center gap-2 text-[11px] text-slate-500">
+                <span className="font-mono font-semibold text-slate-700">@{h.version}</span>
+                <span className="rounded px-1.5 py-0.5 text-[9px] font-bold uppercase" style={{ backgroundColor: `${GREEN}0d`, color: GREEN }}>{h.stage}</span>
+                <span className="truncate">{h.note}</span>
+                <span className="ml-auto flex-none font-mono text-slate-400">{h.ts}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <p className="text-[11px] leading-4 text-slate-400">
+              {skill.stage === "automated"
+                ? simulatedEvidenceAttached
+                  ? "Simulated lifecycle complete — no production status changed."
+                  : "Fully automated within the approved policy and measurement design."
+                : blockers[0] ?? `Eligible to promote to ${cap(nextStage(skill.stage))}.`}
+            </p>
+            <button
+              onClick={promote}
+              disabled={!promotable}
+              className="flex flex-none items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white transition disabled:opacity-40"
+              style={{ backgroundColor: NAVY }}
+            >
+              {skill.stage === "automated"
+                ? <><Check className="h-3.5 w-3.5" /> {simulatedEvidenceAttached ? "Simulation complete" : "Live"}</>
+                : promotable
+                  ? <><Rocket className="h-3.5 w-3.5" /> Promote to {cap(nextStage(skill.stage))}</>
+                  : <><LockKeyhole className="h-3.5 w-3.5" /> Awaiting approval</>}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
 function BriefMetric({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-lg bg-slate-50 p-2">
-      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
-      <p className="mt-1 text-xs font-semibold leading-4 text-slate-800">{value}</p>
+    <div className="rounded-lg bg-slate-50 p-1.5">
+      <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+      <p className="mt-0.5 text-[11px] font-semibold leading-4 text-slate-800">{value}</p>
     </div>
   );
 }
@@ -2927,40 +3896,999 @@ function SignalChip({ label, value }: { label: string; value: string }) {
 
 /* ───────────────────────── Cover · persona fork ───────────────────────── */
 
-function Cover({ onPick }: { onPick: (scene: number, mode: Mode) => void }) {
+const BOFA_SURFACES = ["Erica", "Preferred Rewards", "CEW · Book 360", "Ask Merrill", "Salesforce FSC"];
+
+const CAPABILITY_ICONS: Record<string, typeof Activity> = {
+  "financial-state": Activity,
+  decisioning: Wand2,
+  activation: Network,
+  measurement: Repeat,
+};
+
+const VENTUS_LOOP = leadershipCapabilities().map((capability) => ({
+  icon: CAPABILITY_ICONS[capability.id] ?? Sparkles,
+  label: capability.title,
+  copy: capability.leadershipPromise,
+}));
+
+type LeadershipConfig = {
+  objective: string;
+  coverCopy: string;
+  opp: Opportunity;
+  playTitle: string;
+  skill: SkillArtifact;
+  pilotOwner: string;
+  actEarlier: string; // division of value: the institution owns the signals; Ventus turns them into action
+};
+
+function leadershipConfig(path: LeadershipPath): LeadershipConfig {
+  if (path === "deposit-retention") {
+    return {
+      objective: "Protect primary deposits",
+      coverCopy: "Detect relationship erosion early and prepare one timely banker action.",
+      opp: consumerBook.find((item) => item.id === "primacy") ?? consumerBook[0],
+      playTitle: "Deposit Primacy Defense",
+      skill: DEPOSIT_PRIMACY_SKILL,
+      pilotOwner: "Consumer Bank P&L owner",
+      actEarlier: "Your institution owns the payroll, card, and P2P signals. Ventus connects them into one governed moment — before the second paycheck leaves.",
+    };
+  }
+  return {
+    objective: "Grow Merrill NNA",
+    coverCopy: "Surface evidenced liquidity moments and create warm advisor introductions.",
+    opp: advisorBook.find((item) => item.id === "transition") ?? advisorBook[0],
+    playTitle: "Consumer-to-Merrill Growth",
+    skill: CONSUMER_MERRILL_SKILL,
+    pilotOwner: "Consumer + Merrill growth sponsor",
+    actEarlier: "Your institution owns the deposit and wealth relationships. Ventus connects them into one governed moment — before the transfer completes.",
+  };
+}
+
+// Story-shaped, not builder-shaped: open on what a person sees, then reveal what drove
+// it, then let the exec set boundaries — comprehension before configuration.
+const EXECUTIVE_STEPS = ["Run", "Act", "Configure", "Prove"] as const;
+
+// Progressive employee-surface preview with a before/after contrast: the same queue
+// without Ventus (a static, context-free list) vs. with Ventus (one prepared, evidenced
+// item). Compact by default; full workstation on demand so the mock never steals the scene.
+function EmployeeSurfacePreview({ opp, onVentusModeChange }: { opp: Opportunity; onVentusModeChange?: (withVentus: boolean) => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const [withVentus, setWithVentus] = useState(true);
+  const dest = destinations.find((d) => d.id === opp.destination) ?? destinations[0];
+  const DestIcon = dest.icon;
+  const primary = routeActions(opp).find((a) => a.primary);
+  const coldRows = [
+    { name: "Household #4417", note: "Last contact 214 days · no context" },
+    { name: "Household #2093", note: "From monthly attrition report · no context" },
+    { name: "Household #7781", note: "Alphabetical call list · no context" },
+  ];
   return (
-    <div className="flex h-full w-full items-center px-6 py-6 sm:px-10">
-      <div className="mx-auto w-full max-w-5xl">
-        <Eyebrow>Guided walk-through · Ventus × Merrill</Eyebrow>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl" style={{ color: NAVY, lineHeight: 1.35 }}>
-          One engine. Every seat at Merrill. Pick yours.
+    <div>
+      <div className="mb-2 inline-flex rounded-lg bg-slate-100 p-1">
+        {([
+          ["without", "Without Ventus"],
+          ["with", "With Ventus"],
+        ] as const).map(([key, label]) => (
+          <button
+            key={key}
+            onClick={() => {
+              const next = key === "with";
+              setWithVentus(next);
+              onVentusModeChange?.(next);
+            }}
+            className={`rounded-md px-3 py-1 text-[11px] font-semibold transition ${withVentus === (key === "with") ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {!withVentus ? (
+        /* The Monday they have today: a static list, no evidence, no preparation. */
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between px-3 py-2 text-white" style={{ backgroundColor: "#475569" }}>
+            <div className="flex items-center gap-2">
+              <DestIcon className="h-4 w-4" />
+              <span className="text-xs font-semibold">{dest.label}</span>
+            </div>
+            <span className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">47 names</span>
+          </div>
+          <div className="divide-y divide-slate-100">
+            {coldRows.map((row) => (
+              <div key={row.name} className="flex items-center gap-3 px-3 py-2.5 opacity-70">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-slate-600">{row.name}</p>
+                  <p className="mt-0.5 truncate text-xs text-slate-400">{row.note}</p>
+                </div>
+                <span className="flex-none rounded-md border border-slate-200 px-2.5 py-1 text-[11px] font-semibold text-slate-400">Call</span>
+              </div>
+            ))}
+          </div>
+          <p className="border-t border-slate-100 px-3 py-2 text-[10px] text-slate-400">Static list · refreshed monthly · no evidence attached</p>
+        </div>
+      ) : expanded ? (
+        <DestinationPreview opp={opp} routed={false} />
+      ) : (
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between px-3 py-2 text-white" style={{ backgroundColor: NAVY }}>
+            <div className="flex items-center gap-2">
+              <DestIcon className="h-4 w-4" />
+              <span className="text-xs font-semibold">{dest.label}</span>
+            </div>
+            <span className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">{dest.short}</span>
+          </div>
+          <div className="flex items-center gap-3 px-3 py-3">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="truncate text-sm font-semibold text-slate-900">{opp.client}</p>
+                <ConfidencePill value={opp.confidence} />
+                <AiTag label="via Ventus" title="Detected, governed, and prepared by Ventus — delivered into this surface." />
+              </div>
+              <p className="mt-0.5 truncate text-xs text-slate-500">
+                {opp.value} · {opp.valueLabel} · prepared and staged
+              </p>
+            </div>
+            {primary && (
+              <span className="flex-none rounded-md px-2.5 py-1 text-[11px] font-semibold text-white" style={{ backgroundColor: NAVY }}>
+                {primary.verb}
+              </span>
+            )}
+          </div>
+        </div>
+      )}
+      {withVentus && (
+        <button
+          onClick={() => setExpanded((v) => !v)}
+          className="mt-2 flex items-center gap-1 text-[11px] font-semibold text-slate-500 transition hover:text-slate-800"
+        >
+          <ChevronDown className={`h-3 w-3 transition ${expanded ? "rotate-180" : ""}`} />
+          {expanded ? "Show compact view" : "View full employee experience"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+function CustomerExperiencePreview({ path }: { path: LeadershipPath }) {
+  const wealth = path === "wealth-growth";
+  return (
+    <div className="mx-auto w-full max-w-sm overflow-hidden rounded-[28px] border-4 border-slate-800 bg-white shadow-lg">
+      <div className="flex items-center justify-between px-4 py-2.5 text-white" style={{ backgroundColor: NAVY }}>
+        <div className="flex items-center gap-2">
+          <span className="flex h-5 w-5 items-center justify-center rounded bg-white text-[10px] font-black" style={{ color: NAVY }}>B</span>
+          <span className="text-xs font-semibold">Your bank</span>
+        </div>
+        <span className="rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">Mobile banking</span>
+      </div>
+      <div className="bg-slate-50 p-4">
+        <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Personalized support</p>
+        <div className="mt-2 rounded-2xl rounded-tl-md border border-slate-200 bg-white p-4">
+          <p className="text-base font-semibold text-slate-900">
+            {wealth ? "A planning review is ready" : "A relationship review is ready"}
+          </p>
+          <p className="mt-2 text-xs leading-5 text-slate-600">
+            {wealth
+              ? "Your relationship team can help review the cash building in your accounts and your longer-term goals."
+              : "A banker can review your everyday banking setup and make sure it still fits how you use your accounts."}
+          </p>
+          <button className="mt-3 w-full rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: BLUE }}>
+            {wealth ? "Schedule a planning review" : "Talk with my banker"}
+          </button>
+          <button className="mt-1.5 w-full py-1.5 text-xs font-semibold text-slate-400">Not now</button>
+        </div>
+        <p className="mt-2 text-center text-[10px] text-slate-400">Bank-approved content · consent and suppression checked</p>
+      </div>
+    </div>
+  );
+}
+
+function BoundaryToggle({ label, checked, onToggle }: { label: string; checked: boolean; onToggle: () => void }) {
+  return (
+    <button onClick={onToggle} role="switch" aria-checked={checked} className="flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 text-left">
+      <span className="text-xs font-semibold text-slate-700">{label}</span>
+      <span className="relative h-5 w-9 flex-none rounded-full transition" style={{ backgroundColor: checked ? GREEN : "#cbd5e1" }}>
+        <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition ${checked ? "left-[18px]" : "left-0.5"}`} />
+      </span>
+    </button>
+  );
+}
+
+function PendingMetric({ label, detail }: { label: string; detail: string }) {
+  return (
+    <div className="rounded-lg border border-slate-200 bg-white p-3">
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-slate-800">{label}</p>
+        <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold uppercase tracking-wide text-slate-500">Pending</span>
+      </div>
+      <p className="mt-1 text-[11px] leading-4 text-slate-500">{detail}</p>
+    </div>
+  );
+}
+
+// When set (e.g. http://localhost:8787/work-items from scripts/mock-cew-sandbox.mjs),
+// the Prove step's rehearsal performs REAL network writes and shows the receiver's
+// receipts. Unset = simulated, and the demo never sends a payload anywhere.
+const REHEARSAL_URL = ((import.meta.env.VITE_REHEARSAL_URL as string | undefined) ?? "").trim();
+
+function LeadershipPipelineRun({
+  opp,
+  destination,
+  activeControls,
+  playTitle,
+  onViewPlay,
+  onComplete,
+}: {
+  opp: Opportunity;
+  destination: string;
+  activeControls: string[];
+  playTitle: string;
+  onViewPlay: () => void;
+  onComplete: () => void;
+}) {
+  const [runStage, setRunStage] = useState(0);
+  const derived = runPipeline(OPP_INPUT(opp));
+  const rails = [...new Set(opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed"))];
+  const stages = [
+    { label: "Map", detail: `${rails.length} rails · ${derived.provenance.ingested} records`, icon: Upload },
+    { label: "Enrich", detail: "Merchant · entity · category", icon: Cpu },
+    { label: "Infer", detail: opp.type, icon: Activity },
+    { label: "Decide", detail: opp.action, icon: Wand2 },
+    { label: "Govern", detail: `${activeControls.length} policy checks`, icon: ShieldCheck },
+  ];
+
+  useEffect(() => {
+    if (runStage < 1 || runStage >= stages.length) return;
+    const timer = window.setTimeout(() => setRunStage((current) => current + 1), 520);
+    return () => window.clearTimeout(timer);
+  }, [runStage, stages.length]);
+
+  const runComplete = runStage === stages.length;
+
+  useEffect(() => {
+    if (runComplete) onComplete();
+  }, [onComplete, runComplete]);
+
+  return (
+    <div className="w-full">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div className="min-w-0 flex-1">
+          <Eyebrow>Ventus live run · synthetic data</Eyebrow>
+          <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>3 records in. One ranked action out.</h1>
+        </div>
+        <button
+          onClick={() => setRunStage(1)}
+          disabled={runStage > 0 && !runComplete}
+          className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60"
+          style={{ backgroundColor: NAVY }}
+        >
+          {runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> Run sample</>}
+        </button>
+      </div>
+
+      <div className="mt-3 grid gap-3 md:grid-cols-2">
+        <section className="order-1 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Raw bank feed</p>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">{rails.length} rails · 3 shown</span>
+          </div>
+          <div className="mt-3 space-y-2">
+            {opp.rawTransactions.slice(0, 3).map((transaction) => (
+              <div key={transaction.raw} className="rounded-lg border border-slate-100 bg-slate-50 p-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate font-mono text-[10px] font-semibold text-slate-700">{transaction.raw}</span>
+                  <span className="flex-none text-[9px] font-bold uppercase text-slate-400">{transaction.src}</span>
+                </div>
+                <p className={`mt-1 truncate text-[10px] text-slate-500 transition ${runStage >= 2 ? "opacity-100" : "opacity-0"}`}>
+                  {transaction.merchant} · {transaction.category}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="order-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:col-span-2">
+          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Ventus pipeline</p>
+          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
+            {stages.map((stage, index) => {
+              const number = index + 1;
+              const complete = runStage >= number;
+              const active = runStage === number && !runComplete;
+              const StageIcon = stage.icon;
+              return (
+                <div key={stage.label} className={`rounded-lg border px-2.5 py-2 transition ${complete ? "border-emerald-200 bg-white" : "border-slate-200 bg-white/50"}`}>
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md" style={{ backgroundColor: complete ? `${GREEN}12` : "#f1f5f9" }}>
+                      {active ? <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: GREEN }} /> : complete ? <Check className="h-3.5 w-3.5" style={{ color: GREEN }} /> : <StageIcon className="h-3.5 w-3.5 text-slate-400" />}
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-bold text-slate-800">{stage.label}</p>
+                      <p className="truncate text-[9px] text-slate-400">{stage.detail}</p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        <section className="order-2 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-2">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Produced result</p>
+            <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${runComplete ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-400"}`}>{runComplete ? "Ready" : "Awaiting run"}</span>
+          </div>
+          {!runComplete ? (
+            <div className="flex min-h-48 flex-col items-center justify-center text-center">
+              <Layers className="h-8 w-8 text-slate-200" />
+              <p className="mt-2 text-sm font-semibold text-slate-400">Run sample</p>
+            </div>
+          ) : (
+            <div className="mt-3">
+              <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3.5">
+                <div className="flex items-start justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">{opp.type}</p>
+                    <h2 className="mt-1 text-lg font-semibold text-slate-950">{opp.value} {opp.valueLabel}</h2>
+                  </div>
+                  <ConfidencePill value={derived.confidence} />
+                </div>
+                <p className="mt-2 text-xs leading-5 text-slate-600">{opp.reason}</p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <BriefMetric label="Priority" value={`${derived.score} / 100`} />
+                  <BriefMetric label="Confidence" value={`${derived.confidence}%`} />
+                </div>
+              </div>
+              <div className="mt-3 rounded-xl border border-slate-200 p-3">
+                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Prepared action</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{opp.action}</p>
+                <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-slate-500">
+                  <span>{destination}</span>
+                  <span className="font-semibold" style={{ color: GREEN }}>Checks passed · staged</span>
+                </div>
+              </div>
+              {/* The reusable capability behind this result, one click away in business language */}
+              <button
+                onClick={onViewPlay}
+                className="mt-3 flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-left transition hover:bg-slate-50"
+              >
+                <span className="flex min-w-0 items-center gap-2">
+                  <GitBranch className="h-3.5 w-3.5 flex-none" style={{ color: NAVY }} />
+                  <span className="truncate text-xs font-semibold text-slate-700">
+                    Produced by <span style={{ color: NAVY }}>{playTitle}</span> — a reusable Growth Play
+                  </span>
+                </span>
+                <ArrowRight className="h-3.5 w-3.5 flex-none text-slate-400" />
+              </button>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
+
+function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => void }) {
+  const [step, setStep] = useState(0);
+  const [scopeOpen, setScopeOpen] = useState(false);
+  const market = "Charlotte";
+  const capacity = 50;
+  const [experienceTab, setExperienceTab] = useState<"employee" | "customer">("employee");
+  const [employeeWithVentus, setEmployeeWithVentus] = useState(true);
+  const [pipelineReady, setPipelineReady] = useState(false);
+  const [evidenceOpen, setEvidenceOpen] = useState(false);
+  const [integrationReady, setIntegrationReady] = useState(false);
+  const [dryRunState, setDryRunState] = useState<"idle" | "running" | "complete">("idle");
+  const [shadowReady, setShadowReady] = useState(false);
+  const [playOpen, setPlayOpen] = useState(false);
+  const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string }[]>([]);
+  const config = leadershipConfig(path);
+  const { opp, skill } = config;
+  const destination = destinationLabel(opp.destination);
+
+  useEffect(() => {
+    setStep(0);
+    setScopeOpen(false);
+    setExperienceTab("employee");
+    setEmployeeWithVentus(true);
+    setPipelineReady(false);
+    setEvidenceOpen(false);
+    setIntegrationReady(false);
+    setDryRunState("idle");
+    setShadowReady(false);
+    setPlayOpen(false);
+    setLiveReceipts([]);
+  }, [path]);
+
+  useEffect(() => {
+    if (dryRunState !== "running" || REHEARSAL_URL) return;
+    const timer = window.setTimeout(() => {
+      setDryRunState("complete");
+      setShadowReady(true);
+    }, 1100);
+    return () => window.clearTimeout(timer);
+  }, [dryRunState]);
+
+  const handlePipelineComplete = useCallback(() => setPipelineReady(true), []);
+
+  // Simulated by default. With VITE_REHEARSAL_URL set, the same click does a real
+  // round trip — payload out, receipt back — so the route is demonstrated, not asserted.
+  const runRehearsal = async () => {
+    if (dryRunState === "running") return;
+    setLiveReceipts([]);
+    setDryRunState("running");
+    if (!REHEARSAL_URL) return; // simulated path — completed by the timer effect
+    try {
+      const receipts: { id: string; receipt: string }[] = [];
+      for (const caseId of ["HH-0192", "HH-0411"]) {
+        const res = await fetch(REHEARSAL_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "x-ventus-client": "web-app" },
+          body: JSON.stringify({ rehearsal: true, caseId, ...buildDeliveryPayload(toDeliveryOpp(opp)) }),
+        });
+        const data = res.ok ? ((await res.json()) as { receiptId?: string }) : {};
+        receipts.push({ id: caseId, receipt: data.receiptId ?? `HTTP ${res.status}` });
+      }
+      setLiveReceipts(receipts);
+    } catch {
+      // receiver unreachable — complete with the simulated result, no live badge shown
+    }
+    setDryRunState("complete");
+    setShadowReady(true);
+  };
+
+  const nextLabels = ["See the experience", "Connect pilot", "Rehearse route"];
+  const activeControls = ["Consent required", "Suitability review", "Vulnerability suppression"];
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col bg-slate-50/70">
+      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-8 lg:px-10">
+        <div className="mx-auto flex min-h-full w-full max-w-5xl items-start xl:items-center">
+          <SceneFade sceneKey={step}>
+            {step === 0 && (
+              <LeadershipPipelineRun
+                key={path}
+                opp={opp}
+                destination={destination}
+                activeControls={activeControls}
+                playTitle={config.playTitle}
+                onViewPlay={() => setPlayOpen(true)}
+                onComplete={handlePipelineComplete}
+              />
+            )}
+
+            {step === 2 && (
+              <div className="w-full">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <Eyebrow>{config.playTitle}</Eyebrow>
+                  <button
+                    onClick={() => setPlayOpen(true)}
+                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50"
+                  >
+                    <GitBranch className="h-3 w-3" style={{ color: NAVY }} /> View the Growth Play
+                  </button>
+                </div>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Wire this decision into BofA.</h1>
+                <section className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr]">
+                    {[
+                      { title: "Epsilon", detail: "Zero-PII sample", Icon: Layers },
+                      { title: "Ventus", detail: "Map · enrich · decide", Icon: Cpu },
+                      { title: "Ranked IDs", detail: "Action + rationale", Icon: Target },
+                      { title: "BofA workflows", detail: "CEW · email · Salesforce", Icon: Network },
+                    ].map((node, index) => (
+                      <div key={node.title} className="contents">
+                        {index > 0 && <ArrowRight className="hidden h-4 w-4 text-slate-300 sm:block" />}
+                        <div className={`rounded-lg border p-3 ${node.title === "Ventus" ? "border-blue-200 bg-blue-50/60" : "border-slate-200 bg-slate-50"}`}>
+                          <node.Icon className="h-4 w-4" style={{ color: node.title === "Ventus" ? NAVY : GREEN }} />
+                          <p className="mt-1 text-xs font-bold text-slate-900">{node.title}</p>
+                          <p className="text-[10px] leading-4 text-slate-500">{node.detail}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  {integrationReady && (
+                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                      {["Epsilon schema accepted", "Ventus field map v1 created", "CEW sandbox receipt acknowledged"].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
+                    </div>
+                  )}
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
+                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-600"><span className={`h-2 w-2 rounded-full ${integrationReady ? "bg-emerald-500" : "bg-slate-300"}`} />{integrationReady ? "Pilot route validated" : "Ready to validate with test payload"}</div>
+                    <button onClick={() => setIntegrationReady(true)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: integrationReady ? GREEN : NAVY }}>
+                      {integrationReady ? <><Check className="h-3.5 w-3.5" /> Pilot path validated</> : <><Network className="h-3.5 w-3.5" /> Validate pilot path</>}
+                    </button>
+                  </div>
+                </section>
+              </div>
+            )}
+
+            {step === 1 && (
+              <div className="w-full">
+                <Eyebrow>{config.objective}</Eyebrow>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>What {opp.owner.split(" ")[0]} sees Monday morning.</h1>
+                <div className="mt-4 inline-flex rounded-lg bg-slate-100 p-1">
+                  {(["employee", "customer"] as const).map((tab) => <button key={tab} onClick={() => setExperienceTab(tab)} className={`rounded-md px-4 py-1.5 text-xs font-semibold capitalize ${experienceTab === tab ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>{tab}</button>)}
+                </div>
+                <div className={`mt-3 grid gap-4 ${experienceTab === "employee" ? "lg:grid-cols-[minmax(0,1.25fr)_minmax(260px,0.75fr)]" : ""}`}>
+                  <section className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm ${experienceTab === "customer" ? "mx-auto w-full max-w-xl" : ""}`}>
+                    {experienceTab === "employee" ? <EmployeeSurfacePreview key={path} opp={opp} onVentusModeChange={setEmployeeWithVentus} /> : <CustomerExperiencePreview path={path} />}
+                  </section>
+                  {experienceTab === "employee" && (
+                    <section className="rounded-xl border border-slate-200 bg-white p-4">
+                      {employeeWithVentus ? (
+                        <>
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Priority opportunity</p>
+                          <p className="mt-2 text-2xl font-semibold text-slate-950">{opp.value}</p>
+                          <p className="text-xs font-semibold text-slate-500">{opp.valueLabel}</p>
+                          <div className="mt-3 rounded-lg bg-blue-50/70 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Next action</p><p className="mt-1 text-sm font-semibold leading-5 text-slate-900">{opp.action}</p></div>
+                          <div className="mt-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-semibold text-slate-600"><span>{destination} + morning email</span><span style={{ color: GREEN }}>Ventus</span></div>
+                          <button onClick={() => setEvidenceOpen((open) => !open)} className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800"><ChevronDown className={`h-3 w-3 transition ${evidenceOpen ? "rotate-180" : ""}`} /> {evidenceOpen ? "Hide evidence" : "View evidence"}</button>
+                          {evidenceOpen && <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">{opp.rawTransactions.map((transaction) => <div key={transaction.raw} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span>{transaction.tag}</span><span className="ml-auto text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>)}</div>}
+                        </>
+                      ) : (
+                        <div className="flex min-h-48 flex-col items-center justify-center text-center"><p className="text-3xl font-semibold text-slate-300">47</p><p className="mt-1 text-xs font-semibold text-slate-500">unranked names</p><p className="mt-3 text-[11px] text-slate-400">No connected evidence · no prepared action</p></div>
+                      )}
+                    </section>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {step === 3 && (
+              <div className="w-full">
+                <Eyebrow>End-to-end rehearsal</Eyebrow>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Rehearse the full route.</h1>
+                <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                  <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                    <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Epsilon sandbox → Ventus → CEW sandbox</p><p className="mt-1 text-sm font-semibold text-slate-900">50 golden cases · shadow mode</p></div><div className="flex flex-none items-center gap-1.5">{liveReceipts.length > 0 && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase text-emerald-700">Live route</span>}<span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase text-slate-500">0 customer actions</span></div></div>
+                    {dryRunState === "complete" ? (
+                      <div className="mt-3">
+                        <div className="grid grid-cols-3 gap-2"><BriefMetric label="Processed" value="50 / 50" /><BriefMetric label="Qualified" value="12 IDs" /><BriefMetric label="Errors" value="0" /></div>
+                        <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
+                          {[{ id: "HH-0192", score: 91 }, { id: "HH-0411", score: 86 }].map((row) => {
+                            const live = liveReceipts.find((receipt) => receipt.id === row.id);
+                            return (
+                              <div key={row.id} className="flex items-center gap-3 border-b border-slate-100 px-3 py-2 text-[11px] last:border-0">
+                                <span className="font-mono font-semibold text-slate-700">{row.id}</span>
+                                <span className="font-bold" style={{ color: GREEN }}>{row.score}</span>
+                                <span className="min-w-0 flex-1 truncate text-slate-500">{path === "wealth-growth" ? "Merrill review" : "Primacy review"}</span>
+                                {live ? (
+                                  <span className="font-mono font-semibold text-emerald-700" title="Receipt returned by the sandbox receiver">{live.receipt}</span>
+                                ) : (
+                                  <span className="text-slate-400">{destination}</span>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        {liveReceipts.length > 0 && (
+                          <p className="mt-2 text-[10px] font-medium text-emerald-700">Real payloads delivered over the network — receipts issued by the sandbox receiver.</p>
+                        )}
+                      </div>
+                    ) : (
+                      <p className="mt-3 text-xs leading-5 text-slate-500">One connected rehearsal from source receipt to destination receipt.</p>
+                    )}
+                    <button onClick={runRehearsal} disabled={dryRunState === "running"} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait" style={{ backgroundColor: dryRunState === "complete" ? GREEN : NAVY }}>
+                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Running connected rehearsal</> : dryRunState === "complete" ? <><Check className="h-4 w-4" /> 12 ranked IDs delivered to CEW sandbox</> : <><Rocket className="h-4 w-4" /> Run connected rehearsal</>}
+                    </button>
+                  </section>
+                  <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Pilot readiness</p>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { label: "Technical route", detail: "Input and output receipts verified", status: dryRunState === "complete" ? "Passed" : "Pending", tone: dryRunState === "complete" ? "text-emerald-700 bg-emerald-50" : "text-slate-500 bg-slate-100" },
+                        { label: "BofA calibration", detail: "Load ~1M zero-PII records + reviewer labels", status: "Next", tone: "text-blue-700 bg-blue-50" },
+                        { label: "Controlled activation", detail: `Measure ${skill.pnlMetric} vs. ${skill.measurement.holdoutPct}% holdout`, status: "Locked", tone: "text-slate-500 bg-slate-100" },
+                      ].map((gate) => <div key={gate.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5"><div className="min-w-0 flex-1"><p className="text-xs font-semibold text-slate-800">{gate.label}</p><p className="truncate text-[10px] text-slate-400">{gate.detail}</p></div><span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${gate.tone}`}>{gate.status}</span></div>)}
+                    </div>
+                  </section>
+                </div>
+              </div>
+            )}
+          </SceneFade>
+        </div>
+      </div>
+
+      <footer className="flex flex-none items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-3 sm:px-8 lg:px-10">
+        <button onClick={onExit} className="text-xs font-semibold text-slate-500 transition hover:text-slate-800">
+          Change objective
+        </button>
+        <div className="flex items-center gap-2">
+          {EXECUTIVE_STEPS.map((label, index) => (
+            <button
+              key={label}
+              onClick={() => setStep(index)}
+              disabled={(index > 0 && !pipelineReady) || (index === 3 && !integrationReady)}
+              className="flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <span className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: index <= step ? (index === step ? NAVY : GREEN) : "#cbd5e1" }}>
+                {index < step ? <Check className="h-3 w-3" /> : index + 1}
+              </span>
+              <span className={`hidden text-[11px] font-semibold lg:inline ${index === step ? "text-slate-800" : "text-slate-400"}`}>{label}</span>
+            </button>
+          ))}
+        </div>
+        {step === EXECUTIVE_STEPS.length - 1 ? (
+          /* Commercial close: the primary action is the buying decision, not more browsing. */
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onExit}
+              className="hidden items-center gap-1.5 rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50 sm:flex"
+            >
+              Compare another objective
+            </button>
+            <button
+              onClick={() => setScopeOpen(true)}
+              disabled={!shadowReady}
+              className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+              style={{ backgroundColor: NAVY }}
+            >
+              Review calibration plan <ArrowRight className="h-4 w-4" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setStep((current) => current + 1)} disabled={(step === 0 && !pipelineReady) || (step === 2 && !integrationReady)}
+            className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
+            style={{ backgroundColor: NAVY }}
+          >
+            {nextLabels[step]}
+            <ArrowRight className="h-4 w-4" />
+          </button>
+        )}
+      </footer>
+
+      {scopeOpen && <PilotScopePanel config={config} destination={destination} market={market} capacity={capacity} onClose={() => setScopeOpen(false)} />}
+      {playOpen && <GrowthPlayPanel title={config.playTitle} skill={skill} destination={destination} onClose={() => setPlayOpen(false)} />}
+    </div>
+  );
+}
+
+// The leave-up screen while the buying conversation starts: proposed scope, mutual
+// obligations, gates, and the commercial model — everything a sponsor needs to say yes to.
+function PilotScopePanel({ config, destination, market, capacity, onClose }: { config: LeadershipConfig; destination: string; market: string; capacity: number; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
+      <div className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
+          <div className="flex items-center gap-2">
+            <Rocket className="h-4 w-4" />
+            <span className="text-sm font-semibold">Calibration + pilot plan</span>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-5">
+          <div className="grid gap-2 sm:grid-cols-3">
+            <ExecutiveMetric label="Growth Play" value={config.playTitle} />
+            <ExecutiveMetric label="Pilot owner" value={config.pilotOwner} />
+            <ExecutiveMetric label="Scope" value={`${market} · ${capacity}/week review capacity`} />
+          </div>
+
+          <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Mutual commitments</p>
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-[11px] font-bold text-slate-800">Your institution</p>
+              <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
+                <li>· Epsilon de-identified sample</li>
+                <li>· Policy owner + subject-matter experts</li>
+                <li>· Sandbox endpoint for {destination}</li>
+              </ul>
+            </div>
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <p className="text-[11px] font-bold text-slate-800">Ventus</p>
+              <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
+                <li>· Data mapping + golden-label evaluation</li>
+                <li>· Configured Growth Play + policy pack</li>
+                <li>· Holdout design + lift measurement</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-3 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
+            <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" style={{ color: NAVY }} />
+            <p className="text-xs leading-5 text-slate-700">
+              <span className="font-semibold text-slate-900">Proposed gates:</span> ≥70% validated hit rate · positive lift vs. control · no material policy exceptions.
+              No customer-facing action until the gates clear.
+            </p>
+          </div>
+
+          <div className="mt-3 flex items-start gap-2 rounded-xl border p-3" style={{ borderColor: `${NAVY}22`, backgroundColor: `${NAVY}05` }}>
+            <Coins className="mt-0.5 h-4 w-4 flex-none" style={{ color: NAVY }} />
+            <p className="text-xs leading-5 text-slate-700">
+              <span className="font-semibold text-slate-900">Commercial model:</span> fixed pilot fee, then platform + a success component on verified lift.
+              Expansion is priced on measured value, not seats.
+            </p>
+          </div>
+
+          <p className="mt-4 text-[11px] text-slate-400">Next step: a working session with the pilot owner to finalize market, sample, and gates.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ExecutiveChip({ icon: Icon, label }: { icon: typeof Activity; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600">
+      <Icon className="h-3.5 w-3.5" style={{ color: GREEN }} /> {label}
+    </span>
+  );
+}
+
+function ExecutiveMetric({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-slate-50 p-3">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+      <p className="mt-1 text-sm font-semibold leading-5 text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+function PlayField({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg bg-slate-50 p-3">
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+      <p className="mt-1 text-xs font-semibold leading-5 text-slate-700">{value}</p>
+    </div>
+  );
+}
+
+function ProofGate({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
+      <p className="mt-0.5 text-xs font-semibold text-slate-800">{value}</p>
+    </div>
+  );
+}
+
+/* The Growth Play, translated for a business reader: six plain-language questions a
+   banking exec already asks about any campaign — no schema, no jargon. Same artifact
+   underneath (src/lib/skills.ts); this is its boardroom rendering. */
+function GrowthPlayPanel({
+  title,
+  skill,
+  destination,
+  draft = false,
+  onClose,
+}: {
+  title: string;
+  skill: SkillArtifact;
+  destination: string;
+  draft?: boolean;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
+      <div className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
+          <div className="flex min-w-0 items-center gap-2">
+            <GitBranch className="h-4 w-4 flex-none" />
+            <span className="truncate text-sm font-semibold">{title}</span>
+            <span className="flex-none rounded bg-white/15 px-1.5 py-0.5 text-[10px] font-semibold">
+              Growth Play · {draft ? "draft" : `v${skill.version}`}
+            </span>
+          </div>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10">
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+        <div className="p-5">
+          {draft && (
+            <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
+              <Wand2 className="mt-0.5 h-4 w-4 flex-none text-amber-700" />
+              <p className="text-xs leading-5 text-amber-800">
+                <span className="font-semibold">Compiled from your objective, just now.</span> A draft only — it enters
+                evaluation, policy review, and shadow mode before anything runs.
+              </p>
+            </div>
+          )}
+          <p className="text-xs leading-5 text-slate-500">
+            A Growth Play is a reusable decision package. Your policy and channels are part of it — not bolted on afterward.
+          </p>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            <PlayField label="When to act" value={skill.trigger} />
+            <PlayField label="Who qualifies" value={skill.cohort} />
+            <PlayField label="What happens" value={skill.intervention} />
+            <PlayField label="Controls" value={skill.policyPack.join(" · ")} />
+            <PlayField label="Where it lands" value={destination} />
+            <PlayField label="How value is proven" value={`${skill.measurement.design} (${skill.measurement.holdoutPct}% holdout)`} />
+          </div>
+          <div className="mt-3 flex items-center gap-2 rounded-xl border p-3" style={{ borderColor: `${NAVY}22`, backgroundColor: `${NAVY}05` }}>
+            <Target className="h-4 w-4 flex-none" style={{ color: NAVY }} />
+            <p className="text-xs leading-5 text-slate-700">
+              <span className="font-semibold text-slate-900">Moves one number:</span> {skill.pnlMetric}
+            </p>
+          </div>
+          <p className="mt-3 text-[11px] text-slate-400">
+            Versioned like software · advances only through evaluation and policy gates · reusable across markets.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LeadershipCover({ onPick }: { onPick: (path: LeadershipPath) => void }) {
+  const paths: LeadershipPath[] = ["wealth-growth", "deposit-retention"];
+  return (
+    <div className="flex h-full w-full items-start overflow-y-auto px-5 py-6 sm:px-8 xl:items-center xl:px-10">
+      <div className="mx-auto w-full max-w-4xl">
+        <div className="flex flex-wrap items-center gap-2">
+          <Eyebrow>Ventus Intelligence OS</Eyebrow>
+        </div>
+        <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>
+          Turn transaction data into measurable growth.
         </h1>
-        <p className="mt-4 max-w-2xl text-base leading-7 text-slate-500">
-          One Ventus engine. Start from any seat — switch any time.
+        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+          Ventus finds the moment, prepares the action, and proves the result.
         </p>
 
-        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <CoverCard
-            icon={UserRoundCheck}
-            badge="Advisor"
-            who="Advisor & client associate"
-            body="Work your book — clients and prospects — from signal to action to routing."
-            cta="Start the journey"
-            onClick={() => onPick(0, "frontline")}
-          />
+        <div className="mt-6 grid gap-3 md:grid-cols-2">
+          {paths.map((path) => {
+            const config = leadershipConfig(path);
+            const Icon = path === "wealth-growth" ? TrendingUp : Landmark;
+            return (
+              <button
+                key={path}
+                onClick={() => onPick(path)}
+                className="group flex min-h-40 flex-col rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${NAVY}0d` }}>
+                  <Icon className="h-4 w-4" style={{ color: NAVY }} />
+                </span>
+                <h2 className="mt-3 text-xl font-semibold text-slate-950">{config.objective}</h2>
+                <p className="mt-1 flex-1 text-sm leading-6 text-slate-600">{config.coverCopy}</p>
+                <span className="mt-3 flex items-center gap-1.5 text-xs font-bold" style={{ color: GREEN }}>
+                  Run scenario <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 grid grid-cols-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
+          {[
+            [Activity, "Multi-rail financial states"],
+            [Wand2, "Product-level actions"],
+            [LineChart, "Measured lift"],
+          ].map(([Icon, label], index) => {
+            const StepIcon = Icon as typeof Activity;
+            return (
+              <div key={label as string} className={`flex items-center justify-center gap-2 px-2 py-3 ${index > 0 ? "border-l border-slate-200" : ""}`}>
+                <StepIcon className="h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
+                <span className="text-center text-[11px] font-semibold text-slate-600">{label as string}</span>
+              </div>
+            );
+          })}
+        </div>
+
+      </div>
+    </div>
+  );
+}
+
+function Cover({
+  onPick,
+  onLeadershipPick,
+  audience,
+}: {
+  onPick: (scene: number, mode: Mode) => void;
+  onLeadershipPick: (path: LeadershipPath) => void;
+  audience: DemoAudience;
+}) {
+  const internal = audience === "internal";
+  if (!internal) return <LeadershipCover onPick={onLeadershipPick} />;
+  return (
+    <div className="flex h-full w-full items-center px-6 py-4 sm:px-10">
+      <div className="mx-auto w-full max-w-5xl">
+        <div className="flex flex-wrap items-center gap-2">
+          <Eyebrow>Ventus Intelligence OS</Eyebrow>
+          <span className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">
+            {internal ? "Internal evaluation sandbox" : "BofA leadership prototype"}
+          </span>
+        </div>
+        <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: NAVY, lineHeight: 1.25 }}>
+          From financial activity to growth strategies that learn.
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-600">
+          Ventus understands changing financial states, designs a governed intervention, activates it through existing channels, and measures incremental value.
+        </p>
+
+        <div className="mt-3 grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-4">
+          {VENTUS_LOOP.map((item, index) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.label} className={`flex items-center gap-2 px-3 py-2 ${index > 0 ? "sm:border-l sm:border-slate-200" : ""}`}>
+                <span className="flex h-7 w-7 flex-none items-center justify-center rounded-lg" style={{ backgroundColor: `${NAVY}0d` }}>
+                  <Icon className="h-3.5 w-3.5" style={{ color: NAVY }} />
+                </span>
+                <div>
+                  <p className="text-xs font-bold text-slate-800">{item.label}</p>
+                  <p className="text-[10px] leading-4 text-slate-400">{item.copy}</p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="flex flex-col rounded-xl border border-slate-200 bg-white p-3.5 shadow-sm">
+            <div className="flex items-center gap-3">
+              <div className="rounded-lg p-2" style={{ backgroundColor: `${NAVY}0d` }}>
+                <UserRoundCheck className="h-4 w-4" style={{ color: NAVY }} />
+              </div>
+              <div>
+                <p className="text-sm font-bold text-slate-900">Frontline teams</p>
+                <p className="text-xs text-slate-400">Pick a seat</p>
+              </div>
+            </div>
+            <p className="mt-2 flex-1 text-xs leading-5 text-slate-600">One qualified moment, one recommendation, in the employee's normal flow.</p>
+            <div className="mt-2 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => onPick(0, "consumer")}
+                className="group flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-semibold transition hover:bg-slate-50"
+                style={{ borderColor: `${NAVY}22`, color: NAVY }}
+              >
+                <Landmark className="h-3.5 w-3.5" /> Banker
+              </button>
+              <button
+                onClick={() => onPick(0, "frontline")}
+                className="group flex items-center justify-center gap-1.5 rounded-lg border px-2 py-2 text-xs font-semibold transition hover:bg-slate-50"
+                style={{ borderColor: `${GREEN}33`, color: GREEN }}
+              >
+                <UserRoundCheck className="h-3.5 w-3.5" /> Merrill advisor
+              </button>
+            </div>
+          </div>
+          {internal ? (
+            <CoverCard
+              icon={Wand2}
+              badge="Growth teams"
+              who="Product · analytics · CRM · risk"
+              body="Evaluate a reusable decision package before it is approved for a pilot."
+              cta="Open evaluation tools"
+              onClick={() => onPick(5, "operator")}
+            />
+          ) : (
+            <CoverCard
+              icon={Rocket}
+              badge="Paid pilot"
+              who="Sponsor · business · risk · technology"
+              body="Prove one growth outcome with sanctioned data, governed activation, and a holdout."
+              cta="Review 90-day pilot"
+              onClick={() => onPick(6, "leadership")}
+            />
+          )}
           <CoverCard
             icon={LineChart}
             badge="Leadership"
-            who="Market executive & strategy"
-            body="Net new assets, coverage, retention, and the demand the market is signaling."
-            cta="Go to the book view"
+            who="Consumer + wealth executives"
+            body="Fund strategies by incremental value, operating capacity, and control."
+            cta="Review growth portfolio"
             onClick={() => onPick(5, "leadership")}
           />
         </div>
 
-        <button onClick={() => onPick(0, "frontline")} className="mt-6 flex items-center gap-1.5 text-sm font-semibold" style={{ color: NAVY }}>
-          Or play the full sequence <ArrowRight className="h-4 w-4" />
-        </button>
+        <div className="mt-3 flex flex-wrap items-center gap-2">
+          <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-slate-400">BofA configuration</span>
+          {BOFA_SURFACES.map((s) => (
+            <span key={s} className="rounded-full border border-slate-200 bg-white px-2 py-0.5 text-[10px] font-semibold text-slate-600">
+              {s}
+            </span>
+          ))}
+          <span className="text-[10px] text-slate-400">Bank-specific configuration. Portable Ventus platform underneath.</span>
+        </div>
       </div>
     </div>
   );
@@ -2984,19 +4912,19 @@ function CoverCard({
   return (
     <button
       onClick={onClick}
-      className="group flex flex-col rounded-2xl border border-slate-200 bg-white p-6 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+      className="group flex flex-col rounded-xl border border-slate-200 bg-white p-3.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
     >
       <div className="flex items-center gap-3">
-        <div className="rounded-xl p-2.5" style={{ backgroundColor: `${NAVY}0d` }}>
-          <Icon className="h-5 w-5" style={{ color: NAVY }} />
+        <div className="rounded-lg p-2" style={{ backgroundColor: `${NAVY}0d` }}>
+          <Icon className="h-4 w-4" style={{ color: NAVY }} />
         </div>
         <div>
           <p className="text-sm font-bold text-slate-900">{badge}</p>
           <p className="text-xs text-slate-400">{who}</p>
         </div>
       </div>
-      <p className="mt-4 flex-1 text-sm leading-6 text-slate-600">{body}</p>
-      <span className="mt-4 flex items-center gap-1.5 text-sm font-semibold transition group-hover:gap-2.5" style={{ color: GREEN }}>
+      <p className="mt-2 flex-1 text-xs leading-5 text-slate-600">{body}</p>
+      <span className="mt-2 flex items-center gap-1.5 text-xs font-semibold transition group-hover:gap-2.5" style={{ color: GREEN }}>
         {cta} <ArrowRight className="h-4 w-4" />
       </span>
     </button>
@@ -3063,55 +4991,82 @@ function FullSystemScene() {
 
 const pilotPhases = [
   {
-    weeks: "Weeks 1–2",
-    title: "Wire-up",
-    body: "Ingest a sanitized, de-identified sample (BofA-provided). Calibrate against your golden labels.",
+    weeks: "Weeks 1–3",
+    title: "Calibrate",
+    body: "Map sanctioned feeds, labels, products, and policies. Establish the precision baseline.",
   },
   {
-    weeks: "Weeks 3–8",
+    weeks: "Weeks 4–8",
     title: "Shadow run",
-    body: "One market, ~5,000 households. Signals routed to Salesforce; advisors accept / reject in their normal flow.",
+    body: "Rank without customer action. Capture banker, advisor, risk, and operations feedback.",
   },
   {
     weeks: "Weeks 9–12",
-    title: "Proof",
-    body: "Measure precision, advisor hours saved, qualified conversations, and AUM-in-motion. Tune from outcomes.",
+    title: "Controlled activation",
+    body: "Activate an eligible cohort through existing systems. Measure incremental lift versus control.",
   },
 ];
 
 function PilotScene() {
   return (
-    <SceneShell>
-      <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2">
+    <SceneShell fill>
+      <div className="grid h-full grid-cols-1 items-center gap-6 lg:grid-cols-2">
         <div>
-          <Eyebrow>Make it real</Eyebrow>
-          <Question>What would a 90-day pilot look like?</Question>
-          <p className="mt-4 text-base leading-7 text-slate-600">Start narrow, prove the loop, expand on evidence.</p>
+          <Eyebrow>Paid founding-partner pilot</Eyebrow>
+          <h1 className="mt-1.5 text-3xl font-semibold leading-tight tracking-tight" style={{ color: NAVY }}>
+            Prove one Ventus Skill in 90 days.
+          </h1>
+          <p className="mt-2 text-xs leading-5 text-slate-600">
+            Start with <span className="font-semibold text-slate-800">deposit-primacy defense</span> in one market. Expand to the
+            <span className="font-semibold text-slate-800"> Consumer-to-Merrill handoff</span> only after the first outcome is measured.
+          </p>
 
-          <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-5">
+          <div className="mt-3 rounded-xl border border-slate-200 bg-white p-3.5">
             <div className="flex items-center gap-2">
               <ShieldCheck className="h-4 w-4" style={{ color: GREEN }} />
-              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">What we need from BofA</p>
+              <p className="text-xs font-semibold uppercase tracking-[0.14em] text-slate-500">A bounded enterprise test</p>
             </div>
-            <div className="mt-3 space-y-2">
+            <div className="mt-2 space-y-1.5">
               {[
-                "A sanitized, de-identified transaction sample for one market",
-                "A golden-label set to grade against",
-                "A Salesforce sandbox for routing",
+                "BofA: sanctioned sample, SMEs, policy owner, and sandbox endpoints",
+                "Ventus: data mapping, golden evaluation, two configured skills, and measurement",
+                "Activation begins only after policy and precision gates clear",
+                "BofA-specific data, policies, and performance remain isolated",
               ].map((item) => (
-                <div key={item} className="flex items-center gap-2 text-sm text-slate-700">
-                  <Check className="h-4 w-4 flex-none" style={{ color: GREEN }} />
+                <div key={item} className="flex items-start gap-2 text-xs leading-4 text-slate-700">
+                  <Check className="mt-0.5 h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
                   {item}
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-xs text-slate-400">Nothing leaves your environment un-governed.</p>
+            <p className="mt-2 text-[10px] font-medium leading-4 text-slate-500">
+              Scale only if: ≥90% precision · ≥35% acceptance · measurable lift vs control · no material policy exceptions.
+            </p>
           </div>
 
-          <p className="mt-4 flex items-center gap-2 text-sm font-medium text-slate-600">
-            <Target className="h-4 w-4" style={{ color: NAVY }} />
-            Decision gate: scale to the next market if precision ≥ 90% and advisor accept-rate ≥ 35%.
-          </p>
+          <div className="mt-2.5 flex items-start gap-2 rounded-xl border p-3" style={{ borderColor: `${NAVY}22`, backgroundColor: `${NAVY}05` }}>
+            <Coins className="mt-0.5 h-4 w-4 flex-none" style={{ color: NAVY }} />
+            <div>
+              <p className="text-xs font-semibold text-slate-800">Initial buyer: Consumer Bank P&amp;L owner · fixed-fee paid pilot</p>
+              <p className="mt-0.5 text-[11px] leading-4 text-slate-500">
+                Production scope and pricing follow the measured pilot result; no success fee is assumed before attribution is agreed.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-2.5 grid grid-cols-3 gap-2">
+            {[
+              { Icon: ShieldCheck, t: "Controlled boundary", s: "Deployment design reviewed with bank security" },
+              { Icon: Network, t: "Headless target", s: "Stage into approved employee channels" },
+              { Icon: Cpu, t: "Gated models", s: "No runtime model use before approval" },
+            ].map((x) => (
+              <div key={x.t} className="rounded-xl border border-slate-200 bg-white p-2.5">
+                <x.Icon className="h-3.5 w-3.5" style={{ color: NAVY }} />
+                <p className="mt-1 text-[11px] font-bold text-slate-800">{x.t}</p>
+                <p className="text-[10px] leading-3.5 text-slate-400">{x.s}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div>
@@ -3119,7 +5074,7 @@ function PilotScene() {
             <Rocket className="h-4 w-4" style={{ color: NAVY }} />
             <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-400">The 90 days</p>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2">
             {pilotPhases.map((p, i) => (
               <div key={p.title} className="flex gap-3">
                 <div className="flex flex-col items-center">
@@ -3128,12 +5083,12 @@ function PilotScene() {
                   </span>
                   {i < pilotPhases.length - 1 && <span className="my-1 w-px flex-1 bg-slate-200" />}
                 </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                <div className="rounded-xl border border-slate-200 bg-white p-3">
                   <div className="flex items-center gap-2">
                     <p className="text-sm font-semibold text-slate-900">{p.title}</p>
                     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">{p.weeks}</span>
                   </div>
-                  <p className="mt-1 text-sm leading-6 text-slate-500">{p.body}</p>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">{p.body}</p>
                 </div>
               </div>
             ))}
@@ -3148,7 +5103,7 @@ function PilotScene() {
 
 function SceneShell({ children, fill }: { children: React.ReactNode; fill?: boolean }) {
   return (
-    <div className="flex h-full w-full items-center overflow-hidden px-6 py-6 sm:px-10">
+    <div className={`flex h-full w-full items-center overflow-hidden px-6 sm:px-10 ${fill ? "py-3" : "py-6"}`}>
       <div className={`mx-auto w-full max-w-6xl ${fill ? "h-full" : ""}`}>{children}</div>
     </div>
   );

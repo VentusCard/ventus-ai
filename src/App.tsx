@@ -34,6 +34,9 @@ import NextConversationPage from "./pages/solutions/NextConversationPage";
 import PortfolioIntelligencePage from "./pages/solutions/PortfolioIntelligencePage";
 import Pricing from "./pages/Pricing";
 import BankAnalyticsDashboard from "./pages/BankAnalyticsDashboard";
+import InternalCapabilitiesPage from "./pages/InternalCapabilitiesPage";
+import InternalGrowthDeskPage from "./pages/InternalGrowthDeskPage";
+import LivePipelineLab from "./pages/LivePipelineLab";
 
 const queryClient = new QueryClient();
 
@@ -43,8 +46,9 @@ const AppLayout = () => {
   const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
+  const isInternalCapabilities = location.pathname.startsWith("/internal/");
 
-  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics;
+  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isInternalCapabilities;
 
   const routes = (
     <Routes>
@@ -68,6 +72,9 @@ const AppLayout = () => {
       <Route path="/pricing" element={<Pricing />} />
       <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
       <Route path="/bank-analytics" element={<BankAnalyticsDashboard />} />
+      <Route path="/internal/capabilities" element={<InternalCapabilitiesPage />} />
+      <Route path="/internal/growth-desk" element={<InternalGrowthDeskPage />} />
+      <Route path="/internal/live-lab" element={<LivePipelineLab />} />
       <Route path="/solutions/offer-intelligence" element={<NextOfferPage />} />
       <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
       <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />

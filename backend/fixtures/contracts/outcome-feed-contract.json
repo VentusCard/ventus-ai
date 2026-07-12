@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ventusai.com/contracts/outcome-feed/v1.json",
+  "title": "Ventus pilot outcome event",
+  "description": "Provider-neutral contract for measuring employee actions and incremental customer outcomes. Direct customer PII is prohibited.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "event_id",
+    "tenant_id",
+    "household_token",
+    "growth_play_id",
+    "decision_id",
+    "event_type",
+    "occurred_at",
+    "assignment",
+    "source_system"
+  ],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "event_id": { "type": "string", "minLength": 8, "maxLength": 128 },
+    "tenant_id": { "type": "string", "minLength": 2, "maxLength": 64 },
+    "household_token": { "type": "string", "pattern": "^tok_[A-Za-z0-9_-]{8,120}$" },
+    "growth_play_id": { "enum": ["deposit-primacy-defense", "liquidity-to-wealth"] },
+    "decision_id": { "type": "string", "minLength": 8, "maxLength": 128 },
+    "activation_id": { "type": ["string", "null"], "maxLength": 128 },
+    "event_type": {
+      "enum": [
+        "recommendation_viewed",
+        "recommendation_accepted",
+        "recommendation_rejected",
+        "customer_contacted",
+        "appointment_created",
+        "referral_completed",
+        "deposit_balance_observed",
+        "assets_transferred",
+        "complaint_recorded",
+        "suppression_recorded"
+      ]
+    },
+    "occurred_at": { "type": "string", "format": "date-time" },
+    "assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["experiment_id", "arm", "assigned_at"],
+      "properties": {
+        "experiment_id": { "type": "string", "minLength": 3, "maxLength": 128 },
+        "arm": { "enum": ["treatment", "holdout"] },
+        "assigned_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "value": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["metric", "amount", "currency"],
+      "properties": {
+        "metric": { "enum": ["deposit_balance", "deposit_retained", "net_new_assets", "estimated_revenue"] },
+        "amount": { "type": "number" },
+        "currency": { "const": "USD" }
+      }
+    },
+    "source_system": { "type": "string", "minLength": 2, "maxLength": 80 },
+    "source_record_id": { "type": ["string", "null"], "maxLength": 128 },
+    "reason_code": { "type": ["string", "null"], "maxLength": 128 }
+  }
+}
