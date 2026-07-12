@@ -13,7 +13,7 @@ const fixtureUrl = new URL('../fixtures/evaluation/intervention-planning-benchma
 test('draft benchmark is valid but cannot support promotion evidence', () => {
   const manifest = fixture();
   const readiness = validateInterventionBenchmark(manifest);
-  assert.equal(readiness.caseCount, 14);
+  assert.equal(readiness.caseCount, 21);
   assert.equal(readiness.frozen, false);
   assert.equal(readiness.independentReviewComplete, false);
   assert.equal(readiness.promotionEvidenceEligible, false);
@@ -22,12 +22,12 @@ test('draft benchmark is valid but cannot support promotion evidence', () => {
 
 test('deterministic baseline exposes qualitative cases it cannot resolve', () => {
   const report = evaluateInterventionBenchmark({ manifest: fixture() });
-  assert.equal(report.baseline.cases, 14);
-  assert.equal(report.baseline.passed, 12);
+  assert.equal(report.baseline.cases, 21);
+  assert.equal(report.baseline.passed, 18);
   assert.equal(report.baseline.hardFailureCount, 0);
   assert.deepEqual(
     report.baseline.failures.map((failure) => failure.case_id),
-    ['deposit_seasonal_tax_outflow', 'wealth_unverified_liquidity_source']
+    ['deposit_seasonal_tax_outflow', 'wealth_unverified_liquidity_source', 'merrill_canceled_transfer_conflict']
   );
   assert.equal(report.runtimePromotionAllowed, false);
 });

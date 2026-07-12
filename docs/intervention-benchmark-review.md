@@ -4,13 +4,13 @@
 
 `backend/fixtures/evaluation/intervention-planning-benchmark.json` is the draft decision benchmark
 for model-assisted interventions. It tests whether a candidate can choose or abstain from one
-approved employee action using supplied evidence and policy context across the Deposit Primacy and
-Liquidity-to-Wealth Growth Plays.
+approved employee action using supplied evidence and policy context across standalone Deposit
+Primacy, standalone Merrill Relationship Growth, and connected Liquidity-to-Wealth Growth Plays.
 
-The packet currently contains 14 synthetic cases. Two qualitative-conflict cases deliberately sit
-outside the deterministic baseline's simple matching rules: seasonal tax outflow and an unverified
-liquidity source. This creates room to test useful contextual judgment rather than rewarding a model
-for repeating rules.
+The packet currently contains 21 synthetic cases. Three qualitative-conflict cases deliberately sit
+outside the deterministic baseline's simple matching rules: seasonal tax outflow, an unverified
+liquidity source, and a canceled Merrill transfer with a no-contact instruction. This creates room
+to test useful contextual judgment rather than rewarding a model for repeating rules.
 
 ## Label review and freeze
 
