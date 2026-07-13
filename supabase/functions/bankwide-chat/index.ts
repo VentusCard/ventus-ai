@@ -48,6 +48,7 @@ interface BankwideContext {
     summary?: string;
     keyData?: string[];
     suggestedNav?: string[];
+    onScreenItems?: unknown;
     [k: string]: unknown;
   };
 }
