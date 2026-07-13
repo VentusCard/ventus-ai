@@ -484,7 +484,7 @@ function RewardsPhoneMockup({
   }, [perks, isSearchActive, queryLower]);
 
   // Hide hero deal if search is active and it doesn't match
-  const showHero = heroDeal && (!isSearchActive || matchingDealIds.includes(heroDeal.id));
+  const showHero = heroDeal && !isSearchActive;
 
   return (
     <div className="p-4">
