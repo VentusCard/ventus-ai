@@ -19,12 +19,13 @@ test('evidence-store migrator validates identifiers and quotes password literals
     'decision-ledger.sql',
     'experiment-measurement.sql',
     'connected-expansion-measurement.sql',
+    'growth-play-registry.sql',
     'tenant-isolation.sql',
     'connector-delivery.sql',
   ]);
 });
 
-test('evidence-store migrator verifies connected measurement persistence and isolation', () => {
+test('evidence-store migrator verifies connected measurement and separately authorized protocol persistence', () => {
   const source = readFileSync(
     new URL('../monitors/evidence-store-migrator/index.mjs', import.meta.url),
     'utf8',
@@ -34,4 +35,10 @@ test('evidence-store migrator verifies connected measurement persistence and iso
   assert.match(source, /decisionProtocolId/, 'runtime verification should pin a connected decision protocol');
   assert.match(source, /loadExperiment/, 'runtime verification should read the connected experiment back');
   assert.match(source, /crossTenantVisibleExposures !== 0/, 'runtime verification should fail on cross-tenant exposure visibility');
+  assert.match(source, /protocolAdminRegistry\.recordApproval/, 'protocol approval should use the admin repository');
+  assert.match(source, /protocolRegistry\.requireApproved/, 'runtime repository should resolve the approval');
+  assert.match(source, /GRANT SELECT ON[\s\S]*growth_play_protocols,[\s\S]*growth_play_protocol_approval_events[\s\S]*TO \$\{roleName\}/, 'runtime should receive read-only registry access');
+  assert.doesNotMatch(source, /GRANT SELECT, INSERT ON[\s\S]{0,180}growth_play_protocols/, 'runtime must not receive registry insert access');
+  assert.match(source, /crossTenantVisibleProtocols !== 0/, 'runtime verification should fail on cross-tenant protocol visibility');
+  assert.match(source, /runtimeProtocolWriteDenied/, 'runtime verification should prove activation cannot register a protocol');
 });

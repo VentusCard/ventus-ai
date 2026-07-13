@@ -206,6 +206,27 @@ test('operating evidence chronology fails closed before assignment', async () =>
   assert.equal(state.deliveryCalls, 0);
 });
 
+test('an unapproved or revoked protocol fails before evidence, decisioning, or delivery', async () => {
+  const state = createState();
+  const loop = createPilotOperatingLoop({
+    ...dependencies(state),
+    protocolRegistry: {
+      async requireApproved() {
+        throw new assert.AssertionError({ message: 'Growth Play protocol is not approved at run time' });
+      },
+    },
+    detector: async ({ householdToken }) => depositDecision(false, householdToken),
+  });
+  await assert.rejects(
+    () => loop.runHousehold(depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'revoked_protocol')),
+    /not approved at run time/,
+  );
+  assert.equal(state.ledger.length, 0);
+  assert.equal(state.assignments.length, 0);
+  assert.equal(state.deliveryCalls, 0);
+  assert.equal(state.detectorCalls, 0);
+});
+
 function createLoop(state) {
   return createPilotOperatingLoop({
     ...dependencies(state),
@@ -219,6 +240,22 @@ function createLoop(state) {
 
 function dependencies(state) {
   return {
+    protocolRegistry: {
+      async requireApproved({ tenantId, decisionProtocolId, businessLine, at }) {
+        assert.equal(tenantId, 'bank_1');
+        assert.ok([DEPOSIT_PLAY.decision_protocol_id, MERRILL_PLAY.decision_protocol_id].includes(decisionProtocolId));
+        assert.ok(['consumer-banking', 'wealth-management'].includes(businessLine));
+        assert.ok(Date.parse(at) >= Date.parse('2026-07-12T11:00:00.000Z'));
+        return {
+          approvalEventId: `gpa_${decisionProtocolId.slice(-24)}`,
+          decisionProtocolId,
+          businessLine,
+          decidedBy: `${businessLine}_owner`,
+          decidedAt: '2026-07-12T11:00:00.000Z',
+          changeRecordId: `change_${businessLine}_001`,
+        };
+      },
+    },
     ledgerRepository: {
       async append(draft) {
         const existing = state.ledger.find((event) => event.tenantId === draft.tenantId && event.idempotencyKey === draft.idempotencyKey);

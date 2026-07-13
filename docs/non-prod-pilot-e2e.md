@@ -32,6 +32,16 @@ CREATE ROLE ventus_runtime LOGIN PASSWORD '<managed secret>' NOSUPERUSER NOBYPAS
 GRANT USAGE ON SCHEMA public TO ventus_runtime;
 GRANT SELECT, INSERT ON decision_ledger_events, experiment_assignments, outcome_events, connected_exposure_events TO ventus_runtime;
 GRANT SELECT, INSERT, UPDATE ON connector_delivery_receipts TO ventus_runtime;
+GRANT SELECT ON growth_play_protocols, growth_play_protocol_approval_events TO ventus_runtime;
+```
+
+Use a separate configuration role to register and approve protocols. The activation runtime must
+not be able to authorize itself:
+
+```sql
+CREATE ROLE ventus_protocol_admin LOGIN PASSWORD '<separate managed secret>' NOSUPERUSER NOBYPASSRLS;
+GRANT USAGE ON SCHEMA public TO ventus_protocol_admin;
+GRANT SELECT, INSERT ON growth_play_protocols, growth_play_protocol_approval_events TO ventus_protocol_admin;
 ```
 
 ```bash
@@ -49,7 +59,10 @@ reads it back inside tenant context, and verifies the hash chain from the databa
 
 Once `DATABASE_URL` is set, `pilot:e2e` first rejects a `SUPERUSER` or `BYPASSRLS` role, then uses
 the real repositories for the hash ledger, immutable assignments, outcomes, and at-most-once
-delivery receipts. It prints the verified head hash instead of the in-memory count.
+delivery receipts. It also requires the compiled protocol to exist in the registry. For a controlled
+non-production setup only, set `VENTUS_PROTOCOL_ADMIN_DATABASE_URL` to the separate configuration
+role and the runner will register and approve its exact run-specific protocol before resolving it
+through the read-only runtime role. It prints the verified head hash instead of the in-memory count.
 
 ### 2. Live Plaid source
 
@@ -84,6 +97,7 @@ Proves: orchestration ordering, holdout-before-activation, idempotent at-most-on
 protocol-bound source/action/outcome routing, tokenized lineage, session-authorized (not
 header-authorized) writes, coverage-gated lift,
 and — with `DATABASE_URL` — durable hash-verified persistence under forced RLS.
+Protocol registration and approval use a separate credential from activation runtime access.
 
 Does not prove: model accuracy, bank SSO claim mapping, a completed bank outcome window,
 statistical validity, or incremental bank value. Those remain the pilot evidence sequence in

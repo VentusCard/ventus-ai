@@ -1,6 +1,6 @@
 \set ON_ERROR_STOP on
 
--- Run as the proposed non-production runtime role after applying all five migrations.
+-- Run as the proposed non-production runtime role after applying all six migrations.
 -- The transaction rolls back every probe record.
 BEGIN;
 
@@ -100,6 +100,23 @@ BEGIN
 END
 $$;
 
+DO $$
+BEGIN
+  BEGIN
+    INSERT INTO growth_play_protocols (
+      tenant_id, decision_protocol_id, growth_play_id, version, business_line,
+      protocol_digest, contract, registered_by, registered_at
+    ) VALUES (
+      'tenant_isolation_probe_b', 'dcp_runtime_self_approval', 'deposit-primacy-defense',
+      '1.0.0', 'consumer-banking', repeat('d', 64), '{}'::jsonb, 'runtime_probe', now()
+    );
+    RAISE EXCEPTION 'runtime role unexpectedly wrote a Growth Play protocol';
+  EXCEPTION
+    WHEN insufficient_privilege THEN NULL;
+  END;
+END
+$$;
+
 SELECT set_config('app.current_tenant_id', 'tenant_isolation_probe_a', true);
 
 DO $$
@@ -128,6 +145,12 @@ BEGIN
   END IF;
   IF EXISTS (SELECT 1 FROM connected_exposure_events) THEN
     RAISE EXCEPTION 'missing tenant context exposed connected exposures';
+  END IF;
+  IF EXISTS (SELECT 1 FROM growth_play_protocols) THEN
+    RAISE EXCEPTION 'missing tenant context exposed Growth Play protocols';
+  END IF;
+  IF EXISTS (SELECT 1 FROM growth_play_protocol_approval_events) THEN
+    RAISE EXCEPTION 'missing tenant context exposed Growth Play approvals';
   END IF;
 END
 $$;

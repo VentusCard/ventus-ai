@@ -11,6 +11,11 @@ retain separate source systems, policies, approved actions, destinations, and ou
 pack, action route, or measurement design produces a different protocol. Unknown fields and stale
 protocol identifiers fail closed.
 
+`backend/shared/growth-play-registry.mjs` registers that immutable contract for one tenant and
+records append-only approval or revocation events. Every operating-loop run resolves the latest
+event as of its run timestamp before writing customer evidence or invoking a detector. A missing,
+cross-tenant, wrong-business-line, or revoked protocol fails closed.
+
 ## Required configuration
 
 - Growth Play ID, version, business-line owner, and business objective.
@@ -45,13 +50,20 @@ run. A later-arriving outcome must remain inside the protocol's approved measure
 2. Data, policy, workflow, and measurement owners review their respective sections.
 3. Run `npm run test:growth-plays`. Optionally set `VENTUS_GROWTH_PLAY_OUTPUT` to write the compiled
    contracts for the non-production configuration store.
-4. Record the approved protocol ID with the pilot change record before shadow or assisted runs.
-5. Any configuration change creates a new protocol ID and requires a new review; historical
+4. Register the compiled contract in the tenant-scoped protocol registry and append an approval
+   event naming the business-line approver and pilot change record.
+5. Record the protocol and approval-event IDs with the pilot change record before shadow or
+   assisted runs. The operating loop persists both references with source evidence.
+6. Any configuration change creates a new protocol ID and requires a new review; historical
    assignments and outcomes remain bound to the prior version.
+7. To stop future runs, append a revocation event. Do not mutate or delete the protocol or its
+   earlier approval event.
 
 ## Evidence boundary
 
-The repository proves compilation, tamper detection, runtime allow-list enforcement, household
-routing integrity, and outcome-boundary checks on synthetic and sandbox fixtures. It does not prove
-that a bank approved the configuration, that a source mapping is correct for sanctioned data, or
-that the selected action creates economic lift.
+The repository proves compilation, tamper detection, tenant-isolated approval resolution,
+revocation enforcement, runtime allow-list enforcement, household routing integrity, and
+outcome-boundary checks on synthetic and sandbox fixtures. The registry migration is built but not
+deployed by this change. A repository approval event does not prove that a bank owner actually
+approved the configuration, that a source mapping is correct for sanctioned data, or that the
+selected action creates economic lift.

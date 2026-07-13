@@ -1,4 +1,4 @@
-// Apply the five evidence-store migrations to a non-production Postgres, in dependency
+// Apply the six evidence-store migrations to a non-production Postgres, in dependency
 // order. Idempotent — every migration uses IF NOT EXISTS / CREATE OR REPLACE / DROP IF
 // EXISTS, so re-running is safe.
 //
@@ -24,6 +24,7 @@ const MIGRATIONS = [
   'decision-ledger.sql',
   'experiment-measurement.sql',
   'connected-expansion-measurement.sql',
+  'growth-play-registry.sql',
   'tenant-isolation.sql',
   'connector-delivery.sql',
 ];
@@ -49,7 +50,7 @@ async function main() {
       console.log('ok');
     }
     await client.query('COMMIT');
-    console.log('\nAll five evidence-store migrations applied.');
+    console.log('\nAll six evidence-store migrations applied.');
     console.log('Next: run the isolation probe AS THE RUNTIME ROLE — npm run db:probe (see verify-tenant-isolation.sql).');
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});

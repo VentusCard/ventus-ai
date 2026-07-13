@@ -12,6 +12,7 @@ import { createPilotOperatingLoop } from '../shared/pilot-operating-loop.mjs';
 import { buildDeliveryReservation, createConnectorDeliveryRepository } from '../shared/connector-delivery.mjs';
 import { assignExperiment, createMeasurementRepository, validateOutcomeEvent } from '../shared/experiment-measurement.mjs';
 import { compileGrowthPlayContract } from '../shared/growth-play-contract.mjs';
+import { createGrowthPlayRegistry, createInMemoryGrowthPlayRegistry } from '../shared/growth-play-registry.mjs';
 import { createDecisionLedgerRepository, verifyLedgerChain } from '../shared/decision-ledger.mjs';
 import { assertNonBypassRole, createUrlDbFactory, databaseUrl } from '../shared/db-url.mjs';
 import { mintSessionDirect } from '../../api/connector-session.ts';
@@ -43,6 +44,7 @@ const DEPOSIT_PLAY = compileGrowthPlayContract({
 });
 
 const hasDB = !!databaseUrl();
+const protocolAdminUrl = (process.env.VENTUS_PROTOCOL_ADMIN_DATABASE_URL || '').trim() || null;
 const sfConfigured = !!(process.env.SF_LOGIN_URL && process.env.SF_CLIENT_ID && process.env.SF_CLIENT_SECRET
   && process.env.ENABLE_LIVE_CONNECTORS === 'true' && process.env.VENTUS_CONNECTOR_SESSION_SECRET);
 const plaidConfigured = !!(process.env.PLAID_CLIENT_ID && process.env.PLAID_SECRET);
@@ -232,8 +234,45 @@ async function main() {
   const ledgerRepository = getDB ? createDecisionLedgerRepository({ getDB }) : inMemoryLedger(ledgerState);
   const measurementRepository = getDB ? createMeasurementRepository({ getDB }) : measurementRepo(state);
   const deliveryRepository = getDB ? createConnectorDeliveryRepository({ getDB }) : deliveryRepo(state);
+  const protocolRegistry = getDB ? createGrowthPlayRegistry({ getDB }) : createInMemoryGrowthPlayRegistry();
+  const protocolAdminRegistry = getDB && protocolAdminUrl
+    ? createGrowthPlayRegistry({ getDB: createUrlDbFactory({ connectionString: protocolAdminUrl }) })
+    : protocolRegistry;
+  const approvedAt = new Date(Date.now() - 60_000).toISOString();
+  if (!getDB || protocolAdminUrl) {
+    await protocolAdminRegistry.register({
+      tenantId: TENANT,
+      contract: DEPOSIT_PLAY,
+      registeredBy: 'pilot_e2e_configurator',
+      registeredAt: new Date(Date.now() - 120_000).toISOString(),
+    });
+    await protocolAdminRegistry.recordApproval({
+      tenantId: TENANT,
+      decisionProtocolId: DEPOSIT_PLAY.decision_protocol_id,
+      decision: 'approved',
+      decidedBy: 'consumer_banking_pilot_owner',
+      decidedAt: approvedAt,
+      changeRecordId: `pilot_change_${RUN_ID}`,
+      reason: 'Approved for this reproducible sandbox-assisted pilot run.',
+    });
+  } else {
+    try {
+      await protocolRegistry.requireApproved({
+        tenantId: TENANT,
+        decisionProtocolId: DEPOSIT_PLAY.decision_protocol_id,
+        businessLine: DEPOSIT_PLAY.business_line,
+        at: new Date().toISOString(),
+      });
+    } catch (error) {
+      throw new Error(
+        `Durable pilot requires a pre-approved ${DEPOSIT_PLAY.decision_protocol_id} protocol, `
+        + `or VENTUS_PROTOCOL_ADMIN_DATABASE_URL for controlled non-production setup: ${error.message}`,
+      );
+    }
+  }
   const loop = createPilotOperatingLoop({
     detector,
+    protocolRegistry,
     ledgerRepository,
     measurementRepository,
     deliveryRepository,
@@ -262,7 +301,8 @@ async function main() {
 
   const sourceMode = src.override.records ? src.mode : 'fixture';
   console.log('\n══════════ Ventus pilot end-to-end · evidence summary ══════════');
-  console.log(`config          source=${sourceMode}  ledger=${hasDB ? 'postgres' : 'memory'}  delivery=${sfConfigured ? 'salesforce-session' : 'fixture'}`);
+  console.log(`config          source=${sourceMode}  ledger=${hasDB ? 'postgres' : 'memory'}  registry=${hasDB ? 'postgres' : 'memory'}  delivery=${sfConfigured ? 'salesforce-session' : 'fixture'}`);
+  console.log(`protocol        ${DEPOSIT_PLAY.decision_protocol_id} · approval=${!getDB || protocolAdminUrl ? `pilot_change_${RUN_ID}` : 'pre-registered'}`);
   console.log(`source receipt  ${treatment.evidenceClass} evidence · ${treatmentInput.sourceReceipt.sourceSystem} · ${treatmentInput.records.length} records`);
   if (src.override.records) console.log(`  plaid         live pull → ${treatmentInput.records.length} tokenized records → decision cites ${treatment.decision.evidence.map((e) => e.transaction_id).join(', ')}`);
   console.log(`ledger          ${ledgerLine}`);
@@ -286,7 +326,7 @@ async function main() {
   assert.equal(measurement.absoluteLift, 100);
   assert.equal(measurement.businessClaimAllowed, false);
   if (hasDB) { const ex = await ledgerRepository.exportTenant(TENANT); assert.equal(ex.verified, true, 'persisted chain must verify'); assert.ok(verifyLedgerChain(ex.events)); }
-  console.log('✓ guardrails: protocol frozen, holdout bypassed decisioning, lift measured, no business claim, chain intact.\n');
+  console.log('✓ guardrails: protocol registered + approved, holdout bypassed decisioning, lift measured, no business claim, chain intact.\n');
 }
 
 main().catch((e) => { console.error('pilot:e2e failed:', e.message); process.exit(1); });

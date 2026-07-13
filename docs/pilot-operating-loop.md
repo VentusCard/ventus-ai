@@ -27,6 +27,11 @@ environment, primary outcome, and experiment gates to one tamper-evident decisio
 The operating loop rejects a different household token, action, connector, destination, metric,
 outcome source, or outcome window. See `docs/growth-play-onboarding-contract.md`.
 
+Before any source evidence is appended, the loop resolves that exact protocol through the
+tenant-scoped Growth Play registry. The latest append-only approval event must be `approved` for the
+same institution and business line at the run timestamp. Revocation stops future runs without
+erasing the authorization evidence attached to historical runs.
+
 Connected expansion uses the separate pre-assigned three-arm orchestration in
 `backend/shared/connected-expansion-loop.mjs`. It prevents connected data from influencing cohort
 eligibility or standalone decisions and records immutable data-scope exposure receipts. See

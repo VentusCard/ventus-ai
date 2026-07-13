@@ -7,10 +7,12 @@ const measurementSql = read('../backend/sql/experiment-measurement.sql');
 const connectedMeasurementSql = read('../backend/sql/connected-expansion-measurement.sql');
 const verificationSql = read('../backend/sql/verify-tenant-isolation.sql');
 const deliverySql = read('../backend/sql/connector-delivery.sql');
+const registrySql = read('../backend/sql/growth-play-registry.sql');
 const tenantContextSource = read('../backend/shared/tenant-context.mjs');
 const ledgerSource = read('../backend/shared/decision-ledger.mjs');
 const measurementSource = read('../backend/shared/experiment-measurement.mjs');
 const deliverySource = read('../backend/shared/connector-delivery.mjs');
+const registrySource = read('../backend/shared/growth-play-registry.mjs');
 const runbook = read('../docs/tenant-isolated-persistence-runbook.md');
 
 assert.match(tenantSql, /current_setting\('app\.current_tenant_id', true\)/, 'RLS should read transaction tenant context');
@@ -21,10 +23,10 @@ assert.match(
 );
 assert.equal(
   [...tenantSql.matchAll(/FORCE ROW LEVEL SECURITY/g)].length,
-  4,
-  'all four evidence tables should force RLS for table owners'
+  6,
+  'all six tenant evidence and protocol tables should force RLS for table owners'
 );
-for (const table of ['decision_ledger_events', 'experiment_assignments', 'outcome_events', 'connected_exposure_events']) {
+for (const table of ['decision_ledger_events', 'experiment_assignments', 'outcome_events', 'connected_exposure_events', 'growth_play_protocols', 'growth_play_protocol_approval_events']) {
   assert.match(
     tenantSql,
     new RegExp(`CREATE POLICY [^;]+ON ${table}[^;]+USING \\(tenant_id = ventus_current_tenant_id\\(\\)\\)[^;]+WITH CHECK \\(tenant_id = ventus_current_tenant_id\\(\\)\\)`),
@@ -48,6 +50,7 @@ assert.match(verificationSql, /cross-tenant write unexpectedly succeeded/, 'veri
 assert.match(verificationSql, /missing tenant context did not fail closed/, 'verification should test missing context');
 assert.match(verificationSql, /cross-tenant delivery receipt was visible/, 'verification should test connector receipt isolation');
 assert.match(verificationSql, /cross-tenant connected exposure was visible/, 'verification should test connected-exposure isolation');
+assert.match(verificationSql, /runtime role unexpectedly wrote a Growth Play protocol/, 'verification should reject runtime self-approval');
 assert.match(verificationSql, /ROLLBACK;/, 'verification probes should roll back');
 assert.match(deliverySql, /UNIQUE \(tenant_id, idempotency_key\)/, 'delivery reservations should be tenant-idempotent');
 assert.match(deliverySql, /terminal connector delivery receipts are immutable/, 'terminal delivery receipts should be immutable');
@@ -57,10 +60,14 @@ assert.match(deliverySql, /WITH CHECK \(tenant_id = ventus_current_tenant_id\(\)
 assert.match(deliverySource, /beginTenantTransaction\(db, reservation\.tenantId\)/, 'delivery reservations should set tenant context');
 assert.match(deliverySource, /shouldDeliver = false/, 'duplicate reservations should block automatic redelivery');
 assert.match(deliverySource, /reconciliationRequired/, 'ambiguous pending reservations should require reconciliation');
+assert.match(registrySql, /Growth Play registry records are append-only/, 'protocol and approval records must be immutable');
+assert.match(registrySql, /decision IN \('approved', 'revoked'\)/, 'registry must support explicit approval and revocation');
+assert.match(registrySource, /beginTenantTransaction\(db, tenantId\)/, 'registry reads and writes should set tenant context');
+assert.match(registrySource, /Growth Play protocol is not approved at run time/, 'runtime protocol resolution must fail closed after revocation');
 assert.match(runbook, /non-production/i, 'runbook should limit the first deployment to non-production');
 assert.match(runbook, /NOBYPASSRLS/, 'runbook should require a non-bypass runtime role');
 
-console.log('Persistence readiness ok: transaction tenant context, forced RLS policies, at-most-once delivery receipts, and rollback-only isolation probes');
+console.log('Persistence readiness ok: transaction tenant context, forced RLS, approved Growth Play registry, at-most-once delivery, and rollback-only isolation probes');
 
 function read(path) {
   return readFileSync(resolve(path), 'utf8');

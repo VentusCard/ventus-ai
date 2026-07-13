@@ -3,7 +3,8 @@
 ## Scope
 
 This runbook deploys the decision ledger, experiment assignments, connected-data exposure receipts,
-outcome events, and connector delivery receipts to a non-production PostgreSQL database. It does not authorize a production migration or prove tenant
+outcome events, connector delivery receipts, and the Growth Play approval registry to a
+non-production PostgreSQL database. It does not authorize a production migration or prove tenant
 isolation until the rollback-only probe succeeds under the actual runtime role.
 
 ## Required roles
@@ -11,6 +12,8 @@ isolation until the rollback-only probe succeeds under the actual runtime role.
 - A migration role may own and alter the tables.
 - The application runtime role must be `NOSUPERUSER NOBYPASSRLS` and must not be granted table
   ownership. Database credentials stay in AWS Secrets Manager and are never placed in this repo.
+- A separate protocol-administration role may insert immutable protocol and approval records. The
+  application runtime receives `SELECT` only on those tables and cannot approve its own activation.
 - The API must derive the tenant identifier from authenticated server-side context. It must never
   accept a client-supplied tenant identifier as authoritative.
 
@@ -24,13 +27,16 @@ isolation until the rollback-only probe succeeds under the actual runtime role.
    - `backend/sql/decision-ledger.sql`
    - `backend/sql/experiment-measurement.sql`
    - `backend/sql/connected-expansion-measurement.sql`
+   - `backend/sql/growth-play-registry.sql`
    - `backend/sql/tenant-isolation.sql`
    - `backend/sql/connector-delivery.sql`
-4. Grant the minimum required `SELECT` and `INSERT` privileges to the runtime role. Do not grant
-   `UPDATE`, `DELETE`, table ownership, superuser, or `BYPASSRLS`.
+4. Grant the runtime only `SELECT` on the two registry tables. Grant registry `INSERT` only to the
+   separate protocol-administration role. Neither role receives `DELETE`, table ownership,
+   superuser, or `BYPASSRLS`; the runtime receives `UPDATE` only for pending delivery completion.
 5. Connect as the runtime role and execute `backend/sql/verify-tenant-isolation.sql`. The script
    verifies same-tenant visibility, cross-tenant read denial, cross-tenant write denial,
-   connected-exposure and connector-receipt isolation, and
+   runtime denial on Growth Play registry writes, connected-exposure and connector-receipt
+   isolation, and
    fail-closed behavior without a tenant context. It rolls back all probe data.
 6. Run `npm run --prefix backend check:persistence` and `npm test --prefix backend` from the exact
    commit proposed for deployment.

@@ -15,12 +15,14 @@ const POLICY_VERDICTS = new Set(['clear', 'review', 'block']);
 
 export function createPilotOperatingLoop({
   detector,
+  protocolRegistry,
   ledgerRepository,
   measurementRepository,
   deliveryRepository,
   deliver,
 }) {
   assert.equal(typeof detector, 'function', 'detector is required');
+  assert.equal(typeof protocolRegistry?.requireApproved, 'function', 'protocolRegistry.requireApproved is required');
   assert.equal(typeof ledgerRepository?.append, 'function', 'ledgerRepository.append is required');
   assert.equal(typeof measurementRepository?.recordAssignment, 'function', 'measurementRepository.recordAssignment is required');
   assert.equal(typeof measurementRepository?.recordOutcome, 'function', 'measurementRepository.recordOutcome is required');
@@ -33,6 +35,12 @@ export function createPilotOperatingLoop({
     async runHousehold(input) {
       validateRunInput(input);
       const growthPlay = validateGrowthPlayRun(input, input.growthPlay);
+      const protocolApproval = await protocolRegistry.requireApproved({
+        tenantId: input.tenantId,
+        decisionProtocolId: growthPlay.decision_protocol_id,
+        businessLine: growthPlay.business_line,
+        at: input.runAt,
+      });
       const decisionId = `dec_${sha256(`${input.tenantId}\u001f${input.caseId}\u001f${growthPlay.growth_play_id}`).slice(0, 24)}`;
       const ledgerStatus = input.sourceReceipt.evidenceClass === 'synthetic' ? 'simulated' : 'confirmed';
 
@@ -55,6 +63,9 @@ export function createPilotOperatingLoop({
           growth_play_version: growthPlay.version,
           decision_protocol_id: growthPlay.decision_protocol_id,
           protocol_digest: growthPlay.protocol_digest,
+          protocol_approval_event_id: protocolApproval.approvalEventId,
+          protocol_change_record_id: protocolApproval.changeRecordId,
+          protocol_approved_at: protocolApproval.decidedAt,
         },
       });
       const blockingPolicy = input.policies.find((policy) => policy.verdict === 'block');

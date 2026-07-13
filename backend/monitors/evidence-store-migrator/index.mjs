@@ -8,6 +8,8 @@ import {
   assignConnectedExpansionExperiment,
   createMeasurementRepository,
 } from './shared/experiment-measurement.mjs';
+import { createGrowthPlayRegistry } from './shared/growth-play-registry.mjs';
+import { compileGrowthPlayContract } from './shared/growth-play-contract.mjs';
 import {
   APPLY_EVIDENCE_SCHEMA_CONFIRMATION,
   EVIDENCE_STORE_MIGRATIONS,
@@ -41,6 +43,7 @@ function clientFor(credentials, username = credentials.username, password = cred
     user: username,
     password,
     ssl: { rejectUnauthorized: false },
+    options: `-c search_path=${schema},public`,
     application_name: 'ventus-evidence-store-migrator',
   });
 }
@@ -107,6 +110,12 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
        TO ${roleName}`,
     );
     await db.query(
+      `GRANT SELECT ON
+         ${schemaName}.growth_play_protocols,
+         ${schemaName}.growth_play_protocol_approval_events
+       TO ${roleName}`,
+    );
+    await db.query(
       `GRANT SELECT, INSERT, UPDATE ON ${schemaName}.connector_delivery_receipts TO ${roleName}`,
     );
     await db.query('COMMIT');
@@ -136,6 +145,8 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
 
   const repo = createDecisionLedgerRepository({ getDB });
   const measurementRepo = createMeasurementRepository({ getDB });
+  const protocolRegistry = createGrowthPlayRegistry({ getDB });
+  const protocolAdminRegistry = createGrowthPlayRegistry({ getDB: async () => clientFor(adminCredentials) });
   const tenantId = `aws_verify_${Date.now().toString(36)}`;
   const otherTenantId = `${tenantId}_other`;
   const householdToken = `tok_runtime_${Date.now().toString(36).padEnd(8, '0')}`;
@@ -146,6 +157,67 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     status: 'confirmed',
     occurredAt: new Date().toISOString(),
   };
+  const protocol = compileGrowthPlayContract({
+    contract_version: '1.0',
+    growth_play_id: 'runtime-deposit-verification',
+    version: '1.0.0',
+    business_line: 'consumer-banking',
+    objective: 'Verify approved standalone deposit operating protocol',
+    source: {
+      receipt_source_systems: ['runtime_probe'],
+      schema_versions: ['1.0'],
+      record_sources: [{ source_system: 'runtime_probe', allowed_rails: ['ach'] }],
+    },
+    eligibility: { criteria_version: 'runtime-eligibility-v1' },
+    policy: { version: 'runtime-policy-v1', required_policy_ids: ['consent'] },
+    actions: [{
+      action_id: 'runtime_review', owner_role: 'runtime_owner', connector: 'bank_workbench',
+      destination: 'runtime_workbench', destination_environment: 'sandbox',
+    }],
+    measurement: {
+      metric: 'deposit_retained', outcome_event_types: ['deposit_balance_observed'],
+      outcome_source_systems: ['runtime_probe'], outcome_window_days: 30,
+      holdout_pct: 10, minimum_per_arm: 1, minimum_coverage: 1,
+    },
+  });
+  const registeredAt = new Date(Date.now() - 60_000).toISOString();
+  const approvedAt = new Date(Date.now() - 30_000).toISOString();
+  await protocolAdminRegistry.register({ tenantId, contract: protocol, registeredBy: 'runtime_verifier', registeredAt });
+  await protocolAdminRegistry.recordApproval({
+    tenantId,
+    decisionProtocolId: protocol.decision_protocol_id,
+    decision: 'approved',
+    decidedBy: 'runtime_business_owner',
+    decidedAt: approvedAt,
+    changeRecordId: 'runtime_change_record',
+    reason: 'Approved for non-production runtime verification.',
+  });
+  const protocolApproval = await protocolRegistry.requireApproved({
+    tenantId,
+    decisionProtocolId: protocol.decision_protocol_id,
+    businessLine: protocol.business_line,
+    at: new Date().toISOString(),
+  });
+  let runtimeProtocolWriteDenied = false;
+  try {
+    const protocolDraft = structuredClone(protocol);
+    delete protocolDraft.decision_protocol_id;
+    delete protocolDraft.protocol_digest;
+    const unauthorizedProtocol = compileGrowthPlayContract({
+      ...protocolDraft,
+      version: '1.0.1',
+      objective: 'Runtime must not authorize a changed operating protocol',
+    });
+    await protocolRegistry.register({
+      tenantId,
+      contract: unauthorizedProtocol,
+      registeredBy: 'activation_runtime',
+      registeredAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    runtimeProtocolWriteDenied = /permission denied|row-level security/i.test(error.message);
+    if (!runtimeProtocolWriteDenied) throw error;
+  }
   const drafts = [
     { ...base, eventType: 'signal', idempotencyKey: `${tenantId}:signal`, payload: { evidence_class: 'sandbox' } },
     { ...base, eventType: 'decision', idempotencyKey: `${tenantId}:decision`, payload: { action: 'warm_wealth_referral' } },
@@ -203,13 +275,16 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   await crossTenantDb.connect();
   let crossTenantVisibleEvents;
   let crossTenantVisibleExposures;
+  let crossTenantVisibleProtocols;
   try {
     await crossTenantDb.query('BEGIN');
     await crossTenantDb.query("SELECT set_config('app.current_tenant_id', $1, true)", [otherTenantId]);
     const ledgerResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM decision_ledger_events');
     const exposureResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM connected_exposure_events');
+    const protocolResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM growth_play_protocols');
     crossTenantVisibleEvents = Number(ledgerResult.rows[0]?.visible ?? -1);
     crossTenantVisibleExposures = Number(exposureResult.rows[0]?.visible ?? -1);
+    crossTenantVisibleProtocols = Number(protocolResult.rows[0]?.visible ?? -1);
     await crossTenantDb.query('ROLLBACK');
   } catch (error) {
     await crossTenantDb.query('ROLLBACK').catch(() => {});
@@ -227,6 +302,9 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     || experiment.exposures.length !== 1
     || crossTenantVisibleEvents !== 0
     || crossTenantVisibleExposures !== 0
+    || crossTenantVisibleProtocols !== 0
+    || protocolApproval.decisionProtocolId !== protocol.decision_protocol_id
+    || !runtimeProtocolWriteDenied
   ) {
     throw new Error('runtime ledger, connected-measurement, idempotency, or tenant-isolation verification failed');
   }
@@ -244,6 +322,12 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
       exposureReplayInserted: exposureReplay.inserted,
       authorizationScopeId: assignment.authorizationScopeId,
       crossTenantVisibleExposures,
+    },
+    growthPlayRegistry: {
+      decisionProtocolId: protocolApproval.decisionProtocolId,
+      approvalEventId: protocolApproval.approvalEventId,
+      crossTenantVisibleProtocols,
+      runtimeProtocolWriteDenied,
     },
     headHashPrefix: own.events.at(-1).event_hash.slice(0, 16),
   };

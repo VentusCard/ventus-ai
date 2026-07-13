@@ -49,5 +49,21 @@ CREATE POLICY connected_exposure_tenant_isolation
   WITH CHECK (tenant_id = ventus_current_tenant_id());
 ALTER TABLE connected_exposure_events FORCE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS growth_play_protocol_tenant_isolation ON growth_play_protocols;
+CREATE POLICY growth_play_protocol_tenant_isolation
+  ON growth_play_protocols
+  FOR ALL
+  USING (tenant_id = ventus_current_tenant_id())
+  WITH CHECK (tenant_id = ventus_current_tenant_id());
+ALTER TABLE growth_play_protocols FORCE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS growth_play_approval_tenant_isolation ON growth_play_protocol_approval_events;
+CREATE POLICY growth_play_approval_tenant_isolation
+  ON growth_play_protocol_approval_events
+  FOR ALL
+  USING (tenant_id = ventus_current_tenant_id())
+  WITH CHECK (tenant_id = ventus_current_tenant_id());
+ALTER TABLE growth_play_protocol_approval_events FORCE ROW LEVEL SECURITY;
+
 COMMENT ON FUNCTION ventus_current_tenant_id() IS
   'Returns a validated transaction-local Ventus tenant context; null fails RLS closed.';
