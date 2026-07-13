@@ -634,12 +634,6 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           </>
         )}
 
-        {/* ── No results state ── */}
-        {isSearchActive && !isSearching && groups.length === 0 && catalogSearchDeals.length === 0 && (
-          <div className="text-center py-4">
-            <p className="text-[11px] text-slate-400">No matching deals found</p>
-          </div>
-        )}
       </div>
 
       {/* ── Semantic Search Bar (pinned bottom) ── */}
