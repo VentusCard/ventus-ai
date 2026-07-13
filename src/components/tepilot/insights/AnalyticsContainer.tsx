@@ -321,10 +321,22 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[11px] text-slate-400">Last updated: {today}</span>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-            <Sparkles className="w-3 h-3 text-blue-500" />
-            <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
-          </div>
+          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+              title="Open Ventus AI"
+            >
+              <Sparkles className="w-3 h-3 text-blue-500" />
+              Powered by Ventus AI
+            </button>
+          )}
+          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || chatOpen) && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+              <Sparkles className="w-3 h-3 text-blue-500" />
+              <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
+            </div>
+          )}
           <button
             onClick={() => {
               sessionStorage.removeItem("demo_password_access");
