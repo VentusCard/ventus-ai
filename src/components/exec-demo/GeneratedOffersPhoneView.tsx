@@ -189,6 +189,41 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
 
   const isSearchActive = searchQuery.trim().length > 0;
 
+  useEffect(() => {
+    if (isSearchActive && expandedGroup) {
+      setExpandedGroup(null);
+    }
+  }, [isSearchActive, expandedGroup]);
+
+  const searchFooter = (
+    <div className="shrink-0 px-3 py-2 border-t border-slate-100 bg-white space-y-1.5">
+      <div className="relative">
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Search deals..."
+          className="w-full pl-6 pr-7 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+        />
+        {isSearching && (
+          <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400 animate-spin" />
+        )}
+        {!isSearching && searchQuery && (
+          <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2">
+            <X className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+          </button>
+        )}
+      </div>
+      {searchReasoning && (
+        <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
+          <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
+          <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
+        </div>
+      )}
+    </div>
+  );
+
   // Stable savings number
   const yearlySavings = (offerGroups.length * 145) + (firstName.length * 12);
 
@@ -227,7 +262,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   if (offerGroups.length === 0) return null;
 
   // ── Deal Detail View ──
-  if (expandedGroup) {
+  if (expandedGroup && !isSearchActive) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
     const imgSrc = getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
@@ -280,6 +315,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
             </div>
           ))}
         </div>
+
+        {searchFooter}
 
         <style>{`
           @keyframes detail-slide-in {
@@ -539,32 +576,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
       </div>
 
       {/* ── Semantic Search Bar (pinned bottom) ── */}
-      <div className="shrink-0 px-3 py-2 border-t border-slate-100 bg-white space-y-1.5">
-        <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search deals..."
-            className="w-full pl-6 pr-7 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
-          />
-          {isSearching && (
-            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400 animate-spin" />
-          )}
-          {!isSearching && searchQuery && (
-            <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2">
-              <X className="w-3 h-3 text-slate-400 hover:text-slate-600" />
-            </button>
-          )}
-        </div>
-        {searchReasoning && (
-          <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
-            <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
-            <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
-          </div>
-        )}
-      </div>
+      {searchFooter}
 
       <style>{`
         @keyframes collection-slide-right {
