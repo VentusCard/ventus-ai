@@ -67,50 +67,84 @@ async function plaid(path, body) {
   return res.json();
 }
 
-// Pull real Plaid transactions. Returns { transactions, mode }.
-export async function pullPlaidTransactions({ clientId, secret, customUser = LIQUIDITY_CUSTOM_USER } = {}) {
+const wait = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+
+const OFFBANK = /chime|cash app|cashapp|venmo|sofi|varo|current|robinhood/i;
+const PAYROLL = /gusto|adp|paychex|payroll|direct dep|acme payroll/i;
+
+// The signal pattern the Deposit Primacy play needs — used to decide the live pull is
+// "ready". Plaid sandbox settles custom-user transactions incrementally, so an early poll
+// can return a partial set missing the off-bank transfer; we keep polling until BOTH the
+// payroll and an off-bank outflow are present so the demo delivers deterministically.
+export function depositPrimacyReady(plaidTxns) {
+  const hasPayroll = plaidTxns.some((t) => PAYROLL.test(t.name || '') || t.personal_finance_category?.primary === 'INCOME');
+  const hasOffbank = plaidTxns.some((t) => (OFFBANK.test(t.name || '') || t.personal_finance_category?.primary === 'TRANSFER_OUT') && t.amount > 0);
+  return hasPayroll && hasOffbank;
+}
+
+// Pull real Plaid transactions. Returns { transactions, mode }. `readyWhen(plaidTxns)`
+// gates completion: the poll continues until the pattern is satisfied (or attempts run
+// out, in which case the fullest observed set is returned — best-effort, never faked).
+export async function pullPlaidTransactions({
+  clientId,
+  secret,
+  customUser = DEPOSIT_PRIMACY_CUSTOM_USER,
+  readyWhen = depositPrimacyReady,
+  requestPlaid = plaid,
+  waitForNextAttempt = wait,
+  maxAttempts = 12,
+} = {}) {
   const id = clientId || process.env.PLAID_CLIENT_ID;
   const sec = secret || process.env.PLAID_SECRET;
   if (!id || !sec) throw new Error('PLAID_CLIENT_ID and PLAID_SECRET are required');
+  if (!Number.isInteger(maxAttempts) || maxAttempts < 1) throw new Error('maxAttempts must be a positive integer');
   const auth = { client_id: id, secret: sec };
 
-  async function createExchangePull(options) {
-    const pub = await plaid('/sandbox/public_token/create', {
+  async function createExchangePull(options, ready) {
+    const pub = await requestPlaid('/sandbox/public_token/create', {
       ...auth,
       institution_id: 'ins_109508',
       initial_products: ['transactions'],
       ...(options ? { options } : {}),
     });
-    const exch = await plaid('/item/public_token/exchange', { ...auth, public_token: pub.public_token });
+    const exch = await requestPlaid('/item/public_token/exchange', { ...auth, public_token: pub.public_token });
     const end = new Date().toISOString().slice(0, 10);
     const start = new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10);
-    // /transactions/get can lag while the sandbox item finishes; retry briefly.
-    for (let attempt = 0; attempt < 5; attempt += 1) {
+    let best = [];
+    // Poll until the required signal pattern lands (Plaid settles custom users over a few
+    // seconds), keeping the fullest set seen so far as a best-effort fallback.
+    for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
       try {
-        const data = await plaid('/transactions/get', { ...auth, access_token: exch.access_token, start_date: start, end_date: end, options: { count: 100 } });
-        if (Array.isArray(data.transactions) && data.transactions.length) return data.transactions;
+        const data = await requestPlaid('/transactions/get', { ...auth, access_token: exch.access_token, start_date: start, end_date: end, options: { count: 100 } });
+        const current = Array.isArray(data.transactions) ? data.transactions : [];
+        if (current.length > best.length) best = current;
+        if (current.length && (!ready || ready(current))) return { transactions: current, ready: true };
       } catch (error) {
-        if (!String(error.message).includes('PRODUCT_NOT_READY') && attempt === 4) throw error;
+        if (!String(error.message).includes('PRODUCT_NOT_READY') && attempt === maxAttempts - 1) throw error;
       }
-      await new Promise((r) => setTimeout(r, 1500));
+      if (attempt < maxAttempts - 1) await waitForNextAttempt(1500);
     }
-    return [];
+    return { transactions: best, ready: !ready || ready(best) };
   }
 
-  // 1) custom user (story-true)
+  // 1) custom user (story-true), polled until the signal pattern is present
   try {
-    const txns = await createExchangePull({ override_username: 'user_custom', override_password: JSON.stringify(customUser) });
-    if (txns.length) return { transactions: txns, mode: 'plaid_custom_user' };
+    const result = await createExchangePull({ override_username: 'user_custom', override_password: JSON.stringify(customUser) }, readyWhen);
+    if (result.transactions.length && result.ready) {
+      return { transactions: result.transactions, mode: 'plaid_custom_user', ready: true };
+    }
+    if (result.transactions.length) console.warn('plaid custom-user pull remained incomplete; trying default institution');
   } catch (error) {
     console.warn(`plaid custom-user pull failed (${error.message}); trying default institution`);
   }
   // 2) default institution (proves live ingestion even if custom user is unavailable)
-  const txns = await createExchangePull();
-  return { transactions: txns, mode: txns.length ? 'plaid_default_institution' : 'plaid_empty' };
+  const result = await createExchangePull(undefined, null);
+  return {
+    transactions: result.transactions,
+    mode: result.transactions.length ? 'plaid_default_institution' : 'plaid_empty',
+    ready: depositPrimacyReady(result.transactions),
+  };
 }
-
-const OFFBANK = /chime|cash app|cashapp|venmo|sofi|varo|current|robinhood/i;
-const PAYROLL = /gusto|adp|paychex|payroll|direct dep/i;
 
 function railFor(name, pfcPrimary) {
   if (PAYROLL.test(name)) return 'ach';
@@ -179,10 +213,14 @@ export function contentDetector({ records, policies }) {
 
 export function depositPrimacyDetector({ records, policies, growthPlay, householdToken }) {
   const blocked = (policies || []).some((policy) => policy.verdict === 'block');
-  const payroll = records.find((record) => PAYROLL.test(record.merchant_name) || /payroll/.test(record.transaction_id));
+  // Match on merchant name, rail, Plaid category (PFC), or id — so the signal is found
+  // regardless of how Plaid enriches the injected transactions.
+  const payroll = records.find((record) => (
+    PAYROLL.test(record.merchant_name) || record.category === 'INCOME' || /payroll/.test(record.transaction_id)
+  ));
   const offbank = records.find((record) => (
     record !== payroll
-    && (OFFBANK.test(record.merchant_name) || record.rail === 'p2p' || /outflow/.test(record.transaction_id))
+    && (OFFBANK.test(record.merchant_name) || record.rail === 'p2p' || record.category === 'TRANSFER_OUT' || /outflow/.test(record.transaction_id))
     && record.amount > 0
   ));
   const available = [payroll, offbank].filter(Boolean);

@@ -185,21 +185,17 @@ function input(householdToken, caseId, override = {}) {
   };
 }
 
-// Pull the treatment household's records from live Plaid when configured; honest fallback
-// to the synthetic fixture if the pull is unavailable or empty.
+// Pull the treatment household's records from live Plaid when configured. A configured
+// live leg fails closed if the approved signal pattern never arrives; silently replacing
+// it with fixtures would make a green evidence summary misleading.
 async function treatmentSource() {
   if (!plaidConfigured) return { override: {}, mode: 'fixture' };
-  try {
-    const { transactions, mode } = await pullPlaidTransactions({ customUser: DEPOSIT_PRIMACY_CUSTOM_USER });
-    if (transactions.length) {
-      const records = mapPlaidToLoopRecords(transactions);
-      return { override: { records, sourceReceipt: buildPlaidSourceReceipt(records, mode) }, mode };
-    }
-    console.warn('plaid returned no transactions; using fixture records');
-  } catch (error) {
-    console.warn(`plaid pull failed (${error.message}); using fixture records`);
+  const { transactions, mode, ready } = await pullPlaidTransactions({ customUser: DEPOSIT_PRIMACY_CUSTOM_USER });
+  if (!transactions.length || !ready) {
+    throw new Error(`configured Plaid source did not return the approved payroll + off-bank pattern (mode=${mode}, records=${transactions.length})`);
   }
-  return { override: {}, mode: 'fixture_fallback' };
+  const records = mapPlaidToLoopRecords(transactions);
+  return { override: { records, sourceReceipt: buildPlaidSourceReceipt(records, mode) }, mode };
 }
 
 function tokenForArm(arm) {
@@ -287,6 +283,15 @@ async function main() {
   const src = await treatmentSource();
   const treatmentInput = input(tokenForArm('treatment'), `deposit_treatment_${RUN_ID}`, src.override);
   const treatment = await loop.runHousehold(treatmentInput);
+  if (treatment.decision?.abstain || treatment.activation !== 'delivered' || !treatment.receipt?.external_receipt_id) {
+    const rows = treatmentInput.records
+      .map((record) => `${record.rail}:${record.amount}:${record.merchant_name}`)
+      .join(', ');
+    throw new Error(
+      `treatment did not complete the approved activation: reason=${treatment.decision?.abstainReason ?? 'none'}; `
+      + `activation=${treatment.activation}; source=${rows}`,
+    );
+  }
   await loop.runHousehold(treatmentInput); // idempotency replay
   const holdoutInput = input(tokenForArm('holdout'), `deposit_holdout_${RUN_ID}`);
   const holdout = await loop.runHousehold(holdoutInput);
@@ -312,7 +317,7 @@ async function main() {
   if (src.override.records) console.log(`  plaid         live pull → ${treatmentInput.records.length} tokenized records → decision cites ${treatment.decision.evidence.map((e) => e.transaction_id).join(', ')}`);
   console.log(`ledger          ${ledgerLine}`);
   console.log(`assignment      treatment arm=${treatment.assignment.arm} · holdout arm=${holdout.assignment.arm} (assigned before detector; holdout bypassed it)`);
-  console.log(`delivery        route=${treatment.receipt ? 'reserved+delivered' : 'n/a'} · calls=1 (replay + holdout added none)`);
+  console.log(`delivery        route=${treatment.receipt ? 'reserved+delivered' : 'n/a'} · activation=${treatment.activation}`);
   if (treatment.receipt?.external_receipt_id) console.log(`  receipt       ${treatment.receipt.external_receipt_id}${treatment.receipt.external_receipt_url ? ' · ' + treatment.receipt.external_receipt_url : ''}`);
   console.log(`measurement     status=${measurement.status} · absolute lift=${measurement.absoluteLift} ${measurement.metric ?? 'net_new_assets'} · evidenceClass=${measurement.evidenceClass}`);
   console.log(`claims          businessClaimAllowed=${measurement.businessClaimAllowed} · causalClaimAllowed=${measurement.causalClaimAllowed}`);
@@ -326,7 +331,12 @@ async function main() {
   // Guardrail assertions so this doubles as a test.
   const { default: assert } = await import('node:assert/strict');
   assert.equal(treatment.assignment.arm, 'treatment');
+  assert.equal(treatment.decision.abstain, false);
+  assert.equal(treatment.activation, 'delivered');
+  assert.ok(treatment.receipt.external_receipt_id);
   assert.equal(holdout.assignment.arm, 'holdout');
+  assert.equal(holdout.activation, 'holdout');
+  assert.equal(holdout.decision, null);
   assert.equal(measurement.status, 'measured');
   assert.equal(measurement.absoluteLift, 100);
   assert.equal(measurement.businessClaimAllowed, false);

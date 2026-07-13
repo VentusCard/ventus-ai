@@ -70,7 +70,11 @@ through the read-only runtime role. It prints the verified head hash instead of 
 `pilot:e2e` Deposit Primacy custom-user pull. The adapter maps returned Plaid records into the operating
 loop contract (`transaction_id`, `rail`, `amount`, `source_system`, …), tokenizes the
 counterparty, and requires every decision citation to resolve to a source transaction id.
-Without credentials, `pilot:e2e` uses fixture records and reports that fallback explicitly.
+Without credentials, `pilot:e2e` uses fixture records and reports that mode explicitly. When
+credentials are configured, the live leg fails closed unless Plaid returns the protocol's required
+payroll plus off-bank evidence; it never silently replaces a failed live pull with fixture proof.
+Plaid may return fewer than all injected rows while the sandbox item settles. Readiness is based on
+the approved evidence pattern, not a brittle fixed row count.
 
 ### 3. Session-authorized Salesforce delivery
 
@@ -98,6 +102,8 @@ protocol-bound source/action/outcome routing, tokenized lineage, session-authori
 header-authorized) writes, coverage-gated lift,
 and — with `DATABASE_URL` — durable hash-verified persistence under forced RLS.
 Protocol registration and approval use a separate credential from activation runtime access.
+The runner now also fails unless the treatment produces a non-abstaining decision, a delivered
+activation, and an external receipt while the holdout bypasses decisioning.
 
 Does not prove: model accuracy, bank SSO claim mapping, a completed bank outcome window,
 statistical validity, or incremental bank value. Those remain the pilot evidence sequence in
