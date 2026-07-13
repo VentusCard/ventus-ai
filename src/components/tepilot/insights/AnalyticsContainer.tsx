@@ -480,7 +480,15 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
       {/* Chat Panel */}
       {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && (
-        <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+        <VentusAIChatPanel
+          activeTab={activeTab}
+          onClose={() => setChatOpen(false)}
+          contextExtras={
+            activeTab === 'report-priority-opportunity' && selectedOpportunityId
+              ? { selectedOpportunityId }
+              : undefined
+          }
+        />
       )}
       </div>
     </div>
