@@ -460,14 +460,18 @@ function RewardsPhoneMockup({
       result.sort((a, b) => (personalizedIds.has(b.id) ? 1 : 0) - (personalizedIds.has(a.id) ? 1 : 0));
       return result;
     }
-    // Default: use customer-specific deals
-    let result = gridDeals;
+    // Default: use customer-specific deals — but when searching, expand to the full catalog
     if (isSearchActive) {
-      if (matchingDealIds.length > 0) result = result.filter(d => matchingDealIds.includes(d.id));
-      else if (!isSearching) result = [];
+      let result: BankDeal[] = [];
+      if (matchingDealIds.length > 0) {
+        result = AVAILABLE_DEALS.map(convertToBankDeal).filter(d => matchingDealIds.includes(d.id));
+        result.sort((a, b) => (personalizedIds.has(b.id) ? 1 : 0) - (personalizedIds.has(a.id) ? 1 : 0));
+      }
+      return result;
     }
-    return result;
-  }, [gridDeals, isSearchActive, matchingDealIds, isSearching, categoryFilter]);
+    return gridDeals;
+  }, [gridDeals, deals, isSearchActive, matchingDealIds, isSearching, categoryFilter]);
+
 
   const filteredPerks = useMemo(() => {
     if (!isSearchActive) return perks;
@@ -480,7 +484,7 @@ function RewardsPhoneMockup({
   }, [perks, isSearchActive, queryLower]);
 
   // Hide hero deal if search is active and it doesn't match
-  const showHero = heroDeal && (!isSearchActive || matchingDealIds.includes(heroDeal.id));
+  const showHero = heroDeal && !isSearchActive;
 
   return (
     <div className="p-4">
