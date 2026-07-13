@@ -1,24 +1,27 @@
-## Problem
+## Goal
 
-In `/bankdemo` → Demo → Rewards phone, typing "coffee machine" shows the AI reasoning chip ("...return deals from Starbucks, Dunkin', Williams-Sonoma, Dyson, Best Buy, Amazon, Target...") but no deal cards appear.
+When a user searches inside the phone mockup on `/bankdemo`, the phone should visibly show matching deal cards. A query like `coffee machine` should not only show an AI reasoning chip, and it should not rely on loose matches like Starbucks unless there is a concrete product/accessory reason.
 
-Root cause is in `src/components/demo/DemoRewardsView.tsx` (lines 463-468). The `semantic-deal-search` edge function correctly returns ~24 matching deal IDs, but the default (no category selected) filter intersects them against `gridDeals` — only the ~10 deals personalized for the current customer. The semantic matches almost never overlap that small set, so the grid renders empty.
+## What I will change
 
-The category-filter branch already handles this correctly: it searches the full `AVAILABLE_DEALS` catalog and sorts personalized deals to the top. The default branch needs the same treatment.
+1. **Tighten search logic in the backend function**
+   - Update `semantic-deal-search` so results are based on product intent:
+     - direct sellers of the item
+     - credible accessory/consumable sellers only when the reason is explicit
+   - Remove the current broad “brand association” behavior that returns cafes/restaurants for appliance queries.
+   - Replace the `coffee machine` example so it favors home/kitchen/general retail merchants and excludes Starbucks/Dunkin as default substitute-category matches.
 
-## Fix
+2. **Fix the phone mockup display path**
+   - The `/bankdemo` phone rewards view uses `GeneratedOffersPhoneView`, not `DemoRewardsView`.
+   - Its search currently filters only the already-generated offer groups, so even if the search function returns valid catalog IDs, nothing appears unless those merchants already exist inside the generated campaign groups.
+   - I’ll update this view so active search results can render catalog-backed deal cards directly in the phone, using the same merchant lookup and offer-card styling.
 
-Single-file edit to `src/components/demo/DemoRewardsView.tsx`:
+3. **Improve empty/loading states**
+   - While searching: keep the loader clear.
+   - If the search succeeds but no generated campaign group matches, show standalone catalog result cards instead of `No matching deals found`.
+   - If there are truly no matches, keep the empty state.
 
-1. **Default `filteredDeals` branch:** when a search is active, source from the full catalog (`AVAILABLE_DEALS.map(convertToBankDeal)`), filter by `matchingDealIds`, then sort personalized deals first. When no search is active, keep current `gridDeals` behavior.
-
-2. **Hero + Expiring Soon row (lines 528-545):** hide both while a search is active so results own the grid and there is no duplicate card at the top. Restores automatically when the search clears.
-
-No changes to the edge function, `useSemanticDealSearch`, perks filter, or category-pill behavior.
-
-## Verification
-
-- "coffee machine" → Starbucks, Dunkin', Williams-Sonoma, Dyson, Home Depot, Target, Amazon, Best Buy, etc.
-- "ski trip", "birthday gift", "healthy food" → broad relevant matches.
-- Clear search → hero + personalized grid return.
-- Category pill still narrows to the selected pillar and re-applies semantic search within it.
+4. **Validation**
+   - Test `coffee machine` in the phone mockup.
+   - Expected visible result cards: kitchen/home/general retailers such as Williams-Sonoma, Bed Bath & Beyond, Amazon, Target, Walmart, Costco, Best Buy, Dyson where available.
+   - Expected not to appear by default: Starbucks, Dunkin, Chick-fil-A, streaming/services unrelated to product purchase intent.
