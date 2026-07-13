@@ -50,7 +50,7 @@ deterministic baseline on quality and cost.
 | `PLAID_CLIENT_ID` / `PLAID_SECRET` | Server runtime | Enable `/api/plaid-transactions` (real Plaid sandbox ingestion). Unset → the API returns 503 and the Live Lab falls back to Plaid-schema fixtures; the pipeline logic is identical either way. |
 | `PLAID_ENV` | Server runtime | Plaid environment for ingestion (`sandbox` default). |
 | `SF_LOGIN_URL` / `SF_CLIENT_ID` / `SF_CLIENT_SECRET` | Server runtime | Enable `/api/salesforce-deliver` — a REAL Salesforce write (OAuth client-credentials → standard `Task` record; receipt = the record id + Lightning URL). Unset → documented 503 and the Live Lab falls back to the mock receiver. |
-| `DATABASE_URL` / `VENTUS_DATABASE_URL` | Server / script runtime | Non-prod Postgres for the durable decision ledger. `npm run db:migrate` (as owner) applies the four evidence-store migrations; `npm run db:verify` (as the NOSUPERUSER NOBYPASSRLS runtime role) appends a lineage and verifies the hash chain from DB rows. Unset → in-memory ledger. `PGSSL=disable` for local. |
+| `DATABASE_URL` / `VENTUS_DATABASE_URL` | Server / script runtime | Non-prod Postgres for the durable decision ledger. `npm run db:migrate` (as owner) applies the five evidence-store migrations; `npm run db:verify` (as the NOSUPERUSER NOBYPASSRLS runtime role) appends a lineage and verifies the hash chain from DB rows. Unset → in-memory ledger. `PGSSL=disable` for local. |
 | `VENTUS_SESSION_ISSUER_TOKEN` | Server runtime | Admin bearer that authorizes `/api/connector-session` to mint connector sessions in non-prod (replaced by SSO in production; production issuance requires `VENTUS_ALLOW_TOKEN_ISSUER=true`). |
 
 The whole chain runs end to end with `npm run pilot:e2e` — see `docs/non-prod-pilot-e2e.md`.

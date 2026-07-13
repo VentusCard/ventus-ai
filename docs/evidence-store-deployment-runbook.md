@@ -69,13 +69,14 @@ aws lambda invoke \
 cat /tmp/ventus-evidence-migration.json
 ```
 
-The invocation succeeds only when all four migrations commit and the generated runtime role:
+The invocation succeeds only when all five migrations commit and the generated runtime role:
 
 - is `NOSUPERUSER NOBYPASSRLS`;
 - appends a signal → decision → activation → outcome lineage;
 - replays the first event without a duplicate write;
 - verifies the persisted SHA-256 chain;
-- sees zero tenant-A events while operating under tenant B.
+- persists and idempotently replays an authorized connected-experiment exposure receipt;
+- sees zero tenant-A ledger or connected-experiment exposure events while operating under tenant B.
 
 Preserve the invocation JSON and CloudWatch request ID as the deployment evidence. Never
 export or print either database secret.

@@ -23,4 +23,12 @@ for (const [index, event] of events.entries()) {
   ids.add(event.event_id);
 }
 
+const invalidConnectedOutcome = structuredClone(events[0]);
+invalidConnectedOutcome.assignment.arm = "connected";
+assert.equal(
+  validate(invalidConnectedOutcome),
+  false,
+  "connected outcomes must declare connected_incrementality design and authorization scope",
+);
+
 console.log(`Outcome feed contract verified: ${events.length} events, pre-assigned experiment arms, no direct PII fields.`);

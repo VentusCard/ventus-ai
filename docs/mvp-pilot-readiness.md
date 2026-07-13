@@ -25,6 +25,7 @@ pilot depends on it.
 | Outcome contract | `npm run test:outcomes` | Tokenized, holdout-aware event schema suitable for bank mapping | A live bank outcome feed |
 | Executable operating loop | `backend/shared/pilot-operating-loop.test.mjs`; `docs/pilot-operating-loop.md` | Source receipt → grounded signal → policy → immutable assignment → decision → at-most-once sandbox delivery → outcome → coverage-gated lift across standalone Consumer, standalone Merrill, and connected-expansion examples | Live source, bank identity, deployed persistence, model accuracy, or real business lift |
 | Experiment measurement | `backend/shared/experiment-measurement.test.mjs`; `docs/outcome-measurement-methodology.md` | Stable pre-activation assignment, idempotent outcomes, one-tenant/experiment integrity, coverage gates, and uncertainty intervals | A deployed store, completed bank outcome window, independent review, or causal result |
+| Connected-data incrementality | `backend/shared/connected-expansion-loop.test.mjs`; `backend/sql/connected-expansion-measurement.sql`; `docs/connected-expansion-experiment.md` | Prequalification without connected data; immutable holdout/standalone/connected assignment; authorized data-scope enforcement; exposure receipts; deviation gates; and connected-minus-standalone lift | Bank authorization, sanctioned cross-business data, authenticated workflow delivery, completed outcomes, or causal proof |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
 | Decision/outcome graph | `backend/shared/decision-ledger.test.mjs` | SHA-256 lineage, tenant serialization, tamper detection, and sample-gated descriptive effectiveness | Causality, deployment, or longitudinal bank evidence |
 | Tenant-isolated persistence | `npm run --prefix backend check:persistence`; `backend/sql/verify-tenant-isolation.sql` | Transaction-local tenant context, forced-RLS policies, non-bypass role checks, and rollback-only cross-tenant probes are present and CI-checked | A successful probe against the deployed non-production runtime role |
@@ -54,9 +55,9 @@ after predictions are observed.
 ## Next deployment decisions
 
 1. Select the server-side identity provider and map roles for evaluators, operators, and auditors.
-2. Apply the four evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
+2. Apply the five evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
 3. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the cohort expectations.
-4. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, and minimum sample review.
+4. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, minimum sample review, and whether a separately authorized three-arm expansion test is in scope.
 5. Have two independent reviewers adjudicate and freeze the draft intervention benchmark before opening candidate predictions.
 6. Run captured shadow-planner predictions against the frozen benchmark, then review errors and cost without changing expectations.
 7. Complete the procurement evidence gaps in `docs/security-procurement-evidence-index.md`.

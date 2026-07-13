@@ -21,7 +21,7 @@
     "review:interventions:prepare": "node ./scripts/prepare-intervention-review.mjs",
     "review:interventions:adjudicate": "node ./scripts/adjudicate-intervention-review.mjs",
     "qa:mvp-cohorts": "node --experimental-strip-types ./scripts/qa-growth-play-cohorts.mjs",
-    "qa:outcomes": "node ./scripts/qa-outcome-feed-contract.mjs",
+    "qa:outcomes": "node ./scripts/qa-outcome-feed-contract.mjs && node ./scripts/qa-connected-exposure-contract.mjs",
     "plaid:mvp:manifests": "node --experimental-strip-types ./scripts/generate-plaid-mvp-manifests.mjs",
     "benchmark:mvp": "VENTUS_SCALE_HOUSEHOLDS=50000 node --experimental-strip-types ./scripts/benchmark-growth-play-pipeline.mjs",
     "qa:live": "node ./scripts/qa-live-pipeline.mjs",

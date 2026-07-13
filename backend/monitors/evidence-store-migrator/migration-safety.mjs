@@ -3,6 +3,7 @@ export const APPLY_EVIDENCE_SCHEMA_CONFIRMATION = 'APPLY_VENTUS_EVIDENCE_SCHEMA'
 export const EVIDENCE_STORE_MIGRATIONS = [
   'decision-ledger.sql',
   'experiment-measurement.sql',
+  'connected-expansion-measurement.sql',
   'tenant-isolation.sql',
   'connector-delivery.sql',
 ];

@@ -86,9 +86,10 @@ npm run --prefix infra diff -- VentusEvidenceStoreStack -c enableEvidenceStoreMi
 ```
 
 The Lambda defaults to read-only status. Mutation requires `mode=migrate-and-verify` and the
-exact confirmation phrase `APPLY_VENTUS_EVIDENCE_SCHEMA`. It applies all four migrations in
+exact confirmation phrase `APPLY_VENTUS_EVIDENCE_SCHEMA`. It applies all five migrations in
 one transaction, reconnects as the generated runtime role, appends and replays a four-event
-lineage, verifies its SHA-256 chain, and confirms another tenant sees zero events. Do not
+lineage, verifies its SHA-256 chain, persists and replays an authorized connected-experiment
+exposure receipt, and confirms another tenant sees zero ledger or exposure events. Do not
 connect application traffic until this invocation succeeds and its CloudWatch receipt is
 reviewed.
 

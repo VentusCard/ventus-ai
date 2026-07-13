@@ -4322,6 +4322,7 @@ function LeadershipPipelineRun({
 function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => void }) {
   const [step, setStep] = useState(0);
   const [scopeOpen, setScopeOpen] = useState(false);
+  const [connectedTestOpen, setConnectedTestOpen] = useState(false);
   const market = "Charlotte";
   const capacity = 50;
   const [experienceTab, setExperienceTab] = useState<"employee" | "customer">("employee");
@@ -4346,6 +4347,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
   useEffect(() => {
     setStep(0);
     setScopeOpen(false);
+    setConnectedTestOpen(false);
     setExperienceTab("employee");
     setEmployeeWithVentus(true);
     setPipelineReady(false);
@@ -4581,6 +4583,15 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                       ))}
                     </div>
                     <p className="mt-3 text-[10px] leading-4 text-slate-400">Assignment is immutable and tokenized. Outcomes arriving before assignment or with a changed arm are rejected.</p>
+                    <button
+                      onClick={() => setConnectedTestOpen(true)}
+                      className="mt-3 flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100"
+                    >
+                      <span className="flex items-center gap-2 text-[11px] font-semibold text-slate-700">
+                        <GitBranch className="h-3.5 w-3.5" style={{ color: NAVY }} /> After standalone proof: test connected lift
+                      </span>
+                      <ArrowRight className="h-3.5 w-3.5 flex-none text-slate-400" />
+                    </button>
                   </section>
                   <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                     {!measurementPreview ? (
@@ -4667,7 +4678,55 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
       </footer>
 
       {scopeOpen && <PilotScopePanel config={config} destination={destination} market={market} capacity={capacity} onClose={() => setScopeOpen(false)} />}
+      {connectedTestOpen && <ConnectedTestPanel config={config} onClose={() => setConnectedTestOpen(false)} />}
       {playOpen && <GrowthPlayPanel title={config.playTitle} skill={skill} destination={destination} onClose={() => setPlayOpen(false)} />}
+    </div>
+  );
+}
+
+function ConnectedTestPanel({ config, onClose }: { config: LeadershipConfig; onClose: () => void }) {
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+  const arms = [
+    { label: "Holdout", detail: "No Ventus action", color: "#64748b" },
+    { label: "Standalone", detail: `${config.businessLine} data only`, color: BLUE },
+    { label: "Connected", detail: "Authorized added signals", color: GREEN },
+  ];
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="connected-test-title"
+        className="w-full max-w-lg overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl"
+        onClick={(event) => event.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
+          <div className="flex items-center gap-2"><GitBranch className="h-4 w-4" /><span id="connected-test-title" className="text-sm font-semibold">Measure the value of connection</span></div>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10"><X className="h-5 w-5" /></button>
+        </div>
+        <div className="p-5">
+          <p className="text-sm font-semibold text-slate-900">Does authorized cross-business data improve the result?</p>
+          <div className="mt-4 grid grid-cols-3 gap-2">
+            {arms.map((arm) => (
+              <div key={arm.label} className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+                <span className="block h-1.5 w-8 rounded-full" style={{ backgroundColor: arm.color }} />
+                <p className="mt-2 text-xs font-bold text-slate-900">{arm.label}</p>
+                <p className="mt-0.5 text-[10px] leading-4 text-slate-500">{arm.detail}</p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 p-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Expansion decision</p>
+            <p className="mt-1 text-base font-semibold text-slate-950">Connected outcome − standalone outcome</p>
+            <p className="mt-1 text-[11px] leading-5 text-slate-500">Reported only after sample, outcome coverage, data-scope exposure, and deviation gates pass.</p>
+          </div>
+          <p className="mt-3 text-[10px] text-slate-400">Same frozen decision protocol · no connected-data result claimed</p>
+        </div>
+      </div>
     </div>
   );
 }

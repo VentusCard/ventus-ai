@@ -46,9 +46,38 @@
       "required": ["experiment_id", "arm", "assigned_at"],
       "properties": {
         "experiment_id": { "type": "string", "minLength": 3, "maxLength": 128 },
-        "arm": { "enum": ["treatment", "holdout"] },
-        "assigned_at": { "type": "string", "format": "date-time" }
-      }
+        "arm": { "enum": ["treatment", "holdout", "standalone", "connected"] },
+        "assigned_at": { "type": "string", "format": "date-time" },
+        "design": { "enum": ["binary", "connected_incrementality"] },
+        "authorization_scope_id": { "type": "string", "minLength": 2, "maxLength": 128 },
+        "decision_protocol_id": { "type": "string", "minLength": 2, "maxLength": 128 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "arm": { "enum": ["standalone", "connected"] } } },
+          "then": {
+            "required": ["design", "authorization_scope_id", "decision_protocol_id"],
+            "properties": { "design": { "const": "connected_incrementality" } }
+          }
+        },
+        {
+          "if": {
+            "required": ["design"],
+            "properties": { "design": { "const": "connected_incrementality" } }
+          },
+          "then": {
+            "required": ["authorization_scope_id", "decision_protocol_id"],
+            "properties": { "arm": { "enum": ["holdout", "standalone", "connected"] } }
+          }
+        },
+        {
+          "if": {
+            "required": ["design"],
+            "properties": { "design": { "const": "binary" } }
+          },
+          "then": { "properties": { "arm": { "enum": ["treatment", "holdout"] } } }
+        }
+      ]
     },
     "value": {
       "type": ["object", "null"],

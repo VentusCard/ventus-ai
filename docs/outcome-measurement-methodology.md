@@ -37,10 +37,41 @@ This interval is decision support, not automatic proof of causality. The output 
 covariate balance, attrition, contamination, noncompliance, multiple testing, and business context.
 Bank-approved analysis may require a different estimator or a larger sample.
 
+## Connected-data incrementality
+
+Cross-business value uses a separately pre-registered three-arm design:
+
+- **Holdout:** no Ventus action.
+- **Standalone:** the business line acts using only its authorized team-owned inputs.
+- **Connected:** the same eligible population may use the explicitly authorized cross-business
+  signal classes.
+
+Assignment is deterministic and immutable. The connected experiment cannot be created without a
+time-bounded authorization scope naming at least two business lines and the permitted signal
+classes. It also pins one decision-protocol ID across the standalone and connected arms so model,
+prompt, policy, or action-catalog drift cannot be attributed to data connection. Every household
+requires an exposure receipt recording whether an action was actually delivered and whether
+connected data was used.
+
+Ventus withholds all three contrasts unless every arm clears sample size, outcome coverage,
+exposure coverage, and pre-registered deviation limits. When ready, it reports:
+
+1. **Standalone minus holdout:** whether the business line creates independent value.
+2. **Connected minus standalone:** the incremental value attributable to authorized connection.
+3. **Connected minus holdout:** total effect of the connected operating path.
+
+The connected-minus-standalone result is the expansion decision metric. A positive interval only
+makes the connection a candidate for independent scale review; it never authorizes expansion
+automatically. Inconclusive or negative results remain unscaled. `businessClaimAllowed` and
+`causalClaimAllowed` remain false pending independent statistical, data-governance, and experiment
+review.
+
 ## MVP metrics
 
 - Deposit Primacy: bank-approved retained deposit balance or another pre-registered deposit metric.
-- Liquidity-to-Wealth: qualified net new assets posted during the approved outcome window.
+- Merrill Relationship Growth: qualified net new assets posted during the approved outcome window.
+- Connected Liquidity-to-Wealth: incremental qualified NNA versus the standalone arm, not merely
+  versus no action.
 
 `estimated_revenue` may support planning but should not serve as the primary pilot success metric
 unless Finance approves its assumptions and reconciliation method. No result should be annualized

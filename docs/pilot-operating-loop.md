@@ -19,6 +19,11 @@ Growth, and connected Liquidity-to-Wealth examples. Connectors, policy packs, de
 systems, and destinations are injected rather than hard-coded to one institution or dependent on
 cross-business data.
 
+Connected expansion uses the separate pre-assigned three-arm orchestration in
+`backend/shared/connected-expansion-loop.mjs`. It prevents connected data from influencing cohort
+eligibility or standalone decisions and records immutable data-scope exposure receipts. See
+`docs/connected-expansion-experiment.md`.
+
 ## Evidence boundaries
 
 Every source receipt is immutable-classified as `synthetic`, `sandbox`, or `sanctioned`, and the

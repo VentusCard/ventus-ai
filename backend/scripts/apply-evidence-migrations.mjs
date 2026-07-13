@@ -1,4 +1,4 @@
-// Apply the four evidence-store migrations to a non-production Postgres, in dependency
+// Apply the five evidence-store migrations to a non-production Postgres, in dependency
 // order. Idempotent — every migration uses IF NOT EXISTS / CREATE OR REPLACE / DROP IF
 // EXISTS, so re-running is safe.
 //
@@ -9,8 +9,8 @@
 // backend/sql/verify-tenant-isolation.sql as that runtime role afterward (npm run db:probe).
 //
 // If DATABASE_URL is unset this prints the setup path and exits 0 (nothing is provisioned
-// for you). Order follows the SQL dependencies: ledger → measurement → tenant isolation →
-// delivery (whose policy calls the tenant-context function).
+// for you). Order follows the SQL dependencies: ledger → binary measurement → connected
+// measurement → tenant isolation → delivery (whose policy calls the tenant-context function).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -23,6 +23,7 @@ const sql = (name) => readFileSync(resolve(here, '../sql', name), 'utf8');
 const MIGRATIONS = [
   'decision-ledger.sql',
   'experiment-measurement.sql',
+  'connected-expansion-measurement.sql',
   'tenant-isolation.sql',
   'connector-delivery.sql',
 ];
@@ -48,7 +49,7 @@ async function main() {
       console.log('ok');
     }
     await client.query('COMMIT');
-    console.log('\nAll four evidence-store migrations applied.');
+    console.log('\nAll five evidence-store migrations applied.');
     console.log('Next: run the isolation probe AS THE RUNTIME ROLE — npm run db:probe (see verify-tenant-isolation.sql).');
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});

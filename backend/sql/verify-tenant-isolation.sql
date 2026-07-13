@@ -1,6 +1,6 @@
 \set ON_ERROR_STOP on
 
--- Run as the proposed non-production runtime role after applying all three migrations.
+-- Run as the proposed non-production runtime role after applying all five migrations.
 -- The transaction rolls back every probe record.
 BEGIN;
 
@@ -36,6 +36,28 @@ INSERT INTO connector_delivery_receipts (
   'probe_session_a', repeat('c', 64), 'pending', '{"probe":true}'::jsonb, now()
 );
 
+INSERT INTO experiment_assignments (
+  tenant_id, experiment_id, household_token, assignment_id, arm, experiment_design,
+  holdout_pct, standalone_pct, connected_pct, bucket, evidence_class, assigned_at,
+  authorization_scope_id, authorization_approved_at, authorization_expires_at,
+  authorized_business_lines, authorized_signal_classes, decision_protocol_id
+) VALUES (
+  'tenant_isolation_probe_a', 'connected_probe', 'tok_connected_probe_a', 'asn_connected_probe_a',
+  'connected', 'connected_incrementality', 10, 45, 45, 9000, 'sandbox', now(),
+  'scope_connected_probe', now() - interval '1 day', now() + interval '30 days',
+  '["consumer","wealth"]'::jsonb, '["relationship_signal"]'::jsonb,
+  'connected_protocol_v1'
+);
+
+INSERT INTO connected_exposure_events (
+  tenant_id, event_id, experiment_id, household_token, arm, decision_evaluated, action_delivered,
+  connected_data_used, authorization_scope_id, occurred_at, payload, decision_protocol_id
+) VALUES (
+  'tenant_isolation_probe_a', 'exposure_probe_a', 'connected_probe', 'tok_connected_probe_a',
+  'connected', true, true, true, 'scope_connected_probe', now(), '{"probe":true}'::jsonb,
+  'connected_protocol_v1'
+);
+
 SELECT set_config('app.current_tenant_id', 'tenant_isolation_probe_b', true);
 
 DO $$
@@ -51,6 +73,12 @@ BEGIN
     WHERE tenant_id = 'tenant_isolation_probe_a'
   ) THEN
     RAISE EXCEPTION 'cross-tenant delivery receipt was visible';
+  END IF;
+  IF EXISTS (
+    SELECT 1 FROM connected_exposure_events
+    WHERE tenant_id = 'tenant_isolation_probe_a'
+  ) THEN
+    RAISE EXCEPTION 'cross-tenant connected exposure was visible';
   END IF;
 END
 $$;
@@ -82,6 +110,9 @@ BEGIN
   IF (SELECT count(*) FROM connector_delivery_receipts WHERE tenant_id = 'tenant_isolation_probe_a') <> 1 THEN
     RAISE EXCEPTION 'same-tenant read did not return the delivery probe';
   END IF;
+  IF (SELECT count(*) FROM connected_exposure_events WHERE tenant_id = 'tenant_isolation_probe_a') <> 1 THEN
+    RAISE EXCEPTION 'same-tenant read did not return the connected-exposure probe';
+  END IF;
 END
 $$;
 
@@ -94,6 +125,9 @@ BEGIN
   END IF;
   IF EXISTS (SELECT 1 FROM connector_delivery_receipts) THEN
     RAISE EXCEPTION 'missing tenant context exposed delivery receipts';
+  END IF;
+  IF EXISTS (SELECT 1 FROM connected_exposure_events) THEN
+    RAISE EXCEPTION 'missing tenant context exposed connected exposures';
   END IF;
 END
 $$;

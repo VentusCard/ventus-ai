@@ -5,6 +5,10 @@ import { fileURLToPath } from 'node:url';
 import { Client } from 'pg';
 import { createDecisionLedgerRepository, verifyLedgerChain } from './shared/decision-ledger.mjs';
 import {
+  assignConnectedExpansionExperiment,
+  createMeasurementRepository,
+} from './shared/experiment-measurement.mjs';
+import {
   APPLY_EVIDENCE_SCHEMA_CONFIRMATION,
   EVIDENCE_STORE_MIGRATIONS,
   checkedPgIdentifier,
@@ -98,7 +102,8 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
       `GRANT SELECT, INSERT ON
          ${schemaName}.decision_ledger_events,
          ${schemaName}.experiment_assignments,
-         ${schemaName}.outcome_events
+         ${schemaName}.outcome_events,
+         ${schemaName}.connected_exposure_events
        TO ${roleName}`,
     );
     await db.query(
@@ -130,6 +135,7 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   }
 
   const repo = createDecisionLedgerRepository({ getDB });
+  const measurementRepo = createMeasurementRepository({ getDB });
   const tenantId = `aws_verify_${Date.now().toString(36)}`;
   const otherTenantId = `${tenantId}_other`;
   const householdToken = `tok_runtime_${Date.now().toString(36).padEnd(8, '0')}`;
@@ -149,14 +155,61 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   for (const draft of drafts) await repo.append(draft);
   const replay = await repo.append(drafts[0]);
   const own = await repo.exportTenant(tenantId);
+
+  const assignedAt = new Date().toISOString();
+  const assignment = assignConnectedExpansionExperiment({
+    tenantId,
+    experimentId: 'runtime_connected_expansion',
+    householdToken,
+    holdoutPct: 20,
+    standalonePct: 40,
+    connectedPct: 40,
+    salt: `runtime-verification-${tenantId}`,
+    decisionProtocolId: 'runtime_connected_protocol_v1',
+    evidenceClass: 'sandbox',
+    assignedAt,
+    authorization: {
+      scopeId: 'runtime_verification_scope',
+      approvedAt: new Date(Date.parse(assignedAt) - 60_000).toISOString(),
+      expiresAt: new Date(Date.parse(assignedAt) + 86_400_000).toISOString(),
+      businessLines: ['consumer_banking', 'wealth_management'],
+      signalClasses: ['deposit_behavior', 'wealth_transfer'],
+    },
+  });
+  await measurementRepo.recordAssignment(assignment);
+  await measurementRepo.recordAssignment(assignment);
+  const exposure = {
+    contract_version: '1.0',
+    event_id: `exp_${assignment.assignmentId.slice(4)}`,
+    tenant_id: tenantId,
+    experiment_id: assignment.experimentId,
+    household_token: assignment.householdToken,
+    arm: assignment.arm,
+    decision_evaluated: assignment.arm !== 'holdout',
+    action_delivered: false,
+    connected_data_used: assignment.arm === 'connected',
+    authorization_scope_id: assignment.authorizationScopeId,
+    decision_protocol_id: assignment.decisionProtocolId,
+    occurred_at: new Date(Date.parse(assignedAt) + 1_000).toISOString(),
+  };
+  const exposureWrite = await measurementRepo.recordExposure(exposure);
+  const exposureReplay = await measurementRepo.recordExposure(exposure);
+  const experiment = await measurementRepo.loadExperiment({
+    tenantId,
+    experimentId: assignment.experimentId,
+  });
+
   const crossTenantDb = await getDB();
   await crossTenantDb.connect();
   let crossTenantVisibleEvents;
+  let crossTenantVisibleExposures;
   try {
     await crossTenantDb.query('BEGIN');
     await crossTenantDb.query("SELECT set_config('app.current_tenant_id', $1, true)", [otherTenantId]);
-    const result = await crossTenantDb.query('SELECT count(*)::int AS visible FROM decision_ledger_events');
-    crossTenantVisibleEvents = Number(result.rows[0]?.visible ?? -1);
+    const ledgerResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM decision_ledger_events');
+    const exposureResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM connected_exposure_events');
+    crossTenantVisibleEvents = Number(ledgerResult.rows[0]?.visible ?? -1);
+    crossTenantVisibleExposures = Number(exposureResult.rows[0]?.visible ?? -1);
     await crossTenantDb.query('ROLLBACK');
   } catch (error) {
     await crossTenantDb.query('ROLLBACK').catch(() => {});
@@ -164,8 +217,18 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   } finally {
     await crossTenantDb.end();
   }
-  if (replay.inserted || !own.verified || own.events.length !== drafts.length || crossTenantVisibleEvents !== 0) {
-    throw new Error('runtime persistence, idempotency, hash-chain, or tenant-isolation verification failed');
+  if (
+    replay.inserted
+    || !own.verified
+    || own.events.length !== drafts.length
+    || !exposureWrite.inserted
+    || exposureReplay.inserted
+    || experiment.assignments.length !== 1
+    || experiment.exposures.length !== 1
+    || crossTenantVisibleEvents !== 0
+    || crossTenantVisibleExposures !== 0
+  ) {
+    throw new Error('runtime ledger, connected-measurement, idempotency, or tenant-isolation verification failed');
   }
   return {
     runtimeRole: runtimeUsername,
@@ -173,6 +236,15 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     eventCount: own.events.length,
     hashChainVerified: verifyLedgerChain(own.events),
     crossTenantVisibleEvents,
+    connectedExperiment: {
+      design: assignment.design,
+      arm: assignment.arm,
+      assignmentCount: experiment.assignments.length,
+      exposureCount: experiment.exposures.length,
+      exposureReplayInserted: exposureReplay.inserted,
+      authorizationScopeId: assignment.authorizationScopeId,
+      crossTenantVisibleExposures,
+    },
     headHashPrefix: own.events.at(-1).event_hash.slice(0, 16),
   };
 }
