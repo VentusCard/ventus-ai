@@ -5,10 +5,19 @@ import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const DECISIONS = new Set(['approved', 'revoked']);
 
-export function buildProtocolRegistration({ tenantId, contract, registeredBy, registeredAt }) {
+export function buildProtocolRegistration({
+  tenantId,
+  contract,
+  registeredBy,
+  registeredBySessionId,
+  identityProvider,
+  registeredAt,
+}) {
   validateTenantId(tenantId);
   const compiled = validateCompiledGrowthPlayContract(contract);
   assertIdentifier(registeredBy, 'registeredBy');
+  assertIdentifier(registeredBySessionId, 'registeredBySessionId');
+  assertIdentifier(identityProvider, 'identityProvider');
   assertIsoDate(registeredAt, 'registeredAt');
   return {
     tenantId,
@@ -19,6 +28,8 @@ export function buildProtocolRegistration({ tenantId, contract, registeredBy, re
     protocolDigest: compiled.protocol_digest,
     contract: compiled,
     registeredBy,
+    registeredBySessionId,
+    identityProvider,
     registeredAt,
   };
 }
@@ -26,24 +37,33 @@ export function buildProtocolRegistration({ tenantId, contract, registeredBy, re
 export function buildProtocolApproval({
   tenantId,
   decisionProtocolId,
+  businessLine,
   decision,
   decidedBy,
+  decidedBySessionId,
+  identityProvider,
   decidedAt,
   changeRecordId,
   reason,
 }) {
   validateTenantId(tenantId);
   assertIdentifier(decisionProtocolId, 'decisionProtocolId');
+  assertIdentifier(businessLine, 'businessLine');
   assert.ok(DECISIONS.has(decision), 'approval decision must be approved or revoked');
   assertIdentifier(decidedBy, 'decidedBy');
+  assertIdentifier(decidedBySessionId, 'decidedBySessionId');
+  assertIdentifier(identityProvider, 'identityProvider');
   assertIsoDate(decidedAt, 'decidedAt');
   assertIdentifier(changeRecordId, 'changeRecordId');
   assertText(reason, 'reason', 8, 1000);
   const approvalEventId = `gpa_${sha256([
     tenantId,
     decisionProtocolId,
+    businessLine,
     decision,
     decidedBy,
+    decidedBySessionId,
+    identityProvider,
     decidedAt,
     changeRecordId,
     reason.trim(),
@@ -52,8 +72,11 @@ export function buildProtocolApproval({
     approvalEventId,
     tenantId,
     decisionProtocolId,
+    businessLine,
     decision,
     decidedBy,
+    decidedBySessionId,
+    identityProvider,
     decidedAt,
     changeRecordId,
     reason: reason.trim(),
@@ -69,13 +92,15 @@ export function createGrowthPlayRegistry({ getDB }) {
         const inserted = await db.query(
           `INSERT INTO growth_play_protocols
              (tenant_id, decision_protocol_id, growth_play_id, version, business_line,
-              protocol_digest, contract, registered_by, registered_at)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)
+              protocol_digest, contract, registered_by, registered_by_session_id,
+              identity_provider, registered_at)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
            ON CONFLICT (tenant_id, decision_protocol_id) DO NOTHING
            RETURNING *`,
           [registration.tenantId, registration.decisionProtocolId, registration.growthPlayId,
             registration.version, registration.businessLine, registration.protocolDigest,
-            registration.contract, registration.registeredBy, registration.registeredAt],
+            registration.contract, registration.registeredBy, registration.registeredBySessionId,
+            registration.identityProvider, registration.registeredAt],
         );
         const record = inserted.rows[0] ?? (await db.query(
           `SELECT * FROM growth_play_protocols
@@ -93,25 +118,29 @@ export function createGrowthPlayRegistry({ getDB }) {
       const approval = buildProtocolApproval(input);
       return inTenantTransaction(getDB, approval.tenantId, async (db) => {
         const protocol = await db.query(
-          `SELECT registered_at FROM growth_play_protocols
-            WHERE tenant_id = $1 AND decision_protocol_id = $2`,
-          [approval.tenantId, approval.decisionProtocolId],
+          `SELECT registered_at, registered_by, business_line FROM growth_play_protocols
+            WHERE tenant_id = $1 AND decision_protocol_id = $2 AND business_line = $3`,
+          [approval.tenantId, approval.decisionProtocolId, approval.businessLine],
         );
-        assert.equal(protocol.rows.length, 1, 'approval references an unregistered Growth Play protocol');
+        assert.equal(protocol.rows.length, 1, 'approval references an unregistered Growth Play protocol for this business line');
         assert.ok(
           Date.parse(protocol.rows[0].registered_at) <= Date.parse(approval.decidedAt),
           'approval cannot predate protocol registration',
         );
+        if (approval.decision === 'approved') {
+          assert.notEqual(protocol.rows[0].registered_by, approval.decidedBy, 'protocol registration and approval require different subjects');
+        }
         const inserted = await db.query(
           `INSERT INTO growth_play_protocol_approval_events
              (tenant_id, approval_event_id, decision_protocol_id, decision, decided_by,
-              decided_at, change_record_id, reason)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8)
+              decided_by_session_id, identity_provider, decided_at, change_record_id, reason)
+           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
            ON CONFLICT (tenant_id, approval_event_id) DO NOTHING
            RETURNING *`,
           [approval.tenantId, approval.approvalEventId, approval.decisionProtocolId,
-            approval.decision, approval.decidedBy, approval.decidedAt,
-            approval.changeRecordId, approval.reason],
+            approval.decision, approval.decidedBy, approval.decidedBySessionId,
+            approval.identityProvider, approval.decidedAt, approval.changeRecordId,
+            approval.reason],
         );
         const record = inserted.rows[0] ?? (await db.query(
           `SELECT * FROM growth_play_protocol_approval_events
@@ -134,7 +163,8 @@ export function createGrowthPlayRegistry({ getDB }) {
         const result = await db.query(
           `SELECT p.decision_protocol_id, p.growth_play_id, p.business_line,
                   p.protocol_digest, p.contract, a.approval_event_id, a.decision,
-                  a.decided_by, a.decided_at, a.change_record_id
+                  a.decided_by, a.decided_by_session_id, a.identity_provider,
+                  a.decided_at, a.change_record_id
              FROM growth_play_protocols p
              JOIN LATERAL (
                SELECT * FROM growth_play_protocol_approval_events
@@ -180,7 +210,11 @@ export function createInMemoryGrowthPlayRegistry() {
       const approval = buildProtocolApproval(input);
       const protocol = protocols.get(protocolKey(approval.tenantId, approval.decisionProtocolId));
       assert.ok(protocol, 'approval references an unregistered Growth Play protocol');
+      assert.equal(protocol.businessLine, approval.businessLine, 'approval references a protocol owned by another business line');
       assert.ok(Date.parse(protocol.registeredAt) <= Date.parse(approval.decidedAt), 'approval cannot predate protocol registration');
+      if (approval.decision === 'approved') {
+        assert.notEqual(protocol.registeredBy, approval.decidedBy, 'protocol registration and approval require different subjects');
+      }
       const existing = approvals.find((item) => item.tenantId === approval.tenantId && item.approvalEventId === approval.approvalEventId);
       if (!existing) approvals.push(approval);
       return { inserted: !existing, record: existing ?? approval };
@@ -208,6 +242,8 @@ export function createInMemoryGrowthPlayRegistry() {
         businessLine: protocol.businessLine,
         protocolDigest: protocol.protocolDigest,
         decidedBy: latest.decidedBy,
+        decidedBySessionId: latest.decidedBySessionId,
+        identityProvider: latest.identityProvider,
         decidedAt: latest.decidedAt,
         changeRecordId: latest.changeRecordId,
       };
@@ -223,6 +259,8 @@ function approvalReceipt(record) {
     businessLine: record.business_line,
     protocolDigest: record.protocol_digest,
     decidedBy: record.decided_by,
+    decidedBySessionId: record.decided_by_session_id,
+    identityProvider: record.identity_provider,
     decidedAt: toISOString(record.decided_at),
     changeRecordId: record.change_record_id,
   };

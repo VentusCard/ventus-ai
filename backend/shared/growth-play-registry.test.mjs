@@ -47,8 +47,11 @@ test('revocation fails closed from its effective timestamp without rewriting his
   await registry.recordApproval({
     tenantId: 'bank_1',
     decisionProtocolId: merrill.decision_protocol_id,
+    businessLine: merrill.business_line,
     decision: 'revoked',
     decidedBy: 'policy_owner_1',
+    decidedBySessionId: 'session_policy_owner_1',
+    identityProvider: 'bank_sso',
     decidedAt: '2026-07-13T00:00:00.000Z',
     changeRecordId: 'change_merrill_revoke_001',
     reason: 'Policy owner suspended activation pending review.',
@@ -72,15 +75,21 @@ test('approval IDs are deterministic and approvals cannot predate registration',
   const input = {
     tenantId: 'bank_1',
     decisionProtocolId: deposit.decision_protocol_id,
+    businessLine: deposit.business_line,
     decision: 'approved',
     decidedBy: 'consumer_owner_1',
+    decidedBySessionId: 'session_consumer_owner_1',
+    identityProvider: 'bank_sso',
     decidedAt: APPROVED_AT,
     changeRecordId: 'change_deposit_001',
     reason: 'Approved for the sandbox-assisted pilot.',
   };
   assert.equal(buildProtocolApproval(input).approvalEventId, buildProtocolApproval(input).approvalEventId);
   const registry = createInMemoryGrowthPlayRegistry();
-  await registry.register({ tenantId: 'bank_1', contract: deposit, registeredBy: 'ops_1', registeredAt: REGISTERED_AT });
+  await registry.register({
+    tenantId: 'bank_1', contract: deposit, registeredBy: 'ops_1',
+    registeredBySessionId: 'session_ops_1', identityProvider: 'bank_sso', registeredAt: REGISTERED_AT,
+  });
   await assert.rejects(() => registry.recordApproval({
     ...input,
     decidedAt: '2026-07-12T09:59:59.000Z',
@@ -88,12 +97,22 @@ test('approval IDs are deterministic and approvals cannot predate registration',
 });
 
 async function registerAndApprove(registry, tenantId, contract) {
-  await registry.register({ tenantId, contract, registeredBy: 'pilot_ops_1', registeredAt: REGISTERED_AT });
+  await registry.register({
+    tenantId,
+    contract,
+    registeredBy: 'pilot_ops_1',
+    registeredBySessionId: 'session_pilot_ops_1',
+    identityProvider: 'bank_sso',
+    registeredAt: REGISTERED_AT,
+  });
   await registry.recordApproval({
     tenantId,
     decisionProtocolId: contract.decision_protocol_id,
+    businessLine: contract.business_line,
     decision: 'approved',
     decidedBy: `${contract.business_line}_owner`,
+    decidedBySessionId: `session_${contract.business_line}_owner`,
+    identityProvider: 'bank_sso',
     decidedAt: APPROVED_AT,
     changeRecordId: `change_${contract.growth_play_id.startsWith('deposit') ? 'deposit' : 'merrill'}_001`,
     reason: 'Approved for the sandbox-assisted pilot.',

@@ -182,12 +182,19 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   });
   const registeredAt = new Date(Date.now() - 60_000).toISOString();
   const approvedAt = new Date(Date.now() - 30_000).toISOString();
-  await protocolAdminRegistry.register({ tenantId, contract: protocol, registeredBy: 'runtime_verifier', registeredAt });
+  await protocolAdminRegistry.register({
+    tenantId, contract: protocol, registeredBy: 'runtime_verifier',
+    registeredBySessionId: 'migration_verify_config_session', identityProvider: 'migration_control',
+    registeredAt,
+  });
   await protocolAdminRegistry.recordApproval({
     tenantId,
     decisionProtocolId: protocol.decision_protocol_id,
+    businessLine: protocol.business_line,
     decision: 'approved',
     decidedBy: 'runtime_business_owner',
+    decidedBySessionId: 'migration_verify_approval_session',
+    identityProvider: 'migration_control',
     decidedAt: approvedAt,
     changeRecordId: 'runtime_change_record',
     reason: 'Approved for non-production runtime verification.',
@@ -212,6 +219,8 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
       tenantId,
       contract: unauthorizedProtocol,
       registeredBy: 'activation_runtime',
+      registeredBySessionId: 'activation_runtime_session',
+      identityProvider: 'runtime_forbidden',
       registeredAt: new Date().toISOString(),
     });
   } catch (error) {

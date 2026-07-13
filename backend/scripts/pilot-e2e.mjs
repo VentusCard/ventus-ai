@@ -244,13 +244,18 @@ async function main() {
       tenantId: TENANT,
       contract: DEPOSIT_PLAY,
       registeredBy: 'pilot_e2e_configurator',
+      registeredBySessionId: `pilot_config_session_${RUN_ID}`,
+      identityProvider: 'pilot_nonprod_control',
       registeredAt: new Date(Date.now() - 120_000).toISOString(),
     });
     await protocolAdminRegistry.recordApproval({
       tenantId: TENANT,
       decisionProtocolId: DEPOSIT_PLAY.decision_protocol_id,
+      businessLine: DEPOSIT_PLAY.business_line,
       decision: 'approved',
       decidedBy: 'consumer_banking_pilot_owner',
+      decidedBySessionId: `pilot_approval_session_${RUN_ID}`,
+      identityProvider: 'pilot_nonprod_control',
       decidedAt: approvedAt,
       changeRecordId: `pilot_change_${RUN_ID}`,
       reason: 'Approved for this reproducible sandbox-assisted pilot run.',

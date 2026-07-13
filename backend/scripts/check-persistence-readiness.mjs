@@ -62,8 +62,12 @@ assert.match(deliverySource, /shouldDeliver = false/, 'duplicate reservations sh
 assert.match(deliverySource, /reconciliationRequired/, 'ambiguous pending reservations should require reconciliation');
 assert.match(registrySql, /Growth Play registry records are append-only/, 'protocol and approval records must be immutable');
 assert.match(registrySql, /decision IN \('approved', 'revoked'\)/, 'registry must support explicit approval and revocation');
+assert.match(registrySql, /registered_by_session_id text NOT NULL/, 'protocol registration must retain the authenticated session');
+assert.match(registrySql, /decided_by_session_id text NOT NULL/, 'protocol decisions must retain the authenticated session');
+assert.match(registrySql, /identity_provider text NOT NULL/, 'protocol controls must retain identity-provider lineage');
 assert.match(registrySource, /beginTenantTransaction\(db, tenantId\)/, 'registry reads and writes should set tenant context');
 assert.match(registrySource, /Growth Play protocol is not approved at run time/, 'runtime protocol resolution must fail closed after revocation');
+assert.match(registrySource, /registration and approval require different subjects/, 'protocol approval must enforce separation of duties');
 assert.match(runbook, /non-production/i, 'runbook should limit the first deployment to non-production');
 assert.match(runbook, /NOBYPASSRLS/, 'runbook should require a non-bypass runtime role');
 

@@ -105,10 +105,12 @@ BEGIN
   BEGIN
     INSERT INTO growth_play_protocols (
       tenant_id, decision_protocol_id, growth_play_id, version, business_line,
-      protocol_digest, contract, registered_by, registered_at
+      protocol_digest, contract, registered_by, registered_by_session_id,
+      identity_provider, registered_at
     ) VALUES (
       'tenant_isolation_probe_b', 'dcp_runtime_self_approval', 'deposit-primacy-defense',
-      '1.0.0', 'consumer-banking', repeat('d', 64), '{}'::jsonb, 'runtime_probe', now()
+      '1.0.0', 'consumer-banking', repeat('d', 64), '{}'::jsonb, 'runtime_probe',
+      'runtime_probe_session', 'runtime_forbidden', now()
     );
     RAISE EXCEPTION 'runtime role unexpectedly wrote a Growth Play protocol';
   EXCEPTION

@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS growth_play_protocols (
   protocol_digest text NOT NULL CHECK (protocol_digest ~ '^[a-f0-9]{64}$'),
   contract jsonb NOT NULL,
   registered_by text NOT NULL,
+  registered_by_session_id text NOT NULL,
+  identity_provider text NOT NULL,
   registered_at timestamptz NOT NULL,
   PRIMARY KEY (tenant_id, decision_protocol_id)
 );
@@ -19,6 +21,8 @@ CREATE TABLE IF NOT EXISTS growth_play_protocol_approval_events (
   decision_protocol_id text NOT NULL,
   decision text NOT NULL CHECK (decision IN ('approved', 'revoked')),
   decided_by text NOT NULL,
+  decided_by_session_id text NOT NULL,
+  identity_provider text NOT NULL,
   decided_at timestamptz NOT NULL,
   change_record_id text NOT NULL,
   reason text NOT NULL,

@@ -50,13 +50,15 @@ run. A later-arriving outcome must remain inside the protocol's approved measure
 2. Data, policy, workflow, and measurement owners review their respective sections.
 3. Run `npm run test:growth-plays`. Optionally set `VENTUS_GROWTH_PLAY_OUTPUT` to write the compiled
    contracts for the non-production configuration store.
-4. Register the compiled contract in the tenant-scoped protocol registry and append an approval
-   event naming the business-line approver and pilot change record.
-5. Record the protocol and approval-event IDs with the pilot change record before shadow or
+4. An identity-bound `protocol_configurator` registers the compiled contract for the entitled
+   business line through the control-plane API.
+5. A different authenticated subject with `business_line_owner` entitlement appends the approval
+   event and names the pilot change record.
+6. Record the protocol and approval-event IDs with the pilot change record before shadow or
    assisted runs. The operating loop persists both references with source evidence.
-6. Any configuration change creates a new protocol ID and requires a new review; historical
+7. Any configuration change creates a new protocol ID and requires a new review; historical
    assignments and outcomes remain bound to the prior version.
-7. To stop future runs, append a revocation event. Do not mutate or delete the protocol or its
+8. To stop future runs, append a revocation event. Do not mutate or delete the protocol or its
    earlier approval event.
 
 ## Evidence boundary
@@ -64,6 +66,7 @@ run. A later-arriving outcome must remain inside the protocol's approved measure
 The repository proves compilation, tamper detection, tenant-isolated approval resolution,
 revocation enforcement, runtime allow-list enforcement, household routing integrity, and
 outcome-boundary checks on synthetic and sandbox fixtures. The registry migration is built but not
-deployed by this change. A repository approval event does not prove that a bank owner actually
+deployed by this change. Internal identity-bound RBAC is tested, but bank SSO claim mapping is not
+implemented. A repository approval event does not prove that a bank owner actually
 approved the configuration, that a source mapping is correct for sanctioned data, or that the
 selected action creates economic lift.
