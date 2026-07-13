@@ -6,7 +6,6 @@ import {
   controlPrincipalAllowed,
   type ControlPlanePrincipal,
 } from "./_controlPlaneAuth.ts";
-import { createUrlDbFactory } from "../backend/shared/db-url.mjs";
 import { compileGrowthPlayContract } from "../backend/shared/growth-play-contract.mjs";
 import { createGrowthPlayRegistry } from "../backend/shared/growth-play-registry.mjs";
 
@@ -127,16 +126,16 @@ function requiredId(value: unknown, label: string): string {
   return value;
 }
 
-function configuredRegistry(): Registry | null {
+async function configuredRegistry(): Promise<Registry | null> {
   const connectionString = process.env.VENTUS_PROTOCOL_ADMIN_DATABASE_URL?.trim();
-  return connectionString
-    ? createGrowthPlayRegistry({ getDB: createUrlDbFactory({ connectionString }) })
-    : null;
+  if (!connectionString) return null;
+  const { createUrlDbFactory } = await import("../backend/shared/db-url.mjs");
+  return createGrowthPlayRegistry({ getDB: createUrlDbFactory({ connectionString }) });
 }
 
 export async function POST(request: Request): Promise<Response> {
   if (!controlPlaneEnabled()) return controlPlaneDisabledResponse();
-  const registry = configuredRegistry();
+  const registry = await configuredRegistry();
   if (!registry) return Response.json({ error: "Growth Play protocol store is not configured" }, { status: 503 });
   return createGrowthPlayProtocolHandler({ registry })(request);
 }
