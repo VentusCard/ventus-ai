@@ -84,10 +84,12 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     suggestedNav: ["Next Product", "Campaign Builder", "WM Coworker"],
     quickActions: [
+      "What products are here?",
+      "List every credit card we offer",
       "Which products fit a household in relocation?",
       "Best product for a Hawaii traveler?",
-      "What deposit products do we offer?",
     ],
+    onScreenItems: PRODUCTS_ON_SCREEN,
   },
   "exec-demo": {
     label: "Live Demo — Semantic Enrichment",
