@@ -325,7 +325,7 @@ const TEAMS: TeamDetail[] = [
         stage: "Route to relationship manager",
         text: "Brief and follow-up tasks land in the advisor console and CRM queue for the right RM.",
         chips: [
-          { label: "Advisor Console", kind: "destination" },
+          { label: "AI Coworker", kind: "destination" },
           { label: "CRM", kind: "destination" },
         ],
       },
@@ -389,7 +389,7 @@ const DESTINATIONS: Destination[] = [
   { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
   { label: "Rewards Provider", sublabel: "Augeo / Premium Payback", icon: Gift },
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
-  { label: "Advisor Console", sublabel: "Banker Workstation", icon: Briefcase },
+  { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
 ];
 
 function getTeamDestinations(teamLabel: string): string[] {
