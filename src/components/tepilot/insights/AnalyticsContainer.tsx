@@ -324,17 +324,18 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
             <button
               onClick={() => setChatOpen(true)}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+              className="ventus-ai-badge ventus-ai-badge-interactive"
               title="Open Ventus AI"
+              aria-label="Open Ventus AI"
             >
-              <Sparkles className="w-3 h-3 text-blue-500" />
-              Powered by Ventus AI
+              <span className="ventus-ai-live-dot" aria-hidden="true" />
+              Ventus AI
             </button>
           )}
           {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || chatOpen) && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-              <Sparkles className="w-3 h-3 text-blue-500" />
-              <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
+            <div className="ventus-ai-badge" aria-label="Ventus AI is active">
+              <span className="ventus-ai-live-dot" aria-hidden="true" />
+              <span>Ventus AI</span>
             </div>
           )}
           <button
