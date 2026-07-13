@@ -321,10 +321,22 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[11px] text-slate-400">Last updated: {today}</span>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-            <Sparkles className="w-3 h-3 text-blue-500" />
-            <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
-          </div>
+          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
+            <button
+              onClick={() => setChatOpen(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200 text-[11px] font-medium text-slate-600 hover:bg-blue-50 hover:border-blue-200 hover:text-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300"
+              title="Open Ventus AI"
+            >
+              <Sparkles className="w-3 h-3 text-blue-500" />
+              Powered by Ventus AI
+            </button>
+          )}
+          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || chatOpen) && (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
+              <Sparkles className="w-3 h-3 text-blue-500" />
+              <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
+            </div>
+          )}
           <button
             onClick={() => {
               sessionStorage.removeItem("demo_password_access");
@@ -463,15 +475,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           </div>
         )}
         {renderContent()}
-        {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
-            title="Open Ventus AI"
-          >
-            <span className="text-base font-black text-white leading-tight">V</span>
-          </button>
-        )}
       </div>
 
       {/* Chat Panel */}
