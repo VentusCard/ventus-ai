@@ -384,13 +384,12 @@ const TEAMS: TeamDetail[] = [
 ];
 
 const DESTINATIONS: Destination[] = [
-  { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
-  { label: "Rewards Provider", sublabel: "Augeo / Premium Payback", icon: Gift },
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
-  { label: "Advisor Console", sublabel: "Banker Workstation", icon: Briefcase },
-  
+  { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
+  { label: "Rewards Provider", sublabel: "Augeo / Premium Payback", icon: Gift },
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
+  { label: "Advisor Console", sublabel: "Banker Workstation", icon: Briefcase },
 ];
 
 function getTeamDestinations(teamLabel: string): string[] {
