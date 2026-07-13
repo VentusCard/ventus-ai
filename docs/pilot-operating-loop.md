@@ -9,15 +9,23 @@ journey:
 2. Run a replaceable financial-state detector or governed planner.
 3. Verify every cited transaction exists in the source records.
 4. Record source, signal, policy, assignment, decision, activation, and outcome lineage.
-5. Suppress blocked policies before experiment assignment.
-6. Assign eligible households to treatment or holdout before any connector call.
-7. Reserve an at-most-once employee-workflow delivery and preserve its external receipt.
-8. Ingest bank outcomes and calculate coverage-gated treatment-versus-holdout evidence.
+5. Suppress blocked policies before assignment or model decisioning.
+6. Assign every eligible, policy-clear household to treatment or holdout before model decisioning.
+7. Keep holdout out of the detector entirely and retain treatment abstentions or failures in the
+   assigned population for intention-to-treat measurement.
+8. Reserve an at-most-once employee-workflow delivery and preserve its external receipt.
+9. Ingest bank outcomes and calculate coverage-gated treatment-versus-holdout evidence.
 
-The same contract is tested for standalone Deposit Primacy, standalone Merrill Relationship
-Growth, and connected Liquidity-to-Wealth examples. Connectors, policy packs, detectors, source
-systems, and destinations are injected rather than hard-coded to one institution or dependent on
-cross-business data.
+The standalone contract is tested independently for Deposit Primacy and Merrill Relationship
+Growth. Connected Liquidity-to-Wealth uses the separate expansion contract described below.
+Connectors, policy packs, detectors, source systems, and destinations are injected rather than
+hard-coded to one institution.
+
+Every standalone run now requires a compiled Growth Play contract. The protocol binds approved
+source systems and rails, eligibility criteria, exact policy set, closed action routes, workflow
+environment, primary outcome, and experiment gates to one tamper-evident decision protocol ID.
+The operating loop rejects a different household token, action, connector, destination, metric,
+outcome source, or outcome window. See `docs/growth-play-onboarding-contract.md`.
 
 Connected expansion uses the separate pre-assigned three-arm orchestration in
 `backend/shared/connected-expansion-loop.mjs`. It prevents connected data from influencing cohort

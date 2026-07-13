@@ -202,6 +202,15 @@ jobs:
       - name: Check MVP Growth Play Contracts
         run: npm run test:mvp-cohorts
 
+      - name: Compile Executable Growth Play Contracts
+        run: npm run test:growth-plays
+
+      - name: Check Plaid Source To Growth Play Mapping
+        run: npm run test:plaid-source
+
+      - name: Run Fixture Pilot End To End
+        run: npm run pilot:e2e
+
       - name: Check Outcome Feed Contract
         run: npm run test:outcomes
 

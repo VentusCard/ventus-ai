@@ -37,6 +37,23 @@ export const LIQUIDITY_CUSTOM_USER = {
   ],
 };
 
+export const DEPOSIT_PRIMACY_CUSTOM_USER = {
+  override_accounts: [
+    {
+      type: 'depository',
+      subtype: 'checking',
+      starting_balance: 8400,
+      transactions: [
+        { date_transacted: '2026-06-01', date_posted: '2026-06-01', amount: -4800, description: 'ACME PAYROLL', currency: 'USD' },
+        { date_transacted: '2026-06-15', date_posted: '2026-06-15', amount: -4800, description: 'ACME PAYROLL', currency: 'USD' },
+        { date_transacted: '2026-06-18', date_posted: '2026-06-18', amount: 1850, description: 'CHIME TRANSFER', currency: 'USD' },
+        { date_transacted: '2026-06-26', date_posted: '2026-06-26', amount: 2100, description: 'CHIME TRANSFER', currency: 'USD' },
+        { date_transacted: '2026-06-27', date_posted: '2026-06-27', amount: 146, description: 'WHOLE FOODS', currency: 'USD' },
+      ],
+    },
+  ],
+};
+
 async function plaid(path, body) {
   const res = await fetch(`${PLAID_HOST}${path}`, {
     method: 'POST',
@@ -157,5 +174,49 @@ export function contentDetector({ records, policies }) {
     destination: blocked ? null : 'salesforce_fsc_task',
     cohort: blocked ? null : 'qualified_liquidity_no_advisor',
     deliveryPayload: blocked ? null : { household_token: 'tok_placeholder_000001', action: 'warm_wealth_referral' },
+  };
+}
+
+export function depositPrimacyDetector({ records, policies, growthPlay, householdToken }) {
+  const blocked = (policies || []).some((policy) => policy.verdict === 'block');
+  const payroll = records.find((record) => PAYROLL.test(record.merchant_name) || /payroll/.test(record.transaction_id));
+  const offbank = records.find((record) => (
+    record !== payroll
+    && (OFFBANK.test(record.merchant_name) || record.rail === 'p2p' || /outflow/.test(record.transaction_id))
+    && record.amount > 0
+  ));
+  const available = [payroll, offbank].filter(Boolean);
+  if (available.length < 2) {
+    const fallback = available[0] ?? records[0];
+    return {
+      growthPlayId: growthPlay.growth_play_id,
+      abstain: true,
+      abstainReason: 'No corroborated payroll plus off-bank outflow pattern.',
+      confidence: 0.5,
+      evidence: [{ transaction_id: fallback.transaction_id, signal_type: 'insufficient_primacy_evidence', summary: 'Available evidence does not satisfy the approved trigger.' }],
+      actionId: null,
+      ownerRole: null,
+      connector: null,
+      destination: null,
+      cohort: null,
+      deliveryPayload: null,
+    };
+  }
+  const action = growthPlay.actions[0];
+  return {
+    growthPlayId: growthPlay.growth_play_id,
+    abstain: blocked,
+    abstainReason: blocked ? 'Required policy blocks activation.' : null,
+    confidence: 0.91,
+    evidence: [
+      { transaction_id: payroll.transaction_id, signal_type: 'payroll_present', summary: 'Payroll remains in the primary checking relationship.' },
+      { transaction_id: offbank.transaction_id, signal_type: 'offbank_outflow_acceleration', summary: 'Repeated external movement indicates increasing primacy risk.' },
+    ],
+    actionId: blocked ? null : action.action_id,
+    ownerRole: blocked ? null : action.owner_role,
+    connector: blocked ? null : action.connector,
+    destination: blocked ? null : action.destination,
+    cohort: blocked ? null : 'primary_deposit_at_risk',
+    deliveryPayload: blocked ? null : { household_token: householdToken, action: action.action_id },
   };
 }

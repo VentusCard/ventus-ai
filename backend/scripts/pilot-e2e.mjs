@@ -1,26 +1,46 @@
-// pilot:e2e — the single artifact that runs the whole governed journey end to end and
+// pilot:e2e — the single artifact that runs the standalone Deposit Primacy journey end to end and
 // prints the evidence summary. Source → operating loop → durable ledger → session-
 // authorized delivery → outcome → coverage-gated lift.
 //
 // Runs GREEN today on fixtures. Each live leg activates when its credentials are present:
 //   · DATABASE_URL            → lineage persists to the real Postgres ledger (else in-memory)
 //   · SF_* + session secret   → delivery is a real, session-authorized Salesforce Task (else fixture)
-//   · PLAID_*                 → live custom-user pull mapped into the operating loop
+//   · PLAID_*                 → live Deposit Primacy custom-user pull mapped into the operating loop
 //
 // This makes "we did three infrastructure steps" into one reproducible evidence readout.
 import { createPilotOperatingLoop } from '../shared/pilot-operating-loop.mjs';
-import { buildDeliveryReservation } from '../shared/connector-delivery.mjs';
-import { assignExperiment, validateOutcomeEvent } from '../shared/experiment-measurement.mjs';
+import { buildDeliveryReservation, createConnectorDeliveryRepository } from '../shared/connector-delivery.mjs';
+import { assignExperiment, createMeasurementRepository, validateOutcomeEvent } from '../shared/experiment-measurement.mjs';
+import { compileGrowthPlayContract } from '../shared/growth-play-contract.mjs';
 import { createDecisionLedgerRepository, verifyLedgerChain } from '../shared/decision-ledger.mjs';
-import { createUrlDbFactory, databaseUrl } from '../shared/db-url.mjs';
+import { assertNonBypassRole, createUrlDbFactory, databaseUrl } from '../shared/db-url.mjs';
 import { mintSessionDirect } from '../../api/connector-session.ts';
-import { pullPlaidTransactions, mapPlaidToLoopRecords, buildPlaidSourceReceipt, contentDetector } from '../shared/plaid-source.mjs';
+import {
+  DEPOSIT_PRIMACY_CUSTOM_USER,
+  buildPlaidSourceReceipt,
+  depositPrimacyDetector,
+  mapPlaidToLoopRecords,
+  pullPlaidTransactions,
+} from '../shared/plaid-source.mjs';
+import { readFileSync } from 'node:fs';
 
 const SALT = 'pilot-e2e-assignment-salt';
-const ASSIGNED_AT = '2026-07-12T12:00:00.000Z';
-const RUN_AT = '2026-07-12T12:01:00.000Z';
-const OUTCOME_AT = '2026-08-12T12:00:00.000Z';
 const TENANT = 'bank_pilot';
+const RUN_ID = process.env.VENTUS_PILOT_RUN_ID || Date.now().toString(36);
+const EXPERIMENT_ID = `deposit_pilot_${RUN_ID}`;
+const playDrafts = JSON.parse(readFileSync(new URL('../fixtures/evaluation/growth-play-drafts.json', import.meta.url), 'utf8'));
+const depositDraft = playDrafts.find((play) => play.growth_play_id === 'deposit-primacy-defense');
+const DEPOSIT_PLAY = compileGrowthPlayContract({
+  ...depositDraft,
+  actions: [{
+    action_id: 'banker_retention_review',
+    owner_role: 'relationship_banker',
+    connector: 'salesforce',
+    destination: 'salesforce_fsc_task',
+    destination_environment: 'sandbox',
+  }],
+  measurement: { ...depositDraft.measurement, minimum_per_arm: 1, minimum_coverage: 1 },
+});
 
 const hasDB = !!databaseUrl();
 const sfConfigured = !!(process.env.SF_LOGIN_URL && process.env.SF_CLIENT_ID && process.env.SF_CLIENT_SECRET
@@ -107,23 +127,59 @@ function deliveryRepo(state) {
   };
 }
 
-// The loop detector is now the real content-driven detector (works on live Plaid records
-// and the synthetic holdout alike), selecting evidence from whatever records it is given.
-const detector = contentDetector;
+// The detector works on live Plaid or fixture records and can choose only an action from
+// the compiled standalone Consumer Growth Play.
+const detector = depositPrimacyDetector;
 
 function record(id, rail, amount, sys) {
   return { transaction_id: id, rail, amount, source_system: sys, occurred_at: '2026-07-10T00:00:00.000Z', entity: 'tokenized_counterparty', category: 'evaluation_category', merchant_name: 'Tokenized Merchant' };
 }
 
 function input(householdToken, caseId, override = {}) {
+  const records = override.records ?? [
+    record('tx_payroll', 'ach', -4800, 'deposit_core'),
+    record('tx_outflow', 'p2p', 2100, 'payments_core'),
+  ];
+  const sourceReceipt = override.sourceReceipt ?? {
+    receiptId: `receipt_${caseId}`,
+    sourceSystem: 'partner_sandbox',
+    batchId: 'batch_001',
+    schemaVersion: '1.0',
+    recordCount: records.length,
+    receivedAt: new Date(Date.now() - 10).toISOString(),
+    evidenceClass: 'sandbox',
+  };
+  const sourceAt = Date.parse(sourceReceipt.receivedAt);
+  const eligibilityAt = new Date(sourceAt + 1).toISOString();
+  const assignedAt = new Date(sourceAt + 2).toISOString();
+  const runAt = new Date(sourceAt + 3).toISOString();
   return {
-    tenantId: TENANT, caseId, householdToken, objective: 'Convert qualified liquidity into net new assets',
-    runAt: RUN_AT, activationMode: 'sandbox_assisted', destinationEnvironment: 'sandbox', sessionId: 'session_pilot_001',
-    records: override.records ?? [record('tx_liquidity', 'wire', 250000, 'deposit_core'), record('tx_relationship', 'ach', 6200, 'relationship_core')],
-    sourceReceipt: override.sourceReceipt ?? { receiptId: `receipt_${caseId}`, sourceSystem: 'partner_sandbox', batchId: 'batch_001', schemaVersion: '1.0', recordCount: 2, receivedAt: RUN_AT, evidenceClass: 'sandbox' },
-    policyVersion: 'policy_1',
-    policies: [{ policy_id: 'consent', verdict: 'clear' }, { policy_id: 'vulnerability', verdict: 'clear' }, { policy_id: 'eligibility', verdict: 'clear' }],
-    experiment: { experimentId: 'wealth_pilot_01', holdoutPct: 10, assignmentSalt: SALT, assignedAt: ASSIGNED_AT },
+    growthPlay: DEPOSIT_PLAY,
+    tenantId: TENANT,
+    caseId,
+    householdToken,
+    objective: DEPOSIT_PLAY.objective,
+    runAt,
+    activationMode: 'sandbox_assisted',
+    destinationEnvironment: 'sandbox',
+    sessionId: 'session_pilot_001',
+    records,
+    sourceReceipt,
+    eligibilityReceipt: {
+      receiptId: `eligibility_${caseId}`,
+      criteriaVersion: DEPOSIT_PLAY.eligibility.criteria_version,
+      eligible: true,
+      evaluatedAt: eligibilityAt,
+      evidenceTransactionIds: records.map((item) => item.transaction_id),
+    },
+    policyVersion: DEPOSIT_PLAY.policy.version,
+    policies: DEPOSIT_PLAY.policy.required_policy_ids.map((policyId) => ({ policy_id: policyId, verdict: 'clear' })),
+    experiment: {
+      experimentId: EXPERIMENT_ID,
+      holdoutPct: DEPOSIT_PLAY.measurement.holdout_pct,
+      assignmentSalt: SALT,
+      assignedAt,
+    },
   };
 }
 
@@ -132,7 +188,7 @@ function input(householdToken, caseId, override = {}) {
 async function treatmentSource() {
   if (!plaidConfigured) return { override: {}, mode: 'fixture' };
   try {
-    const { transactions, mode } = await pullPlaidTransactions();
+    const { transactions, mode } = await pullPlaidTransactions({ customUser: DEPOSIT_PRIMACY_CUSTOM_USER });
     if (transactions.length) {
       const records = mapPlaidToLoopRecords(transactions);
       return { override: { records, sourceReceipt: buildPlaidSourceReceipt(records, mode) }, mode };
@@ -147,42 +203,53 @@ async function treatmentSource() {
 function tokenForArm(arm) {
   for (let i = 0; i < 5000; i += 1) {
     const householdToken = `tok_household_${String(i).padStart(8, '0')}`;
-    if (assignExperiment({ tenantId: TENANT, experimentId: 'wealth_pilot_01', householdToken, holdoutPct: 10, salt: SALT, evidenceClass: 'sandbox', assignedAt: ASSIGNED_AT }).arm === arm) return householdToken;
+    if (assignExperiment({ tenantId: TENANT, experimentId: EXPERIMENT_ID, householdToken, holdoutPct: 10, salt: SALT, evidenceClass: 'sandbox', assignedAt: '2026-01-01T00:00:00.000Z' }).arm === arm) return householdToken;
   }
   throw new Error(`no ${arm} token`);
 }
 
 function outcomeEvent(result, amount) {
+  const occurredAt = new Date(Date.parse(result.assignment.assignedAt) + 30 * 86_400_000).toISOString();
   return {
     contract_version: '1.0', event_id: `event_${result.caseId}`, tenant_id: result.tenantId, household_token: result.householdToken,
-    growth_play_id: 'liquidity-to-wealth', decision_id: result.decisionId, activation_id: result.receipt?.delivery_id ?? null,
-    event_type: 'assets_transferred', occurred_at: OUTCOME_AT,
-    assignment: { experiment_id: result.assignment.experimentId, arm: result.assignment.arm, assigned_at: result.assignment.assignedAt },
-    value: { metric: 'net_new_assets', amount, currency: 'USD' }, source_system: 'wealth_core_sandbox', source_record_id: null, reason_code: null,
+    growth_play_id: DEPOSIT_PLAY.growth_play_id, decision_id: result.decisionId, activation_id: result.receipt?.delivery_id ?? null,
+    event_type: 'deposit_balance_observed', occurred_at: occurredAt,
+    assignment: {
+      experiment_id: result.assignment.experimentId,
+      arm: result.assignment.arm,
+      assigned_at: result.assignment.assignedAt,
+      decision_protocol_id: result.decisionProtocolId,
+    },
+    value: { metric: 'deposit_retained', amount, currency: 'USD' }, source_system: 'deposit_core_sandbox', source_record_id: null, reason_code: null,
   };
 }
 
 async function main() {
   const ledgerState = [];
   const state = { assignments: [], outcomes: [], receipts: [] };
-  const ledgerRepository = hasDB ? createDecisionLedgerRepository({ getDB: createUrlDbFactory() }) : inMemoryLedger(ledgerState);
+  const getDB = hasDB ? createUrlDbFactory() : null;
+  if (getDB) await assertNonBypassRole(getDB);
+  const ledgerRepository = getDB ? createDecisionLedgerRepository({ getDB }) : inMemoryLedger(ledgerState);
+  const measurementRepository = getDB ? createMeasurementRepository({ getDB }) : measurementRepo(state);
+  const deliveryRepository = getDB ? createConnectorDeliveryRepository({ getDB }) : deliveryRepo(state);
   const loop = createPilotOperatingLoop({
     detector,
     ledgerRepository,
-    measurementRepository: measurementRepo(state),
-    deliveryRepository: deliveryRepo(state),
+    measurementRepository,
+    deliveryRepository,
     deliver: await makeDeliver(),
   });
 
   const src = await treatmentSource();
-  const treatmentInput = input(tokenForArm('treatment'), 'wealth_treatment', src.override);
+  const treatmentInput = input(tokenForArm('treatment'), `deposit_treatment_${RUN_ID}`, src.override);
   const treatment = await loop.runHousehold(treatmentInput);
   await loop.runHousehold(treatmentInput); // idempotency replay
-  const holdout = await loop.runHousehold(input(tokenForArm('holdout'), 'wealth_holdout'));
+  const holdoutInput = input(tokenForArm('holdout'), `deposit_holdout_${RUN_ID}`);
+  const holdout = await loop.runHousehold(holdoutInput);
 
-  await loop.recordOutcome(outcomeEvent(treatment, 200));
-  await loop.recordOutcome(outcomeEvent(holdout, 100));
-  const measurement = await loop.measureExperiment({ tenantId: TENANT, experimentId: 'wealth_pilot_01', metric: 'net_new_assets', minimumPerArm: 1, minimumCoverage: 1 });
+  await loop.recordOutcome(outcomeEvent(treatment, 200), treatmentInput.growthPlay);
+  await loop.recordOutcome(outcomeEvent(holdout, 100), holdoutInput.growthPlay);
+  const measurement = await loop.measureExperiment({ tenantId: TENANT, experimentId: EXPERIMENT_ID, growthPlay: DEPOSIT_PLAY });
 
   // Evidence summary
   let ledgerLine;
@@ -199,7 +266,7 @@ async function main() {
   console.log(`source receipt  ${treatment.evidenceClass} evidence · ${treatmentInput.sourceReceipt.sourceSystem} · ${treatmentInput.records.length} records`);
   if (src.override.records) console.log(`  plaid         live pull → ${treatmentInput.records.length} tokenized records → decision cites ${treatment.decision.evidence.map((e) => e.transaction_id).join(', ')}`);
   console.log(`ledger          ${ledgerLine}`);
-  console.log(`assignment      treatment arm=${treatment.assignment.arm} · holdout arm=${holdout.assignment.arm} (assigned before any connector call)`);
+  console.log(`assignment      treatment arm=${treatment.assignment.arm} · holdout arm=${holdout.assignment.arm} (assigned before detector; holdout bypassed it)`);
   console.log(`delivery        route=${treatment.receipt ? 'reserved+delivered' : 'n/a'} · calls=1 (replay + holdout added none)`);
   if (treatment.receipt?.external_receipt_id) console.log(`  receipt       ${treatment.receipt.external_receipt_id}${treatment.receipt.external_receipt_url ? ' · ' + treatment.receipt.external_receipt_url : ''}`);
   console.log(`measurement     status=${measurement.status} · absolute lift=${measurement.absoluteLift} ${measurement.metric ?? 'net_new_assets'} · evidenceClass=${measurement.evidenceClass}`);
@@ -219,7 +286,7 @@ async function main() {
   assert.equal(measurement.absoluteLift, 100);
   assert.equal(measurement.businessClaimAllowed, false);
   if (hasDB) { const ex = await ledgerRepository.exportTenant(TENANT); assert.equal(ex.verified, true, 'persisted chain must verify'); assert.ok(verifyLedgerChain(ex.events)); }
-  console.log('✓ guardrails: holdout preserved, lift measured, no business claim, chain intact.\n');
+  console.log('✓ guardrails: protocol frozen, holdout bypassed decisioning, lift measured, no business claim, chain intact.\n');
 }
 
 main().catch((e) => { console.error('pilot:e2e failed:', e.message); process.exit(1); });

@@ -13,6 +13,7 @@
     "test:salesforce": "node --experimental-strip-types scripts/verify-salesforce.mjs",
     "test:connector-sessions": "node --experimental-strip-types --test api/_connectorAuth.test.ts",
     "test:mvp-cohorts": "node --experimental-strip-types backend/scripts/qa-growth-play-cohorts.mjs",
+    "test:growth-plays": "node backend/scripts/compile-growth-play-contracts.mjs",
     "test:outcomes": "node backend/scripts/qa-outcome-feed-contract.mjs && node backend/scripts/qa-connected-exposure-contract.mjs",
     "test:interventions": "node backend/scripts/qa-intervention-planner.mjs",
     "interventions:review:prepare": "node backend/scripts/prepare-intervention-review.mjs",

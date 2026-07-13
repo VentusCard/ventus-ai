@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { assignExperiment, summarizeIncrementalLift } from './experiment-measurement.mjs';
+import {
+  validateCompiledGrowthPlayContract,
+  validateGrowthPlayDecision,
+  validateGrowthPlayOutcome,
+  validateGrowthPlayRun,
+} from './growth-play-contract.mjs';
 import { validateTenantId } from './tenant-context.mjs';
 
 const ACTIVATION_MODES = new Set(['shadow', 'sandbox_assisted', 'production_assisted']);
@@ -26,22 +32,15 @@ export function createPilotOperatingLoop({
   return {
     async runHousehold(input) {
       validateRunInput(input);
-      const detected = await detector({
-        tenantId: input.tenantId,
-        householdToken: input.householdToken,
-        records: input.records,
-        objective: input.objective,
-        policies: input.policies,
-      });
-      const decision = validateDetectedDecision(input, detected);
-      const decisionId = `dec_${sha256(`${input.tenantId}\u001f${input.caseId}\u001f${decision.growthPlayId}`).slice(0, 24)}`;
+      const growthPlay = validateGrowthPlayRun(input, input.growthPlay);
+      const decisionId = `dec_${sha256(`${input.tenantId}\u001f${input.caseId}\u001f${growthPlay.growth_play_id}`).slice(0, 24)}`;
       const ledgerStatus = input.sourceReceipt.evidenceClass === 'synthetic' ? 'simulated' : 'confirmed';
 
       await appendLedger(ledgerRepository, input, {
         stage: 'source',
         eventType: 'enrich',
         status: ledgerStatus,
-        growthPlayId: decision.growthPlayId,
+        growthPlayId: growthPlay.growth_play_id,
         payload: {
           source_receipt_id: input.sourceReceipt.receiptId,
           source_system: input.sourceReceipt.sourceSystem,
@@ -51,8 +50,102 @@ export function createPilotOperatingLoop({
           records_received: input.sourceReceipt.recordCount,
           records_evaluated: input.records.length,
           rails: [...new Set(input.records.map((record) => record.rail))].sort(),
+          eligibility_receipt_id: input.eligibilityReceipt.receiptId,
+          eligibility_criteria_version: input.eligibilityReceipt.criteriaVersion,
+          growth_play_version: growthPlay.version,
+          decision_protocol_id: growthPlay.decision_protocol_id,
+          protocol_digest: growthPlay.protocol_digest,
         },
       });
+      const blockingPolicy = input.policies.find((policy) => policy.verdict === 'block');
+      await appendLedger(ledgerRepository, input, {
+        stage: 'policy',
+        eventType: 'policy',
+        status: blockingPolicy ? 'suppressed' : ledgerStatus,
+        growthPlayId: growthPlay.growth_play_id,
+        policyVersion: input.policyVersion,
+        payload: {
+          decision_id: decisionId,
+          policy_version: input.policyVersion,
+          checks: input.policies,
+          abstain: Boolean(blockingPolicy),
+          abstain_reason: blockingPolicy ? `Required policy ${blockingPolicy.policy_id} blocks decisioning.` : null,
+        },
+      });
+
+      if (blockingPolicy) {
+        const decision = validateDetectedDecision(
+          input,
+          policySuppressedDecision(input, growthPlay, blockingPolicy),
+          growthPlay,
+        );
+        await appendDecision(ledgerRepository, input, decision, decisionId, null, 'suppressed');
+        return operatingResult({ input, decision, decisionId, assignment: null, activation: 'suppressed', receipt: null });
+      }
+
+      let assignment = null;
+      if (input.activationMode !== 'shadow') {
+        assignment = assignExperiment({
+          tenantId: input.tenantId,
+          experimentId: input.experiment.experimentId,
+          householdToken: input.householdToken,
+          holdoutPct: input.experiment.holdoutPct,
+          salt: input.experiment.assignmentSalt,
+          decisionProtocolId: growthPlay.decision_protocol_id,
+          evidenceClass: input.sourceReceipt.evidenceClass,
+          assignedAt: input.experiment.assignedAt,
+        });
+        await measurementRepository.recordAssignment(assignment);
+        await appendLedger(ledgerRepository, input, {
+          stage: 'assignment',
+          eventType: 'counterfactual',
+          status: assignment.arm === 'holdout' ? 'suppressed' : ledgerStatus,
+          growthPlayId: growthPlay.growth_play_id,
+          payload: {
+            decision_id: decisionId,
+            experiment_id: assignment.experimentId,
+            assignment_id: assignment.assignmentId,
+            arm: assignment.arm,
+            assigned_at: assignment.assignedAt,
+            evidence_class: assignment.evidenceClass,
+            decision_protocol_id: growthPlay.decision_protocol_id,
+            eligibility_receipt_id: input.eligibilityReceipt.receiptId,
+          },
+        });
+        if (assignment.arm === 'holdout') {
+          return operatingResult({ input, decision: null, decisionId, assignment, activation: 'holdout', receipt: null });
+        }
+      }
+
+      let decision;
+      try {
+        const detected = await detector({
+          tenantId: input.tenantId,
+          householdToken: input.householdToken,
+          records: input.records,
+          objective: input.objective,
+          policies: input.policies,
+          growthPlay,
+          decisionProtocolId: growthPlay.decision_protocol_id,
+        });
+        decision = validateDetectedDecision(input, detected, growthPlay);
+      } catch (error) {
+        await appendLedger(ledgerRepository, input, {
+          stage: 'decision-failure',
+          eventType: 'decision',
+          status: 'failed',
+          growthPlayId: growthPlay.growth_play_id,
+          policyVersion: input.policyVersion,
+          payload: {
+            decision_id: decisionId,
+            experiment_id: assignment?.experimentId ?? null,
+            arm: assignment?.arm ?? null,
+            decision_protocol_id: growthPlay.decision_protocol_id,
+            error_code: 'detector_or_contract_failure',
+          },
+        });
+        throw error;
+      }
       await appendLedger(ledgerRepository, input, {
         stage: 'signal',
         eventType: 'signal',
@@ -65,65 +158,15 @@ export function createPilotOperatingLoop({
           confidence: decision.confidence,
         },
       });
-      await appendLedger(ledgerRepository, input, {
-        stage: 'policy',
-        eventType: 'policy',
-        status: decision.abstain ? 'suppressed' : ledgerStatus,
-        growthPlayId: decision.growthPlayId,
-        policyVersion: input.policyVersion,
-        payload: {
-          decision_id: decisionId,
-          policy_version: input.policyVersion,
-          checks: input.policies,
-          abstain: decision.abstain,
-          abstain_reason: decision.abstainReason,
-        },
-      });
-
       if (decision.abstain) {
-        await appendDecision(ledgerRepository, input, decision, decisionId, null, 'suppressed');
-        return operatingResult({ input, decision, decisionId, assignment: null, activation: 'suppressed', receipt: null });
+        await appendDecision(ledgerRepository, input, decision, decisionId, assignment, 'suppressed');
+        return operatingResult({ input, decision, decisionId, assignment, activation: 'suppressed', receipt: null });
       }
       if (input.activationMode === 'shadow') {
         await appendDecision(ledgerRepository, input, decision, decisionId, null, 'simulated');
         return operatingResult({ input, decision, decisionId, assignment: null, activation: 'shadow_only', receipt: null });
       }
-
-      const assignment = assignExperiment({
-        tenantId: input.tenantId,
-        experimentId: input.experiment.experimentId,
-        householdToken: input.householdToken,
-        holdoutPct: input.experiment.holdoutPct,
-        salt: input.experiment.assignmentSalt,
-        evidenceClass: input.sourceReceipt.evidenceClass,
-        assignedAt: input.experiment.assignedAt,
-      });
-      await measurementRepository.recordAssignment(assignment);
-      await appendLedger(ledgerRepository, input, {
-        stage: 'assignment',
-        eventType: 'counterfactual',
-        status: assignment.arm === 'holdout' ? 'suppressed' : ledgerStatus,
-        growthPlayId: decision.growthPlayId,
-        payload: {
-          decision_id: decisionId,
-          experiment_id: assignment.experimentId,
-          assignment_id: assignment.assignmentId,
-          arm: assignment.arm,
-          assigned_at: assignment.assignedAt,
-          evidence_class: assignment.evidenceClass,
-        },
-      });
-      await appendDecision(
-        ledgerRepository,
-        input,
-        decision,
-        decisionId,
-        assignment,
-        assignment.arm === 'holdout' ? 'suppressed' : 'confirmed',
-      );
-      if (assignment.arm === 'holdout') {
-        return operatingResult({ input, decision, decisionId, assignment, activation: 'holdout', receipt: null });
-      }
+      await appendDecision(ledgerRepository, input, decision, decisionId, assignment, 'confirmed');
 
       const reservation = await deliveryRepository.reserve({
         tenantId: input.tenantId,
@@ -183,13 +226,15 @@ export function createPilotOperatingLoop({
       });
     },
 
-    async recordOutcome(event) {
+    async recordOutcome(event, growthPlayContract) {
+      const growthPlay = validateCompiledGrowthPlayContract(growthPlayContract);
       const loaded = await measurementRepository.loadExperiment({
         tenantId: event.tenant_id,
         experimentId: event.assignment?.experiment_id,
       });
       const assignment = loaded.assignments.find((item) => item.householdToken === event.household_token);
       assert.ok(assignment, 'outcome has no persisted assignment');
+      validateGrowthPlayOutcome(event, assignment, growthPlay);
       const recorded = await measurementRepository.recordOutcome(event);
       await ledgerRepository.append({
         tenantId: event.tenant_id,
@@ -209,18 +254,20 @@ export function createPilotOperatingLoop({
           metric: event.value?.metric ?? null,
           evidence_class: assignment.evidenceClass,
           source_system: event.source_system,
+          decision_protocol_id: growthPlay.decision_protocol_id,
         },
       });
       return { ...recorded, evidenceClass: assignment.evidenceClass, businessClaimAllowed: false };
     },
 
-    async measureExperiment({ tenantId, experimentId, metric, minimumPerArm = 30, minimumCoverage = 0.9 }) {
+    async measureExperiment({ tenantId, experimentId, growthPlay: growthPlayContract }) {
+      const growthPlay = validateCompiledGrowthPlayContract(growthPlayContract);
       const loaded = await measurementRepository.loadExperiment({ tenantId, experimentId });
       return summarizeIncrementalLift({
         ...loaded,
-        metric,
-        minimumPerArm,
-        minimumCoverage,
+        metric: growthPlay.measurement.metric,
+        minimumPerArm: growthPlay.measurement.minimum_per_arm,
+        minimumCoverage: growthPlay.measurement.minimum_coverage,
       });
     },
   };
@@ -228,6 +275,7 @@ export function createPilotOperatingLoop({
 
 function validateRunInput(input) {
   assert.ok(input && typeof input === 'object' && !Array.isArray(input), 'run input must be an object');
+  assert.ok(input.growthPlay && typeof input.growthPlay === 'object', 'compiled Growth Play is required');
   validateTenantId(input.tenantId);
   assertIdentifier(input.caseId, 'caseId');
   assert.match(input.householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'householdToken must be opaque');
@@ -252,8 +300,24 @@ function validateRunInput(input) {
   assertIdentifier(input.sourceReceipt.batchId, 'sourceReceipt.batchId');
   assertIdentifier(input.sourceReceipt.schemaVersion, 'sourceReceipt.schemaVersion');
   assertIsoDate(input.sourceReceipt.receivedAt, 'sourceReceipt.receivedAt');
+  assert.ok(Date.parse(input.sourceReceipt.receivedAt) <= Date.parse(input.runAt), 'source receipt must predate the run');
   assert.ok(EVIDENCE_CLASSES.has(input.sourceReceipt.evidenceClass), 'source evidenceClass is unsupported');
   assert.ok(Number.isInteger(input.sourceReceipt.recordCount) && input.sourceReceipt.recordCount >= input.records.length, 'source recordCount is invalid');
+  assert.ok(input.eligibilityReceipt && typeof input.eligibilityReceipt === 'object', 'eligibilityReceipt is required');
+  assertIdentifier(input.eligibilityReceipt.receiptId, 'eligibilityReceipt.receiptId');
+  assertIdentifier(input.eligibilityReceipt.criteriaVersion, 'eligibilityReceipt.criteriaVersion');
+  assertIsoDate(input.eligibilityReceipt.evaluatedAt, 'eligibilityReceipt.evaluatedAt');
+  assert.ok(Date.parse(input.sourceReceipt.receivedAt) <= Date.parse(input.eligibilityReceipt.evaluatedAt), 'source receipt must predate eligibility');
+  assert.ok(Date.parse(input.eligibilityReceipt.evaluatedAt) <= Date.parse(input.runAt), 'eligibility must predate the run');
+  assert.equal(typeof input.eligibilityReceipt.eligible, 'boolean', 'eligibilityReceipt.eligible must be boolean');
+  assert.ok(Array.isArray(input.eligibilityReceipt.evidenceTransactionIds) && input.eligibilityReceipt.evidenceTransactionIds.length > 0, 'eligibility evidence is required');
+  const eligibilityEvidenceIds = new Set();
+  for (const transactionId of input.eligibilityReceipt.evidenceTransactionIds) {
+    assert.ok(recordIds.has(transactionId), `eligibility evidence ${transactionId} is not in the source records`);
+    assert.ok(!eligibilityEvidenceIds.has(transactionId), `duplicate eligibility evidence ${transactionId}`);
+    eligibilityEvidenceIds.add(transactionId);
+  }
+  assert.ok(input.records.every((record) => Date.parse(record.occurred_at) <= Date.parse(input.sourceReceipt.receivedAt)), 'source record cannot postdate its receipt');
   assertIdentifier(input.policyVersion, 'policyVersion');
   assert.ok(Array.isArray(input.policies) && input.policies.length > 0, 'policies are required');
   const policyIds = new Set();
@@ -269,6 +333,8 @@ function validateRunInput(input) {
   assert.ok(Number.isFinite(input.experiment.holdoutPct), 'experiment.holdoutPct is required');
   assert.ok(typeof input.experiment.assignmentSalt === 'string' && input.experiment.assignmentSalt.length >= 16, 'experiment assignment salt is invalid');
   assertIsoDate(input.experiment.assignedAt, 'experiment.assignedAt');
+  assert.ok(Date.parse(input.eligibilityReceipt.evaluatedAt) <= Date.parse(input.experiment.assignedAt), 'eligibility must predate assignment');
+  assert.ok(Date.parse(input.experiment.assignedAt) <= Date.parse(input.runAt), 'assignment must predate the run');
   assertIdentifier(input.sessionId, 'sessionId');
   if (input.activationMode === 'sandbox_assisted') {
     assert.equal(input.destinationEnvironment, 'sandbox', 'sandbox activation requires a sandbox destination');
@@ -280,7 +346,7 @@ function validateRunInput(input) {
   }
 }
 
-function validateDetectedDecision(input, decision) {
+function validateDetectedDecision(input, decision, growthPlay) {
   assert.ok(decision && typeof decision === 'object' && !Array.isArray(decision), 'detector result must be an object');
   assertIdentifier(decision.growthPlayId, 'decision.growthPlayId');
   assert.ok(typeof decision.abstain === 'boolean', 'decision.abstain must be boolean');
@@ -310,7 +376,28 @@ function validateDetectedDecision(input, decision) {
     assert.ok(decision.deliveryPayload && typeof decision.deliveryPayload === 'object' && !Array.isArray(decision.deliveryPayload), 'decision.deliveryPayload is required');
     assertNoDirectPiiKeys(decision.deliveryPayload);
   }
+  validateGrowthPlayDecision(input, decision, growthPlay);
   return decision;
+}
+
+function policySuppressedDecision(input, growthPlay, blockingPolicy) {
+  return {
+    growthPlayId: growthPlay.growth_play_id,
+    abstain: true,
+    abstainReason: `Required policy ${blockingPolicy.policy_id} blocks decisioning.`,
+    confidence: 1,
+    evidence: input.eligibilityReceipt.evidenceTransactionIds.map((transactionId) => ({
+      transaction_id: transactionId,
+      signal_type: 'eligibility_evidence',
+      summary: 'Evidence referenced by the approved eligibility receipt.',
+    })),
+    actionId: null,
+    ownerRole: null,
+    connector: null,
+    destination: null,
+    cohort: null,
+    deliveryPayload: null,
+  };
 }
 
 async function appendDecision(repository, input, decision, decisionId, assignment, status) {
@@ -322,6 +409,8 @@ async function appendDecision(repository, input, decision, decisionId, assignmen
     policyVersion: input.policyVersion,
     payload: {
       decision_id: decisionId,
+      growth_play_version: input.growthPlay.version,
+      decision_protocol_id: input.growthPlay.decision_protocol_id,
       cohort: decision.cohort ?? 'suppressed',
       action: decision.actionId ?? 'abstain',
       channel: decision.destination ?? 'none',
@@ -366,7 +455,9 @@ function operatingResult({ input, decision, decisionId, assignment, activation, 
     householdToken: input.householdToken,
     sourceReceiptId: input.sourceReceipt.receiptId,
     evidenceClass: input.sourceReceipt.evidenceClass,
-    growthPlayId: decision.growthPlayId,
+    growthPlayId: decision?.growthPlayId ?? input.growthPlay.growth_play_id,
+    growthPlayVersion: input.growthPlay.version,
+    decisionProtocolId: input.growthPlay.decision_protocol_id,
     decisionId,
     decision,
     assignment,

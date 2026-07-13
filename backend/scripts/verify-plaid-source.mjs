@@ -1,18 +1,21 @@
 // Proves the Plaid source adapter's pure logic without live keys: a Plaid-shaped response
-// maps into the loop's tokenized record contract (no direct PII), and the content detector
-// selects a liquidity signal citing REAL transaction ids from those records.
+// maps into the loop's tokenized record contract (no direct PII), and both standalone
+// Deposit Primacy and expansion detectors cite real transaction ids from those records.
 //
 //   npm run test:plaid-source
 //
 // The live pull itself is exercised by `npm run pilot:e2e` with PLAID_* set.
 import assert from 'node:assert/strict';
-import { mapPlaidToLoopRecords, contentDetector, buildPlaidSourceReceipt } from '../shared/plaid-source.mjs';
+import { readFileSync } from 'node:fs';
+import { compileGrowthPlayContract } from '../shared/growth-play-contract.mjs';
+import { buildPlaidSourceReceipt, contentDetector, depositPrimacyDetector, mapPlaidToLoopRecords } from '../shared/plaid-source.mjs';
 
 // A realistic Plaid /transactions/get response for the injected custom user.
 const plaidResponse = [
   { transaction_id: 'plaid_tx_1', name: 'FIDELITY ROLLOVER', merchant_name: 'Fidelity', amount: -230000, date: '2026-06-11', personal_finance_category: { primary: 'TRANSFER_IN', detailed: 'TRANSFER_IN_ACCOUNT_TRANSFER' } },
   { transaction_id: 'plaid_tx_2', name: 'GUSTO PAYROLL', merchant_name: 'Gusto', amount: -5100, date: '2026-06-02', personal_finance_category: { primary: 'INCOME', detailed: 'INCOME_WAGES' } },
   { transaction_id: 'plaid_tx_3', name: 'COSTCO WHOLESALE', merchant_name: 'Costco', amount: 320, date: '2026-06-14', personal_finance_category: { primary: 'GENERAL_MERCHANDISE', detailed: 'GENERAL_MERCHANDISE_SUPERSTORES' } },
+  { transaction_id: 'plaid_tx_4', name: 'CHIME TRANSFER', merchant_name: 'Chime', amount: 2100, date: '2026-06-20', personal_finance_category: { primary: 'TRANSFER_OUT', detailed: 'TRANSFER_OUT_ACCOUNT_TRANSFER' } },
 ];
 
 const records = mapPlaidToLoopRecords(plaidResponse);
@@ -42,11 +45,27 @@ const blocked = contentDetector({ records, policies: [{ policy_id: 'consent', ve
 assert.equal(blocked.abstain, true);
 assert.equal(blocked.actionId, null);
 
-// 4) Source receipt is sandbox evidence (outcomes stay simulated).
+// 4) The standalone Consumer detector uses the compiled Growth Play and cites payroll +
+//    off-bank outflow without relying on Merrill or cross-business data.
+const playDrafts = JSON.parse(readFileSync(new URL('../fixtures/evaluation/growth-play-drafts.json', import.meta.url), 'utf8'));
+const depositPlay = compileGrowthPlayContract(playDrafts.find((play) => play.growth_play_id === 'deposit-primacy-defense'));
+const depositDecision = depositPrimacyDetector({
+  records,
+  policies: depositPlay.policy.required_policy_ids.map((policyId) => ({ policy_id: policyId, verdict: 'clear' })),
+  growthPlay: depositPlay,
+  householdToken: 'tok_plaid_household_001',
+});
+assert.equal(depositDecision.growthPlayId, 'deposit-primacy-defense');
+assert.equal(depositDecision.abstain, false);
+assert.deepEqual(depositDecision.evidence.map((item) => item.transaction_id).sort(), ['plaid_tx_2', 'plaid_tx_4']);
+assert.equal(depositDecision.deliveryPayload.household_token, 'tok_plaid_household_001');
+
+// 5) Source receipt is sandbox evidence (outcomes stay simulated).
 const receipt = buildPlaidSourceReceipt(records, 'plaid_custom_user');
 assert.equal(receipt.evidenceClass, 'sandbox');
 assert.equal(receipt.recordCount, records.length);
 
-console.log('Plaid source adapter verified: Plaid schema → tokenized loop records → grounded liquidity decision.');
+console.log('Plaid source adapter verified: Plaid schema → tokenized loop records → grounded standalone and expansion decisions.');
 console.log(` · ${records.length} records mapped, 0 direct-PII keys, counterparties tokenized`);
 console.log(` · decision cites real ids: ${citedIds.join(', ')} → salesforce (liquidity-to-wealth)`);
+console.log(' · Deposit Primacy cites payroll + off-bank transfer using the compiled Consumer protocol');

@@ -1,19 +1,26 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { buildDeliveryReservation } from './connector-delivery.mjs';
 import { assignExperiment, validateOutcomeEvent } from './experiment-measurement.mjs';
+import { compileGrowthPlayContract } from './growth-play-contract.mjs';
 import { createPilotOperatingLoop } from './pilot-operating-loop.mjs';
 
 const SALT = 'pilot-operating-loop-assignment-salt';
+const SOURCE_AT = '2026-07-12T11:58:00.000Z';
+const ELIGIBILITY_AT = '2026-07-12T11:59:00.000Z';
 const ASSIGNED_AT = '2026-07-12T12:00:00.000Z';
 const RUN_AT = '2026-07-12T12:01:00.000Z';
 const OUTCOME_AT = '2026-08-12T12:00:00.000Z';
+const playDrafts = JSON.parse(readFileSync(new URL('../fixtures/evaluation/growth-play-drafts.json', import.meta.url), 'utf8'));
+const DEPOSIT_PLAY = testPlay(playDrafts.find((play) => play.growth_play_id === 'deposit-primacy-defense'));
+const MERRILL_PLAY = testPlay(playDrafts.find((play) => play.growth_play_id === 'merrill-relationship-growth'));
 
-test('wealth loop runs source-to-receipt once, preserves holdout, and measures only as sandbox evidence', async () => {
+test('Consumer loop runs source-to-receipt once, preserves holdout, and measures only as sandbox evidence', async () => {
   const state = createState();
   const loop = createLoop(state);
-  const treatmentInput = wealthInput(tokenForArm('treatment'), 'wealth_treatment');
-  const holdoutInput = wealthInput(tokenForArm('holdout'), 'wealth_holdout');
+  const treatmentInput = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'deposit_treatment');
+  const holdoutInput = depositInput(tokenForArm('holdout', 'deposit_pilot_01'), 'deposit_holdout');
 
   const treatment = await loop.runHousehold(treatmentInput);
   const replay = await loop.runHousehold(treatmentInput);
@@ -27,6 +34,8 @@ test('wealth loop runs source-to-receipt once, preserves holdout, and measures o
   assert.equal(state.deliveryCalls, 1, 'replay must not create a second downstream action');
   assert.equal(holdout.assignment.arm, 'holdout');
   assert.equal(holdout.activation, 'holdout');
+  assert.equal(holdout.decision, null, 'holdout must bypass decisioning');
+  assert.equal(state.detectorCalls, 2, 'only the treatment run and its replay should invoke the detector');
   assert.equal(state.deliveryCalls, 1, 'holdout must not call a connector');
   assert.ok(
     state.trace.indexOf(`assignment:${treatment.householdToken}`) < state.trace.indexOf(`deliver:${treatment.decisionId}`),
@@ -35,14 +44,12 @@ test('wealth loop runs source-to-receipt once, preserves holdout, and measures o
   assert.ok(state.ledger.some((event) => event.eventType === 'enrich' && event.payload.evidence_class === 'sandbox'));
   assert.ok(state.ledger.some((event) => event.eventType === 'activation' && event.status === 'confirmed'));
 
-  await loop.recordOutcome(outcomeEvent(treatment, 200));
-  await loop.recordOutcome(outcomeEvent(holdout, 100));
+  await loop.recordOutcome(outcomeEvent(treatment, 200), treatmentInput.growthPlay);
+  await loop.recordOutcome(outcomeEvent(holdout, 100), holdoutInput.growthPlay);
   const measurement = await loop.measureExperiment({
     tenantId: 'bank_1',
-    experimentId: 'wealth_pilot_01',
-    metric: 'net_new_assets',
-    minimumPerArm: 1,
-    minimumCoverage: 1,
+    experimentId: 'deposit_pilot_01',
+    growthPlay: treatmentInput.growthPlay,
   });
   assert.equal(measurement.status, 'measured');
   assert.equal(measurement.absoluteLift, 100);
@@ -56,8 +63,9 @@ test('Merrill relationship growth runs and measures without Consumer Banking rec
   const state = createState();
   const loop = createPilotOperatingLoop({
     ...dependencies(state),
-    detector: async ({ policies }) => merrillRelationshipDecision(
+    detector: async ({ policies, householdToken }) => merrillRelationshipDecision(
       policies.some((policy) => policy.verdict === 'block'),
+      householdToken,
     ),
   });
   const treatmentInput = merrillRelationshipInput(
@@ -78,14 +86,12 @@ test('Merrill relationship growth runs and measures without Consumer Banking rec
   assert.equal(holdout.activation, 'holdout');
   assert.ok(treatmentInput.records.every((item) => item.source_system.startsWith('merrill_')));
 
-  await loop.recordOutcome(outcomeEvent(treatment, 275000));
-  await loop.recordOutcome(outcomeEvent(holdout, 0));
+  await loop.recordOutcome(outcomeEvent(treatment, 275000), treatmentInput.growthPlay);
+  await loop.recordOutcome(outcomeEvent(holdout, 0), holdoutInput.growthPlay);
   const measurement = await loop.measureExperiment({
     tenantId: 'bank_1',
     experimentId: 'merrill_growth_pilot_01',
-    metric: 'net_new_assets',
-    minimumPerArm: 1,
-    minimumCoverage: 1,
+    growthPlay: treatmentInput.growthPlay,
   });
   assert.equal(measurement.status, 'measured');
   assert.equal(measurement.absoluteLift, 275000);
@@ -107,7 +113,7 @@ test('deposit loop reaches a banker workbench action through the same institutio
 test('blocking policy suppresses before assignment or connector delivery', async () => {
   const state = createState();
   const loop = createLoop(state);
-  const input = wealthInput(tokenForArm('treatment'), 'wealth_blocked');
+  const input = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'deposit_blocked');
   input.policies = input.policies.map((policy) => (
     policy.policy_id === 'consent' ? { ...policy, verdict: 'block' } : policy
   ));
@@ -116,16 +122,31 @@ test('blocking policy suppresses before assignment or connector delivery', async
   assert.equal(result.assignment, null);
   assert.equal(state.assignments.length, 0);
   assert.equal(state.deliveryCalls, 0);
+  assert.equal(state.detectorCalls, 0, 'blocking policy should suppress before model decisioning');
+});
+
+test('a treatment abstention remains assigned for intention-to-treat measurement', async () => {
+  const state = createState();
+  const loop = createPilotOperatingLoop({
+    ...dependencies(state),
+    detector: async ({ householdToken }) => depositDecision(true, householdToken),
+  });
+  const input = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'treatment_abstention');
+  const result = await loop.runHousehold(input);
+  assert.equal(result.assignment.arm, 'treatment');
+  assert.equal(result.activation, 'suppressed');
+  assert.equal(state.assignments.length, 1);
+  assert.equal(state.deliveryCalls, 0);
 });
 
 test('synthetic evidence cannot activate and fabricated evidence cannot enter the ledger', async () => {
   const state = createState();
   const loop = createLoop(state);
-  const synthetic = wealthInput(tokenForArm('treatment'), 'synthetic_activation');
+  const synthetic = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'synthetic_activation');
   synthetic.sourceReceipt.evidenceClass = 'synthetic';
   await assert.rejects(() => loop.runHousehold(synthetic), /synthetic evidence cannot activate/);
 
-  const directPii = wealthInput(tokenForArm('treatment'), 'direct_pii');
+  const directPii = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'direct_pii');
   directPii.activationMode = 'shadow';
   directPii.records[0].customer_name = 'Prohibited person name';
   await assert.rejects(() => loop.runHousehold(directPii), /direct PII field customer_name is prohibited/);
@@ -133,22 +154,65 @@ test('synthetic evidence cannot activate and fabricated evidence cannot enter th
   const unsafe = createPilotOperatingLoop({
     ...dependencies(state),
     detector: async () => ({
-      ...wealthDecision(false),
+      ...depositDecision(false, 'tok_household_000001'),
       evidence: [{ transaction_id: 'tx_fabricated', signal_type: 'liquidity_event', summary: 'Invented' }],
     }),
   });
   await assert.rejects(
-    () => unsafe.runHousehold(wealthInput(tokenForArm('treatment'), 'fabricated_evidence')),
+    () => unsafe.runHousehold(depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'fabricated_evidence')),
     /is not in the source records/,
   );
+});
+
+test('compiled Growth Play blocks misrouted households and unapproved actions before delivery', async () => {
+  const misroutedState = createState();
+  const misrouted = createPilotOperatingLoop({
+    ...dependencies(misroutedState),
+    detector: async ({ householdToken }) => depositDecision(false, `${householdToken}_wrong`),
+  });
+  await assert.rejects(
+    () => misrouted.runHousehold(depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'misrouted_household')),
+    /delivery household token does not match/,
+  );
+  assert.equal(misroutedState.deliveryCalls, 0);
+  assert.equal(misroutedState.assignments.length, 1, 'failed treatment decision remains in the assigned population');
+  assert.ok(misroutedState.ledger.some((event) => event.status === 'failed' && event.payload.error_code === 'detector_or_contract_failure'));
+
+  const actionState = createState();
+  const unapprovedAction = createPilotOperatingLoop({
+    ...dependencies(actionState),
+    detector: async ({ householdToken }) => ({
+      ...depositDecision(false, householdToken),
+      actionId: 'invented_offer',
+      deliveryPayload: { household_token: householdToken, action: 'invented_offer' },
+    }),
+  });
+  await assert.rejects(
+    () => unapprovedAction.runHousehold(depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'unapproved_action')),
+    /action invented_offer is not approved/,
+  );
+  assert.equal(actionState.deliveryCalls, 0);
+  assert.equal(actionState.assignments.length, 1);
+  assert.ok(actionState.ledger.some((event) => event.status === 'failed'));
+});
+
+test('operating evidence chronology fails closed before assignment', async () => {
+  const state = createState();
+  const loop = createLoop(state);
+  const input = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'invalid_chronology');
+  input.eligibilityReceipt.evaluatedAt = RUN_AT;
+  await assert.rejects(() => loop.runHousehold(input), /eligibility must predate assignment/);
+  assert.equal(state.assignments.length, 0);
+  assert.equal(state.deliveryCalls, 0);
 });
 
 function createLoop(state) {
   return createPilotOperatingLoop({
     ...dependencies(state),
-    detector: async ({ objective, policies }) => {
+    detector: async ({ objective, policies, householdToken }) => {
+      state.detectorCalls += 1;
       const blocked = policies.some((policy) => policy.verdict === 'block');
-      return objective.includes('deposit') ? depositDecision(blocked) : wealthDecision(blocked);
+      return objective.includes('deposit') ? depositDecision(blocked, householdToken) : merrillRelationshipDecision(blocked, householdToken);
     },
   });
 }
@@ -238,24 +302,11 @@ function dependencies(state) {
   };
 }
 
-function wealthInput(householdToken, caseId) {
-  return baseInput({
-    householdToken,
-    caseId,
-    objective: 'Convert qualified liquidity into net new assets',
-    experimentId: 'wealth_pilot_01',
-    records: [
-      record('tx_liquidity', 'wire', 250000, 'deposit_core'),
-      record('tx_relationship', 'ach', 6200, 'relationship_core'),
-    ],
-  });
-}
-
 function merrillRelationshipInput(householdToken, caseId) {
   return baseInput({
     householdToken,
     caseId,
-    objective: 'Convert qualified Merrill demand into advised relationships and NNA',
+    growthPlay: MERRILL_PLAY,
     experimentId: 'merrill_growth_pilot_01',
     records: [
       record('tx_acats', 'acats', 275000, 'merrill_transfer_workflow'),
@@ -269,7 +320,7 @@ function depositInput(householdToken, caseId) {
   return baseInput({
     householdToken,
     caseId,
-    objective: 'Retain primary deposit relationships',
+    growthPlay: DEPOSIT_PLAY,
     experimentId: 'deposit_pilot_01',
     records: [
       record('tx_payroll', 'ach', 4800, 'deposit_core'),
@@ -278,12 +329,13 @@ function depositInput(householdToken, caseId) {
   });
 }
 
-function baseInput({ householdToken, caseId, objective, experimentId, records }) {
+function baseInput({ householdToken, caseId, growthPlay, experimentId, records }) {
   return {
+    growthPlay,
     tenantId: 'bank_1',
     caseId,
     householdToken,
-    objective,
+    objective: growthPlay.objective,
     runAt: RUN_AT,
     activationMode: 'sandbox_assisted',
     destinationEnvironment: 'sandbox',
@@ -295,39 +347,28 @@ function baseInput({ householdToken, caseId, objective, experimentId, records })
       batchId: 'batch_001',
       schemaVersion: '1.0',
       recordCount: records.length,
-      receivedAt: RUN_AT,
+      receivedAt: SOURCE_AT,
       evidenceClass: 'sandbox',
     },
-    policyVersion: 'policy_1',
-    policies: [
-      { policy_id: 'consent', verdict: 'clear' },
-      { policy_id: 'vulnerability', verdict: 'clear' },
-      { policy_id: 'eligibility', verdict: 'clear' },
-    ],
-    experiment: { experimentId, holdoutPct: 10, assignmentSalt: SALT, assignedAt: ASSIGNED_AT },
+    eligibilityReceipt: {
+      receiptId: `eligibility_${caseId}`,
+      criteriaVersion: growthPlay.eligibility.criteria_version,
+      eligible: true,
+      evaluatedAt: ELIGIBILITY_AT,
+      evidenceTransactionIds: records.map((item) => item.transaction_id),
+    },
+    policyVersion: growthPlay.policy.version,
+    policies: growthPlay.policy.required_policy_ids.map((policyId) => ({ policy_id: policyId, verdict: 'clear' })),
+    experiment: {
+      experimentId,
+      holdoutPct: growthPlay.measurement.holdout_pct,
+      assignmentSalt: SALT,
+      assignedAt: ASSIGNED_AT,
+    },
   };
 }
 
-function wealthDecision(blocked) {
-  return {
-    growthPlayId: 'liquidity-to-wealth',
-    abstain: blocked,
-    abstainReason: blocked ? 'Consent policy blocks activation.' : null,
-    confidence: 0.94,
-    evidence: [
-      { transaction_id: 'tx_liquidity', signal_type: 'liquidity_event', summary: 'Large on-bank liquidity event.' },
-      { transaction_id: 'tx_relationship', signal_type: 'relationship_depth', summary: 'Established banking relationship without wealth coverage.' },
-    ],
-    actionId: blocked ? null : 'warm_wealth_referral',
-    ownerRole: blocked ? null : 'relationship_banker',
-    connector: blocked ? null : 'salesforce',
-    destination: blocked ? null : 'salesforce_fsc_task',
-    cohort: blocked ? null : 'qualified_liquidity_no_advisor',
-    deliveryPayload: blocked ? null : { household_token: 'tok_placeholder_000001', action: 'warm_wealth_referral' },
-  };
-}
-
-function merrillRelationshipDecision(blocked) {
+function merrillRelationshipDecision(blocked, householdToken) {
   return {
     growthPlayId: 'merrill-relationship-growth',
     abstain: blocked,
@@ -343,11 +384,11 @@ function merrillRelationshipDecision(blocked) {
     connector: blocked ? null : 'salesforce',
     destination: blocked ? null : 'cew_book_360_task',
     cohort: blocked ? null : 'qualified_self_directed_no_advisor',
-    deliveryPayload: blocked ? null : { household_token: 'tok_placeholder_000003', action: 'assign_advisor_consolidation_review' },
+    deliveryPayload: blocked ? null : { household_token: householdToken, action: 'assign_advisor_consolidation_review' },
   };
 }
 
-function depositDecision(blocked) {
+function depositDecision(blocked, householdToken) {
   return {
     growthPlayId: 'deposit-primacy-defense',
     abstain: blocked,
@@ -362,7 +403,7 @@ function depositDecision(blocked) {
     connector: blocked ? null : 'bank_workbench',
     destination: blocked ? null : 'banker_workbench',
     cohort: blocked ? null : 'primary_deposit_at_risk',
-    deliveryPayload: blocked ? null : { household_token: 'tok_placeholder_000002', action: 'banker_retention_review' },
+    deliveryPayload: blocked ? null : { household_token: householdToken, action: 'banker_retention_review' },
   };
 }
 
@@ -380,6 +421,7 @@ function record(transactionId, rail, amount, sourceSystem) {
 }
 
 function outcomeEvent(result, amount) {
+  const deposit = result.growthPlayId === 'deposit-primacy-defense';
   return {
     contract_version: '1.0',
     event_id: `event_${result.caseId}`,
@@ -388,15 +430,16 @@ function outcomeEvent(result, amount) {
     growth_play_id: result.growthPlayId,
     decision_id: result.decisionId,
     activation_id: result.receipt?.delivery_id ?? null,
-    event_type: 'assets_transferred',
+    event_type: deposit ? 'deposit_balance_observed' : 'assets_transferred',
     occurred_at: OUTCOME_AT,
     assignment: {
       experiment_id: result.assignment.experimentId,
       arm: result.assignment.arm,
       assigned_at: result.assignment.assignedAt,
+      decision_protocol_id: result.decisionProtocolId,
     },
-    value: { metric: 'net_new_assets', amount, currency: 'USD' },
-    source_system: 'wealth_core_sandbox',
+    value: { metric: deposit ? 'deposit_retained' : 'net_new_assets', amount, currency: 'USD' },
+    source_system: deposit ? 'deposit_core_sandbox' : 'wealth_core_sandbox',
     source_record_id: null,
     reason_code: null,
   };
@@ -420,5 +463,12 @@ function tokenForArm(arm, experimentId = 'wealth_pilot_01') {
 }
 
 function createState() {
-  return { ledger: [], assignments: [], outcomes: [], receipts: [], trace: [], deliveryCalls: 0 };
+  return { ledger: [], assignments: [], outcomes: [], receipts: [], trace: [], deliveryCalls: 0, detectorCalls: 0 };
+}
+
+function testPlay(draft) {
+  return compileGrowthPlayContract({
+    ...draft,
+    measurement: { ...draft.measurement, minimum_per_arm: 1, minimum_coverage: 1 },
+  });
 }

@@ -30,8 +30,7 @@ ALTER TABLE experiment_assignments
       AND authorization_approved_at IS NULL
       AND authorization_expires_at IS NULL
       AND authorized_business_lines IS NULL
-      AND authorized_signal_classes IS NULL
-      AND decision_protocol_id IS NULL)
+      AND authorized_signal_classes IS NULL)
     OR
     (experiment_design = 'connected_incrementality'
       AND arm IN ('holdout', 'standalone', 'connected')

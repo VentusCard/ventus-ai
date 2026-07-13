@@ -23,7 +23,9 @@ pilot depends on it.
 | Plaid custom-user shards | `npm run plaid:mvp:manifests` | The same 500-household design translated into ten official 50-user Plaid Sandbox manifests | Plaid-returned category fidelity until the shards are pulled |
 | Local scale baseline | `npm run benchmark:mvp` | Repeatable single-process throughput over at least 100k synthetic transactions | Production capacity or SLA |
 | Outcome contract | `npm run test:outcomes` | Tokenized, holdout-aware event schema suitable for bank mapping | A live bank outcome feed |
-| Executable operating loop | `backend/shared/pilot-operating-loop.test.mjs`; `docs/pilot-operating-loop.md` | Source receipt → grounded signal → policy → immutable assignment → decision → at-most-once sandbox delivery → outcome → coverage-gated lift across standalone Consumer, standalone Merrill, and connected-expansion examples | Live source, bank identity, deployed persistence, model accuracy, or real business lift |
+| Executable operating loop | `backend/shared/pilot-operating-loop.test.mjs`; `docs/pilot-operating-loop.md` | Source and eligibility receipts → policy pre-gate → immutable assignment → grounded decision → at-most-once sandbox delivery → outcome → coverage-gated lift for standalone Consumer and Merrill, with connected expansion measured separately | Live source, bank identity, deployed persistence, model accuracy, or real business lift |
+| Growth Play onboarding | `npm run test:growth-plays`; `backend/shared/growth-play-contract.test.mjs`; `docs/growth-play-onboarding-contract.md` | Consumer and Merrill compile through one institution-neutral, tamper-evident contract that constrains sources, eligibility, policies, actions, household routing, destinations, and outcomes | Bank approval, sanctioned mapping verification, or deployed configuration registry |
+| Reproducible pilot runner | `npm run pilot:e2e`; `docs/non-prod-pilot-e2e.md` | Standalone Deposit Primacy fixture traverses protocol compilation, source/eligibility, pre-assignment policy, holdout-before-detector, action delivery, outcome, and lift; configured Postgres switches the full evidence loop to durable repositories | Live bank source, bank workflow authentication, or real lift unless those legs are separately evidenced |
 | Experiment measurement | `backend/shared/experiment-measurement.test.mjs`; `docs/outcome-measurement-methodology.md` | Stable pre-activation assignment, idempotent outcomes, one-tenant/experiment integrity, coverage gates, and uncertainty intervals | A deployed store, completed bank outcome window, independent review, or causal result |
 | Connected-data incrementality | `backend/shared/connected-expansion-loop.test.mjs`; `backend/sql/connected-expansion-measurement.sql`; `docs/connected-expansion-experiment.md` | Prequalification without connected data; immutable holdout/standalone/connected assignment; authorized data-scope enforcement; exposure receipts; deviation gates; and connected-minus-standalone lift | Bank authorization, sanctioned cross-business data, authenticated workflow delivery, completed outcomes, or causal proof |
 | Decision ledger migration | `backend/sql/decision-ledger.sql` | Append-only, tenant-keyed persistence target with idempotency | Deployed database, backup, or disaster recovery |
@@ -55,9 +57,10 @@ after predictions are observed.
 ## Next deployment decisions
 
 1. Select the server-side identity provider and map roles for evaluators, operators, and auditors.
-2. Apply the five evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
-3. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the cohort expectations.
-4. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, minimum sample review, and whether a separately authorized three-arm expansion test is in scope.
-5. Have two independent reviewers adjudicate and freeze the draft intervention benchmark before opening candidate predictions.
-6. Run captured shadow-planner predictions against the frozen benchmark, then review errors and cost without changing expectations.
-7. Complete the procurement evidence gaps in `docs/security-procurement-evidence-index.md`.
+2. Have each pilot business line complete and approve its Growth Play draft; record the compiled protocol ID in the pilot change record.
+3. Apply the five evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
+4. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the approved source contract and cohort expectations.
+5. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, minimum sample review, and whether a separately authorized three-arm expansion test is in scope.
+6. Have two independent reviewers adjudicate and freeze the draft intervention benchmark before opening candidate predictions.
+7. Run captured shadow-planner predictions against the frozen benchmark, then review errors and cost without changing expectations.
+8. Complete the procurement evidence gaps in `docs/security-procurement-evidence-index.md`.

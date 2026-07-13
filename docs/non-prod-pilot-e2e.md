@@ -6,10 +6,13 @@ One command runs the whole governed journey and prints an evidence summary:
 npm run pilot:e2e
 ```
 
-Source → operating loop → durable ledger → session-authorized delivery → outcome →
-coverage-gated lift. It runs green today on fixtures and lights up each live leg as its
-credentials appear. Guardrails are asserted every run: holdout is assigned before any
-connector call, delivery is idempotent, lift is measured, and `businessClaimAllowed=false`.
+The command runs the standalone Deposit Primacy Growth Play: source and eligibility receipts →
+policy pre-gate → assignment → detector → durable ledger → session-authorized delivery → outcome →
+coverage-gated lift. It runs green today on fixtures and lights up each live leg as its credentials
+appear. The source, policy, action, destination, household token, and measurement are bound to one
+compiled decision protocol. Guardrails are asserted every run: holdout bypasses the detector,
+treatment is assigned before decisioning, delivery is idempotent, lift is measured, and
+`businessClaimAllowed=false`.
 
 ## Activate the live legs (in this order)
 
@@ -27,7 +30,7 @@ Then create a dedicated runtime role and grant only the repository operations:
 ```sql
 CREATE ROLE ventus_runtime LOGIN PASSWORD '<managed secret>' NOSUPERUSER NOBYPASSRLS;
 GRANT USAGE ON SCHEMA public TO ventus_runtime;
-GRANT SELECT, INSERT ON decision_ledger_events, experiment_assignments, outcome_events TO ventus_runtime;
+GRANT SELECT, INSERT ON decision_ledger_events, experiment_assignments, outcome_events, connected_exposure_events TO ventus_runtime;
 GRANT SELECT, INSERT, UPDATE ON connector_delivery_receipts TO ventus_runtime;
 ```
 
@@ -44,13 +47,14 @@ reads it back inside tenant context, and verifies the hash chain from the databa
 > check by design. Create a dedicated `NOSUPERUSER NOBYPASSRLS` role for the app and point
 > `DATABASE_URL` at it. Then run `backend/sql/verify-tenant-isolation.sql` as that role.
 
-Once `DATABASE_URL` is set, `pilot:e2e` persists lineage to Postgres and prints the verified
-head hash instead of the in-memory count.
+Once `DATABASE_URL` is set, `pilot:e2e` first rejects a `SUPERUSER` or `BYPASSRLS` role, then uses
+the real repositories for the hash ledger, immutable assignments, outcomes, and at-most-once
+delivery receipts. It prints the verified head hash instead of the in-memory count.
 
 ### 2. Live Plaid source
 
 `PLAID_CLIENT_ID` / `PLAID_SECRET` enable both `/api/plaid-transactions` and the
-`pilot:e2e` custom-user pull. The adapter maps returned Plaid records into the operating
+`pilot:e2e` Deposit Primacy custom-user pull. The adapter maps returned Plaid records into the operating
 loop contract (`transaction_id`, `rail`, `amount`, `source_system`, …), tokenizes the
 counterparty, and requires every decision citation to resolve to a source transaction id.
 Without credentials, `pilot:e2e` uses fixture records and reports that fallback explicitly.
@@ -77,7 +81,8 @@ evidence summary prints the real Task id and Lightning URL, and the authorizatio
 ## What this proves vs. does not
 
 Proves: orchestration ordering, holdout-before-activation, idempotent at-most-once delivery,
-tokenized lineage, session-authorized (not header-authorized) writes, coverage-gated lift,
+protocol-bound source/action/outcome routing, tokenized lineage, session-authorized (not
+header-authorized) writes, coverage-gated lift,
 and — with `DATABASE_URL` — durable hash-verified persistence under forced RLS.
 
 Does not prove: model accuracy, bank SSO claim mapping, a completed bank outcome window,

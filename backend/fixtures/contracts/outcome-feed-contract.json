@@ -22,28 +22,15 @@
     "event_id": { "type": "string", "minLength": 8, "maxLength": 128 },
     "tenant_id": { "type": "string", "minLength": 2, "maxLength": 64 },
     "household_token": { "type": "string", "pattern": "^tok_[A-Za-z0-9_-]{8,120}$" },
-    "growth_play_id": { "enum": ["deposit-primacy-defense", "merrill-relationship-growth", "liquidity-to-wealth"] },
+    "growth_play_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$" },
     "decision_id": { "type": "string", "minLength": 8, "maxLength": 128 },
     "activation_id": { "type": ["string", "null"], "maxLength": 128 },
-    "event_type": {
-      "enum": [
-        "recommendation_viewed",
-        "recommendation_accepted",
-        "recommendation_rejected",
-        "customer_contacted",
-        "appointment_created",
-        "referral_completed",
-        "deposit_balance_observed",
-        "assets_transferred",
-        "complaint_recorded",
-        "suppression_recorded"
-      ]
-    },
+    "event_type": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$" },
     "occurred_at": { "type": "string", "format": "date-time" },
     "assignment": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["experiment_id", "arm", "assigned_at"],
+      "required": ["experiment_id", "arm", "assigned_at", "decision_protocol_id"],
       "properties": {
         "experiment_id": { "type": "string", "minLength": 3, "maxLength": 128 },
         "arm": { "enum": ["treatment", "holdout", "standalone", "connected"] },

@@ -19,6 +19,7 @@ export function assignExperiment({
   householdToken,
   holdoutPct,
   salt,
+  decisionProtocolId = null,
   evidenceClass = 'synthetic',
   assignedAt = new Date().toISOString(),
 }) {
@@ -27,6 +28,7 @@ export function assignExperiment({
   assert.match(householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'householdToken must be opaque');
   assert.ok(Number.isFinite(holdoutPct) && holdoutPct >= 1 && holdoutPct <= 50, 'holdoutPct must be 1-50');
   assert.ok(typeof salt === 'string' && salt.length >= 16, 'assignment salt must be at least 16 characters');
+  if (decisionProtocolId !== null) assertIdentifier(decisionProtocolId, 'decisionProtocolId');
   assert.ok(EVIDENCE_CLASSES.has(evidenceClass), 'evidenceClass is unsupported');
   assertIsoDate(assignedAt, 'assignedAt');
 
@@ -45,6 +47,7 @@ export function assignExperiment({
     bucket,
     evidenceClass,
     assignedAt,
+    decisionProtocolId,
   };
 }
 
@@ -134,6 +137,8 @@ export function validateOutcomeEvent(event, assignment) {
     if (assignment.design === 'connected_incrementality') {
       assert.equal(event.assignment.design, assignment.design, 'event experiment design does not match assignment');
       assert.equal(event.assignment.authorization_scope_id, assignment.authorizationScopeId, 'event authorization scope does not match assignment');
+      assert.equal(event.assignment.decision_protocol_id, assignment.decisionProtocolId, 'event decision protocol does not match assignment');
+    } else if (assignment.decisionProtocolId) {
       assert.equal(event.assignment.decision_protocol_id, assignment.decisionProtocolId, 'event decision protocol does not match assignment');
     }
   }
@@ -474,6 +479,7 @@ export function createMeasurementRepository({ getDB }) {
           assert.equal(Number(existing.rows[0].bucket), assignment.bucket, 'existing assignment bucket differs');
           assert.equal(existing.rows[0].evidence_class, assignment.evidenceClass, 'existing evidence class differs');
           assert.equal(new Date(existing.rows[0].assigned_at).toISOString(), assignment.assignedAt, 'existing assignment timestamp differs');
+          assert.equal(existing.rows[0].decision_protocol_id ?? null, assignment.decisionProtocolId ?? null, 'existing decision protocol differs');
           if (assignment.design === 'connected_incrementality') {
             assert.equal(Number(existing.rows[0].standalone_pct), assignment.standalonePct, 'existing standalone allocation differs');
             assert.equal(Number(existing.rows[0].connected_pct), assignment.connectedPct, 'existing connected allocation differs');
@@ -482,7 +488,6 @@ export function createMeasurementRepository({ getDB }) {
             assert.equal(new Date(existing.rows[0].authorization_expires_at).toISOString(), assignment.authorizationExpiresAt, 'existing authorization expiry differs');
             assert.deepEqual(existing.rows[0].authorized_business_lines, assignment.authorizedBusinessLines, 'existing authorized business lines differ');
             assert.deepEqual(existing.rows[0].authorized_signal_classes, assignment.authorizedSignalClasses, 'existing authorized signal classes differ');
-            assert.equal(existing.rows[0].decision_protocol_id, assignment.decisionProtocolId, 'existing decision protocol differs');
           }
           record = existing.rows[0];
         }
@@ -658,6 +663,9 @@ function validateMeasurementAssignment(assignment) {
   if (design === 'binary') {
     assert.ok(BINARY_ARMS.has(assignment.arm), 'binary assignment arm is unsupported');
     assert.ok(Number.isFinite(assignment.holdoutPct) && assignment.holdoutPct >= 1 && assignment.holdoutPct <= 50, 'binary holdoutPct must be 1-50');
+    if (assignment.decisionProtocolId !== null && assignment.decisionProtocolId !== undefined) {
+      assertIdentifier(assignment.decisionProtocolId, 'assignment.decisionProtocolId');
+    }
   } else {
     assert.ok(CONNECTED_ARMS.includes(assignment.arm), 'connected assignment arm is unsupported');
     assert.ok(Number.isFinite(assignment.holdoutPct) && assignment.holdoutPct >= 5 && assignment.holdoutPct <= 50, 'connected holdoutPct must be 5-50');
