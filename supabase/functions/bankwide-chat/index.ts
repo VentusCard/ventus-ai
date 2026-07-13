@@ -42,6 +42,14 @@ interface BankwideContext {
   cardProducts?: string[];
   role?: string;
   platformDescription?: string;
+  currentModule?: string;
+  currentModuleContext?: {
+    tabKey?: string;
+    summary?: string;
+    keyData?: string[];
+    suggestedNav?: string[];
+    [k: string]: unknown;
+  };
 }
 
 const SYSTEM_PROMPT = `You are the Ventus Intelligence Briefing — a senior banking strategy analyst embedded within a $385B consumer banking portfolio.
