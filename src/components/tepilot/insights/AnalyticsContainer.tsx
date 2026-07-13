@@ -475,15 +475,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           </div>
         )}
         {renderContent()}
-        {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
-            title="Open Ventus AI"
-          >
-            <span className="text-base font-black text-white leading-tight">V</span>
-          </button>
-        )}
       </div>
 
       {/* Chat Panel */}
