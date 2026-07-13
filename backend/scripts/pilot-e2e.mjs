@@ -19,10 +19,10 @@ import { mintSessionDirect } from '../../api/connector-session.ts';
 import {
   DEPOSIT_PRIMACY_CUSTOM_USER,
   buildPlaidSourceReceipt,
-  depositPrimacyDetector,
   mapPlaidToLoopRecords,
   pullPlaidTransactions,
 } from '../shared/plaid-source.mjs';
+import { standaloneGrowthPlayDetector } from '../shared/standalone-growth-play-detectors.mjs';
 import { readFileSync } from 'node:fs';
 
 const SALT = 'pilot-e2e-assignment-salt';
@@ -131,7 +131,7 @@ function deliveryRepo(state) {
 
 // The detector works on live Plaid or fixture records and can choose only an action from
 // the compiled standalone Consumer Growth Play.
-const detector = depositPrimacyDetector;
+const detector = standaloneGrowthPlayDetector;
 
 function record(id, rail, amount, sys) {
   return { transaction_id: id, rail, amount, source_system: sys, occurred_at: '2026-07-10T00:00:00.000Z', entity: 'tokenized_counterparty', category: 'evaluation_category', merchant_name: 'Tokenized Merchant' };

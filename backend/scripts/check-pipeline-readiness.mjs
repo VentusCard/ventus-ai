@@ -8,6 +8,7 @@ const backendRoot = resolve(scriptDir, '..');
 const slasPath = join(backendRoot, 'config', 'pipeline-slas.json');
 const stuckJobsSqlPath = join(backendRoot, 'sql', 'stuck-pipeline-runs.sql');
 const operatingLoopPath = join(backendRoot, 'shared', 'pilot-operating-loop.mjs');
+const standaloneRuntimePath = resolve(backendRoot, '..', 'api', 'standalone-pilot-run.ts');
 
 const REQUIRED_STAGES = [
   'ingested',
@@ -100,9 +101,21 @@ function validateOperatingLoop(source) {
   assert.match(source, /businessClaimAllowed:\s*false/, 'operating loop should not promote technical evidence into business claims');
 }
 
+function validateStandaloneRuntime(source) {
+  assert.match(source, /ENABLE_STANDALONE_PILOT_RUNTIME/, 'standalone runtime must be default-off');
+  assert.match(source, /principal\.authMode !== "session"/, 'standalone runtime must reject legacy and local authorization');
+  assert.match(source, /scope: "growth_play_run", destination: businessLine/, 'runtime session must be business-line scoped');
+  assert.match(source, /protocolRegistry\.requireApproved/, 'runtime must load the tenant-approved protocol');
+  assert.match(source, /experimentId: `exp_\$\{decisionProtocolId/, 'experiment identity must derive from the approved protocol');
+  assert.match(source, /activationMode !== "shadow" && activationMode !== "sandbox_assisted"/, 'production activation must remain closed');
+  assert.match(source, /assertNonBypassRole/, 'durable runtime must reject privileged database roles');
+  assert.match(source, /pilot delivery webhook must use HTTPS/, 'assisted delivery must require HTTPS');
+}
+
 const config = readJson(slasPath);
 validateSlas(config);
 validateStuckJobsSql(readFileSync(stuckJobsSqlPath, 'utf8'), config);
 validateOperatingLoop(readFileSync(operatingLoopPath, 'utf8'));
+validateStandaloneRuntime(readFileSync(standaloneRuntimePath, 'utf8'));
 
-console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms, governed pilot operating loop`);
+console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms, governed pilot operating loop and authenticated runtime`);

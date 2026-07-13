@@ -55,6 +55,9 @@ deterministic baseline on quality and cost.
 | `VENTUS_CONTROL_PLANE_SESSION_SECRET` | Control-plane server | Signs short-lived tenant/role/business-line sessions. Must be distinct from connector signing credentials. |
 | `VENTUS_CONTROL_PLANE_ISSUER_TOKEN` | Non-production issuer only | Allows `/api/control-plane-session` to mint evaluation sessions. Static issuance is always disabled in production. |
 | `VENTUS_PROTOCOL_ADMIN_DATABASE_URL` | Control-plane server / setup script | Separate configuration credential used by the control-plane endpoint and `pilot:e2e`. The activation runtime receives registry `SELECT` only; never expose this credential to the browser or activation service. |
+| `ENABLE_STANDALONE_PILOT_RUNTIME=true` | Activation server | Enables the default-off Consumer/Merrill standalone operating-loop endpoint. Production-assisted mode remains rejected. |
+| `VENTUS_EXPERIMENT_ASSIGNMENT_SALT` | Activation server secret | Stable server-held salt for protocol-bound treatment/holdout assignment. Never accept it from a request or expose it to the browser. |
+| `VENTUS_PILOT_DELIVERY_WEBHOOK_URL` / `VENTUS_PILOT_DELIVERY_BEARER` | Activation server | Approved HTTPS sandbox workflow receiver and server credential. Required for assisted runs; returned receipt IDs enter the durable evidence loop. |
 | `VENTUS_SESSION_ISSUER_TOKEN` | Server runtime | Admin bearer that authorizes `/api/connector-session` to mint connector sessions in non-prod (replaced by SSO in production; production issuance requires `VENTUS_ALLOW_TOKEN_ISSUER=true`). |
 
 The whole chain runs end to end with `npm run pilot:e2e` — see `docs/non-prod-pilot-e2e.md`.

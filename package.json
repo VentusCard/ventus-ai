@@ -11,7 +11,7 @@
     "test:capabilities": "node --experimental-strip-types scripts/verify-capability-gates.mjs",
     "test:pipeline": "node --experimental-strip-types scripts/verify-pipeline-real.mjs",
     "test:salesforce": "node --experimental-strip-types scripts/verify-salesforce.mjs",
-    "test:connector-sessions": "node --experimental-strip-types --test api/_connectorAuth.test.ts api/_controlPlaneAuth.test.ts",
+    "test:connector-sessions": "node --experimental-strip-types --test api/_connectorAuth.test.ts api/_controlPlaneAuth.test.ts api/standalone-pilot-run.test.ts",
     "test:mvp-cohorts": "node --experimental-strip-types backend/scripts/qa-growth-play-cohorts.mjs",
     "test:growth-plays": "node backend/scripts/compile-growth-play-contracts.mjs",
     "test:outcomes": "node backend/scripts/qa-outcome-feed-contract.mjs && node backend/scripts/qa-connected-exposure-contract.mjs",

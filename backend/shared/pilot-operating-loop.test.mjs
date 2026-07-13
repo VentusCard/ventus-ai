@@ -5,6 +5,7 @@ import { buildDeliveryReservation } from './connector-delivery.mjs';
 import { assignExperiment, validateOutcomeEvent } from './experiment-measurement.mjs';
 import { compileGrowthPlayContract } from './growth-play-contract.mjs';
 import { createPilotOperatingLoop } from './pilot-operating-loop.mjs';
+import { standaloneGrowthPlayDetector } from './standalone-growth-play-detectors.mjs';
 
 const SALT = 'pilot-operating-loop-assignment-salt';
 const SOURCE_AT = '2026-07-12T11:58:00.000Z';
@@ -63,10 +64,7 @@ test('Merrill relationship growth runs and measures without Consumer Banking rec
   const state = createState();
   const loop = createPilotOperatingLoop({
     ...dependencies(state),
-    detector: async ({ policies, householdToken }) => merrillRelationshipDecision(
-      policies.some((policy) => policy.verdict === 'block'),
-      householdToken,
-    ),
+    detector: standaloneGrowthPlayDetector,
   });
   const treatmentInput = merrillRelationshipInput(
     tokenForArm('treatment', 'merrill_growth_pilot_01'),
