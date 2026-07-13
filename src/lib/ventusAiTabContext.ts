@@ -158,10 +158,12 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     suggestedNav: ["Query", "Ventus AI Dashboard"],
     quickActions: [
+      "What reports do I have?",
       "Summarize the priority opportunity briefing",
       "Which template fits a HELOC campaign?",
       "Recommend a report for wallet-share loss",
     ],
+    onScreenItems: REPORTS_ON_SCREEN,
   },
 
   // ---------- Report deep-links ----------
