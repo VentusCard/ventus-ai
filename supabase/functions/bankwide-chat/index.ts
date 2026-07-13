@@ -93,10 +93,16 @@ function formatContextForPrompt(context: BankwideContext): string {
     if (cmc?.suggestedNav?.length) {
       prompt += `RELATED MODULES TO REFERENCE: ${cmc.suggestedNav.join(", ")}\n`;
     }
+    if (cmc?.onScreenItems !== undefined && cmc?.onScreenItems !== null) {
+      let serialized = JSON.stringify(cmc.onScreenItems, null, 2);
+      const MAX = 8000;
+      if (serialized.length > MAX) serialized = serialized.slice(0, MAX) + "\n… (truncated)";
+      prompt += `\nON-SCREEN ITEMS (ground truth — quote from this when the user asks what is on this page):\n${serialized}\n`;
+    }
     // Surface any extra context payload (e.g. selectedOpportunityId) verbatim.
     if (cmc) {
       const extras = Object.entries(cmc).filter(
-        ([k]) => !["tabKey", "summary", "keyData", "suggestedNav"].includes(k),
+        ([k]) => !["tabKey", "summary", "keyData", "suggestedNav", "onScreenItems"].includes(k),
       );
       if (extras.length) {
         prompt += `VIEW STATE:\n`;
