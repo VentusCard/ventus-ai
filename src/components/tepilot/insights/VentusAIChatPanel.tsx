@@ -61,6 +61,7 @@ export function VentusAIChatPanel({ activeTab, onClose, contextExtras }: VentusA
       summary: tabContext.summary,
       keyData: tabContext.keyData,
       suggestedNav: tabContext.suggestedNav,
+      onScreenItems: tabContext.onScreenItems,
       ...(contextExtras ?? {}),
     },
   };

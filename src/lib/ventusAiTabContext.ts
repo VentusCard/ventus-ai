@@ -1,13 +1,61 @@
 // Per-tab context surfaced to Ventus AI so the co-pilot knows what the user
 // is actually looking at. Keys match TabValue in AnalyticsContainer.
 
+import { BANK_PRODUCT_CATEGORIES } from "@/lib/bankProductCatalog";
+
 export interface TabContext {
   label: string;
   summary: string;
   keyData?: string[];
   suggestedNav?: string[];
   quickActions?: string[];
+  /**
+   * Concrete list of what the view renders (products, reports, deals, cohorts).
+   * Sent verbatim to the model so it can quote it back instead of falling back
+   * to a generic platform brief.
+   */
+  onScreenItems?: unknown;
 }
+
+// Compact catalog for the Bank Context tab — real bank products the view shows.
+const PRODUCTS_ON_SCREEN = BANK_PRODUCT_CATEGORIES.map((cat) => ({
+  category: cat.label,
+  description: cat.description,
+  products: cat.products.map((p) => ({
+    name: p.name,
+    tagline: p.tagline,
+    pricing: p.pricing,
+    terms: p.terms,
+  })),
+}));
+
+// Curated list of report templates + interactive briefings shown on /reports.
+const REPORTS_ON_SCREEN = {
+  templates: [
+    { title: "Lifestyle pillar share", category: "Lifestyle" },
+    { title: "Pillar deep-dive (age × region)", category: "Lifestyle" },
+    { title: "Cross-sell propensity matrix", category: "Lifestyle" },
+    { title: "Spend by region", category: "Lifestyle" },
+    { title: "Behavioral tier migration", category: "Retention" },
+    { title: "Travel trip reconstruction", category: "Lifestyle" },
+    { title: "Outflow to competitors", category: "Outflow" },
+    { title: "Top merchant outflow", category: "Outflow" },
+    { title: "Wallet share & outbound funds", category: "Outflow" },
+    { title: "Subscription churn cohort", category: "Retention" },
+    { title: "Cohort retention (sign-up month)", category: "Retention" },
+    { title: "Life-event volume", category: "Opportunities" },
+    { title: "Life event detection funnel", category: "Opportunities" },
+    { title: "Financial vulnerability summary", category: "Risk" },
+    { title: "Next-best-conversation triggers", category: "Opportunities" },
+  ],
+  interactiveReports: [
+    {
+      title: "Priority Opportunity Briefing",
+      description:
+        "The bank's top revenue-gap in narrative form: what's happening, the numbers, and recommended next steps.",
+    },
+  ],
+};
 
 export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
   // ---------- Home ----------
@@ -36,10 +84,12 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     suggestedNav: ["Next Product", "Campaign Builder", "WM Coworker"],
     quickActions: [
+      "What products are here?",
+      "List every credit card we offer",
       "Which products fit a household in relocation?",
       "Best product for a Hawaii traveler?",
-      "What deposit products do we offer?",
     ],
+    onScreenItems: PRODUCTS_ON_SCREEN,
   },
   "exec-demo": {
     label: "Live Demo — Semantic Enrichment",
@@ -108,10 +158,12 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     suggestedNav: ["Query", "Ventus AI Dashboard"],
     quickActions: [
+      "What reports do I have?",
       "Summarize the priority opportunity briefing",
       "Which template fits a HELOC campaign?",
       "Recommend a report for wallet-share loss",
     ],
+    onScreenItems: REPORTS_ON_SCREEN,
   },
 
   // ---------- Report deep-links ----------
