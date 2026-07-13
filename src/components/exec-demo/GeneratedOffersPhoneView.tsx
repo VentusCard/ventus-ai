@@ -215,13 +215,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           </button>
         )}
       </div>
-      {searchReasoning && (
-        <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
-          <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
-          <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
-        </div>
-      )}
     </div>
+
   );
 
   // Stable savings number
