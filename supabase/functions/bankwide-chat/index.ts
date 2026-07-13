@@ -42,6 +42,14 @@ interface BankwideContext {
   cardProducts?: string[];
   role?: string;
   platformDescription?: string;
+  currentModule?: string;
+  currentModuleContext?: {
+    tabKey?: string;
+    summary?: string;
+    keyData?: string[];
+    suggestedNav?: string[];
+    [k: string]: unknown;
+  };
 }
 
 const SYSTEM_PROMPT = `You are the Ventus Intelligence Briefing — a senior banking strategy analyst embedded within a $385B consumer banking portfolio.
@@ -88,6 +96,31 @@ TONE: You speak as a trusted senior analyst who has spent decades in banking str
 
 function formatContextForPrompt(context: BankwideContext): string {
   let prompt = `\n\n=== PORTFOLIO INTELLIGENCE BRIEF ===\n\n`;
+
+  if (context.currentModule || context.currentModuleContext) {
+    prompt += `CURRENT VIEW: ${context.currentModule ?? context.currentModuleContext?.tabKey ?? "Unknown"}\n`;
+    const cmc = context.currentModuleContext;
+    if (cmc?.summary) prompt += `WHAT THE USER IS LOOKING AT: ${cmc.summary}\n`;
+    if (cmc?.keyData?.length) {
+      prompt += `ON-SCREEN DATA:\n`;
+      cmc.keyData.forEach((d) => (prompt += `• ${d}\n`));
+    }
+    if (cmc?.suggestedNav?.length) {
+      prompt += `RELATED MODULES TO REFERENCE: ${cmc.suggestedNav.join(", ")}\n`;
+    }
+    // Surface any extra context payload (e.g. selectedOpportunityId) verbatim.
+    if (cmc) {
+      const extras = Object.entries(cmc).filter(
+        ([k]) => !["tabKey", "summary", "keyData", "suggestedNav"].includes(k),
+      );
+      if (extras.length) {
+        prompt += `VIEW STATE:\n`;
+        extras.forEach(([k, v]) => (prompt += `• ${k}: ${JSON.stringify(v)}\n`));
+      }
+    }
+    prompt += `\nWhen the user says "this", "here", or "what am I looking at", refer to the CURRENT VIEW above.\n\n`;
+  }
+
 
   if (context.bankwideMetrics) {
     const m = context.bankwideMetrics;
