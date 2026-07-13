@@ -1,35 +1,47 @@
-# Make the Ventus AI panel context-aware on every tab
+# Make Ventus AI actually answer about the current tab
 
 ## Problem
 
-The "Ventus AI" badge in the header opens `VentusAIChatPanel`, which sends `bankwide-chat` an `activeTab` label plus a static bank-wide `PLATFORM_CONTEXT`. Two gaps:
+Even with the new per-tab context, the co-pilot ignored it. On Bank Context asking "what products are here" produced a generic platform brief listing the 10 Ventus modules — not the bank's product catalog on screen.
 
-1. **Missing tabs.** `TAB_LABELS` and `TAB_QUICK_ACTIONS` only cover ~14 tabs. The sidebar has ~25 (Home: System / Bank Context / Demo; Analytics: Ventus AI Dashboard / Query / Reports; Product & Growth: Automated Flows / Campaign Builder / Next Product; plus deep-linked `report-*` pages, `settings`, `feedback`). On those tabs the panel shows the raw tab key (e.g. "targeting-automated-flows") and offers no quick actions.
-2. **No per-tab payload.** The context sent to the edge function is identical everywhere. The model has no idea what data is on screen (which report, which cohort, which campaign, which product catalog entry, etc.), and `bankwide-chat`'s `formatContextForPrompt` doesn't even render `currentModule`.
+Two root causes:
+
+1. **Context payload is too shallow.** For content-heavy tabs (Bank Context, Reports Library, Deals & Perks, Next Product, Life Events) we only send a one-line `summary` + a couple of `keyData` bullets. The model has no way to list the actual products/reports/deals on screen, so it falls back to the module list from `PLATFORM_CONTEXT`.
+2. **System prompt over-weights the bank-wide briefing.** `SYSTEM_PROMPT` in `bankwide-chat` opens with "Ventus Intelligence Briefing… $385B portfolio" and never tells the model that a `CURRENT VIEW` block, when present, is the primary source. So it structures every answer as a portfolio briefing.
 
 ## Fix
 
-### 1. Cover every tab in `VentusAIChatPanel.tsx`
-- Add `TAB_LABELS` + `TAB_QUICK_ACTIONS` entries for: `capabilities`, `products`, `exec-demo`, `ventus-ai-dashboard`, `query`, `reports`, `targeting-automated-flows`, `targeting-campaign-builder`, all `report-*` deep-linked pages, `settings`, `feedback`.
-- Quick actions written for what that tab actually shows (e.g. Campaign Builder → "Draft a HELOC micro-segment", Reports → "Summarize the priority opportunity briefing", Query → "Write SQL for top-10 outflow merchants").
+### 1. Enrich per-tab payloads with real on-screen data
+Extend `src/lib/ventusAiTabContext.ts` so the highest-signal tabs carry a concrete list of what the user sees:
 
-### 2. Per-tab context payload
-- Add `TAB_CONTEXT: Record<TabValue, { summary: string; keyData?: string[]; suggestedNav?: string[] }>` in a new `src/lib/ventusAiTabContext.ts` so the mapping is shared and easy to extend.
-- `VentusAIChatPanel` merges `TAB_CONTEXT[activeTab]` into the context object it already sends as `currentModule` + `currentModuleContext`.
-- For the priority-opportunity report page, also pass the selected `opportunityId` (available on `AnalyticsContainer`) so the AI can speak to the exact briefing on screen. Requires threading `contextExtras` from `AnalyticsContainer` → `VentusAIChatPanel` (new optional prop).
+- **products (Bank Context):** import `BANK_PRODUCT_CATEGORIES` and pass `onScreenItems`: for each category, `{ category, products: [{ name, tagline, pricing }] }`. This is the file the user was on when the bug happened — it's the top priority.
+- **reports:** import the reports registry (templates + interactive reports) and pass titles + one-line descriptions.
+- **deal-management / location-experience:** pull deal + perk names from the same source `DealsAndPerksView` renders.
+- **targeting (Next Product) / targeting-campaign-builder / targeting-automated-flows:** pass segment names + product catalog category names so recommendations stay grounded.
+- **life-events / wm-copilot / customer-insights / fvi-dashboard:** pass the event/cohort labels the view renders.
 
-### 3. Render the new context in the edge function
-- Update `supabase/functions/bankwide-chat/index.ts` `BankwideContext` type and `formatContextForPrompt` to render:
-  - `CURRENT VIEW: <label>` + `WHAT THE USER IS LOOKING AT: <summary>`
-  - `ON-SCREEN DATA:` bullet list from `keyData`
-  - `RELATED MODULES:` from `suggestedNav`
-- Keep existing bank-wide brief intact so answers stay institutional.
+Keep `onScreenItems` typed and optional so the shell tabs (Settings, Feedback, Fraud/AML placeholder) stay lightweight.
 
-### 4. Verify
-- Playwright: visit `/bankdemo`, unlock with password, click Ventus AI badge on 5 representative tabs (Campaign Builder, Reports, Query, WM Coworker, Financial Vulnerability). Confirm friendly label, tab-specific quick actions, and that a sample question ("what am I looking at?") produces a response referencing the current view. Screenshot each.
+Add a hard cap (~40 items or ~2KB serialized) per tab so we don't blow the token budget on tabs like reports; slice with a "… N more" marker if exceeded.
+
+### 2. Send `onScreenItems` through to the edge function
+- `VentusAIChatPanel` already forwards `currentModuleContext`; extend it to include `onScreenItems` when present.
+- `bankwide-chat`'s `BankwideContext` type + `formatContextForPrompt` render a new `ON-SCREEN ITEMS:` block, formatted as compact bullets so the model can quote/list them directly.
+
+### 3. Rewrite the system prompt so the current view wins
+Update `SYSTEM_PROMPT` in `supabase/functions/bankwide-chat/index.ts`:
+
+- Add a top-priority rule: **when a `CURRENT VIEW` block is present, answer about that view first**. Only fall back to the portfolio brief when the question is clearly about the whole book or the view has no relevant data.
+- For questions like "what's here / what am I looking at / list the X on this page," answer directly from `ON-SCREEN ITEMS` and skip the four-part "Key Finding / Supporting Data / Strategic Implication / Recommended Action" scaffold.
+- Keep the executive-brief structure only for portfolio-level or strategy questions.
+
+### 4. Verify against the reported failure
+- `curl` the deployed `bankwide-chat` function with a Bank Context payload and message "what products are here". Confirm the reply lists actual products (Customized Cash Rewards, Unlimited Cash Rewards, etc.), not the 10 Ventus modules.
+- Repeat with two more tabs (Reports Library — "what reports do I have?"; Deals & Perks — "what deals are live?").
+- Also run a portfolio-level question ("summarize the book") from Bank Context to confirm the executive-brief structure still fires when appropriate.
 
 ## Out of scope
 
-- No visual redesign of the panel itself.
-- No changes to `bankwide-chat` model, temperature, or system prompt tone.
-- No new tabs; only wiring context for tabs that already exist.
+- No visual changes to the chat panel.
+- No model, temperature, or token-limit changes.
+- No new tabs — only enriching context for tabs that already exist.
