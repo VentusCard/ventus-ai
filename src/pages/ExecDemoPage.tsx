@@ -59,7 +59,7 @@ interface ExecDemoPageProps {
 
 export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const [selectionDialogOpen, setSelectionDialogOpen] = useState(!embedded);
+  const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
   const [phase, setPhase] = useState<Phase>("idle");
   const [processedIndices, setProcessedIndices] = useState<number[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
