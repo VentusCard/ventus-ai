@@ -1,38 +1,35 @@
-## Goal
-Redesign the interactive "Powered by Ventus AI" badge in the `/bankdemo` professional header so it feels like an active, in-service AI assistant: blue gradient pill, green live dot, and the label "Ventus AI".
+# Make the Ventus AI panel context-aware on every tab
 
-## Where it lives
-- `src/components/tepilot/insights/AnalyticsContainer.tsx` lines 324–339 (the header button + static badge).
-- The badge is only interactive when the user is not already on an AI tab or in the chat panel.
+## Problem
 
-## What I’ll change
-1. **Visual redesign of the badge**
-   - Replace the current slate/white pill with a blue gradient background (`bg-blue-metallic` project token or a `linear-gradient` utility class) and white text.
-   - Add a small green dot with a subtle pulse animation to signal "live / in service."
-   - Change label from "Powered by Ventus AI" to "Ventus AI".
-   - Remove the `Sparkles` icon so the green dot becomes the primary status cue.
-   - Keep rounded-full shape and compact sizing (similar height/padding).
+The "Ventus AI" badge in the header opens `VentusAIChatPanel`, which sends `bankwide-chat` an `activeTab` label plus a static bank-wide `PLATFORM_CONTEXT`. Two gaps:
 
-2. **Interaction states**
-   - Interactive version (opens chat): hover brightens/lightens the gradient, cursor pointer, focus ring.
-   - Static version (when chat is open or on an AI tab): same gradient + dot styling, but no hover/click affordance.
+1. **Missing tabs.** `TAB_LABELS` and `TAB_QUICK_ACTIONS` only cover ~14 tabs. The sidebar has ~25 (Home: System / Bank Context / Demo; Analytics: Ventus AI Dashboard / Query / Reports; Product & Growth: Automated Flows / Campaign Builder / Next Product; plus deep-linked `report-*` pages, `settings`, `feedback`). On those tabs the panel shows the raw tab key (e.g. "targeting-automated-flows") and offers no quick actions.
+2. **No per-tab payload.** The context sent to the edge function is identical everywhere. The model has no idea what data is on screen (which report, which cohort, which campaign, which product catalog entry, etc.), and `bankwide-chat`'s `formatContextForPrompt` doesn't even render `currentModule`.
 
-3. **CSS / tokens**
-   - Add a reusable `.ventus-ai-live-dot` utility in `src/styles/components.css` (or scoped inline) using a green HSL color and a soft pulse shadow.
-   - Keep the change inside the existing `.tepilot-theme` light scope so it respects the strict light-theme policy.
+## Fix
 
-4. **Accessibility**
-   - Preserve `title` / `aria-label` text like "Open Ventus AI" on the interactive version.
-   - Ensure contrast between white text and the blue gradient passes.
+### 1. Cover every tab in `VentusAIChatPanel.tsx`
+- Add `TAB_LABELS` + `TAB_QUICK_ACTIONS` entries for: `capabilities`, `products`, `exec-demo`, `ventus-ai-dashboard`, `query`, `reports`, `targeting-automated-flows`, `targeting-campaign-builder`, all `report-*` deep-linked pages, `settings`, `feedback`.
+- Quick actions written for what that tab actually shows (e.g. Campaign Builder → "Draft a HELOC micro-segment", Reports → "Summarize the priority opportunity briefing", Query → "Write SQL for top-10 outflow merchants").
 
-## Verification
-- Run the Vite build/typecheck.
-- Use Playwright to log into `/bankdemo` and capture a screenshot of the header badge in both interactive and static states.
-- Confirm the green dot is visible, the gradient reads as blue, and the label says "Ventus AI".
+### 2. Per-tab context payload
+- Add `TAB_CONTEXT: Record<TabValue, { summary: string; keyData?: string[]; suggestedNav?: string[] }>` in a new `src/lib/ventusAiTabContext.ts` so the mapping is shared and easy to extend.
+- `VentusAIChatPanel` merges `TAB_CONTEXT[activeTab]` into the context object it already sends as `currentModule` + `currentModuleContext`.
+- For the priority-opportunity report page, also pass the selected `opportunityId` (available on `AnalyticsContainer`) so the AI can speak to the exact briefing on screen. Requires threading `contextExtras` from `AnalyticsContainer` → `VentusAIChatPanel` (new optional prop).
+
+### 3. Render the new context in the edge function
+- Update `supabase/functions/bankwide-chat/index.ts` `BankwideContext` type and `formatContextForPrompt` to render:
+  - `CURRENT VIEW: <label>` + `WHAT THE USER IS LOOKING AT: <summary>`
+  - `ON-SCREEN DATA:` bullet list from `keyData`
+  - `RELATED MODULES:` from `suggestedNav`
+- Keep existing bank-wide brief intact so answers stay institutional.
+
+### 4. Verify
+- Playwright: visit `/bankdemo`, unlock with password, click Ventus AI badge on 5 representative tabs (Campaign Builder, Reports, Query, WM Coworker, Financial Vulnerability). Confirm friendly label, tab-specific quick actions, and that a sample question ("what am I looking at?") produces a response referencing the current view. Screenshot each.
 
 ## Out of scope
-- No changes to chat behavior, routing, or other pages.
-- No backend or data changes.
 
-## Open design choice
-Should the badge include a small sub-label like "Live" next to the dot, or is "Ventus AI" + the green dot enough? I’ll default to just "Ventus AI" + dot unless you say otherwise.
+- No visual redesign of the panel itself.
+- No changes to `bankwide-chat` model, temperature, or system prompt tone.
+- No new tabs; only wiring context for tabs that already exist.
