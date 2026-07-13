@@ -37,6 +37,14 @@ CREATE INDEX IF NOT EXISTS decision_ledger_household_idx
 CREATE INDEX IF NOT EXISTS decision_ledger_growth_play_idx
   ON decision_ledger_events (tenant_id, growth_play_id, recorded_at DESC);
 
+CREATE INDEX IF NOT EXISTS decision_ledger_assignment_context_idx
+  ON decision_ledger_events (tenant_id, household_token, (payload->>'experiment_id'), sequence_number DESC)
+  WHERE event_type = 'counterfactual';
+
+CREATE INDEX IF NOT EXISTS decision_ledger_activation_context_idx
+  ON decision_ledger_events (tenant_id, household_token, (payload->>'decision_id'), sequence_number DESC)
+  WHERE event_type = 'activation';
+
 CREATE OR REPLACE FUNCTION reject_decision_ledger_mutation()
 RETURNS trigger LANGUAGE plpgsql AS $$
 BEGIN

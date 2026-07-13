@@ -20,10 +20,13 @@ when zero is the valid measurement, or the result remains coverage-incomplete.
 - A summary may contain exactly one tenant and one experiment.
 - Every target-metric outcome must match a pre-existing assignment on tenant, experiment, household,
   arm, and assignment timestamp.
+- The authenticated outcome runtime derives assignment, decision, activation, Growth Play, and
+  protocol lineage from Ventus persistence; the bank feed cannot supply those fields.
 - Duplicate assignments, mixed experiments, changed arms, outcomes before assignment, and orphan
   outcomes fail rather than being silently ignored.
 - When multiple valid observations exist for a household, only the latest within the approved
-  outcome window is used. Window enforcement must be added to the bank-specific mapping.
+  outcome window is used. The compiled Growth Play enforces event type, source system, metric, and
+  window before persistence; the bank-specific mapping must still be approved against those fields.
 
 ## Statistical output
 

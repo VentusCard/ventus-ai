@@ -42,6 +42,11 @@ assert.match(tenantContextSource, /set_config\('app\.current_tenant_id', \$1, tr
 assert.match(tenantContextSource, /await db\.query\('BEGIN'\)/, 'tenant context should begin a transaction first');
 assert.match(ledgerSource, /beginTenantTransaction\(db, draft\.tenantId\)/, 'ledger writes should set tenant context');
 assert.match(ledgerSource, /beginTenantTransaction\(db, tenantId\)/, 'ledger exports should set tenant context');
+assert.match(ledgerSource, /loadOutcomeContext/, 'outcome ingestion should resolve lineage from the server ledger');
+assert.match(ledgerSource, /event_type = 'counterfactual'/, 'outcome lineage should resolve immutable assignment evidence');
+assert.match(ledgerSource, /event_type = 'activation'/, 'outcome lineage should resolve activation evidence when present');
+assert.match(read('../backend/sql/decision-ledger.sql'), /decision_ledger_assignment_context_idx/, 'assignment context lookup should be indexed');
+assert.match(read('../backend/sql/decision-ledger.sql'), /decision_ledger_activation_context_idx/, 'activation context lookup should be indexed');
 assert.match(measurementSource, /beginTenantTransaction\(db, assignment\.tenantId\)/, 'assignment writes should set tenant context');
 assert.match(measurementSource, /beginTenantTransaction\(db, event\.tenant_id\)/, 'outcome writes should set tenant context');
 assert.match(verificationSql, /rolsuper OR rolbypassrls/, 'verification should reject privileged runtime roles');
@@ -68,6 +73,8 @@ assert.match(registrySql, /identity_provider text NOT NULL/, 'protocol controls 
 assert.match(registrySource, /beginTenantTransaction\(db, tenantId\)/, 'registry reads and writes should set tenant context');
 assert.match(registrySource, /Growth Play protocol is not approved at run time/, 'runtime protocol resolution must fail closed after revocation');
 assert.match(registrySource, /registration and approval require different subjects/, 'protocol approval must enforce separation of duties');
+assert.match(registrySql, /binary assignment protocol is not approved at assignment time/, 'database must reject assignments under unapproved protocols');
+assert.match(registrySql, /binary_assignment_protocol_approval_guard/, 'binary assignment approval guard must be installed');
 assert.match(runbook, /non-production/i, 'runbook should limit the first deployment to non-production');
 assert.match(runbook, /NOBYPASSRLS/, 'runbook should require a non-bypass runtime role');
 

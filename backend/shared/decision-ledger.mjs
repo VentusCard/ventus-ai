@@ -125,6 +125,57 @@ export function createDecisionLedgerRepository({ getDB }) {
         await db.end();
       }
     },
+
+    async loadOutcomeContext({ tenantId, experimentId, householdToken }) {
+      validateTenantId(tenantId);
+      assertIdentifier(experimentId, 'experimentId');
+      assert.match(householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'householdToken must be opaque');
+      const db = await getDB();
+      await db.connect();
+      try {
+        await beginTenantTransaction(db, tenantId);
+        const assignmentResult = await db.query(
+          `SELECT growth_play_id, payload FROM decision_ledger_events
+            WHERE tenant_id = $1
+              AND household_token = $2
+              AND event_type = 'counterfactual'
+              AND payload->>'experiment_id' = $3
+            ORDER BY sequence_number DESC LIMIT 1`,
+          [tenantId, householdToken, experimentId],
+        );
+        assert.equal(assignmentResult.rows.length, 1, 'outcome has no assignment context in the decision ledger');
+        const assignment = assignmentResult.rows[0];
+        for (const field of ['decision_id', 'assignment_id', 'arm', 'decision_protocol_id']) {
+          assertIdentifier(assignment.payload?.[field], `assignment context.${field}`);
+        }
+        const activationResult = await db.query(
+          `SELECT payload FROM decision_ledger_events
+            WHERE tenant_id = $1
+              AND household_token = $2
+              AND event_type = 'activation'
+              AND payload->>'decision_id' = $3
+            ORDER BY sequence_number DESC LIMIT 1`,
+          [tenantId, householdToken, assignment.payload.decision_id],
+        );
+        const activation = activationResult.rows[0]?.payload ?? null;
+        if (activation) assertIdentifier(activation.activation_id, 'activation context.activation_id');
+        await db.query('COMMIT');
+        return {
+          growthPlayId: assignment.growth_play_id,
+          decisionId: assignment.payload.decision_id,
+          assignmentId: assignment.payload.assignment_id,
+          arm: assignment.payload.arm,
+          decisionProtocolId: assignment.payload.decision_protocol_id,
+          activationId: activation?.activation_id ?? null,
+          deliveryStatus: activation?.delivery_status ?? null,
+        };
+      } catch (error) {
+        await db.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        await db.end();
+      }
+    },
   };
 }
 

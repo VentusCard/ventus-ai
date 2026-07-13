@@ -9,6 +9,7 @@ const slasPath = join(backendRoot, 'config', 'pipeline-slas.json');
 const stuckJobsSqlPath = join(backendRoot, 'sql', 'stuck-pipeline-runs.sql');
 const operatingLoopPath = join(backendRoot, 'shared', 'pilot-operating-loop.mjs');
 const standaloneRuntimePath = resolve(backendRoot, '..', 'api', 'standalone-pilot-run.ts');
+const outcomeRuntimePath = resolve(backendRoot, '..', 'api', 'pilot-outcomes.ts');
 
 const REQUIRED_STAGES = [
   'ingested',
@@ -112,10 +113,22 @@ function validateStandaloneRuntime(source) {
   assert.match(source, /pilot delivery webhook must use HTTPS/, 'assisted delivery must require HTTPS');
 }
 
+function validateOutcomeRuntime(source) {
+  assert.match(source, /growth_play_outcome_write/, 'outcome writes must use a dedicated signed scope');
+  assert.match(source, /growth_play_measure_read/, 'measurement reads must use a dedicated signed scope');
+  assert.match(source, /principal\.authMode !== "session"/, 'outcome service must reject legacy and local authorization');
+  assert.match(source, /measurementRepository\.loadExperiment/, 'outcome service must resolve persisted assignment');
+  assert.match(source, /ledgerRepository\.loadOutcomeContext/, 'outcome service must resolve server decision lineage');
+  assert.match(source, /at: assignment\.assignedAt/, 'outcomes must resolve approval at immutable assignment time');
+  assert.match(source, /businessClaimAllowed: false/, 'outcome writes must not create business claims');
+  assert.match(source, /causalClaimAllowed: false/, 'outcome writes must not create causal claims');
+}
+
 const config = readJson(slasPath);
 validateSlas(config);
 validateStuckJobsSql(readFileSync(stuckJobsSqlPath, 'utf8'), config);
 validateOperatingLoop(readFileSync(operatingLoopPath, 'utf8'));
 validateStandaloneRuntime(readFileSync(standaloneRuntimePath, 'utf8'));
+validateOutcomeRuntime(readFileSync(outcomeRuntimePath, 'utf8'));
 
-console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms, governed pilot operating loop and authenticated runtime`);
+console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms, authenticated decision and outcome runtimes`);

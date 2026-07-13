@@ -50,6 +50,44 @@ test('ledger idempotency key cannot hide changed event content', async () => {
   );
 });
 
+test('outcome context resolves decision and activation from server evidence', async () => {
+  const state = [];
+  const repository = createDecisionLedgerRepository({ getDB: async () => fakeDb(state) });
+  const base = {
+    tenantId: 'bank_1',
+    householdToken: 'tok_household_000001',
+    growthPlayId: 'deposit-primacy-defense',
+    policyVersion: null,
+    occurredAt: TS,
+  };
+  await repository.append({
+    ...base,
+    idempotencyKey: 'case_1:assignment',
+    eventType: 'counterfactual',
+    status: 'confirmed',
+    payload: {
+      decision_id: 'decision_server_001', experiment_id: 'experiment_001',
+      assignment_id: 'assignment_001', arm: 'treatment', decision_protocol_id: 'protocol_001',
+    },
+  });
+  await repository.append({
+    ...base,
+    idempotencyKey: 'case_1:activation',
+    eventType: 'activation',
+    status: 'confirmed',
+    payload: {
+      decision_id: 'decision_server_001', activation_id: 'activation_server_001',
+      delivery_status: 'delivered',
+    },
+  });
+  const context = await repository.loadOutcomeContext({
+    tenantId: 'bank_1', experimentId: 'experiment_001', householdToken: 'tok_household_000001',
+  });
+  assert.equal(context.decisionId, 'decision_server_001');
+  assert.equal(context.activationId, 'activation_server_001');
+  assert.equal(context.decisionProtocolId, 'protocol_001');
+});
+
 test('decision-outcome graph withholds effectiveness until enough outcomes exist', () => {
   const early = graphFixture(10);
   const earlyRow = buildDecisionOutcomeGraph({ ...early, minimumOutcomes: 30 })[0];
@@ -133,6 +171,24 @@ function fakeDb(entries) {
       if (['BEGIN', 'COMMIT', 'ROLLBACK'].includes(sql) || sql.includes('pg_advisory_xact_lock') || sql.includes('set_config')) return { rows: [] };
       if (sql.includes('WHERE tenant_id = $1 AND idempotency_key = $2')) {
         return { rows: entries.filter((entry) => entry.row?.tenant_id === params[0] && entry.row?.idempotency_key === params[1]).map((entry) => entry.row) };
+      }
+      if (sql.includes("event_type = 'counterfactual'")) {
+        const rows = entries
+          .filter((entry) => entry.row?.tenant_id === params[0]
+            && entry.row?.household_token === params[1]
+            && entry.row?.event_type === 'counterfactual'
+            && entry.row?.payload?.experiment_id === params[2])
+          .map((entry) => ({ growth_play_id: entry.row.growth_play_id, payload: entry.row.payload }));
+        return { rows: rows.slice(-1) };
+      }
+      if (sql.includes("event_type = 'activation'")) {
+        const rows = entries
+          .filter((entry) => entry.row?.tenant_id === params[0]
+            && entry.row?.household_token === params[1]
+            && entry.row?.event_type === 'activation'
+            && entry.row?.payload?.decision_id === params[2])
+          .map((entry) => ({ payload: entry.row.payload }));
+        return { rows: rows.slice(-1) };
       }
       if (sql.includes('ORDER BY sequence_number DESC LIMIT 1')) {
         const rows = entries.filter((entry) => entry.row?.tenant_id === params[0]).map((entry) => entry.row).sort((a, b) => b.sequence_number - a.sequence_number);

@@ -54,3 +54,31 @@ CREATE TRIGGER growth_play_approvals_no_mutation
 
 ALTER TABLE growth_play_protocols ENABLE ROW LEVEL SECURITY;
 ALTER TABLE growth_play_protocol_approval_events ENABLE ROW LEVEL SECURITY;
+
+CREATE OR REPLACE FUNCTION validate_binary_assignment_protocol_approval()
+RETURNS trigger LANGUAGE plpgsql AS $$
+DECLARE
+  latest_decision text;
+BEGIN
+  IF NEW.experiment_design <> 'binary' OR NEW.decision_protocol_id IS NULL THEN
+    RETURN NEW;
+  END IF;
+  SELECT approval.decision
+    INTO latest_decision
+    FROM growth_play_protocol_approval_events approval
+   WHERE approval.tenant_id = NEW.tenant_id
+     AND approval.decision_protocol_id = NEW.decision_protocol_id
+     AND approval.decided_at <= NEW.assigned_at
+   ORDER BY approval.decided_at DESC, approval.approval_event_id DESC
+   LIMIT 1;
+  IF latest_decision IS DISTINCT FROM 'approved' THEN
+    RAISE EXCEPTION 'binary assignment protocol is not approved at assignment time';
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS binary_assignment_protocol_approval_guard ON experiment_assignments;
+CREATE TRIGGER binary_assignment_protocol_approval_guard
+  BEFORE INSERT ON experiment_assignments
+  FOR EACH ROW EXECUTE FUNCTION validate_binary_assignment_protocol_approval();
