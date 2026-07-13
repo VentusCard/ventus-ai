@@ -44,7 +44,7 @@ import { buildDeliveryPayload, type DeliveryPayload } from "@/lib/integrations";
 import { appendEvents, ledgerRollup, verifyChain, isPipelineKind, type LedgerEvent, type LedgerKind, type LedgerDraft } from "@/lib/ledger";
 import { pipelineEvents, runPipeline, type PipelineInput, type PipelineDerived } from "@/lib/pipeline";
 import { leadershipCapabilities } from "@/lib/capabilities";
-import { INTEGRATION_EVIDENCE, type IntegrationProofLevel } from "@/lib/integrationEvidence";
+import { buildOpportunityFromPlaid, type DetectedOpportunity, type PlaidTransaction } from "@/lib/plaid";
 import {
   compileObjectiveToSkill,
   promoteSkill,
@@ -3995,7 +3995,7 @@ function leadershipConfig(path: LeadershipPath): LeadershipConfig {
 
 // Story-shaped, not builder-shaped: open on what a person sees, then reveal what drove
 // it, then let the exec set boundaries — comprehension before configuration.
-const EXECUTIVE_STEPS = ["Run", "Act", "Configure", "Prove", "Measure"] as const;
+const EXECUTIVE_STEPS = ["Run", "Use", "Integrate", "Activate", "Measure"] as const;
 
 // Progressive employee-surface preview with a before/after contrast: the same queue
 // without Ventus (a static, context-free list) vs. with Ventus (one prepared, evidenced
@@ -4159,7 +4159,17 @@ function PendingMetric({ label, detail }: { label: string; detail: string }) {
 // receipts. Unset = simulated, and the demo never sends a payload anywhere.
 const REHEARSAL_URL = ((import.meta.env.VITE_REHEARSAL_URL as string | undefined) ?? "").trim();
 
+type LeadershipRunEvidence = {
+  sourceMode: "live" | "demo";
+  sourceName: string;
+  scenario: LeadershipPath;
+  transactions: PlaidTransaction[];
+  opportunity: DetectedOpportunity | null;
+  authorizationMode?: string;
+};
+
 function LeadershipPipelineRun({
+  path,
   opp,
   destination,
   activeControls,
@@ -4168,8 +4178,10 @@ function LeadershipPipelineRun({
   standaloneProof,
   valueLine,
   onViewPlay,
+  onEvidence,
   onComplete,
 }: {
+  path: LeadershipPath;
   opp: Opportunity;
   destination: string;
   activeControls: string[];
@@ -4178,16 +4190,21 @@ function LeadershipPipelineRun({
   standaloneProof: string;
   valueLine: string;
   onViewPlay: () => void;
+  onEvidence: (evidence: LeadershipRunEvidence) => void;
   onComplete: () => void;
 }) {
   const [runStage, setRunStage] = useState(0);
+  const [sourceStatus, setSourceStatus] = useState<"idle" | "connecting" | "live" | "demo">("idle");
+  const [runEvidence, setRunEvidence] = useState<LeadershipRunEvidence | null>(null);
   const derived = runPipeline(OPP_INPUT(opp));
   const rails = [...new Set(opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed"))];
+  const detected = runEvidence?.opportunity;
+  const recordCount = runEvidence?.transactions.length || derived.provenance.ingested;
   const stages = [
-    { label: "Map", detail: `${rails.length} rails · ${derived.provenance.ingested} records`, icon: Upload },
-    { label: "Enrich", detail: "Merchant · entity · category", icon: Cpu },
-    { label: "Infer", detail: opp.type, icon: Activity },
-    { label: "Decide", detail: opp.action, icon: Wand2 },
+    { label: "Map", detail: `${recordCount} source records`, icon: Upload },
+    { label: "Enrich", detail: `${detected?.enriched.length ?? derived.provenance.classified} normalized`, icon: Cpu },
+    { label: "Infer", detail: detected?.type ?? opp.type, icon: Activity },
+    { label: "Decide", detail: detected?.action ?? opp.action, icon: Wand2 },
     { label: "Govern", detail: `${activeControls.length} policy checks`, icon: ShieldCheck },
   ];
 
@@ -4203,40 +4220,102 @@ function LeadershipPipelineRun({
     if (runComplete) onComplete();
   }, [onComplete, runComplete]);
 
+  const runConnectedSample = async () => {
+    if (sourceStatus === "connecting" || (runStage > 0 && !runComplete)) return;
+    setRunStage(0);
+    setSourceStatus("connecting");
+    let evidence: LeadershipRunEvidence = {
+      sourceMode: "demo",
+      sourceName: `${businessLine} demo data`,
+      scenario: path,
+      transactions: [],
+      opportunity: null,
+    };
+    try {
+      const response = await fetch("/api/plaid-transactions", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-ventus-client": "web-app" },
+        body: JSON.stringify({ scenario: path }),
+      });
+      const data = (await response.json().catch(() => ({}))) as {
+        ready?: boolean;
+        env?: string;
+        transactions?: PlaidTransaction[];
+        authorization?: { mode?: string };
+      };
+      const opportunity = data.transactions?.length ? buildOpportunityFromPlaid(data.transactions) : null;
+      if (response.ok && data.ready && data.transactions?.length && opportunity) {
+        evidence = {
+          sourceMode: "live",
+          sourceName: `Plaid ${data.env ?? "sandbox"}`,
+          scenario: path,
+          transactions: data.transactions,
+          opportunity,
+          authorizationMode: data.authorization?.mode,
+        };
+      }
+    } catch {
+      // The product remains usable in presentation mode; the badge stays explicit.
+    }
+    setRunEvidence(evidence);
+    setSourceStatus(evidence.sourceMode);
+    onEvidence(evidence);
+    setRunStage(1);
+  };
+
+  const resultType = detected?.type ?? opp.type;
+  const resultReason = detected?.reason ?? opp.reason;
+  const resultAction = detected?.action ?? opp.action;
+  const resultDestination = detected?.destination ?? destination;
+  const resultConfidence = detected?.confidence ?? derived.confidence;
+
   return (
     <div className="w-full">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <Eyebrow>Ventus live run · synthetic data</Eyebrow>
-          <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>3 records in. One ranked action out.</h1>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500">{businessLine} inputs · {standaloneProof}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <Eyebrow>Connected product run</Eyebrow>
+            {sourceStatus === "live" && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-emerald-700">Plaid sandbox · live</span>}
+            {sourceStatus === "demo" && <span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-slate-500">Presentation data</span>}
+          </div>
+          <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Transactions in. One governed action out.</h1>
+          <p className="mt-1.5 text-xs font-semibold text-slate-500">{businessLine} · {standaloneProof}</p>
         </div>
         <button
-          onClick={() => setRunStage(1)}
-          disabled={runStage > 0 && !runComplete}
+          onClick={runConnectedSample}
+          disabled={sourceStatus === "connecting" || (runStage > 0 && !runComplete)}
           className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60"
           style={{ backgroundColor: NAVY }}
         >
-          {runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> Run sample</>}
+          {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> Run connected sample</>}
         </button>
       </div>
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <section className="order-1 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Raw {businessLine} feed</p>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">{rails.length} rails · 3 shown</span>
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Source records</p>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">{runEvidence?.sourceName ?? `${rails.length} ${businessLine} rails`}</span>
           </div>
           <div className="mt-3 space-y-2">
-            {opp.rawTransactions.slice(0, 3).map((transaction) => (
+            {runEvidence?.transactions.length ? runEvidence.transactions.slice(0, 4).map((transaction) => (
+              <div key={transaction.transaction_id} className="rounded-lg border border-slate-100 bg-slate-50 p-2.5">
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate font-mono text-[10px] font-semibold text-slate-700">{transaction.name}</span>
+                  <span className={`flex-none text-[10px] font-bold ${transaction.amount < 0 ? "text-emerald-700" : "text-slate-600"}`}>{transaction.amount < 0 ? "+" : "-"}${Math.abs(transaction.amount).toLocaleString()}</span>
+                </div>
+                <p className={`mt-1 flex items-center justify-between gap-2 text-[9px] text-slate-400 transition ${runStage >= 2 ? "opacity-100" : "opacity-0"}`}>
+                  <span className="truncate">{transaction.personal_finance_category?.primary ?? "UNCATEGORIZED"}</span>
+                  <span className="flex-none font-mono">{transaction.transaction_id.slice(0, 10)}…</span>
+                </p>
+              </div>
+            )) : opp.rawTransactions.slice(0, 3).map((transaction) => (
               <div key={transaction.raw} className="rounded-lg border border-slate-100 bg-slate-50 p-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-mono text-[10px] font-semibold text-slate-700">{transaction.raw}</span>
                   <span className="flex-none text-[9px] font-bold uppercase text-slate-400">{transaction.src}</span>
                 </div>
-                <p className={`mt-1 truncate text-[10px] text-slate-500 transition ${runStage >= 2 ? "opacity-100" : "opacity-0"}`}>
-                  {transaction.merchant} · {transaction.category}
-                </p>
+                <p className={`mt-1 truncate text-[10px] text-slate-500 transition ${runStage >= 2 ? "opacity-100" : "opacity-0"}`}>{transaction.merchant} · {transaction.category}</p>
               </div>
             ))}
           </div>
@@ -4282,20 +4361,20 @@ function LeadershipPipelineRun({
               <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3.5">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">{opp.type}</p>
-                    <h2 className="mt-1 text-lg font-semibold text-slate-950">{opp.value} {opp.valueLabel}</h2>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Qualified moment</p>
+                    <h2 className="mt-1 text-lg font-semibold text-slate-950">{resultType}</h2>
                   </div>
-                  <ConfidencePill value={derived.confidence} />
+                  <ConfidencePill value={resultConfidence} />
                 </div>
-                <p className="mt-2 text-xs leading-5 text-slate-600">{opp.reason}</p>
+                <p className="mt-2 text-xs leading-5 text-slate-600">{resultReason}</p>
               </div>
               <div className="mt-3 rounded-xl border border-slate-200 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Prepared action</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{opp.action}</p>
-                <p className="mt-1 text-[10px] leading-4 text-slate-500">{valueLine}</p>
+                <p className="mt-1 text-sm font-semibold text-slate-900">{resultAction}</p>
+                <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-slate-500">{valueLine}</p>
                 <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-slate-500">
-                  <span>{destination}</span>
-                  <span className="font-semibold" style={{ color: GREEN }}>Checks passed · staged</span>
+                  <span>{resultDestination}</span>
+                  <span className="font-semibold" style={{ color: GREEN }}>Policy clear</span>
                 </div>
               </div>
               {/* The reusable capability behind this result, one click away in business language */}
@@ -4328,21 +4407,18 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
   const [experienceTab, setExperienceTab] = useState<"employee" | "customer">("employee");
   const [employeeWithVentus, setEmployeeWithVentus] = useState(true);
   const [pipelineReady, setPipelineReady] = useState(false);
+  const [runEvidence, setRunEvidence] = useState<LeadershipRunEvidence | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [integrationReady, setIntegrationReady] = useState(false);
   const [dryRunState, setDryRunState] = useState<"idle" | "running" | "complete">("idle");
   const [shadowReady, setShadowReady] = useState(false);
   const [measurementPreview, setMeasurementPreview] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
-  const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string }[]>([]);
+  const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string; url?: string; route: "salesforce" | "rehearsal" }[]>([]);
+  const [deliveryNote, setDeliveryNote] = useState<string | null>(null);
   const config = leadershipConfig(path);
   const { opp, skill } = config;
   const destination = destinationLabel(opp.destination);
-  const evidenceTone: Record<IntegrationProofLevel, string> = {
-    "live-attested": "bg-emerald-50 text-emerald-700",
-    "unit-proven": "bg-blue-50 text-blue-700",
-    "infra-required": "bg-amber-50 text-amber-800",
-  };
 
   useEffect(() => {
     setStep(0);
@@ -4351,6 +4427,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
     setExperienceTab("employee");
     setEmployeeWithVentus(true);
     setPipelineReady(false);
+    setRunEvidence(null);
     setEvidenceOpen(false);
     setIntegrationReady(false);
     setDryRunState("idle");
@@ -4358,46 +4435,63 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
     setMeasurementPreview(false);
     setPlayOpen(false);
     setLiveReceipts([]);
+    setDeliveryNote(null);
   }, [path]);
 
   useEffect(() => {
-    if (dryRunState !== "running" || REHEARSAL_URL) return;
-    const timer = window.setTimeout(() => {
-      setDryRunState("complete");
-      setShadowReady(true);
-    }, 1100);
-    return () => window.clearTimeout(timer);
-  }, [dryRunState]);
+    if (step === 2 && pipelineReady) setIntegrationReady(true);
+  }, [pipelineReady, step]);
 
   const handlePipelineComplete = useCallback(() => setPipelineReady(true), []);
 
-  // Simulated by default. With VITE_REHEARSAL_URL set, the same click does a real
-  // round trip — payload out, receipt back — so the route is demonstrated, not asserted.
+  // Prefer the real Salesforce connector. The generic rehearsal receiver remains a
+  // secondary integration surface for bank workbench sandboxes.
   const runRehearsal = async () => {
     if (dryRunState === "running") return;
     setLiveReceipts([]);
+    setDeliveryNote(null);
     setDryRunState("running");
-    if (!REHEARSAL_URL) return; // simulated path — completed by the timer effect
+    const detected = runEvidence?.opportunity;
     try {
-      const receipts: { id: string; receipt: string }[] = [];
-      for (const caseId of ["HH-0192", "HH-0411"]) {
-        const res = await fetch(REHEARSAL_URL, {
+      const response = await fetch("/api/salesforce-deliver", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-ventus-client": "web-app" },
+        body: JSON.stringify({
+          subject: `${config.playTitle} — ${detected?.type ?? opp.type}`,
+          description: `${detected?.reason ?? opp.reason}\nRecommended action: ${detected?.action ?? opp.action}\nSource: ${runEvidence?.sourceName ?? "presentation data"}`,
+          source: runEvidence?.sourceMode === "live" ? "leadership-demo-plaid" : "leadership-demo",
+        }),
+      });
+      const data = (await response.json().catch(() => ({}))) as { id?: string; url?: string; error?: string };
+      if (response.ok && data.id) {
+        setLiveReceipts([{ id: opp.id, receipt: data.id, url: data.url, route: "salesforce" }]);
+        setDeliveryNote("Salesforce Task created");
+        setDryRunState("complete");
+        setShadowReady(true);
+        return;
+      }
+      if (REHEARSAL_URL) {
+        const rehearsal = await fetch(REHEARSAL_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json", "x-ventus-client": "web-app" },
-          body: JSON.stringify({ rehearsal: true, caseId, ...buildDeliveryPayload(toDeliveryOpp(opp)) }),
+          body: JSON.stringify({ rehearsal: true, caseId: opp.id, ...buildDeliveryPayload(toDeliveryOpp(opp)) }),
         });
-        const data = res.ok ? ((await res.json()) as { receiptId?: string }) : {};
-        receipts.push({ id: caseId, receipt: data.receiptId ?? `HTTP ${res.status}` });
+        const rehearsalData = rehearsal.ok ? ((await rehearsal.json()) as { receiptId?: string }) : {};
+        if (rehearsalData.receiptId) {
+          setLiveReceipts([{ id: opp.id, receipt: rehearsalData.receiptId, route: "rehearsal" }]);
+          setDeliveryNote("Bank sandbox receipt returned");
+        }
+      } else {
+        setDeliveryNote(data.error ? "Salesforce connector unavailable — showing the staged payload" : "Staged payload only");
       }
-      setLiveReceipts(receipts);
     } catch {
-      // receiver unreachable — complete with the simulated result, no live badge shown
+      setDeliveryNote("Connected destination unavailable — showing the staged payload");
     }
     setDryRunState("complete");
     setShadowReady(true);
   };
 
-  const nextLabels = ["See the experience", "Connect pilot", "Rehearse route", "Preview measurement"];
+  const nextLabels = ["See employee view", "Map workflow", "Create sandbox Task", "Measure outcomes"];
   const activeControls = path === "wealth-growth"
     ? ["Reg BI review", "Consent + eligibility", "Vulnerability suppression"]
     : ["UDAAP review", "Uniform offer criteria", "Financial-health suppression"];
@@ -4410,6 +4504,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
             {step === 0 && (
               <LeadershipPipelineRun
                 key={path}
+                path={path}
                 opp={opp}
                 destination={destination}
                 activeControls={activeControls}
@@ -4418,6 +4513,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                 standaloneProof={config.standaloneProof}
                 valueLine={config.actEarlier}
                 onViewPlay={() => setPlayOpen(true)}
+                onEvidence={setRunEvidence}
                 onComplete={handlePipelineComplete}
               />
             )}
@@ -4452,16 +4548,16 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                       </div>
                     ))}
                   </div>
-                  {integrationReady && (
-                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                      {[`${config.sourceLabel} schema accepted`, "Ventus field map v1 created", `${config.workflowLabel} payload mapped`].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
-                    </div>
-                  )}
+                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                    {[
+                      runEvidence?.sourceMode === "live" ? `${runEvidence.sourceName} receipt verified` : `${config.sourceLabel} contract mapped`,
+                      `${config.playTitle} matched`,
+                      `${config.workflowLabel} payload ready`,
+                    ].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
+                  </div>
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-600"><span className={`h-2 w-2 rounded-full ${integrationReady ? "bg-emerald-500" : "bg-slate-300"}`} />{integrationReady ? "Pilot route configured" : "Ready to map the test payload"}</div>
-                    <button onClick={() => setIntegrationReady(true)} className="flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: integrationReady ? GREEN : NAVY }}>
-                      {integrationReady ? <><Check className="h-3.5 w-3.5" /> Pilot path configured</> : <><Network className="h-3.5 w-3.5" /> Configure pilot path</>}
-                    </button>
+                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-600"><span className="h-2 w-2 rounded-full bg-emerald-500" />Route ready for a sandbox write</div>
+                    <span className="text-[10px] font-semibold text-slate-400">No customer action</span>
                   </div>
                 </section>
               </div>
@@ -4482,13 +4578,16 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                     <section className="rounded-xl border border-slate-200 bg-white p-4">
                       {employeeWithVentus ? (
                         <>
-                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Priority opportunity</p>
-                          <p className="mt-2 text-2xl font-semibold text-slate-950">{opp.value}</p>
-                          <p className="text-xs font-semibold text-slate-500">{opp.valueLabel}</p>
-                          <div className="mt-3 rounded-lg bg-blue-50/70 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Next action</p><p className="mt-1 text-sm font-semibold leading-5 text-slate-900">{opp.action}</p></div>
-                          <div className="mt-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-semibold text-slate-600"><span>{destination} + morning email</span><span style={{ color: GREEN }}>Ventus</span></div>
+                          <div className="flex items-center justify-between gap-2">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Priority opportunity</p>
+                            <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${runEvidence?.sourceMode === "live" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{runEvidence?.sourceMode === "live" ? "Plaid live" : "Demo data"}</span>
+                          </div>
+                          <p className="mt-2 text-lg font-semibold leading-6 text-slate-950">{runEvidence?.opportunity?.type ?? opp.type}</p>
+                          <p className="mt-1 text-xs font-semibold text-slate-500">{runEvidence?.opportunity?.confidence ?? opp.confidence}% confidence</p>
+                          <div className="mt-3 rounded-lg bg-blue-50/70 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Next action</p><p className="mt-1 text-sm font-semibold leading-5 text-slate-900">{runEvidence?.opportunity?.action ?? opp.action}</p></div>
+                          <div className="mt-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-semibold text-slate-600"><span>{runEvidence?.opportunity?.destination ?? destination}</span><span style={{ color: GREEN }}>Ready</span></div>
                           <button onClick={() => setEvidenceOpen((open) => !open)} className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800"><ChevronDown className={`h-3 w-3 transition ${evidenceOpen ? "rotate-180" : ""}`} /> {evidenceOpen ? "Hide evidence" : "View evidence"}</button>
-                          {evidenceOpen && <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">{opp.rawTransactions.map((transaction) => <div key={transaction.raw} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span>{transaction.tag}</span><span className="ml-auto text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>)}</div>}
+                          {evidenceOpen && <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">{runEvidence?.opportunity?.enriched.length ? runEvidence.opportunity.enriched.slice(0, 4).map((transaction) => <div key={`${transaction.raw}-${transaction.date}`} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span className="truncate">{transaction.tag}</span><span className="ml-auto flex-none text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>) : opp.rawTransactions.map((transaction) => <div key={transaction.raw} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span>{transaction.tag}</span><span className="ml-auto text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>)}</div>}
                         </>
                       ) : (
                         <div className="flex min-h-48 flex-col items-center justify-center text-center"><p className="text-3xl font-semibold text-slate-300">47</p><p className="mt-1 text-xs font-semibold text-slate-500">unranked names</p><p className="mt-3 text-[11px] text-slate-400">No decision-ready evidence · no prepared action</p></div>
@@ -4501,56 +4600,72 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
 
             {step === 3 && (
               <div className="w-full">
-                <Eyebrow>End-to-end rehearsal</Eyebrow>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Rehearse the full route.</h1>
-                <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+                <Eyebrow>Workflow activation</Eyebrow>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Send the prepared action to Salesforce.</h1>
+                <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
                   <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <div className="flex items-center justify-between gap-3"><div><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{config.sourceLabel} sandbox → Ventus → {config.workflowLabel} sandbox</p><p className="mt-1 text-sm font-semibold text-slate-900">50 golden cases · shadow mode</p></div><div className="flex flex-none items-center gap-1.5">{liveReceipts.length > 0 && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase text-emerald-700">Live route</span>}<span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase text-slate-500">0 customer actions</span></div></div>
-                    {dryRunState === "complete" ? (
-                      <div className="mt-3">
-                        <div className="grid grid-cols-3 gap-2"><BriefMetric label="Processed" value="50 / 50" /><BriefMetric label="Qualified" value="12 IDs" /><BriefMetric label="Errors" value="0" /></div>
-                        <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
-                          {[{ id: "HH-0192", score: 91 }, { id: "HH-0411", score: 86 }].map((row) => {
-                            const live = liveReceipts.find((receipt) => receipt.id === row.id);
-                            return (
-                              <div key={row.id} className="flex items-center gap-3 border-b border-slate-100 px-3 py-2 text-[11px] last:border-0">
-                                <span className="font-mono font-semibold text-slate-700">{row.id}</span>
-                                <span className="font-bold" style={{ color: GREEN }}>{row.score}</span>
-                                <span className="min-w-0 flex-1 truncate text-slate-500">{path === "wealth-growth" ? "Advisor conversion review" : "Primacy review"}</span>
-                                {live ? (
-                                  <span className="font-mono font-semibold text-emerald-700" title="Receipt returned by the sandbox receiver">{live.receipt}</span>
-                                ) : (
-                                  <span className="text-slate-400">{destination}</span>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        {liveReceipts.length > 0 && (
-                          <p className="mt-2 text-[10px] font-medium text-emerald-700">Real payloads delivered over the network — receipts issued by the sandbox receiver.</p>
-                        )}
-                      </div>
-                    ) : (
-                      <p className="mt-3 text-xs leading-5 text-slate-500">Rehearse the source-to-destination contract without customer action.</p>
-                    )}
-                    <button onClick={runRehearsal} disabled={dryRunState === "running"} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait" style={{ backgroundColor: dryRunState === "complete" ? GREEN : NAVY }}>
-                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Running connected rehearsal</> : dryRunState === "complete" ? <><Check className="h-4 w-4" /> {liveReceipts.length > 0 ? "Sandbox receipts returned" : "Shadow rehearsal complete · no live write"}</> : <><Rocket className="h-4 w-4" /> Run connected rehearsal</>}
-                    </button>
-                  </section>
-                  <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Connection evidence</p>
-                    <div className="mt-3 space-y-2">
-                      {INTEGRATION_EVIDENCE.map((item) => (
-                        <div key={item.id} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs font-semibold text-slate-800">{item.label}</p>
-                            <p className="truncate text-[10px] text-slate-400" title={item.detail}>{item.detail}</p>
+                    <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
+                      {[
+                        { label: runEvidence?.sourceName ?? config.sourceLabel, detail: `${runEvidence?.transactions.length || 3} records`, Icon: Layers },
+                        { label: config.playTitle, detail: runEvidence?.opportunity?.type ?? opp.type, Icon: Wand2 },
+                        { label: "Salesforce FSC", detail: "Task · sandbox", Icon: Network },
+                      ].map((node, index) => (
+                        <div key={node.label} className="contents">
+                          {index > 0 && <ArrowRight className="hidden h-4 w-4 text-slate-300 sm:block" />}
+                          <div className={`min-w-0 rounded-lg border p-3 ${index === 1 ? "border-blue-200 bg-blue-50/60" : "border-slate-200 bg-slate-50"}`}>
+                            <node.Icon className="h-4 w-4" style={{ color: index === 1 ? NAVY : GREEN }} />
+                            <p className="mt-1 truncate text-xs font-bold text-slate-900">{node.label}</p>
+                            <p className="truncate text-[10px] text-slate-500">{node.detail}</p>
                           </div>
-                          <span className={`flex-none rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${evidenceTone[item.level]}`}>{item.status}</span>
                         </div>
                       ))}
                     </div>
-                    <p className="mt-2 text-[9px] leading-4 text-slate-400">Current Ventus verification, not bank-production approval.</p>
+
+                    {liveReceipts[0] ? (
+                      <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
+                        <div className="flex items-center gap-3">
+                          <img src={salesforceLogo} alt="Salesforce" className="h-8 w-8 rounded-md bg-white object-contain p-1" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">Delivered</p>
+                            <p className="truncate font-mono text-sm font-semibold text-slate-900">Task {liveReceipts[0].receipt}</p>
+                          </div>
+                          {liveReceipts[0].url && <a href={liveReceipts[0].url} target="_blank" rel="noopener noreferrer" className="flex-none rounded-lg bg-white px-3 py-2 text-xs font-semibold text-emerald-800 shadow-sm">Open record</a>}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
+                        <p className="text-xs font-semibold text-slate-800">{deliveryNote ?? "One sandbox write. No customer message."}</p>
+                        <p className="mt-1 truncate text-[10px] text-slate-400">{runEvidence?.opportunity?.action ?? opp.action}</p>
+                      </div>
+                    )}
+
+                    <button onClick={runRehearsal} disabled={dryRunState === "running" || liveReceipts.length > 0} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70" style={{ backgroundColor: liveReceipts.length > 0 ? GREEN : NAVY }}>
+                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Writing to Salesforce</> : liveReceipts.length > 0 ? <><Check className="h-4 w-4" /> Receipt returned</> : <><Rocket className="h-4 w-4" /> Create sandbox Task</>}
+                    </button>
+                  </section>
+
+                  <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">This run</p>
+                    <div className="mt-3 space-y-2">
+                      {[
+                        { label: "Source", value: `${runEvidence?.sourceName ?? "Presentation data"} · ${runEvidence?.transactions.length || 3} records`, live: runEvidence?.sourceMode === "live" },
+                        { label: "Decision", value: `${config.playTitle} · ${runEvidence?.opportunity?.confidence ?? opp.confidence}%`, live: true },
+                        { label: "Activation", value: liveReceipts[0] ? `Salesforce Task ${liveReceipts[0].receipt}` : deliveryNote ?? "Awaiting write", live: liveReceipts.length > 0 },
+                      ].map((item) => (
+                        <div key={item.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3">
+                          <span className={`h-2 w-2 flex-none rounded-full ${item.live ? "bg-emerald-500" : "bg-slate-300"}`} />
+                          <div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{item.label}</p><p className="truncate text-xs font-semibold text-slate-800" title={item.value}>{item.value}</p></div>
+                        </div>
+                      ))}
+                    </div>
+                    <details className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
+                      <summary className="cursor-pointer text-[11px] font-semibold text-slate-600">Technical receipt</summary>
+                      <div className="mt-2 space-y-1 font-mono text-[9px] leading-4 text-slate-500">
+                        <p>source_mode={runEvidence?.sourceMode ?? "demo"}</p>
+                        <p>auth={runEvidence?.authorizationMode ?? "presentation"}</p>
+                        <p>destination={liveReceipts[0]?.route ?? "salesforce_fsc_task"}</p>
+                      </div>
+                    </details>
                   </section>
                 </div>
               </div>
