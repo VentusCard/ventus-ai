@@ -323,6 +323,78 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     );
   }
 
+  // ── Dedicated Search Results View ──
+  if (isSearchActive) {
+    return (
+      <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+        <div className="shrink-0 px-3 pt-3 pb-2 flex items-center justify-between gap-2 border-b border-slate-100">
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-slate-800 truncate">
+              Results for "{searchQuery}"
+            </p>
+            <p className="text-[9px] text-slate-400">
+              {isSearching ? "Searching…" : `${catalogSearchDeals.length} deal${catalogSearchDeals.length === 1 ? "" : "s"} found`}
+            </p>
+          </div>
+          <button
+            onClick={clearSearch}
+            className="text-[10px] font-semibold text-slate-500 hover:text-slate-700 shrink-0"
+          >
+            Clear
+          </button>
+        </div>
+
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3" style={{ scrollbarWidth: "none" }}>
+          {isSearching && catalogSearchDeals.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+            </div>
+          ) : catalogSearchDeals.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-[11px] text-slate-400">No matching deals found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-1.5">
+              {catalogSearchDeals.map((deal, i) => {
+                const c = getColor(deal.category || "");
+                return (
+                  <div
+                    key={deal.id}
+                    className="rounded-xl border border-slate-100 bg-white p-2.5 flex flex-col gap-1.5 animate-fade-in"
+                    style={{ animationDelay: `${i * 35}ms` }}
+                  >
+                    <div className="flex items-start justify-between gap-1.5">
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-bold text-slate-800 truncate">{deal.merchantName}</p>
+                        <p className="text-[8px] text-slate-400 truncate">{deal.subcategory}</p>
+                      </div>
+                      <span
+                        className="text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                        style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+                      >
+                        {deal.rewardValue}
+                      </span>
+                    </div>
+                    <p className="text-[9px] leading-snug text-slate-500 line-clamp-2">{deal.dealDescription}</p>
+                    <button
+                      className="mt-auto text-[9px] font-semibold px-2 py-1 rounded-full border transition-colors"
+                      style={{ borderColor: c.border, color: c.text, background: c.bg }}
+                    >
+                      View Deal
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {searchFooter}
+      </div>
+    );
+  }
+
+
   // ── Main View ──
   const groups = allGroups;
   const safeIdx = current % Math.max(groups.length, 1);
