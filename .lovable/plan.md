@@ -1,12 +1,15 @@
-## Goal
-Update the /bankdemo Systems tab so the final destination card reads **"AI Coworker"** instead of **"Advisor Console"", with a sublabel that conveys it serves every team around the clock.
+## Problem
 
-## Changes
-1. In `src/components/tepilot/insights/CapabilitiesView.tsx`:
-   - Update the `DESTINATIONS` array entry at line 392 from `label: "Advisor Console"` to `label: "AI Coworker"`.
-   - Update the matching workflow chip at line 328 from `"Advisor Console"` to `"AI Coworker"` so the team workflow diagrams stay consistent.
-   - Update the `sublabel` from `"Banker Workstation"` to `"Every team, 24/7"`.
+In `/bankdemo`, clicking the **Demo** tab renders `ExecDemoPage` with `embedded`, which initializes `selectionDialogOpen` to `!embedded` (i.e. `false`). So the customer-selection popup never appears.
 
-## Verification
-- Type-check the file.
-- Open `/bankdemo` → Systems tab and confirm the last card is labeled **AI Coworker** with sublabel **Every team, 24/7**, and the workflow arrows reference the same name.
+Previously we suppressed the popup because it was auto-firing right after password login — but that was only an issue when Demo was the landing tab. Now that Demo isn't the default landing tab, the popup should open whenever the user actively clicks into the Demo tab.
+
+## Change
+
+**File:** `src/pages/ExecDemoPage.tsx` (line 62)
+
+- Change `useState(!embedded)` → `useState(true)` so the selection dialog opens on mount in both standalone and embedded contexts.
+
+The `exec-demo` case in `AnalyticsContainer.tsx` remounts `ExecDemoPage` on every tab switch (React switch-case render), so this will reliably show the popup each time the user clicks the Demo tab.
+
+No other changes to embedded behavior (single-customer restriction, back button, etc.) are affected.
