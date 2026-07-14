@@ -41,6 +41,8 @@ Once the role is active, Codex can:
 - run the Plaid-to-Salesforce smoke test and report evidence;
 - monitor AWS spend and anomalies.
 
+AWS Budgets uses the IAM permission `budgets:ViewBudget` for budget read APIs, with `billing:GetBillingViewData` as its documented dependent permission. The policy intentionally grants neither budget modification nor budget-action execution.
+
 An administrator still owns these intentional control points:
 
 - creating or changing IAM roles and policies;

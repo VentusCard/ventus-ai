@@ -86,8 +86,8 @@
       "Sid": "InspectVentusCostViaAwsMcp",
       "Effect": "Allow",
       "Action": [
-        "budgets:DescribeBudget",
-        "budgets:DescribeBudgetPerformanceHistory",
+        "billing:GetBillingViewData",
+        "budgets:ViewBudget",
         "ce:GetAnomalies",
         "ce:GetAnomalyMonitors",
         "ce:GetAnomalySubscriptions",
