@@ -10,7 +10,7 @@
 // Run: npm run test:salesforce
 
 import assert from "node:assert/strict";
-import { POST } from "../api/salesforce-deliver.ts";
+import { POST, buildSalesforceTaskRecord } from "../api/salesforce-deliver.ts";
 
 process.env.VENTUS_CONNECTOR_TOKEN ||= "ventus-connector-test-token";
 
@@ -22,6 +22,49 @@ const request = (body, headers = { Authorization: `Bearer ${process.env.VENTUS_C
     headers: { "Content-Type": "application/json", ...headers },
     body: JSON.stringify(body),
   });
+
+const fixedNow = new Date("2026-07-13T12:00:00.000Z");
+const structured = buildSalesforceTaskRecord(
+  {
+    subject: "Primary deposit relationship review",
+    dueInDays: 2,
+    source: "leadership-demo-plaid",
+    insight: {
+      businessLine: "Consumer Banking",
+      growthPlay: "Deposit Primacy Defense",
+      customerRef: "household-primacy",
+      moment: "Checking primacy at risk",
+      whyNow: "Direct deposit remains here while balances are moving off-bank.",
+      recommendedAction: "Contact the customer before the next payroll cycle.",
+      expectedOutcome: "Protect the primary deposit relationship",
+      confidence: 91,
+      destination: "Banker workbench",
+      evidence: [
+        { label: "Direct-deposit relationship", confidence: 100 },
+        { label: "Spend migrating off-bank", confidence: 92 },
+      ],
+      controls: ["UDAAP review", "Uniform offer criteria"],
+      sourceName: "Plaid custom-user sandbox",
+      decisionRef: "deposit-retention:primacy",
+    },
+  },
+  fixedNow,
+);
+assert.equal(structured.task.Subject, "Primary deposit relationship review");
+assert.equal(structured.task.Priority, "High", "high-confidence activation is prioritized");
+assert.equal(structured.task.ActivityDate, "2026-07-15", "requested service window becomes the due date");
+assert.match(structured.task.Description, /WHY THIS NEEDS ATTENTION/);
+assert.match(structured.task.Description, /RECOMMENDED NEXT STEP/);
+assert.match(structured.task.Description, /BUSINESS OUTCOME/);
+assert.match(structured.task.Description, /Direct-deposit relationship \(100% confidence\)/);
+assert.match(structured.task.Description, /Cleared: UDAAP review · Uniform offer criteria/);
+assert.match(structured.task.Description, /Consumer Banking → Banker workbench/);
+assert.match(structured.task.Description, /Decision reference: deposit-retention:primacy/);
+assert.doesNotMatch(structured.task.Description, /ACH CREDIT|account_id|transaction_id/, "raw transaction data does not enter the Task");
+
+const legacy = buildSalesforceTaskRecord({ subject: "Legacy delivery", description: "Existing payload remains supported." }, fixedNow);
+assert.match(legacy.task.Description, /Existing payload remains supported/);
+assert.equal(legacy.task.Priority, "Normal");
 
 // The credentialed route is invisible until explicitly enabled.
 delete process.env.ENABLE_LIVE_CONNECTORS;

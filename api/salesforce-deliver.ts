@@ -22,6 +22,139 @@ export const maxDuration = 20;
 
 const API_VERSION = "v61.0";
 
+type SalesforceEvidenceInput = {
+  label?: unknown;
+  confidence?: unknown;
+};
+
+type SalesforceInsightInput = {
+  businessLine?: unknown;
+  growthPlay?: unknown;
+  customerRef?: unknown;
+  moment?: unknown;
+  whyNow?: unknown;
+  recommendedAction?: unknown;
+  expectedOutcome?: unknown;
+  confidence?: unknown;
+  destination?: unknown;
+  evidence?: unknown;
+  controls?: unknown;
+  sourceName?: unknown;
+  decisionRef?: unknown;
+};
+
+type SalesforceDeliveryBody = {
+  subject?: unknown;
+  description?: unknown;
+  priority?: unknown;
+  source?: unknown;
+  dueInDays?: unknown;
+  insight?: SalesforceInsightInput;
+};
+
+const cleanText = (value: unknown, maxLength: number) =>
+  typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
+
+const cleanList = (value: unknown, maxItems: number, maxLength: number) =>
+  Array.isArray(value)
+    ? value.map((item) => cleanText(item, maxLength)).filter(Boolean).slice(0, maxItems)
+    : [];
+
+const cleanConfidence = (value: unknown): number | null => {
+  const number = typeof value === "number" ? value : Number.NaN;
+  return Number.isFinite(number) ? Math.max(0, Math.min(100, Math.round(number))) : null;
+};
+
+const cleanEvidence = (value: unknown) => {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((item) => {
+      const evidence = item && typeof item === "object" ? (item as SalesforceEvidenceInput) : {};
+      return { label: cleanText(evidence.label, 140), confidence: cleanConfidence(evidence.confidence) };
+    })
+    .filter((item) => item.label)
+    .slice(0, 4);
+};
+
+const section = (heading: string, lines: string[]) =>
+  lines.length ? `${heading}\n${lines.join("\n")}` : "";
+
+export function buildSalesforceTaskRecord(body: SalesforceDeliveryBody, now = new Date()) {
+  const subject = cleanText(body.subject, 255);
+  const insight = body.insight && typeof body.insight === "object" ? body.insight : undefined;
+  const confidence = cleanConfidence(insight?.confidence);
+  const controls = cleanList(insight?.controls, 6, 100);
+  const evidence = cleanEvidence(insight?.evidence);
+  const businessLine = cleanText(insight?.businessLine, 100);
+  const growthPlay = cleanText(insight?.growthPlay, 120);
+  const customerRef = cleanText(insight?.customerRef, 120);
+  const moment = cleanText(insight?.moment, 180);
+  const whyNow = cleanText(insight?.whyNow, 700);
+  const recommendedAction = cleanText(insight?.recommendedAction, 700);
+  const expectedOutcome = cleanText(insight?.expectedOutcome, 220);
+  const destination = cleanText(insight?.destination, 160);
+  const sourceName = cleanText(insight?.sourceName, 160);
+  const decisionRef = cleanText(insight?.decisionRef, 160);
+  const connectorSource = cleanText(body.source, 100) || "salesforce-connector";
+
+  const structuredDescription = insight
+    ? [
+        section("WHY THIS NEEDS ATTENTION", [whyNow || moment].filter(Boolean)),
+        section("RECOMMENDED NEXT STEP", [recommendedAction].filter(Boolean)),
+        section("BUSINESS OUTCOME", [expectedOutcome].filter(Boolean)),
+        section(
+          "SUPPORTING SIGNALS",
+          evidence.map((item) => `• ${item.label}${item.confidence === null ? "" : ` (${item.confidence}% confidence)`}`),
+        ),
+        section("POLICY STATUS", controls.length ? [`Cleared: ${controls.join(" · ")}`] : []),
+        section("ROUTING", [businessLine && destination ? `${businessLine} → ${destination}` : destination || businessLine].filter(Boolean)),
+        section(
+          "AUDIT",
+          [
+            growthPlay ? `Growth Play: ${growthPlay}` : "",
+            customerRef ? `Customer reference: ${customerRef}` : "",
+            decisionRef ? `Decision reference: ${decisionRef}` : "",
+            sourceName ? `Evidence source: ${sourceName}` : "",
+            confidence === null ? "" : `Decision confidence: ${confidence}%`,
+          ].filter(Boolean),
+        ),
+      ]
+        .filter(Boolean)
+        .join("\n\n")
+    : cleanText(body.description, 7000);
+
+  const dueInDays = typeof body.dueInDays === "number" && Number.isFinite(body.dueInDays)
+    ? Math.max(1, Math.min(30, Math.round(body.dueInDays)))
+    : 3;
+  const dueDate = new Date(now.getTime() + dueInDays * 864e5).toISOString().slice(0, 10);
+  const priority = body.priority === "Normal" || body.priority === "High"
+    ? body.priority
+    : confidence !== null && confidence >= 85
+      ? "High"
+      : "Normal";
+  const auditFooter = `Connector: Ventus · ${connectorSource} · ${now.toISOString()}`;
+
+  return {
+    task: {
+      Subject: subject,
+      Description: `${structuredDescription}${structuredDescription ? "\n\n" : ""}${auditFooter}`.slice(0, 8000),
+      Priority: priority,
+      Status: "Not Started",
+      ActivityDate: dueDate,
+    },
+    activation: {
+      subject,
+      businessLine,
+      growthPlay,
+      moment,
+      recommendedAction,
+      expectedOutcome,
+      destination,
+      confidence,
+    },
+  };
+}
+
 function creds(): { loginUrl: string; clientId: string; clientSecret: string } | null {
   const loginUrl = process.env.SF_LOGIN_URL?.trim().replace(/\/$/, "");
   const clientId = process.env.SF_CLIENT_ID?.trim();
@@ -62,32 +195,25 @@ export async function POST(request: Request): Promise<Response> {
     );
   }
 
-  let body: { subject?: unknown; description?: unknown; priority?: unknown; source?: unknown };
+  let body: SalesforceDeliveryBody;
   try {
     body = (await request.json()) as typeof body;
   } catch {
     return Response.json({ error: "invalid JSON" }, { status: 400 });
   }
-  const subject = typeof body.subject === "string" && body.subject.trim() ? body.subject.slice(0, 255) : "";
+  const subject = cleanText(body.subject, 255);
   if (!subject) return Response.json({ error: "subject (string) required" }, { status: 400 });
-  const description = typeof body.description === "string" ? body.description.slice(0, 4000) : "";
-  const priority = body.priority === "Normal" ? "Normal" : "High";
+  const { task, activation } = buildSalesforceTaskRecord(body);
 
   try {
     const { accessToken, instanceUrl } = await getToken(c);
 
-    // Standard-field Task so any dev org accepts it; Ventus metadata rides in Description.
-    const dueDate = new Date(Date.now() + 3 * 864e5).toISOString().slice(0, 10);
+    // Standard fields keep the proof portable. A bank deployment maps the same activation
+    // contract into its approved owner, household, workbench, and custom-object model.
     const res = await fetch(`${instanceUrl}/services/data/${API_VERSION}/sobjects/Task`, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
-      body: JSON.stringify({
-        Subject: subject,
-        Description: `${description}\n\n— Delivered by Ventus (${typeof body.source === "string" ? body.source : "demo"}) at ${new Date().toISOString()}`,
-        Priority: priority,
-        Status: "Not Started",
-        ActivityDate: dueDate,
-      }),
+      body: JSON.stringify(task),
     });
     if (!res.ok) {
       const text = await res.text().catch(() => "");
@@ -102,6 +228,7 @@ export async function POST(request: Request): Promise<Response> {
       id: created.id,
       url: `${instanceUrl}/lightning/r/Task/${created.id}/view`,
       instanceUrl,
+      activation,
       authorization: {
         tenantId: principal.tenantId,
         sessionId: principal.sessionId,

@@ -609,6 +609,25 @@ function destinationLabel(id: DestId): string {
 
 type DemoAudience = "leadership" | "internal";
 
+type DemoConnectorSession = {
+  token: string;
+  expiresAt: number;
+  connectors: { plaid: boolean; salesforce: boolean };
+};
+
+const DEMO_CONNECTOR_SESSION_KEY = "ventus_demo_connector_session";
+
+function restoreDemoConnectorSession(): DemoConnectorSession | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const stored = JSON.parse(window.sessionStorage.getItem(DEMO_CONNECTOR_SESSION_KEY) || "null") as DemoConnectorSession | null;
+    if (!stored?.token || !stored.expiresAt || stored.expiresAt <= Math.floor(Date.now() / 1000)) return null;
+    return stored;
+  } catch {
+    return null;
+  }
+}
+
 export default function EnterpriseGrowthDemoPage({
   embedded = false,
   audience = "leadership",
@@ -635,8 +654,30 @@ export default function EnterpriseGrowthDemoPage({
   const [ledger, setLedger] = useState<LedgerEvent[]>([]);
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [leadershipPath, setLeadershipPath] = useState<LeadershipPath>("wealth-growth");
+  const [connectorSession, setConnectorSession] = useState<DemoConnectorSession | null>(restoreDemoConnectorSession);
+  const [presenterSessionOpen, setPresenterSessionOpen] = useState(false);
   const internal = audience === "internal";
   const modelEvaluationAllowed = internal && evaluationEnabled;
+  const readyConnectorCount = connectorSession
+    ? Number(connectorSession.connectors.plaid) + Number(connectorSession.connectors.salesforce)
+    : 0;
+
+  const updateConnectorSession = useCallback((session: DemoConnectorSession | null) => {
+    setConnectorSession(session);
+    if (session) window.sessionStorage.setItem(DEMO_CONNECTOR_SESSION_KEY, JSON.stringify(session));
+    else window.sessionStorage.removeItem(DEMO_CONNECTOR_SESSION_KEY);
+  }, []);
+
+  useEffect(() => {
+    if (!connectorSession) return;
+    const remaining = connectorSession.expiresAt * 1000 - Date.now();
+    if (remaining <= 0) {
+      updateConnectorSession(null);
+      return;
+    }
+    const timer = window.setTimeout(() => updateConnectorSession(null), remaining);
+    return () => window.clearTimeout(timer);
+  }, [connectorSession, updateConnectorSession]);
 
   const addToCew = (items: { id: string; client: string; type: string; action: string }[]) =>
     setCewTasks((prev) => {
@@ -776,6 +817,17 @@ export default function EnterpriseGrowthDemoPage({
           )}
         </div>
         <div className="flex items-center gap-2">
+          {!internal && (
+            <button
+              onClick={() => setPresenterSessionOpen(true)}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${readyConnectorCount === 2 ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+              title={connectorSession ? `Live session · ${readyConnectorCount}/2 connectors configured` : "Connect the live Plaid and Salesforce demo"}
+            >
+              {readyConnectorCount === 2 ? <Check className="h-3.5 w-3.5" /> : <LockKeyhole className="h-3.5 w-3.5" />}
+              <span className="hidden sm:inline">{readyConnectorCount === 2 ? "Plaid + Salesforce live" : connectorSession ? `${readyConnectorCount}/2 live` : "Connect live demo"}</span>
+              <span className="sm:hidden">{readyConnectorCount === 2 ? "Live" : "Connect"}</span>
+            </button>
+          )}
           {entered && internal && scene > 0 && scene < 5 && (
             <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs sm:flex">
               <Eye className="h-3.5 w-3.5" style={{ color: GREEN }} />
@@ -843,7 +895,16 @@ export default function EnterpriseGrowthDemoPage({
       {!entered ? (
         <Cover onPick={enterAt} onLeadershipPick={enterLeadership} audience={audience} />
       ) : !internal ? (
-        <LeadershipFlow path={leadershipPath} onExit={() => setEntered(false)} />
+        <LeadershipFlow
+          path={leadershipPath}
+          onExit={() => setEntered(false)}
+          connectorSession={connectorSession}
+          onRequestPresenterSession={() => setPresenterSessionOpen(true)}
+          onConnectorSessionInvalid={() => {
+            updateConnectorSession(null);
+            setPresenterSessionOpen(true);
+          }}
+        />
       ) : (
         <>
           <div className="relative min-h-0 flex-1">
@@ -961,6 +1022,17 @@ export default function EnterpriseGrowthDemoPage({
           tab={governanceTab}
           onTab={setGovernanceTab}
           onClose={() => setGovernanceOpen(false)}
+        />
+      )}
+      {!internal && presenterSessionOpen && (
+        <PresenterSessionPanel
+          currentSession={connectorSession}
+          onConnected={(session) => {
+            updateConnectorSession(session);
+            setPresenterSessionOpen(false);
+          }}
+          onDisconnect={() => updateConnectorSession(null)}
+          onClose={() => setPresenterSessionOpen(false)}
         />
       )}
     </main>
@@ -4158,6 +4230,20 @@ function PendingMetric({ label, detail }: { label: string; detail: string }) {
 // the Prove step's rehearsal performs REAL network writes and shows the receiver's
 // receipts. Unset = simulated, and the demo never sends a payload anywhere.
 const REHEARSAL_URL = ((import.meta.env.VITE_REHEARSAL_URL as string | undefined) ?? "").trim();
+const DEMO_CONNECTOR_API_BASE_URL = ((import.meta.env.VITE_DEMO_CONNECTOR_API_BASE_URL as string | undefined) ?? "")
+  .trim()
+  .replace(/\/$/, "");
+const DEMO_CONNECTOR_ENDPOINTS = DEMO_CONNECTOR_API_BASE_URL
+  ? {
+      session: `${DEMO_CONNECTOR_API_BASE_URL}/session`,
+      plaid: `${DEMO_CONNECTOR_API_BASE_URL}/plaid-transactions`,
+      salesforce: `${DEMO_CONNECTOR_API_BASE_URL}/salesforce-task`,
+    }
+  : {
+      session: "/api/presenter-session",
+      plaid: "/api/plaid-transactions",
+      salesforce: "/api/salesforce-deliver",
+    };
 
 type LeadershipRunEvidence = {
   sourceMode: "live" | "demo";
@@ -4180,6 +4266,8 @@ function LeadershipPipelineRun({
   onViewPlay,
   onEvidence,
   onComplete,
+  connectorToken,
+  onConnectorSessionInvalid,
 }: {
   path: LeadershipPath;
   opp: Opportunity;
@@ -4192,9 +4280,12 @@ function LeadershipPipelineRun({
   onViewPlay: () => void;
   onEvidence: (evidence: LeadershipRunEvidence) => void;
   onComplete: () => void;
+  connectorToken?: string;
+  onConnectorSessionInvalid: () => void;
 }) {
   const [runStage, setRunStage] = useState(0);
   const [sourceStatus, setSourceStatus] = useState<"idle" | "connecting" | "live" | "demo">("idle");
+  const [connectionNote, setConnectionNote] = useState<string | null>(null);
   const [runEvidence, setRunEvidence] = useState<LeadershipRunEvidence | null>(null);
   const derived = runPipeline(OPP_INPUT(opp));
   const rails = [...new Set(opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed"))];
@@ -4224,6 +4315,7 @@ function LeadershipPipelineRun({
     if (sourceStatus === "connecting" || (runStage > 0 && !runComplete)) return;
     setRunStage(0);
     setSourceStatus("connecting");
+    setConnectionNote(null);
     let evidence: LeadershipRunEvidence = {
       sourceMode: "demo",
       sourceName: `${businessLine} demo data`,
@@ -4232,9 +4324,10 @@ function LeadershipPipelineRun({
       opportunity: null,
     };
     try {
-      const response = await fetch("/api/plaid-transactions", {
+      if (!connectorToken) throw new Error("presentation-mode");
+      const response = await fetch(DEMO_CONNECTOR_ENDPOINTS.plaid, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-ventus-client": "web-app" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${connectorToken}` },
         body: JSON.stringify({ scenario: path }),
       });
       const data = (await response.json().catch(() => ({}))) as {
@@ -4242,7 +4335,14 @@ function LeadershipPipelineRun({
         env?: string;
         transactions?: PlaidTransaction[];
         authorization?: { mode?: string };
+        error?: string;
       };
+      if (response.status === 401 || response.status === 403) {
+        onConnectorSessionInvalid();
+        setConnectionNote("Live connector session expired");
+      } else if (!response.ok) {
+        setConnectionNote(data.error?.includes("not configured") ? "Plaid sandbox is not configured in this deployment" : "Plaid sandbox is unavailable");
+      }
       const opportunity = data.transactions?.length ? buildOpportunityFromPlaid(data.transactions) : null;
       if (response.ok && data.ready && data.transactions?.length && opportunity) {
         evidence = {
@@ -4254,8 +4354,9 @@ function LeadershipPipelineRun({
           authorizationMode: data.authorization?.mode,
         };
       }
-    } catch {
+    } catch (error) {
       // The product remains usable in presentation mode; the badge stays explicit.
+      if (error instanceof Error && error.message !== "presentation-mode") setConnectionNote("Plaid sandbox is unavailable");
     }
     setRunEvidence(evidence);
     setSourceStatus(evidence.sourceMode);
@@ -4287,9 +4388,10 @@ function LeadershipPipelineRun({
           className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60"
           style={{ backgroundColor: NAVY }}
         >
-          {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> Run connected sample</>}
+          {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> {connectorToken ? "Run live sample" : "Run presentation sample"}</>}
         </button>
       </div>
+      {connectionNote && <p className="mt-2 text-right text-[10px] font-semibold text-amber-700">{connectionNote} · using presentation data</p>}
 
       <div className="mt-3 grid gap-3 md:grid-cols-2">
         <section className="order-1 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -4398,7 +4500,87 @@ function LeadershipPipelineRun({
   );
 }
 
-function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => void }) {
+function SalesforceActivationPreview({
+  subject,
+  whyNow,
+  action,
+  outcome,
+  destination,
+  confidence,
+  signalCount,
+  delivered,
+  receipt,
+  url,
+}: {
+  subject: string;
+  whyNow: string;
+  action: string;
+  outcome: string;
+  destination: string;
+  confidence: number;
+  signalCount: number;
+  delivered: boolean;
+  receipt?: string;
+  url?: string;
+}) {
+  return (
+    <div className="-mx-5 mt-4 border-y border-slate-200 bg-slate-50 px-5 py-4">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2.5">
+          <img src={salesforceLogo} alt="Salesforce" className="h-7 w-7 flex-none rounded-md bg-white object-contain p-1 shadow-sm" />
+          <div className="min-w-0">
+            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Salesforce work item</p>
+            <p className="truncate text-sm font-semibold text-slate-950">{subject}</p>
+          </div>
+        </div>
+        <span className={`flex-none rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-wide ${delivered ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>
+          {delivered ? "Created" : "Ready to write"}
+        </span>
+      </div>
+
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="min-w-0">
+          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Why now</p>
+          <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-700">{whyNow}</p>
+        </div>
+        <div className="min-w-0 sm:border-l sm:border-slate-200 sm:pl-3">
+          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Next action</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-slate-900">{action}</p>
+        </div>
+      </div>
+
+      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-200 pt-2 text-[10px] font-semibold text-slate-500">
+        <span>{confidence}% confidence</span>
+        <span>{signalCount} supporting signals</span>
+        <span>High priority</span>
+        <span style={{ color: GREEN }}>Policy clear</span>
+        <span className="ml-auto text-slate-600">{destination}</span>
+      </div>
+      <p className="mt-2 truncate text-[10px] text-slate-500"><span className="font-semibold text-slate-700">Outcome:</span> {outcome}</p>
+
+      {delivered && receipt && (
+        <div className="mt-3 flex items-center justify-between gap-3 border-t border-emerald-200 pt-3">
+          <p className="min-w-0 truncate font-mono text-[10px] font-semibold text-emerald-800">Task {receipt}</p>
+          {url && <a href={url} target="_blank" rel="noopener noreferrer" className="flex-none rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold text-emerald-800 shadow-sm">Open record</a>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function LeadershipFlow({
+  path,
+  onExit,
+  connectorSession,
+  onRequestPresenterSession,
+  onConnectorSessionInvalid,
+}: {
+  path: LeadershipPath;
+  onExit: () => void;
+  connectorSession: DemoConnectorSession | null;
+  onRequestPresenterSession: () => void;
+  onConnectorSessionInvalid: () => void;
+}) {
   const [step, setStep] = useState(0);
   const [scopeOpen, setScopeOpen] = useState(false);
   const [connectedTestOpen, setConnectedTestOpen] = useState(false);
@@ -4410,7 +4592,7 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
   const [runEvidence, setRunEvidence] = useState<LeadershipRunEvidence | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
   const [integrationReady, setIntegrationReady] = useState(false);
-  const [dryRunState, setDryRunState] = useState<"idle" | "running" | "complete">("idle");
+  const [dryRunState, setDryRunState] = useState<"idle" | "running" | "complete" | "failed">("idle");
   const [shadowReady, setShadowReady] = useState(false);
   const [measurementPreview, setMeasurementPreview] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
@@ -4444,32 +4626,64 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
 
   const handlePipelineComplete = useCallback(() => setPipelineReady(true), []);
 
+  const salesforceSubject = path === "deposit-retention"
+    ? "Primary deposit relationship review"
+    : "Qualified liquidity opportunity review";
+  const salesforceAction = path === "deposit-retention"
+    ? "Contact the customer before the next payroll cycle to review their everyday-banking setup and an approved retention option."
+    : "Assign the best-fit advisor and prepare a consolidation review while the liquidity remains uninvested.";
+  const salesforceOutcome = path === "deposit-retention"
+    ? "Protect the primary deposit relationship"
+    : "Convert qualified liquidity into advised net new assets";
+
   // Prefer the real Salesforce connector. The generic rehearsal receiver remains a
   // secondary integration surface for bank workbench sandboxes.
   const runRehearsal = async () => {
     if (dryRunState === "running") return;
+    if (!connectorSession?.token) {
+      onRequestPresenterSession();
+      return;
+    }
     setLiveReceipts([]);
     setDeliveryNote(null);
     setDryRunState("running");
     const detected = runEvidence?.opportunity;
     try {
-      const response = await fetch("/api/salesforce-deliver", {
+      const response = await fetch(DEMO_CONNECTOR_ENDPOINTS.salesforce, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "x-ventus-client": "web-app" },
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${connectorSession.token}` },
         body: JSON.stringify({
-          subject: `${config.playTitle} — ${detected?.type ?? opp.type}`,
-          description: `${detected?.reason ?? opp.reason}\nRecommended action: ${detected?.action ?? opp.action}\nSource: ${runEvidence?.sourceName ?? "presentation data"}`,
+          subject: salesforceSubject,
+          dueInDays: path === "deposit-retention" ? 2 : 3,
           source: runEvidence?.sourceMode === "live" ? "leadership-demo-plaid" : "leadership-demo",
+          insight: {
+            businessLine: config.businessLine,
+            growthPlay: config.playTitle,
+            customerRef: `household-${opp.id}`,
+            moment: detected?.type ?? opp.type,
+            whyNow: detected?.reason ?? opp.reason,
+            recommendedAction: salesforceAction,
+            expectedOutcome: salesforceOutcome,
+            confidence: detected?.confidence ?? opp.confidence,
+            destination: detected?.destination ?? destination,
+            evidence: detected?.signals?.length
+              ? detected.signals.slice(0, 4).map((signal) => ({ label: signal.label, confidence: Math.round(signal.strength * 100) }))
+              : opp.rawTransactions.slice(0, 4).map((transaction) => ({ label: transaction.tag, confidence: Math.round(transaction.conf * 100) })),
+            controls: activeControls,
+            sourceName: runEvidence?.sourceName ?? "Presentation data",
+            decisionRef: `${path}:${opp.id}`,
+          },
         }),
       });
-      const data = (await response.json().catch(() => ({}))) as { id?: string; url?: string; error?: string };
+      const data = (await response.json().catch(() => ({}))) as { id?: string; url?: string; error?: string; activation?: { subject?: string } };
       if (response.ok && data.id) {
         setLiveReceipts([{ id: opp.id, receipt: data.id, url: data.url, route: "salesforce" }]);
-        setDeliveryNote("Salesforce Task created");
+        setDeliveryNote(`${data.activation?.subject ?? salesforceSubject} created`);
         setDryRunState("complete");
         setShadowReady(true);
         return;
       }
+      if (response.status === 401 || response.status === 403) onConnectorSessionInvalid();
       if (REHEARSAL_URL) {
         const rehearsal = await fetch(REHEARSAL_URL, {
           method: "POST",
@@ -4480,18 +4694,26 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
         if (rehearsalData.receiptId) {
           setLiveReceipts([{ id: opp.id, receipt: rehearsalData.receiptId, route: "rehearsal" }]);
           setDeliveryNote("Bank sandbox receipt returned");
+          setDryRunState("complete");
+          setShadowReady(true);
+          return;
         }
-      } else {
-        setDeliveryNote(data.error ? "Salesforce connector unavailable — showing the staged payload" : "Staged payload only");
       }
-    } catch {
-      setDeliveryNote("Connected destination unavailable — showing the staged payload");
+      setDeliveryNote(
+        data.error === "connector disabled"
+          ? "Live Salesforce is not enabled in this local session"
+          : data.error === "forbidden"
+            ? "This session is not authorized to write to Salesforce"
+            : data.error ?? `Salesforce write failed (${response.status})`,
+      );
+    } catch (error) {
+      setDeliveryNote(error instanceof Error ? error.message : "Connected destination unavailable");
     }
-    setDryRunState("complete");
-    setShadowReady(true);
+    setDryRunState("failed");
+    setShadowReady(false);
   };
 
-  const nextLabels = ["See employee view", "Map workflow", "Create sandbox Task", "Measure outcomes"];
+  const nextLabels = ["See employee view", "Map workflow", "Preview Salesforce Task", "Measure outcomes"];
   const activeControls = path === "wealth-growth"
     ? ["Reg BI review", "Consent + eligibility", "Vulnerability suppression"]
     : ["UDAAP review", "Uniform offer criteria", "Financial-health suppression"];
@@ -4515,6 +4737,8 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                 onViewPlay={() => setPlayOpen(true)}
                 onEvidence={setRunEvidence}
                 onComplete={handlePipelineComplete}
+                connectorToken={connectorSession?.token}
+                onConnectorSessionInvalid={onConnectorSessionInvalid}
               />
             )}
 
@@ -4621,26 +4845,25 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
                       ))}
                     </div>
 
-                    {liveReceipts[0] ? (
-                      <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/60 p-4">
-                        <div className="flex items-center gap-3">
-                          <img src={salesforceLogo} alt="Salesforce" className="h-8 w-8 rounded-md bg-white object-contain p-1" />
-                          <div className="min-w-0 flex-1">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">Delivered</p>
-                            <p className="truncate font-mono text-sm font-semibold text-slate-900">Task {liveReceipts[0].receipt}</p>
-                          </div>
-                          {liveReceipts[0].url && <a href={liveReceipts[0].url} target="_blank" rel="noopener noreferrer" className="flex-none rounded-lg bg-white px-3 py-2 text-xs font-semibold text-emerald-800 shadow-sm">Open record</a>}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <p className="text-xs font-semibold text-slate-800">{deliveryNote ?? "One sandbox write. No customer message."}</p>
-                        <p className="mt-1 truncate text-[10px] text-slate-400">{runEvidence?.opportunity?.action ?? opp.action}</p>
-                      </div>
+                    <SalesforceActivationPreview
+                      subject={salesforceSubject}
+                      whyNow={runEvidence?.opportunity?.reason ?? opp.reason}
+                      action={salesforceAction}
+                      outcome={salesforceOutcome}
+                      destination={runEvidence?.opportunity?.destination ?? destination}
+                      confidence={runEvidence?.opportunity?.confidence ?? opp.confidence}
+                      signalCount={runEvidence?.opportunity?.signals.length ?? opp.rawTransactions.length}
+                      delivered={liveReceipts.length > 0}
+                      receipt={liveReceipts[0]?.receipt}
+                      url={liveReceipts[0]?.url}
+                    />
+
+                    {dryRunState === "failed" && deliveryNote && (
+                      <p className="mt-2 text-[10px] font-semibold text-red-700" role="alert">{deliveryNote}</p>
                     )}
 
                     <button onClick={runRehearsal} disabled={dryRunState === "running" || liveReceipts.length > 0} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70" style={{ backgroundColor: liveReceipts.length > 0 ? GREEN : NAVY }}>
-                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Writing to Salesforce</> : liveReceipts.length > 0 ? <><Check className="h-4 w-4" /> Receipt returned</> : <><Rocket className="h-4 w-4" /> Create sandbox Task</>}
+                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Writing to Salesforce</> : liveReceipts.length > 0 ? <><Check className="h-4 w-4" /> Receipt returned</> : !connectorSession?.token ? <><LockKeyhole className="h-4 w-4" /> Unlock live delivery</> : dryRunState === "failed" ? <><RotateCcw className="h-4 w-4" /> Retry sandbox Task</> : <><Rocket className="h-4 w-4" /> Create sandbox Task</>}
                     </button>
                   </section>
 
@@ -4795,6 +5018,98 @@ function LeadershipFlow({ path, onExit }: { path: LeadershipPath; onExit: () => 
       {scopeOpen && <PilotScopePanel config={config} destination={destination} market={market} capacity={capacity} onClose={() => setScopeOpen(false)} />}
       {connectedTestOpen && <ConnectedTestPanel config={config} onClose={() => setConnectedTestOpen(false)} />}
       {playOpen && <GrowthPlayPanel title={config.playTitle} skill={skill} destination={destination} onClose={() => setPlayOpen(false)} />}
+    </div>
+  );
+}
+
+function PresenterSessionPanel({
+  currentSession,
+  onConnected,
+  onDisconnect,
+  onClose,
+}: {
+  currentSession: DemoConnectorSession | null;
+  onConnected: (session: DemoConnectorSession) => void;
+  onDisconnect: () => void;
+  onClose: () => void;
+}) {
+  const [state, setState] = useState<"idle" | "connecting">("idle");
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const connect = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (state === "connecting") return;
+    setState("connecting");
+    setError(null);
+    try {
+      const response = await fetch(DEMO_CONNECTOR_ENDPOINTS.session, {
+        method: "POST",
+      });
+      const data = (await response.json().catch(() => ({}))) as Partial<DemoConnectorSession> & { error?: string };
+      if (!response.ok || !data.token || !data.expiresAt || !data.connectors) {
+        setError(data.error ?? "Live demo is not configured");
+        setState("idle");
+        return;
+      }
+      onConnected(data as DemoConnectorSession);
+    } catch {
+      setError("Live demo service is unavailable");
+      setState("idle");
+    }
+  };
+
+  const connectorRows = currentSession
+    ? [
+        { label: "Plaid sandbox", ready: currentSession.connectors.plaid },
+        { label: "Salesforce sandbox", ready: currentSession.connectors.salesforce },
+      ]
+    : [];
+
+  return (
+    <div className="fixed inset-0 z-[70] flex items-center justify-center bg-slate-900/45 p-4" onClick={onClose}>
+      <div role="dialog" aria-modal="true" aria-labelledby="presenter-session-title" className="w-full max-w-sm overflow-hidden rounded-xl border border-slate-200 bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
+        <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
+          <div className="flex items-center gap-2"><Network className="h-4 w-4" /><span id="presenter-session-title" className="text-sm font-semibold">Live demo connections</span></div>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10"><X className="h-5 w-5" /></button>
+        </div>
+
+        {currentSession ? (
+          <div className="p-5">
+            <div className="divide-y divide-slate-100 border-y border-slate-100">
+              {connectorRows.map((connector) => (
+                <div key={connector.label} className="flex items-center justify-between gap-3 py-3">
+                  <span className="text-sm font-semibold text-slate-800">{connector.label}</span>
+                  <span className={`flex items-center gap-1.5 text-xs font-semibold ${connector.ready ? "text-emerald-700" : "text-amber-700"}`}>
+                    <span className={`h-2 w-2 rounded-full ${connector.ready ? "bg-emerald-500" : "bg-amber-500"}`} />
+                    {connector.ready ? "Ready" : "Not configured"}
+                  </span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-[10px] text-slate-400">Short-lived connector session · partner credentials remain server-side</p>
+            <div className="mt-4 flex items-center justify-end gap-2">
+              <button onClick={() => { onDisconnect(); onClose(); }} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Disconnect</button>
+              <button onClick={onClose} className="rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: NAVY }}>Continue demo</button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={connect} className="p-5">
+            <p className="text-sm font-semibold text-slate-900">Connect the configured Plaid and Salesforce sandboxes.</p>
+            <p className="mt-1 text-xs leading-5 text-slate-500">Ventus will create a temporary session while keeping partner credentials on the server.</p>
+            {error && <p className="mt-2 text-xs font-semibold text-red-700" role="alert">{error}</p>}
+            <button type="submit" disabled={state === "connecting"} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50" style={{ backgroundColor: NAVY }}>
+              {state === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : <><Network className="h-4 w-4" /> Connect live connectors</>}
+            </button>
+            <p className="mt-3 text-center text-[10px] text-slate-400">15-minute session · no partner credentials enter the browser</p>
+          </form>
+        )}
+      </div>
     </div>
   );
 }
