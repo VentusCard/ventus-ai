@@ -81,3 +81,5 @@ The value should end at `/v1/demo` with no trailing slash. Redeploy the branch a
 ## Ownership
 
 Ventus can maintain the code, tests, CDK stack, GitHub workflow, alarms, and smoke-test procedure. An AWS administrator must approve/deploy the stack and configure Secrets Manager and the Amplify branch. A Salesforce administrator must maintain the connected app and sandbox permissions; a Plaid administrator must maintain sandbox credentials.
+
+After the scoped AWS MCP operator role is approved, routine deployment review, health checks, log inspection, Amplify redeploys, cost monitoring, and smoke testing can be run through Codex. Secret values, IAM administration, and DNS ownership remain explicit human control points; see `docs/aws-mcp-operations.md`.

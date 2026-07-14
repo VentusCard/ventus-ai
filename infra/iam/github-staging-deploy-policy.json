@@ -19,7 +19,8 @@
       ],
       "Resource": [
         "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*",
-        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusEvidenceStoreStack/*"
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusEvidenceStoreStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*"
       ]
     },
     {
