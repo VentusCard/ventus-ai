@@ -893,7 +893,7 @@ export default function EnterpriseGrowthDemoPage({
       </header>
 
       {!entered ? (
-        <Cover onPick={enterAt} onLeadershipPick={enterLeadership} audience={audience} />
+        <Cover onPick={enterAt} onLeadershipPick={enterLeadership} audience={audience} connectorSession={connectorSession} />
       ) : !internal ? (
         <LeadershipFlow
           path={leadershipPath}
@@ -4067,7 +4067,7 @@ function leadershipConfig(path: LeadershipPath): LeadershipConfig {
 
 // Story-shaped, not builder-shaped: open on what a person sees, then reveal what drove
 // it, then let the exec set boundaries — comprehension before configuration.
-const EXECUTIVE_STEPS = ["Run", "Use", "Integrate", "Activate", "Measure"] as const;
+const EXECUTIVE_STEPS = ["Prove", "Experience", "Activate", "Measure"] as const;
 
 // Progressive employee-surface preview with a before/after contrast: the same queue
 // without Ventus (a static, context-free list) vs. with Ventus (one prepared, evidenced
@@ -4262,7 +4262,6 @@ function LeadershipPipelineRun({
   playTitle,
   businessLine,
   standaloneProof,
-  valueLine,
   onViewPlay,
   onEvidence,
   onComplete,
@@ -4276,7 +4275,6 @@ function LeadershipPipelineRun({
   playTitle: string;
   businessLine: string;
   standaloneProof: string;
-  valueLine: string;
   onViewPlay: () => void;
   onEvidence: (evidence: LeadershipRunEvidence) => void;
   onComplete: () => void;
@@ -4292,11 +4290,11 @@ function LeadershipPipelineRun({
   const detected = runEvidence?.opportunity;
   const recordCount = runEvidence?.transactions.length || derived.provenance.ingested;
   const stages = [
-    { label: "Map", detail: `${recordCount} source records`, icon: Upload },
+    { label: "Map", detail: `${recordCount} records`, icon: Upload },
     { label: "Enrich", detail: `${detected?.enriched.length ?? derived.provenance.classified} normalized`, icon: Cpu },
-    { label: "Infer", detail: detected?.type ?? opp.type, icon: Activity },
-    { label: "Decide", detail: detected?.action ?? opp.action, icon: Wand2 },
-    { label: "Govern", detail: `${activeControls.length} policy checks`, icon: ShieldCheck },
+    { label: "Infer", detail: "Financial state", icon: Activity },
+    { label: "Decide", detail: "Next best action", icon: Wand2 },
+    { label: "Govern", detail: `${activeControls.length} checks`, icon: ShieldCheck },
   ];
 
   useEffect(() => {
@@ -4379,8 +4377,8 @@ function LeadershipPipelineRun({
             {sourceStatus === "live" && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-emerald-700">Plaid sandbox · live</span>}
             {sourceStatus === "demo" && <span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-slate-500">Presentation data</span>}
           </div>
-          <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Transactions in. One governed action out.</h1>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500">{businessLine} · {standaloneProof}</p>
+          <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Transactions in. A bank-ready action out.</h1>
+          <p className="mt-1.5 text-xs font-semibold text-slate-500">{businessLine} · {connectorToken ? "Live connector path" : standaloneProof}</p>
         </div>
         <button
           onClick={runConnectedSample}
@@ -4388,7 +4386,7 @@ function LeadershipPipelineRun({
           className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60"
           style={{ backgroundColor: NAVY }}
         >
-          {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> {connectorToken ? "Run live sample" : "Run presentation sample"}</>}
+          {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> {connectorToken ? "Run live path" : "Run demo path"}</>}
         </button>
       </div>
       {connectionNote && <p className="mt-2 text-right text-[10px] font-semibold text-amber-700">{connectionNote} · using presentation data</p>}
@@ -4473,7 +4471,6 @@ function LeadershipPipelineRun({
               <div className="mt-3 rounded-xl border border-slate-200 p-3">
                 <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Prepared action</p>
                 <p className="mt-1 text-sm font-semibold text-slate-900">{resultAction}</p>
-                <p className="mt-1 line-clamp-2 text-[10px] leading-4 text-slate-500">{valueLine}</p>
                 <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-slate-500">
                   <span>{resultDestination}</span>
                   <span className="font-semibold" style={{ color: GREEN }}>Policy clear</span>
@@ -4487,7 +4484,7 @@ function LeadershipPipelineRun({
                 <span className="flex min-w-0 items-center gap-2">
                   <GitBranch className="h-3.5 w-3.5 flex-none" style={{ color: NAVY }} />
                   <span className="truncate text-xs font-semibold text-slate-700">
-                    Produced by <span style={{ color: NAVY }}>{playTitle}</span> — a reusable Growth Play
+                    Growth Play: <span style={{ color: NAVY }}>{playTitle}</span>
                   </span>
                 </span>
                 <ArrowRight className="h-3.5 w-3.5 flex-none text-slate-400" />
@@ -4541,7 +4538,7 @@ function SalesforceActivationPreview({
       <div className="mt-3 grid gap-3 sm:grid-cols-2">
         <div className="min-w-0">
           <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Why now</p>
-          <p className="mt-1 line-clamp-2 text-xs font-semibold leading-5 text-slate-700">{whyNow}</p>
+          <p className="mt-1 text-xs font-semibold leading-5 text-slate-700">{whyNow}</p>
         </div>
         <div className="min-w-0 sm:border-l sm:border-slate-200 sm:pl-3">
           <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Next action</p>
@@ -4583,7 +4580,6 @@ function LeadershipFlow({
 }) {
   const [step, setStep] = useState(0);
   const [scopeOpen, setScopeOpen] = useState(false);
-  const [connectedTestOpen, setConnectedTestOpen] = useState(false);
   const market = "Charlotte";
   const capacity = 50;
   const [experienceTab, setExperienceTab] = useState<"employee" | "customer">("employee");
@@ -4591,7 +4587,6 @@ function LeadershipFlow({
   const [pipelineReady, setPipelineReady] = useState(false);
   const [runEvidence, setRunEvidence] = useState<LeadershipRunEvidence | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
-  const [integrationReady, setIntegrationReady] = useState(false);
   const [dryRunState, setDryRunState] = useState<"idle" | "running" | "complete" | "failed">("idle");
   const [shadowReady, setShadowReady] = useState(false);
   const [measurementPreview, setMeasurementPreview] = useState(false);
@@ -4605,13 +4600,11 @@ function LeadershipFlow({
   useEffect(() => {
     setStep(0);
     setScopeOpen(false);
-    setConnectedTestOpen(false);
     setExperienceTab("employee");
     setEmployeeWithVentus(true);
     setPipelineReady(false);
     setRunEvidence(null);
     setEvidenceOpen(false);
-    setIntegrationReady(false);
     setDryRunState("idle");
     setShadowReady(false);
     setMeasurementPreview(false);
@@ -4619,10 +4612,6 @@ function LeadershipFlow({
     setLiveReceipts([]);
     setDeliveryNote(null);
   }, [path]);
-
-  useEffect(() => {
-    if (step === 2 && pipelineReady) setIntegrationReady(true);
-  }, [pipelineReady, step]);
 
   const handlePipelineComplete = useCallback(() => setPipelineReady(true), []);
 
@@ -4713,7 +4702,7 @@ function LeadershipFlow({
     setShadowReady(false);
   };
 
-  const nextLabels = ["See employee view", "Map workflow", "Preview Salesforce Task", "Measure outcomes"];
+  const nextLabels = ["See employee experience", "Create Salesforce Task", "Measure outcome"];
   const activeControls = path === "wealth-growth"
     ? ["Reg BI review", "Consent + eligibility", "Vulnerability suppression"]
     : ["UDAAP review", "Uniform offer criteria", "Financial-health suppression"];
@@ -4733,7 +4722,6 @@ function LeadershipFlow({
                 playTitle={config.playTitle}
                 businessLine={config.businessLine}
                 standaloneProof={config.standaloneProof}
-                valueLine={config.actEarlier}
                 onViewPlay={() => setPlayOpen(true)}
                 onEvidence={setRunEvidence}
                 onComplete={handlePipelineComplete}
@@ -4742,55 +4730,10 @@ function LeadershipFlow({
               />
             )}
 
-            {step === 2 && (
-              <div className="w-full">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <Eyebrow>{config.playTitle}</Eyebrow>
-                  <button
-                    onClick={() => setPlayOpen(true)}
-                    className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-[11px] font-semibold text-slate-600 transition hover:bg-slate-50"
-                  >
-                    <GitBranch className="h-3 w-3" style={{ color: NAVY }} /> View the Growth Play
-                  </button>
-                </div>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Wire this decision into {config.businessLine}.</h1>
-                <section className="mt-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                  <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr_auto_1fr]">
-                    {[
-                      { title: config.sourceLabel, detail: config.sourceDetail, Icon: Layers },
-                      { title: "Ventus", detail: "Map · enrich · decide", Icon: Cpu },
-                      { title: "Ranked IDs", detail: "Action + rationale", Icon: Target },
-                      { title: config.workflowLabel, detail: config.workflowDetail, Icon: Network },
-                    ].map((node, index) => (
-                      <div key={node.title} className="contents">
-                        {index > 0 && <ArrowRight className="hidden h-4 w-4 text-slate-300 sm:block" />}
-                        <div className={`rounded-lg border p-3 ${node.title === "Ventus" ? "border-blue-200 bg-blue-50/60" : "border-slate-200 bg-slate-50"}`}>
-                          <node.Icon className="h-4 w-4" style={{ color: node.title === "Ventus" ? NAVY : GREEN }} />
-                          <p className="mt-1 text-xs font-bold text-slate-900">{node.title}</p>
-                          <p className="text-[10px] leading-4 text-slate-500">{node.detail}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="mt-3 grid gap-2 sm:grid-cols-3">
-                    {[
-                      runEvidence?.sourceMode === "live" ? `${runEvidence.sourceName} receipt verified` : `${config.sourceLabel} contract mapped`,
-                      `${config.playTitle} matched`,
-                      `${config.workflowLabel} payload ready`,
-                    ].map((receipt) => <div key={receipt} className="flex items-center gap-2 rounded-lg border border-emerald-100 bg-emerald-50/60 px-3 py-2 text-[10px] font-semibold text-emerald-800"><Check className="h-3.5 w-3.5 flex-none" />{receipt}</div>)}
-                  </div>
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-3">
-                    <div className="flex items-center gap-2 text-xs font-semibold text-slate-600"><span className="h-2 w-2 rounded-full bg-emerald-500" />Route ready for a sandbox write</div>
-                    <span className="text-[10px] font-semibold text-slate-400">No customer action</span>
-                  </div>
-                </section>
-              </div>
-            )}
-
             {step === 1 && (
               <div className="w-full">
                 <Eyebrow>{config.objective}</Eyebrow>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>What {opp.owner.split(" ")[0]} sees Monday morning.</h1>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>One qualified opportunity, ready where work happens.</h1>
                 <div className="mt-4 inline-flex rounded-lg bg-slate-100 p-1">
                   {(["employee", "customer"] as const).map((tab) => <button key={tab} onClick={() => setExperienceTab(tab)} className={`rounded-md px-4 py-1.5 text-xs font-semibold capitalize ${experienceTab === tab ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>{tab}</button>)}
                 </div>
@@ -4822,16 +4765,16 @@ function LeadershipFlow({
               </div>
             )}
 
-            {step === 3 && (
+            {step === 2 && (
               <div className="w-full">
-                <Eyebrow>Workflow activation</Eyebrow>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Send the prepared action to Salesforce.</h1>
+                <Eyebrow>Live activation</Eyebrow>
+                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Create the action in Salesforce.</h1>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
                   <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
                       {[
                         { label: runEvidence?.sourceName ?? config.sourceLabel, detail: `${runEvidence?.transactions.length || 3} records`, Icon: Layers },
-                        { label: config.playTitle, detail: runEvidence?.opportunity?.type ?? opp.type, Icon: Wand2 },
+                        { label: "Ventus decision", detail: "Qualified moment", Icon: Wand2 },
                         { label: "Salesforce FSC", detail: "Task · sandbox", Icon: Network },
                       ].map((node, index) => (
                         <div key={node.label} className="contents">
@@ -4868,7 +4811,7 @@ function LeadershipFlow({
                   </section>
 
                   <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">This run</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Live trace</p>
                     <div className="mt-3 space-y-2">
                       {[
                         { label: "Source", value: `${runEvidence?.sourceName ?? "Presentation data"} · ${runEvidence?.transactions.length || 3} records`, live: runEvidence?.sourceMode === "live" },
@@ -4894,12 +4837,12 @@ function LeadershipFlow({
               </div>
             )}
 
-            {step === 4 && (
+            {step === 3 && (
               <div className="w-full">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div>
                     <Eyebrow>Outcome measurement</Eyebrow>
-                    <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Know what Ventus changed.</h1>
+                    <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Measure incremental value.</h1>
                   </div>
                   <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-amber-800">
                     {measurementPreview ? "Illustrative outcome file" : "No pilot outcome claimed"}
@@ -4907,7 +4850,7 @@ function LeadershipFlow({
                 </div>
                 <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
                   <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Measured operating loop</p>
+                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Pilot design</p>
                     <div className="mt-3 space-y-2">
                       {[
                         { label: "Assign before action", detail: `${100 - skill.measurement.holdoutPct}% treatment · ${skill.measurement.holdoutPct}% holdout`, Icon: GitBranch },
@@ -4920,25 +4863,19 @@ function LeadershipFlow({
                         </div>
                       ))}
                     </div>
-                    <p className="mt-3 text-[10px] leading-4 text-slate-400">Assignment is immutable and tokenized. Outcomes arriving before assignment or with a changed arm are rejected.</p>
-                    <button
-                      onClick={() => setConnectedTestOpen(true)}
-                      className="mt-3 flex w-full items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-left transition hover:bg-slate-100"
-                    >
-                      <span className="flex items-center gap-2 text-[11px] font-semibold text-slate-700">
-                        <GitBranch className="h-3.5 w-3.5" style={{ color: NAVY }} /> After standalone proof: test connected lift
-                      </span>
-                      <ArrowRight className="h-3.5 w-3.5 flex-none text-slate-400" />
-                    </button>
+                    <details className="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                      <summary className="cursor-pointer text-[11px] font-semibold text-slate-600">Measurement controls</summary>
+                      <p className="mt-2 text-[10px] leading-4 text-slate-500">Assignment is fixed before action. Changed assignments and incomplete outcome feeds are rejected.</p>
+                    </details>
                   </section>
                   <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                     {!measurementPreview ? (
                       <div className="flex min-h-56 flex-col items-center justify-center text-center">
                         <Repeat className="h-8 w-8 text-slate-200" />
-                        <p className="mt-2 text-sm font-semibold text-slate-700">Awaiting a completed outcome window</p>
-                        <p className="mt-1 max-w-sm text-[11px] leading-5 text-slate-400">The product remains honest until the bank returns treatment and holdout outcomes.</p>
+                        <p className="mt-2 text-sm font-semibold text-slate-700">Outcome window open</p>
+                        <p className="mt-1 text-[11px] text-slate-400">Waiting for treatment and holdout results.</p>
                         <button onClick={() => setMeasurementPreview(true)} className="mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: NAVY }}>
-                          <FileText className="h-3.5 w-3.5" /> Load illustrative outcome file
+                          <FileText className="h-3.5 w-3.5" /> Preview illustrative result
                         </button>
                       </div>
                     ) : (
@@ -4952,8 +4889,7 @@ function LeadershipFlow({
                         <p className="mt-2 text-[10px] text-slate-400">100% outcome coverage · illustrative 95% interval {path === "wealth-growth" ? "+$4.1K to +$18.5K" : "+$0.8K to +$5.6K"}</p>
                         <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
                           <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">What the institution can decide</p>
-                          <p className="mt-1 text-base font-semibold text-slate-900">{path === "wealth-growth" ? "Scale the qualified Merrill handoff only after bank validation." : "Scale primacy defense only after bank validation."}</p>
-                          <p className="mt-1 text-[11px] leading-5 text-slate-500">Replace this illustrative file with the bank outcome feed; independent review determines whether lift is sufficient.</p>
+                          <p className="mt-1 text-base font-semibold text-slate-900">{path === "wealth-growth" ? "Validate, then scale the qualified handoff." : "Validate, then scale primacy defense."}</p>
                         </div>
                         <button onClick={() => setMeasurementPreview(false)} className="mt-3 text-[11px] font-semibold text-slate-500 hover:text-slate-800">Clear illustrative data</button>
                       </div>
@@ -4975,7 +4911,7 @@ function LeadershipFlow({
             <button
               key={label}
               onClick={() => setStep(index)}
-              disabled={(index > 0 && !pipelineReady) || (index === 3 && !integrationReady) || (index === 4 && !shadowReady)}
+              disabled={(index > 0 && !pipelineReady) || (index === 3 && !shadowReady)}
               className="flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: index <= step ? (index === step ? NAVY : GREEN) : "#cbd5e1" }}>
@@ -5005,7 +4941,7 @@ function LeadershipFlow({
           </div>
         ) : (
           <button
-            onClick={() => setStep((current) => current + 1)} disabled={(step === 0 && !pipelineReady) || (step === 2 && !integrationReady) || (step === 3 && !shadowReady)}
+            onClick={() => setStep((current) => current + 1)} disabled={(step === 0 && !pipelineReady) || (step === 2 && !shadowReady)}
             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
             style={{ backgroundColor: NAVY }}
           >
@@ -5016,7 +4952,6 @@ function LeadershipFlow({
       </footer>
 
       {scopeOpen && <PilotScopePanel config={config} destination={destination} market={market} capacity={capacity} onClose={() => setScopeOpen(false)} />}
-      {connectedTestOpen && <ConnectedTestPanel config={config} onClose={() => setConnectedTestOpen(false)} />}
       {playOpen && <GrowthPlayPanel title={config.playTitle} skill={skill} destination={destination} onClose={() => setPlayOpen(false)} />}
     </div>
   );
@@ -5092,7 +5027,7 @@ function PresenterSessionPanel({
                 </div>
               ))}
             </div>
-            <p className="mt-3 text-[10px] text-slate-400">Short-lived connector session · partner credentials remain server-side</p>
+            <p className="mt-3 text-[10px] text-slate-400">Credentials remain server-side.</p>
             <div className="mt-4 flex items-center justify-end gap-2">
               <button onClick={() => { onDisconnect(); onClose(); }} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 transition hover:bg-slate-50">Disconnect</button>
               <button onClick={onClose} className="rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: NAVY }}>Continue demo</button>
@@ -5100,13 +5035,12 @@ function PresenterSessionPanel({
           </div>
         ) : (
           <form onSubmit={connect} className="p-5">
-            <p className="text-sm font-semibold text-slate-900">Connect the configured Plaid and Salesforce sandboxes.</p>
-            <p className="mt-1 text-xs leading-5 text-slate-500">Ventus will create a temporary session while keeping partner credentials on the server.</p>
+            <p className="text-sm font-semibold text-slate-900">Start the live Plaid → Ventus → Salesforce path.</p>
+            <p className="mt-1 text-xs text-slate-500">Credentials remain server-side.</p>
             {error && <p className="mt-2 text-xs font-semibold text-red-700" role="alert">{error}</p>}
             <button type="submit" disabled={state === "connecting"} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-50" style={{ backgroundColor: NAVY }}>
               {state === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : <><Network className="h-4 w-4" /> Connect live connectors</>}
             </button>
-            <p className="mt-3 text-center text-[10px] text-slate-400">15-minute session · no partner credentials enter the browser</p>
           </form>
         )}
       </div>
@@ -5345,8 +5279,20 @@ function GrowthPlayPanel({
   );
 }
 
-function LeadershipCover({ onPick }: { onPick: (path: LeadershipPath) => void }) {
+function LeadershipCover({
+  onPick,
+  connectorSession,
+}: {
+  onPick: (path: LeadershipPath) => void;
+  connectorSession: DemoConnectorSession | null;
+}) {
   const paths: LeadershipPath[] = ["wealth-growth", "deposit-retention"];
+  const livePath = [
+    { label: "Plaid sandbox", status: connectorSession?.connectors.plaid ? "Live" : "Source", ready: Boolean(connectorSession?.connectors.plaid), Icon: Upload },
+    { label: "Ventus", status: "Decision engine", ready: true, Icon: Wand2 },
+    { label: "Salesforce", status: connectorSession?.connectors.salesforce ? "Live" : "Activate", ready: Boolean(connectorSession?.connectors.salesforce), Icon: Network },
+    { label: "Outcome feed", status: "Measure", ready: false, Icon: LineChart },
+  ];
   return (
     <div className="flex h-full w-full items-start overflow-y-auto px-5 py-6 sm:px-8 xl:items-center xl:px-10">
       <div className="mx-auto w-full max-w-4xl">
@@ -5354,10 +5300,10 @@ function LeadershipCover({ onPick }: { onPick: (path: LeadershipPath) => void })
           <Eyebrow>Ventus Intelligence OS</Eyebrow>
         </div>
         <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>
-          Turn transaction data into measurable growth.
+          From financial activity to bank-ready action.
         </h1>
         <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Start with the data and workflows each team already controls. Ventus finds the moment, prepares the action, and proves the result.
+          Ventus detects the moment, creates the work item, and measures the result.
         </p>
 
         <div className="mt-6 grid gap-3 md:grid-cols-2">
@@ -5378,37 +5324,30 @@ function LeadershipCover({ onPick }: { onPick: (path: LeadershipPath) => void })
                 </div>
                 <h2 className="mt-3 text-xl font-semibold text-slate-950">{config.objective}</h2>
                 <p className="mt-1 flex-1 text-sm leading-6 text-slate-600">{config.coverCopy}</p>
-                <p className="mt-2 text-[11px] font-semibold text-slate-400">{config.standaloneProof}</p>
+                <p className="mt-2 text-[11px] font-semibold text-slate-400">Starts with {config.sourceLabel.toLowerCase()} only</p>
                 <span className="mt-3 flex items-center gap-1.5 text-xs font-bold" style={{ color: GREEN }}>
-                  Run scenario <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+                  Run growth path <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
                 </span>
               </button>
             );
           })}
         </div>
 
-        <div className="mt-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3">
-          <GitBranch className="h-4 w-4 flex-none" style={{ color: NAVY }} />
-          <div className="min-w-0">
-            <p className="text-xs font-bold text-slate-800">Connected intelligence comes after standalone proof.</p>
-            <p className="mt-0.5 text-[11px] leading-4 text-slate-500">With authorization, Ventus can test whether cross-business signals add lift while preserving each team’s ownership and controls.</p>
-          </div>
-        </div>
-
-        <div className="mt-4 grid grid-cols-3 overflow-hidden rounded-xl border border-slate-200 bg-white">
-          {[
-            [Activity, "Multi-rail financial states"],
-            [Wand2, "Product-level actions"],
-            [LineChart, "Measured lift"],
-          ].map(([Icon, label], index) => {
-            const StepIcon = Icon as typeof Activity;
-            return (
-              <div key={label as string} className={`flex items-center justify-center gap-2 px-2 py-3 ${index > 0 ? "border-l border-slate-200" : ""}`}>
-                <StepIcon className="h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
-                <span className="text-center text-[11px] font-semibold text-slate-600">{label as string}</span>
+        <div className="mt-4 grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-4">
+          {livePath.map(({ label, status, ready, Icon }, index) => (
+            <div key={label} className={`flex items-center gap-2.5 px-3 py-3 ${index > 0 ? "sm:border-l sm:border-slate-200" : ""} ${index > 1 ? "border-t border-slate-200 sm:border-t-0" : ""}`}>
+              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-md bg-slate-50">
+                <Icon className="h-3.5 w-3.5" style={{ color: ready ? GREEN : NAVY }} />
+              </span>
+              <div className="min-w-0">
+                <p className="truncate text-[11px] font-bold text-slate-800">{label}</p>
+                <p className="flex items-center gap-1 text-[9px] font-semibold text-slate-400">
+                  <span className={`h-1.5 w-1.5 rounded-full ${ready ? "bg-emerald-500" : "bg-slate-300"}`} />
+                  {status}
+                </p>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
 
       </div>
@@ -5420,13 +5359,15 @@ function Cover({
   onPick,
   onLeadershipPick,
   audience,
+  connectorSession,
 }: {
   onPick: (scene: number, mode: Mode) => void;
   onLeadershipPick: (path: LeadershipPath) => void;
   audience: DemoAudience;
+  connectorSession: DemoConnectorSession | null;
 }) {
   const internal = audience === "internal";
-  if (!internal) return <LeadershipCover onPick={onLeadershipPick} />;
+  if (!internal) return <LeadershipCover onPick={onLeadershipPick} connectorSession={connectorSession} />;
   return (
     <div className="flex h-full w-full items-center px-6 py-4 sm:px-10">
       <div className="mx-auto w-full max-w-5xl">
