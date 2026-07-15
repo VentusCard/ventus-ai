@@ -276,6 +276,8 @@ export function buildSalesforceTaskRecord(body = {}, now = new Date()) {
     : 3;
   const dueDate = new Date(now.getTime() + dueInDays * 864e5).toISOString().slice(0, 10);
   const connectorSource = cleanText(body.source, 100) || 'aws-demo-connector';
+  const whoId = cleanSalesforceId(body.whoId);
+  const whatId = cleanSalesforceId(body.whatId);
   return {
     task: {
       Subject: subject,
@@ -285,6 +287,8 @@ export function buildSalesforceTaskRecord(body = {}, now = new Date()) {
         : confidence !== null && confidence >= 85 ? 'High' : 'Normal',
       Status: 'Not Started',
       ActivityDate: dueDate,
+      ...(whoId ? { WhoId: whoId } : {}),
+      ...(whatId ? { WhatId: whatId } : {}),
     },
     activation: {
       subject,
@@ -297,6 +301,11 @@ export function buildSalesforceTaskRecord(body = {}, now = new Date()) {
       confidence,
     },
   };
+}
+
+function cleanSalesforceId(value) {
+  const id = cleanText(value, 18);
+  return /^[a-zA-Z0-9]{15}(?:[a-zA-Z0-9]{3})?$/.test(id) ? id : '';
 }
 
 function normalizeSecrets(value) {

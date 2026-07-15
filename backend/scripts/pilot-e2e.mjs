@@ -23,6 +23,7 @@ import {
   pullPlaidTransactions,
 } from '../shared/plaid-source.mjs';
 import { standaloneGrowthPlayDetector } from '../shared/standalone-growth-play-detectors.mjs';
+import { buildDepositRetentionSalesforceBody } from '../shared/salesforce-activation.mjs';
 import { readFileSync } from 'node:fs';
 
 const SALT = 'pilot-e2e-assignment-salt';
@@ -75,11 +76,17 @@ async function makeDeliver() {
   const { POST } = await import('../../api/salesforce-deliver.ts');
   const minted = mintSessionDirect({ tenantId: TENANT, subject: 'pilot_e2e', scopes: ['salesforce_write'], destinations: ['salesforce'] });
   if (!minted) throw new Error('session secret present but session mint failed');
-  return async ({ decision }) => {
+  return async ({ input, decision }) => {
+    const deliveryBody = buildDepositRetentionSalesforceBody({
+      input,
+      decision,
+      contactId: process.env.SF_DEMO_CONTACT_ID,
+      accountId: process.env.SF_DEMO_ACCOUNT_ID,
+    });
     const req = new Request('http://local/api/salesforce-deliver', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${minted.token}` },
-      body: JSON.stringify({ subject: `${decision.growthPlayId} — ${decision.actionId}`, description: `decision ${decision.decisionId}`, source: 'pilot-e2e' }),
+      body: JSON.stringify(deliveryBody),
     });
     const res = await POST(req);
     const data = await res.json();

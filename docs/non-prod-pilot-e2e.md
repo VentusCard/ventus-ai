@@ -89,6 +89,10 @@ VENTUS_CONNECTOR_SESSION_SECRET=<32+ char signing key> \
 npm run pilot:e2e
 ```
 
+Optionally set `SF_DEMO_CONTACT_ID` and `SF_DEMO_ACCOUNT_ID` to standard sandbox record IDs.
+The created Task then populates Salesforce's **Name** and **Related To** fields; without them,
+the Task still carries the complete tokenized banker brief and remains portable across clean orgs.
+
 Delivery now mints a short-lived, tenant/scope/destination-bound connector session and calls
 the real Salesforce connector **with the session bearer** — not the demo header. The
 evidence summary prints the real Task id and Lightning URL, and the authorization mode

@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowRight, CheckCircle2, ChevronRight, FlaskConical, LockKeyhole, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, ChevronRight, Eye, FlaskConical, LockKeyhole, ShieldCheck, UserRoundCheck, Wand2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import { CAPABILITIES, capabilityStatusLabel, type CapabilityDefinition } from "@/lib/capabilities";
@@ -91,16 +91,28 @@ function InternalCapabilitiesContent() {
             <StatusBadge capability={selected} />
           </div>
 
-          <div className="mt-5 grid gap-4 xl:grid-cols-2">
-            <div className="rounded-lg border border-blue-100 bg-blue-50/50 p-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-blue-700">Leadership demo promise</p>
-              <p className="mt-2 text-sm leading-6 text-slate-800">{selected.leadershipPromise}</p>
-            </div>
-            <div className="rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-slate-500">Current implementation</p>
-              <p className="mt-2 text-sm leading-6 text-slate-700">{selected.internalReality}</p>
-            </div>
+          <div className="mt-5 rounded-lg border border-blue-100 bg-blue-50/50 p-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.12em] text-blue-700">Business promise</p>
+            <p className="mt-1 text-sm font-semibold leading-6 text-slate-800">{selected.leadershipPromise}</p>
           </div>
+
+          <div className="mt-4 grid gap-3 xl:grid-cols-3">
+            {[
+              { label: "Ventus handles", value: selected.aiRole, Icon: Wand2, color: "#2563eb" },
+              { label: "Human controls", value: selected.humanControl, Icon: UserRoundCheck, color: NAVY },
+              { label: "User sees", value: selected.userMoment, Icon: Eye, color: GREEN },
+            ].map((item) => (
+              <div key={item.label} className="rounded-lg border border-slate-200 bg-white p-4">
+                <div className="flex items-center gap-2"><item.Icon className="h-4 w-4" style={{ color: item.color }} /><p className="text-[11px] font-bold uppercase tracking-[0.1em] text-slate-500">{item.label}</p></div>
+                <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">{item.value}</p>
+              </div>
+            ))}
+          </div>
+
+          <details className="mt-4 rounded-lg border border-slate-200 bg-slate-50 px-4 py-3">
+            <summary className="cursor-pointer text-sm font-semibold text-slate-700">Implementation detail</summary>
+            <p className="mt-2 border-t border-slate-200 pt-3 text-sm leading-6 text-slate-600">{selected.internalReality}</p>
+          </details>
 
           <div className="mt-5">
             <div className="flex items-center gap-2">

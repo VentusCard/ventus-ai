@@ -49,11 +49,18 @@ type SalesforceDeliveryBody = {
   priority?: unknown;
   source?: unknown;
   dueInDays?: unknown;
+  whoId?: unknown;
+  whatId?: unknown;
   insight?: SalesforceInsightInput;
 };
 
 const cleanText = (value: unknown, maxLength: number) =>
   typeof value === "string" ? value.replace(/\s+/g, " ").trim().slice(0, maxLength) : "";
+
+const cleanSalesforceId = (value: unknown) => {
+  const id = cleanText(value, 18);
+  return /^[a-zA-Z0-9]{15}(?:[a-zA-Z0-9]{3})?$/.test(id) ? id : "";
+};
 
 const cleanList = (value: unknown, maxItems: number, maxLength: number) =>
   Array.isArray(value)
@@ -96,6 +103,8 @@ export function buildSalesforceTaskRecord(body: SalesforceDeliveryBody, now = ne
   const sourceName = cleanText(insight?.sourceName, 160);
   const decisionRef = cleanText(insight?.decisionRef, 160);
   const connectorSource = cleanText(body.source, 100) || "salesforce-connector";
+  const whoId = cleanSalesforceId(body.whoId);
+  const whatId = cleanSalesforceId(body.whatId);
 
   const structuredDescription = insight
     ? [
@@ -141,6 +150,8 @@ export function buildSalesforceTaskRecord(body: SalesforceDeliveryBody, now = ne
       Priority: priority,
       Status: "Not Started",
       ActivityDate: dueDate,
+      ...(whoId ? { WhoId: whoId } : {}),
+      ...(whatId ? { WhatId: whatId } : {}),
     },
     activation: {
       subject,

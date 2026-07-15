@@ -4014,6 +4014,12 @@ const VENTUS_LOOP = leadershipCapabilities().map((capability) => ({
 type LeadershipConfig = {
   businessLine: string;
   objective: string;
+  primaryMetric: string;
+  eligiblePopulation: string;
+  pilotWindow: string;
+  successGate: string;
+  dataBoundary: string;
+  exclusions: string;
   coverCopy: string;
   opp: Opportunity;
   playTitle: string;
@@ -4028,11 +4034,41 @@ type LeadershipConfig = {
   actEarlier: string; // division of value: the institution owns the signals; Ventus turns them into action
 };
 
+type OperatingPosture = "precision" | "balanced" | "coverage";
+type ReviewMode = "every-case" | "exceptions";
+type FrontlineDecision = "pending" | "accepted" | "adjusted" | "not-relevant";
+type FrontlineFeedback = "timing" | "already-covered" | "signal-wrong";
+type ExecutiveDecision = "scale" | "refine" | "hold";
+
+type LeadershipControls = {
+  posture: OperatingPosture;
+  capacity: 25 | 50 | 100;
+  reviewMode: ReviewMode;
+};
+
+const DEFAULT_LEADERSHIP_CONTROLS: LeadershipControls = {
+  posture: "balanced",
+  capacity: 50,
+  reviewMode: "every-case",
+};
+
+const OPERATING_POSTURES: Record<OperatingPosture, { label: string; threshold: number; detail: string }> = {
+  precision: { label: "Precision first", threshold: 88, detail: "Fewer, strongest cases" },
+  balanced: { label: "Balanced", threshold: 82, detail: "Quality with useful reach" },
+  coverage: { label: "Broader coverage", threshold: 75, detail: "More cases for review" },
+};
+
 function leadershipConfig(path: LeadershipPath): LeadershipConfig {
   if (path === "deposit-retention") {
     return {
       businessLine: "Consumer Banking",
       objective: "Protect primary deposits",
+      primaryMetric: "Incremental deposits retained",
+      eligiblePopulation: "Primary-checking households with active payroll",
+      pilotWindow: "30–60 days after action",
+      successGate: "Positive lift vs. holdout after coverage gates",
+      dataBoundary: "Consumer-owned data only",
+      exclusions: "Ineligible, suppressed, or vulnerable customers",
       coverCopy: "Use Consumer-owned signals to detect relationship erosion and prepare one timely banker action.",
       opp: consumerBook.find((item) => item.id === "primacy") ?? consumerBook[0],
       playTitle: "Deposit Primacy Defense",
@@ -4050,6 +4086,12 @@ function leadershipConfig(path: LeadershipPath): LeadershipConfig {
   return {
     businessLine: "Merrill",
     objective: "Grow qualified wealth relationships",
+    primaryMetric: "Incremental advised net new assets",
+    eligiblePopulation: "Self-directed households with qualified transfer and engagement evidence",
+    pilotWindow: "90 days after advisor action",
+    successGate: "Positive NNA lift vs. holdout after coverage gates",
+    dataBoundary: "Merrill-owned data only",
+    exclusions: "Ineligible, suppressed, or already-covered relationships",
     coverCopy: "Use Merrill-owned signals to convert active demand into qualified NNA and advised relationships.",
     opp: advisorBook.find((item) => item.id === "merrill-growth") ?? advisorBook[0],
     playTitle: "Merrill Relationship Growth",
@@ -4581,9 +4623,13 @@ function LeadershipFlow({
   const [step, setStep] = useState(0);
   const [scopeOpen, setScopeOpen] = useState(false);
   const market = "Charlotte";
-  const capacity = 50;
+  const [controls, setControls] = useState<LeadershipControls>(DEFAULT_LEADERSHIP_CONTROLS);
   const [experienceTab, setExperienceTab] = useState<"employee" | "customer">("employee");
   const [employeeWithVentus, setEmployeeWithVentus] = useState(true);
+  const [frontlineDecision, setFrontlineDecision] = useState<FrontlineDecision>("pending");
+  const [frontlineFeedback, setFrontlineFeedback] = useState<FrontlineFeedback | null>(null);
+  const [adjustmentOpen, setAdjustmentOpen] = useState(false);
+  const [actionChoice, setActionChoice] = useState(0);
   const [pipelineReady, setPipelineReady] = useState(false);
   const [runEvidence, setRunEvidence] = useState<LeadershipRunEvidence | null>(null);
   const [evidenceOpen, setEvidenceOpen] = useState(false);
@@ -4591,6 +4637,7 @@ function LeadershipFlow({
   const [shadowReady, setShadowReady] = useState(false);
   const [measurementPreview, setMeasurementPreview] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
+  const [executiveDecision, setExecutiveDecision] = useState<ExecutiveDecision | null>(null);
   const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string; url?: string; route: "salesforce" | "rehearsal" }[]>([]);
   const [deliveryNote, setDeliveryNote] = useState<string | null>(null);
   const config = leadershipConfig(path);
@@ -4600,8 +4647,13 @@ function LeadershipFlow({
   useEffect(() => {
     setStep(0);
     setScopeOpen(false);
+    setControls(DEFAULT_LEADERSHIP_CONTROLS);
     setExperienceTab("employee");
     setEmployeeWithVentus(true);
+    setFrontlineDecision("pending");
+    setFrontlineFeedback(null);
+    setAdjustmentOpen(false);
+    setActionChoice(0);
     setPipelineReady(false);
     setRunEvidence(null);
     setEvidenceOpen(false);
@@ -4609,6 +4661,7 @@ function LeadershipFlow({
     setShadowReady(false);
     setMeasurementPreview(false);
     setPlayOpen(false);
+    setExecutiveDecision(null);
     setLiveReceipts([]);
     setDeliveryNote(null);
   }, [path]);
@@ -4624,6 +4677,18 @@ function LeadershipFlow({
   const salesforceOutcome = path === "deposit-retention"
     ? "Protect the primary deposit relationship"
     : "Convert qualified liquidity into advised net new assets";
+  const actionOptions = path === "deposit-retention"
+    ? [
+        salesforceAction,
+        "Prepare an approved retention option for banker review before the next payroll cycle.",
+        "Monitor through the next payroll cycle and alert the banker if the pattern continues.",
+      ]
+    : [
+        salesforceAction,
+        "Route the case to a Merrill specialist for a transfer and liquidity review.",
+        "Prepare an advisor outreach task and hold the recommendation for same-day review.",
+      ];
+  const selectedAction = actionOptions[actionChoice] ?? salesforceAction;
 
   // Prefer the real Salesforce connector. The generic rehearsal receiver remains a
   // secondary integration surface for bank workbench sandboxes.
@@ -4651,7 +4716,7 @@ function LeadershipFlow({
             customerRef: `household-${opp.id}`,
             moment: detected?.type ?? opp.type,
             whyNow: detected?.reason ?? opp.reason,
-            recommendedAction: salesforceAction,
+            recommendedAction: selectedAction,
             expectedOutcome: salesforceOutcome,
             confidence: detected?.confidence ?? opp.confidence,
             destination: detected?.destination ?? destination,
@@ -4703,15 +4768,27 @@ function LeadershipFlow({
   };
 
   const nextLabels = ["See employee experience", "Create Salesforce Task", "Measure outcome"];
-  const activeControls = path === "wealth-growth"
-    ? ["Reg BI review", "Consent + eligibility", "Vulnerability suppression"]
-    : ["UDAAP review", "Uniform offer criteria", "Financial-health suppression"];
+  const activeControls = [
+    ...(path === "wealth-growth"
+      ? ["Reg BI review", "Consent + eligibility", "Vulnerability suppression"]
+      : ["UDAAP review", "Uniform offer criteria", "Financial-health suppression"]),
+    `${OPERATING_POSTURES[controls.posture].label} · ${OPERATING_POSTURES[controls.posture].threshold}% threshold`,
+    controls.reviewMode === "every-case" ? "Human review required" : "Human review on exceptions",
+  ];
+  const executiveDecisionCopy: Record<ExecutiveDecision, string> = {
+    scale: "Advance only after the proposed gates and policy review clear.",
+    refine: "Return frontline feedback to the Growth Play and rerun in shadow.",
+    hold: "Keep the current scope; no additional activation is released.",
+  };
+  const frontlineApproved = frontlineDecision === "accepted" || frontlineDecision === "adjusted";
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-50/70">
       <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-8 lg:px-10">
-        <div className="mx-auto flex min-h-full w-full max-w-5xl items-start xl:items-center">
-          <SceneFade sceneKey={step}>
+        <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col">
+          <ObjectiveContextBar config={config} controls={controls} onReview={() => setScopeOpen(true)} />
+          <div className="flex min-h-0 flex-1 items-start pt-4 xl:items-center">
+            <SceneFade sceneKey={step}>
             {step === 0 && (
               <LeadershipPipelineRun
                 key={path}
@@ -4739,7 +4816,7 @@ function LeadershipFlow({
                 </div>
                 <div className={`mt-3 grid gap-4 ${experienceTab === "employee" ? "lg:grid-cols-[minmax(0,1.25fr)_minmax(260px,0.75fr)]" : ""}`}>
                   <section className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm ${experienceTab === "customer" ? "mx-auto w-full max-w-xl" : ""}`}>
-                    {experienceTab === "employee" ? <EmployeeSurfacePreview key={path} opp={opp} onVentusModeChange={setEmployeeWithVentus} /> : <CustomerExperiencePreview path={path} />}
+                    {experienceTab === "employee" ? <EmployeeSurfacePreview key={path} opp={opp} onVentusModeChange={(withVentus) => { setEmployeeWithVentus(withVentus); if (!withVentus) setFrontlineDecision("pending"); }} /> : <CustomerExperiencePreview path={path} />}
                   </section>
                   {experienceTab === "employee" && (
                     <section className="rounded-xl border border-slate-200 bg-white p-4">
@@ -4751,8 +4828,61 @@ function LeadershipFlow({
                           </div>
                           <p className="mt-2 text-lg font-semibold leading-6 text-slate-950">{runEvidence?.opportunity?.type ?? opp.type}</p>
                           <p className="mt-1 text-xs font-semibold text-slate-500">{runEvidence?.opportunity?.confidence ?? opp.confidence}% confidence</p>
-                          <div className="mt-3 rounded-lg bg-blue-50/70 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Next action</p><p className="mt-1 text-sm font-semibold leading-5 text-slate-900">{runEvidence?.opportunity?.action ?? opp.action}</p></div>
-                          <div className="mt-3 flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2 text-[11px] font-semibold text-slate-600"><span>{runEvidence?.opportunity?.destination ?? destination}</span><span style={{ color: GREEN }}>Ready</span></div>
+                          <div className="mt-3 rounded-lg bg-blue-50/70 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Ventus recommends</p><p className="mt-1 text-sm font-semibold leading-5 text-slate-900">{selectedAction}</p></div>
+                          <div className="mt-3">
+                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Your decision</p>
+                            <div className="mt-2 grid grid-cols-3 gap-1.5">
+                              <button
+                                type="button"
+                                onClick={() => { setActionChoice(0); setFrontlineDecision("accepted"); setFrontlineFeedback(null); setAdjustmentOpen(false); }}
+                                className={`rounded-lg border px-2 py-2 text-[10px] font-bold transition ${frontlineDecision === "accepted" ? "border-emerald-600 bg-emerald-50 text-emerald-800" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                              >
+                                Use action
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setAdjustmentOpen((open) => !open); setFrontlineDecision("pending"); }}
+                                className={`rounded-lg border px-2 py-2 text-[10px] font-bold transition ${frontlineDecision === "adjusted" ? "border-blue-500 bg-blue-50 text-blue-800" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                              >
+                                Adjust
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => { setFrontlineDecision("not-relevant"); setFrontlineFeedback(null); setAdjustmentOpen(false); }}
+                                className={`rounded-lg border px-2 py-2 text-[10px] font-bold transition ${frontlineDecision === "not-relevant" ? "border-amber-400 bg-amber-50 text-amber-800" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+                              >
+                                Not relevant
+                              </button>
+                            </div>
+                            {adjustmentOpen && (
+                              <div className="mt-2 space-y-1.5 rounded-lg border border-slate-200 bg-slate-50 p-2">
+                                {actionOptions.slice(1).map((action, index) => (
+                                  <button
+                                    key={action}
+                                    type="button"
+                                    onClick={() => { setActionChoice(index + 1); setFrontlineDecision("adjusted"); setFrontlineFeedback(null); setAdjustmentOpen(false); }}
+                                    className="w-full rounded-md border border-slate-200 bg-white px-2.5 py-2 text-left text-[10px] font-semibold leading-4 text-slate-700 transition hover:border-blue-300"
+                                  >
+                                    {action}
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                            {(frontlineDecision === "accepted" || frontlineDecision === "adjusted") && (
+                              <p className="mt-2 flex items-center gap-1.5 text-[10px] font-semibold text-emerald-700"><Check className="h-3 w-3" /> Ready for {runEvidence?.opportunity?.destination ?? destination}</p>
+                            )}
+                            {frontlineDecision === "not-relevant" && (
+                              <div className="mt-2 rounded-lg bg-amber-50 px-2.5 py-2">
+                                <div className="flex items-center justify-between gap-2"><p className="text-[10px] font-bold text-amber-900">What should Ventus learn?</p><button type="button" onClick={() => { setFrontlineDecision("pending"); setFrontlineFeedback(null); }} className="flex-none text-[10px] font-bold text-amber-900 underline">Undo</button></div>
+                                <div className="mt-1.5 flex flex-wrap gap-1">
+                                  {([{"id":"timing","label":"Wrong timing"},{"id":"already-covered","label":"Already covered"},{"id":"signal-wrong","label":"Signal inaccurate"}] as const).map((reason) => (
+                                    <button key={reason.id} type="button" onClick={() => setFrontlineFeedback(reason.id)} className={`rounded-md border px-2 py-1 text-[9px] font-bold ${frontlineFeedback === reason.id ? "border-amber-500 bg-white text-amber-900" : "border-amber-200 text-amber-800"}`}>{reason.label}</button>
+                                  ))}
+                                </div>
+                                {frontlineFeedback && <p className="mt-1.5 text-[9px] font-semibold text-amber-800">Staged for Growth Play review · no task created</p>}
+                              </div>
+                            )}
+                          </div>
                           <button onClick={() => setEvidenceOpen((open) => !open)} className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800"><ChevronDown className={`h-3 w-3 transition ${evidenceOpen ? "rotate-180" : ""}`} /> {evidenceOpen ? "Hide evidence" : "View evidence"}</button>
                           {evidenceOpen && <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">{runEvidence?.opportunity?.enriched.length ? runEvidence.opportunity.enriched.slice(0, 4).map((transaction) => <div key={`${transaction.raw}-${transaction.date}`} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span className="truncate">{transaction.tag}</span><span className="ml-auto flex-none text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>) : opp.rawTransactions.map((transaction) => <div key={transaction.raw} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span>{transaction.tag}</span><span className="ml-auto text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>)}</div>}
                         </>
@@ -4791,7 +4921,7 @@ function LeadershipFlow({
                     <SalesforceActivationPreview
                       subject={salesforceSubject}
                       whyNow={runEvidence?.opportunity?.reason ?? opp.reason}
-                      action={salesforceAction}
+                      action={selectedAction}
                       outcome={salesforceOutcome}
                       destination={runEvidence?.opportunity?.destination ?? destination}
                       confidence={runEvidence?.opportunity?.confidence ?? opp.confidence}
@@ -4887,18 +5017,31 @@ function LeadershipFlow({
                           <BriefMetric label="Incremental" value={path === "wealth-growth" ? "+$11.3K" : "+$3.2K"} />
                         </div>
                         <p className="mt-2 text-[10px] text-slate-400">100% outcome coverage · illustrative 95% interval {path === "wealth-growth" ? "+$4.1K to +$18.5K" : "+$0.8K to +$5.6K"}</p>
-                        <div className="mt-3 rounded-xl border border-emerald-100 bg-emerald-50/60 p-4">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-700">What the institution can decide</p>
-                          <p className="mt-1 text-base font-semibold text-slate-900">{path === "wealth-growth" ? "Validate, then scale the qualified handoff." : "Validate, then scale primacy defense."}</p>
+                        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">Leadership decision</p>
+                          <div className="mt-2 grid grid-cols-3 gap-1.5">
+                            {(["scale", "refine", "hold"] as ExecutiveDecision[]).map((decision) => (
+                              <button
+                                key={decision}
+                                type="button"
+                                onClick={() => setExecutiveDecision(decision)}
+                                className={`rounded-lg border px-2 py-2 text-[10px] font-bold capitalize transition ${executiveDecision === decision ? "border-blue-500 bg-white text-blue-800 shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200"}`}
+                              >
+                                {decision}
+                              </button>
+                            ))}
+                          </div>
+                          {executiveDecision && <p className="mt-2 text-[10px] font-semibold leading-4 text-slate-600">{executiveDecisionCopy[executiveDecision]}</p>}
                         </div>
-                        <button onClick={() => setMeasurementPreview(false)} className="mt-3 text-[11px] font-semibold text-slate-500 hover:text-slate-800">Clear illustrative data</button>
+                        <button onClick={() => { setMeasurementPreview(false); setExecutiveDecision(null); }} className="mt-3 text-[11px] font-semibold text-slate-500 hover:text-slate-800">Clear illustrative data</button>
                       </div>
                     )}
                   </section>
                 </div>
               </div>
             )}
-          </SceneFade>
+            </SceneFade>
+          </div>
         </div>
       </div>
 
@@ -4911,7 +5054,7 @@ function LeadershipFlow({
             <button
               key={label}
               onClick={() => setStep(index)}
-              disabled={(index > 0 && !pipelineReady) || (index === 3 && !shadowReady)}
+              disabled={(index > 0 && !pipelineReady) || (index >= 2 && !frontlineApproved) || (index === 3 && !shadowReady)}
               className="flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50"
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: index <= step ? (index === step ? NAVY : GREEN) : "#cbd5e1" }}>
@@ -4932,16 +5075,16 @@ function LeadershipFlow({
             </button>
             <button
               onClick={() => setScopeOpen(true)}
-              disabled={!shadowReady}
+              disabled={!shadowReady || !measurementPreview || !executiveDecision}
               className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
               style={{ backgroundColor: NAVY }}
             >
-              Review calibration plan <ArrowRight className="h-4 w-4" />
+              {executiveDecision === "scale" ? "Review scale plan" : executiveDecision === "refine" ? "Tune operating controls" : executiveDecision === "hold" ? "Review hold decision" : "Choose a decision"} <ArrowRight className="h-4 w-4" />
             </button>
           </div>
         ) : (
           <button
-            onClick={() => setStep((current) => current + 1)} disabled={(step === 0 && !pipelineReady) || (step === 2 && !shadowReady)}
+            onClick={() => setStep((current) => current + 1)} disabled={(step === 0 && !pipelineReady) || (step === 1 && !frontlineApproved) || (step === 2 && !shadowReady)}
             className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40"
             style={{ backgroundColor: NAVY }}
           >
@@ -4951,8 +5094,33 @@ function LeadershipFlow({
         )}
       </footer>
 
-      {scopeOpen && <PilotScopePanel config={config} destination={destination} market={market} capacity={capacity} onClose={() => setScopeOpen(false)} />}
+      {scopeOpen && <PilotScopePanel config={config} destination={destination} market={market} controls={controls} onApply={(nextControls) => { setControls(nextControls); setScopeOpen(false); }} onClose={() => setScopeOpen(false)} />}
       {playOpen && <GrowthPlayPanel title={config.playTitle} skill={skill} destination={destination} onClose={() => setPlayOpen(false)} />}
+    </div>
+  );
+}
+
+function ObjectiveContextBar({ config, controls, onReview }: { config: LeadershipConfig; controls: LeadershipControls; onReview: () => void }) {
+  const context = [
+    { label: "Objective", value: config.objective },
+    { label: "Metric", value: config.primaryMetric },
+    { label: "Control", value: `${OPERATING_POSTURES[controls.posture].label} · ${controls.reviewMode === "every-case" ? "review every case" : "review exceptions"}` },
+  ];
+  return (
+    <div className="flex flex-none flex-wrap items-center gap-x-5 gap-y-1.5 border-b border-slate-200 pb-3">
+      {context.map((item) => (
+        <div key={item.label} className="flex min-w-0 items-baseline gap-1.5 text-[10px]">
+          <span className="font-bold uppercase tracking-[0.1em] text-slate-400">{item.label}</span>
+          <span className="truncate font-semibold text-slate-700">{item.value}</span>
+        </div>
+      ))}
+      <button
+        type="button"
+        onClick={onReview}
+        className="ml-auto flex items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1.5 text-[10px] font-bold text-blue-700 transition hover:border-blue-200 hover:bg-blue-100"
+      >
+        <Target className="h-3.5 w-3.5" /> Tune controls
+      </button>
     </div>
   );
 }
@@ -5095,77 +5263,119 @@ function ConnectedTestPanel({ config, onClose }: { config: LeadershipConfig; onC
   );
 }
 
-// The leave-up screen while the buying conversation starts: proposed scope, mutual
-// obligations, gates, and the commercial model — everything a sponsor needs to say yes to.
-function PilotScopePanel({ config, destination, market, capacity, onClose }: { config: LeadershipConfig; destination: string; market: string; capacity: number; onClose: () => void }) {
+function PilotScopePanel({
+  config,
+  destination,
+  market,
+  controls,
+  onApply,
+  onClose,
+}: {
+  config: LeadershipConfig;
+  destination: string;
+  market: string;
+  controls: LeadershipControls;
+  onApply: (controls: LeadershipControls) => void;
+  onClose: () => void;
+}) {
+  const [draftControls, setDraftControls] = useState(controls);
+  const [customObjective, setCustomObjective] = useState("");
+  const [draftObjective, setDraftObjective] = useState("");
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    const onKey = (event: KeyboardEvent) => event.key === "Escape" && onClose();
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [onClose]);
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 p-4" onClick={onClose}>
-      <div className="max-h-[88vh] w-full max-w-xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-modal="true" aria-labelledby="operating-controls-title" className="max-h-[90vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl" onClick={(event) => event.stopPropagation()}>
         <div className="flex items-center justify-between px-5 py-3 text-white" style={{ backgroundColor: NAVY }}>
-          <div className="flex items-center gap-2">
-            <Rocket className="h-4 w-4" />
-            <span className="text-sm font-semibold">Calibration + pilot plan</span>
-          </div>
-          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10">
-            <X className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2"><Target className="h-4 w-4" /><span id="operating-controls-title" className="text-sm font-semibold">Set the operating policy</span></div>
+          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1 text-white/80 transition hover:bg-white/10"><X className="h-5 w-5" /></button>
         </div>
+
         <div className="p-5">
-          <div className="grid gap-2 sm:grid-cols-3">
-            <ExecutiveMetric label="Growth Play" value={config.playTitle} />
-            <ExecutiveMetric label="Pilot owner" value={config.pilotOwner} />
-            <ExecutiveMetric label="Scope" value={`${market} · ${capacity}/week review capacity`} />
+          <div className="grid gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-2">
+            <div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Objective</p><p className="mt-1 text-sm font-semibold text-slate-900">{config.objective}</p></div>
+            <div><p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Success metric</p><p className="mt-1 text-sm font-semibold text-slate-900">{config.primaryMetric}</p></div>
           </div>
 
-          <p className="mt-4 text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Mutual commitments</p>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-[11px] font-bold text-slate-800">Your institution</p>
-              <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
-                <li>· {config.sourceLabel} de-identified sample</li>
-                <li>· Policy owner + subject-matter experts</li>
-                <li>· Sandbox endpoint for {destination}</li>
-              </ul>
-            </div>
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-[11px] font-bold text-slate-800">Ventus</p>
-              <ul className="mt-1.5 space-y-1 text-xs leading-5 text-slate-600">
-                <li>· Data mapping + golden-label evaluation</li>
-                <li>· Configured Growth Play + policy pack</li>
-                <li>· Holdout design + lift measurement</li>
-              </ul>
+          <div className="mt-4">
+            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">1 · Choose the confidence / reach tradeoff</p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              {(Object.entries(OPERATING_POSTURES) as [OperatingPosture, (typeof OPERATING_POSTURES)[OperatingPosture]][]).map(([posture, option]) => (
+                <button
+                  key={posture}
+                  type="button"
+                  onClick={() => setDraftControls((current) => ({ ...current, posture }))}
+                  className={`rounded-xl border p-3 text-left transition ${draftControls.posture === posture ? "border-blue-500 bg-blue-50 shadow-sm" : "border-slate-200 hover:border-blue-200"}`}
+                >
+                  <div className="flex items-center justify-between gap-2"><span className="text-xs font-bold text-slate-900">{option.label}</span><span className="text-[10px] font-bold text-blue-700">{option.threshold}%+</span></div>
+                  <p className="mt-1 text-[10px] text-slate-500">{option.detail}</p>
+                </button>
+              ))}
             </div>
           </div>
 
-          <div className="mt-3 flex items-start gap-2 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
-            <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" style={{ color: NAVY }} />
-            <p className="text-xs leading-5 text-slate-700">
-              <span className="font-semibold text-slate-900">Proposed gates:</span> ≥70% validated hit rate · positive lift vs. control · no material policy exceptions.
-              No customer-facing action until the gates clear.
-            </p>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">2 · Weekly review capacity</p>
+              <div className="mt-2 grid grid-cols-3 gap-1 rounded-lg bg-slate-100 p-1">
+                {([25, 50, 100] as const).map((capacity) => <button key={capacity} type="button" onClick={() => setDraftControls((current) => ({ ...current, capacity }))} className={`rounded-md px-2 py-2 text-xs font-bold ${draftControls.capacity === capacity ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>{capacity}</button>)}
+              </div>
+            </div>
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">3 · Human review</p>
+              <div className="mt-2 grid grid-cols-2 gap-1 rounded-lg bg-slate-100 p-1">
+                {([{"id":"every-case","label":"Every case"},{"id":"exceptions","label":"Exceptions"}] as const).map((option) => <button key={option.id} type="button" onClick={() => setDraftControls((current) => ({ ...current, reviewMode: option.id }))} className={`rounded-md px-2 py-2 text-xs font-bold ${draftControls.reviewMode === option.id ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>{option.label}</button>)}
+              </div>
+            </div>
           </div>
 
-          <div className="mt-3 flex items-start gap-2 rounded-xl border p-3" style={{ borderColor: `${NAVY}22`, backgroundColor: `${NAVY}05` }}>
-            <Coins className="mt-0.5 h-4 w-4 flex-none" style={{ color: NAVY }} />
-            <p className="text-xs leading-5 text-slate-700">
-              <span className="font-semibold text-slate-900">Commercial model:</span> fixed pilot fee, then platform + a success component on verified lift.
-              Expansion is priced on measured value, not seats.
-            </p>
+          <div className="mt-4 rounded-xl border border-blue-100 bg-blue-50/60 p-3">
+            <div className="flex items-center gap-2"><Wand2 className="h-4 w-4 text-blue-700" /><p className="text-xs font-bold text-slate-900">Ventus proposes</p></div>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              <BriefMetric label="Qualify" value={`${OPERATING_POSTURES[draftControls.posture].threshold}%+ confidence`} />
+              <BriefMetric label="Prepare" value={`${draftControls.capacity}/week in ${destination}`} />
+              <BriefMetric label="Prove" value={`${config.primaryMetric} vs holdout`} />
+            </div>
           </div>
 
-          <div className="mt-3 flex items-start gap-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
-            <GitBranch className="mt-0.5 h-4 w-4 flex-none text-slate-500" />
-            <p className="text-xs leading-5 text-slate-600">
-              <span className="font-semibold text-slate-800">Optional expansion:</span> {config.expansionUpside} Cross-business access is not required for this pilot.
-            </p>
-          </div>
+          <details className="mt-4 rounded-xl border border-slate-200 px-3 py-2">
+            <summary className="cursor-pointer text-xs font-semibold text-slate-700">Pilot definition and boundaries</summary>
+            <div className="mt-3 grid gap-x-5 gap-y-3 border-t border-slate-100 pt-3 sm:grid-cols-2">
+              {[{ label: "Eligible population", value: config.eligiblePopulation }, { label: "Outcome window", value: config.pilotWindow }, { label: "Data boundary", value: config.dataBoundary }, { label: "Exclusions", value: config.exclusions }, { label: "Owner", value: config.pilotOwner }, { label: "Proposed gate", value: config.successGate }].map((item) => <div key={item.label}><p className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">{item.label}</p><p className="mt-0.5 text-[11px] font-semibold leading-4 text-slate-700">{item.value}</p></div>)}
+            </div>
+          </details>
 
-          <p className="mt-4 text-[11px] text-slate-400">Next step: a working session with the pilot owner to finalize market, sample, and gates.</p>
+          <details className="mt-2 rounded-xl border border-slate-200 px-3 py-2">
+            <summary className="cursor-pointer text-xs font-semibold text-slate-700">Pilot commitments and commercial model</summary>
+            <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 sm:grid-cols-2">
+              <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Institution:</span> sanctioned {config.sourceLabel.toLowerCase()} sample, policy owner, and {destination} sandbox endpoint.</p>
+              <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Ventus:</span> data mapping, evaluated Growth Play, activation receipt, holdout, and lift measurement.</p>
+            </div>
+            <p className="mt-3 text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Commercial:</span> fixed pilot fee, then platform plus a success component on verified lift.</p>
+          </details>
+
+          <details className="mt-2 rounded-xl border border-slate-200 px-3 py-2">
+            <summary className="cursor-pointer text-xs font-semibold text-slate-700">Explore a different objective</summary>
+            <div className="mt-3 border-t border-slate-100 pt-3">
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <input id="custom-growth-objective" value={customObjective} onChange={(event) => { setCustomObjective(event.target.value); setDraftObjective(""); }} placeholder="Describe the outcome to improve" className="min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs text-slate-800 outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100" />
+                <button type="button" disabled={!customObjective.trim()} onClick={() => setDraftObjective(customObjective.trim())} className="flex items-center justify-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:cursor-not-allowed disabled:opacity-40" style={{ backgroundColor: NAVY }}><Wand2 className="h-3.5 w-3.5" /> Build draft</button>
+              </div>
+              {draftObjective && <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-[10px] font-semibold leading-4 text-amber-800">Draft only: “{draftObjective}” needs a metric, evidence, policy, and holdout before it can run.</p>}
+            </div>
+          </details>
+
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-slate-200 pt-4">
+            <p className="hidden text-[10px] text-slate-400 sm:block">{market} pilot · proposed controls</p>
+            <div className="ml-auto flex items-center gap-2">
+              <button type="button" onClick={onClose} className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50">Cancel</button>
+              <button type="button" onClick={() => onApply(draftControls)} className="flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: NAVY }}><Check className="h-3.5 w-3.5" /> Apply controls</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -5177,15 +5387,6 @@ function ExecutiveChip({ icon: Icon, label }: { icon: typeof Activity; label: st
     <span className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-semibold text-slate-600">
       <Icon className="h-3.5 w-3.5" style={{ color: GREEN }} /> {label}
     </span>
-  );
-}
-
-function ExecutiveMetric({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-lg bg-slate-50 p-3">
-      <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{label}</p>
-      <p className="mt-1 text-sm font-semibold leading-5 text-slate-800">{value}</p>
-    </div>
   );
 }
 
@@ -5253,16 +5454,23 @@ function GrowthPlayPanel({
               </p>
             </div>
           )}
-          <p className="text-xs leading-5 text-slate-500">
-            A Growth Play is a reusable decision package. Your policy and channels are part of it — not bolted on afterward.
-          </p>
-          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-            <PlayField label="When to act" value={skill.trigger} />
-            <PlayField label="Who qualifies" value={skill.cohort} />
-            <PlayField label="What happens" value={skill.intervention} />
-            <PlayField label="Controls" value={skill.policyPack.join(" · ")} />
-            <PlayField label="Where it lands" value={destination} />
-            <PlayField label="How value is proven" value={`${skill.measurement.design} (${skill.measurement.holdoutPct}% holdout)`} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-3">
+              <div className="flex items-center gap-2"><UserRoundCheck className="h-4 w-4" style={{ color: NAVY }} /><p className="text-xs font-bold text-slate-900">Human sets</p></div>
+              <div className="mt-2 space-y-1.5 text-[11px] font-semibold text-slate-600">
+                <p>Objective · {skill.objective}</p>
+                <p>Success · {skill.pnlMetric}</p>
+                <p>Policy · approve, adjust, or stop</p>
+              </div>
+            </div>
+            <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3">
+              <div className="flex items-center gap-2"><Wand2 className="h-4 w-4 text-blue-700" /><p className="text-xs font-bold text-slate-900">Ventus runs</p></div>
+              <div className="mt-2 space-y-1.5 text-[11px] font-semibold text-slate-600">
+                <p>Detect the eligible moment</p>
+                <p>Prepare the action in {destination}</p>
+                <p>Measure against {skill.measurement.holdoutPct}% holdout</p>
+              </div>
+            </div>
           </div>
           <div className="mt-3 flex items-center gap-2 rounded-xl border p-3" style={{ borderColor: `${NAVY}22`, backgroundColor: `${NAVY}05` }}>
             <Target className="h-4 w-4 flex-none" style={{ color: NAVY }} />
@@ -5270,9 +5478,15 @@ function GrowthPlayPanel({
               <span className="font-semibold text-slate-900">Moves one number:</span> {skill.pnlMetric}
             </p>
           </div>
-          <p className="mt-3 text-[11px] text-slate-400">
-            Versioned like software · advances only through evaluation and policy gates · reusable across markets.
-          </p>
+          <details className="mt-3 rounded-xl border border-slate-200 px-3 py-2">
+            <summary className="cursor-pointer text-xs font-semibold text-slate-700">View decision logic</summary>
+            <div className="mt-3 grid gap-2 border-t border-slate-100 pt-3 sm:grid-cols-2">
+              <PlayField label="When to act" value={skill.trigger} />
+              <PlayField label="Who qualifies" value={skill.cohort} />
+              <PlayField label="What happens" value={skill.intervention} />
+              <PlayField label="Controls" value={skill.policyPack.join(" · ")} />
+            </div>
+          </details>
         </div>
       </div>
     </div>
