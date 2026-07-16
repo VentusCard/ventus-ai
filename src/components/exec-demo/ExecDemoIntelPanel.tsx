@@ -960,7 +960,7 @@ export default function ExecDemoIntelPanel({
                                     }}
                                   >
                                     <span style={{ color: "#6366f1" }}>◆</span>
-                                    {fs.label}
+                                    {stripBrand(fs.label)}
                                     {fs.monthly_amount_band ? (
                                       <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
                                         {fs.monthly_amount_band}
