@@ -1210,6 +1210,18 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
     runAnalysisRef.current = handleRunAnalysis;
   }, [handleRunAnalysis]);
 
+  // Pre-fire when embedded in /bankdemo so the Demo tab is populated on first
+  // click. Fires once on mount; user can still open the selection dialog to
+  // swap customers or re-run. Guarded to skip if the user already interacted.
+  const preFiredRef = useRef(false);
+  useEffect(() => {
+    if (!embedded || preFiredRef.current) return;
+    if (profileRef.current || customCsv) return;
+    preFiredRef.current = true;
+    handleRunAnalysis();
+    setSynthesisTriggered(true);
+  }, [embedded, customCsv, handleRunAnalysis]);
+
   const handleTabClick = useCallback((tab: TabKey) => {
     // Always clear pill selections when switching between the three "Next-..." tabs
     // so each tab starts fresh.

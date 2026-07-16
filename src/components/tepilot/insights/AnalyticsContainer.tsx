@@ -239,11 +239,10 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
-      case 'exec-demo': return (
-        <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai-dashboard')} />
-        </div>
-      );
+      // 'exec-demo' is rendered as a persistent mount outside renderContent so
+      // its state (enrichment, persona, offers, product cards) survives tab
+      // switches. See the always-mounted block below.
+      case 'exec-demo': return null;
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
       case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} onOpenInteractiveReport={openInteractiveReport} />;
       case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
@@ -476,6 +475,21 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           </div>
         )}
         {renderContent()}
+
+        {/*
+          Persistent Demo mount — kept alive across tab switches so the
+          pre-fired enrichment pipeline (classification, persona, offers,
+          product cards) is ready the moment the user clicks the Demo tab.
+          Hidden via CSS instead of unmounting so React state is preserved.
+        */}
+        <div
+          className={cn(
+            "-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white",
+            activeTab === 'exec-demo' ? "block" : "hidden",
+          )}
+        >
+          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai-dashboard')} />
+        </div>
       </div>
 
       {/* Chat Panel */}
