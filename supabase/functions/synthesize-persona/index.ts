@@ -444,6 +444,31 @@ For each canonical life event below, check whether the per-transaction list meet
                     },
                     description: "Major life-stage events the spending evidence supports. Only emit when the canonical threshold is met. Do NOT re-emit any event that was passed in via the input lifeEvents list. Return empty array if nothing qualifies.",
                   },
+                  financial_signals: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        product_family: {
+                          type: "string",
+                          enum: [
+                            "auto_loan","auto_lease","mortgage","heloc","student_loan","personal_loan",
+                            "credit_card_payoff","brokerage_contribution","retirement_contribution",
+                            "insurance_premium","education_savings",
+                          ],
+                        },
+                        label: { type: "string", description: "2-5 words, '<Family> · <Servicer>'." },
+                        servicer: { type: "string" },
+                        monthly_amount_band: { type: "string", description: "Vaguely-specific band like '~$450/mo'. Omit if only 1 txn." },
+                        cadence: { type: "string", enum: ["monthly","biweekly","quarterly","annual","irregular"] },
+                        transaction_indices: { type: "array", items: { type: "number" } },
+                        talking_points: { type: "array", items: { type: "string" } },
+                      },
+                      required: ["product_family", "label", "servicer", "transaction_indices"],
+                      additionalProperties: false,
+                    },
+                    description: "Recurring large-financial-product relationships (loans, mortgages, leases, investments, insurance). MUST NOT overlap pillar_rollups transaction_indices. Return empty array if none detected.",
+                  },
                 },
                 required: ["pillar_rollups", "detected_life_events", "financial_signals"],
                 additionalProperties: false,
