@@ -1,22 +1,40 @@
-## Unify pill format in the /bankdemo intel panel
+## LLMs currently in the /bankdemo flow
 
-The five signal rows in `src/components/exec-demo/ExecDemoIntelPanel.tsx` currently render pills with inconsistent shapes:
+Traced from `ExecDemoPage` → edge functions:
 
-| Row | Leading glyph | Trailing metadata | Issue |
-|---|---|---|---|
-| Spending Habits | ✦ | `N txns · $Y` | ok |
-| Life Events | ✦ | `N% · N txns/signals` | ok |
-| Financial Signals | ◆ | `$XXX/mo` band; label may include brand names (e.g. "Chase Auto Loan") | brand names in label |
-| Demographic | ↑ / ↓ / → arrow | magnitude band | **arrow glyph** |
-| Risk Factors | ⚠ / ✕ | `N txns · severity` | ok |
+| Step | Function | Current model |
+|---|---|---|
+| Classify transactions | `classify-transactions` | `gemini-2.5-flash` (fallback `gpt-5-mini`) |
+| Travel detection | `travel-detection` | `gemini-2.5-flash` (fallback `gpt-5-mini`) |
+| Pillar analysis | `analyze-pillar-transactions` | `gemini-2.5-flash` |
+| Risk detection | `detect-risk-transactions` | `gemini-3-flash-preview` |
+| Persona synthesis (Behavioral Intelligence) | `synthesize-persona` | `gemini-3-flash-preview` |
+| Product cards | `generate-product-cards` | `gemini-2.5-flash` |
+| Next-offer generation | `generate-next-offers` | `gemini-2.5-flash` |
+| Semantic deal search | `semantic-deal-search` | `gemini-2.5-flash-lite` |
+| Consumer chat (phone mockup) | `consumer-chat` | `gemini-3-flash-preview` |
 
-### Fix
+## Proposed upgrades
 
-1. **Drop the arrow direction glyph** on Demographic pills. Replace with the same ✦ marker used by the other benign pills (color kept as the teal `#0d9488`). Remove the `dirGlyph` helper.
-2. **Strip brand names from Financial Signal labels** before rendering. Trim any leading issuer/brand token (e.g. "Chase ", "Wells Fargo ", "BofA ", "Ally ") so the pill reads as a generic product ("Auto Loan", "Mortgage", "Brokerage Contributions"). Apply the same sanitizer to Demographic labels defensively. Sanitizer lives inline in the panel (small allowlist regex against a list of bank/issuer names already surfaced in `bankProductCatalog.ts`).
-3. Leave counts / % / severity metadata as-is — those are the "same format" already (small tabular-nums badge on the right).
+Split by workload — bulk/row-level jobs stay on a fast/cheap model, reasoning-heavy synthesis jumps to a Pro tier.
 
-No changes to backend, taxonomy rules, or the enrichment table. Purely cosmetic normalization of the pill row.
+**Heavy reasoning → `google/gemini-3.1-pro-preview`** (current-gen Pro, better structured reasoning)
+- `synthesize-persona` — this is the one driving the 5 intelligence rows and the taxonomy issues we've been fixing. Biggest quality lift here.
+- `generate-product-cards` — needs to reason across signals + product catalog to produce concrete rate/savings copy.
+- `detect-risk-transactions` — pattern reasoning across many txns.
 
-### Files touched
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — remove `dirGlyph`, swap Demographic leading glyph to `✦`, add `stripBrand()` helper applied to Financial Signal + Demographic labels.
+**Balanced → `google/gemini-3.5-flash`** (current-gen Flash, replaces 2.5-flash and the 3-flash-preview)
+- `classify-transactions`, `travel-detection`, `analyze-pillar-transactions`, `generate-next-offers`, `generate-campaign-offers`, `deal-personalization`, `generate-lifestyle-signals`, `generate-campaign-brief`, `generate-analytics-query`, `advisor-chat`, `bankwide-chat`, `consumer-chat`, `parse-campaign-intent`, `generate-outreach-pointers`, `generate-product-actions`, `assess-creditworthiness`, `local-experiences`, `summarize-query-result`, `parse-bank-statement-pdf`, `generate-financial-tip`, `analyze-lifestyle-signals`, `generate-campaign-segment`.
+
+**High-volume/cheap → `google/gemini-3.1-flash-lite`** (current-gen Lite)
+- `semantic-deal-search` (short classification-style call).
+
+Fallbacks (`gpt-5-mini` in classify/travel/creditworthiness) → keep, still a valid cross-provider fallback.
+
+## Scope
+
+Two options — please pick:
+1. **/bankdemo path only** — update the 9 functions in the first table above.
+2. **Whole project** — update all 22 functions to the tiers above (recommended for consistency; small blast radius since it's just model-id string changes).
+
+No prompt/schema changes; Gemini 3.x accepts the same OpenAI-compatible request bodies we send today. I'll smoke-test one bankdemo run after the swap.
