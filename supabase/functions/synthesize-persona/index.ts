@@ -117,6 +117,45 @@ serve(async (req) => {
       ? `\n\nLifestyle-relevant transactions (use these to build transaction_indices for rollups in Travel, Style, Family, Health, Sports, Entertainment, Food pillars):\n${txnLines.join("\n")}`
       : "";
 
+    // ---- Financial-signal candidate transactions ----
+    // The lifestyle block above deliberately hides financial products (auto loans, mortgages,
+    // brokerage, insurance, etc.), so we surface them separately with the SAME [T<idx>] numbering
+    // so the LLM can attach them to financial_signals.transaction_indices.
+    const FINANCIAL_MERCHANT_HINTS = [
+      "toyota financial","vw credit","volkswagen credit","ford credit","gm financial","honda financial",
+      "ally auto","chase auto","capital one auto","bmw financial","mercedes-benz financial",
+      "hyundai motor finance","nissan motor accept","lease","leasing",
+      "rocket mortgage","wells fargo home mortgage","chase home lending","pennymac","mr. cooper",
+      "loandepot","zillow home loans","quicken loans","heloc","home equity",
+      "nelnet","sallie mae","navient","great lakes","fedloan","mohela","aidvantage",
+      "sofi loan","lightstream","marcus loan","upstart","prosper","lendingclub","best egg",
+      "amex payment","chase card payment","discover payment","capital one card",
+      "fidelity","schwab","vanguard","robinhood","wealthfront","betterment","etrade","merrill edge",
+      "401k","ira contribution","roth ira","sep ira",
+      "northwestern mutual","new york life","massmutual","prudential life","guardian life",
+      "haven life","policygenius",
+      "529","my529","collegeamerica","scholarshare",
+    ];
+    const FINANCIAL_PILLARS = new Set(["Financial & Aspirational", "Financial Services"]);
+    const financialTxnLines: string[] = [];
+    txns.forEach((t, idx) => {
+      const merchant = (t.normalized_merchant || t.merchant_name || "").toLowerCase();
+      const pillar = t.pillar || "";
+      const category = (t.category || "").toLowerCase();
+      const merchantHit = merchant && FINANCIAL_MERCHANT_HINTS.some(h => merchant.includes(h));
+      const pillarHit = FINANCIAL_PILLARS.has(pillar);
+      const rentMortgageHit = pillar === "Home & Living" && (category.includes("rent") || category.includes("mortgage"));
+      if (!merchantHit && !pillarHit && !rentMortgageHit) return;
+      const m = (t.normalized_merchant || t.merchant_name || "?").slice(0, 40);
+      const amt = typeof t.amount === "number" ? `$${t.amount.toFixed(0)}` : "?";
+      const date = t.date || "?";
+      const subs = t.subcategories?.length ? `[${t.subcategories.join(", ")}]` : "[]";
+      financialTxnLines.push(`[T${idx}] ${m} · ${amt} · ${date} · ${pillar} > ${t.category ?? "?"} · ${subs}`);
+    });
+    const financialTxnBlock = financialTxnLines.length
+      ? `\n\nFinancial-signal candidate transactions (use these [T<n>] indices for financial_signals.transaction_indices — NEVER include them in pillar_rollups):\n${financialTxnLines.join("\n")}`
+      : "";
+
     const lifeEventSuppressionBlock = detectedEventNames.length > 0
       ? `
 
@@ -222,7 +261,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 **Financial signals are recurring large-financial-product relationships** — auto loans, auto leases, mortgages, HELOCs, student loans, personal loans, credit-card payoffs, brokerage / retirement / 529 contributions, and life/disability insurance premiums. They are *bigger than spending* and NEVER belong inside a pillar_rollup (previously we saw the LLM invent "Autoloan Management" rollups mixing VW Credit + Zillow mortgage — that is EXACTLY what this section prevents).
 
-**Detect a financial_signal when** the per-transaction list contains at least ONE transaction whose merchant matches one of the families below. Group all transactions from the same servicer into one signal.
+**Detect a financial_signal when** the **Financial-signal candidate transactions** block (a separately-numbered `[T<n>]` list at the end of the user message) contains at least ONE transaction whose merchant matches one of the families below. Use those `[T<n>]` indices — they are the source of truth for `financial_signals.transaction_indices`. Group all transactions from the same servicer into one signal.
 
 **Product families + merchant hints:**
   - auto_loan (Auto Loan) — "toyota financial", "vw credit", "volkswagen credit", "ford credit", "gm financial", "honda financial", "ally auto", "chase auto", "capital one auto", "bmw financial", "mercedes-benz financial", "hyundai motor finance", "nissan motor accept"
@@ -338,7 +377,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
 
-    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}`;
+    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
