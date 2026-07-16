@@ -1224,6 +1224,20 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     setSynthesisTriggered(true);
   }, [embedded, customCsv, handleRunAnalysis]);
 
+  // When embedded, only open the selection dialog when the user actually
+  // navigates to the Demo tab AND no run has completed yet. Once a run exists,
+  // subsequent visits show cached results without the popup.
+  const hasRunOnce = !!profileRef.current || !!personaSynthesis || !!enrichedTxs;
+  useEffect(() => {
+    if (!embedded) return;
+    if (active && !hasRunOnce) {
+      setSelectionDialogOpen(true);
+    } else if (!active) {
+      setSelectionDialogOpen(false);
+    }
+  }, [embedded, active, hasRunOnce]);
+
+
   const handleTabClick = useCallback((tab: TabKey) => {
     // Always clear pill selections when switching between the three "Next-..." tabs
     // so each tab starts fresh.
