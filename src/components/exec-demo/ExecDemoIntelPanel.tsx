@@ -184,6 +184,15 @@ export function getColor(pillar: string) {
   return PILLAR_COLORS[pillar] || DEFAULT_COLOR;
 }
 
+// Strip issuer/brand prefixes so signal pills read as generic products.
+// e.g. "Chase Auto Loan" -> "Auto Loan", "Wells Fargo Mortgage" -> "Mortgage".
+const BRAND_PATTERN = /^(chase|wells fargo|wells|bank of america|bofa|boa|citi|citibank|capital one|us bank|u\.s\. bank|pnc|td|td bank|ally|discover|amex|american express|hsbc|barclays|synchrony|goldman|marcus|sofi|fidelity|schwab|vanguard|robinhood|e\*trade|etrade|morgan stanley|jpmorgan|jp morgan|santander|regions|truist|bmo|key bank|keybank|fifth third)\s+/i;
+
+function stripBrand(label: string): string {
+  if (!label) return label;
+  return label.replace(BRAND_PATTERN, "").trim();
+}
+
 interface ChipData {
   pillar: string;
   category: string;
@@ -960,7 +969,7 @@ export default function ExecDemoIntelPanel({
                                     }}
                                   >
                                     <span style={{ color: "#6366f1" }}>◆</span>
-                                    {fs.label}
+                                    {stripBrand(fs.label)}
                                     {fs.monthly_amount_band ? (
                                       <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
                                         {fs.monthly_amount_band}
@@ -976,7 +985,6 @@ export default function ExecDemoIntelPanel({
                       {(() => {
                         const demoShifts = personaSynthesis?.demographicShifts || [];
                         if (demoShifts.length === 0) return null;
-                        const dirGlyph = (d: string) => (d === "up" ? "↑" : d === "down" ? "↓" : "→");
                         return (
                           <div
                             className={`flex items-center gap-3 ${rowGap}`}
@@ -1018,8 +1026,8 @@ export default function ExecDemoIntelPanel({
                                       boxShadow: isActive ? "0 0 14px rgba(13,148,136,.35)" : "0 2px 8px rgba(13,148,136,.18)",
                                     }}
                                   >
-                                    <span style={{ color: "#0d9488", fontWeight: 700 }}>{dirGlyph(ds.direction)}</span>
-                                    {ds.label}
+                                    <span style={{ color: "#0d9488" }}>✦</span>
+                                    {stripBrand(ds.label)}
                                     {ds.magnitude_band ? (
                                       <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
                                         {ds.magnitude_band}
