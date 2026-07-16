@@ -976,7 +976,6 @@ export default function ExecDemoIntelPanel({
                       {(() => {
                         const demoShifts = personaSynthesis?.demographicShifts || [];
                         if (demoShifts.length === 0) return null;
-                        const dirGlyph = (d: string) => (d === "up" ? "↑" : d === "down" ? "↓" : "→");
                         return (
                           <div
                             className={`flex items-center gap-3 ${rowGap}`}

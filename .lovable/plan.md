@@ -1,21 +1,22 @@
-## Audit: LLM taxonomy rules to prevent pet-style miscategorizations
+## Unify pill format in the /bankdemo intel panel
 
-The root cause of "New Pet · Recurring Care" landing in **Demographic** is that the prompt in `supabase/functions/synthesize-persona/index.ts` treated the mere *presence* of recurring pet vendors as a household_composition shift. That same failure mode can fire for any recurring vertical (fitness, streaming, salons, subscriptions, hobbies) — a demographic shift should require a *temporal change*, not just recurring spend.
+The five signal rows in `src/components/exec-demo/ExecDemoIntelPanel.tsx` currently render pills with inconsistent shapes:
 
-### Edits (single file: `supabase/functions/synthesize-persona/index.ts`)
+| Row | Leading glyph | Trailing metadata | Issue |
+|---|---|---|---|
+| Spending Habits | ✦ | `N txns · $Y` | ok |
+| Life Events | ✦ | `N% · N txns/signals` | ok |
+| Financial Signals | ◆ | `$XXX/mo` band; label may include brand names (e.g. "Chase Auto Loan") | brand names in label |
+| Demographic | ↑ / ↓ / → arrow | magnitude band | **arrow glyph** |
+| Risk Factors | ⚠ / ✕ | `N txns · severity` | ok |
 
-1. **`HOUSEHOLD_HINTS` array (~line 174-181)** — Remove `chewy, petsmart, petco, vca, banfield, veterinar` so pet transactions stop being surfaced as demographic candidates. Leave a code comment explaining why they must not be re-added.
+### Fix
 
-2. **`household_composition` bullet (~line 492)** — Delete `new pet (recurring vet + Chewy)` from the allowed families. Add an explicit `EXCLUDES pet spend → Pets pillar rollup` note. Keep empty nest, divorce, Kid → College.
+1. **Drop the arrow direction glyph** on Demographic pills. Replace with the same ✦ marker used by the other benign pills (color kept as the teal `#0d9488`). Remove the `dirGlyph` helper.
+2. **Strip brand names from Financial Signal labels** before rendering. Trim any leading issuer/brand token (e.g. "Chase ", "Wells Fargo ", "BofA ", "Ally ") so the pill reads as a generic product ("Auto Loan", "Mortgage", "Brokerage Contributions"). Apply the same sanitizer to Demographic labels defensively. Sanitizer lives inline in the panel (small allowlist regex against a list of bank/issuer names already surfaced in `bankProductCatalog.ts`).
+3. Leave counts / % / severity metadata as-is — those are the "same format" already (small tabular-nums badge on the right).
 
-3. **New general audit rule appended to the Demographic Shifts section** — Add one paragraph that generalizes the fix:
-   > *Recurring vendor presence is NOT a demographic shift.* Every shift must show a temporal delta (start, stop, step-up, or centroid drift). Recurring spend in a vertical (pets, fitness, streaming, coffee, groceries, hobbies, subscriptions, salons, gym) is a lifestyle habit → Pillar Rollup, not a shift. Before emitting any shift, ask "what change over time does the evidence show?" — if the answer is "none, the vendor is just present", route to a Pillar Rollup and drop the shift.
+No changes to backend, taxonomy rules, or the enrichment table. Purely cosmetic normalization of the pill row.
 
-4. **Claim-boundary reminder (~line 354)** — Append two sentences: pet spend is a Pets pillar rollup (never life event, never demographic); recurring fitness/hobby/subscription spend without onset/offset is a rollup, never a demographic.
-
-### Not changed
-- No client-side changes. The intel panel already renders `pillar_rollups[Pets]` under Spending Habits automatically once the LLM emits it there.
-- No changes to Life Event, Financial Signal, or Risk ladders — those boundaries are already correct.
-- External-signal injection logic is untouched.
-
-Please switch to build mode to apply.
+### Files touched
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — remove `dirGlyph`, swap Demographic leading glyph to `✦`, add `stripBrand()` helper applied to Financial Signal + Demographic labels.
