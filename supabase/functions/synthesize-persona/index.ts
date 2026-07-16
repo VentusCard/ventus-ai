@@ -257,6 +257,26 @@ Given aggregated spending signals, produce TWO outputs:
 
 **Life events are NOT lifestyle habits.** A home purchase is a one-time life event; "Casual Dining Regular" is a lifestyle habit. Promote qualifying clusters into life events FIRST, then build rollups from what's left.
 
+---
+
+## EVIDENCE OWNERSHIP LADDER (mutually exclusive buckets)
+
+Every transaction can belong to AT MOST ONE of these four buckets. When a row qualifies for multiple, the higher tier wins and the row is REMOVED from the candidate pool for the lower tiers.
+
+\`\`\`
+Life Event  >  Financial Signal  >  Demographic Shift  >  Pillar Rollup
+\`\`\`
+
+- **Life Events** own discrete, time-bounded transitions with a vendor cluster (home purchase, new baby, wedding, college prep, elder care, retirement planning, relocation, inheritance/windfall, business formation).
+- **Financial Signals** own durable product relationships (mortgage, auto loan/lease, student loan, brokerage/401k/IRA, insurance premiums) surfaced as recurring servicer ACH.
+- **Demographic Shifts** own *ongoing state changes* inferred from aggregate cash-flow / geography — never from vendor clusters already claimed by a Life Event.
+- **Pillar Rollups** own everything else.
+
+Enforcement:
+- Before emitting a Demographic Shift, SUBTRACT every [T<n>] already used by detected_life_events or financial_signals. If the shift's remaining evidence drops below 2 unique indices, DROP the shift.
+- Before emitting a Pillar Rollup, SUBTRACT every [T<n>] already used by any higher-tier bucket.
+- A Financial Signal MAY co-exist thematically with a Life Event (e.g. first mortgage ACH ↔ Home Purchase), but the two must not list the SAME [T<n>] in their transaction_indices — the Life Event takes the vendor rows, the Financial Signal takes the servicer ACH rows.
+
 **Before you write anything, scan the merchants in each category — they're your ground truth. Category names lie; merchants don't.**
 
 ---
