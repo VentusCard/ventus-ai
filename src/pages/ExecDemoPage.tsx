@@ -383,6 +383,28 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         for (const ti of fs.transaction_indices || []) financialTxIdxSet.add(ti);
       }
       const rawDemographicShifts: any[] = Array.isArray(data.demographic_shifts) ? data.demographic_shifts : [];
+
+      // --- Mutual-exclusion guard: strip any demographic shift whose evidence is
+      // already claimed by a detected life event or a financial signal. If a shift
+      // has fewer than 2 unclaimed indices left, drop it entirely.
+      const claimedByHigherTier = new Set<number>();
+      for (const fs of rawFinancialSignals) {
+        for (const ti of fs.transaction_indices || []) claimedByHigherTier.add(ti);
+      }
+      const rawLifeEvents: any[] = Array.isArray(data.detected_life_events) ? data.detected_life_events : [];
+      for (const le of rawLifeEvents) {
+        for (const ti of le.transaction_indices || []) claimedByHigherTier.add(ti);
+      }
+      const dedupedDemographicShifts = rawDemographicShifts
+        .map((d: any) => {
+          const unclaimed = (d.transaction_indices || []).filter(
+            (ti: number) => ti >= 0 && ti < enrichedTxs.length && !claimedByHigherTier.has(ti),
+          );
+          return { ...d, transaction_indices: unclaimed };
+        })
+        .filter((d: any) => (d.transaction_indices || []).length >= 2)
+        .filter((d: any) => d.category !== "life_stage_entry"); // legacy category retired
+
       const synthesis: PersonaSynthesis = {
         financialSignals: rawFinancialSignals.map((f: any) => ({
           id: f.id,
@@ -396,7 +418,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           ),
           talking_points: f.talking_points || [],
         })),
-        demographicShifts: rawDemographicShifts.map((d: any) => ({
+        demographicShifts: dedupedDemographicShifts.map((d: any) => ({
           id: d.id,
           category: d.category,
           label: d.label,
@@ -404,9 +426,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           confidence: d.confidence,
           magnitude_band: d.magnitude_band,
           evidence_summary: d.evidence_summary,
-          transaction_indices: (d.transaction_indices || []).filter(
-            (ti: number) => ti >= 0 && ti < enrichedTxs.length,
-          ),
+          transaction_indices: d.transaction_indices,
         })),
         pillarRollups: (data.pillar_rollups || [])
           .map((r: any) => {

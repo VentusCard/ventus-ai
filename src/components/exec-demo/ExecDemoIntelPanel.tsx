@@ -39,7 +39,7 @@ export interface FinancialSignal {
 
 export interface DemographicShift {
   id: string;
-  category: "income_trajectory" | "wealth_tier_migration" | "household_composition" | "geography_relocation" | "life_stage_entry";
+  category: "income_trajectory" | "wealth_tier_migration" | "household_composition" | "geography_relocation";
   label: string;
   direction: "up" | "down" | "lateral";
   confidence: number;
