@@ -351,6 +351,11 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       `[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`,
     );
 
+    // Resolve external intelligence signals BEFORE the LLM call so the model
+    // sees them as pre-classified inputs and can respect their bucket assignments.
+    const externalSignalsRaw = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id);
+    const externalForLLM = externalSignalsForLLM(externalSignalsRaw);
+
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
         body: {
@@ -370,6 +375,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           lifeEvents: detectedEvents.map((e) => ({ event_name: e.event_name })),
           riskCategoriesPresent,
           riskTransactionIds,
+          externalSignals: externalForLLM,
           bankContext: getBankPromptContext(),
         },
       });
