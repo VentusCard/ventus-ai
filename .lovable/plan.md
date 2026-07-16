@@ -1,49 +1,65 @@
-## Add Demographic Shifts as the 5th Intel Row
 
-Replace the earlier "static demographics" idea with **Demographic Shifts** — inferred change events derived from transaction patterns. Static baseline (age, income band, household) collapses to a small header chip; the row surfaces only *what has changed or is changing*.
+# Audit: Mutual exclusion between Life Events and Demographic Shifts
 
-### Detection taxonomy (extended into `synthesize-persona`)
+## Overlaps found today
 
-The LLM will emit a new `demographic_shifts` block. Each shift has: `id`, `label`, `category`, `direction` (`up` | `down` | `lateral`), `confidence` (0–1), `evidence_summary`, `transaction_indices[]`, and an optional `magnitude_band` (e.g. `+18% payroll`, `ZIP 94301 → 10013`).
+Reading `supabase/functions/synthesize-persona/index.ts` (LIFE EVENT PROMOTION §, lines 264–297, and DEMOGRAPHIC SHIFTS §, lines 423–451), the two taxonomies collide on the same transaction evidence:
 
-Categories the model looks for:
-- **Income trajectory** — payroll ACH amount step (±), payroll counterparty flip (job change), unemployment credit, 1099/Stripe/Square deposits appearing (self-employment), SSA/pension credits (retirement onset)
-- **Wealth-tier migration** — sustained brokerage/401k contribution increases, large one-time inflow (liquidity event), reserve buffer expansion → Mass → Affluent → HNW
-- **Household composition** — new baby (diaper/formula/pediatric), kid → college (tuition ACH, out-of-state debit cluster), empty nest (tuition stops + travel rise), divorce (legal + duplicate utilities), new pet (vet/Chewy recurring)
-- **Geography / relocation** — merchant ZIP centroid drift ≥30 days, moving-company/U-Haul charge, new utility setup, commute pattern flip
-- **Life-stage entry** — homeownership (title/escrow → new mortgage ACH), marriage (joint account, wedding vendors), eldercare onset (assisted-living, in-home care agency), health event (hospital + specialty pharmacy + PT recurring)
+| Life Event (canonical) | Demographic Shift category that duplicates it |
+|---|---|
+| Home Purchase / Transition | `life_stage_entry` → "Homeownership" |
+| New Baby / Family Expansion | `household_composition` → "new baby" |
+| Wedding / Engagement | `life_stage_entry` → "marriage" |
+| Elder Care | `life_stage_entry` → "eldercare onset" |
+| Relocation | `geography_relocation` (moving vendors, U-Haul, storage) |
+| Retirement Planning | `income_trajectory` (SSA/pension onset) + `life_stage_entry` (retirement) |
+| Inheritance / Windfall | `wealth_tier_migration` (large one-time inflow) |
+| College Preparation for Dependent | `household_composition` → "kid → college" |
 
-### Edge function changes — `supabase/functions/synthesize-persona/index.ts`
+The current rule ("You MAY reuse a [T<n>] that also appears in a financial_signal ONLY when the demographic interpretation is genuinely distinct") is a soft nudge. That's why we see double-counting.
 
-1. Build a **`demographicCandidateBlock`** alongside the existing `financialTxnBlock`:
-   - Payroll ACH transactions (recurring credits with employer-like descriptions), grouped chronologically so the LLM can see amount/counterparty steps.
-   - Merchant ZIP series (transactions with location metadata) to expose centroid drift.
-   - Family/household hint transactions (childcare, tuition, pediatric, eldercare, vet, moving, title/escrow, wedding-vendor keywords).
-2. Extend the system prompt with a **DEMOGRAPHIC SHIFTS** section instructing the model to:
-   - Emit only *changes* (never restate static age/ZIP).
-   - Require ≥2 supporting transactions per shift, cite `[T<idx>]`.
-   - Prefer high-value shifts (income, wealth-tier, relocation, household) over low-value ones; cap at 4 shifts.
-   - Do NOT reuse transactions already claimed by `financial_signals` unless the shift is a distinct interpretation (allowed with a note).
-3. Add `demographic_shifts` to the response schema and TS types.
+Financial Signals also collide with `wealth_tier_migration` (e.g. brokerage ACH → both a Financial Signal and a wealth-tier shift).
 
-### UI changes — `src/components/exec-demo/ExecDemoIntelPanel.tsx`
+## Rule set to enforce
 
-- Add `DemographicShift` interface + `demographicShifts?: DemographicShift[]` on `PersonaSynthesis`.
-- Render a new 5th row **below Risk Factors** matching the existing row rhythm (`labelWidth`, `labelTextSize`, `rowGap`, `pillRowClass`):
-  - Label: `Demographic Shifts:` in a distinct **teal/emerald** tone (unused by other rows), with Info tooltip explaining "Inferred changes to the customer's life stage, household, income, wealth tier, or geography — detected from transaction patterns before the customer self-reports."
-  - Pills styled like life-event pills but teal; each pill shows a directional glyph (`↑` / `↓` / `→`), the label, and optional `magnitude_band` as muted trailing text.
-  - Clicking a pill calls `onTriggerPillClick(label, transaction_indices, "#0d9488", "lifeEvent")` so the enrichment table filters to the supporting transactions (same interaction as life events).
-  - Hide the row when `demographicShifts` is empty.
-- Guard: if a shift has zero `transaction_indices`, still render but non-clickable (rare edge case).
+**Priority order (winner takes the evidence — no other bucket may reuse those [T<n>]):**
 
-### Downstream propagation
+```text
+Life Event  >  Financial Signal  >  Demographic Shift  >  Pillar Rollup
+```
 
-- `ExecDemoPage.tsx` already forwards the full `personaSynthesis` to Next-Product and Next-Offer generation calls — no plumbing change needed; the new field flows automatically.
-- Optionally include `demographic_shifts` in the prompts for `generate-product-cards` and `generate-next-offer` so a detected "wealth-tier migration ↑" can drive a WM product recommendation. Small addition to those prompts; no schema change.
+**Bucket definitions (mutually exclusive):**
 
-### Not changing
+- **Life Events** — discrete, time-bounded transitions with a vendor cluster in the last 90 days. Own: Home Purchase, New Baby, Wedding, College Prep for Dependent, Elder Care, Retirement Planning, Relocation, Inheritance/Windfall, Business Formation.
+- **Financial Signals** — durable product relationships visible as recurring servicer ACH. Own: mortgage, auto loan/lease, student loan, brokerage/401k/IRA, insurance premiums.
+- **Demographic Shifts** — *ongoing state changes* inferred from aggregate cash-flow or geography patterns, NOT from vendor clusters already claimed by a Life Event. Own only:
+  - `income_trajectory` — payroll ACH step-up/step-down, payroll counterparty flip, 1099/Stripe/Square onset, unemployment credit. (SSA/pension onset moves to Retirement Planning life event.)
+  - `wealth_tier_migration` — sustained contribution rate change or reserve-buffer expansion (large one-time inflow moves to Inheritance/Windfall life event).
+  - `household_composition` — narrowed to shifts NOT covered by a life event: empty nest (tuition stops + travel rises), divorce (family-law + duplicate utilities), new pet.
+  - `geography_relocation` — narrowed to *post-move* persistent merchant-ZIP centroid drift over 30+ days. Moving vendors themselves belong to the Relocation life event.
+- **Retire** the `life_stage_entry` demographic category entirely — every subcase is already a Life Event.
+- **Pillar Rollups** — behavioral themes on transactions not claimed above.
 
-- Enrichment table styling / external-signal view.
-- Financial Signals row and its taxonomy.
-- Risk Factors detection.
-- No new taxonomy file needed — detection lives in the edge function prompt, consistent with how life events and financial signals are handled.
+**Evidence exclusivity rule:**
+
+- Before emitting a Demographic Shift, subtract every `[T<n>]` claimed by a Life Event or Financial Signal.
+- A Demographic Shift must stand on ≥2 transactions from the remaining set. If it can't, drop it.
+- A Financial Signal may co-exist with a Life Event (e.g. first mortgage ACH ↔ Home Purchase) but the transaction belongs to the Life Event's evidence array; the Financial Signal references the servicer relationship, not the same [T<n>].
+
+## Changes in `supabase/functions/synthesize-persona/index.ts`
+
+1. **Priority ladder** — add an explicit "EVIDENCE OWNERSHIP LADDER" block near the top of `systemPrompt` (around line 203, next to the existing "LIFE EVENTS ALWAYS WIN" note) stating the four-tier order and the exclusivity rule.
+2. **Life Event section (lines 264–297)** — append: any [T<n>] emitted as life-event evidence is REMOVED from the candidate pool for demographic_shifts and pillar_rollups. Explicitly claim SSA/pension onset under "Retirement Planning" and large one-time inflow under "Inheritance / Windfall".
+3. **Demographic Shifts section (lines 423–451)**:
+   - Drop `life_stage_entry` from the category list, the tool schema `enum` (line 592), the response mapper (line 675+), and the `DemographicShift` type in `src/components/exec-demo/ExecDemoIntelPanel.tsx`.
+   - Rewrite each remaining category description to state what it EXCLUDES (moving vendors, new-baby retailers, tuition ACH, SSA, large inflow → all belong to life events).
+   - Replace the soft "MAY reuse" clause with a hard rule: "transaction_indices MUST NOT intersect with any transaction_indices already emitted under detected_life_events or financial_signals. If a shift's evidence collapses below 2 unique indices after subtraction, drop the shift."
+4. **Tool schema enum** (line 592) — remove `"life_stage_entry"`.
+5. **UI type** — remove `"life_stage_entry"` from the `DemographicShift.category` union in `ExecDemoIntelPanel.tsx`.
+6. **Post-processing guard** in `ExecDemoPage.tsx` — after mapping the response, filter `demographicShifts` to drop any shift whose `transaction_indices` are fully contained in the union of life-event + financial-signal indices (belt-and-suspenders in case the LLM ignores the rule).
+
+## Out of scope
+
+- No changes to Risk Factors taxonomy.
+- No copy changes in the UI pills beyond removing the retired category.
+- No prompt changes for `generate-product-cards`.
