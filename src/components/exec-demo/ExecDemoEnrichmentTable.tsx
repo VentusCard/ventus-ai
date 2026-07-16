@@ -438,50 +438,50 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           {activeExternal && (
             <tr
               key={`ext-active-${activeExternal.id}`}
-              className="border-b border-violet-200 exec-ext-highlighted"
+              className="border-b border-slate-100 exec-ext-highlighted"
               style={{ ["--exec-hl" as any]: "#8b5cf6" } as React.CSSProperties}
             >
               {/* Source */}
-              <td className="px-2 py-2.5">
-                <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap bg-violet-100 text-violet-700 border border-violet-200">
+              <td className="px-1 py-2">
+                <span className="inline-flex items-center gap-1 px-1 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap bg-violet-50 text-violet-700">
                   <Sparkles className="w-3 h-3" />
                   External
                 </span>
               </td>
               {/* Provider */}
-              <td className="px-2 py-2.5">
-                <span className="inline-block bg-white text-violet-700 border border-violet-200 text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap">
+              <td className="px-1 py-2">
+                <span className="inline-block bg-slate-100 text-slate-600 text-[12px] font-mono px-0.5 py-0.5 rounded whitespace-nowrap">
                   {activeExternal.provider}
                 </span>
               </td>
               {/* Signal (headline) */}
-              <td className="px-2 py-2.5">
-                <div className="text-[13px] font-semibold text-slate-900 truncate" title={activeExternal.headline}>
+              <td className="px-1 py-2">
+                <div className="text-[13px] font-medium text-slate-900 truncate" title={activeExternal.headline}>
                   {activeExternal.headline}
                 </div>
               </td>
               {/* Type */}
-              <td className="px-2 py-2.5">
+              <td className="px-1 py-2">
                 {(() => {
                   const cat = (activeExternal.category || "").toLowerCase();
                   const isRisk = /risk|fraud|default|delinquency|credit/.test(cat);
                   const isSpend = /spend|habit|merchant|dining|travel_spend/.test(cat);
                   const type = isRisk ? "Risk" : isSpend ? "Spending Habit" : "Life Event";
                   const cls = isRisk
-                    ? "bg-red-50 text-red-700 border-red-200"
+                    ? "bg-red-50 text-red-700"
                     : isSpend
-                    ? "bg-blue-50 text-blue-700 border-blue-200"
-                    : "bg-violet-50 text-violet-700 border-violet-200";
+                    ? "bg-blue-50 text-blue-700"
+                    : "bg-violet-50 text-violet-700";
                   return (
-                    <span className={`inline-block border text-[12.5px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight ${cls}`}>
+                    <span className={`inline-block text-[12px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${cls}`}>
                       {type}
                     </span>
                   );
                 })()}
               </td>
               {/* Confidence */}
-              <td className="px-2 py-2.5 text-right">
-                <span className="inline-block border text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight bg-violet-50 text-violet-700 border-violet-200 tabular-nums">
+              <td className="px-1 py-2 text-right">
+                <span className="inline-block text-[12.5px] px-1 py-0.5 rounded whitespace-nowrap leading-tight bg-violet-50 text-violet-700 tabular-nums">
                   {activeExternalConf}%
                 </span>
               </td>
