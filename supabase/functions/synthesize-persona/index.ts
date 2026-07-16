@@ -312,7 +312,8 @@ For each canonical life event below, check whether the per-transaction list meet
 - Talking points: 3 short, empathetic conversation starters an advisor could use.
 - transaction_indices = the same [T<n>] indices listed in evidence (used downstream to highlight rows).
 - **If a life event was already passed in via the input lifeEvents list, do NOT re-emit it.** That theme is already covered.
-- If a cluster qualifies for a life event, the related transactions belong in that event ONLY — they must NOT also appear in a pillar_rollup. Pull them out of rollup territory entirely.
+- If a cluster qualifies for a life event, the related transactions belong in that event ONLY — they must NOT also appear in a pillar_rollup, demographic_shift, or financial_signal's transaction_indices. Pull them out of every lower-tier bucket entirely.
+- **Claim boundary reminders:** SSA / pension onset belongs to "Retirement Planning" (not an income_trajectory shift). A large one-time inflow (inheritance, home-sale proceeds, ≥$10k liquidity event) belongs to "Inheritance / Windfall" (not a wealth_tier_migration shift). Moving vendors, U-Haul, storage-unit charges belong to "Relocation" (not a geography_relocation shift). Baby retailers, pediatrician, daycare belong to "New Baby / Family Expansion" (not a household_composition shift). Tuition ACH and college-visit spend belong to "College Preparation for Dependent" (not a household_composition shift).
 
 **Vocabulary ban for pillar_rollups (final defense):** NEVER use these words in a rollup label: "Phase", "Transition", "Prep", "Preparation", "Bound", "Expecting", "New Parent", "New Homeowner", "Empty Nest", "Aspiring Homeowner", "Nesting". Those describe life events — emit them as detected_life_events or omit them entirely.
 
