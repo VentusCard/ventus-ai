@@ -416,9 +416,41 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - Always include the exact category names combined and the [N] row indices from the per-category input. For lifestyle-prone pillars also include the [T<n>] transaction_indices from the per-transaction list.
 
-- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
+- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.
 
-    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}`;
+---
+
+## DEMOGRAPHIC SHIFTS (do this FOURTH, after life events, financial signals, and rollups)
+
+**Demographic shifts are INFERRED CHANGES** to the customer's life stage, household composition, income trajectory, wealth tier, or geography — things the bank does NOT yet know from the static profile. Never restate static baseline attributes (age, current ZIP, current income band). Emit ONLY *changes* the transaction pattern reveals.
+
+**Use the "Demographic-shift candidate transactions" block** at the end of the user message. Each row is tagged with its shift-family (payroll/income, large-inflow, wealth/investment, relocation/geography, household/life-stage).
+
+**Categories to detect (cap at 4 total shifts; pick the highest-value):**
+  - **income_trajectory** — payroll ACH amount step-up/step-down (raise, promotion, job loss), payroll counterparty flip (job change), first appearance of 1099/Stripe/Square deposits (self-employment onset), first appearance of SSA/pension (retirement onset), unemployment credit appearing.
+  - **wealth_tier_migration** — sustained increase in brokerage/401k/IRA contributions, a large one-time inflow (≥$10k liquidity event, inheritance, home-sale proceeds), reserve buffer expansion. Direction: up = Mass → Affluent → HNW; down = drawdown.
+  - **household_composition** — new baby (pediatric + baby retailer + daycare), kid → college (tuition ACH + out-of-state debits), empty nest (tuition stops + travel rises), divorce (family-law + duplicate utility setup), new pet (recurring vet/Chewy).
+  - **geography_relocation** — moving-company / U-Haul / storage charge, new utility installation, extended-stay hotel cluster, merchant-location centroid drift over 30+ days.
+  - **life_stage_entry** — homeownership entry (title/escrow → first mortgage payment), marriage (wedding-vendor cluster + jeweler), eldercare onset (assisted-living / in-home care agency recurring), major health event (hospital + specialty pharmacy + PT recurring).
+
+**Each demographic_shift MUST have:**
+  - id — auto-assigned downstream, omit from output
+  - category — one of the 5 enum values above
+  - label — 2-5 word human-readable shift name, e.g. "Payroll Step-Up · +18%", "Wealth Tier Migration ↑", "New Baby in Household", "Relocation: SF → NYC", "Retirement Onset Detected"
+  - direction — "up" | "down" | "lateral"
+  - confidence — 0-1 (NOT 0-100). Use 0.55 (2 rows, thin), 0.7 (3-4 rows), 0.85 (5+ rows with clear signal). Never above 0.92.
+  - magnitude_band — OPTIONAL vaguely-specific magnitude like "+18% payroll", "~+$45k inflow", "ZIP 94301 → 10013", "3 baby-retailer charges/mo". Omit if not applicable.
+  - evidence_summary — 1 sentence: what pattern you saw and why it implies the shift.
+  - transaction_indices — REQUIRED. At least 2 [T<n>] indices from the demographic candidate block (large_inflow is the ONE exception where 1 index is acceptable).
+
+**RULES:**
+  - Emit ONLY changes. Never emit a shift that just describes the customer's current static state.
+  - MINIMUM 2 supporting transactions per shift (except large single-inflow events).
+  - You MAY reuse a [T<n>] that also appears in a financial_signal ONLY when the demographic interpretation is genuinely distinct (e.g. a first-ever mortgage ACH is BOTH a financial_signal AND a "life_stage_entry: Homeownership" shift). Prefer non-overlapping evidence when possible.
+  - Cap at 4 shifts. If more qualify, keep the highest-confidence + highest-value ones (income > wealth > household > geography > life-stage).
+  - Return empty array if the transaction pattern shows no genuine change.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
+
+    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}${demographicTxnBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
