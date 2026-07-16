@@ -28,7 +28,7 @@ import {
   type EnrichedTransaction,
 } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
-import { getExternalSignalsFor, externalSignalToLifeEvent } from "@/lib/externalIntelligenceSignals";
+import { getExternalSignalsFor, externalSignalToLifeEvent, externalSignalsForLLM, type ExternalIntelSignal } from "@/lib/externalIntelligenceSignals";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
@@ -351,6 +351,11 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       `[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`,
     );
 
+    // Resolve external intelligence signals BEFORE the LLM call so the model
+    // sees them as pre-classified inputs and can respect their bucket assignments.
+    const externalSignalsRaw = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id);
+    const externalForLLM = externalSignalsForLLM(externalSignalsRaw);
+
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
         body: {
@@ -370,6 +375,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           lifeEvents: detectedEvents.map((e) => ({ event_name: e.event_name })),
           riskCategoriesPresent,
           riskTransactionIds,
+          externalSignals: externalForLLM,
           bankContext: getBankPromptContext(),
         },
       });
@@ -607,6 +613,51 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           })
           .map(({ _resolvedCategories, ...rest }: any) => rest),
       };
+
+      // --- Inject external-intelligence signals bucketed as financial / demographic ---
+      // The LLM was already told about these (via `externalSignals` in the request),
+      // but we authoritatively append them here so the UI ownership is deterministic
+      // and never depends on the model choosing to echo them back.
+      for (const es of externalSignalsRaw) {
+        if (es.bucket === "financial_signal") {
+          // De-dupe against LLM-emitted financial signals with the same product family.
+          const already = synthesis.financialSignals.some(
+            (f: any) =>
+              (f.product_family || "").toLowerCase() === (es.product_family || "").toLowerCase() &&
+              (es.product_family || "") !== "",
+          );
+          if (!already) {
+            synthesis.financialSignals.push({
+              id: es.id,
+              product_family: es.product_family || "other",
+              label: es.event_name,
+              servicer: es.servicer,
+              monthly_amount_band: es.monthly_amount_band,
+              cadence: es.cadence,
+              transaction_indices: [],
+              talking_points: es.talking_points || [],
+              source: "external",
+              provider: es.provider,
+              confidence: es.confidence,
+              detail: es.detail,
+            } as any);
+          }
+        } else if (es.bucket === "demographic_shift") {
+          synthesis.demographicShifts.push({
+            id: es.id,
+            category: es.demographic_category || "household_composition",
+            label: es.event_name,
+            direction: es.direction || "lateral",
+            confidence: es.confidence,
+            magnitude_band: es.magnitude_band,
+            evidence_summary: es.detail,
+            transaction_indices: [],
+            source: "external",
+            provider: es.provider,
+          } as any);
+        }
+      }
+
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
@@ -633,9 +684,20 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         if (/\b(inherit|windfall|estate)\b/.test(n)) return "windfall";
         return n;
       };
+      // Banned life-event themes — these belong to Financial Signals or Demographic Shifts.
+      // If the LLM still emits them (legacy prompt cache, drift), strip client-side so
+      // the ownership ladder is enforced end-to-end.
+      const BANNED_LIFE_EVENT_KEYS = new Set(["college", "auto_loan", "car_loan"]);
+      const isBannedLifeEvent = (name: string) => {
+        const n = normalizeName(name);
+        if (/\b(college|university|tuition|sat|act|kaplan|common app)\b/.test(n)) return true;
+        if (/\b(auto|car)\s*(loan|lease|refi|renewal|payoff|financ)/.test(n)) return true;
+        if (/\b(mortgage|heloc|refinanc)/.test(n)) return true;
+        return false;
+      };
       const upstreamThemes = new Set(detectedEvents.map((e) => themeKey(e.event_name || "")));
       const promotedEvents: LifeEvent[] = promotedRaw
-        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)))
+        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)) && !isBannedLifeEvent(e.event_name))
         .map((e: any) => {
           // Hydrate evidence from transaction_indices when the model gave indices but thin evidence.
           const txIdx: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
@@ -784,15 +846,19 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       setDetectedLifeEvents(null);
       try {
         const events: LifeEvent[] = preDetectedEvents ?? (await detectLifeEventsOnly());
-        // Inject dynamic external-intelligence signals (bureau/property/auto/etc.)
-        // so they flow through pills, Next-Product, Next-Offer, actions, and WM CoPilot.
-        const external = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id).map(externalSignalToLifeEvent);
+        // Inject dynamic external-intelligence signals into the life-event pill
+        // ONLY when the signal is bucketed as a life_event. Financial-signal and
+        // demographic-shift externals are injected into their own synthesis rows
+        // (see firePersonaSynthesis) — they must not double-post as life events.
+        const external = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id)
+          .filter((s) => s.bucket === "life_event")
+          .map(externalSignalToLifeEvent);
         const merged: LifeEvent[] = [...external, ...events]
           .filter(Boolean)
           .slice(0, 3) as LifeEvent[];
         setDetectedLifeEvents(merged);
         detectedLifeEventsRef.current = merged;
-        console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
+        console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external life_event)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
         // Fire product cards generation with life events + persona data
         fireProductCards(merged, personaSynthesisRef.current);
         // Fire indicative creditworthiness assessment in parallel

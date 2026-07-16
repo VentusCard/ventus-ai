@@ -1,65 +1,50 @@
 
-# Audit: Mutual exclusion between Life Events and Demographic Shifts
+# Make the persona LLM external-signal-aware from the start
 
-## Overlaps found today
+Today external intelligence signals (e.g. "Car Loan Renewal in ~2 Months") are grafted onto the intel panel **after** `synthesize-persona` returns. The LLM never sees them, so it can't reconcile them against life events / financial signals / demographic shifts, and the UI ends up with miscategorized pills (car loan under Life Events, college prep under Life Events instead of Demographic Shift).
 
-Reading `supabase/functions/synthesize-persona/index.ts` (LIFE EVENT PROMOTION §, lines 264–297, and DEMOGRAPHIC SHIFTS §, lines 423–451), the two taxonomies collide on the same transaction evidence:
+Fix: pipe external signals into the LLM as first-class input, and re-teach the taxonomy so the model owns bucket assignment holistically.
 
-| Life Event (canonical) | Demographic Shift category that duplicates it |
-|---|---|
-| Home Purchase / Transition | `life_stage_entry` → "Homeownership" |
-| New Baby / Family Expansion | `household_composition` → "new baby" |
-| Wedding / Engagement | `life_stage_entry` → "marriage" |
-| Elder Care | `life_stage_entry` → "eldercare onset" |
-| Relocation | `geography_relocation` (moving vendors, U-Haul, storage) |
-| Retirement Planning | `income_trajectory` (SSA/pension onset) + `life_stage_entry` (retirement) |
-| Inheritance / Windfall | `wealth_tier_migration` (large one-time inflow) |
-| College Preparation for Dependent | `household_composition` → "kid → college" |
+## 1. Pass external signals into the edge function
 
-The current rule ("You MAY reuse a [T<n>] that also appears in a financial_signal ONLY when the demographic interpretation is genuinely distinct") is a soft nudge. That's why we see double-counting.
+**`src/pages/ExecDemoPage.tsx`**
+- Resolve the sample's external signals *before* invoking `synthesize-persona`.
+- Add `external_signals` to the function payload: `[{ id, source, provider, type ("financial"|"life_event"|"behavioral"|"demographic"), label, detail, confidence, evidence_hint }]`.
+- Stop post-hoc injecting external signals into `detectedLifeEvents`. The LLM's response is now the source of truth; keep only the belt-and-suspenders exclusivity guard.
 
-Financial Signals also collide with `wealth_tier_migration` (e.g. brokerage ACH → both a Financial Signal and a wealth-tier shift).
+**`src/lib/externalIntelligenceSignals.ts`**
+- Add a `bucket` field to each signal: `"financial_signal" | "life_event" | "demographic_shift" | "behavioral"`.
+- Retag `car_loan_renewal` → `financial_signal` with `product: "Auto Loan"` and `signal_kind: "renewal_window"`.
+- Future-proof: shape is generic so new external providers just add rows.
 
-## Rule set to enforce
+## 2. Teach the LLM the new rules
 
-**Priority order (winner takes the evidence — no other bucket may reuse those [T<n>]):**
+**`supabase/functions/synthesize-persona/index.ts`**
+- Extend the request schema to accept `external_signals: ExternalSignal[]` and render them into the prompt inside a dedicated `## EXTERNAL SIGNALS (pre-classified)` block, one line per signal, showing source, bucket hint, label, and confidence.
+- Update the **EVIDENCE OWNERSHIP LADDER** to explicitly cover external signals: they enter the ladder at the bucket their `bucket` field declares, and must appear in the corresponding output array with `source: "external"` and the provider name preserved.
+- Rewrite two taxonomy rules that produced the reported miscategorizations:
+  - **Auto/Car loans, mortgages, student loans, leases, brokerage/401k, insurance premiums → Financial Signals only.** Never a life event, even if the trigger is an external "renewal in ~N months" alert. Life-event vocabulary ("Car Loan Renewal") is banned as a life-event label.
+  - **College Preparation for Dependent → Demographic Shift (`household_composition` = "kid → college").** Remove it from the Life Event enumeration and examples. Evidence patterns (SAT/ACT/College Board, campus tours, dorm supplies, tuition deposits, 529 draw-downs) are claimed by the demographic shift.
+- Add an "External signal reconciliation" clause: if an external signal's bucket conflicts with what the transactions alone would suggest, the external signal wins for bucket assignment but the model must still surface the transaction evidence it relied on.
+- Extend the tool schema so every output item (life event, financial signal, demographic shift, pillar rollup) can carry optional `source: "transactions" | "external" | "hybrid"` and `external_signal_ids: string[]`.
 
-```text
-Life Event  >  Financial Signal  >  Demographic Shift  >  Pillar Rollup
-```
+## 3. UI plumbing
 
-**Bucket definitions (mutually exclusive):**
+**`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+- Render pills with the violet "external" accent whenever `source !== "transactions"`, in whichever row the LLM placed them (Life Events, Financial Signals, Demographic Shifts, Spending Habits).
+- Use the LLM-provided `signal_count` label ("1 signal" for pure-external, "N txns" otherwise) instead of the current hard-coded branch.
 
-- **Life Events** — discrete, time-bounded transitions with a vendor cluster in the last 90 days. Own: Home Purchase, New Baby, Wedding, College Prep for Dependent, Elder Care, Retirement Planning, Relocation, Inheritance/Windfall, Business Formation.
-- **Financial Signals** — durable product relationships visible as recurring servicer ACH. Own: mortgage, auto loan/lease, student loan, brokerage/401k/IRA, insurance premiums.
-- **Demographic Shifts** — *ongoing state changes* inferred from aggregate cash-flow or geography patterns, NOT from vendor clusters already claimed by a Life Event. Own only:
-  - `income_trajectory` — payroll ACH step-up/step-down, payroll counterparty flip, 1099/Stripe/Square onset, unemployment credit. (SSA/pension onset moves to Retirement Planning life event.)
-  - `wealth_tier_migration` — sustained contribution rate change or reserve-buffer expansion (large one-time inflow moves to Inheritance/Windfall life event).
-  - `household_composition` — narrowed to shifts NOT covered by a life event: empty nest (tuition stops + travel rises), divorce (family-law + duplicate utilities), new pet.
-  - `geography_relocation` — narrowed to *post-move* persistent merchant-ZIP centroid drift over 30+ days. Moving vendors themselves belong to the Relocation life event.
-- **Retire** the `life_stage_entry` demographic category entirely — every subcase is already a Life Event.
-- **Pillar Rollups** — behavioral themes on transactions not claimed above.
+**`src/components/exec-demo/ExecDemoEnrichmentTable.tsx`**
+- Trigger the existing "External Signal" table view whenever the clicked pill has `source: "external"` (or `"hybrid"` with no txn evidence), regardless of which row it sits in — the current life-event-only trigger is removed.
 
-**Evidence exclusivity rule:**
+## 4. Guard rails (belt & suspenders)
 
-- Before emitting a Demographic Shift, subtract every `[T<n>]` claimed by a Life Event or Financial Signal.
-- A Demographic Shift must stand on ≥2 transactions from the remaining set. If it can't, drop it.
-- A Financial Signal may co-exist with a Life Event (e.g. first mortgage ACH ↔ Home Purchase) but the transaction belongs to the Life Event's evidence array; the Financial Signal references the servicer relationship, not the same [T<n>].
-
-## Changes in `supabase/functions/synthesize-persona/index.ts`
-
-1. **Priority ladder** — add an explicit "EVIDENCE OWNERSHIP LADDER" block near the top of `systemPrompt` (around line 203, next to the existing "LIFE EVENTS ALWAYS WIN" note) stating the four-tier order and the exclusivity rule.
-2. **Life Event section (lines 264–297)** — append: any [T<n>] emitted as life-event evidence is REMOVED from the candidate pool for demographic_shifts and pillar_rollups. Explicitly claim SSA/pension onset under "Retirement Planning" and large one-time inflow under "Inheritance / Windfall".
-3. **Demographic Shifts section (lines 423–451)**:
-   - Drop `life_stage_entry` from the category list, the tool schema `enum` (line 592), the response mapper (line 675+), and the `DemographicShift` type in `src/components/exec-demo/ExecDemoIntelPanel.tsx`.
-   - Rewrite each remaining category description to state what it EXCLUDES (moving vendors, new-baby retailers, tuition ACH, SSA, large inflow → all belong to life events).
-   - Replace the soft "MAY reuse" clause with a hard rule: "transaction_indices MUST NOT intersect with any transaction_indices already emitted under detected_life_events or financial_signals. If a shift's evidence collapses below 2 unique indices after subtraction, drop the shift."
-4. **Tool schema enum** (line 592) — remove `"life_stage_entry"`.
-5. **UI type** — remove `"life_stage_entry"` from the `DemographicShift.category` union in `ExecDemoIntelPanel.tsx`.
-6. **Post-processing guard** in `ExecDemoPage.tsx` — after mapping the response, filter `demographicShifts` to drop any shift whose `transaction_indices` are fully contained in the union of life-event + financial-signal indices (belt-and-suspenders in case the LLM ignores the rule).
+**`src/pages/ExecDemoPage.tsx`** post-processing (kept, tightened):
+- Enforce the ladder in code: strip any demographic shift whose `transaction_indices` are fully claimed by a life event or financial signal. No change needed for external-only entries (they carry no txn indices).
+- Drop any life event whose canonical label matches the banned list (car loan renewal, college prep, mortgage refi, etc.) as a safety net if the model regresses.
 
 ## Out of scope
 
-- No changes to Risk Factors taxonomy.
-- No copy changes in the UI pills beyond removing the retired category.
-- No prompt changes for `generate-product-cards`.
+- No changes to Risk Factors, Spending Habits pillar logic beyond source-flag rendering.
+- No changes to `generate-product-cards`; the new bucket assignment already flows into its input.
+- No new external providers wired up — just the schema to accept them.
