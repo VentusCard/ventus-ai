@@ -611,7 +611,7 @@ For each canonical life event below, check whether the per-transaction list meet
                           type: "string",
                           enum: [
                             "income_trajectory","wealth_tier_migration","household_composition",
-                            "geography_relocation","life_stage_entry",
+                            "geography_relocation",
                           ],
                         },
                         label: { type: "string", description: "2-5 word shift name, e.g. 'Payroll Step-Up · +18%'." },
