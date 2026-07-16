@@ -374,7 +374,27 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         },
       });
       if (error) throw error;
+      // ---- Financial signals (auto loans, mortgages, brokerage, etc.) ----
+      // Any txn owned by a financial signal is stripped from lifestyle rollups
+      // (mirrors the risk-guard logic below).
+      const rawFinancialSignals: any[] = Array.isArray(data.financial_signals) ? data.financial_signals : [];
+      const financialTxIdxSet = new Set<number>();
+      for (const fs of rawFinancialSignals) {
+        for (const ti of fs.transaction_indices || []) financialTxIdxSet.add(ti);
+      }
       const synthesis: PersonaSynthesis = {
+        financialSignals: rawFinancialSignals.map((f: any) => ({
+          id: f.id,
+          product_family: f.product_family,
+          label: f.label,
+          servicer: f.servicer,
+          monthly_amount_band: f.monthly_amount_band,
+          cadence: f.cadence,
+          transaction_indices: (f.transaction_indices || []).filter(
+            (ti: number) => ti >= 0 && ti < enrichedTxs.length,
+          ),
+          talking_points: f.talking_points || [],
+        })),
         pillarRollups: (data.pillar_rollups || [])
           .map((r: any) => {
             const catIndices: number[] = r.category_indices || [];
@@ -420,6 +440,14 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
               for (const ti of Array.from(txIndicesSet)) {
                 const txId = (enrichedTxs[ti] as any)?.transaction_id;
                 if (txId && riskTxIdSet.has(txId)) txIndicesSet.delete(ti);
+              }
+            }
+            // FINANCIAL-SIGNAL GUARD: any transaction owned by a financial signal
+            // (auto loan, mortgage, brokerage contribution, etc.) belongs exclusively
+            // to that signal and must not appear inside a lifestyle rollup.
+            if (financialTxIdxSet.size > 0) {
+              for (const ti of Array.from(txIndicesSet)) {
+                if (financialTxIdxSet.has(ti)) txIndicesSet.delete(ti);
               }
             }
             const txIndices = Array.from(txIndicesSet);

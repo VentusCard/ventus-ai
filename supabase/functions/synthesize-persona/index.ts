@@ -218,7 +218,41 @@ For each canonical life event below, check whether the per-transaction list meet
 
 ---
 
-## PILLAR ROLLUPS (do this AFTER life event promotion)
+## FINANCIAL SIGNALS (do this SECOND, after life events, before pillar rollups)
+
+**Financial signals are recurring large-financial-product relationships** — auto loans, auto leases, mortgages, HELOCs, student loans, personal loans, credit-card payoffs, brokerage / retirement / 529 contributions, and life/disability insurance premiums. They are *bigger than spending* and NEVER belong inside a pillar_rollup (previously we saw the LLM invent "Autoloan Management" rollups mixing VW Credit + Zillow mortgage — that is EXACTLY what this section prevents).
+
+**Detect a financial_signal when** the per-transaction list contains at least ONE transaction whose merchant matches one of the families below. Group all transactions from the same servicer into one signal.
+
+**Product families + merchant hints:**
+  - auto_loan (Auto Loan) — "toyota financial", "vw credit", "volkswagen credit", "ford credit", "gm financial", "honda financial", "ally auto", "chase auto", "capital one auto", "bmw financial", "mercedes-benz financial", "hyundai motor finance", "nissan motor accept"
+  - auto_lease (Auto Lease) — merchant contains "lease" / "leasing"
+  - mortgage (Mortgage) — "rocket mortgage", "wells fargo home mortgage", "chase home lending", "pennymac", "mr. cooper", "loandepot", "zillow home loans", "quicken loans"
+  - heloc (HELOC) — contains "heloc" / "home equity"
+  - student_loan (Student Loan) — "nelnet", "sallie mae", "navient", "great lakes", "fedloan", "mohela", "aidvantage"
+  - personal_loan (Personal Loan) — "sofi loan", "lightstream", "marcus loan", "upstart", "prosper", "lendingclub", "best egg"
+  - credit_card_payoff (Card Payoff) — "amex payment", "chase card payment", "discover payment", "capital one card"
+  - brokerage_contribution (Brokerage Contribution) — "fidelity", "schwab", "vanguard", "robinhood", "wealthfront", "betterment", "etrade", "merrill edge"
+  - retirement_contribution (Retirement Contribution) — "401k", "ira contribution", "roth ira", "sep ira"
+  - insurance_premium (Insurance Premium) — "northwestern mutual", "new york life", "massmutual", "prudential life", "guardian life", "haven life", "policygenius"
+  - education_savings (529 Contribution) — "529", "my529", "collegeamerica", "scholarshare"
+
+**Emit one financial_signal per (product_family, servicer) pair** with:
+  - product_family — one of the enum values above
+  - label — 2-5 words, "<Family> · <Servicer>", e.g. "Auto Loan · VW Credit", "Mortgage · Rocket"
+  - servicer — the counterparty name as it appears
+  - monthly_amount_band — vaguely-specific band ("~$450/mo", "~$2.1k/mo"). NEVER exact dollar figures. Omit if only 1 txn.
+  - cadence — "monthly" | "biweekly" | "quarterly" | "annual" | "irregular"
+  - transaction_indices — every [T<n>] index tied to this servicer
+  - talking_points — 2 short advisor conversation starters (e.g. "Refi opportunity — rate reset in 2026", "Cross-sell umbrella policy")
+
+**CRITICAL EXCLUSION — these transactions are the exclusive property of financial_signals.** Any [T<n>] you place into a financial_signal MUST NOT appear inside any pillar_rollup transaction_indices — no exceptions. This prevents debt/investment rows from being repackaged as lifestyle habits.
+
+**Vocabulary ban for pillar_rollups (financial products):** NEVER use these words in a rollup label: "Loan", "Mortgage", "Lease", "HELOC", "Brokerage", "Investing", "Investment", "Retirement Saver", "401k", "IRA", "Premium Payer", "Debt", "Servicing", "Management" (when combined with "Auto", "Loan", "Debt"). Those belong in financial_signals.
+
+---
+
+## PILLAR ROLLUPS (do this THIRD, after life events and financial signals)
 
 **How to think about rollups:**
 
@@ -410,8 +444,33 @@ For each canonical life event below, check whether the per-transaction list meet
                     },
                     description: "Major life-stage events the spending evidence supports. Only emit when the canonical threshold is met. Do NOT re-emit any event that was passed in via the input lifeEvents list. Return empty array if nothing qualifies.",
                   },
+                  financial_signals: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        product_family: {
+                          type: "string",
+                          enum: [
+                            "auto_loan","auto_lease","mortgage","heloc","student_loan","personal_loan",
+                            "credit_card_payoff","brokerage_contribution","retirement_contribution",
+                            "insurance_premium","education_savings",
+                          ],
+                        },
+                        label: { type: "string", description: "2-5 words, '<Family> · <Servicer>'." },
+                        servicer: { type: "string" },
+                        monthly_amount_band: { type: "string", description: "Vaguely-specific band like '~$450/mo'. Omit if only 1 txn." },
+                        cadence: { type: "string", enum: ["monthly","biweekly","quarterly","annual","irregular"] },
+                        transaction_indices: { type: "array", items: { type: "number" } },
+                        talking_points: { type: "array", items: { type: "string" } },
+                      },
+                      required: ["product_family", "label", "servicer", "transaction_indices"],
+                      additionalProperties: false,
+                    },
+                    description: "Recurring large-financial-product relationships (loans, mortgages, leases, investments, insurance). MUST NOT overlap pillar_rollups transaction_indices. Return empty array if none detected.",
+                  },
                 },
-                required: ["pillar_rollups", "detected_life_events"],
+                required: ["pillar_rollups", "detected_life_events", "financial_signals"],
                 additionalProperties: false,
               },
             },
@@ -466,6 +525,16 @@ For each canonical life event below, check whether the per-transaction list meet
         evidence: Array.isArray(e.evidence) ? e.evidence : [],
         talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
         transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
+      })),
+      financial_signals: (raw.financial_signals || []).map((f: any, i: number) => ({
+        id: `fs-${i}`,
+        product_family: f.product_family,
+        label: f.label,
+        servicer: f.servicer || "",
+        monthly_amount_band: f.monthly_amount_band || "",
+        cadence: f.cadence || "irregular",
+        transaction_indices: Array.isArray(f.transaction_indices) ? f.transaction_indices : [],
+        talking_points: Array.isArray(f.talking_points) ? f.talking_points : [],
       })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
