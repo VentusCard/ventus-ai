@@ -639,9 +639,20 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         if (/\b(inherit|windfall|estate)\b/.test(n)) return "windfall";
         return n;
       };
+      // Banned life-event themes — these belong to Financial Signals or Demographic Shifts.
+      // If the LLM still emits them (legacy prompt cache, drift), strip client-side so
+      // the ownership ladder is enforced end-to-end.
+      const BANNED_LIFE_EVENT_KEYS = new Set(["college", "auto_loan", "car_loan"]);
+      const isBannedLifeEvent = (name: string) => {
+        const n = normalizeName(name);
+        if (/\b(college|university|tuition|sat|act|kaplan|common app)\b/.test(n)) return true;
+        if (/\b(auto|car)\s*(loan|lease|refi|renewal|payoff|financ)/.test(n)) return true;
+        if (/\b(mortgage|heloc|refinanc)/.test(n)) return true;
+        return false;
+      };
       const upstreamThemes = new Set(detectedEvents.map((e) => themeKey(e.event_name || "")));
       const promotedEvents: LifeEvent[] = promotedRaw
-        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)))
+        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)) && !isBannedLifeEvent(e.event_name))
         .map((e: any) => {
           // Hydrate evidence from transaction_indices when the model gave indices but thin evidence.
           const txIdx: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
