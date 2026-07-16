@@ -475,6 +475,21 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           </div>
         )}
         {renderContent()}
+
+        {/*
+          Persistent Demo mount — kept alive across tab switches so the
+          pre-fired enrichment pipeline (classification, persona, offers,
+          product cards) is ready the moment the user clicks the Demo tab.
+          Hidden via CSS instead of unmounting so React state is preserved.
+        */}
+        <div
+          className={cn(
+            "-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white",
+            activeTab === 'exec-demo' ? "block" : "hidden",
+          )}
+        >
+          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai-dashboard')} />
+        </div>
       </div>
 
       {/* Chat Panel */}
