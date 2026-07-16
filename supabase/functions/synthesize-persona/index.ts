@@ -447,7 +447,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 **Use the "Demographic-shift candidate transactions" block** at the end of the user message. Each row is tagged with its shift-family (payroll/income, large-inflow, wealth/investment, relocation/geography, household/life-stage).
 
-**Categories to detect (cap at 4 total shifts; pick the highest-value). `life_stage_entry` NO LONGER EXISTS — every homeownership / marriage / eldercare / major-health case belongs to a Life Event.**
+**Categories to detect (cap at 4 total shifts; pick the highest-value). \`life_stage_entry\` NO LONGER EXISTS — every homeownership / marriage / eldercare / major-health case belongs to a Life Event.**
 
   - **income_trajectory** — payroll ACH amount step-up/step-down (raise, promotion, job loss), payroll counterparty flip (job change), first appearance of 1099/Stripe/Square deposits (self-employment onset), unemployment credit appearing. **EXCLUDES** SSA / pension onset (that belongs to the "Retirement Planning" life event).
   - **wealth_tier_migration** — sustained increase (or decrease) in brokerage/401k/IRA *contribution rate*, or a persistent reserve-buffer expansion / drawdown pattern. Direction: up = Mass → Affluent → HNW; down = drawdown. **EXCLUDES** any single large one-time inflow ≥$10k (that belongs to the "Inheritance / Windfall" life event) and EXCLUDES the recurring brokerage/401k ACH itself when it is already emitted as a financial_signal.
