@@ -442,6 +442,14 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
                 if (txId && riskTxIdSet.has(txId)) txIndicesSet.delete(ti);
               }
             }
+            // FINANCIAL-SIGNAL GUARD: any transaction owned by a financial signal
+            // (auto loan, mortgage, brokerage contribution, etc.) belongs exclusively
+            // to that signal and must not appear inside a lifestyle rollup.
+            if (financialTxIdxSet.size > 0) {
+              for (const ti of Array.from(txIndicesSet)) {
+                if (financialTxIdxSet.has(ti)) txIndicesSet.delete(ti);
+              }
+            }
             const txIndices = Array.from(txIndicesSet);
 
             // Re-derive categoryIndices from the actual selected transactions so the rollup-level
