@@ -1,55 +1,40 @@
-## Add a 4th section: **Financial Signals** (loans, mortgages, leases, investments)
+## Root cause
 
-Right now the Intel panel has three sections: **Spending Habits** (pillar rollups), **Life Events**, and **Risk**. Large financial products (auto loans, mortgages, leases, brokerage/robo/401k inflows, HELOC draws, student loans, insurance premiums) don't fit any of them — so the LLM misfiles them as "Autoloan Management" spending habits. A dedicated **Financial Signals** section owns this class of transaction.
+The Financial Signals row never renders because the `synthesize-persona` edge function isn't returning any `financial_signals` — even for customers with obvious auto-loan (VW CREDIT) and mortgage rows in the enrichment table.
 
-### Concept
+The prompt tells the LLM: *"Detect a financial_signal when the per-transaction list contains at least ONE transaction whose merchant matches …"* and to attach `[T<n>]` indices from that list.
 
-A "financial signal" = recurring or notable interaction with a bigger-than-spending financial product. Each signal names the product family, cadence, servicer, and monthly outflow/inflow.
+But the per-transaction numbered block (`txnLines` in `supabase/functions/synthesize-persona/index.ts` around lines 106-118) is filtered to `TXN_LEVEL_PILLARS` only — Travel, Style, Family, Health, Sports, Entertainment, Food. **Financial products (auto loans, mortgages, brokerage, insurance) are not in that set**, so those rows are invisible to the LLM. Zero candidates → zero `financial_signals` returned → the UI's `finSignals.length === 0` guard hides the row.
 
-Canonical financial signal vocab (fixed list):
-- `auto_loan` — Auto Loan (servicer + monthly payment)
-- `auto_lease` — Auto Lease
-- `mortgage` — Mortgage (servicer + monthly payment)
-- `heloc` — HELOC draws / payments
-- `student_loan` — Student Loan
-- `personal_loan` — Personal / Installment Loan
-- `credit_card_payoff` — Recurring card-issuer payments to an outside card
-- `brokerage_contribution` — Brokerage / robo transfers out (Fidelity, Schwab, Vanguard, Robinhood, Wealthfront, Betterment)
-- `retirement_contribution` — 401k / IRA / SEP contributions
-- `insurance_premium` — Life / disability / umbrella premiums (not auto/home insurance which is spending)
-- `education_savings` — 529 contributions
+## Fix (single file)
 
-Each signal in the UI: label, product family, monthly amount range (vaguely specific — "~$450/mo"), servicer/counterparty, `transaction_indices` for the underlying rows.
+**`supabase/functions/synthesize-persona/index.ts`**
 
-### Changes
+1. Build a second numbered candidate block, `financialSignalTxnLines`, that walks the same `txns` array with the same `[T<idx>]` indices (so downstream `transaction_indices` still map 1:1 to `enrichedTxs`). Include a transaction when either:
+   - its normalized merchant / description contains one of the product-family hint substrings already listed in the prompt (auto loan, mortgage, HELOC, student loan, personal loan, credit-card payoff, brokerage, retirement, insurance, 529), OR
+   - its pillar / category is in a small hard-coded financial set (`Financial & Aspirational`, `Financial Services`, plus `Home & Living > Rent & Mortgage`).
 
-**1. New file `src/lib/financialSignalTaxonomy.ts`**
-- Export `FINANCIAL_SIGNAL_VOCAB` (the 11 types above with human labels and merchant-pattern hints used by the LLM).
-- Export `FinancialSignal` TS type: `{ id, product_family, label, servicer, monthly_amount_band, cadence, transaction_indices[], talking_points[] }`.
+2. Emit those rows in a new prompt section right after the existing lifestyle txn block:
 
-**2. `supabase/functions/synthesize-persona/index.ts`**
-- Add a THIRD output alongside `detected_life_events` and `pillar_rollups`: **`financial_signals`**.
-- New system-prompt section "FINANCIAL SIGNALS (do this BEFORE rollups, AFTER life events)": scan transactions for the 11 canonical financial-product families; emit one signal per detected product. Use vaguely-specific bands ("~$450/mo", "~$2.1k/mo"), never exact figures.
-- Update the vocabulary ban: transactions promoted into a financial_signal MUST NOT also appear in any `pillar_rollup`. Add the explicit ban: no rollup label may contain "Loan", "Mortgage", "Autoloan", "Debt", "Repayment", "Servicing", "Payoff", "Refinance". Add the failure example: `"Autoloan Management" covering VW Credit + Zillow mortgage → these belong in financial_signals as auto_loan + mortgage, NOT a lifestyle rollup.`
-- Tool schema: add `financial_signals: array` next to the existing outputs.
+   ```
+   Financial-signal candidate transactions (use these [T<n>] indices for financial_signals.transaction_indices — never include them in pillar_rollups):
+   [T7] VW CREDIT INC · $685 · 2026-08-14 · Financial & Aspirational > General · []
+   [T14] ROCKET MORTGAGE · $2450 · 2026-08-01 · Home & Living > Rent & Mortgage · []
+   …
+   ```
 
-**3. `src/components/exec-demo/ExecDemoIntelPanel.tsx`**
-- Add a new pill section "Financial Signals" (slate-blue accent, distinct from Spending Habits amber, Life Events amber-gold, Risk red).
-- Render each signal as a chip: `<icon> <label> · ~$XXX/mo`. Click behavior mirrors rollup pills — highlights matching `transaction_indices` in the enrichment table.
-- Section order top-to-bottom: Life Events → Financial Signals → Spending Habits → Risk.
+   If the list is empty, skip the block entirely (no `financial_signals` will be produced, which is correct).
 
-**4. `src/components/exec-demo/execDemoData.ts` (or wherever `PersonaSynthesis` is typed)**
-- Add `financialSignals?: FinancialSignal[]` to the persona synthesis type; thread it from the edge-function response through `ExecDemoPage` into `ExecDemoIntelPanel` props.
+3. Tiny prompt tweak in the FINANCIAL SIGNALS section: change "Detect a financial_signal when the per-transaction list contains…" to "Detect a financial_signal when the **financial-signal candidate transactions** block contains…" and remind the model those `[T<n>]` indices are the source of truth.
 
-**5. External signal wiring (unchanged from before)**
-- The existing "Car Loan Renewal in ~2 Months" external bureau signal stays in the Life Events row (it's a forward-looking event, not a current product). If the customer already has an `auto_loan` financial signal detected, the two coexist — bureau = future, financial signal = current — which naturally tells the "renewal is confirmed by their existing VW Credit payments" story without any cross-highlight logic.
+Everything else — the tool schema, the response normalization (`financial_signals` mapping to `id: fs-<i>`), the client-side `PersonaSynthesis.financialSignals` threading in `ExecDemoPage.tsx`, and the Financial Signals row in `ExecDemoIntelPanel.tsx` (lines 907-963) — already works and stays untouched. This one change unblocks the whole downstream path.
 
-### Out of scope
+## Verification
 
-- No changes to the Risk panel logic or the external signal table view.
-- No new edge function — reuse `synthesize-persona` and extend its output.
-- No changes to product/offer generation; downstream code that reads life_events and rollups is unchanged. Financial signals become additional context downstream can opt into later.
+After deploying the edge function, re-run the default customer on `/bankdemo` → click **Behavioral Intelligence — Ready** → confirm a 4th "Financial Signals" row appears above Risk Factors, with pills like "Auto Loan · VW Credit" that highlight the VW CREDIT row in the enrichment table when clicked.
 
-### Result
+## Out of scope
 
-Auto-loan payments, mortgage payments, brokerage transfers, and insurance premiums surface in their own **Financial Signals** section instead of being force-fit into a "spending habit" rollup. The LLM has an explicit home for these transactions and an explicit ban on repackaging them as lifestyle.
+- No UI changes.
+- No changes to life-event / risk / pillar-rollup logic.
+- No changes to product-card or next-offer generation (they already read `financialSignals` off the persona synthesis).
