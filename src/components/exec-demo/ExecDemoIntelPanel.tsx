@@ -973,27 +973,6 @@ export default function ExecDemoIntelPanel({
                           </div>
                         );
                       })()}
-                      <div
-                        className={`flex items-center gap-3 ${rowGap}`}
-                        style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
-                      >
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <p
-                              className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600 cursor-help inline-flex items-center gap-1.5`}
-                            >
-                              Risk Factors:
-                              <Info className="w-3 h-3 opacity-70" />
-                            </p>
-                          </TooltipTrigger>
-                          <TooltipPortal>
-                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
-                              Obfuscated behavioral risk signals across Financial Vulnerability Indicators (7 cohorts: overdraft drift, BNPL stacking, payday cycles, and more), trend deterioration, vice exposure (gambling, alcohol, adult), and fraud/AML patterns. Surfaced only when a real signal exists.
-                            </TooltipContent>
-                          </TooltipPortal>
-                        </Tooltip>
-                        <div className={pillRowClass}>{riskPills}</div>
-                      </div>
                       {(() => {
                         const demoShifts = personaSynthesis?.demographicShifts || [];
                         if (demoShifts.length === 0) return null;
@@ -1001,7 +980,7 @@ export default function ExecDemoIntelPanel({
                         return (
                           <div
                             className={`flex items-center gap-3 ${rowGap}`}
-                            style={{ animation: "fade-in 0.5s ease-out 0.5s both" }}
+                            style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
                           >
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -1009,7 +988,7 @@ export default function ExecDemoIntelPanel({
                                   className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
                                   style={{ color: "#0f766e" }}
                                 >
-                                  Demographic Shifts:
+                                  Demographic:
                                   <Info className="w-3 h-3 opacity-70" />
                                 </p>
                               </TooltipTrigger>
@@ -1053,6 +1032,27 @@ export default function ExecDemoIntelPanel({
                           </div>
                         );
                       })()}
+                      <div
+                        className={`flex items-center gap-3 ${rowGap}`}
+                        style={{ animation: "fade-in 0.5s ease-out 0.5s both" }}
+                      >
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <p
+                              className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600 cursor-help inline-flex items-center gap-1.5`}
+                            >
+                              Risk Factors:
+                              <Info className="w-3 h-3 opacity-70" />
+                            </p>
+                          </TooltipTrigger>
+                          <TooltipPortal>
+                            <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                              Obfuscated behavioral risk signals across Financial Vulnerability Indicators (7 cohorts: overdraft drift, BNPL stacking, payday cycles, and more), trend deterioration, vice exposure (gambling, alcohol, adult), and fraud/AML patterns. Surfaced only when a real signal exists.
+                            </TooltipContent>
+                          </TooltipPortal>
+                        </Tooltip>
+                        <div className={pillRowClass}>{riskPills}</div>
+                      </div>
                       </TooltipProvider>
                     </>
                   );
