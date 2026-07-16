@@ -37,9 +37,21 @@ export interface FinancialSignal {
   talking_points?: string[];
 }
 
+export interface DemographicShift {
+  id: string;
+  category: "income_trajectory" | "wealth_tier_migration" | "household_composition" | "geography_relocation" | "life_stage_entry";
+  label: string;
+  direction: "up" | "down" | "lateral";
+  confidence: number;
+  magnitude_band?: string;
+  evidence_summary?: string;
+  transaction_indices: number[];
+}
+
 export interface PersonaSynthesis {
   pillarRollups?: PillarRollup[];
   financialSignals?: FinancialSignal[];
+  demographicShifts?: DemographicShift[];
 }
 
 interface Props {
