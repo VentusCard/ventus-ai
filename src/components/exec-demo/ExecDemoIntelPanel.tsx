@@ -634,18 +634,24 @@ export default function ExecDemoIntelPanel({
                   ) : detectedLifeEvents && detectedLifeEvents.length > 0 ? (
                     detectedLifeEvents.map((evt, i) => {
                       const isActive = activeTriggerLabel === evt.event_name;
+                      const isExternal = !!externalSignals?.some((s) => s.event_name === evt.event_name);
                       const evidenceMerchants = evt.evidence?.map((e) => e.merchant.toLowerCase()) || [];
-                      const matchedIndices = transactions
-                        ? transactions
-                            .map((tx, idx) => {
-                              const m = (tx.merchant || "").toLowerCase();
-                              return evidenceMerchants.some((em) => m.includes(em) || em.includes(m)) ? idx : -1;
-                            })
-                            .filter((idx) => idx !== -1)
-                        : [];
+                      const matchedIndices = isExternal
+                        ? []
+                        : transactions
+                          ? transactions
+                              .map((tx, idx) => {
+                                const m = (tx.merchant || "").toLowerCase();
+                                return evidenceMerchants.some((em) => m.includes(em) || em.includes(m)) ? idx : -1;
+                              })
+                              .filter((idx) => idx !== -1)
+                          : [];
                       const confidence =
                         evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
                       const evCount = evt.evidence?.length ?? 0;
+                      const countLabel = isExternal
+                        ? `${evCount} signal${evCount !== 1 ? "s" : ""}`
+                        : `${evCount} txn${evCount !== 1 ? "s" : ""}`;
                       return (
                         <span
                           key={evt.event_name}
@@ -664,11 +670,12 @@ export default function ExecDemoIntelPanel({
                           <span style={{ color: "#f59e0b" }}>✦</span>
                           {evt.event_name}
                           <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
-                            {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
+                            {confidence}% · {countLabel}
                           </span>
                         </span>
                       );
                     })
+
                   ) : !isCollapsed ? (
                     <p className="text-[11px] text-slate-400 italic">No significant life events detected</p>
                   ) : null;
