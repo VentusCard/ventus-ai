@@ -290,7 +290,7 @@ When you build transaction_indices, you must check each candidate [T<n>] row aga
     const systemPrompt = `You are a sharp behavioral analyst at a bank. You look at someone's spending and figure out who they actually are — the way a friend would describe them.
 
 Given aggregated spending signals, produce TWO outputs:
-1. **detected_life_events** — major life-stage events (home purchase, college prep, wedding, baby, etc.) that the spending evidence supports.
+1. **detected_life_events** — major discrete transitions (home purchase, wedding, new baby, elder care, retirement planning, relocation, inheritance/windfall, business formation) that the spending evidence supports.
 2. **pillar_rollups** — vivid behavioral labels that group categories into lifestyle habits.
 
 **Life events are NOT lifestyle habits.** A home purchase is a one-time life event; "Casual Dining Regular" is a lifestyle habit. Promote qualifying clusters into life events FIRST, then build rollups from what's left.
@@ -305,7 +305,7 @@ Every transaction can belong to AT MOST ONE of these four buckets. When a row qu
 Life Event  >  Financial Signal  >  Demographic Shift  >  Pillar Rollup
 \`\`\`
 
-- **Life Events** own discrete, time-bounded transitions with a vendor cluster (home purchase, new baby, wedding, college prep, elder care, retirement planning, relocation, inheritance/windfall, business formation).
+- **Life Events** own discrete, time-bounded transitions with a vendor cluster (home purchase, new baby, wedding, elder care, retirement planning, relocation, inheritance/windfall, business formation). Auto/car loans, mortgages, student loans, brokerage — even when triggered by a bureau alert like "renewal in ~2mo" — are NEVER life events; they are Financial Signals. College Prep is NEVER a Life Event; it is a Demographic Shift (household_composition = "kid → college").
 - **Financial Signals** own durable product relationships (mortgage, auto loan/lease, student loan, brokerage/401k/IRA, insurance premiums) surfaced as recurring servicer ACH.
 - **Demographic Shifts** own *ongoing state changes* inferred from aggregate cash-flow / geography — never from vendor clusters already claimed by a Life Event.
 - **Pillar Rollups** own everything else.
@@ -327,7 +327,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - **"Home Purchase / Transition"** — 3+ transactions from any combination of: realtor, title company, escrow, home inspector, mortgage company, moving company, large home retailers in atypical volume (Crate & Barrel, West Elm, Pottery Barn, Restoration Hardware, IKEA, Williams Sonoma Home), Home Depot/Lowe's spike (>$500 single ticket or 3+ visits), first-time mortgage payment, HOA setup, utility transfers, appliance retailers (>$500).
 
-- **"College Preparation for Dependent"** — 2+ from: SAT/ACT/Kaplan/Princeton Review, college visitor parking, application portals (Common App, Coalition), university bursar/tuition deposit, AP exam fees, college tour airfare paired with university merchant. OR a single explicit university tuition/deposit transaction.
+- ~~College Preparation for Dependent~~ — **RETIRED as a life event.** College prep spend (SAT/ACT/Kaplan/Princeton Review, Common App, campus visits, tuition deposits, 529 draw-downs) belongs to a `household_composition` **Demographic Shift** with label "Kid → College" (see Demographic Shifts section). Do NOT emit a life event for this theme.
 
 - **"Wedding / Engagement"** — 2+ from: jeweler $2k+, wedding venue, bridal salon, wedding photographer, event caterer, registry retailers (Crate & Barrel registry, Williams Sonoma registry).
 
@@ -351,7 +351,7 @@ For each canonical life event below, check whether the per-transaction list meet
 - transaction_indices = the same [T<n>] indices listed in evidence (used downstream to highlight rows).
 - **If a life event was already passed in via the input lifeEvents list, do NOT re-emit it.** That theme is already covered.
 - If a cluster qualifies for a life event, the related transactions belong in that event ONLY — they must NOT also appear in a pillar_rollup, demographic_shift, or financial_signal's transaction_indices. Pull them out of every lower-tier bucket entirely.
-- **Claim boundary reminders:** SSA / pension onset belongs to "Retirement Planning" (not an income_trajectory shift). A large one-time inflow (inheritance, home-sale proceeds, ≥$10k liquidity event) belongs to "Inheritance / Windfall" (not a wealth_tier_migration shift). Moving vendors, U-Haul, storage-unit charges belong to "Relocation" (not a geography_relocation shift). Baby retailers, pediatrician, daycare belong to "New Baby / Family Expansion" (not a household_composition shift). Tuition ACH and college-visit spend belong to "College Preparation for Dependent" (not a household_composition shift).
+- **Claim boundary reminders:** SSA / pension onset belongs to "Retirement Planning" (not an income_trajectory shift). A large one-time inflow (inheritance, home-sale proceeds, ≥$10k liquidity event) belongs to "Inheritance / Windfall" (not a wealth_tier_migration shift). Moving vendors, U-Haul, storage-unit charges belong to "Relocation" (not a geography_relocation shift). Baby retailers, pediatrician, daycare belong to "New Baby / Family Expansion" (not a household_composition shift). Tuition ACH, SAT/ACT, Common App, campus visits, 529 draw-downs belong to a **household_composition Demographic Shift ("Kid → College")** — NEVER to a life event.
 
 **Vocabulary ban for pillar_rollups (final defense):** NEVER use these words in a rollup label: "Phase", "Transition", "Prep", "Preparation", "Bound", "Expecting", "New Parent", "New Homeowner", "Empty Nest", "Aspiring Homeowner", "Nesting". Those describe life events — emit them as detected_life_events or omit them entirely.
 
@@ -489,7 +489,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
   - **income_trajectory** — payroll ACH amount step-up/step-down (raise, promotion, job loss), payroll counterparty flip (job change), first appearance of 1099/Stripe/Square deposits (self-employment onset), unemployment credit appearing. **EXCLUDES** SSA / pension onset (that belongs to the "Retirement Planning" life event).
   - **wealth_tier_migration** — sustained increase (or decrease) in brokerage/401k/IRA *contribution rate*, or a persistent reserve-buffer expansion / drawdown pattern. Direction: up = Mass → Affluent → HNW; down = drawdown. **EXCLUDES** any single large one-time inflow ≥$10k (that belongs to the "Inheritance / Windfall" life event) and EXCLUDES the recurring brokerage/401k ACH itself when it is already emitted as a financial_signal.
-  - **household_composition** — narrowed to: empty nest (tuition ACH stops + travel spend rises), divorce (family-law attorney + duplicate utility setup at a second address), new pet (recurring vet + Chewy). **EXCLUDES** new-baby retailers / pediatrician / daycare (→ "New Baby / Family Expansion" life event) and EXCLUDES tuition ACH / college-visit spend (→ "College Preparation for Dependent" life event).
+  - **household_composition** — narrowed to: empty nest (tuition ACH stops + travel spend rises), divorce (family-law attorney + duplicate utility setup at a second address), new pet (recurring vet + Chewy), **and "Kid → College" (2+ from SAT/ACT/Kaplan/Princeton Review, Common App/Coalition, campus visits/tour airfare, university bursar/tuition deposit, AP exam fees, 529 draw-downs)**. **EXCLUDES** new-baby retailers / pediatrician / daycare (→ "New Baby / Family Expansion" life event).
   - **geography_relocation** — *post-move* persistent merchant-ZIP centroid drift over 30+ days (the customer's everyday spend now clusters in a new metro). **EXCLUDES** the moving vendors themselves — U-Haul, long-distance movers, storage-unit charges, temporary housing all belong to the "Relocation" life event.
 
 **Each demographic_shift MUST have:**
@@ -569,7 +569,7 @@ For each canonical life event below, check whether the per-transaction list meet
                           type: "string",
                           enum: [
                             "Home Purchase / Transition",
-                            "College Preparation for Dependent",
+                            
                             "Wedding / Engagement",
                             "New Baby / Family Expansion",
                             "Business Formation",
