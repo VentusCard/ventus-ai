@@ -1,35 +1,55 @@
-## Match the External Signal view to the transaction table's visual weight
+## Add a 4th section: **Financial Signals** (loans, mortgages, leases, investments)
 
-Comparing the two screenshots, the external-signal view is visually heavier than the standard enrichment table:
+Right now the Intel panel has three sections: **Spending Habits** (pillar rollups), **Life Events**, and **Risk**. Large financial products (auto loans, mortgages, leases, brokerage/robo/401k inflows, HELOC draws, student loans, insurance premiums) don't fit any of them — so the LLM misfiles them as "Autoloan Management" spending habits. A dedicated **Financial Signals** section owns this class of transaction.
 
-- **Tier-1 header band** is a saturated violet gradient at full row height, while the standard table uses a light `bg-slate-100` on the Raw side and a slimmer blue gradient on the Enriched side.
-- **Tier-2 column headers** sit on a tinted `bg-violet-50/70` band with heavier violet borders, whereas the standard headers use `bg-slate-50/80` with hairline `border-slate-200`.
-- **The single data row** uses `py-2.5` padding and violet-tinted borders, making it feel bulkier than the standard `py-2` rows.
+### Concept
 
-### Changes (all in `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`)
+A "financial signal" = recurring or notable interaction with a bigger-than-spending financial product. Each signal names the product family, cadence, servicer, and monthly outflow/inflow.
 
-1. **Tier-1 header (external branch, ~lines 219-243)**
-   - Keep the "External Signal · sourced from outside data provider" label but render it in the same visual language as the standard Raw/Enriched bar: light slate background on the left portion + a **slim** violet accent chip inline, matching the standard header's font size, padding (`px-3 py-2`), tracking, and border weight.
-   - Remove the full-width gradient fill and shimmer overlay so the row height and weight match the standard tier-1 exactly.
+Canonical financial signal vocab (fixed list):
+- `auto_loan` — Auto Loan (servicer + monthly payment)
+- `auto_lease` — Auto Lease
+- `mortgage` — Mortgage (servicer + monthly payment)
+- `heloc` — HELOC draws / payments
+- `student_loan` — Student Loan
+- `personal_loan` — Personal / Installment Loan
+- `credit_card_payoff` — Recurring card-issuer payments to an outside card
+- `brokerage_contribution` — Brokerage / robo transfers out (Fidelity, Schwab, Vanguard, Robinhood, Wealthfront, Betterment)
+- `retirement_contribution` — 401k / IRA / SEP contributions
+- `insurance_premium` — Life / disability / umbrella premiums (not auto/home insurance which is spending)
+- `education_savings` — 529 contributions
 
-2. **Tier-2 column headers (external branch, ~lines 283-289)**
-   - Swap `bg-violet-50/70` + `border-violet-200` for `bg-slate-50/80` + `border-slate-200` (same as the standard header row).
-   - Keep the label text violet (`text-violet-700`) so the column identity is still clearly "external", but the band, border thickness, padding, and font sizing exactly mirror the standard headers.
+Each signal in the UI: label, product family, monthly amount range (vaguely specific — "~$450/mo"), servicer/counterparty, `transaction_indices` for the underlying rows.
 
-3. **Data row (external branch, ~lines 449-499)**
-   - Change `py-2.5` cell padding to `py-2` to match standard rows.
-   - Replace `border-b border-violet-200` with `border-b border-slate-100` (hairline) — keep the row's soft violet tint via the existing `exec-ext-highlighted` class instead of a heavy border.
-   - Keep the violet pills (Source/Provider/Type/Confidence) but align their sizing (`text-[12px]`, `px-1.5 py-0.5`) to the chips used in the standard rows so they don't visually dominate.
+### Changes
 
-4. **Colgroup widths (external branch, ~lines 194-201)**
-   - Verify the 5-column widths sum to a similar total as the 10-column standard layout so the table doesn't reflow noticeably when toggling. Adjust the "Signal" column to flex-grow and keep Source/Provider/Type/Confidence to fixed compact widths matching the standard table's chip columns.
+**1. New file `src/lib/financialSignalTaxonomy.ts`**
+- Export `FINANCIAL_SIGNAL_VOCAB` (the 11 types above with human labels and merchant-pattern hints used by the LLM).
+- Export `FinancialSignal` TS type: `{ id, product_family, label, servicer, monthly_amount_band, cadence, transaction_indices[], talking_points[] }`.
+
+**2. `supabase/functions/synthesize-persona/index.ts`**
+- Add a THIRD output alongside `detected_life_events` and `pillar_rollups`: **`financial_signals`**.
+- New system-prompt section "FINANCIAL SIGNALS (do this BEFORE rollups, AFTER life events)": scan transactions for the 11 canonical financial-product families; emit one signal per detected product. Use vaguely-specific bands ("~$450/mo", "~$2.1k/mo"), never exact figures.
+- Update the vocabulary ban: transactions promoted into a financial_signal MUST NOT also appear in any `pillar_rollup`. Add the explicit ban: no rollup label may contain "Loan", "Mortgage", "Autoloan", "Debt", "Repayment", "Servicing", "Payoff", "Refinance". Add the failure example: `"Autoloan Management" covering VW Credit + Zillow mortgage → these belong in financial_signals as auto_loan + mortgage, NOT a lifestyle rollup.`
+- Tool schema: add `financial_signals: array` next to the existing outputs.
+
+**3. `src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+- Add a new pill section "Financial Signals" (slate-blue accent, distinct from Spending Habits amber, Life Events amber-gold, Risk red).
+- Render each signal as a chip: `<icon> <label> · ~$XXX/mo`. Click behavior mirrors rollup pills — highlights matching `transaction_indices` in the enrichment table.
+- Section order top-to-bottom: Life Events → Financial Signals → Spending Habits → Risk.
+
+**4. `src/components/exec-demo/execDemoData.ts` (or wherever `PersonaSynthesis` is typed)**
+- Add `financialSignals?: FinancialSignal[]` to the persona synthesis type; thread it from the edge-function response through `ExecDemoPage` into `ExecDemoIntelPanel` props.
+
+**5. External signal wiring (unchanged from before)**
+- The existing "Car Loan Renewal in ~2 Months" external bureau signal stays in the Life Events row (it's a forward-looking event, not a current product). If the customer already has an `auto_loan` financial signal detected, the two coexist — bureau = future, financial signal = current — which naturally tells the "renewal is confirmed by their existing VW Credit payments" story without any cross-highlight logic.
 
 ### Out of scope
 
-- No changes to which signals appear, their categorization logic, or the pill interactions.
-- No changes to the transaction-table branch.
-- No color-token changes to `index.css`.
+- No changes to the Risk panel logic or the external signal table view.
+- No new edge function — reuse `synthesize-persona` and extend its output.
+- No changes to product/offer generation; downstream code that reads life_events and rollups is unchanged. Financial signals become additional context downstream can opt into later.
 
 ### Result
 
-Toggling between a transaction pill and the external-intel pill will feel like the same table skin with a violet accent, not two different components.
+Auto-loan payments, mortgage payments, brokerage transfers, and insurance premiums surface in their own **Financial Signals** section instead of being force-fit into a "spending habit" rollup. The LLM has an explicit home for these transactions and an explicit ban on repackaging them as lifestyle.
