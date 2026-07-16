@@ -445,7 +445,7 @@ For each canonical life event below, check whether the per-transaction list meet
                     description: "Major life-stage events the spending evidence supports. Only emit when the canonical threshold is met. Do NOT re-emit any event that was passed in via the input lifeEvents list. Return empty array if nothing qualifies.",
                   },
                 },
-                required: ["pillar_rollups", "detected_life_events"],
+                required: ["pillar_rollups", "detected_life_events", "financial_signals"],
                 additionalProperties: false,
               },
             },
