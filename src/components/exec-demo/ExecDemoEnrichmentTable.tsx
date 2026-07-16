@@ -151,108 +151,19 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
   const matchedCount = highlightSet ? highlightSet.size : externalActive ? 1 : 0;
   const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
 
-  // ── External Intelligence detail view ─────────────────────────────────────
-  // When the user activates an external signal pill, replace the transaction
-  // table entirely with a dedicated panel so it's visually obvious the signal
-  // did NOT come from the bank transaction feed.
+  // When the user activates an external-intel pill we render just that one
+  // signal as a single row (with a swapped violet Tier-1 header) instead of
+  // the full transaction list — makes the "from outside data provider" nature
+  // obvious without leaving the familiar table layout.
   const activeExternal = externalActive
     ? externals.find((s) => s.id === activeExternalSignalId) ?? null
     : null;
-  if (activeExternal) {
-    const conf =
-      activeExternal.confidence > 1
-        ? Math.round(activeExternal.confidence)
-        : Math.round(activeExternal.confidence * 100);
-    return (
-      <div className={wrapperCls} style={{ maxHeight: "100%" }}>
-        <div
-          className="flex items-center justify-between px-3 py-2 border-b"
-          style={{ background: "#f5f3ff", borderColor: "#ddd6fe" }}
-        >
-          <span className="inline-flex items-center gap-2 text-[13px] font-semibold text-violet-800">
-            <Sparkles className="w-3.5 h-3.5" />
-            External Intelligence Signal
-            <span className="text-[12px] font-normal text-violet-500">· not from transaction feed</span>
-          </span>
-          {onClearHighlight && (
-            <button
-              onClick={onClearHighlight}
-              className="text-[13px] font-medium text-slate-500 hover:text-slate-800 underline-offset-2 hover:underline"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-        <div className="p-5 bg-white">
-          <div className="rounded-xl border border-violet-200 bg-gradient-to-br from-violet-50/60 to-white p-5">
-            <div className="flex items-start justify-between gap-4">
-              <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 mb-2 flex-wrap">
-                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded bg-violet-100 text-violet-700 border border-violet-200">
-                    {activeExternal.category.replace(/_/g, " ")}
-                  </span>
-                  <span className="text-[11.5px] font-medium px-2 py-0.5 rounded-full bg-white text-violet-700 border border-violet-200">
-                    {activeExternal.provider}
-                  </span>
-                </div>
-                <div className="text-[16px] font-semibold text-slate-900">{activeExternal.headline}</div>
-                <div className="text-[13px] text-slate-500 mt-1">{activeExternal.detail}</div>
-              </div>
-              <div className="shrink-0 text-right">
-                <div className="text-[11px] uppercase tracking-wider text-violet-500 font-semibold">Confidence</div>
-                <div className="text-[22px] font-bold tabular-nums text-violet-700 leading-tight">{conf}%</div>
-              </div>
-            </div>
-
-            <div className="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="rounded-lg border border-slate-200 bg-white p-3">
-                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
-                  Source Record
-                </div>
-                {activeExternal.evidence.length === 0 ? (
-                  <div className="text-[12.5px] text-slate-400 italic">No underlying record</div>
-                ) : (
-                  <ul className="space-y-2">
-                    {activeExternal.evidence.map((e, i) => (
-                      <li key={i} className="text-[12.5px] text-slate-700">
-                        <div className="font-medium text-slate-900">{e.merchant}</div>
-                        <div className="text-slate-500">{e.relevance}</div>
-                        <div className="text-[11.5px] text-slate-400 mt-0.5">
-                          {e.date}
-                          {e.amount ? ` · reference amount $${e.amount.toLocaleString()}` : ""}
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="rounded-lg border border-slate-200 bg-white p-3">
-                <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-2">
-                  Why This Matters
-                </div>
-                {activeExternal.talking_points.length === 0 ? (
-                  <div className="text-[12.5px] text-slate-400 italic">No talking points</div>
-                ) : (
-                  <ul className="space-y-1.5">
-                    {activeExternal.talking_points.map((p, i) => (
-                      <li key={i} className="text-[12.5px] text-slate-700 flex gap-2">
-                        <span className="text-violet-500 shrink-0">•</span>
-                        <span>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            </div>
-
-            <div className="mt-4 text-[11.5px] text-violet-600/80 italic">
-              This signal comes from an outside data provider — no matching transaction exists in the bank feed.
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const activeExternalConf = activeExternal
+    ? activeExternal.confidence > 1
+      ? Math.round(activeExternal.confidence)
+      : Math.round(activeExternal.confidence * 100)
+    : 0;
+  const activeExternalEvidence = activeExternal?.evidence?.[0];
 
   return (
 
