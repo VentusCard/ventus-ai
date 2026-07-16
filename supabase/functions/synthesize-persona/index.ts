@@ -261,7 +261,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 **Financial signals are recurring large-financial-product relationships** — auto loans, auto leases, mortgages, HELOCs, student loans, personal loans, credit-card payoffs, brokerage / retirement / 529 contributions, and life/disability insurance premiums. They are *bigger than spending* and NEVER belong inside a pillar_rollup (previously we saw the LLM invent "Autoloan Management" rollups mixing VW Credit + Zillow mortgage — that is EXACTLY what this section prevents).
 
-**Detect a financial_signal when** the per-transaction list contains at least ONE transaction whose merchant matches one of the families below. Group all transactions from the same servicer into one signal.
+**Detect a financial_signal when** the **Financial-signal candidate transactions** block (a separately-numbered `[T<n>]` list at the end of the user message) contains at least ONE transaction whose merchant matches one of the families below. Use those `[T<n>]` indices — they are the source of truth for `financial_signals.transaction_indices`. Group all transactions from the same servicer into one signal.
 
 **Product families + merchant hints:**
   - auto_loan (Auto Loan) — "toyota financial", "vw credit", "volkswagen credit", "ford credit", "gm financial", "honda financial", "ally auto", "chase auto", "capital one auto", "bmw financial", "mercedes-benz financial", "hyundai motor finance", "nissan motor accept"
