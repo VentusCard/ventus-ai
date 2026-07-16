@@ -672,6 +672,16 @@ For each canonical life event below, check whether the per-transaction list meet
         transaction_indices: Array.isArray(f.transaction_indices) ? f.transaction_indices : [],
         talking_points: Array.isArray(f.talking_points) ? f.talking_points : [],
       })),
+      demographic_shifts: (raw.demographic_shifts || []).map((d: any, i: number) => ({
+        id: `ds-${i}`,
+        category: d.category,
+        label: d.label,
+        direction: d.direction || "lateral",
+        confidence: typeof d.confidence === "number" ? Math.max(0, Math.min(0.92, d.confidence)) : 0.6,
+        magnitude_band: d.magnitude_band || "",
+        evidence_summary: d.evidence_summary || "",
+        transaction_indices: Array.isArray(d.transaction_indices) ? d.transaction_indices : [],
+      })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
