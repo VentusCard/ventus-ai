@@ -117,6 +117,45 @@ serve(async (req) => {
       ? `\n\nLifestyle-relevant transactions (use these to build transaction_indices for rollups in Travel, Style, Family, Health, Sports, Entertainment, Food pillars):\n${txnLines.join("\n")}`
       : "";
 
+    // ---- Financial-signal candidate transactions ----
+    // The lifestyle block above deliberately hides financial products (auto loans, mortgages,
+    // brokerage, insurance, etc.), so we surface them separately with the SAME [T<idx>] numbering
+    // so the LLM can attach them to financial_signals.transaction_indices.
+    const FINANCIAL_MERCHANT_HINTS = [
+      "toyota financial","vw credit","volkswagen credit","ford credit","gm financial","honda financial",
+      "ally auto","chase auto","capital one auto","bmw financial","mercedes-benz financial",
+      "hyundai motor finance","nissan motor accept","lease","leasing",
+      "rocket mortgage","wells fargo home mortgage","chase home lending","pennymac","mr. cooper",
+      "loandepot","zillow home loans","quicken loans","heloc","home equity",
+      "nelnet","sallie mae","navient","great lakes","fedloan","mohela","aidvantage",
+      "sofi loan","lightstream","marcus loan","upstart","prosper","lendingclub","best egg",
+      "amex payment","chase card payment","discover payment","capital one card",
+      "fidelity","schwab","vanguard","robinhood","wealthfront","betterment","etrade","merrill edge",
+      "401k","ira contribution","roth ira","sep ira",
+      "northwestern mutual","new york life","massmutual","prudential life","guardian life",
+      "haven life","policygenius",
+      "529","my529","collegeamerica","scholarshare",
+    ];
+    const FINANCIAL_PILLARS = new Set(["Financial & Aspirational", "Financial Services"]);
+    const financialTxnLines: string[] = [];
+    txns.forEach((t, idx) => {
+      const merchant = (t.normalized_merchant || t.merchant_name || "").toLowerCase();
+      const pillar = t.pillar || "";
+      const category = (t.category || "").toLowerCase();
+      const merchantHit = merchant && FINANCIAL_MERCHANT_HINTS.some(h => merchant.includes(h));
+      const pillarHit = FINANCIAL_PILLARS.has(pillar);
+      const rentMortgageHit = pillar === "Home & Living" && (category.includes("rent") || category.includes("mortgage"));
+      if (!merchantHit && !pillarHit && !rentMortgageHit) return;
+      const m = (t.normalized_merchant || t.merchant_name || "?").slice(0, 40);
+      const amt = typeof t.amount === "number" ? `$${t.amount.toFixed(0)}` : "?";
+      const date = t.date || "?";
+      const subs = t.subcategories?.length ? `[${t.subcategories.join(", ")}]` : "[]";
+      financialTxnLines.push(`[T${idx}] ${m} · ${amt} · ${date} · ${pillar} > ${t.category ?? "?"} · ${subs}`);
+    });
+    const financialTxnBlock = financialTxnLines.length
+      ? `\n\nFinancial-signal candidate transactions (use these [T<n>] indices for financial_signals.transaction_indices — NEVER include them in pillar_rollups):\n${financialTxnLines.join("\n")}`
+      : "";
+
     const lifeEventSuppressionBlock = detectedEventNames.length > 0
       ? `
 
