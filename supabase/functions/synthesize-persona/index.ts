@@ -581,8 +581,32 @@ For each canonical life event below, check whether the per-transaction list meet
                     },
                     description: "Recurring large-financial-product relationships (loans, mortgages, leases, investments, insurance). MUST NOT overlap pillar_rollups transaction_indices. Return empty array if none detected.",
                   },
+                  demographic_shifts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        category: {
+                          type: "string",
+                          enum: [
+                            "income_trajectory","wealth_tier_migration","household_composition",
+                            "geography_relocation","life_stage_entry",
+                          ],
+                        },
+                        label: { type: "string", description: "2-5 word shift name, e.g. 'Payroll Step-Up · +18%'." },
+                        direction: { type: "string", enum: ["up","down","lateral"] },
+                        confidence: { type: "number", description: "0-1 (NOT 0-100). Cap at 0.92." },
+                        magnitude_band: { type: "string", description: "Optional vague magnitude, e.g. '+18% payroll', '~+$45k inflow'." },
+                        evidence_summary: { type: "string", description: "1-sentence pattern + why it implies the shift." },
+                        transaction_indices: { type: "array", items: { type: "number" }, description: "≥2 [T<n>] indices from the demographic candidate block (1 allowed only for large single-inflow)." },
+                      },
+                      required: ["category","label","direction","confidence","evidence_summary","transaction_indices"],
+                      additionalProperties: false,
+                    },
+                    description: "Inferred CHANGES to life stage, household, income, wealth tier, or geography. Never restate static baseline attributes. Cap at 4. Return empty array if no genuine change detected.",
+                  },
                 },
-                required: ["pillar_rollups", "detected_life_events", "financial_signals"],
+                required: ["pillar_rollups", "detected_life_events", "financial_signals", "demographic_shifts"],
                 additionalProperties: false,
               },
             },
