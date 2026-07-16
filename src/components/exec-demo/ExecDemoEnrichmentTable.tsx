@@ -427,7 +427,70 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             );
             });
           })()}
-          {externals.map((s) => {
+          {activeExternal && (
+            <tr
+              key={`ext-active-${activeExternal.id}`}
+              className="border-b border-violet-200 exec-ext-highlighted"
+              style={{ ["--exec-hl" as any]: "#8b5cf6" } as React.CSSProperties}
+            >
+              {/* Source */}
+              <td className={`px-1 py-2 ${COL.source}`}>
+                <span className="inline-flex items-center gap-1 px-1 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap bg-violet-100 text-violet-700 border border-violet-200">
+                  <Sparkles className="w-3 h-3" />
+                  External
+                </span>
+              </td>
+              {/* Date */}
+              <td className={`text-[13px] text-violet-700 whitespace-nowrap px-1 py-2 ${COL.date} tabular-nums`}>
+                {formatDateCompact(activeExternalEvidence?.date)}
+              </td>
+              {/* Merchant (headline) */}
+              <td className={`px-1 py-2 ${COL.merchant}`}>
+                <div className="text-[13px] font-semibold text-slate-900 truncate" title={activeExternal.headline}>
+                  {activeExternal.headline}
+                </div>
+              </td>
+              {/* MCC */}
+              <td className={`px-1 py-2 ${COL.mcc}`}>
+                <span className="text-[13px] text-slate-300">—</span>
+              </td>
+              {/* Description (detail) */}
+              <td className={`px-1 py-2 ${COL.description}`}>
+                <div className="text-[13px] text-slate-500 truncate" title={activeExternal.detail}>
+                  {activeExternal.detail}
+                </div>
+              </td>
+              {/* Amount */}
+              <td className={`font-mono text-[13px] px-1 py-2 whitespace-nowrap ${COL.amount} text-right tabular-nums border-r-2 border-violet-200 text-slate-700`}>
+                {activeExternalEvidence?.amount
+                  ? `$${Math.round(activeExternalEvidence.amount).toLocaleString()}`
+                  : "—"}
+              </td>
+              {/* Pillar */}
+              <td className={`px-1.5 py-2 ${COL.pillar}`}>
+                <span className="inline-block border text-[13px] font-semibold px-2 py-0.5 rounded whitespace-nowrap leading-tight bg-violet-100 text-violet-700 border-violet-200">
+                  External Intel
+                </span>
+              </td>
+              {/* Category */}
+              <td className={`text-[13px] text-slate-700 px-1.5 py-2 truncate ${COL.category}`} title={activeExternal.category}>
+                {activeExternal.category.replace(/_/g, " ")}
+              </td>
+              {/* Subcategories → provider */}
+              <td className={`px-1.5 py-2 ${COL.subs}`}>
+                <span className="inline-block shrink-0 bg-white text-violet-700 border border-violet-200 text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap">
+                  {activeExternal.provider}
+                </span>
+              </td>
+              {/* Freq → confidence */}
+              <td className={`px-1.5 py-2 ${COL.freq}`}>
+                <span className="inline-block border text-[12.5px] px-1.5 py-0.5 rounded whitespace-nowrap leading-tight bg-violet-50 text-violet-700 border-violet-200 tabular-nums">
+                  {activeExternalConf}%
+                </span>
+              </td>
+            </tr>
+          )}
+          {!activeExternal && externals.map((s) => {
             const isActive = activeExternalSignalId === s.id;
             const isDimmed = !isActive && (!!highlightSet || externalActive);
             const conf = s.confidence > 1 ? Math.round(s.confidence) : Math.round(s.confidence * 100);
