@@ -1,28 +1,38 @@
-## Fix 1 — Pill label: "1 txn" → "1 signal" for external life events
+## Goal
+When a user clicks an external-intelligence pill (e.g. "Car Loan Renewal in ~2 Months"), the enrichment table should look like the normal table but show a **single row** styled distinctly (violet) — plus a **swapped table header** that reads "External Signal" in a violet gradient instead of "Raw Transaction / Semantic Enrichment".
 
-**File:** `src/components/exec-demo/ExecDemoIntelPanel.tsx` (life-event pill render around line 649-669)
+All edits in `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`.
 
-- Detect whether the current life event comes from `externalSignals` by matching `event_name`.
-- If external: render `{confidence}% · 1 signal` (no "txns"/pluralization; count = external evidence entries which is always 1 for now, but use the length so it stays dynamic).
-- If not external: keep existing `{evCount} txn{s}` behavior.
+## Changes
 
-## Fix 2 — Clicking an external pill shows a dedicated "External Source" view instead of the (dimmed) transaction table
+1. **Remove the dedicated detail panel** (lines ~154–255). No more full-panel takeover.
 
-**Files:**
-- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` (already passes `activeExternalSignalId` down — reuse)
+2. **When `externalActive` is true, swap the Tier-1 header row** (lines ~296–330):
+   - Replace the "Raw Transaction" + "Semantic Enrichment" split with a single `<th colSpan={10}>` that reads:
+     - **"External Signal"** in bold uppercase, with sub-label `· sourced from outside data provider`
+     - Violet gradient background (e.g. `linear-gradient(90deg, hsl(262 83% 58%) 0%, hsl(258 90% 50%) 100%)`), white text, matching the same shimmer treatment used by the blue enrichment header for visual parity.
+   - Keep the Tier-2 column labels unchanged (Source / Date / Merchant / MCC / Desc / Amt / Pillar / Category / Subcategories / Freq) so the row below still aligns.
 
-When `activeExternalSignalId` is set:
-- Replace the transaction table body with a dedicated **External Intelligence detail panel**:
-  - Violet header strip: "External Intelligence Signal · not from your transaction feed" with a Clear button.
-  - Large card showing: provider chip, category, headline, detail, confidence %, and a "Why this matters" list drawn from `talking_points`.
-  - A small "Evidence" section rendered as a non-transactional data row (labelled "Bureau tradeline record" rather than a merchant row) so it's visually clear this did not come from bank feed.
-- The normal transaction table (raw + enriched columns) is hidden while an external signal is active, avoiding the "empty dimmed table" look.
-- Clearing the pill restores the standard table.
+3. **Render the active signal as one `<tr>`** in the same 10-column schema:
+   - **Source**: violet "External" chip (replaces bank card badge)
+   - **Date**: `evidence[0].date` or today
+   - **Merchant**: `signal.headline`
+   - **MCC**: "—"
+   - **Description**: `signal.detail`
+   - **Amount**: `evidence[0].amount` if present, else "—"
+   - **Pillar**: violet "External Intel" pill
+   - **Category**: humanized `signal.category`
+   - **Subcategories**: `signal.provider` pill
+   - **Freq**: `confidence%`
+   - Row uses existing `exec-ext-highlighted` styling (violet left border + tinted background).
 
-Behavioral pills (non-external) continue to render the standard highlighted-row table as today.
+4. **Suppress the regular transaction rows** while `externalActive` is true (skip the `order.map(...)` output) so the table truly shows one row. Also skip the bottom external-signal summary rows (lines 490–520) in this mode, since the active one is already the sole row.
 
-## Result
+5. **Keep the top filter strip** as-is (already shows "Showing 1 external signal for '…'" with a Clear button that returns to the full transaction view + original headers).
 
-- The external "Car Loan Renewal" pill reads `92% · 1 signal`.
-- Clicking it swaps the enrichment table for a distinctive violet External Intelligence panel instead of a mostly-dimmed transaction table.
+## Out of scope
+- No changes to `ExternalIntelSignal` schema, the intel panel pills, or downstream product/offer generation.
+- No changes to routing, tabs, or demo pre-fire logic.
+
+## Verification
+Click the "Car Loan Renewal" pill → the table's top grouping header morphs from blue "Semantic Enrichment" split into a violet "External Signal" band, and exactly one violet-tinted row renders below it in the same column layout as a transaction. Clicking "Clear" restores the original headers and full transaction list.
