@@ -790,15 +790,19 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       setDetectedLifeEvents(null);
       try {
         const events: LifeEvent[] = preDetectedEvents ?? (await detectLifeEventsOnly());
-        // Inject dynamic external-intelligence signals (bureau/property/auto/etc.)
-        // so they flow through pills, Next-Product, Next-Offer, actions, and WM CoPilot.
-        const external = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id).map(externalSignalToLifeEvent);
+        // Inject dynamic external-intelligence signals into the life-event pill
+        // ONLY when the signal is bucketed as a life_event. Financial-signal and
+        // demographic-shift externals are injected into their own synthesis rows
+        // (see firePersonaSynthesis) — they must not double-post as life events.
+        const external = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id)
+          .filter((s) => s.bucket === "life_event")
+          .map(externalSignalToLifeEvent);
         const merged: LifeEvent[] = [...external, ...events]
           .filter(Boolean)
           .slice(0, 3) as LifeEvent[];
         setDetectedLifeEvents(merged);
         detectedLifeEventsRef.current = merged;
-        console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
+        console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external life_event)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
         // Fire product cards generation with life events + persona data
         fireProductCards(merged, personaSynthesisRef.current);
         // Fire indicative creditworthiness assessment in parallel
