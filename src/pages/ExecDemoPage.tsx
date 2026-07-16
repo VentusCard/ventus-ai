@@ -54,12 +54,14 @@ const TIMINGS = {
 
 interface ExecDemoPageProps {
   embedded?: boolean;
+  active?: boolean;
   onBack?: () => void;
 }
 
-export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageProps = {}) {
+export default function ExecDemoPage({ embedded = false, active = true, onBack }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
+  const [selectionDialogOpen, setSelectionDialogOpen] = useState(!embedded);
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [processedIndices, setProcessedIndices] = useState<number[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
@@ -1221,6 +1223,20 @@ export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageP
     handleRunAnalysis();
     setSynthesisTriggered(true);
   }, [embedded, customCsv, handleRunAnalysis]);
+
+  // When embedded, only open the selection dialog when the user actually
+  // navigates to the Demo tab AND no run has completed yet. Once a run exists,
+  // subsequent visits show cached results without the popup.
+  const hasRunOnce = preFiredRef.current || !!profileRef.current || !!personaSynthesis || !!enrichedTxs;
+  useEffect(() => {
+    if (!embedded) return;
+    if (active && !hasRunOnce) {
+      setSelectionDialogOpen(true);
+    } else if (!active) {
+      setSelectionDialogOpen(false);
+    }
+  }, [embedded, active, hasRunOnce]);
+
 
   const handleTabClick = useCallback((tab: TabKey) => {
     // Always clear pill selections when switching between the three "Next-..." tabs
