@@ -54,12 +54,14 @@ const TIMINGS = {
 
 interface ExecDemoPageProps {
   embedded?: boolean;
+  active?: boolean;
   onBack?: () => void;
 }
 
-export default function ExecDemoPage({ embedded = false, onBack }: ExecDemoPageProps = {}) {
+export default function ExecDemoPage({ embedded = false, active = true, onBack }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
-  const [selectionDialogOpen, setSelectionDialogOpen] = useState(true);
+  const [selectionDialogOpen, setSelectionDialogOpen] = useState(!embedded);
+
   const [phase, setPhase] = useState<Phase>("idle");
   const [processedIndices, setProcessedIndices] = useState<number[]>([]);
   const [revealedTabs, setRevealedTabs] = useState<TabKey[]>([]);
