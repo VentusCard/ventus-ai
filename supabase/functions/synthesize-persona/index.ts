@@ -218,7 +218,6 @@ Life events carry richer context (funding sources, timing, product fit) and are 
 
 Examples of forbidden overlaps:
 - If "New Home Transition" or any home-purchase event is detected → do NOT produce "Aspiring Homeowner", "Home Buyer", "Nesting Phase", "New Homeowner", or any home-purchase / moving / nesting themed rollup.
-- If "College Preparation for Dependent" or any education event is detected → do NOT produce "College Bound", "Education Investor", or similar education-themed rollup.
 - If "New Baby" or family-expansion event is detected → do NOT produce "New Parent", "Baby Prep", or similar.
 - If "Retirement Planning" is detected → do NOT produce retirement-themed rollups.
 - If "Wedding" is detected → do NOT produce engagement / wedding-themed rollups.
@@ -226,6 +225,34 @@ Examples of forbidden overlaps:
 When in doubt, skip the rollup. Life events take priority — every time.
 `
       : "";
+
+    // ---- Pre-classified external signals (bureau, property, auto tradelines, etc.) ----
+    // These are AUTHORITATIVE for bucket placement. The LLM must respect the declared
+    // bucket and MUST NOT emit a competing pillar_rollup or life_event on the same theme.
+    const externalSignalsBlock = externals.length > 0
+      ? `
+
+**EXTERNAL SIGNALS (pre-classified — treat as ground truth):**
+The following signals were sourced from external providers (credit bureaus, property records, auto tradelines, etc.). Each carries an authoritative bucket assignment. **You MUST NOT emit any pillar_rollup, life_event, financial_signal, or demographic_shift that duplicates one of these themes** — they will already be surfaced in the UI in the bucket noted below.
+
+${externals.map(s => {
+  const extras: string[] = [];
+  if (s.product_family) extras.push(`product_family=${s.product_family}`);
+  if (s.servicer) extras.push(`servicer=${s.servicer}`);
+  if (s.monthly_amount_band) extras.push(`band=${s.monthly_amount_band}`);
+  if (s.demographic_category) extras.push(`demo_cat=${s.demographic_category}`);
+  const extrasStr = extras.length ? ` (${extras.join(", ")})` : "";
+  return `- [${s.bucket.toUpperCase()}] "${s.label}" — provider: ${s.provider}${extrasStr}. ${s.detail || ""}`;
+}).join("\n")}
+
+Reconciliation rules:
+- If a bucket = "financial_signal" external is present (e.g. auto loan, mortgage), do NOT emit a pillar_rollup or life_event for that product. The external signal already owns it.
+- If a bucket = "demographic_shift" external is present, do NOT emit a life_event or pillar_rollup on the same theme.
+- If a bucket = "life_event" external is present, do NOT emit a pillar_rollup on the same theme.
+- Never repackage an external theme under lifestyle vocabulary (e.g. do not create an "Auto Enthusiast" rollup when an Auto Loan external signal exists).
+`
+      : "";
+
 
     // ---- Risk suppression: keep gambling, vice, BNPL, payday, collections, adult, offshore
     // out of customer-facing lifestyle rollups. The risk engine owns these themes and surfaces
