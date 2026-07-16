@@ -1,19 +1,28 @@
-## Changes
+## Fix 1 — Pill label: "1 txn" → "1 signal" for external life events
 
-1. **`src/components/tepilot/insights/AnalyticsContainer.tsx`**
-   - Default active tab on `/bankdemo` = **Systems** (not Demo).
-   - Keep `ExecDemoPage` always mounted in the background so pre-fire and state persist.
+**File:** `src/components/exec-demo/ExecDemoIntelPanel.tsx` (life-event pill render around line 649-669)
 
-2. **`src/pages/ExecDemoPage.tsx`**
-   - Remove auto-open of the selection dialog on mount.
-   - Track whether the demo has been run at least once (in-memory flag, persists for the session since the component stays mounted).
-   - When user clicks the **Demo** tab:
-     - If no run has completed yet → open the selection popup.
-     - If a run already exists → skip the popup and show the cached results directly.
-   - User can still manually reopen the selector via the existing "Change customer" control inside the Demo view.
+- Detect whether the current life event comes from `externalSignals` by matching `event_name`.
+- If external: render `{confidence}% · 1 signal` (no "txns"/pluralization; count = external evidence entries which is always 1 for now, but use the length so it stays dynamic).
+- If not external: keep existing `{evCount} txn{s}` behavior.
 
-## Behavior
+## Fix 2 — Clicking an external pill shows a dedicated "External Source" view instead of the (dimmed) transaction table
 
-- Land on `/bankdemo` → Systems tab, no popup. Pipeline pre-fires silently in background.
-- First click on Demo tab before pre-fire finishes → popup opens (as today).
-- Any subsequent visit to Demo tab after a run exists → no popup, cached results shown immediately.
+**Files:**
+- `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` (already passes `activeExternalSignalId` down — reuse)
+
+When `activeExternalSignalId` is set:
+- Replace the transaction table body with a dedicated **External Intelligence detail panel**:
+  - Violet header strip: "External Intelligence Signal · not from your transaction feed" with a Clear button.
+  - Large card showing: provider chip, category, headline, detail, confidence %, and a "Why this matters" list drawn from `talking_points`.
+  - A small "Evidence" section rendered as a non-transactional data row (labelled "Bureau tradeline record" rather than a merchant row) so it's visually clear this did not come from bank feed.
+- The normal transaction table (raw + enriched columns) is hidden while an external signal is active, avoiding the "empty dimmed table" look.
+- Clearing the pill restores the standard table.
+
+Behavioral pills (non-external) continue to render the standard highlighted-row table as today.
+
+## Result
+
+- The external "Car Loan Renewal" pill reads `92% · 1 signal`.
+- Clicking it swaps the enrichment table for a distinctive violet External Intelligence panel instead of a mostly-dimmed transaction table.
