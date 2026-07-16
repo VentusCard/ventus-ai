@@ -904,6 +904,63 @@ export default function ExecDemoIntelPanel({
                         </Tooltip>
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
+                      {(() => {
+                        const finSignals = personaSynthesis?.financialSignals || [];
+                        if (finSignals.length === 0) return null;
+                        return (
+                          <div
+                            className={`flex items-center gap-3 ${rowGap}`}
+                            style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}
+                          >
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p
+                                  className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
+                                  style={{ color: "#3730a3" }}
+                                >
+                                  Financial Signals:
+                                  <Info className="w-3 h-3 opacity-70" />
+                                </p>
+                              </TooltipTrigger>
+                              <TooltipPortal>
+                                <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                                  Recurring large-financial-product relationships — auto loans, mortgages, leases, brokerage & retirement contributions, insurance premiums. Bigger than spending and shown separately so they don't get repackaged as lifestyle habits.
+                                </TooltipContent>
+                              </TooltipPortal>
+                            </Tooltip>
+                            <div className={pillRowClass}>
+                              {finSignals.map((fs, i) => {
+                                const isActive = activeTriggerLabel === fs.label;
+                                const indices = fs.transaction_indices || [];
+                                return (
+                                  <span
+                                    key={fs.id}
+                                    onClick={() => onTriggerPillClick?.(fs.label, indices, "#6366f1", "lifeEvent")}
+                                    className="inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
+                                    style={{
+                                      background: isActive
+                                        ? "linear-gradient(135deg, rgba(99,102,241,.30), rgba(99,102,241,.18))"
+                                        : "linear-gradient(135deg, rgba(99,102,241,.16), rgba(99,102,241,.06))",
+                                      color: "#3730a3",
+                                      border: "1.5px solid #6366f1",
+                                      animation: `rollup-entrance 0.5s ease-out ${1.0 + i * 0.12}s both`,
+                                      boxShadow: isActive ? "0 0 14px rgba(99,102,241,.35)" : "0 2px 8px rgba(99,102,241,.18)",
+                                    }}
+                                  >
+                                    <span style={{ color: "#6366f1" }}>◆</span>
+                                    {fs.label}
+                                    {fs.monthly_amount_band ? (
+                                      <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                                        {fs.monthly_amount_band}
+                                      </span>
+                                    ) : null}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
                       <div
                         className={`flex items-center gap-3 ${rowGap}`}
                         style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
