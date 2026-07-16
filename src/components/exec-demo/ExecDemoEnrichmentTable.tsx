@@ -191,24 +191,34 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         </div>
       )}
       <table className="w-full min-w-[912px] text-left border-collapse table-fixed">
-        <colgroup>
-          <col className={COL.source} />
-          <col className={COL.date} />
-          <col className={COL.merchant} />
-          <col className={COL.mcc} />
-          <col className={COL.description} />
-          <col className={COL.amount} />
-          <col className={COL.pillar} />
-          <col className={COL.category} />
-          <col className={COL.subs} />
-          <col className={COL.freq} />
-        </colgroup>
+        {activeExternal ? (
+          <colgroup>
+            <col className="w-[110px]" />
+            <col className="w-[160px]" />
+            <col className="w-[420px]" />
+            <col className="w-[140px]" />
+            <col className="w-[90px]" />
+          </colgroup>
+        ) : (
+          <colgroup>
+            <col className={COL.source} />
+            <col className={COL.date} />
+            <col className={COL.merchant} />
+            <col className={COL.mcc} />
+            <col className={COL.description} />
+            <col className={COL.amount} />
+            <col className={COL.pillar} />
+            <col className={COL.category} />
+            <col className={COL.subs} />
+            <col className={COL.freq} />
+          </colgroup>
+        )}
         <thead className="sticky top-0 z-10">
           {/* Tier 1 — Raw vs Enriched grouping (or External Signal takeover) */}
           <tr className="border-b border-slate-200">
             {activeExternal ? (
               <th
-                colSpan={10}
+                colSpan={5}
                 className="relative overflow-hidden text-white text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.5s_ease-out_both]"
                 style={{
                   background: "linear-gradient(90deg, hsl(262 83% 58%) 0%, hsl(258 90% 50%) 100%)",
@@ -269,19 +279,28 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             )}
           </tr>
           {/* Tier 2 — Column headers */}
-          <tr className="bg-slate-50/80 border-b border-slate-200">
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.source}`}>Source</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.date}`}>Date</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.merchant}`}>Merchant</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.mcc}`}>MCC</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.description}`} title="Description">Desc.</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.pillar}`}>Pillar</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.category}`}>Category</th>
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.subs}`}>Subcategories</th>
-            
-            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
-          </tr>
+          {activeExternal ? (
+            <tr className="bg-violet-50/70 border-b border-violet-200">
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Source</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Provider</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Signal</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap">Type</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-2 py-2 whitespace-nowrap text-right">Confidence</th>
+            </tr>
+          ) : (
+            <tr className="bg-slate-50/80 border-b border-slate-200">
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.source}`}>Source</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.date}`}>Date</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.merchant}`}>Merchant</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.mcc}`}>MCC</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.description}`} title="Description">Desc.</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.pillar}`}>Pillar</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.category}`}>Category</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.subs}`}>Subcategories</th>
+              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
+            </tr>
+          )}
         </thead>
         <tbody>
           {!activeExternal && (() => {
