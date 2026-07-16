@@ -53,17 +53,27 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds } = await req.json() as {
+    const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds, externalSignals } = await req.json() as {
       pillars: any[];
       lifeEvents?: { event_name?: string }[];
       transactions?: IncomingTxn[];
-      // Distinct risk-engine category labels detected on this customer
-      // (e.g. ["Sports Betting", "Casino & Table Games", "BNPL Activity"]).
       riskCategoriesPresent?: string[];
-      // transaction_id values flagged by detect-risk-transactions. The persona LLM must NOT
-      // include any of these IDs in transaction_indices for any lifestyle rollup — those rows
-      // are owned by the Risk pill.
       riskTransactionIds?: string[];
+      /** Pre-classified external signals (bureau tradelines, property records, etc.).
+       *  The LLM must respect their declared bucket and NOT emit a competing pillar_rollup /
+       *  life_event on the same theme. */
+      externalSignals?: Array<{
+        id: string;
+        bucket: "life_event" | "financial_signal" | "demographic_shift" | "behavioral";
+        label: string;
+        provider: string;
+        detail?: string;
+        confidence?: number;
+        product_family?: string;
+        servicer?: string;
+        monthly_amount_band?: string;
+        demographic_category?: string;
+      }>;
     };
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
@@ -81,6 +91,7 @@ serve(async (req) => {
     const flaggedTxIds: string[] = Array.isArray(riskTransactionIds)
       ? Array.from(new Set(riskTransactionIds.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
       : [];
+    const externals = Array.isArray(externalSignals) ? externalSignals : [];
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
