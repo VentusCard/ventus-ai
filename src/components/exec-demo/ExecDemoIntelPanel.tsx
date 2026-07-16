@@ -184,6 +184,15 @@ export function getColor(pillar: string) {
   return PILLAR_COLORS[pillar] || DEFAULT_COLOR;
 }
 
+// Strip issuer/brand prefixes so signal pills read as generic products.
+// e.g. "Chase Auto Loan" -> "Auto Loan", "Wells Fargo Mortgage" -> "Mortgage".
+const BRAND_PATTERN = /^(chase|wells fargo|wells|bank of america|bofa|boa|citi|citibank|capital one|us bank|u\.s\. bank|pnc|td|td bank|ally|discover|amex|american express|hsbc|barclays|synchrony|goldman|marcus|sofi|fidelity|schwab|vanguard|robinhood|e\*trade|etrade|morgan stanley|jpmorgan|jp morgan|santander|regions|truist|bmo|key bank|keybank|fifth third)\s+/i;
+
+function stripBrand(label: string): string {
+  if (!label) return label;
+  return label.replace(BRAND_PATTERN, "").trim();
+}
+
 interface ChipData {
   pillar: string;
   category: string;
