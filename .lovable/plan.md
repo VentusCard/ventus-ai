@@ -1,38 +1,35 @@
-## Goal
-When an external-intel pill is active, the enrichment table swaps to a dedicated external-signal view: a violet "External Signal" Tier-1 band, its own Tier-2 headers (not the transaction ones), and a single data row.
+## Match the External Signal view to the transaction table's visual weight
 
-All edits in `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`.
+Comparing the two screenshots, the external-signal view is visually heavier than the standard enrichment table:
 
-## External-signal column schema
+- **Tier-1 header band** is a saturated violet gradient at full row height, while the standard table uses a light `bg-slate-100` on the Raw side and a slimmer blue gradient on the Enriched side.
+- **Tier-2 column headers** sit on a tinted `bg-violet-50/70` band with heavier violet borders, whereas the standard headers use `bg-slate-50/80` with hairline `border-slate-200`.
+- **The single data row** uses `py-2.5` padding and violet-tinted borders, making it feel bulkier than the standard `py-2` rows.
 
-| Col | Label | Content |
-|---|---|---|
-| 1 | Source | Violet "External" chip with sparkle icon |
-| 2 | Provider | `activeExternal.provider` |
-| 3 | Signal | `activeExternal.headline` (bold) |
-| 4 | Type | One of `Spending Habit` / `Life Event` / `Risk`, derived from `activeExternal.category` |
-| 5 | Confidence | `NN%` pill |
+### Changes (all in `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`)
 
-No Detail column, no Category (raw), no Evidence column.
+1. **Tier-1 header (external branch, ~lines 219-243)**
+   - Keep the "External Signal · sourced from outside data provider" label but render it in the same visual language as the standard Raw/Enriched bar: light slate background on the left portion + a **slim** violet accent chip inline, matching the standard header's font size, padding (`px-3 py-2`), tracking, and border weight.
+   - Remove the full-width gradient fill and shimmer overlay so the row height and weight match the standard tier-1 exactly.
 
-### Type mapping (from `activeExternal.category`)
-- Anything containing `spend`, `habit`, `merchant`, `travel_spend`, `dining` → **Spending Habit**
-- Anything containing `life`, `event`, `renewal`, `move`, `wedding`, `baby`, `home`, `loan`, `car` → **Life Event**
-- Anything containing `risk`, `fraud`, `default`, `delinquency`, `credit` → **Risk**
-- Fallback → **Life Event**
+2. **Tier-2 column headers (external branch, ~lines 283-289)**
+   - Swap `bg-violet-50/70` + `border-violet-200` for `bg-slate-50/80` + `border-slate-200` (same as the standard header row).
+   - Keep the label text violet (`text-violet-700`) so the column identity is still clearly "external", but the band, border thickness, padding, and font sizing exactly mirror the standard headers.
 
-Type pill colors: Spending Habit = blue, Life Event = violet, Risk = red.
+3. **Data row (external branch, ~lines 449-499)**
+   - Change `py-2.5` cell padding to `py-2` to match standard rows.
+   - Replace `border-b border-violet-200` with `border-b border-slate-100` (hairline) — keep the row's soft violet tint via the existing `exec-ext-highlighted` class instead of a heavy border.
+   - Keep the violet pills (Source/Provider/Type/Confidence) but align their sizing (`text-[12px]`, `px-1.5 py-0.5`) to the chips used in the standard rows so they don't visually dominate.
 
-## Changes in `ExecDemoEnrichmentTable.tsx`
+4. **Colgroup widths (external branch, ~lines 194-201)**
+   - Verify the 5-column widths sum to a similar total as the 10-column standard layout so the table doesn't reflow noticeably when toggling. Adjust the "Signal" column to flex-grow and keep Source/Provider/Type/Confidence to fixed compact widths matching the standard table's chip columns.
 
-1. **colgroup**: render a 5-column colgroup with proportional widths when `activeExternal`; otherwise keep the current 10-column colgroup.
-2. **Tier-1 header**: change `colSpan` from 10 → 5 when active (violet "External Signal · sourced from outside data provider" band stays).
-3. **Tier-2 header**: branch on `activeExternal` — render the 5 labels (Source / Provider / Signal / Type / Confidence) with a light violet background instead of the transaction labels.
-4. **Data row**: replace the current 10-cell row with a 5-cell row using the new schema and violet `exec-ext-highlighted` styling.
-5. Keep `min-w-[912px]` on the `<table>` so the wrapper width stays stable across modes.
+### Out of scope
 
-## Out of scope
-No changes to intel panel pills, signal data model, downstream product/offer generation, or the bottom externals list in the default view.
+- No changes to which signals appear, their categorization logic, or the pill interactions.
+- No changes to the transaction-table branch.
+- No color-token changes to `index.css`.
 
-## Verification
-Click "Car Loan Renewal" pill → violet Tier-1 band, second header row shows exactly Source / Provider / Signal / Type / Confidence, one violet row shows the signal with Type = "Life Event". Clear → transaction headers and rows return.
+### Result
+
+Toggling between a transaction pill and the external-intel pill will feel like the same table skin with a violet accent, not two different components.
