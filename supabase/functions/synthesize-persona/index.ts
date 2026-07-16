@@ -507,7 +507,7 @@ For each canonical life event below, check whether the per-transaction list meet
   - If a shift's evidence collapses below 2 unique unclaimed indices after subtraction, DROP the shift entirely.
   - Emit ONLY changes. Never emit a shift that just describes the customer's current static state.
   - Cap at 4 shifts. If more qualify, keep the highest-confidence + highest-value ones (income > wealth > household > geography).
-  - Return empty array if the transaction pattern shows no genuine change.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
+  - Return empty array if the transaction pattern shows no genuine change.${externalSignalsBlock}${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
 
     const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}${demographicTxnBlock}`;
 
