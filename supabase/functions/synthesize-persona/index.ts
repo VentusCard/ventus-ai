@@ -302,7 +302,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 **Financial signals are recurring large-financial-product relationships** — auto loans, auto leases, mortgages, HELOCs, student loans, personal loans, credit-card payoffs, brokerage / retirement / 529 contributions, and life/disability insurance premiums. They are *bigger than spending* and NEVER belong inside a pillar_rollup (previously we saw the LLM invent "Autoloan Management" rollups mixing VW Credit + Zillow mortgage — that is EXACTLY what this section prevents).
 
-**Detect a financial_signal when** the **Financial-signal candidate transactions** block (a separately-numbered `[T<n>]` list at the end of the user message) contains at least ONE transaction whose merchant matches one of the families below. Use those `[T<n>]` indices — they are the source of truth for `financial_signals.transaction_indices`. Group all transactions from the same servicer into one signal.
+**Detect a financial_signal when** the **Financial-signal candidate transactions** block (a separately-numbered \`[T<n>]\` list at the end of the user message) contains at least ONE transaction whose merchant matches one of the families below. Use those \`[T<n>]\` indices — they are the source of truth for \`financial_signals.transaction_indices\`. Group all transactions from the same servicer into one signal.
 
 **Product families + merchant hints:**
   - auto_loan (Auto Loan) — "toyota financial", "vw credit", "volkswagen credit", "ford credit", "gm financial", "honda financial", "ally auto", "chase auto", "capital one auto", "bmw financial", "mercedes-benz financial", "hyundai motor finance", "nissan motor accept"
@@ -338,7 +338,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - A rollup describes a *recurring lifestyle habit* — something you'd mention about this person at a dinner party. "She's a total fitness nut" (gym + yoga + supplements + athletic apparel). "He eats out constantly at casual spots" (fast food + casual dining + delivery).
 
-- Only group categories within the SAME pillar. The "pillar" field MUST be one of these exact strings: ${distinctPillars.map(p => `"${p}"`).join(", ")}.
+- Only group categories within the SAME pillar. The "pillar" field MUST be one of these exact strings: ${distinctPillars.map(p => \`"${p}"\`).join(", ")}.
 
 - Ask yourself: "Would a friend describe this person this way?" If someone stays at a Hilton in Dallas and also does Orange Theory, a friend would say "she's really into fitness and she traveled to Dallas" — two separate things, not "strategic domestic traveler."
 
