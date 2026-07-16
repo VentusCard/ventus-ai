@@ -377,7 +377,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
 
-    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}`;
+    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
