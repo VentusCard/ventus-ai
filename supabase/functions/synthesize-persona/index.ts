@@ -447,28 +447,28 @@ For each canonical life event below, check whether the per-transaction list meet
 
 **Use the "Demographic-shift candidate transactions" block** at the end of the user message. Each row is tagged with its shift-family (payroll/income, large-inflow, wealth/investment, relocation/geography, household/life-stage).
 
-**Categories to detect (cap at 4 total shifts; pick the highest-value):**
-  - **income_trajectory** — payroll ACH amount step-up/step-down (raise, promotion, job loss), payroll counterparty flip (job change), first appearance of 1099/Stripe/Square deposits (self-employment onset), first appearance of SSA/pension (retirement onset), unemployment credit appearing.
-  - **wealth_tier_migration** — sustained increase in brokerage/401k/IRA contributions, a large one-time inflow (≥$10k liquidity event, inheritance, home-sale proceeds), reserve buffer expansion. Direction: up = Mass → Affluent → HNW; down = drawdown.
-  - **household_composition** — new baby (pediatric + baby retailer + daycare), kid → college (tuition ACH + out-of-state debits), empty nest (tuition stops + travel rises), divorce (family-law + duplicate utility setup), new pet (recurring vet/Chewy).
-  - **geography_relocation** — moving-company / U-Haul / storage charge, new utility installation, extended-stay hotel cluster, merchant-location centroid drift over 30+ days.
-  - **life_stage_entry** — homeownership entry (title/escrow → first mortgage payment), marriage (wedding-vendor cluster + jeweler), eldercare onset (assisted-living / in-home care agency recurring), major health event (hospital + specialty pharmacy + PT recurring).
+**Categories to detect (cap at 4 total shifts; pick the highest-value). `life_stage_entry` NO LONGER EXISTS — every homeownership / marriage / eldercare / major-health case belongs to a Life Event.**
+
+  - **income_trajectory** — payroll ACH amount step-up/step-down (raise, promotion, job loss), payroll counterparty flip (job change), first appearance of 1099/Stripe/Square deposits (self-employment onset), unemployment credit appearing. **EXCLUDES** SSA / pension onset (that belongs to the "Retirement Planning" life event).
+  - **wealth_tier_migration** — sustained increase (or decrease) in brokerage/401k/IRA *contribution rate*, or a persistent reserve-buffer expansion / drawdown pattern. Direction: up = Mass → Affluent → HNW; down = drawdown. **EXCLUDES** any single large one-time inflow ≥$10k (that belongs to the "Inheritance / Windfall" life event) and EXCLUDES the recurring brokerage/401k ACH itself when it is already emitted as a financial_signal.
+  - **household_composition** — narrowed to: empty nest (tuition ACH stops + travel spend rises), divorce (family-law attorney + duplicate utility setup at a second address), new pet (recurring vet + Chewy). **EXCLUDES** new-baby retailers / pediatrician / daycare (→ "New Baby / Family Expansion" life event) and EXCLUDES tuition ACH / college-visit spend (→ "College Preparation for Dependent" life event).
+  - **geography_relocation** — *post-move* persistent merchant-ZIP centroid drift over 30+ days (the customer's everyday spend now clusters in a new metro). **EXCLUDES** the moving vendors themselves — U-Haul, long-distance movers, storage-unit charges, temporary housing all belong to the "Relocation" life event.
 
 **Each demographic_shift MUST have:**
   - id — auto-assigned downstream, omit from output
-  - category — one of the 5 enum values above
-  - label — 2-5 word human-readable shift name, e.g. "Payroll Step-Up · +18%", "Wealth Tier Migration ↑", "New Baby in Household", "Relocation: SF → NYC", "Retirement Onset Detected"
+  - category — one of the 4 enum values above
+  - label — 2-5 word human-readable shift name, e.g. "Payroll Step-Up · +18%", "Empty Nest Detected", "SF → NYC Everyday Spend", "Self-Employment Onset"
   - direction — "up" | "down" | "lateral"
   - confidence — 0-1 (NOT 0-100). Use 0.55 (2 rows, thin), 0.7 (3-4 rows), 0.85 (5+ rows with clear signal). Never above 0.92.
-  - magnitude_band — OPTIONAL vaguely-specific magnitude like "+18% payroll", "~+$45k inflow", "ZIP 94301 → 10013", "3 baby-retailer charges/mo". Omit if not applicable.
+  - magnitude_band — OPTIONAL vaguely-specific magnitude like "+18% payroll", "ZIP 94301 → 10013", "3 vet charges/mo". Omit if not applicable.
   - evidence_summary — 1 sentence: what pattern you saw and why it implies the shift.
-  - transaction_indices — REQUIRED. At least 2 [T<n>] indices from the demographic candidate block (large_inflow is the ONE exception where 1 index is acceptable).
+  - transaction_indices — REQUIRED. At least 2 [T<n>] indices from the demographic candidate block, drawn ONLY from rows not already claimed by detected_life_events or financial_signals.
 
-**RULES:**
+**HARD RULES (mutual exclusion):**
+  - transaction_indices MUST NOT intersect with any transaction_indices you emit under detected_life_events or financial_signals. Compute the union first, then draw shift evidence from the complement.
+  - If a shift's evidence collapses below 2 unique unclaimed indices after subtraction, DROP the shift entirely.
   - Emit ONLY changes. Never emit a shift that just describes the customer's current static state.
-  - MINIMUM 2 supporting transactions per shift (except large single-inflow events).
-  - You MAY reuse a [T<n>] that also appears in a financial_signal ONLY when the demographic interpretation is genuinely distinct (e.g. a first-ever mortgage ACH is BOTH a financial_signal AND a "life_stage_entry: Homeownership" shift). Prefer non-overlapping evidence when possible.
-  - Cap at 4 shifts. If more qualify, keep the highest-confidence + highest-value ones (income > wealth > household > geography > life-stage).
+  - Cap at 4 shifts. If more qualify, keep the highest-confidence + highest-value ones (income > wealth > household > geography).
   - Return empty array if the transaction pattern shows no genuine change.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
 
     const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}${demographicTxnBlock}`;
