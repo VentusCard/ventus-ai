@@ -156,6 +156,47 @@ serve(async (req) => {
       ? `\n\nFinancial-signal candidate transactions (use these [T<n>] indices for financial_signals.transaction_indices — NEVER include them in pillar_rollups):\n${financialTxnLines.join("\n")}`
       : "";
 
+    // ---- Demographic-shift candidate transactions ----
+    // Surface transactions that indicate a CHANGE in the customer's life stage, household,
+    // income trajectory, wealth tier, or geography. Feeds demographic_shifts.
+    const PAYROLL_HINTS = ["payroll","direct dep","direct deposit","adp","gusto","paychex","workday payroll","salary","wages","bonus","commission","1099","stripe payout","square payout","paypal payout","ssa","social security","pension","unemployment","edd","state di"];
+    const HOUSEHOLD_HINTS = [
+      "pediatric","obstetric","ob/gyn","midwife","doula","buybuy baby","babylist","carter's","huggies","pampers","similac","enfamil","gerber","daycare","childcare","kindercare","bright horizons",
+      "tuition","bursar","university","college","common app","kaplan","princeton review","sat","act test","529",
+      "assisted living","senior living","home health","hospice","in-home care","medicare",
+      "family law","divorce","mediation",
+      "wedding","bridal","the knot","zola","jeweler","engagement",
+      "chewy","petsmart","petco","vca","banfield","veterinar",
+    ];
+    const RELOCATION_HINTS = ["u-haul","uhaul","penske truck","two men and a truck","mayflower","allied van","north american van","pods moving","storage","extended stay","airbnb long","corporate housing","comcast install","xfinity install","con edison","pg&e","conedison","title company","escrow"];
+    const WEALTH_TIER_HINTS = ["brokerage","401k","roth ira","ira contribution","sep ira","wealthfront","betterment","fidelity","schwab","vanguard","robinhood","etrade","merrill edge","wire transfer","incoming wire","cashier's check","estate","trust services"];
+
+    const demographicTxnLines: string[] = [];
+    txns.forEach((t, idx) => {
+      const merchant = (t.normalized_merchant || t.merchant_name || "").toLowerCase();
+      const amt = typeof t.amount === "number" ? t.amount : 0;
+      const isCredit = amt < 0;
+      const looksLikePayroll = PAYROLL_HINTS.some(h => merchant.includes(h));
+      const looksHousehold = HOUSEHOLD_HINTS.some(h => merchant.includes(h));
+      const looksRelocation = RELOCATION_HINTS.some(h => merchant.includes(h));
+      const looksWealth = WEALTH_TIER_HINTS.some(h => merchant.includes(h));
+      const largeInflow = isCredit && Math.abs(amt) >= 10000;
+      if (!looksLikePayroll && !looksHousehold && !looksRelocation && !looksWealth && !largeInflow) return;
+      const m = (t.normalized_merchant || t.merchant_name || "?").slice(0, 40);
+      const amtStr = typeof t.amount === "number" ? `${amt < 0 ? "+" : ""}$${Math.abs(amt).toFixed(0)}` : "?";
+      const date = t.date || "?";
+      const tag =
+        looksLikePayroll ? "payroll/income" :
+        largeInflow ? "large-inflow" :
+        looksWealth ? "wealth/investment" :
+        looksRelocation ? "relocation/geography" :
+        looksHousehold ? "household/life-stage" : "signal";
+      demographicTxnLines.push(`[T${idx}] ${m} · ${amtStr} · ${date} · ${tag}`);
+    });
+    const demographicTxnBlock = demographicTxnLines.length
+      ? `\n\nDemographic-shift candidate transactions (each [T<n>] tagged with the shift-family it hints at — use these indices for demographic_shifts.transaction_indices):\n${demographicTxnLines.join("\n")}`
+      : "";
+
     const lifeEventSuppressionBlock = detectedEventNames.length > 0
       ? `
 
