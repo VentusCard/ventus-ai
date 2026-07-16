@@ -28,7 +28,7 @@ import {
   type EnrichedTransaction,
 } from "@/components/exec-demo/execDemoData";
 import { DEMO_CUSTOMERS } from "@/lib/demoData";
-import { getExternalSignalsFor, externalSignalToLifeEvent } from "@/lib/externalIntelligenceSignals";
+import { getExternalSignalsFor, externalSignalToLifeEvent, externalSignalsForLLM, type ExternalIntelSignal } from "@/lib/externalIntelligenceSignals";
 import ContactFormDialog from "@/components/ContactFormDialog";
 import SimplePasswordGate from "@/components/demo/SimplePasswordGate";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
