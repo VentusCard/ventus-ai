@@ -284,7 +284,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           </tr>
         </thead>
         <tbody>
-          {(() => {
+          {!activeExternal && (() => {
             const order = Array.from({ length: totalRows }, (_, i) => i);
             if (highlightSet) {
               order.sort((a, b) => {
