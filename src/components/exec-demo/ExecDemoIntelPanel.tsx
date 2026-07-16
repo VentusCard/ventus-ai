@@ -37,9 +37,21 @@ export interface FinancialSignal {
   talking_points?: string[];
 }
 
+export interface DemographicShift {
+  id: string;
+  category: "income_trajectory" | "wealth_tier_migration" | "household_composition" | "geography_relocation" | "life_stage_entry";
+  label: string;
+  direction: "up" | "down" | "lateral";
+  confidence: number;
+  magnitude_band?: string;
+  evidence_summary?: string;
+  transaction_indices: number[];
+}
+
 export interface PersonaSynthesis {
   pillarRollups?: PillarRollup[];
   financialSignals?: FinancialSignal[];
+  demographicShifts?: DemographicShift[];
 }
 
 interface Props {
@@ -982,6 +994,65 @@ export default function ExecDemoIntelPanel({
                         </Tooltip>
                         <div className={pillRowClass}>{riskPills}</div>
                       </div>
+                      {(() => {
+                        const demoShifts = personaSynthesis?.demographicShifts || [];
+                        if (demoShifts.length === 0) return null;
+                        const dirGlyph = (d: string) => (d === "up" ? "↑" : d === "down" ? "↓" : "→");
+                        return (
+                          <div
+                            className={`flex items-center gap-3 ${rowGap}`}
+                            style={{ animation: "fade-in 0.5s ease-out 0.5s both" }}
+                          >
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <p
+                                  className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
+                                  style={{ color: "#0f766e" }}
+                                >
+                                  Demographic Shifts:
+                                  <Info className="w-3 h-3 opacity-70" />
+                                </p>
+                              </TooltipTrigger>
+                              <TooltipPortal>
+                                <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                                  Inferred changes to the customer's life stage, household, income, wealth tier, or geography — detected from transaction patterns before the customer self-reports. Static baseline attributes (age, ZIP, current income band) are intentionally excluded; only genuine shifts appear here.
+                                </TooltipContent>
+                              </TooltipPortal>
+                            </Tooltip>
+                            <div className={pillRowClass}>
+                              {demoShifts.map((ds, i) => {
+                                const isActive = activeTriggerLabel === ds.label;
+                                const indices = ds.transaction_indices || [];
+                                const clickable = indices.length > 0;
+                                return (
+                                  <span
+                                    key={ds.id}
+                                    onClick={clickable ? () => onTriggerPillClick?.(ds.label, indices, "#0d9488", "lifeEvent") : undefined}
+                                    className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full transition-all duration-200 whitespace-nowrap shrink-0 ${clickable ? "cursor-pointer" : "cursor-default"}`}
+                                    style={{
+                                      background: isActive
+                                        ? "linear-gradient(135deg, rgba(13,148,136,.30), rgba(13,148,136,.18))"
+                                        : "linear-gradient(135deg, rgba(13,148,136,.16), rgba(13,148,136,.06))",
+                                      color: "#0f766e",
+                                      border: "1.5px solid #0d9488",
+                                      animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.12}s both`,
+                                      boxShadow: isActive ? "0 0 14px rgba(13,148,136,.35)" : "0 2px 8px rgba(13,148,136,.18)",
+                                    }}
+                                  >
+                                    <span style={{ color: "#0d9488", fontWeight: 700 }}>{dirGlyph(ds.direction)}</span>
+                                    {ds.label}
+                                    {ds.magnitude_band ? (
+                                      <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                                        {ds.magnitude_band}
+                                      </span>
+                                    ) : null}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        );
+                      })()}
                       </TooltipProvider>
                     </>
                   );

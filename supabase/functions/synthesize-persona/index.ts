@@ -156,6 +156,47 @@ serve(async (req) => {
       ? `\n\nFinancial-signal candidate transactions (use these [T<n>] indices for financial_signals.transaction_indices — NEVER include them in pillar_rollups):\n${financialTxnLines.join("\n")}`
       : "";
 
+    // ---- Demographic-shift candidate transactions ----
+    // Surface transactions that indicate a CHANGE in the customer's life stage, household,
+    // income trajectory, wealth tier, or geography. Feeds demographic_shifts.
+    const PAYROLL_HINTS = ["payroll","direct dep","direct deposit","adp","gusto","paychex","workday payroll","salary","wages","bonus","commission","1099","stripe payout","square payout","paypal payout","ssa","social security","pension","unemployment","edd","state di"];
+    const HOUSEHOLD_HINTS = [
+      "pediatric","obstetric","ob/gyn","midwife","doula","buybuy baby","babylist","carter's","huggies","pampers","similac","enfamil","gerber","daycare","childcare","kindercare","bright horizons",
+      "tuition","bursar","university","college","common app","kaplan","princeton review","sat","act test","529",
+      "assisted living","senior living","home health","hospice","in-home care","medicare",
+      "family law","divorce","mediation",
+      "wedding","bridal","the knot","zola","jeweler","engagement",
+      "chewy","petsmart","petco","vca","banfield","veterinar",
+    ];
+    const RELOCATION_HINTS = ["u-haul","uhaul","penske truck","two men and a truck","mayflower","allied van","north american van","pods moving","storage","extended stay","airbnb long","corporate housing","comcast install","xfinity install","con edison","pg&e","conedison","title company","escrow"];
+    const WEALTH_TIER_HINTS = ["brokerage","401k","roth ira","ira contribution","sep ira","wealthfront","betterment","fidelity","schwab","vanguard","robinhood","etrade","merrill edge","wire transfer","incoming wire","cashier's check","estate","trust services"];
+
+    const demographicTxnLines: string[] = [];
+    txns.forEach((t, idx) => {
+      const merchant = (t.normalized_merchant || t.merchant_name || "").toLowerCase();
+      const amt = typeof t.amount === "number" ? t.amount : 0;
+      const isCredit = amt < 0;
+      const looksLikePayroll = PAYROLL_HINTS.some(h => merchant.includes(h));
+      const looksHousehold = HOUSEHOLD_HINTS.some(h => merchant.includes(h));
+      const looksRelocation = RELOCATION_HINTS.some(h => merchant.includes(h));
+      const looksWealth = WEALTH_TIER_HINTS.some(h => merchant.includes(h));
+      const largeInflow = isCredit && Math.abs(amt) >= 10000;
+      if (!looksLikePayroll && !looksHousehold && !looksRelocation && !looksWealth && !largeInflow) return;
+      const m = (t.normalized_merchant || t.merchant_name || "?").slice(0, 40);
+      const amtStr = typeof t.amount === "number" ? `${amt < 0 ? "+" : ""}$${Math.abs(amt).toFixed(0)}` : "?";
+      const date = t.date || "?";
+      const tag =
+        looksLikePayroll ? "payroll/income" :
+        largeInflow ? "large-inflow" :
+        looksWealth ? "wealth/investment" :
+        looksRelocation ? "relocation/geography" :
+        looksHousehold ? "household/life-stage" : "signal";
+      demographicTxnLines.push(`[T${idx}] ${m} · ${amtStr} · ${date} · ${tag}`);
+    });
+    const demographicTxnBlock = demographicTxnLines.length
+      ? `\n\nDemographic-shift candidate transactions (each [T<n>] tagged with the shift-family it hints at — use these indices for demographic_shifts.transaction_indices):\n${demographicTxnLines.join("\n")}`
+      : "";
+
     const lifeEventSuppressionBlock = detectedEventNames.length > 0
       ? `
 
@@ -261,7 +302,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 **Financial signals are recurring large-financial-product relationships** — auto loans, auto leases, mortgages, HELOCs, student loans, personal loans, credit-card payoffs, brokerage / retirement / 529 contributions, and life/disability insurance premiums. They are *bigger than spending* and NEVER belong inside a pillar_rollup (previously we saw the LLM invent "Autoloan Management" rollups mixing VW Credit + Zillow mortgage — that is EXACTLY what this section prevents).
 
-**Detect a financial_signal when** the **Financial-signal candidate transactions** block (a separately-numbered `[T<n>]` list at the end of the user message) contains at least ONE transaction whose merchant matches one of the families below. Use those `[T<n>]` indices — they are the source of truth for `financial_signals.transaction_indices`. Group all transactions from the same servicer into one signal.
+**Detect a financial_signal when** the **Financial-signal candidate transactions** block (a separately-numbered \`[T<n>]\` list at the end of the user message) contains at least ONE transaction whose merchant matches one of the families below. Use those \`[T<n>]\` indices — they are the source of truth for \`financial_signals.transaction_indices\`. Group all transactions from the same servicer into one signal.
 
 **Product families + merchant hints:**
   - auto_loan (Auto Loan) — "toyota financial", "vw credit", "volkswagen credit", "ford credit", "gm financial", "honda financial", "ally auto", "chase auto", "capital one auto", "bmw financial", "mercedes-benz financial", "hyundai motor finance", "nissan motor accept"
@@ -375,9 +416,41 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - Always include the exact category names combined and the [N] row indices from the per-category input. For lifestyle-prone pillars also include the [T<n>] transaction_indices from the per-transaction list.
 
-- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
+- **RECURRING SPORT / FITNESS / HOBBY CLUSTERS — ALWAYS EMIT:** If the per-transaction list contains **3 or more transactions** tied to the same recurring sport, fitness discipline, or hobby (e.g. tennis club + tennis apparel + racquet retailer; golf course + pro shop + golf apparel; cycling studio + bike shop + cycling kit; yoga studio + activewear; ski resort + ski rental + ski apparel), you MUST emit a dedicated rollup for that activity (e.g. "Tennis & Court Sports", "Weekend Golfer", "Cycling Enthusiast", "Dedicated Yogi", "Seasonal Skier"). Do NOT bundle two distinct sports into one generic "Seasonal Sports" or "Active Lifestyle" pill — each recurring discipline gets its own rollup. This rule applies even when the cluster's total spend is smaller than other categories; recurring activity-specific behavior is a strong lifestyle signal regardless of dollar rank.
 
-    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}`;
+---
+
+## DEMOGRAPHIC SHIFTS (do this FOURTH, after life events, financial signals, and rollups)
+
+**Demographic shifts are INFERRED CHANGES** to the customer's life stage, household composition, income trajectory, wealth tier, or geography — things the bank does NOT yet know from the static profile. Never restate static baseline attributes (age, current ZIP, current income band). Emit ONLY *changes* the transaction pattern reveals.
+
+**Use the "Demographic-shift candidate transactions" block** at the end of the user message. Each row is tagged with its shift-family (payroll/income, large-inflow, wealth/investment, relocation/geography, household/life-stage).
+
+**Categories to detect (cap at 4 total shifts; pick the highest-value):**
+  - **income_trajectory** — payroll ACH amount step-up/step-down (raise, promotion, job loss), payroll counterparty flip (job change), first appearance of 1099/Stripe/Square deposits (self-employment onset), first appearance of SSA/pension (retirement onset), unemployment credit appearing.
+  - **wealth_tier_migration** — sustained increase in brokerage/401k/IRA contributions, a large one-time inflow (≥$10k liquidity event, inheritance, home-sale proceeds), reserve buffer expansion. Direction: up = Mass → Affluent → HNW; down = drawdown.
+  - **household_composition** — new baby (pediatric + baby retailer + daycare), kid → college (tuition ACH + out-of-state debits), empty nest (tuition stops + travel rises), divorce (family-law + duplicate utility setup), new pet (recurring vet/Chewy).
+  - **geography_relocation** — moving-company / U-Haul / storage charge, new utility installation, extended-stay hotel cluster, merchant-location centroid drift over 30+ days.
+  - **life_stage_entry** — homeownership entry (title/escrow → first mortgage payment), marriage (wedding-vendor cluster + jeweler), eldercare onset (assisted-living / in-home care agency recurring), major health event (hospital + specialty pharmacy + PT recurring).
+
+**Each demographic_shift MUST have:**
+  - id — auto-assigned downstream, omit from output
+  - category — one of the 5 enum values above
+  - label — 2-5 word human-readable shift name, e.g. "Payroll Step-Up · +18%", "Wealth Tier Migration ↑", "New Baby in Household", "Relocation: SF → NYC", "Retirement Onset Detected"
+  - direction — "up" | "down" | "lateral"
+  - confidence — 0-1 (NOT 0-100). Use 0.55 (2 rows, thin), 0.7 (3-4 rows), 0.85 (5+ rows with clear signal). Never above 0.92.
+  - magnitude_band — OPTIONAL vaguely-specific magnitude like "+18% payroll", "~+$45k inflow", "ZIP 94301 → 10013", "3 baby-retailer charges/mo". Omit if not applicable.
+  - evidence_summary — 1 sentence: what pattern you saw and why it implies the shift.
+  - transaction_indices — REQUIRED. At least 2 [T<n>] indices from the demographic candidate block (large_inflow is the ONE exception where 1 index is acceptable).
+
+**RULES:**
+  - Emit ONLY changes. Never emit a shift that just describes the customer's current static state.
+  - MINIMUM 2 supporting transactions per shift (except large single-inflow events).
+  - You MAY reuse a [T<n>] that also appears in a financial_signal ONLY when the demographic interpretation is genuinely distinct (e.g. a first-ever mortgage ACH is BOTH a financial_signal AND a "life_stage_entry: Homeownership" shift). Prefer non-overlapping evidence when possible.
+  - Cap at 4 shifts. If more qualify, keep the highest-confidence + highest-value ones (income > wealth > household > geography > life-stage).
+  - Return empty array if the transaction pattern shows no genuine change.${lifeEventSuppressionBlock}${riskSuppressionBlock}`;
+
+    const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}${financialTxnBlock}${demographicTxnBlock}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -508,8 +581,32 @@ For each canonical life event below, check whether the per-transaction list meet
                     },
                     description: "Recurring large-financial-product relationships (loans, mortgages, leases, investments, insurance). MUST NOT overlap pillar_rollups transaction_indices. Return empty array if none detected.",
                   },
+                  demographic_shifts: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        category: {
+                          type: "string",
+                          enum: [
+                            "income_trajectory","wealth_tier_migration","household_composition",
+                            "geography_relocation","life_stage_entry",
+                          ],
+                        },
+                        label: { type: "string", description: "2-5 word shift name, e.g. 'Payroll Step-Up · +18%'." },
+                        direction: { type: "string", enum: ["up","down","lateral"] },
+                        confidence: { type: "number", description: "0-1 (NOT 0-100). Cap at 0.92." },
+                        magnitude_band: { type: "string", description: "Optional vague magnitude, e.g. '+18% payroll', '~+$45k inflow'." },
+                        evidence_summary: { type: "string", description: "1-sentence pattern + why it implies the shift." },
+                        transaction_indices: { type: "array", items: { type: "number" }, description: "≥2 [T<n>] indices from the demographic candidate block (1 allowed only for large single-inflow)." },
+                      },
+                      required: ["category","label","direction","confidence","evidence_summary","transaction_indices"],
+                      additionalProperties: false,
+                    },
+                    description: "Inferred CHANGES to life stage, household, income, wealth tier, or geography. Never restate static baseline attributes. Cap at 4. Return empty array if no genuine change detected.",
+                  },
                 },
-                required: ["pillar_rollups", "detected_life_events", "financial_signals"],
+                required: ["pillar_rollups", "detected_life_events", "financial_signals", "demographic_shifts"],
                 additionalProperties: false,
               },
             },
@@ -574,6 +671,16 @@ For each canonical life event below, check whether the per-transaction list meet
         cadence: f.cadence || "irregular",
         transaction_indices: Array.isArray(f.transaction_indices) ? f.transaction_indices : [],
         talking_points: Array.isArray(f.talking_points) ? f.talking_points : [],
+      })),
+      demographic_shifts: (raw.demographic_shifts || []).map((d: any, i: number) => ({
+        id: `ds-${i}`,
+        category: d.category,
+        label: d.label,
+        direction: d.direction || "lateral",
+        confidence: typeof d.confidence === "number" ? Math.max(0, Math.min(0.92, d.confidence)) : 0.6,
+        magnitude_band: d.magnitude_band || "",
+        evidence_summary: d.evidence_summary || "",
+        transaction_indices: Array.isArray(d.transaction_indices) ? d.transaction_indices : [],
       })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },

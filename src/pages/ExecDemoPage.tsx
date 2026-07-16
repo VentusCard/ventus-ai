@@ -382,6 +382,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       for (const fs of rawFinancialSignals) {
         for (const ti of fs.transaction_indices || []) financialTxIdxSet.add(ti);
       }
+      const rawDemographicShifts: any[] = Array.isArray(data.demographic_shifts) ? data.demographic_shifts : [];
       const synthesis: PersonaSynthesis = {
         financialSignals: rawFinancialSignals.map((f: any) => ({
           id: f.id,
@@ -394,6 +395,18 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             (ti: number) => ti >= 0 && ti < enrichedTxs.length,
           ),
           talking_points: f.talking_points || [],
+        })),
+        demographicShifts: rawDemographicShifts.map((d: any) => ({
+          id: d.id,
+          category: d.category,
+          label: d.label,
+          direction: d.direction,
+          confidence: d.confidence,
+          magnitude_band: d.magnitude_band,
+          evidence_summary: d.evidence_summary,
+          transaction_indices: (d.transaction_indices || []).filter(
+            (ti: number) => ti >= 0 && ti < enrichedTxs.length,
+          ),
         })),
         pillarRollups: (data.pillar_rollups || [])
           .map((r: any) => {
