@@ -230,6 +230,52 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
                 </span>
               </th>
             ) : (
+              <>
+                <th
+                  colSpan={6}
+                  className="bg-slate-100 text-slate-600 text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 border-r-2 border-slate-300"
+                >
+                  Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
+                </th>
+                <th
+                  colSpan={4}
+                  className="relative overflow-hidden text-white text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.7s_ease-out_both]"
+                  style={{
+                    background: "linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)",
+                  }}
+                >
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0"
+                    style={{
+                      background: "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)",
+                      animation: "ventus-enriched-shimmer 1.6s ease-out 0.4s 1 both",
+                      transform: "translateX(-100%)",
+                    }}
+                  />
+                  <span className="relative inline-flex items-center gap-2">
+                    Semantic Enrichment <span className="font-normal normal-case tracking-normal text-blue-100/90">· AI-labeled semantic intelligence</span>
+                    {hasPending && (
+                      <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-white normal-case tracking-normal">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                        Enriching…
+                      </span>
+                    )}
+                  </span>
+                </th>
+              </>
+            )}
+          </tr>
+          {/* Tier 2 — Column headers */}
+          {activeExternal ? (
+            <tr className="bg-slate-50/80 border-b border-slate-200">
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Source</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Provider</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Signal</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Type</th>
+              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap text-right">Confidence</th>
+            </tr>
+          ) : (
             <tr className="bg-slate-50/80 border-b border-slate-200">
               <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.source}`}>Source</th>
               <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.date}`}>Date</th>
@@ -243,6 +289,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
               <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
             </tr>
           )}
+
         </thead>
         <tbody>
           {!activeExternal && (() => {
