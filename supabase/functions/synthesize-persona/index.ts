@@ -338,7 +338,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - A rollup describes a *recurring lifestyle habit* — something you'd mention about this person at a dinner party. "She's a total fitness nut" (gym + yoga + supplements + athletic apparel). "He eats out constantly at casual spots" (fast food + casual dining + delivery).
 
-- Only group categories within the SAME pillar. The "pillar" field MUST be one of these exact strings: ${distinctPillars.map(p => \`"${p}"\`).join(", ")}.
+- Only group categories within the SAME pillar. The "pillar" field MUST be one of these exact strings: ${distinctPillars.map(p => `"${p}"`).join(", ")}.
 
 - Ask yourself: "Would a friend describe this person this way?" If someone stays at a Hilton in Dallas and also does Orange Theory, a friend would say "she's really into fitness and she traveled to Dallas" — two separate things, not "strategic domestic traveler."
 
