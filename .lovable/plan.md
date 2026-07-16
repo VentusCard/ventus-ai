@@ -1,38 +1,38 @@
 ## Goal
-When a user clicks an external-intelligence pill (e.g. "Car Loan Renewal in ~2 Months"), the enrichment table should look like the normal table but show a **single row** styled distinctly (violet) — plus a **swapped table header** that reads "External Signal" in a violet gradient instead of "Raw Transaction / Semantic Enrichment".
+When an external-intel pill is active, the enrichment table swaps to a dedicated external-signal view: a violet "External Signal" Tier-1 band, its own Tier-2 headers (not the transaction ones), and a single data row.
 
 All edits in `src/components/exec-demo/ExecDemoEnrichmentTable.tsx`.
 
-## Changes
+## External-signal column schema
 
-1. **Remove the dedicated detail panel** (lines ~154–255). No more full-panel takeover.
+| Col | Label | Content |
+|---|---|---|
+| 1 | Source | Violet "External" chip with sparkle icon |
+| 2 | Provider | `activeExternal.provider` |
+| 3 | Signal | `activeExternal.headline` (bold) |
+| 4 | Type | One of `Spending Habit` / `Life Event` / `Risk`, derived from `activeExternal.category` |
+| 5 | Confidence | `NN%` pill |
 
-2. **When `externalActive` is true, swap the Tier-1 header row** (lines ~296–330):
-   - Replace the "Raw Transaction" + "Semantic Enrichment" split with a single `<th colSpan={10}>` that reads:
-     - **"External Signal"** in bold uppercase, with sub-label `· sourced from outside data provider`
-     - Violet gradient background (e.g. `linear-gradient(90deg, hsl(262 83% 58%) 0%, hsl(258 90% 50%) 100%)`), white text, matching the same shimmer treatment used by the blue enrichment header for visual parity.
-   - Keep the Tier-2 column labels unchanged (Source / Date / Merchant / MCC / Desc / Amt / Pillar / Category / Subcategories / Freq) so the row below still aligns.
+No Detail column, no Category (raw), no Evidence column.
 
-3. **Render the active signal as one `<tr>`** in the same 10-column schema:
-   - **Source**: violet "External" chip (replaces bank card badge)
-   - **Date**: `evidence[0].date` or today
-   - **Merchant**: `signal.headline`
-   - **MCC**: "—"
-   - **Description**: `signal.detail`
-   - **Amount**: `evidence[0].amount` if present, else "—"
-   - **Pillar**: violet "External Intel" pill
-   - **Category**: humanized `signal.category`
-   - **Subcategories**: `signal.provider` pill
-   - **Freq**: `confidence%`
-   - Row uses existing `exec-ext-highlighted` styling (violet left border + tinted background).
+### Type mapping (from `activeExternal.category`)
+- Anything containing `spend`, `habit`, `merchant`, `travel_spend`, `dining` → **Spending Habit**
+- Anything containing `life`, `event`, `renewal`, `move`, `wedding`, `baby`, `home`, `loan`, `car` → **Life Event**
+- Anything containing `risk`, `fraud`, `default`, `delinquency`, `credit` → **Risk**
+- Fallback → **Life Event**
 
-4. **Suppress the regular transaction rows** while `externalActive` is true (skip the `order.map(...)` output) so the table truly shows one row. Also skip the bottom external-signal summary rows (lines 490–520) in this mode, since the active one is already the sole row.
+Type pill colors: Spending Habit = blue, Life Event = violet, Risk = red.
 
-5. **Keep the top filter strip** as-is (already shows "Showing 1 external signal for '…'" with a Clear button that returns to the full transaction view + original headers).
+## Changes in `ExecDemoEnrichmentTable.tsx`
+
+1. **colgroup**: render a 5-column colgroup with proportional widths when `activeExternal`; otherwise keep the current 10-column colgroup.
+2. **Tier-1 header**: change `colSpan` from 10 → 5 when active (violet "External Signal · sourced from outside data provider" band stays).
+3. **Tier-2 header**: branch on `activeExternal` — render the 5 labels (Source / Provider / Signal / Type / Confidence) with a light violet background instead of the transaction labels.
+4. **Data row**: replace the current 10-cell row with a 5-cell row using the new schema and violet `exec-ext-highlighted` styling.
+5. Keep `min-w-[912px]` on the `<table>` so the wrapper width stays stable across modes.
 
 ## Out of scope
-- No changes to `ExternalIntelSignal` schema, the intel panel pills, or downstream product/offer generation.
-- No changes to routing, tabs, or demo pre-fire logic.
+No changes to intel panel pills, signal data model, downstream product/offer generation, or the bottom externals list in the default view.
 
 ## Verification
-Click the "Car Loan Renewal" pill → the table's top grouping header morphs from blue "Semantic Enrichment" split into a violet "External Signal" band, and exactly one violet-tinted row renders below it in the same column layout as a transaction. Clicking "Clear" restores the original headers and full transaction list.
+Click "Car Loan Renewal" pill → violet Tier-1 band, second header row shows exactly Source / Provider / Signal / Type / Confidence, one violet row shows the signal with Type = "Life Event". Clear → transaction headers and rows return.
