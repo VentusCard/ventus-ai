@@ -613,6 +613,51 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           })
           .map(({ _resolvedCategories, ...rest }: any) => rest),
       };
+
+      // --- Inject external-intelligence signals bucketed as financial / demographic ---
+      // The LLM was already told about these (via `externalSignals` in the request),
+      // but we authoritatively append them here so the UI ownership is deterministic
+      // and never depends on the model choosing to echo them back.
+      for (const es of externalSignalsRaw) {
+        if (es.bucket === "financial_signal") {
+          // De-dupe against LLM-emitted financial signals with the same product family.
+          const already = synthesis.financialSignals.some(
+            (f: any) =>
+              (f.product_family || "").toLowerCase() === (es.product_family || "").toLowerCase() &&
+              (es.product_family || "") !== "",
+          );
+          if (!already) {
+            synthesis.financialSignals.push({
+              id: es.id,
+              product_family: es.product_family || "other",
+              label: es.event_name,
+              servicer: es.servicer,
+              monthly_amount_band: es.monthly_amount_band,
+              cadence: es.cadence,
+              transaction_indices: [],
+              talking_points: es.talking_points || [],
+              source: "external",
+              provider: es.provider,
+              confidence: es.confidence,
+              detail: es.detail,
+            } as any);
+          }
+        } else if (es.bucket === "demographic_shift") {
+          synthesis.demographicShifts.push({
+            id: es.id,
+            category: es.demographic_category || "household_composition",
+            label: es.event_name,
+            direction: es.direction || "lateral",
+            confidence: es.confidence,
+            magnitude_band: es.magnitude_band,
+            evidence_summary: es.detail,
+            transaction_indices: [],
+            source: "external",
+            provider: es.provider,
+          } as any);
+        }
+      }
+
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
