@@ -7,7 +7,7 @@ const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
 // Model configuration
-const FAST_MODEL = "google/gemini-2.5-flash";
+const FAST_MODEL = "google/gemini-3.5-flash";
 const FALLBACK_MODEL = "openai/gpt-5-mini";
 
 // Concurrency configuration
