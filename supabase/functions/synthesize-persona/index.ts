@@ -327,7 +327,7 @@ For each canonical life event below, check whether the per-transaction list meet
 
 - **"Home Purchase / Transition"** — 3+ transactions from any combination of: realtor, title company, escrow, home inspector, mortgage company, moving company, large home retailers in atypical volume (Crate & Barrel, West Elm, Pottery Barn, Restoration Hardware, IKEA, Williams Sonoma Home), Home Depot/Lowe's spike (>$500 single ticket or 3+ visits), first-time mortgage payment, HOA setup, utility transfers, appliance retailers (>$500).
 
-- ~~College Preparation for Dependent~~ — **RETIRED as a life event.** College prep spend (SAT/ACT/Kaplan/Princeton Review, Common App, campus visits, tuition deposits, 529 draw-downs) belongs to a `household_composition` **Demographic Shift** with label "Kid → College" (see Demographic Shifts section). Do NOT emit a life event for this theme.
+- ~~College Preparation for Dependent~~ — **RETIRED as a life event.** College prep spend (SAT/ACT/Kaplan/Princeton Review, Common App, campus visits, tuition deposits, 529 draw-downs) belongs to a household_composition **Demographic Shift** with label "Kid → College" (see Demographic Shifts section). Do NOT emit a life event for this theme.
 
 - **"Wedding / Engagement"** — 2+ from: jeweler $2k+, wedding venue, bridal salon, wedding photographer, event caterer, registry retailers (Crate & Barrel registry, Williams Sonoma registry).
 
