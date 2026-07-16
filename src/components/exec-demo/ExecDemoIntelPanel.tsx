@@ -1017,8 +1017,8 @@ export default function ExecDemoIntelPanel({
                                       boxShadow: isActive ? "0 0 14px rgba(13,148,136,.35)" : "0 2px 8px rgba(13,148,136,.18)",
                                     }}
                                   >
-                                    <span style={{ color: "#0d9488", fontWeight: 700 }}>{dirGlyph(ds.direction)}</span>
-                                    {ds.label}
+                                    <span style={{ color: "#0d9488" }}>✦</span>
+                                    {stripBrand(ds.label)}
                                     {ds.magnitude_band ? (
                                       <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
                                         {ds.magnitude_band}
