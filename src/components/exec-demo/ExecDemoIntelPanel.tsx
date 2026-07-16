@@ -26,8 +26,20 @@ export interface PillarRollup {
   totalSpend?: number;
 }
 
+export interface FinancialSignal {
+  id: string;
+  product_family: string;
+  label: string;
+  servicer?: string;
+  monthly_amount_band?: string;
+  cadence?: string;
+  transaction_indices: number[];
+  talking_points?: string[];
+}
+
 export interface PersonaSynthesis {
   pillarRollups?: PillarRollup[];
+  financialSignals?: FinancialSignal[];
 }
 
 interface Props {
