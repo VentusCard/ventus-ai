@@ -526,6 +526,16 @@ For each canonical life event below, check whether the per-transaction list meet
         talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
         transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
       })),
+      financial_signals: (raw.financial_signals || []).map((f: any, i: number) => ({
+        id: `fs-${i}`,
+        product_family: f.product_family,
+        label: f.label,
+        servicer: f.servicer || "",
+        monthly_amount_band: f.monthly_amount_band || "",
+        cadence: f.cadence || "irregular",
+        transaction_indices: Array.isArray(f.transaction_indices) ? f.transaction_indices : [],
+        talking_points: Array.isArray(f.talking_points) ? f.talking_points : [],
+      })),
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
