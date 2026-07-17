@@ -114,6 +114,9 @@ jobs:
       - name: Check Intervention Benchmark
         run: npm run --prefix backend qa:interventions
 
+      - name: Install Connector Test Dependencies
+        run: npm ci --ignore-scripts
+
       - name: Check Connector Sessions
         run: npm run test:connector-sessions
 
