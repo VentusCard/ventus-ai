@@ -7,6 +7,7 @@ import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import Index from "./pages/Index";
+import IndexV2 from "./pages/IndexV2";
 import ContactUs from "./pages/ContactUs";
 
 
@@ -54,6 +55,8 @@ const AppLayout = () => {
   const routes = (
     <Routes>
       <Route path="/" element={<Index />} />
+      {/* Design-review candidate for the next home page — compare with "/". */}
+      <Route path="/v2" element={<IndexV2 />} />
       <Route path="/platform" element={<Platform />} />
       <Route path="/smartrewards" element={<SmartRewards />} />
       <Route path="/engagement" element={<Engagement />} />
