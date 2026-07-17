@@ -51,37 +51,39 @@ const ClosedLoopCircuit = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-white w-full relative z-10" style={{ paddingTop: 80, paddingBottom: 80 }}>
+    <section ref={sectionRef} className="v2-rule-t w-full relative z-10" style={{ paddingTop: 96, paddingBottom: 88, backgroundColor: "var(--v2-paper)" }}>
       <div className="max-w-7xl mx-auto px-6 md:px-8">
         <ScrollReveal>
-          <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">
-            The Closed Loop
-          </p>
-          <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight mb-4 max-w-3xl">
-            Not another dashboard. A loop that proves growth.
-          </h2>
-          <p className="text-base text-gray-500 leading-relaxed max-w-2xl mb-12">
-            Ventus doesn't stop at insight. It takes a governed action, measures the
-            incremental result against a holdout, and records it — so every decision
-            makes the next one better.
-          </p>
+          <div className="grid gap-10 lg:grid-cols-[minmax(0,0.35fr)_minmax(0,0.65fr)]">
+            <p className="v2-label">03 — The closed loop</p>
+            <div>
+              <h2 className="v2-display text-3xl md:text-5xl max-w-3xl mb-5">
+                Not another dashboard. A loop that proves growth.
+              </h2>
+              <p className="v2-body text-lg max-w-2xl mb-12">
+                Ventus doesn't stop at insight. It takes a governed action, measures the
+                incremental result against a holdout, and records it — so every decision
+                makes the next one better.
+              </p>
+            </div>
+          </div>
         </ScrollReveal>
 
         <div className="relative">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-10">
             {steps.map((step, i) => (
               <ScrollReveal key={step.label} delay={i * 0.08}>
-                <div className="relative z-10 rounded-[20px] border border-gray-200 bg-white p-6 h-full shadow-[0_8px_30px_rgba(15,23,42,0.05)]">
+                <div className="v2-row relative z-10 h-full" style={{ backgroundColor: "var(--v2-paper)" }}>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-[11px] font-bold tracking-widest uppercase text-blue-600">
+                    <span className="v2-mono text-[10px] font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--v2-green)" }}>
                       {step.label}
                     </span>
-                    <span className="text-[11px] font-mono text-gray-300">0{i + 1}</span>
+                    <span className="v2-section-no">0{i + 1}</span>
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 leading-snug mb-2">
+                  <h3 className="v2-display text-lg mb-2" style={{ letterSpacing: "-0.02em" }}>
                     {step.title}
                   </h3>
-                  <p className="text-sm text-gray-500 leading-relaxed">{step.body}</p>
+                  <p className="v2-body text-sm">{step.body}</p>
                 </div>
               </ScrollReveal>
             ))}
@@ -91,14 +93,14 @@ const ClosedLoopCircuit = () => {
           <div className="hidden lg:block pointer-events-none absolute inset-x-0 -bottom-24 h-48">
             <svg viewBox="0 0 1000 190" className="w-full h-full" fill="none" aria-hidden="true">
               {/* Return edge: outcomes feed the next moment. */}
-              <path d={RETURN_PATH} stroke="#0B6B43" strokeWidth="1.5" strokeDasharray="6 5" opacity={visible ? 0.5 : 0} style={{ transition: "opacity 600ms ease 400ms" }} />
-              <path d={FORWARD_PATH} stroke="#BFDBFE" strokeWidth="2" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease" }} />
+              <path d={RETURN_PATH} stroke="var(--v2-green)" strokeWidth="1.5" strokeDasharray="6 5" opacity={visible ? 0.45 : 0} style={{ transition: "opacity 600ms ease 400ms" }} />
+              <path d={FORWARD_PATH} stroke="var(--v2-rule)" strokeWidth="2" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease" }} />
               {visible && !reducedMotion && (
-                <circle r="4" fill="#2563EB">
+                <circle r="4" fill="var(--v2-green)">
                   <animateMotion dur="6s" repeatCount="indefinite" path={RETURN_PATH} />
                 </circle>
               )}
-              <text x="500" y="172" textAnchor="middle" className="font-mono" fontSize="11" fill="#0B6B43" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease 600ms" }}>
+              <text x="500" y="172" textAnchor="middle" className="v2-mono" fontSize="11" fill="var(--v2-green)" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease 600ms" }}>
                 outcomes sharpen the next play ↺
               </text>
             </svg>

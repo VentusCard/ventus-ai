@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 
 const rawTransactions = [
@@ -269,23 +268,23 @@ const ScrollDrivenHeroV2 = () => {
   const statusLabel = stage === 1 ? "Analyzing..." : stage === 2 ? "Categorizing" : stage === 3 ? "Detected" : "Growth Play";
 
   return (
-    <div ref={containerRef} className="relative" style={{ height: "360vh", minHeight: "100vh", background: "radial-gradient(ellipse 75% 95% at 100% 0%, #BFDBFE 0%, #DBEAFE 30%, #EFF6FF 50%, #FFFFFF 68%)" }}>
+    <div ref={containerRef} className="v2-ruled relative" style={{ height: "360vh", minHeight: "100vh", backgroundColor: "var(--v2-paper)" }}>
       <div className="sticky top-0 xl:h-screen min-h-screen flex items-start justify-center overflow-visible pt-24 md:pt-28 xl:pt-16 pb-10">
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
           <div className="contents xl:flex xl:flex-col xl:w-[62%] xl:items-start w-full">
             <h1
-              className="order-1 xl:order-none font-bold tracking-tight text-gray-900 leading-[1.15] text-center xl:text-left transition-all duration-700 ease-out text-[44px] sm:text-5xl md:text-6xl xl:text-[68px]"
+              className="v2-display order-1 xl:order-none text-center xl:text-left transition-all duration-700 ease-out text-[44px] sm:text-5xl md:text-6xl xl:text-[68px]"
               style={{
                 opacity: loaded ? 1 : 0,
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
               }}
             >
-              Turn transactions into <span className="italic text-blue-600">measured growth</span>
+              Turn transactions into <span style={{ color: "var(--v2-green)" }}>measured growth</span>
             </h1>
 
             <p
-              className="order-3 xl:order-none mt-6 text-base md:text-lg text-gray-500 max-w-xl text-center xl:text-left transition-all duration-700 ease-out xl:text-[18px]"
+              className="v2-body order-3 xl:order-none mt-6 text-base md:text-lg max-w-xl text-center xl:text-left transition-all duration-700 ease-out xl:text-[18px]"
               style={{
                 lineHeight: 1.7,
                 opacity: loaded ? 1 : 0,
@@ -305,20 +304,13 @@ const ScrollDrivenHeroV2 = () => {
               }}
             >
               {/* Proof over promise: the primary action is running the product. */}
-              <Button
-                className="bg-blue-600 hover:bg-blue-700 text-white h-12 px-8 text-base gap-2"
-                onClick={() => navigate("/demo/enterprise")}
-              >
+              <button className="v2-btn" onClick={() => navigate("/demo/enterprise")}>
                 Run the demo
                 <ArrowRight className="w-4 h-4" />
-              </Button>
-              <Button
-                variant="outline"
-                className="h-12 px-8 text-base text-gray-700"
-                onClick={() => navigate("/contact")}
-              >
+              </button>
+              <button className="v2-btn-ghost" onClick={() => navigate("/contact")}>
                 Schedule a demo
-              </Button>
+              </button>
             </div>
 
           </div>
@@ -340,7 +332,7 @@ const ScrollDrivenHeroV2 = () => {
               >
                 {/* Header */}
                 <div className="flex items-center gap-2.5 mb-3 relative z-10">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-md bg-blue-600 text-white font-black text-[14px] leading-none shadow-md" style={{ fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
+                  <span className="flex items-center justify-center w-7 h-7 rounded-md text-white font-black text-[14px] leading-none shadow-md" style={{ backgroundColor: "var(--v2-ink)", fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
                     V
                   </span>
                   <span className="text-[15px] font-bold tracking-tight text-gray-900">
@@ -653,7 +645,7 @@ const ScrollDrivenHeroV2 = () => {
                   >
                     <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
                       <div className="flex items-center gap-1.5">
-                        <span className="flex items-center justify-center w-4 h-4 rounded bg-blue-600 text-white font-black text-[9px] leading-none">V</span>
+                        <span className="flex items-center justify-center w-4 h-4 rounded text-white font-black text-[9px] leading-none" style={{ backgroundColor: "var(--v2-ink)" }}>V</span>
                         <span className="text-[9px] font-bold tracking-[0.12em] uppercase text-gray-700">Ventus Growth Play</span>
                       </div>
                       <span
@@ -683,8 +675,8 @@ const ScrollDrivenHeroV2 = () => {
                       {/* The hero ends by handing off to proof: run the same loop live. */}
                       <button
                         onClick={() => navigate("/demo/enterprise")}
-                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md bg-blue-600 px-2 py-1.5 text-[10px] font-bold text-white transition hover:bg-blue-700"
-                        style={{ opacity: stage === 4 ? 1 : 0, pointerEvents: stage === 4 ? "auto" : "none", transition: "opacity 400ms ease" }}
+                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-bold text-white transition hover:opacity-90"
+                        style={{ backgroundColor: "var(--v2-green)", opacity: stage === 4 ? 1 : 0, pointerEvents: stage === 4 ? "auto" : "none", transition: "opacity 400ms ease" }}
                       >
                         Run this play in the live demo
                         <ArrowRight className="w-3 h-3" />
@@ -719,16 +711,16 @@ const ScrollDrivenHeroV2 = () => {
                             className="absolute inset-y-0 left-0 rounded-full"
                             style={{
                               width: `${(isComplete ? 1 : fill) * 100}%`,
-                              background: "#2563EB",
+                              background: "var(--v2-green)",
                               transition: "width 120ms linear",
                             }}
                           />
                         </div>
                         <span
-                          className="mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[12px]"
+                          className="v2-mono mt-1.5 xl:mt-2 uppercase tracking-[0.08em] xl:tracking-[0.12em] whitespace-nowrap text-[9px] xl:text-[11px]"
                           style={{
-                            color: isActive || isComplete ? "#111827" : "#9CA3AF",
-                            fontWeight: isActive ? 800 : 500,
+                            color: isActive || isComplete ? "var(--v2-ink)" : "var(--v2-ink-faint)",
+                            fontWeight: isActive ? 700 : 500,
                             transition: "color 300ms ease, font-weight 300ms ease",
                           }}
                         >

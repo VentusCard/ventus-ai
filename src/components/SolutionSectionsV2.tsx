@@ -1,5 +1,4 @@
 import ScrollReveal from "@/components/ScrollReveal";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 
 /* ─── Section 1: Next Offer ─── */
@@ -136,49 +135,42 @@ const nextCards = [
 const SolutionSectionsV2 = () => {
   return (
     <>
-      <section className="bg-white py-20">
+      <section className="v2-rule-t py-24" style={{ backgroundColor: "var(--v2-paper-raised)" }}>
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <ScrollReveal>
-            <div className="mb-12 max-w-4xl">
-              <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Solutions</p>
-              <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight">
+            <div className="mb-12 grid gap-10 lg:grid-cols-[minmax(0,0.35fr)_minmax(0,0.65fr)]">
+              <p className="v2-label">05 — Solutions</p>
+              <h2 className="v2-display text-3xl md:text-5xl">
                 Growth Plays for every customer touchpoint.
               </h2>
             </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-x-8 gap-y-10">
             {nextCards.map((section) => (
-              <div
-                key={section.id}
-                className="rounded-[20px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden flex flex-col"
-              >
-                <div className="p-6 lg:p-7 flex flex-col flex-1">
-                  <p className="text-[11px] font-semibold tracking-widest uppercase text-blue-600 mb-3">
+              <div key={section.id} className="v2-row flex flex-col">
+                <div className="flex flex-col flex-1">
+                  <p className="v2-mono text-[10px] font-semibold tracking-[0.14em] uppercase mb-3" style={{ color: "var(--v2-green)" }}>
                     {section.label}
                   </p>
-                  <h3 className="text-xl md:text-[22px] font-bold text-gray-900 leading-tight mb-3">
+                  <h3 className="v2-display text-xl mb-3" style={{ letterSpacing: "-0.02em" }}>
                     {section.headline}
                   </h3>
-                  <p className="text-sm text-gray-500 leading-relaxed mb-5">
+                  <p className="v2-body text-sm mb-5">
                     {section.body}
                   </p>
                 </div>
-                <div className="bg-gray-50 border-t border-gray-200 p-5">
-                  <div className="rounded-[14px] border border-gray-200 bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] overflow-hidden">
-                    <div className="flex items-center gap-1.5 px-3 py-2 bg-gray-100 border-b border-gray-200">
-                      <span className="w-2.5 h-2.5 rounded-full bg-red-400" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
-                      <span className="w-2.5 h-2.5 rounded-full bg-green-400" />
+                <div>
+                  <div className="overflow-hidden rounded-lg border" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-paper)" }}>
+                    <div className="flex items-center gap-1.5 border-b px-3 py-2" style={{ borderColor: "var(--v2-rule)" }}>
+                      <span className="v2-mono text-[9px] uppercase tracking-[0.12em]" style={{ color: "var(--v2-ink-faint)" }}>preview</span>
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 bg-white">
                       {section.card}
                     </div>
                   </div>
-                  <div className="mt-5">
-                    <Link to={section.link}>
-                      <Button variant="outline" size="sm" className="border-gray-300 text-gray-700 hover:bg-gray-50">
-                        Learn more
-                      </Button>
+                  <div className="mt-4">
+                    <Link to={section.link} className="inline-flex items-center gap-1.5 text-[14px] font-semibold" style={{ color: "var(--v2-green)" }}>
+                      Learn more <span aria-hidden>→</span>
                     </Link>
                   </div>
                 </div>
@@ -190,36 +182,34 @@ const SolutionSectionsV2 = () => {
       </section>
 
       {/* Bank-Wide Intelligence */}
-      <section className="bg-white py-20 border-y border-gray-200">
+      <section className="v2-ruled v2-rule-t py-24" style={{ backgroundColor: "var(--v2-paper)" }}>
         <div className="max-w-7xl mx-auto px-6 md:px-8">
           <ScrollReveal>
             <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-start">
               <div>
-                <p className="text-xs font-semibold tracking-widest uppercase text-blue-600 mb-4">Analytics</p>
-                <h2 className="text-3xl md:text-[40px] font-bold text-gray-900 leading-tight mb-5">
+                <p className="v2-label mb-4">06 — Analytics</p>
+                <h2 className="v2-display text-3xl md:text-5xl mb-5">
                   Every play compounds into book-wide intelligence.
                 </h2>
-                <p className="text-base text-gray-500 leading-relaxed">
+                <p className="v2-body text-base">
                   Because every Growth Play is measured and logged, Ventus builds a compounding picture of your whole book — which moments drive real incremental growth, and which don't. See how the Decision Ledger turns individual plays into portfolio-level strategy.
+                </p>
+                <p className="v2-mono mt-6 text-[11px]" style={{ color: "var(--v2-ink-faint)" }}>
+                  plugs into your existing stack · cores · warehouses · salesforce fsc · no core changes
                 </p>
               </div>
               <div>
-                <div className="rounded-[20px] border border-gray-200 bg-white shadow-[0_8px_30px_rgba(15,23,42,0.06)] overflow-hidden">
-                  <div className="flex items-center gap-1.5 px-4 py-3 bg-gray-100 border-b border-gray-200">
-                    <span className="w-3 h-3 rounded-full bg-red-400" />
-                    <span className="w-3 h-3 rounded-full bg-yellow-400" />
-                    <span className="w-3 h-3 rounded-full bg-green-400" />
-                    <span className="ml-3 text-[11px] text-gray-400 font-mono"></span>
+                <div className="overflow-hidden rounded-lg border bg-white" style={{ borderColor: "var(--v2-rule)" }}>
+                  <div className="flex items-center gap-1.5 border-b px-4 py-2.5" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-paper)" }}>
+                    <span className="v2-mono text-[9px] uppercase tracking-[0.12em]" style={{ color: "var(--v2-ink-faint)" }}>portfolio · book-wide view</span>
                   </div>
                   <div className="p-3 sm:p-6">
                     <PortfolioVisual />
                   </div>
                 </div>
                 <div className="mt-5 flex justify-start">
-                  <Link to="/solutions/portfolio-intelligence">
-                    <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-100">
-                      Learn more
-                    </Button>
+                  <Link to="/solutions/portfolio-intelligence" className="inline-flex items-center gap-1.5 text-[14px] font-semibold" style={{ color: "var(--v2-green)" }}>
+                    Learn more <span aria-hidden>→</span>
                   </Link>
                 </div>
               </div>

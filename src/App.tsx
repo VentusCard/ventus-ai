@@ -49,8 +49,10 @@ const AppLayout = () => {
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const isInternalCapabilities = location.pathname.startsWith("/internal/");
+  // /v2 is a full design candidate — it carries its own nav and footer.
+  const isHomeV2 = location.pathname === "/v2";
 
-  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isInternalCapabilities;
+  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isInternalCapabilities && !isHomeV2;
 
   const routes = (
     <Routes>
