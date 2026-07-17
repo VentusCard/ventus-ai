@@ -27,7 +27,8 @@ test("Salesforce delivery maps a governed insight and optional relationship IDs"
   assert.equal(task.Priority, "High");
   assert.match(task.Description, /WHY THIS NEEDS ATTENTION/);
   assert.match(task.Description, /RECOMMENDED NEXT STEP/);
-  assert.match(task.Description, /POLICY STATUS/);
+  assert.match(task.Description, /POLICY CONTROLS/);
+  assert.match(task.Description, /Attached for review/);
   assert.match(task.Description, /Decision confidence: 91%/);
 });
 

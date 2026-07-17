@@ -139,7 +139,8 @@ test('Salesforce delivery creates one banker-ready standard Task', async () => {
   assert.equal(task.Subject, 'Primary deposit relationship review');
   assert.match(task.Description, /WHY THIS NEEDS ATTENTION/);
   assert.match(task.Description, /RECOMMENDED NEXT STEP/);
-  assert.match(task.Description, /POLICY STATUS/);
+  assert.match(task.Description, /POLICY CONTROLS/);
+  assert.match(task.Description, /Attached for review/);
 });
 
 test('AWS handler is default-off, origin-bound, and routes without an API key', async () => {

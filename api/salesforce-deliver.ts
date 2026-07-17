@@ -115,7 +115,7 @@ export function buildSalesforceTaskRecord(body: SalesforceDeliveryBody, now = ne
           "SUPPORTING SIGNALS",
           evidence.map((item) => `• ${item.label}${item.confidence === null ? "" : ` (${item.confidence}% confidence)`}`),
         ),
-        section("POLICY STATUS", controls.length ? [`Cleared: ${controls.join(" · ")}`] : []),
+        section("POLICY CONTROLS", controls.length ? [`Attached for review: ${controls.join(" · ")}`] : []),
         section("ROUTING", [businessLine && destination ? `${businessLine} → ${destination}` : destination || businessLine].filter(Boolean)),
         section(
           "AUDIT",

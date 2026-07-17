@@ -817,21 +817,31 @@ export default function EnterpriseGrowthDemoPage({
       className={`flex flex-col bg-gradient-to-b from-white via-white to-slate-50 text-slate-950 ${embedded ? "h-full w-full overflow-auto rounded-xl border border-slate-200 xl:overflow-hidden" : "h-screen w-screen overflow-auto xl:overflow-hidden"}`}
       style={{ fontFamily: "Manrope, sans-serif" }}
     >
-      <header className="flex flex-none items-center justify-between gap-3 border-b border-slate-200 px-6 py-3 sm:px-10">
+      <header
+        className={`flex flex-none items-center justify-between gap-3 border-b px-6 py-3 sm:px-10 ${internal ? "border-slate-200" : "border-white/10"}`}
+        style={internal ? undefined : { backgroundColor: "#060D24" }}
+      >
         <div className="flex items-center gap-3">
-          <img src={ventusLogo} className="h-5 w-auto" alt="Ventus AI" />
-          <span className="hidden h-4 w-px bg-slate-200 sm:block" />
-          <span className="relative flex h-6 w-6 items-center justify-center overflow-hidden rounded-md text-xs font-black text-white" style={{ backgroundColor: NAVY }}>
+          {internal ? (
+            <img src={ventusLogo} className="h-5 w-auto" alt="Ventus AI" />
+          ) : (
+            <span className="flex items-center gap-2">
+              <span className="flex h-6 w-6 items-center justify-center rounded-md text-xs font-black text-white" style={{ backgroundColor: "#2E5BFF" }}>V</span>
+              <span className="text-xs font-extrabold tracking-[0.18em] text-white">VENTUS</span>
+            </span>
+          )}
+          <span className={`hidden h-4 w-px sm:block ${internal ? "bg-slate-200" : "bg-white/15"}`} />
+          <span className="relative flex h-6 w-6 items-center justify-center overflow-hidden rounded-md text-xs font-black text-white" style={{ backgroundColor: internal ? NAVY : "rgba(255,255,255,0.12)" }}>
             {brand.flag && <span className="absolute -right-1 top-0 h-8 w-[7px] rotate-[24deg]" style={{ backgroundColor: RED }} />}
             <span className="relative">{brand.initial}</span>
           </span>
-          <span className="hidden text-sm font-semibold sm:inline" style={{ color: NAVY }}>
+          <span className={`hidden text-sm font-semibold sm:inline ${internal ? "" : "text-white/90"}`} style={internal ? { color: NAVY } : undefined}>
             {brand.title}
           </span>
           {entered && (
             <span
-              className="hidden items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-[11px] font-semibold lg:flex"
-              style={{ backgroundColor: `${NAVY}0d`, color: NAVY }}
+              className={`hidden items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 font-mono text-[10px] uppercase tracking-[0.12em] lg:flex ${internal ? "" : "bg-white/10 text-white/70"}`}
+              style={internal ? { backgroundColor: `${NAVY}0d`, color: NAVY } : undefined}
             >
               <AltIcon className="h-3 w-3" /> {altMeta.label}
             </span>
@@ -841,10 +851,10 @@ export default function EnterpriseGrowthDemoPage({
           {!internal && (
             <button
               onClick={() => setPresenterSessionOpen(true)}
-              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold transition ${readyConnectorCount === 2 ? "border-emerald-200 bg-emerald-50 text-emerald-800" : "border-slate-200 text-slate-600 hover:bg-slate-50"}`}
+              className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] transition ${readyConnectorCount === 2 ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/15 text-white/60 hover:border-white/35 hover:text-white"}`}
               title={connectorSession ? `Live session · ${readyConnectorCount}/2 connectors configured` : "Connect the live Plaid and Salesforce demo"}
             >
-              {readyConnectorCount === 2 ? <Check className="h-3.5 w-3.5" /> : <LockKeyhole className="h-3.5 w-3.5" />}
+              {readyConnectorCount === 2 ? <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" /> : <LockKeyhole className="h-3 w-3" />}
               <span className="hidden sm:inline">{readyConnectorCount === 2 ? "Plaid + Salesforce live" : connectorSession ? `${readyConnectorCount}/2 live` : "Connect live demo"}</span>
               <span className="sm:hidden">{readyConnectorCount === 2 ? "Live" : "Connect"}</span>
             </button>
@@ -4046,7 +4056,15 @@ const EXECUTIVE_STEPS = ["Prove", "Experience", "Activate", "Measure"] as const;
 // Progressive employee-surface preview with a before/after contrast: the same queue
 // without Ventus (a static, context-free list) vs. with Ventus (one prepared, evidenced
 // item). Compact by default; full workstation on demand so the mock never steals the scene.
-function EmployeeSurfacePreview({ opp, onVentusModeChange }: { opp: Opportunity; onVentusModeChange?: (withVentus: boolean) => void }) {
+function EmployeeSurfacePreview({
+  opp,
+  onVentusModeChange,
+  onAccept,
+}: {
+  opp: Opportunity;
+  onVentusModeChange?: (withVentus: boolean) => void;
+  onAccept?: () => void;
+}) {
   const [expanded, setExpanded] = useState(false);
   const [withVentus, setWithVentus] = useState(true);
   const dest = destinations.find((d) => d.id === opp.destination) ?? destinations[0];
@@ -4124,9 +4142,14 @@ function EmployeeSurfacePreview({ opp, onVentusModeChange }: { opp: Opportunity;
               </p>
             </div>
             {primary && (
-              <span className="flex-none rounded-md px-2.5 py-1 text-[11px] font-semibold text-white" style={{ backgroundColor: NAVY }}>
+              <button
+                type="button"
+                onClick={onAccept}
+                className="flex-none rounded-md px-2.5 py-1 text-[11px] font-semibold text-white transition hover:brightness-110"
+                style={{ backgroundColor: NAVY }}
+              >
                 {primary.verb}
-              </span>
+              </button>
             )}
           </div>
         </div>
@@ -4265,6 +4288,36 @@ type LeadershipRunEvidence = {
   authorizationMode?: string;
 };
 
+function opportunityFromLeadershipEvidence(
+  path: LeadershipPath,
+  base: Opportunity,
+  evidence: LeadershipRunEvidence | null,
+): Opportunity {
+  const detected = evidence?.opportunity;
+  if (!detected) return base;
+  const primarySignal = path === "wealth-growth"
+    ? detected.signals.find((signal) => signal.type === "rollover" || signal.type === "liquidity_event")
+    : detected.signals.find((signal) => signal.type === "off_bank_transfer");
+  const observedValue = primarySignal
+    ? primarySignal.evidence.reduce(
+        (value, transaction) => path === "wealth-growth"
+          ? Math.max(value, Math.abs(transaction.amount))
+          : value + Math.abs(transaction.amount),
+        0,
+      )
+    : 0;
+  return {
+    ...base,
+    type: detected.type,
+    reason: detected.reason,
+    action: detected.action,
+    confidence: detected.confidence,
+    value: observedValue > 0 ? fmtUsd(observedValue) : base.value,
+    valueLabel: path === "wealth-growth" ? "qualified liquidity" : "recent off-bank movement",
+    rawTransactions: detected.enriched.length ? detected.enriched : base.rawTransactions,
+  };
+}
+
 function LeadershipPipelineRun({
   path,
   opp,
@@ -4272,7 +4325,6 @@ function LeadershipPipelineRun({
   activeControls,
   playTitle,
   businessLine,
-  standaloneProof,
   onViewPlay,
   onEvidence,
   onComplete,
@@ -4285,7 +4337,6 @@ function LeadershipPipelineRun({
   activeControls: string[];
   playTitle: string;
   businessLine: string;
-  standaloneProof: string;
   onViewPlay: () => void;
   onEvidence: (evidence: LeadershipRunEvidence) => void;
   onComplete: () => void;
@@ -4299,13 +4350,13 @@ function LeadershipPipelineRun({
   const derived = runPipeline(OPP_INPUT(opp));
   const rails = [...new Set(opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed"))];
   const detected = runEvidence?.opportunity;
-  const recordCount = runEvidence?.transactions.length || derived.provenance.ingested;
+  const recordCount = runEvidence?.transactions.length || opp.rawTransactions.length;
   const stages = [
     { label: "Map", detail: `${recordCount} records`, icon: Upload },
-    { label: "Enrich", detail: `${detected?.enriched.length ?? derived.provenance.classified} normalized`, icon: Cpu },
+    { label: "Enrich", detail: `${detected?.enriched.length ?? opp.rawTransactions.length} normalized`, icon: Cpu },
     { label: "Infer", detail: "Financial state", icon: Activity },
     { label: "Decide", detail: "Next best action", icon: Wand2 },
-    { label: "Govern", detail: `${activeControls.length} checks`, icon: ShieldCheck },
+    { label: "Govern", detail: `${activeControls.length} controls loaded`, icon: ShieldCheck },
   ];
 
   useEffect(() => {
@@ -4378,78 +4429,94 @@ function LeadershipPipelineRun({
   const resultAction = detected?.action ?? opp.action;
   const resultDestination = detected?.destination ?? destination;
   const resultConfidence = detected?.confidence ?? derived.confidence;
+  const displayReason = detected
+    ? resultReason
+    : path === "wealth-growth"
+      ? "$275K transfer + planning intent. No advisor assigned."
+      : "Payroll split + off-bank spend. Balance down 38%.";
+  const displayAction = detected
+    ? resultAction
+    : path === "wealth-growth"
+      ? "Assign advisor. Prepare consolidation review."
+      : "Prepare banker outreach before the next payroll.";
 
   return (
     <div className="w-full">
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <Eyebrow>Connected product run</Eyebrow>
-            {sourceStatus === "live" && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-emerald-700">Plaid sandbox · live</span>}
-            {sourceStatus === "demo" && <span className="rounded-full bg-slate-100 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-slate-500">Presentation data</span>}
+            <LeadershipEyebrow>Prove · evidence to decision</LeadershipEyebrow>
+            {sourceStatus === "live" && <span className="rounded-full bg-emerald-50 px-2 py-1 text-[10px] font-bold uppercase text-emerald-700">Plaid sandbox · live</span>}
+            {sourceStatus === "demo" && <span className="rounded-full bg-slate-100 px-2 py-1 text-[10px] font-bold uppercase text-slate-500">Presentation data</span>}
           </div>
-          <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Transactions in. A bank-ready action out.</h1>
-          <p className="mt-1.5 text-xs font-semibold text-slate-500">{businessLine} · {connectorToken ? "Live connector path" : standaloneProof}</p>
+          <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Evidence in. Governed move out.</h1>
         </div>
         <button
           onClick={runConnectedSample}
           disabled={sourceStatus === "connecting" || (runStage > 0 && !runComplete)}
-          className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-wait disabled:opacity-60"
+          className="flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-bold text-white shadow-sm disabled:cursor-wait disabled:opacity-60"
           style={{ backgroundColor: NAVY }}
         >
-          {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Processing</> : <><Rocket className="h-4 w-4" /> {connectorToken ? "Run live path" : "Run demo path"}</>}
+          {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Deciding</> : <><Rocket className="h-4 w-4" /> {connectorToken ? "Run live decision" : "Run decision"}</>}
         </button>
       </div>
       {connectionNote && <p className="mt-2 text-right text-[10px] font-semibold text-amber-700">{connectionNote} · using presentation data</p>}
 
-      <div className="mt-3 grid gap-3 md:grid-cols-2">
-        <section className="order-1 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Source records</p>
-            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[9px] font-bold text-slate-500">{runEvidence?.sourceName ?? `${rails.length} ${businessLine} rails`}</span>
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(180px,0.56fr)_minmax(0,1.04fr)]">
+        <section className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase text-slate-400">01 · Evidence in</p>
+              <p className="mt-0.5 text-sm font-bold text-slate-800">Financial activity</p>
+            </div>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">{runEvidence?.sourceName ?? `${rails.length} permitted sources`}</span>
           </div>
-          <div className="mt-3 space-y-2">
+          <div className="divide-y divide-slate-100 px-4">
             {runEvidence?.transactions.length ? runEvidence.transactions.slice(0, 4).map((transaction) => (
-              <div key={transaction.transaction_id} className="rounded-lg border border-slate-100 bg-slate-50 p-2.5">
+              <div key={transaction.transaction_id} className="py-3">
                 <div className="flex items-center justify-between gap-2">
-                  <span className="truncate font-mono text-[10px] font-semibold text-slate-700">{transaction.name}</span>
-                  <span className={`flex-none text-[10px] font-bold ${transaction.amount < 0 ? "text-emerald-700" : "text-slate-600"}`}>{transaction.amount < 0 ? "+" : "-"}${Math.abs(transaction.amount).toLocaleString()}</span>
+                  <span className="truncate font-mono text-[11px] font-semibold text-slate-700">{transaction.name}</span>
+                  <span className={`flex-none text-[11px] font-bold ${transaction.amount < 0 ? "text-emerald-700" : "text-slate-600"}`}>{transaction.amount < 0 ? "+" : "-"}${Math.abs(transaction.amount).toLocaleString()}</span>
                 </div>
-                <p className={`mt-1 flex items-center justify-between gap-2 text-[9px] text-slate-400 transition ${runStage >= 2 ? "opacity-100" : "opacity-0"}`}>
+                <p className={`mt-1 text-[9px] font-semibold text-blue-700 transition ${runStage >= 1 ? "opacity-100" : "opacity-0"}`}>
                   <span className="truncate">{transaction.personal_finance_category?.primary ?? "UNCATEGORIZED"}</span>
-                  <span className="flex-none font-mono">{transaction.transaction_id.slice(0, 10)}…</span>
                 </p>
               </div>
             )) : opp.rawTransactions.slice(0, 3).map((transaction) => (
-              <div key={transaction.raw} className="rounded-lg border border-slate-100 bg-slate-50 p-2.5">
+              <div key={transaction.raw} className="py-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-mono text-[10px] font-semibold text-slate-700">{transaction.raw}</span>
                   <span className="flex-none text-[9px] font-bold uppercase text-slate-400">{transaction.src}</span>
                 </div>
-                <p className={`mt-1 truncate text-[10px] text-slate-500 transition ${runStage >= 2 ? "opacity-100" : "opacity-0"}`}>{transaction.merchant} · {transaction.category}</p>
+                <p className={`mt-1 truncate text-[9px] font-semibold text-blue-700 transition ${runStage >= 1 ? "opacity-100" : "opacity-0"}`}>{transaction.tag}</p>
               </div>
             ))}
           </div>
         </section>
 
-        <section className="order-3 rounded-xl border border-slate-200 bg-slate-50 p-3 md:col-span-2">
-          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Ventus pipeline</p>
-          <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-5">
+        <section className="overflow-hidden rounded-xl border border-[#13244A] bg-[#071225] px-3 py-3 text-white shadow-sm">
+          <div className="flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+            <div>
+              <p className="text-[10px] font-bold uppercase text-white/40">02 · Ventus</p>
+              <p className="mt-0.5 text-sm font-bold text-white">Governed decision spine</p>
+            </div>
+            <Wand2 className="h-4 w-4 text-blue-300" />
+          </div>
+          <div className="mt-2">
             {stages.map((stage, index) => {
               const number = index + 1;
               const complete = runStage >= number;
               const active = runStage === number && !runComplete;
               const StageIcon = stage.icon;
               return (
-                <div key={stage.label} className={`rounded-lg border px-2.5 py-2 transition ${complete ? "border-emerald-200 bg-white" : "border-slate-200 bg-white/50"}`}>
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-6 w-6 flex-none items-center justify-center rounded-md" style={{ backgroundColor: complete ? `${GREEN}12` : "#f1f5f9" }}>
-                      {active ? <Loader2 className="h-3.5 w-3.5 animate-spin" style={{ color: GREEN }} /> : complete ? <Check className="h-3.5 w-3.5" style={{ color: GREEN }} /> : <StageIcon className="h-3.5 w-3.5 text-slate-400" />}
-                    </span>
-                    <div className="min-w-0">
-                      <p className="text-[11px] font-bold text-slate-800">{stage.label}</p>
-                      <p className="truncate text-[9px] text-slate-400">{stage.detail}</p>
-                    </div>
+                <div key={stage.label} className={`relative flex items-center gap-2.5 py-2 transition ${complete ? "text-white" : "text-white/35"}`}>
+                  {index < stages.length - 1 && <span className={`absolute left-[13px] top-8 h-3.5 w-px ${complete ? "bg-emerald-400/50" : "bg-white/10"}`} />}
+                  <span className={`flex h-7 w-7 flex-none items-center justify-center rounded-md border ${complete ? "border-emerald-400/30 bg-emerald-400/10" : "border-white/10 bg-white/[0.03]"}`}>
+                    {active ? <Loader2 className="h-3.5 w-3.5 animate-spin text-blue-300" /> : complete ? <Check className="h-3.5 w-3.5 text-emerald-300" /> : <StageIcon className="h-3.5 w-3.5" />}
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold">{stage.label}</p>
+                    <p className={`truncate text-[10px] transition ${complete ? "text-white/50" : "text-white/20"}`}>{stage.detail}</p>
                   </div>
                 </div>
               );
@@ -4457,48 +4524,50 @@ function LeadershipPipelineRun({
           </div>
         </section>
 
-        <section className="order-2 min-w-0 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Produced result</p>
+        <section className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+          <div className="flex items-center justify-between gap-2 border-b border-slate-100 px-4 py-3">
+            <div>
+              <p className="text-[10px] font-bold uppercase text-slate-400">03 · Decision out</p>
+              <p className="mt-0.5 text-sm font-bold text-slate-800">Bank-ready action</p>
+            </div>
             <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold ${runComplete ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-400"}`}>{runComplete ? "Ready" : "Awaiting run"}</span>
           </div>
           {!runComplete ? (
-            <div className="flex min-h-48 flex-col items-center justify-center text-center">
-              <Layers className="h-8 w-8 text-slate-200" />
-              <p className="mt-2 text-sm font-semibold text-slate-400">Run sample</p>
+            <div className="flex min-h-56 flex-col items-center justify-center px-5 text-center">
+              <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-50">
+                <Layers className="h-5 w-5 text-slate-300" />
+              </span>
+              <p className="mt-3 text-sm font-bold text-slate-500">Awaiting decision</p>
             </div>
           ) : (
-            <div className="mt-3">
-              <div className="rounded-xl border border-blue-100 bg-blue-50/60 p-3.5">
+            <div className="px-4 py-3">
+              <div className="border-l-2 border-blue-600 pl-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
-                    <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Qualified moment</p>
-                    <h2 className="mt-1 text-lg font-semibold text-slate-950">{resultType}</h2>
+                    <p className="text-[9px] font-bold uppercase text-blue-700">Qualified moment</p>
+                    <h2 className="mt-1 text-lg font-extrabold text-slate-950">{resultType}</h2>
                   </div>
                   <ConfidencePill value={resultConfidence} />
                 </div>
-                <p className="mt-2 text-xs leading-5 text-slate-600">{resultReason}</p>
+                <p className="mt-2 text-xs leading-5 text-slate-600">{displayReason}</p>
               </div>
-              <div className="mt-3 rounded-xl border border-slate-200 p-3">
-                <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Prepared action</p>
-                <p className="mt-1 text-sm font-semibold text-slate-900">{resultAction}</p>
-                <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-slate-500">
+              <div className="mt-3 border-t border-slate-100 pt-3">
+                <p className="text-[9px] font-bold uppercase text-slate-400">Prepared next move</p>
+                <p className="mt-1 text-sm font-bold leading-5 text-slate-900">{displayAction}</p>
+                <div className="mt-2 flex items-center justify-between gap-2 text-[10px] font-semibold text-slate-500">
                   <span>{resultDestination}</span>
-                  <span className="font-semibold" style={{ color: GREEN }}>Policy clear</span>
+                  <span className="flex items-center gap-1 text-blue-700"><ShieldCheck className="h-3 w-3" /> Policy review ready</span>
                 </div>
               </div>
-              {/* The reusable capability behind this result, one click away in business language */}
               <button
                 onClick={onViewPlay}
-                className="mt-3 flex w-full items-center justify-between gap-2 rounded-xl border border-slate-200 px-3 py-2.5 text-left transition hover:bg-slate-50"
+                className="mt-3 flex w-full items-center justify-between gap-2 border-t border-slate-100 pt-3 text-left"
               >
                 <span className="flex min-w-0 items-center gap-2">
                   <GitBranch className="h-3.5 w-3.5 flex-none" style={{ color: NAVY }} />
-                  <span className="truncate text-xs font-semibold text-slate-700">
-                    Growth Play: <span style={{ color: NAVY }}>{playTitle}</span>
-                  </span>
+                  <span className="truncate text-[11px] font-bold text-slate-700">{playTitle}</span>
                 </span>
-                <ArrowRight className="h-3.5 w-3.5 flex-none text-slate-400" />
+                <span className="flex items-center gap-1 text-[10px] font-bold text-blue-700">Inspect logic <ArrowRight className="h-3 w-3" /></span>
               </button>
             </div>
           )}
@@ -4534,12 +4603,12 @@ function SalesforceActivationPreview({
   simulated?: boolean;
 }) {
   return (
-    <div className="-mx-5 mt-4 border-y border-slate-200 bg-slate-50 px-5 py-4">
+    <div className="-mx-4 mt-3 border-y border-slate-200 bg-slate-50 px-4 py-2.5">
       <div className="flex items-center justify-between gap-3">
         <div className="flex min-w-0 items-center gap-2.5">
           <img src={salesforceLogo} alt="Salesforce" className="h-7 w-7 flex-none rounded-md bg-white object-contain p-1 shadow-sm" />
           <div className="min-w-0">
-            <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Salesforce work item</p>
+            <p className="text-[10px] font-bold uppercase text-slate-400">Salesforce FSC · activation package</p>
             <p className="truncate text-sm font-semibold text-slate-950">{subject}</p>
           </div>
         </div>
@@ -4548,25 +4617,31 @@ function SalesforceActivationPreview({
         </span>
       </div>
 
-      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+      <div className="mt-2 grid gap-x-4 gap-y-2 sm:grid-cols-2">
         <div className="min-w-0">
-          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Why now</p>
+          <p className="text-[10px] font-bold uppercase text-slate-400">Qualified moment</p>
           <p className="mt-1 text-xs font-semibold leading-5 text-slate-700">{whyNow}</p>
         </div>
         <div className="min-w-0 sm:border-l sm:border-slate-200 sm:pl-3">
-          <p className="text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">Next action</p>
+          <p className="text-[10px] font-bold uppercase text-slate-400">Recommended next move</p>
           <p className="mt-1 text-xs font-semibold leading-5 text-slate-900">{action}</p>
+        </div>
+        <div className="min-w-0 border-t border-slate-200 pt-2">
+          <p className="text-[10px] font-bold uppercase text-slate-400">Expected outcome</p>
+          <p className="mt-1 text-xs font-semibold leading-4 text-slate-700">{outcome}</p>
+        </div>
+        <div className="min-w-0 border-t border-slate-200 pt-2 sm:border-l sm:pl-3">
+          <p className="text-[10px] font-bold uppercase text-slate-400">Owner queue</p>
+          <p className="mt-1 text-xs font-semibold leading-4 text-slate-700">{destination}</p>
         </div>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-200 pt-2 text-[10px] font-semibold text-slate-500">
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 border-t border-slate-200 pt-2 text-[11px] font-semibold text-slate-500">
         <span>{confidence}% confidence</span>
         <span>{signalCount} supporting signals</span>
         <span>High priority</span>
-        <span style={{ color: GREEN }}>Policy clear</span>
-        <span className="ml-auto text-slate-600">{destination}</span>
+        <span className="text-blue-700">Policy controls attached</span>
       </div>
-      <p className="mt-2 truncate text-[10px] text-slate-500"><span className="font-semibold text-slate-700">Outcome:</span> {outcome}</p>
 
       {delivered && receipt && (
         <div className={`mt-3 flex items-center justify-between gap-3 border-t pt-3 ${simulated ? "border-amber-200" : "border-emerald-200"}`}>
@@ -4615,6 +4690,7 @@ function LeadershipFlow({
   const [deliveryNote, setDeliveryNote] = useState<string | null>(null);
   const config = leadershipConfig(path);
   const { opp, skill } = config;
+  const evidenceOpp = opportunityFromLeadershipEvidence(path, opp, runEvidence);
   const destination = destinationLabel(opp.destination);
   const cohort = pilotCohort(controls, skill.measurement.holdoutPct);
   // Outcome-feed simulation + the session decision trail: the same append-only
@@ -4624,6 +4700,7 @@ function LeadershipFlow({
   const [assumptions, setAssumptions] = useState<EconomicAssumptions>(() => defaultAssumptions(path, cohort.treated));
   const [sessionLedger, setSessionLedger] = useState<LedgerEvent[]>([]);
   const [trailOpen, setTrailOpen] = useState(false);
+  const flowScrollRef = useRef<HTMLDivElement>(null);
   const outcomeTimers = useRef<number[]>([]);
   const appendSession = useCallback((drafts: LedgerDraft[]) => setSessionLedger((prev) => appendEvents(prev, drafts)), []);
 
@@ -4656,6 +4733,10 @@ function LeadershipFlow({
   }, [path]);
 
   useEffect(() => () => outcomeTimers.current.forEach((t) => window.clearTimeout(t)), []);
+
+  useEffect(() => {
+    flowScrollRef.current?.scrollTo({ top: 0 });
+  }, [step]);
 
   // Capacity changes flow straight into the economics — controls are product config.
   useEffect(() => {
@@ -4758,12 +4839,12 @@ function LeadershipFlow({
             businessLine: config.businessLine,
             growthPlay: config.playTitle,
             customerRef: `household-${opp.id}`,
-            moment: detected?.type ?? opp.type,
-            whyNow: detected?.reason ?? opp.reason,
+            moment: evidenceOpp.type,
+            whyNow: evidenceOpp.reason,
             recommendedAction: selectedAction,
             expectedOutcome: salesforceOutcome,
-            confidence: detected?.confidence ?? opp.confidence,
-            destination: detected?.destination ?? destination,
+            confidence: evidenceOpp.confidence,
+            destination,
             evidence: detected?.signals?.length
               ? detected.signals.slice(0, 4).map((signal) => ({ label: signal.label, confidence: Math.round(signal.strength * 100) }))
               : opp.rawTransactions.slice(0, 4).map((transaction) => ({ label: transaction.tag, confidence: Math.round(transaction.conf * 100) })),
@@ -4841,7 +4922,7 @@ function LeadershipFlow({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-50/70">
-      <div className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-8 lg:px-10">
+      <div ref={flowScrollRef} className="min-h-0 flex-1 overflow-y-auto px-5 py-5 sm:px-8 lg:px-10">
         <div className="mx-auto flex min-h-full w-full max-w-5xl flex-col">
           <ObjectiveContextBar config={config} controls={controls} onReview={() => setScopeOpen(true)} />
           <div className="flex min-h-0 flex-1 items-start pt-4 xl:items-center">
@@ -4855,7 +4936,6 @@ function LeadershipFlow({
                 activeControls={activeControls}
                 playTitle={config.playTitle}
                 businessLine={config.businessLine}
-                standaloneProof={config.standaloneProof}
                 onViewPlay={() => setPlayOpen(true)}
                 onEvidence={setRunEvidence}
                 onComplete={handlePipelineComplete}
@@ -4866,28 +4946,40 @@ function LeadershipFlow({
 
             {step === 1 && (
               <div className="w-full">
-                <Eyebrow>{config.objective}</Eyebrow>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>One qualified opportunity, ready where work happens.</h1>
+                <LeadershipEyebrow>Experience · human review</LeadershipEyebrow>
+                <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Review the move, then decide.</h1>
                 <div className="mt-4 inline-flex rounded-lg bg-slate-100 p-1">
                   {(["employee", "customer"] as const).map((tab) => <button key={tab} onClick={() => setExperienceTab(tab)} className={`rounded-md px-4 py-1.5 text-xs font-semibold capitalize ${experienceTab === tab ? "bg-white text-slate-900 shadow-sm" : "text-slate-500"}`}>{tab}</button>)}
                 </div>
                 <div className={`mt-3 grid gap-4 ${experienceTab === "employee" ? "lg:grid-cols-[minmax(0,1.25fr)_minmax(260px,0.75fr)]" : ""}`}>
                   <section className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm ${experienceTab === "customer" ? "mx-auto w-full max-w-xl" : ""}`}>
-                    {experienceTab === "employee" ? <EmployeeSurfacePreview key={path} opp={opp} onVentusModeChange={(withVentus) => { setEmployeeWithVentus(withVentus); if (!withVentus) setFrontlineDecision("pending"); }} /> : <CustomerExperiencePreview path={path} />}
+                    {experienceTab === "employee" ? (
+                      <EmployeeSurfacePreview
+                        key={path}
+                        opp={evidenceOpp}
+                        onVentusModeChange={(withVentus) => {
+                          setEmployeeWithVentus(withVentus);
+                          if (!withVentus) setFrontlineDecision("pending");
+                        }}
+                        onAccept={() => {
+                          setActionChoice(0);
+                          setFrontlineDecision("accepted");
+                          setFrontlineFeedback(null);
+                          setAdjustmentOpen(false);
+                        }}
+                      />
+                    ) : <CustomerExperiencePreview path={path} />}
                   </section>
                   {experienceTab === "employee" && (
                     <section className="rounded-xl border border-slate-200 bg-white p-4">
                       {employeeWithVentus ? (
                         <>
                           <div className="flex items-center justify-between gap-2">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Priority opportunity</p>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Ventus recommends</p>
                             <span className={`rounded-full px-2 py-0.5 text-[9px] font-bold uppercase ${runEvidence?.sourceMode === "live" ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{runEvidence?.sourceMode === "live" ? "Plaid live" : "Demo data"}</span>
                           </div>
-                          <p className="mt-2 text-lg font-semibold leading-6 text-slate-950">{runEvidence?.opportunity?.type ?? opp.type}</p>
-                          <p className="mt-1 text-xs font-semibold text-slate-500">{runEvidence?.opportunity?.confidence ?? opp.confidence}% confidence</p>
-                          <div className="mt-3 rounded-lg bg-blue-50/70 p-3"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">Ventus recommends</p><p className="mt-1 text-sm font-semibold leading-5 text-slate-900">{selectedAction}</p></div>
-                          <div className="mt-3">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Your decision</p>
+                          <p className="mt-3 text-base font-semibold leading-6 text-slate-950">{selectedAction}</p>
+                          <div className="mt-4 border-t border-slate-100 pt-3">
                             <div className="mt-2 grid grid-cols-3 gap-1.5">
                               <button
                                 type="button"
@@ -4941,7 +5033,7 @@ function LeadershipFlow({
                             )}
                           </div>
                           <button onClick={() => setEvidenceOpen((open) => !open)} className="mt-3 flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800"><ChevronDown className={`h-3 w-3 transition ${evidenceOpen ? "rotate-180" : ""}`} /> {evidenceOpen ? "Hide evidence" : "View evidence"}</button>
-                          {evidenceOpen && <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">{runEvidence?.opportunity?.enriched.length ? runEvidence.opportunity.enriched.slice(0, 4).map((transaction) => <div key={`${transaction.raw}-${transaction.date}`} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span className="truncate">{transaction.tag}</span><span className="ml-auto flex-none text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>) : opp.rawTransactions.map((transaction) => <div key={transaction.raw} className="flex items-center gap-2 text-[10px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span>{transaction.tag}</span><span className="ml-auto text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>)}</div>}
+                          {evidenceOpen && <div className="mt-2 space-y-1.5 border-t border-slate-100 pt-2">{evidenceOpp.rawTransactions.slice(0, 4).map((transaction) => <div key={transaction.raw} className="flex items-center gap-2 text-[11px] text-slate-600"><span className="h-1.5 w-1.5 flex-none rounded-full" style={{ backgroundColor: GREEN }} /><span className="truncate">{transaction.tag}</span><span className="ml-auto flex-none text-slate-400">{Math.round(transaction.conf * 100)}%</span></div>)}</div>}
                         </>
                       ) : (
                         <div className="flex min-h-48 flex-col items-center justify-center text-center"><p className="text-3xl font-semibold text-slate-300">47</p><p className="mt-1 text-xs font-semibold text-slate-500">unranked names</p><p className="mt-3 text-[11px] text-slate-400">No decision-ready evidence · no prepared action</p></div>
@@ -4954,10 +5046,10 @@ function LeadershipFlow({
 
             {step === 2 && (
               <div className="w-full">
-                <Eyebrow>Live activation</Eyebrow>
-                <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Create the action in Salesforce.</h1>
-                <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(300px,0.95fr)]">
-                  <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+                <LeadershipEyebrow>Activate · system of record</LeadershipEyebrow>
+                <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight" style={{ color: NAVY }}>Create the action in Salesforce.</h1>
+                <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
+                  <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
                       {[
                         { label: runEvidence?.sourceName ?? config.sourceLabel, detail: `${runEvidence?.transactions.length || 3} records`, Icon: Layers },
@@ -4966,7 +5058,7 @@ function LeadershipFlow({
                       ].map((node, index) => (
                         <div key={node.label} className="contents">
                           {index > 0 && <ArrowRight className="hidden h-4 w-4 text-slate-300 sm:block" />}
-                          <div className={`min-w-0 rounded-lg border p-3 ${index === 1 ? "border-blue-200 bg-blue-50/60" : "border-slate-200 bg-slate-50"}`}>
+                          <div className={`min-w-0 rounded-lg border p-2.5 ${index === 1 ? "border-blue-200 bg-blue-50/60" : "border-slate-200 bg-slate-50"}`}>
                             <node.Icon className="h-4 w-4" style={{ color: index === 1 ? NAVY : GREEN }} />
                             <p className="mt-1 truncate text-xs font-bold text-slate-900">{node.label}</p>
                             <p className="truncate text-[10px] text-slate-500">{node.detail}</p>
@@ -4977,11 +5069,11 @@ function LeadershipFlow({
 
                     <SalesforceActivationPreview
                       subject={salesforceSubject}
-                      whyNow={runEvidence?.opportunity?.reason ?? opp.reason}
+                      whyNow={evidenceOpp.reason}
                       action={selectedAction}
                       outcome={salesforceOutcome}
-                      destination={runEvidence?.opportunity?.destination ?? destination}
-                      confidence={runEvidence?.opportunity?.confidence ?? opp.confidence}
+                      destination={destination}
+                      confidence={evidenceOpp.confidence}
                       signalCount={runEvidence?.opportunity?.signals.length ?? opp.rawTransactions.length}
                       delivered={liveReceipts.length > 0}
                       receipt={liveReceipts[0]?.receipt}
@@ -4993,7 +5085,7 @@ function LeadershipFlow({
                       <p className="mt-2 text-[10px] font-semibold text-red-700" role="alert">{deliveryNote}</p>
                     )}
 
-                    <button onClick={runRehearsal} disabled={dryRunState === "running" || liveReceipts.length > 0} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70" style={{ backgroundColor: liveReceipts.length > 0 ? GREEN : NAVY }}>
+                    <button onClick={runRehearsal} disabled={dryRunState === "running" || liveReceipts.length > 0} className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70" style={{ backgroundColor: liveReceipts.length > 0 ? GREEN : NAVY }}>
                       {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Writing to Salesforce</> : liveReceipts.length > 0 ? <><Check className="h-4 w-4" /> Receipt returned</> : !connectorSession?.token ? <><LockKeyhole className="h-4 w-4" /> Unlock live delivery</> : dryRunState === "failed" ? <><RotateCcw className="h-4 w-4" /> Retry sandbox Task</> : <><Rocket className="h-4 w-4" /> Create sandbox Task</>}
                     </button>
                     {liveReceipts.length === 0 && (!connectorSession?.token || dryRunState === "failed") && (
@@ -5003,21 +5095,21 @@ function LeadershipFlow({
                     )}
                   </section>
 
-                  <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
+                  <section className="rounded-xl border border-slate-200 bg-slate-50 p-3">
                     <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Live trace</p>
-                    <div className="mt-3 space-y-2">
+                    <div className="mt-2 space-y-1.5">
                       {[
                         { label: "Source", value: `${runEvidence?.sourceName ?? "Presentation data"} · ${runEvidence?.transactions.length || 3} records`, live: runEvidence?.sourceMode === "live" },
                         { label: "Decision", value: `${config.playTitle} · ${runEvidence?.opportunity?.confidence ?? opp.confidence}%`, live: true },
                         { label: "Activation", value: liveReceipts[0] ? (liveReceipts[0].route === "simulated" ? `Staged ${liveReceipts[0].receipt} (simulated)` : `Salesforce Task ${liveReceipts[0].receipt}`) : deliveryNote ?? "Awaiting write", live: liveReceipts.length > 0 && liveReceipts[0].route !== "simulated" },
                       ].map((item) => (
-                        <div key={item.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3">
+                        <div key={item.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
                           <span className={`h-2 w-2 flex-none rounded-full ${item.live ? "bg-emerald-500" : "bg-slate-300"}`} />
                           <div className="min-w-0 flex-1"><p className="text-[10px] font-bold uppercase tracking-wide text-slate-400">{item.label}</p><p className="truncate text-xs font-semibold text-slate-800" title={item.value}>{item.value}</p></div>
                         </div>
                       ))}
                     </div>
-                    <details className="mt-3 rounded-lg border border-slate-200 bg-white px-3 py-2">
+                    <details className="mt-2 rounded-lg border border-slate-200 bg-white px-3 py-2">
                       <summary className="cursor-pointer text-[11px] font-semibold text-slate-600">Technical receipt</summary>
                       <div className="mt-2 space-y-1 font-mono text-[9px] leading-4 text-slate-500">
                         <p>source_mode={runEvidence?.sourceMode ?? "demo"}</p>
@@ -5032,10 +5124,10 @@ function LeadershipFlow({
 
             {step === 3 && (
               <div className="w-full">
-                <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-end justify-between gap-2">
                   <div>
-                    <Eyebrow>Outcome measurement</Eyebrow>
-                    <h1 className="mt-2 text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Measure incremental value.</h1>
+                    <LeadershipEyebrow>Measure · incremental value</LeadershipEyebrow>
+                    <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>Measure incremental value.</h1>
                   </div>
                   <span className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[9px] font-bold uppercase tracking-[0.12em] text-amber-800">
                     {measurementPreview ? "Illustrative outcome file" : "No pilot outcome claimed"}
@@ -5092,10 +5184,19 @@ function LeadershipFlow({
                         </div>
                         {outcomeSim === "complete" && (
                           <>
-                            <div className="mt-3 grid grid-cols-3 gap-2">
-                              <BriefMetric label="Treatment avg" value={fmtUsd(econ.treatmentAvgUsd)} />
-                              <BriefMetric label="Holdout avg" value={fmtUsd(econ.holdoutAvgUsd)} />
-                              <BriefMetric label="Incremental" value={`+${fmtUsd(econ.midUsd)}`} />
+                            <div className="mt-3 grid grid-cols-[auto_auto_minmax(0,1fr)] items-end gap-x-5 gap-y-1">
+                              <div>
+                                <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">Treatment avg</p>
+                                <p className="mt-0.5 text-base font-bold text-slate-600">{fmtUsd(econ.treatmentAvgUsd)}</p>
+                              </div>
+                              <div>
+                                <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">Holdout avg</p>
+                                <p className="mt-0.5 text-base font-bold text-slate-600">{fmtUsd(econ.holdoutAvgUsd)}</p>
+                              </div>
+                              <div className="border-l-2 pl-3" style={{ borderColor: GREEN }}>
+                                <p className="text-[9px] font-bold uppercase tracking-wide" style={{ color: GREEN }}>Incremental lift</p>
+                                <p className="mt-0.5 text-2xl font-extrabold leading-none" style={{ color: GREEN }}>+{fmtUsd(econ.midUsd)}</p>
+                              </div>
                             </div>
                             <p className="mt-2 text-[10px] text-slate-400">Illustrative range +{fmtUsd(econ.lowUsd)} to +{fmtUsd(econ.highUsd)} · {econ.formula}</p>
                             <details className="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
@@ -5157,6 +5258,14 @@ function LeadershipFlow({
                                 ))}
                               </div>
                               {executiveDecision && <p className="mt-2 text-[10px] font-semibold leading-4 text-slate-600">{EXECUTIVE_DECISION_COPY[executiveDecision]}</p>}
+                              {executiveDecision && (
+                                <div className="mt-2 flex items-start gap-2 rounded-lg border px-2.5 py-2" style={{ borderColor: `${GREEN}33`, backgroundColor: `${GREEN}0a` }}>
+                                  <Repeat className="mt-0.5 h-3.5 w-3.5 flex-none" style={{ color: GREEN }} />
+                                  <p className="text-[10px] font-semibold leading-4 text-slate-700">
+                                    The loop closes here: these outcomes return to <span className="font-bold" style={{ color: GREEN }}>{config.playTitle}</span> and sharpen the next cohort's targeting, timing, and threshold.
+                                  </p>
+                                </div>
+                              )}
                               {lastDecisionEvent && (
                                 <div className="mt-2 rounded-lg border border-emerald-100 bg-emerald-50/70 px-2.5 py-2">
                                   <div className="flex items-center justify-between gap-2 text-[10px] font-bold text-emerald-800">
@@ -5261,11 +5370,11 @@ function ObjectiveContextBar({ config, controls, onReview }: { config: Leadershi
     { label: "Control", value: `${OPERATING_POSTURES[controls.posture].label} · ${controls.reviewMode === "every-case" ? "review every case" : "review exceptions"}` },
   ];
   return (
-    <div className="flex flex-none flex-wrap items-center gap-x-5 gap-y-1.5 border-b border-slate-200 pb-3">
+    <div className="flex flex-none flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm">
       {context.map((item) => (
         <div key={item.label} className="flex min-w-0 items-baseline gap-1.5 text-[10px]">
-          <span className="font-bold uppercase tracking-[0.1em] text-slate-400">{item.label}</span>
-          <span className="truncate font-semibold text-slate-700">{item.value}</span>
+          <span className="font-mono uppercase text-slate-400">{item.label}</span>
+          <span className="truncate font-bold text-slate-800">{item.value}</span>
         </div>
       ))}
       <button
@@ -5273,7 +5382,7 @@ function ObjectiveContextBar({ config, controls, onReview }: { config: Leadershi
         onClick={onReview}
         className="ml-auto flex items-center gap-1.5 rounded-lg border border-blue-100 bg-blue-50 px-2.5 py-1.5 text-[10px] font-bold text-blue-700 transition hover:border-blue-200 hover:bg-blue-100"
       >
-        <Target className="h-3.5 w-3.5" /> Tune controls
+        <Target className="h-3.5 w-3.5" /> Operating controls
       </button>
     </div>
   );
@@ -5504,7 +5613,7 @@ function PilotScopePanel({
           </details>
 
           <details className="mt-2 rounded-xl border border-slate-200 px-3 py-2">
-            <summary className="cursor-pointer text-xs font-semibold text-slate-700">The founding-partner ask — bounded and de-risked</summary>
+            <summary className="cursor-pointer text-xs font-semibold text-slate-700">Pilot inputs and operating boundary</summary>
             <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 sm:grid-cols-2">
               <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Institution provides:</span> 90 days of de-identified {config.sourceLabel.toLowerCase()} history for the eligible cohort, outcome labels, a {destination} sandbox endpoint, and a named policy owner. No production access, no PII.</p>
               <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Ventus delivers:</span> data mapping, evaluated Growth Play, activation receipts, holdout design, and lift measurement against the proposed gates.</p>
@@ -5658,69 +5767,169 @@ function LeadershipCover({
   outcomeFeedReady: boolean;
 }) {
   const paths = LEADERSHIP_PATHS;
+  const [previewPath, setPreviewPath] = useState<LeadershipPath | null>(null);
+  const featured = previewPath ? leadershipConfig(previewPath) : null;
+  const previewReason = previewPath === "wealth-growth"
+    ? "$275K transfer + planning intent. No advisor assigned."
+    : "Payroll split + off-bank spend. Balance down 38%.";
+  const previewAction = previewPath === "wealth-growth"
+    ? "Assign advisor. Prepare consolidation review."
+    : "Prepare banker outreach before the next payroll.";
+  const previewConfidence = previewPath === "wealth-growth" ? 97 : 94;
   const livePath = [
-    { label: "Plaid sandbox", status: connectorSession?.connectors.plaid ? "Live" : "Source", ready: Boolean(connectorSession?.connectors.plaid), Icon: Upload },
-    { label: "Ventus", status: "Decision engine", ready: true, Icon: Wand2 },
-    { label: "Salesforce", status: connectorSession?.connectors.salesforce ? "Live" : "Activate", ready: Boolean(connectorSession?.connectors.salesforce), Icon: Network },
-    { label: "Outcome feed", status: outcomeFeedReady ? "Simulated · run" : "Measure", ready: outcomeFeedReady, Icon: LineChart },
+    { label: "Inputs", status: connectorSession?.connectors.plaid ? "Plaid connected" : featured?.sourceLabel ?? "Select focus", tone: connectorSession?.connectors.plaid ? "connected" : "neutral", Icon: Upload },
+    { label: "Ventus", status: featured ? "Configured" : "Ready", tone: featured ? "connected" : "neutral", Icon: Wand2 },
+    { label: "Salesforce", status: connectorSession?.connectors.salesforce ? "Connected" : "Staged", tone: connectorSession?.connectors.salesforce ? "connected" : "neutral", Icon: Network },
+    { label: "Outcome", status: outcomeFeedReady ? "Modeled" : "Pending", tone: outcomeFeedReady ? "illustrative" : "neutral", Icon: LineChart },
+  ];
+  const capabilities = [
+    { label: "Enrich", Icon: Layers },
+    { label: "Detect", Icon: Activity },
+    { label: "Decide", Icon: ShieldCheck },
+    { label: "Learn", Icon: GitBranch },
   ];
   return (
-    <div className="flex h-full w-full items-start overflow-y-auto px-5 py-6 sm:px-8 xl:items-center xl:px-10">
-      <div className="mx-auto w-full max-w-4xl">
-        <div className="flex flex-wrap items-center gap-2">
-          <Eyebrow>Ventus Intelligence OS</Eyebrow>
+    <div className="h-full w-full overflow-y-auto bg-[#F3F6FA] px-5 py-5 sm:px-8 xl:flex xl:items-center xl:px-10">
+      <div className="mx-auto w-full max-w-6xl">
+        <div>
+          <p className="font-mono text-[10px] uppercase text-blue-700">Ventus Growth Intelligence</p>
+          <h1 className="mt-2 max-w-3xl text-3xl font-extrabold leading-tight text-[#071225] sm:text-4xl">
+            The next growth move, already prepared.
+          </h1>
         </div>
-        <h1 className="mt-3 max-w-4xl text-3xl font-semibold leading-tight tracking-tight sm:text-4xl" style={{ color: NAVY }}>
-          From financial activity to bank-ready action.
-        </h1>
-        <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
-          Ventus detects the moment, creates the work item, and measures the result.
-        </p>
 
-        <div className="mt-6 grid gap-3 md:grid-cols-2">
-          {paths.map((path) => {
-            const config = leadershipConfig(path);
-            const Icon = path === "wealth-growth" ? TrendingUp : Landmark;
-            return (
-              <button
-                key={path}
-                onClick={() => onPick(path)}
-                className="group flex min-h-40 flex-col rounded-xl border border-slate-200 bg-white p-5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-blue-200 hover:shadow-md"
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <span className="flex h-9 w-9 items-center justify-center rounded-lg" style={{ backgroundColor: `${NAVY}0d` }}>
-                    <Icon className="h-4 w-4" style={{ color: NAVY }} />
-                  </span>
-                  <span className="rounded-full bg-emerald-50 px-2 py-1 text-[9px] font-bold uppercase tracking-[0.1em] text-emerald-700">{config.businessLine}</span>
+        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.28fr)_minmax(310px,0.72fr)]">
+          <section className="overflow-hidden rounded-xl border border-[#16284D] bg-[#071225] text-white shadow-[0_24px_60px_-34px_rgba(7,18,37,0.9)]">
+            {featured ? (
+              <>
+                <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
+                  <div className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/15"><Activity className="h-3.5 w-3.5 text-blue-300" /></span>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase text-white/40">{featured.businessLine} · prepared scenario</p>
+                      <p className="text-sm font-bold text-white">{featured.opp.type}</p>
+                    </div>
+                  </div>
+                  <span className="rounded-full border border-blue-300/20 bg-blue-300/10 px-2 py-1 text-[10px] font-bold uppercase text-blue-100">Policy pack ready</span>
                 </div>
-                <h2 className="mt-3 text-xl font-semibold text-slate-950">{config.objective}</h2>
-                <p className="mt-1 flex-1 text-sm leading-6 text-slate-600">{config.coverCopy}</p>
-                <p className="mt-2 text-[11px] font-semibold text-slate-400">Starts with {config.sourceLabel.toLowerCase()} only</p>
-                <span className="mt-3 flex items-center gap-1.5 text-xs font-bold" style={{ color: GREEN }}>
-                  Run growth path <ArrowRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5" />
+
+                <div className="grid lg:grid-cols-[0.9fr_auto_1.1fr]">
+                  <div className="px-5 py-4">
+                    <p className="text-[10px] font-bold uppercase text-white/40">Evidence preview</p>
+                    <div className="mt-2 divide-y divide-white/10">
+                      {featured.opp.rawTransactions.slice(0, 3).map((transaction) => (
+                        <div key={transaction.raw} className="py-2.5">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="truncate font-mono text-[11px] font-semibold text-white/80">{transaction.raw}</span>
+                            <span className="flex-none text-[10px] font-bold text-blue-200">{Math.round(transaction.conf * 100)}%</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="hidden items-center lg:flex">
+                    <div className="flex flex-col items-center gap-1">
+                      <span className="h-8 w-px bg-white/10" />
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-300/25 bg-blue-300/10">
+                        <ArrowRight className="h-4 w-4 text-blue-200" />
+                      </span>
+                      <span className="h-8 w-px bg-white/10" />
+                    </div>
+                  </div>
+
+                  <div className="border-t border-white/10 px-5 py-4 lg:border-l lg:border-t-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-[10px] font-bold uppercase text-blue-200">Financial state</p>
+                        <h2 className="mt-1 text-xl font-extrabold">{featured.opp.type}</h2>
+                      </div>
+                      <ConfidencePill value={previewConfidence} />
+                    </div>
+                    <p className="mt-2 text-sm leading-5 text-white/60">{previewReason}</p>
+                    <div className="mt-3 border-t border-white/10 pt-3">
+                      <p className="text-[10px] font-bold uppercase text-white/40">Prepared action</p>
+                      <p className="mt-1 text-sm font-bold leading-5 text-white">{previewAction}</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onPick(previewPath)}
+                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-extrabold text-[#071225] transition hover:bg-blue-50"
+                    >
+                      Open decision run <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center">
+                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-300/20 bg-blue-300/10">
+                  <Target className="h-5 w-5 text-blue-200" />
                 </span>
-              </button>
-            );
-          })}
+                <h2 className="mt-4 text-xl font-extrabold">Choose the outcome to run.</h2>
+                <p className="mt-2 max-w-md text-sm leading-6 text-white/55">Each path starts with that team’s own data, controls, workflow, and success metric.</p>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 border-t border-white/10 sm:grid-cols-4">
+              {livePath.map(({ label, status, tone, Icon }, index) => (
+                <div key={label} className={`flex items-center gap-2 px-3 py-2.5 ${index > 0 ? "sm:border-l sm:border-white/10" : ""} ${index > 1 ? "border-t border-white/10 sm:border-t-0" : ""}`}>
+                  <Icon className={`h-3.5 w-3.5 flex-none ${tone === "connected" ? "text-blue-200" : tone === "illustrative" ? "text-amber-300" : "text-white/35"}`} />
+                  <div className="min-w-0">
+                    <p className="truncate text-[11px] font-bold text-white/80">{label}</p>
+                    <p className={`truncate text-[9px] font-semibold ${tone === "connected" ? "text-blue-100/70" : tone === "illustrative" ? "text-amber-200/70" : "text-white/30"}`}>{status}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <aside className="order-first rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:order-last">
+            <p className="text-[10px] font-bold uppercase text-slate-400">Choose focus</p>
+            <div className="mt-2 space-y-2">
+              {paths.map((path) => {
+                const config = leadershipConfig(path);
+                const Icon = path === "wealth-growth" ? TrendingUp : Landmark;
+                const selected = path === previewPath;
+                return (
+                  <button
+                    key={path}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => setPreviewPath(path)}
+                    className={`group flex w-full gap-3 rounded-lg border px-3 py-3 text-left transition ${selected ? "border-blue-200 bg-blue-50/70" : "border-transparent hover:border-slate-200 hover:bg-slate-50"}`}
+                  >
+                    <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-lg transition ${selected ? "bg-white shadow-sm" : "bg-slate-50 group-hover:bg-white"}`}>
+                      <Icon className="h-4 w-4" style={{ color: path === "wealth-growth" ? GREEN : BLUE }} />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center justify-between gap-2">
+                        <span className="text-[9px] font-bold uppercase text-slate-400">{config.businessLine}</span>
+                        {selected
+                          ? <Check className="h-3.5 w-3.5 text-blue-700" />
+                          : <ArrowRight className="h-3.5 w-3.5 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600" />}
+                      </span>
+                      <span className="mt-0.5 block text-sm font-extrabold text-slate-950">
+                        {path === "wealth-growth" ? "Grow advised assets" : "Protect primary deposits"}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </aside>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white sm:grid-cols-4">
-          {livePath.map(({ label, status, ready, Icon }, index) => (
-            <div key={label} className={`flex items-center gap-2.5 px-3 py-3 ${index > 0 ? "sm:border-l sm:border-slate-200" : ""} ${index > 1 ? "border-t border-slate-200 sm:border-t-0" : ""}`}>
-              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-md bg-slate-50">
-                <Icon className="h-3.5 w-3.5" style={{ color: ready ? GREEN : NAVY }} />
+        <div className="mt-4 grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid-cols-4">
+          {capabilities.map(({ label, Icon }, index) => (
+            <div key={label} className={`flex items-center justify-center gap-2.5 px-3.5 py-3 ${index > 0 ? "lg:border-l lg:border-slate-100" : ""} ${index > 1 ? "border-t border-slate-100 lg:border-t-0" : ""}`}>
+              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-md bg-blue-50">
+                <Icon className="h-3.5 w-3.5 text-blue-700" />
               </span>
-              <div className="min-w-0">
-                <p className="truncate text-[11px] font-bold text-slate-800">{label}</p>
-                <p className="flex items-center gap-1 text-[9px] font-semibold text-slate-400">
-                  <span className={`h-1.5 w-1.5 rounded-full ${ready ? "bg-emerald-500" : "bg-slate-300"}`} />
-                  {status}
-                </p>
-              </div>
+              <p className="text-[10px] font-extrabold uppercase tracking-wide text-slate-700">{label}</p>
             </div>
           ))}
         </div>
-
       </div>
     </div>
   );
@@ -5747,7 +5956,7 @@ function Cover({
         <div className="flex flex-wrap items-center gap-2">
           <Eyebrow>Ventus Intelligence OS</Eyebrow>
           <span className="rounded-full border border-blue-100 bg-blue-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-blue-700">
-            {internal ? "Internal evaluation sandbox" : "BofA leadership prototype"}
+            Internal evaluation sandbox
           </span>
         </div>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight sm:text-4xl" style={{ color: NAVY, lineHeight: 1.25 }}>
@@ -6086,6 +6295,14 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
   return (
     <p className="text-xs font-semibold uppercase tracking-[0.18em]" style={{ color: NAVY }}>
       {children}
+    </p>
+  );
+}
+
+function LeadershipEyebrow({ children }: { children: React.ReactNode }) {
+  return (
+    <p className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: NAVY }}>
+      [ {children} ]
     </p>
   );
 }

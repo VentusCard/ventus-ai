@@ -263,7 +263,7 @@ export function buildSalesforceTaskRecord(body = {}, now = new Date()) {
     section('RECOMMENDED NEXT STEP', [cleanText(insight.recommendedAction, 700)].filter(Boolean)),
     section('BUSINESS OUTCOME', [cleanText(insight.expectedOutcome, 220)].filter(Boolean)),
     section('SUPPORTING SIGNALS', evidence.map((item) => `- ${item.label}${item.confidence === null ? '' : ` (${item.confidence}% confidence)`}`)),
-    section('POLICY STATUS', controls.length ? [`Cleared: ${controls.join(', ')}`] : []),
+    section('POLICY CONTROLS', controls.length ? [`Attached for review: ${controls.join(', ')}`] : []),
     section('ROUTING', [cleanText(insight.destination, 160)].filter(Boolean)),
     section('AUDIT', [
       cleanText(insight.growthPlay, 120) ? `Growth Play: ${cleanText(insight.growthPlay, 120)}` : '',
