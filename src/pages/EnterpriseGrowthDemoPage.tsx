@@ -79,11 +79,9 @@ import {
 } from "@/lib/leadership";
 import { defaultAssumptions, illustrativeRange, scaledAnnualRange, fmtUsd, type EconomicAssumptions } from "@/lib/economics";
 
-const NAVY = "#012169";
-const RED = "#E31837"; // risk/hold states + the BofA brand mark only
-const GREEN = "#0B6B43"; // Merrill + the Ventus AI tag
-const BLUE = "#0073CF"; // Consumer & Small Business accent
-const AMBER = "#b45309";
+// Design tokens shared with the marketing surfaces — one "governed console"
+// language across ventusai.com and the POC (src/lib/theme.ts).
+import { NAVY, RED, GREEN, BLUE, AMBER, APPEND_ANIMATION, appendDelay } from "@/lib/theme";
 
 const PILLAR_COLOR: Record<string, string> = {
   Income: "#0B6B43",
@@ -4211,6 +4209,66 @@ function BoundaryToggle({ label, checked, onToggle }: { label: string; checked: 
   );
 }
 
+// Count-up for currency values: numbers interpolate to their new value so
+// "the math updates live" is felt, not narrated. Reduced motion renders plainly.
+function AnimatedUsd({ value, prefix = "" }: { value: number; prefix?: string }) {
+  const [display, setDisplay] = useState(0);
+  const fromRef = useRef(0);
+  const rafRef = useRef<number | null>(null);
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      fromRef.current = value;
+      setDisplay(value);
+      return;
+    }
+    const from = fromRef.current;
+    if (from === value) return;
+    const start = performance.now();
+    const duration = 650;
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - start) / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setDisplay(from + (value - from) * eased);
+      if (t < 1) {
+        rafRef.current = requestAnimationFrame(tick);
+      } else {
+        fromRef.current = value;
+      }
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      fromRef.current = value;
+    };
+  }, [value]);
+  return <>{prefix}{fmtUsd(display)}</>;
+}
+
+// Types a hash out character by character — the record being written, visibly.
+function TypedMono({ text }: { text: string }) {
+  const [count, setCount] = useState(0);
+  useEffect(() => {
+    setCount(0);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      setCount(text.length);
+      return;
+    }
+    const id = window.setInterval(
+      () =>
+        setCount((current) => {
+          if (current >= text.length) {
+            window.clearInterval(id);
+            return current;
+          }
+          return current + 1;
+        }),
+      40,
+    );
+    return () => window.clearInterval(id);
+  }, [text]);
+  return <span className="font-mono">{text.slice(0, count) || " "}</span>;
+}
+
 function AssumptionSlider({
   label,
   value,
@@ -4472,8 +4530,8 @@ function LeadershipPipelineRun({
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">{runEvidence?.sourceName ?? `${rails.length} permitted sources`}</span>
           </div>
           <div className="divide-y divide-slate-100 px-4">
-            {runEvidence?.transactions.length ? runEvidence.transactions.slice(0, 4).map((transaction) => (
-              <div key={transaction.transaction_id} className="py-3">
+            {runEvidence?.transactions.length ? runEvidence.transactions.slice(0, 4).map((transaction, rowIndex) => (
+              <div key={transaction.transaction_id} className="py-3" style={{ animation: appendDelay(rowIndex) }}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-mono text-[11px] font-semibold text-slate-700">{transaction.name}</span>
                   <span className={`flex-none text-[11px] font-bold ${transaction.amount < 0 ? "text-emerald-700" : "text-slate-600"}`}>{transaction.amount < 0 ? "+" : "-"}${Math.abs(transaction.amount).toLocaleString()}</span>
@@ -4482,8 +4540,8 @@ function LeadershipPipelineRun({
                   <span className="truncate">{transaction.personal_finance_category?.primary ?? "UNCATEGORIZED"}</span>
                 </p>
               </div>
-            )) : opp.rawTransactions.slice(0, 3).map((transaction) => (
-              <div key={transaction.raw} className="py-3">
+            )) : opp.rawTransactions.slice(0, 3).map((transaction, rowIndex) => (
+              <div key={transaction.raw} className="py-3" style={{ animation: appendDelay(rowIndex) }}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-mono text-[10px] font-semibold text-slate-700">{transaction.raw}</span>
                   <span className="flex-none text-[9px] font-bold uppercase text-slate-400">{transaction.src}</span>
@@ -5175,8 +5233,8 @@ function LeadershipFlow({
                             { label: `Holdout reserved · ${cohort.holdout} households untouched`, done: true },
                             { label: "Bank outcomes joining the decision record", done: outcomeSim !== "assigning" },
                             { label: "Incremental lift computed vs. holdout", done: outcomeSim === "complete" },
-                          ].map((stage) => (
-                            <div key={stage.label} className="flex items-center gap-2 text-[10px] font-semibold">
+                          ].map((stage, stageIndex) => (
+                            <div key={stage.label} className="flex items-center gap-2 text-[10px] font-semibold" style={{ animation: appendDelay(stageIndex, 120) }}>
                               {stage.done ? <Check className="h-3 w-3 flex-none text-emerald-600" /> : <Loader2 className="h-3 w-3 flex-none animate-spin text-slate-400" />}
                               <span className={stage.done ? "text-slate-600" : "text-slate-400"}>{stage.label}</span>
                             </div>
@@ -5184,18 +5242,18 @@ function LeadershipFlow({
                         </div>
                         {outcomeSim === "complete" && (
                           <>
-                            <div className="mt-3 grid grid-cols-[auto_auto_minmax(0,1fr)] items-end gap-x-5 gap-y-1">
+                            <div className="mt-3 grid grid-cols-[auto_auto_minmax(0,1fr)] items-end gap-x-5 gap-y-1" style={{ animation: APPEND_ANIMATION }}>
                               <div>
                                 <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">Treatment avg</p>
-                                <p className="mt-0.5 text-base font-bold text-slate-600">{fmtUsd(econ.treatmentAvgUsd)}</p>
+                                <p className="mt-0.5 text-base font-bold text-slate-600"><AnimatedUsd value={econ.treatmentAvgUsd} /></p>
                               </div>
                               <div>
                                 <p className="text-[9px] font-bold uppercase tracking-wide text-slate-400">Holdout avg</p>
-                                <p className="mt-0.5 text-base font-bold text-slate-600">{fmtUsd(econ.holdoutAvgUsd)}</p>
+                                <p className="mt-0.5 text-base font-bold text-slate-600"><AnimatedUsd value={econ.holdoutAvgUsd} /></p>
                               </div>
                               <div className="border-l-2 pl-3" style={{ borderColor: GREEN }}>
                                 <p className="text-[9px] font-bold uppercase tracking-wide" style={{ color: GREEN }}>Incremental lift</p>
-                                <p className="mt-0.5 text-2xl font-extrabold leading-none" style={{ color: GREEN }}>+{fmtUsd(econ.midUsd)}</p>
+                                <p className="mt-0.5 text-2xl font-extrabold leading-none" style={{ color: GREEN }}><AnimatedUsd value={econ.midUsd} prefix="+" /></p>
                               </div>
                             </div>
                             <p className="mt-2 text-[10px] text-slate-400">Illustrative range +{fmtUsd(econ.lowUsd)} to +{fmtUsd(econ.highUsd)} · {econ.formula}</p>
@@ -5267,9 +5325,9 @@ function LeadershipFlow({
                                 </div>
                               )}
                               {lastDecisionEvent && (
-                                <div className="mt-2 rounded-lg border border-emerald-100 bg-emerald-50/70 px-2.5 py-2">
+                                <div key={lastDecisionEvent.id} className="mt-2 rounded-lg border border-emerald-100 bg-emerald-50/70 px-2.5 py-2" style={{ animation: APPEND_ANIMATION }}>
                                   <div className="flex items-center justify-between gap-2 text-[10px] font-bold text-emerald-800">
-                                    <span className="flex items-center gap-1.5"><Check className="h-3 w-3" /> Recorded · #{String(lastDecisionEvent.seq).padStart(3, "0")} · {lastDecisionEvent.hash.slice(0, 8)}</span>
+                                    <span className="flex items-center gap-1.5"><Check className="h-3 w-3" /> Recorded · #{String(lastDecisionEvent.seq).padStart(3, "0")} · <TypedMono text={lastDecisionEvent.hash.slice(0, 8)} /></span>
                                     <span>{chainVerified ? "chain verified" : "chain broken"}</span>
                                   </div>
                                   <p className="mt-1 text-[9px] font-semibold leading-3 text-emerald-700">Append-only — changing your decision adds a new record, it never edits one.</p>
@@ -5284,8 +5342,8 @@ function LeadershipFlow({
                             </div>
                             {trailOpen && sessionLedger.length > 0 && (
                               <div className="mt-2 space-y-1 rounded-lg border border-slate-200 bg-white p-2">
-                                {sessionLedger.map((event) => (
-                                  <div key={event.id} className="flex items-center gap-2 text-[9px] font-semibold text-slate-600">
+                                {sessionLedger.map((event, eventIndex) => (
+                                  <div key={event.id} className="flex items-center gap-2 text-[9px] font-semibold text-slate-600" style={{ animation: appendDelay(eventIndex, 60) }}>
                                     <span className="w-8 flex-none text-slate-400">#{String(event.seq).padStart(3, "0")}</span>
                                     <span className="min-w-0 flex-1 truncate" title={event.detail}>{event.title}</span>
                                     <span className={`flex-none rounded px-1 py-0.5 text-[8px] font-bold uppercase ${event.status === "confirmed" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{event.status}</span>
@@ -5308,11 +5366,11 @@ function LeadershipFlow({
         </div>
       </div>
 
-      <footer className="flex flex-none items-center justify-between gap-3 border-t border-slate-200 bg-white px-5 py-3 sm:px-8 lg:px-10">
-        <button onClick={onExit} className="text-xs font-semibold text-slate-500 transition hover:text-slate-800">
+      <footer className="flex flex-none flex-wrap items-center justify-between gap-x-3 gap-y-2 border-t border-slate-200 bg-white px-5 py-3 sm:px-8 lg:px-10">
+        <button onClick={onExit} className="flex-none text-xs font-semibold text-slate-500 transition hover:text-slate-800">
           Change objective
         </button>
-        <div className="flex items-center gap-2">
+        <div className="flex min-w-0 items-center gap-2">
           {EXECUTIVE_STEPS.map((label, index) => (
             <button
               key={label}
@@ -6301,7 +6359,7 @@ function Eyebrow({ children }: { children: React.ReactNode }) {
 
 function LeadershipEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <p className="font-mono text-[11px] uppercase tracking-[0.2em]" style={{ color: NAVY }}>
+    <p className="truncate font-mono text-[11px] uppercase tracking-[0.14em] sm:tracking-[0.2em]" style={{ color: NAVY }}>
       [ {children} ]
     </p>
   );
