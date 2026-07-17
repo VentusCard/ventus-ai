@@ -59,6 +59,25 @@ import {
   MERRILL_RELATIONSHIP_GROWTH_SKILL,
   type SkillArtifact,
 } from "@/lib/skills";
+import {
+  LEADERSHIP_PATHS,
+  OPERATING_POSTURES,
+  DEFAULT_LEADERSHIP_CONTROLS,
+  EXECUTIVE_DECISION_COPY,
+  leadershipPathConfig,
+  salesforceCopyFor,
+  actionOptionsFor,
+  activeControlChips,
+  pilotCohort,
+  type LeadershipPath,
+  type LeadershipPathConfig,
+  type LeadershipControls,
+  type OperatingPosture,
+  type FrontlineDecision,
+  type FrontlineFeedback,
+  type ExecutiveDecision,
+} from "@/lib/leadership";
+import { defaultAssumptions, illustrativeRange, scaledAnnualRange, fmtUsd, type EconomicAssumptions } from "@/lib/economics";
 
 const NAVY = "#012169";
 const RED = "#E31837"; // risk/hold states + the BofA brand mark only
@@ -79,7 +98,6 @@ const PILLAR_COLOR: Record<string, string> = {
 type DestId = "advisor" | "queue" | "rewards" | "campaign" | "banker" | "erica" | "lending" | "merrill";
 type Mode = "consumer" | "frontline" | "operator" | "leadership";
 type Lob = "consumer" | "wealth";
-type LeadershipPath = "wealth-growth" | "deposit-retention";
 
 type RawTxn = {
   raw: string;
@@ -655,6 +673,9 @@ export default function EnterpriseGrowthDemoPage({
   const [ledgerOpen, setLedgerOpen] = useState(false);
   const [leadershipPath, setLeadershipPath] = useState<LeadershipPath>("wealth-growth");
   const [connectorSession, setConnectorSession] = useState<DemoConnectorSession | null>(restoreDemoConnectorSession);
+  // The cover's fourth pipeline node lights once a session has actually walked
+  // the measurement loop — the arc completes by doing it, not by claiming it.
+  const [outcomeFeedSimulated, setOutcomeFeedSimulated] = useState(false);
   const [presenterSessionOpen, setPresenterSessionOpen] = useState(false);
   const internal = audience === "internal";
   const modelEvaluationAllowed = internal && evaluationEnabled;
@@ -893,12 +914,13 @@ export default function EnterpriseGrowthDemoPage({
       </header>
 
       {!entered ? (
-        <Cover onPick={enterAt} onLeadershipPick={enterLeadership} audience={audience} connectorSession={connectorSession} />
+        <Cover onPick={enterAt} onLeadershipPick={enterLeadership} audience={audience} connectorSession={connectorSession} outcomeFeedReady={outcomeFeedSimulated} />
       ) : !internal ? (
         <LeadershipFlow
           path={leadershipPath}
           onExit={() => setEntered(false)}
           connectorSession={connectorSession}
+          onOutcomeSimulated={() => setOutcomeFeedSimulated(true)}
           onRequestPresenterSession={() => setPresenterSessionOpen(true)}
           onConnectorSessionInvalid={() => {
             updateConnectorSession(null);
@@ -3257,13 +3279,8 @@ function RecipientCard({ opp, routed }: { opp: Opportunity; routed: boolean }) {
 
 /* ───────────────────────── Scene 6 · Whole book (leadership) ───────────────────────── */
 
-function fmtUsd(n: number): string {
-  if (n >= 1_000_000) return `$${(n / 1_000_000).toFixed(1)}M`;
-  if (n >= 1_000) return `$${Math.round(n / 1_000)}K`;
-  return `$${Math.round(n)}`;
-}
-
 // One-Bank executive KPIs computed from the live books — consumer + wealth together.
+// ($ formatting comes from src/lib/economics fmtUsd.)
 function bookMetrics() {
   const book = [...advisorBook, ...consumerBook];
   const pipeline = book.reduce((s, o) => s + valueNum(o.value), 0);
@@ -4011,100 +4028,15 @@ const VENTUS_LOOP = leadershipCapabilities().map((capability) => ({
   copy: capability.leadershipPromise,
 }));
 
-type LeadershipConfig = {
-  businessLine: string;
-  objective: string;
-  primaryMetric: string;
-  eligiblePopulation: string;
-  pilotWindow: string;
-  successGate: string;
-  dataBoundary: string;
-  exclusions: string;
-  coverCopy: string;
-  opp: Opportunity;
-  playTitle: string;
-  skill: SkillArtifact;
-  pilotOwner: string;
-  sourceLabel: string;
-  sourceDetail: string;
-  workflowLabel: string;
-  workflowDetail: string;
-  standaloneProof: string;
-  expansionUpside: string;
-  actEarlier: string; // division of value: the institution owns the signals; Ventus turns them into action
-};
-
-type OperatingPosture = "precision" | "balanced" | "coverage";
-type ReviewMode = "every-case" | "exceptions";
-type FrontlineDecision = "pending" | "accepted" | "adjusted" | "not-relevant";
-type FrontlineFeedback = "timing" | "already-covered" | "signal-wrong";
-type ExecutiveDecision = "scale" | "refine" | "hold";
-
-type LeadershipControls = {
-  posture: OperatingPosture;
-  capacity: 25 | 50 | 100;
-  reviewMode: ReviewMode;
-};
-
-const DEFAULT_LEADERSHIP_CONTROLS: LeadershipControls = {
-  posture: "balanced",
-  capacity: 50,
-  reviewMode: "every-case",
-};
-
-const OPERATING_POSTURES: Record<OperatingPosture, { label: string; threshold: number; detail: string }> = {
-  precision: { label: "Precision first", threshold: 88, detail: "Fewer, strongest cases" },
-  balanced: { label: "Balanced", threshold: 82, detail: "Quality with useful reach" },
-  coverage: { label: "Broader coverage", threshold: 75, detail: "More cases for review" },
-};
+// Boardroom configuration lives in src/lib/leadership.ts (typed, unit-tested,
+// parameterizable per institution). The page only binds each path's exemplar
+// opportunity from its demo books.
+type LeadershipConfig = LeadershipPathConfig & { opp: Opportunity };
 
 function leadershipConfig(path: LeadershipPath): LeadershipConfig {
-  if (path === "deposit-retention") {
-    return {
-      businessLine: "Consumer Banking",
-      objective: "Protect primary deposits",
-      primaryMetric: "Incremental deposits retained",
-      eligiblePopulation: "Primary-checking households with active payroll",
-      pilotWindow: "30–60 days after action",
-      successGate: "Positive lift vs. holdout after coverage gates",
-      dataBoundary: "Consumer-owned data only",
-      exclusions: "Ineligible, suppressed, or vulnerable customers",
-      coverCopy: "Use Consumer-owned signals to detect relationship erosion and prepare one timely banker action.",
-      opp: consumerBook.find((item) => item.id === "primacy") ?? consumerBook[0],
-      playTitle: "Deposit Primacy Defense",
-      skill: DEPOSIT_PRIMACY_SKILL,
-      pilotOwner: "Consumer Bank P&L owner",
-      sourceLabel: "Consumer data",
-      sourceDetail: "Epsilon · deposits · card · P2P",
-      workflowLabel: "Banker workflow",
-      workflowDetail: "Workbench · email · Salesforce",
-      standaloneProof: "No Merrill data required",
-      expansionUpside: "Later, authorized wealth signals can improve qualification without changing Consumer ownership.",
-      actEarlier: "Consumer Banking owns the payroll, card, and P2P evidence. Ventus turns it into one governed retention action before the second paycheck leaves.",
-    };
-  }
-  return {
-    businessLine: "Merrill",
-    objective: "Grow qualified wealth relationships",
-    primaryMetric: "Incremental advised net new assets",
-    eligiblePopulation: "Self-directed households with qualified transfer and engagement evidence",
-    pilotWindow: "90 days after advisor action",
-    successGate: "Positive NNA lift vs. holdout after coverage gates",
-    dataBoundary: "Merrill-owned data only",
-    exclusions: "Ineligible, suppressed, or already-covered relationships",
-    coverCopy: "Use Merrill-owned signals to convert active demand into qualified NNA and advised relationships.",
-    opp: advisorBook.find((item) => item.id === "merrill-growth") ?? advisorBook[0],
-    playTitle: "Merrill Relationship Growth",
-    skill: MERRILL_RELATIONSHIP_GROWTH_SKILL,
-    pilotOwner: "Merrill growth P&L owner",
-    sourceLabel: "Merrill data",
-    sourceDetail: "Books · transfers · digital engagement",
-    workflowLabel: "Advisor workflow",
-    workflowDetail: "CEW · Book 360 · Salesforce FSC",
-    standaloneProof: "No Consumer data required",
-    expansionUpside: "Later, authorized Consumer signals can reveal earlier demand and quantify incremental connected lift.",
-    actEarlier: "Merrill owns the relationship, transfer, and engagement evidence. Ventus turns it into one governed advisor action before intent goes cold.",
-  };
+  const base = leadershipPathConfig(path);
+  const book = base.book === "consumer" ? consumerBook : advisorBook;
+  return { ...base, opp: book.find((item) => item.id === base.oppId) ?? book[0] };
 }
 
 // Story-shaped, not builder-shaped: open on what a person sees, then reveal what drove
@@ -4253,6 +4185,43 @@ function BoundaryToggle({ label, checked, onToggle }: { label: string; checked: 
         <span className={`absolute top-0.5 h-4 w-4 rounded-full bg-white shadow-sm transition ${checked ? "left-[18px]" : "left-0.5"}`} />
       </span>
     </button>
+  );
+}
+
+function AssumptionSlider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  format,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  format: (value: number) => string;
+  onChange: (value: number) => void;
+}) {
+  return (
+    <label className="block">
+      <span className="flex items-center justify-between text-[10px] font-semibold text-slate-600">
+        <span>{label}</span>
+        <span className="font-bold text-slate-900">{format(value)}</span>
+      </span>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={value}
+        onChange={(event) => onChange(Number(event.target.value))}
+        className="mt-1 w-full accent-blue-700"
+        aria-label={label}
+      />
+    </label>
   );
 }
 
@@ -4550,6 +4519,7 @@ function SalesforceActivationPreview({
   delivered,
   receipt,
   url,
+  simulated = false,
 }: {
   subject: string;
   whyNow: string;
@@ -4561,6 +4531,7 @@ function SalesforceActivationPreview({
   delivered: boolean;
   receipt?: string;
   url?: string;
+  simulated?: boolean;
 }) {
   return (
     <div className="-mx-5 mt-4 border-y border-slate-200 bg-slate-50 px-5 py-4">
@@ -4572,8 +4543,8 @@ function SalesforceActivationPreview({
             <p className="truncate text-sm font-semibold text-slate-950">{subject}</p>
           </div>
         </div>
-        <span className={`flex-none rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-wide ${delivered ? "bg-emerald-100 text-emerald-800" : "bg-blue-100 text-blue-800"}`}>
-          {delivered ? "Created" : "Ready to write"}
+        <span className={`flex-none rounded-full px-2 py-1 text-[9px] font-bold uppercase tracking-wide ${delivered ? (simulated ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800") : "bg-blue-100 text-blue-800"}`}>
+          {delivered ? (simulated ? "Staged · simulated" : "Created") : "Ready to write"}
         </span>
       </div>
 
@@ -4598,8 +4569,8 @@ function SalesforceActivationPreview({
       <p className="mt-2 truncate text-[10px] text-slate-500"><span className="font-semibold text-slate-700">Outcome:</span> {outcome}</p>
 
       {delivered && receipt && (
-        <div className="mt-3 flex items-center justify-between gap-3 border-t border-emerald-200 pt-3">
-          <p className="min-w-0 truncate font-mono text-[10px] font-semibold text-emerald-800">Task {receipt}</p>
+        <div className={`mt-3 flex items-center justify-between gap-3 border-t pt-3 ${simulated ? "border-amber-200" : "border-emerald-200"}`}>
+          <p className={`min-w-0 truncate font-mono text-[10px] font-semibold ${simulated ? "text-amber-800" : "text-emerald-800"}`}>{simulated ? `Staged ${receipt} · no system written` : `Task ${receipt}`}</p>
           {url && <a href={url} target="_blank" rel="noopener noreferrer" className="flex-none rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold text-emerald-800 shadow-sm">Open record</a>}
         </div>
       )}
@@ -4613,12 +4584,14 @@ function LeadershipFlow({
   connectorSession,
   onRequestPresenterSession,
   onConnectorSessionInvalid,
+  onOutcomeSimulated,
 }: {
   path: LeadershipPath;
   onExit: () => void;
   connectorSession: DemoConnectorSession | null;
   onRequestPresenterSession: () => void;
   onConnectorSessionInvalid: () => void;
+  onOutcomeSimulated?: () => void;
 }) {
   const [step, setStep] = useState(0);
   const [scopeOpen, setScopeOpen] = useState(false);
@@ -4638,11 +4611,21 @@ function LeadershipFlow({
   const [measurementPreview, setMeasurementPreview] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [executiveDecision, setExecutiveDecision] = useState<ExecutiveDecision | null>(null);
-  const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string; url?: string; route: "salesforce" | "rehearsal" }[]>([]);
+  const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string; url?: string; route: "salesforce" | "rehearsal" | "simulated" }[]>([]);
   const [deliveryNote, setDeliveryNote] = useState<string | null>(null);
   const config = leadershipConfig(path);
   const { opp, skill } = config;
   const destination = destinationLabel(opp.destination);
+  const cohort = pilotCohort(controls, skill.measurement.holdoutPct);
+  // Outcome-feed simulation + the session decision trail: the same append-only
+  // hash chain the internal ledger uses, scoped to this executive session so
+  // "every decision is a governed record" is demonstrated, not narrated.
+  const [outcomeSim, setOutcomeSim] = useState<"idle" | "assigning" | "receiving" | "complete">("idle");
+  const [assumptions, setAssumptions] = useState<EconomicAssumptions>(() => defaultAssumptions(path, cohort.treated));
+  const [sessionLedger, setSessionLedger] = useState<LedgerEvent[]>([]);
+  const [trailOpen, setTrailOpen] = useState(false);
+  const outcomeTimers = useRef<number[]>([]);
+  const appendSession = useCallback((drafts: LedgerDraft[]) => setSessionLedger((prev) => appendEvents(prev, drafts)), []);
 
   useEffect(() => {
     setStep(0);
@@ -4664,31 +4647,92 @@ function LeadershipFlow({
     setExecutiveDecision(null);
     setLiveReceipts([]);
     setDeliveryNote(null);
+    setOutcomeSim("idle");
+    setAssumptions(defaultAssumptions(path, pilotCohort(DEFAULT_LEADERSHIP_CONTROLS, leadershipPathConfig(path).skill.measurement.holdoutPct).treated));
+    setSessionLedger([]);
+    setTrailOpen(false);
+    outcomeTimers.current.forEach((t) => window.clearTimeout(t));
+    outcomeTimers.current = [];
   }, [path]);
+
+  useEffect(() => () => outcomeTimers.current.forEach((t) => window.clearTimeout(t)), []);
+
+  // Capacity changes flow straight into the economics — controls are product config.
+  useEffect(() => {
+    setAssumptions((current) => (current.treatedHouseholds === cohort.treated ? current : { ...current, treatedHouseholds: cohort.treated }));
+  }, [cohort.treated]);
 
   const handlePipelineComplete = useCallback(() => setPipelineReady(true), []);
 
-  const salesforceSubject = path === "deposit-retention"
-    ? "Primary deposit relationship review"
-    : "Qualified liquidity opportunity review";
-  const salesforceAction = path === "deposit-retention"
-    ? "Contact the customer before the next payroll cycle to review their everyday-banking setup and an approved retention option."
-    : "Assign the best-fit advisor and prepare a consolidation review while the liquidity remains uninvested.";
-  const salesforceOutcome = path === "deposit-retention"
-    ? "Protect the primary deposit relationship"
-    : "Convert qualified liquidity into advised net new assets";
-  const actionOptions = path === "deposit-retention"
-    ? [
-        salesforceAction,
-        "Prepare an approved retention option for banker review before the next payroll cycle.",
-        "Monitor through the next payroll cycle and alert the banker if the pattern continues.",
-      ]
-    : [
-        salesforceAction,
-        "Route the case to a Merrill specialist for a transfer and liquidity review.",
-        "Prepare an advisor outreach task and hold the recommendation for same-day review.",
-      ];
-  const selectedAction = actionOptions[actionChoice] ?? salesforceAction;
+  const { subject: salesforceSubject, outcome: salesforceOutcome } = salesforceCopyFor(path);
+  const actionOptions = actionOptionsFor(path);
+  const selectedAction = actionOptions[actionChoice] ?? actionOptions[0];
+
+  const runOutcomeSimulation = () => {
+    if (outcomeSim !== "idle") return;
+    setOutcomeSim("assigning");
+    appendSession([
+      {
+        eventKey: `lf-${path}-holdout`,
+        kind: "counterfactual",
+        title: "Holdout reserved before action",
+        detail: `${cohort.treated} treatment · ${cohort.holdout} holdout (${skill.measurement.holdoutPct}%)`,
+        status: "simulated",
+      },
+    ]);
+    outcomeTimers.current.push(
+      window.setTimeout(() => setOutcomeSim("receiving"), 900),
+      window.setTimeout(() => {
+        setOutcomeSim("complete");
+        setMeasurementPreview(true);
+        appendSession([
+          {
+            eventKey: `lf-${path}-outcome`,
+            kind: "outcome",
+            title: "Outcome file joined",
+            detail: `${cohort.total} outcomes · 100% coverage · illustrative`,
+            status: "simulated",
+          },
+        ]);
+        onOutcomeSimulated?.();
+      }, 2000),
+    );
+  };
+
+  // Honest offline path: when no live connector is available the flow still
+  // completes — the payload is staged locally, labeled simulated, and the
+  // session trail records it as such. The demo never dead-ends in the room.
+  const stageSimulatedDelivery = () => {
+    if (liveReceipts.length > 0) return;
+    const receipt = `SIM-${path === "deposit-retention" ? "DPD" : "MRG"}-${String(Math.floor(Math.random() * 900) + 100)}`;
+    setLiveReceipts([{ id: opp.id, receipt, route: "simulated" }]);
+    setDeliveryNote("Simulated staging — no external system was written to");
+    setDryRunState("complete");
+    setShadowReady(true);
+    appendSession([
+      {
+        eventKey: `lf-${path}-activation`,
+        kind: "activation",
+        title: "Work item staged (simulated)",
+        detail: `${receipt} · no external write`,
+        ref: receipt,
+        status: "simulated",
+      },
+    ]);
+  };
+
+  const chooseExecutiveDecision = (decision: ExecutiveDecision) => {
+    if (decision === executiveDecision) return;
+    setExecutiveDecision(decision);
+    appendSession([
+      {
+        kind: "decision",
+        title: `Executive decision · ${decision}`,
+        detail: EXECUTIVE_DECISION_COPY[decision],
+        status: "simulated",
+      },
+    ]);
+  };
 
   // Prefer the real Salesforce connector. The generic rehearsal receiver remains a
   // secondary integration surface for bank workbench sandboxes.
@@ -4735,6 +4779,16 @@ function LeadershipFlow({
         setDeliveryNote(`${data.activation?.subject ?? salesforceSubject} created`);
         setDryRunState("complete");
         setShadowReady(true);
+        appendSession([
+          {
+            eventKey: `lf-${path}-activation`,
+            kind: "activation",
+            title: "Salesforce Task created",
+            detail: `${data.id} · sandbox org · live write`,
+            ref: data.id,
+            status: "confirmed",
+          },
+        ]);
         return;
       }
       if (response.status === 401 || response.status === 403) onConnectorSessionInvalid();
@@ -4750,6 +4804,16 @@ function LeadershipFlow({
           setDeliveryNote("Bank sandbox receipt returned");
           setDryRunState("complete");
           setShadowReady(true);
+          appendSession([
+            {
+              eventKey: `lf-${path}-activation`,
+              kind: "activation",
+              title: "Sandbox work item delivered",
+              detail: `${rehearsalData.receiptId} · rehearsal receiver · live write`,
+              ref: rehearsalData.receiptId,
+              status: "confirmed",
+            },
+          ]);
           return;
         }
       }
@@ -4768,19 +4832,12 @@ function LeadershipFlow({
   };
 
   const nextLabels = ["See employee experience", "Create Salesforce Task", "Measure outcome"];
-  const activeControls = [
-    ...(path === "wealth-growth"
-      ? ["Reg BI review", "Consent + eligibility", "Vulnerability suppression"]
-      : ["UDAAP review", "Uniform offer criteria", "Financial-health suppression"]),
-    `${OPERATING_POSTURES[controls.posture].label} · ${OPERATING_POSTURES[controls.posture].threshold}% threshold`,
-    controls.reviewMode === "every-case" ? "Human review required" : "Human review on exceptions",
-  ];
-  const executiveDecisionCopy: Record<ExecutiveDecision, string> = {
-    scale: "Advance only after the proposed gates and policy review clear.",
-    refine: "Return frontline feedback to the Growth Play and rerun in shadow.",
-    hold: "Keep the current scope; no additional activation is released.",
-  };
+  const activeControls = activeControlChips(path, controls);
   const frontlineApproved = frontlineDecision === "accepted" || frontlineDecision === "adjusted";
+  const econ = illustrativeRange(assumptions);
+  const scaled = scaledAnnualRange(assumptions, config.scaleHouseholds);
+  const lastDecisionEvent = [...sessionLedger].reverse().find((event) => event.kind === "decision");
+  const chainVerified = sessionLedger.length > 0 && verifyChain(sessionLedger);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-slate-50/70">
@@ -4929,6 +4986,7 @@ function LeadershipFlow({
                       delivered={liveReceipts.length > 0}
                       receipt={liveReceipts[0]?.receipt}
                       url={liveReceipts[0]?.url}
+                      simulated={liveReceipts[0]?.route === "simulated"}
                     />
 
                     {dryRunState === "failed" && deliveryNote && (
@@ -4938,6 +4996,11 @@ function LeadershipFlow({
                     <button onClick={runRehearsal} disabled={dryRunState === "running" || liveReceipts.length > 0} className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70" style={{ backgroundColor: liveReceipts.length > 0 ? GREEN : NAVY }}>
                       {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Writing to Salesforce</> : liveReceipts.length > 0 ? <><Check className="h-4 w-4" /> Receipt returned</> : !connectorSession?.token ? <><LockKeyhole className="h-4 w-4" /> Unlock live delivery</> : dryRunState === "failed" ? <><RotateCcw className="h-4 w-4" /> Retry sandbox Task</> : <><Rocket className="h-4 w-4" /> Create sandbox Task</>}
                     </button>
+                    {liveReceipts.length === 0 && (!connectorSession?.token || dryRunState === "failed") && (
+                      <button onClick={stageSimulatedDelivery} className="mt-2 w-full text-center text-[11px] font-semibold text-slate-500 transition hover:text-slate-800">
+                        No live connectors in this session? Stage a simulated delivery →
+                      </button>
+                    )}
                   </section>
 
                   <section className="rounded-xl border border-slate-200 bg-slate-50 p-5">
@@ -4946,7 +5009,7 @@ function LeadershipFlow({
                       {[
                         { label: "Source", value: `${runEvidence?.sourceName ?? "Presentation data"} · ${runEvidence?.transactions.length || 3} records`, live: runEvidence?.sourceMode === "live" },
                         { label: "Decision", value: `${config.playTitle} · ${runEvidence?.opportunity?.confidence ?? opp.confidence}%`, live: true },
-                        { label: "Activation", value: liveReceipts[0] ? `Salesforce Task ${liveReceipts[0].receipt}` : deliveryNote ?? "Awaiting write", live: liveReceipts.length > 0 },
+                        { label: "Activation", value: liveReceipts[0] ? (liveReceipts[0].route === "simulated" ? `Staged ${liveReceipts[0].receipt} (simulated)` : `Salesforce Task ${liveReceipts[0].receipt}`) : deliveryNote ?? "Awaiting write", live: liveReceipts.length > 0 && liveReceipts[0].route !== "simulated" },
                       ].map((item) => (
                         <div key={item.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-3">
                           <span className={`h-2 w-2 flex-none rounded-full ${item.live ? "bg-emerald-500" : "bg-slate-300"}`} />
@@ -4983,7 +5046,7 @@ function LeadershipFlow({
                     <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Pilot design</p>
                     <div className="mt-3 space-y-2">
                       {[
-                        { label: "Assign before action", detail: `${100 - skill.measurement.holdoutPct}% treatment · ${skill.measurement.holdoutPct}% holdout`, Icon: GitBranch },
+                        { label: "Assign before action", detail: `${cohort.treated} treatment · ${cohort.holdout} holdout (${skill.measurement.holdoutPct}%) at ${controls.capacity}/week`, Icon: GitBranch },
                         { label: "Receive bank outcomes", detail: path === "wealth-growth" ? "Qualified NNA posted" : "Deposit balance observed", Icon: Network },
                         { label: "Calculate incremental value", detail: "Coverage gate + 95% interval vs holdout", Icon: LineChart },
                       ].map((item, index) => (
@@ -4999,41 +5062,132 @@ function LeadershipFlow({
                     </details>
                   </section>
                   <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
-                    {!measurementPreview ? (
+                    {outcomeSim === "idle" ? (
                       <div className="flex min-h-56 flex-col items-center justify-center text-center">
                         <Repeat className="h-8 w-8 text-slate-200" />
                         <p className="mt-2 text-sm font-semibold text-slate-700">Outcome window open</p>
-                        <p className="mt-1 text-[11px] text-slate-400">Waiting for treatment and holdout results.</p>
-                        <button onClick={() => setMeasurementPreview(true)} className="mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: NAVY }}>
-                          <FileText className="h-3.5 w-3.5" /> Preview illustrative result
+                        <p className="mt-1 max-w-xs text-[11px] leading-4 text-slate-400">Holdout is reserved before any action. Outcomes join when the bank feed posts.</p>
+                        <button onClick={runOutcomeSimulation} className="mt-4 flex items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold text-white" style={{ backgroundColor: NAVY }}>
+                          <LineChart className="h-3.5 w-3.5" /> Simulate the outcome feed
                         </button>
+                        <p className="mt-2 text-[9px] font-bold uppercase tracking-wide text-amber-700">Illustrative · verified only by the pilot</p>
                       </div>
                     ) : (
                       <div>
-                        <div className="flex items-center justify-between gap-2"><p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">Sample-gated result</p><span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-700">450 treatment · 50 holdout</span></div>
-                        <div className="mt-3 grid grid-cols-3 gap-2">
-                          <BriefMetric label="Treatment" value={path === "wealth-growth" ? "$32.4K" : "$18.4K"} />
-                          <BriefMetric label="Holdout" value={path === "wealth-growth" ? "$21.1K" : "$15.2K"} />
-                          <BriefMetric label="Incremental" value={path === "wealth-growth" ? "+$11.3K" : "+$3.2K"} />
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-400">{outcomeSim === "complete" ? "Sample-gated result" : "Outcome feed"}</p>
+                          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[9px] font-bold uppercase text-emerald-700">{cohort.treated} treatment · {cohort.holdout} holdout</span>
                         </div>
-                        <p className="mt-2 text-[10px] text-slate-400">100% outcome coverage · illustrative 95% interval {path === "wealth-growth" ? "+$4.1K to +$18.5K" : "+$0.8K to +$5.6K"}</p>
-                        <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-                          <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">Leadership decision</p>
-                          <div className="mt-2 grid grid-cols-3 gap-1.5">
-                            {(["scale", "refine", "hold"] as ExecutiveDecision[]).map((decision) => (
-                              <button
-                                key={decision}
-                                type="button"
-                                onClick={() => setExecutiveDecision(decision)}
-                                className={`rounded-lg border px-2 py-2 text-[10px] font-bold capitalize transition ${executiveDecision === decision ? "border-blue-500 bg-white text-blue-800 shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200"}`}
-                              >
-                                {decision}
+                        <div className="mt-3 space-y-1.5">
+                          {[
+                            { label: `Holdout reserved · ${cohort.holdout} households untouched`, done: true },
+                            { label: "Bank outcomes joining the decision record", done: outcomeSim !== "assigning" },
+                            { label: "Incremental lift computed vs. holdout", done: outcomeSim === "complete" },
+                          ].map((stage) => (
+                            <div key={stage.label} className="flex items-center gap-2 text-[10px] font-semibold">
+                              {stage.done ? <Check className="h-3 w-3 flex-none text-emerald-600" /> : <Loader2 className="h-3 w-3 flex-none animate-spin text-slate-400" />}
+                              <span className={stage.done ? "text-slate-600" : "text-slate-400"}>{stage.label}</span>
+                            </div>
+                          ))}
+                        </div>
+                        {outcomeSim === "complete" && (
+                          <>
+                            <div className="mt-3 grid grid-cols-3 gap-2">
+                              <BriefMetric label="Treatment avg" value={fmtUsd(econ.treatmentAvgUsd)} />
+                              <BriefMetric label="Holdout avg" value={fmtUsd(econ.holdoutAvgUsd)} />
+                              <BriefMetric label="Incremental" value={`+${fmtUsd(econ.midUsd)}`} />
+                            </div>
+                            <p className="mt-2 text-[10px] text-slate-400">Illustrative range +{fmtUsd(econ.lowUsd)} to +{fmtUsd(econ.highUsd)} · {econ.formula}</p>
+                            <details className="mt-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                              <summary className="cursor-pointer text-[11px] font-semibold text-slate-600">Adjust assumptions — the math updates live</summary>
+                              <div className="mt-2 space-y-2 border-t border-slate-100 pt-2">
+                                <AssumptionSlider
+                                  label={path === "deposit-retention" ? "Avg deposit balance at risk" : "Avg movable assets"}
+                                  value={assumptions.avgValuePerHousehold}
+                                  min={path === "deposit-retention" ? 5_000 : 50_000}
+                                  max={path === "deposit-retention" ? 60_000 : 1_000_000}
+                                  step={path === "deposit-retention" ? 1_000 : 10_000}
+                                  format={fmtUsd}
+                                  onChange={(value) => setAssumptions((current) => ({ ...current, avgValuePerHousehold: value }))}
+                                />
+                                <AssumptionSlider
+                                  label={path === "deposit-retention" ? "Baseline retained without action" : "Baseline conversion without action"}
+                                  value={assumptions.baselineRatePct}
+                                  min={0}
+                                  max={100}
+                                  step={1}
+                                  format={(value) => `${value}%`}
+                                  onChange={(value) => setAssumptions((current) => ({ ...current, baselineRatePct: value }))}
+                                />
+                                <AssumptionSlider
+                                  label="Lift · conservative"
+                                  value={assumptions.liftLowPct}
+                                  min={0}
+                                  max={10}
+                                  step={0.5}
+                                  format={(value) => `+${value} pp`}
+                                  onChange={(value) => setAssumptions((current) => ({ ...current, liftLowPct: value }))}
+                                />
+                                <AssumptionSlider
+                                  label="Lift · upside"
+                                  value={assumptions.liftHighPct}
+                                  min={0}
+                                  max={10}
+                                  step={0.5}
+                                  format={(value) => `+${value} pp`}
+                                  onChange={(value) => setAssumptions((current) => ({ ...current, liftHighPct: value }))}
+                                />
+                              </div>
+                            </details>
+                            <p className="mt-2 rounded-lg bg-slate-50 px-3 py-2 text-[10px] font-semibold leading-4 text-slate-600">
+                              Scaled to {config.scaleLabel} (~{config.scaleHouseholds.toLocaleString("en-US")} households): {fmtUsd(scaled.lowUsd)}–{fmtUsd(scaled.highUsd)} / yr · illustrative, verified only by the pilot.
+                            </p>
+                            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                              <p className="text-[10px] font-bold uppercase tracking-[0.12em] text-slate-500">Leadership decision</p>
+                              <div className="mt-2 grid grid-cols-3 gap-1.5">
+                                {(["scale", "refine", "hold"] as ExecutiveDecision[]).map((decision) => (
+                                  <button
+                                    key={decision}
+                                    type="button"
+                                    onClick={() => chooseExecutiveDecision(decision)}
+                                    className={`rounded-lg border px-2 py-2 text-[10px] font-bold capitalize transition ${executiveDecision === decision ? "border-blue-500 bg-white text-blue-800 shadow-sm" : "border-slate-200 bg-white text-slate-600 hover:border-blue-200"}`}
+                                  >
+                                    {decision}
+                                  </button>
+                                ))}
+                              </div>
+                              {executiveDecision && <p className="mt-2 text-[10px] font-semibold leading-4 text-slate-600">{EXECUTIVE_DECISION_COPY[executiveDecision]}</p>}
+                              {lastDecisionEvent && (
+                                <div className="mt-2 rounded-lg border border-emerald-100 bg-emerald-50/70 px-2.5 py-2">
+                                  <div className="flex items-center justify-between gap-2 text-[10px] font-bold text-emerald-800">
+                                    <span className="flex items-center gap-1.5"><Check className="h-3 w-3" /> Recorded · #{String(lastDecisionEvent.seq).padStart(3, "0")} · {lastDecisionEvent.hash.slice(0, 8)}</span>
+                                    <span>{chainVerified ? "chain verified" : "chain broken"}</span>
+                                  </div>
+                                  <p className="mt-1 text-[9px] font-semibold leading-3 text-emerald-700">Append-only — changing your decision adds a new record, it never edits one.</p>
+                                </div>
+                              )}
+                            </div>
+                            <div className="mt-2 flex items-center justify-between gap-2">
+                              <button onClick={() => setTrailOpen((open) => !open)} className="flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-slate-800">
+                                <ChevronDown className={`h-3 w-3 transition ${trailOpen ? "rotate-180" : ""}`} /> Decision trail ({sessionLedger.length})
                               </button>
-                            ))}
-                          </div>
-                          {executiveDecision && <p className="mt-2 text-[10px] font-semibold leading-4 text-slate-600">{executiveDecisionCopy[executiveDecision]}</p>}
-                        </div>
-                        <button onClick={() => { setMeasurementPreview(false); setExecutiveDecision(null); }} className="mt-3 text-[11px] font-semibold text-slate-500 hover:text-slate-800">Clear illustrative data</button>
+                              <button onClick={() => { setOutcomeSim("idle"); setMeasurementPreview(false); setExecutiveDecision(null); }} className="text-[11px] font-semibold text-slate-500 hover:text-slate-800">Clear illustrative data</button>
+                            </div>
+                            {trailOpen && sessionLedger.length > 0 && (
+                              <div className="mt-2 space-y-1 rounded-lg border border-slate-200 bg-white p-2">
+                                {sessionLedger.map((event) => (
+                                  <div key={event.id} className="flex items-center gap-2 text-[9px] font-semibold text-slate-600">
+                                    <span className="w-8 flex-none text-slate-400">#{String(event.seq).padStart(3, "0")}</span>
+                                    <span className="min-w-0 flex-1 truncate" title={event.detail}>{event.title}</span>
+                                    <span className={`flex-none rounded px-1 py-0.5 text-[8px] font-bold uppercase ${event.status === "confirmed" ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>{event.status}</span>
+                                    <span className="flex-none font-mono text-slate-300">{event.hash.slice(0, 6)}</span>
+                                  </div>
+                                ))}
+                                <p className="pt-1 text-[8px] font-semibold text-slate-400">Append-only session record · hash-chained · live receipts confirmed, everything else simulated. Clearing the view never clears the trail.</p>
+                              </div>
+                            )}
+                          </>
+                        )}
                       </div>
                     )}
                   </section>
@@ -5350,12 +5504,13 @@ function PilotScopePanel({
           </details>
 
           <details className="mt-2 rounded-xl border border-slate-200 px-3 py-2">
-            <summary className="cursor-pointer text-xs font-semibold text-slate-700">Pilot commitments and commercial model</summary>
+            <summary className="cursor-pointer text-xs font-semibold text-slate-700">The founding-partner ask — bounded and de-risked</summary>
             <div className="mt-3 grid gap-3 border-t border-slate-100 pt-3 sm:grid-cols-2">
-              <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Institution:</span> sanctioned {config.sourceLabel.toLowerCase()} sample, policy owner, and {destination} sandbox endpoint.</p>
-              <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Ventus:</span> data mapping, evaluated Growth Play, activation receipt, holdout, and lift measurement.</p>
+              <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Institution provides:</span> 90 days of de-identified {config.sourceLabel.toLowerCase()} history for the eligible cohort, outcome labels, a {destination} sandbox endpoint, and a named policy owner. No production access, no PII.</p>
+              <p className="text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Ventus delivers:</span> data mapping, evaluated Growth Play, activation receipts, holdout design, and lift measurement against the proposed gates.</p>
             </div>
             <p className="mt-3 text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Commercial:</span> fixed pilot fee, then platform plus a success component on verified lift.</p>
+            <p className="mt-2 text-[11px] leading-5 text-slate-600"><span className="font-bold text-slate-800">Buyer path:</span> initial buyer is the {config.pilotOwner}. Land {config.playTitle}; expand to the second objective on verified lift.</p>
           </details>
 
           <details className="mt-2 rounded-xl border border-slate-200 px-3 py-2">
@@ -5496,16 +5651,18 @@ function GrowthPlayPanel({
 function LeadershipCover({
   onPick,
   connectorSession,
+  outcomeFeedReady,
 }: {
   onPick: (path: LeadershipPath) => void;
   connectorSession: DemoConnectorSession | null;
+  outcomeFeedReady: boolean;
 }) {
-  const paths: LeadershipPath[] = ["wealth-growth", "deposit-retention"];
+  const paths = LEADERSHIP_PATHS;
   const livePath = [
     { label: "Plaid sandbox", status: connectorSession?.connectors.plaid ? "Live" : "Source", ready: Boolean(connectorSession?.connectors.plaid), Icon: Upload },
     { label: "Ventus", status: "Decision engine", ready: true, Icon: Wand2 },
     { label: "Salesforce", status: connectorSession?.connectors.salesforce ? "Live" : "Activate", ready: Boolean(connectorSession?.connectors.salesforce), Icon: Network },
-    { label: "Outcome feed", status: "Measure", ready: false, Icon: LineChart },
+    { label: "Outcome feed", status: outcomeFeedReady ? "Simulated · run" : "Measure", ready: outcomeFeedReady, Icon: LineChart },
   ];
   return (
     <div className="flex h-full w-full items-start overflow-y-auto px-5 py-6 sm:px-8 xl:items-center xl:px-10">
@@ -5574,14 +5731,16 @@ function Cover({
   onLeadershipPick,
   audience,
   connectorSession,
+  outcomeFeedReady,
 }: {
   onPick: (scene: number, mode: Mode) => void;
   onLeadershipPick: (path: LeadershipPath) => void;
   audience: DemoAudience;
   connectorSession: DemoConnectorSession | null;
+  outcomeFeedReady: boolean;
 }) {
   const internal = audience === "internal";
-  if (!internal) return <LeadershipCover onPick={onLeadershipPick} connectorSession={connectorSession} />;
+  if (!internal) return <LeadershipCover onPick={onLeadershipPick} connectorSession={connectorSession} outcomeFeedReady={outcomeFeedReady} />;
   return (
     <div className="flex h-full w-full items-center px-6 py-4 sm:px-10">
       <div className="mx-auto w-full max-w-5xl">

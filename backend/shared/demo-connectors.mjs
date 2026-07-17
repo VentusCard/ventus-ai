@@ -1,5 +1,7 @@
 import crypto from 'node:crypto';
 
+import { offbankRegex } from './offbank-patterns.mjs';
+
 const SESSION_ISSUER = 'ventus-ai';
 const SESSION_AUDIENCE = 'ventus-demo-connectors';
 const SESSION_SECONDS = 15 * 60;
@@ -35,7 +37,7 @@ const WEALTH_GROWTH_CUSTOM_USER = {
   }],
 };
 
-const OFFBANK = /chime|cash app|cashapp|venmo|sofi|varo|current|robinhood/i;
+const OFFBANK = offbankRegex();
 const PAYROLL = /gusto|adp|paychex|payroll|direct dep|acme payroll/i;
 const cleanText = (value, maxLength) =>
   typeof value === 'string' ? value.replace(/\s+/g, ' ').trim().slice(0, maxLength) : '';

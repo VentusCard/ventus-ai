@@ -1,4 +1,6 @@
-const OFFBANK = /chime|cash app|cashapp|venmo|sofi|varo|current|robinhood/i;
+import { offbankRegex } from './offbank-patterns.mjs';
+
+const OFFBANK = offbankRegex();
 
 const titleCase = (value) => String(value || '')
   .replaceAll('_', ' ')

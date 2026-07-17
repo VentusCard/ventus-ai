@@ -7,6 +7,8 @@
 // derived from the input. Pure and dependency-free so it runs in the browser, the API,
 // and the test harness identically.
 
+import { OFFBANK_ALL } from "../../backend/shared/offbank-patterns.mjs";
+
 // ── Real Plaid transaction schema (the subset the pipeline uses) ──
 // Mirrors https://plaid.com/docs/api/products/transactions/#transactionsget
 export type PlaidPFC = { primary: string; detailed: string };
@@ -62,7 +64,7 @@ function railFor(t: PlaidTransaction): string {
 }
 
 // Known off-bank destinations — a transfer to one of these is a primacy-risk signal.
-const OFF_BANK = ["chime", "cash app", "cashapp", "venmo", "sofi", "varo", "current", "robinhood", "coinbase", "wealthfront", "betterment", "fidelity", "vanguard", "schwab"];
+const OFF_BANK = OFFBANK_ALL;
 
 const has = (hay: string | undefined | null, needles: string[]) =>
   !!hay && needles.some((n) => hay.toLowerCase().includes(n));

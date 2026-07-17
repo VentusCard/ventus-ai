@@ -13,6 +13,7 @@
     "test:pipeline": "node --experimental-strip-types scripts/verify-pipeline-real.mjs",
     "test:salesforce": "node --experimental-strip-types scripts/verify-salesforce.mjs",
     "test:connector-sessions": "node --experimental-strip-types --test api/_connectorAuth.test.ts api/_controlPlaneAuth.test.ts api/presenter-session.test.ts api/plaid-transactions.test.ts api/salesforce-deliver.test.ts api/standalone-pilot-run.test.ts api/pilot-outcomes.test.ts",
+    "test:leadership": "node --experimental-strip-types --test src/lib/leadership.test.ts src/lib/economics.test.ts backend/shared/salesforce-activation.test.mjs",
     "test:mvp-cohorts": "node --experimental-strip-types backend/scripts/qa-growth-play-cohorts.mjs",
     "test:growth-plays": "node backend/scripts/compile-growth-play-contracts.mjs",
     "test:outcomes": "node backend/scripts/qa-outcome-feed-contract.mjs && node backend/scripts/qa-connected-exposure-contract.mjs",
