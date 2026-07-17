@@ -16,7 +16,7 @@
 //               SF_CLIENT_ID=<consumer key>  SF_CLIENT_SECRET=<consumer secret>
 // Uses only STANDARD Task fields, so any untouched dev org accepts the write.
 declare const process: { env: Record<string, string | undefined> };
-import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.ts";
+import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.js";
 
 export const maxDuration = 20;
 

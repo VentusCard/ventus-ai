@@ -1,5 +1,5 @@
 declare const process: { env: Record<string, string | undefined> };
-import { authorizeConnector } from "./_connectorAuth.ts";
+import { authorizeConnector } from "./_connectorAuth.js";
 
 export const maxDuration = 30;
 const RECORD_KEYS = new Set([

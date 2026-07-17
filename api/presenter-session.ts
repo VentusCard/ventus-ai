@@ -5,7 +5,7 @@
 // enter the browser.
 declare const process: { env: Record<string, string | undefined> };
 import { randomUUID } from "node:crypto";
-import { connectorDisabledResponse, issueConnectorSession, liveConnectorsEnabled } from "./_connectorAuth.ts";
+import { connectorDisabledResponse, issueConnectorSession, liveConnectorsEnabled } from "./_connectorAuth.js";
 
 export const maxDuration = 10;
 

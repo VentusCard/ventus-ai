@@ -4,7 +4,7 @@ import {
   controlPlaneDisabledResponse,
   controlPlaneEnabled,
   issueControlPlaneSession,
-} from "./_controlPlaneAuth.ts";
+} from "./_controlPlaneAuth.js";
 
 export const maxDuration = 10;
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9_.:@-]{1,255}$/;

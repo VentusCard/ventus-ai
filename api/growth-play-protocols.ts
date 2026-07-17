@@ -5,7 +5,7 @@ import {
   controlPlaneEnabled,
   controlPrincipalAllowed,
   type ControlPlanePrincipal,
-} from "./_controlPlaneAuth.ts";
+} from "./_controlPlaneAuth.js";
 import { compileGrowthPlayContract } from "../backend/shared/growth-play-contract.mjs";
 import { createGrowthPlayRegistry } from "../backend/shared/growth-play-registry.mjs";
 

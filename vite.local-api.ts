@@ -1,12 +1,19 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
 import type { Plugin } from "vite";
+// tsx resolves the api routes' NodeNext-style ".js" specifiers back to their
+// .ts sources — node's native type stripping cannot, and Vercel needs those
+// specifiers to be ".js" at runtime.
+import { tsImport } from "tsx/esm/api";
 
 type ApiHandler = (request: Request) => Promise<Response>;
 
+const loadRoute = (path: string) => async (): Promise<ApiHandler> =>
+  ((await tsImport(path, import.meta.url)) as { POST: ApiHandler }).POST;
+
 const API_ROUTES: Record<string, () => Promise<ApiHandler>> = {
-  "/api/presenter-session": async () => (await import("./api/presenter-session.ts")).POST,
-  "/api/plaid-transactions": async () => (await import("./api/plaid-transactions.ts")).POST,
-  "/api/salesforce-deliver": async () => (await import("./api/salesforce-deliver.ts")).POST,
+  "/api/presenter-session": loadRoute("./api/presenter-session.ts"),
+  "/api/plaid-transactions": loadRoute("./api/plaid-transactions.ts"),
+  "/api/salesforce-deliver": loadRoute("./api/salesforce-deliver.ts"),
 };
 
 async function toFetchRequest(request: IncomingMessage): Promise<Request> {

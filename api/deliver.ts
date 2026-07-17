@@ -3,8 +3,8 @@
 // Erica / workbench). If DELIVERY_WEBHOOK_URL is configured (e.g. a Salesforce sandbox
 // bridge or a mock endpoint), the payload is forwarded; otherwise it's returned staged.
 // Payload shapes live in src/lib/integrations.ts — one contract for UI and API.
-import { buildDeliveryPayload, type DeliveryOpp } from "../src/lib/integrations.ts";
-import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.ts";
+import { buildDeliveryPayload, type DeliveryOpp } from "../src/lib/integrations.js";
+import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.js";
 
 declare const process: { env: Record<string, string | undefined> };
 

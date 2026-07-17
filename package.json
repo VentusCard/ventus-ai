@@ -11,8 +11,8 @@
     "lint": "eslint .",
     "test:capabilities": "node --experimental-strip-types scripts/verify-capability-gates.mjs",
     "test:pipeline": "node --experimental-strip-types scripts/verify-pipeline-real.mjs",
-    "test:salesforce": "node --experimental-strip-types scripts/verify-salesforce.mjs",
-    "test:connector-sessions": "node --experimental-strip-types --test api/_connectorAuth.test.ts api/_controlPlaneAuth.test.ts api/presenter-session.test.ts api/plaid-transactions.test.ts api/salesforce-deliver.test.ts api/standalone-pilot-run.test.ts api/pilot-outcomes.test.ts",
+    "test:salesforce": "node --import tsx scripts/verify-salesforce.mjs",
+    "test:connector-sessions": "node --import tsx --test api/_connectorAuth.test.ts api/_controlPlaneAuth.test.ts api/presenter-session.test.ts api/plaid-transactions.test.ts api/salesforce-deliver.test.ts api/standalone-pilot-run.test.ts api/pilot-outcomes.test.ts",
     "test:leadership": "node --experimental-strip-types --test src/lib/leadership.test.ts src/lib/economics.test.ts backend/shared/salesforce-activation.test.mjs",
     "test:mvp-cohorts": "node --experimental-strip-types backend/scripts/qa-growth-play-cohorts.mjs",
     "test:growth-plays": "node backend/scripts/compile-growth-play-contracts.mjs",
@@ -23,7 +23,7 @@
     "test:plaid-source": "node backend/scripts/verify-plaid-source.mjs",
     "db:migrate": "node backend/scripts/apply-evidence-migrations.mjs",
     "db:verify": "node backend/scripts/verify-persistence-live.mjs",
-    "pilot:e2e": "node --experimental-strip-types backend/scripts/pilot-e2e.mjs",
+    "pilot:e2e": "node --import tsx backend/scripts/pilot-e2e.mjs",
     "plaid:mvp:manifests": "node --experimental-strip-types backend/scripts/generate-plaid-mvp-manifests.mjs",
     "benchmark:mvp": "VENTUS_SCALE_HOUSEHOLDS=50000 node --experimental-strip-types backend/scripts/benchmark-growth-play-pipeline.mjs",
     "preview": "vite preview"
@@ -106,6 +106,7 @@
     "pg": "^8.22.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.11",
+    "tsx": "^4.23.1",
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.0.1",
     "vite": "^5.4.1"

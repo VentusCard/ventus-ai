@@ -11,7 +11,7 @@
 // authorized to mint sessions). Missing any → documented 404/503, never a silent grant.
 declare const process: { env: Record<string, string | undefined> };
 import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
-import { issueConnectorSession, liveConnectorsEnabled, connectorDisabledResponse } from "./_connectorAuth.ts";
+import { issueConnectorSession, liveConnectorsEnabled, connectorDisabledResponse } from "./_connectorAuth.js";
 
 export const maxDuration = 10;
 

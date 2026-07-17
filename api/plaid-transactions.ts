@@ -11,7 +11,7 @@
 // The route also requires connector authorization; credentials alone do not expose it.
 // No Link UI is needed in sandbox — /sandbox/public_token/create mints a token directly.
 declare const process: { env: Record<string, string | undefined> };
-import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.ts";
+import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.js";
 
 export const maxDuration = 30;
 
