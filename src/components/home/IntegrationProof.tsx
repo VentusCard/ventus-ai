@@ -1,5 +1,4 @@
 import ScrollReveal from "@/components/ScrollReveal";
-import { ArrowRight } from "lucide-react";
 import salesforceLogo from "@/assets/salesforce-logo.png";
 import dynamicsLogo from "@/assets/dynamics-logo.png";
 import snowflakeLogo from "@/assets/snowflake-logo.png";
@@ -47,14 +46,6 @@ const IntegrationProof = () => {
             ))}
           </div>
 
-          <div className="mt-5 flex flex-wrap items-center justify-center gap-x-3 gap-y-2 v2-mono text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>
-            {["Signals in", "Decision made", "Action delivered", "Outcome returned"].map((step, index, steps) => (
-              <div key={step} className="flex items-center gap-3">
-                <span>{step}</span>
-                {index < steps.length - 1 && <ArrowRight className="h-3 w-3" />}
-              </div>
-            ))}
-          </div>
         </ScrollReveal>
       </div>
     </section>
