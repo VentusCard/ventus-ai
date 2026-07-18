@@ -46,7 +46,7 @@ export function LedgerPage() {
           ["Measuring", String(rollup.measuring)],
         ].map(([label, value]) => (
           <div key={label} className="bg-white px-4 py-4">
-            <p className="console-stat text-[26px]" style={{ color: "var(--v2-ink)" }}>{value}</p>
+            <p className="console-stat text-[40px]" style={{ color: "var(--v2-ink)" }}>{value}</p>
             <p className="v2-mono mt-1 text-[9px] uppercase tracking-[0.12em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p>
           </div>
         ))}
@@ -130,7 +130,7 @@ export function OutcomesPage() {
           <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
             This session
           </p>
-          <p className="console-stat mt-3 text-[44px]" style={{ color: "var(--v2-ink)" }}>{activated}</p>
+          <p className="console-stat mt-3 text-[56px]" style={{ color: "var(--v2-ink)" }}>{activated}</p>
           <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
             activation{activated === 1 ? "" : "s"} in the outcome window
           </p>
@@ -145,7 +145,7 @@ export function OutcomesPage() {
             </p>
             <span className="v2-chip-amber">Illustrative</span>
           </div>
-          <p className="console-stat mt-3 text-[44px]" style={{ color: "var(--v2-verified)" }}>
+          <p className="console-stat mt-3 text-[56px]" style={{ color: "var(--v2-verified)" }}>
             +{fmtUsd(econ.midUsd)}
           </p>
           <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>

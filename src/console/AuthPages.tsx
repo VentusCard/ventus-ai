@@ -97,7 +97,7 @@ export function LoginPage() {
       <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
         Growth Console
       </p>
-      <h2 className="v2-display mt-3 text-3xl">Sign in.</h2>
+      <h2 className="v2-display mt-3 text-4xl">Sign in.</h2>
       <form onSubmit={submit} className="mt-8 space-y-3">
         <input
           className="console-field"
@@ -191,7 +191,7 @@ export function SignupPage() {
       <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
         Growth Console
       </p>
-      <h2 className="v2-display mt-3 text-3xl">Create your account.</h2>
+      <h2 className="v2-display mt-3 text-4xl">Create your<br />account.</h2>
       <form onSubmit={submit} className="mt-8 space-y-3">
         <input
           className="console-field"
