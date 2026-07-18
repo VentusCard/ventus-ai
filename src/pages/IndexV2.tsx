@@ -112,6 +112,9 @@ const serviceLines = [
   },
 ];
 
+const BUSINESS_LINE_SCROLL_START = 0.08;
+const BUSINESS_LINE_SCROLL_END = 0.84;
+
 function V2Nav() {
   // Apple pattern: the sticky nav's CTA appears only once the hero's own CTA
   // has scrolled away — never two identical buttons in one viewport.
@@ -226,7 +229,15 @@ const IndexV2 = () => {
 
       const rect = section.getBoundingClientRect();
       const scrollRange = Math.max(section.offsetHeight - window.innerHeight, 1);
-      const progress = Math.min(Math.max((64 - rect.top) / scrollRange, 0), 1);
+      const rawProgress = (64 - rect.top) / scrollRange;
+      const progress = Math.min(
+        Math.max(
+          (rawProgress - BUSINESS_LINE_SCROLL_START)
+            / (BUSINESS_LINE_SCROLL_END - BUSINESS_LINE_SCROLL_START),
+          0,
+        ),
+        1,
+      );
       const nextIndex = Math.min(
         serviceLines.length - 1,
         Math.floor(progress * serviceLines.length),
@@ -270,7 +281,7 @@ const IndexV2 = () => {
         <section
           ref={serviceLineSectionRef}
           id="growth-plays"
-          className="v2-ruled v2-rule-t scroll-mt-16 md:min-h-[185vh]"
+          className="v2-ruled v2-rule-t scroll-mt-16 md:min-h-[280vh]"
         >
           <div className="mx-auto max-w-7xl px-6 py-20 md:sticky md:top-16 md:px-8">
             <ScrollReveal>
