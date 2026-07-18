@@ -1,13 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
-import {
-  ArrowDown,
-  ArrowRight,
-  CheckCircle2,
-  Radar,
-  TrendingUp,
-  Workflow,
-} from "lucide-react";
+import { CheckCircle2, Radar, TrendingUp, Workflow } from "lucide-react";
 import type { GrowthPlayScenario } from "@/components/home/growthPlayScenarios";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import salesforceLogo from "@/assets/salesforce-logo.png";
@@ -262,17 +255,6 @@ function CountUpStat({ value, active }: { value: string; active: boolean }) {
   return <>+{display.toFixed(1)}{match ? match[2] : ""}</>;
 }
 
-const FlowConnector = () => (
-  <div
-    aria-hidden="true"
-    className="flex items-center justify-center py-2 md:py-0"
-    style={{ color: "var(--v2-blue)" }}
-  >
-    <ArrowDown className="h-5 w-5 md:hidden" />
-    <ArrowRight className="hidden h-5 w-5 md:block" />
-  </div>
-);
-
 const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) => {
   const deposit = scenario.id === "deposit";
   const qualified = scenario.funnel[0];
@@ -361,8 +343,9 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
             </div>
 
             <div className="p-5 md:p-7">
-              <div className="grid items-stretch md:grid-cols-[minmax(0,1fr)_32px_minmax(0,1fr)_32px_minmax(0,1fr)]">
-                <div className="min-w-0 py-2 md:py-3">
+              {/* Numbered steps on ruled panels — the sequence needs no arrows. */}
+              <div className="grid items-stretch md:grid-cols-3">
+                <div className="min-w-0 py-2 md:py-3 md:pr-6">
                   <div className="flex items-center gap-2">
                     <Radar className="h-4 w-4" style={{ color: "var(--v2-blue)" }} />
                     <p
@@ -397,8 +380,6 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
                     {qualified.label.toLowerCase()}
                   </p>
                 </div>
-
-                <FlowConnector />
 
                 <div
                   className="min-w-0 border-y py-5 md:border-x md:border-y-0 md:px-6 md:py-3"
@@ -446,9 +427,7 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
                   </p>
                 </div>
 
-                <FlowConnector />
-
-                <div className="min-w-0 py-2 md:py-3">
+                <div className="min-w-0 py-2 md:py-3 md:pl-6">
                   <div className="flex items-center gap-2">
                     <TrendingUp
                       className="h-4 w-4"
@@ -497,20 +476,12 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
               style={{ borderColor: "var(--v2-rule)" }}
             >
               <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                <div>
-                  <p
-                    className="text-[13px] font-semibold"
-                    style={{ color: "var(--v2-ink)" }}
-                  >
-                    Did the activated action improve the outcome?
-                  </p>
-                  <p
-                    className="mt-1 text-[10px]"
-                    style={{ color: "var(--v2-ink-faint)" }}
-                  >
-                    Weekly outcome rate for activated customers and the reserved 10% holdout
-                  </p>
-                </div>
+                <p
+                  className="text-[13px] font-semibold"
+                  style={{ color: "var(--v2-ink)" }}
+                >
+                  Did the activated action improve the outcome?
+                </p>
                 <div
                   className="flex items-center gap-4 text-[10px]"
                   style={{ color: "var(--v2-ink-faint)" }}
@@ -527,7 +498,7 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
                       className="h-0.5 w-4"
                       style={{ backgroundColor: HOLDOUT_STROKE }}
                     />
-                    Holdout
+                    10% holdout
                   </span>
                 </div>
               </div>
@@ -542,8 +513,10 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
                 />
               </div>
 
+              {/* Only facts the chart doesn't already draw — the gap value lives
+                  in the chart and the count-up, never a third time here. */}
               <div
-                className="grid gap-3 border-t pt-4 text-[10px] font-semibold sm:grid-cols-3"
+                className="flex flex-wrap items-center justify-between gap-3 border-t pt-4 text-[10px] font-semibold"
                 style={{ borderColor: "var(--v2-rule)" }}
               >
                 <span
@@ -553,16 +526,7 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
                   <CheckCircle2 className="h-3.5 w-3.5" />
                   Holdout preserved
                 </span>
-                <span
-                  className="sm:text-center"
-                  style={{ color: "var(--v2-ink-soft)" }}
-                >
-                  Week 6 gap: {lift.value}
-                </span>
-                <span
-                  className="sm:text-right"
-                  style={{ color: "var(--v2-ink-faint)" }}
-                >
+                <span style={{ color: "var(--v2-ink-faint)" }}>
                   Decision receipt attached
                 </span>
               </div>
