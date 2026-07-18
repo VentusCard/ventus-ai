@@ -6,7 +6,14 @@ import PipelineConsole from "@/components/home/PipelineConsole";
 import IntegrationProof from "@/components/home/IntegrationProof";
 import CapabilityProofStrip from "@/components/home/CapabilityProofStrip";
 import { GROWTH_PLAY_SCENARIOS, type GrowthPlayId } from "@/components/home/growthPlayScenarios";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  CreditCard,
+  Landmark,
+  ShieldCheck,
+  TrendingUp,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
@@ -18,15 +25,33 @@ import ImpactDeliveryConsole from "@/components/home/ImpactDeliveryConsole";
 // truth, Ventus blue for action, and green for verified outcomes. Benchmarked against Modern
 // Treasury / Taktile / Mercury; see src/styles/v2-theme.css. Compare with "/".
 
-// The section is the land-and-expand map: rows are service lines (how banks
-// budget and buy), two carry live example plays, the rest are honestly staged.
-// After a pilot, the Status column starts filling with verified lift — the
-// same artifact ages from roadmap into track record.
-const serviceLines: Array<{ line: string; metric: string; play: string | null; playId?: GrowthPlayId }> = [
-  { line: "Consumer Banking", metric: "Primary deposits retained", play: "Deposit Primacy Defense", playId: "deposit" },
-  { line: "Wealth Management", metric: "Advised net new assets", play: "Relationship Growth", playId: "wealth" },
-  { line: "Small Business", metric: "Operating relationships deepened", play: null },
-  { line: "Cards & Payments", metric: "Engaged spend", play: null },
+// Banks fund growth by service line. This map lets each buyer find the outcome
+// they own while making the shared Ventus operating layer visible.
+const serviceLines = [
+  {
+    line: "Consumer Banking",
+    outcome: "Retain primary deposits",
+    play: "Deposit Primacy Defense",
+    Icon: Landmark,
+  },
+  {
+    line: "Wealth Management",
+    outcome: "Grow advised net new assets",
+    play: "Qualified Wealth Growth",
+    Icon: TrendingUp,
+  },
+  {
+    line: "Small Business",
+    outcome: "Deepen operating relationships",
+    play: "Cash-Flow Growth",
+    Icon: BriefcaseBusiness,
+  },
+  {
+    line: "Cards & Payments",
+    outcome: "Grow active card spend",
+    play: "Spend & Rewards Growth",
+    Icon: CreditCard,
+  },
 ];
 
 function V2Nav() {
@@ -142,102 +167,135 @@ const IndexV2 = () => {
         <ScrollDrivenHeroV2 />
         <CapabilityProofStrip />
 
-        {/* Service-line ledger: buyers are line executives — each finds their own
-            P&L in a row, while the drawn handoff between lines carries the
-            One-Bank vision no single team can own. Ages into a proof table. */}
+        {/* Service-line map: each buyer sees the P&L outcome they own, while the
+            shared operating layer establishes the bank-wide expansion path. */}
         <section id="growth-plays" className="v2-ruled v2-rule-t scroll-mt-16" style={{ paddingTop: 112, paddingBottom: 112 }}>
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <ScrollReveal>
-              <h2 className="v2-display max-w-4xl text-3xl md:text-[56px]">
-                One decision loop.{" "}
-                <span style={{ color: "var(--v2-ink-faint)" }}>Every line of business.</span>
-              </h2>
-              <p className="v2-body mt-5 max-w-2xl text-base md:text-lg">
-                Land it in one P&amp;L. Extend it across the bank — including the
-                handoffs no single team owns.
-              </p>
+              <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
+                <div className="max-w-4xl">
+                  <p
+                    className="v2-mono mb-4 text-[10px] font-semibold uppercase tracking-[0.16em]"
+                    style={{ color: "var(--v2-blue)" }}
+                  >
+                    Bank-wide growth
+                  </p>
+                  <h2 className="v2-display text-3xl md:text-[56px]">
+                    One decision loop.{" "}
+                    <span style={{ color: "var(--v2-ink-faint)" }}>Across the bank.</span>
+                  </h2>
+                </div>
+                <p className="v2-body max-w-md text-sm md:text-base lg:pb-1">
+                  Start with one business outcome. Expand on the same governed infrastructure.
+                </p>
+              </div>
 
-              <div className="mt-10">
-                <div className="hidden gap-4 border-b pb-2.5 sm:grid sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(150px,auto)]" style={{ borderColor: "var(--v2-rule)" }}>
-                  {["Line of business", "The number they own", "Growth play", "Status"].map((col) => (
-                    <span key={col} className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--v2-ink-faint)" }}>{col}</span>
+              <div
+                className="mt-10 overflow-hidden rounded-lg border bg-white/75 shadow-[0_16px_45px_rgba(15,23,42,0.06)]"
+                style={{ borderColor: "var(--v2-rule)" }}
+              >
+                <div
+                  className="hidden grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1fr)] gap-6 border-b bg-[#F8FAFC] px-6 py-3 md:grid"
+                  style={{ borderColor: "var(--v2-rule)" }}
+                >
+                  {["Business line", "Outcome owned", "Example Growth Play"].map((column) => (
+                    <span
+                      key={column}
+                      className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em]"
+                      style={{ color: "var(--v2-ink-faint)" }}
+                    >
+                      {column}
+                    </span>
                   ))}
                 </div>
 
-                {serviceLines.map((row, index) => {
-                  const rowInner = (
-                    <>
-                      <span className="text-[16px] font-bold" style={{ color: "var(--v2-ink)" }}>{row.line}</span>
-                      <span className="v2-body text-sm">{row.metric}</span>
-                      <span className="v2-mono text-[11px] font-medium" style={{ color: row.playId ? "var(--v2-ink)" : "var(--v2-ink-faint)" }}>
-                        {row.play ?? "—"}
+                {serviceLines.map(({ line, outcome, play, Icon }, index) => (
+                  <div
+                    key={line}
+                    className="grid gap-4 border-b px-5 py-5 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-6 md:px-6 md:py-6"
+                    style={{ borderColor: "var(--v2-rule)" }}
+                  >
+                    <div className="flex min-w-0 items-center gap-3.5">
+                      <span
+                        className="flex h-10 w-10 flex-none items-center justify-center rounded-md border"
+                        style={{
+                          borderColor: index < 2 ? "rgba(72, 98, 230, 0.22)" : "var(--v2-rule)",
+                          backgroundColor: index < 2 ? "var(--v2-blue-wash)" : "#F8FAFC",
+                          color: index < 2 ? "var(--v2-blue)" : "var(--v2-ink-faint)",
+                        }}
+                      >
+                        <Icon className="h-4 w-4" />
                       </span>
-                      {row.playId ? (
-                        <span className="text-[13px] font-semibold sm:text-right" style={{ color: "var(--v2-blue)" }}>
-                          See the play ↓
-                        </span>
-                      ) : (
-                        <span className="v2-mono text-[10px] font-semibold uppercase tracking-[0.1em] sm:text-right" style={{ color: "var(--v2-ink-faint)" }}>
-                          In design · founding partner
-                        </span>
-                      )}
-                    </>
-                  );
-                  const rowClass = "grid grid-cols-1 gap-1.5 border-b py-4 sm:grid-cols-[minmax(0,1.1fr)_minmax(0,1.1fr)_minmax(0,1fr)_minmax(150px,auto)] sm:items-baseline sm:gap-4";
-                  return (
-                    <div key={row.line}>
-                      {row.playId ? (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActivePlayId(row.playId!);
-                            document.getElementById("loop")?.scrollIntoView({ behavior: "smooth", block: "start" });
-                          }}
-                          className={`${rowClass} w-full text-left transition-colors hover:bg-white`}
-                          style={{ borderColor: "var(--v2-rule)" }}
+                      <div className="min-w-0">
+                        <p
+                          className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
+                          style={{ color: "var(--v2-ink-faint)" }}
                         >
-                          {rowInner}
-                        </button>
-                      ) : (
-                        <div className={rowClass} style={{ borderColor: "var(--v2-rule)" }}>
-                          {rowInner}
-                        </div>
-                      )}
-
-                      {/* The seam is the vision: a drawn edge from Consumer Banking
-                          into Wealth Management — the cross-line handoff. */}
-                      {index === 0 && (
-                        <div className="relative flex items-start gap-3 border-b py-4 pl-8 sm:pl-14" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-blue-wash)" }}>
-                          <svg width="14" height="46" viewBox="0 0 14 46" className="absolute left-3 top-0 sm:left-7" aria-hidden="true">
-                            <path d="M7 0 V34" stroke="var(--v2-blue)" strokeWidth="1.5" strokeDasharray="3 3" fill="none" />
-                            <path d="M3 30 L7 37 L11 30" fill="none" stroke="var(--v2-blue)" strokeWidth="1.5" />
-                          </svg>
-                          <div className="min-w-0">
-                            <span className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em]" style={{ color: "var(--v2-blue)" }}>
-                              The handoff
-                            </span>
-                            <p className="v2-body mt-1 text-sm">
-                              A consumer signal becomes an advisor action — the play no
-                              single line can run alone.
-                            </p>
-                          </div>
-                        </div>
-                      )}
+                          Business line
+                        </p>
+                        <p
+                          className="mt-0.5 text-[15px] font-bold md:mt-0 md:text-[16px]"
+                          style={{ color: "var(--v2-ink)" }}
+                        >
+                          {line}
+                        </p>
+                      </div>
                     </div>
-                  );
-                })}
+
+                    <div className="min-w-0 pl-[54px] md:pl-0">
+                      <p
+                        className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
+                        style={{ color: "var(--v2-ink-faint)" }}
+                      >
+                        Outcome owned
+                      </p>
+                      <p className="v2-body mt-1 text-sm md:mt-0">{outcome}</p>
+                    </div>
+
+                    <div className="min-w-0 pl-[54px] md:pl-0">
+                      <p
+                        className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
+                        style={{ color: "var(--v2-ink-faint)" }}
+                      >
+                        Example Growth Play
+                      </p>
+                      <p
+                        className="mt-1 text-[12px] font-semibold md:mt-0 md:text-[13px]"
+                        style={{ color: index < 2 ? "var(--v2-blue)" : "var(--v2-ink-soft)" }}
+                      >
+                        {play}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+
+                <div className="flex items-start gap-3 bg-[#F8FAFC] px-5 py-4 md:items-center md:px-6">
+                  <span
+                    className="flex h-8 w-8 flex-none items-center justify-center rounded-md border bg-white"
+                    style={{ borderColor: "var(--v2-rule)", color: "var(--v2-verified)" }}
+                  >
+                    <ShieldCheck className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <p
+                      className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em]"
+                      style={{ color: "var(--v2-ink-faint)" }}
+                    >
+                      Bank-wide control
+                    </p>
+                    <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
+                      Financial stress pauses outreach before any play is activated.
+                    </p>
+                  </div>
+                </div>
               </div>
 
-              {/* Financial health is a guardrail, not a campaign — the sentence a
-                  bank risk officer remembers. */}
-              <div className="mt-7 flex items-start gap-2.5">
-                <ShieldCheck className="mt-0.5 h-4 w-4 flex-none" style={{ color: "var(--v2-verified)" }} />
-                <p className="v2-body max-w-2xl text-sm">
-                  Financial health is a control, not a campaign: stress and vulnerability
-                  signals <span className="font-semibold" style={{ color: "var(--v2-ink)" }}>suppress</span> plays
-                  — they never trigger offers.
-                </p>
-              </div>
+              <p
+                className="v2-mono mt-4 text-[10px]"
+                style={{ color: "var(--v2-ink-faint)" }}
+              >
+                Growth Plays adapt to each bank&apos;s products, policies, and channels.
+              </p>
             </ScrollReveal>
           </div>
         </section>
