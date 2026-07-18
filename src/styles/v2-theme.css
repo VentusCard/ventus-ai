@@ -22,8 +22,12 @@
   --v2-ink-faint: #818899;
   --v2-rule: #e6e3da;
   --v2-grid: rgba(16, 19, 26, 0.05);
-  --v2-blue: #2563eb;
-  --v2-blue-wash: #e6effd;
+  /* One blue, sampled from the Ventus wordmark. Every blue on the page is
+     this hue or a tint of it — no Tailwind blues, no chart blues. */
+  --v2-blue: #2060e8;
+  --v2-blue-deep: #1747b8; /* hover / pressed */
+  --v2-blue-soft: #7fa4f2; /* accents on dark console surfaces */
+  --v2-blue-wash: #e8eefc; /* icon and chip washes on paper */
   --v2-verified: #15803d;
   --v2-verified-wash: #eaf6ed;
   --v2-amber: #9a6400; /* honesty amber — illustrative/simulated */
@@ -47,13 +51,15 @@
   background-size: 56px 56px;
 }
 
-/* Display type: tight neutral grotesk, ink only — never gradient text. */
+/* Display type: heavy, optically tightened, ink only — never gradient text.
+   The authority is in the weight/size contrast, not in decoration. */
 .v2-display {
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
-  font-weight: 600;
-  letter-spacing: 0;
-  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  line-height: 1.03;
   color: var(--v2-ink);
+  text-wrap: balance;
 }
 
 .v2 .v2-body {
@@ -123,7 +129,7 @@
   transition: background-color 180ms ease;
 }
 .v2-btn:hover {
-  background: #1d4ed8; /* blue-700 */
+  background: var(--v2-blue-deep);
 }
 
 .v2-btn-ghost {

@@ -14,8 +14,8 @@ const CapabilityProofStrip = () => {
         <div className="flex flex-col md:flex-row">
           <div className="flex items-center gap-2 border-b py-5 md:w-[210px] md:border-b-0 md:border-r md:pr-6" style={{ borderColor: "var(--v2-rule)" }}>
             <CheckCircle2 className="h-4 w-4 flex-none" style={{ color: "var(--v2-verified)" }} />
-            <span className="v2-mono text-[9px] font-semibold uppercase" style={{ color: "var(--v2-ink-faint)" }}>
-              Demonstrated in pilot environment
+            <span className="v2-mono text-[11px] font-semibold uppercase" style={{ color: "var(--v2-ink-faint)" }}>
+              Working today in sandbox
             </span>
           </div>
           <div className="grid flex-1 grid-cols-2 md:grid-cols-4">
@@ -34,7 +34,7 @@ const CapabilityProofStrip = () => {
                   <Icon className="mt-0.5 h-3.5 w-3.5 flex-none" style={{ color: "var(--v2-blue)" }} />
                   <span className="text-[10px] font-semibold leading-tight md:text-[11px]" style={{ color: "var(--v2-ink)" }}>{label}</span>
                 </div>
-                <p className="v2-mono mt-1 text-[8px]" style={{ color: "var(--v2-ink-faint)" }}>{detail}</p>
+                <p className="v2-mono mt-1 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{detail}</p>
               </div>
             ))}
           </div>

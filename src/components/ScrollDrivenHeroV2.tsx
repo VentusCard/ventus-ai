@@ -51,23 +51,38 @@ const keyEvents = [
   },
 ];
 
+const STAGE_HOLD_MS = 3800;
+
 const ScrollDrivenHeroV2 = () => {
   const [stage, setStage] = useState(0);
+  const [settled, setSettled] = useState(false);
+  const [runId, setRunId] = useState(0);
 
+  // Play the sequence once, then rest on the result. Content that keeps
+  // changing under a reader's eyes is a carousel; a run that completes is a
+  // demonstration. Replay is explicit.
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     if (reducedMotion.matches) {
       setStage(2);
+      setSettled(true);
       return;
     }
 
-    const interval = window.setInterval(() => {
-      setStage((current) => (current + 1) % stages.length);
-    }, 2400);
+    setStage(0);
+    setSettled(false);
+    const t1 = window.setTimeout(() => setStage(1), STAGE_HOLD_MS);
+    const t2 = window.setTimeout(() => {
+      setStage(2);
+      setSettled(true);
+    }, STAGE_HOLD_MS * 2);
 
-    return () => window.clearInterval(interval);
-  }, []);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [runId]);
 
   return (
     <section
@@ -77,15 +92,15 @@ const ScrollDrivenHeroV2 = () => {
     >
       <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-16 md:px-8 md:py-20 xl:grid-cols-[0.82fr_1.18fr] xl:items-center xl:gap-16">
         <div className="max-w-2xl">
-          <h1 className="v2-display text-[44px] leading-[1.02] sm:text-5xl md:text-6xl xl:text-[68px]">
+          <h1 className="v2-display text-[42px] sm:text-5xl md:text-6xl xl:text-[84px]">
             Turn transactions into{" "}
             <span style={{ color: "var(--v2-blue)" }}>measured growth</span>
           </h1>
-          <p className="v2-body mt-6 max-w-xl text-base leading-7 md:text-lg">
-            Ventus finds the moment, applies bank policy, and puts the next action
-            inside the workflow your team already uses.
+          <p className="v2-body mt-7 max-w-xl text-base leading-7 md:text-lg">
+            Ventus finds the moment, applies your policy, and places the next
+            action where your bankers already work.
           </p>
-          <div className="mt-8">
+          <div className="mt-9">
             <Link to="/contact" className="v2-btn">
               Schedule a demo <ArrowRight className="h-4 w-4" />
             </Link>
@@ -107,7 +122,7 @@ const ScrollDrivenHeroV2 = () => {
                 Enrichment engine
               </span>
             </div>
-            <span className="v2-mono text-[8px]" style={{ color: "var(--v2-ink-faint)" }}>
+            <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
               EXAMPLE STREAM / 42 RECORDS
             </span>
           </div>
@@ -157,10 +172,10 @@ const ScrollDrivenHeroV2 = () => {
               {stage === 0 && (
                 <>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="v2-mono text-[8px]" style={{ color: "var(--v2-ink-faint)" }}>
+                    <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
                       BANK-NATIVE INPUT
                     </span>
-                    <span className="text-[9px] font-semibold" style={{ color: "var(--v2-ink-faint)" }}>
+                    <span className="text-[10px] font-semibold" style={{ color: "var(--v2-ink-faint)" }}>
                       Unstructured
                     </span>
                   </div>
@@ -171,13 +186,13 @@ const ScrollDrivenHeroV2 = () => {
                         className="grid grid-cols-[42px_1fr_auto] items-center gap-3 border-b px-3 py-3 last:border-0"
                         style={{ borderColor: "var(--v2-rule-soft)" }}
                       >
-                        <span className="v2-mono text-[8px]" style={{ color: "var(--v2-ink-faint)" }}>
+                        <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
                           {record.rail}
                         </span>
                         <span className="min-w-0 truncate text-[10px] font-medium" style={{ color: "var(--v2-ink)" }}>
                           {record.description}
                         </span>
-                        <span className="v2-mono text-[9px]" style={{ color: "var(--v2-ink-soft)" }}>
+                        <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-soft)" }}>
                           {record.value}
                         </span>
                       </div>
@@ -189,10 +204,10 @@ const ScrollDrivenHeroV2 = () => {
               {stage === 1 && (
                 <>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="v2-mono text-[8px]" style={{ color: "var(--v2-ink-faint)" }}>
+                    <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
                       STRUCTURED ENRICHMENT
                     </span>
-                    <span className="flex items-center gap-1 text-[9px] font-semibold" style={{ color: "var(--v2-blue)" }}>
+                    <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: "var(--v2-blue)" }}>
                       <Sparkles className="h-3 w-3" /> Classified
                     </span>
                   </div>
@@ -207,7 +222,7 @@ const ScrollDrivenHeroV2 = () => {
                         >
                           <span
                             className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
-                            style={{ backgroundColor: "rgba(24, 85, 242, 0.08)", color: "var(--v2-blue)" }}
+                            style={{ backgroundColor: "var(--v2-blue-wash)", color: "var(--v2-blue)" }}
                           >
                             <Icon className="h-4 w-4" />
                           </span>
@@ -215,11 +230,11 @@ const ScrollDrivenHeroV2 = () => {
                             <p className="truncate text-[11px] font-semibold" style={{ color: "var(--v2-ink)" }}>
                               {record.label}
                             </p>
-                            <p className="mt-1 text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>
+                            <p className="mt-1 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
                               {record.rail}
                             </p>
                           </div>
-                          <span className="v2-mono shrink-0 text-[9px]" style={{ color: "var(--v2-ink-soft)" }}>
+                          <span className="v2-mono shrink-0 text-[10px]" style={{ color: "var(--v2-ink-soft)" }}>
                             {record.value}
                           </span>
                         </div>
@@ -232,10 +247,10 @@ const ScrollDrivenHeroV2 = () => {
               {stage === 2 && (
                 <>
                   <div className="flex items-center justify-between gap-3">
-                    <span className="v2-mono text-[8px]" style={{ color: "var(--v2-ink-faint)" }}>
+                    <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
                       BEHAVIORAL SIGNALS
                     </span>
-                    <span className="flex items-center gap-1 text-[9px] font-semibold" style={{ color: "var(--v2-verified)" }}>
+                    <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: "var(--v2-verified)" }}>
                       <CheckCircle2 className="h-3 w-3" /> 3 extracted
                     </span>
                   </div>
@@ -250,7 +265,7 @@ const ScrollDrivenHeroV2 = () => {
                         >
                           <span
                             className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded"
-                            style={{ backgroundColor: "rgba(24, 85, 242, 0.08)", color: "var(--v2-blue)" }}
+                            style={{ backgroundColor: "var(--v2-blue-wash)", color: "var(--v2-blue)" }}
                           >
                             <Icon className="h-4 w-4" />
                           </span>
@@ -258,7 +273,7 @@ const ScrollDrivenHeroV2 = () => {
                             <p className="text-[11px] font-semibold leading-4" style={{ color: "var(--v2-ink)" }}>
                               {event.label}
                             </p>
-                            <p className="mt-1 text-[9px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>
+                            <p className="mt-1 text-[10px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>
                               {event.detail}
                             </p>
                           </div>
@@ -266,11 +281,23 @@ const ScrollDrivenHeroV2 = () => {
                       );
                     })}
                   </div>
-                  <div className="mt-4 flex items-center gap-2">
-                    <Radar className="h-3.5 w-3.5" style={{ color: "var(--v2-blue)" }} />
-                    <span className="text-[9px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
-                      3 key events extracted from 42 records
+                  <div className="mt-4 flex items-center justify-between gap-2">
+                    <span className="flex items-center gap-2">
+                      <Radar className="h-3.5 w-3.5" style={{ color: "var(--v2-blue)" }} />
+                      <span className="text-[10px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
+                        3 key events extracted from 42 records
+                      </span>
                     </span>
+                    {settled && (
+                      <button
+                        type="button"
+                        onClick={() => setRunId((id) => id + 1)}
+                        className="v2-mono text-[10px] font-semibold transition-colors"
+                        style={{ color: "var(--v2-ink-faint)" }}
+                      >
+                        Replay ↻
+                      </button>
+                    )}
                   </div>
                 </>
               )}

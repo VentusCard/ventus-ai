@@ -36,7 +36,7 @@ export const GROWTH_PLAY_SCENARIOS: Record<GrowthPlayId, GrowthPlayScenario> = {
       { key: "gate", label: "Policy Gate", detail: "Eligibility + consent passed", ledger: "gate · uniform criteria applied" },
       { key: "play", label: "Growth Play", detail: "Retention review · routed", ledger: "decision · banker task qualified" },
       { key: "holdout", label: "Holdout", detail: "10% cohort reserved", ledger: "counterfactual · holdout reserved" },
-      { key: "lift", label: "Measured Lift", detail: "+8.4 pp retained", ledger: "outcome · retention measured vs holdout" },
+      { key: "lift", label: "Measured Lift", detail: "Measured vs holdout", ledger: "outcome · retention measured vs holdout" },
       { key: "ledger", label: "Decision Ledger", detail: "receipt written", ledger: "append-only · hash-chained" },
     ],
     funnel: [
@@ -65,7 +65,7 @@ export const GROWTH_PLAY_SCENARIOS: Record<GrowthPlayId, GrowthPlayScenario> = {
       { key: "gate", label: "Policy Gate", detail: "Eligibility + consent passed", ledger: "gate · wealth referral policy applied" },
       { key: "play", label: "Growth Play", detail: "Advisor review · routed", ledger: "decision · advisor task qualified" },
       { key: "holdout", label: "Holdout", detail: "10% cohort reserved", ledger: "counterfactual · holdout reserved" },
-      { key: "lift", label: "Measured Lift", detail: "+6.2 pp converted", ledger: "outcome · conversion measured vs holdout" },
+      { key: "lift", label: "Measured Lift", detail: "Measured vs holdout", ledger: "outcome · conversion measured vs holdout" },
       { key: "ledger", label: "Decision Ledger", detail: "receipt written", ledger: "append-only · hash-chained" },
     ],
     funnel: [

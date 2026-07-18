@@ -23,8 +23,10 @@ const IntegrationProof = () => {
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <ScrollReveal>
           <div className="mb-10 max-w-4xl">
-            <p className="v2-label mb-4">Ecosystem</p>
-            <h2 className="v2-display text-3xl md:text-5xl">Built for the systems banks already run.</h2>
+            <h2 className="v2-display text-3xl md:text-[56px]">Built for the systems banks already run.</h2>
+            <p className="v2-body mt-5 max-w-xl text-base md:text-lg">
+              Sanctioned data in. One task out. No core changes.
+            </p>
           </div>
         </ScrollReveal>
 
@@ -40,7 +42,7 @@ const IntegrationProof = () => {
                 <img
                   src={partner.logo}
                   alt={partner.name}
-                  className={`${partner.className} max-w-full object-contain`}
+                  className={`${partner.className} max-w-full object-contain grayscale opacity-60 transition duration-300 hover:opacity-100 hover:grayscale-0`}
                 />
               </div>
             ))}

@@ -40,11 +40,11 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
         <ScrollReveal>
           <div className="mb-10 flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
             <div className="max-w-3xl">
-              <p className="v2-mono mb-4 text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "#60A5FA" }}>
-                Two example plays
+              <p className="v2-mono mb-4 text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-blue-soft)" }}>
+                Growth Plays
               </p>
-              <h2 className="v2-display text-3xl text-white md:text-5xl">
-                One infrastructure. Different growth goals.
+              <h2 className="v2-display text-3xl text-white md:text-[56px]">
+                Watch a decision happen.
               </h2>
             </div>
             <div className="inline-flex w-fit rounded-md border p-1" role="group" aria-label="Growth Play objective" style={{ borderColor: "var(--v2-console-line)", backgroundColor: "rgba(255,255,255,0.03)" }}>
@@ -73,7 +73,7 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
         <ScrollReveal delay={0.08}>
           <div className="overflow-hidden rounded-lg border" style={{ borderColor: "var(--v2-console-line)", backgroundColor: "#0d1826" }}>
             <div className="flex flex-wrap items-center justify-between gap-3 border-b px-5 py-3" style={{ borderColor: "var(--v2-console-line)", backgroundColor: "rgba(255,255,255,0.02)" }}>
-              <span className="v2-mono text-[9px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-console-faint)" }}>
+              <span className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-console-faint)" }}>
                 Decision trace
               </span>
               <span className="text-[11px] font-semibold text-white">{scenario.label}</span>
@@ -82,7 +82,7 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
             <div className="px-5 py-7 md:px-8 md:py-9">
               <div key={scenario.id} className="relative grid grid-cols-1 gap-3 sm:grid-cols-5 sm:gap-4">
                 <div className="absolute left-[9%] right-[9%] top-[19px] hidden h-px bg-white/10 sm:block">
-                  <div className="h-full origin-left bg-blue-400" style={{ animation: "v2-trace 1.2s ease both" }} />
+                  <div className="h-full origin-left bg-[#7fa4f2]" style={{ animation: "v2-trace 1.2s ease both" }} />
                 </div>
 
                 {traceStages.map((stage, index) => {
@@ -93,11 +93,11 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
                       className="relative flex min-w-0 items-center gap-3 border-b border-white/10 py-3 last:border-b-0 sm:flex-col sm:items-start sm:border-b-0 sm:py-0"
                       style={{ animation: "ventus-append 0.35s ease both", animationDelay: `${index * 110}ms` }}
                     >
-                      <span className="relative z-10 flex h-10 w-10 flex-none items-center justify-center rounded-full border border-blue-300/30 bg-[#13233a] text-blue-300">
+                      <span className="relative z-10 flex h-10 w-10 flex-none items-center justify-center rounded-full border border-[rgba(127,164,242,0.35)] bg-[#13233a] text-[#7fa4f2]">
                         <Icon className="h-4 w-4" />
                       </span>
                       <div className="min-w-0 sm:mt-2">
-                        <p className="v2-mono text-[8px] font-semibold uppercase tracking-[0.1em]" style={{ color: "#93C5FD" }}>{stage.label}</p>
+                        <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.1em]" style={{ color: "var(--v2-blue-soft)" }}>{stage.label}</p>
                         <p className="mt-1 text-[11px] font-semibold leading-4 text-white">{stage.detail}</p>
                       </div>
                     </div>
@@ -123,15 +123,15 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
                     style={{ borderColor: "var(--v2-console-line)" }}
                   >
                     <Check className="h-3.5 w-3.5 flex-none text-emerald-400" />
-                    <span className="v2-mono text-[8px] uppercase" style={{ color: "var(--v2-console-soft)" }}>{item}</span>
+                    <span className="v2-mono text-[10px] uppercase" style={{ color: "var(--v2-console-soft)" }}>{item}</span>
                   </div>
                 ))}
               </div>
             </div>
           </div>
 
-          <p className="v2-mono mt-4 text-center text-[8px]" style={{ color: "var(--v2-console-faint)" }}>
-            Example values are illustrative. Pilot data replaces them.
+          <p className="v2-mono mt-4 text-center text-[10px]" style={{ color: "var(--v2-console-faint)" }}>
+            Illustrative numbers — your pilot replaces them.
           </p>
         </ScrollReveal>
       </div>
