@@ -15,11 +15,11 @@ type Stage = {
 };
 
 const STAGES: Stage[] = [
-  { key: "moment", label: "Qualified Moment", detail: "College-bound · 91%", ledger: "signal · payroll split detected" },
-  { key: "gate", label: "Policy Gate", detail: "UDAAP · uniform criteria", ledger: "gate · policy pack attached" },
-  { key: "play", label: "Growth Play", detail: "529 outreach · controlled", ledger: "decision · play qualified" },
+  { key: "moment", label: "Qualified Moment", detail: "Deposit primacy risk · 91%", ledger: "signal · payroll split + balance migration" },
+  { key: "gate", label: "Policy Gate", detail: "Eligibility + consent passed", ledger: "gate · uniform criteria applied" },
+  { key: "play", label: "Growth Play", detail: "Retention review · routed", ledger: "decision · banker task qualified" },
   { key: "holdout", label: "Holdout", detail: "10% cohort reserved", ledger: "counterfactual · holdout reserved" },
-  { key: "lift", label: "Measured Lift", detail: "+32% incremental", ledger: "outcome · lift measured vs holdout" },
+  { key: "lift", label: "Measured Lift", detail: "+8.4 pp retained", ledger: "outcome · retention measured vs holdout" },
   { key: "ledger", label: "Decision Ledger", detail: "receipt written", ledger: "append-only · hash-chained" },
 ];
 
@@ -61,7 +61,7 @@ const PipelineConsole = () => {
   }, [started, reduced]);
 
   return (
-    <section ref={sectionRef} className="v2-rule-t w-full relative z-10" style={{ paddingTop: 96, paddingBottom: 96, backgroundColor: "var(--v2-console)" }}>
+    <section id="loop" ref={sectionRef} className="v2-rule-t w-full relative z-10 scroll-mt-16" style={{ paddingTop: 96, paddingBottom: 96, backgroundColor: "var(--v2-console)" }}>
       <div className="max-w-6xl mx-auto px-6 md:px-8">
         <ScrollReveal>
           <div className="text-center max-w-2xl mx-auto mb-12">
@@ -128,7 +128,7 @@ const PipelineConsole = () => {
                   </span>
                   <span
                     className="flex items-center gap-1.5 font-mono text-[10px] transition-opacity duration-500"
-                    style={{ color: "#60A5FA", opacity: rows.length === STAGES.length ? 1 : 0 }}
+                    style={{ color: "#4ade80", opacity: rows.length === STAGES.length ? 1 : 0 }}
                   >
                     <Check className="w-3 h-3" /> chain verified
                   </span>

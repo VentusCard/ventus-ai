@@ -58,7 +58,7 @@ const AppLayout = () => {
     <Routes>
       <Route path="/" element={<IndexV2 />} />
       {/* Original home page, preserved for reference. */}
-      <Route path="/classic" element={<Index />} />
+      <Route path="/classic" element={<Index noindex />} />
       <Route path="/v2" element={<IndexV2 />} />
       <Route path="/platform" element={<Platform />} />
       <Route path="/smartrewards" element={<SmartRewards />} />

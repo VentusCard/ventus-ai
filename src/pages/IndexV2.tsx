@@ -3,14 +3,15 @@ import ScrollDrivenHeroV2 from "@/components/ScrollDrivenHeroV2";
 import ScrollReveal from "@/components/ScrollReveal";
 import PipelineConsole from "@/components/home/PipelineConsole";
 import DeviceDuo from "@/components/home/DeviceDuo";
-import { ArrowRight } from "lucide-react";
+import IntegrationProof from "@/components/home/IntegrationProof";
+import { ArrowRight, PlayCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
 
 // Home V2 — design-review candidate. Language: "ruled ledger paper" —
 // warm paper with faint ruling, ink-only display type, mono for machine
-// truth, one deep verify-green accent. Benchmarked against Modern
+// truth, Ventus blue for action, and green for verified outcomes. Benchmarked against Modern
 // Treasury / Taktile / Mercury; see src/styles/v2-theme.css. Compare with "/".
 
 const detectionSignals = [
@@ -30,8 +31,9 @@ function V2Nav() {
         </Link>
         <nav className="hidden items-center gap-7 md:flex">
           {[
-            ["Platform", "/platform"],
+            ["How it works", "#loop"],
             ["Solutions", "/wealth"],
+            ["Integration", "#integration"],
           ].map(([label, href]) =>
             href.startsWith("#") ? (
               <a key={label} href={href} className="v2-mono text-[12px] font-medium tracking-[0.08em] uppercase transition-colors hover:opacity-100" style={{ color: "var(--v2-ink-soft)" }}>
@@ -67,8 +69,8 @@ function V2Footer() {
           </div>
           <div className="flex gap-14">
             {[
-              ["Product", [["Platform", "/platform"], ["POC brief", "/ventus-poc-brief.html"]]],
-              ["Company", [["Contact", "/contact"], ["Original design", "/classic"]]],
+              ["Product", [["Platform", "/platform"], ["Enterprise demo", "/demo/enterprise"], ["POC brief", "/ventus-poc-brief.html"]]],
+              ["Company", [["Contact", "/contact"]]],
             ].map(([group, links]) => (
               <div key={group as string}>
                 <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-console-faint)" }}>{group as string}</p>
@@ -130,23 +132,29 @@ const IndexV2 = () => {
         {/* The loop — shown as a live console, not four text cards. */}
         <PipelineConsole />
 
-        {/* The play landing in the workflow — PC dashboard + phone. */}
+        {/* The play at aggregate and employee-workflow levels. */}
         <DeviceDuo />
 
-        {/* Close — loss-framed, single CTA. */}
+        <IntegrationProof />
+
+        {/* Close — positive differentiation with a direct product proof path. */}
         <section className="v2-ruled v2-rule-t" style={{ paddingTop: 104, paddingBottom: 104 }}>
           <div className="mx-auto max-w-7xl px-6 text-center md:px-8">
             <ScrollReveal>
               <h2 className="v2-display mx-auto max-w-3xl text-4xl md:text-6xl">
-                Your enrichment vendor stops at the label.
+                Enrichment explains the transaction.
+                <br />
+                Ventus proves the next best action.
               </h2>
               <p className="v2-body mx-auto mt-6 max-w-xl text-lg">
-                The dollars are in the loop you're not measuring. Bring your transactions —
-                we'll show you the number.
+                Connect one sanctioned data stream. Run one governed Growth Play. Measure the lift.
               </p>
               <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
                 <Link to="/contact" className="v2-btn">
                   Schedule a demo <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link to="/demo/enterprise" className="v2-btn-ghost">
+                  <PlayCircle className="h-4 w-4" /> See the operating loop
                 </Link>
               </div>
             </ScrollReveal>
