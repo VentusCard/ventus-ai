@@ -10,6 +10,7 @@ export type GrowthPlayStage = {
 export type GrowthPlayScenario = {
   id: GrowthPlayId;
   label: string;
+  line: string; // the service line that owns this play's P&L
   stages: GrowthPlayStage[];
   funnel: Array<{
     label: string;
@@ -31,6 +32,7 @@ export const GROWTH_PLAY_SCENARIOS: Record<GrowthPlayId, GrowthPlayScenario> = {
   deposit: {
     id: "deposit",
     label: "Deposit retention",
+    line: "Consumer Banking",
     stages: [
       { key: "moment", label: "Qualified Moment", detail: "Deposit primacy risk · 91%", ledger: "signal · payroll split + balance migration" },
       { key: "gate", label: "Policy Gate", detail: "Eligibility + consent passed", ledger: "gate · uniform criteria applied" },
@@ -60,6 +62,7 @@ export const GROWTH_PLAY_SCENARIOS: Record<GrowthPlayId, GrowthPlayScenario> = {
   wealth: {
     id: "wealth",
     label: "Qualified wealth growth",
+    line: "Wealth Management",
     stages: [
       { key: "moment", label: "Qualified Moment", detail: "Wealth readiness · 88%", ledger: "signal · income growth + cash buildup" },
       { key: "gate", label: "Policy Gate", detail: "Eligibility + consent passed", ledger: "gate · wealth referral policy applied" },

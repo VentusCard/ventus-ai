@@ -62,7 +62,7 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
                       backgroundColor: selected ? "var(--v2-blue)" : "transparent",
                     }}
                   >
-                    {GROWTH_PLAY_SCENARIOS[id].label}
+                    {GROWTH_PLAY_SCENARIOS[id].line}
                   </button>
                 );
               })}
