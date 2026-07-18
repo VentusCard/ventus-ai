@@ -452,14 +452,13 @@ const ImpactDeliveryConsole = ({ scenario }: { scenario: GrowthPlayScenario }) =
                   >
                     {treatment} treatment - {holdout} holdout
                   </p>
-                  <div className="mt-5 flex flex-wrap items-center gap-2">
+                  <div className="mt-5">
                     <p
                       className="v2-display whitespace-nowrap text-3xl"
                       style={{ color: "var(--v2-verified)" }}
                     >
                       <CountUpStat value={lift.value} active={inView} />
                     </p>
-                    <span className="v2-chip-amber">Illustrative</span>
                   </div>
                   <p
                     className="mt-1 text-[10px] font-semibold"

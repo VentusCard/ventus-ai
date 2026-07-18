@@ -29,29 +29,91 @@ import ImpactDeliveryConsole from "@/components/home/ImpactDeliveryConsole";
 const serviceLines = [
   {
     line: "Consumer Banking",
-    outcome: "Retain primary deposits",
-    play: "Deposit Primacy Defense",
     Icon: Landmark,
+    priorities: [
+      {
+        outcome: "Retain primary deposits",
+        play: "Deposit Primacy Defense",
+        measure: "Deposits retained",
+      },
+      {
+        outcome: "Grow household balances",
+        play: "Liquidity Capture",
+        measure: "Incremental balances",
+      },
+      {
+        outcome: "Deepen primary relationships",
+        play: "Relationship Expansion",
+        measure: "Products per household",
+      },
+    ],
   },
   {
     line: "Wealth Management",
-    outcome: "Grow advised net new assets",
-    play: "Qualified Wealth Growth",
     Icon: TrendingUp,
+    priorities: [
+      {
+        outcome: "Grow advised assets",
+        play: "Qualified Wealth Growth",
+        measure: "Net new assets",
+      },
+      {
+        outcome: "Prevent asset outflow",
+        play: "Asset-Movement Defense",
+        measure: "Assets retained",
+      },
+      {
+        outcome: "Increase advisor capacity",
+        play: "Next-Best Conversation",
+        measure: "Qualified conversions",
+      },
+    ],
   },
   {
     line: "Small Business",
-    outcome: "Deepen operating relationships",
-    play: "Cash-Flow Growth",
     Icon: BriefcaseBusiness,
+    priorities: [
+      {
+        outcome: "Grow operating deposits",
+        play: "Cash-Flow Growth",
+        measure: "Operating balances",
+      },
+      {
+        outcome: "Expand payments relationships",
+        play: "Merchant Services Attach",
+        measure: "Fee revenue",
+      },
+      {
+        outcome: "Surface financing needs",
+        play: "Working-Capital Moments",
+        measure: "Qualified originations",
+      },
+    ],
   },
   {
     line: "Cards & Payments",
-    outcome: "Grow active card spend",
-    play: "Spend & Rewards Growth",
     Icon: CreditCard,
+    priorities: [
+      {
+        outcome: "Increase active spend",
+        play: "Spend Re-engagement",
+        measure: "Incremental spend",
+      },
+      {
+        outcome: "Improve offer economics",
+        play: "Offer Optimization",
+        measure: "Incremental margin",
+      },
+      {
+        outcome: "Reduce card attrition",
+        play: "Card Relationship Defense",
+        measure: "Active accounts retained",
+      },
+    ],
   },
 ];
+
+const BUSINESS_LINE_CYCLE_MS = 7000;
 
 function V2Nav() {
   // Apple pattern: the sticky nav's CTA appears only once the hero's own CTA
@@ -151,7 +213,21 @@ function V2Footer() {
 
 const IndexV2 = () => {
   const [activePlayId, setActivePlayId] = useState<GrowthPlayId>("deposit");
+  const [activeServiceLineIndex, setActiveServiceLineIndex] = useState(0);
+  const [portfolioPaused, setPortfolioPaused] = useState(false);
   const activePlay = GROWTH_PLAY_SCENARIOS[activePlayId];
+  const activeServiceLine = serviceLines[activeServiceLineIndex];
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    if (portfolioPaused || reducedMotion.matches) return;
+
+    const interval = window.setInterval(() => {
+      setActiveServiceLineIndex((current) => (current + 1) % serviceLines.length);
+    }, BUSINESS_LINE_CYCLE_MS);
+
+    return () => window.clearInterval(interval);
+  }, [portfolioPaused]);
 
   return (
     <div className="v2">
@@ -190,17 +266,63 @@ const IndexV2 = () => {
               </div>
 
               <div
-                className="mt-10 overflow-hidden rounded-lg border bg-white/75 shadow-[0_16px_45px_rgba(15,23,42,0.06)]"
-                style={{ borderColor: "var(--v2-rule)" }}
+                className="mt-12 overflow-hidden rounded border bg-white/80"
+                style={{
+                  borderColor: "var(--v2-rule)",
+                  boxShadow: "0 12px 36px rgba(15, 23, 42, 0.045)",
+                }}
+                onMouseEnter={() => setPortfolioPaused(true)}
+                onMouseLeave={() => setPortfolioPaused(false)}
+                onFocusCapture={() => setPortfolioPaused(true)}
+                onBlurCapture={() => setPortfolioPaused(false)}
               >
                 <div
-                  className="hidden grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1fr)] gap-6 border-b bg-[#F8FAFC] px-6 py-3 md:grid"
+                  className="grid grid-cols-2 border-b bg-[#F5F7FA] md:grid-cols-4"
                   style={{ borderColor: "var(--v2-rule)" }}
+                  role="group"
+                  aria-label="Bank business lines"
                 >
-                  {["Business line", "Outcome owned", "Example Growth Play"].map((column) => (
+                  {serviceLines.map(({ line, Icon }, index) => {
+                    const active = index === activeServiceLineIndex;
+
+                    return (
+                      <button
+                        key={line}
+                        type="button"
+                        aria-pressed={active}
+                        onClick={() => setActiveServiceLineIndex(index)}
+                        className={[
+                          "flex min-h-14 items-center gap-2.5 px-4 text-left transition-colors md:border-b-0",
+                          index < 2 ? "border-b" : "",
+                          index % 2 === 0 ? "border-r" : "",
+                          index < serviceLines.length - 1 ? "md:border-r" : "md:border-r-0",
+                        ].join(" ")}
+                        style={{
+                          borderColor: "var(--v2-rule)",
+                          backgroundColor: active ? "white" : "transparent",
+                          boxShadow: active ? "inset 0 -2px 0 var(--v2-blue)" : "none",
+                          color: active ? "var(--v2-ink)" : "var(--v2-ink-soft)",
+                        }}
+                      >
+                        <Icon
+                          className="h-4 w-4 shrink-0"
+                          style={{ color: active ? "var(--v2-blue)" : "var(--v2-ink-faint)" }}
+                        />
+                        <span className="text-[12px] font-semibold sm:text-[13px]">{line}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div
+                  className="hidden grid-cols-[44px_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.8fr)] items-center gap-6 border-b px-6 py-3 md:grid"
+                  style={{ borderColor: "var(--v2-rule)", backgroundColor: "#FCFCFB" }}
+                >
+                  <span aria-hidden="true" />
+                  {["P&L priority", "Growth Play", "Success measure"].map((column) => (
                     <span
                       key={column}
-                      className="v2-mono text-[10px] font-semibold uppercase tracking-[0.14em]"
+                      className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em]"
                       style={{ color: "var(--v2-ink-faint)" }}
                     >
                       {column}
@@ -208,68 +330,64 @@ const IndexV2 = () => {
                   ))}
                 </div>
 
-                {serviceLines.map(({ line, outcome, play, Icon }, index) => (
-                  <div
-                    key={line}
-                    className={[
-                      "grid gap-4 px-5 py-5 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-6 md:px-6 md:py-6",
-                      index < serviceLines.length - 1 ? "border-b" : "",
-                    ].join(" ")}
-                    style={{ borderColor: "var(--v2-rule)" }}
-                  >
-                    <div className="flex min-w-0 items-center gap-3.5">
+                <div key={activeServiceLine.line} className="animate-in fade-in duration-300">
+                  {activeServiceLine.priorities.map(({ outcome, play, measure }, index) => (
+                    <div
+                      key={play}
+                      className={[
+                        "grid grid-cols-[32px_minmax(0,1fr)] gap-x-3 gap-y-3 px-4 py-5 sm:grid-cols-[38px_minmax(0,1fr)] sm:px-5 md:grid-cols-[44px_minmax(0,1.1fr)_minmax(0,1fr)_minmax(0,0.8fr)] md:items-center md:gap-6 md:px-6 md:py-5",
+                        index < activeServiceLine.priorities.length - 1 ? "border-b" : "",
+                      ].join(" ")}
+                      style={{ borderColor: "var(--v2-rule)" }}
+                    >
                       <span
-                        className="flex h-10 w-10 flex-none items-center justify-center rounded-md border"
-                        style={{
-                          borderColor: index < 2 ? "rgba(72, 98, 230, 0.22)" : "var(--v2-rule)",
-                          backgroundColor: index < 2 ? "var(--v2-blue-wash)" : "#F8FAFC",
-                          color: index < 2 ? "var(--v2-blue)" : "var(--v2-ink-faint)",
-                        }}
+                        className="v2-mono pt-0.5 text-[10px] font-semibold md:pt-0"
+                        style={{ color: "var(--v2-ink-faint)" }}
                       >
-                        <Icon className="h-4 w-4" />
+                        {String(index + 1).padStart(2, "0")}
                       </span>
+
                       <div className="min-w-0">
                         <p
                           className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
                           style={{ color: "var(--v2-ink-faint)" }}
                         >
-                          Business line
+                          P&amp;L priority
                         </p>
                         <p
-                          className="mt-0.5 text-[15px] font-bold md:mt-0 md:text-[16px]"
+                          className="mt-1 text-[14px] font-semibold leading-5 md:mt-0"
                           style={{ color: "var(--v2-ink)" }}
                         >
-                          {line}
+                          {outcome}
+                        </p>
+                      </div>
+
+                      <div className="col-start-2 min-w-0 md:col-start-auto">
+                        <p
+                          className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
+                          style={{ color: "var(--v2-ink-faint)" }}
+                        >
+                          Growth Play
+                        </p>
+                        <p className="mt-1 text-[13px] font-semibold md:mt-0" style={{ color: "var(--v2-blue)" }}>
+                          {play}
+                        </p>
+                      </div>
+
+                      <div className="col-start-2 min-w-0 md:col-start-auto">
+                        <p
+                          className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
+                          style={{ color: "var(--v2-ink-faint)" }}
+                        >
+                          Success measure
+                        </p>
+                        <p className="mt-1 text-[12px] font-medium leading-5 md:mt-0" style={{ color: "var(--v2-ink-soft)" }}>
+                          {measure}
                         </p>
                       </div>
                     </div>
-
-                    <div className="min-w-0 pl-[54px] md:pl-0">
-                      <p
-                        className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
-                        style={{ color: "var(--v2-ink-faint)" }}
-                      >
-                        Outcome owned
-                      </p>
-                      <p className="v2-body mt-1 text-sm md:mt-0">{outcome}</p>
-                    </div>
-
-                    <div className="min-w-0 pl-[54px] md:pl-0">
-                      <p
-                        className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em] md:hidden"
-                        style={{ color: "var(--v2-ink-faint)" }}
-                      >
-                        Example Growth Play
-                      </p>
-                      <p
-                        className="mt-1 text-[12px] font-semibold md:mt-0 md:text-[13px]"
-                        style={{ color: index < 2 ? "var(--v2-blue)" : "var(--v2-ink-soft)" }}
-                      >
-                        {play}
-                      </p>
-                    </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
             </ScrollReveal>
           </div>
