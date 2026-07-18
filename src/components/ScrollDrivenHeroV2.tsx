@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, PlayCircle } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
 
 const rawTransactions = [
@@ -312,10 +312,6 @@ const ScrollDrivenHeroV2 = () => {
               <button className="v2-btn" onClick={() => navigate("/contact")}>
                 Schedule a demo
                 <ArrowRight className="w-4 h-4" />
-              </button>
-              <button className="v2-btn-ghost" onClick={() => navigate("/demo/enterprise")}>
-                <PlayCircle className="h-4 w-4" />
-                See the operating loop
               </button>
             </div>
 

@@ -7,7 +7,15 @@ import DeviceDuo from "@/components/home/DeviceDuo";
 import IntegrationProof from "@/components/home/IntegrationProof";
 import CapabilityProofStrip from "@/components/home/CapabilityProofStrip";
 import { GROWTH_PLAY_SCENARIOS, type GrowthPlayId } from "@/components/home/growthPlayScenarios";
-import { ArrowRight, PlayCircle } from "lucide-react";
+import {
+  ArrowRight,
+  BriefcaseBusiness,
+  CreditCard,
+  HeartPulse,
+  House,
+  Landmark,
+  TrendingUp,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
@@ -17,12 +25,13 @@ import "@/styles/v2-theme.css";
 // truth, Ventus blue for action, and green for verified outcomes. Benchmarked against Modern
 // Treasury / Taktile / Mercury; see src/styles/v2-theme.css. Compare with "/".
 
-const detectionSignals = [
-  "LIFE_EVENT",
-  "PURCHASE_INTENT",
-  "TRAVEL_WINDOW",
-  "SEASONAL_RHYTHM",
-  "FINANCIAL_STRESS",
+const growthPriorities = [
+  { label: "Deposit growth", Icon: Landmark },
+  { label: "Financial health", Icon: HeartPulse },
+  { label: "Card & rewards", Icon: CreditCard },
+  { label: "Life events", Icon: House },
+  { label: "Small business", Icon: BriefcaseBusiness },
+  { label: "Wealth growth", Icon: TrendingUp },
 ];
 
 function V2Nav() {
@@ -72,7 +81,7 @@ function V2Footer() {
           </div>
           <div className="flex gap-14">
             {[
-              ["Product", [["Platform", "/platform"], ["Enterprise demo", "/demo/enterprise"], ["POC brief", "/ventus-poc-brief.html"]]],
+              ["Product", [["Platform", "/platform"], ["Solutions", "/wealth"], ["Insights", "/insights"]]],
               ["Company", [["Contact", "/contact"]]],
             ].map(([group, links]) => (
               <div key={group as string}>
@@ -119,17 +128,24 @@ const IndexV2 = () => {
         <ScrollDrivenHeroV2 />
         <CapabilityProofStrip />
 
-        {/* The gap — one editorial statement, then the page gets out of the way. */}
+        {/* The same decision infrastructure can serve multiple bank growth priorities. */}
         <section className="v2-ruled v2-rule-t" style={{ paddingTop: 88, paddingBottom: 88 }}>
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <ScrollReveal>
               <h2 className="v2-display max-w-4xl text-3xl md:text-5xl">
-                Transactions show what happened.{" "}
-                <span style={{ color: "var(--v2-ink-faint)" }}>Ventus determines when action is worth taking.</span>
+                One decision loop.{" "}
+                <span style={{ color: "var(--v2-ink-faint)" }}>Many growth priorities.</span>
               </h2>
-              <div className="mt-10 flex flex-wrap gap-2.5">
-                {detectionSignals.map((chip) => (
-                  <span key={chip} className="v2-chip">{chip}</span>
+              <div className="mt-10 grid grid-cols-2 gap-px border-y sm:grid-cols-3 lg:grid-cols-6" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>
+                {growthPriorities.map(({ label, Icon }) => (
+                  <div
+                    key={label}
+                    className="flex min-h-24 flex-col justify-between gap-4 px-4 py-5"
+                    style={{ backgroundColor: "var(--v2-paper)" }}
+                  >
+                    <Icon className="h-5 w-5" style={{ color: "var(--v2-blue)" }} />
+                    <span className="text-[12px] font-semibold" style={{ color: "var(--v2-ink)" }}>{label}</span>
+                  </div>
                 ))}
               </div>
             </ScrollReveal>
@@ -148,24 +164,14 @@ const IndexV2 = () => {
 
         <IntegrationProof />
 
-        {/* Close — positive differentiation with a direct product proof path. */}
+        {/* One public conversion path. */}
         <section className="v2-ruled v2-rule-t" style={{ paddingTop: 104, paddingBottom: 104 }}>
           <div className="mx-auto max-w-7xl px-6 text-center md:px-8">
             <ScrollReveal>
-              <h2 className="v2-display mx-auto max-w-3xl text-4xl md:text-6xl">
-                Enrichment explains the transaction.
-                <br />
-                Ventus proves the next best action.
-              </h2>
-              <p className="v2-body mx-auto mt-6 max-w-xl text-lg">
-                Connect one sanctioned data stream. Run one governed Growth Play. Measure the lift.
-              </p>
-              <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
+              <h2 className="v2-display mx-auto max-w-3xl text-4xl md:text-6xl">Make every decision measurable.</h2>
+              <div className="mt-9 flex justify-center">
                 <Link to="/contact" className="v2-btn">
                   Schedule a demo <ArrowRight className="h-4 w-4" />
-                </Link>
-                <Link to="/demo/enterprise" className="v2-btn-ghost">
-                  <PlayCircle className="h-4 w-4" /> See the operating loop
                 </Link>
               </div>
             </ScrollReveal>

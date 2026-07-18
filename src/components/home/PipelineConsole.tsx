@@ -64,10 +64,10 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
         <ScrollReveal>
           <div className="text-center max-w-2xl mx-auto mb-12">
             <p className="v2-mono text-[11px] font-semibold tracking-[0.16em] uppercase mb-4" style={{ color: "#60A5FA" }}>
-              The loop
+              Two example plays
             </p>
             <h2 className="v2-display text-3xl md:text-5xl text-white">
-              A loop that proves growth.
+              One infrastructure. Different growth goals.
             </h2>
             <div className="mt-7 inline-flex rounded-md border p-1" role="group" aria-label="Growth Play objective" style={{ borderColor: "var(--v2-console-line)", backgroundColor: "rgba(255,255,255,0.03)" }}>
               {(Object.keys(GROWTH_PLAY_SCENARIOS) as GrowthPlayId[]).map((id) => {
