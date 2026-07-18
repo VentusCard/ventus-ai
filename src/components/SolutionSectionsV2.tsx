@@ -110,7 +110,7 @@ const nextCards = [
     id: "offer-intelligence",
     label: "NEXT OFFER",
     headline: "Serve the right offer before they go looking.",
-    body: "Ventus detects purchase intent from spending patterns and launches a governed offer play — then measures the incremental redemptions against a holdout.",
+    body: "Detect purchase intent and serve a governed offer — incremental redemptions proven against a holdout.",
     card: <NextOfferVisual />,
     link: "/solutions/offer-intelligence",
   },
@@ -118,7 +118,7 @@ const nextCards = [
     id: "product-intelligence",
     label: "NEXT PRODUCT",
     headline: "Know what your customer needs before they ask.",
-    body: "Life event detection triggers the right product play at the right moment — with incremental adoption proven against a control group.",
+    body: "Trigger the right product at the right life moment — incremental adoption proven against a control group.",
     card: <NextProductVisual />,
     link: "/solutions/product-intelligence",
   },
@@ -126,7 +126,7 @@ const nextCards = [
     id: "conversation-intelligence",
     label: "NEXT CONVERSATION",
     headline: "Turn every life event into the right conversation.",
-    body: "Ventus detects life events and delivers a governed advisor play to your CRM — who to call and why — then measures the resulting incremental conversations.",
+    body: "Deliver the right advisor conversation to your CRM — incremental engagement proven against a holdout.",
     card: <NextConversationVisual />,
     link: "/solutions/conversation-intelligence",
   },
@@ -192,7 +192,7 @@ const SolutionSectionsV2 = () => {
                   Every play compounds into book-wide intelligence.
                 </h2>
                 <p className="v2-body text-base">
-                  Because every Growth Play is measured and logged, Ventus builds a compounding picture of your whole book — which moments drive real incremental growth, and which don't. See how the Decision Ledger turns individual plays into portfolio-level strategy.
+                  Every play is measured and logged, so your whole book compounds into intelligence — which moments drive real incremental growth, and which don't.
                 </p>
                 <p className="v2-mono mt-6 text-[11px]" style={{ color: "var(--v2-ink-faint)" }}>
                   plugs into your existing stack · cores · warehouses · salesforce fsc · no core changes

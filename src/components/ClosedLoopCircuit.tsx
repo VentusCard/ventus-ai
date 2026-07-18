@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
+import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
 
 // The closed loop drawn as an actual loop: four stations on a circuit, a pulse
 // that travels Moment → Play → Lift → Ledger, and a highlighted feedback edge
@@ -30,8 +32,8 @@ const steps = [
 ];
 
 // Forward path along the top of the cards, return path sweeping underneath.
-const FORWARD_PATH = "M 60 40 H 940";
-const RETURN_PATH = "M 940 40 C 990 40 990 150 940 150 H 60 C 10 150 10 40 60 40";
+const FORWARD_PATH = "M 60 30 H 940";
+const RETURN_PATH = "M 940 30 C 990 30 990 120 940 120 H 60 C 10 120 10 30 60 30";
 
 const ClosedLoopCircuit = () => {
   const [visible, setVisible] = useState(false);
@@ -90,7 +92,7 @@ const ClosedLoopCircuit = () => {
           </div>
 
           {/* Circuit overlay — desktop only; cards carry the story on mobile. */}
-          <div className="hidden lg:block pointer-events-none absolute inset-x-0 -bottom-24 h-48">
+          <div className="hidden lg:block pointer-events-none absolute inset-x-0 top-full mt-6 h-40">
             <svg viewBox="0 0 1000 190" className="w-full h-full" fill="none" aria-hidden="true">
               {/* Return edge: outcomes feed the next moment. */}
               <path d={RETURN_PATH} stroke="var(--v2-green)" strokeWidth="1.5" strokeDasharray="6 5" opacity={visible ? 0.45 : 0} style={{ transition: "opacity 600ms ease 400ms" }} />
@@ -100,12 +102,24 @@ const ClosedLoopCircuit = () => {
                   <animateMotion dur="6s" repeatCount="indefinite" path={RETURN_PATH} />
                 </circle>
               )}
-              <text x="500" y="172" textAnchor="middle" className="v2-mono" fontSize="11" fill="var(--v2-green)" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease 600ms" }}>
+              <text x="500" y="150" textAnchor="middle" className="v2-mono" fontSize="11" fill="var(--v2-green)" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease 600ms" }}>
                 outcomes sharpen the next play ↺
               </text>
             </svg>
           </div>
         </div>
+
+        {/* Mid-page conversion hook: the loop is shown, the specifics are gated. */}
+        <ScrollReveal>
+          <div className="mt-16 flex flex-col items-center gap-3 text-center">
+            <p className="v2-body max-w-md text-base">
+              This loop runs on your book, not a slide. The only way to see your number is to run it.
+            </p>
+            <Link to="/contact" className="v2-btn">
+              Schedule a demo <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </ScrollReveal>
 
         {/* Spacer so the circuit's return edge has room before the next section. */}
         <div className="hidden lg:block" style={{ height: 96 }} />

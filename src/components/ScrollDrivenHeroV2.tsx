@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
+import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
 
 const rawTransactions = [
   "PAYPL *POTTRY BRN KDS 4829 $234.50",
@@ -292,7 +293,7 @@ const ScrollDrivenHeroV2 = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Ventus reads the story your customers' transactions are telling, turns it into governed Growth Plays — and proves the incremental lift.
+              Ventus turns your bank's transaction data into governed Growth Plays — and proves the incremental lift.
             </p>
 
             <div
@@ -303,13 +304,9 @@ const ScrollDrivenHeroV2 = () => {
                 transitionDelay: "300ms",
               }}
             >
-              {/* Proof over promise: the primary action is running the product. */}
-              <button className="v2-btn" onClick={() => navigate("/demo/enterprise")}>
-                Run the demo
-                <ArrowRight className="w-4 h-4" />
-              </button>
-              <button className="v2-btn-ghost" onClick={() => navigate("/contact")}>
+              <button className="v2-btn" onClick={() => navigate("/contact")}>
                 Schedule a demo
+                <ArrowRight className="w-4 h-4" />
               </button>
             </div>
 
@@ -332,9 +329,7 @@ const ScrollDrivenHeroV2 = () => {
               >
                 {/* Header */}
                 <div className="flex items-center gap-2.5 mb-3 relative z-10">
-                  <span className="flex items-center justify-center w-7 h-7 rounded-md text-white font-black text-[14px] leading-none shadow-md" style={{ backgroundColor: "var(--v2-ink)", fontFamily: "'Horizon', 'Manrope', sans-serif" }}>
-                    V
-                  </span>
+                  <img src={ventusLogoBlue} alt="Ventus" className="h-5 w-auto" />
                   <span className="text-[15px] font-bold tracking-tight text-gray-900">
                     Growth Play
                   </span>
@@ -418,6 +413,9 @@ const ScrollDrivenHeroV2 = () => {
                       </div>
                       <div className="text-[13px] font-bold leading-tight" style={{ color: activePersona.color }}>
                         {activePersona.lift}
+                      </div>
+                      <div className="text-[9px] font-medium text-gray-400 mt-0.5">
+                        Illustrative — yours is what we'd measure
                       </div>
                     </div>
                     <span className="shrink-0 flex flex-col items-end gap-1">
@@ -645,8 +643,8 @@ const ScrollDrivenHeroV2 = () => {
                   >
                     <div className="flex items-center justify-between px-3 pt-2.5 pb-1.5">
                       <div className="flex items-center gap-1.5">
-                        <span className="flex items-center justify-center w-4 h-4 rounded text-white font-black text-[9px] leading-none" style={{ backgroundColor: "var(--v2-ink)" }}>V</span>
-                        <span className="text-[9px] font-bold tracking-[0.12em] uppercase text-gray-700">Ventus Growth Play</span>
+                        <img src={ventusLogoBlue} alt="Ventus" className="h-3.5 w-auto" />
+                        <span className="text-[9px] font-bold tracking-[0.12em] uppercase text-gray-700">Growth Play</span>
                       </div>
                       <span
                         className="w-1.5 h-1.5 rounded-full"
@@ -672,15 +670,7 @@ const ScrollDrivenHeroV2 = () => {
                           </span>
                         </div>
                       )}
-                      {/* The hero ends by handing off to proof: run the same loop live. */}
-                      <button
-                        onClick={() => navigate("/demo/enterprise")}
-                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-md px-2 py-1.5 text-[10px] font-bold text-white transition hover:opacity-90"
-                        style={{ backgroundColor: "var(--v2-green)", opacity: stage === 4 ? 1 : 0, pointerEvents: stage === 4 ? "auto" : "none", transition: "opacity 400ms ease" }}
-                      >
-                        Run this play in the live demo
-                        <ArrowRight className="w-3 h-3" />
-                      </button>
+
                     </div>
                   </div>
                 </div>

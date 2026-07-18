@@ -64,7 +64,7 @@ const LedgerBand = () => {
     <section ref={sectionRef} className="w-full relative z-10" style={{ backgroundColor: "var(--v2-console)", paddingTop: 96, paddingBottom: 96 }}>
       <div className="max-w-7xl mx-auto px-6 md:px-8 grid gap-12 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] lg:items-center">
         <div>
-          <p className="v2-mono text-[11px] font-semibold tracking-[0.16em] uppercase mb-4" style={{ color: "#34D399" }}>
+          <p className="v2-mono text-[11px] font-semibold tracking-[0.16em] uppercase mb-4" style={{ color: "#60A5FA" }}>
             04 — Decision Ledger
           </p>
           <h2 className="v2-display text-3xl md:text-5xl mb-5" style={{ color: "#ffffff" }}>
@@ -76,11 +76,11 @@ const LedgerBand = () => {
             your risk team can verify. This panel runs the same ledger code as the product.
           </p>
           <Link
-            to="/demo/enterprise"
+            to="/contact"
             className="inline-flex items-center gap-2 rounded bg-white px-5 py-3 text-sm font-bold transition hover:opacity-90"
             style={{ color: "var(--v2-console)" }}
           >
-            See it live in the demo <ArrowRight className="w-4 h-4" />
+            Schedule a demo <ArrowRight className="w-4 h-4" />
           </Link>
         </div>
 
@@ -91,7 +91,7 @@ const LedgerBand = () => {
             </span>
             <span
               className={`flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wide transition-opacity duration-500 ${chainVerified ? "opacity-100" : "opacity-0"}`}
-              style={{ color: "#34D399" }}
+              style={{ color: "#60A5FA" }}
             >
               <Check className="w-3 h-3" /> chain verified
             </span>
@@ -106,7 +106,7 @@ const LedgerBand = () => {
                 <span className="w-9 flex-none font-mono text-[10px]" style={{ color: "var(--v2-console-faint)" }}>
                   #{String(event.seq).padStart(3, "0")}
                 </span>
-                <span className="w-16 flex-none font-mono text-[9px] font-bold tracking-wider" style={{ color: event.kind === "outcome" ? "#34D399" : "#9FB6D4" }}>
+                <span className="w-16 flex-none font-mono text-[9px] font-bold tracking-wider" style={{ color: event.kind === "outcome" ? "#60A5FA" : "#93B8E8" }}>
                   {KIND_LABEL[event.kind] ?? event.kind.toUpperCase()}
                 </span>
                 <span className="min-w-0 flex-1">
@@ -124,7 +124,7 @@ const LedgerBand = () => {
           </div>
           <p className={`mt-3 font-mono text-[10px] transition-opacity duration-700 ${complete ? "opacity-100" : "opacity-0"}`} style={{ color: "var(--v2-console-faint)" }}>
             append-only · hash-chained · runs in your perimeter · tokens, not PII —{" "}
-            <span style={{ color: "#34D399" }}>simulated here, labeled as such everywhere</span>
+            <span style={{ color: "#60A5FA" }}>simulated here, labeled as such everywhere</span>
           </p>
         </div>
       </div>

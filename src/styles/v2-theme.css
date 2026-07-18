@@ -22,16 +22,16 @@
   --v2-ink-faint: #818899;
   --v2-rule: #e6e3da;
   --v2-grid: rgba(16, 19, 26, 0.05);
-  --v2-green: #0a6a45; /* verify green — the one accent */
-  --v2-green-wash: #e9f3ee;
+  --v2-green: #2563eb; /* Ventus blue — the one accent (green = measured) */
+  --v2-green-wash: #e6effd;
   --v2-amber: #9a6400; /* honesty amber — illustrative/simulated */
   --v2-amber-wash: #fbf3e0;
-  --v2-console: #0d1117; /* near-black ink console, not navy */
+  --v2-console: #0A1628; /* Ventus brand navy console */
   --v2-console-line: #232a35;
   --v2-console-soft: #8b94a3;
   --v2-console-faint: #545d6b;
 
-  font-family: "Inter", "Manrope", ui-sans-serif, system-ui, sans-serif;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   background-color: var(--v2-paper);
   color: var(--v2-ink);
   font-feature-settings: "cv11", "ss01";
@@ -47,9 +47,9 @@
 
 /* Display type: tight neutral grotesk, ink only — never gradient text. */
 .v2-display {
-  font-family: "Inter Tight", "Inter", ui-sans-serif, system-ui, sans-serif;
-  font-weight: 640;
-  letter-spacing: -0.035em;
+  font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.045em;
   line-height: 1.04;
   color: var(--v2-ink);
 }
@@ -112,7 +112,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  background: var(--v2-ink);
+  background: var(--v2-green);
   color: #ffffff;
   font-weight: 600;
   font-size: 15px;
@@ -121,7 +121,7 @@
   transition: background-color 180ms ease;
 }
 .v2-btn:hover {
-  background: var(--v2-green);
+  background: #1d4ed8; /* blue-700 */
 }
 
 .v2-btn-ghost {
@@ -129,12 +129,12 @@
   align-items: center;
   gap: 8px;
   background: transparent;
-  color: var(--v2-ink);
+  color: var(--v2-green);
   font-weight: 600;
   font-size: 15px;
   padding: 13px 25px;
   border-radius: 5px;
-  border: 1px solid var(--v2-ink);
+  border: 1px solid var(--v2-green);
   transition: all 180ms ease;
 }
 .v2-btn-ghost:hover {

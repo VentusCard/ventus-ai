@@ -49,15 +49,16 @@ const AppLayout = () => {
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const isInternalCapabilities = location.pathname.startsWith("/internal/");
-  // /v2 is a full design candidate — it carries its own nav and footer.
-  const isHomeV2 = location.pathname === "/v2";
+  // The home page (V2 design) carries its own nav and footer.
+  const isHomeV2 = location.pathname === "/" || location.pathname === "/v2";
 
   const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isInternalCapabilities && !isHomeV2;
 
   const routes = (
     <Routes>
-      <Route path="/" element={<Index />} />
-      {/* Design-review candidate for the next home page — compare with "/". */}
+      <Route path="/" element={<IndexV2 />} />
+      {/* Original home page, preserved for reference. */}
+      <Route path="/classic" element={<Index />} />
       <Route path="/v2" element={<IndexV2 />} />
       <Route path="/platform" element={<Platform />} />
       <Route path="/smartrewards" element={<SmartRewards />} />
