@@ -263,6 +263,21 @@ const IndexV2 = () => {
     };
   }, []);
 
+  // Scroll snap: land on the next section rather than getting stuck between.
+  // Uses `proximity` so tall sticky sections (like Growth Plays at 280vh) can
+  // still be scrolled through freely — snap only engages near section edges.
+  useEffect(() => {
+    const html = document.documentElement;
+    const prevSnapType = html.style.scrollSnapType;
+    const prevScrollPadding = html.style.scrollPaddingTop;
+    html.style.scrollSnapType = "y proximity";
+    html.style.scrollPaddingTop = "64px"; // account for sticky nav
+    return () => {
+      html.style.scrollSnapType = prevSnapType;
+      html.style.scrollPaddingTop = prevScrollPadding;
+    };
+  }, []);
+
   return (
     <div className="v2">
       <SEO
@@ -273,7 +288,7 @@ const IndexV2 = () => {
       />
       <V2Nav />
 
-      <main className="flex flex-col">
+      <main className="flex flex-col [&>*]:[scroll-snap-align:start] [&>*]:[scroll-snap-stop:normal]">
         <ScrollDrivenHeroV2 />
 
         {/* Service-line map: each buyer sees the P&L outcome they own, while the
