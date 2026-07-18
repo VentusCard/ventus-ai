@@ -857,6 +857,17 @@ export default function EnterpriseGrowthDemoPage({
               <span className="sm:hidden">{readyConnectorCount === 2 ? "Live" : "Connect"}</span>
             </button>
           )}
+          {/* The POC is the standalone front door: operators continue from the
+              story into their authenticated console. */}
+          {!internal && (
+            <a
+              href="/app/login"
+              className="flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold transition hover:opacity-90"
+              style={{ color: "#071225" }}
+            >
+              Operator sign in <ArrowRight className="h-3 w-3" />
+            </a>
+          )}
           {entered && internal && scene > 0 && scene < 5 && (
             <div className="hidden items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs sm:flex">
               <Eye className="h-3.5 w-3.5" style={{ color: GREEN }} />
