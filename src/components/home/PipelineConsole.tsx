@@ -36,14 +36,14 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
       className="v2-rule-t relative z-10 flex w-full scroll-mt-16 min-h-screen items-center"
       style={{ paddingTop: 128, paddingBottom: 128, backgroundColor: "var(--v2-console)" }}
     >
-      <div className="mx-auto max-w-7xl px-6 md:px-8">
+      <div className="mx-auto w-full max-w-7xl px-6 md:px-8">
         <ScrollReveal>
-          <div className="mb-10 flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
+          <div className="mb-12 flex flex-col justify-between gap-7 lg:flex-row lg:items-end">
             <div className="max-w-3xl">
-              <p className="v2-mono mb-4 text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-blue-soft)" }}>
+              <p className="v2-mono mb-5 text-[11px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-blue-soft)" }}>
                 Growth Plays
               </p>
-              <h2 className="v2-display text-3xl text-white md:text-[56px]">
+              <h2 className="v2-display text-4xl text-white md:text-[72px]">
                 Watch a decision happen.
               </h2>
             </div>
