@@ -8,6 +8,10 @@ import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import IndexV2 from "./pages/IndexV2";
+import ConsoleLayout, { ConsoleAuthBoundary } from "./console/ConsoleLayout";
+import { LoginPage, SignupPage } from "./console/AuthPages";
+import MomentsPage from "./console/MomentsPage";
+import { LedgerPage, OutcomesPage, SettingsPage } from "./console/OpsPages";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -51,16 +55,29 @@ const AppLayout = () => {
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const isInternalCapabilities = location.pathname.startsWith("/internal/");
-  // The home page (V2 design) carries its own nav and footer.
-  const isHomeV2 = location.pathname === "/" || location.pathname === "/v2";
+  // The V2 comparison page carries its own nav and footer.
+  const isHomeV2 = location.pathname === "/v2";
+  // The Growth Console is the authenticated product — it owns its chrome.
+  const isConsole = location.pathname.startsWith("/app");
 
-  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isInternalCapabilities && !isHomeV2;
+  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isInternalCapabilities && !isHomeV2 && !isConsole;
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route path="/" element={<IndexV2 />} />
-        {/* Original home page, preserved for reference. */}
+        <Route path="/" element={<Index />} />
+        {/* Growth Console — the authenticated white-label product. */}
+        <Route path="/app" element={<ConsoleAuthBoundary />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
+          <Route element={<ConsoleLayout />}>
+            <Route index element={<MomentsPage />} />
+            <Route path="ledger" element={<LedgerPage />} />
+            <Route path="outcomes" element={<OutcomesPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+        </Route>
+        {/* Legacy alias for the original home page. */}
         <Route path="/classic" element={<Index noindex />} />
         <Route path="/v2" element={<IndexV2 />} />
         <Route path="/platform" element={<Platform />} />
