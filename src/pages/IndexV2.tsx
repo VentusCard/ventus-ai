@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SEO from "@/components/SEO";
 import ScrollDrivenHeroV2 from "@/components/ScrollDrivenHeroV2";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -112,8 +112,6 @@ const serviceLines = [
   },
 ];
 
-const BUSINESS_LINE_CYCLE_MS = 7000;
-
 function V2Nav() {
   // Apple pattern: the sticky nav's CTA appears only once the hero's own CTA
   // has scrolled away — never two identical buttons in one viewport.
@@ -213,27 +211,54 @@ function V2Footer() {
 const IndexV2 = () => {
   const [activePlayId, setActivePlayId] = useState<GrowthPlayId>("deposit");
   const [activeServiceLineIndex, setActiveServiceLineIndex] = useState(0);
-  const [portfolioPaused, setPortfolioPaused] = useState(false);
+  const serviceLineSectionRef = useRef<HTMLElement>(null);
   const activePlay = GROWTH_PLAY_SCENARIOS[activePlayId];
   const activeServiceLine = serviceLines[activeServiceLineIndex];
 
   useEffect(() => {
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-    if (portfolioPaused || reducedMotion.matches) return;
+    const desktop = window.matchMedia("(min-width: 768px)");
+    let animationFrame = 0;
 
-    const interval = window.setInterval(() => {
-      setActiveServiceLineIndex((current) => (current + 1) % serviceLines.length);
-    }, BUSINESS_LINE_CYCLE_MS);
+    const syncServiceLineToScroll = () => {
+      animationFrame = 0;
+      const section = serviceLineSectionRef.current;
+      if (!section || !desktop.matches) return;
 
-    return () => window.clearInterval(interval);
-  }, [portfolioPaused]);
+      const rect = section.getBoundingClientRect();
+      const scrollRange = Math.max(section.offsetHeight - window.innerHeight, 1);
+      const progress = Math.min(Math.max((64 - rect.top) / scrollRange, 0), 1);
+      const nextIndex = Math.min(
+        serviceLines.length - 1,
+        Math.floor(progress * serviceLines.length),
+      );
+
+      setActiveServiceLineIndex((current) => current === nextIndex ? current : nextIndex);
+    };
+
+    const requestSync = () => {
+      if (!animationFrame) {
+        animationFrame = window.requestAnimationFrame(syncServiceLineToScroll);
+      }
+    };
+
+    syncServiceLineToScroll();
+    window.addEventListener("scroll", requestSync, { passive: true });
+    window.addEventListener("resize", requestSync);
+
+    return () => {
+      window.removeEventListener("scroll", requestSync);
+      window.removeEventListener("resize", requestSync);
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
 
   return (
     <div className="v2">
       <SEO
         title="Ventus AI — Governed Growth Plays with Measured Incremental Lift"
         description="Ventus turns raw transactions into governed Growth Plays — with holdouts, measured incremental lift, and a Decision Ledger — so banks grow with proof, not dashboards."
-        path="/"
+        path="/v2"
+        noindex
       />
       <V2Nav />
 
@@ -242,8 +267,12 @@ const IndexV2 = () => {
 
         {/* Service-line map: each buyer sees the P&L outcome they own, while the
             shared operating layer establishes the bank-wide expansion path. */}
-        <section id="growth-plays" className="v2-ruled v2-rule-t scroll-mt-16" style={{ paddingTop: 80, paddingBottom: 112 }}>
-          <div className="mx-auto max-w-7xl px-6 md:px-8">
+        <section
+          ref={serviceLineSectionRef}
+          id="growth-plays"
+          className="v2-ruled v2-rule-t scroll-mt-16 md:min-h-[185vh]"
+        >
+          <div className="mx-auto max-w-7xl px-6 py-20 md:sticky md:top-16 md:px-8">
             <ScrollReveal>
               <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-end">
                 <div className="max-w-4xl">
@@ -269,10 +298,6 @@ const IndexV2 = () => {
                   borderColor: "var(--v2-rule)",
                   boxShadow: "0 12px 36px rgba(15, 23, 42, 0.045)",
                 }}
-                onMouseEnter={() => setPortfolioPaused(true)}
-                onMouseLeave={() => setPortfolioPaused(false)}
-                onFocusCapture={() => setPortfolioPaused(true)}
-                onBlurCapture={() => setPortfolioPaused(false)}
               >
                 <div
                   className="grid grid-cols-2 border-b bg-[#F5F7FA] md:grid-cols-4"
