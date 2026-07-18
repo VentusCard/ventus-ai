@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, PlayCircle } from "lucide-react";
 import ventusLogoBlue from "@/assets/ventus-logo-blue.png";
 
 const rawTransactions = [
@@ -269,7 +269,12 @@ const ScrollDrivenHeroV2 = () => {
   const statusLabel = stage === 1 ? "Analyzing..." : stage === 2 ? "Categorizing" : stage === 3 ? "Detected" : "Growth Play";
 
   return (
-    <div ref={containerRef} className="v2-ruled relative" style={{ height: "360vh", minHeight: "100vh", backgroundColor: "var(--v2-paper)" }}>
+    <div
+      ref={containerRef}
+      data-hero-scroll
+      className="v2-ruled relative"
+      style={{ height: "260vh", minHeight: "100vh", backgroundColor: "var(--v2-paper)" }}
+    >
       <div className="sticky top-0 xl:h-screen min-h-screen flex items-start justify-center overflow-visible pt-24 md:pt-28 xl:pt-16 pb-10">
         <div className="w-full max-w-7xl mx-auto px-6 flex flex-col xl:flex-row items-center xl:items-center gap-6 xl:gap-6">
           {/* LEFT COLUMN — on mobile, children flatten into outer flex so card can sit between headline and subtext */}
@@ -293,7 +298,7 @@ const ScrollDrivenHeroV2 = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Ventus turns your bank's transaction data into governed Growth Plays — and proves the incremental lift.
+              Ventus finds the moment, routes the governed action, and measures incremental lift inside the systems your teams already use.
             </p>
 
             <div
@@ -307,6 +312,10 @@ const ScrollDrivenHeroV2 = () => {
               <button className="v2-btn" onClick={() => navigate("/contact")}>
                 Schedule a demo
                 <ArrowRight className="w-4 h-4" />
+              </button>
+              <button className="v2-btn-ghost" onClick={() => navigate("/demo/enterprise")}>
+                <PlayCircle className="h-4 w-4" />
+                See the operating loop
               </button>
             </div>
 

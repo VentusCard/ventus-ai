@@ -10,7 +10,7 @@ if (import.meta.env.DEV && typeof window !== 'undefined') {
   if (heroParam !== null) {
     const heroProgress = Number.parseFloat(heroParam)
     const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(min, v))
-    const findHeroContainer = () => document.querySelector('[style*="360vh"]')
+    const findHeroContainer = () => document.querySelector('[data-hero-scroll]')
     const scrollToHeroStage = () => {
       const container = findHeroContainer()
       if (container && document.body.scrollHeight > window.innerHeight * 2) {

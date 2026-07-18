@@ -1,9 +1,12 @@
+import { useState } from "react";
 import SEO from "@/components/SEO";
 import ScrollDrivenHeroV2 from "@/components/ScrollDrivenHeroV2";
 import ScrollReveal from "@/components/ScrollReveal";
 import PipelineConsole from "@/components/home/PipelineConsole";
 import DeviceDuo from "@/components/home/DeviceDuo";
 import IntegrationProof from "@/components/home/IntegrationProof";
+import CapabilityProofStrip from "@/components/home/CapabilityProofStrip";
+import { GROWTH_PLAY_SCENARIOS, type GrowthPlayId } from "@/components/home/growthPlayScenarios";
 import { ArrowRight, PlayCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
@@ -36,11 +39,11 @@ function V2Nav() {
             ["Integration", "#integration"],
           ].map(([label, href]) =>
             href.startsWith("#") ? (
-              <a key={label} href={href} className="v2-mono text-[12px] font-medium tracking-[0.08em] uppercase transition-colors hover:opacity-100" style={{ color: "var(--v2-ink-soft)" }}>
+              <a key={label} href={href} className="text-[13px] font-semibold transition-colors hover:opacity-100" style={{ color: "var(--v2-ink-soft)" }}>
                 {label}
               </a>
             ) : (
-              <Link key={label} to={href} className="v2-mono text-[12px] font-medium tracking-[0.08em] uppercase" style={{ color: "var(--v2-ink-soft)" }}>
+              <Link key={label} to={href} className="text-[13px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
                 {label}
               </Link>
             ),
@@ -100,6 +103,9 @@ function V2Footer() {
 }
 
 const IndexV2 = () => {
+  const [activePlayId, setActivePlayId] = useState<GrowthPlayId>("deposit");
+  const activePlay = GROWTH_PLAY_SCENARIOS[activePlayId];
+
   return (
     <div className="v2">
       <SEO
@@ -111,14 +117,15 @@ const IndexV2 = () => {
 
       <main className="flex flex-col">
         <ScrollDrivenHeroV2 />
+        <CapabilityProofStrip />
 
         {/* The gap — one editorial statement, then the page gets out of the way. */}
         <section className="v2-ruled v2-rule-t" style={{ paddingTop: 88, paddingBottom: 88 }}>
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <ScrollReveal>
               <h2 className="v2-display max-w-4xl text-3xl md:text-5xl">
-                Your bank knows what a customer spent.{" "}
-                <span style={{ color: "var(--v2-ink-faint)" }}>Not what it's worth to act.</span>
+                Transactions show what happened.{" "}
+                <span style={{ color: "var(--v2-ink-faint)" }}>Ventus determines when action is worth taking.</span>
               </h2>
               <div className="mt-10 flex flex-wrap gap-2.5">
                 {detectionSignals.map((chip) => (
@@ -130,10 +137,14 @@ const IndexV2 = () => {
         </section>
 
         {/* The loop — shown as a live console, not four text cards. */}
-        <PipelineConsole />
+        <PipelineConsole
+          scenario={activePlay}
+          activePlayId={activePlayId}
+          onPlayChange={setActivePlayId}
+        />
 
         {/* The play at aggregate and employee-workflow levels. */}
-        <DeviceDuo />
+        <DeviceDuo scenario={activePlay} />
 
         <IntegrationProof />
 

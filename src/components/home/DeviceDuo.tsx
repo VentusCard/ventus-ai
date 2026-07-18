@@ -1,18 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import ScrollReveal from "@/components/ScrollReveal";
 import { Building2, Check, ChevronRight, Eye, ShieldCheck } from "lucide-react";
+import type { GrowthPlayScenario } from "@/components/home/growthPlayScenarios";
 
 // The same play at two levels: aggregate pilot economics for an operator and
 // one decision brief inside a bank-owned employee workflow.
 
-const bookRows = [
-  { label: "Moments qualified", value: "1,240", width: "100%" },
-  { label: "Policy eligible", value: "782", width: "63%" },
-  { label: "Banker tasks accepted", value: "486", width: "39%" },
-  { label: "Retained vs holdout", value: "+8.4 pp", width: "72%", verified: true },
-];
-
-const DeviceDuo = () => {
+const DeviceDuo = ({ scenario }: { scenario: GrowthPlayScenario }) => {
   const [ping, setPing] = useState(false);
   const [reduced, setReduced] = useState(false);
   const ref = useRef<HTMLElement | null>(null);
@@ -56,13 +50,13 @@ const DeviceDuo = () => {
               <div className="p-6 md:p-8">
                 <div className="flex items-center justify-between mb-6">
                   <div>
-                    <p className="v2-mono text-[10px] uppercase tracking-wider" style={{ color: "var(--v2-ink-faint)" }}>deposit retention play</p>
+                    <p className="v2-mono text-[10px] uppercase tracking-wider" style={{ color: "var(--v2-ink-faint)" }}>{scenario.label}</p>
                     <p className="v2-display text-2xl mt-1">Pilot funnel</p>
                   </div>
                   <span className="v2-chip-amber">illustrative dataset</span>
                 </div>
                 <div className="space-y-4">
-                  {bookRows.map((r) => (
+                  {scenario.funnel.map((r) => (
                     <div key={r.label}>
                       <div className="flex items-center justify-between mb-1.5">
                         <span className="text-[13px] font-semibold text-gray-900">{r.label}</span>
@@ -112,17 +106,14 @@ const DeviceDuo = () => {
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="v2-mono text-[9px] uppercase" style={{ color: "var(--v2-ink-faint)" }}>Customer 013 · decision brief</p>
-                      <p className="mt-1 text-[17px] font-bold text-gray-900">Deposit primacy at risk</p>
+                      <p className="v2-mono text-[9px] uppercase" style={{ color: "var(--v2-ink-faint)" }}>{scenario.workbench.customer} · decision brief</p>
+                      <p className="mt-1 text-[17px] font-bold text-gray-900">{scenario.workbench.title}</p>
                     </div>
-                    <span className="rounded border border-blue-200 bg-blue-50 px-2 py-1 v2-mono text-[9px] font-bold text-blue-700">91%</span>
+                    <span className="rounded border border-blue-200 bg-blue-50 px-2 py-1 v2-mono text-[9px] font-bold text-blue-700">{scenario.workbench.confidence}</span>
                   </div>
 
                   <div className="mt-4 grid grid-cols-2 gap-2">
-                    {[
-                      ["Payroll", "Split detected"],
-                      ["Balances", "18% migrated"],
-                    ].map(([label, value]) => (
+                    {scenario.workbench.evidence.map(([label, value]) => (
                       <div key={label} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
                         <p className="v2-mono text-[8px] uppercase text-gray-400">{label}</p>
                         <p className="mt-0.5 text-[11px] font-semibold text-gray-800">{value}</p>
@@ -132,7 +123,7 @@ const DeviceDuo = () => {
 
                   <div className="mt-4 flex items-center gap-2 rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-green-800">
                     <ShieldCheck className="h-4 w-4 flex-none" />
-                    <span className="text-[11px] font-semibold">Eligible under approved retention policy</span>
+                    <span className="text-[11px] font-semibold">{scenario.workbench.policy}</span>
                   </div>
 
                   <div className="mt-4 flex gap-2">
@@ -145,7 +136,7 @@ const DeviceDuo = () => {
                   </div>
 
                   <div className="mt-4 flex items-center justify-between border-t border-gray-100 pt-3">
-                    <span className="v2-mono text-[8px] text-gray-400">Ventus evidence receipt attached</span>
+                    <span className="v2-mono text-[8px] text-gray-400">{scenario.workbench.receipt}</span>
                     <ChevronRight className="h-3.5 w-3.5 text-gray-400" />
                   </div>
                 </div>
