@@ -4406,6 +4406,7 @@ function LeadershipPipelineRun({
   const [connectionNote, setConnectionNote] = useState<string | null>(null);
   const [runEvidence, setRunEvidence] = useState<LeadershipRunEvidence | null>(null);
   const derived = runPipeline(OPP_INPUT(opp));
+  const pathConfig = leadershipConfig(path);
   const rails = [...new Set(opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed"))];
   const detected = runEvidence?.opportunity;
   const recordCount = runEvidence?.transactions.length || opp.rawTransactions.length;
@@ -4599,6 +4600,15 @@ function LeadershipPipelineRun({
             </div>
           ) : (
             <div className="px-4 py-3">
+              <div className="mb-3 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 rounded-lg bg-slate-50 px-3 py-2">
+                <div className="min-w-0">
+                  <p className="text-[9px] font-bold uppercase text-slate-400">Portfolio context</p>
+                  <p className="mt-0.5 text-[10px] font-semibold leading-4 text-slate-700">
+                    {pathConfig.scaleHouseholds.toLocaleString()} eligible relationships in this market frame
+                  </p>
+                </div>
+                <span className="whitespace-nowrap text-[9px] font-bold uppercase text-slate-400">Illustrative</span>
+              </div>
               <div className="border-l-2 border-blue-600 pl-3">
                 <div className="flex items-start justify-between gap-3">
                   <div>
@@ -5827,13 +5837,9 @@ function LeadershipCover({
   const paths = LEADERSHIP_PATHS;
   const [previewPath, setPreviewPath] = useState<LeadershipPath | null>(null);
   const featured = previewPath ? leadershipConfig(previewPath) : null;
-  const previewReason = previewPath === "wealth-growth"
-    ? "$275K transfer + planning intent. No advisor assigned."
-    : "Payroll split + off-bank spend. Balance down 38%.";
-  const previewAction = previewPath === "wealth-growth"
-    ? "Assign advisor. Prepare consolidation review."
-    : "Prepare banker outreach before the next payroll.";
-  const previewConfidence = previewPath === "wealth-growth" ? 97 : 94;
+  const sourceCount = featured
+    ? new Set(featured.opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed")).size
+    : 0;
   const livePath = [
     { label: "Inputs", status: connectorSession?.connectors.plaid ? "Plaid connected" : featured?.sourceLabel ?? "Select focus", tone: connectorSession?.connectors.plaid ? "connected" : "neutral", Icon: Upload },
     { label: "Ventus", status: featured ? "Configured" : "Ready", tone: featured ? "connected" : "neutral", Icon: Wand2 },
@@ -5852,7 +5858,7 @@ function LeadershipCover({
         <div>
           <p className="font-mono text-[10px] uppercase text-blue-700">Ventus Growth Intelligence</p>
           <h1 className="mt-2 max-w-3xl text-3xl font-extrabold leading-tight text-[#071225] sm:text-4xl">
-            The next growth move, already prepared.
+            Choose the objective. Watch evidence become action.
           </h1>
         </div>
 
@@ -5864,57 +5870,57 @@ function LeadershipCover({
                   <div className="flex items-center gap-2">
                     <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/15"><Activity className="h-3.5 w-3.5 text-blue-300" /></span>
                     <div>
-                      <p className="text-[10px] font-bold uppercase text-white/40">{featured.businessLine} · prepared scenario</p>
-                      <p className="text-sm font-bold text-white">{featured.opp.type}</p>
+                      <p className="text-[10px] font-bold uppercase text-white/40">{featured.businessLine} · permitted inputs</p>
+                      <p className="text-sm font-bold text-white">{featured.objective}</p>
                     </div>
                   </div>
-                  <span className="rounded-full border border-blue-300/20 bg-blue-300/10 px-2 py-1 text-[10px] font-bold uppercase text-blue-100">Policy pack ready</span>
+                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-bold uppercase text-white/50">No decision yet</span>
                 </div>
 
-                <div className="grid lg:grid-cols-[0.9fr_auto_1.1fr]">
+                <div className="grid lg:grid-cols-[1.12fr_0.88fr]">
                   <div className="px-5 py-4">
-                    <p className="text-[10px] font-bold uppercase text-white/40">Evidence preview</p>
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-[10px] font-bold uppercase text-white/40">Permitted activity stream</p>
+                      <span className="text-[9px] font-semibold text-white/30">{sourceCount} source systems</span>
+                    </div>
                     <div className="mt-2 divide-y divide-white/10">
                       {featured.opp.rawTransactions.slice(0, 3).map((transaction) => (
                         <div key={transaction.raw} className="py-2.5">
                           <div className="flex items-center justify-between gap-3">
                             <span className="truncate font-mono text-[11px] font-semibold text-white/80">{transaction.raw}</span>
-                            <span className="flex-none text-[10px] font-bold text-blue-200">{Math.round(transaction.conf * 100)}%</span>
+                            <span className="flex-none text-[9px] font-semibold text-white/35">{transaction.src}</span>
                           </div>
                         </div>
                       ))}
                     </div>
                   </div>
 
-                  <div className="hidden items-center lg:flex">
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="h-8 w-px bg-white/10" />
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-300/25 bg-blue-300/10">
-                        <ArrowRight className="h-4 w-4 text-blue-200" />
-                      </span>
-                      <span className="h-8 w-px bg-white/10" />
-                    </div>
-                  </div>
-
                   <div className="border-t border-white/10 px-5 py-4 lg:border-l lg:border-t-0">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-[10px] font-bold uppercase text-blue-200">Financial state</p>
-                        <h2 className="mt-1 text-xl font-extrabold">{featured.opp.type}</h2>
+                    <p className="text-[10px] font-bold uppercase text-blue-200">Portfolio frame</p>
+                    <div className="mt-2 grid grid-cols-2 gap-2">
+                      <div className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5">
+                        <p className="text-lg font-extrabold text-white">{featured.scaleHouseholds.toLocaleString()}</p>
+                        <p className="mt-0.5 text-[9px] leading-4 text-white/40">eligible relationships</p>
                       </div>
-                      <ConfidencePill value={previewConfidence} />
+                      <div className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5">
+                        <p className="text-lg font-extrabold text-white">1</p>
+                        <p className="mt-0.5 text-[9px] leading-4 text-white/40">representative case</p>
+                      </div>
                     </div>
-                    <p className="mt-2 text-sm leading-5 text-white/60">{previewReason}</p>
                     <div className="mt-3 border-t border-white/10 pt-3">
-                      <p className="text-[10px] font-bold uppercase text-white/40">Prepared action</p>
-                      <p className="mt-1 text-sm font-bold leading-5 text-white">{previewAction}</p>
+                      <p className="text-[10px] font-bold uppercase text-white/40">Ventus will determine</p>
+                      <div className="mt-2 flex flex-wrap gap-1.5">
+                        {["Financial state", "Eligibility", "Next action"].map((label) => (
+                          <span key={label} className="rounded-md border border-white/10 px-2 py-1 text-[9px] font-semibold text-white/50">{label}</span>
+                        ))}
+                      </div>
                     </div>
                     <button
                       type="button"
                       onClick={() => onPick(previewPath)}
                       className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-extrabold text-[#071225] transition hover:bg-blue-50"
                     >
-                      Open decision run <ArrowRight className="h-3.5 w-3.5" />
+                      Open evidence run <ArrowRight className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 </div>
