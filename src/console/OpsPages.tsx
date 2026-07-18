@@ -101,7 +101,13 @@ export function LedgerPage() {
 export function OutcomesPage() {
   const { moments, tenant } = useConsole();
   const activated = moments.filter((moment) => moment.status === "activated").length;
-  const econ = useMemo(() => illustrativeRange(defaultAssumptions("deposit-retention", 405)), []);
+  const measuredScenario = moments.find((moment) => moment.status === "activated")?.scenario
+    ?? moments[0]?.scenario
+    ?? "deposit-retention";
+  const econ = useMemo(
+    () => illustrativeRange(defaultAssumptions(measuredScenario, 405)),
+    [measuredScenario],
+  );
 
   return (
     <div className="mx-auto max-w-4xl">
@@ -165,6 +171,7 @@ export function SettingsPage() {
   const { user } = useAuth();
   const [override, setOverride] = useState<string | null>(tenantOverride());
   const live = connectorSession && connectorSession.expiresAt * 1000 > Date.now();
+  const canPreviewTenants = user?.email?.toLowerCase().endsWith("@ventusai.com") ?? false;
 
   const applyOverride = (id: string | null) => {
     setTenantOverride(id);
@@ -225,7 +232,7 @@ export function SettingsPage() {
         </div>
         <p className="v2-mono mt-4 text-[9px] leading-4" style={{ color: "var(--v2-ink-faint)" }}>
           Credentials never enter the browser. Sessions are short-lived, scoped to
-          plaid_read + salesforce_write, and tenant-bound.
+          plaid_read + salesforce_write, and bound to the verified operator and tenant.
         </p>
       </div>
 
@@ -245,23 +252,30 @@ export function SettingsPage() {
             <span className="v2-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-soft)" }}>white-label ready</span>
           </span>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          {Object.values(TENANTS).map((candidate) => (
-            <button
-              key={candidate.id}
-              onClick={() => applyOverride(candidate.id === tenant.id && override ? null : candidate.id)}
-              className="console-btn-ghost !px-3 !py-1.5 !text-[11px]"
-              style={candidate.id === tenant.id ? { borderColor: tenant.accent, color: tenant.accent } : undefined}
-            >
-              Preview as {candidate.shortName}
-            </button>
-          ))}
-          {override && (
-            <button onClick={() => applyOverride(null)} className="v2-mono text-[10px] underline" style={{ color: "var(--v2-ink-faint)" }}>
-              clear override
-            </button>
-          )}
-        </div>
+        {canPreviewTenants && (
+          <>
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {Object.values(TENANTS).map((candidate) => (
+                <button
+                  key={candidate.id}
+                  onClick={() => applyOverride(candidate.id === tenant.id && override ? null : candidate.id)}
+                  className="console-btn-ghost !px-3 !py-1.5 !text-[11px]"
+                  style={candidate.id === tenant.id ? { borderColor: tenant.accent, color: tenant.accent } : undefined}
+                >
+                  Preview {candidate.shortName} brand
+                </button>
+              ))}
+              {override && (
+                <button onClick={() => applyOverride(null)} className="v2-mono text-[10px] underline" style={{ color: "var(--v2-ink-faint)" }}>
+                  clear preview
+                </button>
+              )}
+            </div>
+            <p className="v2-mono mt-3 text-[9px] leading-4" style={{ color: "var(--v2-ink-faint)" }}>
+              Brand preview changes presentation only. Connector access remains bound to the signed-in tenant.
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

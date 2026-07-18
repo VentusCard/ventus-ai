@@ -4,10 +4,10 @@
 // signs up and lands in a console that is already theirs.
 
 import { useMemo, useState, type FormEvent } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { resolveTenant } from "@/lib/tenant";
+import { resolveTenantFromEmail } from "@/lib/tenant";
 import { useAuth } from "@/console/state";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
@@ -33,8 +33,8 @@ function BrandPanel() {
           Every decision leaves a receipt.
         </h1>
         <p className="mt-5 max-w-sm text-[15px] leading-6" style={{ color: "var(--v2-console-soft)" }}>
-          Qualified moments, governed actions, measured lift — recorded in an
-          append-only ledger your risk team can verify.
+          Qualified moments, governed actions, measured lift — with a receipt
+          for every step in the operating loop.
         </p>
         <div className="mt-9 max-w-sm space-y-1.5">
           {LEDGER_MOTIF.map(([seq, kind, title]) => (
@@ -75,6 +75,7 @@ export function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [searchParams] = useSearchParams();
 
   if (!loading && user) return <Navigate to="/app" replace />;
 
@@ -98,6 +99,11 @@ export function LoginPage() {
         Growth Console
       </p>
       <h2 className="v2-display mt-3 text-4xl">Sign in.</h2>
+      {searchParams.get("confirmed") === "1" && (
+        <p className="mt-4 text-[13px] font-semibold" style={{ color: "var(--v2-verified)" }}>
+          Email confirmed. Your workspace is ready.
+        </p>
+      )}
       <form onSubmit={submit} className="mt-8 space-y-3">
         <input
           className="console-field"
@@ -126,15 +132,20 @@ export function LoginPage() {
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
         </button>
       </form>
-      <p className="mt-6 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>
-        New operator?{" "}
-        <Link to="/app/signup" className="font-semibold" style={{ color: "var(--v2-blue)" }}>
-          Create an account
+      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>
+        <p>
+          New operator?{" "}
+          <Link to="/app/signup" className="font-semibold" style={{ color: "var(--v2-blue)" }}>
+            Create an account
+          </Link>
+        </p>
+        <Link to="/app/forgot-password" className="font-semibold" style={{ color: "var(--v2-blue)" }}>
+          Reset password
         </Link>
-      </p>
+      </div>
       <p className="v2-mono mt-10 text-[10px] leading-4" style={{ color: "var(--v2-ink-faint)" }}>
-        Institution access is resolved from your work email domain. SSO arrives
-        with your institution's integration.
+        Pilot access is restricted to approved work domains. Enterprise SSO is
+        configured with each institution.
       </p>
     </AuthShell>
   );
@@ -148,7 +159,9 @@ export function SignupPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [pendingConfirm, setPendingConfirm] = useState(false);
-  const tenant = useMemo(() => resolveTenant(email.includes("@") ? email : null), [email]);
+  const [resending, setResending] = useState(false);
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+  const tenant = useMemo(() => resolveTenantFromEmail(email.includes("@") ? email : null), [email]);
 
   if (!loading && user) return <Navigate to="/app" replace />;
 
@@ -156,10 +169,19 @@ export function SignupPage() {
     event.preventDefault();
     setSubmitting(true);
     setError(null);
-    const { data, error: authError } = await supabase.auth.signUp({ email, password });
+    const emailRedirectTo = `${window.location.origin}/app/login?confirmed=1`;
+    const { data, error: authError } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo },
+    });
     setSubmitting(false);
     if (authError) {
-      setError(authError.message);
+      setError(readableAuthError(authError.message));
+      return;
+    }
+    if (data.user && data.user.identities?.length === 0) {
+      setError("This email already has an account. Sign in or reset your password.");
       return;
     }
     if (data.session) {
@@ -170,6 +192,18 @@ export function SignupPage() {
     }
   };
 
+  const resendConfirmation = async () => {
+    setResending(true);
+    setResendStatus(null);
+    const { error: resendError } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: { emailRedirectTo: `${window.location.origin}/app/login?confirmed=1` },
+    });
+    setResending(false);
+    setResendStatus(resendError ? readableAuthError(resendError.message) : "Confirmation email resent.");
+  };
+
   if (pendingConfirm) {
     return (
       <AuthShell>
@@ -178,6 +212,19 @@ export function SignupPage() {
           We sent a confirmation link to <span className="font-semibold" style={{ color: "var(--v2-ink)" }}>{email}</span>.
           Open it, then sign in.
         </p>
+        <button
+          type="button"
+          onClick={() => void resendConfirmation()}
+          disabled={resending}
+          className="console-btn-ghost mt-6 w-full"
+        >
+          {resending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Resend confirmation"}
+        </button>
+        {resendStatus && (
+          <p className="mt-3 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
+            {resendStatus}
+          </p>
+        )}
         <Link to="/app/login" className="console-btn mt-8 w-full" style={{ backgroundColor: "var(--v2-ink)" }}>
           Back to sign in
         </Link>
@@ -246,4 +293,138 @@ export function SignupPage() {
       </p>
     </AuthShell>
   );
+}
+
+export function ForgotPasswordPage() {
+  const [email, setEmail] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/app/reset-password`,
+    });
+    setSubmitting(false);
+    if (authError) {
+      setError(readableAuthError(authError.message));
+      return;
+    }
+    setSent(true);
+  };
+
+  return (
+    <AuthShell>
+      <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
+        Growth Console
+      </p>
+      <h2 className="v2-display mt-3 text-4xl">Reset password.</h2>
+      {sent ? (
+        <>
+          <p className="v2-body mt-5 text-[15px]">
+            Check <span className="font-semibold" style={{ color: "var(--v2-ink)" }}>{email}</span> for a secure reset link.
+          </p>
+          <Link to="/app/login" className="console-btn mt-8 w-full" style={{ backgroundColor: "var(--v2-ink)" }}>
+            Back to sign in
+          </Link>
+        </>
+      ) : (
+        <form onSubmit={submit} className="mt-8 space-y-3">
+          <input
+            className="console-field"
+            type="email"
+            autoComplete="email"
+            placeholder="Work email"
+            value={email}
+            onChange={(event) => setEmail(event.target.value)}
+            required
+          />
+          {error && (
+            <p className="text-[12px] font-semibold" style={{ color: "#b3261e" }} role="alert">
+              {error}
+            </p>
+          )}
+          <button type="submit" className="console-btn w-full" disabled={submitting} style={{ backgroundColor: "var(--v2-ink)" }}>
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Send reset link <ArrowRight className="h-4 w-4" /></>}
+          </button>
+          <Link to="/app/login" className="console-btn-ghost w-full">
+            Back to sign in
+          </Link>
+        </form>
+      )}
+    </AuthShell>
+  );
+}
+
+export function ResetPasswordPage() {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const submit = async (event: FormEvent) => {
+    event.preventDefault();
+    setSubmitting(true);
+    setError(null);
+    const { error: authError } = await supabase.auth.updateUser({ password });
+    setSubmitting(false);
+    if (authError) {
+      setError(readableAuthError(authError.message));
+      return;
+    }
+    navigate("/app", { replace: true });
+  };
+
+  return (
+    <AuthShell>
+      <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
+        Growth Console
+      </p>
+      <h2 className="v2-display mt-3 text-4xl">Choose a new password.</h2>
+      {!loading && !user ? (
+        <>
+          <p className="v2-body mt-5 text-[15px]">Open the secure link from your reset email to continue.</p>
+          <Link to="/app/forgot-password" className="console-btn mt-8 w-full" style={{ backgroundColor: "var(--v2-ink)" }}>
+            Request another link
+          </Link>
+        </>
+      ) : (
+        <form onSubmit={submit} className="mt-8 space-y-3">
+          <input
+            className="console-field"
+            type="password"
+            autoComplete="new-password"
+            placeholder="New password (8+ characters)"
+            minLength={8}
+            value={password}
+            onChange={(event) => setPassword(event.target.value)}
+            required
+          />
+          {error && (
+            <p className="text-[12px] font-semibold" style={{ color: "#b3261e" }} role="alert">
+              {error}
+            </p>
+          )}
+          <button type="submit" className="console-btn w-full" disabled={submitting || loading} style={{ backgroundColor: "var(--v2-ink)" }}>
+            {submitting || loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Update password <ArrowRight className="h-4 w-4" /></>}
+          </button>
+        </form>
+      )}
+    </AuthShell>
+  );
+}
+
+function readableAuthError(message: string): string {
+  const lower = message.toLowerCase();
+  if (lower.includes("rate limit")) {
+    return "Email delivery is temporarily rate-limited. Wait a few minutes, then resend the confirmation.";
+  }
+  if (lower.includes("already registered") || lower.includes("already exists")) {
+    return "This email already has an account. Sign in instead.";
+  }
+  return message;
 }

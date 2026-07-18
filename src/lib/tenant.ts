@@ -45,13 +45,7 @@ export const TENANTS: Record<string, Tenant> = {
 
 const DEMO_TENANT_KEY = "ventus_console_tenant";
 
-// Email domain decides the institution. A persisted override lets Ventus run a
-// white-glove walkthrough as any tenant before that tenant's SSO exists.
-export function resolveTenant(email: string | null | undefined): Tenant {
-  if (typeof window !== "undefined") {
-    const override = window.sessionStorage.getItem(DEMO_TENANT_KEY);
-    if (override && TENANTS[override]) return TENANTS[override];
-  }
+export function resolveTenantFromEmail(email: string | null | undefined): Tenant {
   const domain = email?.split("@")[1]?.toLowerCase();
   if (domain) {
     for (const tenant of Object.values(TENANTS)) {
@@ -59,6 +53,16 @@ export function resolveTenant(email: string | null | undefined): Tenant {
     }
   }
   return TENANTS.ventus;
+}
+
+// The override changes presentation only. Connector authorization always uses
+// the server-verified tenant resolved from the signed-in operator.
+export function resolveTenant(email: string | null | undefined): Tenant {
+  if (typeof window !== "undefined") {
+    const override = window.sessionStorage.getItem(DEMO_TENANT_KEY);
+    if (override && TENANTS[override]) return TENANTS[override];
+  }
+  return resolveTenantFromEmail(email);
 }
 
 export function setTenantOverride(id: string | null): void {
@@ -70,4 +74,8 @@ export function setTenantOverride(id: string | null): void {
 export function tenantOverride(): string | null {
   if (typeof window === "undefined") return null;
   return window.sessionStorage.getItem(DEMO_TENANT_KEY);
+}
+
+export function clearTenantOverride(): void {
+  if (typeof window !== "undefined") window.sessionStorage.removeItem(DEMO_TENANT_KEY);
 }

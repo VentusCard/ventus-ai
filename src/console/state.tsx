@@ -1,7 +1,6 @@
 // Console state: Supabase auth + the operating session (tenant, connector
-// session, qualified moments, decision ledger). Everything the console does is
-// recorded through the same append-only ledger the demo and pilot use — the
-// product is the pipeline, not a new copy of it.
+// session, qualified moments, decision ledger). The browser ledger is a session
+// integrity trace; durable pilot evidence remains a server-side responsibility.
 
 import {
   createContext,
@@ -24,7 +23,12 @@ import {
   type OpportunityPolicyDecision,
   type PlaidTransaction,
 } from "@/lib/plaid";
-import { resolveTenant, type Tenant } from "@/lib/tenant";
+import {
+  clearTenantOverride,
+  resolveTenant,
+  resolveTenantFromEmail,
+  type Tenant,
+} from "@/lib/tenant";
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 
@@ -54,6 +58,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const signOut = useCallback(async () => {
+    clearConsoleStorage();
+    clearTenantOverride();
     await supabase.auth.signOut();
   }, []);
 
@@ -77,6 +83,9 @@ export type ConnectorSession = {
   sessionId: string;
   expiresAt: number; // unix seconds
   connectors: { plaid: boolean; salesforce: boolean };
+  tenantId: string;
+  subject: string;
+  role: "operator" | "admin";
 };
 
 export type ScenarioId = "deposit-retention" | "wealth-growth";
@@ -94,9 +103,19 @@ export type ConsoleMoment = {
   receipt?: { id: string; url?: string; subject: string };
 };
 
-const SESSION_KEY = "ventus_console_connector_session";
-const MOMENTS_KEY = "ventus_console_moments";
-const LEDGER_KEY = "ventus_console_ledger";
+const STORAGE_PREFIX = "ventus_console_";
+
+function scopedKey(name: string, tenantId: string, userId: string): string {
+  return `${STORAGE_PREFIX}${name}:${tenantId}:${userId}`;
+}
+
+function clearConsoleStorage(): void {
+  if (typeof window === "undefined") return;
+  for (let index = window.sessionStorage.length - 1; index >= 0; index -= 1) {
+    const key = window.sessionStorage.key(index);
+    if (key?.startsWith(STORAGE_PREFIX)) window.sessionStorage.removeItem(key);
+  }
+}
 
 function restore<T>(key: string, fallback: T): T {
   if (typeof window === "undefined") return fallback;
@@ -156,28 +175,38 @@ type ConsoleState = {
 const ConsoleContext = createContext<ConsoleState | null>(null);
 
 export function ConsoleProvider({ children }: { children: ReactNode }) {
-  const { user } = useAuth();
+  const { user, session } = useAuth();
   const tenant = useMemo(() => resolveTenant(user?.email), [user?.email]);
+  const authTenant = useMemo(() => resolveTenantFromEmail(user?.email), [user?.email]);
+  const userId = user?.id ?? "anonymous";
+  const sessionKey = scopedKey("connector_session", authTenant.id, userId);
+  const momentsKey = scopedKey("moments", authTenant.id, userId);
+  const ledgerKey = scopedKey("ledger", authTenant.id, userId);
 
   const [connectorSession, setConnectorSession] = useState<ConnectorSession | null>(() => {
-    const stored = restore<ConnectorSession | null>(SESSION_KEY, null);
-    return stored && stored.expiresAt * 1000 > Date.now() ? stored : null;
+    const stored = restore<ConnectorSession | null>(sessionKey, null);
+    return stored
+      && stored.expiresAt * 1000 > Date.now()
+      && stored.tenantId === authTenant.id
+      && stored.subject === userId
+      ? stored
+      : null;
   });
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
-  const [moments, setMoments] = useState<ConsoleMoment[]>(() => restore(MOMENTS_KEY, []));
+  const [moments, setMoments] = useState<ConsoleMoment[]>(() => restore(momentsKey, []));
   const [ingesting, setIngesting] = useState(false);
   const [ingestError, setIngestError] = useState<string | null>(null);
   const [activating, setActivating] = useState<string | null>(null);
   const [activateError, setActivateError] = useState<string | null>(null);
-  const [ledger, setLedger] = useState<LedgerEvent[]>(() => restore(LEDGER_KEY, []));
+  const [ledger, setLedger] = useState<LedgerEvent[]>(() => restore(ledgerKey, []));
 
-  useEffect(() => persist(MOMENTS_KEY, moments), [moments]);
-  useEffect(() => persist(LEDGER_KEY, ledger), [ledger]);
+  useEffect(() => persist(momentsKey, moments), [moments, momentsKey]);
+  useEffect(() => persist(ledgerKey, ledger), [ledger, ledgerKey]);
   useEffect(() => {
-    if (connectorSession) persist(SESSION_KEY, connectorSession);
-    else window.sessionStorage.removeItem(SESSION_KEY);
-  }, [connectorSession]);
+    if (connectorSession) persist(sessionKey, connectorSession);
+    else window.sessionStorage.removeItem(sessionKey);
+  }, [connectorSession, sessionKey]);
 
   const record = useCallback((drafts: LedgerDraft[]) => {
     setLedger((prev) => appendEvents(prev, drafts));
@@ -187,23 +216,33 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
     setConnecting(true);
     setConnectError(null);
     try {
-      const response = await fetch("/api/presenter-session", { method: "POST" });
+      if (!session?.access_token) throw new Error("Sign in again to start a connector session.");
+      const response = await fetch("/api/presenter-session", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
       const data = (await response.json().catch(() => ({}))) as Partial<ConnectorSession> & { error?: string };
       if (!response.ok || !data.token) {
         throw new Error(data.error ?? `session mint failed (${response.status})`);
+      }
+      if (data.tenantId !== authTenant.id || data.subject !== userId) {
+        throw new Error("Connector session identity did not match this workspace.");
       }
       setConnectorSession({
         token: data.token,
         sessionId: data.sessionId ?? "session",
         expiresAt: data.expiresAt ?? Math.floor(Date.now() / 1000) + 900,
         connectors: data.connectors ?? { plaid: false, salesforce: false },
+        tenantId: data.tenantId,
+        subject: data.subject,
+        role: data.role === "admin" ? "admin" : "operator",
       });
     } catch (error) {
       setConnectError(error instanceof Error ? error.message : "Connector session unavailable");
     } finally {
       setConnecting(false);
     }
-  }, []);
+  }, [authTenant.id, session?.access_token, userId]);
 
   const disconnect = useCallback(() => setConnectorSession(null), []);
 
@@ -304,9 +343,9 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           body: JSON.stringify({
             subject: meta.subject,
             dueInDays: moment.scenario === "deposit-retention" ? 2 : 3,
-            source: `console-${tenant.id}`,
+            source: `console-${authTenant.id}`,
             insight: {
-              businessLine: tenant.businessLines[moment.scenario === "deposit-retention" ? 0 : 1] ?? tenant.defaultBusinessLine,
+              businessLine: authTenant.businessLines[moment.scenario === "deposit-retention" ? 0 : 1] ?? authTenant.defaultBusinessLine,
               growthPlay: meta.play,
               customerRef: `household-${moment.id}`,
               moment: moment.opportunity.type,
@@ -374,7 +413,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         setActivating(null);
       }
     },
-    [moments, connectorSession, tenant, user?.email, record],
+    [moments, connectorSession, authTenant, user?.email, record],
   );
 
   const dismiss = useCallback(

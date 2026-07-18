@@ -1,4 +1,4 @@
-project_id = "theaknjrmfsyauxxvhmk"
+project_id = "qopysdercrqgwcrawndl"
 
 [functions.classify-transactions]
 verify_jwt = false

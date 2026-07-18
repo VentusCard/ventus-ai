@@ -43,8 +43,8 @@ function Shell() {
   const title = NAV.find((item) => (item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)))?.label ?? "Console";
 
   return (
-    <div className="console v2 flex min-h-svh" style={{ ["--c-accent" as string]: tenant.accent, ["--c-accent-wash" as string]: tenant.accentWash }}>
-      <aside className="console-rail flex w-60 flex-none flex-col justify-between p-4">
+    <div className="console v2 flex min-h-svh pb-16 md:pb-0" style={{ ["--c-accent" as string]: tenant.accent, ["--c-accent-wash" as string]: tenant.accentWash }}>
+      <aside className="console-rail hidden w-60 flex-none flex-col justify-between p-4 md:flex">
         <div>
           <div className="flex items-center gap-3 px-2 pb-6 pt-2">
             <TenantMark />
@@ -92,16 +92,46 @@ function Shell() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 flex-none items-center justify-between border-b bg-white/70 px-6 backdrop-blur" style={{ borderColor: "var(--v2-rule)" }}>
-          <h1 className="text-[15px] font-bold" style={{ color: "var(--v2-ink)" }}>{title}</h1>
+        <header className="flex h-14 flex-none items-center justify-between border-b bg-white/70 px-4 backdrop-blur md:px-6" style={{ borderColor: "var(--v2-rule)" }}>
+          <div className="flex min-w-0 items-center gap-2.5">
+            <span className="md:hidden"><TenantMark size={28} /></span>
+            <h1 className="truncate text-[15px] font-bold" style={{ color: "var(--v2-ink)" }}>{title}</h1>
+          </div>
           <span className="v2-mono text-[9px] uppercase tracking-[0.14em]" style={{ color: "var(--v2-ink-faint)" }}>
-            Pilot environment · sandbox data only
+            <span className="hidden sm:inline">Pilot environment · </span>sandbox only
           </span>
+          <button
+            type="button"
+            onClick={() => void signOut()}
+            className="ml-3 text-slate-500 md:hidden"
+            aria-label="Sign out"
+          >
+            <LogOut className="h-4 w-4" />
+          </button>
         </header>
-        <main className="min-w-0 flex-1 overflow-y-auto p-6">
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
       </div>
+
+      <nav
+        className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-4 border-t bg-white/95 px-2 backdrop-blur md:hidden"
+        style={{ borderColor: "var(--v2-rule)" }}
+        aria-label="Console navigation"
+      >
+        {NAV.map(({ to, label, icon: Icon, end }) => (
+          <NavLink
+            key={to}
+            to={to}
+            end={end}
+            className="flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-semibold"
+            style={({ isActive }) => ({ color: isActive ? tenant.accent : "var(--v2-ink-faint)" })}
+          >
+            <Icon className="h-4 w-4" />
+            <span className="truncate">{label}</span>
+          </NavLink>
+        ))}
+      </nav>
     </div>
   );
 }

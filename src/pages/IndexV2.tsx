@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import SEO from "@/components/SEO";
 import ScrollDrivenHeroV2 from "@/components/ScrollDrivenHeroV2";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -17,6 +17,8 @@ import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
 
 import ImpactDeliveryConsole from "@/components/home/ImpactDeliveryConsole";
+
+const EnterpriseGrowthDemoPage = lazy(() => import("@/pages/EnterpriseGrowthDemoPage"));
 
 // Home V2 — design-review candidate. Language: "ruled ledger paper" —
 // warm paper with faint ruling, ink-only display type, mono for machine
@@ -457,6 +459,36 @@ const IndexV2 = () => {
         <ImpactDeliveryConsole scenario={activePlay} />
 
         <IntegrationProof />
+
+        <section className="v2-ruled v2-rule-t py-20 md:py-28" id="wealth-deployment">
+          <div className="mx-auto max-w-7xl px-6 md:px-8">
+            <ScrollReveal>
+              <div className="mb-8 flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+                <div>
+                  <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-blue)" }}>
+                    Product in context
+                  </p>
+                  <h2 className="v2-display mt-4 text-3xl md:text-[56px]">
+                    From wealth signal to operator action.
+                  </h2>
+                </div>
+                <p className="v2-body max-w-sm text-sm md:text-base">
+                  One configured deployment, shown inside the employee workflow.
+                </p>
+              </div>
+              <div className="h-[760px] overflow-hidden rounded-lg border bg-white lg:h-[820px]" style={{ borderColor: "var(--v2-rule)" }}>
+                <Suspense fallback={<div className="h-full bg-white" aria-label="Loading wealth deployment" />}>
+                  <EnterpriseGrowthDemoPage
+                    embedded
+                    audience="leadership"
+                    initialPath="wealth-growth"
+                    autoEnter
+                  />
+                </Suspense>
+              </div>
+            </ScrollReveal>
+          </div>
+        </section>
 
         {/* One public conversion path — and the business model, stated plainly. */}
         <section className="v2-ruled v2-rule-t" style={{ paddingTop: 144, paddingBottom: 144 }}>
