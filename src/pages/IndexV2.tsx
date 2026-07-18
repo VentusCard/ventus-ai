@@ -266,15 +266,21 @@ const IndexV2 = () => {
   // Scroll snap: land on the next section rather than getting stuck between.
   // Uses `proximity` so tall sticky sections (like Growth Plays at 280vh) can
   // still be scrolled through freely — snap only engages near section edges.
+  // `scroll-behavior: smooth` makes both forward and reverse snaps glide.
   useEffect(() => {
     const html = document.documentElement;
-    const prevSnapType = html.style.scrollSnapType;
-    const prevScrollPadding = html.style.scrollPaddingTop;
+    const prev = {
+      snapType: html.style.scrollSnapType,
+      padTop: html.style.scrollPaddingTop,
+      behavior: html.style.scrollBehavior,
+    };
     html.style.scrollSnapType = "y proximity";
     html.style.scrollPaddingTop = "64px"; // account for sticky nav
+    html.style.scrollBehavior = "smooth";
     return () => {
-      html.style.scrollSnapType = prevSnapType;
-      html.style.scrollPaddingTop = prevScrollPadding;
+      html.style.scrollSnapType = prev.snapType;
+      html.style.scrollPaddingTop = prev.padTop;
+      html.style.scrollBehavior = prev.behavior;
     };
   }, []);
 
