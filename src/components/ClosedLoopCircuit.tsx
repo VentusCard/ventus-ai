@@ -77,7 +77,7 @@ const ClosedLoopCircuit = () => {
               <ScrollReveal key={step.label} delay={i * 0.08}>
                 <div className="v2-row relative z-10 h-full" style={{ backgroundColor: "var(--v2-paper)" }}>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="v2-mono text-[10px] font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--v2-green)" }}>
+                    <span className="v2-mono text-[10px] font-semibold tracking-[0.14em] uppercase" style={{ color: "var(--v2-blue)" }}>
                       {step.label}
                     </span>
                     <span className="v2-section-no">0{i + 1}</span>
@@ -95,14 +95,14 @@ const ClosedLoopCircuit = () => {
           <div className="hidden lg:block pointer-events-none absolute inset-x-0 top-full mt-6 h-40">
             <svg viewBox="0 0 1000 190" className="w-full h-full" fill="none" aria-hidden="true">
               {/* Return edge: outcomes feed the next moment. */}
-              <path d={RETURN_PATH} stroke="var(--v2-green)" strokeWidth="1.5" strokeDasharray="6 5" opacity={visible ? 0.45 : 0} style={{ transition: "opacity 600ms ease 400ms" }} />
+              <path d={RETURN_PATH} stroke="var(--v2-verified)" strokeWidth="1.5" strokeDasharray="6 5" opacity={visible ? 0.45 : 0} style={{ transition: "opacity 600ms ease 400ms" }} />
               <path d={FORWARD_PATH} stroke="var(--v2-rule)" strokeWidth="2" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease" }} />
               {visible && !reducedMotion && (
-                <circle r="4" fill="var(--v2-green)">
+                <circle r="4" fill="var(--v2-verified)">
                   <animateMotion dur="6s" repeatCount="indefinite" path={RETURN_PATH} />
                 </circle>
               )}
-              <text x="500" y="150" textAnchor="middle" className="v2-mono" fontSize="11" fill="var(--v2-green)" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease 600ms" }}>
+              <text x="500" y="150" textAnchor="middle" className="v2-mono" fontSize="11" fill="var(--v2-verified)" opacity={visible ? 1 : 0} style={{ transition: "opacity 600ms ease 600ms" }}>
                 outcomes sharpen the next play ↺
               </text>
             </svg>

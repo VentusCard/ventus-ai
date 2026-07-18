@@ -149,7 +149,7 @@ const SolutionSectionsV2 = () => {
             {nextCards.map((section) => (
               <div key={section.id} className="v2-row flex flex-col">
                 <div className="flex flex-col flex-1">
-                  <p className="v2-mono text-[10px] font-semibold tracking-[0.14em] uppercase mb-3" style={{ color: "var(--v2-green)" }}>
+                  <p className="v2-mono text-[10px] font-semibold tracking-[0.14em] uppercase mb-3" style={{ color: "var(--v2-blue)" }}>
                     {section.label}
                   </p>
                   <h3 className="v2-display text-xl mb-3" style={{ letterSpacing: "-0.02em" }}>
@@ -169,7 +169,7 @@ const SolutionSectionsV2 = () => {
                     </div>
                   </div>
                   <div className="mt-4">
-                    <Link to={section.link} className="inline-flex items-center gap-1.5 text-[14px] font-semibold" style={{ color: "var(--v2-green)" }}>
+                    <Link to={section.link} className="inline-flex items-center gap-1.5 text-[14px] font-semibold" style={{ color: "var(--v2-blue)" }}>
                       Learn more <span aria-hidden>→</span>
                     </Link>
                   </div>
@@ -208,7 +208,7 @@ const SolutionSectionsV2 = () => {
                   </div>
                 </div>
                 <div className="mt-5 flex justify-start">
-                  <Link to="/solutions/portfolio-intelligence" className="inline-flex items-center gap-1.5 text-[14px] font-semibold" style={{ color: "var(--v2-green)" }}>
+                  <Link to="/solutions/portfolio-intelligence" className="inline-flex items-center gap-1.5 text-[14px] font-semibold" style={{ color: "var(--v2-blue)" }}>
                     Learn more <span aria-hidden>→</span>
                   </Link>
                 </div>

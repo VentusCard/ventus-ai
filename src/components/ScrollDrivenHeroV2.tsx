@@ -281,7 +281,7 @@ const ScrollDrivenHeroV2 = () => {
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
               }}
             >
-              Turn transactions into <span style={{ color: "var(--v2-green)" }}>measured growth</span>
+              Turn transactions into <span style={{ color: "var(--v2-blue)" }}>measured growth</span>
             </h1>
 
             <p
@@ -701,7 +701,7 @@ const ScrollDrivenHeroV2 = () => {
                             className="absolute inset-y-0 left-0 rounded-full"
                             style={{
                               width: `${(isComplete ? 1 : fill) * 100}%`,
-                              background: "var(--v2-green)",
+                              background: "var(--v2-blue)",
                               transition: "width 120ms linear",
                             }}
                           />
