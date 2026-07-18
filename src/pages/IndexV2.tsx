@@ -1,9 +1,8 @@
-import { useState } from "react";
+import { lazy, Suspense, useState } from "react";
 import SEO from "@/components/SEO";
 import ScrollDrivenHeroV2 from "@/components/ScrollDrivenHeroV2";
 import ScrollReveal from "@/components/ScrollReveal";
 import PipelineConsole from "@/components/home/PipelineConsole";
-import DeviceDuo from "@/components/home/DeviceDuo";
 import IntegrationProof from "@/components/home/IntegrationProof";
 import CapabilityProofStrip from "@/components/home/CapabilityProofStrip";
 import { GROWTH_PLAY_SCENARIOS, type GrowthPlayId } from "@/components/home/growthPlayScenarios";
@@ -19,6 +18,8 @@ import {
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
+
+const ImpactDeliveryConsole = lazy(() => import("@/components/home/ImpactDeliveryConsole"));
 
 // Home V2 — design-review candidate. Language: "ruled ledger paper" —
 // warm paper with faint ruling, ink-only display type, mono for machine
@@ -43,9 +44,10 @@ function V2Nav() {
         </Link>
         <nav className="hidden items-center gap-7 md:flex">
           {[
-            ["How it works", "#loop"],
-            ["Solutions", "/wealth"],
-            ["Integration", "#integration"],
+            ["Platform", "/platform"],
+            ["Growth Plays", "#growth-plays"],
+            ["Integrations", "#integration"],
+            ["Insights", "/insights"],
           ].map(([label, href]) =>
             href.startsWith("#") ? (
               <a key={label} href={href} className="text-[13px] font-semibold transition-colors hover:opacity-100" style={{ color: "var(--v2-ink-soft)" }}>
@@ -81,15 +83,17 @@ function V2Footer() {
           </div>
           <div className="flex gap-14">
             {[
-              ["Product", [["Platform", "/platform"], ["Solutions", "/wealth"], ["Insights", "/insights"]]],
-              ["Company", [["Contact", "/contact"]]],
+              ["Product", [["Platform", "/platform"], ["Growth Plays", "#growth-plays"], ["Integrations", "#integration"]]],
+              ["Company", [["Insights", "/insights"], ["Contact", "/contact"]]],
             ].map(([group, links]) => (
               <div key={group as string}>
                 <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-console-faint)" }}>{group as string}</p>
                 <ul className="mt-3 space-y-2">
                   {(links as string[][]).map(([label, href]) => (
                     <li key={label}>
-                      {href.startsWith("/") && !href.endsWith(".html") ? (
+                      {href.startsWith("#") ? (
+                        <a href={href} className="text-[13px] font-medium text-white/80 transition hover:text-white">{label}</a>
+                      ) : href.startsWith("/") && !href.endsWith(".html") ? (
                         <Link to={href} className="text-[13px] font-medium text-white/80 transition hover:text-white">{label}</Link>
                       ) : (
                         <a href={href} className="text-[13px] font-medium text-white/80 transition hover:text-white">{label}</a>
@@ -129,7 +133,7 @@ const IndexV2 = () => {
         <CapabilityProofStrip />
 
         {/* The same decision infrastructure can serve multiple bank growth priorities. */}
-        <section className="v2-ruled v2-rule-t" style={{ paddingTop: 88, paddingBottom: 88 }}>
+        <section id="growth-plays" className="v2-ruled v2-rule-t scroll-mt-16" style={{ paddingTop: 88, paddingBottom: 88 }}>
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <ScrollReveal>
               <h2 className="v2-display max-w-4xl text-3xl md:text-5xl">
@@ -159,8 +163,9 @@ const IndexV2 = () => {
           onPlayChange={setActivePlayId}
         />
 
-        {/* The play at aggregate and employee-workflow levels. */}
-        <DeviceDuo scenario={activePlay} />
+        <Suspense fallback={<section className="min-h-[720px] v2-rule-t" style={{ backgroundColor: "var(--v2-paper)" }} />}>
+          <ImpactDeliveryConsole scenario={activePlay} />
+        </Suspense>
 
         <IntegrationProof />
 

@@ -151,6 +151,17 @@
   border-bottom: 1px solid var(--v2-rule);
 }
 
+@keyframes v2-trace {
+  from {
+    opacity: 0.35;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
 /* Ruled row — the ledger-line list item that replaces the SaaS card. */
 .v2-row {
   border-top: 1px solid var(--v2-rule);
