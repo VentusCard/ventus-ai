@@ -11,7 +11,6 @@ import {
   BriefcaseBusiness,
   CreditCard,
   Landmark,
-  ShieldCheck,
   TrendingUp,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -186,7 +185,7 @@ const IndexV2 = () => {
                   </h2>
                 </div>
                 <p className="v2-body max-w-md text-sm md:text-base lg:pb-1">
-                  Start with one business outcome. Expand on the same governed infrastructure.
+                  One governed layer. Multiple P&amp;L outcomes.
                 </p>
               </div>
 
@@ -212,7 +211,10 @@ const IndexV2 = () => {
                 {serviceLines.map(({ line, outcome, play, Icon }, index) => (
                   <div
                     key={line}
-                    className="grid gap-4 border-b px-5 py-5 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-6 md:px-6 md:py-6"
+                    className={[
+                      "grid gap-4 px-5 py-5 md:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)_minmax(0,1fr)] md:items-center md:gap-6 md:px-6 md:py-6",
+                      index < serviceLines.length - 1 ? "border-b" : "",
+                    ].join(" ")}
                     style={{ borderColor: "var(--v2-rule)" }}
                   >
                     <div className="flex min-w-0 items-center gap-3.5">
@@ -268,34 +270,7 @@ const IndexV2 = () => {
                     </div>
                   </div>
                 ))}
-
-                <div className="flex items-start gap-3 bg-[#F8FAFC] px-5 py-4 md:items-center md:px-6">
-                  <span
-                    className="flex h-8 w-8 flex-none items-center justify-center rounded-md border bg-white"
-                    style={{ borderColor: "var(--v2-rule)", color: "var(--v2-verified)" }}
-                  >
-                    <ShieldCheck className="h-4 w-4" />
-                  </span>
-                  <div className="min-w-0">
-                    <p
-                      className="v2-mono text-[9px] font-semibold uppercase tracking-[0.14em]"
-                      style={{ color: "var(--v2-ink-faint)" }}
-                    >
-                      Bank-wide control
-                    </p>
-                    <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
-                      Financial stress pauses outreach before any play is activated.
-                    </p>
-                  </div>
-                </div>
               </div>
-
-              <p
-                className="v2-mono mt-4 text-[10px]"
-                style={{ color: "var(--v2-ink-faint)" }}
-              >
-                Growth Plays adapt to each bank&apos;s products, policies, and channels.
-              </p>
             </ScrollReveal>
           </div>
         </section>

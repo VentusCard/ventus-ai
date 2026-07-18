@@ -35,7 +35,7 @@ export const GROWTH_PLAY_SCENARIOS: Record<GrowthPlayId, GrowthPlayScenario> = {
     line: "Consumer Banking",
     stages: [
       { key: "moment", label: "Qualified Moment", detail: "Deposit primacy risk · 91%", ledger: "signal · payroll split + balance migration" },
-      { key: "gate", label: "Policy Gate", detail: "Eligibility + consent passed", ledger: "gate · uniform criteria applied" },
+      { key: "gate", label: "Policy Gate", detail: "Consent + vulnerability checks passed", ledger: "gate · consent + vulnerability controls" },
       { key: "play", label: "Growth Play", detail: "Retention review · routed", ledger: "decision · banker task qualified" },
       { key: "holdout", label: "Holdout", detail: "10% cohort reserved", ledger: "counterfactual · holdout reserved" },
       { key: "lift", label: "Measured Lift", detail: "+8.4 pp retention vs holdout", ledger: "outcome · retention measured vs holdout" },
@@ -65,7 +65,7 @@ export const GROWTH_PLAY_SCENARIOS: Record<GrowthPlayId, GrowthPlayScenario> = {
     line: "Wealth Management",
     stages: [
       { key: "moment", label: "Qualified Moment", detail: "Wealth readiness · 88%", ledger: "signal · income growth + cash buildup" },
-      { key: "gate", label: "Policy Gate", detail: "Eligibility + consent passed", ledger: "gate · wealth referral policy applied" },
+      { key: "gate", label: "Policy Gate", detail: "Consent + vulnerability checks passed", ledger: "gate · consent + vulnerability controls" },
       { key: "play", label: "Growth Play", detail: "Advisor review · routed", ledger: "decision · advisor task qualified" },
       { key: "holdout", label: "Holdout", detail: "10% cohort reserved", ledger: "counterfactual · holdout reserved" },
       { key: "lift", label: "Measured Lift", detail: "+6.2 pp conversion vs holdout", ledger: "outcome · conversion measured vs holdout" },

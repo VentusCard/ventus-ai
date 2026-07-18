@@ -105,20 +105,16 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
                 })}
               </div>
 
-              <div className="mt-8 grid grid-cols-2 border-y md:grid-cols-4" style={{ borderColor: "var(--v2-console-line)" }}>
+              <div className="mt-8 grid grid-cols-2 border-y" style={{ borderColor: "var(--v2-console-line)" }}>
                 {[
-                  "Policy passed",
-                  "10% holdout",
-                  "Receipt attached",
-                  "Ledger chained",
+                  "Decision receipt attached",
+                  "Ledger hash chained",
                 ].map((item, index) => (
                   <div
                     key={item}
                     className={[
                       "flex min-h-12 items-center gap-2 px-3 py-3",
-                      index % 2 === 1 ? "border-l" : "",
-                      index > 1 ? "border-t md:border-t-0" : "",
-                      index > 0 ? "md:border-l" : "md:border-l-0",
+                      index > 0 ? "border-l" : "",
                     ].join(" ")}
                     style={{ borderColor: "var(--v2-console-line)" }}
                   >
