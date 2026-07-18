@@ -151,7 +151,7 @@ const IndexV2 = () => {
         <CapabilityProofStrip />
 
         {/* The same decision infrastructure can serve multiple bank growth priorities. */}
-        <section id="growth-plays" className="v2-ruled v2-rule-t scroll-mt-16" style={{ paddingTop: 88, paddingBottom: 88 }}>
+        <section id="growth-plays" className="v2-ruled v2-rule-t scroll-mt-16" style={{ paddingTop: 112, paddingBottom: 112 }}>
           <div className="mx-auto max-w-7xl px-6 md:px-8">
             <ScrollReveal>
               <h2 className="v2-display max-w-4xl text-3xl md:text-[56px]">

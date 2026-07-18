@@ -41,6 +41,13 @@
   background-color: var(--v2-paper);
   color: var(--v2-ink);
   font-feature-settings: "cv11", "ss01";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.v2 ::selection {
+  background: var(--v2-blue-wash);
+  color: var(--v2-blue-deep);
 }
 
 /* Ledger ruling: a faint engineering grid on paper surfaces. */
@@ -57,7 +64,10 @@
   font-family: "Inter", ui-sans-serif, system-ui, sans-serif;
   font-weight: 700;
   letter-spacing: -0.025em;
-  line-height: 1.03;
+  /* !important because Tailwind font-size utilities (text-3xl etc.) carry
+     their own fixed line-heights that survive arbitrary-size overrides —
+     display type must never inherit a 36px line-height at 56px. */
+  line-height: 1.08 !important;
   color: var(--v2-ink);
   text-wrap: balance;
 }
@@ -130,6 +140,11 @@
 }
 .v2-btn:hover {
   background: var(--v2-blue-deep);
+}
+.v2-btn:focus-visible,
+.v2-btn-ghost:focus-visible {
+  outline: 2px solid var(--v2-blue-deep);
+  outline-offset: 2px;
 }
 
 .v2-btn-ghost {

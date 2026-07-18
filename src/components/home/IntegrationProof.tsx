@@ -19,7 +19,7 @@ const ecosystem = [
 
 const IntegrationProof = () => {
   return (
-    <section id="integration" className="v2-rule-t bg-white py-20 md:py-24">
+    <section id="integration" className="v2-rule-t bg-white py-24 md:py-28">
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <ScrollReveal>
           <div className="mb-10 max-w-4xl">

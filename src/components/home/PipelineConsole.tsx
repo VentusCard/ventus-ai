@@ -34,7 +34,7 @@ const PipelineConsole = ({ scenario, activePlayId, onPlayChange }: PipelineConso
     <section
       id="loop"
       className="v2-rule-t relative z-10 w-full scroll-mt-16"
-      style={{ paddingTop: 96, paddingBottom: 96, backgroundColor: "var(--v2-console)" }}
+      style={{ paddingTop: 112, paddingBottom: 112, backgroundColor: "var(--v2-console)" }}
     >
       <div className="mx-auto max-w-7xl px-6 md:px-8">
         <ScrollReveal>

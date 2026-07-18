@@ -149,15 +149,17 @@ const ScrollDrivenHeroV2 = () => {
                     >
                       {isComplete ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
                     </span>
+                    {/* Label masks the connector — the line must never strike
+                        through the words it connects. */}
                     <span
-                      className="truncate text-[10px] font-semibold"
+                      className="relative z-10 truncate bg-white px-1 text-[11px] font-semibold"
                       style={{ color: isActive ? "var(--v2-ink)" : "var(--v2-ink-faint)" }}
                     >
                       {item.label}
                     </span>
                     {index < stages.length - 1 && (
                       <span
-                        className="absolute left-7 right-0 top-3.5 h-px"
+                        className="absolute left-7 right-0 top-3.5 z-0 h-px"
                         style={{ backgroundColor: isComplete ? "var(--v2-blue)" : "var(--v2-rule)" }}
                       />
                     )}
