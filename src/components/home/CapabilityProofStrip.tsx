@@ -1,10 +1,10 @@
 import { CheckCircle2, Database, FileCheck2, Split, Workflow } from "lucide-react";
 
 const proofs = [
-  { label: "Plaid ingestion", detail: "Sandbox pull proven", Icon: Database },
-  { label: "Salesforce activation", detail: "Sandbox task proven", Icon: Workflow },
-  { label: "Holdout assignment", detail: "E2E demonstrated", Icon: Split },
-  { label: "Decision receipts", detail: "Hash-chain tested", Icon: FileCheck2 },
+  { label: "Sandbox input", detail: "Plaid records received", Icon: Database },
+  { label: "Workflow activation", detail: "Salesforce task created", Icon: Workflow },
+  { label: "Measurement control", detail: "Holdout preserved", Icon: Split },
+  { label: "Decision evidence", detail: "Receipt recorded", Icon: FileCheck2 },
 ];
 
 const CapabilityProofStrip = () => {
@@ -15,7 +15,7 @@ const CapabilityProofStrip = () => {
           <div className="flex items-center gap-2 border-b py-5 md:w-[210px] md:border-b-0 md:border-r md:pr-6" style={{ borderColor: "var(--v2-rule)" }}>
             <CheckCircle2 className="h-4 w-4 flex-none" style={{ color: "var(--v2-verified)" }} />
             <span className="v2-mono text-[11px] font-semibold uppercase" style={{ color: "var(--v2-ink-faint)" }}>
-              Working today in sandbox
+              Proven in sandbox
             </span>
           </div>
           <div className="grid flex-1 grid-cols-2 md:grid-cols-4">

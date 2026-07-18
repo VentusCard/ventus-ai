@@ -3,34 +3,40 @@ import {
   ArrowRight,
   BriefcaseBusiness,
   CheckCircle2,
-  Database,
   Landmark,
   Radar,
-  ReceiptText,
+  RotateCcw,
   Sparkles,
   TrendingDown,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 
-const stages = [
-  { label: "Raw", icon: Database },
-  { label: "Enriched", icon: Sparkles },
-  { label: "Key events", icon: Radar },
-];
-
-const rawRecords = [
-  { rail: "ACH", description: "ACH CREDIT ACME PAYROLL 0829", value: "+6,240.00" },
-  { rail: "WIRE", description: "WIRE OUT MORGAN STANLEY", value: "-4,800.00" },
-  { rail: "CARD", description: "CHECKCARD WHOLE FOODS #1023", value: "-87.40" },
-  { rail: "ACH", description: "ACH DEBIT RENT PAYMENT", value: "-2,850.00" },
-];
-
-const enrichedRecords = [
-  { icon: BriefcaseBusiness, label: "Payroll income", rail: "ACH", value: "+$6,240" },
-  { icon: Landmark, label: "Investment transfer", rail: "Wire", value: "-$4,800" },
-  { icon: ReceiptText, label: "Grocery", rail: "Card", value: "-$87.40" },
-  { icon: CheckCircle2, label: "Rent", rail: "ACH", value: "-$2,850" },
+const nativeInputs = [
+  {
+    rail: "ACH",
+    description: "ACH CREDIT ACME PAYROLL 0829",
+    value: "+6,240.00",
+    enrichment: "Payroll income",
+  },
+  {
+    rail: "WIRE",
+    description: "WIRE OUT MORGAN STANLEY",
+    value: "-4,800.00",
+    enrichment: "Investment transfer",
+  },
+  {
+    rail: "CARD",
+    description: "CHECKCARD WHOLE FOODS #1023",
+    value: "-87.40",
+    enrichment: "Grocery",
+  },
+  {
+    rail: "ACH",
+    description: "ACH DEBIT RENT PAYMENT",
+    value: "-2,850.00",
+    enrichment: "Housing",
+  },
 ];
 
 const keyEvents = [
@@ -51,36 +57,28 @@ const keyEvents = [
   },
 ];
 
-const STAGE_HOLD_MS = 3800;
+const ENRICH_DELAY_MS = 650;
+const EVENTS_DELAY_MS = 1700;
 
 const ScrollDrivenHeroV2 = () => {
-  const [stage, setStage] = useState(0);
-  const [settled, setSettled] = useState(false);
+  const [phase, setPhase] = useState(0);
   const [runId, setRunId] = useState(0);
 
-  // Play the sequence once, then rest on the result. Content that keeps
-  // changing under a reader's eyes is a carousel; a run that completes is a
-  // demonstration. Replay is explicit.
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
     if (reducedMotion.matches) {
-      setStage(2);
-      setSettled(true);
+      setPhase(2);
       return;
     }
 
-    setStage(0);
-    setSettled(false);
-    const t1 = window.setTimeout(() => setStage(1), STAGE_HOLD_MS);
-    const t2 = window.setTimeout(() => {
-      setStage(2);
-      setSettled(true);
-    }, STAGE_HOLD_MS * 2);
+    setPhase(0);
+    const enrichmentTimer = window.setTimeout(() => setPhase(1), ENRICH_DELAY_MS);
+    const eventsTimer = window.setTimeout(() => setPhase(2), EVENTS_DELAY_MS);
 
     return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
+      window.clearTimeout(enrichmentTimer);
+      window.clearTimeout(eventsTimer);
     };
   }, [runId]);
 
@@ -90,7 +88,7 @@ const ScrollDrivenHeroV2 = () => {
       className="v2-ruled flex min-h-[calc(100svh-64px)] items-center"
       style={{ backgroundColor: "var(--v2-paper)" }}
     >
-      <div className="mx-auto grid w-full max-w-7xl gap-12 px-6 py-16 md:px-8 md:py-20 xl:grid-cols-[0.82fr_1.18fr] xl:items-center xl:gap-16">
+      <div className="mx-auto grid w-full max-w-7xl gap-10 px-6 py-14 md:px-8 md:py-20 xl:grid-cols-[0.82fr_1.18fr] xl:items-center xl:gap-16">
         <div className="max-w-2xl">
           <h1 className="v2-display text-[42px] sm:text-5xl md:text-6xl xl:text-[84px]">
             Turn transactions into{" "}
@@ -112,7 +110,7 @@ const ScrollDrivenHeroV2 = () => {
           style={{ borderColor: "var(--v2-rule)" }}
         >
           <div
-            className="flex min-h-14 flex-wrap items-center justify-between gap-3 border-b px-5 py-3"
+            className="flex min-h-14 flex-wrap items-center justify-between gap-2 border-b px-5 py-3"
             style={{ borderColor: "var(--v2-rule)" }}
           >
             <div className="flex items-center gap-3">
@@ -127,183 +125,163 @@ const ScrollDrivenHeroV2 = () => {
             </span>
           </div>
 
-          <div className="border-b px-5 py-4 md:px-6" style={{ borderColor: "var(--v2-rule)" }}>
-            <div className="grid grid-cols-3">
-              {stages.map((item, index) => {
-                const Icon = item.icon;
-                const isActive = index === stage;
-                const isComplete = index < stage;
+          <div className="grid grid-cols-[minmax(0,1fr)_36px_minmax(0,1fr)] items-stretch gap-2 bg-[#F8FAFC] p-3 sm:grid-cols-[minmax(0,1fr)_52px_minmax(0,1fr)] sm:gap-3 sm:p-5 md:grid-cols-[minmax(0,1fr)_64px_minmax(0,1fr)] md:p-6">
+            <div className="min-w-0">
+              <div className="flex items-center justify-between gap-3">
+                <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
+                  NATIVE INPUTS
+                </span>
+                <span
+                  className="text-[10px] font-semibold transition-colors duration-300"
+                  style={{ color: phase >= 1 ? "var(--v2-blue)" : "var(--v2-ink-faint)" }}
+                >
+                  {phase >= 1 ? "Enriched" : "Unstructured"}
+                </span>
+              </div>
 
-                return (
+              <div className="mt-3 overflow-hidden rounded border bg-white" style={{ borderColor: "var(--v2-rule)" }}>
+                {nativeInputs.map((record, index) => (
                   <div
-                    key={item.label}
-                    className="relative flex min-w-0 items-center gap-2 pr-2 last:pr-0"
-                    aria-current={isActive ? "step" : undefined}
+                    key={record.description}
+                    className="grid grid-cols-[minmax(0,1fr)] items-center gap-2 border-b px-2 py-2.5 last:border-0 sm:grid-cols-[36px_minmax(0,1fr)_auto] sm:px-3"
+                    style={{ borderColor: "var(--v2-rule-soft)" }}
                   >
-                    <span
-                      className="relative z-10 flex h-7 w-7 shrink-0 items-center justify-center rounded-full border bg-white"
-                      style={{
-                        borderColor: isActive || isComplete ? "var(--v2-blue)" : "var(--v2-rule)",
-                        color: isActive || isComplete ? "var(--v2-blue)" : "var(--v2-ink-faint)",
-                      }}
-                    >
-                      {isComplete ? <CheckCircle2 className="h-3.5 w-3.5" /> : <Icon className="h-3.5 w-3.5" />}
+                    <span className="v2-mono hidden text-[10px] sm:block" style={{ color: "var(--v2-ink-faint)" }}>
+                      {record.rail}
                     </span>
-                    {/* Label masks the connector — the line must never strike
-                        through the words it connects. */}
-                    <span
-                      className="relative z-10 truncate bg-white px-1 text-[11px] font-semibold"
-                      style={{ color: isActive ? "var(--v2-ink)" : "var(--v2-ink-faint)" }}
-                    >
-                      {item.label}
+                    <div className="min-w-0">
+                      <p className="truncate text-[10px] font-semibold" style={{ color: "var(--v2-ink)" }}>
+                        {record.description}
+                      </p>
+                      <p
+                        className="mt-0.5 truncate text-[10px] font-semibold"
+                        style={{
+                          color: "var(--v2-blue)",
+                          opacity: phase >= 1 ? 1 : 0,
+                          transform: phase >= 1 ? "translateY(0)" : "translateY(3px)",
+                          transition: "opacity 260ms ease, transform 260ms ease",
+                          transitionDelay: phase >= 1 ? `${index * 90}ms` : "0ms",
+                        }}
+                        aria-hidden={phase < 1}
+                      >
+                        {record.enrichment}
+                      </p>
+                    </div>
+                    <span className="v2-mono hidden text-[10px] sm:block" style={{ color: "var(--v2-ink-soft)" }}>
+                      {record.value}
                     </span>
-                    {index < stages.length - 1 && (
-                      <span
-                        className="absolute left-7 right-0 top-3.5 z-0 h-px"
-                        style={{ backgroundColor: isComplete ? "var(--v2-blue)" : "var(--v2-rule)" }}
-                      />
-                    )}
                   </div>
-                );
-              })}
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col items-center justify-center gap-2">
+              <span
+                className="v2-mono hidden whitespace-nowrap text-[9px] font-semibold sm:block"
+                style={{ color: phase >= 2 ? "var(--v2-verified)" : "var(--v2-blue)" }}
+              >
+                {phase === 0 ? "Reading" : phase === 1 ? "Connecting" : "Ready"}
+              </span>
+              <span
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border bg-white transition-colors duration-300"
+                style={{
+                  borderColor: phase >= 2 ? "var(--v2-verified)" : "var(--v2-blue-soft)",
+                  color: phase >= 2 ? "var(--v2-verified)" : "var(--v2-blue)",
+                }}
+              >
+                {phase >= 2 ? <CheckCircle2 className="h-4 w-4" /> : <Sparkles className="h-4 w-4" />}
+              </span>
+              <ArrowRight className="h-4 w-4" style={{ color: "var(--v2-blue)" }} />
+            </div>
+
+            <div className="min-w-0">
+              <div className="flex items-center justify-between gap-3">
+                <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
+                  KEY EVENTS
+                </span>
+                <span
+                  className="flex items-center gap-1 text-[10px] font-semibold transition-colors duration-300"
+                  style={{ color: phase >= 2 ? "var(--v2-verified)" : "var(--v2-ink-faint)" }}
+                >
+                  <Radar className="h-3 w-3" />
+                  <span className="hidden sm:inline">{phase >= 2 ? "3 extracted" : "Finding patterns"}</span>
+                  <span className="sm:hidden">{phase >= 2 ? "3" : "..."}</span>
+                </span>
+              </div>
+
+              <div className="mt-3 space-y-2">
+                {keyEvents.map((event, index) => {
+                  const Icon = event.icon;
+                  const isVisible = phase >= 2;
+
+                  return (
+                    <div
+                      key={event.label}
+                      className="relative min-h-[54px] overflow-hidden rounded border bg-white p-2 sm:min-h-[62px] sm:p-3"
+                      style={{ borderColor: "var(--v2-rule)" }}
+                    >
+                      <div
+                        className="absolute inset-0 flex items-center gap-2 px-2 transition-opacity duration-200 sm:gap-3 sm:px-3"
+                        style={{ opacity: isVisible ? 0 : 1 }}
+                        aria-hidden={isVisible}
+                      >
+                        <span className="h-6 w-6 rounded sm:h-7 sm:w-7" style={{ backgroundColor: "var(--v2-blue-wash)" }} />
+                        <span className="flex-1 space-y-2">
+                          <span className="block h-1.5 w-4/5 rounded bg-slate-200" />
+                          <span className="block h-1.5 w-3/5 rounded bg-slate-100" />
+                        </span>
+                      </div>
+
+                      <div
+                        className="flex items-start gap-2 sm:gap-3"
+                        style={{
+                          opacity: isVisible ? 1 : 0,
+                          transform: isVisible ? "translateX(0)" : "translateX(-6px)",
+                          transition: "opacity 320ms ease, transform 320ms ease",
+                          transitionDelay: isVisible ? `${index * 130}ms` : "0ms",
+                        }}
+                        aria-hidden={!isVisible}
+                      >
+                        <span
+                          className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded sm:h-7 sm:w-7"
+                          style={{ backgroundColor: "var(--v2-blue-wash)", color: "var(--v2-blue)" }}
+                        >
+                          <Icon className="h-3.5 w-3.5" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-[9px] font-semibold leading-3 sm:text-[10px] sm:leading-4" style={{ color: "var(--v2-ink)" }}>
+                            {event.label}
+                          </p>
+                          <p className="hidden text-[10px] leading-4 sm:block" style={{ color: "var(--v2-ink-soft)" }}>
+                            {event.detail}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          <div className="min-h-[340px] bg-[#F8FAFC] p-5 md:min-h-[356px] md:p-6">
-            <div key={stage} style={{ animation: "ventus-append 0.35s ease both" }}>
-              {stage === 0 && (
-                <>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
-                      BANK-NATIVE INPUT
-                    </span>
-                    <span className="text-[10px] font-semibold" style={{ color: "var(--v2-ink-faint)" }}>
-                      Unstructured
-                    </span>
-                  </div>
-                  <div className="mt-4 overflow-hidden rounded border bg-white" style={{ borderColor: "var(--v2-rule)" }}>
-                    {rawRecords.map((record) => (
-                      <div
-                        key={record.description}
-                        className="grid grid-cols-[42px_1fr_auto] items-center gap-3 border-b px-3 py-3 last:border-0"
-                        style={{ borderColor: "var(--v2-rule-soft)" }}
-                      >
-                        <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
-                          {record.rail}
-                        </span>
-                        <span className="min-w-0 truncate text-[10px] font-medium" style={{ color: "var(--v2-ink)" }}>
-                          {record.description}
-                        </span>
-                        <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-soft)" }}>
-                          {record.value}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </>
-              )}
-
-              {stage === 1 && (
-                <>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
-                      STRUCTURED ENRICHMENT
-                    </span>
-                    <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: "var(--v2-blue)" }}>
-                      <Sparkles className="h-3 w-3" /> Classified
-                    </span>
-                  </div>
-                  <div className="mt-4 grid gap-2 sm:grid-cols-2">
-                    {enrichedRecords.map((record) => {
-                      const Icon = record.icon;
-                      return (
-                        <div
-                          key={record.label}
-                          className="flex min-w-0 items-center gap-3 rounded border bg-white p-3"
-                          style={{ borderColor: "var(--v2-rule)" }}
-                        >
-                          <span
-                            className="flex h-8 w-8 shrink-0 items-center justify-center rounded"
-                            style={{ backgroundColor: "var(--v2-blue-wash)", color: "var(--v2-blue)" }}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <p className="truncate text-[11px] font-semibold" style={{ color: "var(--v2-ink)" }}>
-                              {record.label}
-                            </p>
-                            <p className="mt-1 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
-                              {record.rail}
-                            </p>
-                          </div>
-                          <span className="v2-mono shrink-0 text-[10px]" style={{ color: "var(--v2-ink-soft)" }}>
-                            {record.value}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </>
-              )}
-
-              {stage === 2 && (
-                <>
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
-                      BEHAVIORAL SIGNALS
-                    </span>
-                    <span className="flex items-center gap-1 text-[10px] font-semibold" style={{ color: "var(--v2-verified)" }}>
-                      <CheckCircle2 className="h-3 w-3" /> 3 extracted
-                    </span>
-                  </div>
-                  <div className="mt-4 space-y-2">
-                    {keyEvents.map((event) => {
-                      const Icon = event.icon;
-                      return (
-                        <div
-                          key={event.label}
-                          className="flex items-start gap-3 rounded border bg-white p-3.5"
-                          style={{ borderColor: "var(--v2-rule)" }}
-                        >
-                          <span
-                            className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded"
-                            style={{ backgroundColor: "var(--v2-blue-wash)", color: "var(--v2-blue)" }}
-                          >
-                            <Icon className="h-4 w-4" />
-                          </span>
-                          <div className="min-w-0">
-                            <p className="text-[11px] font-semibold leading-4" style={{ color: "var(--v2-ink)" }}>
-                              {event.label}
-                            </p>
-                            <p className="mt-1 text-[10px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>
-                              {event.detail}
-                            </p>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <div className="mt-4 flex items-center justify-between gap-2">
-                    <span className="flex items-center gap-2">
-                      <Radar className="h-3.5 w-3.5" style={{ color: "var(--v2-blue)" }} />
-                      <span className="text-[10px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
-                        3 key events extracted from 42 records
-                      </span>
-                    </span>
-                    {settled && (
-                      <button
-                        type="button"
-                        onClick={() => setRunId((id) => id + 1)}
-                        className="v2-mono text-[10px] font-semibold transition-colors"
-                        style={{ color: "var(--v2-ink-faint)" }}
-                      >
-                        Replay ↻
-                      </button>
-                    )}
-                  </div>
-                </>
-              )}
-            </div>
+          <div
+            className="flex min-h-10 items-center justify-between gap-3 border-t bg-white px-5 py-2"
+            style={{ borderColor: "var(--v2-rule)" }}
+          >
+            <span className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
+              {phase >= 2 ? "42 records / 3 key events" : "Analyzing transaction context"}
+            </span>
+            {phase >= 2 && (
+              <button
+                type="button"
+                onClick={() => setRunId((id) => id + 1)}
+                className="flex h-7 w-7 items-center justify-center text-slate-500 transition-colors hover:text-slate-900"
+                aria-label="Replay enrichment"
+                title="Replay enrichment"
+              >
+                <RotateCcw className="h-3.5 w-3.5" />
+              </button>
+            )}
           </div>
         </div>
       </div>

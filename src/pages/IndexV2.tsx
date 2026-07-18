@@ -186,16 +186,14 @@ const IndexV2 = () => {
                       style={{ backgroundColor: "var(--v2-paper)" }}
                     >
                       <Icon className="h-5 w-5" style={{ color: "var(--v2-ink-faint)" }} />
-                      <span>
-                        <span className="block text-[12px] font-semibold" style={{ color: "var(--v2-ink)" }}>{label}</span>
-                        <span className="v2-mono mt-1 block text-[9px] uppercase tracking-[0.06em]" style={{ color: "var(--v2-ink-faint)" }}>
-                          In design · founding partner
-                        </span>
-                      </span>
+                      <span className="block text-[12px] font-semibold" style={{ color: "var(--v2-ink)" }}>{label}</span>
                     </div>
                   ),
                 )}
               </div>
+              <p className="mt-4 text-[12px]" style={{ color: "var(--v2-ink-faint)" }}>
+                Additional plays are configured around each institution&apos;s priorities.
+              </p>
             </ScrollReveal>
           </div>
         </section>
