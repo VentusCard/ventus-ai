@@ -263,10 +263,9 @@ const IndexV2 = () => {
     };
   }, []);
 
-  // Scroll snap: land on the next section rather than getting stuck between.
-  // Uses `proximity` so tall sticky sections (like Growth Plays at 280vh) can
-  // still be scrolled through freely — snap only engages near section edges.
-  // `scroll-behavior: smooth` makes both forward and reverse snaps glide.
+  // Smooth scroll without snap: scroll-snap (even `proximity`) fights the wheel
+  // and feels jerky, especially in reverse. We keep `scroll-behavior: smooth`
+  // for anchor links but let the wheel scroll freely.
   useEffect(() => {
     const html = document.documentElement;
     const prev = {
@@ -274,8 +273,8 @@ const IndexV2 = () => {
       padTop: html.style.scrollPaddingTop,
       behavior: html.style.scrollBehavior,
     };
-    html.style.scrollSnapType = "y proximity";
-    html.style.scrollPaddingTop = "64px"; // account for sticky nav
+    html.style.scrollSnapType = "none";
+    html.style.scrollPaddingTop = "64px";
     html.style.scrollBehavior = "smooth";
     return () => {
       html.style.scrollSnapType = prev.snapType;
@@ -294,7 +293,7 @@ const IndexV2 = () => {
       />
       <V2Nav />
 
-      <main className="flex flex-col [&>*]:[scroll-snap-align:start] [&>*]:[scroll-snap-stop:normal]">
+      <main className="flex flex-col">
         <ScrollDrivenHeroV2 />
 
         {/* Service-line map: each buyer sees the P&L outcome they own, while the
