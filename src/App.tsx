@@ -46,14 +46,14 @@ const AppLayout = () => {
   const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
-  const isHomeV2 = location.pathname === "/" || location.pathname === "/v2";
+  const isHomeV2 = location.pathname === "/v2";
 
   const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isHomeV2;
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
-        <Route path="/" element={<IndexV2 />} />
+        <Route path="/" element={<Index />} />
         <Route path="/classic" element={<Index noindex />} />
         <Route path="/v2" element={<IndexV2 />} />
         <Route path="/platform" element={<Platform />} />
