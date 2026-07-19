@@ -1,35 +1,21 @@
-Add two horizontal button slivers below the intel panel on the Next Conversation tab to toggle between **Customers** and **Relationship Managers**. The toggle drives both the rationale card content below and the tablet mockup on the right.
+## Change
 
-### Current state
-- The Next Conversation tab lives inside `/bankdemo` (`ExecDemoPage` → `ExecDemoIntelPanel` → `NextConversationRationale`).
-- Today the rationale card shows both "Regular Client" and "Wealth Client" columns side-by-side, and the tablet mockup switches to WM CoPilot only when "Open WM CoPilot" is clicked.
+In `src/components/exec-demo/NextConversationRationale.tsx`, restructure the `PipelineSliver` so "Ingest" and "Hands Off To" each occupy their own full-width row instead of sitting side-by-side in a 2-column grid.
 
-### Changes
+## Details
 
-1. **`ExecDemoPage.tsx`**
-   - Add state `relationshipAudience: "customer" | "rm"` (default `"customer"`).
-   - Derive `wmCopilotOpen` for the relationship tab from this state so the tablet mockup switches automatically:
-     - `customer` → customer app view
-     - `rm` → WM CoPilot view
-   - Pass `relationshipAudience` and its setter into `ExecDemoIntelPanel`.
+Current layout: a single `grid grid-cols-2 divide-x` card with the two sections in adjacent columns, causing the pill row to be cramped and truncated.
 
-2. **`ExecDemoIntelPanel.tsx`**
-   - Accept new props `relationshipAudience` and `onRelationshipAudienceChange`.
-   - When `activeTab === "relationship"` and synthesis is ready, render a two-button sliver directly below the intel panel:
-     - "Customers" | "Relationship Managers"
-     - Full-width, side-by-side, active button in blue-filled style, inactive in white/slate-outline style.
-   - Pass the audience down into `NextConversationRationale`.
+New layout: same outer card, but stacked as two rows separated by a horizontal divider — each row spans full width so all pills fit on one line without truncation.
 
-3. **`NextConversationRationale.tsx`**
-   - Accept `audience: "customer" | "rm"`.
-   - Render only one column at a time based on audience:
-     - `customer` → the existing Regular Client column (AI Assistant Context + Personalized Outreach), expanded to full width.
-     - `rm` → the existing Wealth Client column (Advisor Notification + Prep Brief + Actions), expanded to full width.
-   - Remove the redundant bottom "Open AI Banking Assistant" / "Open WM CoPilot" footer buttons — the toggle above now controls both card content and the tablet mockup.
+```text
+┌──────────────────────────────────────────────┐
+│ INGEST   [pill] [pill] [pill] [pill] ...     │
+├──────────────────────────────────────────────┤
+│ HANDS OFF TO   [pill] [pill] [pill] ...      │
+└──────────────────────────────────────────────┘
+```
 
-### Verification
-- Open `/bankdemo`, run analysis, switch to Next Conversation.
-- Sliver toggle appears below the intel panel with two buttons.
-- Selecting "Customers": card shows customer-facing content, tablet shows customer app.
-- Selecting "Relationship Managers": card shows advisor prep content, tablet shows WM CoPilot.
-- Signal-pill selection still updates the rationale content.
+Implementation: replace the `grid grid-cols-2 divide-x` container with a `flex flex-col divide-y` container. Keep icon + label + pills styling identical; only the axis changes.
+
+No other files affected.
