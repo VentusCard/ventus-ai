@@ -19,7 +19,7 @@ const HANDOFF_ITEMS = [
 
 function PipelineSliver() {
   return (
-    <div className="shrink-0 rounded-xl border border-slate-200 bg-white grid grid-cols-2 divide-x divide-slate-200">
+    <div className="shrink-0 rounded-xl border border-slate-200 bg-white flex flex-col divide-y divide-slate-200">
       {[
         { label: "Ingest", Icon: Inbox, items: INGEST_ITEMS },
         { label: "Hands Off To", Icon: Send, items: HANDOFF_ITEMS },
