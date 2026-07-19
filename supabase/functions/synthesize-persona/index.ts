@@ -679,16 +679,33 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     for (const e of filteredLE) for (const ti of e.transaction_indices) claimedByHigher.add(ti);
     for (const f of filteredFS) for (const ti of f.transaction_indices) claimedByHigher.add(ti);
 
+    // Vocabulary that MUST NOT appear anywhere in a demographic shift.
+    // These themes belong to Spending Habit; the model keeps regressing on them.
+    const NON_DEMO_VOCAB = /pet|chewy|petco|petsmart|banfield|barkbox|rover|vet\b|veterinar|groom|dog\s?walk|fitness|gym\b|yoga|peloton|coffee|starbucks|dunkin|streaming|netflix|hulu|spotify|subscription|grocer|restaurant|salon|hair\s?stylist|barber/i;
+
     const filteredDemo = rawDemographic
       .map((d: any) => {
         const idx: number[] = cleanIndices(d.transaction_indices || [], ["demographic"])
           .filter((ti) => !claimedByHigher.has(ti));
-        return { ...d, transaction_indices: idx };
+        // Normalize college labels — strip trailing "· College Prep Cycle" / "· Prep …" restatements.
+        let label = String(d.label || "").trim();
+        if (/kid\s*(?:→|->|to)\s*college/i.test(label)) {
+          label = "Kid → College";
+        }
+        // Clear magnitude_band when it merely restates the label vocabulary.
+        let magnitude_band = String(d.magnitude_band || "").trim();
+        if (magnitude_band && label && magnitude_band.toLowerCase() === label.toLowerCase()) {
+          magnitude_band = "";
+        }
+        return { ...d, label, magnitude_band, transaction_indices: idx };
       })
       // Demographic requires ≥2 unclaimed indices (or 1 large_inflow — but large_inflow is life_event-owned)
       .filter((d: any) => (d.transaction_indices?.length ?? 0) >= 2)
-      // Kill any demographic labeled with pet vocab (belt-and-suspenders after hint filter)
-      .filter((d: any) => !PET_RE.test(String(d.label || "")) && !PET_RE.test(String(d.magnitude_band || "")));
+      // Kill any demographic labeled with spending-habit vocab across ALL fields (label, magnitude, evidence, category)
+      .filter((d: any) => {
+        const blob = `${d.label || ""} ${d.magnitude_band || ""} ${d.evidence_summary || ""} ${d.category || ""}`;
+        return !NON_DEMO_VOCAB.test(blob);
+      });
 
     for (const d of filteredDemo) for (const ti of d.transaction_indices) claimedByHigher.add(ti);
 
