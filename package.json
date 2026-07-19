@@ -9,7 +9,7 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "test:connector-sessions": "node --import tsx --test api/_consoleAuth.test.ts api/console-access.test.ts api/_connectorAuth.test.ts api/presenter-session.test.ts api/plaid-transactions.test.ts api/salesforce-deliver.test.ts",
+    "test:connector-sessions": "node --import tsx --test api/_consoleAuth.test.ts api/console-access.test.ts api/_connectorAuth.test.ts api/presenter-session.test.ts api/_decisionRuntime.test.ts api/decision-run.test.ts api/plaid-transactions.test.ts api/salesforce-deliver.test.ts",
     "preview": "vite preview"
   },
   "dependencies": {

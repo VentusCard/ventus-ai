@@ -12,6 +12,9 @@
 // No Link UI is needed in sandbox — /sandbox/public_token/create mints a token directly.
 declare const process: { env: Record<string, string | undefined> };
 import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.js";
+import { executeDecisionRun } from "./_decisionRuntime.js";
+import type { DecisionScenario } from "../src/lib/decision-contract.js";
+import type { PlaidTransaction } from "../src/lib/plaid.js";
 
 export const maxDuration = 30;
 
@@ -57,23 +60,22 @@ const WEALTH_GROWTH_CUSTOM_USER = {
 const OFFBANK = /chime|cash app|cashapp|venmo|sofi|varo|current|robinhood/i;
 const PAYROLL = /gusto|adp|paychex|payroll|direct dep|acme payroll/i;
 
-type PlaidTxn = { name?: string; amount?: number; personal_finance_category?: { primary?: string } };
-type DemoScenario = "deposit-retention" | "wealth-growth";
+type PlaidReadinessTxn = { name?: string; amount?: number; personal_finance_category?: { primary?: string } };
 
-function primacyReady(txns: PlaidTxn[]): boolean {
+function primacyReady(txns: PlaidReadinessTxn[]): boolean {
   const hasPayroll = txns.some((t) => PAYROLL.test(t.name || "") || t.personal_finance_category?.primary === "INCOME");
   const hasOffbank = txns.some((t) => (OFFBANK.test(t.name || "") || t.personal_finance_category?.primary === "TRANSFER_OUT") && (t.amount ?? 0) > 0);
   return hasPayroll && hasOffbank;
 }
 
-function wealthReady(txns: PlaidTxn[]): boolean {
+function wealthReady(txns: PlaidReadinessTxn[]): boolean {
   return txns.some((t) => (
     /rollover|401k|fidelity|vanguard|schwab/i.test(t.name || "")
     || t.personal_finance_category?.primary === "TRANSFER_IN"
   ) && (t.amount ?? 0) <= -50000);
 }
 
-export function demoScenarioReady(scenario: DemoScenario, txns: PlaidTxn[]): boolean {
+export function demoScenarioReady(scenario: DecisionScenario, txns: PlaidReadinessTxn[]): boolean {
   return scenario === "wealth-growth" ? wealthReady(txns) : primacyReady(txns);
 }
 
@@ -98,21 +100,30 @@ async function plaid(path: string, body: Record<string, unknown>): Promise<Recor
 
 export async function POST(request: Request): Promise<Response> {
   if (!liveConnectorsEnabled()) return connectorDisabledResponse();
-  const principal = authorizeConnector(request, { scope: "plaid_read", destination: "plaid" });
-  if (!principal) return Response.json({ error: "forbidden" }, { status: 403 });
 
-  const c = creds();
-  if (!c) return Response.json({ error: "Plaid not configured — set PLAID_CLIENT_ID and PLAID_SECRET (sandbox)" }, { status: 503 });
-
-  let scenario: DemoScenario = "deposit-retention";
+  let scenario: DecisionScenario = "deposit-retention";
   try {
     const body = (await request.json()) as { scenario?: unknown };
     if (body.scenario === "wealth-growth" || body.scenario === "deposit-retention") scenario = body.scenario;
   } catch {
     // Empty request bodies retain the Deposit Primacy default for backward compatibility.
   }
+  const principal = authorizeConnector(request, { scope: "plaid_read", destination: "plaid" });
+  const scenarioScope = scenario === "deposit-retention"
+    ? "scenario_deposit_retention"
+    : "scenario_wealth_growth";
+  if (
+    !principal
+    || (!principal.scopes.includes("*") && !principal.scopes.includes(scenarioScope))
+  ) {
+    return Response.json({ error: "forbidden" }, { status: 403 });
+  }
+
+  const c = creds();
+  if (!c) return Response.json({ error: "Plaid not configured — set PLAID_CLIENT_ID and PLAID_SECRET (sandbox)" }, { status: 503 });
+
   const customUser = scenario === "wealth-growth" ? WEALTH_GROWTH_CUSTOM_USER : DEPOSIT_PRIMACY_CUSTOM_USER;
-  const readyWhen = (transactions: PlaidTxn[]) => demoScenarioReady(scenario, transactions);
+  const readyWhen = (transactions: PlaidReadinessTxn[]) => demoScenarioReady(scenario, transactions);
 
   const auth = { client_id: c.clientId, secret: c.secret };
 
@@ -136,7 +147,7 @@ export async function POST(request: Request): Promise<Response> {
     //    custom-user data incrementally), keeping the fullest set as a best-effort fallback.
     const end = new Date().toISOString().slice(0, 10);
     const start = new Date(Date.now() - 365 * 864e5).toISOString().slice(0, 10);
-    let best: PlaidTxn[] = [];
+    let best: PlaidTransaction[] = [];
     for (let attempt = 0; attempt < 12; attempt += 1) {
       const data = (await plaid("/transactions/get", {
         ...auth,
@@ -144,12 +155,23 @@ export async function POST(request: Request): Promise<Response> {
         start_date: start,
         end_date: end,
         options: { count: 100, offset: 0 },
-      }).catch(() => ({}))) as { transactions?: PlaidTxn[] };
+      }).catch(() => ({}))) as { transactions?: PlaidTransaction[] };
       const rows = data.transactions ?? [];
       if (rows.length > best.length || readyWhen(rows)) best = rows;
       if (rows.length && readyWhen(rows)) break;
       await new Promise((r) => setTimeout(r, 1500));
     }
+
+    const decision = best.length
+      ? executeDecisionRun({
+          tenantId: principal.tenantId,
+          request: {
+            scenario,
+            transactions: best,
+            source: { mode: "live", name: `Plaid ${PLAID_ENV} · live pull` },
+          },
+        })
+      : null;
 
     return Response.json({
       source: "plaid",
@@ -158,6 +180,7 @@ export async function POST(request: Request): Promise<Response> {
       ready: readyWhen(best),
       transactions: best,
       count: best.length,
+      decision,
       authorization: {
         tenantId: principal.tenantId,
         sessionId: principal.sessionId,

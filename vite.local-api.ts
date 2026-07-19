@@ -13,6 +13,7 @@ const loadRoute = (path: string) => async (): Promise<ApiHandler> =>
 const API_ROUTES: Record<string, () => Promise<ApiHandler>> = {
   "/api/presenter-session": loadRoute("./api/presenter-session.ts"),
   "/api/console-access": loadRoute("./api/console-access.ts"),
+  "/api/decision-run": loadRoute("./api/decision-run.ts"),
   "/api/plaid-transactions": loadRoute("./api/plaid-transactions.ts"),
   "/api/salesforce-deliver": loadRoute("./api/salesforce-deliver.ts"),
 };

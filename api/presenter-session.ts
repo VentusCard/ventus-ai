@@ -28,11 +28,15 @@ export async function POST(request: Request): Promise<Response> {
 
   try {
     const sessionId = `demo_${randomUUID().replaceAll("-", "").slice(0, 24)}`;
+    const scenarioScopes = [
+      ...(operator.entitlements.includes("consumer_demo") ? ["scenario_deposit_retention"] : []),
+      ...(operator.entitlements.includes("wealth_demo") ? ["scenario_wealth_growth"] : []),
+    ];
     const token = issueConnectorSession({
       secret: sessionSecret,
       tenantId: operator.tenantId,
       subject: operator.userId,
-      scopes: ["plaid_read", "salesforce_write"],
+      scopes: ["plaid_read", "salesforce_write", ...scenarioScopes],
       destinations: ["plaid", "salesforce"],
       sessionId,
       ttlSeconds: SESSION_SECONDS,

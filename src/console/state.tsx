@@ -15,14 +15,13 @@ import type { Session, User } from "@supabase/supabase-js";
 import { supabase } from "@/integrations/supabase/client";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
-  applyOpportunityPolicy,
-  buildOpportunityFromPlaid,
   PLAID_FIXTURE_PRIMACY,
   PLAID_FIXTURE_ROLLOVER,
   type DetectedOpportunity,
   type OpportunityPolicyDecision,
   type PlaidTransaction,
 } from "@/lib/plaid";
+import type { DecisionRunResult } from "@/lib/decision-contract";
 import {
   clearTenantOverride,
   resolveTenant,
@@ -157,6 +156,7 @@ export type ScenarioId = "deposit-retention" | "wealth-growth";
 
 export type ConsoleMoment = {
   id: string;
+  decisionId: string;
   scenario: ScenarioId;
   createdAt: string;
   sourceMode: "live" | "fixture";
@@ -164,6 +164,7 @@ export type ConsoleMoment = {
   transactions: PlaidTransaction[];
   opportunity: DetectedOpportunity;
   policy: OpportunityPolicyDecision;
+  runtime: DecisionRunResult["runtime"];
   status: "queued" | "activated" | "dismissed";
   receipt?: { id: string; url?: string; subject: string };
 };
@@ -320,6 +321,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       let transactions: PlaidTransaction[] = [];
       let sourceMode: ConsoleMoment["sourceMode"] = "fixture";
       let sourceName = "Plaid-shaped fixture";
+      let decision: DecisionRunResult | null = null;
 
       if (connectorSession?.token && connectorSession.connectors.plaid) {
         try {
@@ -333,12 +335,14 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           });
           const data = (await response.json().catch(() => ({}))) as {
             transactions?: PlaidTransaction[];
+            decision?: DecisionRunResult | null;
             error?: string;
           };
           if (response.ok && data.transactions?.length) {
             transactions = data.transactions;
             sourceMode = "live";
             sourceName = "Plaid sandbox · live pull";
+            decision = data.decision ?? null;
           } else if (response.status === 401 || response.status === 403) {
             setConnectorSession(null);
           }
@@ -350,16 +354,51 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         transactions = scenario === "deposit-retention" ? PLAID_FIXTURE_PRIMACY : PLAID_FIXTURE_ROLLOVER;
       }
 
-      const opportunity = buildOpportunityFromPlaid(transactions);
+      if (!decision) {
+        try {
+          if (!session?.access_token) throw new Error("Sign in again to run the decision.");
+          const response = await fetch("/api/decision-run", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+            },
+            body: JSON.stringify({
+              scenario,
+              transactions,
+              source: { mode: sourceMode, name: sourceName },
+            }),
+          });
+          const data = (await response.json().catch(() => ({}))) as DecisionRunResult & { error?: string };
+          if (!response.ok || !data.decisionId) {
+            throw new Error(data.error ?? `decision run failed (${response.status})`);
+          }
+          decision = data;
+        } catch (error) {
+          setIngestError(error instanceof Error ? error.message : "Decision runtime unavailable");
+          setIngesting(false);
+          return;
+        }
+      }
+      if (decision.tenantId !== authTenant.id) {
+        setIngestError("Decision runtime identity did not match this workspace.");
+        setIngesting(false);
+        return;
+      }
+
+      sourceMode = decision.source.mode;
+      sourceName = decision.source.name;
+      const opportunity = decision.opportunity;
       if (!opportunity) {
         setIngestError("No actionable moment detected in this stream.");
         setIngesting(false);
         return;
       }
-      const policy = applyOpportunityPolicy(opportunity);
+      const policy = decision.policy;
       const id = `mo_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
       const moment: ConsoleMoment = {
         id,
+        decisionId: decision.decisionId,
         scenario,
         createdAt: new Date().toISOString(),
         sourceMode,
@@ -367,6 +406,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         transactions,
         opportunity,
         policy,
+        runtime: decision.runtime,
         status: "queued",
       };
       setMoments((prev) => [moment, ...prev]);
@@ -375,7 +415,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           eventKey: `${id}-signal`,
           kind: "signal",
           title: `${opportunity.type} detected`,
-          detail: `${sourceName} · ${transactions.length} records · ${opportunity.confidence}%`,
+          detail: `${sourceName} · ${transactions.length} records · ${opportunity.confidence}% · ${decision.runtime.version}`,
           ref: id,
           status: sourceMode === "live" ? "confirmed" : "simulated",
         },
@@ -390,7 +430,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       ]);
       setIngesting(false);
     },
-    [connectorSession, record],
+    [authTenant.id, connectorSession, record, session?.access_token],
   );
 
   const activate = useCallback(
@@ -427,7 +467,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
               })),
               controls: [moment.policy.reason],
               sourceName: `${moment.sourceName} · ${moment.transactions.length} tokenized records`,
-              decisionRef: `${moment.scenario}:${moment.id}`,
+              decisionRef: moment.decisionId ?? `${moment.scenario}:${moment.id}`,
             },
           }),
         });
