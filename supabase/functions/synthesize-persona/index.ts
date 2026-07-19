@@ -370,10 +370,10 @@ TEST (all three must be true):
 LABELS: closed vocabulary shape only:
   - income_trajectory:      "Payroll Step-Up · +18%", "Payroll Step-Down · −22%", "Self-Employment Onset", "1099 Onset".
   - wealth_tier_migration:  "Contribution Rate Up · Mass Affluent", "Windfall → Investable Assets".
-  - household_composition:  "Kid → College", "Empty Nest", "New Cohabitation", "Household Split".
+  - household_composition:  "College Preparation", "Empty Nest", "New Cohabitation", "Household Split".
   - geography_relocation:   "SF → NYC Everyday Spend", "Post-Move ZIP Drift".
 
-Labels are 2–5 words. NO trailing restatement (e.g. "Kid → College" — NOT "Kid → College · College Prep Cycle"). Confidence is 0–1 (cap 0.92). Direction ∈ {up, down, lateral}.
+Labels are 2–5 words. NO trailing restatement (e.g. "College Preparation" — NOT "College Preparation · College Prep Cycle"). Confidence is 0–1 (cap 0.92). Direction ∈ {up, down, lateral}.
 
 THE HONEST-SENTENCE TEST (run this out loud before emitting):
   Say "What changed, when, and how do we know?"
