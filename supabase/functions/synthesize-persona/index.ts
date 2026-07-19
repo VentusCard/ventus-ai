@@ -286,125 +286,185 @@ serve(async (req) => {
       : "";
 
     // ── System prompt: single-pass decision tree ─────────────────────────
-    const systemPrompt = `You are a bank's behavioral classifier. You place each customer transaction into EXACTLY ONE of five signal buckets, using a strict ownership ladder.
+    const systemPrompt = `You are a bank's behavioral classifier. You place each customer transaction into EXACTLY ONE of five signal buckets, using a strict ownership ladder. Higher tier always wins and strips the row from every lower tier.
 
-# THE 5 SIGNAL BUCKETS (ranked ladder — higher tier always wins)
+Ladder: LIFE_EVENT > FINANCIAL_SIGNAL > DEMOGRAPHIC > SPENDING_HABIT > RISK_FACTOR.
 
-1. **LIFE_EVENT** — discrete, time-bounded life transitions with a vendor cluster.
-   OWNS: Home Purchase / Transition, Wedding / Engagement, New Baby / Family Expansion,
-         Business Formation, Elder Care, Retirement Planning, Relocation, Inheritance / Windfall.
-   NEVER: auto loans, mortgages, student loans, brokerage (those are Financial).
-   NEVER: college prep / SAT / tuition / Common App (that is Demographic → "Kid → College").
-   NEVER: pet ownership (that is Spending Habit).
+For each bucket below you get: DEFINITION (what it IS), TEST (yes/no gate you must pass before emitting), LABELS (closed vocabulary), EXCLUDE (with reasoning), GOOD examples, and BAD examples with the correct routing.
 
-2. **FINANCIAL_SIGNAL** — durable large-product relationships surfaced as recurring servicer ACH.
-   OWNS: auto_loan, auto_lease, mortgage, heloc, student_loan, personal_loan,
-         credit_card_payoff, brokerage_contribution, retirement_contribution,
-         insurance_premium, education_savings (529).
-   NEVER: lifestyle spend, life-stage transitions.
+═══════════════════════════════════════════════════════════════════
+1. LIFE_EVENT
+═══════════════════════════════════════════════════════════════════
+DEFINITION: A discrete, time-bounded life transition with a vendor cluster inside a ~90-day window. Something that STARTED or is HAPPENING right now, not an ongoing lifestyle.
 
-3. **DEMOGRAPHIC** — inferred STATE CHANGE (not baseline attributes, not recurring lifestyle).
-   OWNS: income_trajectory (payroll step-up/step-down, job change, 1099 onset),
-         wealth_tier_migration (sustained contribution rate change),
-         household_composition (empty nest, divorce, "Kid → College"),
-         geography_relocation (post-move ZIP centroid drift).
-   NEVER: pets, fitness, streaming, groceries, coffee, restaurants, subscriptions,
-          hobbies, salons, gym (those are Spending Habits — recurring vendor presence is NEVER a demographic shift).
-   NEVER: baby vendors / eldercare / moving vendors (those are Life Events).
-   NEVER: recurring auto/mortgage/insurance ACH (those are Financial Signals).
+TEST (both must be true):
+  a) ≥ threshold rows from the life-event vendor taxonomy for that event.
+  b) Rows cluster in time (within ~90 days) — presence alone is not enough.
 
-4. **SPENDING_HABIT** (aka pillar_rollups) — recurring lifestyle habits, the "friend at a dinner party" descriptor.
-   OWNS: everything not claimed by tiers 1–3, if it forms a coherent activity/lifestyle identity.
-   ALWAYS OWNS: pet spend (Chewy, Petco, PetSmart, vet, grooming, boarding, Rover, BarkBox).
+LABELS: closed enum only — pick from
+  "Home Purchase / Transition", "Wedding / Engagement", "New Baby / Family Expansion",
+  "Business Formation", "Elder Care", "Retirement Planning", "Relocation", "Inheritance / Windfall".
 
-5. **RISK_FACTOR** — owned by the risk engine upstream. DO NOT emit anything for risk-flagged rows.
+THRESHOLDS:
+  - Home Purchase: 3+ rows (realtor / title / escrow / inspector / mortgage first-pay / moving / large home-retail spike)
+  - Wedding: 2+ rows (jeweler $2k+ / venue / bridal / photographer / caterer)
+  - New Baby: 2+ rows (OB / pediatric / daycare / baby retailers / L&D hospital)
+  - Business Formation: 2+ rows (LLC / incorp / business insurance / commercial leasing)
+  - Elder Care: 2+ rows (assisted living / home health / hospice)
+  - Retirement Planning: 2+ rows (estate attorney / advisor fee / Medicare supplement / retirement community)
+  - Relocation: 2+ rows (long-distance movers / vehicle shipping / extended stay >7 nights / new-metro utility setup / storage)
+  - Inheritance / Windfall: 1+ large_inflow (≥$10k credit) + estate-adjacent context
 
-# THE ACCOUNTING RULE
+Confidence: 2 rows→65, 3→75, 4–5→85, 6+→92. Provide 2–4 evidence items each with a 1-sentence "relevance" and 3 short empathetic talking_points.
 
-Every [T<n>] row can appear in AT MOST ONE bucket's transaction_indices. If a row's pre-computed \`owner=\`
-tag says life_event / financial_signal / demographic / spending_habit, you MUST route it to that bucket
-(or drop it if evidence is too thin). If \`owner=\` is unset, you decide — favor the higher tier when in doubt.
+EXCLUDE:
+  - Recurring auto/mortgage/insurance/brokerage ACH → FINANCIAL_SIGNAL (that is a durable product, not a transition).
+  - College prep / SAT / tuition / Common App → DEMOGRAPHIC (household composition shift "Kid → College").
+  - Pet ownership → SPENDING_HABIT (a lifestyle, not a transition).
 
-You must return an \`audit\` object listing every claimed index per bucket. Overlap is a hard error.
+GOOD: "New Baby / Family Expansion" (pediatric visits + BuyBuy Baby + daycare, all within 60 days).
+BAD:  "New Pet Adoption" → SPENDING_HABIT "Pet Care Routine".
+BAD:  "College Prep" → DEMOGRAPHIC "Kid → College".
+BAD:  "Car Loan Refi Journey" → FINANCIAL_SIGNAL "auto_loan · <servicer>".
 
-# DECISION LOOP (run this once, in order, for each candidate cluster)
+═══════════════════════════════════════════════════════════════════
+2. FINANCIAL_SIGNAL
+═══════════════════════════════════════════════════════════════════
+DEFINITION: A durable large-product relationship that shows up as recurring servicer ACH or brokerage/retirement contribution.
 
-For each cluster of related transactions:
-  Step 1. Is any row tagged with a life-event vendor hint AND does the cluster meet the LE threshold below?
-          → LIFE_EVENT. Claim those rows. Done.
-  Step 2. Is any row tagged with a financial servicer hint?
-          → FINANCIAL_SIGNAL. Claim those rows. Done. (One entry per (product_family, servicer).)
-  Step 3. Does the cluster represent a temporal STATE CHANGE (payroll delta, empty nest,
-          Kid → College, self-employment onset, sustained wealth contribution shift, post-move ZIP drift)?
-          → DEMOGRAPHIC. Claim those rows. Done.
-  Step 4. Does the cluster form a coherent recurring lifestyle habit (activity/identity, not "shopping")?
-          → SPENDING_HABIT (pillar_rollup). Claim those rows. Done.
-  Step 5. Otherwise drop the cluster.
+TEST (both must be true):
+  a) Merchant matches the financial-servicer taxonomy (owner=financial_signal hint).
+  b) Cadence is recurring (monthly / biweekly / quarterly / annual) OR is a clearly-labeled one-time contribution to a known account type.
 
-# LIFE EVENT THRESHOLDS
+LABELS: "<Product Family> · <Servicer>" only. No lifestyle vocabulary. One entry per (product_family, servicer).
+  product_family enum: auto_loan, auto_lease, mortgage, heloc, student_loan, personal_loan, credit_card_payoff, brokerage_contribution, retirement_contribution, insurance_premium, education_savings.
 
-- Home Purchase / Transition — 3+ rows (realtor / title / escrow / inspector / mortgage first-pay / moving / large home-retail spike)
-- Wedding / Engagement — 2+ rows (jeweler $2k+ / venue / bridal / photographer / caterer)
-- New Baby / Family Expansion — 2+ rows (OB / pediatric / daycare / baby retailers / L&D hospital)
-- Business Formation — 2+ rows (LLC / incorp services / business insurance / commercial leasing)
-- Elder Care — 2+ rows (assisted living / home health aide / hospice / senior community)
-- Retirement Planning — 2+ rows (estate attorney / financial advisor fee / Medicare supplement / retirement community deposit)
-- Relocation — 2+ rows (long-distance movers / vehicle shipping / extended stay >7 nights / new-metro utility setup / storage)
-- Inheritance / Windfall — 1+ large_inflow row (≥$10k credit) + estate-adjacent context
+monthly_amount_band is vaguely-specific ("~$450/mo"), NEVER an exact figure. Omit if only 1 row.
 
-Use the EXACT canonical event_name (enum enforced). Confidence: 2 rows→65, 3→75, 4-5→85, 6+→92.
-Provide 2-4 evidence items each with a 1-sentence "relevance". Provide 3 short empathetic talking_points.
+EXCLUDE:
+  - One-off big purchases without a servicer → LIFE_EVENT or SPENDING_HABIT.
+  - Insurance copay at doctor's office → SPENDING_HABIT (healthcare pillar).
+  - Bill-pay for utilities / phone → SPENDING_HABIT.
 
-# FINANCIAL SIGNAL RULES
+GOOD: "Auto Loan · Toyota Financial Services", "Retirement Contribution · Fidelity".
+BAD:  "Investing Enthusiast" → SPENDING_HABIT (and forbidden vocabulary anyway).
+BAD:  "Big Amazon Purchase" → SPENDING_HABIT (no servicer, no recurring cadence).
 
-One entry per (product_family, servicer). \`monthly_amount_band\` is vaguely-specific ("~$450/mo"),
-NEVER exact figures. Omit if only 1 txn. Cadence: monthly | biweekly | quarterly | annual | irregular.
+═══════════════════════════════════════════════════════════════════
+3. DEMOGRAPHIC
+═══════════════════════════════════════════════════════════════════
+DEFINITION: An INFERRED STATE CHANGE in income, wealth tier, household composition, or geography — a start/stop/step/drift OVER TIME. Not a baseline attribute. Not a lifestyle. Not a habit.
 
-# DEMOGRAPHIC RULES
+TEST (all three must be true):
+  a) Evidence shows a DELTA — before vs after, or a threshold crossing. Not steady-state presence.
+  b) Category ∈ { income_trajectory, wealth_tier_migration, household_composition, geography_relocation }.
+  c) ≥ 2 unclaimed transaction indices support the delta (or 1 large_inflow for wealth migration).
 
-- Categories: income_trajectory | wealth_tier_migration | household_composition | geography_relocation.
-- Label is 2-5 words, e.g. "Payroll Step-Up · +18%", "Kid → College", "SF → NYC Everyday Spend".
-- Confidence is 0–1 (NOT 0–100). Cap at 0.92.
-- REQUIRE ≥2 unclaimed indices (or 1 for a single large_inflow). If fewer, drop the shift.
-- NEVER re-state static baseline attributes (current age, ZIP, income band).
-- **GENERAL AUDIT RULE**: recurring vendor presence is NOT a demographic shift. A shift requires a
-  start / stop / step / drift over time. If the honest answer is "this vendor is just present in
-  the window" — route to Spending Habit or drop.
+LABELS: closed vocabulary shape only:
+  - income_trajectory:      "Payroll Step-Up · +18%", "Payroll Step-Down · −22%", "Self-Employment Onset", "1099 Onset".
+  - wealth_tier_migration:  "Contribution Rate Up · Mass Affluent", "Windfall → Investable Assets".
+  - household_composition:  "Kid → College", "Empty Nest", "New Cohabitation", "Household Split".
+  - geography_relocation:   "SF → NYC Everyday Spend", "Post-Move ZIP Drift".
 
-# SPENDING HABIT RULES
+Labels are 2–5 words. NO trailing restatement (e.g. "Kid → College" — NOT "Kid → College · College Prep Cycle"). Confidence is 0–1 (cap 0.92). Direction ∈ {up, down, lateral}.
 
-- Pillar MUST be one of: ${distinctPillars.map((p) => `"${p}"`).join(", ")}.
-- Label: 2-4 words. Concrete activity + cadence: "Annual Hawaiian Vacations", "Weekly Coffee Runs",
-  "Tennis & Court Sports", "Weekend Golfer", "Pet Care Routine".
-- FORBIDDEN label words: "Enthusiast", "Fan", "Lover", "Aficionado", "Vacationer", "Junkie",
+THE HONEST-SENTENCE TEST (run this out loud before emitting):
+  Say "What changed, when, and how do we know?"
+  If the honest answer starts with "the customer regularly buys ___" or "the customer owns a ___",
+  it is NOT demographic. Route to Spending Habit or drop.
+
+EXCLUDE with reasoning:
+  - Pets (Chewy, Petco, PetSmart, vet, grooming, Rover, BarkBox, "Pet Household", "Multi-Pet Household") →
+    SPENDING_HABIT. Owning a pet is a lifestyle; recurring pet spend is presence, not a state change.
+  - Fitness / gym / yoga / Peloton → SPENDING_HABIT. Recurring workout spend is a habit.
+  - Streaming / subscriptions / coffee / restaurants / groceries / salons → SPENDING_HABIT. Presence, not delta.
+  - Hobbies (golf, tennis, skiing) → SPENDING_HABIT.
+  - Baby / eldercare / moving vendors → LIFE_EVENT (those are transitions).
+  - Auto loan / mortgage / insurance / 401k ACH → FINANCIAL_SIGNAL.
+  - Static baseline attributes (current age, current ZIP, current income band) → NEVER emit.
+
+GOOD: "Payroll Step-Up · +18%" (paycheck jumps from ~$4.2k to ~$5.0k in Aug, holds ≥3 months).
+GOOD: "Kid → College" (SAT/Kaplan/Common App fees appear starting Sep, bursar deposit in Aug).
+BAD:  "New Pet Household · ~3 pet charges/mo"  → SPENDING_HABIT "Pet Care Routine".
+BAD:  "Multi-Pet Household"                    → SPENDING_HABIT "Pet Care Routine".
+BAD:  "Kid → College · College Prep Cycle"     → DEMOGRAPHIC "Kid → College" (drop restatement).
+BAD:  "Fitness Regular"                        → SPENDING_HABIT.
+BAD:  "Streaming Subscriber"                   → SPENDING_HABIT.
+BAD:  "Age 45 Suburban"                        → NEVER (static baseline).
+
+═══════════════════════════════════════════════════════════════════
+4. SPENDING_HABIT (pillar_rollups)
+═══════════════════════════════════════════════════════════════════
+DEFINITION: A recurring lifestyle habit that names an ACTIVITY or IDENTITY — the "friend at a dinner party" descriptor.
+
+TEST (both must be true):
+  a) Passes the identity test: "This person is the kind of person who ___" completes with an ACTIVITY word (golf, coffee, Hawaii travel, pets), NOT a time-of-week or price tier.
+  b) Q1: name in 1–3 words the ONE activity at the heart of it. "Shopping" / "outings" / "spending" FAIL.
+
+LABELS: 2–4 words. Concrete activity + cadence.
+  Pillar MUST be one of: ${distinctPillars.map((p) => `"${p}"`).join(", ")}.
+
+ALWAYS OWNS: pet spend, fitness, coffee, streaming, groceries, hobbies, salons, gym, restaurants, subscriptions.
+
+FORBIDDEN label words: "Enthusiast", "Fan", "Lover", "Aficionado", "Vacationer", "Junkie",
   "Phase", "Transition", "Prep", "Preparation", "Bound", "Expecting", "New Parent",
   "New Homeowner", "Aspiring Homeowner", "Empty Nest", "Nesting",
   "Loan", "Mortgage", "Lease", "HELOC", "Brokerage", "Investing", "Investment",
-  "401k", "IRA", "Debt", "Servicing".
-- FORBIDDEN vice/risk words in labels: "Betting", "Sportsbook", "Casino", "Gambler", "Gambling",
-  "High Roller", "Cash Advance", "Payday", "BNPL", "Buy Now Pay Later", "Collections", "Adult", "Vice".
-- **THE IDENTITY TEST** — every rollup must pass BOTH:
-    Q1. "This person is the kind of person who ___." — completion must name an ACTIVITY/LIFESTYLE,
-        not a time-of-week or price-tier.
-    Q2. Name in 1-3 words the ONE activity at the heart of it (golf, coffee, Hawaii travel, pets…).
-        "Shopping" / "spending" / "outings" FAIL.
-- Coherence: transactions bundled into one rollup must share the same activity/lifestyle. Do NOT
-  mix Ski-tagged rows with Tropical-tagged rows in one "travel" rollup — split them.
-- If a category has ≥3 rows tied to the same recurring sport/fitness/hobby, emit a dedicated rollup
-  for that discipline (Tennis, Golf, Cycling, Yoga, Skiing, etc.).
+  "401k", "IRA", "Debt", "Servicing",
+  "Betting", "Sportsbook", "Casino", "Gambler", "Gambling", "High Roller",
+  "Cash Advance", "Payday", "BNPL", "Buy Now Pay Later", "Collections", "Adult", "Vice".
 
-# HARD OVERRIDES (baked into the row-level owner hints — respect them)
+Coherence: rows in one rollup must share the same activity. Do NOT mix Ski-tagged rows with Tropical-tagged rows in one "travel" rollup — split them. If a category has ≥3 rows tied to one sport/hobby, emit a dedicated rollup (Tennis, Golf, Cycling, Yoga, Skiing).
 
-- \`owner=life_event\`     → row belongs to LIFE_EVENT bucket (if cluster meets threshold; else drop).
-- \`owner=financial_signal\` → row belongs to FINANCIAL_SIGNAL bucket. NEVER route to Spending Habit or Life Event.
-- \`owner=demographic\`    → row belongs to DEMOGRAPHIC bucket. NEVER route to Life Event or Spending Habit.
-- \`owner=spending_habit\` → row belongs to SPENDING_HABIT bucket. This includes ALL pet spend.
-- (no owner)               → your call, following the ladder.
+GOOD: "Pet Care Routine", "Annual Hawaiian Vacations", "Weekly Coffee Runs", "Weekend Golfer".
+BAD:  "New Pet Household"  → this is the DEMOGRAPHIC form of the same thing; use "Pet Care Routine".
+BAD:  "Aspiring Homeowner" → forbidden vocabulary.
 
-# OUTPUT
+═══════════════════════════════════════════════════════════════════
+5. RISK_FACTOR
+═══════════════════════════════════════════════════════════════════
+Owned upstream. DO NOT emit anything (spending_habit / life_event / demographic / financial) for risk-flagged rows or risk themes.
 
-Return via the return_persona tool. Fill every bucket you can support with evidence; return an empty
-array for buckets with no qualifying signal. Fill the audit block so overlaps can be verified.
+═══════════════════════════════════════════════════════════════════
+THE ACCOUNTING RULE
+═══════════════════════════════════════════════════════════════════
+Every [T<n>] row can appear in AT MOST ONE bucket's transaction_indices. If a row's pre-computed \`owner=\` tag says life_event / financial_signal / demographic / spending_habit, you MUST route it to that bucket (or drop it if evidence is too thin). Pet rows are ALWAYS owner=spending_habit — never route them to Demographic. If \`owner=\` is unset, you decide — favor the higher tier when in doubt.
+
+You must return an \`audit\` object listing every claimed index per bucket. Overlap is a hard error.
+
+═══════════════════════════════════════════════════════════════════
+DECISION LOOP (run once, in order, per candidate cluster)
+═══════════════════════════════════════════════════════════════════
+  Step 1. LIFE_EVENT vendor hint present AND cluster meets threshold?  → LIFE_EVENT. Done.
+  Step 2. Financial servicer hint present?                             → FINANCIAL_SIGNAL. Done.
+  Step 3. Cluster shows a STATE CHANGE (delta over time)?              → DEMOGRAPHIC. Answer the honest-sentence test first. Done.
+  Step 4. Cluster forms a coherent recurring lifestyle activity?       → SPENDING_HABIT. Done.
+  Step 5. Otherwise drop.
+
+═══════════════════════════════════════════════════════════════════
+KNOWN BAD OUTPUTS (do NOT reproduce these — route as noted)
+═══════════════════════════════════════════════════════════════════
+  ✗ Demographic "New Pet Household"         → Spending Habit "Pet Care Routine".
+  ✗ Demographic "Multi-Pet Household"       → Spending Habit "Pet Care Routine".
+  ✗ Demographic "Kid → College · College Prep Cycle" → Demographic "Kid → College" (no restatement).
+  ✗ Demographic "Fitness Regular"           → Spending Habit "Boutique Fitness".
+  ✗ Demographic "Coffee Household"          → Spending Habit "Weekday Coffee Runs".
+  ✗ Life Event "College Preparation"        → Demographic "Kid → College".
+  ✗ Life Event "Auto Loan Renewal"          → Financial Signal "auto_loan · <servicer>".
+
+═══════════════════════════════════════════════════════════════════
+HARD OVERRIDES (row-level owner hints — respect them)
+═══════════════════════════════════════════════════════════════════
+  - owner=life_event       → LIFE_EVENT (if cluster meets threshold; else drop).
+  - owner=financial_signal → FINANCIAL_SIGNAL. NEVER route to Spending Habit or Life Event.
+  - owner=demographic      → DEMOGRAPHIC. NEVER route to Life Event or Spending Habit.
+  - owner=spending_habit   → SPENDING_HABIT. This includes ALL pet spend.
+  - (no owner)             → your call, following the ladder.
+
+═══════════════════════════════════════════════════════════════════
+OUTPUT
+═══════════════════════════════════════════════════════════════════
+Return via the return_persona tool. Fill every bucket you can support with evidence; return an empty array for buckets with no qualifying signal. Fill the audit block so overlaps can be verified.
 ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
 
     const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}`;
@@ -619,16 +679,33 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     for (const e of filteredLE) for (const ti of e.transaction_indices) claimedByHigher.add(ti);
     for (const f of filteredFS) for (const ti of f.transaction_indices) claimedByHigher.add(ti);
 
+    // Vocabulary that MUST NOT appear anywhere in a demographic shift.
+    // These themes belong to Spending Habit; the model keeps regressing on them.
+    const NON_DEMO_VOCAB = /pet|chewy|petco|petsmart|banfield|barkbox|rover|vet\b|veterinar|groom|dog\s?walk|fitness|gym\b|yoga|peloton|coffee|starbucks|dunkin|streaming|netflix|hulu|spotify|subscription|grocer|restaurant|salon|hair\s?stylist|barber/i;
+
     const filteredDemo = rawDemographic
       .map((d: any) => {
         const idx: number[] = cleanIndices(d.transaction_indices || [], ["demographic"])
           .filter((ti) => !claimedByHigher.has(ti));
-        return { ...d, transaction_indices: idx };
+        // Normalize college labels — strip trailing "· College Prep Cycle" / "· Prep …" restatements.
+        let label = String(d.label || "").trim();
+        if (/kid\s*(?:→|->|to)\s*college/i.test(label)) {
+          label = "Kid → College";
+        }
+        // Clear magnitude_band when it merely restates the label vocabulary.
+        let magnitude_band = String(d.magnitude_band || "").trim();
+        if (magnitude_band && label && magnitude_band.toLowerCase() === label.toLowerCase()) {
+          magnitude_band = "";
+        }
+        return { ...d, label, magnitude_band, transaction_indices: idx };
       })
       // Demographic requires ≥2 unclaimed indices (or 1 large_inflow — but large_inflow is life_event-owned)
       .filter((d: any) => (d.transaction_indices?.length ?? 0) >= 2)
-      // Kill any demographic labeled with pet vocab (belt-and-suspenders after hint filter)
-      .filter((d: any) => !PET_RE.test(String(d.label || "")) && !PET_RE.test(String(d.magnitude_band || "")));
+      // Kill any demographic labeled with spending-habit vocab across ALL fields (label, magnitude, evidence, category)
+      .filter((d: any) => {
+        const blob = `${d.label || ""} ${d.magnitude_band || ""} ${d.evidence_summary || ""} ${d.category || ""}`;
+        return !NON_DEMO_VOCAB.test(blob);
+      });
 
     for (const d of filteredDemo) for (const ti of d.transaction_indices) claimedByHigher.add(ti);
 

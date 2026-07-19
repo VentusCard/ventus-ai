@@ -354,15 +354,34 @@ export default function ExecDemoIntelPanel({
     return s;
   }, [rawFinancialSignals]);
 
+  // Spending-habit vocabulary that must never appear on a Demographic pill.
+  // Belt-and-suspenders defense in case the backend regresses.
+  const NON_DEMO_VOCAB_RE = /pet|chewy|petco|petsmart|banfield|barkbox|rover|\bvet\b|veterinar|groom|dog\s?walk|fitness|\bgym\b|yoga|peloton|coffee|starbucks|dunkin|streaming|netflix|hulu|spotify|subscription|grocer|restaurant|salon|hair\s?stylist|barber/i;
+
   const filteredDemographicShifts = useMemo(() => {
-    return rawDemographicShifts.filter((d) => {
-      // Drop if the same label is already a life event (exact, case-insensitive).
-      if (d?.label && lifeEventNameSet.has(d.label.trim().toLowerCase())) return false;
-      // Drop if every one of its transaction_indices is already owned by a financial signal.
-      const idx = d.transaction_indices || [];
-      if (idx.length > 0 && idx.every((ti) => financialTxSet.has(ti))) return false;
-      return true;
-    });
+    return rawDemographicShifts
+      .map((d) => {
+        // Normalize college labels to a single canonical form (no trailing restatement).
+        let label = (d.label || "").trim();
+        if (/kid\s*(?:→|->|to)\s*college/i.test(label)) label = "Kid → College";
+        // Suppress magnitude_band when it merely restates the label.
+        let magnitude_band = (d.magnitude_band || "").trim();
+        if (magnitude_band && label && magnitude_band.toLowerCase() === label.toLowerCase()) {
+          magnitude_band = "";
+        }
+        return { ...d, label, magnitude_band };
+      })
+      .filter((d) => {
+        // Drop if the same label is already a life event (exact, case-insensitive).
+        if (d?.label && lifeEventNameSet.has(d.label.trim().toLowerCase())) return false;
+        // Drop if every one of its transaction_indices is already owned by a financial signal.
+        const idx = d.transaction_indices || [];
+        if (idx.length > 0 && idx.every((ti) => financialTxSet.has(ti))) return false;
+        // Drop any demographic pill carrying spending-habit vocabulary in any field.
+        const blob = `${d.label || ""} ${d.magnitude_band || ""} ${(d as any).evidence_summary || ""} ${(d as any).category || ""}`;
+        if (NON_DEMO_VOCAB_RE.test(blob)) return false;
+        return true;
+      });
   }, [rawDemographicShifts, lifeEventNameSet, financialTxSet]);
 
   const demographicTxSet = useMemo(() => {
