@@ -87,6 +87,7 @@ interface Props {
   productDeliveryChannel?: import("./ProductDeliveryChannelCard").ProductDeliveryChannel;
   onProductDeliveryChannelChange?: (channel: import("./ProductDeliveryChannelCard").ProductDeliveryChannel) => void;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
+  onCloseWMCopilot?: () => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
