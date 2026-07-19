@@ -148,22 +148,11 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
   const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
   const externals = externalSignals ?? [];
   const externalActive = !!activeExternalSignalId;
-  const matchedCount = highlightSet ? highlightSet.size : externalActive ? 1 : 0;
-  const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
-
-  // When the user activates an external-intel pill we render just that one
-  // signal as a single row (with a swapped violet Tier-1 header) instead of
-  // the full transaction list — makes the "from outside data provider" nature
-  // obvious without leaving the familiar table layout.
   const activeExternal = externalActive
     ? externals.find((s) => s.id === activeExternalSignalId) ?? null
     : null;
-  const activeExternalConf = activeExternal
-    ? activeExternal.confidence > 1
-      ? Math.round(activeExternal.confidence)
-      : Math.round(activeExternal.confidence * 100)
-    : 0;
-  const activeExternalEvidence = activeExternal?.evidence?.[0];
+  const matchedCount = highlightSet ? highlightSet.size : 0;
+  const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
 
   return (
 
