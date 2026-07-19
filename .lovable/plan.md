@@ -1,26 +1,36 @@
 ## Goal
-Keep the existing "Pet Care Routine" spending-habit pill as-is (no forced promotion), but ensure pet vocabulary can only surface in the **Spending Habits** row of the /bankdemo intel panel — never Life Event, never Financial Signal, never Demographic.
 
-## Current state
-- Backend already routes pet-tagged rows to `owner=spending_habit` and blocks their indices from Life Event / Financial Signal / Demographic via `cleanIndices`.
-- Backend already has a `NON_DEMO_VOCAB` label/vocab kill-switch — but it only runs on **Demographic**. Life Event and Financial Signal buckets can still emit pet-themed labels (e.g. "New Pet Adoption") when the LLM writes them with zero pet indices or borrows a non-pet evidence row.
-- Frontend `NON_DEMO_VOCAB_RE` in `ExecDemoIntelPanel.tsx` guards Demographic only.
+Clicking the **Auto Loan · Renewal in ~2mo** pill (and any other pill that matches an external-intelligence signal) should surface the violet **External Signal** row *alongside* the customer's related transactions — not swap them out. Today the table hides all transactions and shows only the external row, which loses the tie-back to the customer's own auto-loan payments.
+
+## Current behavior (verified)
+
+- `ExecDemoIntelPanel.tsx` computes `activeExternalSignalId` by matching `activeTriggerLabel === externalSignal.event_name`. It fires only for life-event pills whose label matches verbatim — the Financial Signal auto-loan pill uses the LLM's `fs.label` (e.g. "Auto Loan · VW Credit"), so today it never activates the external row.
+- `ExecDemoEnrichmentTable.tsx` treats `activeExternal` as a full **takeover**: when set, it hides `<tbody>` transaction rows entirely and renders a single 5-column violet header + one row. That is why the user never sees the underlying transactions together with the external signal.
 
 ## Changes
 
-### 1. `supabase/functions/synthesize-persona/index.ts`
-- Extract the existing `NON_DEMO_VOCAB` regex into a shared `PET_VOCAB` regex (narrower — just pet terms: pet, chewy, petco, petsmart, banfield, barkbox, rover, vet, veterinar, groom, dog walk).
-- Apply `PET_VOCAB` as a hard reject on:
-  - `filteredLE` — drop any life event whose `event_name`, `evidence_summary`, or any `evidence[].merchant` matches.
-  - `filteredFS` — drop any financial signal whose `label`, `product_family`, `servicer`, or `evidence` matches.
-- Leave the existing broader `NON_DEMO_VOCAB` on Demographic unchanged.
-- Leave `filteredSH` and the existing pet-orphan auto-promotion untouched (user confirmed pet is already picked up as Spending Habit).
+### 1. Match Financial Signal pills to external signals (`ExecDemoIntelPanel.tsx`)
 
-### 2. `src/components/exec-demo/ExecDemoIntelPanel.tsx`
-- Add a defensive `PET_VOCAB_RE` filter that drops any Life Event pill and any Financial Signal pill whose visible label/evidence text matches pet vocab. Belt-and-suspenders in case the LLM regresses before the edge function redeploys.
-- Do not touch the Spending Habits render loop.
+Broaden `activeExternalSignalId` resolution so Financial Signal pills (not just life-event labels) can activate an external row:
+
+- Match by `event_name` (existing behavior).
+- Also match by `product_family` (e.g. `auto_loan`) or `servicer` substring against the pill's `label` — so `fs.label = "Auto Loan · VW Credit"` still resolves to the `auto-loan-renewal` external signal.
+
+### 2. Stop hiding transactions when an external signal is active (`ExecDemoEnrichmentTable.tsx`)
+
+Replace the "takeover" behavior with an **inline callout + full table**:
+
+- Keep the standard 10-column `colgroup`/`thead` (Raw + Semantic Enrichment) at all times.
+- When `activeExternal` is set, insert a single violet callout row as the **first `<tr>` of the `<tbody>`** spanning all 10 columns. Reuse the existing violet styling (icon, provider chip, confidence, "sourced from outside data provider" tag) already built for the takeover view.
+- Continue to render the transaction rows below, using `highlightedIndices` (the pill's `transaction_indices`) to highlight matching auto-loan payments and dim the rest — same logic already used for every other pill.
+- Update the top strip copy so it reads e.g. *"Showing 1 external signal + N matching transactions for 'Auto Loan · VW Credit'"*.
+- Delete the now-unused Tier-1/Tier-2 takeover branches (`activeExternal ? ... : ...`) that swapped the header and `colgroup`.
+
+### 3. No other files change
+
+The `activeTriggerPill` state, `filteredIndices` derivation, and `externalSignals` prop plumbing already flow both signals through — we're only changing how the enrichment table renders them.
 
 ## Out of scope
-- No changes to pet promotion thresholds.
-- No UI redesign; no color changes.
-- Other lifestyle categories (fitness/coffee/streaming) keep today's behavior.
+
+- Life-event and demographic pills already work correctly; no changes to their click handlers beyond the shared external-signal matcher.
+- No LLM prompt or edge-function changes.
