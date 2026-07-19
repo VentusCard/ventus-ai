@@ -391,10 +391,10 @@ EXCLUDE with reasoning:
   - Static baseline attributes (current age, current ZIP, current income band) → NEVER emit.
 
 GOOD: "Payroll Step-Up · +18%" (paycheck jumps from ~$4.2k to ~$5.0k in Aug, holds ≥3 months).
-GOOD: "Kid → College" (SAT/Kaplan/Common App fees appear starting Sep, bursar deposit in Aug).
+GOOD: "College Preparation" (SAT/Kaplan/Common App fees appear starting Sep, bursar deposit in Aug).
 BAD:  "New Pet Household · ~3 pet charges/mo"  → SPENDING_HABIT "Pet Care Routine".
 BAD:  "Multi-Pet Household"                    → SPENDING_HABIT "Pet Care Routine".
-BAD:  "Kid → College · College Prep Cycle"     → DEMOGRAPHIC "Kid → College" (drop restatement).
+BAD:  "College Preparation · College Prep Cycle"  → DEMOGRAPHIC "College Preparation" (drop restatement).
 BAD:  "Fitness Regular"                        → SPENDING_HABIT.
 BAD:  "Streaming Subscriber"                   → SPENDING_HABIT.
 BAD:  "Age 45 Suburban"                        → NEVER (static baseline).
