@@ -1275,7 +1275,7 @@ export default function ExecDemoIntelPanel({
                           }`}
                         >
                           <Briefcase className="w-3.5 h-3.5" />
-                          Relationship Managers
+                          Ventus AI Coworker
                         </button>
                       </>
                     );

@@ -1,4 +1,5 @@
 import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox } from "lucide-react";
+import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 
 const INGEST_ITEMS = [
   "Enriched Transactions",
@@ -401,86 +402,14 @@ export default function NextConversationRationale({
             </div>
           </div>
         ) : (
-          /* ============ WEALTH CLIENT (full width) ============ */
+          /* ============ VENTUS AI COWORKER (full width) ============ */
           <div className="flex flex-col min-h-0 rounded-xl border border-purple-200 bg-white overflow-hidden">
             <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-purple-100 flex items-center gap-1.5">
-              <Plus className="w-3 h-3 text-purple-600" />
-              <span className="text-[11px] font-semibold tracking-wide text-purple-600">Wealth Client</span>
+              <Sparkles className="w-3 h-3 text-purple-600" />
+              <span className="text-[11px] font-semibold tracking-wide text-purple-600">Ventus AI Coworker</span>
             </div>
-
-            <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-2 space-y-2">
-              {/* Single Advisor Notification card with prep brief + actions */}
-              <div className="rounded-lg border border-purple-200 bg-purple-50/40 p-2.5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Bell className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="text-[11px] font-bold text-purple-700">Advisor Notification</span>
-                </div>
-                <div className="text-[11px] text-slate-600 space-y-0.5 mb-2">
-                  <p>Sent to: <span className="font-semibold text-slate-800">Assigned relationship manager</span></p>
-                  <p>Suggested outreach: <span className="font-semibold text-slate-800">Within 5 business days</span></p>
-                </div>
-
-                {/* Prep brief */}
-                <div className="rounded-md border border-purple-200/60 bg-white p-2 mb-2">
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <FileText className="w-3 h-3 text-purple-600" />
-                    <span className="text-[10px] font-semibold tracking-wide uppercase text-purple-700">Prep Brief Includes</span>
-                  </div>
-                  <ul className="space-y-0.5 text-[11px] text-slate-700">
-                    <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Suggested talking points based on detected signal</span></li>
-                    <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Cross-sell opportunities aligned to behavior</span></li>
-                    <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Recent activity summary</span></li>
-                  </ul>
-                </div>
-
-                {/* Actions */}
-                <div>
-                  <div className="flex items-center gap-1.5 mb-1">
-                    <Sparkles className="w-3 h-3 text-purple-600" />
-                    <span className="text-[10px] font-semibold tracking-wide uppercase text-purple-700">Actions</span>
-                  </div>
-                  {(() => {
-                    const l = (effectiveSignal.label || "").toLowerCase();
-                    let consultLabel = "Schedule Lifestyle Consultation";
-                    if (/college/.test(l)) consultLabel = "Schedule 529 Consultation";
-                    else if (/home|mortgage|down ?payment|house/.test(l)) consultLabel = "Schedule Mortgage Consultation";
-                    else if (/gambl|vulnerab|hardship|stress/.test(l) || brief.sensitive) consultLabel = "Schedule Wellness Check-in";
-                    const consultStyle = brief.sensitive
-                      ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
-                      : "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100";
-                    return (
-                      <div className="space-y-1.5">
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Automated</p>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            <button className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                              <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Notify Wealth Advisor</span>
-                            </button>
-                            <button
-                              type="button"
-                              onClick={onOpenWMCopilot}
-                              className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1"
-                            >
-                              <FileText className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Open Full Intelligence Brief</span>
-                            </button>
-                          </div>
-                        </div>
-                        <div>
-                          <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Advisor Actions</p>
-                          <div className="grid grid-cols-2 gap-1.5">
-                            <button className={`text-left text-[11px] font-semibold rounded-md border px-2 py-1.5 inline-flex items-center gap-1 ${consultStyle}`}>
-                              <Sparkles className="w-3 h-3 shrink-0 opacity-70" /> <span className="truncate">{consultLabel}</span>
-                            </button>
-                            <button className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                              <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Flag for Follow-up</span>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
+            <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-2">
+              <CoworkerInboxView />
             </div>
           </div>
         )}
