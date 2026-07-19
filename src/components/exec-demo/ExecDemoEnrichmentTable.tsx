@@ -270,7 +270,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
             const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
-            const isDimmed = highlightSet ? !isHighlighted : externalActive;
+            const isDimmed = highlightSet ? !isHighlighted : false;
             return (
               <tr
                 key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
