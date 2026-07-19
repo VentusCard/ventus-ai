@@ -1252,7 +1252,7 @@ export default function ExecDemoIntelPanel({
               />
             ) : activeTab === "product" ? (
               <NextProductRationale
-                lifeEvents={detectedLifeEvents || null}
+                lifeEvents={filteredDetectedLifeEvents}
                 loading={!!productsLoading}
                 productCards={productCards}
                 transactions={transactions}
