@@ -734,8 +734,8 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
           .filter((ti) => !claimedByHigher.has(ti));
         // Normalize college labels — strip trailing "· College Prep Cycle" / "· Prep …" restatements.
         let label = String(d.label || "").trim();
-        if (/kid\s*(?:→|->|to)\s*college/i.test(label)) {
-          label = "Kid → College";
+        if (/kid\s*(?:→|->|to)\s*college/i.test(label) || /college\s*prep/i.test(label)) {
+          label = "College Preparation";
         }
         // Clear magnitude_band when it merely restates the label vocabulary.
         let magnitude_band = String(d.magnitude_band || "").trim();
