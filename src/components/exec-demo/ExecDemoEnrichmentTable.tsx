@@ -388,61 +388,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             );
             });
           })()}
-          {activeExternal && (
-            <tr
-              key={`ext-active-${activeExternal.id}`}
-              className="border-b border-slate-100 exec-ext-highlighted"
-              style={{ ["--exec-hl" as any]: "#8b5cf6" } as React.CSSProperties}
-            >
-              {/* Source */}
-              <td className="px-1 py-2">
-                <span className="inline-flex items-center gap-1 px-1 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap bg-violet-50 text-violet-700">
-                  <Sparkles className="w-3 h-3" />
-                  External
-                </span>
-              </td>
-              {/* Provider */}
-              <td className="px-1 py-2">
-                <span className="inline-block bg-slate-100 text-slate-600 text-[12px] font-mono px-0.5 py-0.5 rounded whitespace-nowrap">
-                  {activeExternal.provider}
-                </span>
-              </td>
-              {/* Signal (headline) */}
-              <td className="px-1 py-2">
-                <div className="text-[13px] font-medium text-slate-900 truncate" title={activeExternal.headline}>
-                  {activeExternal.headline}
-                </div>
-              </td>
-              {/* Type */}
-              <td className="px-1 py-2">
-                {(() => {
-                  const cat = (activeExternal.category || "").toLowerCase();
-                  const isRisk = /risk|fraud|default|delinquency|credit/.test(cat);
-                  const isSpend = /spend|habit|merchant|dining|travel_spend/.test(cat);
-                  const type = isRisk ? "Risk" : isSpend ? "Spending Habit" : "Life Event";
-                  const cls = isRisk
-                    ? "bg-red-50 text-red-700"
-                    : isSpend
-                    ? "bg-blue-50 text-blue-700"
-                    : "bg-violet-50 text-violet-700";
-                  return (
-                    <span className={`inline-block text-[12px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${cls}`}>
-                      {type}
-                    </span>
-                  );
-                })()}
-              </td>
-              {/* Confidence */}
-              <td className="px-1 py-2 text-right">
-                <span className="inline-block text-[12.5px] px-1 py-0.5 rounded whitespace-nowrap leading-tight bg-violet-50 text-violet-700 tabular-nums">
-                  {activeExternalConf}%
-                </span>
-              </td>
-            </tr>
-          )}
-          {!activeExternal && externals.map((s) => {
+          {/* External Intelligence rows — rendered as full-width violet callouts.
+              When a pill activates one, it lights up and floats to the top. */}
+          {[...externals]
+            .sort((a, b) => {
+              if (a.id === activeExternalSignalId) return -1;
+              if (b.id === activeExternalSignalId) return 1;
+              return 0;
+            })
+            .map((s) => {
             const isActive = activeExternalSignalId === s.id;
-            const isDimmed = !isActive && (!!highlightSet || externalActive);
+            const isDimmed = !isActive && externalActive;
             const conf = s.confidence > 1 ? Math.round(s.confidence) : Math.round(s.confidence * 100);
             return (
               <tr
