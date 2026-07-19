@@ -27,7 +27,9 @@ function BrandPanel() {
       className="relative hidden flex-col justify-between overflow-hidden p-10 lg:flex"
       style={{ backgroundColor: "var(--v2-console)" }}
     >
-      <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto brightness-0 invert" style={{ alignSelf: "flex-start" }} />
+      <Link to="/v2" className="self-start" aria-label="Return to Ventus AI">
+        <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto brightness-0 invert" />
+      </Link>
       <div>
         <h1 className="v2-display max-w-md text-4xl text-white xl:text-5xl">
           Every decision leaves a receipt.
@@ -94,7 +96,9 @@ export function LoginPage() {
 
   return (
     <AuthShell>
-      <img src={ventusLogo} alt="Ventus AI" className="mb-10 h-5 w-auto lg:hidden" />
+      <Link to="/v2" className="mb-10 inline-flex lg:hidden" aria-label="Return to Ventus AI">
+        <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto" />
+      </Link>
       <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
         Growth Console
       </p>
@@ -234,7 +238,9 @@ export function SignupPage() {
 
   return (
     <AuthShell>
-      <img src={ventusLogo} alt="Ventus AI" className="mb-10 h-5 w-auto lg:hidden" />
+      <Link to="/v2" className="mb-10 inline-flex lg:hidden" aria-label="Return to Ventus AI">
+        <img src={ventusLogo} alt="Ventus AI" className="h-5 w-auto" />
+      </Link>
       <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
         Growth Console
       </p>

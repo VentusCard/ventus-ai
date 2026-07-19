@@ -5879,166 +5879,132 @@ function LeadershipCover({
   outcomeFeedReady: boolean;
   allowedPaths: LeadershipPath[];
 }) {
-  const paths = allowedPaths;
+  // The objective choice is the composition: two institutional color fields
+  // meet at the cross-business seam. Entitlements can reduce this to one
+  // full-width field for a business-line-specific user.
   const [previewPath, setPreviewPath] = useState<LeadershipPath | null>(null);
-  const featured = previewPath ? leadershipConfig(previewPath) : null;
-  const sourceCount = featured
-    ? new Set(featured.opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed")).size
-    : 0;
   const livePath = [
-    { label: "Inputs", status: connectorSession?.connectors.plaid ? "Plaid connected" : featured?.sourceLabel ?? "Select focus", tone: connectorSession?.connectors.plaid ? "connected" : "neutral", Icon: Upload },
-    { label: "Ventus", status: featured ? "Configured" : "Ready", tone: featured ? "connected" : "neutral", Icon: Wand2 },
+    { label: "Inputs", status: connectorSession?.connectors.plaid ? "Plaid connected" : "Sanctioned data", tone: connectorSession?.connectors.plaid ? "connected" : "neutral", Icon: Upload },
+    { label: "Ventus", status: previewPath ? "Configured" : "Ready", tone: previewPath ? "connected" : "neutral", Icon: Wand2 },
     { label: "Salesforce", status: connectorSession?.connectors.salesforce ? "Connected" : "Staged", tone: connectorSession?.connectors.salesforce ? "connected" : "neutral", Icon: Network },
     { label: "Outcome", status: outcomeFeedReady ? "Modeled" : "Pending", tone: outcomeFeedReady ? "illustrative" : "neutral", Icon: LineChart },
   ];
-  const capabilities = [
-    { label: "Enrich", Icon: Layers },
-    { label: "Detect", Icon: Activity },
-    { label: "Decide", Icon: ShieldCheck },
-    { label: "Learn", Icon: GitBranch },
-  ];
+  const fields: Array<{
+    path: LeadershipPath;
+    field: string;
+    line: string;
+    title: [string, string];
+    metric: string;
+    play: string;
+  }> = [
+    {
+      path: "deposit-retention",
+      field: "#012169",
+      line: "Consumer Banking",
+      title: ["Protect", "primary deposits."],
+      metric: "Primary deposits retained",
+      play: "Deposit Primacy Defense",
+    },
+    {
+      path: "wealth-growth",
+      field: "#0B5237",
+      line: "Merrill Wealth Management",
+      title: ["Grow", "advised assets."],
+      metric: "Advised net new assets",
+      play: "Qualified Wealth Growth",
+    },
+  ].filter(({ path }) => allowedPaths.includes(path));
+
   return (
-    <div className="h-full w-full overflow-y-auto bg-[#F3F6FA] px-5 py-5 sm:px-8 xl:flex xl:items-center xl:px-10">
-      <div className="mx-auto w-full max-w-6xl">
-        <div>
-          <p className="font-mono text-[10px] uppercase text-blue-700">Ventus Growth Intelligence</p>
-          <h1 className="mt-2 max-w-3xl text-3xl font-extrabold leading-tight text-[#071225] sm:text-4xl">
-            Choose the objective. Watch evidence become action.
-          </h1>
-        </div>
+    <div className="flex h-full w-full flex-col overflow-y-auto" style={{ backgroundColor: "#071225" }}>
+      <div className="flex flex-none items-baseline justify-between gap-3 px-5 pb-4 pt-5 sm:px-8 xl:px-10">
+        <h1 className="text-lg font-extrabold tracking-tight text-white sm:text-xl">
+          Choose the objective. <span className="text-white/45">Watch evidence become action.</span>
+        </h1>
+        <p className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-white/35 md:block">
+          Enrich · Detect · Decide · Learn
+        </p>
+      </div>
 
-        <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.28fr)_minmax(310px,0.72fr)]">
-          <section className="overflow-hidden rounded-xl border border-[#16284D] bg-[#071225] text-white shadow-[0_24px_60px_-34px_rgba(7,18,37,0.9)]">
-            {featured ? (
-              <>
-                <div className="flex items-center justify-between gap-3 border-b border-white/10 px-5 py-3">
-                  <div className="flex items-center gap-2">
-                    <span className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-500/15"><Activity className="h-3.5 w-3.5 text-blue-300" /></span>
-                    <div>
-                      <p className="text-[10px] font-bold uppercase text-white/40">{featured.businessLine} · permitted inputs</p>
-                      <p className="text-sm font-bold text-white">{featured.objective}</p>
-                    </div>
-                  </div>
-                  <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-1 text-[10px] font-bold uppercase text-white/50">No decision yet</span>
-                </div>
-
-                <div className="grid lg:grid-cols-[1.12fr_0.88fr]">
-                  <div className="px-5 py-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <p className="text-[10px] font-bold uppercase text-white/40">Permitted activity stream</p>
-                      <span className="text-[9px] font-semibold text-white/30">{sourceCount} source systems</span>
-                    </div>
-                    <div className="mt-2 divide-y divide-white/10">
-                      {featured.opp.rawTransactions.slice(0, 3).map((transaction) => (
-                        <div key={transaction.raw} className="py-2.5">
-                          <div className="flex items-center justify-between gap-3">
-                            <span className="truncate font-mono text-[11px] font-semibold text-white/80">{transaction.raw}</span>
-                            <span className="flex-none text-[9px] font-semibold text-white/35">{transaction.src}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="border-t border-white/10 px-5 py-4 lg:border-l lg:border-t-0">
-                    <p className="text-[10px] font-bold uppercase text-blue-200">Portfolio frame</p>
-                    <div className="mt-2 grid grid-cols-2 gap-2">
-                      <div className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5">
-                        <p className="text-lg font-extrabold text-white">{featured.scaleHouseholds.toLocaleString()}</p>
-                        <p className="mt-0.5 text-[9px] leading-4 text-white/40">eligible relationships</p>
-                      </div>
-                      <div className="rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5">
-                        <p className="text-lg font-extrabold text-white">1</p>
-                        <p className="mt-0.5 text-[9px] leading-4 text-white/40">representative case</p>
-                      </div>
-                    </div>
-                    <div className="mt-3 border-t border-white/10 pt-3">
-                      <p className="text-[10px] font-bold uppercase text-white/40">Ventus will determine</p>
-                      <div className="mt-2 flex flex-wrap gap-1.5">
-                        {["Financial state", "Eligibility", "Next action"].map((label) => (
-                          <span key={label} className="rounded-md border border-white/10 px-2 py-1 text-[9px] font-semibold text-white/50">{label}</span>
-                        ))}
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => onPick(previewPath)}
-                      className="mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-white px-4 py-2.5 text-xs font-extrabold text-[#071225] transition hover:bg-blue-50"
-                    >
-                      Open evidence run <ArrowRight className="h-3.5 w-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="flex min-h-64 flex-col items-center justify-center px-6 py-10 text-center">
-                <span className="flex h-11 w-11 items-center justify-center rounded-xl border border-blue-300/20 bg-blue-300/10">
-                  <Target className="h-5 w-5 text-blue-200" />
-                </span>
-                <h2 className="mt-4 text-xl font-extrabold">Choose the outcome to run.</h2>
-                <p className="mt-2 max-w-md text-sm leading-6 text-white/55">Each path starts with that team’s own data, controls, workflow, and success metric.</p>
+      <div className="relative flex min-h-[420px] flex-1 flex-col md:flex-row">
+        {fields.map(({ path, field, line, title, metric, play }) => {
+          const open = previewPath === path;
+          const dim = previewPath !== null && !open;
+          const config = leadershipConfig(path);
+          return (
+            <button
+              key={path}
+              type="button"
+              onClick={() => onPick(path)}
+              onMouseEnter={() => setPreviewPath(path)}
+              onMouseLeave={() => setPreviewPath(null)}
+              onFocus={() => setPreviewPath(path)}
+              onBlur={() => setPreviewPath(null)}
+              className="group relative flex min-h-[300px] flex-col justify-between overflow-hidden p-6 text-left sm:p-8 xl:p-10"
+              style={{
+                backgroundColor: field,
+                flex: open ? 1.45 : dim ? 0.85 : 1,
+                opacity: dim ? 0.82 : 1,
+                transition: "flex 520ms cubic-bezier(0.32,0.72,0,1), opacity 520ms ease",
+              }}
+            >
+              <div>
+                <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.2em] text-white/50">{line}</p>
+                <h2 className="mt-4 text-4xl font-extrabold leading-[1.02] tracking-tight text-white sm:text-5xl xl:text-6xl">
+                  {title[0]}
+                  <br />
+                  {title[1]}
+                </h2>
+                <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.08em] text-white/45">
+                  {metric} · {play}
+                </p>
               </div>
-            )}
 
-            <div className="grid grid-cols-2 border-t border-white/10 sm:grid-cols-4">
-              {livePath.map(({ label, status, tone, Icon }, index) => (
-                <div key={label} className={`flex items-center gap-2 px-3 py-2.5 ${index > 0 ? "sm:border-l sm:border-white/10" : ""} ${index > 1 ? "border-t border-white/10 sm:border-t-0" : ""}`}>
-                  <Icon className={`h-3.5 w-3.5 flex-none ${tone === "connected" ? "text-blue-200" : tone === "illustrative" ? "text-amber-300" : "text-white/35"}`} />
-                  <div className="min-w-0">
-                    <p className="truncate text-[11px] font-bold text-white/80">{label}</p>
-                    <p className={`truncate text-[9px] font-semibold ${tone === "connected" ? "text-blue-100/70" : tone === "illustrative" ? "text-amber-200/70" : "text-white/30"}`}>{status}</p>
+              <div>
+                <div
+                  className="overflow-hidden transition-all duration-500"
+                  style={{ maxHeight: open ? 200 : 0, opacity: open ? 1 : 0 }}
+                  aria-hidden={!open}
+                >
+                  <div className="mb-5 max-w-md border-t border-white/15 pt-4">
+                    {config.opp.rawTransactions.slice(0, 3).map((transaction) => (
+                      <div key={transaction.raw} className="flex items-center justify-between gap-3 py-1.5">
+                        <span className="truncate font-mono text-[11px] text-white/75">{transaction.raw}</span>
+                        <span className="flex-none font-mono text-[9px] uppercase text-white/40">{transaction.src}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </section>
+                <span className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-extrabold transition group-hover:gap-3" style={{ color: field }}>
+                  Open evidence run <ArrowRight className="h-4 w-4" />
+                </span>
+              </div>
+            </button>
+          );
+        })}
 
-          <aside className="order-first rounded-xl border border-slate-200 bg-white p-4 shadow-sm lg:order-last">
-            <p className="text-[10px] font-bold uppercase text-slate-400">Choose focus</p>
-            <div className="mt-2 space-y-2">
-              {paths.map((path) => {
-                const config = leadershipConfig(path);
-                const Icon = path === "wealth-growth" ? TrendingUp : Landmark;
-                const selected = path === previewPath;
-                return (
-                  <button
-                    key={path}
-                    type="button"
-                    aria-pressed={selected}
-                    onClick={() => setPreviewPath(path)}
-                    className={`group flex w-full gap-3 rounded-lg border px-3 py-3 text-left transition ${selected ? "border-blue-200 bg-blue-50/70" : "border-transparent hover:border-slate-200 hover:bg-slate-50"}`}
-                  >
-                    <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-lg transition ${selected ? "bg-white shadow-sm" : "bg-slate-50 group-hover:bg-white"}`}>
-                      <Icon className="h-4 w-4" style={{ color: path === "wealth-growth" ? GREEN : BLUE }} />
-                    </span>
-                    <span className="min-w-0 flex-1">
-                      <span className="flex items-center justify-between gap-2">
-                        <span className="text-[9px] font-bold uppercase text-slate-400">{config.businessLine}</span>
-                        {selected
-                          ? <Check className="h-3.5 w-3.5 text-blue-700" />
-                          : <ArrowRight className="h-3.5 w-3.5 text-slate-300 transition group-hover:translate-x-0.5 group-hover:text-blue-600" />}
-                      </span>
-                      <span className="mt-0.5 block text-sm font-extrabold text-slate-950">
-                        {path === "wealth-growth" ? "Grow advised assets" : "Protect primary deposits"}
-                      </span>
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-        </div>
+        {fields.length > 1 && (
+          <div className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 flex-col items-center md:flex">
+            <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 text-white shadow-[0_10px_40px_rgba(0,0,0,0.5)]" style={{ backgroundColor: "#071225" }}>
+              <Repeat className="h-4 w-4" />
+            </span>
+            <span className="mt-2 rounded-full px-2.5 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-white/60" style={{ backgroundColor: "rgba(7,18,37,0.85)" }}>
+              One bank · one engine
+            </span>
+          </div>
+        )}
+      </div>
 
-        <div className="mt-4 grid grid-cols-2 overflow-hidden rounded-xl border border-slate-200 bg-white lg:grid-cols-4">
-          {capabilities.map(({ label, Icon }, index) => (
-            <div key={label} className={`flex items-center justify-center gap-2.5 px-3.5 py-3 ${index > 0 ? "lg:border-l lg:border-slate-100" : ""} ${index > 1 ? "border-t border-slate-100 lg:border-t-0" : ""}`}>
-              <span className="flex h-7 w-7 flex-none items-center justify-center rounded-md bg-blue-50">
-                <Icon className="h-3.5 w-3.5 text-blue-700" />
-              </span>
-              <p className="text-[10px] font-extrabold uppercase tracking-wide text-slate-700">{label}</p>
+      <div className="grid flex-none grid-cols-2 border-t border-white/10 sm:grid-cols-4" style={{ backgroundColor: "#071225" }}>
+        {livePath.map(({ label, status, tone, Icon }, index) => (
+          <div key={label} className={`flex items-center gap-2 px-4 py-3 ${index > 0 ? "sm:border-l sm:border-white/10" : ""} ${index > 1 ? "border-t border-white/10 sm:border-t-0" : ""}`}>
+            <Icon className={`h-3.5 w-3.5 flex-none ${tone === "connected" ? "text-blue-200" : tone === "illustrative" ? "text-amber-300" : "text-white/35"}`} />
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-bold text-white/80">{label}</p>
+              <p className={`truncate text-[9px] font-semibold ${tone === "connected" ? "text-blue-100/70" : tone === "illustrative" ? "text-amber-200/70" : "text-white/30"}`}>{status}</p>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
     </div>
   );
