@@ -1354,7 +1354,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
   // When embedded, only open the selection dialog when the user actually
   // navigates to the Demo tab AND no run has completed yet. Once a run exists,
   // subsequent visits show cached results without the popup.
-  const hasRunOnce = preFiredRef.current || !!profileRef.current || !!personaSynthesis || !!enrichedTxs;
+  const hasRunOnce = !!personaSynthesis || !!enrichedTxs;
   useEffect(() => {
     if (!embedded) return;
     if (active && !hasRunOnce) {
