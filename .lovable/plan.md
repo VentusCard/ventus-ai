@@ -1,36 +1,41 @@
-## Goal
+## What's broken
 
-Clicking the **Auto Loan · Renewal in ~2mo** pill (and any other pill that matches an external-intelligence signal) should surface the violet **External Signal** row *alongside* the customer's related transactions — not swap them out. Today the table hides all transactions and shows only the external row, which loses the tie-back to the customer's own auto-loan payments.
+Only one Financial Signal pill shows: `Auto Loan · VW Credit ~$685/mo`. That's the LLM's synthesis from transactions — the fixture external signal `Auto Loan · Renewal in ~2mo` (Toyota Financial, `product_family: "auto_loan"`) never renders as its own pill or with any visual marker.
 
-## Current behavior (verified)
+Root causes (confirmed by reading code):
 
-- `ExecDemoIntelPanel.tsx` computes `activeExternalSignalId` by matching `activeTriggerLabel === externalSignal.event_name`. It fires only for life-event pills whose label matches verbatim — the Financial Signal auto-loan pill uses the LLM's `fs.label` (e.g. "Auto Loan · VW Credit"), so today it never activates the external row.
-- `ExecDemoEnrichmentTable.tsx` treats `activeExternal` as a full **takeover**: when set, it hides `<tbody>` transaction rows entirely and renders a single 5-column violet header + one row. That is why the user never sees the underlying transactions together with the external signal.
+1. **De-dupe kills the external pill.** `src/pages/ExecDemoPage.tsx` lines 621–644 append external financial signals only if no LLM-emitted financial signal shares `product_family`. The LLM already emitted an `auto_loan`, so the external one is silently dropped.
+2. **No visual "external" marker on pills.** Financial Signal pills in `ExecDemoIntelPanel.tsx` render label + monthly band only — nothing indicates `source: "external"` or provider (Bureau Tradeline). The external row in the enrichment table only appears after a pill click; nothing tells the viewer an external signal exists.
+3. **Fixture drift.** The seeded external signal uses "Toyota Financial Services / ~$485/mo", but the demo customer's transactions show VW Credit / ~$685/mo, making it obvious the LLM version won and the external version was suppressed.
 
-## Changes
+## Fix
 
-### 1. Match Financial Signal pills to external signals (`ExecDemoIntelPanel.tsx`)
+### 1. External wins over LLM for the same product family
+In `src/pages/ExecDemoPage.tsx` (external-signal injection block, ~line 617):
+- Instead of "skip if LLM already emitted", **replace** the LLM-emitted financial signal whose `product_family` matches an external signal.
+- Preserve useful fields the LLM inferred from real transactions (servicer, monthly_amount_band, transaction_indices) by merging them **onto** the external record — external signal stays the source of truth for id/label/provider/confidence and keeps `source: "external"`.
+- Do the same for `demographic_shift` externals if they collide with an LLM demographic entry.
 
-Broaden `activeExternalSignalId` resolution so Financial Signal pills (not just life-event labels) can activate an external row:
+### 2. Make the external pill visually distinct
+In `src/components/exec-demo/ExecDemoIntelPanel.tsx` Financial Signal pill renderer:
+- When `signal.source === "external"`, render a compact prefix — a small satellite/broadcast glyph plus a subdued "Ext" tag — inside the pill, and a violet accent border to match the enrichment-table external callout.
+- Add a tooltip showing `provider` + `detail` (e.g. "Bureau Tradeline · Toyota Financial Services · maturity in ~60 days").
+- Apply the same treatment to Demographic pills sourced externally.
 
-- Match by `event_name` (existing behavior).
-- Also match by `product_family` (e.g. `auto_loan`) or `servicer` substring against the pill's `label` — so `fs.label = "Auto Loan · VW Credit"` still resolves to the `auto-loan-renewal` external signal.
+### 3. Align fixture with the visible transactions
+In `src/lib/externalIntelligenceSignals.ts`:
+- Update the `auto-loan-renewal` fixture to `servicer: "VW Credit"`, `monthly_amount_band: "~$685/mo"`, evidence merchant `"VW CREDIT INC"` — so the injected external pill reads consistently with the enrichment table rows the user sees.
 
-### 2. Stop hiding transactions when an external signal is active (`ExecDemoEnrichmentTable.tsx`)
+### 4. Broaden pill→external match (already partially there)
+In `ExecDemoIntelPanel.tsx` `activeExternalSignalId` memo:
+- Also match when the pill's underlying financial signal object carries `source === "external"` directly (no string sniffing needed).
+- Keep the existing product-family / servicer substring match as a fallback for LLM-derived pills that describe the same product.
 
-Replace the "takeover" behavior with an **inline callout + full table**:
-
-- Keep the standard 10-column `colgroup`/`thead` (Raw + Semantic Enrichment) at all times.
-- When `activeExternal` is set, insert a single violet callout row as the **first `<tr>` of the `<tbody>`** spanning all 10 columns. Reuse the existing violet styling (icon, provider chip, confidence, "sourced from outside data provider" tag) already built for the takeover view.
-- Continue to render the transaction rows below, using `highlightedIndices` (the pill's `transaction_indices`) to highlight matching auto-loan payments and dim the rest — same logic already used for every other pill.
-- Update the top strip copy so it reads e.g. *"Showing 1 external signal + N matching transactions for 'Auto Loan · VW Credit'"*.
-- Delete the now-unused Tier-1/Tier-2 takeover branches (`activeExternal ? ... : ...`) that swapped the header and `colgroup`.
-
-### 3. No other files change
-
-The `activeTriggerPill` state, `filteredIndices` derivation, and `externalSignals` prop plumbing already flow both signals through — we're only changing how the enrichment table renders them.
+### 5. Verification
+- Rerun the Demo tab, confirm one Financial Signal pill labeled `Auto Loan · VW Credit ~$685/mo` renders with the external marker + tooltip.
+- Click the pill → the violet External Intelligence row still appears at the top of the enrichment table alongside the VW Credit transactions.
+- Confirm no duplicate `auto_loan` pill and no regressions to Demographic / Life Event rows.
 
 ## Out of scope
-
-- Life-event and demographic pills already work correctly; no changes to their click handlers beyond the shared external-signal matcher.
-- No LLM prompt or edge-function changes.
+- Adding new external signal categories (property, employment) — the fixture stays a single auto-loan signal for now.
+- Changes to `synthesize-persona` edge function; ownership stays deterministic on the frontend injection step.
