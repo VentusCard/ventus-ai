@@ -1,67 +1,45 @@
-## Root cause
+## Goal
 
-The prompt describes the 5 signals in one flat list with "NEVER" bullets. That gives the LLM too much interpretive room, so it keeps inventing things like "New Pet Household" as a Demographic. The fix is to rewrite the per-signal guidelines so each bucket has a strict, positive definition, a closed enum of acceptable label patterns, hard exclusions with reasoning, and 2–3 canonical examples the model can pattern-match against.
+In `/bankdemo` → **Next Conversation** tab, when the audience toggle is on **Ventus AI Coworker**, the right-hand tablet mockup should display the full example email thread between the advisor and Ventus AI (the same 7-message flow that lives in `AdvisorNotificationsView`) with prev/next and pill navigation so the presenter can step through every message.
 
-## Fix — rewrite per-signal guidelines in `synthesize-persona/index.ts`
+Today the tablet shows `WMCopilotPhoneView` (a PDF-packet card), which is unrelated to the conversation shown on the left.
 
-For each of the 5 buckets, replace the current bullet list with this structured block:
+## Changes
 
-1. **Definition** — one sentence, positive framing (what it IS).
-2. **Ownership test** — a 2-step yes/no gate the model must pass before emitting.
-3. **Closed label vocabulary** — the only shapes a label may take.
-4. **Hard exclusions** — with a one-line WHY each exclusion belongs elsewhere.
-5. **Canonical examples** — 2–3 GOOD examples and 2–3 BAD examples with the correct bucket noted.
+1. **Extract the conversation data + navigator** from `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx` into a new shared module so both the full-page advisor view and the compact tablet view render the same thread from one source of truth.
 
-### Bucket-specific guidelines
+   New file: `src/components/tepilot/advisor-console/AdvisorConversationThread.tsx`
+   - Exports a `<AdvisorConversationThread clients={...} density="full" | "compact" />` component.
+   - Owns: `SECTIONS`, `EVIDENCE`, `EVENT_OFFER`, `TRAVEL_CARD_ROTATION`, `REPLY_MESSAGES`, `ADVISOR`, `VENTUS`, `bucketFor`, digest/travel/name derivation, active-index state, pill/prev-next nav, ribbon, subject block, sender block, digest body, and reply body (all currently inline in `AdvisorNotificationsView`).
+   - `density="compact"` tightens paddings, hides the Outlook ribbon, drops the sticky max-width wrapper, and shrinks the pill row so the whole shell fits in a ~500 px tablet column. `density="full"` keeps the current layout.
+   - `AdvisorNotificationsView` becomes a thin wrapper: renders the section heading + `<AdvisorConversationThread clients={clients} density="full" />`.
 
-**LIFE_EVENT**
-- IS: a discrete, time-bounded transition with a vendor cluster inside a ~90-day window.
-- Test: (a) ≥N vendor rows from the life-event vendor list, (b) rows cluster in time.
-- Labels: closed enum (Home Purchase, Wedding, New Baby, Elder Care, Relocation, Business Formation, Retirement Planning, Inheritance/Windfall).
-- Exclude: recurring servicer ACH (→ Financial Signal), college prep (→ Demographic), pets (→ Spending Habit).
+2. **New tablet view**: `src/components/exec-demo/AdvisorConversationTabletView.tsx`
+   - Generates a stable client roster once via `generateDashboardClients(60)` (matches `BankwideWMCopilotView`).
+   - Renders `<AdvisorConversationThread clients={clients} density="compact" />` inside a purple-accent header ("Ventus AI ↔ Wealth Advisor · Example Thread") with a close button that calls `onClose`.
+   - Fills the tablet content area (`h-full flex flex-col`, internal scroll on the message body only so the nav pills stay pinned).
 
-**FINANCIAL_SIGNAL**
-- IS: a durable product relationship shown as recurring servicer ACH or brokerage/retirement contribution.
-- Test: (a) merchant matches financial-servicer taxonomy, (b) cadence is recurring.
-- Labels: `<Product Family> · <Servicer>` only — never lifestyle words.
-- Exclude: one-off big purchases (→ Life Event or Spending Habit), insurance copays at doctor's office (→ Spending Habit).
+3. **Wire it into the tablet slot** in `src/components/exec-demo/ExecDemoPhoneView.tsx`:
+   - Replace the `<WMCopilotPhoneView …/>` render inside the `wmCopilotMode` branch with `<AdvisorConversationTabletView onClose={() => onCloseWMCopilot?.()} />`.
+   - Keep the status-bar swap (`· Advisor` label) as-is.
+   - `WMCopilotPhoneView` and its `wmCopilotSignal` / `wmCopilotSecondarySignal` / persona props are no longer read by the tablet; leave the props on the component for now (unused) to avoid touching `ExecDemoPage` wiring, but stop importing `WMCopilotPhoneView`.
 
-**DEMOGRAPHIC**
-- IS: an inferred STATE CHANGE in income, wealth tier, household composition, or geography — must show a start/stop/step/drift over time.
-- Test: (a) evidence shows a delta (before vs after), NOT just presence; (b) category ∈ {income_trajectory, wealth_tier_migration, household_composition, geography_relocation}.
-- Labels: closed vocabulary — "Payroll Step-Up ·+X%", "Kid → College", "Empty Nest", "SF → NYC Everyday Spend", "Self-Employment Onset".
-- Hard exclusions with reasoning:
-  - Pets → Spending Habit. Owning a pet is a lifestyle, not a demographic state change.
-  - Fitness / streaming / coffee / groceries / hobbies → Spending Habit. Recurring vendor presence is never a demographic shift.
-  - Baby / eldercare / moving vendors → Life Event. Those are transitions, not steady-state demographics.
-  - Auto loan / mortgage / insurance ACH → Financial Signal.
-- Rule of thumb: if the honest evidence sentence starts with "the customer regularly buys…", it is NOT demographic.
+4. **No changes** to:
+   - The left-hand `NextConversationRationale` panel (still shows `CoworkerInboxView` in `audience="rm"` mode).
+   - `AdvisorNotificationsView`'s public API — `BankwideWMCopilotView` keeps working unchanged.
+   - `synthesize-persona`, signal ladder, or any other backend logic.
 
-**SPENDING_HABIT (pillar_rollups)**
-- IS: a recurring lifestyle habit that names an activity or identity.
-- Test: passes the identity test ("this person is the kind of person who ___") with an ACTIVITY word.
-- Labels: 2–4 words naming the activity + cadence.
-- Always owns: pet spend, fitness, coffee, streaming, groceries, hobbies, salons, gym.
+## Technical notes
 
-**RISK_FACTOR**
-- Owned upstream. Never emit anything for risk-flagged rows.
+- The extracted module keeps the exact 7 messages (Digest 9:14 → Advisor 9:22 → Ventus 9:23 → Advisor 9:44 → Ventus 9:45 → Advisor 10:07 → Ventus 10:08) and the same `nameA/nameB/labelA/labelB/eventTypeA/eventTypeB/travelCardCohort/digestRows` derivations, so the tablet renders identical content to what advisors see in the full view.
+- Compact density knobs: `px-3 py-3` shells (vs `p-6`), pill row uses `text-[11px]` + `py-1`, ribbon hidden, subject line `text-sm`, sender avatar `w-8 h-8`, body uses `text-[12px] leading-snug`.
+- Pill row keeps horizontal overflow scroll (`overflow-x-auto`, `[scrollbar-width:none]`) and auto-centers the active pill via the existing `pillRefs` `scrollIntoView` effect.
+- Prev/Next buttons become icon-only (`ChevronLeft`/`ChevronRight`) in compact mode to preserve pill room.
+- `AdvisorConversationTabletView` mounts once per `wmCopilotMode` toggle, so the active-message index resets each time the RM toggle is turned on — matches "start from the top of the thread" expectation.
 
-### Additional guardrails
+## Files touched
 
-- Add a decision-tree preamble the model reruns per cluster: "Before writing a Demographic, answer aloud: what changed, when, and how do we know?" If the answer is "nothing changed, this vendor is just present," the model must route to Spending Habit or drop.
-- Add explicit BAD-EXAMPLES section at the end of the system prompt showing the exact strings we keep seeing ("New Pet Household", "Multi-Pet Household", "College Prep Cycle" duplicating "Kid → College") with the correct routing next to each.
-
-### Backend guard (unchanged from prior plan, kept as safety net)
-
-- Widen pet/lifestyle vocabulary check to `label`, `magnitude_band`, `evidence_summary`, and `category`. Drop any demographic matching.
-- Theme-level dedup between Life Event and Demographic (college theme → keep Demographic, drop Life Event).
-- Normalize college demographic to canonical "Kid → College" with no duplicated trailing text.
-
-### Frontend guard (unchanged)
-
-- Defensive filter in `ExecDemoIntelPanel` for pet/lifestyle vocab on demographic pills.
-- Suppress `magnitude_band` when it restates the label.
-
-## Validate
-
-Re-run /bankdemo customers and confirm no pet or duplicated college pills appear under Demographic across several personas.
+- new: `src/components/tepilot/advisor-console/AdvisorConversationThread.tsx`
+- new: `src/components/exec-demo/AdvisorConversationTabletView.tsx`
+- edit: `src/components/tepilot/advisor-console/AdvisorNotificationsView.tsx` (delete extracted code, render `<AdvisorConversationThread density="full" />`)
+- edit: `src/components/exec-demo/ExecDemoPhoneView.tsx` (swap `WMCopilotPhoneView` → `AdvisorConversationTabletView` in the `wmCopilotMode` branch)
