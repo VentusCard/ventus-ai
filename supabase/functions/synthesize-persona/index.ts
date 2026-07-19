@@ -685,6 +685,31 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         ...(Array.isArray(e.evidence) ? e.evidence.map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`) : []),
       ]));
 
+    // Rescue upstream life events the persona LLM omitted or downgraded, so a
+    // genuinely detected life event is never silently dropped when the classifier
+    // routes the same theme to another tier. Upstream events that our taxonomy
+    // explicitly retires (college / auto / mortgage / student loan) are excluded.
+    const RETIRED_UPSTREAM_RE_RESCUE = /college|university|tuition|auto\s*loan|mortgage|student\s*loan/i;
+    const existingLENames = new Set(filteredLE.map((e: any) => String(e.event_name || "").trim().toLowerCase()));
+    for (const up of upstreamLifeEvents) {
+      const nm = up.event_name.trim();
+      const key = nm.toLowerCase();
+      if (!nm || existingLENames.has(key)) continue;
+      if (RETIRED_UPSTREAM_RE_RESCUE.test(nm)) continue;
+      const evBlob = (up.evidence || []).map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`).join(" ");
+      if (hasPetVocab([nm, evBlob])) continue;
+      if ((up.evidence?.length ?? 0) < 2) continue;
+      filteredLE.push({
+        event_name: nm,
+        confidence: typeof up.confidence === "number" ? up.confidence : 70,
+        evidence: up.evidence || [],
+        talking_points: up.talking_points || [],
+        transaction_indices: [],
+      });
+      existingLENames.add(key);
+      if (filteredLE.length >= 3) break;
+    }
+
     const filteredFS = rawFinancial
       .map((f: any) => ({
         ...f,
