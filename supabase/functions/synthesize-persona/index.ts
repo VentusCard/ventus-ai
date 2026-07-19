@@ -453,10 +453,10 @@ KNOWN BAD OUTPUTS (do NOT reproduce these — route as noted)
 ═══════════════════════════════════════════════════════════════════
   ✗ Demographic "New Pet Household"         → Spending Habit "Pet Care Routine".
   ✗ Demographic "Multi-Pet Household"       → Spending Habit "Pet Care Routine".
-  ✗ Demographic "Kid → College · College Prep Cycle" → Demographic "Kid → College" (no restatement).
+  ✗ Demographic "College Preparation · College Prep Cycle" → Demographic "College Preparation" (no restatement).
   ✗ Demographic "Fitness Regular"           → Spending Habit "Boutique Fitness".
   ✗ Demographic "Coffee Household"          → Spending Habit "Weekday Coffee Runs".
-  ✗ Life Event "College Preparation"        → Demographic "Kid → College".
+  ✗ Life Event "College Preparation"        → Demographic "College Preparation".
   ✗ Life Event "Auto Loan Renewal"          → Financial Signal "auto_loan · <servicer>".
 
 ═══════════════════════════════════════════════════════════════════
