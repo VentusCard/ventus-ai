@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info, Briefcase } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
@@ -87,6 +87,7 @@ interface Props {
   productDeliveryChannel?: import("./ProductDeliveryChannelCard").ProductDeliveryChannel;
   onProductDeliveryChannelChange?: (channel: import("./ProductDeliveryChannelCard").ProductDeliveryChannel) => void;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
+  onCloseWMCopilot?: () => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
@@ -272,6 +273,7 @@ export default function ExecDemoIntelPanel({
   productDeliveryChannel = "mobile",
   onProductDeliveryChannelChange,
   onOpenWMCopilot,
+  onCloseWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
@@ -1188,6 +1190,52 @@ export default function ExecDemoIntelPanel({
               />
             ) : activeTab === "relationship" ? (
               <div className="h-full flex flex-col min-h-0">
+                {/* Audience toggle sliver — drives both the card below and the tablet mockup on the right */}
+                <div className="shrink-0 mb-2 grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-slate-100 border border-slate-200">
+                  {(() => {
+                    const audience: "customer" | "rm" = wmCopilotOpen ? "rm" : "customer";
+                    const baseBtn =
+                      "inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-md px-3 py-1.5 transition-all";
+                    return (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => onCloseWMCopilot?.()}
+                          className={`${baseBtn} ${
+                            audience === "customer"
+                              ? "bg-white text-blue-700 shadow-sm border border-blue-200"
+                              : "text-slate-500 hover:text-slate-700"
+                          }`}
+                        >
+                          <Users className="w-3.5 h-3.5" />
+                          Customers
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const lifeEventSignal: SelectedSignal | null =
+                              selectedSignal && selectedSignal.kind === "lifeEvent"
+                                ? selectedSignal
+                                : (availableSignals.find((s) => s.kind === "lifeEvent" && /college/i.test(s.label)) ??
+                                  availableSignals.find((s) => s.kind === "lifeEvent") ?? {
+                                    kind: "lifeEvent",
+                                    label: "College Preparation for Dependent",
+                                  });
+                            onOpenWMCopilot?.(customerFirstName, lifeEventSignal);
+                          }}
+                          className={`${baseBtn} ${
+                            audience === "rm"
+                              ? "bg-white text-purple-700 shadow-sm border border-purple-200"
+                              : "text-slate-500 hover:text-slate-700"
+                          }`}
+                        >
+                          <Briefcase className="w-3.5 h-3.5" />
+                          Relationship Managers
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
                 <div className="flex-1 min-h-0">
                   <NextConversationRationale
                     selectedSignal={selectedSignal}
@@ -1197,8 +1245,8 @@ export default function ExecDemoIntelPanel({
                     actionsLoading={actionsLoading}
                     productCards={productCards}
                     onSelectSignal={(s) => setSelectedSignal(s)}
+                    audience={wmCopilotOpen ? "rm" : "customer"}
                     onOpenWMCopilot={() => {
-                      // WM CoPilot subject must always be a life event — never risk/gambling
                       const lifeEventSignal: SelectedSignal | null =
                         selectedSignal && selectedSignal.kind === "lifeEvent"
                           ? selectedSignal

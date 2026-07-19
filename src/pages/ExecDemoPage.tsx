@@ -1596,6 +1596,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
                   productActions={productActions}
                   actionsLoading={actionsLoading}
                   onOpenWMCopilot={handleOpenWMCopilot}
+                  onCloseWMCopilot={() => setWmCopilotOpen(false)}
                   onOpenAIAssistant={handleOpenAIAssistantWrapper}
                   onAIPromptDispatch={dispatchAIPrompt}
                   assistantOpen={!wmCopilotOpen}
