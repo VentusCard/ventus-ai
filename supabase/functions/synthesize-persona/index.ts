@@ -326,12 +326,12 @@ Confidence: 2 rows→65, 3→75, 4–5→85, 6+→92. Provide 2–4 evidence ite
 
 EXCLUDE:
   - Recurring auto/mortgage/insurance/brokerage ACH → FINANCIAL_SIGNAL (that is a durable product, not a transition).
-  - College prep / SAT / tuition / Common App → DEMOGRAPHIC (household composition shift "Kid → College").
+  - College prep / SAT / tuition / Common App → DEMOGRAPHIC (household composition shift "College Preparation").
   - Pet ownership → SPENDING_HABIT (a lifestyle, not a transition).
 
 GOOD: "New Baby / Family Expansion" (pediatric visits + BuyBuy Baby + daycare, all within 60 days).
 BAD:  "New Pet Adoption" → SPENDING_HABIT "Pet Care Routine".
-BAD:  "College Prep" → DEMOGRAPHIC "Kid → College".
+BAD:  "College Prep" → DEMOGRAPHIC "College Preparation".
 BAD:  "Car Loan Refi Journey" → FINANCIAL_SIGNAL "auto_loan · <servicer>".
 
 ═══════════════════════════════════════════════════════════════════
