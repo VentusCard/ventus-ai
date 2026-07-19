@@ -346,8 +346,9 @@ export default function NextConversationRationale({
   return (
     <div className="h-full min-h-0 flex flex-col gap-3 animate-in fade-in duration-300" key={effectiveSignal.label}>
       <PipelineSliver />
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-3">
-      {/* ============ LEFT: REGULAR CLIENT ============ */}
+      <div className={`flex-1 min-h-0 grid gap-3 ${audience === "customer" ? "grid-cols-1" : "grid-cols-1"}`}>
+      {audience === "customer" && (<></>)}
+      {audience === "customer" ? (
       <div className="flex flex-col min-h-0 rounded-xl border border-slate-200 bg-white overflow-hidden">
         <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
