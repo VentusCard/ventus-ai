@@ -337,8 +337,23 @@ export default function ExecDemoIntelPanel({
   // The final LLM decides bucket placement. We only prevent a single item from
   // appearing in two rows simultaneously, using its own IDs / transaction indices.
   // Ladder: Life Event > Financial Signal > Demographic > Pillar Rollup.
-  const rawFinancialSignals = personaSynthesis?.financialSignals || [];
+  // Pet vocab must live ONLY in Spending Habits. Strip pet-themed pills from LE/FS/Demo.
+  const PET_VOCAB_RE = /pet|chewy|petco|petsmart|banfield|barkbox|rover|\bvet\b|veterinar|groom|dog\s?walk/i;
+  const rawFinancialSignals = useMemo(
+    () => (personaSynthesis?.financialSignals || []).filter((f: any) => {
+      const blob = `${f?.label || ""} ${f?.product_family || ""} ${f?.servicer || ""} ${f?.evidence_summary || ""}`;
+      return !PET_VOCAB_RE.test(blob);
+    }),
+    [personaSynthesis?.financialSignals],
+  );
   const rawDemographicShifts = personaSynthesis?.demographicShifts || [];
+  const filteredDetectedLifeEvents = useMemo(
+    () => (detectedLifeEvents || []).filter((e) => {
+      const evBlob = (e.evidence || []).map((ev) => `${ev.merchant || ""} ${ev.relevance || ""}`).join(" ");
+      return !PET_VOCAB_RE.test(`${e.event_name || ""} ${evBlob}`);
+    }),
+    [detectedLifeEvents],
+  );
 
   const lifeEventNameSet = useMemo(() => {
     const s = new Set<string>();
