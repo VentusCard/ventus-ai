@@ -658,6 +658,11 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         return allowed.includes(txnOwner[ti]);
       });
 
+    // Narrow pet-only vocab — pet themes must live ONLY in Spending Habits.
+    const PET_VOCAB = /pet|chewy|petco|petsmart|banfield|barkbox|rover|\bvet\b|veterinar|groom|dog\s?walk/i;
+    const hasPetVocab = (parts: (string | undefined | null)[]) =>
+      PET_VOCAB.test(parts.filter(Boolean).join(" "));
+
     const filteredLE = rawLifeEvents
       .map((e: any) => ({
         ...e,
@@ -665,14 +670,22 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       }))
       // College Prep, auto loans, mortgages, student loans should never end up as life events —
       // even if the model picked the enum, if all its evidence indices were stripped, drop it.
-      .filter((e: any) => Array.isArray(e.evidence) && e.evidence.length >= 2);
+      .filter((e: any) => Array.isArray(e.evidence) && e.evidence.length >= 2)
+      // Pet themes never belong in Life Event.
+      .filter((e: any) => !hasPetVocab([
+        e.event_name,
+        e.evidence_summary,
+        ...(Array.isArray(e.evidence) ? e.evidence.map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`) : []),
+      ]));
 
     const filteredFS = rawFinancial
       .map((f: any) => ({
         ...f,
         transaction_indices: cleanIndices(f.transaction_indices || [], ["financial_signal"]),
       }))
-      .filter((f: any) => f.product_family && f.label);
+      .filter((f: any) => f.product_family && f.label)
+      // Pet themes never belong in Financial Signal.
+      .filter((f: any) => !hasPetVocab([f.label, f.product_family, f.servicer, f.evidence_summary]));
 
     // 2. Cross-bucket ladder: build the claimed sets, apply Life > Fin > Demo > Habit.
     const claimedByHigher = new Set<number>();
