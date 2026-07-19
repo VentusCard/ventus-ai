@@ -190,14 +190,7 @@ export default function ExecDemoPhoneView({ customer, activeTab, phase, showCont
           {/* Content */}
           <div className={`flex-1 min-h-0 bg-white ${(consumerTab === 'ai' || wmCopilotMode) ? 'overflow-hidden flex flex-col' : 'overflow-y-auto exec-light-scroll'}`}>
             {wmCopilotMode ? (
-              <WMCopilotPhoneView
-                customerName={customer.profile?.name ?? firstName}
-                selectedSignal={wmCopilotSignal}
-                secondarySignalLabel={wmCopilotSecondarySignal}
-                personaTitle={wmCopilotPersonaTitle}
-                personaSummary={wmCopilotPersonaSummary}
-                onClose={() => onCloseWMCopilot?.()}
-              />
+              <AdvisorConversationTabletView onClose={() => onCloseWMCopilot?.()} />
             ) : showContent ? (
               renderContent()
             ) : (
