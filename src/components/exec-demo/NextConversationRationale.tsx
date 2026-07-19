@@ -24,7 +24,7 @@ function PipelineSliver() {
         { label: "Ingest", Icon: Inbox, items: INGEST_ITEMS },
         { label: "Hands Off To", Icon: Send, items: HANDOFF_ITEMS },
       ].map(({ label, Icon, items }) => (
-        <div key={label} className="flex flex-col gap-1.5 px-4 py-2.5 overflow-hidden min-w-0">
+        <div key={label} className="flex items-center gap-3 px-4 py-2.5 overflow-hidden min-w-0">
           <div className="flex items-center gap-1.5 shrink-0">
             <Icon className="w-3.5 h-3.5 text-slate-700" />
             <span className="text-[13px] font-bold tracking-wide text-slate-900 uppercase">{label}</span>
