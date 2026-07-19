@@ -148,22 +148,11 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
   const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
   const externals = externalSignals ?? [];
   const externalActive = !!activeExternalSignalId;
-  const matchedCount = highlightSet ? highlightSet.size : externalActive ? 1 : 0;
-  const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
-
-  // When the user activates an external-intel pill we render just that one
-  // signal as a single row (with a swapped violet Tier-1 header) instead of
-  // the full transaction list — makes the "from outside data provider" nature
-  // obvious without leaving the familiar table layout.
   const activeExternal = externalActive
     ? externals.find((s) => s.id === activeExternalSignalId) ?? null
     : null;
-  const activeExternalConf = activeExternal
-    ? activeExternal.confidence > 1
-      ? Math.round(activeExternal.confidence)
-      : Math.round(activeExternal.confidence * 100)
-    : 0;
-  const activeExternalEvidence = activeExternal?.evidence?.[0];
+  const matchedCount = highlightSet ? highlightSet.size : 0;
+  const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
 
   return (
 
@@ -174,7 +163,9 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
           <span className="text-[13px] font-semibold" style={{ color: highlightColor }}>
-            {externalActive ? (
+            {externalActive && highlightSet ? (
+              <>Showing <span className="tabular-nums">1</span> external signal + <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
+            ) : externalActive ? (
               <>Showing <span className="tabular-nums">1</span> external signal for "{activePillLabel}"</>
             ) : (
               <>Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
@@ -191,108 +182,70 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
         </div>
       )}
       <table className="w-full min-w-[912px] text-left border-collapse table-fixed">
-        {activeExternal ? (
-          <colgroup>
-            <col className="w-[110px]" />
-            <col className="w-[160px]" />
-            <col className="w-[420px]" />
-            <col className="w-[140px]" />
-            <col className="w-[90px]" />
-          </colgroup>
-        ) : (
-          <colgroup>
-            <col className={COL.source} />
-            <col className={COL.date} />
-            <col className={COL.merchant} />
-            <col className={COL.mcc} />
-            <col className={COL.description} />
-            <col className={COL.amount} />
-            <col className={COL.pillar} />
-            <col className={COL.category} />
-            <col className={COL.subs} />
-            <col className={COL.freq} />
-          </colgroup>
-        )}
+        <colgroup>
+          <col className={COL.source} />
+          <col className={COL.date} />
+          <col className={COL.merchant} />
+          <col className={COL.mcc} />
+          <col className={COL.description} />
+          <col className={COL.amount} />
+          <col className={COL.pillar} />
+          <col className={COL.category} />
+          <col className={COL.subs} />
+          <col className={COL.freq} />
+        </colgroup>
         <thead className="sticky top-0 z-10">
-          {/* Tier 1 — Raw vs Enriched grouping (or External Signal takeover) */}
+          {/* Tier 1 — Raw vs Enriched grouping */}
           <tr className="border-b border-slate-200">
-            {activeExternal ? (
-              <th
-                colSpan={5}
-                className="bg-slate-100 text-slate-600 text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2"
-              >
-                <span className="inline-flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 text-violet-600" />
-                  <span className="text-violet-700">External Signal</span>
-                  <span className="font-normal normal-case tracking-normal text-slate-400">
-                    · sourced from outside data provider
+            <th
+              colSpan={6}
+              className="bg-slate-100 text-slate-600 text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 border-r-2 border-slate-300"
+            >
+              Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
+            </th>
+            <th
+              colSpan={4}
+              className="relative overflow-hidden text-white text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.7s_ease-out_both]"
+              style={{
+                background: "linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)",
+              }}
+            >
+              <span
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  background: "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)",
+                  animation: "ventus-enriched-shimmer 1.6s ease-out 0.4s 1 both",
+                  transform: "translateX(-100%)",
+                }}
+              />
+              <span className="relative inline-flex items-center gap-2">
+                Semantic Enrichment <span className="font-normal normal-case tracking-normal text-blue-100/90">· AI-labeled semantic intelligence</span>
+                {hasPending && (
+                  <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-white normal-case tracking-normal">
+                    <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    Enriching…
                   </span>
-                </span>
-              </th>
-            ) : (
-              <>
-                <th
-                  colSpan={6}
-                  className="bg-slate-100 text-slate-600 text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 border-r-2 border-slate-300"
-                >
-                  Raw Transaction <span className="font-normal normal-case tracking-normal text-slate-400">· as received from bank feed</span>
-                </th>
-                <th
-                  colSpan={4}
-                  className="relative overflow-hidden text-white text-[13px] font-bold uppercase tracking-[0.12em] px-3 py-2 animate-[ventus-enriched-reveal_0.7s_ease-out_both]"
-                  style={{
-                    background: "linear-gradient(90deg, hsl(217 91% 55%) 0%, hsl(221 83% 48%) 100%)",
-                  }}
-                >
-                  <span
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0"
-                    style={{
-                      background: "linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.35) 50%, transparent 70%)",
-                      animation: "ventus-enriched-shimmer 1.6s ease-out 0.4s 1 both",
-                      transform: "translateX(-100%)",
-                    }}
-                  />
-                  <span className="relative inline-flex items-center gap-2">
-                    Semantic Enrichment <span className="font-normal normal-case tracking-normal text-blue-100/90">· AI-labeled semantic intelligence</span>
-                    {hasPending && (
-                      <span className="inline-flex items-center gap-1 ml-1 px-1.5 py-0.5 rounded-full bg-white/20 text-white normal-case tracking-normal">
-                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                        Enriching…
-                      </span>
-                    )}
-                  </span>
-                </th>
-              </>
-            )}
+                )}
+              </span>
+            </th>
           </tr>
           {/* Tier 2 — Column headers */}
-          {activeExternal ? (
-            <tr className="bg-slate-50/80 border-b border-slate-200">
-              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Source</th>
-              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Provider</th>
-              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Signal</th>
-              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap">Type</th>
-              <th className="text-violet-700 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap text-right">Confidence</th>
-            </tr>
-          ) : (
-            <tr className="bg-slate-50/80 border-b border-slate-200">
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.source}`}>Source</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.date}`}>Date</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.merchant}`}>Merchant</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.mcc}`}>MCC</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.description}`} title="Description">Desc.</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.pillar}`}>Pillar</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.category}`}>Category</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.subs}`}>Subcategories</th>
-              <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
-            </tr>
-          )}
-
+          <tr className="bg-slate-50/80 border-b border-slate-200">
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.source}`}>Source</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.date}`}>Date</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.merchant}`}>Merchant</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.mcc}`}>MCC</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.description}`} title="Description">Desc.</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.amount} text-right border-r-2 border-slate-300`}>Amt</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.pillar}`}>Pillar</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.category}`}>Category</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.subs}`}>Subcategories</th>
+            <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
+          </tr>
         </thead>
         <tbody>
-          {!activeExternal && (() => {
+          {(() => {
             const order = Array.from({ length: totalRows }, (_, i) => i);
             if (highlightSet) {
               order.sort((a, b) => {
@@ -317,7 +270,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
             const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
-            const isDimmed = highlightSet ? !isHighlighted : externalActive;
+            const isDimmed = highlightSet ? !isHighlighted : false;
             return (
               <tr
                 key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
@@ -435,61 +388,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             );
             });
           })()}
-          {activeExternal && (
-            <tr
-              key={`ext-active-${activeExternal.id}`}
-              className="border-b border-slate-100 exec-ext-highlighted"
-              style={{ ["--exec-hl" as any]: "#8b5cf6" } as React.CSSProperties}
-            >
-              {/* Source */}
-              <td className="px-1 py-2">
-                <span className="inline-flex items-center gap-1 px-1 py-0.5 rounded text-[12.5px] font-medium whitespace-nowrap bg-violet-50 text-violet-700">
-                  <Sparkles className="w-3 h-3" />
-                  External
-                </span>
-              </td>
-              {/* Provider */}
-              <td className="px-1 py-2">
-                <span className="inline-block bg-slate-100 text-slate-600 text-[12px] font-mono px-0.5 py-0.5 rounded whitespace-nowrap">
-                  {activeExternal.provider}
-                </span>
-              </td>
-              {/* Signal (headline) */}
-              <td className="px-1 py-2">
-                <div className="text-[13px] font-medium text-slate-900 truncate" title={activeExternal.headline}>
-                  {activeExternal.headline}
-                </div>
-              </td>
-              {/* Type */}
-              <td className="px-1 py-2">
-                {(() => {
-                  const cat = (activeExternal.category || "").toLowerCase();
-                  const isRisk = /risk|fraud|default|delinquency|credit/.test(cat);
-                  const isSpend = /spend|habit|merchant|dining|travel_spend/.test(cat);
-                  const type = isRisk ? "Risk" : isSpend ? "Spending Habit" : "Life Event";
-                  const cls = isRisk
-                    ? "bg-red-50 text-red-700"
-                    : isSpend
-                    ? "bg-blue-50 text-blue-700"
-                    : "bg-violet-50 text-violet-700";
-                  return (
-                    <span className={`inline-block text-[12px] font-medium px-1.5 py-0.5 rounded whitespace-nowrap leading-tight ${cls}`}>
-                      {type}
-                    </span>
-                  );
-                })()}
-              </td>
-              {/* Confidence */}
-              <td className="px-1 py-2 text-right">
-                <span className="inline-block text-[12.5px] px-1 py-0.5 rounded whitespace-nowrap leading-tight bg-violet-50 text-violet-700 tabular-nums">
-                  {activeExternalConf}%
-                </span>
-              </td>
-            </tr>
-          )}
-          {!activeExternal && externals.map((s) => {
+          {/* External Intelligence rows — rendered as full-width violet callouts.
+              When a pill activates one, it lights up and floats to the top. */}
+          {[...externals]
+            .sort((a, b) => {
+              if (a.id === activeExternalSignalId) return -1;
+              if (b.id === activeExternalSignalId) return 1;
+              return 0;
+            })
+            .map((s) => {
             const isActive = activeExternalSignalId === s.id;
-            const isDimmed = !isActive && (!!highlightSet || externalActive);
+            const isDimmed = !isActive && externalActive;
             const conf = s.confidence > 1 ? Math.round(s.confidence) : Math.round(s.confidence * 100);
             return (
               <tr

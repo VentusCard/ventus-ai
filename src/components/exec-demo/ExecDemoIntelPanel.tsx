@@ -534,10 +534,22 @@ export default function ExecDemoIntelPanel({
   // On Next-Product, keep them colored & clickable since the rationale panel surfaces risk as "Additional Tools".
   const riskPillsMuted = activeTab === "analytics";
 
-  // If the active life-event pill matches an external signal, highlight that row instead of tx rows.
+  // If the active pill (life-event OR financial-signal) corresponds to an external
+  // intelligence signal, surface that external row alongside the matched transactions.
   const activeExternalSignalId = useMemo(() => {
     if (!activeTriggerLabel || !externalSignals || externalSignals.length === 0) return null;
-    const match = externalSignals.find((s) => s.event_name === activeTriggerLabel);
+    const label = activeTriggerLabel.toLowerCase();
+    const match = externalSignals.find((s) => {
+      if (s.event_name === activeTriggerLabel) return true;
+      if (s.event_name.toLowerCase() === label) return true;
+      // Financial-signal pills come from the LLM synthesis (e.g. "Auto Loan · VW Credit").
+      // Match by product family or servicer so they still light up the external row.
+      const family = s.product_family?.replace(/_/g, " ").toLowerCase();
+      if (family && label.includes(family)) return true;
+      const servicer = s.servicer?.toLowerCase();
+      if (servicer && label.includes(servicer)) return true;
+      return false;
+    });
     return match?.id ?? null;
   }, [activeTriggerLabel, externalSignals]);
 
