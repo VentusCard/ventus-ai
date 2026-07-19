@@ -395,6 +395,14 @@ export default function ExecDemoIntelPanel({
       .filter((d) => {
         // Drop if the same label is already a life event (exact, case-insensitive).
         if (d?.label && lifeEventNameSet.has(d.label.trim().toLowerCase())) return false;
+        // Drop "Kid → College" demographic if any life event mentions college — the
+        // upstream rescue path may re-add "College Preparation for Dependent" as a
+        // life event and we don't want the demographic pill duplicating it.
+        if (d?.label && /college/i.test(d.label)) {
+          for (const nm of lifeEventNameSet) {
+            if (/college|tuition|university/i.test(nm)) return false;
+          }
+        }
         // Drop if every one of its transaction_indices is already owned by a financial signal.
         const idx = d.transaction_indices || [];
         if (idx.length > 0 && idx.every((ti) => financialTxSet.has(ti))) return false;

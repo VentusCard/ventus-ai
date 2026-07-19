@@ -199,7 +199,7 @@ serve(async (req) => {
   try {
     const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds, externalSignals } = await req.json() as {
       pillars: any[];
-      lifeEvents?: { event_name?: string }[];
+      lifeEvents?: { event_name?: string; confidence?: number; evidence?: any[]; talking_points?: string[] }[];
       transactions?: IncomingTxn[];
       riskCategoriesPresent?: string[];
       riskTransactionIds?: string[];
@@ -211,9 +211,16 @@ serve(async (req) => {
       });
     }
 
-    const detectedEventNames: string[] = Array.isArray(lifeEvents)
-      ? lifeEvents.map((e) => e?.event_name).filter((n): n is string => !!n)
-      : [];
+    const upstreamLifeEvents: Array<{ event_name: string; confidence?: number; evidence?: any[]; talking_points?: string[] }> =
+      Array.isArray(lifeEvents)
+        ? lifeEvents.filter((e): e is { event_name: string } & typeof e => !!e?.event_name).map((e) => ({
+            event_name: e.event_name!,
+            confidence: typeof e.confidence === "number" ? e.confidence : undefined,
+            evidence: Array.isArray(e.evidence) ? e.evidence : [],
+            talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+          }))
+        : [];
+    const detectedEventNames: string[] = upstreamLifeEvents.map((e) => e.event_name);
     const presentRiskCategories: string[] = Array.isArray(riskCategoriesPresent)
       ? Array.from(new Set(riskCategoriesPresent.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
       : [];
@@ -677,6 +684,31 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         e.evidence_summary,
         ...(Array.isArray(e.evidence) ? e.evidence.map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`) : []),
       ]));
+
+    // Rescue upstream life events the persona LLM omitted or downgraded, so a
+    // genuinely detected life event is never silently dropped when the classifier
+    // routes the same theme to another tier. Upstream events that our taxonomy
+    // explicitly retires (college / auto / mortgage / student loan) are excluded.
+    const RETIRED_UPSTREAM_RE_RESCUE = /college|university|tuition|auto\s*loan|mortgage|student\s*loan/i;
+    const existingLENames = new Set(filteredLE.map((e: any) => String(e.event_name || "").trim().toLowerCase()));
+    for (const up of upstreamLifeEvents) {
+      const nm = up.event_name.trim();
+      const key = nm.toLowerCase();
+      if (!nm || existingLENames.has(key)) continue;
+      if (RETIRED_UPSTREAM_RE_RESCUE.test(nm)) continue;
+      const evBlob = (up.evidence || []).map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`).join(" ");
+      if (hasPetVocab([nm, evBlob])) continue;
+      if ((up.evidence?.length ?? 0) < 2) continue;
+      filteredLE.push({
+        event_name: nm,
+        confidence: typeof up.confidence === "number" ? up.confidence : 70,
+        evidence: up.evidence || [],
+        talking_points: up.talking_points || [],
+        transaction_indices: [],
+      });
+      existingLENames.add(key);
+      if (filteredLE.length >= 3) break;
+    }
 
     const filteredFS = rawFinancial
       .map((f: any) => ({

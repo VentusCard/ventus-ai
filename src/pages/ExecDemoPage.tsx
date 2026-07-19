@@ -372,7 +372,12 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             subcategories: t.subcategories,
             spending_tier: t.spending_tier,
           })),
-          lifeEvents: detectedEvents.map((e) => ({ event_name: e.event_name })),
+          lifeEvents: detectedEvents.map((e) => ({
+            event_name: e.event_name,
+            confidence: e.confidence,
+            evidence: e.evidence,
+            talking_points: e.talking_points,
+          })),
           riskCategoriesPresent,
           riskTransactionIds,
           externalSignals: externalForLLM,

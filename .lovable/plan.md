@@ -1,41 +1,57 @@
-## What's broken
+# Why "No significant life events detected" now shows
 
-Only one Financial Signal pill shows: `Auto Loan · VW Credit ~$685/mo`. That's the LLM's synthesis from transactions — the fixture external signal `Auto Loan · Renewal in ~2mo` (Toyota Financial, `product_family: "auto_loan"`) never renders as its own pill or with any visual marker.
+## Root cause (verified)
 
-Root causes (confirmed by reading code):
+Two turns ago we rewired the pipeline so **`synthesize-persona` became the sole source of life events** — `src/pages/ExecDemoPage.tsx` (lines 683–716) explicitly discards the upstream `analyze-lifestyle-signals` output and only keeps `data.detected_life_events` returned by the persona classifier.
 
-1. **De-dupe kills the external pill.** `src/pages/ExecDemoPage.tsx` lines 621–644 append external financial signals only if no LLM-emitted financial signal shares `product_family`. The LLM already emitted an `auto_loan`, so the external one is silently dropped.
-2. **No visual "external" marker on pills.** Financial Signal pills in `ExecDemoIntelPanel.tsx` render label + monthly band only — nothing indicates `source: "external"` or provider (Bureau Tradeline). The external row in the enrichment table only appears after a pill click; nothing tells the viewer an external signal exists.
-3. **Fixture drift.** The seeded external signal uses "Toyota Financial Services / ~$485/mo", but the demo customer's transactions show VW Credit / ~$685/mo, making it obvious the LLM version won and the external version was suppressed.
+`supabase/functions/synthesize-persona/index.ts` then applies four strict gates before emitting a life event:
 
-## Fix
+1. `evidence.length >= 2` (line 673)
+2. No pet vocabulary anywhere (line 675)
+3. Every `transaction_indices` entry must have `owner === "life_event"` in the pre-computed `txnOwner` table (line 669 → `cleanIndices`)
+4. LLM must have chosen the `LIFE_EVENT` bucket over Financial Signal / Demographic in the ladder
 
-### 1. External wins over LLM for the same product family
-In `src/pages/ExecDemoPage.tsx` (external-signal injection block, ~line 617):
-- Instead of "skip if LLM already emitted", **replace** the LLM-emitted financial signal whose `product_family` matches an external signal.
-- Preserve useful fields the LLM inferred from real transactions (servicer, monthly_amount_band, transaction_indices) by merging them **onto** the external record — external signal stays the source of truth for id/label/provider/confidence and keeps `source: "external"`.
-- Do the same for `demographic_shift` externals if they collide with an LLM demographic entry.
+The upstream detector logged `Detected life events after filtering: 2` (Home Purchase, College Prep for Sarah), but those are thrown away. The persona LLM on this run routed College Prep → Demographic (`Kid → College`) and did not re-emit Home Purchase with ≥2 evidence rows whose `owner` tag was `life_event` — so `filteredLE` came back empty and the panel rendered the "No significant life events detected" fallback.
 
-### 2. Make the external pill visually distinct
-In `src/components/exec-demo/ExecDemoIntelPanel.tsx` Financial Signal pill renderer:
-- When `signal.source === "external"`, render a compact prefix — a small satellite/broadcast glyph plus a subdued "Ext" tag — inside the pill, and a violet accent border to match the enrichment-table external callout.
-- Add a tooltip showing `provider` + `detail` (e.g. "Bureau Tradeline · Toyota Financial Services · maturity in ~60 days").
-- Apply the same treatment to Demographic pills sourced externally.
+External signals didn't rescue the row because Sarah's only external fixture is the auto-loan (bucket = `financial_signal`, not `life_event`).
 
-### 3. Align fixture with the visible transactions
-In `src/lib/externalIntelligenceSignals.ts`:
-- Update the `auto-loan-renewal` fixture to `servicer: "VW Credit"`, `monthly_amount_band: "~$685/mo"`, evidence merchant `"VW CREDIT INC"` — so the injected external pill reads consistently with the enrichment table rows the user sees.
+Net: the ladder is working exactly as designed, but by making persona the *sole* authority we introduced a silent-drop failure mode where a genuinely detected life event disappears if the LLM re-classifies it downward.
 
-### 4. Broaden pill→external match (already partially there)
-In `ExecDemoIntelPanel.tsx` `activeExternalSignalId` memo:
-- Also match when the pill's underlying financial signal object carries `source === "external"` directly (no string sniffing needed).
-- Keep the existing product-family / servicer substring match as a fallback for LLM-derived pills that describe the same product.
+## Fix — hybridize instead of replacing
 
-### 5. Verification
-- Rerun the Demo tab, confirm one Financial Signal pill labeled `Auto Loan · VW Credit ~$685/mo` renders with the external marker + tooltip.
-- Click the pill → the violet External Intelligence row still appears at the top of the enrichment table alongside the VW Credit transactions.
-- Confirm no duplicate `auto_loan` pill and no regressions to Demographic / Life Event rows.
+Keep the ladder authority for de-duplication, but let the upstream detector supply life events the persona classifier omitted.
 
-## Out of scope
-- Adding new external signal categories (property, employment) — the fixture stays a single auto-loan signal for now.
-- Changes to `synthesize-persona` edge function; ownership stays deterministic on the frontend injection step.
+### 1. `supabase/functions/synthesize-persona/index.ts`
+
+- After building `filteredLE`, iterate over the upstream `detectedEventNames` payload (already received via `lifeEvents` in the request body).
+- For any upstream event whose name is **not** in `droppedUpstreamLifeEvents` (college / auto / mortgage / student loan retirement list), **not** matched by `PET_VOCAB`, and **not** already present in `filteredLE` (case-insensitive `event_name` match), append a passthrough entry using the upstream evidence:
+  ```
+  { event_name, confidence, evidence, talking_points, transaction_indices: [] }
+  ```
+  Empty `transaction_indices` is fine because the ladder only uses these for downgrading downstream tiers, and upstream evidence merchants already hydrate the pill.
+- Cap the merged list at 3 events (matches the existing UI slice).
+
+### 2. `src/pages/ExecDemoPage.tsx`
+
+- No structural change needed — `data.detected_life_events` will now include the rescued upstream events. Keep the "Life events come EXCLUSIVELY from synthesize-persona" comment but update it to note that persona now merges upstream events under the same taxonomy guards.
+- `fireLifeEventDetection` already appends `bucket === "life_event"` externals on top, so the auto-loan external continues to route to Financial Signals only. No change there.
+
+### 3. Cross-row de-dup safety net
+
+`ExecDemoIntelPanel.tsx` (lines 364–406) already drops demographic pills whose label matches a life event name. Because we're re-adding upstream events, verify the following still holds after the merge:
+
+- "Kid → College" demographic pill is suppressed if "College Preparation for Dependent" is now a life event (case-insensitive contains, not just exact match — extend `lifeEventNameSet` check to also match substrings like `/college/i` for the college case, or leave demographic normalization broader).
+
+Only that one contains-check needs to be added; the rest of the ladder is unchanged.
+
+## Verification
+
+- Reload `/bankdemo` → Demo tab for Sarah Mitchell: Life Event row should show "Home Purchase in the SF Bay Area" and "College Preparation for Dependent" pills again, Demographic row no longer shows a duplicate "Kid → College".
+- Clicking the auto-loan Financial Signal pill still surfaces the violet External Signal row (unchanged).
+- Console: `[PRELOAD] Life events hydrated:` count should be ≥ 1 for Sarah.
+
+## Files touched
+
+- `supabase/functions/synthesize-persona/index.ts` — add upstream-rescue merge step before the response.
+- `src/pages/ExecDemoPage.tsx` — comment update only.
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — extend demographic-vs-life-event dedup to catch the college substring case.
