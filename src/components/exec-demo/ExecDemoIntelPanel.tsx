@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info, Briefcase } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
