@@ -863,7 +863,7 @@ export default function EnterpriseGrowthDemoPage({
           )}
         </div>
         <div className="flex items-center gap-2">
-          {!internal && (
+          {!internal && authenticated && (
             <button
               onClick={() => setPresenterSessionOpen(true)}
               className={`flex items-center gap-1.5 rounded-lg border px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.1em] transition ${readyConnectorCount === 2 ? "border-emerald-400/40 bg-emerald-400/10 text-emerald-300" : "border-white/15 text-white/60 hover:border-white/35 hover:text-white"}`}
@@ -874,15 +874,13 @@ export default function EnterpriseGrowthDemoPage({
               <span className="sm:hidden">{readyConnectorCount === 2 ? "Live" : "Connect"}</span>
             </button>
           )}
-          {/* The POC is the standalone front door: operators continue from the
-              story into their authenticated console. */}
           {!internal && (
             <a
-              href={authenticated ? "/app/moments" : "/app/login"}
+              href={authenticated ? "/app/moments" : "/v2"}
               className="flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold transition hover:opacity-90"
               style={{ color: "#071225" }}
             >
-              {authenticated ? "Operator console" : "Operator sign in"} <ArrowRight className="h-3 w-3" />
+              {authenticated ? "Operator console" : "Back to Ventus"} <ArrowRight className="h-3 w-3" />
             </a>
           )}
           {entered && internal && scene > 0 && scene < 5 && (

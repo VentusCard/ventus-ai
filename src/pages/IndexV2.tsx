@@ -152,11 +152,11 @@ function V2Nav() {
         </nav>
         <div className="flex items-center gap-3">
           <Link
-            to="/app/login"
+            to="/demo/enterprise"
             className="text-[13px] font-semibold"
             style={{ color: "var(--v2-ink-soft)" }}
           >
-            Sign in
+            View demo
           </Link>
           <Link
             to="/contact"
