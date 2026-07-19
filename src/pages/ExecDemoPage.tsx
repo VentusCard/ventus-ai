@@ -620,43 +620,61 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       // and never depends on the model choosing to echo them back.
       for (const es of externalSignalsRaw) {
         if (es.bucket === "financial_signal") {
-          // De-dupe against LLM-emitted financial signals with the same product family.
-          const already = synthesis.financialSignals.some(
-            (f: any) =>
-              (f.product_family || "").toLowerCase() === (es.product_family || "").toLowerCase() &&
-              (es.product_family || "") !== "",
+          // Replace any LLM-emitted financial signal in the same product family so
+          // external intelligence always wins ownership of that pill. Merge in the
+          // LLM's transaction indices + servicer inference so the click-to-highlight
+          // still works.
+          const familyKey = (es.product_family || "").toLowerCase();
+          const collidingIdx = synthesis.financialSignals.findIndex(
+            (f: any) => (f.product_family || "").toLowerCase() === familyKey && familyKey !== "",
           );
-          if (!already) {
-            synthesis.financialSignals.push({
-              id: es.id,
-              product_family: es.product_family || "other",
-              label: es.event_name,
-              servicer: es.servicer,
-              monthly_amount_band: es.monthly_amount_band,
-              cadence: es.cadence,
-              transaction_indices: [],
-              talking_points: es.talking_points || [],
-              source: "external",
-              provider: es.provider,
-              confidence: es.confidence,
-              detail: es.detail,
-            } as any);
+          const inherited: any = collidingIdx >= 0 ? synthesis.financialSignals[collidingIdx] : null;
+          const merged: any = {
+            id: es.id,
+            product_family: es.product_family || "other",
+            label: es.event_name,
+            servicer: es.servicer || inherited?.servicer,
+            monthly_amount_band: es.monthly_amount_band || inherited?.monthly_amount_band,
+            cadence: es.cadence || inherited?.cadence,
+            transaction_indices: inherited?.transaction_indices || [],
+            talking_points: es.talking_points || inherited?.talking_points || [],
+            source: "external",
+            provider: es.provider,
+            confidence: es.confidence,
+            detail: es.detail,
+          };
+          if (collidingIdx >= 0) {
+            synthesis.financialSignals.splice(collidingIdx, 1, merged);
+          } else {
+            synthesis.financialSignals.push(merged);
           }
         } else if (es.bucket === "demographic_shift") {
-          synthesis.demographicShifts.push({
+          // Same policy for demographic shifts — external wins & absorbs any LLM
+          // transaction linkage.
+          const collidingIdx = synthesis.demographicShifts.findIndex(
+            (d: any) => (d.category || "") === (es.demographic_category || ""),
+          );
+          const inherited: any = collidingIdx >= 0 ? synthesis.demographicShifts[collidingIdx] : null;
+          const merged: any = {
             id: es.id,
             category: es.demographic_category || "household_composition",
             label: es.event_name,
-            direction: es.direction || "lateral",
+            direction: es.direction || inherited?.direction || "lateral",
             confidence: es.confidence,
-            magnitude_band: es.magnitude_band,
-            evidence_summary: es.detail,
-            transaction_indices: [],
+            magnitude_band: es.magnitude_band || inherited?.magnitude_band,
+            evidence_summary: es.detail || inherited?.evidence_summary,
+            transaction_indices: inherited?.transaction_indices || [],
             source: "external",
             provider: es.provider,
-          } as any);
+          };
+          if (collidingIdx >= 0) {
+            synthesis.demographicShifts.splice(collidingIdx, 1, merged);
+          } else {
+            synthesis.demographicShifts.push(merged);
+          }
         }
       }
+
 
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);

@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info, Briefcase } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info, Briefcase, Satellite } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
@@ -35,6 +35,9 @@ export interface FinancialSignal {
   cadence?: string;
   transaction_indices: number[];
   talking_points?: string[];
+  source?: "external" | "llm";
+  provider?: string;
+  detail?: string;
 }
 
 export interface DemographicShift {
@@ -46,7 +49,10 @@ export interface DemographicShift {
   magnitude_band?: string;
   evidence_summary?: string;
   transaction_indices: number[];
+  source?: "external" | "llm";
+  provider?: string;
 }
+
 
 export interface PersonaSynthesis {
   pillarRollups?: PillarRollup[];
@@ -539,6 +545,14 @@ export default function ExecDemoIntelPanel({
   const activeExternalSignalId = useMemo(() => {
     if (!activeTriggerLabel || !externalSignals || externalSignals.length === 0) return null;
     const label = activeTriggerLabel.toLowerCase();
+    // Direct match: if the currently active pill's underlying financial signal
+    // has source === "external", find the external record whose event_name matches.
+    const finList: any[] = (personaSynthesis?.financialSignals || []) as any[];
+    const activeFin = finList.find((f) => f.label === activeTriggerLabel);
+    if (activeFin?.source === "external" && activeFin?.id) {
+      const byId = externalSignals.find((s) => s.id === activeFin.id);
+      if (byId) return byId.id;
+    }
     const match = externalSignals.find((s) => {
       if (s.event_name === activeTriggerLabel) return true;
       if (s.event_name.toLowerCase() === label) return true;
@@ -551,7 +565,8 @@ export default function ExecDemoIntelPanel({
       return false;
     });
     return match?.id ?? null;
-  }, [activeTriggerLabel, externalSignals]);
+  }, [activeTriggerLabel, externalSignals, personaSynthesis?.financialSignals]);
+
 
 
 
@@ -1043,10 +1058,14 @@ export default function ExecDemoIntelPanel({
                               </TooltipPortal>
                             </Tooltip>
                             <div className={pillRowClass}>
-                              {finSignals.map((fs, i) => {
+                              {finSignals.map((fs: any, i) => {
                                 const isActive = activeTriggerLabel === fs.label;
                                 const indices = fs.transaction_indices || [];
-                                return (
+                                const isExternal = fs.source === "external";
+                                const borderColor = isExternal ? "#7c3aed" : "#6366f1";
+                                const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(99,102,241,.35)";
+                                const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(99,102,241,.18)";
+                                const pill = (
                                   <span
                                     key={fs.id}
                                     onClick={() => onTriggerPillClick?.(fs.label, indices, "#6366f1", "lifeEvent")}
@@ -1056,12 +1075,22 @@ export default function ExecDemoIntelPanel({
                                         ? "linear-gradient(135deg, rgba(99,102,241,.30), rgba(99,102,241,.18))"
                                         : "linear-gradient(135deg, rgba(99,102,241,.16), rgba(99,102,241,.06))",
                                       color: "#3730a3",
-                                      border: "1.5px solid #6366f1",
+                                      border: `1.5px solid ${borderColor}`,
                                       animation: `rollup-entrance 0.5s ease-out ${1.0 + i * 0.12}s both`,
-                                      boxShadow: isActive ? "0 0 14px rgba(99,102,241,.35)" : "0 2px 8px rgba(99,102,241,.18)",
+                                      boxShadow: isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
                                     }}
                                   >
-                                    <span style={{ color: "#6366f1" }}>◆</span>
+                                    {isExternal ? (
+                                      <span
+                                        className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                                        style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                                      >
+                                        <Satellite className="w-2.5 h-2.5" />
+                                        Ext
+                                      </span>
+                                    ) : (
+                                      <span style={{ color: "#6366f1" }}>◆</span>
+                                    )}
                                     {stripBrand(fs.label)}
                                     {fs.monthly_amount_band ? (
                                       <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
@@ -1070,8 +1099,21 @@ export default function ExecDemoIntelPanel({
                                     ) : null}
                                   </span>
                                 );
+                                if (!isExternal) return pill;
+                                return (
+                                  <Tooltip key={fs.id}>
+                                    <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                                    <TooltipPortal>
+                                      <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
+                                        <div className="font-semibold text-violet-700 mb-1">External Intelligence · {fs.provider || "Bureau"}</div>
+                                        <div>{fs.detail || fs.label}</div>
+                                      </TooltipContent>
+                                    </TooltipPortal>
+                                  </Tooltip>
+                                );
                               })}
                             </div>
+
                           </div>
                         );
                       })()}
@@ -1100,11 +1142,15 @@ export default function ExecDemoIntelPanel({
                               </TooltipPortal>
                             </Tooltip>
                             <div className={pillRowClass}>
-                              {demoShifts.map((ds, i) => {
+                              {demoShifts.map((ds: any, i) => {
                                 const isActive = activeTriggerLabel === ds.label;
                                 const indices = ds.transaction_indices || [];
                                 const clickable = indices.length > 0;
-                                return (
+                                const isExternal = ds.source === "external";
+                                const borderColor = isExternal ? "#7c3aed" : "#0d9488";
+                                const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(13,148,136,.35)";
+                                const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(13,148,136,.18)";
+                                const pill = (
                                   <span
                                     key={ds.id}
                                     onClick={clickable ? () => onTriggerPillClick?.(ds.label, indices, "#0d9488", "lifeEvent") : undefined}
@@ -1114,12 +1160,22 @@ export default function ExecDemoIntelPanel({
                                         ? "linear-gradient(135deg, rgba(13,148,136,.30), rgba(13,148,136,.18))"
                                         : "linear-gradient(135deg, rgba(13,148,136,.16), rgba(13,148,136,.06))",
                                       color: "#0f766e",
-                                      border: "1.5px solid #0d9488",
+                                      border: `1.5px solid ${borderColor}`,
                                       animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.12}s both`,
-                                      boxShadow: isActive ? "0 0 14px rgba(13,148,136,.35)" : "0 2px 8px rgba(13,148,136,.18)",
+                                      boxShadow: isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
                                     }}
                                   >
-                                    <span style={{ color: "#0d9488" }}>✦</span>
+                                    {isExternal ? (
+                                      <span
+                                        className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                                        style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                                      >
+                                        <Satellite className="w-2.5 h-2.5" />
+                                        Ext
+                                      </span>
+                                    ) : (
+                                      <span style={{ color: "#0d9488" }}>✦</span>
+                                    )}
                                     {stripBrand(ds.label)}
                                     {ds.magnitude_band ? (
                                       <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
@@ -1128,8 +1184,21 @@ export default function ExecDemoIntelPanel({
                                     ) : null}
                                   </span>
                                 );
+                                if (!isExternal) return pill;
+                                return (
+                                  <Tooltip key={ds.id}>
+                                    <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                                    <TooltipPortal>
+                                      <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
+                                        <div className="font-semibold text-violet-700 mb-1">External Intelligence · {ds.provider || "Bureau"}</div>
+                                        <div>{ds.evidence_summary || ds.label}</div>
+                                      </TooltipContent>
+                                    </TooltipPortal>
+                                  </Tooltip>
+                                );
                               })}
                             </div>
+
                           </div>
                         );
                       })()}
