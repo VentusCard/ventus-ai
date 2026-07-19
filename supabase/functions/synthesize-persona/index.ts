@@ -326,12 +326,12 @@ Confidence: 2 rows→65, 3→75, 4–5→85, 6+→92. Provide 2–4 evidence ite
 
 EXCLUDE:
   - Recurring auto/mortgage/insurance/brokerage ACH → FINANCIAL_SIGNAL (that is a durable product, not a transition).
-  - College prep / SAT / tuition / Common App → DEMOGRAPHIC (household composition shift "Kid → College").
+  - College prep / SAT / tuition / Common App → DEMOGRAPHIC (household composition shift "College Preparation").
   - Pet ownership → SPENDING_HABIT (a lifestyle, not a transition).
 
 GOOD: "New Baby / Family Expansion" (pediatric visits + BuyBuy Baby + daycare, all within 60 days).
 BAD:  "New Pet Adoption" → SPENDING_HABIT "Pet Care Routine".
-BAD:  "College Prep" → DEMOGRAPHIC "Kid → College".
+BAD:  "College Prep" → DEMOGRAPHIC "College Preparation".
 BAD:  "Car Loan Refi Journey" → FINANCIAL_SIGNAL "auto_loan · <servicer>".
 
 ═══════════════════════════════════════════════════════════════════
@@ -370,10 +370,10 @@ TEST (all three must be true):
 LABELS: closed vocabulary shape only:
   - income_trajectory:      "Payroll Step-Up · +18%", "Payroll Step-Down · −22%", "Self-Employment Onset", "1099 Onset".
   - wealth_tier_migration:  "Contribution Rate Up · Mass Affluent", "Windfall → Investable Assets".
-  - household_composition:  "Kid → College", "Empty Nest", "New Cohabitation", "Household Split".
+  - household_composition:  "College Preparation", "Empty Nest", "New Cohabitation", "Household Split".
   - geography_relocation:   "SF → NYC Everyday Spend", "Post-Move ZIP Drift".
 
-Labels are 2–5 words. NO trailing restatement (e.g. "Kid → College" — NOT "Kid → College · College Prep Cycle"). Confidence is 0–1 (cap 0.92). Direction ∈ {up, down, lateral}.
+Labels are 2–5 words. NO trailing restatement (e.g. "College Preparation" — NOT "College Preparation · College Prep Cycle"). Confidence is 0–1 (cap 0.92). Direction ∈ {up, down, lateral}.
 
 THE HONEST-SENTENCE TEST (run this out loud before emitting):
   Say "What changed, when, and how do we know?"
@@ -391,10 +391,10 @@ EXCLUDE with reasoning:
   - Static baseline attributes (current age, current ZIP, current income band) → NEVER emit.
 
 GOOD: "Payroll Step-Up · +18%" (paycheck jumps from ~$4.2k to ~$5.0k in Aug, holds ≥3 months).
-GOOD: "Kid → College" (SAT/Kaplan/Common App fees appear starting Sep, bursar deposit in Aug).
+GOOD: "College Preparation" (SAT/Kaplan/Common App fees appear starting Sep, bursar deposit in Aug).
 BAD:  "New Pet Household · ~3 pet charges/mo"  → SPENDING_HABIT "Pet Care Routine".
 BAD:  "Multi-Pet Household"                    → SPENDING_HABIT "Pet Care Routine".
-BAD:  "Kid → College · College Prep Cycle"     → DEMOGRAPHIC "Kid → College" (drop restatement).
+BAD:  "College Preparation · College Prep Cycle"  → DEMOGRAPHIC "College Preparation" (drop restatement).
 BAD:  "Fitness Regular"                        → SPENDING_HABIT.
 BAD:  "Streaming Subscriber"                   → SPENDING_HABIT.
 BAD:  "Age 45 Suburban"                        → NEVER (static baseline).
@@ -453,10 +453,10 @@ KNOWN BAD OUTPUTS (do NOT reproduce these — route as noted)
 ═══════════════════════════════════════════════════════════════════
   ✗ Demographic "New Pet Household"         → Spending Habit "Pet Care Routine".
   ✗ Demographic "Multi-Pet Household"       → Spending Habit "Pet Care Routine".
-  ✗ Demographic "Kid → College · College Prep Cycle" → Demographic "Kid → College" (no restatement).
+  ✗ Demographic "College Preparation · College Prep Cycle" → Demographic "College Preparation" (no restatement).
   ✗ Demographic "Fitness Regular"           → Spending Habit "Boutique Fitness".
   ✗ Demographic "Coffee Household"          → Spending Habit "Weekday Coffee Runs".
-  ✗ Life Event "College Preparation"        → Demographic "Kid → College".
+  ✗ Life Event "College Preparation"        → Demographic "College Preparation".
   ✗ Life Event "Auto Loan Renewal"          → Financial Signal "auto_loan · <servicer>".
 
 ═══════════════════════════════════════════════════════════════════
@@ -734,8 +734,8 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
           .filter((ti) => !claimedByHigher.has(ti));
         // Normalize college labels — strip trailing "· College Prep Cycle" / "· Prep …" restatements.
         let label = String(d.label || "").trim();
-        if (/kid\s*(?:→|->|to)\s*college/i.test(label)) {
-          label = "Kid → College";
+        if (/kid\s*(?:→|->|to)\s*college/i.test(label) || /college\s*prep/i.test(label)) {
+          label = "College Preparation";
         }
         // Clear magnitude_band when it merely restates the label vocabulary.
         let magnitude_band = String(d.magnitude_band || "").trim();
