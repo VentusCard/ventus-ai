@@ -333,14 +333,59 @@ export default function ExecDemoIntelPanel({
     );
   }, [chips, rollups]);
 
+  // ---- Cross-row dedup (the final classifier still wins) ----
+  // The final LLM decides bucket placement. We only prevent a single item from
+  // appearing in two rows simultaneously, using its own IDs / transaction indices.
+  // Ladder: Life Event > Financial Signal > Demographic > Pillar Rollup.
+  const rawFinancialSignals = personaSynthesis?.financialSignals || [];
+  const rawDemographicShifts = personaSynthesis?.demographicShifts || [];
+
+  const lifeEventNameSet = useMemo(() => {
+    const s = new Set<string>();
+    (detectedLifeEvents || []).forEach((e) => {
+      if (e?.event_name) s.add(e.event_name.trim().toLowerCase());
+    });
+    return s;
+  }, [detectedLifeEvents]);
+
+  const financialTxSet = useMemo(() => {
+    const s = new Set<number>();
+    rawFinancialSignals.forEach((f) => (f.transaction_indices || []).forEach((ti) => s.add(ti)));
+    return s;
+  }, [rawFinancialSignals]);
+
+  const filteredDemographicShifts = useMemo(() => {
+    return rawDemographicShifts.filter((d) => {
+      // Drop if the same label is already a life event (exact, case-insensitive).
+      if (d?.label && lifeEventNameSet.has(d.label.trim().toLowerCase())) return false;
+      // Drop if every one of its transaction_indices is already owned by a financial signal.
+      const idx = d.transaction_indices || [];
+      if (idx.length > 0 && idx.every((ti) => financialTxSet.has(ti))) return false;
+      return true;
+    });
+  }, [rawDemographicShifts, lifeEventNameSet, financialTxSet]);
+
+  const demographicTxSet = useMemo(() => {
+    const s = new Set<number>();
+    filteredDemographicShifts.forEach((d) => (d.transaction_indices || []).forEach((ti) => s.add(ti)));
+    return s;
+  }, [filteredDemographicShifts]);
+
   // Use pre-computed stats from rollups directly — no re-derivation from chips.
   // Sort by total spend (descending) so highest-dollar lifestyle behaviors lead.
+  // Also drop any rollup whose transactions are entirely owned by a higher-tier row.
   const rollupStats = useMemo(() => {
     return rollups
       .filter((r) => (r.totalCount ?? 0) > 0)
+      .filter((r) => {
+        const idx = r.txIndices || [];
+        if (idx.length === 0) return true;
+        const allClaimed = idx.every((ti) => financialTxSet.has(ti) || demographicTxSet.has(ti));
+        return !allClaimed;
+      })
       .slice()
       .sort((a, b) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0));
-  }, [rollups]);
+  }, [rollups, financialTxSet, demographicTxSet]);
 
   // Derive current description from milestone keys
   const currentDescription = useMemo(() => {
@@ -928,7 +973,7 @@ export default function ExecDemoIntelPanel({
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
                       {(() => {
-                        const finSignals = personaSynthesis?.financialSignals || [];
+                        const finSignals = rawFinancialSignals;
                         if (finSignals.length === 0) return null;
                         return (
                           <div
@@ -985,7 +1030,7 @@ export default function ExecDemoIntelPanel({
                         );
                       })()}
                       {(() => {
-                        const demoShifts = personaSynthesis?.demographicShifts || [];
+                        const demoShifts = filteredDemographicShifts;
                         if (demoShifts.length === 0) return null;
                         return (
                           <div
