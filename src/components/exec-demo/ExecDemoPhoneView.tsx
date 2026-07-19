@@ -7,7 +7,7 @@ import ConsumerAIChatView from "@/components/demo/ConsumerAIChatView";
 import GeneratedOffersPhoneView from "./GeneratedOffersPhoneView";
 import ProductCardsPhoneView, { type ProductCard } from "./ProductCardsPhoneView";
 import RelationshipPhoneView from "./RelationshipPhoneView";
-import WMCopilotPhoneView from "./WMCopilotPhoneView";
+import AdvisorConversationTabletView from "./AdvisorConversationTabletView";
 import BudgetPhoneView from "./BudgetPhoneView";
 import EmailPreviewPhoneView from "./phone-channels/EmailPreviewPhoneView";
 import SmsPreviewPhoneView from "./phone-channels/SmsPreviewPhoneView";
