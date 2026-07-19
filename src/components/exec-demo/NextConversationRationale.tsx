@@ -312,6 +312,8 @@ interface Props {
   assistantOpen?: boolean;
   /** True when right-side phone panel is showing the WM CoPilot view. */
   wmCopilotOpen?: boolean;
+  /** Which audience view to render full-width. Defaults to 'customer'. */
+  audience?: "customer" | "rm";
 }
 
 export default function NextConversationRationale({
@@ -321,6 +323,7 @@ export default function NextConversationRationale({
   onOpenAIAssistant,
   assistantOpen = false,
   wmCopilotOpen = false,
+  audience = "customer",
 }: Props) {
   const effectiveSignal: SelectedSignal | null =
     selectedSignal ?? (availableSignals.length > 0 ? availableSignals[0] : null);
