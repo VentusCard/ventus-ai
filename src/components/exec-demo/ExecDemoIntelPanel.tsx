@@ -1058,10 +1058,14 @@ export default function ExecDemoIntelPanel({
                               </TooltipPortal>
                             </Tooltip>
                             <div className={pillRowClass}>
-                              {finSignals.map((fs, i) => {
+                              {finSignals.map((fs: any, i) => {
                                 const isActive = activeTriggerLabel === fs.label;
                                 const indices = fs.transaction_indices || [];
-                                return (
+                                const isExternal = fs.source === "external";
+                                const borderColor = isExternal ? "#7c3aed" : "#6366f1";
+                                const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(99,102,241,.35)";
+                                const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(99,102,241,.18)";
+                                const pill = (
                                   <span
                                     key={fs.id}
                                     onClick={() => onTriggerPillClick?.(fs.label, indices, "#6366f1", "lifeEvent")}
@@ -1071,12 +1075,22 @@ export default function ExecDemoIntelPanel({
                                         ? "linear-gradient(135deg, rgba(99,102,241,.30), rgba(99,102,241,.18))"
                                         : "linear-gradient(135deg, rgba(99,102,241,.16), rgba(99,102,241,.06))",
                                       color: "#3730a3",
-                                      border: "1.5px solid #6366f1",
+                                      border: `1.5px solid ${borderColor}`,
                                       animation: `rollup-entrance 0.5s ease-out ${1.0 + i * 0.12}s both`,
-                                      boxShadow: isActive ? "0 0 14px rgba(99,102,241,.35)" : "0 2px 8px rgba(99,102,241,.18)",
+                                      boxShadow: isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
                                     }}
                                   >
-                                    <span style={{ color: "#6366f1" }}>◆</span>
+                                    {isExternal ? (
+                                      <span
+                                        className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                                        style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                                      >
+                                        <Satellite className="w-2.5 h-2.5" />
+                                        Ext
+                                      </span>
+                                    ) : (
+                                      <span style={{ color: "#6366f1" }}>◆</span>
+                                    )}
                                     {stripBrand(fs.label)}
                                     {fs.monthly_amount_band ? (
                                       <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
@@ -1085,8 +1099,21 @@ export default function ExecDemoIntelPanel({
                                     ) : null}
                                   </span>
                                 );
+                                if (!isExternal) return pill;
+                                return (
+                                  <Tooltip key={fs.id}>
+                                    <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                                    <TooltipPortal>
+                                      <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
+                                        <div className="font-semibold text-violet-700 mb-1">External Intelligence · {fs.provider || "Bureau"}</div>
+                                        <div>{fs.detail || fs.label}</div>
+                                      </TooltipContent>
+                                    </TooltipPortal>
+                                  </Tooltip>
+                                );
                               })}
                             </div>
+
                           </div>
                         );
                       })()}
