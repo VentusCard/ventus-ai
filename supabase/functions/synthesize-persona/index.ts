@@ -199,7 +199,7 @@ serve(async (req) => {
   try {
     const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds, externalSignals } = await req.json() as {
       pillars: any[];
-      lifeEvents?: { event_name?: string }[];
+      lifeEvents?: { event_name?: string; confidence?: number; evidence?: any[]; talking_points?: string[] }[];
       transactions?: IncomingTxn[];
       riskCategoriesPresent?: string[];
       riskTransactionIds?: string[];
@@ -211,9 +211,16 @@ serve(async (req) => {
       });
     }
 
-    const detectedEventNames: string[] = Array.isArray(lifeEvents)
-      ? lifeEvents.map((e) => e?.event_name).filter((n): n is string => !!n)
-      : [];
+    const upstreamLifeEvents: Array<{ event_name: string; confidence?: number; evidence?: any[]; talking_points?: string[] }> =
+      Array.isArray(lifeEvents)
+        ? lifeEvents.filter((e): e is { event_name: string } & typeof e => !!e?.event_name).map((e) => ({
+            event_name: e.event_name!,
+            confidence: typeof e.confidence === "number" ? e.confidence : undefined,
+            evidence: Array.isArray(e.evidence) ? e.evidence : [],
+            talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+          }))
+        : [];
+    const detectedEventNames: string[] = upstreamLifeEvents.map((e) => e.event_name);
     const presentRiskCategories: string[] = Array.isArray(riskCategoriesPresent)
       ? Array.from(new Set(riskCategoriesPresent.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
       : [];
