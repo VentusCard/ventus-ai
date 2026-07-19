@@ -991,13 +991,153 @@ export default function ExecDemoIntelPanel({
                     </span>
                   );
 
-                  // Always render the three labeled rows so headers are retained
-                  // on Next-Offer / Next-Product / Next-Conversation tabs. When a
-                  // tab is active (collapsed), use tighter dimensions to fit.
+                  // On the three Next-* tabs (isCollapsed), we compile every pill
+                  // family into a single header-less strip. When fully expanded,
+                  // we keep the five labeled rows (Spending / Life Event /
+                  // Financial / Demographic / Risk).
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
                   const labelTextSize = isCollapsed ? "text-[12px]" : "text-[13px]";
                   const rowGap = isCollapsed ? "mt-2.5" : "mt-2.5";
                   const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2.5 overflow-x-auto exec-light-scroll py-0.5";
+
+                  // Grey out Financial pills on Next-Offer only (matches risk muting).
+                  const financialPillsMuted = activeTab === "analytics";
+
+                  const financialPillNodes = (rawFinancialSignals || []).map((fs: any, i: number) => {
+                    const isActive = activeTriggerLabel === fs.label;
+                    const indices = fs.transaction_indices || [];
+                    const isExternal = fs.source === "external";
+                    const muted = financialPillsMuted;
+                    const borderColor = isExternal ? "#7c3aed" : "#6366f1";
+                    const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(99,102,241,.35)";
+                    const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(99,102,241,.18)";
+                    const pill = (
+                      <span
+                        key={fs.id}
+                        onClick={muted ? undefined : () => onTriggerPillClick?.(fs.label, indices, "#6366f1", "lifeEvent")}
+                        title={muted ? "Not applicable for offer targeting" : undefined}
+                        className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full transition-all duration-200 whitespace-nowrap shrink-0 ${muted ? "cursor-not-allowed pointer-events-none" : "cursor-pointer"}`}
+                        style={{
+                          background: muted
+                            ? "#e2e8f0"
+                            : isActive
+                              ? "linear-gradient(135deg, rgba(99,102,241,.30), rgba(99,102,241,.18))"
+                              : "linear-gradient(135deg, rgba(99,102,241,.16), rgba(99,102,241,.06))",
+                          color: muted ? "#94a3b8" : "#3730a3",
+                          border: muted ? "1.5px solid #cbd5e1" : `1.5px solid ${borderColor}`,
+                          animation: `rollup-entrance 0.5s ease-out ${1.0 + i * 0.12}s both`,
+                          boxShadow: muted ? "none" : isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
+                          opacity: muted ? 0.65 : 1,
+                          filter: muted ? "grayscale(1)" : "none",
+                          textDecoration: muted ? "line-through" : "none",
+                          textDecorationColor: muted ? "#94a3b8" : undefined,
+                          textDecorationThickness: muted ? "1.5px" : undefined,
+                        }}
+                      >
+                        {isExternal && !muted ? (
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                            style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                          >
+                            <Satellite className="w-2.5 h-2.5" />
+                            Ext
+                          </span>
+                        ) : (
+                          <span style={{ color: muted ? "#94a3b8" : "#6366f1", textDecoration: "none" }}>
+                            {muted ? "✕" : "◆"}
+                          </span>
+                        )}
+                        {stripBrand(fs.label)}
+                        {fs.monthly_amount_band ? (
+                          <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                            {fs.monthly_amount_band}
+                          </span>
+                        ) : null}
+                      </span>
+                    );
+                    if (!isExternal || muted) return pill;
+                    return (
+                      <Tooltip key={fs.id}>
+                        <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                        <TooltipPortal>
+                          <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
+                            <div className="font-semibold text-violet-700 mb-1">External Intelligence · {fs.provider || "Bureau"}</div>
+                            <div>{fs.detail || fs.label}</div>
+                          </TooltipContent>
+                        </TooltipPortal>
+                      </Tooltip>
+                    );
+                  });
+
+                  const demographicPillNodes = (filteredDemographicShifts || []).map((ds: any, i: number) => {
+                    const isActive = activeTriggerLabel === ds.label;
+                    const indices = ds.transaction_indices || [];
+                    const clickable = indices.length > 0;
+                    const isExternal = ds.source === "external";
+                    const borderColor = isExternal ? "#7c3aed" : "#0d9488";
+                    const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(13,148,136,.35)";
+                    const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(13,148,136,.18)";
+                    const pill = (
+                      <span
+                        key={ds.id}
+                        onClick={clickable ? () => onTriggerPillClick?.(ds.label, indices, "#0d9488", "lifeEvent") : undefined}
+                        className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full transition-all duration-200 whitespace-nowrap shrink-0 ${clickable ? "cursor-pointer" : "cursor-default"}`}
+                        style={{
+                          background: isActive
+                            ? "linear-gradient(135deg, rgba(13,148,136,.30), rgba(13,148,136,.18))"
+                            : "linear-gradient(135deg, rgba(13,148,136,.16), rgba(13,148,136,.06))",
+                          color: "#0f766e",
+                          border: `1.5px solid ${borderColor}`,
+                          animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.12}s both`,
+                          boxShadow: isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
+                        }}
+                      >
+                        {isExternal ? (
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                            style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                          >
+                            <Satellite className="w-2.5 h-2.5" />
+                            Ext
+                          </span>
+                        ) : (
+                          <span style={{ color: "#0d9488" }}>✦</span>
+                        )}
+                        {stripBrand(ds.label)}
+                        {ds.magnitude_band ? (
+                          <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                            {ds.magnitude_band}
+                          </span>
+                        ) : null}
+                      </span>
+                    );
+                    if (!isExternal) return pill;
+                    return (
+                      <Tooltip key={ds.id}>
+                        <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                        <TooltipPortal>
+                          <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
+                            <div className="font-semibold text-violet-700 mb-1">External Intelligence · {ds.provider || "Bureau"}</div>
+                            <div>{ds.evidence_summary || ds.label}</div>
+                          </TooltipContent>
+                        </TooltipPortal>
+                      </Tooltip>
+                    );
+                  });
+
+                  if (isCollapsed) {
+                    return (
+                      <TooltipProvider delayDuration={150}>
+                        <div className={pillRowClass}>
+                          {rollupPills}
+                          {lifeEventPills}
+                          {financialPillNodes}
+                          {demographicPillNodes}
+                          {riskPills}
+                        </div>
+                      </TooltipProvider>
+                    );
+                  }
 
                   return (
                     <>
@@ -1041,175 +1181,54 @@ export default function ExecDemoIntelPanel({
                         </Tooltip>
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
-                      {(() => {
-                        const finSignals = rawFinancialSignals;
-                        if (finSignals.length === 0) return null;
-                        return (
-                          <div
-                            className={`flex items-center gap-3 ${rowGap}`}
-                            style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}
-                          >
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <p
-                                  className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
-                                  style={{ color: "#3730a3" }}
-                                >
-                                  Financial Signals:
-                                  <Info className="w-3 h-3 opacity-70" />
-                                </p>
-                              </TooltipTrigger>
-                              <TooltipPortal>
-                                <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
-                                  Recurring large-financial-product relationships — auto loans, mortgages, leases, brokerage & retirement contributions, insurance premiums. Bigger than spending and shown separately so they don't get repackaged as lifestyle habits.
-                                </TooltipContent>
-                              </TooltipPortal>
-                            </Tooltip>
-                            <div className={pillRowClass}>
-                              {finSignals.map((fs: any, i) => {
-                                const isActive = activeTriggerLabel === fs.label;
-                                const indices = fs.transaction_indices || [];
-                                const isExternal = fs.source === "external";
-                                const borderColor = isExternal ? "#7c3aed" : "#6366f1";
-                                const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(99,102,241,.35)";
-                                const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(99,102,241,.18)";
-                                const pill = (
-                                  <span
-                                    key={fs.id}
-                                    onClick={() => onTriggerPillClick?.(fs.label, indices, "#6366f1", "lifeEvent")}
-                                    className="inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0"
-                                    style={{
-                                      background: isActive
-                                        ? "linear-gradient(135deg, rgba(99,102,241,.30), rgba(99,102,241,.18))"
-                                        : "linear-gradient(135deg, rgba(99,102,241,.16), rgba(99,102,241,.06))",
-                                      color: "#3730a3",
-                                      border: `1.5px solid ${borderColor}`,
-                                      animation: `rollup-entrance 0.5s ease-out ${1.0 + i * 0.12}s both`,
-                                      boxShadow: isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
-                                    }}
-                                  >
-                                    {isExternal ? (
-                                      <span
-                                        className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
-                                        style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
-                                      >
-                                        <Satellite className="w-2.5 h-2.5" />
-                                        Ext
-                                      </span>
-                                    ) : (
-                                      <span style={{ color: "#6366f1" }}>◆</span>
-                                    )}
-                                    {stripBrand(fs.label)}
-                                    {fs.monthly_amount_band ? (
-                                      <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
-                                        {fs.monthly_amount_band}
-                                      </span>
-                                    ) : null}
-                                  </span>
-                                );
-                                if (!isExternal) return pill;
-                                return (
-                                  <Tooltip key={fs.id}>
-                                    <TooltipTrigger asChild>{pill}</TooltipTrigger>
-                                    <TooltipPortal>
-                                      <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
-                                        <div className="font-semibold text-violet-700 mb-1">External Intelligence · {fs.provider || "Bureau"}</div>
-                                        <div>{fs.detail || fs.label}</div>
-                                      </TooltipContent>
-                                    </TooltipPortal>
-                                  </Tooltip>
-                                );
-                              })}
-                            </div>
-
-                          </div>
-                        );
-                      })()}
-                      {(() => {
-                        const demoShifts = filteredDemographicShifts;
-                        if (demoShifts.length === 0) return null;
-                        return (
-                          <div
-                            className={`flex items-center gap-3 ${rowGap}`}
-                            style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
-                          >
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <p
-                                  className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
-                                  style={{ color: "#0f766e" }}
-                                >
-                                  Demographic:
-                                  <Info className="w-3 h-3 opacity-70" />
-                                </p>
-                              </TooltipTrigger>
-                              <TooltipPortal>
-                                <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
-                                  Inferred changes to the customer's life stage, household, income, wealth tier, or geography — detected from transaction patterns before the customer self-reports. Static baseline attributes (age, ZIP, current income band) are intentionally excluded; only genuine shifts appear here.
-                                </TooltipContent>
-                              </TooltipPortal>
-                            </Tooltip>
-                            <div className={pillRowClass}>
-                              {demoShifts.map((ds: any, i) => {
-                                const isActive = activeTriggerLabel === ds.label;
-                                const indices = ds.transaction_indices || [];
-                                const clickable = indices.length > 0;
-                                const isExternal = ds.source === "external";
-                                const borderColor = isExternal ? "#7c3aed" : "#0d9488";
-                                const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(13,148,136,.35)";
-                                const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(13,148,136,.18)";
-                                const pill = (
-                                  <span
-                                    key={ds.id}
-                                    onClick={clickable ? () => onTriggerPillClick?.(ds.label, indices, "#0d9488", "lifeEvent") : undefined}
-                                    className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full transition-all duration-200 whitespace-nowrap shrink-0 ${clickable ? "cursor-pointer" : "cursor-default"}`}
-                                    style={{
-                                      background: isActive
-                                        ? "linear-gradient(135deg, rgba(13,148,136,.30), rgba(13,148,136,.18))"
-                                        : "linear-gradient(135deg, rgba(13,148,136,.16), rgba(13,148,136,.06))",
-                                      color: "#0f766e",
-                                      border: `1.5px solid ${borderColor}`,
-                                      animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.12}s both`,
-                                      boxShadow: isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
-                                    }}
-                                  >
-                                    {isExternal ? (
-                                      <span
-                                        className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
-                                        style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
-                                      >
-                                        <Satellite className="w-2.5 h-2.5" />
-                                        Ext
-                                      </span>
-                                    ) : (
-                                      <span style={{ color: "#0d9488" }}>✦</span>
-                                    )}
-                                    {stripBrand(ds.label)}
-                                    {ds.magnitude_band ? (
-                                      <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
-                                        {ds.magnitude_band}
-                                      </span>
-                                    ) : null}
-                                  </span>
-                                );
-                                if (!isExternal) return pill;
-                                return (
-                                  <Tooltip key={ds.id}>
-                                    <TooltipTrigger asChild>{pill}</TooltipTrigger>
-                                    <TooltipPortal>
-                                      <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
-                                        <div className="font-semibold text-violet-700 mb-1">External Intelligence · {ds.provider || "Bureau"}</div>
-                                        <div>{ds.evidence_summary || ds.label}</div>
-                                      </TooltipContent>
-                                    </TooltipPortal>
-                                  </Tooltip>
-                                );
-                              })}
-                            </div>
-
-                          </div>
-                        );
-                      })()}
+                      {financialPillNodes.length > 0 && (
+                        <div
+                          className={`flex items-center gap-3 ${rowGap}`}
+                          style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p
+                                className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
+                                style={{ color: "#3730a3" }}
+                              >
+                                Financial Signals:
+                                <Info className="w-3 h-3 opacity-70" />
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipPortal>
+                              <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                                Recurring large-financial-product relationships — auto loans, mortgages, leases, brokerage & retirement contributions, insurance premiums. Bigger than spending and shown separately so they don't get repackaged as lifestyle habits.
+                              </TooltipContent>
+                            </TooltipPortal>
+                          </Tooltip>
+                          <div className={pillRowClass}>{financialPillNodes}</div>
+                        </div>
+                      )}
+                      {demographicPillNodes.length > 0 && (
+                        <div
+                          className={`flex items-center gap-3 ${rowGap}`}
+                          style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p
+                                className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
+                                style={{ color: "#0f766e" }}
+                              >
+                                Demographic:
+                                <Info className="w-3 h-3 opacity-70" />
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipPortal>
+                              <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                                Inferred changes to the customer's life stage, household, income, wealth tier, or geography — detected from transaction patterns before the customer self-reports. Static baseline attributes (age, ZIP, current income band) are intentionally excluded; only genuine shifts appear here.
+                              </TooltipContent>
+                            </TooltipPortal>
+                          </Tooltip>
+                          <div className={pillRowClass}>{demographicPillNodes}</div>
+                        </div>
+                      )}
                       <div
                         className={`flex items-center gap-3 ${rowGap}`}
                         style={{ animation: "fade-in 0.5s ease-out 0.5s both" }}
