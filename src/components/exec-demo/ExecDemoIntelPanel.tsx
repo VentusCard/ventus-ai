@@ -973,7 +973,7 @@ export default function ExecDemoIntelPanel({
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
                       {(() => {
-                        const finSignals = personaSynthesis?.financialSignals || [];
+                        const finSignals = rawFinancialSignals;
                         if (finSignals.length === 0) return null;
                         return (
                           <div
@@ -1030,7 +1030,7 @@ export default function ExecDemoIntelPanel({
                         );
                       })()}
                       {(() => {
-                        const demoShifts = personaSynthesis?.demographicShifts || [];
+                        const demoShifts = filteredDemographicShifts;
                         if (demoShifts.length === 0) return null;
                         return (
                           <div
