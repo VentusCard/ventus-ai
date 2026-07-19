@@ -1,55 +1,89 @@
-## Root cause
+## Goal
 
-Two independent classifiers feed the Behavioral Intelligence panel on `/bankdemo`:
+Rewrite `supabase/functions/synthesize-persona/index.ts` so the LLM natively reasons about **all 5 signal buckets in one pass**, with mutual exclusivity baked into a single ownership ladder rather than five loosely-connected prompt sections and post-hoc filters. This eliminates recurring taxonomy leaks (pets → Demographic, college → Life Event, auto loan → Life Event, duplicate pills across rows).
 
-1. `analyze-lifestyle-signals` — the upstream detector that still returns "College Preparation for Dependent" as a life event.
-2. `synthesize-persona` — the final LLM that owns the full taxonomy (Life Events, Financial Signals, Demographic, Spending Habits).
+## The 5 signals (single source of truth)
 
-`ExecDemoPage` merges the upstream events into the Life Event row, so "College Preparation for Dependent" and "Kid → College" both show up. Pet leakage in Demographic is the same class of bug from a different angle: the final classifier's decision isn't fully respected downstream.
+Ranked ladder — every transaction can belong to AT MOST ONE bucket. Higher tier wins and removes the row from all lower tiers.
 
-Per direction, the final LLM (`synthesize-persona`) is the sole authority. Upstream detectors and prompts stay untouched.
+```
+1. Life Event         (discrete, time-bounded transitions)
+2. Financial Signal   (durable product relationships)
+3. Demographic        (inferred state change: household, income, wealth, geography)
+4. Spending Habit     (recurring lifestyle rollup)
+5. Risk Factor        (owned upstream — pass-through, referenced only to prevent overlap)
+```
 
-## Change
+## New prompt architecture
 
-Make `synthesize-persona` output the single source of truth for the four pill rows on `/bankdemo`. Everything else is discarded or subordinated to it.
+Replace the existing multi-section, additive prompt with a single **decision-tree prompt** that walks the model through one loop:
 
-### 1. Stop merging upstream life events into the pills
+```
+For each transaction cluster:
+  1. Does it match a canonical Life Event pattern?          → Life Event, done.
+  2. Does it match a Financial Product servicer pattern?    → Financial Signal, done.
+  3. Does it represent a temporal state CHANGE?             → Demographic, done.
+  4. Does it represent recurring lifestyle behavior?        → Spending Habit, done.
+  5. Owned by Risk engine?                                  → skip entirely.
+```
 
-In `src/pages/ExecDemoPage.tsx`:
+Every bucket definition explicitly restates:
+- what it OWNS
+- what it NEVER owns (with named counter-examples: pets, college, auto loan, mortgage, gambling)
+- the minimum evidence threshold
+- the exact `[T<n>]` accounting rule (once claimed, never reused)
 
-- Keep calling `analyze-lifestyle-signals` only if other downstream views (product cards, offers) still need it. It must no longer contribute to the Life Event Detection row.
-- The `detectedLifeEvents` state that feeds `ExecDemoIntelPanel` is populated exclusively from `synthesize-persona.detected_life_events` (plus external-intelligence signals bucketed as `life_event`, which are already authoritative).
-- Remove the "promoted vs upstream" merge, `themeKey`, `keptUpstream`, `droppedUpstreamNames`, and `isBannedLifeEvent` logic — they exist only to reconcile two classifiers.
+## Input contract changes
 
-### 2. Render exactly what the final LLM returned
+Send a single unified candidate block instead of three separate ones (lifestyle txns / financial txns / demographic txns). Each `[T<n>]` line gets pre-computed hint tags the model can trust:
 
-In `src/components/exec-demo/ExecDemoIntelPanel.tsx`:
+```
+[T12] CHEWY.COM · $68 · 2026-04-11 · Pets>Pet Supplies · hints=[pet, recurring, lifestyle]
+[T44] VW CREDIT · $685 · 2026-04-01 · Financial · hints=[auto_loan_servicer, monthly]
+[T77] COMMON APP · $75 · 2026-03-02 · Family · hints=[college_prep, demographic_kid_college]
+```
 
-- Life Event Detection row → `personaSynthesis.detectedLifeEvents` only.
-- Financial Signals row → `personaSynthesis.financialSignals` only.
-- Demographic row → `personaSynthesis.demographicShifts` only.
-- Spending Habits row → `personaSynthesis.pillarRollups` only.
+Hints are DETERMINISTIC (built from regex + merchant taxonomy already in the file) and instruct the model which bucket owns the row. The model still writes the labels and narrative, but bucket routing is guided by hints, not left to prose interpretation.
 
-No client-side re-bucketing, no theme dedup across rows.
+## Output contract changes
 
-### 3. Thin cross-row dedup (final classifier still wins)
+One tool call returns all 5 buckets in one object:
 
-The only guard we keep is a strict "same item cannot appear in two rows" pass, using the classifier's own IDs / transaction indices — not our own keyword rules:
+```
+{
+  life_events:        [...],
+  financial_signals:  [...],
+  demographic_shifts: [...],
+  spending_habits:    [...],   // renamed from pillar_rollups for clarity
+  audit: {
+    claimed_indices: { life_event: [...], financial_signal: [...], demographic: [...], spending_habit: [...] },
+    dropped_candidates: [ { index, reason } ]
+  }
+}
+```
 
-- If the same `event_name` string (case-insensitive) appears in both `detected_life_events` and `demographic_shifts`, keep it in whichever row the final LLM listed first and drop it from the other.
-- If two rows share ≥ 1 transaction index, keep it in the higher-tier row per the ladder the final LLM already enforces (Life Event > Financial Signal > Demographic > Pillar Rollup), and remove the duplicate from the lower row.
+The `audit` block forces the model to prove mutual exclusivity — server rejects the response if any `[T<n>]` appears in two claimed lists.
 
-That's it — no keyword lists, no pet regex, no college regex on the client. The LLM decides content; we only prevent literal duplicates.
+## Server-side enforcement (post-LLM)
 
-### 4. Consequences the user will see
+Keep a thin deterministic guard layer that:
+1. Validates the audit — any overlap = drop the lower-tier row.
+2. Applies hard routing overrides for known-abuse patterns (pet → Spending Habit, college → Demographic, auto/mortgage → Financial Signal). Uses the hint tags built in step 1, not string sniffing of LLM output.
+3. Merges external signals (bureau tradelines, property records) with the same ladder rules.
+4. Strips empty buckets and normalizes shape for the client.
 
-- No more "College Preparation for Dependent" in Life Event Detection when the final LLM has already classified it as "Kid → College" in Demographic.
-- If the final LLM decides pet activity is Demographic, it stays in Demographic. If it decides pet activity is Spending Habits, it stays there. Either way, it never appears in two rows.
-- Everything else in the Behavioral Intelligence panel comes straight from `synthesize-persona`, unfiltered.
+## Files to change
 
-## Files touched
+- `supabase/functions/synthesize-persona/index.ts` — full rewrite of the prompt, schema, candidate blocks, and post-processing.
+- No client changes required — `ExecDemoPage.tsx` and `ExecDemoIntelPanel.tsx` already consume `financial_signals`, `demographic_shifts`, `pillar_rollups`, and `detected_life_events`. The rewrite keeps the same 4 top-level keys (with `spending_habits` aliased back to `pillar_rollups` in the response for backward compatibility).
 
-- `src/pages/ExecDemoPage.tsx` — remove upstream/promoted life-event merge; feed `detectedLifeEvents` from `synthesize-persona` output only.
-- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — add the two-line cross-row duplicate guard described above; no other logic changes.
+## Non-goals
 
-No edge function changes. No prompt changes. No changes to `analyze-lifestyle-signals`, `synthesize-persona`, or any other upstream file.
+- No changes to upstream `analyze-lifestyle-signals` — the final classifier remains the single source of truth (per prior decision).
+- No changes to risk detection — Risk is pass-through.
+- No UI redesign.
+
+## Verification
+
+- Run 3 demo customers through the new function.
+- Confirm: no pet pill in Demographic; no college pill in Life Event; no auto/mortgage pill in Life Event or Spending Habit; every `[T<n>]` appears in exactly one bucket.
