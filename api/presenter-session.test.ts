@@ -19,6 +19,7 @@ const managedVariables = [
   "SF_CLIENT_SECRET",
   "SUPABASE_URL",
   "SUPABASE_ANON_KEY",
+  "VENTUS_CONSOLE_INTERNAL_DOMAINS",
   "VENTUS_CONSOLE_ALLOWED_DOMAINS",
 ] as const;
 const originalEnvironment = Object.fromEntries(managedVariables.map((name) => [name, process.env[name]]));
@@ -91,7 +92,7 @@ function configure() {
   process.env.VENTUS_CONNECTOR_SESSION_SECRET = SESSION_SECRET;
   process.env.SUPABASE_URL = "https://project.supabase.co";
   process.env.SUPABASE_ANON_KEY = "anon-key";
-  process.env.VENTUS_CONSOLE_ALLOWED_DOMAINS = "ventusai.com";
+  process.env.VENTUS_CONSOLE_INTERNAL_DOMAINS = "ventusai.com";
 }
 
 function request(origin = "http://127.0.0.1:5179", accessToken = "supabase-token") {

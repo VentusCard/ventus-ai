@@ -1,5 +1,5 @@
 import type { IncomingMessage, ServerResponse } from "node:http";
-import type { Plugin } from "vite";
+import { loadEnv, type Plugin } from "vite";
 // tsx resolves the api routes' NodeNext-style ".js" specifiers back to their
 // .ts sources — node's native type stripping cannot, and Vercel needs those
 // specifiers to be ".js" at runtime.
@@ -12,6 +12,7 @@ const loadRoute = (path: string) => async (): Promise<ApiHandler> =>
 
 const API_ROUTES: Record<string, () => Promise<ApiHandler>> = {
   "/api/presenter-session": loadRoute("./api/presenter-session.ts"),
+  "/api/console-access": loadRoute("./api/console-access.ts"),
   "/api/plaid-transactions": loadRoute("./api/plaid-transactions.ts"),
   "/api/salesforce-deliver": loadRoute("./api/salesforce-deliver.ts"),
 };
@@ -47,6 +48,12 @@ export function localApiPlugin(): Plugin {
   return {
     name: "ventus-local-connector-api",
     apply: "serve",
+    configResolved(config) {
+      const environment = loadEnv(config.mode, config.envDir, "");
+      for (const [name, value] of Object.entries(environment)) {
+        if (process.env[name] === undefined) process.env[name] = value;
+      }
+    },
     configureServer(server) {
       server.middlewares.use(async (request, response, next) => {
         const path = new URL(request.url ?? "/", "http://127.0.0.1").pathname;

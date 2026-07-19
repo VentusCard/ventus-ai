@@ -7,6 +7,7 @@ const managed = [
   "SUPABASE_URL",
   "SUPABASE_ANON_KEY",
   "VENTUS_CONSOLE_ALLOWED_EMAILS",
+  "VENTUS_CONSOLE_INTERNAL_DOMAINS",
   "VENTUS_CONSOLE_ALLOWED_DOMAINS",
 ] as const;
 const originalEnvironment = Object.fromEntries(managed.map((name) => [name, process.env[name]]));
@@ -34,11 +35,19 @@ test("verified, confirmed, allowlisted operators receive a server tenant", async
     userId: "user_123",
     email: "operator@ventusai.com",
     tenantId: "ventus",
+    organizationId: "ventus",
     role: "operator",
+    status: "active",
+    entitlements: [
+      "consumer_demo",
+      "wealth_demo",
+      "growth_console",
+      "live_connectors",
+    ],
   });
 });
 
-test("unconfirmed and unallowlisted users fail closed", async () => {
+test("unconfirmed users and pending users cannot mint connector sessions", async () => {
   configure();
   globalThis.fetch = async () => Response.json({
     id: "user_123",
@@ -72,7 +81,7 @@ test("app metadata can bind an allowed operator to an approved tenant and role",
 function configure() {
   process.env.SUPABASE_URL = "https://project.supabase.co";
   process.env.SUPABASE_ANON_KEY = "anon-key";
-  process.env.VENTUS_CONSOLE_ALLOWED_DOMAINS = "ventusai.com";
+  process.env.VENTUS_CONSOLE_INTERNAL_DOMAINS = "ventusai.com";
 }
 
 function request(token: string) {

@@ -633,10 +633,14 @@ type DemoConnectorSession = {
 
 const DEMO_CONNECTOR_SESSION_KEY = "ventus_demo_connector_session";
 
-function restoreDemoConnectorSession(): DemoConnectorSession | null {
+function demoConnectorSessionKey(scope: string): string {
+  return `${DEMO_CONNECTOR_SESSION_KEY}:${scope}`;
+}
+
+function restoreDemoConnectorSession(scope: string): DemoConnectorSession | null {
   if (typeof window === "undefined") return null;
   try {
-    const stored = JSON.parse(window.sessionStorage.getItem(DEMO_CONNECTOR_SESSION_KEY) || "null") as DemoConnectorSession | null;
+    const stored = JSON.parse(window.sessionStorage.getItem(demoConnectorSessionKey(scope)) || "null") as DemoConnectorSession | null;
     if (!stored?.token || !stored.expiresAt || stored.expiresAt <= Math.floor(Date.now() / 1000)) return null;
     return stored;
   } catch {
@@ -650,18 +654,26 @@ export default function EnterpriseGrowthDemoPage({
   evaluationEnabled = false,
   initialPath = "wealth-growth",
   autoEnter = false,
+  allowedPaths = LEADERSHIP_PATHS,
+  authenticated = false,
+  sessionScope = "anonymous",
 }: {
   embedded?: boolean;
   audience?: DemoAudience;
   evaluationEnabled?: boolean;
   initialPath?: LeadershipPath;
   autoEnter?: boolean;
+  allowedPaths?: LeadershipPath[];
+  authenticated?: boolean;
+  sessionScope?: string;
 }) {
+  const permittedPaths = allowedPaths.length > 0 ? allowedPaths : LEADERSHIP_PATHS;
+  const permittedInitialPath = permittedPaths.includes(initialPath) ? initialPath : permittedPaths[0];
   const rootRef = useRef<HTMLElement | null>(null);
   const [entered, setEntered] = useState(autoEnter);
   const [mode, setMode] = useState<Mode>(autoEnter ? "leadership" : "frontline");
   const [scene, setScene] = useState(0);
-  const [selectedId, setSelectedId] = useState(initialPath === "wealth-growth" ? "transition" : "primacy");
+  const [selectedId, setSelectedId] = useState(permittedInitialPath === "wealth-growth" ? "transition" : "primacy");
   const [routed, setRouted] = useState(false);
   const [liveOpen, setLiveOpen] = useState(false);
   const [cewTasks, setCewTasks] = useState<{ id: string; client: string; type: string; action: string }[]>([]);
@@ -673,8 +685,8 @@ export default function EnterpriseGrowthDemoPage({
   const [focusId, setFocusId] = useState<string>(opportunities[0].id);
   const [ledger, setLedger] = useState<LedgerEvent[]>([]);
   const [ledgerOpen, setLedgerOpen] = useState(false);
-  const [leadershipPath, setLeadershipPath] = useState<LeadershipPath>(initialPath);
-  const [connectorSession, setConnectorSession] = useState<DemoConnectorSession | null>(restoreDemoConnectorSession);
+  const [leadershipPath, setLeadershipPath] = useState<LeadershipPath>(permittedInitialPath);
+  const [connectorSession, setConnectorSession] = useState<DemoConnectorSession | null>(() => restoreDemoConnectorSession(sessionScope));
   // The cover's fourth pipeline node lights once a session has actually walked
   // the measurement loop — the arc completes by doing it, not by claiming it.
   const [outcomeFeedSimulated, setOutcomeFeedSimulated] = useState(false);
@@ -687,9 +699,10 @@ export default function EnterpriseGrowthDemoPage({
 
   const updateConnectorSession = useCallback((session: DemoConnectorSession | null) => {
     setConnectorSession(session);
-    if (session) window.sessionStorage.setItem(DEMO_CONNECTOR_SESSION_KEY, JSON.stringify(session));
-    else window.sessionStorage.removeItem(DEMO_CONNECTOR_SESSION_KEY);
-  }, []);
+    const key = demoConnectorSessionKey(sessionScope);
+    if (session) window.sessionStorage.setItem(key, JSON.stringify(session));
+    else window.sessionStorage.removeItem(key);
+  }, [sessionScope]);
 
   useEffect(() => {
     if (!connectorSession) return;
@@ -865,11 +878,11 @@ export default function EnterpriseGrowthDemoPage({
               story into their authenticated console. */}
           {!internal && (
             <a
-              href="/app/login"
+              href={authenticated ? "/app/moments" : "/app/login"}
               className="flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold transition hover:opacity-90"
               style={{ color: "#071225" }}
             >
-              Operator sign in <ArrowRight className="h-3 w-3" />
+              {authenticated ? "Operator console" : "Operator sign in"} <ArrowRight className="h-3 w-3" />
             </a>
           )}
           {entered && internal && scene > 0 && scene < 5 && (
@@ -937,7 +950,14 @@ export default function EnterpriseGrowthDemoPage({
       </header>
 
       {!entered ? (
-        <Cover onPick={enterAt} onLeadershipPick={enterLeadership} audience={audience} connectorSession={connectorSession} outcomeFeedReady={outcomeFeedSimulated} />
+        <Cover
+          onPick={enterAt}
+          onLeadershipPick={enterLeadership}
+          audience={audience}
+          connectorSession={connectorSession}
+          outcomeFeedReady={outcomeFeedSimulated}
+          allowedPaths={permittedPaths}
+        />
       ) : !internal ? (
         <LeadershipFlow
           path={leadershipPath}
@@ -5497,8 +5517,16 @@ function PresenterSessionPanel({
     setState("connecting");
     setError(null);
     try {
+      const { data: authData } = await supabase.auth.getSession();
+      const accessToken = authData.session?.access_token;
+      if (!accessToken) {
+        setError("Sign in again to connect the live sandboxes.");
+        setState("idle");
+        return;
+      }
       const response = await fetch(DEMO_CONNECTOR_ENDPOINTS.session, {
         method: "POST",
+        headers: { Authorization: `Bearer ${accessToken}` },
       });
       const data = (await response.json().catch(() => ({}))) as Partial<DemoConnectorSession> & { error?: string };
       if (!response.ok || !data.token || !data.expiresAt || !data.connectors) {
@@ -5844,12 +5872,14 @@ function LeadershipCover({
   onPick,
   connectorSession,
   outcomeFeedReady,
+  allowedPaths,
 }: {
   onPick: (path: LeadershipPath) => void;
   connectorSession: DemoConnectorSession | null;
   outcomeFeedReady: boolean;
+  allowedPaths: LeadershipPath[];
 }) {
-  const paths = LEADERSHIP_PATHS;
+  const paths = allowedPaths;
   const [previewPath, setPreviewPath] = useState<LeadershipPath | null>(null);
   const featured = previewPath ? leadershipConfig(previewPath) : null;
   const sourceCount = featured
@@ -6020,15 +6050,26 @@ function Cover({
   audience,
   connectorSession,
   outcomeFeedReady,
+  allowedPaths,
 }: {
   onPick: (scene: number, mode: Mode) => void;
   onLeadershipPick: (path: LeadershipPath) => void;
   audience: DemoAudience;
   connectorSession: DemoConnectorSession | null;
   outcomeFeedReady: boolean;
+  allowedPaths: LeadershipPath[];
 }) {
   const internal = audience === "internal";
-  if (!internal) return <LeadershipCover onPick={onLeadershipPick} connectorSession={connectorSession} outcomeFeedReady={outcomeFeedReady} />;
+  if (!internal) {
+    return (
+      <LeadershipCover
+        onPick={onLeadershipPick}
+        connectorSession={connectorSession}
+        outcomeFeedReady={outcomeFeedReady}
+        allowedPaths={allowedPaths}
+      />
+    );
+  }
   return (
     <div className="flex h-full w-full items-center px-6 py-4 sm:px-10">
       <div className="mx-auto w-full max-w-5xl">

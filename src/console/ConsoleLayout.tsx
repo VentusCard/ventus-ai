@@ -10,7 +10,7 @@ import "@/styles/v2-theme.css";
 import "@/styles/console.css";
 
 const NAV = [
-  { to: "/app", label: "Moments", icon: Activity, end: true },
+  { to: "/app/moments", label: "Moments", icon: Activity, end: true },
   { to: "/app/ledger", label: "Ledger", icon: Layers, end: false },
   { to: "/app/outcomes", label: "Outcomes", icon: LineChart, end: false },
   { to: "/app/settings", label: "Settings", icon: Settings, end: false },
@@ -148,8 +148,8 @@ export function ConsoleAuthBoundary() {
 
 // Route element for the authenticated portion of /app.
 export default function ConsoleLayout() {
-  const { user, loading } = useAuth();
-  if (loading) {
+  const { user, loading, access, accessLoading } = useAuth();
+  if (loading || accessLoading) {
     return (
       <div className="v2 flex min-h-svh items-center justify-center" style={{ backgroundColor: "var(--v2-paper)" }}>
         <Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--v2-ink-faint)" }} />
@@ -157,6 +157,12 @@ export default function ConsoleLayout() {
     );
   }
   if (!user) return <Navigate to="/app/login" replace />;
+  if (!access || access.status !== "active") return <Navigate to="/app/access-pending" replace />;
+  if (!access.entitlements.includes("growth_console")) {
+    return access.entitlements.some((entitlement) => entitlement === "consumer_demo" || entitlement === "wealth_demo")
+      ? <Navigate to="/app/demo" replace />
+      : <Navigate to="/app/access-pending" replace />;
+  }
   return (
     <ConsoleProvider>
       <Shell />

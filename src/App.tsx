@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -15,6 +15,11 @@ import {
   ResetPasswordPage,
   SignupPage,
 } from "./console/AuthPages";
+import {
+  AccessPendingPage,
+  AppEntryPage,
+  ProtectedDemoPage,
+} from "./console/AccessPages";
 import MomentsPage from "./console/MomentsPage";
 import { LedgerPage, OutcomesPage, SettingsPage } from "./console/OpsPages";
 
@@ -42,7 +47,6 @@ const NextConversationPage = lazy(() => import("./pages/solutions/NextConversati
 const PortfolioIntelligencePage = lazy(() => import("./pages/solutions/PortfolioIntelligencePage"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard"));
-const EnterpriseGrowthDemoPage = lazy(() => import("./pages/EnterpriseGrowthDemoPage"));
 
 const queryClient = new QueryClient();
 
@@ -53,7 +57,7 @@ const RouteFallback = () => (
 const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
-  const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo" || location.pathname === "/demo/enterprise";
+  const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const isHomeV2 = location.pathname === "/v2";
@@ -71,8 +75,11 @@ const AppLayout = () => {
           <Route path="signup" element={<SignupPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
           <Route path="reset-password" element={<ResetPasswordPage />} />
+          <Route index element={<AppEntryPage />} />
+          <Route path="access-pending" element={<AccessPendingPage />} />
+          <Route path="demo" element={<ProtectedDemoPage />} />
           <Route element={<ConsoleLayout />}>
-            <Route index element={<MomentsPage />} />
+            <Route path="moments" element={<MomentsPage />} />
             <Route path="ledger" element={<LedgerPage />} />
             <Route path="outcomes" element={<OutcomesPage />} />
             <Route path="settings" element={<SettingsPage />} />
@@ -95,7 +102,7 @@ const AppLayout = () => {
         <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
         <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
         <Route path="/demo" element={<div className="h-screen"><ExecDemoPage /></div>} />
-        <Route path="/demo/enterprise" element={<EnterpriseGrowthDemoPage audience="leadership" />} />
+        <Route path="/demo/enterprise" element={<Navigate to="/app/demo" replace />} />
         <Route path="/deckmo" element={<DemoPage />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />

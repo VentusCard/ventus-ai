@@ -36,7 +36,28 @@ type AuthState = {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  access: ConsoleAccessProfile | null;
+  accessLoading: boolean;
+  accessError: string | null;
+  refreshAccess: () => Promise<void>;
   signOut: () => Promise<void>;
+};
+
+export type ConsoleEntitlement =
+  | "consumer_demo"
+  | "wealth_demo"
+  | "growth_console"
+  | "live_connectors";
+
+export type ConsoleAccessProfile = {
+  userId: string;
+  email: string;
+  tenantId: string;
+  organizationId: string;
+  role: "operator" | "admin";
+  status: "active" | "pending";
+  entitlements: ConsoleEntitlement[];
+  authProvider: string;
 };
 
 const AuthContext = createContext<AuthState | null>(null);
@@ -44,6 +65,9 @@ const AuthContext = createContext<AuthState | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [access, setAccess] = useState<ConsoleAccessProfile | null>(null);
+  const [accessLoading, setAccessLoading] = useState(false);
+  const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -57,15 +81,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return () => subscription.subscription.unsubscribe();
   }, []);
 
+  const refreshAccess = useCallback(async () => {
+    if (!session?.access_token) {
+      setAccess(null);
+      setAccessLoading(false);
+      setAccessError(null);
+      return;
+    }
+    setAccessLoading(true);
+    setAccessError(null);
+    try {
+      const response = await fetch("/api/console-access", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      const data = (await response.json().catch(() => ({}))) as ConsoleAccessProfile & { error?: string };
+      if (!response.ok || !data.userId) {
+        throw new Error(data.error ?? `access lookup failed (${response.status})`);
+      }
+      setAccess(data);
+    } catch (error) {
+      setAccess(null);
+      setAccessError(error instanceof Error ? error.message : "Access lookup unavailable");
+    } finally {
+      setAccessLoading(false);
+    }
+  }, [session?.access_token]);
+
+  useEffect(() => {
+    void refreshAccess();
+  }, [refreshAccess]);
+
   const signOut = useCallback(async () => {
     clearConsoleStorage();
     clearTenantOverride();
+    setAccess(null);
     await supabase.auth.signOut();
   }, []);
 
   const value = useMemo(
-    () => ({ user: session?.user ?? null, session, loading, signOut }),
-    [session, loading, signOut],
+    () => ({
+      user: session?.user ?? null,
+      session,
+      loading,
+      access,
+      accessLoading,
+      accessError,
+      refreshAccess,
+      signOut,
+    }),
+    [session, loading, access, accessLoading, accessError, refreshAccess, signOut],
   );
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
@@ -113,7 +178,9 @@ function clearConsoleStorage(): void {
   if (typeof window === "undefined") return;
   for (let index = window.sessionStorage.length - 1; index >= 0; index -= 1) {
     const key = window.sessionStorage.key(index);
-    if (key?.startsWith(STORAGE_PREFIX)) window.sessionStorage.removeItem(key);
+    if (key?.startsWith(STORAGE_PREFIX) || key?.startsWith("ventus_demo_")) {
+      window.sessionStorage.removeItem(key);
+    }
   }
 }
 
