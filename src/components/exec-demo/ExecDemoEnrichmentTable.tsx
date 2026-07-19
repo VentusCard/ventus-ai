@@ -163,7 +163,9 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
           <span className="text-[13px] font-semibold" style={{ color: highlightColor }}>
-            {externalActive ? (
+            {externalActive && highlightSet ? (
+              <>Showing <span className="tabular-nums">1</span> external signal + <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
+            ) : externalActive ? (
               <>Showing <span className="tabular-nums">1</span> external signal for "{activePillLabel}"</>
             ) : (
               <>Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
