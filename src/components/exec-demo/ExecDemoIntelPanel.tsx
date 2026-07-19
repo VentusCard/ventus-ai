@@ -465,7 +465,7 @@ export default function ExecDemoIntelPanel({
 
   const availableSignals = useMemo<SelectedSignal[]>(() => {
     const out: SelectedSignal[] = [];
-    (detectedLifeEvents || []).forEach((evt) => {
+    filteredDetectedLifeEvents.forEach((evt) => {
       out.push({ kind: "lifeEvent", label: evt.event_name });
     });
     if (riskFlags && riskFlags.flags) {
