@@ -696,6 +696,13 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         return false;
       };
       const upstreamThemes = new Set(detectedEvents.map((e) => themeKey(e.event_name || "")));
+      const droppedUpstreamNames = new Set(
+        (Array.isArray(data?.dropped_upstream_life_events) ? data.dropped_upstream_life_events : [])
+          .map((n: string) => normalizeName(n || "")),
+      );
+      const keptUpstream = detectedEvents.filter(
+        (e) => !droppedUpstreamNames.has(normalizeName(e.event_name || "")),
+      );
       const promotedEvents: LifeEvent[] = promotedRaw
         .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)) && !isBannedLifeEvent(e.event_name))
         .map((e: any) => {
@@ -730,7 +737,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           promotedEvents.map((e) => e.event_name),
         );
       }
-      const mergedEvents: LifeEvent[] = [...detectedEvents, ...promotedEvents];
+      const mergedEvents: LifeEvent[] = [...keptUpstream, ...promotedEvents];
 
       // Fire life event detection with the merged set (will reuse — no extra API call).
       // Risk detection was already kicked off from fireClassification and awaited above.

@@ -709,21 +709,72 @@ For each canonical life event below, check whether the per-transaction list meet
       ? JSON.parse(toolCall.function.arguments)
       : toolCall.function.arguments;
 
+    // -------------------- Deterministic routing overrides --------------------
+    // synthesize-persona owns final routing across all 5 sections. Enforce the
+    // taxonomy here regardless of LLM drift so bad pills never leak to the UI.
+    const COLLEGE_RE = /\b(college|university|tuition|sat|act|kaplan|common\s*app|529)\b/i;
+    const AUTO_LOAN_RE = /\b(auto|car)\s*(loan|lease|refi|renewal|payoff|financ)/i;
+    const MORTGAGE_RE = /\b(mortgage|heloc|refinanc)/i;
+    const PET_RE = /pet|chewy|petsmart|petco|banfield|vca|adopt/i;
+
+    const isBannedLifeEventName = (name: string): boolean => {
+      if (!name) return false;
+      return COLLEGE_RE.test(name) || AUTO_LOAN_RE.test(name) || MORTGAGE_RE.test(name);
+    };
+
+    // Upstream life events that this run is re-routing to a different bucket.
+    // UI honors this list to drop the duplicate pill from the upstream detector.
+    const droppedUpstreamLifeEvents: string[] = detectedEventNames.filter(isBannedLifeEventName);
+
+    // Filter detected_life_events (LLM output) — strip anything that belongs elsewhere.
+    const filteredLifeEvents = (raw.detected_life_events || []).filter(
+      (e: any) => !isBannedLifeEventName(e?.event_name || ""),
+    );
+
+    // Filter demographic_shifts — pet spend belongs in Spending Habits (Pets pillar).
+    const rawShifts = raw.demographic_shifts || [];
+    const strippedPetShifts: any[] = [];
+    const filteredShifts = rawShifts.filter((d: any) => {
+      const hit = PET_RE.test(d?.label || "") || PET_RE.test(d?.category || "");
+      if (hit) strippedPetShifts.push(d);
+      return !hit;
+    });
+
+    // If a pet-themed shift had real evidence, promote it into a Pets pillar_rollup
+    // so the signal still surfaces under Spending Habits.
+    const extraPillarRollups: any[] = [];
+    for (const shift of strippedPetShifts) {
+      const idx: number[] = Array.isArray(shift.transaction_indices) ? shift.transaction_indices : [];
+      if (idx.length >= 2) {
+        extraPillarRollups.push({
+          pillar: "Pets",
+          label: "Pet care routine",
+          categories: [],
+          category_indices: [],
+          transaction_indices: idx,
+        });
+      }
+    }
+
     return new Response(JSON.stringify({
-      pillar_rollups: (raw.pillar_rollups || []).map((r: any) => ({
-        pillar: r.pillar,
-        label: r.label,
-        categories: r.categories || [],
-        category_indices: r.category_indices || [],
-        transaction_indices: r.transaction_indices || [],
-      })),
-      detected_life_events: (raw.detected_life_events || []).map((e: any) => ({
+      pillar_rollups: [
+        ...(raw.pillar_rollups || []).map((r: any) => ({
+          pillar: r.pillar,
+          label: r.label,
+          categories: r.categories || [],
+          category_indices: r.category_indices || [],
+          transaction_indices: r.transaction_indices || [],
+        })),
+        ...extraPillarRollups,
+      ],
+      detected_life_events: filteredLifeEvents.map((e: any) => ({
         event_name: e.event_name,
         confidence: typeof e.confidence === "number" ? e.confidence : 70,
         evidence: Array.isArray(e.evidence) ? e.evidence : [],
         talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
         transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
       })),
+      dropped_upstream_life_events: droppedUpstreamLifeEvents,
       financial_signals: (raw.financial_signals || []).map((f: any, i: number) => ({
         id: `fs-${i}`,
         product_family: f.product_family,
@@ -734,7 +785,7 @@ For each canonical life event below, check whether the per-transaction list meet
         transaction_indices: Array.isArray(f.transaction_indices) ? f.transaction_indices : [],
         talking_points: Array.isArray(f.talking_points) ? f.talking_points : [],
       })),
-      demographic_shifts: (raw.demographic_shifts || []).map((d: any, i: number) => ({
+      demographic_shifts: filteredShifts.map((d: any, i: number) => ({
         id: `ds-${i}`,
         category: d.category,
         label: d.label,
