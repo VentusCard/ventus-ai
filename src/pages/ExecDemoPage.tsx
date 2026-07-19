@@ -662,51 +662,13 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
 
-      // --- Merge life events: upstream (analyze-lifestyle-signals) + promoted (synthesize-persona) ---
-      // synthesize-persona now also returns detected_life_events when canonical thresholds are met,
-      // so themes like "Home Purchase / Transition" surface even if upstream detection missed them.
+      // --- Life events come EXCLUSIVELY from synthesize-persona (the final classifier). ---
+      // Upstream analyze-lifestyle-signals output is intentionally discarded here so the
+      // Behavioral Intelligence pills reflect the single authoritative taxonomy decision.
       const promotedRaw = Array.isArray(data?.detected_life_events) ? data.detected_life_events : [];
-      const normalizeName = (s: string) =>
-        s
-          .toLowerCase()
-          .replace(/[^a-z0-9 ]/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-      const themeKey = (s: string) => {
-        const n = normalizeName(s);
-        if (/\b(home|house|mortgage|nesting|relocation|moving)\b/.test(n)) return "home";
-        if (/\b(college|university|tuition|education|sat|act|kaplan)\b/.test(n)) return "college";
-        if (/\b(wedding|engagement|bridal)\b/.test(n)) return "wedding";
-        if (/\b(baby|infant|pregnan|expecting|family expansion|new parent)\b/.test(n)) return "baby";
-        if (/\b(business|llc|incorporation|startup formation)\b/.test(n)) return "business";
-        if (/\b(elder|senior|hospice|assisted living)\b/.test(n)) return "elder";
-        if (/\b(retire|retirement|empty nest)\b/.test(n)) return "retirement";
-        if (/\b(inherit|windfall|estate)\b/.test(n)) return "windfall";
-        return n;
-      };
-      // Banned life-event themes — these belong to Financial Signals or Demographic Shifts.
-      // If the LLM still emits them (legacy prompt cache, drift), strip client-side so
-      // the ownership ladder is enforced end-to-end.
-      const BANNED_LIFE_EVENT_KEYS = new Set(["college", "auto_loan", "car_loan"]);
-      const isBannedLifeEvent = (name: string) => {
-        const n = normalizeName(name);
-        if (/\b(college|university|tuition|sat|act|kaplan|common app)\b/.test(n)) return true;
-        if (/\b(auto|car)\s*(loan|lease|refi|renewal|payoff|financ)/.test(n)) return true;
-        if (/\b(mortgage|heloc|refinanc)/.test(n)) return true;
-        return false;
-      };
-      const upstreamThemes = new Set(detectedEvents.map((e) => themeKey(e.event_name || "")));
-      const droppedUpstreamNames = new Set(
-        (Array.isArray(data?.dropped_upstream_life_events) ? data.dropped_upstream_life_events : [])
-          .map((n: string) => normalizeName(n || "")),
-      );
-      const keptUpstream = detectedEvents.filter(
-        (e) => !droppedUpstreamNames.has(normalizeName(e.event_name || "")),
-      );
-      const promotedEvents: LifeEvent[] = promotedRaw
-        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)) && !isBannedLifeEvent(e.event_name))
+      const finalLifeEvents: LifeEvent[] = promotedRaw
+        .filter((e: any) => e?.event_name)
         .map((e: any) => {
-          // Hydrate evidence from transaction_indices when the model gave indices but thin evidence.
           const txIdx: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
           const hydratedEvidence =
             e.evidence && e.evidence.length > 0
@@ -731,17 +693,9 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
           } as LifeEvent;
         });
-      if (promotedEvents.length > 0) {
-        console.log(
-          "[PRELOAD] Promoted life events from persona:",
-          promotedEvents.map((e) => e.event_name),
-        );
-      }
-      const mergedEvents: LifeEvent[] = [...keptUpstream, ...promotedEvents];
 
-      // Fire life event detection with the merged set (will reuse — no extra API call).
-      // Risk detection was already kicked off from fireClassification and awaited above.
-      fireLifeEventDetection(synthesis, pillars, mergedEvents);
+      // Fire downstream views with the final classifier's life events only.
+      fireLifeEventDetection(synthesis, pillars, finalLifeEvents);
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
