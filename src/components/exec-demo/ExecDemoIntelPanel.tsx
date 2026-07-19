@@ -545,6 +545,14 @@ export default function ExecDemoIntelPanel({
   const activeExternalSignalId = useMemo(() => {
     if (!activeTriggerLabel || !externalSignals || externalSignals.length === 0) return null;
     const label = activeTriggerLabel.toLowerCase();
+    // Direct match: if the currently active pill's underlying financial signal
+    // has source === "external", find the external record whose event_name matches.
+    const finList: any[] = (personaSynthesis?.financialSignals || []) as any[];
+    const activeFin = finList.find((f) => f.label === activeTriggerLabel);
+    if (activeFin?.source === "external" && activeFin?.id) {
+      const byId = externalSignals.find((s) => s.id === activeFin.id);
+      if (byId) return byId.id;
+    }
     const match = externalSignals.find((s) => {
       if (s.event_name === activeTriggerLabel) return true;
       if (s.event_name.toLowerCase() === label) return true;
@@ -557,7 +565,8 @@ export default function ExecDemoIntelPanel({
       return false;
     });
     return match?.id ?? null;
-  }, [activeTriggerLabel, externalSignals]);
+  }, [activeTriggerLabel, externalSignals, personaSynthesis?.financialSignals]);
+
 
 
 
