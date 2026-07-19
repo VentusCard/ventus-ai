@@ -1,40 +1,24 @@
-## LLMs currently in the /bankdemo flow
+## Problem
 
-Traced from `ExecDemoPage` → edge functions:
+On `/bankdemo`, clicking the **Demo** tab no longer shows the customer selection dialog. The earlier "suppress popup once demo is done" logic is over-suppressing: because the tab pre-fires analysis on mount (so results are ready when the user first opens Demo), `preFiredRef.current` flips to `true` immediately, which makes `hasRunOnce` `true` on the very first visit — so the dialog never opens.
 
-| Step | Function | Current model |
-|---|---|---|
-| Classify transactions | `classify-transactions` | `gemini-2.5-flash` (fallback `gpt-5-mini`) |
-| Travel detection | `travel-detection` | `gemini-2.5-flash` (fallback `gpt-5-mini`) |
-| Pillar analysis | `analyze-pillar-transactions` | `gemini-2.5-flash` |
-| Risk detection | `detect-risk-transactions` | `gemini-3-flash-preview` |
-| Persona synthesis (Behavioral Intelligence) | `synthesize-persona` | `gemini-3-flash-preview` |
-| Product cards | `generate-product-cards` | `gemini-2.5-flash` |
-| Next-offer generation | `generate-next-offers` | `gemini-2.5-flash` |
-| Semantic deal search | `semantic-deal-search` | `gemini-2.5-flash-lite` |
-| Consumer chat (phone mockup) | `consumer-chat` | `gemini-3-flash-preview` |
+Verified in `src/pages/ExecDemoPage.tsx` (lines 1345–1365): `hasRunOnce = preFiredRef.current || !!profileRef.current || !!personaSynthesis || !!enrichedTxs`. The `preFiredRef` term is the bug.
 
-## Proposed upgrades
+## Fix
 
-Split by workload — bulk/row-level jobs stay on a fast/cheap model, reasoning-heavy synthesis jumps to a Pro tier.
+Decouple "pre-fire happened" from "a run has completed":
 
-**Heavy reasoning → `google/gemini-3.1-pro-preview`** (current-gen Pro, better structured reasoning)
-- `synthesize-persona` — this is the one driving the 5 intelligence rows and the taxonomy issues we've been fixing. Biggest quality lift here.
-- `generate-product-cards` — needs to reason across signals + product catalog to produce concrete rate/savings copy.
-- `detect-risk-transactions` — pattern reasoning across many txns.
+1. In the `hasRunOnce` computation, drop `preFiredRef.current`. Base it only on real completion signals — `personaSynthesis` present (or `enrichedTxs` present as fallback). `profileRef.current` should also be excluded because the pre-fire sets it before results exist; use `personaSynthesis` as the single source of truth for "the demo has been walked through."
+2. Keep the pre-fire behavior intact so results are warm when the user opens Demo — but the dialog will still open the first time the user activates the tab, because completion hasn't happened yet.
+3. Keep the "close on subsequent visits" behavior: once `personaSynthesis` exists, the effect will not re-open the dialog on later Demo-tab activations.
+4. No changes to `ExecDemoSelectionDialog`, pre-fire trigger, or any other tab.
 
-**Balanced → `google/gemini-3.5-flash`** (current-gen Flash, replaces 2.5-flash and the 3-flash-preview)
-- `classify-transactions`, `travel-detection`, `analyze-pillar-transactions`, `generate-next-offers`, `generate-campaign-offers`, `deal-personalization`, `generate-lifestyle-signals`, `generate-campaign-brief`, `generate-analytics-query`, `advisor-chat`, `bankwide-chat`, `consumer-chat`, `parse-campaign-intent`, `generate-outreach-pointers`, `generate-product-actions`, `assess-creditworthiness`, `local-experiences`, `summarize-query-result`, `parse-bank-statement-pdf`, `generate-financial-tip`, `analyze-lifestyle-signals`, `generate-campaign-segment`.
+## Files
 
-**High-volume/cheap → `google/gemini-3.1-flash-lite`** (current-gen Lite)
-- `semantic-deal-search` (short classification-style call).
+- `src/pages/ExecDemoPage.tsx` — adjust `hasRunOnce` definition around lines 1354–1365.
 
-Fallbacks (`gpt-5-mini` in classify/travel/creditworthiness) → keep, still a valid cross-provider fallback.
+## Verification
 
-## Scope
-
-Two options — please pick:
-1. **/bankdemo path only** — update the 9 functions in the first table above.
-2. **Whole project** — update all 22 functions to the tiers above (recommended for consistency; small blast radius since it's just model-id string changes).
-
-No prompt/schema changes; Gemini 3.x accepts the same OpenAI-compatible request bodies we send today. I'll smoke-test one bankdemo run after the swap.
+- Fresh load of `/bankdemo` → click **Demo** tab → selection dialog opens.
+- Complete a run → switch to another tab → return to **Demo** → dialog stays closed, cached results shown.
+- Re-open via "Change customer" button still works (unchanged path).
