@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info, Briefcase } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info, Briefcase, Satellite } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
@@ -35,6 +35,9 @@ export interface FinancialSignal {
   cadence?: string;
   transaction_indices: number[];
   talking_points?: string[];
+  source?: "external" | "llm";
+  provider?: string;
+  detail?: string;
 }
 
 export interface DemographicShift {
@@ -46,7 +49,10 @@ export interface DemographicShift {
   magnitude_band?: string;
   evidence_summary?: string;
   transaction_indices: number[];
+  source?: "external" | "llm";
+  provider?: string;
 }
+
 
 export interface PersonaSynthesis {
   pillarRollups?: PillarRollup[];
