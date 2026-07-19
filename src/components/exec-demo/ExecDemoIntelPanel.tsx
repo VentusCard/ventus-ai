@@ -273,6 +273,7 @@ export default function ExecDemoIntelPanel({
   productDeliveryChannel = "mobile",
   onProductDeliveryChannelChange,
   onOpenWMCopilot,
+  onCloseWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
