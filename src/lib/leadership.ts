@@ -71,7 +71,7 @@ export function leadershipPathConfig(path: LeadershipPath): LeadershipPathConfig
   if (path === "deposit-retention") {
     return {
       businessLine: "Consumer Banking",
-      objective: "Protect primary deposits",
+      objective: "Strengthen deposit primacy",
       primaryMetric: "Incremental deposits retained",
       eligiblePopulation: "Primary-checking households with active payroll",
       pilotWindow: "30–60 days after action",

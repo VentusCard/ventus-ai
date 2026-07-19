@@ -758,7 +758,7 @@ export default function EnterpriseGrowthDemoPage({
 
   const brand =
     !internal
-      ? { title: "Ventus Growth Intelligence", initial: "V", flag: false }
+      ? { title: "Growth Intelligence", initial: "V", flag: false }
       : !entered
         ? { title: "Internal evaluation environment", initial: "V", flag: false }
       : mode === "leadership"
@@ -846,10 +846,12 @@ export default function EnterpriseGrowthDemoPage({
             </span>
           )}
           <span className={`hidden h-4 w-px sm:block ${internal ? "bg-slate-200" : "bg-white/15"}`} />
-          <span className="relative flex h-6 w-6 items-center justify-center overflow-hidden rounded-md text-xs font-black text-white" style={{ backgroundColor: internal ? NAVY : "rgba(255,255,255,0.12)" }}>
-            {brand.flag && <span className="absolute -right-1 top-0 h-8 w-[7px] rotate-[24deg]" style={{ backgroundColor: RED }} />}
-            <span className="relative">{brand.initial}</span>
-          </span>
+          {internal && (
+            <span className="relative flex h-6 w-6 items-center justify-center overflow-hidden rounded-md text-xs font-black text-white" style={{ backgroundColor: NAVY }}>
+              {brand.flag && <span className="absolute -right-1 top-0 h-8 w-[7px] rotate-[24deg]" style={{ backgroundColor: RED }} />}
+              <span className="relative">{brand.initial}</span>
+            </span>
+          )}
           <span className={`hidden text-sm font-semibold sm:inline ${internal ? "" : "text-white/90"}`} style={internal ? { color: NAVY } : undefined}>
             {brand.title}
           </span>
@@ -5882,10 +5884,25 @@ function LeadershipCover({
   // full-width field for a business-line-specific user.
   const [previewPath, setPreviewPath] = useState<LeadershipPath | null>(null);
   const livePath = [
-    { label: "Inputs", status: connectorSession?.connectors.plaid ? "Plaid connected" : "Sanctioned data", tone: connectorSession?.connectors.plaid ? "connected" : "neutral", Icon: Upload },
-    { label: "Ventus", status: previewPath ? "Configured" : "Ready", tone: previewPath ? "connected" : "neutral", Icon: Wand2 },
-    { label: "Salesforce", status: connectorSession?.connectors.salesforce ? "Connected" : "Staged", tone: connectorSession?.connectors.salesforce ? "connected" : "neutral", Icon: Network },
-    { label: "Outcome", status: outcomeFeedReady ? "Modeled" : "Pending", tone: outcomeFeedReady ? "illustrative" : "neutral", Icon: LineChart },
+    {
+      label: "Bank data",
+      status: connectorSession?.connectors.plaid ? "Plaid connected" : "Transactions + customer context",
+      tone: connectorSession?.connectors.plaid ? "connected" : "neutral",
+      Icon: Upload,
+    },
+    { label: "Ventus", status: "Enrichment + decisioning", tone: previewPath ? "connected" : "neutral", Icon: Wand2 },
+    {
+      label: "Activation",
+      status: connectorSession?.connectors.salesforce ? "Salesforce connected" : "CRM + owned channels",
+      tone: connectorSession?.connectors.salesforce ? "connected" : "neutral",
+      Icon: Network,
+    },
+    {
+      label: "Measurement",
+      status: outcomeFeedReady ? "Illustrative lift modeled" : "Holdout-based lift",
+      tone: outcomeFeedReady ? "illustrative" : "neutral",
+      Icon: LineChart,
+    },
   ];
   const fields: Array<{
     path: LeadershipPath;
@@ -5899,8 +5916,8 @@ function LeadershipCover({
       path: "deposit-retention",
       field: "#012169",
       line: "Consumer Banking",
-      title: ["Protect", "primary deposits."],
-      metric: "Primary deposits retained",
+      title: ["Strengthen", "deposit primacy."],
+      metric: "Incremental deposits retained",
       play: "Deposit Primacy Defense",
     },
     {
@@ -5917,9 +5934,9 @@ function LeadershipCover({
     <div className="flex h-full w-full flex-col overflow-y-auto" style={{ backgroundColor: "#071225" }}>
       <div className="flex flex-none items-baseline justify-between gap-3 px-5 pb-4 pt-5 sm:px-8 xl:px-10">
         <h1 className="text-lg font-extrabold tracking-tight text-white sm:text-xl">
-          Choose the objective. <span className="text-white/45">Watch evidence become action.</span>
+          Choose a P&amp;L objective. <span className="text-white/55">Watch Ventus turn evidence into action.</span>
         </h1>
-        <p className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-white/35 md:block">
+        <p className="hidden font-mono text-[10px] uppercase tracking-[0.16em] text-white/50 md:block">
           Enrich · Detect · Decide · Learn
         </p>
       </div>
@@ -5941,9 +5958,9 @@ function LeadershipCover({
               className="group relative flex min-h-[300px] flex-col justify-between overflow-hidden p-6 text-left sm:p-8 xl:p-10"
               style={{
                 backgroundColor: field,
-                flex: open ? 1.45 : dim ? 0.85 : 1,
-                opacity: dim ? 0.82 : 1,
-                transition: "flex 520ms cubic-bezier(0.32,0.72,0,1), opacity 520ms ease",
+                flex: 1,
+                opacity: dim ? 0.88 : 1,
+                transition: "opacity 360ms ease",
               }}
             >
               <div>
@@ -5974,7 +5991,7 @@ function LeadershipCover({
                   </div>
                 </div>
                 <span className="inline-flex items-center gap-2 rounded-lg bg-white px-5 py-3 text-sm font-extrabold transition group-hover:gap-3" style={{ color: field }}>
-                  Open evidence run <ArrowRight className="h-4 w-4" />
+                  See the decision <ArrowRight className="h-4 w-4" />
                 </span>
               </div>
             </button>
@@ -5984,10 +6001,10 @@ function LeadershipCover({
         {fields.length > 1 && (
           <div className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 flex-col items-center md:flex">
             <span className="flex h-12 w-12 items-center justify-center rounded-full border border-white/20 text-white shadow-[0_10px_40px_rgba(0,0,0,0.5)]" style={{ backgroundColor: "#071225" }}>
-              <Repeat className="h-4 w-4" />
+              <span className="text-sm font-black tracking-tight">V</span>
             </span>
             <span className="mt-2 rounded-full px-2.5 py-1 font-mono text-[9px] font-semibold uppercase tracking-[0.16em] text-white/60" style={{ backgroundColor: "rgba(7,18,37,0.85)" }}>
-              One bank · one engine
+              Ventus intelligence layer
             </span>
           </div>
         )}
