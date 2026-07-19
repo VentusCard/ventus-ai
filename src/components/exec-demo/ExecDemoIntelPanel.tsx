@@ -745,8 +745,8 @@ export default function ExecDemoIntelPanel({
                       <span className="h-6 w-28 rounded-full bg-amber-100 animate-pulse" />
                       <span className="h-6 w-24 rounded-full bg-amber-100 animate-pulse" />
                     </>
-                  ) : detectedLifeEvents && detectedLifeEvents.length > 0 ? (
-                    detectedLifeEvents.map((evt, i) => {
+                  ) : filteredDetectedLifeEvents && filteredDetectedLifeEvents.length > 0 ? (
+                    filteredDetectedLifeEvents.map((evt, i) => {
                       const isActive = activeTriggerLabel === evt.event_name;
                       const isExternal = !!externalSignals?.some((s) => s.event_name === evt.event_name);
                       const evidenceMerchants = evt.evidence?.map((e) => e.merchant.toLowerCase()) || [];
