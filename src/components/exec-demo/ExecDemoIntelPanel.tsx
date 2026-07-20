@@ -797,29 +797,45 @@ export default function ExecDemoIntelPanel({
                           : [];
                       const confidence =
                         evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
-                      const evCount = evt.evidence?.length ?? 0;
-                      const countLabel = isExternal
-                        ? `${evCount} signal${evCount !== 1 ? "s" : ""}`
-                        : `${evCount} txn${evCount !== 1 ? "s" : ""}`;
+                      const evidenceAmt = (evt.evidence || []).reduce((s: number, e: any) => s + (e.amount || 0), 0);
+                      const txCountLE = matchedIndices.length > 0 ? matchedIndices.length : (evt.evidence?.length ?? 0);
+                      const spendLE = matchedIndices.length > 0
+                        ? matchedIndices.reduce((s, idx) => s + (transactions?.[idx]?.amount || 0), 0)
+                        : evidenceAmt;
+                      const externalDetail = (evt as any).detail || (evt as any).monthly_amount_band;
+                      const borderLE = isExternal ? "#7c3aed" : "#f59e0b";
                       return (
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
+                          title={`${confidence}% confidence`}
                           className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
                               : "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
                             color: "#92400e",
-                            border: "1.5px solid #f59e0b",
+                            border: `1.5px solid ${borderLE}`,
                             animation: `rollup-entrance 0.5s ease-out ${0.8 + i * 0.15}s both, rollup-glow 1s ease-out ${1.3 + i * 0.15}s both`,
                             boxShadow: isActive ? "0 0 14px rgba(245,158,11,.35)" : "0 2px 8px rgba(245,158,11,.2)",
                           }}
                         >
-                          <span style={{ color: "#f59e0b" }}>✦</span>
+                          {isExternal ? (
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                              style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                            >
+                              <Satellite className="w-2.5 h-2.5" />
+                              Ext
+                            </span>
+                          ) : (
+                            <span style={{ color: "#f59e0b" }}>✦</span>
+                          )}
                           {evt.event_name}
                           <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
-                            {confidence}% · {countLabel}
+                            {isExternal
+                              ? (externalDetail || `${evt.evidence?.length ?? 0} signal${(evt.evidence?.length ?? 0) !== 1 ? "s" : ""}`)
+                              : `${txCountLE} txn${txCountLE !== 1 ? "s" : ""} · ${formatSpend(spendLE)}`}
                           </span>
                         </span>
                       );
