@@ -1064,11 +1064,22 @@ export default function ExecDemoIntelPanel({
                           </span>
                         )}
                         {stripBrand(fs.label)}
-                        {fs.monthly_amount_band ? (
-                          <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
-                            {fs.monthly_amount_band}
-                          </span>
-                        ) : null}
+                        {(() => {
+                          if (isExternal) {
+                            const parts = [fs.detail, fs.monthly_amount_band].filter(Boolean);
+                            return parts.length ? (
+                              <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                                {parts.join(" · ")}
+                              </span>
+                            ) : null;
+                          }
+                          const spend = indices.reduce((s: number, idx: number) => s + (Number(transactions?.[idx]?.amount) || 0), 0);
+                          return (
+                            <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                              {indices.length} txn{indices.length !== 1 ? "s" : ""} · {formatSpend(spend)}
+                            </span>
+                          );
+                        })()}
                       </span>
                     );
                     if (!isExternal || muted) return pill;
