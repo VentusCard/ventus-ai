@@ -1,34 +1,60 @@
-## Compile intel pills into a single row on the "Next" tabs; grey Financial + Risk on Next-Offer
+## Uniform pill sublabel across all 5 intel families (external pills stay visually distinct)
 
-Scoped entirely to `src/components/exec-demo/ExecDemoIntelPanel.tsx`, only the collapsed layout used when a Next-* tab is active (`isCollapsed = !pillsExpanded && !!activeTab`). Fully expanded panel (used when no tab is active or the user opens the "expand pills" toggle) keeps today's 5-header layout unchanged.
+Scoped to `src/components/exec-demo/ExecDemoIntelPanel.tsx` only.
 
-### Behavior
+### Two visual classes
 
-When `isCollapsed` is true (any Next-* tab open):
+**A. Standard (customer-transaction-derived) pills** — one uniform sublabel:
 
-1. **Drop the 5 section headers** (`Spending Habits`, `Life Event Detection`, `Financial Signals`, `Demographic`, `Risk Factors`) and their `w-[140px]` label column + tooltip trigger for the collapsed layout.
-2. **Render one unified pill strip** that concatenates, in this order:
-   - Spending habit rollup pills (`rollupPills`)
-   - Life event pills (`lifeEventPills`)
-   - Financial signal pills (`finSignals.map(...)`)
-   - Demographic pills (`demoShifts.map(...)`)
-   - Risk pills (`riskPills`)
-   Same `flex flex-nowrap gap-2.5 overflow-x-auto exec-light-scroll py-0.5` container so it scrolls horizontally the way each individual row does today.
-3. **Per-tab treatment**
-   - `activeTab === "analytics"` (Next-Offer): financial and risk pills render greyed/disabled (same treatment already applied to risk via `riskPillsMuted` — slate border, grey text, `grayscale(1)`, reduced opacity, `pointer-events-none`, `✕` marker, and tooltip title `"Not applicable for offer targeting"`). Introduce a parallel `financialPillsMuted = activeTab === "analytics"` and apply the identical style block to the financial-signal pill span (skip the violet `Ext` badge tooltip when muted).
-   - `activeTab === "product"` (Next-Product) and `activeTab === "relationship"` (Next-Conversation): all five families render in their current active/clickable styling. No muting.
-4. **Empty families** (e.g. no financial signals detected, no life events) simply contribute zero pills — no placeholder, no empty section.
+```
+N txn(s) · $amount
+```
+
+- `N` = supporting transaction count for that pill.
+- `$amount` = sum of those transactions, via existing `formatSpend` (`$12.0k`, `$685`).
+- Leading glyph and color per family stay as today (`✦` amber for life event, `◆` indigo for financial, `✦` teal for demographic, `⚠` for risk, pillar color for spending rollup).
+- Drop from sublabels: life-event `X%`, risk `severity` word, financial `~$/mo` band, demographic freeform `magnitude_band` — these move to the pill's hover `title` so the visible strip is uniform.
+
+Applies to: spending rollup pills (already close — normalize), life events without `source === "external"`, financial signals without `source === "external"`, demographic shifts without `source === "external"`, risk pills.
+
+**B. External-boosted pills** — stay visually distinct, keep richer sublabel:
+
+```
+[Ext badge] Label  · Renewal in ~2mo · ~$685/mo
+```
+
+- Keep the violet `Ext` badge, violet border, and violet hover tooltip that already exist.
+- Sublabel is the external `detail` (e.g. `Renewal in ~2mo`) + the existing `monthly_amount_band` / `magnitude_band` (e.g. `~$685/mo`), joined with ` · `.
+- If only one of the two is present, render just that one; never fall back to txn-count/$ for externals since they aren't customer-transaction-derived.
+- No `N txns · $amount` on external pills — that's the whole visual signal that this came from outside data.
+
+Applies to: any life event, financial signal, or demographic shift with `source === "external"` (today this is the auto-loan renewal fixture; the pattern generalizes to future external signals).
+
+### How standard-pill stats are derived
+
+A single helper inside the render closure:
+
+```
+resolvePillStats(indices?: number[], evidence?: {amount:number}[]) => { count, spend }
+```
+
+1. If `transaction_indices` is non-empty and `transactions` is loaded → `count = indices.length`, `spend = sum(transactions[i].amount)`.
+2. Else if the family carries `evidence[]` with `amount` (life events do) → `count = evidence.length`, `spend = sum(evidence.amount)`.
+3. Else → `count = 0`, `spend = 0`, sublabel renders as `0 txns · —` so rescue-merged pills (e.g. a College Preparation life event with no linked indices) still read uniformly.
+
+Per family:
+- Spending rollup (`PillarRollupChip`): keep existing `totalCount` / `totalSpend`, route through the shared format.
+- Life event: prefer evidence; fall back to `matchedIndices` (already computed locally against `transactions`).
+- Financial signal: `transaction_indices` on the LLM record.
+- Demographic shift: `transaction_indices` on the LLM record.
+- Risk rollup: reuse the already-computed `matchedIndices`, sum `transactions[i].amount`.
 
 ### Out of scope
 
-- Expanded view (`pillsExpanded` or no active tab) — keeps the five labeled rows exactly as today.
-- Any downstream offer/product/conversation generator payloads — no backend or edge-function changes.
-- Click routing (`onTriggerPillClick`, AI prompt dispatch on Next-Conversation) — unchanged for the pill families that stay active.
+- Pill ordering, colors, glyphs, animations, click behavior, muting on Next-Offer.
+- Expanded vs collapsed layout — both share the same renderers, so both update together.
+- Backend / edge functions, enrichment table, tablet mockup, downstream generators.
 
-### Implementation sketch
+### Files touched
 
-- Extract the current `finSignals` and `demoShifts` render blocks (lines ~1069-1122 and ~1153-1207) into memoized `financialPills` and `demographicPills` arrays alongside the existing `rollupPills` / `lifeEventPills` / `riskPills` (lines ~767-992).
-- Thread a `financialPillsMuted` boolean into the financial pill span mirroring the existing `riskPillsMuted` styling.
-- Replace the five `<div className="flex items-center gap-3 …">` header-row wrappers (lines ~1004-1233) with a single conditional:
-  - `isCollapsed` → one `<div className={pillRowClass}>{[...rollupPills, ...lifeEventPills, ...financialPills, ...demographicPills, riskPills].flat()}</div>`
-  - else → today's five labeled rows unchanged.
+- `src/components/exec-demo/ExecDemoIntelPanel.tsx` — add `resolvePillStats` helper; branch each of the 5 pill renderers on `source === "external"`; update trailing `<span>` sublabels accordingly; move dropped fields into `title` attributes.
