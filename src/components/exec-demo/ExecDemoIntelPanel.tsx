@@ -1131,11 +1131,22 @@ export default function ExecDemoIntelPanel({
                           <span style={{ color: "#0d9488" }}>✦</span>
                         )}
                         {stripBrand(ds.label)}
-                        {ds.magnitude_band ? (
-                          <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
-                            {ds.magnitude_band}
-                          </span>
-                        ) : null}
+                        {(() => {
+                          if (isExternal) {
+                            const parts = [(ds as any).detail, ds.magnitude_band].filter(Boolean);
+                            return parts.length ? (
+                              <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                                {parts.join(" · ")}
+                              </span>
+                            ) : null;
+                          }
+                          const spend = indices.reduce((s: number, idx: number) => s + (Number(transactions?.[idx]?.amount) || 0), 0);
+                          return (
+                            <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                              {indices.length} txn{indices.length !== 1 ? "s" : ""} · {formatSpend(spend)}
+                            </span>
+                          );
+                        })()}
                       </span>
                     );
                     if (!isExternal) return pill;
