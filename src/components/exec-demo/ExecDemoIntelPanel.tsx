@@ -797,7 +797,7 @@ export default function ExecDemoIntelPanel({
                           : [];
                       const confidence =
                         evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
-                      const evidenceAmt = (evt.evidence || []).reduce((s: number, e: any) => s + (e.amount || 0), 0);
+                      const evidenceAmt = (evt.evidence || []).reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
                       const txCountLE = matchedIndices.length > 0 ? matchedIndices.length : (evt.evidence?.length ?? 0);
                       const spendLE = matchedIndices.length > 0
                         ? matchedIndices.reduce((s, idx) => s + (transactions?.[idx]?.amount || 0), 0)
