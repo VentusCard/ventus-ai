@@ -986,7 +986,7 @@ export default function ExecDemoIntelPanel({
                           </span>
                           {flagLabel}
                           <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
-                            {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
+                            {txCount} txn{txCount !== 1 ? "s" : ""} · {formatSpend(matchedIndices.reduce((s, idx) => s + (Number(transactions?.[idx]?.amount) || 0), 0))}
                           </span>
                         </span>
                       );
