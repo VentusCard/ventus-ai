@@ -800,7 +800,7 @@ export default function ExecDemoIntelPanel({
                       const evidenceAmt = (evt.evidence || []).reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
                       const txCountLE = matchedIndices.length > 0 ? matchedIndices.length : (evt.evidence?.length ?? 0);
                       const spendLE = matchedIndices.length > 0
-                        ? matchedIndices.reduce((s, idx) => s + (transactions?.[idx]?.amount || 0), 0)
+                        ? matchedIndices.reduce((s, idx) => s + (Number(transactions?.[idx]?.amount) || 0), 0)
                         : evidenceAmt;
                       const externalDetail = (evt as any).detail || (evt as any).monthly_amount_band;
                       const borderLE = isExternal ? "#7c3aed" : "#f59e0b";
