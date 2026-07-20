@@ -955,7 +955,7 @@ export default function ExecDemoIntelPanel({
                           title={
                             riskPillsMuted
                               ? "Not applicable for offer targeting"
-                              : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`
+                              : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged · ${rollup.severity} severity`
                           }
                           className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
