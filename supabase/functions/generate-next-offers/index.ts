@@ -439,7 +439,66 @@ serve(async (req) => {
       }
     }
 
-    console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups (${rollupOffers.filter(g => g.pillar === "Life Event").length} life events, ${rollupOffers.filter(g => g.pillar !== "Life Event").length} behavioral)`);
+    if (financialSignalRes && financialSignalsTagged.length > 0) {
+      const data = await financialSignalRes.json();
+      const raw = data.choices?.[0]?.message?.content || "";
+      const parsed = parseJsonLoose(raw);
+      let fsGroups: any[] = [];
+      if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) fsGroups = parsed.rollupOffers;
+      else if (Array.isArray(parsed)) fsGroups = parsed;
+
+      const normalizedFs = fsGroups.map((g: any) => ({
+        signalId: g.signalId || g.signal_id || g.id,
+        rollupRaw: g.rollup || g.label || "",
+        collectionMessage: g.collectionMessage || g.collection_message,
+        suppressedCategories: g.suppressedCategories || g.suppressed_categories || [],
+        imageCategory: g.imageCategory || g.image_category || "finance",
+        imageQuery: g.imageQuery || g.image_query,
+        deals: (g.deals || []).map((d: any, idx: number) => ({
+          id: d.id || `fs_${idx}`,
+          merchant: d.merchant || bankLabel,
+          product: d.product || d.product_name || "",
+          rewardValue: d.rewardValue || d.reward || "",
+          message: d.message || "",
+          valueLine: d.valueLine || d.value_line || null,
+          valueMath: d.valueMath || d.value_math || null,
+          cta: d.cta || d.call_to_action || "Learn more",
+          signal: d.signal || "boost",
+          signalReason: d.signalReason || d.reason || "Financial signal detected",
+          boostCategory: d.boostCategory || d.boost_category,
+        })),
+      }));
+
+      for (const sig of financialSignalsTagged) {
+        let match = normalizedFs.find(g => g.signalId === sig.id);
+        if (!match) {
+          match = normalizedFs.find(g => g.rollupRaw.toLowerCase().trim() === (sig.label || "").toLowerCase().trim());
+        }
+        if (!match) {
+          let best: any = null; let bestScore = 0;
+          for (const g of normalizedFs) {
+            const score = tokenOverlap(g.rollupRaw, sig.label || "");
+            if (score > bestScore) { bestScore = score; best = g; }
+          }
+          if (best && bestScore >= 1) match = best;
+        }
+        if (match) {
+          rollupOffers.push({
+            rollup: sig.label,
+            pillar: "Financial Signal",
+            collectionMessage: match.collectionMessage,
+            suppressedCategories: match.suppressedCategories,
+            imageCategory: match.imageCategory,
+            imageQuery: match.imageQuery,
+            deals: match.deals,
+          });
+        } else {
+          console.warn(`[NEXT-OFFERS] financial signal "${sig.label}" (${sig.id}) → NO MATCH`);
+        }
+      }
+    }
+
+    console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups`);
     return new Response(JSON.stringify({ rollupOffers }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
