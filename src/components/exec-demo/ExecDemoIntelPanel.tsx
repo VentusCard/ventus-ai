@@ -1282,7 +1282,7 @@ export default function ExecDemoIntelPanel({
                                 className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
                                 style={{ color: "#3730a3" }}
                               >
-                                Financial Signals:
+                                FINANCIAL:
                                 <Info className="w-3 h-3 opacity-70" />
                               </p>
                             </TooltipTrigger>
@@ -1328,7 +1328,7 @@ export default function ExecDemoIntelPanel({
                             <p
                               className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600 cursor-help inline-flex items-center gap-1.5`}
                             >
-                              Risk Factors:
+                              RISK:
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
