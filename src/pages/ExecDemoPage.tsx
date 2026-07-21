@@ -322,13 +322,15 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
     // pillars[i].txIndices = the transaction indices for row i sent to AI
 
-    // Detect life events FIRST so we can pass them to synthesize-persona for theme dedup.
-    // This prevents behavioral rollups (e.g. "Aspiring Homeowner") from overlapping with
-    // detected life events (e.g. "New Home Transition") at the source.
+    // Life events fire in parallel with classification (see fireClassification).
+    // Await that pre-fired promise here so persona synthesis can dedupe against
+    // detected events. Falls back to a fresh detect call if the pre-fire is missing.
     let detectedEvents: LifeEvent[] = [];
     try {
-      detectedEvents = await detectLifeEventsOnlyRef.current();
-      console.log("[PRELOAD] Life events detected ahead of persona synthesis:", detectedEvents.length);
+      detectedEvents = lifeEventsReadyRef.current
+        ? await lifeEventsReadyRef.current
+        : await detectLifeEventsOnlyRef.current();
+      console.log("[PRELOAD] Life events ready for persona synthesis:", detectedEvents.length);
     } catch (e) {
       console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
     }
