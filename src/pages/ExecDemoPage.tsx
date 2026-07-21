@@ -172,7 +172,7 @@ function buildPreliminaryPersonaSynthesis(
   const demographicShifts: DemographicShift[] = [];
   const demoEvidence = new Map<DemographicShift["category"], number[]>();
   for (const [txIdx, tx] of enrichedTxs.entries()) {
-    const merchant = (tx.normalized_merchant || tx.merchant_name || "").toLowerCase();
+    const merchant = ((tx as any).normalized_merchant || tx.merchant_name || "").toLowerCase();
     for (const [re, category, label, direction] of DEMO_HINTS) {
       if (re.test(merchant)) {
         const indices = demoEvidence.get(category) || [];
