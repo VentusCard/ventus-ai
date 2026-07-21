@@ -74,6 +74,7 @@ interface Props {
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
   riskFlags?: { flags: any[]; summary: string } | null;
+  financialSignals?: any[];
   creditAssessment?: CreditAssessment | null;
   creditLoading?: boolean;
   deliveryChannel?: ProductDeliveryChannel;
@@ -212,8 +213,25 @@ function resolveCard(
   lifeEvents: LifeEvent[] | null,
   pillarRollups: PillarRollup[] | undefined,
   transactions: Transaction[] | undefined,
+  financialSignals: any[] | undefined,
 ): ResolvedCard {
   const isBehavioral = card.type === "behavioral";
+  const isFinancialSignal = card.type === "financial_signal";
+
+  // Financial signal card → match against financialSignals by label / product_family
+  const matchingFinancial = (() => {
+    if (!isFinancialSignal || !financialSignals || financialSignals.length === 0) return null;
+    const cardLabel = card.signal_label.toLowerCase();
+    return (
+      financialSignals.find((f: any) => (f.label || "").toLowerCase() === cardLabel)
+      || financialSignals.find((f: any) => {
+        const fl = (f.label || "").toLowerCase();
+        const pf = (f.product_family || "").toLowerCase();
+        return fl.includes(cardLabel) || cardLabel.includes(fl) || (pf && cardLabel.includes(pf));
+      })
+      || financialSignals[0]
+    );
+  })();
 
   const matchingEvent = lifeEvents?.find(e =>
     e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
@@ -241,21 +259,25 @@ function resolveCard(
     return bestScore > 0 ? best : pillarRollups[0];
   })();
 
-  const color = isBehavioral && matchedRollup
-    ? (() => {
-        const rc = getColor(matchedRollup.pillar);
-        return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
-      })()
-    : isBehavioral
-      ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
-      : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
+  const color = isFinancialSignal
+    ? { bg: "#f1f5f9", text: "#0f172a", dot: "#475569", border: "#cbd5e1" }
+    : isBehavioral && matchedRollup
+      ? (() => {
+          const rc = getColor(matchedRollup.pillar);
+          return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
+        })()
+      : isBehavioral
+        ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
+        : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
 
   const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
 
-  const resolvedLabel = matchedRollup?.label
+  const resolvedLabel = matchingFinancial?.label
+    || matchedRollup?.label
     || (matchingEvent?.event_name)
     || card.signal_label;
-  const resolvedCount = matchedRollup?.totalCount
+  const resolvedCount = (matchingFinancial?.transaction_indices?.length)
+    ?? matchedRollup?.totalCount
     ?? (matchingEvent?.evidence?.length)
     ?? 0;
   const resolvedSpend = matchedRollup?.totalSpend ?? (matchingEvent
@@ -267,7 +289,9 @@ function resolveCard(
   let matchedIndices: number[] = [];
   let matchedKind: "lifeEvent" | "risk" | undefined;
 
-  if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
+  if (matchingFinancial?.transaction_indices?.length) {
+    matchedIndices = matchingFinancial.transaction_indices;
+  } else if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
     matchedIndices = matchedRollup.txIndices;
   } else if (transactions) {
     if (hasEvidence && matchingEvent) {
@@ -409,6 +433,51 @@ function deriveOfferDetails(card: ProductCard, isBehavioral: boolean): {
 } {
   const name = card.product_name.toLowerCase();
   const theme = (card.theme || "").toLowerCase();
+
+  // Auto loan refi / lease buyout (financial signal)
+  if (name.includes("auto") && (name.includes("refi") || name.includes("refinance") || name.includes("loan") || name.includes("buyout"))) {
+    return {
+      headline: "Auto refinance from 5.49% APR",
+      benefits: [
+        "Estimated savings of $150–$300/mo vs current payment",
+        "No application fee · Rate locked for 60 days",
+        "0.25% autopay discount · Skip a payment option",
+      ],
+      eligibility: "Pre-qualified · Soft credit check only",
+      cta: "Check Your New Rate",
+      ctaSub: "See personalized offer in under 2 minutes",
+    };
+  }
+  // Mortgage refi / HELOC top-up (financial signal)
+  if (name.includes("mortgage") && name.includes("refi")) {
+    return {
+      headline: "Refinance from 6.25% APR — 30-year fixed",
+      benefits: [
+        "Lower your monthly payment by an estimated $200–$450",
+        "No lender fees for existing relationship customers",
+        "Rate locked for 90 days · Close in as little as 21 days",
+      ],
+      eligibility: "Pre-qualified based on current mortgage · Soft pull only",
+      cta: "See Your Refinance Rate",
+      ctaSub: "Personalized offer in under 3 minutes",
+    };
+  }
+  // Student loan refi (financial signal)
+  if (name.includes("student") && (name.includes("refi") || name.includes("refinance"))) {
+    return {
+      headline: "Student loan refinance from 4.99% APR",
+      benefits: [
+        "Consolidate federal & private loans into one payment",
+        "0.25% autopay discount · No origination fee",
+        "Flexible 5–20 year terms · No prepayment penalty",
+      ],
+      eligibility: "Pre-qualified · Soft credit check only",
+      cta: "See Your Refi Rate",
+      ctaSub: "Rate check in under 2 minutes",
+    };
+  }
+
+
 
   // Travel
   if (name.includes("travel") || theme === "travel") {
@@ -779,7 +848,7 @@ function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAs
   );
 }
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, financialSignals, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -806,7 +875,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   if (productCards && productCards.length > 0) {
     // Resolve all cards and show up to 3 — interleave life-event, behavioral, then any extras (e.g. risk)
     const resolvedAll = productCards.map((card, origIdx) =>
-      resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
+      resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions, financialSignals)
     );
     const lifeEventResolved = resolvedAll.filter(r => !r.isBehavioral);
     const behavioralResolved = resolvedAll.filter(r => r.isBehavioral);

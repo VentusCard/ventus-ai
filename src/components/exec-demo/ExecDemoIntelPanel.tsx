@@ -1408,6 +1408,7 @@ export default function ExecDemoIntelPanel({
                 actionsLoading={actionsLoading}
                 pillarRollups={rollupStats}
                 riskFlags={riskFlags}
+                financialSignals={personaSynthesis?.financialSignals || []}
                 creditAssessment={creditAssessment}
                 creditLoading={creditLoading}
                 deliveryChannel={productDeliveryChannel}

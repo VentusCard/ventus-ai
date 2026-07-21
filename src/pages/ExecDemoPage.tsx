@@ -970,6 +970,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             persona_rollups: synthesis?.pillarRollups || [],
             pillars: pillars.slice(0, 8),
             demographics,
+            financial_signals: synthesis?.financialSignals || [],
             risk_flags: riskFlagsRef.current?.flags || [],
             bankContext: getBankPromptContext(),
           },
