@@ -1,42 +1,47 @@
 ## Goal
 
-On the **Next-Product** tab of `/bankdemo`, the 3rd generated card is currently coming out as a gambling/risk card ("Additional Tools → Account Wellness"). Since we now surface **Financial Signals** (e.g., "Auto Loan · VW Credit ~$685/mo"), the 3rd card should be a **financial-signal-driven product** — an auto refi offer when we have an auto loan signal, a mortgage refi when we have a mortgage signal, etc. The 3rd behavioral card only appears when no financial signal exists.
+On the **Next-Offer** tab of `/bankdemo`, every generated deal should carry a **hyper-personalized value line** that uses the customer's own spend numbers (already available in `persona.pillarRollups` / `pillars`) to quantify the offer's payoff.
+
+Examples of the target voice:
+- Credit card / travel: *"3x points on travel ≈ $186 back on your ~$6.2k Hawaii trips this year."*
+- Home loan (financial signal): *"−1.0% APR ≈ $2,750/yr saved per $500k of your mortgage."*
+- Auto loan (financial signal): *"−1.25% APR ≈ ~$18/mo off your ~$685/mo VW Credit payment."*
+- Behavioral (coffee runs): *"5% back at coffee shops ≈ $9/mo on your ~$180/mo Blue Bottle + Sightglass spend."*
+
+Numbers must come from real inputs — never invented — and every deal must render one crisp value line under the existing message.
 
 ## Changes
 
-### 1. `supabase/functions/generate-product-cards/index.ts`
-- Accept a new input field `financial_signals` (array of `{ label, product_family, servicer, monthly_payment, balance, rate, term_months, renewal_window, transaction_indices }`).
-- Update card slot 3 priority ladder:
-  1. If `financial_signals[0]` exists → emit a **`financial_signal`** card grounded in that signal.
-  2. Else → emit the existing behavioral card from `persona_rollups[0]`.
-- Add `"financial_signal"` to the `type` enum in the tool schema.
-- For a `financial_signal` card:
-  - `signal_label` MUST equal `financial_signals[0].label` verbatim (for pill matching / grey-out logic).
-  - Product must map to the financial family:
-    - Auto Loan → `{bank} Auto Loan Refinance`
-    - Mortgage → `{bank} Mortgage Refinance` or `{bank} HELOC`
-    - Student Loan → `{bank} Student Loan Refinance`
-    - Investment → `{bank} Guided Investing` / IRA rollover
-    - Lease → `{bank} Auto Loan` (buyout financing)
-  - `offer_headline`, `benefits`, and `quote` must use the signal's numbers (monthly payment, balance, renewal window) to compute a concrete estimated savings.
-  - Example (VW Credit, $685/mo, renewal in ~2mo): `"Refinancing at ~5.49% APR could save you an estimated $180/mo — roughly $2,160/year."`
-- **Explicitly forbid risk/vice/gambling themes** and any "Account Wellness / Account Controls / Set Up Account Controls" copy in the system prompt. Add `risk_flags` note: risk data is context only, never a product card.
+### 1. `supabase/functions/generate-next-offers/index.ts`
+- **Pass richer spend context to the LLM.** Extend `rollupList` and `lifeEventList` prompts with:
+  - `totalSpend` and `totalCount` per rollup (already on the object, currently unused).
+  - Top-merchant `$` breakdown when available (e.g. `Blue Bottle $92 · Sightglass $61`).
+  - An `annualizedSpend` hint (roll `totalSpend` × months-of-data multiplier so the LLM has a clean yearly number to divide against).
+- **Accept and forward `financialSignals`** in the request body. For each signal (auto loan, mortgage, student loan, lease, investment) pass label, `monthly_payment`, `balance`, `rate`, `renewal_window`. Add a third parallel task `financialSignalUserPrompt` that generates 1 rollup group per financial signal (5 deals) themed to that product family (refi, HELOC, IRA rollover, etc.).
+- **Add `valueLine` to every deal** in the output schema (all three prompts — behavioral, life-event, financial-signal):
+  - New required per-deal field `valueLine`: ≤ 18 words, MUST contain at least one `$` figure or `%` computed from the provided numbers.
+  - New optional per-deal field `valueMath`: short parenthetical showing the calc (e.g. `"3% × $6,200 ≈ $186"`) — powers a tooltip.
+  - Update the JSON shape example and hard-fail instructions: *"If you cannot ground a number in the input, write `valueLine: null` — never fabricate."*
+- **Prompt guardrails for numbers:**
+  - Only use `$` / `%` figures that appear in the input or are simple arithmetic on them (rate × spend, rate delta × balance, monthly × 12).
+  - Round to friendly units ($5 for <$100, $10 for <$1k, $50 for ≥$1k, whole % only).
+  - Never reference off-us balances that weren't passed in.
+- **Model bump for math reliability:** switch `MODEL` from `google/gemini-3.5-flash` to `google/gemini-3.1-pro-preview` for the offer path (arithmetic grounding matters more than raw speed here). Keep `max_tokens: 8192`.
 
 ### 2. `src/pages/ExecDemoPage.tsx`
-- In `firePreloadProductCards`, pass `financial_signals: synthesis?.financialSignals || []` to the edge function body.
+- In the `invoke("generate-next-offers", …)` call, add `financial_signals: synthesis?.financialSignals ?? []` and `months_of_data` (derived from the transaction date range already computed for the enrichment table) to the body.
 
-### 3. `src/components/exec-demo/NextProductRationale.tsx`
-- Extend the card-type handling so `type === "financial_signal"` resolves correctly:
-  - Color theme: reuse "Financial Planning" / neutral slate.
-  - Pill-matching function tries `financialSignals` first for these cards (match by `label` or `product_family`), analogous to the existing life-event and behavioral resolvers.
-- Add a lightweight `deriveOfferDetails` branch for auto refi / mortgage refi so fallbacks are sensible if the LLM omits a field.
-
-### 4. `src/components/exec-demo/ExecDemoIntelPanel.tsx` (light touch)
-- On the Next-Product tab, financial pills are currently rendered normally (only greyed on Next-Offer). No change needed; matching card now lives in the 3rd slot so the associated pill will highlight when the user clicks the auto loan pill.
+### 3. `src/components/exec-demo/GeneratedOffersPhoneView.tsx` and `src/components/exec-demo/NextOfferRationale.tsx`
+- Extend the `Deal` type with `valueLine?: string | null` and `valueMath?: string | null`.
+- Render `valueLine` as a single-line accent under `message`, styled like existing `signalReason` but in slate-900 semibold with a subtle `$` glyph prefix. Hover shows `valueMath` in a tooltip.
+- If `valueLine` is null, fall back to today's layout (no visual regression).
 
 ## Out of scope
-- No changes to the Next-Offer greying logic, no changes to `synthesize-persona`, no changes to external-signal ingestion (the auto loan signal already flows into `synthesis.financialSignals` via the external-intelligence merge).
+- No changes to `synthesize-persona`, financial-signal detection, or the pill row.
+- No changes to the retail-deal image system.
+- The `generate-campaign-offers` function (used by the campaign studio, not the Next-Offer tab) is unchanged.
 
 ## Technical notes
-- Card slot 3's `type` value change (`"behavioral"` → `"financial_signal"`) is backward-compatible: `NextProductRationale.tsx` currently branches on `type === "behavioral"` only for evidence matching; the new branch keeps behavior parity when no financial signal is present.
-- The LLM prompt keeps the strict 3-card cap and CARD ORDER (life_event_1, life_event_2, financial_or_behavioral) so the phone-mockup layout doesn't shift.
+- `pillarRollups[i].totalSpend` and `topMerchants` already exist server-side — we're just surfacing them in the prompt.
+- `financialSignals` already flows through `ExecDemoPage` (used by `generate-product-cards`); reusing the same shape keeps the pipeline consistent.
+- Adding `valueLine` as an optional field is backward-compatible — old cached responses render unchanged.
