@@ -6,8 +6,11 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const PERSONA_MODEL = "openai/gpt-5-mini";
-const PERSONA_MAX_COMPLETION_TOKENS = 24000;
+// Primary: fast non-reasoning OpenAI mini with priority service tier for lowest latency.
+// Fallback: Gemini flash if the primary errors, is rate-limited, or returns no tool call.
+const PERSONA_PRIMARY_MODEL = "openai/gpt-5.4-mini";
+const PERSONA_FALLBACK_MODEL = "google/gemini-3.5-flash";
+const PERSONA_MAX_TOKENS = 6000;
 
 /* ============================================================================
  * synthesize-persona
