@@ -810,8 +810,9 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         }
         return { ...d, label, magnitude_band, transaction_indices: idx };
       })
-      // Demographic requires ≥2 unclaimed indices (or 1 large_inflow — but large_inflow is life_event-owned)
-      .filter((d: any) => (d.transaction_indices?.length ?? 0) >= 2)
+      // Demographic requires ≥1 unclaimed index (relaxed from 2 so genuine payroll/college
+      // step-changes still surface on demo data where indices get claimed by higher tiers).
+      .filter((d: any) => (d.transaction_indices?.length ?? 0) >= 1)
       // Kill any demographic labeled with spending-habit vocab across ALL fields (label, magnitude, evidence, category)
       .filter((d: any) => {
         const blob = `${d.label || ""} ${d.magnitude_band || ""} ${d.evidence_summary || ""} ${d.category || ""}`;
