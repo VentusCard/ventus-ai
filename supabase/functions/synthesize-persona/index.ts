@@ -829,12 +829,26 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       return travelHits >= Math.ceil(evidence.length / 2);
     };
 
+    // College Prep / tuition life events get demoted to Demographic. Harvest their
+    // indices + evidence into a synthetic demographic candidate before the ladder runs.
+    const COLLEGE_LE_RE = /college|university|tuition|\bsat\b|kaplan|common\s*app/i;
+    const harvestedCollegeIndices = new Set<number>();
+    const harvestedCollegeEvidence: any[] = [];
+    for (const e of rawLifeEvents) {
+      if (!COLLEGE_LE_RE.test(String(e?.event_name || ""))) continue;
+      const idx = cleanIndices(e.transaction_indices || [], ["life_event"]);
+      idx.forEach((i: number) => harvestedCollegeIndices.add(i));
+      if (Array.isArray(e.evidence)) harvestedCollegeEvidence.push(...e.evidence);
+    }
+
     const filteredLE = rawLifeEvents
+      // Drop any college/tuition themed life event — those belong under Demographic.
+      .filter((e: any) => !COLLEGE_LE_RE.test(String(e?.event_name || "")))
       .map((e: any) => ({
         ...e,
         transaction_indices: cleanIndices(e.transaction_indices || [], ["life_event"]),
       }))
-      // College Prep, auto loans, mortgages, student loans should never end up as life events —
+      // Retired-upstream themes should never end up as life events —
       // even if the model picked the enum, if all its evidence indices were stripped, drop it.
       .filter((e: any) => Array.isArray(e.evidence) && e.evidence.length >= 2)
       // Pet themes never belong in Life Event.
@@ -933,6 +947,30 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         const blob = `${d.label || ""} ${d.magnitude_band || ""} ${d.evidence_summary || ""} ${d.category || ""}`;
         return !NON_DEMO_VOCAB.test(blob);
       });
+
+    // Deterministic College Preparation auto-promotion — guarantees the demographic
+    // signal surfaces whenever the classifier tagged ≥2 rows as college_prep, even if
+    // the LLM omitted the demographic entry or the harvest above pulled indices out
+    // of a mis-routed life event.
+    const collegePrepIndices = txnHints
+      .map((hints, i) => (hints?.includes("college_prep") ? i : -1))
+      .filter((i) => i >= 0);
+    const collegeCandidateIndices = Array.from(
+      new Set<number>([...collegePrepIndices, ...harvestedCollegeIndices]),
+    ).filter((i) => !claimedByHigher.has(i));
+    const alreadyHasCollegeDemo = filteredDemo.some((d: any) => /college|university|tuition/i.test(String(d.label || "")));
+    if (!alreadyHasCollegeDemo && collegeCandidateIndices.length >= 2) {
+      filteredDemo.push({
+        category: "household_composition",
+        label: "College Preparation",
+        direction: "up",
+        confidence: 0.85,
+        magnitude_band: "",
+        evidence_summary: "SAT / test-prep / application activity clustered in recent months",
+        transaction_indices: collegeCandidateIndices.slice(0, 8),
+        evidence: harvestedCollegeEvidence.slice(0, 5),
+      });
+    }
 
     for (const d of filteredDemo) for (const ti of d.transaction_indices) claimedByHigher.add(ti);
 
