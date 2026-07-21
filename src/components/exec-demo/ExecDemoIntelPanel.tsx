@@ -246,6 +246,21 @@ function formatSpend(amount: number): string {
   return `$${Math.round(amount)}`;
 }
 
+/**
+ * Robust amount coercion. Transactions from buildLocalProfile store `amount`
+ * as a display-formatted string (e.g. "$685.00", "($685.00)") even though
+ * the type declares `number` — Number() on those returns NaN, which is why
+ * pill sums used to collapse to $0. Strip currency chars then parse.
+ */
+function toAmount(v: unknown): number {
+  if (typeof v === "number") return isFinite(v) ? Math.abs(v) : 0;
+  if (typeof v === "string") {
+    const n = parseFloat(v.replace(/[^0-9.\-]/g, ""));
+    return isFinite(n) ? Math.abs(n) : 0;
+  }
+  return 0;
+}
+
 export default function ExecDemoIntelPanel({
   persona,
   intelligence,
@@ -835,7 +850,7 @@ export default function ExecDemoIntelPanel({
                       const evidenceAmt = (evt.evidence || []).reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
                       const txCountLE = matchedIndices.length > 0 ? matchedIndices.length : (evt.evidence?.length ?? 0);
                       const spendLE = matchedIndices.length > 0
-                        ? matchedIndices.reduce((s, idx) => s + (Number(transactions?.[idx]?.amount) || 0), 0)
+                        ? matchedIndices.reduce((s, idx) => s + (toAmount(transactions?.[idx]?.amount)), 0)
                         : evidenceAmt;
                       const externalDetail = (evt as any).detail || (evt as any).monthly_amount_band;
                       const borderLE = isExternal ? "#7c3aed" : "#f59e0b";
@@ -1023,7 +1038,7 @@ export default function ExecDemoIntelPanel({
                           </span>
                           {flagLabel}
                           <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
-                            {txCount} txn{txCount !== 1 ? "s" : ""} · {formatSpend(matchedIndices.reduce((s, idx) => s + (Number(transactions?.[idx]?.amount) || 0), 0))}
+                            {txCount} txn{txCount !== 1 ? "s" : ""} · {formatSpend(matchedIndices.reduce((s, idx) => s + (toAmount(transactions?.[idx]?.amount)), 0))}
                           </span>
                         </span>
                       );
@@ -1110,7 +1125,7 @@ export default function ExecDemoIntelPanel({
                               </span>
                             ) : null;
                           }
-                          const spend = indices.reduce((s: number, idx: number) => s + (Number(transactions?.[idx]?.amount) || 0), 0);
+                          const spend = indices.reduce((s: number, idx: number) => s + (toAmount(transactions?.[idx]?.amount)), 0);
                           return (
                             <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
                               {indices.length} txn{indices.length !== 1 ? "s" : ""} · {formatSpend(spend)}
@@ -1177,7 +1192,7 @@ export default function ExecDemoIntelPanel({
                               </span>
                             ) : null;
                           }
-                          const spend = indices.reduce((s: number, idx: number) => s + (Number(transactions?.[idx]?.amount) || 0), 0);
+                          const spend = indices.reduce((s: number, idx: number) => s + (toAmount(transactions?.[idx]?.amount)), 0);
                           return (
                             <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
                               {indices.length} txn{indices.length !== 1 ? "s" : ""} · {formatSpend(spend)}
