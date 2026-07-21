@@ -231,7 +231,6 @@ txn_001,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2025-08-26
 txn_012,BEACH HOUSE RESTAURANT KAUAI,Sunset oceanfront dinner,5812,228.00,2025-08-26,96756,Premium Card
 txn_013,LUAU KALAMAKU KAUAI,Traditional luau for two,5812,358.00,2025-08-27,96766,Premium Card
 txn_052,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback Card
-txn_053,STAKE.COM*PROC LV,Online wager processor,6051,185.00,2025-09-13,,Premium Card
 txn_l018,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2025-09-15,,ACH
 txn_054,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback Card
 txn_055,ADMISSIONS CONSULTING GRP,College admissions package,,2500.00,2025-10-05,,Checks
@@ -679,7 +678,6 @@ txn_sf303,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-06-05,,ACH
 txn_sf122,SAFEWAY,Weekly groceries,5411,178.90,2025-06-09,94102,Cashback Card
 txn_sf202,UC BERKELEY PARKING,Campus visit parking,,20.00,2025-06-14,94720,Checking
 txn_sf123,TRADER JOES,Shopping,5411,156.78,2025-06-16,94102,Cashback Card
-txn_sf341,STAKE.COM*PROC LV,Online wager processor,6051,320.00,2025-06-17,,Premium Card
 txn_sf124,CHEVRON,Gas fill-up,5541,71.20,2025-06-19,94102,Cashback Card
 txn_sf125,WHOLE FOODS MARKET,Weekly shopping,5411,234.56,2025-06-23,94102,Cashback Card
 txn_sf126,SAFEWAY,Groceries,5411,189.34,2025-06-30,94102,Cashback Card
