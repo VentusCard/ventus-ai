@@ -160,6 +160,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
   const fireRiskDetectionRef = useRef<() => Promise<void>>(async () => {});
   /** Promise resolved once risk detection finishes (success or failure) for the current CSV. */
   const riskReadyRef = useRef<Promise<void> | null>(null);
+  /** Promise resolving to detected life events fired in parallel with classification. */
+  const lifeEventsReadyRef = useRef<Promise<LifeEvent[]> | null>(null);
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
   const offersInFlightRef = useRef<boolean>(false);
 
@@ -187,6 +189,14 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     // so persona synthesis can later await this promise to suppress overlapping lifestyle pills.
     riskReadyRef.current = fireRiskDetectionRef.current().catch((e) => {
       console.warn("[PRELOAD] Risk detection promise rejected:", e);
+    });
+
+    // Fire life-event detection in PARALLEL with classification too — it only
+    // needs the raw CSV / spending summary, not the classified pillars. This
+    // collapses ~13s of serial wait into the classify window.
+    lifeEventsReadyRef.current = detectLifeEventsOnlyRef.current().catch((e) => {
+      console.warn("[PRELOAD] Parallel life event detection rejected:", e);
+      return [] as LifeEvent[];
     });
 
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
@@ -312,13 +322,15 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
     // pillars[i].txIndices = the transaction indices for row i sent to AI
 
-    // Detect life events FIRST so we can pass them to synthesize-persona for theme dedup.
-    // This prevents behavioral rollups (e.g. "Aspiring Homeowner") from overlapping with
-    // detected life events (e.g. "New Home Transition") at the source.
+    // Life events fire in parallel with classification (see fireClassification).
+    // Await that pre-fired promise here so persona synthesis can dedupe against
+    // detected events. Falls back to a fresh detect call if the pre-fire is missing.
     let detectedEvents: LifeEvent[] = [];
     try {
-      detectedEvents = await detectLifeEventsOnlyRef.current();
-      console.log("[PRELOAD] Life events detected ahead of persona synthesis:", detectedEvents.length);
+      detectedEvents = lifeEventsReadyRef.current
+        ? await lifeEventsReadyRef.current
+        : await detectLifeEventsOnlyRef.current();
+      console.log("[PRELOAD] Life events ready for persona synthesis:", detectedEvents.length);
     } catch (e) {
       console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
     }

@@ -484,7 +484,7 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3.1-pro-preview",
+        model: "google/gemini-3.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userContent },
