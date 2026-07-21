@@ -191,6 +191,14 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       console.warn("[PRELOAD] Risk detection promise rejected:", e);
     });
 
+    // Fire life-event detection in PARALLEL with classification too — it only
+    // needs the raw CSV / spending summary, not the classified pillars. This
+    // collapses ~13s of serial wait into the classify window.
+    lifeEventsReadyRef.current = detectLifeEventsOnlyRef.current().catch((e) => {
+      console.warn("[PRELOAD] Parallel life event detection rejected:", e);
+      return [] as LifeEvent[];
+    });
+
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
