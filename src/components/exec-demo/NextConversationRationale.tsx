@@ -1,5 +1,5 @@
-import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox } from "lucide-react";
-import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
+import { Bot, Sparkles, Send, Inbox, Target, Lightbulb, MessageCircle, ShieldCheck, Users, PenLine, Route, GraduationCap } from "lucide-react";
+
 
 const INGEST_ITEMS = [
   "Enriched Transactions",
