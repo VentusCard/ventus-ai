@@ -232,10 +232,12 @@ serve(async (req) => {
       });
     }
 
-    const { persona, pillars, lifeEvents, bankContext } = body;
+    const { persona, pillars, lifeEvents, bankContext, financial_signals, months_of_data } = body;
     const _bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
-    // Note: retail deals reference partner merchants, not the bank. bankContext accepted for forward-compat / logging.
     if (_bankName) console.log(`[NEXT-OFFERS] customized for bank: ${_bankName}`);
+    const bankLabel = _bankName || "Your Bank";
+    const months = Math.max(1, Math.min(24, Number(months_of_data) || 12));
+    const annualize = (spend: number) => Math.round((spend / months) * 12);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -247,15 +249,21 @@ serve(async (req) => {
       .map((r: any, i: number) => {
         const cats = (r.categories || []).join(", ");
         const merchants = (r.topMerchants || []).slice(0, 6).join(", ");
-        return `${i + 1}. "${r.label}" (${r.pillar}) — categories: ${cats}${merchants ? ` | recent merchants: ${merchants}` : ""}`;
+        const total = Math.round(r.totalSpend ?? 0);
+        const annual = annualize(total);
+        const monthly = Math.round(total / months);
+        return `${i + 1}. "${r.label}" (${r.pillar}) — ${r.totalCount ?? 0} txns · $${total} observed (~$${monthly}/mo, ~$${annual}/yr annualized) — categories: ${cats}${merchants ? ` | recent merchants: ${merchants}` : ""}`;
       })
       .join("\n");
 
     const pillarContext = (pillars || [])
       .slice(0, 8)
       .map(
-        (p: any, i: number) =>
-          `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`,
+        (p: any, i: number) => {
+          const total = Math.round(p.totalSpend);
+          const annual = annualize(total);
+          return `${i + 1}. ${p.pillar} > ${p.label} — $${total} across ${p.count} txns (~$${annual}/yr)${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`;
+        },
       )
       .join("\n");
 
@@ -274,20 +282,51 @@ serve(async (req) => {
       })
       .join("\n");
 
+    // Tag each financial signal with a stable id
+    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).map((s: any, i: number) => ({
+      id: `FS_${i + 1}`,
+      label: s.label,
+      product_family: s.product_family,
+      servicer: s.servicer,
+      monthly_payment: s.monthly_payment,
+      balance: s.balance,
+      rate: s.rate,
+      term_months: s.term_months,
+      renewal_window: s.renewal_window,
+    }));
+
+    const financialSignalList = financialSignalsTagged
+      .map((s: any) => {
+        const bits: string[] = [];
+        if (s.servicer) bits.push(`servicer=${s.servicer}`);
+        if (s.monthly_payment) bits.push(`monthly_payment=$${s.monthly_payment}`);
+        if (s.balance) bits.push(`balance=$${s.balance}`);
+        if (s.rate) bits.push(`rate=${s.rate}`);
+        if (s.term_months) bits.push(`term_months=${s.term_months}`);
+        if (s.renewal_window) bits.push(`renewal_window=${s.renewal_window}`);
+        return `id=${s.id} | label="${s.label}" | product_family=${s.product_family || "unknown"}${bits.length ? ` | ${bits.join(" · ")}` : ""}`;
+      })
+      .join("\n");
+
     let rollupUserPrompt = "";
-    if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with recent spending/merchants):\n${rollupList}\n\n`;
-    if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT:\n${pillarContext}\n\n`;
-    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. The "rollup" field in each output object MUST be the exact label string in quotes from the cluster list (verbatim). Return valid JSON only.`;
+    if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with spend totals + annualized figures — use these for valueLine math):\n${rollupList}\n\n`;
+    if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT (annualized $):\n${pillarContext}\n\n`;
+    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. Every deal MUST include a valueLine + valueMath grounded in the numbers above. The "rollup" field MUST be the exact label string in quotes (verbatim). Return valid JSON only.`;
 
     const lifeEventUserPrompt = lifeEventList
-      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Return valid JSON only.`
+      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Every deal MUST include valueLine + valueMath (life-event product cost benchmarks are OK if you name them). Return valid JSON only.`
+      : "";
+
+    const financialSignalUserPrompt = financialSignalList
+      ? `BANK: ${bankLabel}\n\nFINANCIAL SIGNALS (generate one rollup group per signal, 5 deals each — this is the hero of hyper-personalization):\n${financialSignalList}\n\nFor EACH signal above, produce exactly one rollup group whose "signalId" matches the id (FS_1, FS_2, ...) and whose "rollup" is the exact label. Every deal MUST include valueLine + valueMath computed from THAT signal's own numbers (monthly_payment, balance, rate). Return valid JSON only.`
       : "";
 
     const tasks: Promise<Response | null>[] = [];
     tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
     tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
+    tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
 
-    const [rollupRes, lifeEventRes] = await Promise.all(tasks);
+    const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
 
     for (const r of [rollupRes, lifeEventRes]) {
       if (r && !r.ok) {
