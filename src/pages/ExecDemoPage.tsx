@@ -56,9 +56,11 @@ interface ExecDemoPageProps {
   embedded?: boolean;
   active?: boolean;
   onBack?: () => void;
+  /** When true, run the full pipeline immediately on mount (used by /bankdemo post-password). */
+  prefireOnMount?: boolean;
 }
 
-export default function ExecDemoPage({ embedded = false, active = true, onBack }: ExecDemoPageProps = {}) {
+export default function ExecDemoPage({ embedded = false, active = true, onBack, prefireOnMount = false }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(!embedded);
 
