@@ -209,9 +209,20 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
-Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, demographics income). Do not invent unrelated figures.
+FINANCIAL SIGNALS (existing loans, mortgages, brokerage relationships — HIGHEST PRIORITY for slot 3):
+${JSON.stringify((financial_signals || []).map((f: any) => ({
+  label: f.label,
+  product_family: f.product_family,
+  servicer: f.servicer,
+  monthly_amount_band: f.monthly_amount_band,
+  cadence: f.cadence,
+  talking_points: (f.talking_points || []).slice(0, 3),
+})), null, 2)}
 
-Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using the generate_product_cards function. NEVER emit a risk card.`;
+Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, financial-signal monthly_amount_band, demographics income). Do not invent unrelated figures.
+
+CARD 3 RULE: If FINANCIAL SIGNALS above is non-empty, slot 3 MUST be a financial_signal card grounded in financial_signals[0]. Only fall back to a behavioral card if FINANCIAL SIGNALS is empty. NEVER emit a risk/gambling/vice/AML card under any circumstance.`;
+
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
