@@ -1,17 +1,24 @@
-## Uniform tablet mockup width across Next-* tabs
+## Gate pill reveal behind the "Behavioral Intelligence — Ready" click while keeping pre-fire
 
-In `src/pages/ExecDemoPage.tsx` line 1615, the phone/tablet column width is currently:
+### Current behavior (confirmed)
+- On /bankdemo mount, `src/pages/ExecDemoPage.tsx:1329-1336` pre-fires `handleRunAnalysis()` **and** calls `setSynthesisTriggered(true)`. That means persona/classification loads in the background AND the pills auto-reveal without a click.
+- The Ready button (`ExecDemoIntelPanel.tsx:1508`) renders only when `hasSynthesis && !synthesisTriggered && phase === "hold"`, so it never appears.
 
-```ts
-const expandedW = isRelTab ? 520 : 560;
-```
+### Goal
+Keep the background pre-fire (fast Demo tab), but require the user to click **Behavioral Intelligence — Ready** before pill rollups/Next-* nav appear.
 
-This makes the Next-Conversation (relationship) mockup 40px narrower than Next-Offer and Next-Product.
+### Fix — `src/pages/ExecDemoPage.tsx`
 
-Change to a single constant width for all three tabs:
+1. **Pre-fire effect (~line 1330-1336)**: keep `handleRunAnalysis()` (data still warms up), remove the `setSynthesisTriggered(true)` line. Pills stay hidden until the user clicks Ready.
 
-```ts
-const expandedW = 560;
-```
+2. **`handleRunAnalysis` (~line 1282)**: add `setSynthesisTriggered(false)` near the top so any Start click from the selection dialog also re-arms the Ready button for the next run.
 
-Remove the now-unused `isRelTab` variable if nothing else references it in this scope.
+3. **Selection dialog Start path**: verify no other code path (e.g. `handleSelectStage`, embedded auto-open) flips `synthesisTriggered` to true before the user clicks Ready. Adjust if found — the only place that should set it true is the Ready button's `onClick` in `ExecDemoIntelPanel.tsx:1511`.
+
+### Expected result
+- Land on /bankdemo → Demo tab. Enrichment table renders, persona synthesis runs quietly in the background.
+- As soon as synthesis completes and `phase === "hold"`, the animated blue "Behavioral Intelligence — Ready" button appears at the bottom of the intel column.
+- Clicking it reveals the pill rollups and Next-Offer / Next-Product / Next-Conversation nav.
+
+### Out of scope
+No changes to synthesis logic, taxonomy, or the button's visuals.
