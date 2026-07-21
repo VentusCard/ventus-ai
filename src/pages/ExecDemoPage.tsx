@@ -1333,7 +1333,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     if (profileRef.current || customCsv) return;
     preFiredRef.current = true;
     handleRunAnalysis();
-    setSynthesisTriggered(true);
   }, [embedded, customCsv, handleRunAnalysis]);
 
   // When embedded, only open the selection dialog when the user actually
