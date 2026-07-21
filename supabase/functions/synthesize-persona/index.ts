@@ -74,18 +74,34 @@ interface ExternalSignal {
 
 type HintTag =
   // Financial-signal ownership
-  | "auto_loan_servicer" | "auto_lease_servicer" | "mortgage_servicer" | "heloc"
-  | "student_loan_servicer" | "personal_loan_servicer" | "brokerage_contribution"
-  | "retirement_contribution" | "insurance_premium" | "education_savings_529"
+  | "auto_loan_servicer"
+  | "auto_lease_servicer"
+  | "mortgage_servicer"
+  | "heloc"
+  | "student_loan_servicer"
+  | "personal_loan_servicer"
+  | "brokerage_contribution"
+  | "retirement_contribution"
+  | "insurance_premium"
+  | "education_savings_529"
   | "credit_card_payoff"
   // Life-event ownership
-  | "home_purchase_vendor" | "wedding_vendor" | "new_baby_vendor" | "elder_care_vendor"
-  | "relocation_vendor" | "business_formation_vendor" | "retirement_planning_vendor"
+  | "home_purchase_vendor"
+  | "wedding_vendor"
+  | "new_baby_vendor"
+  | "elder_care_vendor"
+  | "relocation_vendor"
+  | "business_formation_vendor"
+  | "retirement_planning_vendor"
   | "large_inflow"
   // Demographic ownership
-  | "payroll" | "college_prep" | "wealth_investment_hint" | "relocation_hint"
+  | "payroll"
+  | "college_prep"
+  | "wealth_investment_hint"
+  | "relocation_hint"
   // Spending-habit ownership (never demographic / never life event)
-  | "pet" | "recurring_lifestyle"
+  | "pet"
+  | "recurring_lifestyle"
   // Risk (never surfaced here — pass-through)
   | "risk_flagged";
 
@@ -93,46 +109,77 @@ type HintTag =
 
 // Financial servicers — each triggers Financial Signal, never anything lower.
 const FIN_SERVICERS: Array<[RegExp, HintTag]> = [
-  [/toyota financial|vw credit|volkswagen credit|ford credit|gm financial|honda financial|ally auto|chase auto|capital one auto|bmw financial|mercedes-benz financial|hyundai motor finance|nissan motor accept/i, "auto_loan_servicer"],
+  [
+    /toyota financial|vw credit|volkswagen credit|ford credit|gm financial|honda financial|ally auto|chase auto|capital one auto|bmw financial|mercedes-benz financial|hyundai motor finance|nissan motor accept/i,
+    "auto_loan_servicer",
+  ],
   [/\blease\b|leasing/i, "auto_lease_servicer"],
-  [/rocket mortgage|wells fargo home mortgage|chase home lending|pennymac|mr\.? cooper|loandepot|zillow home loans|quicken loans/i, "mortgage_servicer"],
+  [
+    /rocket mortgage|wells fargo home mortgage|chase home lending|pennymac|mr\.? cooper|loandepot|zillow home loans|quicken loans/i,
+    "mortgage_servicer",
+  ],
   [/\bheloc\b|home equity/i, "heloc"],
   [/nelnet|sallie mae|navient|great lakes|fedloan|mohela|aidvantage/i, "student_loan_servicer"],
   [/sofi loan|lightstream|marcus loan|upstart|prosper|lendingclub|best egg/i, "personal_loan_servicer"],
   [/amex payment|chase card payment|discover payment|capital one card/i, "credit_card_payoff"],
   [/fidelity|schwab|vanguard|robinhood|wealthfront|betterment|etrade|merrill edge/i, "brokerage_contribution"],
   [/401k|ira contribution|roth ira|sep ira/i, "retirement_contribution"],
-  [/northwestern mutual|new york life|massmutual|prudential life|guardian life|haven life|policygenius/i, "insurance_premium"],
+  [
+    /northwestern mutual|new york life|massmutual|prudential life|guardian life|haven life|policygenius/i,
+    "insurance_premium",
+  ],
   [/\b529\b|my529|collegeamerica|scholarshare/i, "education_savings_529"],
 ];
 
 // Life-event vendors — trigger Life Event candidacy.
 const LIFE_EVENT_VENDORS: Array<[RegExp, HintTag]> = [
-  [/realtor|title company|escrow|home inspector|crate ?& ?barrel|west elm|pottery barn|restoration hardware|williams sonoma home|ikea|home depot|lowe'?s|hoa/i, "home_purchase_vendor"],
+  [
+    /realtor|title company|escrow|home inspector|crate ?& ?barrel|west elm|pottery barn|restoration hardware|williams sonoma home|ikea|home depot|lowe'?s|hoa/i,
+    "home_purchase_vendor",
+  ],
   [/jeweler|the knot|zola|bridal|wedding venue|wedding photog/i, "wedding_vendor"],
-  [/pediatric|obstetric|ob\/gyn|midwife|doula|buybuy baby|babylist|carter'?s|huggies|pampers|similac|enfamil|gerber|daycare|childcare|kindercare|bright horizons/i, "new_baby_vendor"],
+  [
+    /pediatric|obstetric|ob\/gyn|midwife|doula|buybuy baby|babylist|carter'?s|huggies|pampers|similac|enfamil|gerber|daycare|childcare|kindercare|bright horizons/i,
+    "new_baby_vendor",
+  ],
   [/assisted living|senior living|home health|hospice|in-home care|geriatric/i, "elder_care_vendor"],
-  [/u-?haul|penske truck|two men and a truck|mayflower|allied van|north american van|pods moving|extended stay|corporate housing/i, "relocation_vendor"],
+  [
+    /u-?haul|penske truck|two men and a truck|mayflower|allied van|north american van|pods moving|extended stay|corporate housing/i,
+    "relocation_vendor",
+  ],
   [/legalzoom|stripe atlas|zenbusiness/i, "business_formation_vendor"],
   [/estate attorney|trust services|medicare supplement|retirement community/i, "retirement_planning_vendor"],
 ];
 
 // Demographic hints (state CHANGE, not lifestyle).
 const DEMO_HINTS: Array<[RegExp, HintTag]> = [
-  [/payroll|direct dep|direct deposit|adp|gusto|paychex|workday payroll|salary|wages|bonus|commission|1099|stripe payout|square payout|paypal payout|ssa|social security|pension|unemployment|edd|state di/i, "payroll"],
-  [/\bcollege\b|\buniversity\b|tuition|\bsat\b|\bact test\b|kaplan|princeton review|common ?app|bursar|ap exam/i, "college_prep"],
+  [
+    /payroll|direct dep|direct deposit|adp|gusto|paychex|workday payroll|salary|wages|bonus|commission|1099|stripe payout|square payout|paypal payout|ssa|social security|pension|unemployment|edd|state di/i,
+    "payroll",
+  ],
+  [
+    /\bcollege\b|\buniversity\b|tuition|\bsat\b|\bact test\b|kaplan|princeton review|common ?app|bursar|ap exam/i,
+    "college_prep",
+  ],
   [/wire transfer|incoming wire|cashier'?s check|brokerage transfer|trust services/i, "wealth_investment_hint"],
-  [/storage unit|title company|escrow|comcast install|xfinity install|pg&e install|conedison install/i, "relocation_hint"],
+  [
+    /storage unit|title company|escrow|comcast install|xfinity install|pg&e install|conedison install/i,
+    "relocation_hint",
+  ],
 ];
 
 // Pet vendors — ALWAYS Spending Habit (Pets pillar). Never demographic. Never life event.
-const PET_RE = /chewy|petsmart|petco|banfield|vca|barkbox|rover|pet\s?food|pet\s?supplies|\bvet\b|veterinar|groomin|dog ?walk|dog ?sit|cat ?sit/i;
+const PET_RE =
+  /chewy|petsmart|petco|banfield|vca|barkbox|rover|pet\s?food|pet\s?supplies|\bvet\b|veterinar|groomin|dog ?walk|dog ?sit|cat ?sit/i;
 
 // ─────────────────────────── Helpers ──────────────────────────────────────
 
 function cadenceHint(dates: string[]): string {
   if (!dates || dates.length < 2) return "";
-  const sorted = dates.map((d) => new Date(d).getTime()).filter((t) => !isNaN(t)).sort((a, b) => a - b);
+  const sorted = dates
+    .map((d) => new Date(d).getTime())
+    .filter((t) => !isNaN(t))
+    .sort((a, b) => a - b);
   if (sorted.length < 2) return "";
   const spanMs = sorted[sorted.length - 1] - sorted[0];
   const spanWeeks = spanMs / (7 * 24 * 60 * 60 * 1000);
@@ -175,25 +222,52 @@ function computeHints(t: IncomingTxn, flaggedMerchants: Set<string>): HintTag[] 
 }
 
 /** Which bucket a hint list points to. Higher tier wins. */
-function ownerBucketFromHints(hints: HintTag[]): "life_event" | "financial_signal" | "demographic" | "spending_habit" | "risk" | null {
+function ownerBucketFromHints(
+  hints: HintTag[],
+): "life_event" | "financial_signal" | "demographic" | "spending_habit" | "risk" | null {
   if (hints.includes("risk_flagged")) return "risk";
   // Life event first (vendor clusters or windfall).
-  if (hints.some((h) =>
-    h === "home_purchase_vendor" || h === "wedding_vendor" || h === "new_baby_vendor" ||
-    h === "elder_care_vendor" || h === "relocation_vendor" || h === "business_formation_vendor" ||
-    h === "retirement_planning_vendor" || h === "large_inflow",
-  )) return "life_event";
+  if (
+    hints.some(
+      (h) =>
+        h === "home_purchase_vendor" ||
+        h === "wedding_vendor" ||
+        h === "new_baby_vendor" ||
+        h === "elder_care_vendor" ||
+        h === "relocation_vendor" ||
+        h === "business_formation_vendor" ||
+        h === "retirement_planning_vendor" ||
+        h === "large_inflow",
+    )
+  )
+    return "life_event";
   // Financial signal — any servicer hint.
-  if (hints.some((h) =>
-    h === "auto_loan_servicer" || h === "auto_lease_servicer" || h === "mortgage_servicer" ||
-    h === "heloc" || h === "student_loan_servicer" || h === "personal_loan_servicer" ||
-    h === "credit_card_payoff" || h === "brokerage_contribution" || h === "retirement_contribution" ||
-    h === "insurance_premium" || h === "education_savings_529",
-  )) return "financial_signal";
+  if (
+    hints.some(
+      (h) =>
+        h === "auto_loan_servicer" ||
+        h === "auto_lease_servicer" ||
+        h === "mortgage_servicer" ||
+        h === "heloc" ||
+        h === "student_loan_servicer" ||
+        h === "personal_loan_servicer" ||
+        h === "credit_card_payoff" ||
+        h === "brokerage_contribution" ||
+        h === "retirement_contribution" ||
+        h === "insurance_premium" ||
+        h === "education_savings_529",
+    )
+  )
+    return "financial_signal";
   // Pets are Spending Habit even though they are recurring.
   if (hints.includes("pet")) return "spending_habit";
   // Demographic — payroll / college / wealth-investment / relocation-hint.
-  if (hints.some((h) => h === "payroll" || h === "college_prep" || h === "wealth_investment_hint" || h === "relocation_hint")) return "demographic";
+  if (
+    hints.some(
+      (h) => h === "payroll" || h === "college_prep" || h === "wealth_investment_hint" || h === "relocation_hint",
+    )
+  )
+    return "demographic";
   return null; // No opinion → LLM may route to Spending Habit or drop.
 }
 
@@ -203,32 +277,42 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds, externalSignals } = await req.json() as {
-      pillars: any[];
-      lifeEvents?: { event_name?: string; confidence?: number; evidence?: any[]; talking_points?: string[] }[];
-      transactions?: IncomingTxn[];
-      riskCategoriesPresent?: string[];
-      riskTransactionIds?: string[];
-      externalSignals?: ExternalSignal[];
-    };
+    const { pillars, lifeEvents, transactions, riskCategoriesPresent, riskTransactionIds, externalSignals } =
+      (await req.json()) as {
+        pillars: any[];
+        lifeEvents?: { event_name?: string; confidence?: number; evidence?: any[]; talking_points?: string[] }[];
+        transactions?: IncomingTxn[];
+        riskCategoriesPresent?: string[];
+        riskTransactionIds?: string[];
+        externalSignals?: ExternalSignal[];
+      };
     if (!pillars || !Array.isArray(pillars) || pillars.length === 0) {
       return new Response(JSON.stringify({ error: "pillars array is required" }), {
-        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    const upstreamLifeEvents: Array<{ event_name: string; confidence?: number; evidence?: any[]; talking_points?: string[] }> =
-      Array.isArray(lifeEvents)
-        ? lifeEvents.filter((e): e is { event_name: string } & typeof e => !!e?.event_name).map((e) => ({
+    const upstreamLifeEvents: Array<{
+      event_name: string;
+      confidence?: number;
+      evidence?: any[];
+      talking_points?: string[];
+    }> = Array.isArray(lifeEvents)
+      ? lifeEvents
+          .filter((e): e is { event_name: string } & typeof e => !!e?.event_name)
+          .map((e) => ({
             event_name: e.event_name!,
             confidence: typeof e.confidence === "number" ? e.confidence : undefined,
             evidence: Array.isArray(e.evidence) ? e.evidence : [],
             talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
           }))
-        : [];
+      : [];
     const detectedEventNames: string[] = upstreamLifeEvents.map((e) => e.event_name);
     const presentRiskCategories: string[] = Array.isArray(riskCategoriesPresent)
-      ? Array.from(new Set(riskCategoriesPresent.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
+      ? Array.from(
+          new Set(riskCategoriesPresent.filter((s): s is string => typeof s === "string" && s.trim().length > 0)),
+        )
       : [];
     const flaggedTxIds: string[] = Array.isArray(riskTransactionIds)
       ? Array.from(new Set(riskTransactionIds.filter((s): s is string => typeof s === "string" && s.trim().length > 0)))
@@ -271,22 +355,27 @@ serve(async (req) => {
       const subs = t.subcategories?.length ? `[${t.subcategories.join(", ")}]` : "[]";
       const hintStr = hints.length ? ` · hints=[${hints.join(",")}]` : "";
       const ownerStr = owner ? ` · owner=${owner}` : "";
-      txnLines.push(`[T${idx}] ${merchant} · ${amt} · ${date} · ${t.pillar ?? "?"} > ${t.category ?? "?"} · ${subs}${hintStr}${ownerStr}`);
+      txnLines.push(
+        `[T${idx}] ${merchant} · ${amt} · ${date} · ${t.pillar ?? "?"} > ${t.category ?? "?"} · ${subs}${hintStr}${ownerStr}`,
+      );
     });
     const txnBlock = txnLines.length
       ? `\n\nUnified candidate transactions (each row is pre-tagged with hints + owner bucket — RESPECT the owner unless the row is empty/null):\n${txnLines.join("\n")}`
       : "";
 
     // ── External signals block (pre-classified, ground truth) ────────────
-    const externalsBlock = externals.length > 0
-      ? `\n\nEXTERNAL SIGNALS (pre-classified — ground truth. DO NOT emit any bucket entry that duplicates these themes):\n${externals.map((s) => {
-          const extras: string[] = [];
-          if (s.product_family) extras.push(`family=${s.product_family}`);
-          if (s.servicer) extras.push(`servicer=${s.servicer}`);
-          if (s.demographic_category) extras.push(`demo=${s.demographic_category}`);
-          return `- [${s.bucket.toUpperCase()}] "${s.label || s.event_name}" provider=${s.provider}${extras.length ? " (" + extras.join(", ") + ")" : ""}`;
-        }).join("\n")}`
-      : "";
+    const externalsBlock =
+      externals.length > 0
+        ? `\n\nEXTERNAL SIGNALS (pre-classified — ground truth. DO NOT emit any bucket entry that duplicates these themes):\n${externals
+            .map((s) => {
+              const extras: string[] = [];
+              if (s.product_family) extras.push(`family=${s.product_family}`);
+              if (s.servicer) extras.push(`servicer=${s.servicer}`);
+              if (s.demographic_category) extras.push(`demo=${s.demographic_category}`);
+              return `- [${s.bucket.toUpperCase()}] "${s.label || s.event_name}" provider=${s.provider}${extras.length ? " (" + extras.join(", ") + ")" : ""}`;
+            })
+            .join("\n")}`
+        : "";
 
     // ── Upstream life event names (already detected) ─────────────────────
     const upstreamLEBlock = detectedEventNames.length
@@ -429,8 +518,8 @@ FORBIDDEN label words: "Enthusiast", "Fan", "Lover", "Aficionado", "Vacationer",
 
 Coherence: rows in one rollup must share the same activity. Do NOT mix Ski-tagged rows with Tropical-tagged rows in one "travel" rollup — split them. If a category has ≥3 rows tied to one sport/hobby, emit a dedicated rollup (Tennis, Golf, Cycling, Yoga, Skiing).
 
-GOOD: "Pet Care Routine", "Annual Hawaiian Vacations", "Weekly Coffee Runs", "Weekend Golfer".
-BAD:  "New Pet Household"  → this is the DEMOGRAPHIC form of the same thing; use "Pet Care Routine".
+GOOD: "Pet Care Routine", "Annual Hawaiian Vacations", "Ski/Snowboradimg Trips", "Weekend Golfer".
+BAD:  "New Pet Household"  → use "Pet Care Routine".
 BAD:  "Aspiring Homeowner" → forbidden vocabulary.
 
 ═══════════════════════════════════════════════════════════════════
@@ -542,9 +631,17 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
                     product_family: {
                       type: "string",
                       enum: [
-                        "auto_loan", "auto_lease", "mortgage", "heloc", "student_loan", "personal_loan",
-                        "credit_card_payoff", "brokerage_contribution", "retirement_contribution",
-                        "insurance_premium", "education_savings",
+                        "auto_loan",
+                        "auto_lease",
+                        "mortgage",
+                        "heloc",
+                        "student_loan",
+                        "personal_loan",
+                        "credit_card_payoff",
+                        "brokerage_contribution",
+                        "retirement_contribution",
+                        "insurance_premium",
+                        "education_savings",
                       ],
                     },
                     label: { type: "string" },
@@ -565,7 +662,12 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
                   properties: {
                     category: {
                       type: "string",
-                      enum: ["income_trajectory", "wealth_tier_migration", "household_composition", "geography_relocation"],
+                      enum: [
+                        "income_trajectory",
+                        "wealth_tier_migration",
+                        "household_composition",
+                        "geography_relocation",
+                      ],
                     },
                     label: { type: "string" },
                     direction: { type: "string", enum: ["up", "down", "lateral"] },
@@ -602,8 +704,10 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
                   claimed_spending_habit: { type: "array", items: { type: "number" } },
                 },
                 required: [
-                  "claimed_life_event", "claimed_financial_signal",
-                  "claimed_demographic", "claimed_spending_habit",
+                  "claimed_life_event",
+                  "claimed_financial_signal",
+                  "claimed_demographic",
+                  "claimed_spending_habit",
                 ],
                 additionalProperties: false,
               },
@@ -615,9 +719,7 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       },
     ];
 
-    type PersonaCallResult =
-      | { ok: true; raw: any }
-      | { ok: false; status: number; errText: string };
+    type PersonaCallResult = { ok: true; raw: any } | { ok: false; status: number; errText: string };
 
     const callPersonaModel = async (model: string): Promise<PersonaCallResult> => {
       const isOpenAI = model.startsWith("openai/");
@@ -661,9 +763,10 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         return { ok: false, status: 502, errText: "no tool call" };
       }
       try {
-        const parsed = typeof toolCall.function.arguments === "string"
-          ? JSON.parse(toolCall.function.arguments)
-          : toolCall.function.arguments;
+        const parsed =
+          typeof toolCall.function.arguments === "string"
+            ? JSON.parse(toolCall.function.arguments)
+            : toolCall.function.arguments;
         return { ok: true, raw: parsed };
       } catch (e) {
         return { ok: false, status: 502, errText: `parse: ${(e as Error).message}` };
@@ -681,11 +784,11 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       const status = result.status === 429 ? 429 : result.status === 402 ? 402 : 500;
       const errorMsg = status === 429 ? "Rate limited" : status === 402 ? "Payment required" : "AI processing failed";
       return new Response(JSON.stringify({ error: errorMsg }), {
-        status, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
     const raw = result.raw;
-
 
     // ═════════════════════ Deterministic guard layer ═══════════════════════
 
@@ -708,13 +811,13 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
 
     // Narrow pet-only vocab — pet themes must live ONLY in Spending Habits.
     const PET_VOCAB = /pet|chewy|petco|petsmart|banfield|barkbox|rover|\bvet\b|veterinar|groom|dog\s?walk/i;
-    const hasPetVocab = (parts: (string | undefined | null)[]) =>
-      PET_VOCAB.test(parts.filter(Boolean).join(" "));
+    const hasPetVocab = (parts: (string | undefined | null)[]) => PET_VOCAB.test(parts.filter(Boolean).join(" "));
 
     // Relocation guard: airlines / hotels / resorts / rental cars are NOT relocation.
     // Require at least one transaction with a real relocation vendor/hint tag,
     // and reject events whose evidence is dominated by travel merchants.
-    const TRAVEL_MERCHANT_RE = /airlines?|airways|aeromexico|delta|united|american air|southwest|hawaiian|jetblue|alaska air|hotel|resort|hilton|marriott|hyatt|airbnb|vrbo|cruise|hertz|avis|budget rent|enterprise rent|expedia|kayak|priceline/i;
+    const TRAVEL_MERCHANT_RE =
+      /airlines?|airways|aeromexico|delta|united|american air|southwest|hawaiian|jetblue|alaska air|hotel|resort|hilton|marriott|hyatt|airbnb|vrbo|cruise|hertz|avis|budget rent|enterprise rent|expedia|kayak|priceline/i;
     const hasRelocationTag = (indices: number[]) =>
       indices.some((ti) => {
         const h = txnHints[ti];
@@ -735,11 +838,16 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       // even if the model picked the enum, if all its evidence indices were stripped, drop it.
       .filter((e: any) => Array.isArray(e.evidence) && e.evidence.length >= 2)
       // Pet themes never belong in Life Event.
-      .filter((e: any) => !hasPetVocab([
-        e.event_name,
-        e.evidence_summary,
-        ...(Array.isArray(e.evidence) ? e.evidence.map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`) : []),
-      ]))
+      .filter(
+        (e: any) =>
+          !hasPetVocab([
+            e.event_name,
+            e.evidence_summary,
+            ...(Array.isArray(e.evidence)
+              ? e.evidence.map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`)
+              : []),
+          ]),
+      )
       // Relocation must have a positive relocation vendor/hint AND not be dominated by travel merchants.
       .filter((e: any) => {
         if (String(e.event_name || "") !== "Relocation") return true;
@@ -753,7 +861,13 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     // routes the same theme to another tier. Upstream events that our taxonomy
     // explicitly retires (college / auto / mortgage / student loan) are excluded.
     const RETIRED_UPSTREAM_RE_RESCUE = /college|university|tuition|auto\s*loan|mortgage|student\s*loan/i;
-    const existingLENames = new Set(filteredLE.map((e: any) => String(e.event_name || "").trim().toLowerCase()));
+    const existingLENames = new Set(
+      filteredLE.map((e: any) =>
+        String(e.event_name || "")
+          .trim()
+          .toLowerCase(),
+      ),
+    );
     for (const up of upstreamLifeEvents) {
       const nm = up.event_name.trim();
       const key = nm.toLowerCase();
@@ -775,7 +889,6 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       if (filteredLE.length >= 3) break;
     }
 
-
     const filteredFS = rawFinancial
       .map((f: any) => ({
         ...f,
@@ -792,12 +905,14 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
 
     // Vocabulary that MUST NOT appear anywhere in a demographic shift.
     // These themes belong to Spending Habit; the model keeps regressing on them.
-    const NON_DEMO_VOCAB = /pet|chewy|petco|petsmart|banfield|barkbox|rover|vet\b|veterinar|groom|dog\s?walk|fitness|gym\b|yoga|peloton|coffee|starbucks|dunkin|streaming|netflix|hulu|spotify|subscription|grocer|restaurant|salon|hair\s?stylist|barber/i;
+    const NON_DEMO_VOCAB =
+      /pet|chewy|petco|petsmart|banfield|barkbox|rover|vet\b|veterinar|groom|dog\s?walk|fitness|gym\b|yoga|peloton|coffee|starbucks|dunkin|streaming|netflix|hulu|spotify|subscription|grocer|restaurant|salon|hair\s?stylist|barber/i;
 
     const filteredDemo = rawDemographic
       .map((d: any) => {
-        const idx: number[] = cleanIndices(d.transaction_indices || [], ["demographic"])
-          .filter((ti) => !claimedByHigher.has(ti));
+        const idx: number[] = cleanIndices(d.transaction_indices || [], ["demographic"]).filter(
+          (ti) => !claimedByHigher.has(ti),
+        );
         // Normalize college labels — strip trailing "· College Prep Cycle" / "· Prep …" restatements.
         let label = String(d.label || "").trim();
         if (/kid\s*(?:→|->|to)\s*college/i.test(label) || /college\s*prep/i.test(label)) {
@@ -830,7 +945,9 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     const filteredSH = rawSpending
       .map((r: any) => {
         const raw: number[] = Array.isArray(r.transaction_indices) ? r.transaction_indices : [];
-        const rollupPillar = String(r.pillar || "").trim().toLowerCase();
+        const rollupPillar = String(r.pillar || "")
+          .trim()
+          .toLowerCase();
         const kept = raw.filter((ti) => {
           if (typeof ti !== "number" || ti < 0 || ti >= txnOwner.length) return false;
           if (txnOwner[ti] === "risk") return false;
@@ -840,7 +957,9 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
           if (owner !== null && owner !== "spending_habit") return false;
           // Enforce pillar match against the classified transaction's pillar.
           const tx = txns[ti];
-          const txPillar = String(tx?.pillar || "").trim().toLowerCase();
+          const txPillar = String(tx?.pillar || "")
+            .trim()
+            .toLowerCase();
           if (rollupPillar && txPillar && rollupPillar !== txPillar) return false;
           return true;
         });
@@ -875,11 +994,23 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     // 3c. Theme-family merge — collapse LLM sibling rollups that describe the same
     //     behavioral theme (e.g. "Tropical Vacations" + "Hawaiian Travel" + "Casual Beachwear").
     const THEME_FAMILIES: Array<{ key: string; re: RegExp; label: string }> = [
-      { key: "tropical_travel", re: /tropical|hawaii|beach|resort|island|caribbean|surf|snorkel|luau|catamaran/i, label: "Tropical Travel" },
+      {
+        key: "tropical_travel",
+        re: /tropical|hawaii|beach|resort|island|caribbean|surf|snorkel|luau|catamaran/i,
+        label: "Tropical Travel",
+      },
       { key: "winter_sports", re: /ski|snowboard|snow|alpine|mountain\s?resort/i, label: "Skiing & Snowboarding" },
-      { key: "pet_care", re: /pet|vet\b|veterinar|chewy|petco|petsmart|barkbox|rover|groom|dog\s?walk/i, label: "Pet Care Routine" },
+      {
+        key: "pet_care",
+        re: /pet|vet\b|veterinar|chewy|petco|petsmart|barkbox|rover|groom|dog\s?walk/i,
+        label: "Pet Care Routine",
+      },
       { key: "home_goods", re: /home\s?goods|home\s?decor|furniture|hardware|garden|homeware/i, label: "Home Goods" },
-      { key: "fitness_wellness", re: /fitness|gym\b|yoga|peloton|wellness|athleisure|lululemon/i, label: "Fitness & Wellness" },
+      {
+        key: "fitness_wellness",
+        re: /fitness|gym\b|yoga|peloton|wellness|athleisure|lululemon/i,
+        label: "Fitness & Wellness",
+      },
     ];
     const familyOf = (r: any): string | null => {
       const blob = `${r.label || ""} ${(r.categories || []).join(" ")}`;
@@ -890,7 +1021,10 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     const standaloneSH: any[] = [];
     for (const r of filteredSH) {
       const fam = familyOf(r);
-      if (!fam) { standaloneSH.push(r); continue; }
+      if (!fam) {
+        standaloneSH.push(r);
+        continue;
+      }
       const existing = mergedSHMap.get(fam);
       if (!existing) {
         mergedSHMap.set(fam, {
@@ -925,9 +1059,6 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       }
     }
 
-
-
-
     // 4. dropped_upstream_life_events — signals the upstream detector emitted
     //    but which our taxonomy re-routes elsewhere (college, auto, mortgage).
     const RETIRED_UPSTREAM_RE = /college|university|tuition|auto\s*loan|mortgage|student\s*loan/i;
@@ -936,9 +1067,10 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     // 5. Merge external pre-classified signals — respect their declared bucket.
     for (const es of externals) {
       if (es.bucket === "financial_signal") {
-        const dup = filteredFS.some((f: any) =>
-          (f.product_family || "").toLowerCase() === (es.product_family || "").toLowerCase() &&
-          (es.product_family || "") !== "",
+        const dup = filteredFS.some(
+          (f: any) =>
+            (f.product_family || "").toLowerCase() === (es.product_family || "").toLowerCase() &&
+            (es.product_family || "") !== "",
         );
         if (!dup) {
           filteredFS.push({
@@ -975,51 +1107,54 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     }
 
     // ═════════════════════ Response (backwards-compatible shape) ═══════════
-    return new Response(JSON.stringify({
-      pillar_rollups: filteredSH.map((r: any) => ({
-        pillar: r.pillar,
-        label: r.label,
-        categories: r.categories || [],
-        category_indices: r.category_indices || [],
-        transaction_indices: r.transaction_indices || [],
-      })),
-      detected_life_events: filteredLE.map((e: any) => ({
-        event_name: e.event_name,
-        confidence: typeof e.confidence === "number" ? e.confidence : 70,
-        evidence: Array.isArray(e.evidence) ? e.evidence : [],
-        talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
-        transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
-      })),
-      dropped_upstream_life_events: droppedUpstreamLifeEvents,
-      financial_signals: filteredFS.map((f: any, i: number) => ({
-        id: f.id ?? `fs-${i}`,
-        product_family: f.product_family,
-        label: f.label,
-        servicer: f.servicer || "",
-        monthly_amount_band: f.monthly_amount_band || "",
-        cadence: f.cadence || "irregular",
-        transaction_indices: Array.isArray(f.transaction_indices) ? f.transaction_indices : [],
-        talking_points: Array.isArray(f.talking_points) ? f.talking_points : [],
-        source: f.source,
-        provider: f.provider,
-        confidence: f.confidence,
-        detail: f.detail,
-      })),
-      demographic_shifts: filteredDemo.map((d: any, i: number) => ({
-        id: d.id ?? `ds-${i}`,
-        category: d.category,
-        label: d.label,
-        direction: d.direction || "lateral",
-        confidence: typeof d.confidence === "number" ? Math.max(0, Math.min(0.92, d.confidence)) : 0.6,
-        magnitude_band: d.magnitude_band || "",
-        evidence_summary: d.evidence_summary || "",
-        transaction_indices: Array.isArray(d.transaction_indices) ? d.transaction_indices : [],
-        source: d.source,
-        provider: d.provider,
-      })),
-    }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        pillar_rollups: filteredSH.map((r: any) => ({
+          pillar: r.pillar,
+          label: r.label,
+          categories: r.categories || [],
+          category_indices: r.category_indices || [],
+          transaction_indices: r.transaction_indices || [],
+        })),
+        detected_life_events: filteredLE.map((e: any) => ({
+          event_name: e.event_name,
+          confidence: typeof e.confidence === "number" ? e.confidence : 70,
+          evidence: Array.isArray(e.evidence) ? e.evidence : [],
+          talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
+          transaction_indices: Array.isArray(e.transaction_indices) ? e.transaction_indices : [],
+        })),
+        dropped_upstream_life_events: droppedUpstreamLifeEvents,
+        financial_signals: filteredFS.map((f: any, i: number) => ({
+          id: f.id ?? `fs-${i}`,
+          product_family: f.product_family,
+          label: f.label,
+          servicer: f.servicer || "",
+          monthly_amount_band: f.monthly_amount_band || "",
+          cadence: f.cadence || "irregular",
+          transaction_indices: Array.isArray(f.transaction_indices) ? f.transaction_indices : [],
+          talking_points: Array.isArray(f.talking_points) ? f.talking_points : [],
+          source: f.source,
+          provider: f.provider,
+          confidence: f.confidence,
+          detail: f.detail,
+        })),
+        demographic_shifts: filteredDemo.map((d: any, i: number) => ({
+          id: d.id ?? `ds-${i}`,
+          category: d.category,
+          label: d.label,
+          direction: d.direction || "lateral",
+          confidence: typeof d.confidence === "number" ? Math.max(0, Math.min(0.92, d.confidence)) : 0.6,
+          magnitude_band: d.magnitude_band || "",
+          evidence_summary: d.evidence_summary || "",
+          transaction_indices: Array.isArray(d.transaction_indices) ? d.transaction_indices : [],
+          source: d.source,
+          provider: d.provider,
+        })),
+      }),
+      {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   } catch (e) {
     console.error("synthesize-persona error:", e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Unknown error" }), {
