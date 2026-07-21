@@ -844,10 +844,18 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     const filteredLE = rawLifeEvents
       // Drop any college/tuition themed life event — those belong under Demographic.
       .filter((e: any) => !COLLEGE_LE_RE.test(String(e?.event_name || "")))
-      .map((e: any) => ({
-        ...e,
-        transaction_indices: cleanIndices(e.transaction_indices || [], ["life_event"]),
-      }))
+      .map((e: any) => {
+        const raw: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
+        let idx = cleanIndices(raw, ["life_event"]);
+        // Rescue pass: a well-evidenced Life Event whose indices were all upstream-tagged
+        // as spending_habit (e.g. Home Depot spike attributed to a Home Purchase event)
+        // should reclaim those rows so the pill is clickable. Higher tiers
+        // (financial_signal / demographic / risk) still win.
+        if (idx.length === 0 && raw.length > 0 && Array.isArray(e.evidence) && e.evidence.length >= 2) {
+          idx = cleanIndices(raw, ["life_event", "spending_habit"]);
+        }
+        return { ...e, transaction_indices: idx };
+      })
       // Retired-upstream themes should never end up as life events —
       // even if the model picked the enum, if all its evidence indices were stripped, drop it.
       .filter((e: any) => Array.isArray(e.evidence) && e.evidence.length >= 2)
