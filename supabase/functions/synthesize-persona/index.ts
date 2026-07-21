@@ -482,176 +482,210 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
 
     const userContent = `Per-category spending signals:\n${pillarSummary}${txnBlock}`;
 
-    // ── LLM call ─────────────────────────────────────────────────────────
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
+    // ── LLM call with fallback ladder ────────────────────────────────────
+    // Primary: gpt-5.4-mini + priority tier (fast, non-reasoning, strong tool-calling).
+    // Fallback: gemini-3.5-flash if primary errors or returns no tool call.
+    const toolsBlock = [
+      {
+        type: "function",
+        function: {
+          name: "return_persona",
+          description: "Return all 5 signal buckets in one pass with an audit of claimed transaction indices.",
+          parameters: {
+            type: "object",
+            properties: {
+              detected_life_events: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    event_name: {
+                      type: "string",
+                      enum: [
+                        "Home Purchase / Transition",
+                        "Wedding / Engagement",
+                        "New Baby / Family Expansion",
+                        "Business Formation",
+                        "Elder Care",
+                        "Retirement Planning",
+                        "Relocation",
+                        "Inheritance / Windfall",
+                      ],
+                    },
+                    confidence: { type: "number" },
+                    evidence: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          merchant: { type: "string" },
+                          amount: { type: "number" },
+                          date: { type: "string" },
+                          relevance: { type: "string" },
+                        },
+                        required: ["merchant", "amount", "date", "relevance"],
+                        additionalProperties: false,
+                      },
+                    },
+                    talking_points: { type: "array", items: { type: "string" } },
+                    transaction_indices: { type: "array", items: { type: "number" } },
+                  },
+                  required: ["event_name", "confidence", "evidence", "talking_points", "transaction_indices"],
+                  additionalProperties: false,
+                },
+              },
+              financial_signals: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    product_family: {
+                      type: "string",
+                      enum: [
+                        "auto_loan", "auto_lease", "mortgage", "heloc", "student_loan", "personal_loan",
+                        "credit_card_payoff", "brokerage_contribution", "retirement_contribution",
+                        "insurance_premium", "education_savings",
+                      ],
+                    },
+                    label: { type: "string" },
+                    servicer: { type: "string" },
+                    monthly_amount_band: { type: "string" },
+                    cadence: { type: "string", enum: ["monthly", "biweekly", "quarterly", "annual", "irregular"] },
+                    transaction_indices: { type: "array", items: { type: "number" } },
+                    talking_points: { type: "array", items: { type: "string" } },
+                  },
+                  required: ["product_family", "label", "servicer", "transaction_indices"],
+                  additionalProperties: false,
+                },
+              },
+              demographic_shifts: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    category: {
+                      type: "string",
+                      enum: ["income_trajectory", "wealth_tier_migration", "household_composition", "geography_relocation"],
+                    },
+                    label: { type: "string" },
+                    direction: { type: "string", enum: ["up", "down", "lateral"] },
+                    confidence: { type: "number" },
+                    magnitude_band: { type: "string" },
+                    evidence_summary: { type: "string" },
+                    transaction_indices: { type: "array", items: { type: "number" } },
+                  },
+                  required: ["category", "label", "direction", "confidence", "evidence_summary", "transaction_indices"],
+                  additionalProperties: false,
+                },
+              },
+              spending_habits: {
+                type: "array",
+                items: {
+                  type: "object",
+                  properties: {
+                    pillar: { type: "string", enum: distinctPillars },
+                    label: { type: "string" },
+                    categories: { type: "array", items: { type: "string" } },
+                    category_indices: { type: "array", items: { type: "number" } },
+                    transaction_indices: { type: "array", items: { type: "number" } },
+                  },
+                  required: ["pillar", "label", "categories", "category_indices", "transaction_indices"],
+                  additionalProperties: false,
+                },
+              },
+              audit: {
+                type: "object",
+                properties: {
+                  claimed_life_event: { type: "array", items: { type: "number" } },
+                  claimed_financial_signal: { type: "array", items: { type: "number" } },
+                  claimed_demographic: { type: "array", items: { type: "number" } },
+                  claimed_spending_habit: { type: "array", items: { type: "number" } },
+                },
+                required: [
+                  "claimed_life_event", "claimed_financial_signal",
+                  "claimed_demographic", "claimed_spending_habit",
+                ],
+                additionalProperties: false,
+              },
+            },
+            required: ["detected_life_events", "financial_signals", "demographic_shifts", "spending_habits", "audit"],
+            additionalProperties: false,
+          },
+        },
       },
-      body: JSON.stringify({
-        model: PERSONA_MODEL,
-        max_completion_tokens: PERSONA_MAX_COMPLETION_TOKENS,
+    ];
+
+    type PersonaCallResult =
+      | { ok: true; raw: any }
+      | { ok: false; status: number; errText: string };
+
+    const callPersonaModel = async (model: string): Promise<PersonaCallResult> => {
+      const isOpenAI = model.startsWith("openai/");
+      const body: Record<string, unknown> = {
+        model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userContent },
         ],
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "return_persona",
-              description: "Return all 5 signal buckets in one pass with an audit of claimed transaction indices.",
-              parameters: {
-                type: "object",
-                properties: {
-                  detected_life_events: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        event_name: {
-                          type: "string",
-                          enum: [
-                            "Home Purchase / Transition",
-                            "Wedding / Engagement",
-                            "New Baby / Family Expansion",
-                            "Business Formation",
-                            "Elder Care",
-                            "Retirement Planning",
-                            "Relocation",
-                            "Inheritance / Windfall",
-                          ],
-                        },
-                        confidence: { type: "number" },
-                        evidence: {
-                          type: "array",
-                          items: {
-                            type: "object",
-                            properties: {
-                              merchant: { type: "string" },
-                              amount: { type: "number" },
-                              date: { type: "string" },
-                              relevance: { type: "string" },
-                            },
-                            required: ["merchant", "amount", "date", "relevance"],
-                            additionalProperties: false,
-                          },
-                        },
-                        talking_points: { type: "array", items: { type: "string" } },
-                        transaction_indices: { type: "array", items: { type: "number" } },
-                      },
-                      required: ["event_name", "confidence", "evidence", "talking_points", "transaction_indices"],
-                      additionalProperties: false,
-                    },
-                  },
-                  financial_signals: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        product_family: {
-                          type: "string",
-                          enum: [
-                            "auto_loan", "auto_lease", "mortgage", "heloc", "student_loan", "personal_loan",
-                            "credit_card_payoff", "brokerage_contribution", "retirement_contribution",
-                            "insurance_premium", "education_savings",
-                          ],
-                        },
-                        label: { type: "string" },
-                        servicer: { type: "string" },
-                        monthly_amount_band: { type: "string" },
-                        cadence: { type: "string", enum: ["monthly", "biweekly", "quarterly", "annual", "irregular"] },
-                        transaction_indices: { type: "array", items: { type: "number" } },
-                        talking_points: { type: "array", items: { type: "string" } },
-                      },
-                      required: ["product_family", "label", "servicer", "transaction_indices"],
-                      additionalProperties: false,
-                    },
-                  },
-                  demographic_shifts: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        category: {
-                          type: "string",
-                          enum: ["income_trajectory", "wealth_tier_migration", "household_composition", "geography_relocation"],
-                        },
-                        label: { type: "string" },
-                        direction: { type: "string", enum: ["up", "down", "lateral"] },
-                        confidence: { type: "number" },
-                        magnitude_band: { type: "string" },
-                        evidence_summary: { type: "string" },
-                        transaction_indices: { type: "array", items: { type: "number" } },
-                      },
-                      required: ["category", "label", "direction", "confidence", "evidence_summary", "transaction_indices"],
-                      additionalProperties: false,
-                    },
-                  },
-                  spending_habits: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        pillar: { type: "string", enum: distinctPillars },
-                        label: { type: "string" },
-                        categories: { type: "array", items: { type: "string" } },
-                        category_indices: { type: "array", items: { type: "number" } },
-                        transaction_indices: { type: "array", items: { type: "number" } },
-                      },
-                      required: ["pillar", "label", "categories", "category_indices", "transaction_indices"],
-                      additionalProperties: false,
-                    },
-                  },
-                  audit: {
-                    type: "object",
-                    properties: {
-                      claimed_life_event: { type: "array", items: { type: "number" } },
-                      claimed_financial_signal: { type: "array", items: { type: "number" } },
-                      claimed_demographic: { type: "array", items: { type: "number" } },
-                      claimed_spending_habit: { type: "array", items: { type: "number" } },
-                    },
-                    required: [
-                      "claimed_life_event", "claimed_financial_signal",
-                      "claimed_demographic", "claimed_spending_habit",
-                    ],
-                    additionalProperties: false,
-                  },
-                },
-                required: ["detected_life_events", "financial_signals", "demographic_shifts", "spending_habits", "audit"],
-                additionalProperties: false,
-              },
-            },
-          },
-        ],
+        tools: toolsBlock,
         tool_choice: { type: "function", function: { name: "return_persona" } },
-      }),
-    });
+      };
+      // OpenAI models want max_completion_tokens; Gemini via OpenRouter wants max_tokens.
+      if (isOpenAI) body.max_completion_tokens = PERSONA_MAX_TOKENS;
+      else body.max_tokens = PERSONA_MAX_TOKENS;
+      // Priority serving tier only on the fast-mode-eligible primary model.
+      if (model === PERSONA_PRIMARY_MODEL) body.service_tier = "priority";
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("AI gateway error:", response.status, errText);
-      if (response.status === 429) {
-        return new Response(JSON.stringify({ error: "Rate limited" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      let response: Response;
+      try {
+        response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${LOVABLE_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(body),
+        });
+      } catch (e) {
+        return { ok: false, status: 0, errText: `network: ${(e as Error).message}` };
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "Payment required" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!response.ok) {
+        const errText = await response.text();
+        console.error(`[PERSONA] ${model} gateway error ${response.status}:`, errText.slice(0, 400));
+        return { ok: false, status: response.status, errText };
       }
-      return new Response(JSON.stringify({ error: "AI processing failed" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      const data = await response.json();
+      const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+      if (!toolCall) {
+        console.error(`[PERSONA] ${model} returned no tool call:`, JSON.stringify(data).slice(0, 400));
+        return { ok: false, status: 502, errText: "no tool call" };
+      }
+      try {
+        const parsed = typeof toolCall.function.arguments === "string"
+          ? JSON.parse(toolCall.function.arguments)
+          : toolCall.function.arguments;
+        return { ok: true, raw: parsed };
+      } catch (e) {
+        return { ok: false, status: 502, errText: `parse: ${(e as Error).message}` };
+      }
+    };
+
+    let result = await callPersonaModel(PERSONA_PRIMARY_MODEL);
+    if (!result.ok) {
+      console.warn(
+        `[PERSONA] Primary ${PERSONA_PRIMARY_MODEL} failed (status=${result.status}) — falling back to ${PERSONA_FALLBACK_MODEL}`,
+      );
+      result = await callPersonaModel(PERSONA_FALLBACK_MODEL);
     }
-
-    const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    if (!toolCall) {
-      console.error("No tool call:", JSON.stringify(data));
-      return new Response(JSON.stringify({ error: "AI did not return structured output" }), {
-        status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
+    if (!result.ok) {
+      const status = result.status === 429 ? 429 : result.status === 402 ? 402 : 500;
+      const errorMsg = status === 429 ? "Rate limited" : status === 402 ? "Payment required" : "AI processing failed";
+      return new Response(JSON.stringify({ error: errorMsg }), {
+        status, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-    const raw = typeof toolCall.function.arguments === "string"
-      ? JSON.parse(toolCall.function.arguments)
-      : toolCall.function.arguments;
+    const raw = result.raw;
+
 
     // ═════════════════════ Deterministic guard layer ═══════════════════════
 
