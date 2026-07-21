@@ -1,45 +1,43 @@
-## Why Next-Product picked Pet Care instead of Hawaiian Vacations
 
-The Next-Product tab calls `generate-product-cards`. Its system prompt says (line 27, 223):
+## Scope
 
-> Slot 2 — behavioral (from `persona_rollups[0]`)
+In the **Next-Conversation** tab of `/bankdemo`, replace both toggle views (Customer / Ventus AI Coworker) with **static feature/capability summaries** that fill the panel without any inner scroll.
 
-So the behavioral card is **always** whatever rollup sits at index 0 of the array we send. Today that order is whatever `synthesize-persona` returned — the LLM's own ordering — and is never re-sorted by spend on the client. In this run the model listed "Pet Care Routine" first, so it beat higher-spend rollups (Annual Hawaiian Vacations, ski portfolio, etc.) into Slot 2.
+Only `src/components/exec-demo/NextConversationRationale.tsx` changes. No logic or backend touched.
 
-Confirmed from the code:
-- `supabase/functions/synthesize-persona/index.ts:845` — returns `pillar_rollups: filteredSH.map(...)` with no sort.
-- `src/pages/ExecDemoPage.tsx:438-615` — computes `totalSpend` and `totalCount` per rollup but preserves original order. No `.sort()` before it becomes `synthesis.pillarRollups`.
-- `src/pages/ExecDemoPage.tsx:972` — sends `persona_rollups: synthesis?.pillarRollups || []` to `generate-product-cards` in that order.
+## Current problems
+
+- **Customer view** (`Regular Client` panel): two stacked cards inside a scrollable container — content is thin but the scroll wrapper still shows.
+- **Coworker view**: embeds the full `CoworkerInboxView` (267 lines, real inbox with thread navigation) — makes the panel scroll heavily and doesn't communicate "what it does" at a glance.
 
 ## Fix
 
-Deterministically send the highest-spend rollup as `persona_rollups[0]`.
+Rebuild both branches of the `audience === "customer" | "rm"` block as **fixed, non-scrolling capability panels**.
 
-### Change
+### Customer view — "AI Banking Assistant"
+Header pill: blue dot + "AI Banking Assistant". Body is a 2-row vertical grid (`grid-rows-2 gap-2 min-h-0`) with equal-height cards:
 
-`src/pages/ExecDemoPage.tsx`, inside the `pillarRollups` pipeline (right after the coherence filters, before the final `.map(({ _resolvedCategories, ...rest }) => rest)` around line 615), add:
+1. **Context it has** — 3 bullets: Recent spending pattern · Account holdings · Recent product interactions.
+2. **Conversations it handles** — 3 bullets rendered as chat-bubble rows: "What products fit my situation?" · "Show me relevant offers" · "Explain this charge".
 
-```ts
-.sort((a, b) => (b.totalSpend || 0) - (a.totalSpend || 0))
-```
+Card layout uses `flex-1 min-h-0`, container uses `overflow-hidden` (no `overflow-y-auto`). Text sizes tuned to fit ~360px column height.
 
-That single sort makes `pillarRollups[0]` the top-spend behavioral pillar for the entire downstream pipeline.
+### Coworker view — "Ventus AI Coworker"
+Header pill: purple sparkle + "Ventus AI Coworker". Body is a 2-row vertical grid, equal-height:
 
-### Downstream impact
+1. **What it does for the advisor** — 3 bullets: Digests overnight signals into a morning briefing · Builds candidate lists for product campaigns · Drafts follow-up emails with evidence.
+2. **Where it plugs in** — 3 bullets shown as small pill chips: Advisor inbox · CRM tasks · Approval-gated outreach.
 
-- **Next-Product** (`generate-product-cards`): Slot 2 becomes the top-spend behavior — Annual Hawaiian Vacations, not Pet Care.
-- **Next-Offer** (`generate-next-offers`): same array, same ordering benefit; the primary behavioral offer aligns with top spend.
-- **Intel Panel pills**: Spending Habits row already reads from `synthesis.pillarRollups`, so its lead pill also becomes top-spend.
+`CoworkerInboxView` import removed from this file (the real inbox lives in the Coworker tab already).
 
-### What we're NOT changing
+### Shared shell tweaks
 
-- No prompt edits — `generate-product-cards` already trusts `[0]`; we just make `[0]` correct.
-- No changes to life-event or financial-signal ordering — those slots already work.
-- No changes to `synthesize-persona` behavior — the model still surfaces habits freely; we order deterministically on the client.
-- Pet Care remains in the pill list; it just no longer wins the single Slot-2 product card.
+- Outer wrapper: keep `PipelineSliver` on top, then a single card that fills remaining height (`flex-1 min-h-0`), `overflow-hidden`.
+- No `overflow-y-auto` anywhere in either branch.
+- Both branches share the same 2-row equal-height card structure so the toggle feels symmetric.
 
-### Verification
+## Out of scope
 
-Re-run the Demo tab for Sarah Mitchell:
-- Intel Panel Spending Habits lead pill = Annual Hawaiian Vacations (highest $).
-- Next-Product Slot 2 references tropical-getaway behavior (e.g. Travel Rewards Card copy).
+- The audience toggle itself and how `audience` is passed from `ExecDemoPage.tsx`.
+- The phone-side (right panel) content.
+- `CoworkerInboxView` (still used by the Coworker top-level tab).
