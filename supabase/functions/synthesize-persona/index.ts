@@ -484,7 +484,9 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3.1-pro-preview",
+        model: "openai/gpt-5-mini",
+        max_completion_tokens: 4096,
+        service_tier: "priority",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userContent },
