@@ -523,10 +523,22 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         return [] as LifeEvent[];
       });
 
+    // Resolve external intelligence signals BEFORE the LLM call so the model
+    // sees them as pre-classified inputs and can respect their bucket assignments.
+    const externalSignalsRaw = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id);
+    const externalForLLM = externalSignalsForLLM(externalSignalsRaw);
+
+    // ── Fast preliminary persona synthesis: unlock the Ready button immediately ──
+    const preliminarySynthesis = buildPreliminaryPersonaSynthesis(enrichedTxs, externalSignalsRaw);
+    personaSynthesisRef.current = preliminarySynthesis;
+    setPersonaSynthesis(preliminarySynthesis);
+    console.log("[PRELOAD] Preliminary persona synthesis ready:", preliminarySynthesis.pillarRollups?.length, "rollups");
 
     // Await risk detection (started in parallel from fireClassification) so we can pass
     // risk categories + flagged transaction IDs into synthesize-persona for vice/gambling
     // theme suppression. Bound to 6s so a slow risk call never blocks the demo.
+    // NOTE: The button already rendered from the preliminary state above, so this wait
+    // only affects final LLM quality, not perceived responsiveness.
     if (riskReadyRef.current) {
       try {
         await Promise.race([riskReadyRef.current, new Promise<void>((resolve) => setTimeout(resolve, 6000))]);
@@ -551,11 +563,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     console.log(
       `[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`,
     );
-
-    // Resolve external intelligence signals BEFORE the LLM call so the model
-    // sees them as pre-classified inputs and can respect their bucket assignments.
-    const externalSignalsRaw = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id);
-    const externalForLLM = externalSignalsForLLM(externalSignalsRaw);
 
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
