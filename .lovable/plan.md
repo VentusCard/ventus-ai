@@ -1,22 +1,49 @@
 ## Goal
-The X button in the top-right of the `/bankdemo` Demo tab currently links to `/`. Change it so it wipes the demo state and reopens the customer selection dialog to start over.
+Show the "Behavioral Intelligence — Ready" button ASAP by firing `analyze-lifestyle-signals` and `synthesize-persona` **in parallel** the moment classification finishes, instead of the current serial chain.
 
-## Change (single file: `src/pages/ExecDemoPage.tsx`)
+## Current chain (serial)
+`classify-transactions` → `analyze-lifestyle-signals` (awaited, ~8-15s) → `synthesize-persona` (~8-15s) → Ready button appears.
 
-1. Add a `resetDemo()` callback that clears all demo-run state and reopens the selection dialog:
-   - `setPhase("idle")`
-   - `setProcessedIndices([])`, `setRevealedTabs([])`, `setActiveTab(null)`
-   - `setPersonaSynthesis(null)`, `setDetectedLifeEvents(null)`, `setEnrichedTxs(null)`
-   - `setGeneratedOffers(null)`, `setProductCards(null)`, `setProductActions(null)`
-   - `setRiskFlags(null)`, `setCreditAssessment(null)`
-   - `setSynthesisTriggered(false)`, `setActivePillFilter(null)`, `setActiveRollup(null)`, `setActiveTriggerPill(null)`
-   - `setCollectedIndices([])`, `setStepIndex(0)`
-   - reset any loading flags (`offersLoading`, `productsLoading`, `productCardsLoading`, `actionsLoading`, `riskLoading`, `creditLoading`) to false
-   - finally `setSelectionDialogOpen(true)`
+## Target chain (parallel)
+`classify-transactions` → `[analyze-lifestyle-signals ∥ synthesize-persona]` → Ready button appears as soon as persona resolves. Life-event pills fill in when lifestyle-signals resolves (may be before or after persona).
 
-2. Replace the `<Link to="/">` at line 1472 with a `<button onClick={resetDemo}>` using the same styling and `X` icon. Add `title="Restart demo"` / `aria-label="Restart demo"`.
+## Change — single file: `src/pages/ExecDemoPage.tsx`
 
-3. Leave all other behavior (Next Step button, embedded mode, pre-fire logic) untouched.
+### 1. `firePersonaSynthesis` (around lines 315-325 and 375)
+- Remove the `await detectLifeEventsOnlyRef.current()` blocker.
+- Kick it off non-blocking right at the top of the function:
+  ```ts
+  const upstreamLifeEventsPromise = detectLifeEventsOnlyRef.current()
+    .catch((e) => { console.warn("[PRELOAD] upstream life events failed:", e); return [] as LifeEvent[]; });
+  ```
+- In the `synthesize-persona` invoke body, pass `lifeEvents: []` (the upstream dedup hint is skipped — client-side merge handles dedup instead).
+- After `synthesize-persona` returns and `finalLifeEvents` is built (existing code around line 691-718), keep firing `fireLifeEventDetection(synthesis, pillars, finalLifeEvents)` immediately so the Ready button and downstream product/offer calls unblock without waiting for the upstream promise.
+- Then, chain the upstream promise to merge late arrivals:
+  ```ts
+  upstreamLifeEventsPromise.then((upstreamEvents) => {
+    if (!upstreamEvents.length) return;
+    const seen = new Set(
+      (detectedLifeEventsRef.current || []).map((e) => e.event_name.toLowerCase().trim())
+    );
+    const additions = upstreamEvents.filter(
+      (e) => e?.event_name && !seen.has(e.event_name.toLowerCase().trim())
+    );
+    if (additions.length === 0) return;
+    const merged = [...(detectedLifeEventsRef.current || []), ...additions].slice(0, 3);
+    detectedLifeEventsRef.current = merged;
+    setDetectedLifeEvents(merged);
+    console.log("[PRELOAD] Merged", additions.length, "late upstream life events");
+  });
+  ```
 
-## Not changing
-- Selection dialog contents, background pre-fire pipeline, or navigation elsewhere in the app.
+### 2. No other files change
+- `analyze-lifestyle-signals` and `synthesize-persona` edge functions untouched.
+- Ready button gate in `ExecDemoIntelPanel.tsx` (line 1508: `hasSynthesis && !synthesisTriggered && phase === "hold"`) works as-is — it flips true the moment `personaSynthesis` state is set.
+- `detectLifeEventsOnly` helper stays as-is.
+- Risk detection race (6s cap, already parallel) stays as-is.
+
+## Expected result
+Ready button appears after roughly `classify + persona` (~18-30s) instead of `classify + life-events + persona` (~25-45s). Both LLM outputs still ship; late-arriving upstream life events merge into the pill row with lowercased-name dedup so no duplicates appear.
+
+## Trade-off (acknowledged)
+Without the upstream dedup hint in the persona prompt, the persona LLM may emit a life-event name that also appears in the upstream detector's output. The client-side lowercased-name dedup during the late merge covers exact-name overlaps. Near-duplicates with different phrasings are possible but rare and cosmetic.
