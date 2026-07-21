@@ -1,49 +1,42 @@
 ## Goal
-Show the "Behavioral Intelligence — Ready" button ASAP by firing `analyze-lifestyle-signals` and `synthesize-persona` **in parallel** the moment classification finishes, instead of the current serial chain.
 
-## Current chain (serial)
-`classify-transactions` → `analyze-lifestyle-signals` (awaited, ~8-15s) → `synthesize-persona` (~8-15s) → Ready button appears.
+On the **Next-Product** tab of `/bankdemo`, the 3rd generated card is currently coming out as a gambling/risk card ("Additional Tools → Account Wellness"). Since we now surface **Financial Signals** (e.g., "Auto Loan · VW Credit ~$685/mo"), the 3rd card should be a **financial-signal-driven product** — an auto refi offer when we have an auto loan signal, a mortgage refi when we have a mortgage signal, etc. The 3rd behavioral card only appears when no financial signal exists.
 
-## Target chain (parallel)
-`classify-transactions` → `[analyze-lifestyle-signals ∥ synthesize-persona]` → Ready button appears as soon as persona resolves. Life-event pills fill in when lifestyle-signals resolves (may be before or after persona).
+## Changes
 
-## Change — single file: `src/pages/ExecDemoPage.tsx`
+### 1. `supabase/functions/generate-product-cards/index.ts`
+- Accept a new input field `financial_signals` (array of `{ label, product_family, servicer, monthly_payment, balance, rate, term_months, renewal_window, transaction_indices }`).
+- Update card slot 3 priority ladder:
+  1. If `financial_signals[0]` exists → emit a **`financial_signal`** card grounded in that signal.
+  2. Else → emit the existing behavioral card from `persona_rollups[0]`.
+- Add `"financial_signal"` to the `type` enum in the tool schema.
+- For a `financial_signal` card:
+  - `signal_label` MUST equal `financial_signals[0].label` verbatim (for pill matching / grey-out logic).
+  - Product must map to the financial family:
+    - Auto Loan → `{bank} Auto Loan Refinance`
+    - Mortgage → `{bank} Mortgage Refinance` or `{bank} HELOC`
+    - Student Loan → `{bank} Student Loan Refinance`
+    - Investment → `{bank} Guided Investing` / IRA rollover
+    - Lease → `{bank} Auto Loan` (buyout financing)
+  - `offer_headline`, `benefits`, and `quote` must use the signal's numbers (monthly payment, balance, renewal window) to compute a concrete estimated savings.
+  - Example (VW Credit, $685/mo, renewal in ~2mo): `"Refinancing at ~5.49% APR could save you an estimated $180/mo — roughly $2,160/year."`
+- **Explicitly forbid risk/vice/gambling themes** and any "Account Wellness / Account Controls / Set Up Account Controls" copy in the system prompt. Add `risk_flags` note: risk data is context only, never a product card.
 
-### 1. `firePersonaSynthesis` (around lines 315-325 and 375)
-- Remove the `await detectLifeEventsOnlyRef.current()` blocker.
-- Kick it off non-blocking right at the top of the function:
-  ```ts
-  const upstreamLifeEventsPromise = detectLifeEventsOnlyRef.current()
-    .catch((e) => { console.warn("[PRELOAD] upstream life events failed:", e); return [] as LifeEvent[]; });
-  ```
-- In the `synthesize-persona` invoke body, pass `lifeEvents: []` (the upstream dedup hint is skipped — client-side merge handles dedup instead).
-- After `synthesize-persona` returns and `finalLifeEvents` is built (existing code around line 691-718), keep firing `fireLifeEventDetection(synthesis, pillars, finalLifeEvents)` immediately so the Ready button and downstream product/offer calls unblock without waiting for the upstream promise.
-- Then, chain the upstream promise to merge late arrivals:
-  ```ts
-  upstreamLifeEventsPromise.then((upstreamEvents) => {
-    if (!upstreamEvents.length) return;
-    const seen = new Set(
-      (detectedLifeEventsRef.current || []).map((e) => e.event_name.toLowerCase().trim())
-    );
-    const additions = upstreamEvents.filter(
-      (e) => e?.event_name && !seen.has(e.event_name.toLowerCase().trim())
-    );
-    if (additions.length === 0) return;
-    const merged = [...(detectedLifeEventsRef.current || []), ...additions].slice(0, 3);
-    detectedLifeEventsRef.current = merged;
-    setDetectedLifeEvents(merged);
-    console.log("[PRELOAD] Merged", additions.length, "late upstream life events");
-  });
-  ```
+### 2. `src/pages/ExecDemoPage.tsx`
+- In `firePreloadProductCards`, pass `financial_signals: synthesis?.financialSignals || []` to the edge function body.
 
-### 2. No other files change
-- `analyze-lifestyle-signals` and `synthesize-persona` edge functions untouched.
-- Ready button gate in `ExecDemoIntelPanel.tsx` (line 1508: `hasSynthesis && !synthesisTriggered && phase === "hold"`) works as-is — it flips true the moment `personaSynthesis` state is set.
-- `detectLifeEventsOnly` helper stays as-is.
-- Risk detection race (6s cap, already parallel) stays as-is.
+### 3. `src/components/exec-demo/NextProductRationale.tsx`
+- Extend the card-type handling so `type === "financial_signal"` resolves correctly:
+  - Color theme: reuse "Financial Planning" / neutral slate.
+  - Pill-matching function tries `financialSignals` first for these cards (match by `label` or `product_family`), analogous to the existing life-event and behavioral resolvers.
+- Add a lightweight `deriveOfferDetails` branch for auto refi / mortgage refi so fallbacks are sensible if the LLM omits a field.
 
-## Expected result
-Ready button appears after roughly `classify + persona` (~18-30s) instead of `classify + life-events + persona` (~25-45s). Both LLM outputs still ship; late-arriving upstream life events merge into the pill row with lowercased-name dedup so no duplicates appear.
+### 4. `src/components/exec-demo/ExecDemoIntelPanel.tsx` (light touch)
+- On the Next-Product tab, financial pills are currently rendered normally (only greyed on Next-Offer). No change needed; matching card now lives in the 3rd slot so the associated pill will highlight when the user clicks the auto loan pill.
 
-## Trade-off (acknowledged)
-Without the upstream dedup hint in the persona prompt, the persona LLM may emit a life-event name that also appears in the upstream detector's output. The client-side lowercased-name dedup during the late merge covers exact-name overlaps. Near-duplicates with different phrasings are possible but rare and cosmetic.
+## Out of scope
+- No changes to the Next-Offer greying logic, no changes to `synthesize-persona`, no changes to external-signal ingestion (the auto loan signal already flows into `synthesis.financialSignals` via the external-intelligence merge).
+
+## Technical notes
+- Card slot 3's `type` value change (`"behavioral"` → `"financial_signal"`) is backward-compatible: `NextProductRationale.tsx` currently branches on `type === "behavioral"` only for evidence matching; the new branch keeps behavior parity when no financial signal is present.
+- The LLM prompt keeps the strict 3-card cap and CARD ORDER (life_event_1, life_event_2, financial_or_behavioral) so the phone-mockup layout doesn't shift.
