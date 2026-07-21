@@ -353,11 +353,46 @@ export default function ExecDemoIntelPanel({
     [personaSynthesis?.financialSignals],
   );
   const rawDemographicShifts = personaSynthesis?.demographicShifts || [];
+  const canonicalLifeEventKey = (name: string): string => {
+    return (name || "")
+      .toLowerCase()
+      .replace(/\s*\/\s*transition\b/g, "")
+      .replace(/\s+for\s+dependent\b/g, "")
+      .replace(/\s+cycle\b/g, "")
+      .replace(/\s+planning\b/g, "")
+      .replace(/\bprep\b/g, "preparation")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
   const filteredDetectedLifeEvents = useMemo(
-    () => (detectedLifeEvents || []).filter((e) => {
-      const evBlob = (e.evidence || []).map((ev) => `${ev.merchant || ""} ${ev.relevance || ""}`).join(" ");
-      return !PET_VOCAB_RE.test(`${e.event_name || ""} ${evBlob}`);
-    }),
+    () => {
+      const petFiltered = (detectedLifeEvents || []).filter((e) => {
+        const evBlob = (e.evidence || []).map((ev) => `${ev.merchant || ""} ${ev.relevance || ""}`).join(" ");
+        return !PET_VOCAB_RE.test(`${e.event_name || ""} ${evBlob}`);
+      });
+      // Dedupe by canonicalized name — keep highest confidence, prefer shorter display name.
+      const byKey = new Map<string, typeof petFiltered[number]>();
+      for (const e of petFiltered) {
+        const key = canonicalLifeEventKey(e.event_name || "");
+        if (!key) continue;
+        const existing = byKey.get(key);
+        if (!existing) {
+          byKey.set(key, e);
+          continue;
+        }
+        const eConf = e.confidence > 1 ? e.confidence / 100 : e.confidence;
+        const exConf = existing.confidence > 1 ? existing.confidence / 100 : existing.confidence;
+        const eEv = e.evidence?.length ?? 0;
+        const exEv = existing.evidence?.length ?? 0;
+        const eBetter =
+          eConf > exConf ||
+          (eConf === exConf && eEv > exEv) ||
+          (eConf === exConf && eEv === exEv && (e.event_name || "").length < (existing.event_name || "").length);
+        if (eBetter) byKey.set(key, e);
+      }
+      return Array.from(byKey.values());
+    },
     [detectedLifeEvents],
   );
 
