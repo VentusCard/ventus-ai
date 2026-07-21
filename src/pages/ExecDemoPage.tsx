@@ -706,23 +706,11 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
       // don't block on the parallel upstream detector.
       fireLifeEventDetection(synthesis, pillars, finalLifeEvents);
 
-      // Merge late-arriving upstream life events (dedup by lowercased event_name)
-      // without blocking the Ready button.
-      upstreamLifeEventsPromise.then((upstreamEvents) => {
-        if (!upstreamEvents || upstreamEvents.length === 0) return;
-        const current = detectedLifeEventsRef.current || [];
-        const seen = new Set(
-          current.map((e) => (e.event_name || "").toLowerCase().trim()),
-        );
-        const additions = upstreamEvents.filter(
-          (e) => e?.event_name && !seen.has(e.event_name.toLowerCase().trim()),
-        );
-        if (additions.length === 0) return;
-        const merged = [...current, ...additions].slice(0, 3);
-        detectedLifeEventsRef.current = merged;
-        setDetectedLifeEvents(merged);
-        console.log("[PRELOAD] Merged", additions.length, "late upstream life events");
-      });
+      // Upstream analyze-lifestyle-signals is used only as a dedup hint for
+      // synthesize-persona (see upstreamLifeEventsPromise above). Its events
+      // are intentionally NOT merged back into the pill strip — the panel
+      // reflects synthesize-persona's authoritative taxonomy only.
+
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
