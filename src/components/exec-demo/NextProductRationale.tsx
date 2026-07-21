@@ -213,8 +213,25 @@ function resolveCard(
   lifeEvents: LifeEvent[] | null,
   pillarRollups: PillarRollup[] | undefined,
   transactions: Transaction[] | undefined,
+  financialSignals: any[] | undefined,
 ): ResolvedCard {
   const isBehavioral = card.type === "behavioral";
+  const isFinancialSignal = card.type === "financial_signal";
+
+  // Financial signal card → match against financialSignals by label / product_family
+  const matchingFinancial = (() => {
+    if (!isFinancialSignal || !financialSignals || financialSignals.length === 0) return null;
+    const cardLabel = card.signal_label.toLowerCase();
+    return (
+      financialSignals.find((f: any) => (f.label || "").toLowerCase() === cardLabel)
+      || financialSignals.find((f: any) => {
+        const fl = (f.label || "").toLowerCase();
+        const pf = (f.product_family || "").toLowerCase();
+        return fl.includes(cardLabel) || cardLabel.includes(fl) || (pf && cardLabel.includes(pf));
+      })
+      || financialSignals[0]
+    );
+  })();
 
   const matchingEvent = lifeEvents?.find(e =>
     e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
@@ -242,21 +259,25 @@ function resolveCard(
     return bestScore > 0 ? best : pillarRollups[0];
   })();
 
-  const color = isBehavioral && matchedRollup
-    ? (() => {
-        const rc = getColor(matchedRollup.pillar);
-        return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
-      })()
-    : isBehavioral
-      ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
-      : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
+  const color = isFinancialSignal
+    ? { bg: "#f1f5f9", text: "#0f172a", dot: "#475569", border: "#cbd5e1" }
+    : isBehavioral && matchedRollup
+      ? (() => {
+          const rc = getColor(matchedRollup.pillar);
+          return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
+        })()
+      : isBehavioral
+        ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
+        : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
 
   const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
 
-  const resolvedLabel = matchedRollup?.label
+  const resolvedLabel = matchingFinancial?.label
+    || matchedRollup?.label
     || (matchingEvent?.event_name)
     || card.signal_label;
-  const resolvedCount = matchedRollup?.totalCount
+  const resolvedCount = (matchingFinancial?.transaction_indices?.length)
+    ?? matchedRollup?.totalCount
     ?? (matchingEvent?.evidence?.length)
     ?? 0;
   const resolvedSpend = matchedRollup?.totalSpend ?? (matchingEvent
@@ -268,7 +289,9 @@ function resolveCard(
   let matchedIndices: number[] = [];
   let matchedKind: "lifeEvent" | "risk" | undefined;
 
-  if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
+  if (matchingFinancial?.transaction_indices?.length) {
+    matchedIndices = matchingFinancial.transaction_indices;
+  } else if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
     matchedIndices = matchedRollup.txIndices;
   } else if (transactions) {
     if (hasEvidence && matchingEvent) {
