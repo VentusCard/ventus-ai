@@ -361,8 +361,9 @@ function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData;
           !!data.cadence ||
           !!data.activeSpan ||
           (!!data.seasonality && data.seasonality !== "year-round") ||
-          data.velocity !== 0 ||
-          data.monthlyTrend.some(v => v > 0);
+          data.velocity !== 0;
+
+
 
         const LeftCol = (
           <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
