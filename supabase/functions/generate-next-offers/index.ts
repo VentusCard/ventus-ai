@@ -328,7 +328,7 @@ serve(async (req) => {
 
     const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
 
-    for (const r of [rollupRes, lifeEventRes]) {
+    for (const r of [rollupRes, lifeEventRes, financialSignalRes]) {
       if (r && !r.ok) {
         const errText = await r.text();
         console.error("AI gateway error:", r.status, errText);
