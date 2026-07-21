@@ -88,8 +88,6 @@ interface Props {
   actionsLoading?: boolean;
   riskFlags?: { flags: any[]; summary: string } | null;
   riskLoading?: boolean;
-  creditAssessment?: import("./NextProductRationale").CreditAssessment | null;
-  creditLoading?: boolean;
   productDeliveryChannel?: import("./ProductDeliveryChannelCard").ProductDeliveryChannel;
   onProductDeliveryChannelChange?: (channel: import("./ProductDeliveryChannelCard").ProductDeliveryChannel) => void;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
@@ -289,8 +287,6 @@ export default function ExecDemoIntelPanel({
   actionsLoading,
   riskFlags,
   riskLoading,
-  creditAssessment,
-  creditLoading,
   productDeliveryChannel = "mobile",
   onProductDeliveryChannelChange,
   onOpenWMCopilot,
@@ -1447,8 +1443,6 @@ export default function ExecDemoIntelPanel({
                 pillarRollups={rollupStats}
                 riskFlags={riskFlags}
                 financialSignals={personaSynthesis?.financialSignals || []}
-                creditAssessment={creditAssessment}
-                creditLoading={creditLoading}
                 deliveryChannel={productDeliveryChannel}
                 onDeliveryChannelChange={onProductDeliveryChannelChange}
               />
