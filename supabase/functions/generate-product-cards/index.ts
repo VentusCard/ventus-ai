@@ -240,7 +240,7 @@ CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_r
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return up to 3 consumer product recommendation cards in strict order: life_event_1, life_event_2, [financial_signal_1 OR behavioral_1]",
+              description: "Return exactly 3 consumer product recommendation cards in strict order: Slot 1 life_event, Slot 2 behavioral, Slot 3 financial_signal. Falls back to alternate candidates within the same family when a primary is missing. Never fewer than min(3, total_candidates).",
               parameters: {
                 type: "object",
                 properties: {
