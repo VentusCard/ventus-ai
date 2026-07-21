@@ -815,38 +815,6 @@ function GroupSlideshow({
   );
 }
 
-/* ─── Creditworthiness column (4th column in Next-Product row) ─── */
-const BAND_COLORS: Record<CreditAssessment["band"], { dot: string; text: string; bg: string; border: string }> = {
-  Excellent: { dot: "#10b981", text: "#065f46", bg: "#ecfdf5", border: "#a7f3d0" },
-  Good:      { dot: "#3b82f6", text: "#1e3a8a", bg: "#eff6ff", border: "#bfdbfe" },
-  Fair:      { dot: "#f59e0b", text: "#92400e", bg: "#fffbeb", border: "#fde68a" },
-  Limited:   { dot: "#64748b", text: "#334155", bg: "#f8fafc", border: "#e2e8f0" },
-  Poor:      { dot: "#f43f5e", text: "#9f1239", bg: "#fff1f2", border: "#fecdd3" },
-};
-
-const LEVEL_TONE: Record<string, { text: string; bg: string; border: string }> = {
-  stable:   { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
-  variable: { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
-  thin:     { text: "text-slate-600",   bg: "bg-slate-50",   border: "border-slate-200" },
-  unknown:  { text: "text-slate-500",   bg: "bg-slate-50",   border: "border-slate-200" },
-  low:      { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
-  medium:   { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
-  high:     { text: "text-rose-700",    bg: "bg-rose-50",    border: "border-rose-100" },
-};
-
-function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAssessment | null; loading: boolean }) {
-  return (
-    <div
-      className="h-full rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-center gap-2"
-      style={{ animation: `exec-product-reveal 0.4s ease-out both` }}
-    >
-      <Gauge className="w-4 h-4 text-slate-400" />
-      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Creditworthiness</div>
-      <span className="text-slate-300">·</span>
-      <div className="text-[12px] font-semibold text-slate-500">Coming soon</div>
-    </div>
-  );
-}
 
 export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, financialSignals, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
