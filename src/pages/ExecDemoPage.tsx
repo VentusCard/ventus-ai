@@ -1469,12 +1469,41 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             >
               Next Step →
             </button>
-            <Link
-              to="/"
+            <button
+              type="button"
+              onClick={() => {
+                setPhase("idle");
+                setProcessedIndices([]);
+                setRevealedTabs([]);
+                setActiveTab(null);
+                setPersonaSynthesis(null);
+                setDetectedLifeEvents(null);
+                setEnrichedTxs(null);
+                setGeneratedOffers(null);
+                setProductCards(null);
+                setProductActions(null);
+                setRiskFlags(null);
+                setCreditAssessment(null);
+                setSynthesisTriggered(false);
+                setActivePillFilter(null);
+                setActiveRollup(null);
+                setActiveTriggerPill(null);
+                setCollectedIndices([]);
+                setStepIndex(0);
+                setOffersLoading(false);
+                setProductsLoading(false);
+                setProductCardsLoading(false);
+                setActionsLoading(false);
+                setRiskLoading(false);
+                setCreditLoading(false);
+                setSelectionDialogOpen(true);
+              }}
+              title="Restart demo"
+              aria-label="Restart demo"
               className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
             >
               <X className="w-[18px] h-[18px]" />
-            </Link>
+            </button>
           </div>
         </div>
 
