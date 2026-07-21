@@ -284,7 +284,7 @@ const ScrollDrivenHero = () => {
                 transitionDelay: "200ms",
               }}
             >
-              Beyond MCC codes and fragmented rails — Ventus reads the full story your customers' transactions are telling, and turns it into action.
+              Ventus AI orchestrates a hyper-personalized banking experience for every customer with your existing stack
             </p>
 
             <Button
