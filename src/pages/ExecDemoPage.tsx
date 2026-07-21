@@ -393,26 +393,12 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
       }
       const rawDemographicShifts: any[] = Array.isArray(data.demographic_shifts) ? data.demographic_shifts : [];
 
-      // --- Mutual-exclusion guard: strip any demographic shift whose evidence is
-      // already claimed by a detected life event or a financial signal. If a shift
-      // has fewer than 2 unclaimed indices left, drop it entirely.
-      const claimedByHigherTier = new Set<number>();
-      for (const fs of rawFinancialSignals) {
-        for (const ti of fs.transaction_indices || []) claimedByHigherTier.add(ti);
-      }
-      const rawLifeEvents: any[] = Array.isArray(data.detected_life_events) ? data.detected_life_events : [];
-      for (const le of rawLifeEvents) {
-        for (const ti of le.transaction_indices || []) claimedByHigherTier.add(ti);
-      }
+      // Trust the edge function's demographic filtering — synthesize-persona already
+      // applies the ladder (life > financial > demographic), NON_DEMO vocab guard,
+      // and unclaimed-index test server-side. No redundant re-gate here.
       const dedupedDemographicShifts = rawDemographicShifts
-        .map((d: any) => {
-          const unclaimed = (d.transaction_indices || []).filter(
-            (ti: number) => ti >= 0 && ti < enrichedTxs.length && !claimedByHigherTier.has(ti),
-          );
-          return { ...d, transaction_indices: unclaimed };
-        })
-        .filter((d: any) => (d.transaction_indices || []).length >= 2)
         .filter((d: any) => d.category !== "life_stage_entry"); // legacy category retired
+
 
       const synthesis: PersonaSynthesis = {
         financialSignals: rawFinancialSignals.map((f: any) => ({
