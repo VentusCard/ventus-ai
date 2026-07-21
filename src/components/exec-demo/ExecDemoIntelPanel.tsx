@@ -748,7 +748,7 @@ export default function ExecDemoIntelPanel({
                       for (const idx of r.txIndices) {
                         const tx: any = enrichedTransactions[idx];
                         if (!tx) continue;
-                        const bucket = tx.subcategory || tx.category || "Other";
+                        const bucket = tx.category || tx.subcategory || "Other";
                         const amt =
                           typeof tx.amount === "number"
                             ? Math.abs(tx.amount)
@@ -766,7 +766,7 @@ export default function ExecDemoIntelPanel({
                             `${name} $${Math.round(v.total)} (${v.count}x, ${[...v.merchants].slice(0, 3).join(", ")})`,
                         );
                       if (buckets.length)
-                        categoryBreakdown = ` Breakdown by enriched subcategory: ${buckets.join("; ")}.`;
+                        categoryBreakdown = ` Breakdown by enriched category: ${buckets.join("; ")}.`;
                     }
                     // Only dispatch AI chat prompts on the Next-Conversation (relationship) tab.
                     // On Next-Offer / Next-Product, pill clicks should only filter the deal/product collection.
