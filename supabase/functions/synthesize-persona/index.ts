@@ -829,12 +829,26 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       return travelHits >= Math.ceil(evidence.length / 2);
     };
 
+    // College Prep / tuition life events get demoted to Demographic. Harvest their
+    // indices + evidence into a synthetic demographic candidate before the ladder runs.
+    const COLLEGE_LE_RE = /college|university|tuition|\bsat\b|kaplan|common\s*app/i;
+    const harvestedCollegeIndices = new Set<number>();
+    const harvestedCollegeEvidence: any[] = [];
+    for (const e of rawLifeEvents) {
+      if (!COLLEGE_LE_RE.test(String(e?.event_name || ""))) continue;
+      const idx = cleanIndices(e.transaction_indices || [], ["life_event"]);
+      idx.forEach((i: number) => harvestedCollegeIndices.add(i));
+      if (Array.isArray(e.evidence)) harvestedCollegeEvidence.push(...e.evidence);
+    }
+
     const filteredLE = rawLifeEvents
+      // Drop any college/tuition themed life event — those belong under Demographic.
+      .filter((e: any) => !COLLEGE_LE_RE.test(String(e?.event_name || "")))
       .map((e: any) => ({
         ...e,
         transaction_indices: cleanIndices(e.transaction_indices || [], ["life_event"]),
       }))
-      // College Prep, auto loans, mortgages, student loans should never end up as life events —
+      // Retired-upstream themes should never end up as life events —
       // even if the model picked the enum, if all its evidence indices were stripped, drop it.
       .filter((e: any) => Array.isArray(e.evidence) && e.evidence.length >= 2)
       // Pet themes never belong in Life Event.
