@@ -868,9 +868,11 @@ export default function ExecDemoIntelPanel({
                           <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
                             {isExternal
                               ? (externalDetail || `${evt.evidence?.length ?? 0} signal${(evt.evidence?.length ?? 0) !== 1 ? "s" : ""}`)
-                              : spendLE > 0
-                                ? `${txCountLE} txn${txCountLE !== 1 ? "s" : ""} · ${formatSpend(spendLE)}`
-                                : `${txCountLE} txn${txCountLE !== 1 ? "s" : ""}`}
+                              : txCountLE === 0
+                                ? `${evt.evidence?.length ?? 0} signal${(evt.evidence?.length ?? 0) !== 1 ? "s" : ""}`
+                                : spendLE > 0
+                                  ? `${txCountLE} txn${txCountLE !== 1 ? "s" : ""} · ${formatSpend(spendLE)}`
+                                  : `${txCountLE} txn${txCountLE !== 1 ? "s" : ""}`}
                           </span>
                         </span>
                       );
