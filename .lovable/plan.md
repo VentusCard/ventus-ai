@@ -1,43 +1,45 @@
-# Fix `$0` amounts in intel-panel pill sublabels
+# Speed up `synthesize-persona`: switch to gpt-5.4-mini (priority) with Gemini fallback
 
-## What's wrong
-In the Behavioral Intelligence panel, several pills render `$0`:
-- `College Preparation4 txns · $0`
-- `Home Purchase / Transition4 txns` (spend suppressed because it computed to 0)
-- `Gambling3 txns · $0`, `Financial Vulnerability3 txns · $0`
+## Why
 
-## Root cause
-`buildLocalProfile` (`src/components/exec-demo/execDemoData.ts` ~line 79-97) stores each transaction's `amount` as a **display-formatted string** returned by `formatAccounting(rawAmt, flow)` — e.g. `"$685.00"` or `"($685.00)"` — even though the `Transaction` type declares `amount: number`.
+Gateway logs show current runs on `openai/gpt-5-mini` taking **93–98s** because it's a reasoning model burning 6–7k hidden reasoning tokens per call (`log_id` 019f836d-efe3-7087 @ 2026-07-21T06:49:06Z, `019f836c-07a6-77e3` @ 06:46:56Z). Swapping to a non-reasoning model + priority tier + a fallback removes the bottleneck without touching the prompt, schema, or guard code.
 
-Every pill sublabel in `src/components/exec-demo/ExecDemoIntelPanel.tsx` sums via:
-```ts
-matchedIndices.reduce((s, idx) => s + (Number(transactions?.[idx]?.amount) || 0), 0)
-```
-`Number("$685.00")` is `NaN`, coerced to `0`. So any sum over these strings collapses to `$0`. The enrichment table works because it separately parses with a regex (line 1371).
+## Change (single file: `supabase/functions/synthesize-persona/index.ts`)
 
-This affects life events, financial signals, demographics, risk pills, and the "$0" suppression branch in life events.
-
-## Fix
-Introduce one helper and use it wherever the panel converts `transactions[idx].amount` to a number.
-
-1. Add a tiny helper at the top of `ExecDemoIntelPanel.tsx` (near `formatSpend`):
+1. **Replace model constants** at lines 9–10:
    ```ts
-   function toAmount(v: unknown): number {
-     if (typeof v === "number") return isFinite(v) ? Math.abs(v) : 0;
-     if (typeof v === "string") {
-       const n = parseFloat(v.replace(/[^0-9.\-]/g, ""));
-       return isFinite(n) ? Math.abs(n) : 0;
-     }
-     return 0;
-   }
+   const PERSONA_PRIMARY_MODEL = "openai/gpt-5.4-mini";
+   const PERSONA_FALLBACK_MODEL = "google/gemini-3.5-flash";
+   const PERSONA_MAX_TOKENS = 6000;
    ```
-2. Replace the five `Number(transactions?.[idx]?.amount) || 0` sums (lines ~838, ~1026, ~1113, ~1180, and the two inline ones at ~731 / ~753 already handle strings but should route through the same helper for consistency) with `toAmount(transactions?.[idx]?.amount)`.
-3. No changes to persona synthesis, edge functions, or the enrichment table — the amounts are already correct in memory, only the panel's parser is wrong.
+
+2. **Extract the fetch at lines 483–627 into a helper** `callPersonaModel(model)` that:
+   - Uses `max_completion_tokens: 6000` for `openai/*` models, `max_tokens: 6000` for `google/*` (avoids the "unsupported parameter" 400 we hit before on the classify function).
+   - Adds `service_tier: "priority"` **only** when `model === PERSONA_PRIMARY_MODEL` (gpt-5.4-mini is fast-mode ✓). Never set on the Gemini fallback.
+   - Keeps the existing `tools` / `tool_choice: return_persona` block unchanged.
+   - Returns `{ ok: true, raw }` on success (parsed tool_call arguments), or `{ ok: false, status, errText }` on any failure (non-2xx, missing tool_call, or JSON parse error).
+
+3. **Wrap the call in a fallback ladder** at the current call site:
+   ```ts
+   let result = await callPersonaModel(PERSONA_PRIMARY_MODEL);
+   if (!result.ok) {
+     console.warn(`[PERSONA] Primary ${PERSONA_PRIMARY_MODEL} failed (${result.status}) — falling back to ${PERSONA_FALLBACK_MODEL}`);
+     result = await callPersonaModel(PERSONA_FALLBACK_MODEL);
+   }
+   if (!result.ok) {
+     // preserve existing 429 / 402 / 500 error surfacing based on result.status
+   }
+   const raw = result.raw;
+   ```
+   Everything downstream (`rawLifeEvents`, guard layer, response shape) stays identical.
+
+4. **No changes** to the prompt, tool schema, guard code, client, or any other edge function.
+
+## Expected result
+
+- Primary path: `openai/gpt-5.4-mini` + priority typically returns in **5–12s** for this ~8k-token payload → the "Behavioral Intelligence: Ready" button unblocks that much sooner.
+- If OpenAI is degraded / rate-limited / returns no tool call, Gemini takes over transparently in another ~5–10s instead of hard-failing the demo.
 
 ## Verification
-- Reload `/bankdemo` demo tab; the College Prep, Home Purchase, Gambling, and Financial Vulnerability pills should show real `$X` totals.
-- Existing pills that already showed non-zero amounts (Hawaiian Vacations, Skiing, Tennis Club) must remain unchanged — they were computed from `pillarRollups`, which uses parsed amounts on the enrichedTxs path.
-- Typecheck.
 
-## Scope
-Frontend-only, single file: `src/components/exec-demo/ExecDemoIntelPanel.tsx`. No backend or LLM prompt changes.
+After deploy, load `/bankdemo` past password, then check `list_ai_gateway_requests` — newest `synthesize-persona` entry should show `openai/gpt-5.4-mini`, duration well under 20s, and output tokens ~1–3k (no reasoning bloat). If a fallback fires, we'll see back-to-back log rows for the two models.
