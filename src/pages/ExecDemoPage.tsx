@@ -314,15 +314,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
     // pillars[i].txIndices = the transaction indices for row i sent to AI
 
-    // Fire upstream life-event detection in PARALLEL with synthesize-persona so
-    // the Behavioral Intelligence Ready button unblocks as soon as persona resolves.
-    // Late-arriving upstream events are merged into detectedLifeEvents below.
-    const upstreamLifeEventsPromise: Promise<LifeEvent[]> = detectLifeEventsOnlyRef
-      .current()
-      .catch((e) => {
-        console.warn("[PRELOAD] Upstream life event detection failed:", e);
-        return [] as LifeEvent[];
-      });
+
+
 
 
     // Await risk detection (started in parallel from fireClassification) so we can pass
