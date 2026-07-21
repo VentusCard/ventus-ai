@@ -124,73 +124,9 @@ function getFirstRiskRollup(riskFlags?: { flags: any[]; summary: string } | null
   return { label: first.label, severity: first.severity, count: first.txIds.size };
 }
 
-/* ─── Current holdings pill row ─── */
-function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] }) {
-  const sourceCounts = new Map<string, number>();
-  transactions.forEach(t => {
-    if (t.source) sourceCounts.set(t.source, (sourceCounts.get(t.source) || 0) + 1);
-  });
-  const sources = Array.from(sourceCounts.entries()).sort((a, b) => b[1] - a[1]);
-  if (sources.length === 0) return null;
-
-  return (
-    <div className="mb-1 flex flex-wrap items-center gap-1.5">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Current Holdings</span>
-      {sources.map(([source, count]) => (
-        <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5 shrink-0">
-          <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-          {source} ({count})
-        </span>
-      ))}
-    </div>
-  );
-}
-
 function formatSpend(amount: number): string {
   if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
   return `$${Math.round(amount)}`;
-}
-
-const PRODUCT_CATALOG = [
-  "Travel Card", "529 Plan", "HYSA", "Home Equity Line", "Auto Loan",
-  "CD Ladder", "Premium Card", "Life Insurance", "Brokerage Account",
-  "Student Loan Refi", "Balance Transfer Card", "Business Card",
-];
-
-function RecommendedProductsPills({ productCards }: { productCards: ProductCard[] }) {
-  const recommendedNames = productCards.map(c => c.product_name.toLowerCase());
-  const sorted = [...PRODUCT_CATALOG].sort((a, b) => {
-    const aMatch = recommendedNames.some(r => r.includes(a.toLowerCase()) || a.toLowerCase().includes(r));
-    const bMatch = recommendedNames.some(r => r.includes(b.toLowerCase()) || b.toLowerCase().includes(r));
-    return (bMatch ? 1 : 0) - (aMatch ? 1 : 0);
-  });
-  const visible = sorted.slice(0, 5);
-  const remaining = PRODUCT_CATALOG.length - 5;
-
-  return (
-    <div className="mb-1 flex flex-wrap items-center gap-1.5">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Product Catalog</span>
-      {visible.map(name => {
-        const isMatch = recommendedNames.some(r => r.includes(name.toLowerCase()) || name.toLowerCase().includes(r));
-        return (
-          <span
-            key={name}
-            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border ${
-              isMatch
-                ? "text-blue-700 bg-blue-50 border-blue-200"
-                : "text-slate-400 bg-slate-50 border-slate-100"
-            }`}
-          >
-            {isMatch && <Star className="w-2.5 h-2.5 text-blue-500 fill-blue-500" />}
-            {name}
-          </span>
-        );
-      })}
-      {remaining > 0 && (
-        <span className="text-[10px] text-slate-300 font-medium">+{remaining} more</span>
-      )}
-    </div>
-  );
 }
 
 /* ─── Resolved card data (pill + matched evidence) ─── */
@@ -815,38 +751,6 @@ function GroupSlideshow({
   );
 }
 
-/* ─── Creditworthiness column (4th column in Next-Product row) ─── */
-const BAND_COLORS: Record<CreditAssessment["band"], { dot: string; text: string; bg: string; border: string }> = {
-  Excellent: { dot: "#10b981", text: "#065f46", bg: "#ecfdf5", border: "#a7f3d0" },
-  Good:      { dot: "#3b82f6", text: "#1e3a8a", bg: "#eff6ff", border: "#bfdbfe" },
-  Fair:      { dot: "#f59e0b", text: "#92400e", bg: "#fffbeb", border: "#fde68a" },
-  Limited:   { dot: "#64748b", text: "#334155", bg: "#f8fafc", border: "#e2e8f0" },
-  Poor:      { dot: "#f43f5e", text: "#9f1239", bg: "#fff1f2", border: "#fecdd3" },
-};
-
-const LEVEL_TONE: Record<string, { text: string; bg: string; border: string }> = {
-  stable:   { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
-  variable: { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
-  thin:     { text: "text-slate-600",   bg: "bg-slate-50",   border: "border-slate-200" },
-  unknown:  { text: "text-slate-500",   bg: "bg-slate-50",   border: "border-slate-200" },
-  low:      { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
-  medium:   { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
-  high:     { text: "text-rose-700",    bg: "bg-rose-50",    border: "border-rose-100" },
-};
-
-function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAssessment | null; loading: boolean }) {
-  return (
-    <div
-      className="h-full rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-center gap-2"
-      style={{ animation: `exec-product-reveal 0.4s ease-out both` }}
-    >
-      <Gauge className="w-4 h-4 text-slate-400" />
-      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Creditworthiness</div>
-      <span className="text-slate-300">·</span>
-      <div className="text-[12px] font-semibold text-slate-500">Coming soon</div>
-    </div>
-  );
-}
 
 export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, financialSignals, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
@@ -952,29 +856,11 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
 
     return (
       <div className="px-3 py-3 space-y-4 overflow-y-auto">
-        {/* Current holdings pills */}
-        {transactions && transactions.length > 0 && (
-          <CurrentHoldingsPills transactions={transactions} />
+        {/* Delivery channel selector */}
+        {onDeliveryChannelChange && (
+          <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
         )}
 
-        {/* Product catalog pills */}
-        <RecommendedProductsPills productCards={productCards} />
-
-        {/* Delivery channel selector + creditworthiness banner side-by-side */}
-        {(onDeliveryChannelChange || creditAssessment || creditLoading) && (
-          <div className="flex items-stretch gap-3">
-            {onDeliveryChannelChange && (
-              <div className="flex-[2] min-w-0">
-                <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
-              </div>
-            )}
-            {(creditAssessment || creditLoading) && (
-              <div className="flex-[1] min-w-0">
-                <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Up to 3 products side-by-side with vertical dividers */}
         <div className="flex items-stretch gap-3">
