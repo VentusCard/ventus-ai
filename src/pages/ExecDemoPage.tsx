@@ -160,6 +160,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
   const fireRiskDetectionRef = useRef<() => Promise<void>>(async () => {});
   /** Promise resolved once risk detection finishes (success or failure) for the current CSV. */
   const riskReadyRef = useRef<Promise<void> | null>(null);
+  /** Promise resolving to detected life events fired in parallel with classification. */
+  const lifeEventsReadyRef = useRef<Promise<LifeEvent[]> | null>(null);
   const onClassifiedCallbackRef = useRef<((txs: EnrichedTransaction[]) => void) | null>(null);
   const offersInFlightRef = useRef<boolean>(false);
 
