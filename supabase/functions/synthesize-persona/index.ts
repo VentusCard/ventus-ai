@@ -6,6 +6,9 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
+const PERSONA_MODEL = "openai/gpt-5-mini";
+const PERSONA_MAX_COMPLETION_TOKENS = 24000;
+
 /* ============================================================================
  * synthesize-persona
  * ----------------------------------------------------------------------------
@@ -484,9 +487,8 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3.5-flash",
-        max_tokens: 16384,
-        reasoning: { max_tokens: 0, exclude: true },
+        model: PERSONA_MODEL,
+        max_completion_tokens: PERSONA_MAX_COMPLETION_TOKENS,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userContent },
