@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, TouchEvent } from "react";
 import { ChevronRight, ChevronLeft, Check, Plane, GraduationCap, Home, TrendingUp, Heart, ShoppingBag, Utensils, Dumbbell, Music, Briefcase, Leaf, Star } from "lucide-react";
 
 export interface ProductCard {
-  type: "behavioral" | "life_event";
+  type: "behavioral" | "life_event" | "financial_signal";
   product_name: string;
   quote: string;
   signal_label: string;

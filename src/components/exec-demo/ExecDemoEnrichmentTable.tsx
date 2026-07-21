@@ -148,10 +148,14 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
   const highlightSet = highlightedIndices && highlightedIndices.length > 0 ? new Set(highlightedIndices) : null;
   const externals = externalSignals ?? [];
   const externalActive = !!activeExternalSignalId;
-  const matchedCount = highlightSet ? highlightSet.size : externalActive ? 1 : 0;
+  const activeExternal = externalActive
+    ? externals.find((s) => s.id === activeExternalSignalId) ?? null
+    : null;
+  const matchedCount = highlightSet ? highlightSet.size : 0;
   const showStrip = (highlightSet && activePillLabel) || (externalActive && activePillLabel);
 
   return (
+
     <div className={`${wrapperCls} ${animateReveal ? "exec-cascade-on" : ""}`} style={{ maxHeight: "100%" }}>
       {showStrip && (
         <div
@@ -159,7 +163,9 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
           style={{ background: `${highlightColor}14`, borderColor: `${highlightColor}55` }}
         >
           <span className="text-[13px] font-semibold" style={{ color: highlightColor }}>
-            {externalActive ? (
+            {externalActive && highlightSet ? (
+              <>Showing <span className="tabular-nums">1</span> external signal + <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
+            ) : externalActive ? (
               <>Showing <span className="tabular-nums">1</span> external signal for "{activePillLabel}"</>
             ) : (
               <>Showing <span className="tabular-nums">{matchedCount}</span> of <span className="tabular-nums">{totalRows}</span> transactions for "{activePillLabel}"</>
@@ -235,7 +241,6 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.pillar}`}>Pillar</th>
             <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.category}`}>Category</th>
             <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.subs}`}>Subcategories</th>
-            
             <th className={`text-slate-600 text-[12.5px] font-semibold uppercase tracking-wider px-1.5 py-2 whitespace-nowrap overflow-hidden text-ellipsis ${COL.freq}`}>Freq</th>
           </tr>
         </thead>
@@ -265,7 +270,7 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             const isEnriched = !!tx;
             const c = isEnriched ? getColor(tx!.pillar) : null;
             const isHighlighted = highlightSet ? highlightSet.has(idx) : false;
-            const isDimmed = highlightSet ? !isHighlighted : externalActive;
+            const isDimmed = highlightSet ? !isHighlighted : false;
             return (
               <tr
                 key={(tx as any)?.transaction_id || raw?.transaction_id || `tx-${idx}`}
@@ -383,9 +388,17 @@ export default function ExecDemoEnrichmentTable({ transactions, rawRows, flush, 
             );
             });
           })()}
-          {externals.map((s) => {
+          {/* External Intelligence rows — rendered as full-width violet callouts.
+              When a pill activates one, it lights up and floats to the top. */}
+          {[...externals]
+            .sort((a, b) => {
+              if (a.id === activeExternalSignalId) return -1;
+              if (b.id === activeExternalSignalId) return 1;
+              return 0;
+            })
+            .map((s) => {
             const isActive = activeExternalSignalId === s.id;
-            const isDimmed = !isActive && (!!highlightSet || externalActive);
+            const isDimmed = !isActive && externalActive;
             const conf = s.confidence > 1 ? Math.round(s.confidence) : Math.round(s.confidence * 100);
             return (
               <tr

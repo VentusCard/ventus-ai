@@ -261,20 +261,23 @@ serve(async (req) => {
       `${cat}:\n${deals.map(d => `  - ${d.id} | ${d.merchant} (${d.sub})`).join('\n')}`
     ).join('\n\n');
 
-    const systemPrompt = `You are a semantic deal search assistant. Given a query, return ALL plausible matching deal IDs. Be generous — return 8-20 matches when possible.
+    const systemPrompt = `You are a precision semantic deal search assistant. Given a query, return matching deal IDs where the merchant is a credible place to buy the item, service, accessory, or consumable implied by the query.
 
-For each query, think about THREE dimensions:
-1. PURCHASE INTENT: Where would someone BUY this item? Include general retailers (Target, Walmart, Costco, Amazon, Best Buy), specialty stores, and e-commerce.
-2. BRAND ASSOCIATION: What brands or merchants are associated with this product category? (e.g., "coffee machine" → coffee brands like Starbucks, Dunkin')
-3. CATEGORY MATCH: Which merchants sell products in the same category?
+Match using PURCHASE INTENT first:
+1. DIRECT SELLERS: merchants that clearly sell the queried item or service category.
+2. RELEVANT GENERAL RETAILERS: Target, Walmart, Costco, Sam's Club, Amazon, Best Buy, and similar stores only when they plausibly stock the queried product.
+3. COMPLEMENTARY SELLERS: merchants that sell necessary accessories, refills, parts, or consumables for the queried product only when the connection is explicit in your reasoning.
+
+Do NOT match by loose brand association. Exclude substitute-category merchants: places where a customer would consume the outcome instead of buying the product. Examples: cafes are substitutes for home coffee equipment; streaming services are substitutes for TVs; rideshare is a substitute for car ownership; restaurants are substitutes for cookware.
+
+Return a focused set, usually 5-15 IDs. Prefer precision over breadth. If a merchant is only weakly related, omit it.
 
 Examples:
-- "coffee machine" → Williams-Sonoma (Kitchen), Target, Walmart, Costco, Amazon, Best Buy (retailers that sell appliances), Starbucks, Dunkin' (coffee brands), Dyson (home appliances)
-- "running shoes" → Nike, Adidas, Under Armour, Lululemon (athletic), Dick's Sporting Goods, REI, Foot Locker (sporting goods), Nordstrom, Macys (department stores), Amazon, Target
-- "birthday gift" → Target, Walmart, Amazon, Nordstrom, 1-800-Flowers, Hallmark, Party City, Disney Store, LEGO, Build-A-Bear
-- "healthy food" → Whole Foods, Trader Joes, Sweetgreen, HelloFresh, Instacart, GNC, Vitamin Shoppe, Noom
-
-IMPORTANT: Do NOT be conservative. Include every merchant that could plausibly be relevant. A general retailer like Target, Walmart, Costco, or Amazon is relevant for almost any physical product search.`;
+- "coffee machine" → Williams-Sonoma, Bed Bath & Beyond, Crate & Barrel, Dyson, Amazon, Target, Walmart, Costco, Best Buy. Exclude Starbucks and Dunkin' unless the query asks for coffee beans, pods, drinks, or cafe rewards; they are not coffee-machine sellers.
+- "new TV" → Best Buy, Amazon, Walmart, Target, Costco, Samsung, Sony. Exclude Netflix, Hulu, Disney+, HBO Max, and YouTube Premium because they are streaming substitutes, not TV sellers.
+- "running shoes" → Nike, Adidas, Under Armour, Foot Locker, Dick's Sporting Goods, REI, Nordstrom, Macys, Amazon, Target.
+- "birthday gift" → Target, Walmart, Amazon, Nordstrom, 1-800-Flowers, Hallmark, Party City, Disney Store, LEGO, Build-A-Bear.
+- "healthy food" → Whole Foods, Trader Joes, Sweetgreen, HelloFresh, Instacart. Add GNC/Vitamin Shoppe only when the query implies supplements or nutrition products.`;
 
     const userPrompt = `Query: "${query}"\n\nDeals:\n${catalogPrompt}\n\nReturn matching deal IDs for "${query}".`;
 
@@ -287,7 +290,7 @@ IMPORTANT: Do NOT be conservative. Include every merchant that could plausibly b
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash-lite',
+        model: 'google/gemini-3.1-flash-lite',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }

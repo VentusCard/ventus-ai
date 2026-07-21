@@ -239,11 +239,10 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
-      case 'exec-demo': return (
-        <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <ExecDemoPage embedded onBack={() => setActiveTab('ventus-ai-dashboard')} />
-        </div>
-      );
+      // 'exec-demo' is rendered as a persistent mount outside renderContent so
+      // its state (enrichment, persona, offers, product cards) survives tab
+      // switches. See the always-mounted block below.
+      case 'exec-demo': return null;
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
       case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} onOpenInteractiveReport={openInteractiveReport} />;
       case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
@@ -321,14 +320,27 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[11px] text-slate-400">Last updated: {today}</span>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-            <Sparkles className="w-3 h-3 text-blue-500" />
-            <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
-          </div>
+          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
+            <button
+              onClick={() => setChatOpen(true)}
+              className="ventus-ai-badge ventus-ai-badge-interactive"
+              title="Open Ventus AI"
+              aria-label="Open Ventus AI"
+            >
+              <span className="ventus-ai-live-dot" aria-hidden="true" />
+              Ventus AI
+            </button>
+          )}
+          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || chatOpen) && (
+            <div className="ventus-ai-badge" aria-label="Ventus AI is active">
+              <span className="ventus-ai-live-dot" aria-hidden="true" />
+              <span>Ventus AI</span>
+            </div>
+          )}
           <button
             onClick={() => {
-              sessionStorage.removeItem("demo_password_access");
-              window.location.reload();
+              sessionStorage.clear();
+              window.location.href = "/bankdemo";
             }}
             className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-slate-200 bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
             title="Exit demo"
@@ -463,20 +475,34 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           </div>
         )}
         {renderContent()}
-        {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
-            title="Open Ventus AI"
-          >
-            <span className="text-base font-black text-white leading-tight">V</span>
-          </button>
-        )}
+
+        {/*
+          Persistent Demo mount — kept alive across tab switches so the
+          pre-fired enrichment pipeline (classification, persona, offers,
+          product cards) is ready the moment the user clicks the Demo tab.
+          Hidden via CSS instead of unmounting so React state is preserved.
+        */}
+        <div
+          className={cn(
+            "-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white",
+            activeTab === 'exec-demo' ? "block" : "hidden",
+          )}
+        >
+          <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
+        </div>
       </div>
 
       {/* Chat Panel */}
       {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && (
-        <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+        <VentusAIChatPanel
+          activeTab={activeTab}
+          onClose={() => setChatOpen(false)}
+          contextExtras={
+            activeTab === 'report-priority-opportunity' && selectedOpportunityId
+              ? { selectedOpportunityId }
+              : undefined
+          }
+        />
       )}
       </div>
     </div>

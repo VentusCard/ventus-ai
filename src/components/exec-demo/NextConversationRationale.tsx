@@ -1,4 +1,4 @@
-import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox } from "lucide-react";
+import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox, Database, Users, ClipboardList, PenLine, PlugZap, ShieldCheck } from "lucide-react";
 
 const INGEST_ITEMS = [
   "Enriched Transactions",
@@ -19,13 +19,13 @@ const HANDOFF_ITEMS = [
 
 function PipelineSliver() {
   return (
-    <div className="shrink-0 rounded-xl border border-slate-200 bg-white grid grid-cols-2 divide-x divide-slate-200">
+    <div className="shrink-0 rounded-xl border border-slate-200 bg-white flex flex-col divide-y divide-slate-200">
       {[
         { label: "Ingest", Icon: Inbox, items: INGEST_ITEMS },
         { label: "Hands Off To", Icon: Send, items: HANDOFF_ITEMS },
       ].map(({ label, Icon, items }) => (
-        <div key={label} className="flex flex-col gap-1.5 px-4 py-2.5 overflow-hidden min-w-0">
-          <div className="flex items-center gap-1.5 shrink-0">
+        <div key={label} className="flex items-center gap-3 px-4 py-2.5 overflow-hidden min-w-0">
+          <div className="flex items-center gap-1.5 shrink-0 min-w-[140px]">
             <Icon className="w-3.5 h-3.5 text-slate-700" />
             <span className="text-[13px] font-bold tracking-wide text-slate-900 uppercase">{label}</span>
           </div>
@@ -312,6 +312,8 @@ interface Props {
   assistantOpen?: boolean;
   /** True when right-side phone panel is showing the WM CoPilot view. */
   wmCopilotOpen?: boolean;
+  /** Which audience view to render full-width. Defaults to 'customer'. */
+  audience?: "customer" | "rm";
 }
 
 export default function NextConversationRationale({
@@ -321,6 +323,7 @@ export default function NextConversationRationale({
   onOpenAIAssistant,
   assistantOpen = false,
   wmCopilotOpen = false,
+  audience = "customer",
 }: Props) {
   const effectiveSignal: SelectedSignal | null =
     selectedSignal ?? (availableSignals.length > 0 ? availableSignals[0] : null);
@@ -343,173 +346,61 @@ export default function NextConversationRationale({
   return (
     <div className="h-full min-h-0 flex flex-col gap-3 animate-in fade-in duration-300" key={effectiveSignal.label}>
       <PipelineSliver />
-      <div className="flex-1 min-h-0 grid grid-cols-2 gap-3">
-      {/* ============ LEFT: REGULAR CLIENT ============ */}
-      <div className="flex flex-col min-h-0 rounded-xl border border-slate-200 bg-white overflow-hidden">
-        <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-          <span className="text-[11px] font-semibold tracking-wide text-blue-600">Regular Client</span>
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-2 space-y-2">
-          {/* AI Chatbot Context Card */}
-          <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Bot className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-[11px] font-bold text-slate-800">AI Banking Assistant Context</span>
+      <div className="flex-1 min-h-0 grid grid-cols-1 gap-3">
+        {audience === "customer" ? (
+          /* ============ AI BANKING ASSISTANT (customer-facing) ============ */
+          <div className="flex flex-col min-h-0 rounded-xl border border-slate-200 bg-white overflow-hidden">
+            <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+              <span className="text-[11px] font-semibold tracking-wide text-blue-600">AI Banking Assistant</span>
             </div>
-            <div className="mb-1.5">
-              <p className="text-[10px] font-semibold tracking-wide uppercase text-slate-500 mb-0.5">Knows</p>
-              <ul className="space-y-0.5 text-[11px] text-slate-700">
-                <li className="flex gap-1.5"><span className="text-blue-400">•</span> Recent spending pattern</li>
-                <li className="flex gap-1.5"><span className="text-blue-400">•</span> Account holdings</li>
-                <li className="flex gap-1.5"><span className="text-blue-400">•</span> Recent product interactions</li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-[10px] font-semibold tracking-wide uppercase text-slate-500 mb-0.5">Can Answer</p>
-              <ul className="space-y-0.5 text-[11px] text-slate-700">
-                <li className="flex gap-1.5"><MessageCircle className="w-2.5 h-2.5 text-blue-400 mt-0.5 shrink-0" /> "What products fit my situation?"</li>
-                <li className="flex gap-1.5"><MessageCircle className="w-2.5 h-2.5 text-blue-400 mt-0.5 shrink-0" /> "Show me relevant offers"</li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Personalized Outreach Card */}
-          <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Mail className="w-3.5 h-3.5 text-blue-600" />
-              <span className="text-[11px] font-bold text-slate-800">Personalized Outreach</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mb-1.5">
-              <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">Signal detected</span>
-              <span>→</span>
-              <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">24h delay</span>
-              <span>→</span>
-              <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Send</span>
-            </div>
-            <ol className="space-y-0.5 text-[11px] text-slate-700">
-              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">1.</span> Educational nudge</li>
-              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">2.</span> Product spotlight</li>
-              <li className="flex gap-1.5"><span className="text-blue-500 font-bold">3.</span> Soft conversion CTA</li>
-            </ol>
-          </div>
-        </div>
-
-        <div className="shrink-0 p-2 border-t border-slate-100">
-          <button
-            type="button"
-            onClick={onOpenAIAssistant}
-            className={`w-full inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 transition-all border-2 ${
-              assistantOpen && !wmCopilotOpen
-                ? "bg-blue-600 text-white border-blue-600 shadow-md"
-                : "bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-300"
-            }`}
-          >
-            <Bot className="w-3.5 h-3.5" />
-            Open AI Banking Assistant
-          </button>
-        </div>
-      </div>
-
-      {/* ============ RIGHT: WEALTH CLIENT ============ */}
-      <div className="flex flex-col min-h-0 rounded-xl border border-purple-200 bg-white overflow-hidden">
-        <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-purple-100 flex items-center gap-1.5">
-          <Plus className="w-3 h-3 text-purple-600" />
-          <span className="text-[11px] font-semibold tracking-wide text-purple-600">Wealth Client</span>
-        </div>
-
-        <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-2 space-y-2">
-          {/* Single Advisor Notification card with prep brief + actions */}
-          <div className="rounded-lg border border-purple-200 bg-purple-50/40 p-2.5">
-            {/* Notification header */}
-            <div className="flex items-center gap-1.5 mb-1.5">
-              <Bell className="w-3.5 h-3.5 text-purple-600" />
-              <span className="text-[11px] font-bold text-purple-700">Advisor Notification</span>
-            </div>
-            <div className="text-[11px] text-slate-600 space-y-0.5 mb-2">
-              <p>Sent to: <span className="font-semibold text-slate-800">Assigned relationship manager</span></p>
-              <p>Suggested outreach: <span className="font-semibold text-slate-800">Within 5 business days</span></p>
-            </div>
-
-            {/* Prep brief */}
-            <div className="rounded-md border border-purple-200/60 bg-white p-2 mb-2">
-              <div className="flex items-center gap-1.5 mb-1">
-                <FileText className="w-3 h-3 text-purple-600" />
-                <span className="text-[10px] font-semibold tracking-wide uppercase text-purple-700">Prep Brief Includes</span>
+            <div className="flex-1 min-h-0 grid grid-cols-[1.4fr_1fr] gap-6 p-4 overflow-hidden">
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">Context it has</div>
+                <ul className="space-y-2 text-[12px] text-slate-700 leading-snug">
+                  <li className="flex items-start gap-2"><span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" /> Recent spending pattern</li>
+                  <li className="flex items-start gap-2"><span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" /> Account holdings &amp; tenure</li>
+                  <li className="flex items-start gap-2"><span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" /> Recent product interactions</li>
+                </ul>
               </div>
-              <ul className="space-y-0.5 text-[11px] text-slate-700">
-                <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Suggested talking points based on detected signal</span></li>
-                <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Cross-sell opportunities aligned to behavior</span></li>
-                <li className="flex gap-1.5"><span className="text-purple-400 mt-1">•</span> <span>Recent activity summary</span></li>
-              </ul>
-            </div>
-
-            {/* Actions — two labeled rows */}
-            <div>
-              <div className="flex items-center gap-1.5 mb-1">
-                <Sparkles className="w-3 h-3 text-purple-600" />
-                <span className="text-[10px] font-semibold tracking-wide uppercase text-purple-700">Actions</span>
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">Conversations it handles</div>
+                <div className="flex flex-wrap gap-1.5 content-start text-[11.5px] text-slate-700">
+                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2.5 py-1">"What products fit my situation?"</span>
+                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2.5 py-1">"Show me relevant offers"</span>
+                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2.5 py-1">"Explain this charge on my card"</span>
+                </div>
               </div>
-              {(() => {
-                const l = (effectiveSignal.label || "").toLowerCase();
-                let consultLabel = "Schedule Lifestyle Consultation";
-                if (/college/.test(l)) consultLabel = "Schedule 529 Consultation";
-                else if (/home|mortgage|down ?payment|house/.test(l)) consultLabel = "Schedule Mortgage Consultation";
-                else if (/gambl|vulnerab|hardship|stress/.test(l) || brief.sensitive) consultLabel = "Schedule Wellness Check-in";
-                const consultStyle = brief.sensitive
-                  ? "bg-rose-50 border-rose-200 text-rose-700 hover:bg-rose-100"
-                  : "bg-purple-50 border-purple-200 text-purple-700 hover:bg-purple-100";
-                return (
-                  <div className="space-y-1.5">
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Automated</p>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <button className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                          <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Notify Wealth Advisor</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={onOpenWMCopilot}
-                          className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1"
-                        >
-                          <FileText className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Open Full Intelligence Brief</span>
-                        </button>
-                      </div>
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 mb-1">Advisor Actions</p>
-                      <div className="grid grid-cols-2 gap-1.5">
-                        <button className={`text-left text-[11px] font-semibold rounded-md border px-2 py-1.5 inline-flex items-center gap-1 ${consultStyle}`}>
-                          <Sparkles className="w-3 h-3 shrink-0 opacity-70" /> <span className="truncate">{consultLabel}</span>
-                        </button>
-                        <button className="text-left text-[11px] font-semibold rounded-md border border-slate-200 bg-white px-2 py-1.5 text-slate-700 hover:bg-slate-50 inline-flex items-center gap-1">
-                          <Bell className="w-3 h-3 text-slate-500 shrink-0" /> <span className="truncate">Flag for Follow-up</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })()}
             </div>
           </div>
-        </div>
+        ) : (
+          /* ============ VENTUS AI COWORKER ============ */
+          <div className="flex flex-col min-h-0 rounded-xl border border-purple-200 bg-white overflow-hidden">
+            <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-purple-100 flex items-center gap-1.5">
+              <Sparkles className="w-3 h-3 text-purple-600" />
+              <span className="text-[11px] font-semibold tracking-wide text-purple-600">Ventus AI Coworker</span>
+            </div>
+            <div className="flex-1 min-h-0 grid grid-cols-[1.4fr_1fr] gap-6 p-4 overflow-hidden">
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">What it does for the advisor</div>
+                <ul className="space-y-2 text-[12px] text-slate-700 leading-snug">
+                  <li className="flex items-start gap-2"><ClipboardList className="w-3 h-3 text-purple-500 mt-1 shrink-0" /> Digests overnight signals into a morning briefing</li>
+                  <li className="flex items-start gap-2"><Users className="w-3 h-3 text-purple-500 mt-1 shrink-0" /> Builds candidate lists for product campaigns</li>
+                  <li className="flex items-start gap-2"><PenLine className="w-3 h-3 text-purple-500 mt-1 shrink-0" /> Drafts follow-up emails with evidence attached</li>
+                </ul>
+              </div>
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">Where it plugs in</div>
+                <div className="flex flex-wrap gap-1.5 content-start">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><Inbox className="w-3 h-3 text-purple-500" /> Advisor inbox</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ClipboardList className="w-3 h-3 text-purple-500" /> CRM tasks</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ShieldCheck className="w-3 h-3 text-purple-500" /> Approval-gated outreach</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-        <div className="shrink-0 p-2 border-t border-purple-100">
-          <button
-            type="button"
-            onClick={onOpenWMCopilot}
-            className={`w-full inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-lg px-3 py-2 transition-all border-2 ${
-              wmCopilotOpen
-                ? "bg-purple-600 text-white border-purple-600 shadow-md"
-                : "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100 hover:border-purple-300"
-            }`}
-          >
-            <Briefcase className="w-3.5 h-3.5" />
-            Open WM CoPilot
-          </button>
-        </div>
-      </div>
       </div>
     </div>
   );

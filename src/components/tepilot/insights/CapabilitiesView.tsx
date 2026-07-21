@@ -325,7 +325,7 @@ const TEAMS: TeamDetail[] = [
         stage: "Route to relationship manager",
         text: "Brief and follow-up tasks land in the advisor console and CRM queue for the right RM.",
         chips: [
-          { label: "Advisor Console", kind: "destination" },
+          { label: "AI Coworker", kind: "destination" },
           { label: "CRM", kind: "destination" },
         ],
       },
@@ -384,13 +384,12 @@ const TEAMS: TeamDetail[] = [
 ];
 
 const DESTINATIONS: Destination[] = [
-  { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
-  { label: "Rewards Provider", sublabel: "Augeo / Premium Payback", icon: Gift },
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
-  { label: "Advisor Console", sublabel: "Banker Workstation", icon: Briefcase },
-  
+  { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
+  { label: "Rewards Provider", sublabel: "Kard, etc", icon: Gift },
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
+  { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
 ];
 
 function getTeamDestinations(teamLabel: string): string[] {
@@ -806,9 +805,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     alt="Ventus"
                     className="h-6 w-auto brightness-0 invert opacity-95"
                   />
-                  <p className="text-[15px] font-bold text-white mt-2">Behavioral Intelligence Core</p>
+                  <p className="text-[15px] font-bold text-white mt-2">Behavioral Intelligence & Personalization Core</p>
                   <p className="text-[10px] text-blue-200/80 mt-1">
-                    Classifies · Enriches · Scores · Distributes
+                    &nbsp;
                   </p>
                 </div>
 

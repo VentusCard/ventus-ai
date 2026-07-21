@@ -133,7 +133,7 @@ If a signal could plausibly apply to 3+ unrelated products, throw it out and gen
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-3.5-flash",
         messages: [
           {
             role: "system",

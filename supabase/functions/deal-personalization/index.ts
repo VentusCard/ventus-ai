@@ -101,7 +101,7 @@ Context:${ctx ? JSON.stringify(ctx) : "none"}`;
         "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-3.5-flash",
         messages: [
           { role: "system", content: buildSystemPrompt(dealCount) },
           { role: "user", content: userPrompt },

@@ -74,6 +74,7 @@ interface Props {
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
   riskFlags?: { flags: any[]; summary: string } | null;
+  financialSignals?: any[];
   creditAssessment?: CreditAssessment | null;
   creditLoading?: boolean;
   deliveryChannel?: ProductDeliveryChannel;
@@ -123,73 +124,9 @@ function getFirstRiskRollup(riskFlags?: { flags: any[]; summary: string } | null
   return { label: first.label, severity: first.severity, count: first.txIds.size };
 }
 
-/* ─── Current holdings pill row ─── */
-function CurrentHoldingsPills({ transactions }: { transactions: Transaction[] }) {
-  const sourceCounts = new Map<string, number>();
-  transactions.forEach(t => {
-    if (t.source) sourceCounts.set(t.source, (sourceCounts.get(t.source) || 0) + 1);
-  });
-  const sources = Array.from(sourceCounts.entries()).sort((a, b) => b[1] - a[1]);
-  if (sources.length === 0) return null;
-
-  return (
-    <div className="mb-1 flex flex-wrap items-center gap-1.5">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1 shrink-0">Current Holdings</span>
-      {sources.map(([source, count]) => (
-        <span key={source} className="inline-flex items-center gap-1 text-[10px] font-medium text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-full px-2 py-0.5 shrink-0">
-          <CheckCircle2 className="w-3 h-3 text-emerald-500" />
-          {source} ({count})
-        </span>
-      ))}
-    </div>
-  );
-}
-
 function formatSpend(amount: number): string {
   if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
   return `$${Math.round(amount)}`;
-}
-
-const PRODUCT_CATALOG = [
-  "Travel Card", "529 Plan", "HYSA", "Home Equity Line", "Auto Loan",
-  "CD Ladder", "Premium Card", "Life Insurance", "Brokerage Account",
-  "Student Loan Refi", "Balance Transfer Card", "Business Card",
-];
-
-function RecommendedProductsPills({ productCards }: { productCards: ProductCard[] }) {
-  const recommendedNames = productCards.map(c => c.product_name.toLowerCase());
-  const sorted = [...PRODUCT_CATALOG].sort((a, b) => {
-    const aMatch = recommendedNames.some(r => r.includes(a.toLowerCase()) || a.toLowerCase().includes(r));
-    const bMatch = recommendedNames.some(r => r.includes(b.toLowerCase()) || b.toLowerCase().includes(r));
-    return (bMatch ? 1 : 0) - (aMatch ? 1 : 0);
-  });
-  const visible = sorted.slice(0, 5);
-  const remaining = PRODUCT_CATALOG.length - 5;
-
-  return (
-    <div className="mb-1 flex flex-wrap items-center gap-1.5">
-      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider mr-1">Product Catalog</span>
-      {visible.map(name => {
-        const isMatch = recommendedNames.some(r => r.includes(name.toLowerCase()) || name.toLowerCase().includes(r));
-        return (
-          <span
-            key={name}
-            className={`inline-flex items-center gap-1 text-[10px] font-medium rounded-full px-2 py-0.5 border ${
-              isMatch
-                ? "text-blue-700 bg-blue-50 border-blue-200"
-                : "text-slate-400 bg-slate-50 border-slate-100"
-            }`}
-          >
-            {isMatch && <Star className="w-2.5 h-2.5 text-blue-500 fill-blue-500" />}
-            {name}
-          </span>
-        );
-      })}
-      {remaining > 0 && (
-        <span className="text-[10px] text-slate-300 font-medium">+{remaining} more</span>
-      )}
-    </div>
-  );
 }
 
 /* ─── Resolved card data (pill + matched evidence) ─── */
@@ -212,8 +149,25 @@ function resolveCard(
   lifeEvents: LifeEvent[] | null,
   pillarRollups: PillarRollup[] | undefined,
   transactions: Transaction[] | undefined,
+  financialSignals: any[] | undefined,
 ): ResolvedCard {
   const isBehavioral = card.type === "behavioral";
+  const isFinancialSignal = card.type === "financial_signal";
+
+  // Financial signal card → match against financialSignals by label / product_family
+  const matchingFinancial = (() => {
+    if (!isFinancialSignal || !financialSignals || financialSignals.length === 0) return null;
+    const cardLabel = card.signal_label.toLowerCase();
+    return (
+      financialSignals.find((f: any) => (f.label || "").toLowerCase() === cardLabel)
+      || financialSignals.find((f: any) => {
+        const fl = (f.label || "").toLowerCase();
+        const pf = (f.product_family || "").toLowerCase();
+        return fl.includes(cardLabel) || cardLabel.includes(fl) || (pf && cardLabel.includes(pf));
+      })
+      || financialSignals[0]
+    );
+  })();
 
   const matchingEvent = lifeEvents?.find(e =>
     e.event_name.toLowerCase().includes(card.signal_label.toLowerCase()) ||
@@ -241,21 +195,25 @@ function resolveCard(
     return bestScore > 0 ? best : pillarRollups[0];
   })();
 
-  const color = isBehavioral && matchedRollup
-    ? (() => {
-        const rc = getColor(matchedRollup.pillar);
-        return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
-      })()
-    : isBehavioral
-      ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
-      : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
+  const color = isFinancialSignal
+    ? { bg: "#f1f5f9", text: "#0f172a", dot: "#475569", border: "#cbd5e1" }
+    : isBehavioral && matchedRollup
+      ? (() => {
+          const rc = getColor(matchedRollup.pillar);
+          return { bg: rc.bg, text: rc.text, dot: rc.dot, border: rc.bg };
+        })()
+      : isBehavioral
+        ? { bg: "#f0f9ff", text: "#0c4a6e", dot: "#3b82f6", border: "#bfdbfe" }
+        : getColor(card.theme === "education" ? "Education & Family" : card.theme === "home" ? "Home & Living" : "Financial Planning");
 
   const hasEvidence = !!matchingEvent && matchingEvent.evidence.length > 0;
 
-  const resolvedLabel = matchedRollup?.label
+  const resolvedLabel = matchingFinancial?.label
+    || matchedRollup?.label
     || (matchingEvent?.event_name)
     || card.signal_label;
-  const resolvedCount = matchedRollup?.totalCount
+  const resolvedCount = (matchingFinancial?.transaction_indices?.length)
+    ?? matchedRollup?.totalCount
     ?? (matchingEvent?.evidence?.length)
     ?? 0;
   const resolvedSpend = matchedRollup?.totalSpend ?? (matchingEvent
@@ -267,7 +225,9 @@ function resolveCard(
   let matchedIndices: number[] = [];
   let matchedKind: "lifeEvent" | "risk" | undefined;
 
-  if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
+  if (matchingFinancial?.transaction_indices?.length) {
+    matchedIndices = matchingFinancial.transaction_indices;
+  } else if (matchedRollup?.txIndices && matchedRollup.txIndices.length > 0) {
     matchedIndices = matchedRollup.txIndices;
   } else if (transactions) {
     if (hasEvidence && matchingEvent) {
@@ -409,6 +369,51 @@ function deriveOfferDetails(card: ProductCard, isBehavioral: boolean): {
 } {
   const name = card.product_name.toLowerCase();
   const theme = (card.theme || "").toLowerCase();
+
+  // Auto loan refi / lease buyout (financial signal)
+  if (name.includes("auto") && (name.includes("refi") || name.includes("refinance") || name.includes("loan") || name.includes("buyout"))) {
+    return {
+      headline: "Auto refinance from 5.49% APR",
+      benefits: [
+        "Estimated savings of $150–$300/mo vs current payment",
+        "No application fee · Rate locked for 60 days",
+        "0.25% autopay discount · Skip a payment option",
+      ],
+      eligibility: "Pre-qualified · Soft credit check only",
+      cta: "Check Your New Rate",
+      ctaSub: "See personalized offer in under 2 minutes",
+    };
+  }
+  // Mortgage refi / HELOC top-up (financial signal)
+  if (name.includes("mortgage") && name.includes("refi")) {
+    return {
+      headline: "Refinance from 6.25% APR — 30-year fixed",
+      benefits: [
+        "Lower your monthly payment by an estimated $200–$450",
+        "No lender fees for existing relationship customers",
+        "Rate locked for 90 days · Close in as little as 21 days",
+      ],
+      eligibility: "Pre-qualified based on current mortgage · Soft pull only",
+      cta: "See Your Refinance Rate",
+      ctaSub: "Personalized offer in under 3 minutes",
+    };
+  }
+  // Student loan refi (financial signal)
+  if (name.includes("student") && (name.includes("refi") || name.includes("refinance"))) {
+    return {
+      headline: "Student loan refinance from 4.99% APR",
+      benefits: [
+        "Consolidate federal & private loans into one payment",
+        "0.25% autopay discount · No origination fee",
+        "Flexible 5–20 year terms · No prepayment penalty",
+      ],
+      eligibility: "Pre-qualified · Soft credit check only",
+      cta: "See Your Refi Rate",
+      ctaSub: "Rate check in under 2 minutes",
+    };
+  }
+
+
 
   // Travel
   if (name.includes("travel") || theme === "travel") {
@@ -746,40 +751,8 @@ function GroupSlideshow({
   );
 }
 
-/* ─── Creditworthiness column (4th column in Next-Product row) ─── */
-const BAND_COLORS: Record<CreditAssessment["band"], { dot: string; text: string; bg: string; border: string }> = {
-  Excellent: { dot: "#10b981", text: "#065f46", bg: "#ecfdf5", border: "#a7f3d0" },
-  Good:      { dot: "#3b82f6", text: "#1e3a8a", bg: "#eff6ff", border: "#bfdbfe" },
-  Fair:      { dot: "#f59e0b", text: "#92400e", bg: "#fffbeb", border: "#fde68a" },
-  Limited:   { dot: "#64748b", text: "#334155", bg: "#f8fafc", border: "#e2e8f0" },
-  Poor:      { dot: "#f43f5e", text: "#9f1239", bg: "#fff1f2", border: "#fecdd3" },
-};
 
-const LEVEL_TONE: Record<string, { text: string; bg: string; border: string }> = {
-  stable:   { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
-  variable: { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
-  thin:     { text: "text-slate-600",   bg: "bg-slate-50",   border: "border-slate-200" },
-  unknown:  { text: "text-slate-500",   bg: "bg-slate-50",   border: "border-slate-200" },
-  low:      { text: "text-emerald-700", bg: "bg-emerald-50", border: "border-emerald-100" },
-  medium:   { text: "text-amber-700",   bg: "bg-amber-50",   border: "border-amber-100" },
-  high:     { text: "text-rose-700",    bg: "bg-rose-50",    border: "border-rose-100" },
-};
-
-function CreditworthinessBanner({ assessment, loading }: { assessment?: CreditAssessment | null; loading: boolean }) {
-  return (
-    <div
-      className="h-full rounded-xl border border-slate-200 bg-white px-4 py-3 flex items-center justify-center gap-2"
-      style={{ animation: `exec-product-reveal 0.4s ease-out both` }}
-    >
-      <Gauge className="w-4 h-4 text-slate-400" />
-      <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Creditworthiness</div>
-      <span className="text-slate-300">·</span>
-      <div className="text-[12px] font-semibold text-slate-500">Coming soon</div>
-    </div>
-  );
-}
-
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, financialSignals, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
   if (loading || !lifeEvents) {
     return (
@@ -806,7 +779,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   if (productCards && productCards.length > 0) {
     // Resolve all cards and show up to 3 — interleave life-event, behavioral, then any extras (e.g. risk)
     const resolvedAll = productCards.map((card, origIdx) =>
-      resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
+      resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions, financialSignals)
     );
     const lifeEventResolved = resolvedAll.filter(r => !r.isBehavioral);
     const behavioralResolved = resolvedAll.filter(r => r.isBehavioral);
@@ -883,29 +856,11 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
 
     return (
       <div className="px-3 py-3 space-y-4 overflow-y-auto">
-        {/* Current holdings pills */}
-        {transactions && transactions.length > 0 && (
-          <CurrentHoldingsPills transactions={transactions} />
+        {/* Delivery channel selector */}
+        {onDeliveryChannelChange && (
+          <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
         )}
 
-        {/* Product catalog pills */}
-        <RecommendedProductsPills productCards={productCards} />
-
-        {/* Delivery channel selector + creditworthiness banner side-by-side */}
-        {(onDeliveryChannelChange || creditAssessment || creditLoading) && (
-          <div className="flex items-stretch gap-3">
-            {onDeliveryChannelChange && (
-              <div className="flex-[2] min-w-0">
-                <ProductDeliveryChannelCard value={deliveryChannel} onChange={onDeliveryChannelChange} />
-              </div>
-            )}
-            {(creditAssessment || creditLoading) && (
-              <div className="flex-[1] min-w-0">
-                <CreditworthinessBanner assessment={creditAssessment} loading={!!creditLoading} />
-              </div>
-            )}
-          </div>
-        )}
 
         {/* Up to 3 products side-by-side with vertical dividers */}
         <div className="flex items-stretch gap-3">

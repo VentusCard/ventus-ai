@@ -22,13 +22,14 @@ const faqs = [
   { q: "How is Ventus different from traditional enrichment providers?", a: "Traditional enrichment platforms clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
 ];
 
-const Index = () => {
+const Index = ({ noindex = false }: { noindex?: boolean }) => {
   return (
     <div>
       <SEO
         title="Ventus AI — Transaction Intelligence for Banks"
         description="Ventus AI turns transaction data into analytics and human insight, powering personalization, smarter rewards, and next-gen banking experiences."
-        path="/"
+        path={noindex ? "/classic" : "/"}
+        noindex={noindex}
       />
       <main className="flex flex-col">
         <ScrollDrivenHero />
