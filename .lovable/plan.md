@@ -1,43 +1,45 @@
+# Plan: Make the /bankdemo "Behavioral Intelligence: Ready" button appear faster
 
-## Scope
+## Goal
+Reduce the wait time between enrichment completion and the "Behavioral Intelligence: Ready" button appearing in the `/bankdemo` Demo tab, without modifying `classify-transactions`.
 
-In the **Next-Conversation** tab of `/bankdemo`, replace both toggle views (Customer / Ventus AI Coworker) with **static feature/capability summaries** that fill the panel without any inner scroll.
+## Current state (verified)
+- `ExecDemoPage.tsx` gates `personaSynthesis` (which renders the Ready button) on the `synthesize-persona` edge function finishing.
+- `synthesize-persona` currently uses `gemini-3.1-pro-preview`, a slower reasoning model.
+- `fireClassification()` already kicks off risk detection in parallel via `riskReadyRef.current = fireRiskDetectionRef.current()`, but downstream orchestration still lets persona synthesis wait on risk results in some paths.
+- `classify-transactions` is explicitly out of scope per your instruction.
 
-Only `src/components/exec-demo/NextConversationRationale.tsx` changes. No logic or backend touched.
+## Changes
 
-## Current problems
+### 1. Move `synthesize-persona` to a faster GPT-5 model
+- Replace `gemini-3.1-pro-preview` with `openai/gpt-5-mini` in `supabase/functions/synthesize-persona/index.ts`.
+- Use `max_completion_tokens` (not `max_tokens`) and `service_tier: "priority"` to avoid the OpenAI 400 errors and reduce queue latency.
+- Keep the same deterministic ladder, hint tags, and guard logic so output quality is preserved.
 
-- **Customer view** (`Regular Client` panel): two stacked cards inside a scrollable container — content is thin but the scroll wrapper still shows.
-- **Coworker view**: embeds the full `CoworkerInboxView` (267 lines, real inbox with thread navigation) — makes the panel scroll heavily and doesn't communicate "what it does" at a glance.
+### 2. Stop blocking persona synthesis on risk detection
+- In `ExecDemoPage.tsx`, ensure `synthesize-persona` is called as soon as classification completes, independent of `riskReadyRef`.
+- Risk detection will still run in parallel and merge its results later for the Risk Factors row, but it will no longer gate the Ready button.
 
-## Fix
+### 3. Add a fast local preliminary persona to unlock the button immediately
+- After classification completes, derive a lightweight preliminary `PersonaSynthesis` directly in the browser from the already-enriched transactions:
+  - Pillar rollups: group by `pillar` and sum spend.
+  - Financial signals: scan for known servicer patterns (auto, mortgage, student loan, etc.).
+  - Demographic hints: scan for payroll, tuition, relocation keywords.
+  - External signals: merge any pre-loaded external intelligence.
+- Set this preliminary state into `personaSynthesis` immediately so the "Behavioral Intelligence: Ready" button renders right away.
+- Fire the real `synthesize-persona` edge function in the background and replace the preliminary state with the LLM result when it arrives, with a smooth merge so pills don't flicker.
 
-Rebuild both branches of the `audience === "customer" | "rm"` block as **fixed, non-scrolling capability panels**.
+### 4. Keep downstream tabs stable
+- `ExecDemoIntelPanel.tsx` already accepts `personaSynthesis` as a prop; no structural changes needed.
+- Ensure the preliminary state uses the same `PillarRollup`, `FinancialSignal`, and `DemographicShift` shapes so the panel renders identically.
 
-### Customer view — "AI Banking Assistant"
-Header pill: blue dot + "AI Banking Assistant". Body is a 2-row vertical grid (`grid-rows-2 gap-2 min-h-0`) with equal-height cards:
-
-1. **Context it has** — 3 bullets: Recent spending pattern · Account holdings · Recent product interactions.
-2. **Conversations it handles** — 3 bullets rendered as chat-bubble rows: "What products fit my situation?" · "Show me relevant offers" · "Explain this charge".
-
-Card layout uses `flex-1 min-h-0`, container uses `overflow-hidden` (no `overflow-y-auto`). Text sizes tuned to fit ~360px column height.
-
-### Coworker view — "Ventus AI Coworker"
-Header pill: purple sparkle + "Ventus AI Coworker". Body is a 2-row vertical grid, equal-height:
-
-1. **What it does for the advisor** — 3 bullets: Digests overnight signals into a morning briefing · Builds candidate lists for product campaigns · Drafts follow-up emails with evidence.
-2. **Where it plugs in** — 3 bullets shown as small pill chips: Advisor inbox · CRM tasks · Approval-gated outreach.
-
-`CoworkerInboxView` import removed from this file (the real inbox lives in the Coworker tab already).
-
-### Shared shell tweaks
-
-- Outer wrapper: keep `PipelineSliver` on top, then a single card that fills remaining height (`flex-1 min-h-0`), `overflow-hidden`.
-- No `overflow-y-auto` anywhere in either branch.
-- Both branches share the same 2-row equal-height card structure so the toggle feels symmetric.
+## Files to modify
+- `supabase/functions/synthesize-persona/index.ts` — model swap and request params.
+- `src/pages/ExecDemoPage.tsx` — decouple persona synthesis from risk detection, add local preliminary synthesis.
 
 ## Out of scope
+- `supabase/functions/classify-transactions/index.ts` — no changes.
+- No UI redesign of the button or panel.
 
-- The audience toggle itself and how `audience` is passed from `ExecDemoPage.tsx`.
-- The phone-side (right panel) content.
-- `CoworkerInboxView` (still used by the Coworker top-level tab).
+## Success metric
+- The "Behavioral Intelligence: Ready" button appears within ~1–2 seconds after the enrichment table finishes, instead of waiting for the full LLM round-trip.
