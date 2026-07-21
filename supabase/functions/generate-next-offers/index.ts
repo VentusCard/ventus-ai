@@ -378,6 +378,8 @@ serve(async (req) => {
           product: d.product || d.product_name || "",
           rewardValue: d.rewardValue || d.reward || "",
           message: d.message || "",
+          valueLine: d.valueLine || d.value_line || null,
+          valueMath: d.valueMath || d.value_math || null,
           cta: d.cta || d.call_to_action || d.callToAction || "Learn more",
           signal: d.signal || "boost",
           signalReason: d.signalReason || d.reason || "Aligned with this life event",
