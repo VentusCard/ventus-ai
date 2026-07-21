@@ -1259,7 +1259,7 @@ export default function ExecDemoIntelPanel({
                             <p
                               className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700 cursor-help inline-flex items-center gap-1.5`}
                             >
-                              Life Event Detection:
+                              LIFE EVENTS:
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
