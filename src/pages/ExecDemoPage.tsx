@@ -132,7 +132,7 @@ function buildPreliminaryPersonaSynthesis(
   const financialSignals: FinancialSignal[] = [];
   const seenFamilies = new Set<string>();
   for (const [txIdx, tx] of enrichedTxs.entries()) {
-    const merchant = (tx.normalized_merchant || tx.merchant_name || "").toLowerCase();
+    const merchant = ((tx as any).normalized_merchant || tx.merchant_name || "").toLowerCase();
     for (const [re, family, labelPrefix, shortLabel] of FIN_SERVICERS) {
       if (re.test(merchant)) {
         const familyKey = family;
