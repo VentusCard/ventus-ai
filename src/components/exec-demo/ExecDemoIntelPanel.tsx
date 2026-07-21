@@ -1105,13 +1105,14 @@ export default function ExecDemoIntelPanel({
                         {stripBrand(fs.label)}
                         {(() => {
                           if (isExternal) {
-                            const parts = [fs.detail, fs.monthly_amount_band].filter(Boolean);
-                            return parts.length ? (
+                            const sub = fs.detail || fs.monthly_amount_band;
+                            return sub ? (
                               <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
-                                {parts.join(" · ")}
+                                {sub}
                               </span>
                             ) : null;
                           }
+
                           const spend = indices.reduce((s: number, idx: number) => s + (toAmount(transactions?.[idx]?.amount)), 0);
                           return (
                             <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
