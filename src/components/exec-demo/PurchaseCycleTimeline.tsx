@@ -329,28 +329,6 @@ function fmtCurrency(n: number): string {
   return `$${Math.round(n).toLocaleString()}`;
 }
 
-function Sparkline({ values, color }: { values: number[]; color: string }) {
-  const W = 140, H = 24, pad = 1;
-  if (values.length === 0) return null;
-  const step = (W - pad * 2) / (values.length - 1 || 1);
-  const points = values.map((v, i) => {
-    const x = pad + i * step;
-    const y = H - pad - v * (H - pad * 2);
-    return `${x.toFixed(1)},${y.toFixed(1)}`;
-  });
-  const path = `M ${points.join(" L ")}`;
-  const areaPath = `${path} L ${(W - pad).toFixed(1)},${(H - pad).toFixed(1)} L ${pad},${(H - pad).toFixed(1)} Z`;
-  const last = values[values.length - 1];
-  const lastX = pad + (values.length - 1) * step;
-  const lastY = H - pad - last * (H - pad * 2);
-  return (
-    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="overflow-visible">
-      <path d={areaPath} fill={color} fillOpacity={0.12} />
-      <path d={path} stroke={color} strokeOpacity={0.7} strokeWidth={1.25} fill="none" strokeLinejoin="round" strokeLinecap="round" />
-      <circle cx={lastX} cy={lastY} r={2} fill={color} />
-    </svg>
-  );
-}
 
 function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData; colorOverride?: string; headerSuffix?: string }) {
   const c = getColor(data.pillar);
@@ -383,8 +361,9 @@ function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData;
           !!data.cadence ||
           !!data.activeSpan ||
           (!!data.seasonality && data.seasonality !== "year-round") ||
-          data.velocity !== 0 ||
-          data.monthlyTrend.some(v => v > 0);
+          data.velocity !== 0;
+
+
 
         const LeftCol = (
           <div className="space-y-1.5 text-[11.5px] text-slate-600 leading-snug">
@@ -454,12 +433,6 @@ function CadenceCard({ data, colorOverride, headerSuffix }: { data: CadenceData;
                 <span>
                   <span className="font-semibold text-slate-700">Seasonality:</span> {data.seasonality}
                 </span>
-              </div>
-            )}
-            {data.monthlyTrend.some(v => v > 0) && (
-              <div className="pt-1 flex items-center gap-2">
-                <Sparkline values={data.monthlyTrend} color={accent} />
-                <span className="text-[10px] text-slate-400 uppercase tracking-wider">last 12 mo</span>
               </div>
             )}
           </div>
