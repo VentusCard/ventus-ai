@@ -6,11 +6,7 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
-// Model configuration
-// Gemini 3.5 flash is the primary because the Lovable AI Gateway currently
-// rejects openai/gpt-5-mini requests here with a max_tokens 400, which forced
-// every batch through two wasted retries before falling back — see the
-// approved plan for full context.
+// Model configuration — Gemini only. No OpenAI fallback here.
 const FAST_MODEL = "google/gemini-3.5-flash";
 const FALLBACK_MODEL = "google/gemini-3.1-flash-lite";
 
