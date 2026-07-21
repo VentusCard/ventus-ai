@@ -541,7 +541,7 @@ async function callClassificationAPI(
       tools: CLASSIFICATION_TOOL,
       tool_choice: { type: "function", function: { name: "classify_batch" } },
       temperature: 0,
-      max_completion_tokens: 4000,
+      max_tokens: 4000,
     }),
   });
 
