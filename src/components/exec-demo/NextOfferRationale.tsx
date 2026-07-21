@@ -13,6 +13,8 @@ export interface GeneratedOffer {
   signalReason: string;
   suppressedCategory?: string;
   boostCategory?: string;
+  valueLine?: string | null;
+  valueMath?: string | null;
 }
 
 export interface RollupOfferGroup {
