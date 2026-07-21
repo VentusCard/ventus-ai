@@ -538,8 +538,6 @@ async function callClassificationAPI(
     temperature: 0,
   };
   if (!isOpenAiGpt5) {
-    body.temperature = 0;
-  }
 
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
