@@ -1,22 +1,21 @@
-# Fix classify-transactions all-Miscellaneous fallback
+## Goal
+Revert the `CONCURRENCY_LIMIT` change in `supabase/functions/classify-transactions/index.ts` from `6` back to `4`.
 
-## Root cause (confirmed from edge function logs)
+## Current State
+Line 14 currently reads:
+```ts
+const CONCURRENCY_LIMIT = 6;
+```
 
-Every batch is returning 400 from the AI gateway:
+## Change
+Update line 14 to:
+```ts
+const CONCURRENCY_LIMIT = 4;
+```
 
-> "Unsupported parameter: `max_tokens` is not supported with this model. Use `max_completion_tokens` instead."
+## Verification
+- Re-read the file to confirm the value is back to `4`.
+- Redeploy the `classify-transactions` edge function so the runtime matches the source.
 
-The primary model (`google/gemini-3.5-flash`) and the fallback (`openai/gpt-5-mini`) both reject `max_tokens` on the current gateway. Because every call errors out, the pipeline falls through to the per-row default classification (`Miscellaneous & Unclassified / General / General / One-Time`), which is exactly what the table is showing.
-
-Source: `supabase/functions/classify-transactions/index.ts:544` sets `max_tokens: 4000` in the request body.
-
-## Fix
-
-- In `supabase/functions/classify-transactions/index.ts`, replace `max_tokens: 4000` with `max_completion_tokens: 4000` in `callClassificationAPI`.
-- Redeploy the `classify-transactions` edge function so the change is live.
-- Verify by re-running the Demo tab and checking edge function logs for a successful `[BATCH N] ✓ …` line and non-Miscellaneous rows in the enrichment table.
-
-## Out of scope
-
-- No changes to models, batch size, concurrency, or the classification schema.
-- No changes to any other edge function.
+## Scope
+This is a single-line revert. No other files or logic will be changed.

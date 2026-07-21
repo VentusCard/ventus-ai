@@ -11,7 +11,7 @@ const FAST_MODEL = "google/gemini-3.5-flash";
 const FALLBACK_MODEL = "openai/gpt-5-mini";
 
 // Concurrency configuration
-const CONCURRENCY_LIMIT = 6;
+const CONCURRENCY_LIMIT = 4;
 const BATCH_SIZE = 24;
 const SUB_BATCH_SIZE = 8;
 
