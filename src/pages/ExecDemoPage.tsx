@@ -1611,8 +1611,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
                   activeTab === "rewards" ||
                   activeTab === "product" ||
                   activeTab === "relationship";
-                const isRelTab = activeTab === "relationship";
-                const expandedW = isRelTab ? 520 : 560;
+                 const isRelTab = activeTab === "relationship";
+                 const expandedW = 560;
                 const collapsedW = 40;
                 const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
                 return (
