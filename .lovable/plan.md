@@ -1,42 +1,52 @@
-## Goal
-Cut LLM wall-clock time on `/bankdemo` preload from ~30–40s to ~15–18s so the "Behavioral Intelligence — Ready" button appears much sooner.
+# Simplify Next-Conversation panels
 
-## Root cause
-Three model calls run largely in series, and the tail call uses a heavyweight Pro model:
+Rework the two audience panels in `src/components/exec-demo/NextConversationRationale.tsx` so each one is a clean, self-contained explainer that fills the available height with no inner scrolling.
 
-```
-classify-transactions (~13s)  ──▶  analyze-lifestyle-signals (~18s)  ──▶  synthesize-persona (~5–10s, Pro)
-```
+## Current problems
 
-`analyze-lifestyle-signals` only needs the raw CSV / spending summary — it does not depend on the classified pillars. `synthesize-persona` uses `google/gemini-3.1-pro-preview`, which is the slowest step per token.
+- **Regular Client** panel stacks two dense cards (AI Assistant Context + Personalized Outreach) inside an `overflow-y-auto` container — content overflows on the tablet mockup.
+- **Ventus AI Coworker** panel embeds the full `CoworkerInboxView` demo, which is a heavyweight, scrollable inbox — not a summary of what the coworker does.
+- Neither panel clearly answers "what is this / what does it do / what are its features."
 
-## Changes
+## New content model (applies to both panels)
 
-### 1. Parallelize life-event detection with classification (biggest win, ~13s saved)
-File: `src/pages/ExecDemoPage.tsx` — inside `fireClassification`, kick `detectLifeEventsOnlyRef.current()` at the same time as the classify SSE (same place we already fire risk detection in parallel). Store the promise on a ref (`lifeEventsReadyRef`).
+Each panel becomes a single, fixed-layout card with three consistent zones:
 
-Then in `firePersonaSynthesis`, replace the current `await detectLifeEventsOnlyRef.current()` with `await Promise.race([lifeEventsReadyRef.current, timeout(6000)])`. Life events now finish during classification instead of after it.
+1. **Header** — icon + name + one-line tagline (what it is)
+2. **What it does** — a 1–2 sentence plain-English description
+3. **Features** — 3–4 short bullet items with an inline icon
 
-### 2. Downgrade synthesize-persona model (~5–8s saved)
-File: `supabase/functions/synthesize-persona/index.ts` line 487 — swap `google/gemini-3.1-pro-preview` → `google/gemini-3.5-flash`. The synthesis prompt is a structured taxonomy decision, well within Flash's capability. If quality regresses we can fall back to `gemini-3.1-flash-lite` or reinstate Pro.
+No `overflow-y-auto`. The card uses `flex-1 min-h-0` and its internal spacing is tuned so all content fits inside the tablet frame at the standard 560px width used by the other Next-* tabs.
 
-### 3. Fire all classify batches at once (~2–3s saved)
-File: `supabase/functions/classify-transactions/index.ts` line 14 — bump `CONCURRENCY_LIMIT` from `4` to `6` (there are only 5 batches for 103 txns, so all fire in parallel; wall clock ≈ 1 batch time).
+### Regular Client (blue accent)
+- Tagline: "In-app AI banking assistant for the customer."
+- What it does: Answers product questions in-app using the customer's own spending, holdings, and recent interactions — then surfaces the right offer at the right moment.
+- Features:
+  - Context-aware answers grounded in account + behavior
+  - Personalized product & offer recommendations
+  - Educational nudges timed to detected signals
+  - Soft, opt-in conversion CTA — never pushy
 
-### 4. Show the "Ready" button as soon as synthesis lands
-No change to gating logic (already `hasSynthesis && !synthesisTriggered && phase === "hold"`) — with the changes above, `hasSynthesis` flips true ~15s after Demo tab mount instead of ~35s.
+### Ventus AI Coworker (purple accent)
+- Tagline: "24/7 teammate for advisors, bankers, and ops."
+- What it does: Digests signals across the book, drafts outreach, and hands work off to the right human specialist with full context attached.
+- Features:
+  - Signal digest across the full client book
+  - Drafts emails, briefs, and campaign cohorts
+  - Routes to Wealth Advisor, Mortgage, Service, etc.
+  - Learns from every advisor edit and reply
 
-## Expected timeline after changes
+## Files to change
 
-```
-classify-transactions  (~10s) ─┐
-analyze-lifestyle-signals(~15s)┴─▶ synthesize-persona (Flash, ~3-5s) ─▶ Button visible
-                       ~15-18s total
-```
+- `src/components/exec-demo/NextConversationRationale.tsx`
+  - Remove the two-card scrolling layout inside the customer branch.
+  - Remove the `CoworkerInboxView` embed inside the RM branch.
+  - Introduce a small internal `ExplainerCard` component that renders the header / what-it-does / features layout with the appropriate accent color per audience.
+  - Keep the existing `PipelineSliver` above and the audience toggle wiring untouched.
+  - Drop now-unused imports (`CoworkerInboxView`, `Mail`, `MessageCircle`, etc.) — keep only what the new layout uses (`Bot`, `Sparkles`, and the small feature-row icons).
 
-## Files touched
-- `src/pages/ExecDemoPage.tsx` — parallelize life-event fetch with classify.
-- `supabase/functions/synthesize-persona/index.ts` — model swap to `gemini-3.5-flash`.
-- `supabase/functions/classify-transactions/index.ts` — `CONCURRENCY_LIMIT: 4 → 6`.
+## Out of scope
 
-No UI/pill/copy changes.
+- The audience toggle in `ExecDemoIntelPanel.tsx` stays as-is.
+- Tablet width (560px) and the `PipelineSliver` content stay as-is.
+- No changes to the actual `CoworkerInboxView` — it remains available in its dedicated tab, just no longer embedded here.
