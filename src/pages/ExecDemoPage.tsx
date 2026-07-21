@@ -713,12 +713,32 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           } as LifeEvent;
         });
 
-      // Fire downstream views with the final classifier's life events only.
+      // Fire downstream views with the final classifier's life events immediately —
+      // don't block on the parallel upstream detector.
       fireLifeEventDetection(synthesis, pillars, finalLifeEvents);
+
+      // Merge late-arriving upstream life events (dedup by lowercased event_name)
+      // without blocking the Ready button.
+      upstreamLifeEventsPromise.then((upstreamEvents) => {
+        if (!upstreamEvents || upstreamEvents.length === 0) return;
+        const current = detectedLifeEventsRef.current || [];
+        const seen = new Set(
+          current.map((e) => (e.event_name || "").toLowerCase().trim()),
+        );
+        const additions = upstreamEvents.filter(
+          (e) => e?.event_name && !seen.has(e.event_name.toLowerCase().trim()),
+        );
+        if (additions.length === 0) return;
+        const merged = [...current, ...additions].slice(0, 3);
+        detectedLifeEventsRef.current = merged;
+        setDetectedLifeEvents(merged);
+        console.log("[PRELOAD] Merged", additions.length, "late upstream life events");
+      });
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
+
 
   /** Generate AI-powered deal recommendations from persona + pillars + optional life events */
   const fireNextOffers = useCallback(
