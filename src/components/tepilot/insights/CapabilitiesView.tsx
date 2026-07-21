@@ -387,7 +387,7 @@ const DESTINATIONS: Destination[] = [
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
   { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
-  { label: "Rewards Provider", sublabel: "Augeo / Premium Payback", icon: Gift },
+  { label: "Rewards Provider", sublabel: "Kard, etc", icon: Gift },
   { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
   { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
 ];
