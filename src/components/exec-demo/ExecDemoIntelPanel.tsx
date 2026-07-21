@@ -1014,7 +1014,7 @@ export default function ExecDemoIntelPanel({
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
                   const labelTextSize = isCollapsed ? "text-[12px]" : "text-[13px]";
                   const rowGap = isCollapsed ? "mt-2.5" : "mt-2.5";
-                  const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2.5 overflow-x-auto exec-light-scroll py-0.5";
+                  const pillRowClass = "flex-1 min-w-0 flex flex-wrap gap-2.5 py-0.5";
 
                   // Grey out Financial pills on Next-Offer only (matches risk muting).
                   const financialPillsMuted = activeTab === "analytics";
