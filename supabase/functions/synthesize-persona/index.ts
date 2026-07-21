@@ -711,6 +711,21 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     const hasPetVocab = (parts: (string | undefined | null)[]) =>
       PET_VOCAB.test(parts.filter(Boolean).join(" "));
 
+    // Relocation guard: airlines / hotels / resorts / rental cars are NOT relocation.
+    // Require at least one transaction with a real relocation vendor/hint tag,
+    // and reject events whose evidence is dominated by travel merchants.
+    const TRAVEL_MERCHANT_RE = /airlines?|airways|aeromexico|delta|united|american air|southwest|hawaiian|jetblue|alaska air|hotel|resort|hilton|marriott|hyatt|airbnb|vrbo|cruise|hertz|avis|budget rent|enterprise rent|expedia|kayak|priceline/i;
+    const hasRelocationTag = (indices: number[]) =>
+      indices.some((ti) => {
+        const h = txnHints[ti];
+        return h && (h.includes("relocation_vendor") || h.includes("relocation_hint"));
+      });
+    const evidenceIsTravel = (evidence: any[]) => {
+      if (!Array.isArray(evidence) || evidence.length === 0) return false;
+      const travelHits = evidence.filter((ev: any) => TRAVEL_MERCHANT_RE.test(String(ev?.merchant || ""))).length;
+      return travelHits >= Math.ceil(evidence.length / 2);
+    };
+
     const filteredLE = rawLifeEvents
       .map((e: any) => ({
         ...e,
@@ -724,7 +739,14 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         e.event_name,
         e.evidence_summary,
         ...(Array.isArray(e.evidence) ? e.evidence.map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`) : []),
-      ]));
+      ]))
+      // Relocation must have a positive relocation vendor/hint AND not be dominated by travel merchants.
+      .filter((e: any) => {
+        if (String(e.event_name || "") !== "Relocation") return true;
+        if (!hasRelocationTag(e.transaction_indices || [])) return false;
+        if (evidenceIsTravel(e.evidence || [])) return false;
+        return true;
+      });
 
     // Rescue upstream life events the persona LLM omitted or downgraded, so a
     // genuinely detected life event is never silently dropped when the classifier
@@ -740,6 +762,8 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       const evBlob = (up.evidence || []).map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`).join(" ");
       if (hasPetVocab([nm, evBlob])) continue;
       if ((up.evidence?.length ?? 0) < 2) continue;
+      // Never rescue Relocation from travel-dominated evidence.
+      if (/relocation/i.test(nm) && evidenceIsTravel(up.evidence || [])) continue;
       filteredLE.push({
         event_name: nm,
         confidence: typeof up.confidence === "number" ? up.confidence : 70,
@@ -750,6 +774,7 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       existingLENames.add(key);
       if (filteredLE.length >= 3) break;
     }
+
 
     const filteredFS = rawFinancial
       .map((f: any) => ({
