@@ -805,9 +805,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     alt="Ventus"
                     className="h-6 w-auto brightness-0 invert opacity-95"
                   />
-                  <p className="text-[15px] font-bold text-white mt-2">Behavioral Intelligence Core</p>
+                  <p className="text-[15px] font-bold text-white mt-2">Behavioral Intelligence & Personalization Core</p>
                   <p className="text-[10px] text-blue-200/80 mt-1">
-                    Classifies · Enriches · Scores · Distributes
+                    &nbsp;
                   </p>
                 </div>
 
