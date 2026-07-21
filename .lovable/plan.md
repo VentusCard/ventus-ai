@@ -1,18 +1,28 @@
-## Plan: synthesize-persona — Gemini Flash + more tokens
+## Fix: send correct token param to gpt-5-mini in classify-transactions
 
-1. **Switch the LLM** in `supabase/functions/synthesize-persona/index.ts`
-   - To: `google/gemini-3.5-flash`
+**Problem:** `supabase/functions/classify-transactions/index.ts` line 539 unconditionally sends `max_tokens: 8000`. `openai/gpt-5-mini` rejects that with HTTP 400 (`Unsupported parameter: 'max_tokens' — use 'max_completion_tokens' instead`), which forces every batch through the slow fallback + retry path (~20s per batch, observed in edge logs).
 
-2. **Increase output token budget**
-   - Add `maxTokens: 8192` to the `generateText` call so the model has room to emit the full buckets + audit + talking_points without truncation.
+**Change (single file):** `supabase/functions/classify-transactions/index.ts` around lines 531–543.
 
-3. **Keep everything else unchanged**
-   - Same tool schema, same deterministic guard layer, same downstream contracts.
+Replace the hard-coded `max_tokens: 8000` with a model-aware token field so gpt-5* gets `max_completion_tokens` and everything else keeps `max_tokens`:
 
-4. **Verify**
-   - Run one real `/bankdemo` Demo-tab flow and check the AI Gateway log for `synthesize-persona`.
-   - Confirm status 200, no truncation, and pills still route correctly.
+```ts
+const isOpenAiGpt5 = /^openai\/gpt-5/i.test(model);
+const body: Record<string, unknown> = {
+  model,
+  messages: [...],
+  tools: CLASSIFICATION_TOOL,
+  tool_choice: { type: "function", function: { name: "classify_batch" } },
+  ...(isOpenAiGpt5
+    ? { max_completion_tokens: 8000 }
+    : { max_tokens: 8000 }),
+};
+if (!isOpenAiGpt5) body.temperature = 0;
+```
 
-## Files touched
+Nothing else changes — fallback ladder, retry logic, and prompt stay intact.
 
-- `supabase/functions/synthesize-persona/index.ts` only.
+**Verify:**
+1. Redeploy the edge function.
+2. Load `/bankdemo` past the password gate and let pre-fire run.
+3. Check AI Gateway logs: `openai/gpt-5-mini` requests for `classify-transactions` should return 200 (not 400), and batch durations should drop from ~20s to a few seconds. Fallbacks to `google/gemini-3.5-flash` should stop firing.

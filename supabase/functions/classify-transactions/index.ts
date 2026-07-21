@@ -536,7 +536,9 @@ async function callClassificationAPI(
     ],
     tools: CLASSIFICATION_TOOL,
     tool_choice: { type: "function", function: { name: "classify_batch" } },
-    max_tokens: 8000,
+    ...(isOpenAiGpt5
+      ? { max_completion_tokens: 8000 }
+      : { max_tokens: 8000 }),
   };
   if (!isOpenAiGpt5) {
     body.temperature = 0;
