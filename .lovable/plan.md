@@ -1,45 +1,32 @@
-# Plan: Make the /bankdemo "Behavioral Intelligence: Ready" button appear faster
+## Plan: Reorder Income card in customer-selection transaction dialog
 
-## Goal
-Reduce the wait time between enrichment completion and the "Behavioral Intelligence: Ready" button appearing in the `/bankdemo` Demo tab, without modifying `classify-transactions`.
+### Current state
+In `src/components/exec-demo/ExecDemoSelectionDialog.tsx`, the collapsible transaction cards inside the dialog are rendered in this order:
+1. KYC
+2. Income (aggregated inflows across all sources)
+3. Source groups (Checking, Cashback Card, Travel Card, Premium Card, Checks, ACH, Wire, Zelle, HSA, then any unknown sources)
 
-## Current state (verified)
-- `ExecDemoPage.tsx` gates `personaSynthesis` (which renders the Ready button) on the `synthesize-persona` edge function finishing.
-- `synthesize-persona` currently uses `gemini-3.1-pro-preview`, a slower reasoning model.
-- `fireClassification()` already kicks off risk detection in parallel via `riskReadyRef.current = fireRiskDetectionRef.current()`, but downstream orchestration still lets persona synthesis wait on risk results in some paths.
-- `classify-transactions` is explicitly out of scope per your instruction.
+### Change
+Move the **Income** card so it appears **second-to-last** in the list — i.e., after all source groups except the final one, and immediately before the final source group.
 
-## Changes
+If the source-group list is `S1, S2, …, S(n-1), Sn`, the new order becomes:
+1. KYC
+2. S1 … S(n-1)
+3. Income
+4. Sn
 
-### 1. Move `synthesize-persona` to a faster GPT-5 model
-- Replace `gemini-3.1-pro-preview` with `openai/gpt-5-mini` in `supabase/functions/synthesize-persona/index.ts`.
-- Use `max_completion_tokens` (not `max_tokens`) and `service_tier: "priority"` to avoid the OpenAI 400 errors and reduce queue latency.
-- Keep the same deterministic ladder, hint tags, and guard logic so output quality is preserved.
+### Implementation
+- In the JSX around lines 364–431, split `sourceGroups.map(...)` into two passes:
+  - Render `sourceGroups.slice(0, -1)` first.
+  - Then render the existing Income card block.
+  - Then render `sourceGroups.slice(-1)` (the last source group).
+- Preserve all existing behavior: expand/collapse state, totals, styling, and the "Collapse all / Expand all" logic.
+- Keep KYC as the first card.
 
-### 2. Stop blocking persona synthesis on risk detection
-- In `ExecDemoPage.tsx`, ensure `synthesize-persona` is called as soon as classification completes, independent of `riskReadyRef`.
-- Risk detection will still run in parallel and merge its results later for the Risk Factors row, but it will no longer gate the Ready button.
+### Files to edit
+- `src/components/exec-demo/ExecDemoSelectionDialog.tsx`
 
-### 3. Add a fast local preliminary persona to unlock the button immediately
-- After classification completes, derive a lightweight preliminary `PersonaSynthesis` directly in the browser from the already-enriched transactions:
-  - Pillar rollups: group by `pillar` and sum spend.
-  - Financial signals: scan for known servicer patterns (auto, mortgage, student loan, etc.).
-  - Demographic hints: scan for payroll, tuition, relocation keywords.
-  - External signals: merge any pre-loaded external intelligence.
-- Set this preliminary state into `personaSynthesis` immediately so the "Behavioral Intelligence: Ready" button renders right away.
-- Fire the real `synthesize-persona` edge function in the background and replace the preliminary state with the LLM result when it arrives, with a smooth merge so pills don't flicker.
-
-### 4. Keep downstream tabs stable
-- `ExecDemoIntelPanel.tsx` already accepts `personaSynthesis` as a prop; no structural changes needed.
-- Ensure the preliminary state uses the same `PillarRollup`, `FinancialSignal`, and `DemographicShift` shapes so the panel renders identically.
-
-## Files to modify
-- `supabase/functions/synthesize-persona/index.ts` — model swap and request params.
-- `src/pages/ExecDemoPage.tsx` — decouple persona synthesis from risk detection, add local preliminary synthesis.
-
-## Out of scope
-- `supabase/functions/classify-transactions/index.ts` — no changes.
-- No UI redesign of the button or panel.
-
-## Success metric
-- The "Behavioral Intelligence: Ready" button appears within ~1–2 seconds after the enrichment table finishes, instead of waiting for the full LLM round-trip.
+### Out of scope
+- No changes to source-group ordering itself.
+- No changes to KYC placement.
+- No styling or content changes beyond reordering.
