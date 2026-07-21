@@ -948,6 +948,30 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         return !NON_DEMO_VOCAB.test(blob);
       });
 
+    // Deterministic College Preparation auto-promotion — guarantees the demographic
+    // signal surfaces whenever the classifier tagged ≥2 rows as college_prep, even if
+    // the LLM omitted the demographic entry or the harvest above pulled indices out
+    // of a mis-routed life event.
+    const collegePrepIndices = txnHints
+      .map((hints, i) => (hints?.includes("college_prep") ? i : -1))
+      .filter((i) => i >= 0);
+    const collegeCandidateIndices = Array.from(
+      new Set<number>([...collegePrepIndices, ...harvestedCollegeIndices]),
+    ).filter((i) => !claimedByHigher.has(i));
+    const alreadyHasCollegeDemo = filteredDemo.some((d: any) => /college|university|tuition/i.test(String(d.label || "")));
+    if (!alreadyHasCollegeDemo && collegeCandidateIndices.length >= 2) {
+      filteredDemo.push({
+        category: "household_composition",
+        label: "College Preparation",
+        direction: "up",
+        confidence: 0.85,
+        magnitude_band: "",
+        evidence_summary: "SAT / test-prep / application activity clustered in recent months",
+        transaction_indices: collegeCandidateIndices.slice(0, 8),
+        evidence: harvestedCollegeEvidence.slice(0, 5),
+      });
+    }
+
     for (const d of filteredDemo) for (const ti of d.transaction_indices) claimedByHigher.add(ti);
 
     // 3. Spending habits — strip any row already claimed. Pets keep their indices.
