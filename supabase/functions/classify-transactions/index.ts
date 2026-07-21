@@ -526,29 +526,37 @@ async function callClassificationAPI(
   batchNum: number,
   attempt: number,
 ): Promise<{ classifications: any[]; rawResponse?: string }> {
+  // Model-aware sampling: gpt-5* only accepts default temperature (1); Gemini accepts 0.
+  const isOpenAiGpt5 = /^openai\/gpt-5/i.test(model);
+  const body: Record<string, unknown> = {
+    model,
+    messages: [
+      { role: "system", content: CLASSIFICATION_PROMPT },
+      { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
+    ],
+    tools: CLASSIFICATION_TOOL,
+    tool_choice: { type: "function", function: { name: "classify_batch" } },
+    max_tokens: 8000,
+  };
+  if (!isOpenAiGpt5) {
+    body.temperature = 0;
+  }
+
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${LOVABLE_API_KEY}`,
     },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: CLASSIFICATION_PROMPT },
-        { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
-      ],
-      tools: CLASSIFICATION_TOOL,
-      tool_choice: { type: "function", function: { name: "classify_batch" } },
-      temperature: 0,
-      max_tokens: 4000,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "");
     console.error(`[BATCH ${batchNum}] API error (${response.status}): ${errorText.slice(0, 200)}`);
-    return { classifications: [], rawResponse: errorText };
+    // Deterministic 4xx (not rate-limit) — signal caller to escalate to fallback model, don't retry same model.
+    const fatal = response.status >= 400 && response.status < 500 && response.status !== 429;
+    return { classifications: [], rawResponse: errorText, fatal };
   }
 
   const data = await response.json();
