@@ -130,6 +130,16 @@ function RollupCard({ group, index, colorOverride, kindOverride }: { group: Roll
                   </p>
                 )}
 
+                {/* Hyper-personalized value line */}
+                {deal.valueLine && (
+                  <div
+                    className="text-[10.5px] leading-snug font-semibold text-slate-900 bg-emerald-50 border border-emerald-100 rounded-md px-1.5 py-1"
+                    title={deal.valueMath || undefined}
+                  >
+                    <span className="text-emerald-600 mr-0.5">$</span>{deal.valueLine}
+                  </div>
+                )}
+
                 {/* Signal reason (kept) */}
                 <span className="text-[10.5px] leading-snug text-emerald-700">
                   ↑ {deal.signalReason}
