@@ -980,7 +980,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         if (error) throw error;
         const cards = data.cards || [];
         setProductCards(cards);
-        console.log("[PRELOAD] Product cards ready:", cards.length);
+        console.log("[PRELOAD] Product cards ready:", cards.length, "types:", cards.map((c: any) => c.type));
         // Fire action generation with full context
         if (cards.length > 0) {
           fireProductActions(cards, events, synthesis);

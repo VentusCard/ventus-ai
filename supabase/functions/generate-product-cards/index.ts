@@ -21,21 +21,20 @@ serve(async (req) => {
 
     const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate exactly THREE product recommendation cards that appear as notifications in a mobile banking app.
 
-CARD ORDER (STRICT):
-Emit cards in exactly this order:
-  1. Life Event card based on life_events[0]
-  2. Life Event card based on life_events[1]
-  3. Third slot — PRIORITY LADDER:
-     a. If financial_signals[0] exists → emit a **financial_signal** card grounded in that signal (auto refi, mortgage refi, HELOC top-up, IRA rollover, student loan refi, lease buyout, etc.).
-     b. Otherwise → emit a **behavioral** card based on persona_rollups[0].
+CARD ORDER (STRICT — one card per family):
+Emit exactly 3 cards, one per family, in this fixed order:
+  Slot 1 — life_event         (from life_events[0])
+  Slot 2 — behavioral         (from persona_rollups[0])
+  Slot 3 — financial_signal   (from financial_signals[0])
+
+FALLBACK LADDER — if a family's primary candidate is missing, fill that slot with the next best available candidate from any other family, in this order:
+  life_events[1] → financial_signals[1] → persona_rollups[1]
 
 RULES:
-- Always emit 3 cards when the inputs allow (2 life events + slot 3).
-- If only 1 life event exists → emit [life_event_1, slot_3] (2 cards).
-- If no life events exist → emit [slot_3] only (1 card).
-- If no life events AND no financial_signals AND no rollups → emit nothing (0 cards).
+- Emit exactly min(3, total_available_candidates). NEVER under-emit.
+- Prefer one card per family. Only emit two cards of the same type when the fallback ladder forces it (e.g. no financial signals AND no rollups).
 - ABSOLUTELY NEVER emit a risk/vice/gambling/AML/adult/financial-distress card. Risk data (if provided) is context only and must NEVER become a product recommendation. FORBIDDEN copy: "Account Controls", "Account Wellness Tools", "Set Up Account Controls", "stay in charge", "help you stay in control" — do not generate anything resembling these.
-- The two life-event cards MUST recommend DIFFERENT products covering DIFFERENT financial needs — do not repeat the same product family.
+- When two cards of the same type must be emitted via fallback, they MUST recommend DIFFERENT products covering DIFFERENT financial needs — do not repeat the same product family.
 
 CRITICAL — signal_label must match source verbatim:
 - Behavioral card: signal_label = persona_rollups[i].label EXACTLY (character-for-character, including capitalization)
@@ -221,7 +220,7 @@ ${JSON.stringify((financial_signals || []).map((f: any) => ({
 
 Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, financial-signal monthly_amount_band, demographics income). Do not invent unrelated figures.
 
-CARD 3 RULE: If FINANCIAL SIGNALS above is non-empty, slot 3 MUST be a financial_signal card grounded in financial_signals[0]. Only fall back to a behavioral card if FINANCIAL SIGNALS is empty. NEVER emit a risk/gambling/vice/AML card under any circumstance.`;
+CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_rollups[0]), Slot 3 = financial_signal (financial_signals[0]). If any primary is missing, fall back via: life_events[1] → financial_signals[1] → persona_rollups[1]. Emit exactly min(3, total_available_candidates) — NEVER fewer. NEVER emit a risk/gambling/vice/AML card.`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
@@ -241,7 +240,7 @@ CARD 3 RULE: If FINANCIAL SIGNALS above is non-empty, slot 3 MUST be a financial
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return up to 3 consumer product recommendation cards in strict order: life_event_1, life_event_2, [financial_signal_1 OR behavioral_1]",
+              description: "Return exactly 3 consumer product recommendation cards in strict order: Slot 1 life_event, Slot 2 behavioral, Slot 3 financial_signal. Falls back to alternate candidates within the same family when a primary is missing. Never fewer than min(3, total_candidates).",
               parameters: {
                 type: "object",
                 properties: {
