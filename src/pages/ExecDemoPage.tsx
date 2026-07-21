@@ -1305,18 +1305,17 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
     handleRunAnalysis();
   }, [prefireOnMount, customCsv, handleRunAnalysis, fireClassification]);
 
-  // When embedded, only open the selection dialog when the user actually
-  // navigates to the Demo tab AND no run has completed yet. Once a run exists,
-  // subsequent visits show cached results without the popup.
-  const hasRunOnce = !!personaSynthesis || !!enrichedTxs;
+  // When embedded, always open the selection dialog whenever the user
+  // navigates to the Demo tab. Cached results still render behind the dialog,
+  // but the customer picker is the first thing the user sees every time.
   useEffect(() => {
     if (!embedded) return;
-    if (active && !hasRunOnce) {
+    if (active) {
       setSelectionDialogOpen(true);
-    } else if (!active) {
+    } else {
       setSelectionDialogOpen(false);
     }
-  }, [embedded, active, hasRunOnce]);
+  }, [embedded, active]);
 
 
   const handleTabClick = useCallback((tab: TabKey) => {
