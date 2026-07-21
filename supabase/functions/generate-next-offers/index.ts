@@ -59,8 +59,18 @@ IMAGE SELECTION — REQUIRED on every rollup group:
 - Use "other" ONLY when no listed category fits.
 - "imageQuery": 2-4 word visual subject in plain English, used only when imageCategory is "other" (e.g. "pickleball court outdoor", "rock climbing gym"). Always include it as a fallback even when imageCategory is set.
 
+NUMERIC VALUE LINE — REQUIRED on every deal:
+- Every deal MUST include a "valueLine" (≤ 18 words) that quantifies the payoff USING NUMBERS FROM THE INPUT (rollup totalSpend, top-merchant $ figures, or simple arithmetic on them).
+- Also include a short "valueMath" (≤ 40 chars) that shows the calc, e.g. "3% × $6,200 ≈ $186".
+- ROUND to friendly units: nearest $5 under $100, nearest $10 under $1k, nearest $50 at $1k+, whole % only.
+- Only use $ / % figures that appear in the input or are simple arithmetic on them. NEVER fabricate spend, balances, or rates.
+- If you truly cannot ground a number, set both valueLine and valueMath to null — do not invent.
+- Good: "5% back at coffee shops ≈ $9/mo on your ~$180/mo Blue Bottle + Sightglass spend." (math: "5% × $180 ≈ $9/mo")
+- Good: "3x points on travel ≈ $186 back on your ~$6,200 Hawaii spend this year." (math: "3% × $6,200 ≈ $186")
+- Bad (fabricated): "Save $500 vs the market average." (no market number in input)
+
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
+{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","valueLine":"5% back ≈ $9/mo on your ~$180/mo coffee spend.","valueMath":"5% × $180 ≈ $9/mo","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
 const LIFE_EVENT_SYSTEM_PROMPT = `You generate retail deal recommendations for customers going through specific life events.
 
