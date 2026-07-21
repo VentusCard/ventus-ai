@@ -488,7 +488,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
             activeTab === 'exec-demo' ? "block" : "hidden",
           )}
         >
-          <ExecDemoPage embedded active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
+          <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
         </div>
       </div>
 
