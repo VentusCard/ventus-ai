@@ -1,28 +1,23 @@
-## Stop the upstream lifestyle detector from overwriting synthesize-persona pills
+## Drop the unused `analyze-lifestyle-signals` call from /bankdemo
 
-**File:** `src/pages/ExecDemoPage.tsx` (lines ~709–725)
+`analyze-lifestyle-signals` is still used by other surfaces (`AdvisorConsolePage`, `TePilot`, `useDemoEnrichment`, and referenced by `DemoPillarCodeView` for the systems walkthrough), so the edge function itself stays.
 
-### What's happening
-- `firePersonaSynthesis` fires `synthesize-persona` and `analyze-lifestyle-signals` in parallel.
-- When `synthesize-persona` finishes first, it hydrates the intel panel via `fireLifeEventDetection(...finalLifeEvents)` — these are the clean, taxonomy-correct pills the user briefly sees.
-- Then `analyze-lifestyle-signals` resolves and the `.then` block re-merges its (older, less-accurate) events into `detectedLifeEvents`, causing the visible pills to shift ("get overwritten").
+But inside `src/pages/ExecDemoPage.tsx` (the /bankdemo demo tab) it is now dead weight:
 
-The block directly contradicts the stated policy in the comment three lines above it: *"Life events come EXCLUSIVELY from synthesize-persona"*.
+- L320: `upstreamLifeEventsPromise = detectLifeEventsOnlyRef.current()` fires the call.
+- After the previous edit removed the late-merge `.then`, nothing ever awaits or reads the promise.
+- Life-event pills are now driven exclusively by `synthesize-persona`'s `detected_life_events`.
+- Keeping the fetch just burns model latency and credits on every demo run.
 
-### Fix
-Delete the late-merge block at ExecDemoPage.tsx L709–725:
+### Edit (single file: `src/pages/ExecDemoPage.tsx`)
 
-```ts
-// Merge late-arriving upstream life events (dedup by lowercased event_name)
-// without blocking the Ready button.
-upstreamLifeEventsPromise.then((upstreamEvents) => { ... });
-```
+1. **Remove the upstream detector call in `firePersonaSynthesis`** (L317–325). Delete the `upstreamLifeEventsPromise` block and the comment above it.
+2. **Remove the stale comment reference** at L709–713 that mentions `upstreamLifeEventsPromise`.
+3. Keep `detectLifeEventsOnly`, `detectLifeEventsOnlyRef`, and the `preDetectedEvents` argument to `fireLifeEventDetection` — they're still used elsewhere in the same file (e.g., the fallback path in `fireLifeEventDetection` when `preDetectedEvents` is not supplied), so no other deletions are needed.
 
-The upstream detector is still useful — its output is already passed into `synthesize-persona` as a dedup hint via `upstreamLifeEventsPromise` earlier in `firePersonaSynthesis`. Removing this post-hoc merge:
-- Makes the intel panel show one stable set of pills (synthesize-persona's decision).
-- Preserves the single authoritative taxonomy the comment already promises.
-- Doesn't change latency (the promise is still awaited upstream for dedup).
+### Not touched
+- `supabase/functions/analyze-lifestyle-signals/index.ts` — still needed by other pages.
+- `DemoPillarCodeView.tsx` walkthrough — describes the systems architecture, not the /bankdemo runtime.
+- All other files.
 
-### Scope
-- One deletion, ~17 lines, in one file.
-- No other files, no edge functions, no props changed.
+Net effect: one fewer LLM call per /bankdemo demo run, no visible behavior change.
