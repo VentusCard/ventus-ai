@@ -246,6 +246,21 @@ function formatSpend(amount: number): string {
   return `$${Math.round(amount)}`;
 }
 
+/**
+ * Robust amount coercion. Transactions from buildLocalProfile store `amount`
+ * as a display-formatted string (e.g. "$685.00", "($685.00)") even though
+ * the type declares `number` — Number() on those returns NaN, which is why
+ * pill sums used to collapse to $0. Strip currency chars then parse.
+ */
+function toAmount(v: unknown): number {
+  if (typeof v === "number") return isFinite(v) ? Math.abs(v) : 0;
+  if (typeof v === "string") {
+    const n = parseFloat(v.replace(/[^0-9.\-]/g, ""));
+    return isFinite(n) ? Math.abs(n) : 0;
+  }
+  return 0;
+}
+
 export default function ExecDemoIntelPanel({
   persona,
   intelligence,
