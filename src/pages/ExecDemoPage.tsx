@@ -767,6 +767,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             subcategories: p.subcategories,
           })),
           demographics,
+          financial_signals: synthesis?.financialSignals || [],
+          months_of_data: 12,
         };
         if (lifeEvents && lifeEvents.length > 0) {
           body.lifeEvents = lifeEvents.map((e) => ({
