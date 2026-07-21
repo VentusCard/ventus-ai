@@ -525,7 +525,7 @@ async function callClassificationAPI(
   model: string,
   batchNum: number,
   attempt: number,
-): Promise<{ classifications: any[]; rawResponse?: string }> {
+): Promise<{ classifications: any[]; rawResponse?: string; fatal?: boolean }> {
   // Model-aware sampling: gpt-5* only accepts default temperature (1); Gemini accepts 0.
   const isOpenAiGpt5 = /^openai\/gpt-5/i.test(model);
   const body: Record<string, unknown> = {
