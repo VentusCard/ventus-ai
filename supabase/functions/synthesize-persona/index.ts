@@ -823,20 +823,31 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     // 3. Spending habits — strip any row already claimed. Pets keep their indices.
     //    Also auto-promote any orphaned pet rows into a "Pet Care Routine" habit so the
     //    signal still surfaces if the model missed it.
+    // Pillar-coherence guard: for every spending-habit rollup, drop transaction indices
+    // whose classified pillar does not match the rollup's pillar. This eliminates
+    // "Skiing & Snowboarding" pills that accidentally include Tropical Vacation rows.
     const filteredSH = rawSpending
       .map((r: any) => {
         const raw: number[] = Array.isArray(r.transaction_indices) ? r.transaction_indices : [];
+        const rollupPillar = String(r.pillar || "").trim().toLowerCase();
         const kept = raw.filter((ti) => {
           if (typeof ti !== "number" || ti < 0 || ti >= txnOwner.length) return false;
           if (txnOwner[ti] === "risk") return false;
           if (claimedByHigher.has(ti)) return false;
           const owner = txnOwner[ti];
           // Spending habit accepts anything not owned by a higher tier, plus pets.
-          return owner === null || owner === "spending_habit";
+          if (owner !== null && owner !== "spending_habit") return false;
+          // Enforce pillar match against the classified transaction's pillar.
+          const tx = txns[ti];
+          const txPillar = String(tx?.pillar || "").trim().toLowerCase();
+          if (rollupPillar && txPillar && rollupPillar !== txPillar) return false;
+          return true;
         });
         return { ...r, transaction_indices: kept };
       })
-      .filter((r: any) => r.pillar && r.label);
+      .filter((r: any) => r.pillar && r.label)
+      // If pillar-coherence stripped a rollup below 3 supporting txns, drop it entirely.
+      .filter((r: any) => (r.transaction_indices?.length ?? 0) >= 3 || /pet/i.test(r.label || ""));
 
     // 3b. Pet-orphan promotion — any pet row not yet in a spending habit rollup
     //     gets folded into (or seeds) a "Pet Care Routine" rollup.
@@ -859,6 +870,7 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         });
       }
     }
+
 
     // 4. dropped_upstream_life_events — signals the upstream detector emitted
     //    but which our taxonomy re-routes elsewhere (college, auto, mortgage).
