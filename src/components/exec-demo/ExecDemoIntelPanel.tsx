@@ -821,24 +821,20 @@ export default function ExecDemoIntelPanel({
                     filteredDetectedLifeEvents.map((evt, i) => {
                       const isActive = activeTriggerLabel === evt.event_name;
                       const isExternal = !!externalSignals?.some((s) => s.event_name === evt.event_name);
-                      const evidenceMerchants = evt.evidence?.map((e) => e.merchant.toLowerCase()) || [];
-                      const matchedIndices = isExternal
+                      // Trust backend attribution: transaction_indices are already cleaned
+                      // by synthesize-persona's ownership ladder. No frontend fuzzy match.
+                      const matchedIndices: number[] = isExternal
                         ? []
-                        : transactions
-                          ? transactions
-                              .map((tx, idx) => {
-                                const m = (tx.merchant || "").toLowerCase();
-                                return evidenceMerchants.some((em) => m.includes(em) || em.includes(m)) ? idx : -1;
-                              })
-                              .filter((idx) => idx !== -1)
+                        : Array.isArray((evt as any).transaction_indices)
+                          ? (evt as any).transaction_indices
                           : [];
                       const confidence =
                         evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
-                      const evidenceAmt = (evt.evidence || []).reduce((s: number, e: any) => s + (Number(e.amount) || 0), 0);
-                      const txCountLE = matchedIndices.length > 0 ? matchedIndices.length : (evt.evidence?.length ?? 0);
-                      const spendLE = matchedIndices.length > 0
-                        ? matchedIndices.reduce((s, idx) => s + (toAmount(transactions?.[idx]?.amount)), 0)
-                        : evidenceAmt;
+                      const txCountLE = matchedIndices.length;
+                      const spendLE = matchedIndices.reduce(
+                        (s, idx) => s + toAmount(transactions?.[idx]?.amount),
+                        0,
+                      );
                       const externalDetail = (evt as any).detail || (evt as any).monthly_amount_band;
                       const borderLE = isExternal ? "#7c3aed" : "#f59e0b";
                       return (
