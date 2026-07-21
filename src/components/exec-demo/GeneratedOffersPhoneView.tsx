@@ -293,6 +293,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                 <p className="text-[12px] font-bold text-slate-800 leading-snug">{deal.merchant}</p>
                 {deal.product && <p className="text-[11px] text-slate-500 leading-snug">{deal.product}</p>}
                 {deal.message && <p className="text-[10.5px] text-slate-500 mt-1 leading-snug">{deal.message}</p>}
+                {deal.valueLine && (
+                  <p
+                    className="text-[10.5px] font-semibold text-slate-900 mt-1 leading-snug bg-emerald-50 border border-emerald-100 rounded px-1.5 py-0.5"
+                    title={deal.valueMath || undefined}
+                  >
+                    <span className="text-emerald-600 mr-0.5">$</span>{deal.valueLine}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col items-end justify-between gap-1.5 shrink-0">
                 {deal.rewardValue ? (
