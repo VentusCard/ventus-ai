@@ -702,14 +702,10 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
           } as LifeEvent;
         });
 
-      // Fire downstream views with the final classifier's life events immediately —
-      // don't block on the parallel upstream detector.
+      // Life-event pills come exclusively from synthesize-persona's authoritative taxonomy.
       fireLifeEventDetection(synthesis, pillars, finalLifeEvents);
 
-      // Upstream analyze-lifestyle-signals is used only as a dedup hint for
-      // synthesize-persona (see upstreamLifeEventsPromise above). Its events
-      // are intentionally NOT merged back into the pill strip — the panel
-      // reflects synthesize-persona's authoritative taxonomy only.
+
 
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
