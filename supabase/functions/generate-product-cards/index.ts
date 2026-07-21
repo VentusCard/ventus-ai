@@ -82,6 +82,21 @@ CARD 2 — LIFE EVENT:
   - The reader should feel the card is relevant without the bank explicitly stating what it knows
 - The signal_label field MUST still use the explicit event name (e.g. "College Preparation", "New Baby", "Retirement Planning")
 
+CARD 3 (WHEN FINANCIAL SIGNAL PRESENT) — FINANCIAL SIGNAL:
+- Based on financial_signals[0] (an existing loan, mortgage, lease, brokerage relationship, or student loan detected from recurring payments or external intelligence).
+- Product MUST map to the signal's product_family:
+  - Auto Loan → "${bankLabel} Auto Loan Refinance" (or "${bankLabel} Auto Loan Buyout" if signal indicates a lease-end)
+  - Mortgage → "${bankLabel} Mortgage Refinance" OR "${bankLabel} Home Equity Line of Credit"
+  - Student Loan → "${bankLabel} Student Loan Refinance"
+  - Investment / Brokerage → "${bankLabel} Guided Investing" or IRA Rollover
+  - Lease → "${bankLabel} Auto Loan" (lease buyout financing)
+- offer_headline, benefits, and quote MUST use the signal's numbers (monthly_amount_band, servicer, cadence) to compute a concrete estimated savings.
+  - Example (Auto Loan · VW Credit ~$685/mo, renewal ~2mo): headline "Auto refinance from 5.49% APR", quote "Refinancing at today's rates could save you an estimated $180/mo — roughly $2,160/year."
+- Reference the incumbent servicer subtly ("your current auto lender", "your existing mortgage") — never quote the servicer name in a way that feels invasive.
+- Quote tone: helpful, timing-aware ("Your renewal window is coming up..."), NEVER surveillance-y.
+
+
+
 
 TONE RULES:
 - Write like a smart friend who happens to work in finance, not a bank marketing department
