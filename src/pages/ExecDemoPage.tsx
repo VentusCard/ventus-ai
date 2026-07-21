@@ -612,6 +612,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
 
             return true;
           })
+          .sort((a: any, b: any) => (b.totalSpend || 0) - (a.totalSpend || 0))
           .map(({ _resolvedCategories, ...rest }: any) => rest),
       };
 
