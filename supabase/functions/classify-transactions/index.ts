@@ -607,10 +607,15 @@ async function classifyBatch(
     });
 
     try {
-      const { classifications } = await callClassificationAPI(batch, model, batchNum, attempt);
+      const { classifications, fatal } = await callClassificationAPI(batch, model, batchNum, attempt);
 
       if (classifications.length === 0) {
         console.warn(`[BATCH ${batchNum}] Empty classifications (attempt ${attempt}, model ${model})`);
+        // Deterministic 4xx on the primary model — jump straight to the fallback attempt.
+        if (fatal && attempt < MAX_RETRIES) {
+          console.warn(`[BATCH ${batchNum}] Fatal 4xx on ${model} — escalating to fallback model.`);
+          attempt = MAX_RETRIES - 1; // next iteration becomes MAX_RETRIES → FALLBACK_MODEL
+        }
         continue;
       }
 
