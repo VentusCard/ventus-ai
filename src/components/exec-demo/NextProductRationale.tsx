@@ -728,7 +728,7 @@ function GroupSlideshow({
 }
 
 
-export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, financialSignals, creditAssessment, creditLoading, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
+export default function NextProductRationale({ lifeEvents, loading, productCards, transactions, onTriggerPillClick, activeTriggerLabel, productActions, actionsLoading, pillarRollups, riskFlags, financialSignals, deliveryChannel = "mobile", onDeliveryChannelChange }: Props) {
 
   if (loading || !lifeEvents) {
     return (

@@ -1465,7 +1465,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
                 setProductCardsLoading(false);
                 setActionsLoading(false);
                 setRiskLoading(false);
-                setCreditLoading(false);
+                
                 setSelectionDialogOpen(true);
               }}
               title="Restart demo"
