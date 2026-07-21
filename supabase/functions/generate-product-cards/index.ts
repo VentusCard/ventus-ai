@@ -241,7 +241,7 @@ CARD 3 RULE: If FINANCIAL SIGNALS above is non-empty, slot 3 MUST be a financial
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return up to 3 consumer product recommendation cards in strict order: life_event_1, life_event_2, behavioral_1",
+              description: "Return up to 3 consumer product recommendation cards in strict order: life_event_1, life_event_2, [financial_signal_1 OR behavioral_1]",
               parameters: {
                 type: "object",
                 properties: {
@@ -254,12 +254,12 @@ CARD 3 RULE: If FINANCIAL SIGNALS above is non-empty, slot 3 MUST be a financial
                       properties: {
                         type: {
                           type: "string",
-                          enum: ["behavioral", "life_event"],
+                          enum: ["behavioral", "life_event", "financial_signal"],
                           description: "Card type",
                         },
                         product_name: {
                           type: "string",
-                          description: "Specific product name e.g. 'Venture X Travel Card', '529 College Savings Plan', 'High-Yield Savings Account'",
+                          description: "Specific product name e.g. 'Venture X Travel Card', '529 College Savings Plan', 'Auto Loan Refinance'",
                         },
                         quote: {
                           type: "string",
@@ -267,7 +267,7 @@ CARD 3 RULE: If FINANCIAL SIGNALS above is non-empty, slot 3 MUST be a financial
                         },
                         signal_label: {
                           type: "string",
-                          description: "For behavioral: the vaguely-specific descriptor (e.g. 'Tropical getaways'). For life_event: the event name (e.g. 'College Preparation')",
+                          description: "For behavioral: the persona rollup label. For life_event: the event name. For financial_signal: financial_signals[0].label EXACTLY.",
                         },
                         theme: {
                           type: "string",
