@@ -1088,8 +1088,13 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
     timeoutsRef.current.push(setTimeout(fn, ms));
   }, []);
 
-  // Fire classification for initial customer on mount
+  // Fire classification for initial customer on mount (skipped if the
+  // prefire-coordinator effect below will do it — avoids double SSE).
+  const mountClassifyRef = useRef(false);
   useEffect(() => {
+    if (mountClassifyRef.current) return;
+    if (prefireOnMount) return; // prefire effect owns the kickoff when embedded
+    mountClassifyRef.current = true;
     fireClassification(getCsvForCustomer(0));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
