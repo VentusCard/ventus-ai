@@ -646,7 +646,7 @@ export default function ExecDemoIntelPanel({
                         : activeTab === "product"
                           ? {
                               title: "3.2 Next Financial Product",
-                              sub: "Behavioral signals surface the right product to grow AUM",
+                              sub: "Hyper-personalize the right product at the right to grow AUM",
                             }
                           : activeTab === "relationship"
                             ? {
