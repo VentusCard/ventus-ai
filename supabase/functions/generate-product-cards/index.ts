@@ -220,7 +220,7 @@ ${JSON.stringify((financial_signals || []).map((f: any) => ({
 
 Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, financial-signal monthly_amount_band, demographics income). Do not invent unrelated figures.
 
-CARD 3 RULE: If FINANCIAL SIGNALS above is non-empty, slot 3 MUST be a financial_signal card grounded in financial_signals[0]. Only fall back to a behavioral card if FINANCIAL SIGNALS is empty. NEVER emit a risk/gambling/vice/AML card under any circumstance.`;
+CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_rollups[0]), Slot 3 = financial_signal (financial_signals[0]). If any primary is missing, fall back via: life_events[1] → financial_signals[1] → persona_rollups[1]. Emit exactly min(3, total_available_candidates) — NEVER fewer. NEVER emit a risk/gambling/vice/AML card.`;
 
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
