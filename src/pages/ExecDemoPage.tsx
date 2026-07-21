@@ -12,7 +12,7 @@ import ExecDemoIntelPanel, {
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
-import type { CardActions, CreditAssessment } from "@/components/exec-demo/NextProductRationale";
+import type { CardActions } from "@/components/exec-demo/NextProductRationale";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import {
@@ -152,8 +152,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
-  const [creditAssessment, setCreditAssessment] = useState<CreditAssessment | null>(null);
-  const [creditLoading, setCreditLoading] = useState(false);
   const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
   const [synthesisTriggered, setSynthesisTriggered] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
@@ -840,8 +838,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
         console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external life_event)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
         // Fire product cards generation with life events + persona data
         fireProductCards(merged, personaSynthesisRef.current);
-        // Fire indicative creditworthiness assessment in parallel
-        fireCreditAssessment();
         // Fire offers with both pillars and detected life events in a single call
         const syn = synthesis || personaSynthesisRef.current;
         if (syn && pillars) {
@@ -1017,42 +1013,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
     [selectedIdx],
   );
 
-  /** Assess indicative behavioral creditworthiness from enriched transactions */
-  const fireCreditAssessment = useCallback(async () => {
-    setCreditLoading(true);
-    setCreditAssessment(null);
-    try {
-      const enrichedTxs = classifiedRef.current || [];
-      if (enrichedTxs.length === 0) {
-        setCreditLoading(false);
-        return;
-      }
-      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics: any = demoCustomer?.profile?.demographics || {};
-      const { data, error } = await supabase.functions.invoke("assess-creditworthiness", {
-        body: {
-          client: {
-            name: demographics.name,
-            age: demographics.age,
-            occupation: demographics.occupation,
-            industry: demographics.industry,
-            income_level: demographics.incomeLevel,
-            family_status: demographics.familyStatus,
-            segment: demographics.segment,
-          },
-          transactions: enrichedTxs,
-          window_days: 90,
-        },
-      });
-      if (error) throw error;
-      setCreditAssessment(data as CreditAssessment);
-      console.log("[PRELOAD] Credit assessment ready:", (data as any)?.band, (data as any)?.score);
-    } catch (err) {
-      console.error("[PRELOAD] Credit assessment failed:", err);
-    } finally {
-      setCreditLoading(false);
-    }
-  }, [selectedIdx]);
 
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
@@ -1100,8 +1060,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
       setProductCardsLoading(false);
       setProductActions(null);
       setActionsLoading(false);
-      setCreditAssessment(null);
-      setCreditLoading(false);
       setSynthesisTriggered(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
@@ -1495,7 +1453,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
                 setProductCards(null);
                 setProductActions(null);
                 setRiskFlags(null);
-                setCreditAssessment(null);
+                
                 setSynthesisTriggered(false);
                 setActivePillFilter(null);
                 setActiveRollup(null);
@@ -1606,8 +1564,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
                   productCards={productCards}
                   riskFlags={riskFlags}
                   riskLoading={riskLoading}
-                  creditAssessment={creditAssessment}
-                  creditLoading={creditLoading}
                   onTriggerPillClick={handleTriggerPillClick}
                   activeTriggerLabel={activeTriggerPill?.label}
                   activeTrigger={activeTriggerPill}
