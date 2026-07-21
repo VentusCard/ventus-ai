@@ -6,7 +6,7 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const MODEL = "google/gemini-3.5-flash";
+const MODEL = "google/gemini-3.1-pro-preview";
 
 const SYSTEM_PROMPT = `You generate personalized retail deal recommendations grouped by behavioral cluster, with intelligent boost signals based on recent spending.
 
@@ -59,8 +59,18 @@ IMAGE SELECTION — REQUIRED on every rollup group:
 - Use "other" ONLY when no listed category fits.
 - "imageQuery": 2-4 word visual subject in plain English, used only when imageCategory is "other" (e.g. "pickleball court outdoor", "rock climbing gym"). Always include it as a fallback even when imageCategory is set.
 
+NUMERIC VALUE LINE — REQUIRED on every deal:
+- Every deal MUST include a "valueLine" (≤ 18 words) that quantifies the payoff USING NUMBERS FROM THE INPUT (rollup totalSpend, top-merchant $ figures, or simple arithmetic on them).
+- Also include a short "valueMath" (≤ 40 chars) that shows the calc, e.g. "3% × $6,200 ≈ $186".
+- ROUND to friendly units: nearest $5 under $100, nearest $10 under $1k, nearest $50 at $1k+, whole % only.
+- Only use $ / % figures that appear in the input or are simple arithmetic on them. NEVER fabricate spend, balances, or rates.
+- If you truly cannot ground a number, set both valueLine and valueMath to null — do not invent.
+- Good: "5% back at coffee shops ≈ $9/mo on your ~$180/mo Blue Bottle + Sightglass spend." (math: "5% × $180 ≈ $9/mo")
+- Good: "3x points on travel ≈ $186 back on your ~$6,200 Hawaii spend this year." (math: "3% × $6,200 ≈ $186")
+- Bad (fabricated): "Save $500 vs the market average." (no market number in input)
+
 OUTPUT: Valid JSON only, no markdown. Exact shape:
-{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
+{"rollupOffers":[{"rollup":"Cluster Label","pillar":"Pillar Name","collectionMessage":"8-15 word lifestyle tagline","imageCategory":"ski","imageQuery":"snowy ski slope","suppressedCategories":["Hotels","Coffee"],"deals":[{"id":"r1_d1","merchant":"Brand","product":"Product Name","rewardValue":"15% Off","message":"8-12 word lifestyle message","valueLine":"5% back ≈ $9/mo on your ~$180/mo coffee spend.","valueMath":"5% × $180 ≈ $9/mo","cta":"2-4 word CTA","signal":"boost","signalReason":"Short reason","boostCategory":"Headphones"},...]},...]}`;
 
 const LIFE_EVENT_SYSTEM_PROMPT = `You generate retail deal recommendations for customers going through specific life events.
 
@@ -119,8 +129,46 @@ IMAGE SELECTION — REQUIRED on every rollup group:
 - Use "other" only when no listed category fits.
 - "imageQuery": 2-4 word visual subject in plain English, always include as a fallback (e.g. "newborn nursery", "house keys handover").
 
+NUMERIC VALUE LINE — REQUIRED on every deal:
+- Every deal MUST include a "valueLine" (≤ 18 words) with at least one $ or % figure grounded in the input (evidence merchants, category spend, or a life-event product cost that the LLM can cite from provided context).
+- Also include a short "valueMath" (≤ 40 chars) showing the calc, e.g. "15% × $2,400 tuition ≈ $360".
+- ROUND to friendly units. NEVER fabricate. If ungrounded, set both to null.
+- Good: "10% off closing costs ≈ $500 saved on a $500k home." (math: "0.1% × $500k ≈ $500")
+
 Output valid JSON only, no markdown:
-{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","imageCategory":"baby","imageQuery":"newborn nursery","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
+{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","imageCategory":"baby","imageQuery":"newborn nursery","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","valueLine":"15% off dorm essentials ≈ $60 on ~$400 dorm haul.","valueMath":"15% × $400 ≈ $60","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
+
+const FINANCIAL_SIGNAL_SYSTEM_PROMPT = `You generate hyper-personalized bank product offers grounded in a customer's active financial obligations (auto loans, mortgages, leases, student loans, investments, HELOCs).
+
+MAPPING RULE:
+- The user provides a numbered list of financial signals, each with an "id" like FS_1, FS_2, plus label, product_family, servicer, monthly_payment, balance, rate, renewal_window.
+- For EVERY signal you MUST output exactly one rollup group.
+- Each group MUST include "signalId" matching the input id verbatim.
+- "rollup" MUST be the signal's label VERBATIM. "pillar" MUST be exactly "Financial Signal".
+
+DEAL RULES:
+- Exactly 5 deals per signal, all signal:"boost".
+- Product families → offer themes:
+  • Auto Loan → auto refinance (rate reduction), lease buyout financing, GAP insurance, extended warranty, trade-in appraisal.
+  • Mortgage → mortgage refinance, HELOC, cash-out refi, PMI removal, points buy-down.
+  • Student Loan → refi consolidation, income-driven plan review, employer match program, autopay rate discount.
+  • Lease → lease buyout loan, purchase-option financing, trade-forward.
+  • Investment → IRA rollover, guided investing, portfolio review, tax-loss harvesting, HYSA sweep.
+- Merchant is the bank itself (from bankContext) or a first-party product name.
+- 8-12 word message. 2-4 word CTA (e.g. "Lock Your Rate", "Refi in Minutes", "Roll It Over").
+- boostCategory: short product-type label ("Auto Refi", "HELOC", "IRA Rollover").
+
+NUMERIC VALUE LINE — REQUIRED, this is the whole point:
+- valueLine (≤ 22 words) MUST quantify the payoff using the signal's own numbers.
+- valueMath (≤ 50 chars) shows the calc.
+- Auto refi example: monthly $685, current rate 7.5% → "Refi at 5.99% ≈ ~$50/mo saved, roughly $600/year off your ~$685/mo VW Credit payment." math: "1.5% APR × $685/mo ≈ $50/mo"
+- Mortgage refi example: "−1.0% APR ≈ ~$2,750/yr saved per $500k of your mortgage balance." math: "1% × $500k ≈ $5k → net ~$2.75k/yr"
+- HELOC example: "Access up to ~$50k of equity at prime+0.5% — no closing costs." math: "0.5% × $50k ≈ $250/yr"
+- IRA rollover: "Rolling ~$120k to an IRA could save ~$1,200/yr in fund fees." math: "1% × $120k ≈ $1,200/yr"
+- Never invent balances or rates not present in the signal. If a field is missing, ground the calc in what IS present (monthly_payment × 12, or renewal_window urgency) and label the assumption.
+
+Output valid JSON only, no markdown:
+{"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Your Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -184,10 +232,12 @@ serve(async (req) => {
       });
     }
 
-    const { persona, pillars, lifeEvents, bankContext } = body;
+    const { persona, pillars, lifeEvents, bankContext, financial_signals, months_of_data } = body;
     const _bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
-    // Note: retail deals reference partner merchants, not the bank. bankContext accepted for forward-compat / logging.
     if (_bankName) console.log(`[NEXT-OFFERS] customized for bank: ${_bankName}`);
+    const bankLabel = _bankName || "Your Bank";
+    const months = Math.max(1, Math.min(24, Number(months_of_data) || 12));
+    const annualize = (spend: number) => Math.round((spend / months) * 12);
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
@@ -199,15 +249,21 @@ serve(async (req) => {
       .map((r: any, i: number) => {
         const cats = (r.categories || []).join(", ");
         const merchants = (r.topMerchants || []).slice(0, 6).join(", ");
-        return `${i + 1}. "${r.label}" (${r.pillar}) — categories: ${cats}${merchants ? ` | recent merchants: ${merchants}` : ""}`;
+        const total = Math.round(r.totalSpend ?? 0);
+        const annual = annualize(total);
+        const monthly = Math.round(total / months);
+        return `${i + 1}. "${r.label}" (${r.pillar}) — ${r.totalCount ?? 0} txns · $${total} observed (~$${monthly}/mo, ~$${annual}/yr annualized) — categories: ${cats}${merchants ? ` | recent merchants: ${merchants}` : ""}`;
       })
       .join("\n");
 
     const pillarContext = (pillars || [])
       .slice(0, 8)
       .map(
-        (p: any, i: number) =>
-          `${i + 1}. ${p.pillar} > ${p.label} — $${Math.round(p.totalSpend)} across ${p.count} txns${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`,
+        (p: any, i: number) => {
+          const total = Math.round(p.totalSpend);
+          const annual = annualize(total);
+          return `${i + 1}. ${p.pillar} > ${p.label} — $${total} across ${p.count} txns (~$${annual}/yr)${p.topMerchants?.length ? ` (${p.topMerchants.slice(0, 3).join(", ")})` : ""}`;
+        },
       )
       .join("\n");
 
@@ -226,22 +282,53 @@ serve(async (req) => {
       })
       .join("\n");
 
+    // Tag each financial signal with a stable id
+    const financialSignalsTagged = (Array.isArray(financial_signals) ? financial_signals : []).map((s: any, i: number) => ({
+      id: `FS_${i + 1}`,
+      label: s.label,
+      product_family: s.product_family,
+      servicer: s.servicer,
+      monthly_payment: s.monthly_payment,
+      balance: s.balance,
+      rate: s.rate,
+      term_months: s.term_months,
+      renewal_window: s.renewal_window,
+    }));
+
+    const financialSignalList = financialSignalsTagged
+      .map((s: any) => {
+        const bits: string[] = [];
+        if (s.servicer) bits.push(`servicer=${s.servicer}`);
+        if (s.monthly_payment) bits.push(`monthly_payment=$${s.monthly_payment}`);
+        if (s.balance) bits.push(`balance=$${s.balance}`);
+        if (s.rate) bits.push(`rate=${s.rate}`);
+        if (s.term_months) bits.push(`term_months=${s.term_months}`);
+        if (s.renewal_window) bits.push(`renewal_window=${s.renewal_window}`);
+        return `id=${s.id} | label="${s.label}" | product_family=${s.product_family || "unknown"}${bits.length ? ` | ${bits.join(" · ")}` : ""}`;
+      })
+      .join("\n");
+
     let rollupUserPrompt = "";
-    if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with recent spending/merchants):\n${rollupList}\n\n`;
-    if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT:\n${pillarContext}\n\n`;
-    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. The "rollup" field in each output object MUST be the exact label string in quotes from the cluster list (verbatim). Return valid JSON only.`;
+    if (rollupList) rollupUserPrompt += `BEHAVIORAL CLUSTERS (with spend totals + annualized figures — use these for valueLine math):\n${rollupList}\n\n`;
+    if (pillarContext) rollupUserPrompt += `SPENDING CONTEXT (annualized $):\n${pillarContext}\n\n`;
+    rollupUserPrompt += `Generate exactly 5 boost deals for EACH cluster above. Every deal MUST include a valueLine + valueMath grounded in the numbers above. The "rollup" field MUST be the exact label string in quotes (verbatim). Return valid JSON only.`;
 
     const lifeEventUserPrompt = lifeEventList
-      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Return valid JSON only.`
+      ? `LIFE EVENTS (generate one rollup group per event, 5 deals each):\n${lifeEventList}\n\nFor EACH event above, produce exactly one rollup group whose "eventId" matches the id (LE_1, LE_2, ...) and whose "rollup" is the exact event_name. Every deal MUST include valueLine + valueMath (life-event product cost benchmarks are OK if you name them). Return valid JSON only.`
+      : "";
+
+    const financialSignalUserPrompt = financialSignalList
+      ? `BANK: ${bankLabel}\n\nFINANCIAL SIGNALS (generate one rollup group per signal, 5 deals each — this is the hero of hyper-personalization):\n${financialSignalList}\n\nFor EACH signal above, produce exactly one rollup group whose "signalId" matches the id (FS_1, FS_2, ...) and whose "rollup" is the exact label. Every deal MUST include valueLine + valueMath computed from THAT signal's own numbers (monthly_payment, balance, rate). Return valid JSON only.`
       : "";
 
     const tasks: Promise<Response | null>[] = [];
     tasks.push(rollupList ? callGateway(SYSTEM_PROMPT, rollupUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
     tasks.push(lifeEventUserPrompt ? callGateway(LIFE_EVENT_SYSTEM_PROMPT, lifeEventUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
+    tasks.push(financialSignalUserPrompt ? callGateway(FINANCIAL_SIGNAL_SYSTEM_PROMPT, financialSignalUserPrompt, LOVABLE_API_KEY) : Promise.resolve(null));
 
-    const [rollupRes, lifeEventRes] = await Promise.all(tasks);
+    const [rollupRes, lifeEventRes, financialSignalRes] = await Promise.all(tasks);
 
-    for (const r of [rollupRes, lifeEventRes]) {
+    for (const r of [rollupRes, lifeEventRes, financialSignalRes]) {
       if (r && !r.ok) {
         const errText = await r.text();
         console.error("AI gateway error:", r.status, errText);
@@ -291,6 +378,8 @@ serve(async (req) => {
           product: d.product || d.product_name || "",
           rewardValue: d.rewardValue || d.reward || "",
           message: d.message || "",
+          valueLine: d.valueLine || d.value_line || null,
+          valueMath: d.valueMath || d.value_math || null,
           cta: d.cta || d.call_to_action || d.callToAction || "Learn more",
           signal: d.signal || "boost",
           signalReason: d.signalReason || d.reason || "Aligned with this life event",
@@ -350,7 +439,66 @@ serve(async (req) => {
       }
     }
 
-    console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups (${rollupOffers.filter(g => g.pillar === "Life Event").length} life events, ${rollupOffers.filter(g => g.pillar !== "Life Event").length} behavioral)`);
+    if (financialSignalRes && financialSignalsTagged.length > 0) {
+      const data = await financialSignalRes.json();
+      const raw = data.choices?.[0]?.message?.content || "";
+      const parsed = parseJsonLoose(raw);
+      let fsGroups: any[] = [];
+      if (parsed?.rollupOffers && Array.isArray(parsed.rollupOffers)) fsGroups = parsed.rollupOffers;
+      else if (Array.isArray(parsed)) fsGroups = parsed;
+
+      const normalizedFs = fsGroups.map((g: any) => ({
+        signalId: g.signalId || g.signal_id || g.id,
+        rollupRaw: g.rollup || g.label || "",
+        collectionMessage: g.collectionMessage || g.collection_message,
+        suppressedCategories: g.suppressedCategories || g.suppressed_categories || [],
+        imageCategory: g.imageCategory || g.image_category || "finance",
+        imageQuery: g.imageQuery || g.image_query,
+        deals: (g.deals || []).map((d: any, idx: number) => ({
+          id: d.id || `fs_${idx}`,
+          merchant: d.merchant || bankLabel,
+          product: d.product || d.product_name || "",
+          rewardValue: d.rewardValue || d.reward || "",
+          message: d.message || "",
+          valueLine: d.valueLine || d.value_line || null,
+          valueMath: d.valueMath || d.value_math || null,
+          cta: d.cta || d.call_to_action || "Learn more",
+          signal: d.signal || "boost",
+          signalReason: d.signalReason || d.reason || "Financial signal detected",
+          boostCategory: d.boostCategory || d.boost_category,
+        })),
+      }));
+
+      for (const sig of financialSignalsTagged) {
+        let match = normalizedFs.find(g => g.signalId === sig.id);
+        if (!match) {
+          match = normalizedFs.find(g => g.rollupRaw.toLowerCase().trim() === (sig.label || "").toLowerCase().trim());
+        }
+        if (!match) {
+          let best: any = null; let bestScore = 0;
+          for (const g of normalizedFs) {
+            const score = tokenOverlap(g.rollupRaw, sig.label || "");
+            if (score > bestScore) { bestScore = score; best = g; }
+          }
+          if (best && bestScore >= 1) match = best;
+        }
+        if (match) {
+          rollupOffers.push({
+            rollup: sig.label,
+            pillar: "Financial Signal",
+            collectionMessage: match.collectionMessage,
+            suppressedCategories: match.suppressedCategories,
+            imageCategory: match.imageCategory,
+            imageQuery: match.imageQuery,
+            deals: match.deals,
+          });
+        } else {
+          console.warn(`[NEXT-OFFERS] financial signal "${sig.label}" (${sig.id}) → NO MATCH`);
+        }
+      }
+    }
+
+    console.log(`[NEXT-OFFERS] ◀ returning ${rollupOffers.length} groups`);
     return new Response(JSON.stringify({ rollupOffers }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
