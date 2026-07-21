@@ -7,8 +7,12 @@ const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
 // Model configuration
-const FAST_MODEL = "openai/gpt-5-mini";
-const FALLBACK_MODEL = "google/gemini-3.5-flash";
+// Gemini 3.5 flash is the primary because the Lovable AI Gateway currently
+// rejects openai/gpt-5-mini requests here with a max_tokens 400, which forced
+// every batch through two wasted retries before falling back — see the
+// approved plan for full context.
+const FAST_MODEL = "google/gemini-3.5-flash";
+const FALLBACK_MODEL = "google/gemini-3.1-flash-lite";
 
 // Concurrency configuration
 const CONCURRENCY_LIMIT = 4;
