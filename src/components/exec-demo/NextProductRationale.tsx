@@ -124,6 +124,10 @@ function getFirstRiskRollup(riskFlags?: { flags: any[]; summary: string } | null
   return { label: first.label, severity: first.severity, count: first.txIds.size };
 }
 
+function formatSpend(amount: number): string {
+  if (amount >= 1000) return `$${(amount / 1000).toFixed(1)}k`;
+  return `$${Math.round(amount)}`;
+}
 
 /* ─── Resolved card data (pill + matched evidence) ─── */
 interface ResolvedCard {
