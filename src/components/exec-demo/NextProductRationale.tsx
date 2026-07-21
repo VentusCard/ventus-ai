@@ -830,7 +830,7 @@ export default function NextProductRationale({ lifeEvents, loading, productCards
   if (productCards && productCards.length > 0) {
     // Resolve all cards and show up to 3 — interleave life-event, behavioral, then any extras (e.g. risk)
     const resolvedAll = productCards.map((card, origIdx) =>
-      resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions)
+      resolveCard(card, origIdx, lifeEvents, pillarRollups, transactions, financialSignals)
     );
     const lifeEventResolved = resolvedAll.filter(r => !r.isBehavioral);
     const behavioralResolved = resolvedAll.filter(r => r.isBehavioral);
