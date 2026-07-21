@@ -1282,6 +1282,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
   const handleRunAnalysis = useCallback(async () => {
     if (isRunning) return;
     clearTimeouts();
+    setSynthesisTriggered(false);
 
     const csv = customCsv || getCsvForCustomer(selectedIdx);
 
