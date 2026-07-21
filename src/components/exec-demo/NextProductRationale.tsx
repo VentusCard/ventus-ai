@@ -74,6 +74,7 @@ interface Props {
   actionsLoading?: boolean;
   pillarRollups?: PillarRollup[];
   riskFlags?: { flags: any[]; summary: string } | null;
+  financialSignals?: any[];
   creditAssessment?: CreditAssessment | null;
   creditLoading?: boolean;
   deliveryChannel?: ProductDeliveryChannel;
