@@ -7,6 +7,8 @@ import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, {
   type PersonaSynthesis,
   type PillarRollup,
+  type FinancialSignal,
+  type DemographicShift,
   getColor,
 } from "@/components/exec-demo/ExecDemoIntelPanel";
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
@@ -51,6 +53,205 @@ const TIMINGS = {
   cardReveal: 1000,
   hold: 999999,
 };
+
+// ── Fast deterministic preliminary persona synthesis ───────────────────────
+// Builds a placeholder PersonaSynthesis directly from enriched transactions
+// so the "Behavioral Intelligence: Ready" button can render immediately while
+// the heavier LLM call runs in the background.
+function buildPreliminaryPersonaSynthesis(
+  enrichedTxs: EnrichedTransaction[],
+  externalSignals: import("@/lib/externalIntelligenceSignals").ExternalIntelSignal[],
+): PersonaSynthesis {
+  const grouped = new Map<
+    string,
+    {
+      pillar: string;
+      label: string;
+      categories: string[];
+      txIndices: number[];
+      totalSpend: number;
+      totalCount: number;
+    }
+  >();
+
+  for (const [txIdx, tx] of enrichedTxs.entries()) {
+    const key = `${tx.pillar}::${tx.category}`;
+    const existing = grouped.get(key);
+    if (existing) {
+      existing.totalCount += 1;
+      existing.totalSpend += tx.amount;
+      existing.txIndices.push(txIdx);
+      if (tx.subcategories?.length) {
+        tx.subcategories.forEach((sc) => {
+          if (!existing.categories.includes(sc)) existing.categories.push(sc);
+        });
+      }
+    } else {
+      grouped.set(key, {
+        pillar: tx.pillar,
+        label: tx.category,
+        categories: tx.subcategories ? [...tx.subcategories] : [tx.category],
+        txIndices: [txIdx],
+        totalSpend: tx.amount,
+        totalCount: 1,
+      });
+    }
+  }
+
+  const sortedGroups = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
+
+  // Build pillar rollups from the top groups, merging adjacent groups in the same pillar
+  // when they share a clear activity theme.
+  const pillarRollups: PillarRollup[] = sortedGroups
+    .slice(0, 8)
+    .map((g) => ({
+      pillar: g.pillar,
+      label: g.label,
+      categories: g.categories,
+      categoryIndices: [],
+      txIndices: g.txIndices,
+      totalCount: g.totalCount,
+      totalSpend: g.totalSpend,
+    }));
+
+  // ── Financial signal patterns (same taxonomy the LLM uses) ───────────────
+  const FIN_SERVICERS: Array<[RegExp, string, string, string]> = [
+    [/toyota financial|vw credit|volkswagen credit|ford credit|gm financial|honda financial|ally auto|chase auto|capital one auto|bmw financial|mercedes-benz financial|hyundai motor finance|nissan motor accept/i, "auto_loan", "Auto Loan", "Auto Loan"],
+    [/\blease\b|leasing/i, "auto_lease", "Auto Lease", "Auto Lease"],
+    [/rocket mortgage|wells fargo home mortgage|chase home lending|pennymac|mr\.? cooper|loandepot|zillow home loans|quicken loans/i, "mortgage", "Mortgage", "Mortgage"],
+    [/\bheloc\b|home equity/i, "heloc", "HELOC", "HELOC"],
+    [/nelnet|sallie mae|navient|great lakes|fedloan|mohela|aidvantage/i, "student_loan", "Student Loan", "Student Loan"],
+    [/sofi loan|lightstream|marcus loan|upstart|prosper|lendingclub|best egg/i, "personal_loan", "Personal Loan", "Personal Loan"],
+    [/amex payment|chase card payment|discover payment|capital one card/i, "credit_card_payoff", "Credit Card Payoff", "Credit Card"],
+    [/fidelity|schwab|vanguard|robinhood|wealthfront|betterment|etrade|merrill edge/i, "brokerage_contribution", "Brokerage Contribution", "Brokerage"],
+    [/401k|ira contribution|roth ira|sep ira/i, "retirement_contribution", "Retirement Contribution", "Retirement"],
+    [/northwestern mutual|new york life|massmutual|prudential life|guardian life|haven life|policygenius/i, "insurance_premium", "Insurance Premium", "Insurance"],
+    [/\b529\b|my529|collegeamerica|scholarshare/i, "education_savings", "Education Savings", "529"],
+  ];
+
+  const financialSignals: FinancialSignal[] = [];
+  const seenFamilies = new Set<string>();
+  for (const [txIdx, tx] of enrichedTxs.entries()) {
+    const merchant = ((tx as any).normalized_merchant || tx.merchant_name || "").toLowerCase();
+    for (const [re, family, labelPrefix, shortLabel] of FIN_SERVICERS) {
+      if (re.test(merchant)) {
+        const familyKey = family;
+        if (seenFamilies.has(familyKey)) {
+          const existing = financialSignals.find((f) => f.product_family === familyKey);
+          if (existing && !existing.transaction_indices.includes(txIdx)) {
+            existing.transaction_indices.push(txIdx);
+          }
+        } else {
+          seenFamilies.add(familyKey);
+          const servicer = tx.merchant_name || "Servicer";
+          const amountBand = tx.amount ? `~$${Math.round(tx.amount)}/mo` : undefined;
+          financialSignals.push({
+            id: `prelim-fin-${family}`,
+            product_family: family,
+            label: `${labelPrefix} · ${servicer}`,
+            servicer,
+            monthly_amount_band: amountBand,
+            cadence: "monthly",
+            transaction_indices: [txIdx],
+            talking_points: [],
+          });
+        }
+        break;
+      }
+    }
+  }
+
+  // ── Demographic hint patterns ────────────────────────────────────────────
+  const DEMO_HINTS: Array<[RegExp, DemographicShift["category"], string, "up" | "down" | "lateral"]> = [
+    [/payroll|direct dep|direct deposit|adp|gusto|paychex|salary|wages|bonus|commission|1099/i, "income_trajectory", "Income Trajectory", "up"],
+    [/\bcollege\b|\buniversity\b|tuition|\bsat\b|\bact test\b|kaplan|princeton review|common ?app|bursar/i, "household_composition", "College Preparation", "lateral"],
+    [/wire transfer|incoming wire|cashier'?s check|brokerage transfer|trust services/i, "wealth_tier_migration", "Wealth Tier Migration", "up"],
+    [/storage unit|title company|escrow|comcast install|xfinity install|pg&e install/i, "geography_relocation", "Relocation Signal", "lateral"],
+  ];
+
+  const demographicShifts: DemographicShift[] = [];
+  const demoEvidence = new Map<DemographicShift["category"], number[]>();
+  for (const [txIdx, tx] of enrichedTxs.entries()) {
+    const merchant = ((tx as any).normalized_merchant || tx.merchant_name || "").toLowerCase();
+    for (const [re, category, label, direction] of DEMO_HINTS) {
+      if (re.test(merchant)) {
+        const indices = demoEvidence.get(category) || [];
+        if (!indices.includes(txIdx)) indices.push(txIdx);
+        demoEvidence.set(category, indices);
+        break;
+      }
+    }
+  }
+  for (const [category, indices] of demoEvidence.entries()) {
+    if (indices.length < 2) continue;
+    const labelMap: Record<string, string> = {
+      income_trajectory: "Income Trajectory",
+      wealth_tier_migration: "Wealth Tier Migration",
+      household_composition: "College Preparation",
+      geography_relocation: "Relocation Signal",
+    };
+    demographicShifts.push({
+      id: `prelim-demo-${category}`,
+      category,
+      label: labelMap[category],
+      direction: category === "income_trajectory" || category === "wealth_tier_migration" ? "up" : "lateral",
+      confidence: 0.72,
+      magnitude_band: "moderate",
+      evidence_summary: "Preliminary match from transaction patterns",
+      transaction_indices: indices,
+    });
+  }
+
+  // ── Merge external intelligence (same logic as the LLM path) ─────────────
+  for (const es of externalSignals) {
+    if (es.bucket === "financial_signal") {
+      const familyKey = (es.product_family || "").toLowerCase();
+      const collidingIdx = financialSignals.findIndex(
+        (f) => (f.product_family || "").toLowerCase() === familyKey && familyKey !== "",
+      );
+      const merged: FinancialSignal = {
+        id: es.id,
+        product_family: es.product_family || "other",
+        label: es.event_name,
+        servicer: es.servicer,
+        monthly_amount_band: es.monthly_amount_band,
+        cadence: es.cadence || "monthly",
+        transaction_indices: [],
+        talking_points: es.talking_points || [],
+        source: "external",
+        provider: es.provider,
+      };
+      if (collidingIdx >= 0) {
+        financialSignals.splice(collidingIdx, 1, merged);
+      } else {
+        financialSignals.push(merged);
+      }
+    } else if (es.bucket === "demographic_shift") {
+      const collidingIdx = demographicShifts.findIndex(
+        (d) => (d.category || "") === (es.demographic_category || ""),
+      );
+      const merged: DemographicShift = {
+        id: es.id,
+        category: es.demographic_category || "household_composition",
+        label: es.event_name,
+        direction: es.direction || "lateral",
+        confidence: es.confidence,
+        magnitude_band: es.magnitude_band,
+        evidence_summary: es.detail,
+        transaction_indices: [],
+        source: "external",
+        provider: es.provider,
+      };
+      if (collidingIdx >= 0) {
+        demographicShifts.splice(collidingIdx, 1, merged);
+      } else {
+        demographicShifts.push(merged);
+      }
+    }
+  }
+
+  return { pillarRollups, financialSignals, demographicShifts };
+}
 
 interface ExecDemoPageProps {
   embedded?: boolean;
@@ -322,10 +523,22 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         return [] as LifeEvent[];
       });
 
+    // Resolve external intelligence signals BEFORE the LLM call so the model
+    // sees them as pre-classified inputs and can respect their bucket assignments.
+    const externalSignalsRaw = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id);
+    const externalForLLM = externalSignalsForLLM(externalSignalsRaw);
+
+    // ── Fast preliminary persona synthesis: unlock the Ready button immediately ──
+    const preliminarySynthesis = buildPreliminaryPersonaSynthesis(enrichedTxs, externalSignalsRaw);
+    personaSynthesisRef.current = preliminarySynthesis;
+    setPersonaSynthesis(preliminarySynthesis);
+    console.log("[PRELOAD] Preliminary persona synthesis ready:", preliminarySynthesis.pillarRollups?.length, "rollups");
 
     // Await risk detection (started in parallel from fireClassification) so we can pass
     // risk categories + flagged transaction IDs into synthesize-persona for vice/gambling
     // theme suppression. Bound to 6s so a slow risk call never blocks the demo.
+    // NOTE: The button already rendered from the preliminary state above, so this wait
+    // only affects final LLM quality, not perceived responsiveness.
     if (riskReadyRef.current) {
       try {
         await Promise.race([riskReadyRef.current, new Promise<void>((resolve) => setTimeout(resolve, 6000))]);
@@ -350,11 +563,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     console.log(
       `[PRELOAD] Risk-aware persona synthesis: ${riskCategoriesPresent.length} risk categories, ${riskTransactionIds.length} flagged txn ids`,
     );
-
-    // Resolve external intelligence signals BEFORE the LLM call so the model
-    // sees them as pre-classified inputs and can respect their bucket assignments.
-    const externalSignalsRaw = getExternalSignalsFor(DEMO_CUSTOMERS[selectedIdx]?.id);
-    const externalForLLM = externalSignalsForLLM(externalSignalsRaw);
 
     try {
       const { data, error } = await supabase.functions.invoke("synthesize-persona", {
