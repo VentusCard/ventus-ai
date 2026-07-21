@@ -1,45 +1,36 @@
-## Problem
+## Simplify the capability panels in Next‑Conversation
 
-Spending Habits currently emits three overlapping rollups for the same theme:
-- "Tropical Vacations" (11 txns · $11.7k)
-- "Hawaiian Travel" (2 txns · $3.6k)
-- "Casual Beachwear" (3 txns · $371)
+**File:** `src/components/exec-demo/NextConversationRationale.tsx` (~lines 350–418)
 
-All three are the same behavioral signal (a Hawaii trip). The LLM is splitting one theme into siblings that share vendors, categories, and often overlapping indices.
+The current 2‑row stack (WHAT IT DOES / WHERE IT PLUGS IN) wastes vertical space with only 3 short bullets each, yet the panel already feels cramped when read. Fix by flattening — no new content, just better use of what's there.
 
-## Fix
+### New layout (same for both AI Banking Assistant and Ventus AI Coworker)
 
-Add a **theme-family merge pass** in `supabase/functions/synthesize-persona/index.ts`, applied right after `filteredSH` is built (currently line 851) and before `filteredSH` is returned.
+Single panel body, no inner card‑in‑card. A tight two‑column grid:
 
-### Logic
+```text
+┌─ Ventus AI Coworker ─────────────────────────────────┐
+│                                                      │
+│  WHAT IT DOES              │  WHERE IT PLUGS IN      │
+│  ─ Digests overnight       │   [Advisor inbox]       │
+│    signals → morning brief │   [CRM tasks]           │
+│  ─ Builds candidate lists  │   [Approval-gated       │
+│    for campaigns           │    outreach]            │
+│  ─ Drafts follow-up emails │                         │
+│    with evidence attached  │                         │
+│                                                      │
+└──────────────────────────────────────────────────────┘
+```
 
-1. Define a small list of canonical theme families with regex matchers and a preferred display label:
-   - `tropical_travel` → matches `/tropical|hawaii|beach|resort|island|caribbean|surf|snorkel/i` → label "Tropical Travel"
-   - `winter_sports` → matches `/ski|snowboard|snow|alpine|mountain resort/i` → label "Skiing & Snowboarding"
-   - `pet_care` → matches `/pet|vet|chewy|petco|petsmart|barkbox|rover|groom/i` → label "Pet Care Routine"
-   - `home_goods` → matches `/home\s?goods|home\s?decor|furniture|hardware|garden/i` → label "Home Goods"
-   - `fitness_wellness` → matches `/fitness|gym|yoga|peloton|wellness|athleisure|lululemon/i` → label "Fitness & Wellness"
+### Changes
 
-2. For each rollup in `filteredSH`, classify into a family by matching the family regex against `label + categories.join(" ")`. Rollups with no family match keep their own identity.
+- Remove the two nested `rounded-lg border … bg-*-50/40` sub‑cards; keep only the outer panel border/header.
+- Replace `grid-rows-2` with `grid grid-cols-[1.4fr_1fr] gap-6 p-4`.
+- Left col: small uppercase label ("WHAT IT DOES" / "CONTEXT IT HAS"), then a clean bullet list — icon + one line each, comfortable line-height, no forced `justify-around` stretching.
+- Right col: small uppercase label ("WHERE IT PLUGS IN" / "CONVERSATIONS IT HANDLES"), then the chips stacked in a natural `flex flex-wrap gap-1.5`, top-aligned (not vertically centered).
+- Drop the per-section header icons (Briefcase / PlugZap / Database / MessageCircle) — the panel header icon is enough. Keep the small bullet/chip icons.
+- Text sizes unchanged (12px body, 11px chips, 11px uppercase labels).
+- Colors/tokens untouched (purple for coworker, blue for assistant; strict light theme).
+- No prop, data, or behavior changes; no other files touched.
 
-3. Merge same-family rollups:
-   - Union `transaction_indices` (dedupe).
-   - Union `categories` (dedupe).
-   - Use the canonical family label.
-   - Pillar: take the pillar of the family member with the most txns (ties → first).
-
-4. Re-apply the `≥3 txns` floor (pet exempt) to the merged output.
-
-### Why server-side
-
-The panel already trusts synthesize-persona for spending-habit rendering. Doing the merge in the edge function ensures the same clean list flows to Next-Offer / Next-Product / Next-Conversation without each surface re-implementing dedup.
-
-### Out of scope
-
-- Not adding a client-side merge in `ExecDemoIntelPanel.tsx` — server is the single source of truth.
-- Not touching pillar-coherence logic; the merge runs after coherence filtering.
-- Not changing `classify-transactions` — the underlying pillar assignments are fine; the issue is purely rollup labeling.
-
-## Files touched
-
-- `supabase/functions/synthesize-persona/index.ts` — add theme-family merge pass after line 873.
+Result: same information, half the visual chrome, content sits naturally at the top of the panel instead of being stretched to fill two boxes.

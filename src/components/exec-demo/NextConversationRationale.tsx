@@ -354,30 +354,22 @@ export default function NextConversationRationale({
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
               <span className="text-[11px] font-semibold tracking-wide text-blue-600">AI Banking Assistant</span>
             </div>
-            <div className="flex-1 min-h-0 grid grid-rows-2 gap-2 p-2 overflow-hidden">
-              {/* Context it has */}
-              <div className="min-h-0 rounded-lg border border-slate-200 bg-slate-50/60 p-3 flex flex-col">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Database className="w-3.5 h-3.5 text-blue-600" />
-                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Context it has</span>
-                </div>
-                <ul className="flex-1 flex flex-col justify-around text-[12px] text-slate-700">
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-blue-500" /> Recent spending pattern</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-blue-500" /> Account holdings & tenure</li>
-                  <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-blue-500" /> Recent product interactions</li>
+            <div className="flex-1 min-h-0 grid grid-cols-[1.4fr_1fr] gap-6 p-4 overflow-hidden">
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">Context it has</div>
+                <ul className="space-y-2 text-[12px] text-slate-700 leading-snug">
+                  <li className="flex items-start gap-2"><span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" /> Recent spending pattern</li>
+                  <li className="flex items-start gap-2"><span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" /> Account holdings &amp; tenure</li>
+                  <li className="flex items-start gap-2"><span className="w-1 h-1 rounded-full bg-blue-500 mt-1.5 shrink-0" /> Recent product interactions</li>
                 </ul>
               </div>
-              {/* Conversations it handles */}
-              <div className="min-h-0 rounded-lg border border-slate-200 bg-slate-50/60 p-3 flex flex-col">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <MessageCircle className="w-3.5 h-3.5 text-blue-600" />
-                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Conversations it handles</span>
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">Conversations it handles</div>
+                <div className="flex flex-wrap gap-1.5 content-start text-[11.5px] text-slate-700">
+                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2.5 py-1">"What products fit my situation?"</span>
+                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2.5 py-1">"Show me relevant offers"</span>
+                  <span className="rounded-full bg-slate-50 border border-slate-200 px-2.5 py-1">"Explain this charge on my card"</span>
                 </div>
-                <ul className="flex-1 flex flex-col justify-around text-[11.5px] text-slate-700">
-                  <li className="rounded-full bg-white border border-slate-200 px-2.5 py-1 w-fit max-w-full">"What products fit my situation?"</li>
-                  <li className="rounded-full bg-white border border-slate-200 px-2.5 py-1 w-fit max-w-full">"Show me relevant offers"</li>
-                  <li className="rounded-full bg-white border border-slate-200 px-2.5 py-1 w-fit max-w-full">"Explain this charge on my card"</li>
-                </ul>
               </div>
             </div>
           </div>
@@ -388,34 +380,27 @@ export default function NextConversationRationale({
               <Sparkles className="w-3 h-3 text-purple-600" />
               <span className="text-[11px] font-semibold tracking-wide text-purple-600">Ventus AI Coworker</span>
             </div>
-            <div className="flex-1 min-h-0 grid grid-rows-2 gap-2 p-2 overflow-hidden">
-              {/* What it does */}
-              <div className="min-h-0 rounded-lg border border-purple-100 bg-purple-50/40 p-3 flex flex-col">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Briefcase className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">What it does for the advisor</span>
-                </div>
-                <ul className="flex-1 flex flex-col justify-around text-[12px] text-slate-700">
-                  <li className="flex items-start gap-2"><ClipboardList className="w-3 h-3 text-purple-500 mt-0.5 shrink-0" /> Digests overnight signals into a morning briefing</li>
-                  <li className="flex items-start gap-2"><Users className="w-3 h-3 text-purple-500 mt-0.5 shrink-0" /> Builds candidate lists for product campaigns</li>
-                  <li className="flex items-start gap-2"><PenLine className="w-3 h-3 text-purple-500 mt-0.5 shrink-0" /> Drafts follow-up emails with evidence attached</li>
+            <div className="flex-1 min-h-0 grid grid-cols-[1.4fr_1fr] gap-6 p-4 overflow-hidden">
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">What it does for the advisor</div>
+                <ul className="space-y-2 text-[12px] text-slate-700 leading-snug">
+                  <li className="flex items-start gap-2"><ClipboardList className="w-3 h-3 text-purple-500 mt-1 shrink-0" /> Digests overnight signals into a morning briefing</li>
+                  <li className="flex items-start gap-2"><Users className="w-3 h-3 text-purple-500 mt-1 shrink-0" /> Builds candidate lists for product campaigns</li>
+                  <li className="flex items-start gap-2"><PenLine className="w-3 h-3 text-purple-500 mt-1 shrink-0" /> Drafts follow-up emails with evidence attached</li>
                 </ul>
               </div>
-              {/* Where it plugs in */}
-              <div className="min-h-0 rounded-lg border border-purple-100 bg-purple-50/40 p-3 flex flex-col">
-                <div className="flex items-center gap-1.5 mb-2">
-                  <PlugZap className="w-3.5 h-3.5 text-purple-600" />
-                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Where it plugs in</span>
-                </div>
-                <div className="flex-1 flex flex-wrap items-center content-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><Inbox className="w-3 h-3 text-purple-500" /> Advisor inbox</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ClipboardList className="w-3 h-3 text-purple-500" /> CRM tasks</span>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-white border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ShieldCheck className="w-3 h-3 text-purple-500" /> Approval-gated outreach</span>
+              <div className="min-h-0 flex flex-col">
+                <div className="text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-2">Where it plugs in</div>
+                <div className="flex flex-wrap gap-1.5 content-start">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><Inbox className="w-3 h-3 text-purple-500" /> Advisor inbox</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ClipboardList className="w-3 h-3 text-purple-500" /> CRM tasks</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-purple-50 border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ShieldCheck className="w-3 h-3 text-purple-500" /> Approval-gated outreach</span>
                 </div>
               </div>
             </div>
           </div>
         )}
+
       </div>
     </div>
   );
