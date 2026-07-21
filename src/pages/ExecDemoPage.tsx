@@ -7,6 +7,8 @@ import ExecDemoLeftPanel from "@/components/exec-demo/ExecDemoLeftPanel";
 import ExecDemoIntelPanel, {
   type PersonaSynthesis,
   type PillarRollup,
+  type FinancialSignal,
+  type DemographicShift,
   getColor,
 } from "@/components/exec-demo/ExecDemoIntelPanel";
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
