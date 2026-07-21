@@ -434,6 +434,51 @@ function deriveOfferDetails(card: ProductCard, isBehavioral: boolean): {
   const name = card.product_name.toLowerCase();
   const theme = (card.theme || "").toLowerCase();
 
+  // Auto loan refi / lease buyout (financial signal)
+  if (name.includes("auto") && (name.includes("refi") || name.includes("refinance") || name.includes("loan") || name.includes("buyout"))) {
+    return {
+      headline: "Auto refinance from 5.49% APR",
+      benefits: [
+        "Estimated savings of $150–$300/mo vs current payment",
+        "No application fee · Rate locked for 60 days",
+        "0.25% autopay discount · Skip a payment option",
+      ],
+      eligibility: "Pre-qualified · Soft credit check only",
+      cta: "Check Your New Rate",
+      ctaSub: "See personalized offer in under 2 minutes",
+    };
+  }
+  // Mortgage refi / HELOC top-up (financial signal)
+  if (name.includes("mortgage") && name.includes("refi")) {
+    return {
+      headline: "Refinance from 6.25% APR — 30-year fixed",
+      benefits: [
+        "Lower your monthly payment by an estimated $200–$450",
+        "No lender fees for existing relationship customers",
+        "Rate locked for 90 days · Close in as little as 21 days",
+      ],
+      eligibility: "Pre-qualified based on current mortgage · Soft pull only",
+      cta: "See Your Refinance Rate",
+      ctaSub: "Personalized offer in under 3 minutes",
+    };
+  }
+  // Student loan refi (financial signal)
+  if (name.includes("student") && (name.includes("refi") || name.includes("refinance"))) {
+    return {
+      headline: "Student loan refinance from 4.99% APR",
+      benefits: [
+        "Consolidate federal & private loans into one payment",
+        "0.25% autopay discount · No origination fee",
+        "Flexible 5–20 year terms · No prepayment penalty",
+      ],
+      eligibility: "Pre-qualified · Soft credit check only",
+      cta: "See Your Refi Rate",
+      ctaSub: "Rate check in under 2 minutes",
+    };
+  }
+
+
+
   // Travel
   if (name.includes("travel") || theme === "travel") {
     return {
