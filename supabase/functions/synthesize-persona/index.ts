@@ -711,6 +711,21 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     const hasPetVocab = (parts: (string | undefined | null)[]) =>
       PET_VOCAB.test(parts.filter(Boolean).join(" "));
 
+    // Relocation guard: airlines / hotels / resorts / rental cars are NOT relocation.
+    // Require at least one transaction with a real relocation vendor/hint tag,
+    // and reject events whose evidence is dominated by travel merchants.
+    const TRAVEL_MERCHANT_RE = /airlines?|airways|aeromexico|delta|united|american air|southwest|hawaiian|jetblue|alaska air|hotel|resort|hilton|marriott|hyatt|airbnb|vrbo|cruise|hertz|avis|budget rent|enterprise rent|expedia|kayak|priceline/i;
+    const hasRelocationTag = (indices: number[]) =>
+      indices.some((ti) => {
+        const h = txnHints[ti];
+        return h && (h.includes("relocation_vendor") || h.includes("relocation_hint"));
+      });
+    const evidenceIsTravel = (evidence: any[]) => {
+      if (!Array.isArray(evidence) || evidence.length === 0) return false;
+      const travelHits = evidence.filter((ev: any) => TRAVEL_MERCHANT_RE.test(String(ev?.merchant || ""))).length;
+      return travelHits >= Math.ceil(evidence.length / 2);
+    };
+
     const filteredLE = rawLifeEvents
       .map((e: any) => ({
         ...e,
@@ -724,7 +739,14 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         e.event_name,
         e.evidence_summary,
         ...(Array.isArray(e.evidence) ? e.evidence.map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`) : []),
-      ]));
+      ]))
+      // Relocation must have a positive relocation vendor/hint AND not be dominated by travel merchants.
+      .filter((e: any) => {
+        if (String(e.event_name || "") !== "Relocation") return true;
+        if (!hasRelocationTag(e.transaction_indices || [])) return false;
+        if (evidenceIsTravel(e.evidence || [])) return false;
+        return true;
+      });
 
     // Rescue upstream life events the persona LLM omitted or downgraded, so a
     // genuinely detected life event is never silently dropped when the classifier
@@ -740,6 +762,8 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       const evBlob = (up.evidence || []).map((ev: any) => `${ev?.merchant || ""} ${ev?.relevance || ""}`).join(" ");
       if (hasPetVocab([nm, evBlob])) continue;
       if ((up.evidence?.length ?? 0) < 2) continue;
+      // Never rescue Relocation from travel-dominated evidence.
+      if (/relocation/i.test(nm) && evidenceIsTravel(up.evidence || [])) continue;
       filteredLE.push({
         event_name: nm,
         confidence: typeof up.confidence === "number" ? up.confidence : 70,
@@ -750,6 +774,7 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       existingLENames.add(key);
       if (filteredLE.length >= 3) break;
     }
+
 
     const filteredFS = rawFinancial
       .map((f: any) => ({
@@ -785,8 +810,9 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         }
         return { ...d, label, magnitude_band, transaction_indices: idx };
       })
-      // Demographic requires ≥2 unclaimed indices (or 1 large_inflow — but large_inflow is life_event-owned)
-      .filter((d: any) => (d.transaction_indices?.length ?? 0) >= 2)
+      // Demographic requires ≥1 unclaimed index (relaxed from 2 so genuine payroll/college
+      // step-changes still surface on demo data where indices get claimed by higher tiers).
+      .filter((d: any) => (d.transaction_indices?.length ?? 0) >= 1)
       // Kill any demographic labeled with spending-habit vocab across ALL fields (label, magnitude, evidence, category)
       .filter((d: any) => {
         const blob = `${d.label || ""} ${d.magnitude_band || ""} ${d.evidence_summary || ""} ${d.category || ""}`;
@@ -798,20 +824,31 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
     // 3. Spending habits — strip any row already claimed. Pets keep their indices.
     //    Also auto-promote any orphaned pet rows into a "Pet Care Routine" habit so the
     //    signal still surfaces if the model missed it.
+    // Pillar-coherence guard: for every spending-habit rollup, drop transaction indices
+    // whose classified pillar does not match the rollup's pillar. This eliminates
+    // "Skiing & Snowboarding" pills that accidentally include Tropical Vacation rows.
     const filteredSH = rawSpending
       .map((r: any) => {
         const raw: number[] = Array.isArray(r.transaction_indices) ? r.transaction_indices : [];
+        const rollupPillar = String(r.pillar || "").trim().toLowerCase();
         const kept = raw.filter((ti) => {
           if (typeof ti !== "number" || ti < 0 || ti >= txnOwner.length) return false;
           if (txnOwner[ti] === "risk") return false;
           if (claimedByHigher.has(ti)) return false;
           const owner = txnOwner[ti];
           // Spending habit accepts anything not owned by a higher tier, plus pets.
-          return owner === null || owner === "spending_habit";
+          if (owner !== null && owner !== "spending_habit") return false;
+          // Enforce pillar match against the classified transaction's pillar.
+          const tx = txns[ti];
+          const txPillar = String(tx?.pillar || "").trim().toLowerCase();
+          if (rollupPillar && txPillar && rollupPillar !== txPillar) return false;
+          return true;
         });
         return { ...r, transaction_indices: kept };
       })
-      .filter((r: any) => r.pillar && r.label);
+      .filter((r: any) => r.pillar && r.label)
+      // If pillar-coherence stripped a rollup below 3 supporting txns, drop it entirely.
+      .filter((r: any) => (r.transaction_indices?.length ?? 0) >= 3 || /pet/i.test(r.label || ""));
 
     // 3b. Pet-orphan promotion — any pet row not yet in a spending habit rollup
     //     gets folded into (or seeds) a "Pet Care Routine" rollup.
@@ -834,6 +871,7 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
         });
       }
     }
+
 
     // 4. dropped_upstream_life_events — signals the upstream detector emitted
     //    but which our taxonomy re-routes elsewhere (college, auto, mortgage).
