@@ -12,7 +12,7 @@ import ExecDemoIntelPanel, {
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
-import type { CardActions, CreditAssessment } from "@/components/exec-demo/NextProductRationale";
+import type { CardActions } from "@/components/exec-demo/NextProductRationale";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import {
@@ -152,8 +152,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
-  const [creditAssessment, setCreditAssessment] = useState<CreditAssessment | null>(null);
-  const [creditLoading, setCreditLoading] = useState(false);
   const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
   const [synthesisTriggered, setSynthesisTriggered] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
@@ -314,8 +312,15 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
     // pillars[i].txIndices = the transaction indices for row i sent to AI
 
-
-
+    // Fire upstream life-event detection in PARALLEL with synthesize-persona so
+    // the Behavioral Intelligence Ready button unblocks as soon as persona resolves.
+    // Late-arriving upstream events are merged into detectedLifeEvents below.
+    const upstreamLifeEventsPromise: Promise<LifeEvent[]> = detectLifeEventsOnlyRef
+      .current()
+      .catch((e) => {
+        console.warn("[PRELOAD] Upstream life event detection failed:", e);
+        return [] as LifeEvent[];
+      });
 
 
     // Await risk detection (started in parallel from fireClassification) so we can pass
@@ -695,10 +700,14 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
           } as LifeEvent;
         });
 
-      // Life-event pills come exclusively from synthesize-persona's authoritative taxonomy.
+      // Fire downstream views with the final classifier's life events immediately —
+      // don't block on the parallel upstream detector.
       fireLifeEventDetection(synthesis, pillars, finalLifeEvents);
 
-
+      // Upstream analyze-lifestyle-signals is used only as a dedup hint for
+      // synthesize-persona (see upstreamLifeEventsPromise above). Its events
+      // are intentionally NOT merged back into the pill strip — the panel
+      // reflects synthesize-persona's authoritative taxonomy only.
 
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
@@ -829,8 +838,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
         console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external life_event)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
         // Fire product cards generation with life events + persona data
         fireProductCards(merged, personaSynthesisRef.current);
-        // Fire indicative creditworthiness assessment in parallel
-        fireCreditAssessment();
         // Fire offers with both pillars and detected life events in a single call
         const syn = synthesis || personaSynthesisRef.current;
         if (syn && pillars) {
@@ -1006,42 +1013,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
     [selectedIdx],
   );
 
-  /** Assess indicative behavioral creditworthiness from enriched transactions */
-  const fireCreditAssessment = useCallback(async () => {
-    setCreditLoading(true);
-    setCreditAssessment(null);
-    try {
-      const enrichedTxs = classifiedRef.current || [];
-      if (enrichedTxs.length === 0) {
-        setCreditLoading(false);
-        return;
-      }
-      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics: any = demoCustomer?.profile?.demographics || {};
-      const { data, error } = await supabase.functions.invoke("assess-creditworthiness", {
-        body: {
-          client: {
-            name: demographics.name,
-            age: demographics.age,
-            occupation: demographics.occupation,
-            industry: demographics.industry,
-            income_level: demographics.incomeLevel,
-            family_status: demographics.familyStatus,
-            segment: demographics.segment,
-          },
-          transactions: enrichedTxs,
-          window_days: 90,
-        },
-      });
-      if (error) throw error;
-      setCreditAssessment(data as CreditAssessment);
-      console.log("[PRELOAD] Credit assessment ready:", (data as any)?.band, (data as any)?.score);
-    } catch (err) {
-      console.error("[PRELOAD] Credit assessment failed:", err);
-    } finally {
-      setCreditLoading(false);
-    }
-  }, [selectedIdx]);
 
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
@@ -1089,8 +1060,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
       setProductCardsLoading(false);
       setProductActions(null);
       setActionsLoading(false);
-      setCreditAssessment(null);
-      setCreditLoading(false);
       setSynthesisTriggered(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
@@ -1484,7 +1453,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
                 setProductCards(null);
                 setProductActions(null);
                 setRiskFlags(null);
-                setCreditAssessment(null);
+                
                 setSynthesisTriggered(false);
                 setActivePillFilter(null);
                 setActiveRollup(null);
@@ -1496,7 +1465,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
                 setProductCardsLoading(false);
                 setActionsLoading(false);
                 setRiskLoading(false);
-                setCreditLoading(false);
+                
                 setSelectionDialogOpen(true);
               }}
               title="Restart demo"
@@ -1595,8 +1564,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
                   productCards={productCards}
                   riskFlags={riskFlags}
                   riskLoading={riskLoading}
-                  creditAssessment={creditAssessment}
-                  creditLoading={creditLoading}
                   onTriggerPillClick={handleTriggerPillClick}
                   activeTriggerLabel={activeTriggerPill?.label}
                   activeTrigger={activeTriggerPill}

@@ -1,23 +1,23 @@
-## Drop the unused `analyze-lifestyle-signals` call from /bankdemo
+# Remove `assess-creditworthiness`
 
-`analyze-lifestyle-signals` is still used by other surfaces (`AdvisorConsolePage`, `TePilot`, `useDemoEnrichment`, and referenced by `DemoPillarCodeView` for the systems walkthrough), so the edge function itself stays.
+The Creditworthiness section was already removed from the Next Product UI; the edge function and its plumbing are now dead code. Delete both.
 
-But inside `src/pages/ExecDemoPage.tsx` (the /bankdemo demo tab) it is now dead weight:
+## Changes
 
-- L320: `upstreamLifeEventsPromise = detectLifeEventsOnlyRef.current()` fires the call.
-- After the previous edit removed the late-merge `.then`, nothing ever awaits or reads the promise.
-- Life-event pills are now driven exclusively by `synthesize-persona`'s `detected_life_events`.
-- Keeping the fetch just burns model latency and credits on every demo run.
+1. **Delete deployed edge function**
+   - Call `supabase--delete_edge_functions` for `assess-creditworthiness`.
+   - Remove `supabase/functions/assess-creditworthiness/` directory.
+   - Remove the `[functions.assess-creditworthiness]` block from `supabase/config.toml`.
 
-### Edit (single file: `src/pages/ExecDemoPage.tsx`)
+2. **`src/pages/ExecDemoPage.tsx`**
+   - Drop `CreditAssessment` import, `creditAssessment` state, all `setCreditAssessment(...)` calls.
+   - Delete `fireCreditAssessment` (the callback that invokes the function) and its call site in the pipeline kickoff.
+   - Stop passing `creditAssessment` into `ExecDemoIntelPanel`.
 
-1. **Remove the upstream detector call in `firePersonaSynthesis`** (L317–325). Delete the `upstreamLifeEventsPromise` block and the comment above it.
-2. **Remove the stale comment reference** at L709–713 that mentions `upstreamLifeEventsPromise`.
-3. Keep `detectLifeEventsOnly`, `detectLifeEventsOnlyRef`, and the `preDetectedEvents` argument to `fireLifeEventDetection` — they're still used elsewhere in the same file (e.g., the fallback path in `fireLifeEventDetection` when `preDetectedEvents` is not supplied), so no other deletions are needed.
+3. **`src/components/exec-demo/ExecDemoIntelPanel.tsx`**
+   - Remove `creditAssessment` prop from the type, destructuring, and the pass-through to `NextProductRationale`.
 
-### Not touched
-- `supabase/functions/analyze-lifestyle-signals/index.ts` — still needed by other pages.
-- `DemoPillarCodeView.tsx` walkthrough — describes the systems architecture, not the /bankdemo runtime.
-- All other files.
+4. **`src/components/exec-demo/NextProductRationale.tsx`**
+   - Remove `CreditAssessment` interface export, `creditAssessment` / `creditLoading` props (already unused in render).
 
-Net effect: one fewer LLM call per /bankdemo demo run, no visible behavior change.
+No UI change expected — the section was already hidden.

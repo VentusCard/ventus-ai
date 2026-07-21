@@ -6,11 +6,7 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
-// Model configuration
-// Gemini 3.5 flash is the primary because the Lovable AI Gateway currently
-// rejects openai/gpt-5-mini requests here with a max_tokens 400, which forced
-// every batch through two wasted retries before falling back — see the
-// approved plan for full context.
+// Model configuration — Gemini only. No OpenAI fallback here.
 const FAST_MODEL = "google/gemini-3.5-flash";
 const FALLBACK_MODEL = "google/gemini-3.1-flash-lite";
 
@@ -530,8 +526,6 @@ async function callClassificationAPI(
   batchNum: number,
   attempt: number,
 ): Promise<{ classifications: any[]; rawResponse?: string; fatal?: boolean }> {
-  // Model-aware sampling: gpt-5* only accepts default temperature (1); Gemini accepts 0.
-  const isOpenAiGpt5 = /^openai\/gpt-5/i.test(model);
   const body: Record<string, unknown> = {
     model,
     messages: [
@@ -540,13 +534,10 @@ async function callClassificationAPI(
     ],
     tools: CLASSIFICATION_TOOL,
     tool_choice: { type: "function", function: { name: "classify_batch" } },
-    ...(isOpenAiGpt5
-      ? { max_completion_tokens: 8000 }
-      : { max_tokens: 8000 }),
+    max_tokens: 8000,
+    temperature: 0,
   };
   if (!isOpenAiGpt5) {
-    body.temperature = 0;
-  }
 
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
