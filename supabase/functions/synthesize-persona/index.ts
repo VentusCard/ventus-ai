@@ -872,6 +872,61 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       }
     }
 
+    // 3c. Theme-family merge — collapse LLM sibling rollups that describe the same
+    //     behavioral theme (e.g. "Tropical Vacations" + "Hawaiian Travel" + "Casual Beachwear").
+    const THEME_FAMILIES: Array<{ key: string; re: RegExp; label: string }> = [
+      { key: "tropical_travel", re: /tropical|hawaii|beach|resort|island|caribbean|surf|snorkel|luau|catamaran/i, label: "Tropical Travel" },
+      { key: "winter_sports", re: /ski|snowboard|snow|alpine|mountain\s?resort/i, label: "Skiing & Snowboarding" },
+      { key: "pet_care", re: /pet|vet\b|veterinar|chewy|petco|petsmart|barkbox|rover|groom|dog\s?walk/i, label: "Pet Care Routine" },
+      { key: "home_goods", re: /home\s?goods|home\s?decor|furniture|hardware|garden|homeware/i, label: "Home Goods" },
+      { key: "fitness_wellness", re: /fitness|gym\b|yoga|peloton|wellness|athleisure|lululemon/i, label: "Fitness & Wellness" },
+    ];
+    const familyOf = (r: any): string | null => {
+      const blob = `${r.label || ""} ${(r.categories || []).join(" ")}`;
+      for (const fam of THEME_FAMILIES) if (fam.re.test(blob)) return fam.key;
+      return null;
+    };
+    const mergedSHMap = new Map<string, any>();
+    const standaloneSH: any[] = [];
+    for (const r of filteredSH) {
+      const fam = familyOf(r);
+      if (!fam) { standaloneSH.push(r); continue; }
+      const existing = mergedSHMap.get(fam);
+      if (!existing) {
+        mergedSHMap.set(fam, {
+          ...r,
+          _famKey: fam,
+          transaction_indices: [...(r.transaction_indices || [])],
+          categories: [...(r.categories || [])],
+          _memberCounts: [{ pillar: r.pillar, count: (r.transaction_indices || []).length }],
+        });
+      } else {
+        const idxSet = new Set<number>(existing.transaction_indices);
+        for (const ti of r.transaction_indices || []) idxSet.add(ti);
+        existing.transaction_indices = Array.from(idxSet);
+        const catSet = new Set<string>(existing.categories);
+        for (const c of r.categories || []) catSet.add(c);
+        existing.categories = Array.from(catSet);
+        existing._memberCounts.push({ pillar: r.pillar, count: (r.transaction_indices || []).length });
+      }
+    }
+    const mergedSH = Array.from(mergedSHMap.values()).map((r: any) => {
+      const famDef = THEME_FAMILIES.find((f) => f.key === r._famKey)!;
+      // Pick pillar of the family member with the most txns.
+      const bestPillar = r._memberCounts.sort((a: any, b: any) => b.count - a.count)[0]?.pillar || r.pillar;
+      const { _famKey, _memberCounts, ...rest } = r;
+      return { ...rest, label: famDef.label, pillar: bestPillar };
+    });
+    // Splice merged results back over filteredSH in place.
+    filteredSH.length = 0;
+    for (const r of [...mergedSH, ...standaloneSH]) {
+      if ((r.transaction_indices?.length ?? 0) >= 3 || /pet/i.test(r.label || "")) {
+        filteredSH.push(r);
+      }
+    }
+
+
+
 
     // 4. dropped_upstream_life_events — signals the upstream detector emitted
     //    but which our taxonomy re-routes elsewhere (college, auto, mortgage).
