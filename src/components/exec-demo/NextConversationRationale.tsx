@@ -1,5 +1,4 @@
-import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox } from "lucide-react";
-import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
+import { Mail, Bot, Bell, FileText, Sparkles, Briefcase, MessageCircle, Send, Plus, GraduationCap, Home, AlertTriangle, ShieldAlert, Plane, Snowflake, PawPrint, Inbox, Database, Users, ClipboardList, PenLine, PlugZap, ShieldCheck } from "lucide-react";
 
 const INGEST_ITEMS = [
   "Enriched Transactions",
@@ -349,67 +348,71 @@ export default function NextConversationRationale({
       <PipelineSliver />
       <div className="flex-1 min-h-0 grid grid-cols-1 gap-3">
         {audience === "customer" ? (
-          /* ============ REGULAR CLIENT (full width) ============ */
+          /* ============ AI BANKING ASSISTANT (customer-facing) ============ */
           <div className="flex flex-col min-h-0 rounded-xl border border-slate-200 bg-white overflow-hidden">
             <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-slate-100 flex items-center gap-1.5">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              <span className="text-[11px] font-semibold tracking-wide text-blue-600">Regular Client</span>
+              <span className="text-[11px] font-semibold tracking-wide text-blue-600">AI Banking Assistant</span>
             </div>
-
-            <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-2 space-y-2">
-              {/* AI Chatbot Context Card */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Bot className="w-3.5 h-3.5 text-blue-600" />
-                  <span className="text-[11px] font-bold text-slate-800">AI Banking Assistant Context</span>
+            <div className="flex-1 min-h-0 grid grid-rows-2 gap-2 p-2 overflow-hidden">
+              {/* Context it has */}
+              <div className="min-h-0 rounded-lg border border-slate-200 bg-slate-50/60 p-3 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Database className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Context it has</span>
                 </div>
-                <div className="mb-1.5">
-                  <p className="text-[10px] font-semibold tracking-wide uppercase text-slate-500 mb-0.5">Knows</p>
-                  <ul className="space-y-0.5 text-[11px] text-slate-700">
-                    <li className="flex gap-1.5"><span className="text-blue-400">•</span> Recent spending pattern</li>
-                    <li className="flex gap-1.5"><span className="text-blue-400">•</span> Account holdings</li>
-                    <li className="flex gap-1.5"><span className="text-blue-400">•</span> Recent product interactions</li>
-                  </ul>
-                </div>
-                <div>
-                  <p className="text-[10px] font-semibold tracking-wide uppercase text-slate-500 mb-0.5">Can Answer</p>
-                  <ul className="space-y-0.5 text-[11px] text-slate-700">
-                    <li className="flex gap-1.5"><MessageCircle className="w-2.5 h-2.5 text-blue-400 mt-0.5 shrink-0" /> "What products fit my situation?"</li>
-                    <li className="flex gap-1.5"><MessageCircle className="w-2.5 h-2.5 text-blue-400 mt-0.5 shrink-0" /> "Show me relevant offers"</li>
-                  </ul>
-                </div>
+                <ul className="flex-1 flex flex-col justify-around text-[12px] text-slate-700">
+                  <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-blue-500" /> Recent spending pattern</li>
+                  <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-blue-500" /> Account holdings & tenure</li>
+                  <li className="flex items-center gap-2"><span className="w-1 h-1 rounded-full bg-blue-500" /> Recent product interactions</li>
+                </ul>
               </div>
-
-              {/* Personalized Outreach Card */}
-              <div className="rounded-lg border border-slate-200 bg-slate-50/60 p-2.5">
-                <div className="flex items-center gap-1.5 mb-1.5">
-                  <Mail className="w-3.5 h-3.5 text-blue-600" />
-                  <span className="text-[11px] font-bold text-slate-800">Personalized Outreach</span>
+              {/* Conversations it handles */}
+              <div className="min-h-0 rounded-lg border border-slate-200 bg-slate-50/60 p-3 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <MessageCircle className="w-3.5 h-3.5 text-blue-600" />
+                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Conversations it handles</span>
                 </div>
-                <div className="flex items-center gap-1.5 text-[10px] text-slate-500 mb-1.5">
-                  <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-semibold">Signal detected</span>
-                  <span>→</span>
-                  <span className="px-1.5 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold">24h delay</span>
-                  <span>→</span>
-                  <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 font-semibold">Send</span>
-                </div>
-                <ol className="space-y-0.5 text-[11px] text-slate-700">
-                  <li className="flex gap-1.5"><span className="text-blue-500 font-bold">1.</span> Educational nudge</li>
-                  <li className="flex gap-1.5"><span className="text-blue-500 font-bold">2.</span> Product spotlight</li>
-                  <li className="flex gap-1.5"><span className="text-blue-500 font-bold">3.</span> Soft conversion CTA</li>
-                </ol>
+                <ul className="flex-1 flex flex-col justify-around text-[11.5px] text-slate-700">
+                  <li className="rounded-full bg-white border border-slate-200 px-2.5 py-1 w-fit max-w-full">"What products fit my situation?"</li>
+                  <li className="rounded-full bg-white border border-slate-200 px-2.5 py-1 w-fit max-w-full">"Show me relevant offers"</li>
+                  <li className="rounded-full bg-white border border-slate-200 px-2.5 py-1 w-fit max-w-full">"Explain this charge on my card"</li>
+                </ul>
               </div>
             </div>
           </div>
         ) : (
-          /* ============ VENTUS AI COWORKER (full width) ============ */
+          /* ============ VENTUS AI COWORKER ============ */
           <div className="flex flex-col min-h-0 rounded-xl border border-purple-200 bg-white overflow-hidden">
             <div className="shrink-0 px-3 pt-2 pb-1.5 border-b border-purple-100 flex items-center gap-1.5">
               <Sparkles className="w-3 h-3 text-purple-600" />
               <span className="text-[11px] font-semibold tracking-wide text-purple-600">Ventus AI Coworker</span>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto exec-light-scroll px-3 py-2">
-              <CoworkerInboxView />
+            <div className="flex-1 min-h-0 grid grid-rows-2 gap-2 p-2 overflow-hidden">
+              {/* What it does */}
+              <div className="min-h-0 rounded-lg border border-purple-100 bg-purple-50/40 p-3 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Briefcase className="w-3.5 h-3.5 text-purple-600" />
+                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">What it does for the advisor</span>
+                </div>
+                <ul className="flex-1 flex flex-col justify-around text-[12px] text-slate-700">
+                  <li className="flex items-start gap-2"><ClipboardList className="w-3 h-3 text-purple-500 mt-0.5 shrink-0" /> Digests overnight signals into a morning briefing</li>
+                  <li className="flex items-start gap-2"><Users className="w-3 h-3 text-purple-500 mt-0.5 shrink-0" /> Builds candidate lists for product campaigns</li>
+                  <li className="flex items-start gap-2"><PenLine className="w-3 h-3 text-purple-500 mt-0.5 shrink-0" /> Drafts follow-up emails with evidence attached</li>
+                </ul>
+              </div>
+              {/* Where it plugs in */}
+              <div className="min-h-0 rounded-lg border border-purple-100 bg-purple-50/40 p-3 flex flex-col">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <PlugZap className="w-3.5 h-3.5 text-purple-600" />
+                  <span className="text-[11px] font-bold text-slate-800 uppercase tracking-wide">Where it plugs in</span>
+                </div>
+                <div className="flex-1 flex flex-wrap items-center content-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><Inbox className="w-3 h-3 text-purple-500" /> Advisor inbox</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ClipboardList className="w-3 h-3 text-purple-500" /> CRM tasks</span>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-white border border-purple-200 px-2.5 py-1 text-[11px] text-slate-700"><ShieldCheck className="w-3 h-3 text-purple-500" /> Approval-gated outreach</span>
+                </div>
+              </div>
             </div>
           </div>
         )}
