@@ -1,28 +1,26 @@
-## Fix: send correct token param to gpt-5-mini in classify-transactions
+## Problem
 
-**Problem:** `supabase/functions/classify-transactions/index.ts` line 539 unconditionally sends `max_tokens: 8000`. `openai/gpt-5-mini` rejects that with HTTP 400 (`Unsupported parameter: 'max_tokens' — use 'max_completion_tokens' instead`), which forces every batch through the slow fallback + retry path (~20s per batch, observed in edge logs).
+`supabase/functions/synthesize-persona/index.ts` calls `google/gemini-3.5-flash`, which is a thinking model. On the last failing run it spent the entire 8192-token budget on internal reasoning and returned no `content` and no tool call → the function throws `"AI did not return structured output"` (500).
 
-**Change (single file):** `supabase/functions/classify-transactions/index.ts` around lines 531–543.
+My previous fix passed `reasoning: { enabled: false }`, but that isn't the documented OpenRouter shape — the valid knobs are `effort` (`"none"`), `max_tokens` (`0`), and `exclude`. So Gemini kept thinking.
 
-Replace the hard-coded `max_tokens: 8000` with a model-aware token field so gpt-5* gets `max_completion_tokens` and everything else keeps `max_tokens`:
+## Fix
 
-```ts
-const isOpenAiGpt5 = /^openai\/gpt-5/i.test(model);
-const body: Record<string, unknown> = {
-  model,
-  messages: [...],
-  tools: CLASSIFICATION_TOOL,
-  tool_choice: { type: "function", function: { name: "classify_batch" } },
-  ...(isOpenAiGpt5
-    ? { max_completion_tokens: 8000 }
-    : { max_tokens: 8000 }),
-};
-if (!isOpenAiGpt5) body.temperature = 0;
-```
+In `supabase/functions/synthesize-persona/index.ts` request body (lines ~486–492):
 
-Nothing else changes — fallback ladder, retry logic, and prompt stay intact.
+- Replace `reasoning: { enabled: false }` with the documented disable + hide combo:
+  ```
+  reasoning: { max_tokens: 0, exclude: true }
+  ```
+- Keep `max_tokens: 16384` as a safety headroom for the tool-call payload.
+- Leave model as `google/gemini-3.5-flash` (fast, and once thinking is off, all output tokens go to the tool call).
 
-**Verify:**
-1. Redeploy the edge function.
-2. Load `/bankdemo` past the password gate and let pre-fire run.
-3. Check AI Gateway logs: `openai/gpt-5-mini` requests for `classify-transactions` should return 200 (not 400), and batch durations should drop from ~20s to a few seconds. Fallbacks to `google/gemini-3.5-flash` should stop firing.
+## Verify
+
+1. Redeploy, then trigger `/bankdemo` (post-password auto pre-fire runs synthesize-persona).
+2. Check `supabase--edge_function_logs synthesize-persona`: expect no `No tool call` error and no `finish_reason: length`.
+3. Confirm the "Behavioral Intelligence — Ready" gate unlocks in the UI within ~15–20s.
+
+## Fallback if Gemini still ignores the flag
+
+If a follow-up log still shows reasoning content, switch model to `google/gemini-3.1-flash-lite` (non-thinking) in the same file — same tool-call schema, no other code changes.
