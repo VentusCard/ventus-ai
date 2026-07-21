@@ -272,7 +272,7 @@ const ScrollDrivenHero = () => {
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
               }}
             >
-              Turn transaction data into <span className="italic text-blue-600">behavioral intelligence</span>
+              Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
             </h1>
 
             <p
