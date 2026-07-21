@@ -32,13 +32,13 @@ export interface ExternalIntelSignal {
 export const EXTERNAL_INTEL_SIGNALS: ExternalIntelSignal[] = [
   {
     id: "auto-loan-renewal",
-    event_name: "Auto Loan · Renewal in ~2mo",
+    event_name: "Auto Loan Renewal",
     confidence: 0.92,
     category: "auto",
     bucket: "financial_signal",
     provider: "Bureau Tradeline",
     headline: "Auto loan maturing in ~2 months",
-    detail: "Bureau tradeline · estimated maturity window · VW Credit",
+    detail: "VW Credit · ~$685/mo",
     product_family: "auto_loan",
     servicer: "VW Credit",
     monthly_amount_band: "~$685/mo",
