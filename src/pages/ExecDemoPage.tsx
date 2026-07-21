@@ -56,9 +56,11 @@ interface ExecDemoPageProps {
   embedded?: boolean;
   active?: boolean;
   onBack?: () => void;
+  /** When true, run the full pipeline immediately on mount (used by /bankdemo post-password). */
+  prefireOnMount?: boolean;
 }
 
-export default function ExecDemoPage({ embedded = false, active = true, onBack }: ExecDemoPageProps = {}) {
+export default function ExecDemoPage({ embedded = false, active = true, onBack, prefireOnMount = false }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(!embedded);
 
@@ -1086,8 +1088,13 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     timeoutsRef.current.push(setTimeout(fn, ms));
   }, []);
 
-  // Fire classification for initial customer on mount
+  // Fire classification for initial customer on mount (skipped if the
+  // prefire-coordinator effect below will do it — avoids double SSE).
+  const mountClassifyRef = useRef(false);
   useEffect(() => {
+    if (mountClassifyRef.current) return;
+    if (prefireOnMount) return; // prefire effect owns the kickoff when embedded
+    mountClassifyRef.current = true;
     fireClassification(getCsvForCustomer(0));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1344,16 +1351,27 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     runAnalysisRef.current = handleRunAnalysis;
   }, [handleRunAnalysis]);
 
-  // Pre-fire when embedded in /bankdemo so the Demo tab is populated on first
-  // click. Fires once on mount; user can still open the selection dialog to
-  // swap customers or re-run. Guarded to skip if the user already interacted.
-  const preFiredRef = useRef(false);
+  // Pre-fire coordinator: as soon as ExecDemoPage mounts (post-password on
+  // /bankdemo), kick off the full pipeline for customer 0 so the Demo tab is
+  // ready before the user ever clicks it. Kicks off in this order:
+  //   1) fireClassification -> SSE done -> firePersonaSynthesis
+  //      -> fireLifeEventDetection -> fireProductCards + fireNextOffers
+  //   2) handleRunAnalysis to build local profile + animation state so the
+  //      Demo tab renders instantly on first open.
+  // Guarded against StrictMode double-mount by didPrefireRef.
+  const didPrefireRef = useRef(false);
   useEffect(() => {
-    if (!embedded || preFiredRef.current) return;
+    if (!prefireOnMount || didPrefireRef.current) return;
     if (profileRef.current || customCsv) return;
-    preFiredRef.current = true;
+    didPrefireRef.current = true;
+    // Start SSE classification (safe: fireClassification aborts any in-flight).
+    if (!classifyAbortRef.current) {
+      fireClassification(getCsvForCustomer(0));
+    }
+    // Build local profile so the visible Demo tab is instant on first open.
+    // handleRunAnalysis has an isRunning short-circuit but at mount phase===idle.
     handleRunAnalysis();
-  }, [embedded, customCsv, handleRunAnalysis]);
+  }, [prefireOnMount, customCsv, handleRunAnalysis, fireClassification]);
 
   // When embedded, only open the selection dialog when the user actually
   // navigates to the Demo tab AND no run has completed yet. Once a run exists,
