@@ -526,8 +526,6 @@ async function callClassificationAPI(
   batchNum: number,
   attempt: number,
 ): Promise<{ classifications: any[]; rawResponse?: string; fatal?: boolean }> {
-  // Model-aware sampling: gpt-5* only accepts default temperature (1); Gemini accepts 0.
-  const isOpenAiGpt5 = /^openai\/gpt-5/i.test(model);
   const body: Record<string, unknown> = {
     model,
     messages: [
@@ -536,9 +534,8 @@ async function callClassificationAPI(
     ],
     tools: CLASSIFICATION_TOOL,
     tool_choice: { type: "function", function: { name: "classify_batch" } },
-    ...(isOpenAiGpt5
-      ? { max_completion_tokens: 8000 }
-      : { max_tokens: 8000 }),
+    max_tokens: 8000,
+    temperature: 0,
   };
   if (!isOpenAiGpt5) {
     body.temperature = 0;
