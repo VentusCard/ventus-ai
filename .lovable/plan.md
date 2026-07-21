@@ -1,36 +1,28 @@
-## Simplify the capability panels in Next‑Conversation
+## Stop the upstream lifestyle detector from overwriting synthesize-persona pills
 
-**File:** `src/components/exec-demo/NextConversationRationale.tsx` (~lines 350–418)
+**File:** `src/pages/ExecDemoPage.tsx` (lines ~709–725)
 
-The current 2‑row stack (WHAT IT DOES / WHERE IT PLUGS IN) wastes vertical space with only 3 short bullets each, yet the panel already feels cramped when read. Fix by flattening — no new content, just better use of what's there.
+### What's happening
+- `firePersonaSynthesis` fires `synthesize-persona` and `analyze-lifestyle-signals` in parallel.
+- When `synthesize-persona` finishes first, it hydrates the intel panel via `fireLifeEventDetection(...finalLifeEvents)` — these are the clean, taxonomy-correct pills the user briefly sees.
+- Then `analyze-lifestyle-signals` resolves and the `.then` block re-merges its (older, less-accurate) events into `detectedLifeEvents`, causing the visible pills to shift ("get overwritten").
 
-### New layout (same for both AI Banking Assistant and Ventus AI Coworker)
+The block directly contradicts the stated policy in the comment three lines above it: *"Life events come EXCLUSIVELY from synthesize-persona"*.
 
-Single panel body, no inner card‑in‑card. A tight two‑column grid:
+### Fix
+Delete the late-merge block at ExecDemoPage.tsx L709–725:
 
-```text
-┌─ Ventus AI Coworker ─────────────────────────────────┐
-│                                                      │
-│  WHAT IT DOES              │  WHERE IT PLUGS IN      │
-│  ─ Digests overnight       │   [Advisor inbox]       │
-│    signals → morning brief │   [CRM tasks]           │
-│  ─ Builds candidate lists  │   [Approval-gated       │
-│    for campaigns           │    outreach]            │
-│  ─ Drafts follow-up emails │                         │
-│    with evidence attached  │                         │
-│                                                      │
-└──────────────────────────────────────────────────────┘
+```ts
+// Merge late-arriving upstream life events (dedup by lowercased event_name)
+// without blocking the Ready button.
+upstreamLifeEventsPromise.then((upstreamEvents) => { ... });
 ```
 
-### Changes
+The upstream detector is still useful — its output is already passed into `synthesize-persona` as a dedup hint via `upstreamLifeEventsPromise` earlier in `firePersonaSynthesis`. Removing this post-hoc merge:
+- Makes the intel panel show one stable set of pills (synthesize-persona's decision).
+- Preserves the single authoritative taxonomy the comment already promises.
+- Doesn't change latency (the promise is still awaited upstream for dedup).
 
-- Remove the two nested `rounded-lg border … bg-*-50/40` sub‑cards; keep only the outer panel border/header.
-- Replace `grid-rows-2` with `grid grid-cols-[1.4fr_1fr] gap-6 p-4`.
-- Left col: small uppercase label ("WHAT IT DOES" / "CONTEXT IT HAS"), then a clean bullet list — icon + one line each, comfortable line-height, no forced `justify-around` stretching.
-- Right col: small uppercase label ("WHERE IT PLUGS IN" / "CONVERSATIONS IT HANDLES"), then the chips stacked in a natural `flex flex-wrap gap-1.5`, top-aligned (not vertically centered).
-- Drop the per-section header icons (Briefcase / PlugZap / Database / MessageCircle) — the panel header icon is enough. Keep the small bullet/chip icons.
-- Text sizes unchanged (12px body, 11px chips, 11px uppercase labels).
-- Colors/tokens untouched (purple for coworker, blue for assistant; strict light theme).
-- No prop, data, or behavior changes; no other files touched.
-
-Result: same information, half the visual chrome, content sits naturally at the top of the panel instead of being stretched to fill two boxes.
+### Scope
+- One deletion, ~17 lines, in one file.
+- No other files, no edge functions, no props changed.
