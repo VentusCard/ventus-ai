@@ -486,7 +486,7 @@ ${upstreamLEBlock}${externalsBlock}${riskBlock}`;
       body: JSON.stringify({
         model: "google/gemini-3.5-flash",
         max_tokens: 16384,
-        reasoning: { enabled: false },
+        reasoning: { max_tokens: 0, exclude: true },
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userContent },
