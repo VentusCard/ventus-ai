@@ -312,16 +312,16 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
     // pillars[i].txIndices = the transaction indices for row i sent to AI
 
-    // Detect life events FIRST so we can pass them to synthesize-persona for theme dedup.
-    // This prevents behavioral rollups (e.g. "Aspiring Homeowner") from overlapping with
-    // detected life events (e.g. "New Home Transition") at the source.
-    let detectedEvents: LifeEvent[] = [];
-    try {
-      detectedEvents = await detectLifeEventsOnlyRef.current();
-      console.log("[PRELOAD] Life events detected ahead of persona synthesis:", detectedEvents.length);
-    } catch (e) {
-      console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
-    }
+    // Fire upstream life-event detection in PARALLEL with synthesize-persona so
+    // the Behavioral Intelligence Ready button unblocks as soon as persona resolves.
+    // Late-arriving upstream events are merged into detectedLifeEvents below.
+    const upstreamLifeEventsPromise: Promise<LifeEvent[]> = detectLifeEventsOnlyRef
+      .current()
+      .catch((e) => {
+        console.warn("[PRELOAD] Upstream life event detection failed:", e);
+        return [] as LifeEvent[];
+      });
+
 
     // Await risk detection (started in parallel from fireClassification) so we can pass
     // risk categories + flagged transaction IDs into synthesize-persona for vice/gambling
@@ -372,12 +372,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             subcategories: t.subcategories,
             spending_tier: t.spending_tier,
           })),
-          lifeEvents: detectedEvents.map((e) => ({
-            event_name: e.event_name,
-            confidence: e.confidence,
-            evidence: e.evidence,
-            talking_points: e.talking_points,
-          })),
+          lifeEvents: [],
+
           riskCategoriesPresent,
           riskTransactionIds,
           externalSignals: externalForLLM,
@@ -717,12 +713,32 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
           } as LifeEvent;
         });
 
-      // Fire downstream views with the final classifier's life events only.
+      // Fire downstream views with the final classifier's life events immediately —
+      // don't block on the parallel upstream detector.
       fireLifeEventDetection(synthesis, pillars, finalLifeEvents);
+
+      // Merge late-arriving upstream life events (dedup by lowercased event_name)
+      // without blocking the Ready button.
+      upstreamLifeEventsPromise.then((upstreamEvents) => {
+        if (!upstreamEvents || upstreamEvents.length === 0) return;
+        const current = detectedLifeEventsRef.current || [];
+        const seen = new Set(
+          current.map((e) => (e.event_name || "").toLowerCase().trim()),
+        );
+        const additions = upstreamEvents.filter(
+          (e) => e?.event_name && !seen.has(e.event_name.toLowerCase().trim()),
+        );
+        if (additions.length === 0) return;
+        const merged = [...current, ...additions].slice(0, 3);
+        detectedLifeEventsRef.current = merged;
+        setDetectedLifeEvents(merged);
+        console.log("[PRELOAD] Merged", additions.length, "late upstream life events");
+      });
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
+
 
   /** Generate AI-powered deal recommendations from persona + pillars + optional life events */
   const fireNextOffers = useCallback(
