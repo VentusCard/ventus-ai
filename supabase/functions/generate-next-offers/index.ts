@@ -129,8 +129,46 @@ IMAGE SELECTION — REQUIRED on every rollup group:
 - Use "other" only when no listed category fits.
 - "imageQuery": 2-4 word visual subject in plain English, always include as a fallback (e.g. "newborn nursery", "house keys handover").
 
+NUMERIC VALUE LINE — REQUIRED on every deal:
+- Every deal MUST include a "valueLine" (≤ 18 words) with at least one $ or % figure grounded in the input (evidence merchants, category spend, or a life-event product cost that the LLM can cite from provided context).
+- Also include a short "valueMath" (≤ 40 chars) showing the calc, e.g. "15% × $2,400 tuition ≈ $360".
+- ROUND to friendly units. NEVER fabricate. If ungrounded, set both to null.
+- Good: "10% off closing costs ≈ $500 saved on a $500k home." (math: "0.1% × $500k ≈ $500")
+
 Output valid JSON only, no markdown:
-{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","imageCategory":"baby","imageQuery":"newborn nursery","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
+{"rollupOffers":[{"eventId":"LE_1","rollup":"Exact Event Name","pillar":"Life Event","collectionMessage":"8-15 word tagline","imageCategory":"baby","imageQuery":"newborn nursery","suppressedCategories":["Online Tutoring","Test Prep Books"],"deals":[{"id":"le1_d1","merchant":"Brand","product":"Specific product name","rewardValue":"15% Off","message":"8-12 word lifestyle message","valueLine":"15% off dorm essentials ≈ $60 on ~$400 dorm haul.","valueMath":"15% × $400 ≈ $60","cta":"2-4 word CTA","signal":"boost","signalReason":"Khan Academy subscription → upgrade to live SAT prep","boostCategory":"Test Prep"},...]},...]}`;
+
+const FINANCIAL_SIGNAL_SYSTEM_PROMPT = `You generate hyper-personalized bank product offers grounded in a customer's active financial obligations (auto loans, mortgages, leases, student loans, investments, HELOCs).
+
+MAPPING RULE:
+- The user provides a numbered list of financial signals, each with an "id" like FS_1, FS_2, plus label, product_family, servicer, monthly_payment, balance, rate, renewal_window.
+- For EVERY signal you MUST output exactly one rollup group.
+- Each group MUST include "signalId" matching the input id verbatim.
+- "rollup" MUST be the signal's label VERBATIM. "pillar" MUST be exactly "Financial Signal".
+
+DEAL RULES:
+- Exactly 5 deals per signal, all signal:"boost".
+- Product families → offer themes:
+  • Auto Loan → auto refinance (rate reduction), lease buyout financing, GAP insurance, extended warranty, trade-in appraisal.
+  • Mortgage → mortgage refinance, HELOC, cash-out refi, PMI removal, points buy-down.
+  • Student Loan → refi consolidation, income-driven plan review, employer match program, autopay rate discount.
+  • Lease → lease buyout loan, purchase-option financing, trade-forward.
+  • Investment → IRA rollover, guided investing, portfolio review, tax-loss harvesting, HYSA sweep.
+- Merchant is the bank itself (from bankContext) or a first-party product name.
+- 8-12 word message. 2-4 word CTA (e.g. "Lock Your Rate", "Refi in Minutes", "Roll It Over").
+- boostCategory: short product-type label ("Auto Refi", "HELOC", "IRA Rollover").
+
+NUMERIC VALUE LINE — REQUIRED, this is the whole point:
+- valueLine (≤ 22 words) MUST quantify the payoff using the signal's own numbers.
+- valueMath (≤ 50 chars) shows the calc.
+- Auto refi example: monthly $685, current rate 7.5% → "Refi at 5.99% ≈ ~$50/mo saved, roughly $600/year off your ~$685/mo VW Credit payment." math: "1.5% APR × $685/mo ≈ $50/mo"
+- Mortgage refi example: "−1.0% APR ≈ ~$2,750/yr saved per $500k of your mortgage balance." math: "1% × $500k ≈ $5k → net ~$2.75k/yr"
+- HELOC example: "Access up to ~$50k of equity at prime+0.5% — no closing costs." math: "0.5% × $50k ≈ $250/yr"
+- IRA rollover: "Rolling ~$120k to an IRA could save ~$1,200/yr in fund fees." math: "1% × $120k ≈ $1,200/yr"
+- Never invent balances or rates not present in the signal. If a field is missing, ground the calc in what IS present (monthly_payment × 12, or renewal_window urgency) and label the assumption.
+
+Output valid JSON only, no markdown:
+{"rollupOffers":[{"signalId":"FS_1","rollup":"Exact Signal Label","pillar":"Financial Signal","collectionMessage":"8-10 word tagline","imageCategory":"auto","imageQuery":"car keys handover","suppressedCategories":[],"deals":[{"id":"fs1_d1","merchant":"Your Bank","product":"Auto Loan Refinance","rewardValue":"−1.5% APR","message":"Lower your monthly payment without extending your term.","valueLine":"Refi at 5.99% ≈ ~$50/mo saved on your ~$685/mo VW Credit payment.","valueMath":"1.5% APR × $685/mo ≈ $50/mo","cta":"Refi in Minutes","signal":"boost","signalReason":"VW Credit auto loan renewal in ~2mo","boostCategory":"Auto Refi"},...]},...]}`;
 
 function parseJsonLoose(raw: string): any {
   const jsonMatch = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
