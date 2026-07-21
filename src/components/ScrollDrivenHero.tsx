@@ -272,7 +272,8 @@ const ScrollDrivenHero = () => {
                 transform: loaded ? "translateY(0)" : "translateY(24px)",
               }}
             >
-              Turn behavioral intelligence into <span className="italic text-blue-600">growth opportunities</span>
+              Turn behavioral intelligence into <br className="hidden xl:block" />
+              <span className="italic text-blue-600">growth opportunities</span>
             </h1>
 
             <p
