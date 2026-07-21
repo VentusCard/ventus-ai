@@ -1,21 +1,22 @@
 ## Goal
-Remove the sparkline chart and its "last 12 mo" label from the **Next-Offer** tab in `/bankdemo`.
+Strip all housing rent and payroll/income transactions from the example transaction datasets used in the `/bankdemo` demo flow.
 
-## Current state
-- The Next-Offer tab maps to `activeTab === "analytics"` in `ExecDemoIntelPanel.tsx`.
-- That tab renders `PurchaseCycleTimeline.tsx`.
-- Inside `PurchaseCycleTimeline.tsx`, the `CadenceCard` component renders a `Sparkline` SVG plus a "last 12 mo" text label when `data.monthlyTrend` has values.
-- `PurchaseCycleTimeline` is only used for the Next-Offer tab, so removing the sparkline there removes it from the tab entirely.
+## Scope
+Only the CSV fixtures in `src/lib/sampleData.ts`. All 24 matching rows sit in `SAMPLE_CSV` (customer 1). The other five customer CSVs contain no PAYROLL or DES:RENT rows, so they need no changes.
 
-## Plan
-1. **Edit `src/components/exec-demo/PurchaseCycleTimeline.tsx`**
-   - Delete the `Sparkline` function definition (lines ~332–353).
-   - In `CadenceCard`, remove the conditional block that renders `<Sparkline values={data.monthlyTrend} color={accent} />` and the adjacent "last 12 mo" span.
-   - Remove any now-unused imports/variables if applicable (e.g., `W`, `H`, `pad`, `step`, `points`, `path`, `areaPath`, `last`, `lastX`, `lastY`).
+## Rows to remove (24 total, lines 222–321)
+- Payroll inflows: `txn_p017` … `txn_p028` — `MERIDIAN CAPITAL DES:PAYROLL` (12 rows)
+- Housing rent outflows: `txn_r017` … `txn_r028` — `PACIFIC HEIGHTS APT DES:RENT` (12 rows)
 
-2. **Verify**
-   - Re-read the edited section to confirm the sparkline and text are gone and the card layout still renders cleanly.
-   - Run a TypeScript/build check to ensure no references to the removed `Sparkline` remain.
+## Preserved (intentionally not touched)
+- Car/gear "rental" merchant rows (Budget Rent-A-Car, Ski Rental, etc.) — travel spend, not housing rent.
+- Non-payroll inflows labeled "deposit" that are actually spend or transfers (DraftKings sportsbook deposits, Zelle remodel deposit, annuity funding). These aren't payroll/income; leaving as-is unless you want them gone too.
+- Demographic `deposit: "$85K"` fields on customer profiles (metadata, not transactions).
 
-## Outcome
-The Next-Offer tab will no longer display the monthly-trend sparkline or the "last 12 mo" caption; the rest of the cadence card content remains unchanged.
+## Downstream effects to expect
+- Income card in the selection dialog will drop to $0 for customer 1 (no inflows remain in that CSV).
+- Persona/lifestyle synthesis will no longer see rent as a recurring housing signal for customer 1.
+- No code changes needed — parsers ignore missing rows.
+
+## Question
+Do you also want the non-payroll "deposit" rows (DraftKings sportsbook deposits, Zelle remodel deposit, Fidelity annuity deposit, Four Seasons event deposit) removed? My read is no — they're spend/transfers, not income — but confirm if you want a stricter sweep.
