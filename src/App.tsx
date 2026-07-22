@@ -48,6 +48,9 @@ const PortfolioIntelligencePage = lazy(() => import("./pages/solutions/Portfolio
 const Pricing = lazy(() => import("./pages/Pricing"));
 const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard"));
 const EnterpriseGrowthDemoPage = lazy(() => import("./pages/EnterpriseGrowthDemoPage"));
+const InternalCapabilitiesPage = lazy(() => import("./pages/InternalCapabilitiesPage"));
+const InternalGrowthDeskPage = lazy(() => import("./pages/InternalGrowthDeskPage"));
+const LivePipelineLab = lazy(() => import("./pages/LivePipelineLab"));
 
 const queryClient = new QueryClient();
 
@@ -65,8 +68,9 @@ const AppLayout = () => {
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const isHomeV2 = location.pathname === "/v2";
   const isConsole = location.pathname.startsWith("/app");
+  const isInternalCapabilities = location.pathname.startsWith("/internal/");
 
-  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isHomeV2 && !isConsole;
+  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isHomeV2 && !isConsole && !isInternalCapabilities;
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
@@ -110,6 +114,9 @@ const AppLayout = () => {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
         <Route path="/bank-analytics" element={<BankAnalyticsDashboard />} />
+        <Route path="/internal/capabilities" element={<InternalCapabilitiesPage />} />
+        <Route path="/internal/growth-desk" element={<InternalGrowthDeskPage />} />
+        <Route path="/internal/live-lab" element={<LivePipelineLab />} />
         <Route path="/solutions/offer-intelligence" element={<NextOfferPage />} />
         <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
         <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />

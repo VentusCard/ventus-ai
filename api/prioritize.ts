@@ -37,6 +37,9 @@ function safeParse(text: string): Record<string, unknown> | null {
 }
 
 export async function POST(request: Request): Promise<Response> {
+  if (process.env.ENABLE_INTERNAL_MODEL_EVAL !== "true") {
+    return Response.json({ error: "model evaluation disabled" }, { status: 404 });
+  }
   if (!isAppClient(request)) return Response.json({ error: "forbidden" }, { status: 403 });
 
   const key = apiKey();

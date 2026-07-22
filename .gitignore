@@ -28,3 +28,4 @@ backend/artifacts/
 .env
 .env.*
 !.env.example
+.vercel

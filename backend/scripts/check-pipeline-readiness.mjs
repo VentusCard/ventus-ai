@@ -7,6 +7,9 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..');
 const slasPath = join(backendRoot, 'config', 'pipeline-slas.json');
 const stuckJobsSqlPath = join(backendRoot, 'sql', 'stuck-pipeline-runs.sql');
+const operatingLoopPath = join(backendRoot, 'shared', 'pilot-operating-loop.mjs');
+const standaloneRuntimePath = resolve(backendRoot, '..', 'api', 'standalone-pilot-run.ts');
+const outcomeRuntimePath = resolve(backendRoot, '..', 'api', 'pilot-outcomes.ts');
 
 const REQUIRED_STAGES = [
   'ingested',
@@ -89,8 +92,43 @@ function validateStuckJobsSql(sql, config) {
   assert.ok(hasAllStageFields, 'stuck jobs SQL should include all configured timestamp fields');
 }
 
+function validateOperatingLoop(source) {
+  assert.match(source, /assignExperiment/, 'operating loop should assign treatment or holdout before activation');
+  assert.match(source, /ledgerRepository\.append/, 'operating loop should persist decision lineage');
+  assert.match(source, /deliveryRepository\.reserve/, 'operating loop should reserve connector delivery before side effects');
+  assert.match(source, /measurementRepository\.recordOutcome/, 'operating loop should ingest measured outcomes');
+  assert.match(source, /summarizeIncrementalLift/, 'operating loop should close the measurement loop');
+  assert.match(source, /synthetic evidence cannot activate a connector/, 'synthetic evidence should be activation-blocked');
+  assert.match(source, /businessClaimAllowed:\s*false/, 'operating loop should not promote technical evidence into business claims');
+}
+
+function validateStandaloneRuntime(source) {
+  assert.match(source, /ENABLE_STANDALONE_PILOT_RUNTIME/, 'standalone runtime must be default-off');
+  assert.match(source, /principal\.authMode !== "session"/, 'standalone runtime must reject legacy and local authorization');
+  assert.match(source, /scope: "growth_play_run", destination: businessLine/, 'runtime session must be business-line scoped');
+  assert.match(source, /protocolRegistry\.requireApproved/, 'runtime must load the tenant-approved protocol');
+  assert.match(source, /experimentId: `exp_\$\{decisionProtocolId/, 'experiment identity must derive from the approved protocol');
+  assert.match(source, /activationMode !== "shadow" && activationMode !== "sandbox_assisted"/, 'production activation must remain closed');
+  assert.match(source, /assertNonBypassRole/, 'durable runtime must reject privileged database roles');
+  assert.match(source, /pilot delivery webhook must use HTTPS/, 'assisted delivery must require HTTPS');
+}
+
+function validateOutcomeRuntime(source) {
+  assert.match(source, /growth_play_outcome_write/, 'outcome writes must use a dedicated signed scope');
+  assert.match(source, /growth_play_measure_read/, 'measurement reads must use a dedicated signed scope');
+  assert.match(source, /principal\.authMode !== "session"/, 'outcome service must reject legacy and local authorization');
+  assert.match(source, /measurementRepository\.loadExperiment/, 'outcome service must resolve persisted assignment');
+  assert.match(source, /ledgerRepository\.loadOutcomeContext/, 'outcome service must resolve server decision lineage');
+  assert.match(source, /at: assignment\.assignedAt/, 'outcomes must resolve approval at immutable assignment time');
+  assert.match(source, /businessClaimAllowed: false/, 'outcome writes must not create business claims');
+  assert.match(source, /causalClaimAllowed: false/, 'outcome writes must not create causal claims');
+}
+
 const config = readJson(slasPath);
 validateSlas(config);
 validateStuckJobsSql(readFileSync(stuckJobsSqlPath, 'utf8'), config);
+validateOperatingLoop(readFileSync(operatingLoopPath, 'utf8'));
+validateStandaloneRuntime(readFileSync(standaloneRuntimePath, 'utf8'));
+validateOutcomeRuntime(readFileSync(outcomeRuntimePath, 'utf8'));
 
-console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms`);
+console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms, authenticated decision and outcome runtimes`);
