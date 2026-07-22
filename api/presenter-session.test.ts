@@ -8,6 +8,7 @@ const originalFetch = globalThis.fetch;
 const managedVariables = [
   "ENABLE_LIVE_CONNECTORS",
   "VENTUS_ENABLE_DEMO_CONNECTOR_SESSION",
+  "VENTUS_ALLOW_ANON_DEMO_SESSION",
   "VENTUS_CONNECTOR_SESSION_SECRET",
   "VENTUS_DEMO_ORIGIN",
   "VENTUS_DEMO_TENANT_ID",
@@ -50,6 +51,30 @@ test("demo connector broker requires an authenticated operator", async () => {
   process.env.VERCEL_ENV = "production";
   process.env.VENTUS_DEMO_ORIGIN = "https://demo.ventusai.com";
   assert.equal((await POST(request("https://demo.ventusai.com", ""))).status, 401);
+});
+
+test("hosted no-login demo path mints a demo-scoped session when explicitly enabled", async () => {
+  configure();
+  process.env.VENTUS_ALLOW_ANON_DEMO_SESSION = "true";
+  process.env.VERCEL_ENV = "production";
+  process.env.VENTUS_DEMO_ORIGIN = "https://demo.ventusai.com";
+  process.env.VENTUS_DEMO_TENANT_ID = "demo_bank";
+
+  const response = await POST(request("https://demo.ventusai.com", ""));
+  const body = await response.json() as { token?: string; subject?: string; tenantId?: string; role?: string };
+  assert.equal(response.status, 200);
+  const principal = verifyConnectorSession(body.token || "", SESSION_SECRET);
+  assert.equal(principal?.tenantId, "demo_bank");
+  assert.equal(principal?.subject, "demo_operator");
+  assert.equal(body.role, "demo");
+  // The demo path must carry both scenarios so it works with the scenario-scoped
+  // /api/plaid-transactions endpoint.
+  assert.deepEqual(principal?.scopes.sort(), [
+    "plaid_read",
+    "salesforce_write",
+    "scenario_deposit_retention",
+    "scenario_wealth_growth",
+  ].sort());
 });
 
 test("demo connector broker mints one short-lived Plaid and Salesforce session", async () => {
