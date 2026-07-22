@@ -1,0 +1,13 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowVentusOperatorToAssumeRole",
+      "Effect": "Allow",
+      "Principal": {
+        "AWS": "arn:aws:iam::373633008995:user/yusheng_chen"
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}

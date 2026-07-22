@@ -52,9 +52,9 @@ If the OIDC provider does not exist yet, create it in IAM:
 
 ## Minimum Role Shape
 
-The staging role needs enough permission to synthesize, diff, and deploy the additive monitor stack. In practice that means permissions for:
+The staging role needs enough permission to synthesize, diff, and deploy the reviewed isolated stacks. In practice that means permissions for:
 
-- CloudFormation stack read/write for `VentusExistingInfraStack`
+- CloudFormation stack read/write for `VentusExistingInfraStack`, `VentusEvidenceStoreStack`, and `VentusDemoConnectorsStack`
 - CDK bootstrap asset bucket read/write
 - Lambda create/update for `ventus-stuck-job-monitor`
 - IAM role/policy creation for the monitor Lambda execution role
@@ -92,7 +92,11 @@ The machine-readable copy lives at `infra/iam/github-staging-deploy-policy.json`
         "cloudformation:GetTemplateSummary",
         "cloudformation:UpdateStack"
       ],
-      "Resource": "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*"
+      "Resource": [
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusEvidenceStoreStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*"
+      ]
     },
     {
       "Sid": "CdkBootstrapAssets",

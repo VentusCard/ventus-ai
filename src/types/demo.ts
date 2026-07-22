@@ -12,7 +12,7 @@ export const MODULE_NAV_GROUP_MAP: Record<ModuleKey, string[]> = {
   Analytics: ["Analytics"],
   "AI & UX": [],
   Rewards: ["Deals & Rewards"],
-  Relationship: ["Relationship"],
+  Relationship: ["WEALTH & RELATIONSHIP"],
 };
 
 // Health nav group follows Analytics (always on)
