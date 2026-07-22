@@ -12,7 +12,7 @@ import ExecDemoIntelPanel, {
 import type { RollupOfferGroup } from "@/components/exec-demo/NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "@/components/exec-demo/ProductCardsPhoneView";
-import type { CardActions, CreditAssessment } from "@/components/exec-demo/NextProductRationale";
+import type { CardActions } from "@/components/exec-demo/NextProductRationale";
 import ExecDemoSelectionDialog from "@/components/exec-demo/ExecDemoSelectionDialog";
 import ExecDemoPhoneView from "@/components/exec-demo/ExecDemoPhoneView";
 import {
@@ -56,9 +56,11 @@ interface ExecDemoPageProps {
   embedded?: boolean;
   active?: boolean;
   onBack?: () => void;
+  /** When true, run the full pipeline immediately on mount (used by /bankdemo post-password). */
+  prefireOnMount?: boolean;
 }
 
-export default function ExecDemoPage({ embedded = false, active = true, onBack }: ExecDemoPageProps = {}) {
+export default function ExecDemoPage({ embedded = false, active = true, onBack, prefireOnMount = false }: ExecDemoPageProps = {}) {
   const [selectedIdx, setSelectedIdx] = useState(0);
   const [selectionDialogOpen, setSelectionDialogOpen] = useState(!embedded);
 
@@ -150,8 +152,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
   const [riskFlags, setRiskFlags] = useState<{ flags: any[]; summary: string } | null>(null);
   const riskFlagsRef = useRef<{ flags: any[]; summary: string } | null>(null);
   const [riskLoading, setRiskLoading] = useState(false);
-  const [creditAssessment, setCreditAssessment] = useState<CreditAssessment | null>(null);
-  const [creditLoading, setCreditLoading] = useState(false);
   const [enrichedTxs, setEnrichedTxs] = useState<EnrichedTransaction[] | null>(null);
   const [synthesisTriggered, setSynthesisTriggered] = useState(false);
   const personaSynthesisRef = useRef<PersonaSynthesis | null>(null);
@@ -312,16 +312,16 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     const pillars = Array.from(grouped.values()).sort((a, b) => b.totalSpend - a.totalSpend);
     // pillars[i].txIndices = the transaction indices for row i sent to AI
 
-    // Detect life events FIRST so we can pass them to synthesize-persona for theme dedup.
-    // This prevents behavioral rollups (e.g. "Aspiring Homeowner") from overlapping with
-    // detected life events (e.g. "New Home Transition") at the source.
-    let detectedEvents: LifeEvent[] = [];
-    try {
-      detectedEvents = await detectLifeEventsOnlyRef.current();
-      console.log("[PRELOAD] Life events detected ahead of persona synthesis:", detectedEvents.length);
-    } catch (e) {
-      console.warn("[PRELOAD] Pre-synthesis life event detection failed (continuing without):", e);
-    }
+    // Fire upstream life-event detection in PARALLEL with synthesize-persona so
+    // the Behavioral Intelligence Ready button unblocks as soon as persona resolves.
+    // Late-arriving upstream events are merged into detectedLifeEvents below.
+    const upstreamLifeEventsPromise: Promise<LifeEvent[]> = detectLifeEventsOnlyRef
+      .current()
+      .catch((e) => {
+        console.warn("[PRELOAD] Upstream life event detection failed:", e);
+        return [] as LifeEvent[];
+      });
+
 
     // Await risk detection (started in parallel from fireClassification) so we can pass
     // risk categories + flagged transaction IDs into synthesize-persona for vice/gambling
@@ -372,7 +372,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             subcategories: t.subcategories,
             spending_tier: t.spending_tier,
           })),
-          lifeEvents: detectedEvents.map((e) => ({ event_name: e.event_name })),
+          lifeEvents: [],
+
           riskCategoriesPresent,
           riskTransactionIds,
           externalSignals: externalForLLM,
@@ -390,26 +391,12 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       }
       const rawDemographicShifts: any[] = Array.isArray(data.demographic_shifts) ? data.demographic_shifts : [];
 
-      // --- Mutual-exclusion guard: strip any demographic shift whose evidence is
-      // already claimed by a detected life event or a financial signal. If a shift
-      // has fewer than 2 unclaimed indices left, drop it entirely.
-      const claimedByHigherTier = new Set<number>();
-      for (const fs of rawFinancialSignals) {
-        for (const ti of fs.transaction_indices || []) claimedByHigherTier.add(ti);
-      }
-      const rawLifeEvents: any[] = Array.isArray(data.detected_life_events) ? data.detected_life_events : [];
-      for (const le of rawLifeEvents) {
-        for (const ti of le.transaction_indices || []) claimedByHigherTier.add(ti);
-      }
+      // Trust the edge function's demographic filtering — synthesize-persona already
+      // applies the ladder (life > financial > demographic), NON_DEMO vocab guard,
+      // and unclaimed-index test server-side. No redundant re-gate here.
       const dedupedDemographicShifts = rawDemographicShifts
-        .map((d: any) => {
-          const unclaimed = (d.transaction_indices || []).filter(
-            (ti: number) => ti >= 0 && ti < enrichedTxs.length && !claimedByHigherTier.has(ti),
-          );
-          return { ...d, transaction_indices: unclaimed };
-        })
-        .filter((d: any) => (d.transaction_indices || []).length >= 2)
         .filter((d: any) => d.category !== "life_stage_entry"); // legacy category retired
+
 
       const synthesis: PersonaSynthesis = {
         financialSignals: rawFinancialSignals.map((f: any) => ({
@@ -611,6 +598,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
 
             return true;
           })
+          .sort((a: any, b: any) => (b.totalSpend || 0) - (a.totalSpend || 0))
           .map(({ _resolvedCategories, ...rest }: any) => rest),
       };
 
@@ -620,86 +608,73 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       // and never depends on the model choosing to echo them back.
       for (const es of externalSignalsRaw) {
         if (es.bucket === "financial_signal") {
-          // De-dupe against LLM-emitted financial signals with the same product family.
-          const already = synthesis.financialSignals.some(
-            (f: any) =>
-              (f.product_family || "").toLowerCase() === (es.product_family || "").toLowerCase() &&
-              (es.product_family || "") !== "",
+          // Replace any LLM-emitted financial signal in the same product family so
+          // external intelligence always wins ownership of that pill. Merge in the
+          // LLM's transaction indices + servicer inference so the click-to-highlight
+          // still works.
+          const familyKey = (es.product_family || "").toLowerCase();
+          const collidingIdx = synthesis.financialSignals.findIndex(
+            (f: any) => (f.product_family || "").toLowerCase() === familyKey && familyKey !== "",
           );
-          if (!already) {
-            synthesis.financialSignals.push({
-              id: es.id,
-              product_family: es.product_family || "other",
-              label: es.event_name,
-              servicer: es.servicer,
-              monthly_amount_band: es.monthly_amount_band,
-              cadence: es.cadence,
-              transaction_indices: [],
-              talking_points: es.talking_points || [],
-              source: "external",
-              provider: es.provider,
-              confidence: es.confidence,
-              detail: es.detail,
-            } as any);
+          const inherited: any = collidingIdx >= 0 ? synthesis.financialSignals[collidingIdx] : null;
+          const merged: any = {
+            id: es.id,
+            product_family: es.product_family || "other",
+            label: es.event_name,
+            servicer: es.servicer || inherited?.servicer,
+            monthly_amount_band: es.monthly_amount_band || inherited?.monthly_amount_band,
+            cadence: es.cadence || inherited?.cadence,
+            transaction_indices: inherited?.transaction_indices || [],
+            talking_points: es.talking_points || inherited?.talking_points || [],
+            source: "external",
+            provider: es.provider,
+            confidence: es.confidence,
+            detail: es.detail,
+          };
+          if (collidingIdx >= 0) {
+            synthesis.financialSignals.splice(collidingIdx, 1, merged);
+          } else {
+            synthesis.financialSignals.push(merged);
           }
         } else if (es.bucket === "demographic_shift") {
-          synthesis.demographicShifts.push({
+          // Same policy for demographic shifts — external wins & absorbs any LLM
+          // transaction linkage.
+          const collidingIdx = synthesis.demographicShifts.findIndex(
+            (d: any) => (d.category || "") === (es.demographic_category || ""),
+          );
+          const inherited: any = collidingIdx >= 0 ? synthesis.demographicShifts[collidingIdx] : null;
+          const merged: any = {
             id: es.id,
             category: es.demographic_category || "household_composition",
             label: es.event_name,
-            direction: es.direction || "lateral",
+            direction: es.direction || inherited?.direction || "lateral",
             confidence: es.confidence,
-            magnitude_band: es.magnitude_band,
-            evidence_summary: es.detail,
-            transaction_indices: [],
+            magnitude_band: es.magnitude_band || inherited?.magnitude_band,
+            evidence_summary: es.detail || inherited?.evidence_summary,
+            transaction_indices: inherited?.transaction_indices || [],
             source: "external",
             provider: es.provider,
-          } as any);
+          };
+          if (collidingIdx >= 0) {
+            synthesis.demographicShifts.splice(collidingIdx, 1, merged);
+          } else {
+            synthesis.demographicShifts.push(merged);
+          }
         }
       }
+
 
       personaSynthesisRef.current = synthesis;
       setPersonaSynthesis(synthesis);
       console.log("[PRELOAD] Persona synthesis ready:", synthesis.pillarRollups?.length, "rollups");
 
-      // --- Merge life events: upstream (analyze-lifestyle-signals) + promoted (synthesize-persona) ---
-      // synthesize-persona now also returns detected_life_events when canonical thresholds are met,
-      // so themes like "Home Purchase / Transition" surface even if upstream detection missed them.
+      // --- Life events come EXCLUSIVELY from synthesize-persona (the final classifier). ---
+      // Upstream analyze-lifestyle-signals output is intentionally discarded here so the
+      // Behavioral Intelligence pills reflect the single authoritative taxonomy decision.
       const promotedRaw = Array.isArray(data?.detected_life_events) ? data.detected_life_events : [];
-      const normalizeName = (s: string) =>
-        s
-          .toLowerCase()
-          .replace(/[^a-z0-9 ]/g, " ")
-          .replace(/\s+/g, " ")
-          .trim();
-      const themeKey = (s: string) => {
-        const n = normalizeName(s);
-        if (/\b(home|house|mortgage|nesting|relocation|moving)\b/.test(n)) return "home";
-        if (/\b(college|university|tuition|education|sat|act|kaplan)\b/.test(n)) return "college";
-        if (/\b(wedding|engagement|bridal)\b/.test(n)) return "wedding";
-        if (/\b(baby|infant|pregnan|expecting|family expansion|new parent)\b/.test(n)) return "baby";
-        if (/\b(business|llc|incorporation|startup formation)\b/.test(n)) return "business";
-        if (/\b(elder|senior|hospice|assisted living)\b/.test(n)) return "elder";
-        if (/\b(retire|retirement|empty nest)\b/.test(n)) return "retirement";
-        if (/\b(inherit|windfall|estate)\b/.test(n)) return "windfall";
-        return n;
-      };
-      // Banned life-event themes — these belong to Financial Signals or Demographic Shifts.
-      // If the LLM still emits them (legacy prompt cache, drift), strip client-side so
-      // the ownership ladder is enforced end-to-end.
-      const BANNED_LIFE_EVENT_KEYS = new Set(["college", "auto_loan", "car_loan"]);
-      const isBannedLifeEvent = (name: string) => {
-        const n = normalizeName(name);
-        if (/\b(college|university|tuition|sat|act|kaplan|common app)\b/.test(n)) return true;
-        if (/\b(auto|car)\s*(loan|lease|refi|renewal|payoff|financ)/.test(n)) return true;
-        if (/\b(mortgage|heloc|refinanc)/.test(n)) return true;
-        return false;
-      };
-      const upstreamThemes = new Set(detectedEvents.map((e) => themeKey(e.event_name || "")));
-      const promotedEvents: LifeEvent[] = promotedRaw
-        .filter((e: any) => e?.event_name && !upstreamThemes.has(themeKey(e.event_name)) && !isBannedLifeEvent(e.event_name))
+      const finalLifeEvents: LifeEvent[] = promotedRaw
+        .filter((e: any) => e?.event_name)
         .map((e: any) => {
-          // Hydrate evidence from transaction_indices when the model gave indices but thin evidence.
           const txIdx: number[] = Array.isArray(e.transaction_indices) ? e.transaction_indices : [];
           const hydratedEvidence =
             e.evidence && e.evidence.length > 0
@@ -724,21 +699,21 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             talking_points: Array.isArray(e.talking_points) ? e.talking_points : [],
           } as LifeEvent;
         });
-      if (promotedEvents.length > 0) {
-        console.log(
-          "[PRELOAD] Promoted life events from persona:",
-          promotedEvents.map((e) => e.event_name),
-        );
-      }
-      const mergedEvents: LifeEvent[] = [...detectedEvents, ...promotedEvents];
 
-      // Fire life event detection with the merged set (will reuse — no extra API call).
-      // Risk detection was already kicked off from fireClassification and awaited above.
-      fireLifeEventDetection(synthesis, pillars, mergedEvents);
+      // Fire downstream views with the final classifier's life events immediately —
+      // don't block on the parallel upstream detector.
+      fireLifeEventDetection(synthesis, pillars, finalLifeEvents);
+
+      // Upstream analyze-lifestyle-signals is used only as a dedup hint for
+      // synthesize-persona (see upstreamLifeEventsPromise above). Its events
+      // are intentionally NOT merged back into the pill strip — the panel
+      // reflects synthesize-persona's authoritative taxonomy only.
+
     } catch (err) {
       console.error("[PRELOAD] Persona synthesis failed:", err);
     }
   }, []);
+
 
   /** Generate AI-powered deal recommendations from persona + pillars + optional life events */
   const fireNextOffers = useCallback(
@@ -767,6 +742,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             subcategories: p.subcategories,
           })),
           demographics,
+          financial_signals: synthesis?.financialSignals || [],
+          months_of_data: 12,
         };
         if (lifeEvents && lifeEvents.length > 0) {
           body.lifeEvents = lifeEvents.map((e) => ({
@@ -861,8 +838,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         console.log("[PRELOAD] Life events hydrated:", merged.length, `(${external.length} external life_event)`, preDetectedEvents ? "(reused detected)" : "(fresh detected)");
         // Fire product cards generation with life events + persona data
         fireProductCards(merged, personaSynthesisRef.current);
-        // Fire indicative creditworthiness assessment in parallel
-        fireCreditAssessment();
         // Fire offers with both pillars and detected life events in a single call
         const syn = synthesis || personaSynthesisRef.current;
         if (syn && pillars) {
@@ -970,6 +945,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             persona_rollups: synthesis?.pillarRollups || [],
             pillars: pillars.slice(0, 8),
             demographics,
+            financial_signals: synthesis?.financialSignals || [],
             risk_flags: riskFlagsRef.current?.flags || [],
             bankContext: getBankPromptContext(),
           },
@@ -977,7 +953,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
         if (error) throw error;
         const cards = data.cards || [];
         setProductCards(cards);
-        console.log("[PRELOAD] Product cards ready:", cards.length);
+        console.log("[PRELOAD] Product cards ready:", cards.length, "types:", cards.map((c: any) => c.type));
         // Fire action generation with full context
         if (cards.length > 0) {
           fireProductActions(cards, events, synthesis);
@@ -1037,42 +1013,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     [selectedIdx],
   );
 
-  /** Assess indicative behavioral creditworthiness from enriched transactions */
-  const fireCreditAssessment = useCallback(async () => {
-    setCreditLoading(true);
-    setCreditAssessment(null);
-    try {
-      const enrichedTxs = classifiedRef.current || [];
-      if (enrichedTxs.length === 0) {
-        setCreditLoading(false);
-        return;
-      }
-      const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
-      const demographics: any = demoCustomer?.profile?.demographics || {};
-      const { data, error } = await supabase.functions.invoke("assess-creditworthiness", {
-        body: {
-          client: {
-            name: demographics.name,
-            age: demographics.age,
-            occupation: demographics.occupation,
-            industry: demographics.industry,
-            income_level: demographics.incomeLevel,
-            family_status: demographics.familyStatus,
-            segment: demographics.segment,
-          },
-          transactions: enrichedTxs,
-          window_days: 90,
-        },
-      });
-      if (error) throw error;
-      setCreditAssessment(data as CreditAssessment);
-      console.log("[PRELOAD] Credit assessment ready:", (data as any)?.band, (data as any)?.score);
-    } catch (err) {
-      console.error("[PRELOAD] Credit assessment failed:", err);
-    } finally {
-      setCreditLoading(false);
-    }
-  }, [selectedIdx]);
 
 
   firePersonaSynthesisRef.current = firePersonaSynthesis;
@@ -1082,8 +1022,13 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     timeoutsRef.current.push(setTimeout(fn, ms));
   }, []);
 
-  // Fire classification for initial customer on mount
+  // Fire classification for initial customer on mount (skipped if the
+  // prefire-coordinator effect below will do it — avoids double SSE).
+  const mountClassifyRef = useRef(false);
   useEffect(() => {
+    if (mountClassifyRef.current) return;
+    if (prefireOnMount) return; // prefire effect owns the kickoff when embedded
+    mountClassifyRef.current = true;
     fireClassification(getCsvForCustomer(0));
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -1115,8 +1060,6 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
       setProductCardsLoading(false);
       setProductActions(null);
       setActionsLoading(false);
-      setCreditAssessment(null);
-      setCreditLoading(false);
       setSynthesisTriggered(false);
       onClassifiedCallbackRef.current = null;
       // Preload classification in background
@@ -1298,6 +1241,7 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
   const handleRunAnalysis = useCallback(async () => {
     if (isRunning) return;
     clearTimeouts();
+    setSynthesisTriggered(false);
 
     const csv = customCsv || getCsvForCustomer(selectedIdx);
 
@@ -1339,30 +1283,39 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
     runAnalysisRef.current = handleRunAnalysis;
   }, [handleRunAnalysis]);
 
-  // Pre-fire when embedded in /bankdemo so the Demo tab is populated on first
-  // click. Fires once on mount; user can still open the selection dialog to
-  // swap customers or re-run. Guarded to skip if the user already interacted.
-  const preFiredRef = useRef(false);
+  // Pre-fire coordinator: as soon as ExecDemoPage mounts (post-password on
+  // /bankdemo), kick off the full pipeline for customer 0 so the Demo tab is
+  // ready before the user ever clicks it. Kicks off in this order:
+  //   1) fireClassification -> SSE done -> firePersonaSynthesis
+  //      -> fireLifeEventDetection -> fireProductCards + fireNextOffers
+  //   2) handleRunAnalysis to build local profile + animation state so the
+  //      Demo tab renders instantly on first open.
+  // Guarded against StrictMode double-mount by didPrefireRef.
+  const didPrefireRef = useRef(false);
   useEffect(() => {
-    if (!embedded || preFiredRef.current) return;
+    if (!prefireOnMount || didPrefireRef.current) return;
     if (profileRef.current || customCsv) return;
-    preFiredRef.current = true;
+    didPrefireRef.current = true;
+    // Start SSE classification (safe: fireClassification aborts any in-flight).
+    if (!classifyAbortRef.current) {
+      fireClassification(getCsvForCustomer(0));
+    }
+    // Build local profile so the visible Demo tab is instant on first open.
+    // handleRunAnalysis has an isRunning short-circuit but at mount phase===idle.
     handleRunAnalysis();
-    setSynthesisTriggered(true);
-  }, [embedded, customCsv, handleRunAnalysis]);
+  }, [prefireOnMount, customCsv, handleRunAnalysis, fireClassification]);
 
-  // When embedded, only open the selection dialog when the user actually
-  // navigates to the Demo tab AND no run has completed yet. Once a run exists,
-  // subsequent visits show cached results without the popup.
-  const hasRunOnce = preFiredRef.current || !!profileRef.current || !!personaSynthesis || !!enrichedTxs;
+  // When embedded, always open the selection dialog whenever the user
+  // navigates to the Demo tab. Cached results still render behind the dialog,
+  // but the customer picker is the first thing the user sees every time.
   useEffect(() => {
     if (!embedded) return;
-    if (active && !hasRunOnce) {
+    if (active) {
       setSelectionDialogOpen(true);
-    } else if (!active) {
+    } else {
       setSelectionDialogOpen(false);
     }
-  }, [embedded, active, hasRunOnce]);
+  }, [embedded, active]);
 
 
   const handleTabClick = useCallback((tab: TabKey) => {
@@ -1485,12 +1438,41 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
             >
               Next Step →
             </button>
-            <Link
-              to="/"
+            <button
+              type="button"
+              onClick={() => {
+                setPhase("idle");
+                setProcessedIndices([]);
+                setRevealedTabs([]);
+                setActiveTab(null);
+                setPersonaSynthesis(null);
+                setDetectedLifeEvents(null);
+                setEnrichedTxs(null);
+                setGeneratedOffers(null);
+                setProductCards(null);
+                setProductActions(null);
+                setRiskFlags(null);
+                
+                setSynthesisTriggered(false);
+                setActivePillFilter(null);
+                setActiveRollup(null);
+                setActiveTriggerPill(null);
+                setCollectedIndices([]);
+                setStepIndex(0);
+                setOffersLoading(false);
+                setProductsLoading(false);
+                setProductCardsLoading(false);
+                setActionsLoading(false);
+                setRiskLoading(false);
+                
+                setSelectionDialogOpen(true);
+              }}
+              title="Restart demo"
+              aria-label="Restart demo"
               className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-slate-100 transition-colors text-slate-400 hover:text-slate-600"
             >
               <X className="w-[18px] h-[18px]" />
-            </Link>
+            </button>
           </div>
         </div>
 
@@ -1581,14 +1563,13 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
                   productCards={productCards}
                   riskFlags={riskFlags}
                   riskLoading={riskLoading}
-                  creditAssessment={creditAssessment}
-                  creditLoading={creditLoading}
                   onTriggerPillClick={handleTriggerPillClick}
                   activeTriggerLabel={activeTriggerPill?.label}
                   activeTrigger={activeTriggerPill}
                   productActions={productActions}
                   actionsLoading={actionsLoading}
                   onOpenWMCopilot={handleOpenWMCopilot}
+                  onCloseWMCopilot={() => setWmCopilotOpen(false)}
                   onOpenAIAssistant={handleOpenAIAssistantWrapper}
                   onAIPromptDispatch={dispatchAIPrompt}
                   assistantOpen={!wmCopilotOpen}
@@ -1626,8 +1607,8 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack }
                   activeTab === "rewards" ||
                   activeTab === "product" ||
                   activeTab === "relationship";
-                const isRelTab = activeTab === "relationship";
-                const expandedW = isRelTab ? 520 : 560;
+                 const isRelTab = activeTab === "relationship";
+                 const expandedW = 560;
                 const collapsedW = 40;
                 const w = phoneVisible ? (phoneCollapsed ? collapsedW : expandedW) : 0;
                 return (

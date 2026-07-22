@@ -32,21 +32,21 @@ export interface ExternalIntelSignal {
 export const EXTERNAL_INTEL_SIGNALS: ExternalIntelSignal[] = [
   {
     id: "auto-loan-renewal",
-    event_name: "Auto Loan · Renewal in ~2mo",
+    event_name: "Auto Loan Renewal",
     confidence: 0.92,
     category: "auto",
     bucket: "financial_signal",
     provider: "Bureau Tradeline",
     headline: "Auto loan maturing in ~2 months",
-    detail: "Bureau tradeline · estimated maturity window · Toyota Financial Services",
+    detail: "VW Credit · ~$685/mo",
     product_family: "auto_loan",
-    servicer: "Toyota Financial Services",
-    monthly_amount_band: "~$485/mo",
+    servicer: "VW Credit",
+    monthly_amount_band: "~$685/mo",
     cadence: "monthly",
     evidence: [
       {
-        merchant: "Toyota Financial Services",
-        amount: 485,
+        merchant: "VW CREDIT INC",
+        amount: 685,
         date: new Date().toISOString().slice(0, 10),
         relevance: "External bureau tradeline — auto loan maturity within 60 days",
       },
@@ -54,11 +54,12 @@ export const EXTERNAL_INTEL_SIGNALS: ExternalIntelSignal[] = [
     talking_points: [
       "Refi window opens now — pre-qualify for a lower APR before payoff.",
       "If trading in, pair with a new-auto loan pre-approval.",
-      "Free cash flow (~$485/mo) can seed a HYSA or 529 top-up.",
+      "Free cash flow (~$685/mo) can seed a HYSA or 529 top-up.",
     ],
   },
   // Future signals just get appended here — no other file needs to change.
 ];
+
 
 export function getExternalSignalsFor(customerId: string | undefined | null): ExternalIntelSignal[] {
   if (!customerId) {

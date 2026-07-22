@@ -25,6 +25,28 @@ test('model routing config defines required enrichment tasks', () => {
 
   assert.equal(resolveModelRoute(config, 'enrichment_judge').shadowOnly, true);
   assert.equal(resolveModelRoute(config, 'intervention_planning_shadow').shadowOnly, true);
+
+  const benchmarkRoute = resolveModelRoute(config, 'benchmark_enrichment');
+  assert.equal(benchmarkRoute.provider, 'openrouter');
+  assert.equal(benchmarkRoute.providerType, 'openai_compatible');
+  assert.equal(benchmarkRoute.model, 'z-ai/glm-5.2');
+  assert.equal(benchmarkRoute.apiKeySecretField, 'OPENROUTER_API_KEY');
+  assert.equal(benchmarkRoute.shadowOnly, true);
+
+  const signalRoute = resolveModelRoute(config, 'eval_enterprise_signal_extraction');
+  assert.equal(signalRoute.provider, 'openrouter');
+  assert.equal(signalRoute.model, 'openai/gpt-4.1-mini');
+  assert.equal(signalRoute.role, 'enterprise_fast_structured_worker');
+
+  const reasoningRoute = resolveModelRoute(config, 'eval_enterprise_opportunity_reasoning');
+  assert.equal(reasoningRoute.provider, 'openrouter');
+  assert.equal(reasoningRoute.model, 'z-ai/glm-5.2');
+  assert.equal(reasoningRoute.role, 'enterprise_deep_reasoning_worker');
+
+  const qaRoute = resolveModelRoute(config, 'eval_enterprise_opportunity_qa');
+  assert.equal(qaRoute.provider, 'openrouter');
+  assert.equal(qaRoute.model, 'openai/gpt-4.1-mini');
+  assert.equal(qaRoute.role, 'enterprise_consistency_judge');
 });
 
 test('model gateway sends OpenAI-compatible chat completions with route metadata', async () => {
@@ -104,4 +126,33 @@ test('model gateway fails closed when a routed secret field is missing', async (
   assert.equal(auditLogs[0][1].task, 'risk_detection');
   assert.equal(auditLogs[0][1].ok, false);
   assert.equal(auditLogs[0][1].error, 'missing_api_key');
+});
+
+test('model gateway can route benchmark enrichment through OpenRouter', async () => {
+  const calls = [];
+  const gateway = createModelGateway({
+    getSecrets: async () => ({ OPENROUTER_API_KEY: 'or-test-key' }),
+    fetchImpl: async (url, options) => {
+      calls.push({ url, options });
+      return new Response(JSON.stringify({ choices: [{ message: { content: '{}' } }] }), {
+        status: 200,
+      });
+    },
+    logger: { info() {} },
+  });
+
+  const result = await gateway.chatCompletion({
+    task: 'benchmark_enrichment',
+    messages: [{ role: 'user', content: 'benchmark this' }],
+  });
+
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].url, 'https://openrouter.ai/api/v1/chat/completions');
+  assert.equal(calls[0].options.headers.Authorization, 'Bearer or-test-key');
+  const body = JSON.parse(calls[0].options.body);
+  assert.equal(body.model, 'z-ai/glm-5.2');
+  assert.equal(body.temperature, 0);
+  assert.equal(body.max_tokens, 8000);
+  assert.equal(result.metadata.provider, 'openrouter');
+  assert.equal(result.metadata.model, 'z-ai/glm-5.2');
 });

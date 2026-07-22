@@ -1,0 +1,105 @@
+{
+  "version": 1,
+  "sdk_version": "0.24.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "none"
+  },
+  "mcp": {
+    "server": {
+      "name": "ventus-ai-mcp",
+      "version": "0.1.0",
+      "title": "Ventus AI"
+    },
+    "tools": [
+      {
+        "name": "list_bank_products",
+        "title": "List bank products",
+        "description": "List Ventus reference bank product categories and products (cards, deposits, lending, wealth) with sample pricing and terms.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "category": {
+              "type": "string",
+              "enum": [
+                "cards",
+                "deposits",
+                "lending",
+                "wealth"
+              ],
+              "description": "Optional category filter. Omit to return all categories."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "search_bank_products",
+        "title": "Search bank products",
+        "description": "Search Ventus reference bank products by keyword (e.g. 'travel', 'refinance', 'savings'). Returns matching products with pricing and terms.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "minLength": 1,
+              "description": "Search text. Matched against product name, category, and keywords."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 20,
+              "description": "Max results (default 5)."
+            }
+          },
+          "required": [
+            "query"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_demo_signals",
+        "title": "Get Ventus demo signals",
+        "description": "Return the public demo 'external intelligence' signals used in the Ventus bank demo (life events, financial signals) along with sample product recommendations.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "bucket": {
+              "type": "string",
+              "enum": [
+                "life_event",
+                "financial_signal",
+                "demographic_shift",
+                "behavioral"
+              ],
+              "description": "Optional filter by signal bucket. Omit to return all."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

@@ -10,7 +10,7 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { life_events, persona_rollups, pillars, demographics, bankContext } = await req.json();
+    const { life_events, persona_rollups, pillars, demographics, financial_signals, bankContext } = await req.json();
     const bankName = bankContext && typeof bankContext.bankName === "string" ? bankContext.bankName.trim().slice(0, 80) : "";
     const bankShort = bankContext && typeof bankContext.bankShortName === "string" ? bankContext.bankShortName.trim().slice(0, 40) : "";
     const bankWebsite = bankContext && typeof bankContext.website === "string" ? bankContext.website.trim().slice(0, 200) : "";
@@ -19,25 +19,27 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY not configured");
 
-    const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate exactly THREE product recommendation cards (2 life event + 1 behavioral) that appear as notifications in a mobile banking app.
+    const systemPrompt = `You are a consumer banking product recommendation copywriter for "${bankLabel}". You generate exactly THREE product recommendation cards that appear as notifications in a mobile banking app.
 
-CARD ORDER (STRICT):
-Emit cards in exactly this order:
-  1. Life Event card based on life_events[0]
-  2. Life Event card based on life_events[1]
-  3. Behavioral card based on persona_rollups[0]
+CARD ORDER (STRICT — one card per family):
+Emit exactly 3 cards, one per family, in this fixed order:
+  Slot 1 — life_event         (from life_events[0])
+  Slot 2 — behavioral         (from persona_rollups[0])
+  Slot 3 — financial_signal   (from financial_signals[0])
+
+FALLBACK LADDER — if a family's primary candidate is missing, fill that slot with the next best available candidate from any other family, in this order:
+  life_events[1] → financial_signals[1] → persona_rollups[1]
 
 RULES:
-- Always emit 3 cards when 2+ life events AND 1+ rollup exist.
-- If only 1 life event exists → emit [life_event_1, behavioral_1] (2 cards).
-- If no life events exist → emit [behavioral_1] only (1 card).
-- If no rollups exist → emit life event cards only (up to 2).
-- NEVER emit a risk card. NEVER return more than 3 cards.
-- The two life-event cards MUST recommend DIFFERENT products covering DIFFERENT financial needs — do not repeat the same product family.
+- Emit exactly min(3, total_available_candidates). NEVER under-emit.
+- Prefer one card per family. Only emit two cards of the same type when the fallback ladder forces it (e.g. no financial signals AND no rollups).
+- ABSOLUTELY NEVER emit a risk/vice/gambling/AML/adult/financial-distress card. Risk data (if provided) is context only and must NEVER become a product recommendation. FORBIDDEN copy: "Account Controls", "Account Wellness Tools", "Set Up Account Controls", "stay in charge", "help you stay in control" — do not generate anything resembling these.
+- When two cards of the same type must be emitted via fallback, they MUST recommend DIFFERENT products covering DIFFERENT financial needs — do not repeat the same product family.
 
 CRITICAL — signal_label must match source verbatim:
 - Behavioral card: signal_label = persona_rollups[i].label EXACTLY (character-for-character, including capitalization)
 - Life event card: signal_label = life_events[i].event_name EXACTLY
+- Financial signal card: signal_label = financial_signals[0].label EXACTLY
 This enables downstream pill matching. Do NOT paraphrase, shorten, or rewrite the label.
 
 Use "${bankLabel}"-prefixed products for ALL recommendations. Never use real bank brand names other than "${bankLabel}" (no "Bank of America", "Chase", "Merrill", "Wells Fargo", etc.). Examples (substitute "${bankLabel}" wherever you see "Our Bank" below):
@@ -78,6 +80,21 @@ CARD 2 — LIFE EVENT:
   - "wedding" → "a big celebration ahead"
   - The reader should feel the card is relevant without the bank explicitly stating what it knows
 - The signal_label field MUST still use the explicit event name (e.g. "College Preparation", "New Baby", "Retirement Planning")
+
+CARD 3 (WHEN FINANCIAL SIGNAL PRESENT) — FINANCIAL SIGNAL:
+- Based on financial_signals[0] (an existing loan, mortgage, lease, brokerage relationship, or student loan detected from recurring payments or external intelligence).
+- Product MUST map to the signal's product_family:
+  - Auto Loan → "${bankLabel} Auto Loan Refinance" (or "${bankLabel} Auto Loan Buyout" if signal indicates a lease-end)
+  - Mortgage → "${bankLabel} Mortgage Refinance" OR "${bankLabel} Home Equity Line of Credit"
+  - Student Loan → "${bankLabel} Student Loan Refinance"
+  - Investment / Brokerage → "${bankLabel} Guided Investing" or IRA Rollover
+  - Lease → "${bankLabel} Auto Loan" (lease buyout financing)
+- offer_headline, benefits, and quote MUST use the signal's numbers (monthly_amount_band, servicer, cadence) to compute a concrete estimated savings.
+  - Example (Auto Loan · VW Credit ~$685/mo, renewal ~2mo): headline "Auto refinance from 5.49% APR", quote "Refinancing at today's rates could save you an estimated $180/mo — roughly $2,160/year."
+- Reference the incumbent servicer subtly ("your current auto lender", "your existing mortgage") — never quote the servicer name in a way that feels invasive.
+- Quote tone: helpful, timing-aware ("Your renewal window is coming up..."), NEVER surveillance-y.
+
+
 
 
 TONE RULES:
@@ -191,9 +208,20 @@ ${JSON.stringify((life_events || []).map((e: any) => ({
   talking_points: e.talking_points?.slice(0, 2),
 })), null, 2)}
 
-Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, demographics income). Do not invent unrelated figures.
+FINANCIAL SIGNALS (existing loans, mortgages, brokerage relationships — HIGHEST PRIORITY for slot 3):
+${JSON.stringify((financial_signals || []).map((f: any) => ({
+  label: f.label,
+  product_family: f.product_family,
+  servicer: f.servicer,
+  monthly_amount_band: f.monthly_amount_band,
+  cadence: f.cadence,
+  talking_points: (f.talking_points || []).slice(0, 3),
+})), null, 2)}
 
-Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using the generate_product_cards function. NEVER emit a risk card.`;
+Ground every dollar-estimate in the numbers above (rollup totalSpend, life-event financial_projection, financial-signal monthly_amount_band, demographics income). Do not invent unrelated figures.
+
+CARD ORDER: Slot 1 = life_event (life_events[0]), Slot 2 = behavioral (persona_rollups[0]), Slot 3 = financial_signal (financial_signals[0]). If any primary is missing, fall back via: life_events[1] → financial_signals[1] → persona_rollups[1]. Emit exactly min(3, total_available_candidates) — NEVER fewer. NEVER emit a risk/gambling/vice/AML card.`;
+
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -212,7 +240,7 @@ Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using 
             type: "function",
             function: {
               name: "generate_product_cards",
-              description: "Return up to 3 consumer product recommendation cards in strict order: life_event_1, life_event_2, behavioral_1",
+              description: "Return exactly 3 consumer product recommendation cards in strict order: Slot 1 life_event, Slot 2 behavioral, Slot 3 financial_signal. Falls back to alternate candidates within the same family when a primary is missing. Never fewer than min(3, total_candidates).",
               parameters: {
                 type: "object",
                 properties: {
@@ -225,12 +253,12 @@ Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using 
                       properties: {
                         type: {
                           type: "string",
-                          enum: ["behavioral", "life_event"],
+                          enum: ["behavioral", "life_event", "financial_signal"],
                           description: "Card type",
                         },
                         product_name: {
                           type: "string",
-                          description: "Specific product name e.g. 'Venture X Travel Card', '529 College Savings Plan', 'High-Yield Savings Account'",
+                          description: "Specific product name e.g. 'Venture X Travel Card', '529 College Savings Plan', 'Auto Loan Refinance'",
                         },
                         quote: {
                           type: "string",
@@ -238,7 +266,7 @@ Return exactly 3 cards (2 life events + 1 behavioral) in the strict order using 
                         },
                         signal_label: {
                           type: "string",
-                          description: "For behavioral: the vaguely-specific descriptor (e.g. 'Tropical getaways'). For life_event: the event name (e.g. 'College Preparation')",
+                          description: "For behavioral: the persona rollup label. For life_event: the event name. For financial_signal: financial_signals[0].label EXACTLY.",
                         },
                         theme: {
                           type: "string",

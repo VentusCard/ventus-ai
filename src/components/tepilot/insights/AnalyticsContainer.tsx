@@ -346,8 +346,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           )}
           <button
             onClick={() => {
-              sessionStorage.removeItem("demo_password_access");
-              window.location.reload();
+              sessionStorage.clear();
+              window.location.href = "/bankdemo";
             }}
             className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-slate-200 bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
             title="Exit demo"
@@ -495,7 +495,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
             activeTab === 'exec-demo' ? "block" : "hidden",
           )}
         >
-          <ExecDemoPage embedded active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
+          <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
         </div>
       </div>
 

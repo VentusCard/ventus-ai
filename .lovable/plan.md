@@ -1,40 +1,32 @@
-## LLMs currently in the /bankdemo flow
+## Problem
 
-Traced from `ExecDemoPage` → edge functions:
+The "Home Purchase / Transition" Life Event pill shows "4 signals" and does nothing when clicked — no rows highlight in the enrichment table.
 
-| Step | Function | Current model |
-|---|---|---|
-| Classify transactions | `classify-transactions` | `gemini-2.5-flash` (fallback `gpt-5-mini`) |
-| Travel detection | `travel-detection` | `gemini-2.5-flash` (fallback `gpt-5-mini`) |
-| Pillar analysis | `analyze-pillar-transactions` | `gemini-2.5-flash` |
-| Risk detection | `detect-risk-transactions` | `gemini-3-flash-preview` |
-| Persona synthesis (Behavioral Intelligence) | `synthesize-persona` | `gemini-3-flash-preview` |
-| Product cards | `generate-product-cards` | `gemini-2.5-flash` |
-| Next-offer generation | `generate-next-offers` | `gemini-2.5-flash` |
-| Semantic deal search | `semantic-deal-search` | `gemini-2.5-flash-lite` |
-| Consumer chat (phone mockup) | `consumer-chat` | `gemini-3-flash-preview` |
+## Root cause
 
-## Proposed upgrades
+The pill labels itself with `evt.evidence.length` (falling back to "N signals") whenever `transaction_indices` is empty, but the click handler only passes `transaction_indices` to the table. Empty array in → nothing highlighted.
 
-Split by workload — bulk/row-level jobs stay on a fast/cheap model, reasoning-heavy synthesis jumps to a Pro tier.
+`transaction_indices` end up empty because `synthesize-persona`'s `cleanIndices` strips any index whose upstream `txnOwner` tag is not `"life_event"` or `null`. A Home Depot / realtor / moving-services spike often gets pre-tagged `spending_habit` upstream, so all four of the LLM's chosen rows get filtered out. The event still passes the `evidence.length >= 2` survival bar, so the pill renders — but it has zero indices to click through to.
 
-**Heavy reasoning → `google/gemini-3.1-pro-preview`** (current-gen Pro, better structured reasoning)
-- `synthesize-persona` — this is the one driving the 5 intelligence rows and the taxonomy issues we've been fixing. Biggest quality lift here.
-- `generate-product-cards` — needs to reason across signals + product catalog to produce concrete rate/savings copy.
-- `detect-risk-transactions` — pattern reasoning across many txns.
+Per the standing rule ("drop all frontend computes"), the fix belongs in the backend, not fuzzy-matching in the panel.
 
-**Balanced → `google/gemini-3.5-flash`** (current-gen Flash, replaces 2.5-flash and the 3-flash-preview)
-- `classify-transactions`, `travel-detection`, `analyze-pillar-transactions`, `generate-next-offers`, `generate-campaign-offers`, `deal-personalization`, `generate-lifestyle-signals`, `generate-campaign-brief`, `generate-analytics-query`, `advisor-chat`, `bankwide-chat`, `consumer-chat`, `parse-campaign-intent`, `generate-outreach-pointers`, `generate-product-actions`, `assess-creditworthiness`, `local-experiences`, `summarize-query-result`, `parse-bank-statement-pdf`, `generate-financial-tip`, `analyze-lifestyle-signals`, `generate-campaign-segment`.
+## Fix — backend only
 
-**High-volume/cheap → `google/gemini-3.1-flash-lite`** (current-gen Lite)
-- `semantic-deal-search` (short classification-style call).
+In `supabase/functions/synthesize-persona/index.ts`, when constructing `filteredLE` (around lines 844-850):
 
-Fallbacks (`gpt-5-mini` in classify/travel/creditworthiness) → keep, still a valid cross-provider fallback.
+1. After `cleanIndices(..., ["life_event"])`, if the result is empty **and** the raw LLM `transaction_indices` are non-empty, retry with a widened allow-list `["life_event", "spending_habit"]` (still excluding `"risk"`, `"financial_signal"`, `"demographic"` to preserve the priority ladder against higher tiers).
+2. Only apply the widened rescue when the event survives the `evidence.length >= 2` bar — so we don't resurrect noise.
+3. The rescued indices then flow into `claimedByHigher`, which already causes the Spending Habits rollup pass to skip them, so no double-attribution.
 
-## Scope
+This keeps ownership rules intact for the higher-priority tiers (Financial, Demographic, Risk) while letting a well-evidenced Life Event reclaim rows that upstream had loosely tagged as habitual.
 
-Two options — please pick:
-1. **/bankdemo path only** — update the 9 functions in the first table above.
-2. **Whole project** — update all 22 functions to the tiers above (recommended for consistency; small blast radius since it's just model-id string changes).
+## Guardrails
 
-No prompt/schema changes; Gemini 3.x accepts the same OpenAI-compatible request bodies we send today. I'll smoke-test one bankdemo run after the swap.
+- No change to frontend logic.
+- No change to Financial / Demographic / Risk cleaning.
+- Pet-vocab and relocation-travel guards continue to run after the rescue.
+- The College-prep demotion path is unaffected.
+
+## Verification
+
+After deploy, on the Sarah-Mitchell-style persona: the "Home Purchase / Transition" pill should render as `4 txns · $X.Xk` (not "4 signals") and clicking it should light up the corresponding rows in the enrichment table.
