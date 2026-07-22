@@ -39,6 +39,12 @@ const classificationSource = readFileSync(
   resolve('../backend/functions/ventus-classify-transactions/index.mjs'),
   'utf8'
 );
+// The classification lambda delegates the routed model call to the shared
+// classify-core module, so the merchant_classification task string lives there.
+const classifyCoreSource = readFileSync(
+  resolve('../backend/shared/classify-core.mjs'),
+  'utf8'
+);
 
 const requiredTasks = [
   'merchant_classification',
@@ -192,7 +198,7 @@ assert.match(
   'classification should use the shared model gateway'
 );
 assert.match(
-  classificationSource,
+  classifyCoreSource,
   /task:\s*'merchant_classification'/,
   'classification should route through the merchant_classification task'
 );
