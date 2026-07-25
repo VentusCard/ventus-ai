@@ -119,12 +119,29 @@ export function fitParametersFromDemonstrations({
     }
   }
 
+  // A demonstration often cannot distinguish neighbouring values: if no household sits
+  // between two thresholds, both reproduce the expert exactly. Reporting one of them as THE
+  // answer hides that, so report the whole equivalence class and let the approver choose.
+  const ties = {};
+  for (const name of names) {
+    const equivalent = grids[name].filter((value) => {
+      if (close(value, best[name])) return true;
+      return Math.abs(score({ ...best, [name]: value }).f1 - bestScore.f1) < 1e-9;
+    });
+    evaluations += grids[name].length - 1;
+    if (equivalent.length > 1) ties[name] = equivalent;
+  }
+
   return {
     growthPlayId: contract.growth_play_id,
     declaredValues: declared,
     fittedValues: best,
     baselineScore: baseline,
     fittedScore: bestScore,
+    // Values the demonstration cannot tell apart from the fitted one. A non-empty entry means
+    // the data does not identify that knob; the choice inside the class is a judgement call.
+    equivalentValues: ties,
+    identified: Object.keys(ties).length === 0,
     improvementF1: round(bestScore.f1 - baseline.f1),
     changedParameters: names.filter((name) => !close(best[name], declared[name])),
     evaluations,

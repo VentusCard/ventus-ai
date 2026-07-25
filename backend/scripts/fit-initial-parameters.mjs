@@ -4,9 +4,8 @@
 //   node ./scripts/fit-initial-parameters.mjs --play merrill-relationship-growth \
 //     --demonstration ./fixtures/evaluation/<expert-actions>.json
 //
-// The demonstration file is a JSON object:
-//   { "cases": [{ "householdToken", "records": [...], "policies": [...] }],
-//     "demonstratedHouseholds": ["tok_..."] }
+// The demonstration file must satisfy fixtures/contracts/demonstration-contract.json. See
+// docs/growth-play-demonstration-export.md for the field list and how to pull it.
 //
 // Output is a proposal, not an approval. The fitted vector still has to be compiled and
 // approved through the Growth Play registry before any run can use it.
@@ -15,6 +14,7 @@ import assert from 'node:assert/strict';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { loadDemonstration } from '../shared/demonstration-contract.mjs';
 import { compileGrowthPlayContract, withParameterValues } from '../shared/growth-play-contract.mjs';
 import { fitParametersFromDemonstrations } from '../shared/parameter-fit.mjs';
 import { estimateSensitivity } from '../shared/play-sensitivity.mjs';
@@ -34,24 +34,30 @@ assert.ok(draft, `no Growth Play draft named ${args.play}`);
 const contract = compileGrowthPlayContract(draft);
 
 const demonstration = JSON.parse(readFileSync(resolve(args.demonstration), 'utf8'));
-assert.ok(Array.isArray(demonstration.cases), 'demonstration.cases must be an array');
-assert.ok(Array.isArray(demonstration.demonstratedHouseholds), 'demonstration.demonstratedHouseholds must be an array');
+const loaded = loadDemonstration(demonstration, { growthPlay: contract });
+const { summary } = loaded;
 
 const fit = fitParametersFromDemonstrations({
   contract,
   detector: standaloneGrowthPlayDetector,
-  cases: demonstration.cases,
-  demonstratedHouseholds: demonstration.demonstratedHouseholds,
+  cases: loaded.cases,
+  demonstratedHouseholds: loaded.demonstratedHouseholds,
 });
 const sensitivity = estimateSensitivity({
   contract,
   detector: standaloneGrowthPlayDetector,
-  cases: demonstration.cases,
-  labelledHouseholds: demonstration.demonstratedHouseholds,
+  cases: loaded.cases,
+  labelledHouseholds: loaded.demonstratedHouseholds,
 });
 
 console.log(`\nGrowth Play: ${contract.growth_play_id}@${contract.version} (${contract.decision_protocol_id})`);
-console.log(`Demonstration: ${fit.demonstratedHouseholds} acted-on households across ${demonstration.cases.length} replayed cases\n`);
+console.log(`Demonstration: ${summary.demonstrationId} · ${summary.evidenceClass} · ${summary.window.from.slice(0, 10)} to ${summary.window.to.slice(0, 10)}`);
+console.log(`Experts: ${summary.distinctExperts} of ${summary.expertSelection.expert_count} declared — ${summary.expertSelection.basis}`);
+console.log(
+  `Coverage: ${summary.actedHouseholds} acted-on of ${summary.exposedCases} exposed households `
+  + `(${(summary.selectionRate * 100).toFixed(1)}% selection rate); `
+  + `${summary.unexposedCases} unexposed case(s) excluded from the fit\n`,
+);
 console.log('Parameter                     declared        fitted');
 for (const name of Object.keys(fit.fittedValues).sort()) {
   const changed = fit.changedParameters.includes(name) ? ' *' : '';
@@ -63,6 +69,14 @@ console.log(`  fitted${' '.repeat(24)}${pct(fit.fittedScore.precision)}${pct(fit
 console.log(`\nEvaluations: ${fit.evaluations}${fit.converged ? ` (converged after ${fit.convergedAfterPasses} pass(es))` : ' (pass budget exhausted)'}`);
 if (fit.baselineScore.errors || fit.fittedScore.errors) {
   console.log(`Cases the detector could not evaluate: ${fit.fittedScore.errors}`);
+}
+
+if (!fit.identified) {
+  console.log('\nThis demonstration cannot distinguish these values — the choice inside each set is a');
+  console.log('judgement call, not a finding:');
+  for (const [name, values] of Object.entries(fit.equivalentValues)) {
+    console.log(`  ${name.padEnd(28)}${values.join(', ')}`);
+  }
 }
 
 console.log('\nSensitivity at the fitted vector (per approved step):');
@@ -85,7 +99,11 @@ if (args.out) {
 }
 
 console.log('\nThis is a proposed initialization. It is not an approved protocol: compile it, then');
-console.log('register and approve it through the Growth Play registry before any run uses it.\n');
+console.log('register and approve it through the Growth Play registry before any run uses it.');
+if (!loaded.fitUsableForProduction) {
+  console.log(`The demonstration is ${summary.evidenceClass}, so this vector initializes nothing for a production pilot.`);
+}
+console.log('');
 
 function parseArgs(argv) {
   const parsed = {};

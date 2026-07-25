@@ -36,6 +36,7 @@
     "qa:mvp-cohorts": "node --experimental-strip-types ./scripts/qa-growth-play-cohorts.mjs",
     "qa:growth-plays": "node ./scripts/compile-growth-play-contracts.mjs",
     "qa:play-learning": "node ./scripts/qa-play-learning.mjs",
+    "qa:demonstration": "node ./scripts/qa-demonstration-contract.mjs",
     "fit:play-parameters": "node ./scripts/fit-initial-parameters.mjs",
     "qa:outcomes": "node ./scripts/qa-outcome-feed-contract.mjs && node ./scripts/qa-connected-exposure-contract.mjs",
     "plaid:mvp:manifests": "node --experimental-strip-types ./scripts/generate-plaid-mvp-manifests.mjs",

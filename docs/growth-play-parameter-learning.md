@@ -59,13 +59,17 @@ banker or advisor actually acted on and search the approved box for the vector t
 those selections. Coordinate descent over the `max_step` grid, scored by F1 against the expert.
 
 ```bash
-node ./scripts/fit-initial-parameters.mjs --play merrill-relationship-growth \
-  --demonstration ./fixtures/evaluation/<expert-actions>.json
+npm run --prefix backend fit:play-parameters -- --play merrill-relationship-growth \
+  --demonstration ./fixtures/evaluation/demonstration-sample.json
 ```
 
-The output reports declared vs fitted values, precision/recall/F1 before and after, and the count of
-cases the detector could not evaluate. A good F1 against one expert's history is evidence that the
-vector reproduces that expert — not that the expert was right.
+The demonstration file format, the exposure rule that decides whether a fit means anything, and how
+to read the output are documented in
+[growth-play-demonstration-export.md](growth-play-demonstration-export.md).
+
+The output reports declared vs fitted values, precision/recall/F1 before and after, the selection
+rate, and any parameters the demonstration cannot identify. A good F1 against one expert's history
+is evidence that the vector reproduces that expert — not that the expert was right.
 
 ### 2. Replay sensitivity — `shared/play-sensitivity.mjs`
 

@@ -1,0 +1,1104 @@
+{
+  "contract_version": "1.0",
+  "demonstration_id": "demo_merrill_2026q2_synthetic",
+  "tenant_id": "bank_pilot",
+  "growth_play_id": "merrill-relationship-growth",
+  "business_line": "wealth-management",
+  "evidence_class": "synthetic",
+  "captured_at": "2026-05-02T00:00:00.000Z",
+  "window": {
+    "from": "2026-04-01T00:00:00.000Z",
+    "to": "2026-04-30T23:59:59.000Z"
+  },
+  "expert_selection": {
+    "basis": "Top-decile advisors by net new assets in the trailing four quarters, within one Merrill growth desk.",
+    "expert_count": 2,
+    "source_system": "cew_book_360"
+  },
+  "cases": [
+    {
+      "household_token": "tok_demo_merrill_0001",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_1",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 25000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_1",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_1",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0002",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_2",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 50000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_2",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_2",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0003",
+      "exposed": false,
+      "records": [
+        {
+          "transaction_id": "tx_acats_3",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 75000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_3",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_3",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0004",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_4",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 100000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_4",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_4",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0005",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_5",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 125000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_5",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_5",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0006",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_6",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 150000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_6",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_6",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0007",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_7",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 175000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_7",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_7",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0008",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_8",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 200000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_8",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_8",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0009",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_9",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 225000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_9",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0010",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_10",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 250000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_10",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_10",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0011",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_11",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 275000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_11",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_11",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "block"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0012",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_12",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 300000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_12",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_12",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0013",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_13",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 325000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_13",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_13",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0014",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_14",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 350000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_14",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_14",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0015",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_15",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 375000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_15",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_15",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0016",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_16",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 400000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_16",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_16",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0017",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_17",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 425000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_17",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_17",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0018",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_18",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 450000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_18",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0019",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_19",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 475000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_19",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_19",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0020",
+      "exposed": false,
+      "records": [
+        {
+          "transaction_id": "tx_acats_20",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 500000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_20",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_20",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0021",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_21",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 525000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_21",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_21",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0022",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_22",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 550000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_22",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_22",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0023",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_23",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 575000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_23",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_23",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    },
+    {
+      "household_token": "tok_demo_merrill_0024",
+      "exposed": true,
+      "records": [
+        {
+          "transaction_id": "tx_acats_24",
+          "source_system": "merrill_transfer_workflow",
+          "rail": "acats",
+          "amount": 600000,
+          "occurred_at": "2026-04-12T14:05:00.000Z"
+        },
+        {
+          "transaction_id": "tx_book_24",
+          "source_system": "merrill_books",
+          "rail": "account",
+          "amount": 0,
+          "occurred_at": "2026-04-02T09:00:00.000Z"
+        },
+        {
+          "transaction_id": "tx_digital_24",
+          "source_system": "merrill_digital",
+          "rail": "digital",
+          "amount": 3,
+          "occurred_at": "2026-04-20T18:30:00.000Z"
+        }
+      ],
+      "policies": [
+        {
+          "policy_id": "consent",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "eligibility",
+          "verdict": "clear"
+        },
+        {
+          "policy_id": "vulnerability",
+          "verdict": "clear"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "household_token": "tok_demo_merrill_0007",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_f6g7h8i9j0",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0008",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_a1b2c3d4e5",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0010",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_a1b2c3d4e5",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0012",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_a1b2c3d4e5",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0013",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_f6g7h8i9j0",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0014",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_a1b2c3d4e5",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0015",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_f6g7h8i9j0",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0016",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_a1b2c3d4e5",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0017",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_f6g7h8i9j0",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0019",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_f6g7h8i9j0",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0021",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_f6g7h8i9j0",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0022",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_a1b2c3d4e5",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0023",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_f6g7h8i9j0",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    },
+    {
+      "household_token": "tok_demo_merrill_0024",
+      "action_id": "assign_advisor_consolidation_review",
+      "acted_at": "2026-04-24T16:20:00.000Z",
+      "expert_token": "exp_a1b2c3d4e5",
+      "source_system": "cew_book_360",
+      "outcome_known": false
+    }
+  ]
+}

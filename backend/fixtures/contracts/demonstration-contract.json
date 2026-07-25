@@ -1,0 +1,118 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://ventusai.com/contracts/growth-play-demonstration/v1.json",
+  "title": "Ventus Growth Play demonstration export",
+  "description": "Expert selections used to initialize a Growth Play parameter vector. One export covers one tenant, one Growth Play, and one observation window. Household and employee identity must be opaque tokens; direct customer or employee PII is prohibited.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "contract_version",
+    "demonstration_id",
+    "tenant_id",
+    "growth_play_id",
+    "business_line",
+    "evidence_class",
+    "window",
+    "expert_selection",
+    "captured_at",
+    "cases",
+    "actions"
+  ],
+  "properties": {
+    "contract_version": { "const": "1.0" },
+    "demonstration_id": { "type": "string", "minLength": 8, "maxLength": 128 },
+    "tenant_id": { "type": "string", "minLength": 2, "maxLength": 64 },
+    "growth_play_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$" },
+    "business_line": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$" },
+    "evidence_class": { "enum": ["synthetic", "sandbox", "sanctioned"] },
+    "captured_at": { "type": "string", "format": "date-time" },
+    "window": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to"],
+      "properties": {
+        "from": { "type": "string", "format": "date-time" },
+        "to": { "type": "string", "format": "date-time" }
+      }
+    },
+    "expert_selection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["basis", "expert_count"],
+      "description": "How the demonstrating employees were chosen. Recorded because a fitted vector reproduces THESE experts, and the selection basis is the only thing that says whether that is worth reproducing.",
+      "properties": {
+        "basis": { "type": "string", "minLength": 8, "maxLength": 300 },
+        "expert_count": { "type": "integer", "minimum": 1, "maximum": 10000 },
+        "source_system": { "type": "string", "minLength": 2, "maxLength": 80 }
+      }
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["household_token", "exposed", "records"],
+        "properties": {
+          "household_token": { "type": "string", "pattern": "^tok_[A-Za-z0-9_-]{8,120}$" },
+          "exposed": {
+            "type": "boolean",
+            "description": "True only if this household was in a demonstrating expert's book or queue during the window. A household the expert never saw is not a decline, and scoring it as one silently corrupts the fit."
+          },
+          "records": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["transaction_id", "source_system", "rail", "amount", "occurred_at"],
+              "properties": {
+                "transaction_id": { "type": "string", "minLength": 2, "maxLength": 256 },
+                "source_system": { "type": "string", "minLength": 2, "maxLength": 80 },
+                "rail": { "type": "string", "minLength": 2, "maxLength": 64 },
+                "amount": { "type": "number" },
+                "occurred_at": { "type": "string", "format": "date-time" },
+                "merchant_name": { "type": ["string", "null"], "maxLength": 200 },
+                "category": { "type": ["string", "null"], "maxLength": 120 }
+              }
+            }
+          },
+          "policies": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["policy_id", "verdict"],
+              "properties": {
+                "policy_id": { "type": "string", "minLength": 2, "maxLength": 128 },
+                "verdict": { "enum": ["clear", "block", "review"] }
+              }
+            }
+          }
+        }
+      }
+    },
+    "actions": {
+      "type": "array",
+      "minItems": 1,
+      "description": "What the experts actually did. Every action must reference an exposed case.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["household_token", "action_id", "acted_at", "expert_token"],
+        "properties": {
+          "household_token": { "type": "string", "pattern": "^tok_[A-Za-z0-9_-]{8,120}$" },
+          "action_id": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$" },
+          "acted_at": { "type": "string", "format": "date-time" },
+          "expert_token": {
+            "type": "string",
+            "pattern": "^exp_[A-Za-z0-9_-]{6,120}$",
+            "description": "Opaque employee token. Employee names, IDs, and emails are prohibited."
+          },
+          "source_system": { "type": "string", "minLength": 2, "maxLength": 80 },
+          "outcome_known": { "type": ["boolean", "null"] }
+        }
+      }
+    }
+  }
+}
