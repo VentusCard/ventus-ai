@@ -158,7 +158,7 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     occurredAt: new Date().toISOString(),
   };
   const protocol = compileGrowthPlayContract({
-    contract_version: '1.0',
+    contract_version: '1.1',
     growth_play_id: 'runtime-deposit-verification',
     version: '1.0.0',
     business_line: 'consumer-banking',
@@ -170,6 +170,8 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     },
     eligibility: { criteria_version: 'runtime-eligibility-v1' },
     policy: { version: 'runtime-policy-v1', required_policy_ids: ['consent'] },
+    parameters: {},
+    learning: { enabled: false, max_waves: 1, drift_budget: 1, noise_gate_sigma: 1 },
     actions: [{
       action_id: 'runtime_review', owner_role: 'runtime_owner', connector: 'bank_workbench',
       destination: 'runtime_workbench', destination_environment: 'sandbox',

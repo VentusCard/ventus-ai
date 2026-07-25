@@ -3,10 +3,13 @@ import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   compileGrowthPlayContract,
+  parameterValues,
+  probeGrowthPlay,
   validateCompiledGrowthPlayContract,
   validateGrowthPlayDecision,
   validateGrowthPlayOutcome,
   validateGrowthPlayRun,
+  withParameterValues,
 } from './growth-play-contract.mjs';
 
 const drafts = JSON.parse(readFileSync(new URL('../fixtures/evaluation/growth-play-drafts.json', import.meta.url), 'utf8'));
@@ -27,6 +30,88 @@ test('Growth Play compilation is deterministic, portable, and tamper evident', (
     () => compileGrowthPlayContract({ ...drafts[0], policy_pack: [] }),
     /unknown field policy_pack/,
   );
+});
+
+test('trigger thresholds are protocol-bound, not free-floating detector literals', () => {
+  assert.deepEqual(parameterValues(merrill), {
+    min_transfer_amount: 100_000,
+    min_corroborating_signals: 3,
+    qualified_confidence: 0.89,
+  });
+
+  // The gap this closes: before v1.1 a threshold could change without changing the
+  // approved protocol identity. Now any value change mints a new decision protocol.
+  const loosened = withParameterValues(merrill, { min_transfer_amount: 75_000 }, { version: '1.1.0' });
+  assert.notEqual(loosened.decision_protocol_id, merrill.decision_protocol_id);
+  assert.notEqual(loosened.protocol_digest, merrill.protocol_digest);
+  assert.equal(loosened.parameters.min_transfer_amount.value, 75_000);
+  assert.equal(loosened.parameters.min_corroborating_signals.value, 3);
+
+  const tampered = structuredClone(merrill);
+  tampered.parameters.min_transfer_amount.value = 75_000;
+  assert.throws(() => validateCompiledGrowthPlayContract(tampered), /protocol digest does not match/);
+});
+
+test('parameter updates cannot silently reuse an approved version or leave approved bounds', () => {
+  assert.throws(
+    () => withParameterValues(merrill, { min_transfer_amount: 75_000 }),
+    /requires a new Growth Play version/,
+  );
+  assert.throws(
+    () => withParameterValues(merrill, { min_transfer_amount: 1_000_000 }, { version: '1.1.0' }),
+    /min_transfer_amount.value is outside its approved bounds/,
+  );
+  assert.throws(
+    () => withParameterValues(merrill, { unapproved_knob: 1 }, { version: '1.1.0' }),
+    /unknown Growth Play parameter unapproved_knob/,
+  );
+  assert.throws(
+    () => compileGrowthPlayContract({
+      ...drafts[1],
+      parameters: {
+        ...drafts[1].parameters,
+        min_corroborating_signals: { value: 2.5, min: 2, max: 3, max_step: 1, resolution: 1, kind: 'integer' },
+      },
+    }),
+    /must be an integer/,
+  );
+  assert.throws(
+    () => compileGrowthPlayContract({
+      ...drafts[1],
+      parameters: {
+        ...drafts[1].parameters,
+        min_transfer_amount: { ...drafts[1].parameters.min_transfer_amount, resolution: 30_000 },
+      },
+    }),
+    /resolution cannot exceed max_step/,
+  );
+  assert.throws(
+    () => compileGrowthPlayContract({
+      ...drafts[1],
+      parameters: {
+        ...drafts[1].parameters,
+        min_transfer_amount: { ...drafts[1].parameters.min_transfer_amount, resolution: 3_000 },
+      },
+    }),
+    /must be a multiple of resolution/,
+  );
+  assert.throws(
+    () => compileGrowthPlayContract({
+      ...drafts[1],
+      learning: { ...drafts[1].learning, drift_budget: 0 },
+    }),
+    /learning.drift_budget must be/,
+  );
+});
+
+test('offline probe plays carry no protocol identity', () => {
+  const probe = probeGrowthPlay(merrill, { min_transfer_amount: 50_000 });
+  assert.equal(probe.parameters.min_transfer_amount.value, 50_000);
+  assert.equal(probe.decision_protocol_id, undefined);
+  assert.equal(probe.protocol_digest, undefined);
+  assert.equal(probe.probe, true);
+  assert.throws(() => validateCompiledGrowthPlayContract(probe), /decision_protocol_id is invalid/);
+  assert.throws(() => probeGrowthPlay(merrill, { min_transfer_amount: 5_000 }), /outside its approved bounds/);
 });
 
 test('Growth Play run rejects unapproved sources, rails, policy sets, and allocations', () => {

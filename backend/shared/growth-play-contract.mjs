@@ -8,14 +8,16 @@ const METRICS = new Set([
   'estimated_revenue',
 ]);
 const DESTINATION_ENVIRONMENTS = new Set(['sandbox', 'production']);
+const PARAMETER_KINDS = new Set(['number', 'integer']);
+const MAX_PARAMETERS = 8;
 
 export function compileGrowthPlayContract(draft) {
   assert.ok(draft && typeof draft === 'object' && !Array.isArray(draft), 'growth play draft must be an object');
   assertExactKeys(draft, [
     'contract_version', 'growth_play_id', 'version', 'business_line', 'objective',
-    'source', 'eligibility', 'policy', 'actions', 'measurement',
+    'source', 'eligibility', 'policy', 'parameters', 'learning', 'actions', 'measurement',
   ], 'growth play draft');
-  assert.equal(draft.contract_version, '1.0', 'growth play contract_version must be 1.0');
+  assert.equal(draft.contract_version, '1.1', 'growth play contract_version must be 1.1');
   assertIdentifier(draft.growth_play_id, 'growth_play_id');
   assertIdentifier(draft.version, 'version');
   assertIdentifier(draft.business_line, 'business_line');
@@ -25,10 +27,12 @@ export function compileGrowthPlayContract(draft) {
 
   const source = normalizeSource(draft.source);
   const policy = normalizePolicy(draft.policy);
+  const parameters = normalizeParameters(draft.parameters);
+  const learning = normalizeLearning(draft.learning, parameters);
   const actions = normalizeActions(draft.actions);
   const measurement = normalizeMeasurement(draft.measurement);
   const normalized = {
-    contract_version: '1.0',
+    contract_version: '1.1',
     growth_play_id: draft.growth_play_id,
     version: draft.version,
     business_line: draft.business_line,
@@ -36,6 +40,8 @@ export function compileGrowthPlayContract(draft) {
     source,
     eligibility: { criteria_version: draft.eligibility.criteria_version },
     policy,
+    parameters,
+    learning,
     actions,
     measurement,
   };
@@ -56,6 +62,61 @@ export function validateCompiledGrowthPlayContract(contract) {
   assert.equal(protocolDigest, expected.protocol_digest, 'growth play protocol digest does not match its configuration');
   assert.equal(decisionProtocolId, expected.decision_protocol_id, 'growth play decision protocol id does not match its configuration');
   return expected;
+}
+
+export function parameterValues(contract) {
+  assert.ok(
+    contract && typeof contract.parameters === 'object' && contract.parameters !== null && !Array.isArray(contract.parameters),
+    'compiled Growth Play must declare a parameters block',
+  );
+  const values = {};
+  for (const [name, spec] of Object.entries(contract.parameters)) values[name] = spec.value;
+  return values;
+}
+
+export function requiredParameter(values, name) {
+  assert.ok(Number.isFinite(values?.[name]), `Growth Play parameter ${name} is required by this detector`);
+  return values[name];
+}
+
+export function withParameterValues(contract, values, { version } = {}) {
+  const play = validateCompiledGrowthPlayContract(contract);
+  assert.ok(values && typeof values === 'object' && !Array.isArray(values), 'parameter values must be an object');
+  for (const name of Object.keys(values)) {
+    assert.ok(Object.hasOwn(play.parameters, name), `unknown Growth Play parameter ${name}`);
+  }
+  const parameters = {};
+  let changed = false;
+  for (const [name, spec] of Object.entries(play.parameters)) {
+    const next = Object.hasOwn(values, name) ? values[name] : spec.value;
+    if (next !== spec.value) changed = true;
+    parameters[name] = { ...spec, value: next };
+  }
+  if (changed) {
+    assert.ok(typeof version === 'string' && version !== play.version, 'changing parameter values requires a new Growth Play version');
+  }
+  const { decision_protocol_id: _protocolId, protocol_digest: _digest, ...draft } = play;
+  return compileGrowthPlayContract({ ...draft, version: version ?? draft.version, parameters });
+}
+
+// Offline replay only. The returned play deliberately carries no decision_protocol_id or
+// protocol_digest, so it cannot be mistaken for an approved contract or run through the
+// operating loop. Use it to score candidate parameter values against historical records.
+export function probeGrowthPlay(contract, values = {}) {
+  assert.ok(contract && typeof contract === 'object', 'compiled Growth Play is required');
+  const declared = contract.parameters ?? {};
+  for (const name of Object.keys(values)) {
+    assert.ok(Object.hasOwn(declared, name), `unknown Growth Play parameter ${name}`);
+  }
+  const parameters = {};
+  for (const [name, spec] of Object.entries(declared)) {
+    const next = Object.hasOwn(values, name) ? values[name] : spec.value;
+    assert.ok(Number.isFinite(next), `parameter ${name} must be finite`);
+    assert.ok(next >= spec.min && next <= spec.max, `parameter ${name} is outside its approved bounds`);
+    parameters[name] = { ...spec, value: next };
+  }
+  const { decision_protocol_id: _protocolId, protocol_digest: _digest, ...draft } = contract;
+  return { ...draft, parameters, probe: true };
 }
 
 export function validateGrowthPlayRun(input, contract) {
@@ -142,6 +203,59 @@ function normalizePolicy(policy) {
   };
 }
 
+function normalizeParameters(parameters) {
+  assert.ok(
+    parameters && typeof parameters === 'object' && !Array.isArray(parameters),
+    'parameters contract is required (use an empty object for a Growth Play with no tunable knobs)',
+  );
+  const names = Object.keys(parameters).sort();
+  assert.ok(names.length <= MAX_PARAMETERS, `a Growth Play may expose at most ${MAX_PARAMETERS} tunable parameters`);
+  const normalized = {};
+  for (const name of names) {
+    assertIdentifier(name, 'parameters key');
+    const spec = parameters[name];
+    assertExactKeys(spec, ['value', 'min', 'max', 'max_step', 'resolution', 'kind'], `parameters.${name}`);
+    assert.ok(PARAMETER_KINDS.has(spec.kind), `parameters.${name}.kind must be number or integer`);
+    for (const field of ['value', 'min', 'max', 'max_step', 'resolution']) {
+      assert.ok(Number.isFinite(spec[field]), `parameters.${name}.${field} must be a finite number`);
+      if (spec.kind === 'integer') assert.ok(Number.isInteger(spec[field]), `parameters.${name}.${field} must be an integer`);
+    }
+    assert.ok(spec.min < spec.max, `parameters.${name}.min must be below max`);
+    assert.ok(spec.value >= spec.min && spec.value <= spec.max, `parameters.${name}.value is outside its approved bounds`);
+    assert.ok(spec.max_step > 0, `parameters.${name}.max_step must be positive`);
+    assert.ok(spec.max_step <= spec.max - spec.min, `parameters.${name}.max_step cannot exceed its approved range`);
+    // The smallest change worth making to this knob. Learning quantizes to it, so an update
+    // proposes a value an approver can read rather than a long decimal.
+    assert.ok(spec.resolution > 0, `parameters.${name}.resolution must be positive`);
+    assert.ok(spec.resolution <= spec.max_step, `parameters.${name}.resolution cannot exceed max_step`);
+    for (const field of ['value', 'min', 'max', 'max_step']) {
+      assert.ok(isMultipleOf(spec[field], spec.resolution), `parameters.${name}.${field} must be a multiple of resolution`);
+    }
+    normalized[name] = {
+      value: spec.value, min: spec.min, max: spec.max, max_step: spec.max_step, resolution: spec.resolution, kind: spec.kind,
+    };
+  }
+  return normalized;
+}
+
+function normalizeLearning(learning, parameters) {
+  assert.ok(learning && typeof learning === 'object' && !Array.isArray(learning), 'learning contract is required');
+  assertExactKeys(learning, ['enabled', 'max_waves', 'drift_budget', 'noise_gate_sigma'], 'learning');
+  assert.equal(typeof learning.enabled, 'boolean', 'learning.enabled must be a boolean');
+  assert.ok(Number.isInteger(learning.max_waves) && learning.max_waves >= 1 && learning.max_waves <= 50, 'learning.max_waves must be 1-50');
+  assert.ok(Number.isFinite(learning.drift_budget) && learning.drift_budget > 0 && learning.drift_budget <= 20, 'learning.drift_budget must be 0-20 normalized steps');
+  assert.ok(Number.isFinite(learning.noise_gate_sigma) && learning.noise_gate_sigma >= 0 && learning.noise_gate_sigma <= 5, 'learning.noise_gate_sigma must be 0-5');
+  if (learning.enabled) {
+    assert.ok(Object.keys(parameters).length > 0, 'learning.enabled requires at least one tunable parameter');
+  }
+  return {
+    enabled: learning.enabled,
+    max_waves: learning.max_waves,
+    drift_budget: learning.drift_budget,
+    noise_gate_sigma: learning.noise_gate_sigma,
+  };
+}
+
 function normalizeActions(actions) {
   assert.ok(Array.isArray(actions) && actions.length > 0, 'at least one approved action is required');
   const seen = new Set();
@@ -188,6 +302,11 @@ function uniqueIdentifiers(values, label) {
   for (const value of values) assertIdentifier(value, label);
   assert.equal(new Set(values).size, values.length, `${label} contains duplicates`);
   return [...values].sort();
+}
+
+function isMultipleOf(value, resolution) {
+  const quotient = value / resolution;
+  return Math.abs(quotient - Math.round(quotient)) < 1e-9;
 }
 
 function assertIdentifier(value, label) {

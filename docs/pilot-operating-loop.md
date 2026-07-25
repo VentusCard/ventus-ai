@@ -27,6 +27,14 @@ environment, primary outcome, and experiment gates to one tamper-evident decisio
 The operating loop rejects a different household token, action, connector, destination, metric,
 outcome source, or outcome window. See `docs/growth-play-onboarding-contract.md`.
 
+Growth Play contract v1.1 also binds the play's numeric trigger thresholds into the protocol as an
+approved `parameters` block with per-knob bounds, step caps, and resolution. Detectors read those
+values instead of carrying literals, so a threshold change mints a new decision protocol rather than
+silently reusing the approved one. The offline learning loop that proposes new values from measured
+waves — demonstration fit, replay sensitivity, and bounded updates under a drift budget and holdout
+noise gate — is described in `docs/growth-play-parameter-learning.md`. Wave orchestration is not yet
+persisted; the loop is driven manually from measured summaries today.
+
 Before any source evidence is appended, the loop resolves that exact protocol through the
 tenant-scoped Growth Play registry. The latest append-only approval event must be `approved` for the
 same institution and business line at the run timestamp. Revocation stops future runs without
