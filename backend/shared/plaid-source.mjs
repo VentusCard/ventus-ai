@@ -13,6 +13,8 @@
 // Best-effort live with honest fallback: custom user → default institution → caller's
 // fixtures. Every path reports which mode it used; nothing is silently faked.
 
+import { parameterValues, requiredParameter } from './growth-play-contract.mjs';
+
 const PLAID_ENV = (process.env.PLAID_ENV || 'sandbox').trim();
 const PLAID_HOST = `https://${PLAID_ENV}.plaid.com`;
 
@@ -213,6 +215,10 @@ export function contentDetector({ records, policies }) {
 
 export function depositPrimacyDetector({ records, policies, growthPlay, householdToken }) {
   const blocked = (policies || []).some((policy) => policy.verdict === 'block');
+  const params = parameterValues(growthPlay);
+  const minSignals = requiredParameter(params, 'min_corroborating_signals');
+  const minOffbankAmount = requiredParameter(params, 'min_offbank_outflow_amount');
+  const qualifiedConfidence = requiredParameter(params, 'qualified_confidence');
   // Match on merchant name, rail, Plaid category (PFC), or id — so the signal is found
   // regardless of how Plaid enriches the injected transactions.
   const payroll = records.find((record) => (
@@ -221,10 +227,14 @@ export function depositPrimacyDetector({ records, policies, growthPlay, househol
   const offbank = records.find((record) => (
     record !== payroll
     && (OFFBANK.test(record.merchant_name) || record.rail === 'p2p' || record.category === 'TRANSFER_OUT' || /outflow/.test(record.transaction_id))
-    && record.amount > 0
+    && record.amount > minOffbankAmount
   ));
-  const available = [payroll, offbank].filter(Boolean);
-  if (available.length < 2) {
+  const signals = [
+    payroll && { record: payroll, signal_type: 'payroll_present', summary: 'Payroll remains in the primary checking relationship.' },
+    offbank && { record: offbank, signal_type: 'offbank_outflow_acceleration', summary: 'Repeated external movement indicates increasing primacy risk.' },
+  ].filter(Boolean);
+  const available = signals.map((signal) => signal.record);
+  if (signals.length < minSignals) {
     const fallback = available[0] ?? records[0];
     return {
       growthPlayId: growthPlay.growth_play_id,
@@ -245,11 +255,12 @@ export function depositPrimacyDetector({ records, policies, growthPlay, househol
     growthPlayId: growthPlay.growth_play_id,
     abstain: blocked,
     abstainReason: blocked ? 'Required policy blocks activation.' : null,
-    confidence: 0.91,
-    evidence: [
-      { transaction_id: payroll.transaction_id, signal_type: 'payroll_present', summary: 'Payroll remains in the primary checking relationship.' },
-      { transaction_id: offbank.transaction_id, signal_type: 'offbank_outflow_acceleration', summary: 'Repeated external movement indicates increasing primacy risk.' },
-    ],
+    confidence: qualifiedConfidence,
+    evidence: signals.map((signal) => ({
+      transaction_id: signal.record.transaction_id,
+      signal_type: signal.signal_type,
+      summary: signal.summary,
+    })),
     actionId: blocked ? null : action.action_id,
     ownerRole: blocked ? null : action.owner_role,
     connector: blocked ? null : action.connector,

@@ -1,6 +1,6 @@
 [
   {
-    "contract_version": "1.0",
+    "contract_version": "1.1",
     "growth_play_id": "deposit-primacy-defense",
     "version": "1.0.0",
     "business_line": "consumer-banking",
@@ -17,6 +17,17 @@
     "policy": {
       "version": "consumer-policy-v1",
       "required_policy_ids": ["consent", "eligibility", "vulnerability"]
+    },
+    "parameters": {
+      "min_corroborating_signals": { "value": 2, "min": 1, "max": 2, "max_step": 1, "resolution": 1, "kind": "integer" },
+      "min_offbank_outflow_amount": { "value": 0, "min": 0, "max": 2500, "max_step": 250, "resolution": 50, "kind": "number" },
+      "qualified_confidence": { "value": 0.91, "min": 0.7, "max": 0.95, "max_step": 0.05, "resolution": 0.01, "kind": "number" }
+    },
+    "learning": {
+      "enabled": true,
+      "max_waves": 10,
+      "drift_budget": 3,
+      "noise_gate_sigma": 1
     },
     "actions": [
       {
@@ -38,7 +49,7 @@
     }
   },
   {
-    "contract_version": "1.0",
+    "contract_version": "1.1",
     "growth_play_id": "merrill-relationship-growth",
     "version": "1.0.0",
     "business_line": "wealth-management",
@@ -56,6 +67,17 @@
     "policy": {
       "version": "merrill-policy-v1",
       "required_policy_ids": ["consent", "eligibility", "vulnerability"]
+    },
+    "parameters": {
+      "min_transfer_amount": { "value": 100000, "min": 25000, "max": 500000, "max_step": 25000, "resolution": 500, "kind": "number" },
+      "min_corroborating_signals": { "value": 3, "min": 2, "max": 3, "max_step": 1, "resolution": 1, "kind": "integer" },
+      "qualified_confidence": { "value": 0.89, "min": 0.7, "max": 0.95, "max_step": 0.05, "resolution": 0.01, "kind": "number" }
+    },
+    "learning": {
+      "enabled": true,
+      "max_waves": 10,
+      "drift_budget": 3,
+      "noise_gate_sigma": 1
     },
     "actions": [
       {

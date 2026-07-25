@@ -35,6 +35,8 @@
     "review:interventions:adjudicate": "node ./scripts/adjudicate-intervention-review.mjs",
     "qa:mvp-cohorts": "node --experimental-strip-types ./scripts/qa-growth-play-cohorts.mjs",
     "qa:growth-plays": "node ./scripts/compile-growth-play-contracts.mjs",
+    "qa:play-learning": "node ./scripts/qa-play-learning.mjs",
+    "fit:play-parameters": "node ./scripts/fit-initial-parameters.mjs",
     "qa:outcomes": "node ./scripts/qa-outcome-feed-contract.mjs && node ./scripts/qa-connected-exposure-contract.mjs",
     "plaid:mvp:manifests": "node --experimental-strip-types ./scripts/generate-plaid-mvp-manifests.mjs",
     "benchmark:mvp": "VENTUS_SCALE_HOUSEHOLDS=50000 node --experimental-strip-types ./scripts/benchmark-growth-play-pipeline.mjs",
