@@ -314,14 +314,14 @@ export const REPLY_MESSAGES: MessageDef[] = [
         </ul>
         <p>8 candidates with recent trips where the card would have paid off:</p>
         <div className="border border-slate-200 rounded-md divide-y divide-slate-200 overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
             <div>Client</div>
             <div className="text-right">Trip</div>
             <div className="text-right">Window</div>
             <div className="text-right">Saved</div>
           </div>
           {travelCardCohort.map((row) => (
-            <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 items-center text-[12px]">
+            <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 items-center text-[13px]">
               <div className="font-medium text-slate-900 truncate">{row.name}</div>
               <div className="text-right text-slate-700">{row.recentTrip}</div>
               <div className="text-right text-slate-700 tabular-nums">{row.tripWindow}</div>
