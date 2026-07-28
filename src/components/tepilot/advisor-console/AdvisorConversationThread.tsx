@@ -775,7 +775,7 @@ interface DigestBodyProps {
   compact: boolean;
 }
 
-function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
+export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
   const textCls = compact ? "text-[12px] leading-snug" : "text-sm leading-relaxed";
   return (
     <>
