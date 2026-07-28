@@ -207,7 +207,7 @@ const CoworkerEmailReel = () => {
 
       {/* Body */}
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <div key={idx} className="animate-fade-in px-6 py-5 max-w-3xl mx-auto space-y-3 text-[13px] leading-relaxed text-slate-700">
+        <div key={idx} className="animate-fade-in px-8 py-6 space-y-3 text-[13px] leading-relaxed text-slate-700">
           {msg.kind === "reply" && msg.quoted && (
             <div className="border-l-2 border-slate-200 pl-3 text-[11px] text-slate-500 italic">
               {msg.quoted}
