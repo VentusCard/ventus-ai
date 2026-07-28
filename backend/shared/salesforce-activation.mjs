@@ -57,5 +57,8 @@ export function buildDepositRetentionSalesforceBody({ input, decision, contactId
       sourceName: `${input.sourceReceipt.sourceSystem} · ${input.sourceReceipt.recordCount} tokenized records`,
       decisionRef: decision.decisionId,
     },
+    fsc: {
+      clientId: accountId,
+    },
   };
 }

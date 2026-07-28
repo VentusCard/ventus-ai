@@ -3,7 +3,7 @@
 // a single line at the foot of the rail.
 
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
-import { Activity, Layers, LineChart, Loader2, LogOut, Settings } from "lucide-react";
+import { Activity, Layers, LineChart, ListChecks, Loader2, LogOut, Settings } from "lucide-react";
 import { AuthProvider, ConsoleProvider, useAuth, useConsole } from "@/console/state";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
@@ -11,6 +11,7 @@ import "@/styles/console.css";
 
 const NAV = [
   { to: "/app", label: "Moments", icon: Activity, end: true },
+  { to: "/app/plays", label: "Growth Plays", icon: ListChecks, end: false },
   { to: "/app/ledger", label: "Ledger", icon: Layers, end: false },
   { to: "/app/outcomes", label: "Outcomes", icon: LineChart, end: false },
   { to: "/app/settings", label: "Settings", icon: Settings, end: false },
@@ -43,10 +44,10 @@ function Shell() {
   const title = NAV.find((item) => (item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)))?.label ?? "Console";
 
   return (
-    <div className="console v2 flex min-h-svh" style={{ ["--c-accent" as string]: tenant.accent, ["--c-accent-wash" as string]: tenant.accentWash }}>
-      <aside className="console-rail flex w-60 flex-none flex-col justify-between p-4">
+    <div className="console v2 flex min-h-svh flex-col md:flex-row" style={{ ["--c-accent" as string]: tenant.accent, ["--c-accent-wash" as string]: tenant.accentWash }}>
+      <aside className="console-rail flex w-full flex-none flex-col justify-between p-3 md:w-60 md:p-4">
         <div>
-          <div className="flex items-center gap-3 px-2 pb-6 pt-2">
+          <div className="flex items-center gap-3 px-2 pb-3 pt-1 md:pb-6 md:pt-2">
             <TenantMark />
             <div className="min-w-0">
               <p className="truncate text-[13px] font-bold text-white">{tenant.name}</p>
@@ -55,9 +56,9 @@ function Shell() {
               </p>
             </div>
           </div>
-          <nav className="space-y-1">
+          <nav className="console-mobile-nav flex gap-1 overflow-x-auto pb-1 md:block md:space-y-1 md:overflow-visible md:pb-0">
             {NAV.map(({ to, label, icon: Icon, end }) => (
-              <NavLink key={to} to={to} end={end} className="console-rail-link" data-active={end ? location.pathname === to : location.pathname.startsWith(to)}>
+              <NavLink key={to} to={to} end={end} className="console-rail-link flex-none" data-active={end ? location.pathname === to : location.pathname.startsWith(to)}>
                 <Icon className="h-4 w-4 flex-none" />
                 <span className="flex-1">{label}</span>
                 {label === "Moments" && queued > 0 && (
@@ -72,7 +73,7 @@ function Shell() {
             ))}
           </nav>
         </div>
-        <div className="space-y-4 px-2">
+        <div className="hidden space-y-4 px-2 md:block">
           <div className="flex items-center gap-2">
             <span className="console-dot" style={{ backgroundColor: live ? "#34D399" : "#545d6b" }} />
             <span className="v2-mono text-[9px] uppercase tracking-[0.12em]" style={{ color: "var(--v2-console-soft)" }}>
@@ -92,13 +93,13 @@ function Shell() {
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex h-14 flex-none items-center justify-between border-b bg-white/70 px-6 backdrop-blur" style={{ borderColor: "var(--v2-rule)" }}>
+        <header className="flex h-14 flex-none items-center justify-between border-b bg-white/70 px-4 backdrop-blur md:px-6" style={{ borderColor: "var(--v2-rule)" }}>
           <h1 className="text-[15px] font-bold" style={{ color: "var(--v2-ink)" }}>{title}</h1>
-          <span className="v2-mono text-[9px] uppercase tracking-[0.14em]" style={{ color: "var(--v2-ink-faint)" }}>
+          <span className="v2-mono hidden text-[9px] uppercase tracking-[0.14em] sm:block" style={{ color: "var(--v2-ink-faint)" }}>
             Pilot environment · sandbox data only
           </span>
         </header>
-        <main className="min-w-0 flex-1 overflow-y-auto p-6">
+        <main className="min-w-0 flex-1 overflow-y-auto p-4 md:p-6">
           <Outlet />
         </main>
       </div>
@@ -119,6 +120,8 @@ export function ConsoleAuthBoundary() {
 // Route element for the authenticated portion of /app.
 export default function ConsoleLayout() {
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const localPreview = import.meta.env.DEV && new URLSearchParams(location.search).get("preview") === "true";
   if (loading) {
     return (
       <div className="v2 flex min-h-svh items-center justify-center" style={{ backgroundColor: "var(--v2-paper)" }}>
@@ -126,7 +129,7 @@ export default function ConsoleLayout() {
       </div>
     );
   }
-  if (!user) return <Navigate to="/app/login" replace />;
+  if (!user && !localPreview) return <Navigate to="/app/login" replace />;
   return (
     <ConsoleProvider>
       <Shell />

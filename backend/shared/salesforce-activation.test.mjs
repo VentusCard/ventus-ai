@@ -38,4 +38,5 @@ test('deposit activation becomes a banker-ready Salesforce brief', () => {
   assert.deepEqual(body.insight.controls, ['Consent', 'Eligibility']);
   assert.equal(body.whoId, '003000000000001AAA');
   assert.equal(body.whatId, '001000000000001AAA');
+  assert.equal(body.fsc.clientId, '001000000000001AAA');
 });

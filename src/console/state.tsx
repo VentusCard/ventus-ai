@@ -25,6 +25,12 @@ import {
   type PlaidTransaction,
 } from "@/lib/plaid";
 import { resolveTenant, type Tenant } from "@/lib/tenant";
+import {
+  createDecisionPackage,
+  respondToDecision,
+  type DecisionAction,
+  type DecisionPackage,
+} from "@/lib/decisionPackage";
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 
@@ -90,8 +96,20 @@ export type ConsoleMoment = {
   transactions: PlaidTransaction[];
   opportunity: DetectedOpportunity;
   policy: OpportunityPolicyDecision;
-  status: "queued" | "activated" | "dismissed";
-  receipt?: { id: string; url?: string; subject: string };
+  status: "queued" | "activated" | "deferred" | "declined" | "dismissed";
+  decisionPackage?: DecisionPackage;
+  receipt?: {
+    id: string;
+    url?: string;
+    subject: string;
+    object?: string;
+    records?: {
+      decision?: { id: string; url: string } | null;
+      referral?: { id: string; url: string } | null;
+      task?: { id: string; url: string } | null;
+    };
+    warnings?: Array<{ stage: string; message: string }>;
+  };
 };
 
 const SESSION_KEY = "ventus_console_connector_session";
@@ -116,22 +134,132 @@ function persist(key: string, value: unknown): void {
   }
 }
 
-const SCENARIO_META: Record<ScenarioId, { label: string; play: string; subject: string; outcome: string; action: string }> = {
+export const SCENARIO_META: Record<ScenarioId, {
+  label: string;
+  play: string;
+  subject: string;
+  outcome: string;
+  objective: string;
+  primaryMetric: string;
+  protocolId: string;
+  businessLineIndex: number;
+  actions: DecisionAction[];
+}> = {
   "deposit-retention": {
     label: "Deposit primacy",
     play: "Deposit Primacy Defense",
     subject: "Primary deposit relationship review",
     outcome: "Retain the primary deposit relationship",
-    action: "Contact the customer before the next payroll cycle to review their everyday-banking setup and an approved retention option.",
+    objective: "Protect primary deposit relationships",
+    primaryMetric: "deposit_retained",
+    protocolId: "deposit-retention-v1",
+    businessLineIndex: 0,
+    actions: [
+      {
+        id: "banker-retention-review",
+        title: "Open a banker retention review",
+        instructions: "Contact the customer before the next payroll cycle to review their everyday-banking setup and an approved retention option.",
+        ownerRole: "Relationship banker",
+        destination: "Salesforce FSC",
+      },
+      {
+        id: "digital-retention-message",
+        title: "Prepare an approved digital message",
+        instructions: "Queue an approved, non-product-specific primacy message for the next eligible digital session.",
+        ownerRole: "Lifecycle marketing",
+        destination: "Journey orchestration",
+      },
+      {
+        id: "specialist-relationship-review",
+        title: "Route to a relationship specialist",
+        instructions: "Ask a specialist to review the relationship before any customer outreach.",
+        ownerRole: "Relationship specialist",
+        destination: "Salesforce FSC",
+      },
+    ],
   },
   "wealth-growth": {
     label: "Wealth readiness",
     play: "Qualified Wealth Growth",
     subject: "Qualified wealth opportunity review",
     outcome: "Convert the qualified moment into an advised relationship",
-    action: "Assign the best-fit advisor and prepare a consolidation review while the intent is active.",
+    objective: "Grow qualified advised relationships",
+    primaryMetric: "net_new_assets",
+    protocolId: "wealth-growth-v1",
+    businessLineIndex: 1,
+    actions: [
+      {
+        id: "advisor-consolidation-review",
+        title: "Open an advisor consolidation review",
+        instructions: "Assign the best-fit advisor and prepare a consolidation review while the intent is active.",
+        ownerRole: "Financial advisor",
+        destination: "Salesforce FSC",
+      },
+      {
+        id: "planning-conversation",
+        title: "Prepare a planning conversation",
+        instructions: "Invite the client to a goals-based planning conversation without presenting a product.",
+        ownerRole: "Wealth relationship manager",
+        destination: "Salesforce FSC",
+      },
+      {
+        id: "specialist-triage",
+        title: "Send for specialist triage",
+        instructions: "Route the moment to the wealth specialist desk for suitability and ownership review.",
+        ownerRole: "Wealth specialist",
+        destination: "Specialist queue",
+      },
+    ],
   },
 };
+
+export function decisionPackageForMoment(moment: ConsoleMoment, tenant: Tenant, actionId?: string): DecisionPackage {
+  const meta = SCENARIO_META[moment.scenario];
+  const selectedAction = meta.actions.find((action) => action.id === actionId) ?? meta.actions[0];
+  const businessLine = tenant.businessLines[meta.businessLineIndex] ?? tenant.defaultBusinessLine;
+  return createDecisionPackage({
+    decisionId: `dec_${moment.id}`,
+    tenantId: tenant.id,
+    createdAt: moment.createdAt,
+    evidenceClass: moment.sourceMode === "live" ? "sandbox" : "fixture",
+    growthPlay: {
+      id: moment.scenario,
+      name: meta.play,
+      businessLine,
+      objective: meta.objective,
+      primaryMetric: meta.primaryMetric,
+      protocolId: meta.protocolId,
+    },
+    subject: {
+      token: `household-${moment.id}`,
+    },
+    moment: {
+      type: moment.opportunity.type,
+      summary: moment.opportunity.reason,
+      confidence: moment.opportunity.confidence,
+      evidence: moment.opportunity.signals.slice(0, 4).map((signal) => ({
+        id: signal.type,
+        label: signal.label,
+        confidence: Math.round(signal.strength * 100),
+        source: moment.sourceName,
+      })),
+    },
+    recommendation: {
+      selectedAction,
+      alternatives: meta.actions.filter((action) => action.id !== selectedAction.id),
+    },
+    governance: {
+      policyStatus: moment.policy.allowed ? "cleared" : "suppressed",
+      controls: [moment.policy.reason],
+      humanReviewRequired: true,
+      assignmentArm: "treatment",
+    },
+    decisionMethod: {
+      active: "deterministic-baseline",
+      shadowCandidate: "model-assisted-planner",
+    },
+  });
+}
 
 type ConsoleState = {
   tenant: Tenant;
@@ -146,7 +274,9 @@ type ConsoleState = {
   ingest: (scenario: ScenarioId) => Promise<void>;
   activating: string | null;
   activateError: string | null;
-  activate: (momentId: string) => Promise<void>;
+  activate: (momentId: string, actionId?: string) => Promise<void>;
+  defer: (momentId: string, reason?: string) => void;
+  decline: (momentId: string, reason?: string) => void;
   dismiss: (momentId: string) => void;
   ledger: LedgerEvent[];
   chainVerified: boolean;
@@ -263,6 +393,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         policy,
         status: "queued",
       };
+      moment.decisionPackage = decisionPackageForMoment(moment, tenant);
       setMoments((prev) => [moment, ...prev]);
       record([
         {
@@ -284,14 +415,23 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       ]);
       setIngesting(false);
     },
-    [connectorSession, record],
+    [connectorSession, record, tenant],
   );
 
   const activate = useCallback(
-    async (momentId: string) => {
+    async (momentId: string, actionId?: string) => {
       const moment = moments.find((item) => item.id === momentId);
       if (!moment || !connectorSession?.token) return;
       const meta = SCENARIO_META[moment.scenario];
+      const draftPackage = decisionPackageForMoment(moment, tenant, actionId);
+      const selectedAction = draftPackage.recommendation.selectedAction;
+      const responseStatus = selectedAction.id === meta.actions[0].id ? "accepted" : "modified";
+      const decisionPackage = respondToDecision(
+        draftPackage,
+        responseStatus,
+        user?.email ?? "unknown",
+        selectedAction,
+      );
       setActivating(momentId);
       setActivateError(null);
       try {
@@ -305,16 +445,17 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
             subject: meta.subject,
             dueInDays: moment.scenario === "deposit-retention" ? 2 : 3,
             source: `console-${tenant.id}`,
+            decisionPackage,
             insight: {
-              businessLine: tenant.businessLines[moment.scenario === "deposit-retention" ? 0 : 1] ?? tenant.defaultBusinessLine,
+              businessLine: decisionPackage.growthPlay.businessLine,
               growthPlay: meta.play,
               customerRef: `household-${moment.id}`,
               moment: moment.opportunity.type,
               whyNow: moment.opportunity.reason,
-              recommendedAction: meta.action,
+              recommendedAction: selectedAction.instructions,
               expectedOutcome: meta.outcome,
               confidence: moment.opportunity.confidence,
-              destination: moment.opportunity.destination,
+              destination: selectedAction.destination,
               evidence: moment.opportunity.signals.slice(0, 4).map((signal) => ({
                 label: signal.label,
                 confidence: Math.round(signal.strength * 100),
@@ -328,8 +469,11 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         const data = (await response.json().catch(() => ({}))) as {
           id?: string;
           url?: string;
+          object?: string;
           error?: string;
           activation?: { subject?: string };
+          records?: ConsoleMoment["receipt"]["records"];
+          warnings?: Array<{ stage: string; message: string }>;
         };
         if (!response.ok || !data.id) {
           if (response.status === 401 || response.status === 403) setConnectorSession(null);
@@ -338,7 +482,34 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         setMoments((prev) =>
           prev.map((item) =>
             item.id === momentId
-              ? { ...item, status: "activated", receipt: { id: data.id!, url: data.url, subject: data.activation?.subject ?? meta.subject } }
+              ? {
+                  ...item,
+                  status: "activated",
+                  decisionPackage: {
+                    ...decisionPackage,
+                    workflow: {
+                      connector: "salesforce-fsc",
+                      status: "delivered",
+                      records: {
+                        ...(data.records?.decision?.id ? { decision: data.records.decision.id } : {}),
+                        ...(data.records?.referral?.id ? { referral: data.records.referral.id } : {}),
+                        ...(data.records?.task?.id ? { task: data.records.task.id } : {}),
+                      },
+                    },
+                    outcome: {
+                      ...decisionPackage.outcome,
+                      status: "measuring",
+                    },
+                  },
+                  receipt: {
+                    id: data.id!,
+                    url: data.url,
+                    object: data.object,
+                    subject: data.activation?.subject ?? meta.subject,
+                    records: data.records,
+                    warnings: data.warnings,
+                  },
+                }
               : item,
           ),
         );
@@ -346,16 +517,16 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           {
             eventKey: `${momentId}-decision`,
             kind: "decision",
-            title: `${meta.play} accepted`,
-            detail: `Operator ${user?.email ?? "unknown"}`,
+            title: `${meta.play} ${responseStatus}`,
+            detail: `${selectedAction.title} · operator ${user?.email ?? "unknown"}`,
             ref: momentId,
             status: "confirmed",
           },
           {
             eventKey: `${momentId}-activation`,
             kind: "activation",
-            title: "Salesforce Task created",
-            detail: `${data.id} · sandbox org`,
+            title: "Salesforce workflow delivered",
+            detail: `${Object.values(data.records ?? {}).filter(Boolean).length || 1} record(s) · sandbox org`,
             ref: data.id,
             status: "confirmed",
           },
@@ -377,22 +548,41 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
     [moments, connectorSession, tenant, user?.email, record],
   );
 
-  const dismiss = useCallback(
-    (momentId: string) => {
-      setMoments((prev) => prev.map((item) => (item.id === momentId ? { ...item, status: "dismissed" } : item)));
+  const respondWithoutDelivery = useCallback(
+    (momentId: string, status: "deferred" | "declined", reason?: string) => {
+      setMoments((prev) =>
+        prev.map((item) => {
+          if (item.id !== momentId) return item;
+          const currentPackage = item.decisionPackage ?? decisionPackageForMoment(item, tenant);
+          return {
+            ...item,
+            status,
+            decisionPackage: respondToDecision(
+              currentPackage,
+              status,
+              user?.email ?? "unknown",
+              currentPackage.recommendation.selectedAction,
+              reason,
+            ),
+          };
+        }),
+      );
       record([
         {
-          eventKey: `${momentId}-dismiss`,
+          eventKey: `${momentId}-${status}`,
           kind: "decision",
-          title: "Moment dismissed by operator",
-          detail: `Operator ${user?.email ?? "unknown"} · feedback returned to play`,
+          title: `Moment ${status} by operator`,
+          detail: `${reason || "No reason supplied"} · feedback returned to play`,
           ref: momentId,
           status: "confirmed",
         },
       ]);
     },
-    [record, user?.email],
+    [record, tenant, user?.email],
   );
+  const defer = useCallback((momentId: string, reason?: string) => respondWithoutDelivery(momentId, "deferred", reason), [respondWithoutDelivery]);
+  const decline = useCallback((momentId: string, reason?: string) => respondWithoutDelivery(momentId, "declined", reason), [respondWithoutDelivery]);
+  const dismiss = useCallback((momentId: string) => decline(momentId, "Not relevant"), [decline]);
 
   const value = useMemo<ConsoleState>(
     () => ({
@@ -409,12 +599,14 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       activating,
       activateError,
       activate,
+      defer,
+      decline,
       dismiss,
       ledger,
       chainVerified: ledger.length > 0 && verifyChain(ledger),
       scenarioMeta: SCENARIO_META,
     }),
-    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, dismiss, ledger],
+    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, defer, decline, dismiss, ledger],
   );
 
   return <ConsoleContext.Provider value={value}>{children}</ConsoleContext.Provider>;

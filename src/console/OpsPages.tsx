@@ -4,10 +4,9 @@
 // connectors are live and which institution owns the chrome.
 
 import { useMemo, useState } from "react";
-import { Check, Layers, LineChart, Loader2, Plug, ShieldCheck, X } from "lucide-react";
+import { Check, Layers, Loader2, Plug, ShieldCheck, Target, X } from "lucide-react";
 import { useAuth, useConsole } from "@/console/state";
 import { ledgerRollup } from "@/lib/ledger";
-import { defaultAssumptions, illustrativeRange, fmtUsd } from "@/lib/economics";
 import { TENANTS, setTenantOverride, tenantOverride } from "@/lib/tenant";
 
 const KIND_COLOR: Record<string, string> = {
@@ -99,27 +98,49 @@ export function LedgerPage() {
 }
 
 export function OutcomesPage() {
-  const { moments, tenant } = useConsole();
+  const { moments } = useConsole();
   const activated = moments.filter((moment) => moment.status === "activated").length;
-  const econ = useMemo(() => illustrativeRange(defaultAssumptions("deposit-retention", 405)), []);
+  const liveSources = moments.filter((moment) => moment.sourceMode === "live").length;
+  const decisionReceipts = moments.filter((moment) => moment.receipt?.records?.decision).length;
+  const stages = [
+    {
+      label: "Evidence received",
+      detail: liveSources ? `${liveSources} live sandbox moment${liveSources === 1 ? "" : "s"}` : "Awaiting a sanctioned source",
+      complete: liveSources > 0,
+    },
+    {
+      label: "Decision recorded",
+      detail: activated ? `${activated} governed response${activated === 1 ? "" : "s"}` : "No approved action yet",
+      complete: activated > 0,
+    },
+    {
+      label: "Workflow delivered",
+      detail: activated ? `${activated} activation receipt${activated === 1 ? "" : "s"}` : "No downstream delivery yet",
+      complete: activated > 0,
+    },
+    {
+      label: "Incremental lift",
+      detail: "Pending bank outcome feed and holdout coverage",
+      complete: false,
+    },
+  ];
 
   return (
     <div className="mx-auto max-w-4xl">
       <div className="console-cell p-6">
         <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
-          Measurement design
+          Evidence ladder
         </p>
-        <h2 className="v2-display mt-2 text-2xl">Lift is proven against a holdout — or not claimed.</h2>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          {[
-            ["Assign before action", "90% treatment · 10% holdout, reserved before any task is created"],
-            ["Receive bank outcomes", `${tenant.shortName} outcome feed posts retention and conversion`],
-            ["Compute incremental value", "Coverage gates + 95% interval vs the reserved holdout"],
-          ].map(([label, detail], index) => (
-            <div key={label} className="rounded-md border p-4" style={{ borderColor: "var(--v2-rule)" }}>
-              <p className="v2-mono text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>0{index + 1}</p>
-              <p className="mt-2 text-[13px] font-bold" style={{ color: "var(--v2-ink)" }}>{label}</p>
-              <p className="mt-1 text-[11px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>{detail}</p>
+        <h2 className="v2-display mt-2 text-2xl">Value is measured, not inferred.</h2>
+        <div className="mt-6 grid gap-px overflow-hidden rounded-md border sm:grid-cols-4" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>
+          {stages.map((stage, index) => (
+            <div key={stage.label} className="bg-white p-4">
+              <div className="flex items-center justify-between gap-2">
+                <p className="v2-mono text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>0{index + 1}</p>
+                <span className="console-dot" style={{ backgroundColor: stage.complete ? "#34D399" : "#c8c5bc" }} />
+              </div>
+              <p className="mt-3 text-[13px] font-bold" style={{ color: "var(--v2-ink)" }}>{stage.label}</p>
+              <p className="mt-1 text-[10px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>{stage.detail}</p>
             </div>
           ))}
         </div>
@@ -128,34 +149,100 @@ export function OutcomesPage() {
       <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div className="console-cell p-6">
           <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
-            This session
+            Current evidence
           </p>
           <p className="console-stat mt-3 text-[56px]" style={{ color: "var(--v2-ink)" }}>{activated}</p>
           <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
             activation{activated === 1 ? "" : "s"} in the outcome window
           </p>
-          <p className="v2-mono mt-4 flex items-center gap-1.5 text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>
-            <LineChart className="h-3 w-3" /> outcome feed connects during the pilot
+          <p className="v2-mono mt-4 text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>
+            {decisionReceipts} FSC decision mirror{decisionReceipts === 1 ? "" : "s"} · sandbox evidence
           </p>
         </div>
         <div className="console-cell p-6">
-          <div className="flex items-center justify-between gap-2">
-            <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
-              Illustrative economics
-            </p>
-            <span className="v2-chip-amber">Illustrative</span>
-          </div>
-          <p className="console-stat mt-3 text-[56px]" style={{ color: "var(--v2-verified)" }}>
-            +{fmtUsd(econ.midUsd)}
+          <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
+            Claim status
           </p>
-          <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>
-            range +{fmtUsd(econ.lowUsd)} to +{fmtUsd(econ.highUsd)} · {econ.formula}
+          <p className="mt-4 text-[20px] font-bold" style={{ color: "var(--v2-ink)" }}>Not yet measured</p>
+          <p className="mt-2 text-[12px] leading-5" style={{ color: "var(--v2-ink-soft)" }}>
+            The institution must return the registered outcome for treatment and
+            holdout cohorts before Ventus reports incremental lift.
           </p>
-          <p className="v2-mono mt-4 text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>
-            verified only by your pilot's holdout
+          <p className="v2-mono mt-4 text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-amber)" }}>
+            business claim blocked until coverage gates pass
           </p>
         </div>
       </div>
+    </div>
+  );
+}
+
+export function PlaysPage() {
+  const plays = [
+    {
+      line: "Consumer banking",
+      name: "Deposit Primacy Defense",
+      objective: "Protect primary deposit relationships",
+      decision: "Payroll anchored + off-bank migration",
+      action: "Banker retention review",
+      metric: "Deposit retained",
+      status: "Active",
+    },
+    {
+      line: "Wealth management",
+      name: "Qualified Wealth Growth",
+      objective: "Grow qualified advised relationships",
+      decision: "Liquidity event + uninvested balance",
+      action: "Advisor consolidation review",
+      metric: "Net new assets",
+      status: "Active",
+    },
+    {
+      line: "Business banking",
+      name: "Cash Flow Resilience",
+      objective: "Deepen operating relationships",
+      decision: "Revenue concentration + liquidity gap",
+      action: "Treasury review",
+      metric: "Relationship revenue",
+      status: "Template",
+    },
+  ];
+
+  return (
+    <div className="mx-auto max-w-5xl">
+      <div className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}>
+        <div>
+          <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>Operating portfolio</p>
+          <h2 className="v2-display mt-2 text-2xl">Growth Plays</h2>
+          <p className="v2-body mt-2 max-w-xl text-[13px]">
+            Each play binds a business objective to evidence, an approved action,
+            a destination, and one measurable outcome.
+          </p>
+        </div>
+        <Target className="h-6 w-6 flex-none" style={{ color: "var(--c-accent)" }} />
+      </div>
+      <div className="mt-5 overflow-hidden rounded-md border" style={{ borderColor: "var(--v2-rule)" }}>
+        <div className="hidden grid-cols-[1.05fr_1.4fr_1.25fr_0.9fr_0.55fr] gap-4 border-b bg-[#f7f6f2] px-4 py-2 md:grid" style={{ borderColor: "var(--v2-rule)" }}>
+          {["Play", "Qualified moment", "Approved action", "Metric", "Status"].map((label) => (
+            <p key={label} className="v2-mono text-[8px] font-bold uppercase tracking-[0.12em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p>
+          ))}
+        </div>
+        {plays.map((play) => (
+          <div key={play.name} className="grid gap-3 border-b bg-white px-4 py-4 last:border-0 md:grid-cols-[1.05fr_1.4fr_1.25fr_0.9fr_0.55fr] md:gap-4" style={{ borderColor: "var(--v2-rule)" }}>
+            <div>
+              <p className="text-[13px] font-bold" style={{ color: "var(--v2-ink)" }}>{play.name}</p>
+              <p className="mt-0.5 text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>{play.line} · {play.objective}</p>
+            </div>
+            <p className="text-[11px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>{play.decision}</p>
+            <p className="text-[11px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>{play.action}</p>
+            <p className="text-[11px] font-semibold" style={{ color: "var(--v2-ink)" }}>{play.metric}</p>
+            <span className="v2-mono text-[9px] font-bold uppercase" style={{ color: play.status === "Active" ? "var(--v2-verified)" : "var(--v2-ink-faint)" }}>{play.status}</span>
+          </div>
+        ))}
+      </div>
+      <p className="v2-mono mt-3 text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>
+        One contract · configurable evidence, policy, workflow, and outcome adapters
+      </p>
     </div>
   );
 }

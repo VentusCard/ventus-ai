@@ -11,7 +11,7 @@ import IndexV2 from "./pages/IndexV2";
 import ConsoleLayout, { ConsoleAuthBoundary } from "./console/ConsoleLayout";
 import { LoginPage, SignupPage } from "./console/AuthPages";
 import MomentsPage from "./console/MomentsPage";
-import { LedgerPage, OutcomesPage, SettingsPage } from "./console/OpsPages";
+import { LedgerPage, OutcomesPage, PlaysPage, SettingsPage } from "./console/OpsPages";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -72,6 +72,7 @@ const AppLayout = () => {
           <Route path="signup" element={<SignupPage />} />
           <Route element={<ConsoleLayout />}>
             <Route index element={<MomentsPage />} />
+            <Route path="plays" element={<PlaysPage />} />
             <Route path="ledger" element={<LedgerPage />} />
             <Route path="outcomes" element={<OutcomesPage />} />
             <Route path="settings" element={<SettingsPage />} />
