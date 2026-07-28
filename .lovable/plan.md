@@ -1,29 +1,33 @@
-## Auto-rotating email reel on `/coworker`
+## Goal
+Normalize typography inside the `/coworker` email reel so every message renders on one consistent type scale, instead of mixing `text-[10px]`, `text-[11px]`, `text-[12px]`, `text-[13px]`, `text-xs`, `text-sm` across the digest body, reply bodies, and eyebrow labels.
 
-Replace the full inbox-style `AdvisorConversationThread` embed with a slimmer, focused **email reel** that auto-advances through the same 7-message exchange (daily digest + 6 replies). Keep `/bankdemo` untouched — the change is scoped to the `/coworker` page.
+## Current problem
+Reel body wrapper is `text-[13px]`, but shared render callbacks in `AdvisorConversationThread.tsx` (used by both the tablet view and the reel via `DigestBody` + `REPLY_MESSAGES`) hard-code sizes:
+- Eyebrow labels: `text-[11px]` (some `text-[9px]`/`text-[10px]` in compact)
+- Table headers: `text-[10px]`
+- Table rows: `text-[12px]`
+- DigestBody rows: `text-[9-12px]` in compact
+Result: font size jumps message-to-message and line-to-line inside a single email.
 
-### UX
+## Type scale to apply (reel + compact tablet)
+- Body prose: `text-[13px] leading-relaxed`
+- Eyebrow / uppercase labels: `text-[11px] uppercase tracking-wide`
+- Table cells: `text-[13px]` (headers stay eyebrow style)
+- Sender chip name: `text-[13px]`, meta: `text-[11px]`
+One family only — no additional arbitrary sizes.
 
-- **Single-message stage.** One email visible at a time, centered on a soft surface. No sidebar, no ribbon.
-- **Header strip.** Small "AI Coworker ↔ Advisor" pill, subject line, and sender/recipient row with avatar chips (Ventus violet / Morgan slate).
-- **Auto-advance.** ~6s per message, looping. Pauses on hover or when the user manually jumps.
-- **Progress rail.** Slim segmented bar across the top (7 segments) — the active segment fills as its timer runs. Segments are clickable to jump.
-- **Prev/next controls.** Compact chevron buttons + timestamp label ("9:14 AM · 1 of 7").
-- **Transitions.** `animate-fade-in` on message swap (existing utility). No layout jumps.
-- **Height fixed** (~560px) so page scrolling stays smooth.
+## Changes
+1. `src/components/coworker/CoworkerEmailReel.tsx`
+   - Keep body wrapper at `text-[13px] leading-relaxed`, ensure quoted block and signature use `text-[11px]` (eyebrow scale) consistently.
 
-### Data reuse
+2. `src/components/tepilot/advisor-console/AdvisorConversationThread.tsx` — shared `REPLY_MESSAGES` renderers + `DigestBody`:
+   - Eyebrow paragraphs (`Transactions (last 90 days)`, `Household`, `Task 1/2 — …`): unify to `text-[11px] uppercase tracking-wide text-slate-500`.
+   - Travel-card table: header `text-[11px] uppercase tracking-wide`, rows `text-[13px]` (was `text-[10px]` / `text-[12px]`).
+   - `DigestBody` compact branch: retitle sizes to the same scale — section title `text-[13px]`, count pill `text-[11px]`, client name `text-[13px]`, event label eyebrow `text-[11px]`, description body `text-[13px]`, "Recommended offer:" eyebrow `text-[11px]`. Non-compact branch unchanged (already `text-sm`/`text-xs`).
 
-- Reuse `REPLY_MESSAGES`, digest-row + travel-cohort derivations, `evidenceFor`, `offerFor`, `LIFE_EVENT_CONFIG`, `generateDashboardClients(60)`.
-- Export the reusable message spec from `AdvisorConversationThread.tsx` (`REPLY_MESSAGES`, `Sender`, related types + helpers) so the new component doesn't duplicate content. If cleaner, extract them into a new sibling `advisorConversationContent.ts` and re-import from both places — no behavior change to `/bankdemo`.
+3. Verify the `/bankdemo` compact tablet view still reads well (same normalized scale — slightly larger meta text than today, but consistent).
 
-### Files
-
-- **New:** `src/components/coworker/CoworkerEmailReel.tsx` — the auto-rotating reel component.
-- **Edit:** `src/components/tepilot/advisor-console/AdvisorConversationThread.tsx` — export the data/helpers the reel needs (no visual changes).
-- **Edit:** `src/pages/CoworkerPage.tsx` — swap the framed `AdvisorConversationThread` embed for `<CoworkerEmailReel />`. Update the caption to reflect auto-play ("Auto-playing — hover to pause, click a step to jump").
-
-### Out of scope
-
-- No changes to `/bankdemo`'s Next Conversation tab or its tablet mockup.
-- No new message content — same 7-step exchange.
+## Out of scope
+- Full (non-compact) `AdvisorConversationThread` layout used elsewhere.
+- Colors, spacing, borders, and copy stay untouched.
+- No new fonts; existing `Manrope` UI font applies everywhere.

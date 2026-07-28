@@ -314,14 +314,14 @@ export const REPLY_MESSAGES: MessageDef[] = [
         </ul>
         <p>8 candidates with recent trips where the card would have paid off:</p>
         <div className="border border-slate-200 rounded-md divide-y divide-slate-200 overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
             <div>Client</div>
             <div className="text-right">Trip</div>
             <div className="text-right">Window</div>
             <div className="text-right">Saved</div>
           </div>
           {travelCardCohort.map((row) => (
-            <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 items-center text-[12px]">
+            <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 items-center text-[13px]">
               <div className="font-medium text-slate-900 truncate">{row.name}</div>
               <div className="text-right text-slate-700">{row.recentTrip}</div>
               <div className="text-right text-slate-700 tabular-nums">{row.tripWindow}</div>
@@ -776,7 +776,7 @@ interface DigestBodyProps {
 }
 
 export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
-  const textCls = compact ? "text-[12px] leading-snug" : "text-sm leading-relaxed";
+  const textCls = compact ? "text-[13px] leading-relaxed" : "text-sm leading-relaxed";
   return (
     <>
       <p className={cn(textCls, "text-slate-700")}>Hi Morgan,</p>
@@ -793,9 +793,9 @@ export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) 
             <div className={cn("flex items-center justify-between", compact ? "mb-1.5" : "mb-2.5")}>
               <div className="flex items-center gap-2">
                 <span className={cn("w-1.5 h-1.5 rounded-full", section.dot)} />
-                <div className={cn("font-semibold text-slate-900", compact ? "text-[12px]" : "text-sm")}>{section.title}</div>
+                <div className={cn("font-semibold text-slate-900", compact ? "text-[13px]" : "text-sm")}>{section.title}</div>
               </div>
-              <span className={cn("font-medium px-2 py-0.5 rounded-full", section.pill, compact ? "text-[10px]" : "text-xs")}>{rows.length}</span>
+              <span className={cn("font-medium px-2 py-0.5 rounded-full", section.pill, compact ? "text-[11px]" : "text-xs")}>{rows.length}</span>
             </div>
 
             <div>
@@ -815,24 +815,24 @@ export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) 
                 const offer = offerFor(event.eventType);
                 return (
                   <div key={`${client.id}-${event.eventType}-${idx}`} className={cn("border-b border-slate-100 last:border-b-0 flex items-start gap-2.5", compact ? "py-1.5" : "py-2.5")}>
-                    <div className={cn("rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center shrink-0 mt-0.5", compact ? "w-6 h-6 text-[10px]" : "w-8 h-8 text-[11px]")}>
+                    <div className={cn("rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center shrink-0 mt-0.5", compact ? "w-6 h-6 text-[11px]" : "w-8 h-8 text-[11px]")}>
                       {initials(client.profile.name)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={cn("font-semibold text-slate-900", compact ? "text-[12px]" : "text-sm")}>{client.profile.name}</span>
-                        <span className={cn("uppercase tracking-wide text-slate-500", compact ? "text-[9px]" : "text-[11px]")}>{cfg.label}</span>
-                        <span className={cn("font-medium px-1.5 py-0.5 rounded-full", section.pill, compact ? "text-[9px]" : "text-[11px]")}>{timingPhrase}</span>
+                        <span className={cn("font-semibold text-slate-900", compact ? "text-[13px]" : "text-sm")}>{client.profile.name}</span>
+                        <span className={cn("uppercase tracking-wide text-slate-500", compact ? "text-[11px]" : "text-[11px]")}>{cfg.label}</span>
+                        <span className={cn("font-medium px-1.5 py-0.5 rounded-full", section.pill, compact ? "text-[11px]" : "text-[11px]")}>{timingPhrase}</span>
                       </div>
-                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[11px] leading-snug" : "text-sm leading-relaxed")}>
+                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[13px] leading-relaxed" : "text-sm leading-relaxed")}>
                         {event.keyEvidence[0] || event.eventName}.{" "}
                         <span className="text-slate-500">
                           <span className="font-semibold text-slate-900">{signalCount}</span> signals over the past{" "}
                           <span className="font-semibold text-slate-900">{windowDays}</span> days · <span className="font-semibold text-slate-900">{confidencePct}%</span> confidence.
                         </span>
                       </div>
-                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[11px]" : "text-[13px]")}>
-                        <span className={cn("uppercase tracking-wide text-slate-500 mr-1", compact ? "text-[9px]" : "text-[11px]")}>Recommended offer:</span>
+                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[13px]" : "text-[13px]")}>
+                        <span className={cn("uppercase tracking-wide text-slate-500 mr-1", compact ? "text-[11px]" : "text-[11px]")}>Recommended offer:</span>
                         {offer}
                       </div>
                     </div>
@@ -845,7 +845,7 @@ export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) 
       })}
 
       {totalSignals === 0 && (
-        <div className={cn("italic text-slate-500", compact ? "text-[11px]" : "text-sm")}>Quiet morning — no new signals.</div>
+        <div className={cn("italic text-slate-500", compact ? "text-[13px]" : "text-sm")}>Quiet morning — no new signals.</div>
       )}
 
       <p className={cn(textCls, "text-slate-700")}>
