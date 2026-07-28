@@ -228,7 +228,7 @@ const TRAVEL_CARD_ROTATION: Array<Omit<TravelCardRow, "name">> = [
   { recentTrip: "Mexico", tripWindow: "Apr 2026", estSavings: 155, timing: "Next 2 weeks" },
 ];
 
-const REPLY_MESSAGES: MessageDef[] = [
+export const REPLY_MESSAGES: MessageDef[] = [
   {
     sender: "advisor",
     time: "9:22 AM",
