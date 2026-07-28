@@ -33,6 +33,7 @@ const NextConversationPage = lazy(() => import("./pages/solutions/NextConversati
 const PortfolioIntelligencePage = lazy(() => import("./pages/solutions/PortfolioIntelligencePage"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard"));
+const CoworkerPage = lazy(() => import("./pages/CoworkerPage"));
 
 const queryClient = new QueryClient();
 
