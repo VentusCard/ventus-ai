@@ -262,23 +262,25 @@ export const REPLY_MESSAGES: MessageDef[] = [
         <>
           <p>Hi Morgan,</p>
           <p>Here's what we're actually seeing on the ledger:</p>
-          <div>
-            <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
-            <ul className="list-disc pl-5 space-y-1 mt-0.5">
-              {evA.transactions.map((t) => <li key={t}>{t}</li>)}
-            </ul>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
-            <p className="mt-0.5">{evA.household}</p>
-          </div>
-          <div>
-            <p className="font-medium text-slate-900">{nameB} <span className="text-slate-500 font-normal">· {labelB}</span></p>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
-            <ul className="list-disc pl-5 space-y-1 mt-0.5">
-              {evB.transactions.map((t) => <li key={t}>{t}</li>)}
-            </ul>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
-            <p className="mt-0.5">{evB.household}</p>
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+            <div>
+              <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+              <ul className="list-disc pl-5 space-y-1 mt-0.5">
+                {evA.transactions.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+              <p className="mt-0.5">{evA.household}</p>
+            </div>
+            <div>
+              <p className="font-medium text-slate-900">{nameB} <span className="text-slate-500 font-normal">· {labelB}</span></p>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+              <ul className="list-disc pl-5 space-y-1 mt-0.5">
+                {evB.transactions.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+              <p className="mt-0.5">{evB.household}</p>
+            </div>
           </div>
           <p>Want the fuller household picture for each — who's involved, what's changing around them?</p>
         </>
@@ -820,7 +822,7 @@ export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) 
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={cn("font-semibold text-slate-900", compact ? "text-[13px]" : "text-sm")}>{client.profile.name}</span>
+                        <span className={cn("text-slate-900", compact ? "text-[13px] font-medium" : "text-sm font-semibold")}>{client.profile.name}</span>
                         <span className={cn("uppercase tracking-wide text-slate-500", compact ? "text-[11px]" : "text-[11px]")}>{cfg.label}</span>
                         <span className={cn("font-medium px-1.5 py-0.5 rounded-full", section.pill, compact ? "text-[11px]" : "text-[11px]")}>{timingPhrase}</span>
                       </div>

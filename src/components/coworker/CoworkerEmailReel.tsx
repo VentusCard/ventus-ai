@@ -103,7 +103,7 @@ const CoworkerEmailReel = () => {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       className="rounded-2xl bg-white overflow-hidden flex flex-col border border-slate-200"
-      style={{ height: 620, boxShadow: "0 20px 60px rgba(15, 23, 42, 0.10)" }}
+      style={{ height: 680, boxShadow: "0 20px 60px rgba(15, 23, 42, 0.10)" }}
     >
       {/* Top bar: pill + segmented progress */}
       <div className="shrink-0 border-b border-slate-200">
@@ -207,7 +207,7 @@ const CoworkerEmailReel = () => {
 
       {/* Body */}
       <div className="flex-1 min-h-0 overflow-y-auto">
-        <div key={idx} className="animate-fade-in px-6 py-5 max-w-3xl mx-auto space-y-3 text-[13px] leading-relaxed text-slate-700">
+        <div key={idx} className="animate-fade-in px-8 py-6 space-y-3 text-[13px] leading-relaxed text-slate-700">
           {msg.kind === "reply" && msg.quoted && (
             <div className="border-l-2 border-slate-200 pl-3 text-[11px] text-slate-500 italic">
               {msg.quoted}
