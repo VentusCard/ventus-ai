@@ -103,7 +103,7 @@ const CoworkerEmailReel = () => {
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
       className="rounded-2xl bg-white overflow-hidden flex flex-col border border-slate-200"
-      style={{ height: 620, boxShadow: "0 20px 60px rgba(15, 23, 42, 0.10)" }}
+      style={{ height: 680, boxShadow: "0 20px 60px rgba(15, 23, 42, 0.10)" }}
     >
       {/* Top bar: pill + segmented progress */}
       <div className="shrink-0 border-b border-slate-200">
