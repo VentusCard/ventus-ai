@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { createDecisionPackage, respondToDecision } from "./decisionPackage.ts";
+import {
+  applyOutcomeObservation,
+  createDecisionPackage,
+  respondToDecision,
+} from "./decisionPackage.ts";
 
 const primaryAction = {
   id: "banker-review",
@@ -47,7 +51,7 @@ test("decision package carries a portable governed decision contract", () => {
     },
   });
 
-  assert.equal(decision.schemaVersion, "1.0");
+  assert.equal(decision.schemaVersion, "1.1");
   assert.equal(decision.response.status, "pending");
   assert.equal(decision.workflow.status, "ready");
   assert.equal(decision.outcome.metric, "deposit_retained");
@@ -57,4 +61,34 @@ test("decision package carries a portable governed decision contract", () => {
   assert.equal(accepted.response.status, "accepted");
   assert.equal(accepted.response.actor, "operator@bank.com");
   assert.equal(accepted.recommendation.selectedAction.id, "banker-review");
+
+  const measured = applyOutcomeObservation(accepted, {
+    response: {
+      status: "accepted",
+      actor: "005000000000001AAA",
+      recordedAt: "2026-08-27T17:00:00.000Z",
+    },
+    status: "measured",
+    observation: {
+      eventId: "sf_a01000000000001AAA_1787850000000",
+      eventType: "deposit_retained",
+      occurredAt: "2026-08-27T17:00:00.000Z",
+      sourceSystem: "salesforce-fsc",
+      sourceRecordId: "bank_outcome_123",
+      value: {
+        metric: "deposit_retained",
+        amount: 200,
+        currency: "USD",
+      },
+    },
+  });
+  assert.equal(measured.outcome.status, "measured");
+  assert.equal(measured.outcome.observation?.eventType, "deposit_retained");
+  assert.equal(measured.outcome.observation?.value?.amount, 200);
+
+  const reopened = applyOutcomeObservation(measured, {
+    status: "measuring",
+  });
+  assert.equal(reopened.outcome.status, "measuring");
+  assert.equal(reopened.outcome.observation, undefined);
 });

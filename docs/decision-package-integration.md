@@ -16,7 +16,7 @@ The bank's systems remain the systems of record and work:
 No destination-specific object model is allowed to become the canonical Ventus
 decision model.
 
-## Version 1.0 contract
+## Version 1.1 contract
 
 `src/lib/decisionPackage.ts` defines the portable contract:
 
@@ -28,7 +28,8 @@ decision model.
 - Decision method: the active method and any shadow model candidate.
 - Human response: accepted, modified, deferred, or declined.
 - Workflow: connector status and downstream record receipts.
-- Outcome: registered metric, window, and measurement status.
+- Outcome: registered metric, window, measurement status, and an optional
+  provider-neutral observation receipt.
 
 Raw transactions, model credentials, and customer PII are not included.
 
@@ -43,6 +44,13 @@ The current adapter maps the same Decision Package into:
 The custom object is optional. If it has not been deployed, Referral and Task
 delivery still complete and the connector returns a warning. The Ventus ledger
 remains canonical either way.
+
+The outcome-return adapter reads one linked `Ventus_Decision__c` record by ID
+and maps its structured response and outcome fields back into the Decision
+Package. The read session is separately scoped from Salesforce delivery. One
+observed event closes the workflow loop but does not unlock a business or
+causal claim; the experiment service still requires treatment and holdout
+coverage.
 
 ## Adding another institution or destination
 

@@ -71,6 +71,7 @@ test("hosted no-login demo path mints a demo-scoped session when explicitly enab
   // /api/plaid-transactions endpoint.
   assert.deepEqual(principal?.scopes.sort(), [
     "plaid_read",
+    "salesforce_outcome_read",
     "salesforce_write",
     "scenario_deposit_retention",
     "scenario_wealth_growth",
@@ -106,6 +107,7 @@ test("demo connector broker mints one short-lived Plaid and Salesforce session",
   const principal = verifyConnectorSession(body.token || "", SESSION_SECRET);
   assert.deepEqual(principal?.scopes.sort(), [
     "plaid_read",
+    "salesforce_outcome_read",
     "salesforce_write",
     "scenario_deposit_retention",
     "scenario_wealth_growth",

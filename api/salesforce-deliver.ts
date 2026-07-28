@@ -267,6 +267,10 @@ export function buildSalesforceDecisionRecord(
         .filter(Boolean)
         .slice(0, 6)
     : [];
+  const outcomeMetric = cleanText(outcome.metric, 100);
+  const outcomeStatus = cleanText(outcome.status, 40) === "not-opened"
+    ? "measuring"
+    : cleanText(outcome.status, 40);
   const packageSnapshot = {
     schemaVersion: cleanText(decisionPackage.schemaVersion, 20),
     decisionId,
@@ -312,8 +316,8 @@ export function buildSalesforceDecisionRecord(
       recordedAt: cleanText(response.recordedAt, 40),
     },
     outcome: {
-      metric: cleanText(outcome.metric, 100),
-      status: cleanText(outcome.status, 40),
+      metric: outcomeMetric,
+      status: outcomeStatus,
     },
     workflow: {
       referralId: cleanSalesforceId(workflow.referralId),
@@ -334,6 +338,8 @@ export function buildSalesforceDecisionRecord(
     Policy_Status__c: packageSnapshot.governance.policyStatus,
     Human_Response__c: packageSnapshot.response.status,
     Outcome_Status__c: packageSnapshot.outcome.status,
+    Outcome_Event_Type__c: outcomeMetric,
+    Outcome_Metric__c: outcomeMetric,
     Workflow_Record_Id__c: workflowRecordId,
     Decision_Package__c: JSON.stringify(packageSnapshot).slice(0, 32_000),
     ...(clientId ? { Client_Account__c: clientId } : {}),
