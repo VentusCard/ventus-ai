@@ -88,6 +88,22 @@ test('outcome context resolves decision and activation from server evidence', as
   assert.equal(context.decisionProtocolId, 'protocol_001');
 });
 
+test('prepared decision is loaded from the tenant ledger by its server decision reference', async () => {
+  const state = [];
+  const repository = createDecisionLedgerRepository({ getDB: async () => fakeDb(state) });
+  await repository.append(draft('case_review:decision', {
+    decision_id: 'decision_review_001',
+    decision_digest: 'a'.repeat(64),
+  }));
+  const prepared = await repository.loadPreparedDecision({
+    tenantId: 'bank_1',
+    decisionId: 'decision_review_001',
+  });
+  assert.equal(prepared.eventType, 'decision');
+  assert.equal(prepared.payload.decision_id, 'decision_review_001');
+  assert.equal(prepared.householdToken, 'tok_household_000001');
+});
+
 test('decision-outcome graph withholds effectiveness until enough outcomes exist', () => {
   const early = graphFixture(10);
   const earlyRow = buildDecisionOutcomeGraph({ ...early, minimumOutcomes: 30 })[0];
@@ -189,6 +205,15 @@ function fakeDb(entries) {
             && entry.row?.payload?.decision_id === params[2])
           .map((entry) => ({ payload: entry.row.payload }));
         return { rows: rows.slice(-1) };
+      }
+      if (sql.includes("event_type = 'decision'") && sql.includes("payload->>'decision_id' = $2")) {
+        const rows = entries
+          .filter((entry) => entry.row?.tenant_id === params[0]
+            && entry.row?.event_type === 'decision'
+            && entry.row?.payload?.decision_id === params[1])
+          .map((entry) => entry.row)
+          .sort((a, b) => b.sequence_number - a.sequence_number);
+        return { rows: rows.slice(0, 1) };
       }
       if (sql.includes('ORDER BY sequence_number DESC LIMIT 1')) {
         const rows = entries.filter((entry) => entry.row?.tenant_id === params[0]).map((entry) => entry.row).sort((a, b) => b.sequence_number - a.sequence_number);
