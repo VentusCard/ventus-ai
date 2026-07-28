@@ -1,13 +1,10 @@
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
-import { AdvisorConversationThread } from "@/components/tepilot/advisor-console/AdvisorConversationThread";
-import { generateDashboardClients } from "@/lib/randomProfileGenerator";
+import CoworkerEmailReel from "@/components/coworker/CoworkerEmailReel";
 
 const flowSteps = [
   { label: "Detect", desc: "Match each reader's scope to behavioral + external signals." },
