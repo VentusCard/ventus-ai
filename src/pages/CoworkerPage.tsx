@@ -100,7 +100,7 @@ const CoworkerPage = () => {
 
       {/* Live conversation demo */}
       <section ref={demo.ref} className="px-6 py-20">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="text-center mb-8">
             <p style={revealStyle(demo.visible, 0)} className="text-xs font-semibold uppercase tracking-widest text-purple-600 mb-3">
               See it in action
