@@ -854,3 +854,85 @@ export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) 
     </>
   );
 }
+
+// ==================== EXPORTED DERIVATION (for reusable presentations) ====================
+
+export interface AdvisorConversationContext {
+  grouped: Record<"high" | "opportunity" | "risk", SignalRow[]>;
+  totalSignals: number;
+  nameA: string;
+  nameB: string;
+  labelA: string;
+  labelB: string;
+  eventTypeA: string;
+  eventTypeB: string;
+  travelCardCohort: TravelCardRow[];
+  digestRows: DigestRow[];
+}
+
+export function deriveAdvisorConversationContext(clients: DashboardClient[]): AdvisorConversationContext {
+  const grouped: Record<"high" | "opportunity" | "risk", SignalRow[]> = { high: [], opportunity: [], risk: [] };
+  const seenClients = new Set<string>();
+  const perClient: SignalRow[] = [];
+  for (const client of clients) {
+    if (!client.detectedEvents?.length) continue;
+    const top = [...client.detectedEvents].sort((a, b) => {
+      if (b.urgencyScore !== a.urgencyScore) return b.urgencyScore - a.urgencyScore;
+      return (b.confidence ?? 0) - (a.confidence ?? 0);
+    })[0];
+    perClient.push({ client, event: top });
+  }
+  perClient.sort((a, b) => b.event.urgencyScore - a.event.urgencyScore);
+  for (const row of perClient) {
+    if (seenClients.has(row.client.id)) continue;
+    seenClients.add(row.client.id);
+    grouped[bucketFor(row.event)].push(row);
+  }
+
+  const totalSignals = grouped.high.length + grouped.opportunity.length + grouped.risk.length;
+
+  const pool = [...grouped.high, ...grouped.opportunity, ...grouped.risk];
+  const topTwo: SignalRow[] = [];
+  const seen = new Set<string>();
+  for (const row of pool) {
+    if (seen.has(row.client.id)) continue;
+    seen.add(row.client.id);
+    topTwo.push(row);
+    if (topTwo.length === 2) break;
+  }
+
+  const nameA = topTwo[0]?.client.profile.name ?? "the first client";
+  const nameB = topTwo[1]?.client.profile.name ?? "the second client";
+  const labelA = topTwo[0] ? LIFE_EVENT_CONFIG[topTwo[0].event.eventType].label : "";
+  const labelB = topTwo[1] ? LIFE_EVENT_CONFIG[topTwo[1].event.eventType].label : "";
+  const eventTypeA = topTwo[0]?.event.eventType ?? "";
+  const eventTypeB = topTwo[1]?.event.eventType ?? "";
+
+  const excludeIds = new Set(topTwo.map((r) => r.client.id));
+  const travelPool = [...clients]
+    .filter((c) => !excludeIds.has(c.id))
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .slice(0, TRAVEL_CARD_ROTATION.length);
+  const travelCardCohort: TravelCardRow[] = travelPool.map((c, i) => ({
+    name: c.profile.name,
+    ...TRAVEL_CARD_ROTATION[i],
+  }));
+
+  const sectionLabel: Record<"high" | "opportunity" | "risk", string> = {
+    high: "Act Now",
+    opportunity: "Opportunity",
+    risk: "At Risk",
+  };
+  const digestRows: DigestRow[] = [];
+  (["high", "opportunity", "risk"] as const).forEach((k) => {
+    grouped[k].forEach(({ client, event }) => {
+      digestRows.push({
+        name: client.profile.name,
+        eventLabel: LIFE_EVENT_CONFIG[event.eventType].label,
+        sectionLabel: sectionLabel[k],
+      });
+    });
+  });
+
+  return { grouped, totalSignals, nameA, nameB, labelA, labelB, eventTypeA, eventTypeB, travelCardCohort, digestRows };
+}
