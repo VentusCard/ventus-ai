@@ -39,7 +39,7 @@ const CoworkerPage = () => {
   const who = useSectionReveal();
   const why = useSectionReveal();
 
-  const clients = useMemo(() => generateDashboardClients(60), []);
+  
 
   return (
     <main className="bg-white min-h-screen">
