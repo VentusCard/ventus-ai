@@ -793,9 +793,9 @@ export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) 
             <div className={cn("flex items-center justify-between", compact ? "mb-1.5" : "mb-2.5")}>
               <div className="flex items-center gap-2">
                 <span className={cn("w-1.5 h-1.5 rounded-full", section.dot)} />
-                <div className={cn("font-semibold text-slate-900", compact ? "text-[12px]" : "text-sm")}>{section.title}</div>
+                <div className={cn("font-semibold text-slate-900", compact ? "text-[13px]" : "text-sm")}>{section.title}</div>
               </div>
-              <span className={cn("font-medium px-2 py-0.5 rounded-full", section.pill, compact ? "text-[10px]" : "text-xs")}>{rows.length}</span>
+              <span className={cn("font-medium px-2 py-0.5 rounded-full", section.pill, compact ? "text-[11px]" : "text-xs")}>{rows.length}</span>
             </div>
 
             <div>
