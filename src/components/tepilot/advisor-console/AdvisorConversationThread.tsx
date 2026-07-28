@@ -776,7 +776,7 @@ interface DigestBodyProps {
 }
 
 export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
-  const textCls = compact ? "text-[12px] leading-snug" : "text-sm leading-relaxed";
+  const textCls = compact ? "text-[13px] leading-relaxed" : "text-sm leading-relaxed";
   return (
     <>
       <p className={cn(textCls, "text-slate-700")}>Hi Morgan,</p>
