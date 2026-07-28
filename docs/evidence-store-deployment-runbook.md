@@ -38,6 +38,7 @@ Review the uploaded `cdk-staging-diff` artifact. Then run it again with:
 - `confirm_deploy`: `deploy-staging`
 
 The deploy creates infrastructure only. It does not alter the database schema.
+The first diff is template-only and does not create an empty review stack in CloudFormation.
 
 ## Read-only preflight
 
