@@ -1,33 +1,35 @@
-## Goal
-Normalize typography inside the `/coworker` email reel so every message renders on one consistent type scale, instead of mixing `text-[10px]`, `text-[11px]`, `text-[12px]`, `text-[13px]`, `text-xs`, `text-sm` across the digest body, reply bodies, and eyebrow labels.
-
-## Current problem
-Reel body wrapper is `text-[13px]`, but shared render callbacks in `AdvisorConversationThread.tsx` (used by both the tablet view and the reel via `DigestBody` + `REPLY_MESSAGES`) hard-code sizes:
-- Eyebrow labels: `text-[11px]` (some `text-[9px]`/`text-[10px]` in compact)
-- Table headers: `text-[10px]`
-- Table rows: `text-[12px]`
-- DigestBody rows: `text-[9-12px]` in compact
-Result: font size jumps message-to-message and line-to-line inside a single email.
-
-## Type scale to apply (reel + compact tablet)
-- Body prose: `text-[13px] leading-relaxed`
-- Eyebrow / uppercase labels: `text-[11px] uppercase tracking-wide`
-- Table cells: `text-[13px]` (headers stay eyebrow style)
-- Sender chip name: `text-[13px]`, meta: `text-[11px]`
-One family only — no additional arbitrary sizes.
+## Problem
+Two issues in the `/coworker` email reel:
+1. **Wasted horizontal space.** The reel container is `max-w-6xl` and the body inside it is further clamped to `max-w-3xl mx-auto`, so message content sits in a narrow column with large empty margins on wide viewports.
+2. **Type still reads inconsistently.** Sizes are unified at 11/13px, but the compact `DigestBody` uses bold 13px for section titles + client names right next to regular 13px body prose, which visually reads as "bigger." The stacked bold labels + short lines make the layout feel cramped and uneven.
 
 ## Changes
-1. `src/components/coworker/CoworkerEmailReel.tsx`
-   - Keep body wrapper at `text-[13px] leading-relaxed`, ensure quoted block and signature use `text-[11px]` (eyebrow scale) consistently.
 
-2. `src/components/tepilot/advisor-console/AdvisorConversationThread.tsx` — shared `REPLY_MESSAGES` renderers + `DigestBody`:
-   - Eyebrow paragraphs (`Transactions (last 90 days)`, `Household`, `Task 1/2 — …`): unify to `text-[11px] uppercase tracking-wide text-slate-500`.
-   - Travel-card table: header `text-[11px] uppercase tracking-wide`, rows `text-[13px]` (was `text-[10px]` / `text-[12px]`).
-   - `DigestBody` compact branch: retitle sizes to the same scale — section title `text-[13px]`, count pill `text-[11px]`, client name `text-[13px]`, event label eyebrow `text-[11px]`, description body `text-[13px]`, "Recommended offer:" eyebrow `text-[11px]`. Non-compact branch unchanged (already `text-sm`/`text-xs`).
+### 1. Widen the reel (`src/pages/CoworkerPage.tsx` + `CoworkerEmailReel.tsx`)
+- Bump the section wrapper on `CoworkerPage.tsx` from `max-w-6xl` to `max-w-7xl`.
+- In `CoworkerEmailReel.tsx`:
+  - Remove the inner `max-w-3xl mx-auto` on the body wrapper so content spans the full reel width with only side padding (`px-8`).
+  - Increase reel height from `620px` to `680px` so the wider content has vertical room.
+  - Bump body padding to `px-8 py-6` for breathing room at the new width.
 
-3. Verify the `/bankdemo` compact tablet view still reads well (same normalized scale — slightly larger meta text than today, but consistent).
+### 2. Tighten typography hierarchy in compact `DigestBody` (`AdvisorConversationThread.tsx`)
+Currently every heading, client name, and body line is 13px, only differentiated by weight — that reads as noisy.
+- Section title (e.g. "Priority signals"): keep `text-[13px] font-semibold`.
+- Client name: drop from `font-semibold` to `font-medium` so it doesn't compete with the section title.
+- Event label eyebrow + timing pill: unchanged (11px).
+- Body description + recommended offer line: unchanged (13px).
+- Count pill: keep 11px but align vertically with title baseline.
+
+### 3. Reply body layout (`REPLY_MESSAGES` renderers)
+At the new wider width, the transaction bullet lists and travel-card table look sparse.
+- Where replies render a client block + bullets + "Household" line, wrap them in a 2-column `md:grid-cols-2 gap-x-8` grid so two client blocks sit side-by-side instead of stacking in a narrow column.
+- Travel-card table already spans full width — leave as-is, it will simply be wider.
 
 ## Out of scope
-- Full (non-compact) `AdvisorConversationThread` layout used elsewhere.
-- Colors, spacing, borders, and copy stay untouched.
-- No new fonts; existing `Manrope` UI font applies everywhere.
+- Colors, borders, animation timing.
+- The full (non-compact) `/bankdemo` layout.
+- Copy changes.
+
+## Technical notes
+- No new components. Edits confined to `CoworkerPage.tsx`, `CoworkerEmailReel.tsx`, and the compact branch of `AdvisorConversationThread.tsx`.
+- Verify with a viewport check at 1280px and 1523px (current preview width).
