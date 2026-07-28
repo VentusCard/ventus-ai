@@ -7,6 +7,7 @@ import {
   Landmark,
   Loader2,
   Plug,
+  RefreshCw,
   Send,
   TrendingUp,
   X,
@@ -62,6 +63,9 @@ export default function MomentsPage() {
     activating,
     activateError,
     activate,
+    syncingOutcome,
+    outcomeSyncMessage,
+    syncOutcome,
     defer,
     decline,
     scenarioMeta,
@@ -128,6 +132,7 @@ export default function MomentsPage() {
     : null;
   const actions = selected ? scenarioMeta[selected.scenario].actions : [];
   const chosenAction = actions.find((action) => action.id === selectedActionId) ?? actions[0];
+  const outcomeObservation = decision?.outcome.observation;
 
   const confirmResponse = () => {
     if (!selected) return;
@@ -277,7 +282,12 @@ export default function MomentsPage() {
                     Decision, referral, and action remain linked by {decision.decisionId}.
                   </p>
                 </div>
-                <span className="v2-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>outcome window open</span>
+                <span
+                  className="v2-mono text-[9px] uppercase tracking-[0.1em]"
+                  style={{ color: outcomeObservation ? "var(--v2-verified)" : "var(--v2-ink-faint)" }}
+                >
+                  {outcomeObservation ? "outcome observed" : "outcome window open"}
+                </span>
               </div>
               <div className="mt-4 grid gap-px overflow-hidden rounded-md border sm:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>
                 {[
@@ -297,6 +307,39 @@ export default function MomentsPage() {
                   </div>
                 ))}
               </div>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: "var(--v2-rule)" }}>
+                {outcomeObservation ? (
+                  <div>
+                    <p className="text-[13px] font-bold capitalize" style={{ color: "var(--v2-ink)" }}>
+                      {outcomeObservation.eventType.replaceAll("_", " ")}
+                    </p>
+                    <p className="mt-0.5 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>
+                      Salesforce observation received · holdout measurement pending
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>
+                    Waiting for the bank’s outcome record.
+                  </p>
+                )}
+                <button
+                  onClick={() => void syncOutcome(selected.id)}
+                  disabled={syncingOutcome === selected.id || !selected.receipt.records?.decision}
+                  className="inline-flex items-center gap-2 text-[12px] font-bold"
+                  style={{ color: "var(--c-accent)" }}
+                  title={!selected.receipt.records?.decision ? "A Decision Receipt is required" : undefined}
+                >
+                  {syncingOutcome === selected.id
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <RefreshCw className="h-3.5 w-3.5" />}
+                  Check Salesforce
+                </button>
+              </div>
+              {outcomeSyncMessage ? (
+                <p className="mt-2 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>
+                  {outcomeSyncMessage}
+                </p>
+              ) : null}
               {selected.receipt.warnings?.length ? (
                 <details className="mt-3 text-[11px]" style={{ color: "var(--v2-amber)" }}>
                   <summary className="cursor-pointer font-semibold">Connector completed with {selected.receipt.warnings.length} warning(s)</summary>

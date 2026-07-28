@@ -95,11 +95,21 @@ export function verifyChain(events: LedgerEvent[]): boolean {
 }
 
 export function ledgerRollup(events: LedgerEvent[]) {
+  const resolvedOutcomeRefs = new Set(
+    events
+      .filter((event) => event.kind === "outcome" && event.status === "confirmed")
+      .map((event) => event.ref)
+      .filter(Boolean),
+  );
   return {
     total: events.length,
     decisions: events.filter((e) => e.kind === "decision").length,
     activations: events.filter((e) => e.kind === "activation").length,
-    measuring: events.filter((e) => e.kind === "outcome" && e.status === "pending").length,
+    measuring: events.filter(
+      (event) => event.kind === "outcome"
+        && event.status === "pending"
+        && !resolvedOutcomeRefs.has(event.ref),
+    ).length,
     valueInMotion: events.filter((e) => e.kind === "activation").reduce((s, e) => s + (e.value ?? 0), 0),
   };
 }

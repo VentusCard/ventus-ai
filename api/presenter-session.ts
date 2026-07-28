@@ -54,7 +54,12 @@ export async function POST(request: Request): Promise<Response> {
       secret: sessionSecret,
       tenantId,
       subject,
-      scopes: ["plaid_read", "salesforce_write", ...scenarioScopes],
+      scopes: [
+        "plaid_read",
+        "salesforce_write",
+        "salesforce_outcome_read",
+        ...scenarioScopes,
+      ],
       destinations: ["plaid", "salesforce"],
       sessionId,
       ttlSeconds: SESSION_SECONDS,

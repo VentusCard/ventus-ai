@@ -1,4 +1,4 @@
-export const DECISION_PACKAGE_VERSION = "1.0" as const;
+export const DECISION_PACKAGE_VERSION = "1.1" as const;
 
 export type DecisionAction = {
   id: string;
@@ -13,6 +13,20 @@ export type DecisionEvidence = {
   label: string;
   confidence: number;
   source: string;
+};
+
+export type DecisionOutcomeObservation = {
+  eventId: string;
+  eventType: string;
+  occurredAt: string;
+  sourceSystem: string;
+  sourceRecordId: string;
+  reasonCode?: string;
+  value?: {
+    metric: string;
+    amount: number;
+    currency: "USD";
+  };
 };
 
 export type DecisionPackage = {
@@ -68,6 +82,7 @@ export type DecisionPackage = {
     metric: string;
     windowDays: number;
     status: "not-opened" | "measuring" | "measured";
+    observation?: DecisionOutcomeObservation;
   };
 };
 
@@ -120,6 +135,31 @@ export function respondToDecision(
       actor,
       reason,
       recordedAt: new Date().toISOString(),
+    },
+  };
+}
+
+export function applyOutcomeObservation(
+  decisionPackage: DecisionPackage,
+  input: {
+    response?: Partial<DecisionPackage["response"]>;
+    status: DecisionPackage["outcome"]["status"];
+    observation?: DecisionOutcomeObservation;
+  },
+): DecisionPackage {
+  const { observation: _previousObservation, ...outcomeWithoutObservation } = decisionPackage.outcome;
+  return {
+    ...decisionPackage,
+    response: input.response
+      ? {
+          ...decisionPackage.response,
+          ...input.response,
+        }
+      : decisionPackage.response,
+    outcome: {
+      ...outcomeWithoutObservation,
+      status: input.status,
+      ...(input.observation ? { observation: input.observation } : {}),
     },
   };
 }

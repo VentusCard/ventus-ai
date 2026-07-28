@@ -133,6 +133,9 @@ test("Ventus Decision Receipt maps the portable package into FSC fields", () => 
   assert.equal(decision.Growth_Play__c, "Deposit Primacy Defense");
   assert.equal(decision.Business_Objective__c, "Protect primary deposit relationships");
   assert.equal(decision.Human_Response__c, "accepted");
+  assert.equal(decision.Outcome_Status__c, "measuring");
+  assert.equal(decision.Outcome_Event_Type__c, "deposit_retained");
+  assert.equal(decision.Outcome_Metric__c, "deposit_retained");
   assert.equal(decision.Workflow_Record_Id__c, "00Q000000000001AAA");
   assert.equal(decision.Client_Account__c, "001000000000001AAA");
   assert.match(String(decision.Decision_Package__c), /"primaryMetric":"deposit_retained"/);
@@ -180,6 +183,7 @@ test("FSC delivery creates a Decision Receipt, native Referral, and related bank
   assert.match(String(writes[1].body.Description), /FSC LEAD REFERRAL/);
   assert.equal(writes[2].body.Decision_Reference__c, "dec_123");
   assert.equal(writes[2].body.Workflow_Record_Id__c, "00Q000000000001AAA");
+  assert.equal(writes[2].body.Outcome_Status__c, "measuring");
 });
 
 test("FSC delivery preserves Task delivery when Referral creation fails", async () => {

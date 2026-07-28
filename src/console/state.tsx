@@ -29,9 +29,11 @@ import {
   type Tenant,
 } from "@/lib/tenant";
 import {
+  applyOutcomeObservation,
   createDecisionPackage,
   respondToDecision,
   type DecisionAction,
+  type DecisionOutcomeObservation,
   type DecisionPackage,
 } from "@/lib/decisionPackage";
 
@@ -187,6 +189,23 @@ export type ConsoleMoment = {
   };
 };
 
+type SalesforceOutcomeSync = {
+  decisionId: string;
+  evidenceClass: "fixture" | "sandbox" | "sanctioned";
+  response: {
+    status: DecisionPackage["response"]["status"];
+    actorToken: string | null;
+    recordedAt: string | null;
+  };
+  outcome: {
+    status: DecisionPackage["outcome"]["status"];
+    observation: DecisionOutcomeObservation | null;
+  };
+  measurementStatus: "awaiting_outcome" | "observed_unmeasured";
+  businessClaimAllowed: false;
+  causalClaimAllowed: false;
+};
+
 const STORAGE_PREFIX = "ventus_console_";
 
 function scopedKey(name: string, tenantId: string, userId: string): string {
@@ -318,7 +337,7 @@ export function decisionPackageForMoment(moment: ConsoleMoment, tenant: Tenant, 
       protocolId: meta.protocolId,
     },
     subject: {
-      token: `household-${moment.id}`,
+      token: `tok_${moment.id.replace(/[^A-Za-z0-9_-]/g, "_")}`,
     },
     moment: {
       type: moment.opportunity.type,
@@ -362,6 +381,9 @@ type ConsoleState = {
   activating: string | null;
   activateError: string | null;
   activate: (momentId: string, actionId?: string) => Promise<void>;
+  syncingOutcome: string | null;
+  outcomeSyncMessage: string | null;
+  syncOutcome: (momentId: string) => Promise<void>;
   defer: (momentId: string, reason?: string) => void;
   decline: (momentId: string, reason?: string) => void;
   dismiss: (momentId: string) => void;
@@ -397,6 +419,8 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
   const [ingestError, setIngestError] = useState<string | null>(null);
   const [activating, setActivating] = useState<string | null>(null);
   const [activateError, setActivateError] = useState<string | null>(null);
+  const [syncingOutcome, setSyncingOutcome] = useState<string | null>(null);
+  const [outcomeSyncMessage, setOutcomeSyncMessage] = useState<string | null>(null);
   const [ledger, setLedger] = useState<LedgerEvent[]>(() => restore(ledgerKey, []));
 
   useEffect(() => persist(momentsKey, moments), [moments, momentsKey]);
@@ -726,6 +750,78 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
     },
     [authTenant, record, user?.email],
   );
+
+  const syncOutcome = useCallback(
+    async (momentId: string) => {
+      const moment = moments.find((item) => item.id === momentId);
+      const decisionRecordId = moment?.receipt?.records?.decision?.id;
+      if (!moment || !decisionRecordId || !connectorSession?.token) return;
+      setSyncingOutcome(momentId);
+      setOutcomeSyncMessage(null);
+      try {
+        const response = await fetch("/api/salesforce-outcomes", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${connectorSession.token}`,
+          },
+          body: JSON.stringify({ decisionRecordId }),
+        });
+        const data = await response.json().catch(() => ({})) as SalesforceOutcomeSync & {
+          error?: string;
+        };
+        if (!response.ok || !data.decisionId) {
+          if (response.status === 401 || response.status === 403) setConnectorSession(null);
+          throw new Error(data.error ?? `Salesforce outcome read failed (${response.status})`);
+        }
+        if (data.decisionId !== moment.decisionId) {
+          throw new Error("Salesforce outcome did not match the selected decision.");
+        }
+
+        const currentPackage = moment.decisionPackage ?? decisionPackageForMoment(moment, authTenant);
+        const nextPackage = applyOutcomeObservation(currentPackage, {
+          response: data.response.status === "pending"
+            ? undefined
+            : {
+                status: data.response.status,
+                actor: data.response.actorToken ?? currentPackage.response.actor,
+                recordedAt: data.response.recordedAt ?? currentPackage.response.recordedAt,
+              },
+          status: data.outcome.status,
+          observation: data.outcome.observation ?? undefined,
+        });
+        setMoments((prev) => prev.map((item) => (
+          item.id === momentId ? { ...item, decisionPackage: nextPackage } : item
+        )));
+
+        const observation = data.outcome.observation;
+        if (!observation) {
+          setOutcomeSyncMessage("No measured outcome has been posted in Salesforce yet.");
+          return;
+        }
+        record([
+          {
+            eventKey: `${momentId}-outcome-${observation.eventId}`,
+            kind: "outcome",
+            title: observation.eventType.replaceAll("_", " "),
+            detail: `Observed in Salesforce · ${data.evidenceClass} evidence · lift remains unmeasured`,
+            ref: momentId,
+            value: observation.value?.amount,
+            status: "confirmed",
+          },
+        ]);
+        setOutcomeSyncMessage("Salesforce outcome imported. Holdout measurement remains pending.");
+      } catch (error) {
+        setOutcomeSyncMessage(
+          error instanceof Error ? error.message : "Salesforce outcome read failed",
+        );
+      } finally {
+        setSyncingOutcome(null);
+      }
+    },
+    [authTenant, connectorSession, moments, record],
+  );
+
   const defer = useCallback((momentId: string, reason?: string) => respondWithoutDelivery(momentId, "deferred", reason), [respondWithoutDelivery]);
   const decline = useCallback((momentId: string, reason?: string) => respondWithoutDelivery(momentId, "declined", reason), [respondWithoutDelivery]);
   const dismiss = useCallback((momentId: string) => decline(momentId, "Not relevant"), [decline]);
@@ -745,6 +841,9 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       activating,
       activateError,
       activate,
+      syncingOutcome,
+      outcomeSyncMessage,
+      syncOutcome,
       defer,
       decline,
       dismiss,
@@ -752,7 +851,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       chainVerified: ledger.length > 0 && verifyChain(ledger),
       scenarioMeta: SCENARIO_META,
     }),
-    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, defer, decline, dismiss, ledger],
+    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, syncingOutcome, outcomeSyncMessage, syncOutcome, defer, decline, dismiss, ledger],
   );
 
   return <ConsoleContext.Provider value={value}>{children}</ConsoleContext.Provider>;
