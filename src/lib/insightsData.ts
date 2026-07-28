@@ -11,6 +11,56 @@ export interface InsightPost {
 
 export const insightsPosts: InsightPost[] = [
   {
+    slug: "meet-ventus-ai-coworker",
+    title: "Meet Ventus AI Coworker: Daily Intelligence and Collaboration for Every Banking Team, 24/7",
+    excerpt:
+      "Ventus AI Coworker is an email-based AI agent that delivers a daily digest of what changed across the book, the portfolio, or the institution — and lets anyone reply to collaborate with it around the clock.",
+    category: "Product",
+    date: "July 28, 2026",
+    readTime: "8 min read",
+    body: `## TL;DR
+
+Ventus AI Coworker is a daily, email-based intelligence digest for banking teams, built by Ventus AI. It combines an institution's own behavioral data with early external life event and wealth signals, then tells each reader — whether a wealth advisor, a relationship manager, a segment leader, or an executive — what deserves attention today. It is conversational and understands each team member's role, so anyone can reply to ask a follow-up and collaborate with it 24/7, scoped to what they are responsible for. Because it arrives by email, it is the lowest-resistance way to distribute intelligence to every associated team member, with no dashboard, no new seat, and no rollout, tuned to each reader's scope and with the institution in control of the data and the boundaries.
+
+## What is it?
+
+Ventus AI Coworker is an email-based AI agent that delivers a daily digest of what changed across the book, the portfolio, or the institution. Every morning, the right person receives one email that surfaces what moved overnight and what deserves attention today: emerging life events, wealth signals, household changes, and shifts across segments. There is no new dashboard to log into and no workflow to learn. The intelligence arrives where people already work, in their inbox.
+
+It is built by Ventus AI, a behavioral intelligence and personalization engine for banks and credit unions. Ventus enriches an institution's own transaction data and fuses it with early external life event and wealth signals, and the Coworker is how that intelligence reaches the people who act on it.
+
+## How does it work?
+
+Each reader's scope — a client book, a portfolio, a segment, an institution — is matched against behavioral and external signals. When something meaningful surfaces — a new-mover flag, a change in wealth banding, a household event, a shift across a segment — the Coworker assembles it into a short, readable digest and sends it by email. The reader takes it in over a coffee and decides what to act on.
+
+The digest is only the start of the conversation. The Coworker is conversational, so a reader can reply to the email and ask a follow-up in plain language: pull the households behind a flag, explain why a segment moved, draft the outreach. It understands each team member's role and responsibility, so it answers an advisor as an advisor, a segment leader as a segment leader, and an executive as an executive, and it works this way around the clock. A relationship manager can ask a question at 6am and a product lead can ask a different one at 11pm, and each gets a response scoped to what they are responsible for.
+
+The design goal is to move teams from reacting late to acting early. Internal transaction data is accurate but lags and ends at the institution's walls. External signals arrive earlier and wider but are modeled. Each covers the other's blind spot, so a team often sees a reason to act before the first transaction ever appears.
+
+## Who is it for?
+
+Ventus AI Coworker is built for anyone at a bank or credit union who is responsible for more relationships or accounts than they can actively watch.
+
+**For wealth advisors and relationship managers**, it is a daily client-book digest: which relationships had a meaningful change and are worth a call, a note, or a moment of attention today.
+
+**For retail and branch leaders**, it surfaces patterns across a portfolio: new-mover inflows, segments gaining or losing momentum, households crossing meaningful thresholds.
+
+**For product, marketing, and segmentation leaders**, it reads as a pulse on the base: where behavioral and life event signals are concentrating, so campaigns and offers can be timed to real moments rather than calendar cycles.
+
+**For executives and line-of-business heads**, it is a running read on the institution's book — the kind of whole-customer context that usually requires pulling several reports together, delivered as one short morning email.
+
+The digest is tuned to the reader. An advisor sees their clients; a segment leader sees their segment; an executive sees the institution. Same engine, different lens.
+
+## Why it matters, and what makes it different
+
+Every banking role manages more than any person can actively monitor, and the moments worth acting on — a home purchase, a liquidity event, a family change, a segment starting to move — are the easiest to miss. Ventus AI Coworker closes that gap by meeting people where they already are instead of asking them to check somewhere new. Nothing to log into, nothing to provision, nothing to roll out, so intelligence actually reaches the whole team rather than the few who adopt another tool.
+
+It also respects what a bank already has. The Coworker works inside the systems institutions already run, and institutions govern the data and the boundaries while Ventus executes within them. The result is timely, whole-customer context at the level each person works, without the institution giving up control.
+
+## Learn more
+
+See how Ventus AI Coworker fits your team and schedule a demo at [ventusai.com/contact](/contact).`,
+  },
+  {
     slug: "what-is-semantic-transaction-enrichment",
     title: "What Is Semantic Transaction Enrichment?",
     excerpt:
