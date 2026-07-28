@@ -1,13 +1,10 @@
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Sparkles } from "lucide-react";
 import SEO from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
-import { AdvisorConversationThread } from "@/components/tepilot/advisor-console/AdvisorConversationThread";
-import { generateDashboardClients } from "@/lib/randomProfileGenerator";
+import CoworkerEmailReel from "@/components/coworker/CoworkerEmailReel";
 
 const flowSteps = [
   { label: "Detect", desc: "Match each reader's scope to behavioral + external signals." },
@@ -42,7 +39,7 @@ const CoworkerPage = () => {
   const who = useSectionReveal();
   const why = useSectionReveal();
 
-  const clients = useMemo(() => generateDashboardClients(60), []);
+  
 
   return (
     <main className="bg-white min-h-screen">
@@ -112,28 +109,12 @@ const CoworkerPage = () => {
               A real morning exchange.
             </h2>
             <p style={revealStyle(demo.visible, 200)} className="text-gray-500 max-w-2xl mx-auto text-base sm:text-lg">
-              Click any thread to read the back-and-forth between an advisor or leader and the Coworker.
+              Auto-playing — hover to pause, or click any step to jump.
             </p>
           </div>
 
-          <div
-            style={{
-              ...revealStyle(demo.visible, 300),
-              border: "1px solid #E5E7EB",
-              boxShadow: "0 10px 40px rgba(15, 23, 42, 0.08)",
-              height: 720,
-            }}
-            className="rounded-2xl bg-white overflow-hidden flex flex-col"
-          >
-            <div className="shrink-0 px-4 py-2.5 border-b border-purple-200 bg-purple-50 flex items-center gap-2">
-              <Sparkles className="w-3.5 h-3.5 text-purple-600" />
-              <span className="text-[11px] font-bold uppercase tracking-[0.14em] text-purple-700">
-                AI Coworker ↔ Advisor
-              </span>
-            </div>
-            <div className="flex-1 min-h-0">
-              <AdvisorConversationThread clients={clients} density="full" />
-            </div>
+          <div style={revealStyle(demo.visible, 300)}>
+            <CoworkerEmailReel />
           </div>
         </div>
       </section>
