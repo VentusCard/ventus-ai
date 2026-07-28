@@ -845,7 +845,7 @@ export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) 
       })}
 
       {totalSignals === 0 && (
-        <div className={cn("italic text-slate-500", compact ? "text-[11px]" : "text-sm")}>Quiet morning — no new signals.</div>
+        <div className={cn("italic text-slate-500", compact ? "text-[13px]" : "text-sm")}>Quiet morning — no new signals.</div>
       )}
 
       <p className={cn(textCls, "text-slate-700")}>
