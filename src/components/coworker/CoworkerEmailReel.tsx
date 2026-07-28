@@ -214,11 +214,11 @@ const CoworkerEmailReel = () => {
             </div>
           )}
           <div className="space-y-3">{msg.body}</div>
-          <div className="pt-4 mt-2 border-t border-slate-100 text-[12px] text-slate-600">
+          <div className="pt-4 mt-2 border-t border-slate-100 text-[13px] text-slate-600">
             <p className="text-slate-900 font-medium">
               — {isVentus ? "Ventus" : ADVISOR.name.split(" ")[0]}
             </p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
+            <p className="text-[11px] text-slate-400 mt-0.5">
               {isVentus ? "Sent by Ventus Coworker · ventusai.com" : `Sent from Outlook · ${ADVISOR.email}`}
             </p>
           </div>
