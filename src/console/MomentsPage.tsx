@@ -266,7 +266,10 @@ export default function MomentsPage() {
                 <p><strong style={{ color: "var(--v2-ink)" }}>Active:</strong> governed deterministic baseline</p>
                 <p><strong style={{ color: "var(--v2-ink)" }}>Shadow:</strong> model-assisted planner for evaluation</p>
                 <p><strong style={{ color: "var(--v2-ink)" }}>Source:</strong> {selected.sourceName}</p>
-                <p><strong style={{ color: "var(--v2-ink)" }}>Receipt:</strong> {decision.decisionId} · schema {decision.schemaVersion}</p>
+                <p>
+                  <strong style={{ color: "var(--v2-ink)" }}>Receipt:</strong> {decision.decisionId} · schema {decision.schemaVersion}
+                  {selected.governedReview ? " · durable review" : ""}
+                </p>
               </div>
             </div>
           </details>
@@ -289,24 +292,38 @@ export default function MomentsPage() {
                   {outcomeObservation ? "outcome observed" : "outcome window open"}
                 </span>
               </div>
-              <div className="mt-4 grid gap-px overflow-hidden rounded-md border sm:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>
-                {[
-                  ["Decision receipt", selected.receipt.records?.decision, "Ventus ledger"],
-                  ["Qualified referral", selected.receipt.records?.referral, "FSC routing"],
-                  ["Employee task", selected.receipt.records?.task, "Action"],
-                ].map(([label, record, fallback]) => (
-                  <div key={label as string} className="bg-white p-3">
-                    <p className="v2-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>{label as string}</p>
-                    {record && typeof record === "object" && "url" in record ? (
-                      <a href={record.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-[12px] font-bold" style={{ color: "var(--c-accent)" }}>
-                        Open record <ArrowUpRight className="h-3.5 w-3.5" />
-                      </a>
-                    ) : (
-                      <p className="mt-2 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>{fallback as string}</p>
-                    )}
+              {selected.receipt.records ? (
+                <div className="mt-4 grid gap-px overflow-hidden rounded-md border sm:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>
+                  {[
+                    ["Decision receipt", selected.receipt.records.decision, "Ventus ledger"],
+                    ["Qualified referral", selected.receipt.records.referral, "FSC routing"],
+                    ["Employee task", selected.receipt.records.task, "Action"],
+                  ].map(([label, record, fallback]) => (
+                    <div key={label as string} className="bg-white p-3">
+                      <p className="v2-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>{label as string}</p>
+                      {record && typeof record === "object" && "url" in record ? (
+                        <a href={record.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-[12px] font-bold" style={{ color: "var(--c-accent)" }}>
+                          Open record <ArrowUpRight className="h-3.5 w-3.5" />
+                        </a>
+                      ) : (
+                        <p className="mt-2 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>{fallback as string}</p>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="mt-4 flex items-center justify-between gap-4 rounded-md border bg-white p-3" style={{ borderColor: "var(--v2-rule)" }}>
+                  <div>
+                    <p className="v2-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>Durable delivery receipt</p>
+                    <p className="mt-1 text-[12px] font-semibold" style={{ color: "var(--v2-ink)" }}>{selected.receipt.id}</p>
                   </div>
-                ))}
-              </div>
+                  {selected.receipt.url ? (
+                    <a href={selected.receipt.url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[12px] font-bold" style={{ color: "var(--c-accent)" }}>
+                      Open record <ArrowUpRight className="h-3.5 w-3.5" />
+                    </a>
+                  ) : null}
+                </div>
+              )}
               <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: "var(--v2-rule)" }}>
                 {outcomeObservation ? (
                   <div>
@@ -394,7 +411,9 @@ export default function MomentsPage() {
               </button>
               <div className="mt-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-4">
-                  <button onClick={() => setControlMode(controlMode === "modify" ? "none" : "modify")} className="text-[12px] font-semibold" style={{ color: "var(--c-accent)" }}>Modify</button>
+                  {!selected.governedReview ? (
+                    <button onClick={() => setControlMode(controlMode === "modify" ? "none" : "modify")} className="text-[12px] font-semibold" style={{ color: "var(--c-accent)" }}>Modify</button>
+                  ) : null}
                   <button onClick={() => setControlMode("defer")} className="text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>Defer</button>
                   <button onClick={() => setControlMode("decline")} className="text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>Decline</button>
                 </div>
