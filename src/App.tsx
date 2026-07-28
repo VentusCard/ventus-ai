@@ -33,6 +33,7 @@ const NextConversationPage = lazy(() => import("./pages/solutions/NextConversati
 const PortfolioIntelligencePage = lazy(() => import("./pages/solutions/PortfolioIntelligencePage"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard"));
+const CoworkerPage = lazy(() => import("./pages/CoworkerPage"));
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const AppLayout = () => {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
         <Route path="/bank-analytics" element={<BankAnalyticsDashboard />} />
+        <Route path="/coworker" element={<CoworkerPage />} />
         <Route path="/solutions/offer-intelligence" element={<NextOfferPage />} />
         <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
         <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />

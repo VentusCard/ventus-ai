@@ -1,32 +1,40 @@
-## Problem
+## New route: `/coworker`
 
-The "Home Purchase / Transition" Life Event pill shows "4 signals" and does nothing when clicked — no rows highlight in the enrichment table.
+A marketing/product page for **Ventus AI Coworker**, adapted from the blog post and prominently featuring the live AI-Coworker ↔ Advisor conversation demo already shipped in `/bankdemo`'s Next Conversation tab.
 
-## Root cause
+### Page sections (top to bottom)
 
-The pill labels itself with `evt.evidence.length` (falling back to "N signals") whenever `transaction_indices` is empty, but the click handler only passes `transaction_indices` to the table. Empty array in → nothing highlighted.
+1. **Hero**
+   - Eyebrow: `VENTUS AI COWORKER`
+   - Headline: "Daily intelligence and collaboration for every banking team, 24/7."
+   - Subtext: condensed from the blog TL;DR — email-based digest + conversational, scope-aware follow-ups, no dashboard to log into.
+   - Primary CTA → `/contact` ("Schedule a Demo"); secondary → `/insights/meet-ventus-ai-coworker` ("Read the announcement").
 
-`transaction_indices` end up empty because `synthesize-persona`'s `cleanIndices` strips any index whose upstream `txnOwner` tag is not `"life_event"` or `null`. A Home Depot / realtor / moving-services spike often gets pre-tagged `spending_habit` upstream, so all four of the LLM's chosen rows get filtered out. The event still passes the `evidence.length >= 2` survival bar, so the pill renders — but it has zero indices to click through to.
+2. **What it is** — the two "What is it?" paragraphs from the blog on a light card.
 
-Per the standing rule ("drop all frontend computes"), the fix belongs in the backend, not fuzzy-matching in the panel.
+3. **Live conversation demo — the centerpiece**
+   - Embed the exact example from `/bankdemo`'s Next Conversation tab by reusing `AdvisorConversationThread` (from `src/components/tepilot/advisor-console/AdvisorConversationThread.tsx`) — the Sarah / Marco / Priya / Elena / David threads with digest → reply → follow-up exchanges.
+   - Frame it in a bordered "inbox" surface with the same purple header pill used in `AdvisorConversationTabletView` ("AI Coworker ↔ Advisor").
+   - Seed with `generateDashboardClients(60)` from `src/lib/randomProfileGenerator`, `density="full"`, fixed height (~720px) so the page doesn't hijack scroll.
+   - Short caption above: "Try it — click any thread to read the exchange between an advisor and the Coworker."
 
-## Fix — backend only
+4. **How it works** — 3-step horizontal flow (reuse `StepFlow`): Detect → Digest → Converse.
 
-In `supabase/functions/synthesize-persona/index.ts`, when constructing `filteredLE` (around lines 844-850):
+5. **Who it's for** — 4-card grid (Wealth advisors & RMs, Retail/branch leaders, Product/marketing/segmentation, Executives & LOB heads), one sentence each from the blog.
 
-1. After `cleanIndices(..., ["life_event"])`, if the result is empty **and** the raw LLM `transaction_indices` are non-empty, retry with a widened allow-list `["life_event", "spending_habit"]` (still excluding `"risk"`, `"financial_signal"`, `"demographic"` to preserve the priority ladder against higher tiers).
-2. Only apply the widened rescue when the event survives the `evidence.length >= 2` bar — so we don't resurrect noise.
-3. The rescued indices then flow into `claimedByHigher`, which already causes the Spending Habits rollup pass to skip them, so no double-attribution.
+6. **Why it matters / what's different** — two-column block from the closing of the blog: meets people where they work; respects what the bank already has.
 
-This keeps ownership rules intact for the higher-priority tiers (Financial, Demographic, Risk) while letting a well-evidenced Life Event reclaim rows that upstream had loosely tagged as habitual.
+7. **CTA footer** — reuse `SolutionsCTA` → `/contact`.
 
-## Guardrails
+### Technical details
 
-- No change to frontend logic.
-- No change to Financial / Demographic / Risk cleaning.
-- Pet-vocab and relocation-travel guards continue to run after the rescue.
-- The College-prep demotion path is unaffected.
+- New file: `src/pages/CoworkerPage.tsx`, lazy-loaded. Follows `NextConversationPage.tsx` conventions: `SEO`, `useSectionReveal` + `revealStyle`, Tailwind, strict light theme, Manrope.
+- Route wiring in `src/App.tsx`: add `const CoworkerPage = lazy(...)` and `<Route path="/coworker" element={<CoworkerPage />} />`. Keep it inside the standard chrome (Navbar + Footer) — not in the `showChrome === false` allowlist.
+- Reused components: `AdvisorConversationThread`, `generateDashboardClients`, `SolutionsCTA`, `StepFlow`, `SEO`.
+- SEO: title "Ventus AI Coworker — Daily intelligence for banking teams", description from the blog TL;DR, path `/coworker`.
+- No backend, schema, or new deps.
 
-## Verification
+### Out of scope
 
-After deploy, on the Sarah-Mitchell-style persona: the "Home Purchase / Transition" pill should render as `4 txns · $X.Xk` (not "4 signals") and clicking it should light up the corresponding rows in the enrichment table.
+- No navbar link changes (add on request).
+- No edits to `/bankdemo`, the blog post, or edge functions.
