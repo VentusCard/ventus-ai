@@ -22,6 +22,11 @@ import {
   type PlaidTransaction,
 } from "@/lib/plaid";
 import type { DecisionRunResult } from "@/lib/decision-contract";
+import type {
+  GovernedActivationResult,
+  GovernedPilotResult,
+  GovernedRuntimeEnvelope,
+} from "@/lib/governed-runtime";
 import {
   clearTenantOverride,
   resolveTenant,
@@ -178,6 +183,7 @@ export type ConsoleMoment = {
   opportunity: DetectedOpportunity;
   policy: OpportunityPolicyDecision;
   runtime: DecisionRunResult["runtime"];
+  governedReview?: GovernedPilotResult;
   status: "queued" | "activated" | "deferred" | "declined" | "dismissed";
   decisionPackage?: DecisionPackage;
   receipt?: {
@@ -481,6 +487,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       let sourceMode: ConsoleMoment["sourceMode"] = "fixture";
       let sourceName = "Plaid-shaped fixture";
       let decision: DecisionRunResult | null = null;
+      let governedReview: GovernedPilotResult | undefined;
 
       if (connectorSession?.token && connectorSession.connectors.plaid) {
         try {
@@ -495,6 +502,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           const data = (await response.json().catch(() => ({}))) as {
             transactions?: PlaidTransaction[];
             decision?: DecisionRunResult | null;
+            governedRuntime?: GovernedRuntimeEnvelope;
             error?: string;
           };
           if (response.ok && data.transactions?.length) {
@@ -502,6 +510,40 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
             sourceMode = "live";
             sourceName = "Plaid sandbox · live pull";
             decision = data.decision ?? null;
+            if (data.governedRuntime?.state === "unavailable") {
+              setIngestError(data.governedRuntime.error);
+              setIngesting(false);
+              return;
+            }
+            if (data.governedRuntime?.state === "holdout") {
+              record([{
+                eventKey: `${data.governedRuntime.result.decisionId}-holdout`,
+                kind: "counterfactual",
+                title: "Household reserved for holdout",
+                detail: "Assignment occurred before decisioning; no employee action was surfaced.",
+                ref: data.governedRuntime.result.householdToken,
+                status: "confirmed",
+              }]);
+              setIngestError("This household is in the pilot holdout, so no employee action was created.");
+              setIngesting(false);
+              return;
+            }
+            if (data.governedRuntime?.state === "suppressed") {
+              record([{
+                eventKey: `${data.governedRuntime.result.decisionId}-suppressed`,
+                kind: "gate",
+                title: "Governed decision suppressed",
+                detail: data.governedRuntime.result.decision?.abstainReason ?? "The approved policy blocked activation.",
+                ref: data.governedRuntime.result.householdToken,
+                status: "confirmed",
+              }]);
+              setIngestError("The governed runtime suppressed this action under the approved policy.");
+              setIngesting(false);
+              return;
+            }
+            if (data.governedRuntime?.state === "prepared") {
+              governedReview = data.governedRuntime.result;
+            }
           } else if (response.status === 401 || response.status === 403) {
             setConnectorSession(null);
           }
@@ -557,7 +599,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       const id = `mo_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
       const moment: ConsoleMoment = {
         id,
-        decisionId: decision.decisionId,
+        decisionId: governedReview?.decisionId ?? decision.decisionId,
         scenario,
         createdAt: new Date().toISOString(),
         sourceMode,
@@ -566,6 +608,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         opportunity,
         policy,
         runtime: decision.runtime,
+        governedReview,
         status: "queued",
       };
       moment.decisionPackage = decisionPackageForMoment(moment, authTenant);
@@ -575,7 +618,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           eventKey: `${id}-signal`,
           kind: "signal",
           title: `${opportunity.type} detected`,
-          detail: `${sourceName} · ${transactions.length} records · ${opportunity.confidence}% · ${decision.runtime.version}`,
+          detail: `${sourceName} · ${transactions.length} records · ${opportunity.confidence}% · ${governedReview ? "durable review prepared" : decision.runtime.version}`,
           ref: id,
           status: sourceMode === "live" ? "confirmed" : "simulated",
         },
@@ -610,6 +653,102 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       setActivating(momentId);
       setActivateError(null);
       try {
+        if (moment.governedReview) {
+          const preparedDecision = moment.governedReview.decision;
+          if (!preparedDecision || preparedDecision.abstain) {
+            throw new Error("This prepared decision cannot be activated.");
+          }
+          if (selectedAction.id.replaceAll("-", "_") !== preparedDecision.actionId) {
+            throw new Error("This pilot can route only the approved Growth Play action. Defer or decline to request a protocol change.");
+          }
+          const governedResponse = await fetch("/api/standalone-pilot-activate", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${connectorSession.token}`,
+            },
+            body: JSON.stringify({
+              decisionId: moment.governedReview.decisionId,
+              businessLine: moment.scenario === "deposit-retention"
+                ? "consumer-banking"
+                : "wealth-management",
+              decision: preparedDecision,
+            }),
+          });
+          const governed = (await governedResponse.json().catch(() => ({}))) as GovernedActivationResult & {
+            error?: string;
+          };
+          if (!governedResponse.ok || governed.activation !== "delivered") {
+            if (governedResponse.status === 401 || governedResponse.status === 403) setConnectorSession(null);
+            throw new Error(governed.error ?? `Governed activation failed (${governedResponse.status})`);
+          }
+          const durableReceipt = governed.receipt;
+          const receiptId = durableReceipt?.external_receipt_id
+            ?? durableReceipt?.externalReceiptId
+            ?? durableReceipt?.delivery_id
+            ?? durableReceipt?.deliveryId;
+          if (!receiptId) throw new Error("Governed activation did not return a delivery receipt.");
+          const receiptUrl = durableReceipt?.external_receipt_url
+            ?? durableReceipt?.externalReceiptUrl
+            ?? undefined;
+
+          setMoments((prev) =>
+            prev.map((item) =>
+              item.id === momentId
+                ? {
+                    ...item,
+                    status: "activated",
+                    decisionPackage: {
+                      ...decisionPackage,
+                      workflow: {
+                        connector: preparedDecision.connector ?? "employee-workflow",
+                        status: "delivered",
+                        records: {},
+                      },
+                      outcome: {
+                        ...decisionPackage.outcome,
+                        status: "measuring",
+                      },
+                    },
+                    receipt: {
+                      id: receiptId,
+                      url: receiptUrl,
+                      object: "Delivery receipt",
+                      subject: meta.subject,
+                    },
+                  }
+                : item,
+            ),
+          );
+          record([
+            {
+              eventKey: `${momentId}-decision`,
+              kind: "decision",
+              title: `${meta.play} accepted`,
+              detail: `${selectedAction.title} · exact prepared decision verified`,
+              ref: moment.governedReview.decisionId,
+              status: "confirmed",
+            },
+            {
+              eventKey: `${momentId}-activation`,
+              kind: "activation",
+              title: "Governed workflow delivered",
+              detail: `Durable receipt ${receiptId} · at-most-once delivery`,
+              ref: receiptId,
+              status: "confirmed",
+            },
+            {
+              eventKey: `${momentId}-outcome`,
+              kind: "outcome",
+              title: "Outcome window opened",
+              detail: "Measured against the pre-decision holdout when the bank outcome feed posts",
+              ref: momentId,
+              status: "pending",
+            },
+          ]);
+          return;
+        }
+
         const response = await fetch("/api/salesforce-deliver", {
           method: "POST",
           headers: {

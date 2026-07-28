@@ -12,6 +12,7 @@
 // No Link UI is needed in sandbox — /sandbox/public_token/create mints a token directly.
 declare const process: { env: Record<string, string | undefined> };
 import { authorizeConnector, connectorDisabledResponse, liveConnectorsEnabled } from "./_connectorAuth.js";
+import { maybePreparePlaidGovernedReview } from "./_plaidGovernedReview.js";
 import { executeDecisionRun } from "./_decisionRuntime.js";
 import type { DecisionScenario } from "../src/lib/decision-contract.js";
 import type { PlaidTransaction } from "../src/lib/plaid.js";
@@ -172,6 +173,13 @@ export async function POST(request: Request): Promise<Response> {
           },
         })
       : null;
+    const governedRuntime = best.length
+      ? await maybePreparePlaidGovernedReview({
+          principal,
+          scenario,
+          transactions: best,
+        })
+      : { state: "disabled" as const };
 
     return Response.json({
       source: "plaid",
@@ -181,6 +189,7 @@ export async function POST(request: Request): Promise<Response> {
       transactions: best,
       count: best.length,
       decision,
+      governedRuntime,
       authorization: {
         tenantId: principal.tenantId,
         sessionId: principal.sessionId,
