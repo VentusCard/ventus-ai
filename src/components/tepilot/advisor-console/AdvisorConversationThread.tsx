@@ -60,13 +60,13 @@ const DATE_STR = NOW.toLocaleDateString("en-US", {
   year: "numeric",
 });
 
-const ADVISOR = {
+export const ADVISOR = {
   name: "Morgan Chen",
   email: "morgan.chen@bank.com",
   initials: "MC",
 };
 
-const VENTUS = {
+export const VENTUS = {
   name: "Ventus AI Coworker",
   email: "wmcoworker@ventusai.com",
   initials: "VA",
