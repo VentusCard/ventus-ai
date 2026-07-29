@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Users, Target, Calendar, Mail, MousePointerClick } from "lucide-react";
-import { LIFESTYLE_PILLARS, estimateStudioAudienceSize, PRODUCT_CATALOG } from "@/lib/campaignStudioData";
+import { LIFESTYLE_PILLARS, estimateStudioAudienceSize } from "@/lib/campaignStudioData";
 import { LIFE_EVENTS } from "@/types/segment";
 
 const FINANCIAL_SIGNALS = [
@@ -30,13 +30,57 @@ const formatAudience = (n: number) => {
   return n.toLocaleString();
 };
 
+type Draft = {
+  id: string;
+  requires: string; // spending habit pillar that gates this draft
+  segment: string;
+  reach: number;
+  subject: string;
+  body: string;
+  valueMath: string;
+};
+
+const EMAIL_DRAFTS: Draft[] = [
+  {
+    id: "dining",
+    requires: "Dining & Nightlife",
+    segment: "Dining-led households",
+    reach: 18420,
+    subject: "Your dining habit could earn you $237 more this year",
+    body: "You spend most nights out — pick Dining as your 3% category and keep 2% on groceries and wholesale clubs. Everything else earns 1%.",
+    valueMath: "~$280/mo dining + ~$650/mo grocery ≈ $237/yr vs a flat 1% card.",
+  },
+  {
+    id: "grocery",
+    requires: "Grocery & Household",
+    segment: "Grocery-led families",
+    reach: 24310,
+    subject: "3% back on the aisle you visit every week",
+    body: "Groceries are your #1 spend. Set 3% on Grocery, keep 2% on Gas & Fuel for the commute, and 1% on the rest. $0 annual fee.",
+    valueMath: "~$850/mo grocery + ~$220/mo gas ≈ $359/yr vs a flat 1% card.",
+  },
+  {
+    id: "gas",
+    requires: "Gas & Fuel",
+    segment: "Commuter households",
+    reach: 12180,
+    subject: "3% at the pump, 2% on dinners out",
+    body: "You're on the road daily. Choose Gas as your 3% category, keep Dining at 2%, and 1% everywhere else. Plus a $200 welcome bonus after $1,000 in 90 days.",
+    valueMath: "~$320/mo gas + ~$180/mo dining ≈ $158/yr vs a flat 1% card.",
+  },
+];
+
 const CampaignStudioPreview = () => {
-  const [selectedLifestyles, setSelectedLifestyles] = useState<string[]>(["Travel & Exploration"]);
+  const [selectedLifestyles, setSelectedLifestyles] = useState<string[]>([
+    "Dining & Nightlife",
+    "Grocery & Household",
+    "Gas & Fuel",
+  ]);
   const [selectedLifeEvents, setSelectedLifeEvents] = useState<string[]>(["family"]);
-  const [selectedFinancial, setSelectedFinancial] = useState<string[]>(["Auto Loan Renewal"]);
-  const [selectedDemographic, setSelectedDemographic] = useState<string[]>(["Pre-Retiree"]);
-  const [ageRanges, setAgeRanges] = useState<string[]>(["45-54", "55-64"]);
-  const [incomeBands, setIncomeBands] = useState<string[]>(["$150k-$250k", ">$250k"]);
+  const [selectedFinancial, setSelectedFinancial] = useState<string[]>([]);
+  const [selectedDemographic, setSelectedDemographic] = useState<string[]>(["New Parent / Family Formation"]);
+  const [ageRanges, setAgeRanges] = useState<string[]>(["35-44"]);
+  const [incomeBands, setIncomeBands] = useState<string[]>(["$75k-$150k", "$150k-$250k"]);
   const [generating, setGenerating] = useState(false);
   const [briefVisible, setBriefVisible] = useState(true);
 
@@ -44,7 +88,7 @@ const CampaignStudioPreview = () => {
     return estimateStudioAudienceSize({
       selectedPillars: selectedLifestyles,
       lifeEventTypes: selectedLifeEvents,
-      selectedProducts: { "Premium Travel": "has" },
+      selectedProducts: {},
       selectedRegions: [],
       selectedMetros: [],
       areaType: "All",
@@ -69,7 +113,10 @@ const CampaignStudioPreview = () => {
     }, 900);
   };
 
-  const selectedProduct = PRODUCT_CATALOG.find((p) => p.name === "Premium Travel") || PRODUCT_CATALOG[5];
+  const activeDrafts = useMemo(() => {
+    const matched = EMAIL_DRAFTS.filter((d) => selectedLifestyles.includes(d.requires));
+    return matched.length ? matched.slice(0, 3) : [EMAIL_DRAFTS[0]];
+  }, [selectedLifestyles]);
 
   return (
     <div
@@ -95,7 +142,7 @@ const CampaignStudioPreview = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_380px] gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6">
         {/* Left: Signal builder */}
         <div className="space-y-5">
           {/* Life Events */}
@@ -229,12 +276,19 @@ const CampaignStudioPreview = () => {
           </div>
         </div>
 
-        {/* Right: Brief preview */}
+        {/* Right: Product + segmented email drafts */}
         <div className="flex flex-col gap-4">
           <div className="p-4 rounded-xl bg-blue-50 border border-blue-100">
-            <p className="text-[11px] uppercase tracking-wide text-blue-600 mb-1">Selected Product</p>
-            <p className="text-base font-semibold text-gray-900">{selectedProduct.name}</p>
-            <p className="text-xs text-gray-500 mt-1">Category: {selectedProduct.category.replace("_", " ")}</p>
+            <p className="text-[11px] uppercase tracking-wide text-blue-600 mb-1">The Product</p>
+            <p className="text-base font-semibold text-gray-900">Cash Rewards Card</p>
+            <p className="text-xs text-gray-700 mt-1 leading-relaxed">
+              <span className="font-medium">3%</span> on your top spending category ·{" "}
+              <span className="font-medium">2%</span> on your second · <span className="font-medium">1%</span>{" "}
+              everything else.
+            </p>
+            <p className="text-[11px] text-gray-500 mt-2">
+              $0 annual fee · $200 online cash rewards after $1,000 in the first 90 days.
+            </p>
           </div>
 
           <Button
@@ -245,70 +299,57 @@ const CampaignStudioPreview = () => {
             {generating ? (
               <span className="flex items-center gap-2">
                 <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                Generating brief...
+                Drafting emails...
               </span>
             ) : (
               <span className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4" />
-                Generate AI Campaign Brief
+                Generate Segmented Emails
               </span>
             )}
           </Button>
 
           {briefVisible && !generating && (
-            <div
-              className="p-5 rounded-xl bg-white border border-gray-200 flex-1"
-              style={{ boxShadow: "0 4px 20px rgba(15,23,42,0.04)" }}
-            >
-              <div className="flex items-center justify-between mb-4">
-                <h4 className="text-sm font-semibold text-gray-900">Campaign Brief</h4>
+            <div className="flex flex-col gap-3 flex-1">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-semibold text-gray-900">Email drafts</h4>
                 <Badge variant="secondary" className="bg-green-50 text-green-700 border-green-100">
-                  {formatAudience(audience)} reachable
+                  {activeDrafts.length} segment{activeDrafts.length === 1 ? "" : "s"}
                 </Badge>
               </div>
 
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">Objective</p>
-                  <p className="text-sm text-gray-900 leading-relaxed">
-                    Cross-sell <span className="font-medium">{selectedProduct.name}</span> to customers showing
-                    travel intent, family formation signals, and auto-loan renewal timing.
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">Segment</p>
-                  <p className="text-sm text-gray-900 leading-relaxed">
-                    {selectedDemographic.join(", ")} households, ages {ageRanges.join(", ")}, income{" "}
-                    {incomeBands.join(", ")}, with active {selectedLifestyles.join(" / ")} spend.
-                  </p>
-                </div>
-
-                <div>
-                  <p className="text-[11px] uppercase tracking-wide text-gray-500 mb-1">Message Angle</p>
-                  <p className="text-sm text-gray-900 leading-relaxed">
-                    "Turn your next trip into premium rewards — 3x on travel, no foreign transaction fees, and a
-                    60,000-point welcome offer."
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-gray-100">
-                  <div className="flex items-center gap-2 text-[11px] text-gray-500 mb-2">
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>Recommended channels</span>
+              {activeDrafts.map((d) => (
+                <div
+                  key={d.id}
+                  className="p-4 rounded-xl bg-white border border-gray-200"
+                  style={{ boxShadow: "0 2px 12px rgba(15,23,42,0.03)" }}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 text-[11px] font-medium border border-blue-100">
+                      {d.segment}
+                    </span>
+                    <span className="text-[11px] text-gray-500">{formatAudience(d.reach)} reachable</span>
                   </div>
-                  <div className="flex flex-wrap gap-2">
-                    {["Email", "Mobile Push", "In-App", "Branch Prompt"].map((c) => (
-                      <span
-                        key={c}
-                        className="px-2 py-1 rounded-md bg-gray-100 text-gray-700 text-[11px] font-medium"
-                      >
-                        {c}
-                      </span>
-                    ))}
+                  <p className="text-sm font-semibold text-gray-900 mb-1">{d.subject}</p>
+                  <p className="text-xs text-gray-700 leading-relaxed mb-2">{d.body}</p>
+                  <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-md px-2 py-1 inline-block">
+                    {d.valueMath}
+                  </p>
+                  <div className="flex items-center gap-2 mt-3 pt-2 border-t border-gray-100">
+                    <Mail className="w-3 h-3 text-gray-400" />
+                    <div className="flex flex-wrap gap-1.5">
+                      {["Email", "Mobile Push", "In-App"].map((c) => (
+                        <span
+                          key={c}
+                          className="px-1.5 py-0.5 rounded bg-gray-100 text-gray-600 text-[10px] font-medium"
+                        >
+                          {c}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
+              ))}
             </div>
           )}
         </div>
