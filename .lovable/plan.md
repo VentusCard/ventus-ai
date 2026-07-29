@@ -1,32 +1,20 @@
-## Segments driven by all signal types (behavioral, life-event, financial, demographic)
+Update `src/components/solutions/CampaignStudioPreview.tsx` so each of the 6 segment email drafts includes a clearly styled `$xx.xx` placeholder representing the per-household personalized annual benefit calculation.
 
-The demo currently shows six behavioral segments only. The rest of the app already frames product pitches across **behavioral**, **life-event**, **financial-journey** and **demographic** angles (see `productCatalogExtras.ts` `MESSAGE_OVERRIDES` and `MessageAngle`). Bring that same variety into `CampaignStudioPreview.tsx` so the story is: one product, many signal types.
+## Changes
 
-### Re-mix the 6 segments
+1. **Draft body copy** — In each of the 6 segment entries (Dining-led, Grocery-led, Commuter, New Parents, Just Moved, Empty-nest), insert a sentence like:
+   > "Based on your last 90 days of spend, we estimate **$xx.xx** back per year on this card."
+   The `$xx.xx` is rendered as a visibly-templated token (monospace chip, dashed border) to signal it's a per-recipient merge field, not a static number.
 
-Keep the 3-2-1 Cash Rewards card fixed. Recompose the six segments to mix angles:
+2. **Value Math chip row** — Replace the current hardcoded "~$237/yr" style chip with a two-part chip:
+   - Left: signal-based math (e.g., "3% Dining + 2% Grocery")
+   - Right: `$xx.xx / yr` placeholder chip in the same templated style
 
-| # | Segment | Angle | 3% / 2% |
-|---|---------|-------|---------|
-| 1 | Dining-led households | Behavioral | Dining / Grocery |
-| 2 | Grocery-led families | Behavioral | Grocery / Gas |
-| 3 | Commuter households | Behavioral | Gas / Dining |
-| 4 | New parents — family formation | Life event | Grocery / Streaming |
-| 5 | Just bought a home | Life event | Home improvement / Wholesale |
-| 6 | Empty-nest pre-retirees | Demographic | Travel / Dining |
+3. **Legend note** — Add a small caption under the drafts: *"`$xx.xx` = personalized per-household calculation from the last 90 days of transactions"* so viewers understand it's a merge token.
 
-Each segment gets tailored subject/body/value-math copy that references the underlying signal (e.g. "You just moved in — 3% on the aisle you'll live in for a year," "Kids out of the house — reroute the food budget into travel").
+4. No changes to segment list, population bars, rotation logic, product header, or branding.
 
-### Angle chips on tabs + draft card
+## Technical notes
 
-- Add an **angle chip** on each segment tab: color-coded (`Behavioral` blue, `Life event` amber, `Demographic` purple) using the palette already used in `ExecDemoIntelPanel`.
-- Draft card header: keep "Segmented email · draft" but add the same angle chip next to the "To · <segment>" line, so the viewer sees *why* this segment exists.
-
-### Small polish
-
-- Under the "One product · 6 segments" eyebrow, add a one-line legend: `Signal mix: 3 behavioral · 2 life event · 1 demographic`.
-- Population bars and totals continue to work unchanged.
-
-### Files touched
-
-- `src/components/solutions/CampaignStudioPreview.tsx` only. No routing, no data-layer changes.
+- Introduce a tiny `<MergeToken>` inline span component (dashed border, monospace, subtle amber tint) reused across body copy and the value-math chip so the placeholder reads consistently.
+- Keep strict light theme — no `dark:` utilities, no hardcoded colors outside existing tokens.

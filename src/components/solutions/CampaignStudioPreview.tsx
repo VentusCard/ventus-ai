@@ -15,6 +15,13 @@ type Segment = {
   valueMath: string;
 };
 
+const MergeToken = ({ children = "$xx.xx" }: { children?: React.ReactNode }) => (
+  <span className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded border border-dashed border-amber-300 bg-amber-50 text-amber-800 font-mono text-[11px] align-baseline">
+    {children}
+  </span>
+);
+
+
 const ANGLE_STYLE: Record<Angle, { label: string; chip: string }> = {
   behavioral: {
     label: "Behavioral",
@@ -320,7 +327,8 @@ const CampaignStudioPreview = () => {
           {active.subject}
         </p>
         <p className="text-[13px] text-gray-700 leading-relaxed mb-3">
-          {active.body}
+          {active.body} Based on the last 90 days of spend, we estimate
+          <MergeToken /> back per year on this card.
         </p>
 
         <div className="flex flex-wrap gap-2 mb-3">
@@ -335,11 +343,22 @@ const CampaignStudioPreview = () => {
           </span>
         </div>
 
-        <p className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-md px-2.5 py-1.5 inline-block mb-3">
-          {active.valueMath}
+        <div className="flex flex-wrap items-center gap-2 mb-3">
+          <span className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-md px-2.5 py-1.5">
+            {active.valueMath}
+          </span>
+          <span className="inline-flex items-center gap-1 text-[11px] text-gray-600 bg-white border border-gray-200 rounded-md px-2.5 py-1.5">
+            Personalized est.
+            <MergeToken>$xx.xx / yr</MergeToken>
+          </span>
+        </div>
+
+        <p className="text-[10px] text-gray-500 mb-3 italic">
+          <MergeToken /> = personalized per-household calculation from the last 90 days of transactions.
         </p>
 
         <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
+
           <Mail className="w-3 h-3 text-gray-400" />
           <div className="flex flex-wrap gap-1.5">
             {["Email", "Mobile Push", "In-App"].map((c) => (
