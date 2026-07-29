@@ -1,16 +1,21 @@
 import * as cdk from 'aws-cdk-lib';
 import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as lambda from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
 const DEFAULT_CALLBACK_URLS = [
   'http://127.0.0.1:5173/app/auth/callback',
   'http://localhost:5173/app/auth/callback',
+  'https://dev.d1gaewa028qzng.amplifyapp.com/app/auth/callback',
+  'https://staging.d1gaewa028qzng.amplifyapp.com/app/auth/callback',
   'https://ventusai.com/app/auth/callback',
 ];
 
 const DEFAULT_LOGOUT_URLS = [
   'http://127.0.0.1:5173/app/login',
   'http://localhost:5173/app/login',
+  'https://dev.d1gaewa028qzng.amplifyapp.com/app/login',
+  'https://staging.d1gaewa028qzng.amplifyapp.com/app/login',
   'https://ventusai.com/app/login',
 ];
 
@@ -70,6 +75,33 @@ export class VentusIdentityStack extends cdk.Stack {
       deletionProtection: true,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
+
+    const tenantClaimTrigger = new lambda.Function(this, 'TenantClaimTrigger', {
+      description: 'Copies the immutable Cognito tenant attribute into ID and access tokens.',
+      runtime: lambda.Runtime.NODEJS_22_X,
+      handler: 'index.handler',
+      timeout: cdk.Duration.seconds(5),
+      memorySize: 128,
+      code: lambda.Code.fromInline(`
+exports.handler = async (event) => {
+  const tenantId = event.request?.userAttributes?.["custom:tenant_id"];
+  if (!/^[A-Za-z0-9][A-Za-z0-9_-]{1,127}$/.test(tenantId || "")) {
+    throw new Error("Valid immutable tenant_id is required");
+  }
+  event.response = {
+    claimsAndScopeOverrideDetails: {
+      idTokenGeneration: { claimsToAddOrOverride: { tenant_id: tenantId } },
+      accessTokenGeneration: { claimsToAddOrOverride: { tenant_id: tenantId } }
+    }
+  };
+  return event;
+};`),
+    });
+    userPool.addTrigger(
+      cognito.UserPoolOperation.PRE_TOKEN_GENERATION_CONFIG,
+      tenantClaimTrigger,
+      cognito.LambdaVersion.V2_0,
+    );
 
     const identityProviders: cognito.UserPoolClientIdentityProvider[] = [
       cognito.UserPoolClientIdentityProvider.COGNITO,

@@ -421,6 +421,15 @@ export async function POST(request: Request): Promise<Response> {
   } catch {
     return Response.json({ error: "invalid JSON" }, { status: 400 });
   }
+  if (body.decisionPackage !== undefined) {
+    const packageTenantId = cleanText(asRecord(body.decisionPackage).tenantId, 100);
+    if (!packageTenantId || packageTenantId !== principal.tenantId) {
+      return Response.json(
+        { error: "Decision Package tenant does not match the authorized connector session." },
+        { status: 403 },
+      );
+    }
+  }
   const subject = cleanText(body.subject, 255);
   if (!subject) return Response.json({ error: "subject (string) required" }, { status: 400 });
   const { task, activation } = buildSalesforceTaskRecord(body);

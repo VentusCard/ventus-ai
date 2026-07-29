@@ -1,5 +1,12 @@
 declare const process: { env: Record<string, string | undefined> };
 
+import {
+  resolveCognitoMembership,
+  verifyCognitoAccessToken,
+  type CognitoIdentity,
+  type CognitoMembership,
+} from "./_cognitoIdentity.js";
+
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9_-]{1,127}$/;
 const EMAIL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
@@ -40,7 +47,12 @@ export async function authenticateConsoleUser(request: Request): Promise<Console
   const authorization = request.headers.get("authorization");
   const accessToken = authorization?.startsWith("Bearer ") ? authorization.slice(7).trim() : "";
   if (!accessToken) return null;
+  return consoleAuthProvider() === "cognito"
+    ? authenticateCognitoConsoleUser(accessToken)
+    : authenticateSupabaseConsoleUser(accessToken);
+}
 
+async function authenticateSupabaseConsoleUser(accessToken: string): Promise<ConsolePrincipal | null> {
   const supabaseUrl = (
     process.env.SUPABASE_URL
     || process.env.VITE_SUPABASE_URL
@@ -88,11 +100,42 @@ export async function authenticateConsoleUser(request: Request): Promise<Console
   };
 }
 
+export async function authenticateCognitoConsoleUser(
+  accessToken: string,
+  dependencies: {
+    verifyIdentity?: (token: string) => Promise<CognitoIdentity | null>;
+    resolveMembership?: (identity: CognitoIdentity) => Promise<CognitoMembership | null>;
+  } = {},
+): Promise<ConsolePrincipal | null> {
+  const identity = await (dependencies.verifyIdentity ?? verifyCognitoAccessToken)(accessToken);
+  if (!identity) return null;
+  const membership = await (dependencies.resolveMembership ?? resolveCognitoMembership)(identity);
+  if (!membership || !EMAIL.test(membership.email)) return null;
+  const entitlements = safeEntitlements(membership.entitlements);
+  return {
+    userId: identity.subject,
+    email: membership.email,
+    tenantId: identity.tenantHint,
+    organizationId: identity.tenantHint,
+    role: ["ventus_platform_admin", "institution_admin"].includes(membership.role)
+      ? "admin"
+      : "operator",
+    status: entitlements.length > 0 ? "active" : "pending",
+    entitlements,
+  };
+}
+
 export async function authorizeConsoleUser(request: Request): Promise<ConsolePrincipal | null> {
   const principal = await authenticateConsoleUser(request);
   return principal?.status === "active" && principal.entitlements.includes("live_connectors")
     ? principal
     : null;
+}
+
+export function consoleAuthProvider(): "cognito" | "supabase" {
+  return process.env.VENTUS_AUTH_PROVIDER?.trim().toLowerCase() === "cognito"
+    ? "cognito"
+    : "supabase";
 }
 
 function presenterAllowed(email: string): boolean {
