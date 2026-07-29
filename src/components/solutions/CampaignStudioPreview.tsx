@@ -334,34 +334,29 @@ const CampaignStudioPreview = () => {
           <MergeToken /> back per year on this card.
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="px-2.5 py-1 rounded-md bg-blue-600 text-white text-[11px] font-semibold">
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          <span className="px-2 py-1 rounded-md bg-blue-600 text-white text-[11px] font-semibold leading-none">
             3% · {active.topCategory}
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-blue-100 text-blue-700 text-[11px] font-semibold">
+          <span className="px-2 py-1 rounded-md bg-blue-100 text-blue-700 text-[11px] font-semibold leading-none">
             2% · {active.secondCategory}
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium">
+          <span className="px-2 py-1 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium leading-none">
             1% · everything else
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-md px-2.5 py-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          <span className="px-2 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] leading-none">
             {active.valueMath}
           </span>
-          <span className="inline-flex items-center gap-1 text-[11px] text-gray-600 bg-white border border-gray-200 rounded-md px-2.5 py-1.5">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-gray-200 text-gray-600 text-[11px] leading-none">
             Personalized est.
             <MergeToken>$xx.xx / yr</MergeToken>
           </span>
         </div>
 
-        <p className="text-[10px] text-gray-500 mb-3 italic">
-          <MergeToken /> = personalized per-household calculation from the last 90 days of transactions.
-        </p>
-
         <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-
           <Mail className="w-3 h-3 text-gray-400" />
           <div className="flex flex-wrap gap-1.5">
             {["Email", "Mobile Push", "In-App"].map((c) => (
@@ -375,6 +370,7 @@ const CampaignStudioPreview = () => {
           </div>
         </div>
       </div>
+
 
       <style>{`
         @keyframes ventus-progress {
