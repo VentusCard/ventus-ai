@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Sparkles, Users, Mail, Pause, Play } from "lucide-react";
+import { Users, Mail, Pause, Play } from "lucide-react";
 
 type Segment = {
   id: string;
@@ -43,7 +43,39 @@ const SEGMENTS: Segment[] = [
     body: "You're on the road daily. Choose Gas as your 3% category, keep Dining at 2%, and 1% everywhere else. Plus a $200 welcome bonus after $1,000 in 90 days.",
     valueMath: "~$320/mo gas + ~$180/mo dining ≈ $158/yr vs a flat 1% card.",
   },
+  {
+    id: "travel",
+    label: "Frequent travelers",
+    reach: 9640,
+    topCategory: "Travel",
+    secondCategory: "Dining",
+    subject: "3% on every flight and hotel this year",
+    body: "Your top spend lives on airlines and hotels. Set Travel as your 3% category and keep Dining at 2% for meals on the road. Everything else earns 1%.",
+    valueMath: "~$540/mo travel + ~$210/mo dining ≈ $246/yr vs a flat 1% card.",
+  },
+  {
+    id: "online",
+    label: "Online shoppers",
+    reach: 15780,
+    topCategory: "Online Shopping",
+    secondCategory: "Streaming",
+    subject: "3% back on the cart you already fill every week",
+    body: "Online marketplaces are your #1 spend. Pick Online Shopping as your 3% category and keep Streaming at 2%. No annual fee, no category caps.",
+    valueMath: "~$620/mo online + ~$95/mo streaming ≈ $234/yr vs a flat 1% card.",
+  },
+  {
+    id: "wholesale",
+    label: "Wholesale-club shoppers",
+    reach: 7420,
+    topCategory: "Wholesale Clubs",
+    secondCategory: "Grocery",
+    subject: "3% on every warehouse run",
+    body: "You buy in bulk. Set Wholesale Clubs as your 3% category, keep 2% on Grocery for the weekly top-up, and 1% on everything else.",
+    valueMath: "~$480/mo wholesale + ~$310/mo grocery ≈ $209/yr vs a flat 1% card.",
+  },
 ];
+
+const MAX_REACH = Math.max(...SEGMENTS.map((s) => s.reach));
 
 const ROTATE_MS = 5500;
 
@@ -138,7 +170,7 @@ const CampaignStudioPreview = () => {
       {/* Segment section */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-[11px] uppercase tracking-wide text-gray-500">
-          One product · Three segments
+          One product · {SEGMENTS.length} segments
         </p>
         <button
           onClick={() => setPaused((p) => !p)}
@@ -151,9 +183,10 @@ const CampaignStudioPreview = () => {
       </div>
 
       {/* Segment tabs */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
         {SEGMENTS.map((s, i) => {
           const isActive = i === activeIdx;
+          const pct = Math.round((s.reach / MAX_REACH) * 100);
           return (
             <button
               key={s.id}
@@ -167,21 +200,38 @@ const CampaignStudioPreview = () => {
                   : "border-gray-200 bg-white hover:border-gray-300"
               }`}
             >
+              <div className="flex items-center justify-between">
+                <p
+                  className={`text-[10px] uppercase tracking-wide ${
+                    isActive ? "text-blue-600" : "text-gray-500"
+                  }`}
+                >
+                  Segment {i + 1}
+                </p>
+                <p
+                  className={`text-[11px] font-mono ${
+                    isActive ? "text-blue-700" : "text-gray-500"
+                  }`}
+                >
+                  {formatReach(s.reach)}
+                </p>
+              </div>
               <p
-                className={`text-[11px] uppercase tracking-wide ${
-                  isActive ? "text-blue-600" : "text-gray-500"
-                }`}
-              >
-                Segment {i + 1}
-              </p>
-              <p
-                className={`text-sm font-semibold mt-0.5 ${
+                className={`text-[13px] font-semibold mt-0.5 leading-tight ${
                   isActive ? "text-gray-900" : "text-gray-700"
                 }`}
               >
                 {s.label}
               </p>
-              <p className="text-[11px] text-gray-500 mt-1">
+              <div className="mt-2 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${
+                    isActive ? "bg-blue-500" : "bg-gray-300"
+                  }`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-gray-500 mt-1">
                 {formatReach(s.reach)} reachable
               </p>
               {isActive && !paused && (
@@ -206,15 +256,15 @@ const CampaignStudioPreview = () => {
       >
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <div className="w-7 h-7 rounded-md bg-blue-100 flex items-center justify-center">
+              <Mail className="w-3.5 h-3.5 text-blue-600" />
             </div>
             <div>
               <p className="text-[12px] font-semibold text-gray-900 leading-tight">
-                Ventus AI Coworker
+                Segmented email · draft
               </p>
               <p className="text-[10px] uppercase tracking-wide text-gray-500">
-                Draft · to {active.label}
+                To · {active.label}
               </p>
             </div>
           </div>
