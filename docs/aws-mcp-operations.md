@@ -27,7 +27,7 @@ Set `AWS_PROFILE=ventus-mcp` for the Codex desktop app and restart Codex so the 
 3. Attach `infra/iam/ventus-mcp-operator-policy.json` as an inline policy.
 4. Confirm CloudTrail is recording the role's calls.
 
-The policy only authorizes calls forwarded by the AWS-managed MCP Server. It can inspect the isolated demo stack, Lambda/API health, secret metadata, Amplify deployment jobs, logs, alarms, and costs. It can start an existing `staging` or `demo` Amplify branch deployment, but not `main`. It cannot read Amplify environment variables or secret values, administer IAM, alter DNS, or delete infrastructure.
+The policy only authorizes calls forwarded by the AWS-managed MCP Server. It can inspect the isolated demo stack, Lambda/API health, secret metadata, Amplify deployment jobs, logs, alarms, and costs. It can start an existing `dev` or `staging` deployment for Amplify app `d1x0mm0pbkpcfs`, but not `main`. It cannot create Amplify branches, read Amplify environment variables or secret values, administer IAM, alter DNS, or delete infrastructure.
 
 ## Operating split
 
@@ -48,6 +48,7 @@ An administrator still owns these intentional control points:
 - creating or changing IAM roles and policies;
 - entering Plaid and Salesforce credential values directly in Secrets Manager;
 - approving the protected GitHub `staging` environment when required;
+- creating the one-time Amplify `dev` branch connection and configuring its non-secret build variables;
 - creating or changing `demo.ventusai.com` DNS and certificate ownership.
 
 These are one-time or high-impact actions, not recurring engineering work. After they are complete, routine deployment, verification, troubleshooting, and billing checks can be led through Codex.
