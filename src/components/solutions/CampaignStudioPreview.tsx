@@ -239,13 +239,11 @@ const CampaignStudioPreview = () => {
               }`}
             >
               <div className="flex items-center justify-between">
-                <p
-                  className={`text-[10px] uppercase tracking-wide ${
-                    isActive ? "text-blue-600" : "text-gray-500"
-                  }`}
+                <span
+                  className={`px-1.5 py-0.5 rounded border text-[10px] font-medium ${ANGLE_STYLE[s.angle].chip}`}
                 >
-                  Segment {i + 1}
-                </p>
+                  {ANGLE_STYLE[s.angle].label}
+                </span>
                 <p
                   className={`text-[11px] font-mono ${
                     isActive ? "text-blue-700" : "text-gray-500"
