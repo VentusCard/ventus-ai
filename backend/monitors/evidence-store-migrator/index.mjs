@@ -112,7 +112,10 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
     await db.query(
       `GRANT SELECT ON
          ${schemaName}.growth_play_protocols,
-         ${schemaName}.growth_play_protocol_approval_events
+         ${schemaName}.growth_play_protocol_approval_events,
+         ${schemaName}.institutions,
+         ${schemaName}.institution_identity_providers,
+         ${schemaName}.institution_memberships
        TO ${roleName}`,
     );
     await db.query(
@@ -199,6 +202,47 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     changeRecordId: 'runtime_change_record',
     reason: 'Approved for non-production runtime verification.',
   });
+  const membershipId = `mem_${Date.now().toString(36)}`;
+  const identitySubject = `sub_${Date.now().toString(36)}`;
+  const identityAdmin = clientFor(adminCredentials);
+  await identityAdmin.connect();
+  try {
+    await identityAdmin.query('BEGIN');
+    await identityAdmin.query("SELECT set_config('app.current_tenant_id', $1, true)", [tenantId]);
+    await identityAdmin.query(
+      `INSERT INTO institutions (tenant_id, display_name, status)
+       VALUES ($1, $2, 'pilot')
+       ON CONFLICT (tenant_id) DO NOTHING`,
+      [tenantId, 'AWS runtime verification institution'],
+    );
+    await identityAdmin.query(
+      `INSERT INTO institution_identity_providers
+         (tenant_id, provider_key, provider_type, issuer, status)
+       VALUES ($1, 'cognito', 'cognito', $2, 'testing')
+       ON CONFLICT (tenant_id, provider_key) DO NOTHING`,
+      [tenantId, `https://cognito-idp.${region}.amazonaws.com/runtime-verification`],
+    );
+    await identityAdmin.query(
+      `INSERT INTO institution_memberships
+         (membership_id, tenant_id, identity_provider_key, identity_subject, email,
+          role, status, business_lines, entitlements)
+       VALUES ($1, $2, 'cognito', $3, $4, 'bank_operator', 'active', $5, $6)`,
+      [
+        membershipId,
+        tenantId,
+        identitySubject,
+        `${identitySubject}@example.invalid`,
+        ['consumer-banking'],
+        ['consumer_demo', 'growth_console'],
+      ],
+    );
+    await identityAdmin.query('COMMIT');
+  } catch (error) {
+    await identityAdmin.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    await identityAdmin.end();
+  }
   const protocolApproval = await protocolRegistry.requireApproved({
     tenantId,
     decisionProtocolId: protocol.decision_protocol_id,
@@ -226,6 +270,46 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   } catch (error) {
     runtimeProtocolWriteDenied = /permission denied|row-level security/i.test(error.message);
     if (!runtimeProtocolWriteDenied) throw error;
+  }
+  const membershipDb = await getDB();
+  await membershipDb.connect();
+  let ownVisibleMemberships;
+  let runtimeMembershipWriteDenied = false;
+  try {
+    await membershipDb.query('BEGIN');
+    await membershipDb.query("SELECT set_config('app.current_tenant_id', $1, true)", [tenantId]);
+    const membershipResult = await membershipDb.query(
+      `SELECT count(*)::int AS visible
+         FROM institution_memberships
+        WHERE identity_provider_key = 'cognito' AND identity_subject = $1`,
+      [identitySubject],
+    );
+    ownVisibleMemberships = Number(membershipResult.rows[0]?.visible ?? -1);
+    try {
+      await membershipDb.query(
+        `INSERT INTO institution_memberships
+           (membership_id, tenant_id, identity_provider_key, identity_subject, email,
+            role, status)
+         VALUES ($1, $2, 'cognito', $3, $4, 'bank_operator', 'active')`,
+        [
+          `${membershipId}_forbidden`,
+          tenantId,
+          `${identitySubject}_forbidden`,
+          `${identitySubject}_forbidden@example.invalid`,
+        ],
+      );
+    } catch (error) {
+      runtimeMembershipWriteDenied = /permission denied|row-level security/i.test(error.message);
+    }
+    await membershipDb.query('ROLLBACK');
+  } catch (error) {
+    await membershipDb.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    await membershipDb.end();
+  }
+  if (!runtimeMembershipWriteDenied) {
+    throw new Error('evidence runtime role can provision institution memberships');
   }
   const drafts = [
     { ...base, eventType: 'signal', idempotencyKey: `${tenantId}:signal`, payload: { evidence_class: 'sandbox' } },
@@ -285,15 +369,18 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   let crossTenantVisibleEvents;
   let crossTenantVisibleExposures;
   let crossTenantVisibleProtocols;
+  let crossTenantVisibleMemberships;
   try {
     await crossTenantDb.query('BEGIN');
     await crossTenantDb.query("SELECT set_config('app.current_tenant_id', $1, true)", [otherTenantId]);
     const ledgerResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM decision_ledger_events');
     const exposureResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM connected_exposure_events');
     const protocolResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM growth_play_protocols');
+    const membershipResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM institution_memberships');
     crossTenantVisibleEvents = Number(ledgerResult.rows[0]?.visible ?? -1);
     crossTenantVisibleExposures = Number(exposureResult.rows[0]?.visible ?? -1);
     crossTenantVisibleProtocols = Number(protocolResult.rows[0]?.visible ?? -1);
+    crossTenantVisibleMemberships = Number(membershipResult.rows[0]?.visible ?? -1);
     await crossTenantDb.query('ROLLBACK');
   } catch (error) {
     await crossTenantDb.query('ROLLBACK').catch(() => {});
@@ -312,8 +399,11 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     || crossTenantVisibleEvents !== 0
     || crossTenantVisibleExposures !== 0
     || crossTenantVisibleProtocols !== 0
+    || crossTenantVisibleMemberships !== 0
+    || ownVisibleMemberships !== 1
     || protocolApproval.decisionProtocolId !== protocol.decision_protocol_id
     || !runtimeProtocolWriteDenied
+    || !runtimeMembershipWriteDenied
   ) {
     throw new Error('runtime ledger, connected-measurement, idempotency, or tenant-isolation verification failed');
   }
@@ -337,6 +427,11 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
       approvalEventId: protocolApproval.approvalEventId,
       crossTenantVisibleProtocols,
       runtimeProtocolWriteDenied,
+    },
+    institutionAccess: {
+      ownVisibleMemberships,
+      crossTenantVisibleMemberships,
+      runtimeMembershipWriteDenied,
     },
     headHashPrefix: own.events.at(-1).event_hash.slice(0, 16),
   };

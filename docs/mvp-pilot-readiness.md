@@ -60,7 +60,7 @@ after predictions are observed.
 
 1. Select the server-side identity provider and map roles for evaluators, operators, and auditors.
 2. Have each pilot business line complete and approve its Growth Play draft; record the compiled protocol ID in the pilot change record.
-3. Apply the six evidence-store migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
+3. Apply the seven evidence and access migrations in non-production and run the rollback-only isolation probe as the proposed runtime role.
 4. Pull one generated Plaid custom-user shard and compare returned Plaid fields with the approved source contract and cohort expectations.
 5. Agree with the pilot bank on the outcome-feed mapping, assignment salt custody, experiment unit, minimum sample review, and whether a separately authorized three-arm expansion test is in scope.
 6. Have two independent reviewers adjudicate and freeze the draft intervention benchmark before opening candidate predictions.
