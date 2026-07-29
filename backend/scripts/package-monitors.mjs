@@ -1,4 +1,4 @@
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, statSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -7,6 +7,7 @@ const scriptDir = dirname(fileURLToPath(import.meta.url));
 const backendRoot = resolve(scriptDir, '..');
 const monitorsRoot = join(backendRoot, 'monitors');
 const sharedRoot = join(backendRoot, 'shared');
+const sqlRoot = join(backendRoot, 'sql');
 const distRoot = join(backendRoot, 'dist', 'monitors');
 const buildRoot = join(backendRoot, 'dist', 'monitor-build');
 
@@ -58,8 +59,14 @@ for (const monitorName of monitors) {
   rmSync(zipPath, { force: true });
   mkdirSync(buildDir, { recursive: true });
 
-  cpSync(join(sourceDir, 'index.mjs'), join(buildDir, 'index.mjs'));
+  for (const sourceFile of readdirSync(sourceDir).filter((name) => name.endsWith('.mjs') && !name.endsWith('.test.mjs'))) {
+    cpSync(join(sourceDir, sourceFile), join(buildDir, sourceFile));
+  }
   cpSync(join(sourceDir, 'package.json'), join(buildDir, 'package.json'));
+  const packageDefinition = JSON.parse(readFileSync(join(sourceDir, 'package.json'), 'utf8'));
+  if (packageDefinition.ventus?.includeEvidenceSql === true) {
+    cpSync(sqlRoot, join(buildDir, 'sql'), { recursive: true });
+  }
   copySharedIntoBuild(buildDir);
 
   if (existsSync(join(sourceDir, 'package-lock.json'))) {

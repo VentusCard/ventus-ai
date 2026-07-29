@@ -1,0 +1,143 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "InspectDemoConnectorStackViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "cloudformation:DescribeChangeSet",
+        "cloudformation:DescribeStackEvents",
+        "cloudformation:DescribeStackResource",
+        "cloudformation:DescribeStackResources",
+        "cloudformation:DescribeStacks",
+        "cloudformation:GetTemplate",
+        "cloudformation:GetTemplateSummary",
+        "cloudformation:ListStackResources"
+      ],
+      "Resource": "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*",
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "InspectDemoRuntimeViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "apigateway:GET",
+        "cloudformation:ListStacks",
+        "cloudwatch:DescribeAlarms",
+        "cloudwatch:GetMetricData",
+        "cloudwatch:GetMetricStatistics",
+        "cloudwatch:ListMetrics",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration",
+        "lambda:GetPolicy",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+        "logs:FilterLogEvents",
+        "logs:GetLogEvents",
+        "logs:GetQueryResults",
+        "logs:StartQuery"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "InspectDemoSecretMetadataWithoutValuesViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "secretsmanager:DescribeSecret",
+        "secretsmanager:ListSecretVersionIds"
+      ],
+      "Resource": "arn:aws:secretsmanager:us-east-2:373633008995:secret:ventus/staging/demo-connectors-*",
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "InspectAndRedeployVentusAmplifyViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "amplify:GetJob",
+        "amplify:ListJobs",
+        "amplify:StartJob"
+      ],
+      "Resource": [
+        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/staging",
+        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/staging/jobs/*",
+        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/demo",
+        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/demo/jobs/*"
+      ],
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "InspectVentusCostViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "billing:GetBillingViewData",
+        "budgets:ViewBudget",
+        "ce:GetAnomalies",
+        "ce:GetAnomalyMonitors",
+        "ce:GetAnomalySubscriptions",
+        "ce:GetCostAndUsage",
+        "ce:GetCostForecast",
+        "ce:GetDimensionValues",
+        "ce:GetReservationUtilization",
+        "ce:GetSavingsPlansUtilization"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "NeverExposeSecretValuesViaAwsMcp",
+      "Effect": "Deny",
+      "Action": [
+        "secretsmanager:BatchGetSecretValue",
+        "secretsmanager:GetSecretValue"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Bool": {
+          "aws:ViaAWSMCPService": "true"
+        }
+      }
+    },
+    {
+      "Sid": "BlockDestructiveAdministrationViaAwsMcp",
+      "Effect": "Deny",
+      "Action": [
+        "account:*",
+        "amplify:Delete*",
+        "apigateway:DELETE",
+        "cloudformation:Delete*",
+        "iam:*",
+        "lambda:Delete*",
+        "organizations:*",
+        "route53:ChangeResourceRecordSets",
+        "secretsmanager:Delete*"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "Bool": {
+          "aws:ViaAWSMCPService": "true"
+        }
+      }
+    }
+  ]
+}

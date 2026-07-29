@@ -41,6 +41,42 @@ export const PARTNER_REJECT_REASON_CODES = new Set([
   'unsupported_record_shape',
 ]);
 export const SIGNAL_KEYS = ['travel_candidate', 'risk_candidate', 'life_event_candidate'];
+export const GOLDEN_EXPECTATION_EQUIVALENCE_GROUPS = {
+  clean_merchant_name: [
+    ['Chipotle', 'Chipotle Mexican Grill'],
+    ['ComEd Electric', 'ComEd', 'COMED'],
+    ['Intuit QuickBooks', 'QuickBooks', 'Quickbooks'],
+    ['IRS Tax Refund', 'IRS Treasury'],
+    ['LegalZoom', 'LegalZoom Services'],
+    ['Steam', 'Steam Games'],
+    ['Venmo Payment', 'Venmo'],
+    ['Walmart', 'WAL-MART', 'Wal-Mart'],
+    ['Zelle Payment', 'Zelle'],
+  ],
+  merchant_category: [
+    ['Coffee Shops', 'Coffee Shop', 'Coffee & Café'],
+    ['Discount Retail', 'Discount Store', 'Retail / Superstore', 'General Merchandise / Retail'],
+    [
+      'Fast Casual Restaurant',
+      'Fast Casual Restaurants',
+      'Healthy Fast Casual',
+      'Healthy Fast Casual Restaurant',
+      'Healthy Restaurant',
+      'Healthy Restaurants',
+      'Salad Restaurant',
+      'Salad Shop',
+    ],
+    ['General Merchandise', 'General Merchandise Retailer', 'General Merchandise & Mass Retail'],
+    ['Government Benefits', 'Government Tax Refund', 'Tax Refund'],
+    ['Grocery', 'Groceries', 'Grocery Store', 'Grocery Stores', 'Grocery & Natural Foods'],
+    ['Income', 'Payroll', 'Payroll - Direct Deposit', 'Income & Payroll', 'Payroll / Wages', 'Payroll Deposit', 'Payroll / Income'],
+    ['Rent', 'Rent Payment', 'Housing', 'Rent & Utilities', 'Rent / Housing'],
+    ['Software & Apps', 'Software Subscription', 'Streaming Subscriptions'],
+    ['Transfers', 'P2P Transfer', 'Peer-to-Peer Transfer', 'Peer-to-Peer Transfers', 'Cash & Money Transfer', 'P2P Payment', 'p2p payment'],
+    ['Utilities', 'Utilities - Electric', 'Utilities - Electric & Gas', 'Electric Utility', 'Gas & Electric Utility', 'Utility Company', 'utilities_gas_and_electric'],
+  ],
+  lifestyle_category: [],
+};
 export const ADVERSARIAL_CATEGORIES = new Set([
   'lookalike',
   'ambiguous_brand',
@@ -852,7 +888,19 @@ export function validateGoldenEnrichmentExpectations(expectations, mockBankRoot,
       LIFESTYLE_CATEGORIES.has(expectation.expected_lifestyle_category),
       `${label}.expected_lifestyle_category is unsupported`
     );
+    assertOptionalStringArray(
+      expectation.accepted_lifestyle_categories,
+      `${label}.accepted_lifestyle_categories`
+    );
     assertString(expectation.expected_merchant_category, `${label}.expected_merchant_category`);
+    assertOptionalStringArray(
+      expectation.accepted_clean_merchant_names,
+      `${label}.accepted_clean_merchant_names`
+    );
+    assertOptionalStringArray(
+      expectation.accepted_merchant_categories,
+      `${label}.accepted_merchant_categories`
+    );
     assertConfidenceFloor(expectation.expected_confidence_min, `${label}.expected_confidence_min`);
     assertObject(expectation.expected_signals, `${label}.expected_signals`);
     for (const signal of SIGNAL_KEYS) {
@@ -987,6 +1035,7 @@ export function evaluateGoldenPredictionResults(expectations, predictions, metad
       missing_predictions: missingPredictions,
       extra_predictions: extraPredictionIds.length,
       pass_rate: totalExpectations === 0 ? 0 : roundRate(passedExpectations / totalExpectations),
+      contract_repairs: summarizeContractRepairs(predictionRows),
     },
     breakdowns: {
       by_source_system: mapToSortedObject(bySourceSystem),
@@ -998,6 +1047,34 @@ export function evaluateGoldenPredictionResults(expectations, predictions, metad
     failures,
     extra_prediction_ids: extraPredictionIds,
   };
+}
+
+function summarizeContractRepairs(predictionRows) {
+  const summary = {
+    repaired_predictions: 0,
+    repair_count: 0,
+    violation_predictions: 0,
+    violation_count: 0,
+    by_code: {},
+  };
+
+  for (const prediction of predictionRows) {
+    const repairs = Array.isArray(prediction.contract_repair?.repairs) ? prediction.contract_repair.repairs : [];
+    const violations = Array.isArray(prediction.contract_repair?.violations)
+      ? prediction.contract_repair.violations
+      : [];
+    if (repairs.length > 0) summary.repaired_predictions += 1;
+    if (violations.length > 0) summary.violation_predictions += 1;
+    summary.repair_count += repairs.length;
+    summary.violation_count += violations.length;
+
+    for (const item of [...repairs, ...violations]) {
+      const code = item?.code || 'unknown_contract_issue';
+      summary.by_code[code] = (summary.by_code[code] || 0) + 1;
+    }
+  }
+
+  return summary;
 }
 
 function compareSignalPredictions(failures, expectation, prediction, fieldStats = null) {
@@ -1042,6 +1119,14 @@ function assertConfidenceFloor(value, label) {
   assert.ok(value >= 0.4 && value <= 0.9, `${label} should be between 0.4 and 0.9`);
 }
 
+function assertOptionalStringArray(value, label) {
+  if (value === undefined) return;
+  assertArray(value, label);
+  for (const [index, item] of value.entries()) {
+    assertString(item, `${label}[${index}]`);
+  }
+}
+
 function compareStringPrediction(failures, expectation, prediction, predictionKey, expectationKey) {
   const actual = String(prediction[predictionKey] || '').toLowerCase();
   const expected = String(expectation[expectationKey] || '').toLowerCase();
@@ -1053,9 +1138,9 @@ function compareStringPrediction(failures, expectation, prediction, predictionKe
 }
 
 function comparePredictionField(failures, fieldStats, expectation, prediction, { predictionKey, expectationKey }) {
-  const actual = String(prediction[predictionKey] || '').toLowerCase();
-  const expected = String(expectation[expectationKey] || '').toLowerCase();
-  if (actual !== expected) {
+  const actual = normalizeComparableString(prediction[predictionKey]);
+  const expectedValues = acceptedExpectationValues(expectation, predictionKey, expectationKey);
+  if (!expectedValues.includes(actual)) {
     incrementField(fieldStats, predictionKey, 'failed');
     addFailure(
       failures,
@@ -1063,12 +1148,62 @@ function comparePredictionField(failures, fieldStats, expectation, prediction, {
       predictionKey,
       'field_mismatch',
       `${predictionKey} expected "${expectation[expectationKey]}", got "${prediction[predictionKey]}"`,
-      expectation[expectationKey],
+      expectedDisplayValue(expectation, predictionKey, expectationKey),
       prediction[predictionKey]
     );
     return;
   }
   incrementField(fieldStats, predictionKey, 'passed');
+}
+
+function acceptedExpectationValues(expectation, predictionKey, expectationKey) {
+  const acceptedKeyByPredictionKey = {
+    clean_merchant_name: 'accepted_clean_merchant_names',
+    merchant_category: 'accepted_merchant_categories',
+    lifestyle_category: 'accepted_lifestyle_categories',
+  };
+  const acceptedKey = acceptedKeyByPredictionKey[predictionKey];
+  const expectedValues = [
+    expectation[expectationKey],
+    ...(Array.isArray(expectation[acceptedKey]) ? expectation[acceptedKey] : []),
+  ];
+  return expandEquivalentValues(predictionKey, expectedValues);
+}
+
+function expectedDisplayValue(expectation, predictionKey, expectationKey) {
+  const acceptedKeyByPredictionKey = {
+    clean_merchant_name: 'accepted_clean_merchant_names',
+    merchant_category: 'accepted_merchant_categories',
+    lifestyle_category: 'accepted_lifestyle_categories',
+  };
+  const acceptedKey = acceptedKeyByPredictionKey[predictionKey];
+  const accepted = Array.isArray(expectation[acceptedKey]) ? expectation[acceptedKey] : [];
+  if (accepted.length === 0) return expectation[expectationKey];
+  return [expectation[expectationKey], ...accepted].join(' | ');
+}
+
+function normalizeComparableString(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/&/g, 'and')
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function expandEquivalentValues(predictionKey, values) {
+  const normalizedValues = new Set(values.map(normalizeComparableString));
+  const equivalenceGroups = GOLDEN_EXPECTATION_EQUIVALENCE_GROUPS[predictionKey] || [];
+
+  for (const group of equivalenceGroups) {
+    const normalizedGroup = group.map(normalizeComparableString);
+    if (!normalizedGroup.some((value) => normalizedValues.has(value))) continue;
+    for (const value of normalizedGroup) {
+      normalizedValues.add(value);
+    }
+  }
+
+  return [...normalizedValues];
 }
 
 function compareConfidencePrediction(failures, fieldStats, expectation, prediction) {
