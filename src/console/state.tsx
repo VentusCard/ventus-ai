@@ -12,7 +12,7 @@ import {
   type ReactNode,
 } from "react";
 import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
   PLAID_FIXTURE_PRIMACY,
@@ -69,6 +69,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setLoading(false);
+      return;
+    }
     supabase.auth.getSession().then(({ data }) => {
       setSession(data.session);
       setLoading(false);
@@ -115,6 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearConsoleStorage();
     clearTenantOverride();
     setAccess(null);
+    if (!isSupabaseConfigured) return;
     await supabase.auth.signOut();
   }, []);
 

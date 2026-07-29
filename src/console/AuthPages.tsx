@@ -6,7 +6,7 @@
 import { useMemo, useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 import { resolveTenantFromEmail } from "@/lib/tenant";
 import { useAuth } from "@/console/state";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
@@ -83,6 +83,10 @@ export function LoginPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (!isSupabaseConfigured) {
+      setError("Console authentication is not configured in this environment.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
@@ -103,6 +107,11 @@ export function LoginPage() {
         Growth Console
       </p>
       <h2 className="v2-display mt-3 text-4xl">Sign in.</h2>
+      {!isSupabaseConfigured && (
+        <p className="mt-4 text-[12px] font-semibold" style={{ color: "#b3261e" }} role="status">
+          Console authentication is not configured in this environment.
+        </p>
+      )}
       {searchParams.get("confirmed") === "1" && (
         <p className="mt-4 text-[13px] font-semibold" style={{ color: "var(--v2-verified)" }}>
           Email confirmed. Your workspace is ready.
@@ -171,6 +180,10 @@ export function SignupPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (!isSupabaseConfigured) {
+      setError("Console authentication is not configured in this environment.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     const emailRedirectTo = `${window.location.origin}/app/login?confirmed=1`;
@@ -197,6 +210,10 @@ export function SignupPage() {
   };
 
   const resendConfirmation = async () => {
+    if (!isSupabaseConfigured) {
+      setResendStatus("Console authentication is not configured in this environment.");
+      return;
+    }
     setResending(true);
     setResendStatus(null);
     const { error: resendError } = await supabase.auth.resend({
@@ -309,6 +326,10 @@ export function ForgotPasswordPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (!isSupabaseConfigured) {
+      setError("Console authentication is not configured in this environment.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     const { error: authError } = await supabase.auth.resetPasswordForEmail(email, {
@@ -374,6 +395,10 @@ export function ResetPasswordPage() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
+    if (!isSupabaseConfigured) {
+      setError("Console authentication is not configured in this environment.");
+      return;
+    }
     setSubmitting(true);
     setError(null);
     const { error: authError } = await supabase.auth.updateUser({ password });

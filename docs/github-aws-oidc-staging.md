@@ -248,6 +248,8 @@ It can:
 
 - Run `cdk diff` on relevant pull requests.
 - Run `cdk diff` manually through `workflow_dispatch`.
+- Use a template-only diff for an undeployed stack so review does not create an empty
+  `REVIEW_IN_PROGRESS` CloudFormation stack.
 - Deploy only when manually dispatched with:
   - `action`: `deploy`
   - `confirm_deploy`: `deploy-staging`

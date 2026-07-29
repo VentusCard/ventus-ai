@@ -5,12 +5,20 @@ import type { Database } from './types';
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 
+export const isSupabaseConfigured = Boolean(SUPABASE_URL && SUPABASE_PUBLISHABLE_KEY);
+
+// Public product and demo routes must remain available when console auth is not
+// configured. The placeholder client is never treated as an authenticated
+// environment; console auth explicitly fails closed on the exported flag.
+const clientUrl = isSupabaseConfigured ? SUPABASE_URL : "http://127.0.0.1:54321";
+const clientKey = isSupabaseConfigured ? SUPABASE_PUBLISHABLE_KEY : "ventus-unconfigured";
+
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+export const supabase = createClient<Database>(clientUrl, clientKey, {
   auth: {
-    storage: localStorage,
+    storage: typeof window === "undefined" ? undefined : localStorage,
     persistSession: true,
     autoRefreshToken: true,
   }
