@@ -1,4 +1,5 @@
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,12 +14,15 @@ import { compileGrowthPlayContract } from './shared/growth-play-contract.mjs';
 import {
   APPLY_EVIDENCE_SCHEMA_CONFIRMATION,
   EVIDENCE_STORE_MIGRATIONS,
+  PROVISION_CONSOLE_ACCESS_CONFIRMATION,
   checkedPgIdentifier,
   quotePgIdentifier,
   quotePgLiteral,
+  validateAccessProvisioning,
 } from './migration-safety.mjs';
 
 const APPLY_CONFIRMATION = APPLY_EVIDENCE_SCHEMA_CONFIRMATION;
+const PROVISION_ACCESS_CONFIRMATION = PROVISION_CONSOLE_ACCESS_CONFIRMATION;
 const MIGRATIONS = EVIDENCE_STORE_MIGRATIONS;
 const here = dirname(fileURLToPath(import.meta.url));
 const region = process.env.AWS_REGION || 'us-east-2';
@@ -119,6 +123,79 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
       `GRANT SELECT, INSERT, UPDATE ON ${schemaName}.connector_delivery_receipts TO ${roleName}`,
     );
     await db.query('COMMIT');
+  } catch (error) {
+    await db.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    await db.end();
+  }
+}
+
+async function provisionConsoleAccess(adminCredentials, input) {
+  const access = validateAccessProvisioning(input);
+  const membershipId = `mem_${createHash('sha256')
+    .update(`${access.tenantId}:${access.email}`)
+    .digest('hex')
+    .slice(0, 24)}`;
+  const db = clientFor(adminCredentials);
+  await db.connect();
+  try {
+    await db.query('BEGIN');
+    await db.query("SELECT set_config('app.current_tenant_id', $1, true)", [access.tenantId]);
+    await db.query(
+      `INSERT INTO institutions (tenant_id, display_name, status)
+       VALUES ($1, $2, 'pilot')
+       ON CONFLICT (tenant_id) DO NOTHING`,
+      [access.tenantId, access.displayName],
+    );
+    const provider = await db.query(
+      `SELECT issuer
+         FROM institution_identity_providers
+        WHERE tenant_id = $1 AND provider_key = 'cognito'`,
+      [access.tenantId],
+    );
+    if (provider.rows[0]?.issuer && provider.rows[0].issuer !== access.issuer) {
+      throw new Error('tenant Cognito issuer does not match the approved issuer');
+    }
+    await db.query(
+      `INSERT INTO institution_identity_providers
+         (tenant_id, provider_key, provider_type, issuer, status)
+       VALUES ($1, 'cognito', 'cognito', $2, 'testing')
+       ON CONFLICT (tenant_id, provider_key) DO UPDATE
+         SET status = 'testing', updated_at = now()`,
+      [access.tenantId, access.issuer],
+    );
+    await db.query(
+      `INSERT INTO institution_memberships
+         (membership_id, tenant_id, identity_provider_key, identity_subject, email,
+          role, status, business_lines, entitlements)
+       VALUES ($1, $2, 'cognito', $3, $4, $5, 'active', $6, $7)
+       ON CONFLICT (tenant_id, email) DO UPDATE
+         SET identity_subject = EXCLUDED.identity_subject,
+             role = EXCLUDED.role,
+             status = 'active',
+             business_lines = EXCLUDED.business_lines,
+             entitlements = EXCLUDED.entitlements,
+             updated_at = now()`,
+      [
+        membershipId,
+        access.tenantId,
+        access.identitySubject,
+        access.email,
+        access.role,
+        access.businessLines,
+        access.entitlements,
+      ],
+    );
+    await db.query('COMMIT');
+    return {
+      tenantId: access.tenantId,
+      membershipId,
+      email: access.email,
+      role: access.role,
+      businessLines: access.businessLines,
+      entitlements: access.entitlements,
+    };
   } catch (error) {
     await db.query('ROLLBACK').catch(() => {});
     throw error;
@@ -437,6 +514,19 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
 export async function handler(event = {}) {
   const adminCredentials = await getSecret(adminSecretId);
   const status = await schemaStatus(adminCredentials);
+  if (event.mode === 'provision-console-access') {
+    if (!status.exists) throw new Error('evidence schema must exist before provisioning access');
+    if (event.confirm !== PROVISION_ACCESS_CONFIRMATION) {
+      throw new Error(`provision-console-access requires confirm=${PROVISION_ACCESS_CONFIRMATION}`);
+    }
+    const provisioned = await provisionConsoleAccess(adminCredentials, event.access);
+    return {
+      ok: true,
+      mode: 'provision-console-access',
+      mutationPerformed: true,
+      provisioned,
+    };
+  }
   if (event.mode !== 'migrate-and-verify') {
     return { ok: true, mode: 'status', ...status, mutationPerformed: false };
   }

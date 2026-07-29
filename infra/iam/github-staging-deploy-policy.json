@@ -26,6 +26,16 @@
       ]
     },
     {
+      "Sid": "ProvisionStagingConsoleUsers",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:AdminAddUserToGroup",
+        "cognito-idp:AdminCreateUser",
+        "cognito-idp:AdminGetUser"
+      ],
+      "Resource": "arn:aws:cognito-idp:us-east-2:373633008995:userpool/us-east-2_M9Ipbusin"
+    },
+    {
       "Sid": "CloudFormationVentusChangeSets",
       "Effect": "Allow",
       "Action": [

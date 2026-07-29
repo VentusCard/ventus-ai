@@ -49,6 +49,23 @@ for (const file of files) {
     if (!resources.includes(consoleApiStackArn)) {
       throw new Error(`${file} must allow the reviewed Ventus Console API stack`);
     }
+    const userProvisioning = policy.Statement.find(
+      (statement) => statement.Sid === 'ProvisionStagingConsoleUsers'
+    );
+    const provisioningActions = Array.isArray(userProvisioning?.Action)
+      ? userProvisioning.Action
+      : [];
+    if (
+      userProvisioning?.Resource
+        !== 'arn:aws:cognito-idp:us-east-2:373633008995:userpool/us-east-2_M9Ipbusin'
+      || provisioningActions.some((action) => ![
+        'cognito-idp:AdminAddUserToGroup',
+        'cognito-idp:AdminCreateUser',
+        'cognito-idp:AdminGetUser',
+      ].includes(action))
+    ) {
+      throw new Error(`${file} Console user provisioning must remain scoped to the staging pool`);
+    }
   }
 
   if (file.includes('secrets-kms-key-policy')) {

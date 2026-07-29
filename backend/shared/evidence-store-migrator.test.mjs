@@ -4,9 +4,11 @@ import test from 'node:test';
 import {
   APPLY_EVIDENCE_SCHEMA_CONFIRMATION,
   EVIDENCE_STORE_MIGRATIONS,
+  PROVISION_CONSOLE_ACCESS_CONFIRMATION,
   checkedPgIdentifier,
   quotePgIdentifier,
   quotePgLiteral,
+  validateAccessProvisioning,
 } from '../monitors/evidence-store-migrator/migration-safety.mjs';
 
 test('evidence-store migrator validates identifiers and quotes password literals', () => {
@@ -24,6 +26,49 @@ test('evidence-store migrator validates identifiers and quotes password literals
     'institution-access.sql',
     'connector-delivery.sql',
   ]);
+});
+
+test('Console access provisioning accepts only explicit institution-scoped grants', () => {
+  assert.equal(PROVISION_CONSOLE_ACCESS_CONFIRMATION, 'PROVISION_VENTUS_STAGING_ACCESS');
+  assert.deepEqual(validateAccessProvisioning({
+    tenantId: 'ventus',
+    displayName: 'Ventus AI',
+    issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example',
+    identitySubject: 'subject_123',
+    email: 'Yusheng@VentusAI.com',
+    role: 'institution_admin',
+    businessLines: ['consumer-banking', 'wealth'],
+    entitlements: ['growth_console', 'consumer_demo', 'wealth_demo'],
+  }), {
+    tenantId: 'ventus',
+    displayName: 'Ventus AI',
+    issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example',
+    identitySubject: 'subject_123',
+    email: 'yusheng@ventusai.com',
+    role: 'institution_admin',
+    businessLines: ['consumer-banking', 'wealth'],
+    entitlements: ['growth_console', 'consumer_demo', 'wealth_demo'],
+  });
+  assert.throws(() => validateAccessProvisioning({
+    tenantId: 'ventus',
+    displayName: 'Ventus AI',
+    issuer: 'https://issuer.example.com',
+    identitySubject: 'subject_123',
+    email: 'yusheng@ventusai.com',
+    role: 'superuser',
+    businessLines: ['wealth'],
+    entitlements: ['growth_console'],
+  }), /invalid role/);
+  assert.throws(() => validateAccessProvisioning({
+    tenantId: 'other;drop',
+    displayName: 'Other Bank',
+    issuer: 'https://issuer.example.com',
+    identitySubject: 'subject_123',
+    email: 'operator@example.com',
+    role: 'bank_operator',
+    businessLines: ['wealth'],
+    entitlements: ['unknown'],
+  }));
 });
 
 test('evidence-store migrator verifies connected measurement and separately authorized protocol persistence', () => {
