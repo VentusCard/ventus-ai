@@ -83,16 +83,13 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
       `DO $role$
        BEGIN
          IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = ${quotePgLiteral(runtimeUsername)}) THEN
-           CREATE ROLE ${roleName} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+           CREATE ROLE ${roleName}
+             LOGIN PASSWORD ${quotePgLiteral(runtimeCredentials.password)}
+             NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
          END IF;
        END
        $role$`,
     );
-    await db.query(
-      `ALTER ROLE ${roleName} NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`,
-    );
-    await db.query(`ALTER ROLE ${roleName} PASSWORD ${quotePgLiteral(runtimeCredentials.password)}`);
-    await db.query(`ALTER ROLE ${roleName} SET search_path TO ${schemaName}, public`);
     await db.query(`GRANT CONNECT ON DATABASE ${quotePgIdentifier(database)} TO ${roleName}`);
 
     for (const file of MIGRATIONS) {
