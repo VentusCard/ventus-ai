@@ -183,9 +183,10 @@ const CampaignStudioPreview = () => {
       </div>
 
       {/* Segment tabs */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
         {SEGMENTS.map((s, i) => {
           const isActive = i === activeIdx;
+          const pct = Math.round((s.reach / MAX_REACH) * 100);
           return (
             <button
               key={s.id}
@@ -199,21 +200,38 @@ const CampaignStudioPreview = () => {
                   : "border-gray-200 bg-white hover:border-gray-300"
               }`}
             >
+              <div className="flex items-center justify-between">
+                <p
+                  className={`text-[10px] uppercase tracking-wide ${
+                    isActive ? "text-blue-600" : "text-gray-500"
+                  }`}
+                >
+                  Segment {i + 1}
+                </p>
+                <p
+                  className={`text-[11px] font-mono ${
+                    isActive ? "text-blue-700" : "text-gray-500"
+                  }`}
+                >
+                  {formatReach(s.reach)}
+                </p>
+              </div>
               <p
-                className={`text-[11px] uppercase tracking-wide ${
-                  isActive ? "text-blue-600" : "text-gray-500"
-                }`}
-              >
-                Segment {i + 1}
-              </p>
-              <p
-                className={`text-sm font-semibold mt-0.5 ${
+                className={`text-[13px] font-semibold mt-0.5 leading-tight ${
                   isActive ? "text-gray-900" : "text-gray-700"
                 }`}
               >
                 {s.label}
               </p>
-              <p className="text-[11px] text-gray-500 mt-1">
+              <div className="mt-2 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+                <div
+                  className={`h-full rounded-full ${
+                    isActive ? "bg-blue-500" : "bg-gray-300"
+                  }`}
+                  style={{ width: `${pct}%` }}
+                />
+              </div>
+              <p className="text-[10px] text-gray-500 mt-1">
                 {formatReach(s.reach)} reachable
               </p>
               {isActive && !paused && (
