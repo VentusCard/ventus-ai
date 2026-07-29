@@ -1,25 +1,34 @@
-Tighten spacing and typography in `src/components/solutions/CampaignStudioPreview.tsx` so the segment grid and draft card feel like one system.
+Two changes to `src/components/solutions/CampaignStudioPreview.tsx`:
 
-## Fixes
+## 1. Personalize the subject line
 
-1. **Segment tab cards** — currently mix `text-[13px]`/`text-[11px]`/`text-[10px]` and duplicate the reach number (top-right chip + "18.4k reachable" caption).
-   - Remove the redundant "Xk reachable" caption under the progress bar; keep only the top-right reach chip.
-   - Standardize tab typography: angle chip `text-[10px]`, reach `text-[11px] font-mono`, label `text-[13px] font-medium leading-snug`.
-   - Unify padding to `p-3.5` and internal vertical rhythm (`mt-1` between chip row and label, `mt-2.5` before progress bar).
-   - Progress bar height standardized to `h-1`, consistent rounded-full.
+Every segment's subject currently has a hardcoded number or plain claim ("earn you $237 more this year", "3% back on the aisle…"). Rewrite each of the 6 subjects to include an inline `$xx.xx` merge token so the personalization is visible in the email title itself.
 
-2. **Draft card** — chip sizes and vertical gaps drift.
-   - Normalize all pill/chip heights: use `px-2 py-1 text-[11px]` everywhere (3%/2%/1% pills, value-math chip, personalized-est chip, channel chips get `text-[10px] px-1.5 py-0.5` as secondary tier).
-   - Align gaps: `gap-1.5` inside chip rows, `mb-3` between blocks, single `mb-2` before the legend caption.
-   - Move the "$xx.xx = personalized…" legend out of the draft card and place it once, right-aligned, under the segment grid so it isn't repeated every rotation and doesn't crowd the card footer.
+To render a `<MergeToken />` inside the subject string, switch each segment's `subject` field from a plain string to a function returning JSX (`subject: (token) => <>…</>`) or, simpler, split it into `subjectLead` + `subjectTrail` around the token. The subject `<p>` then renders `{lead}<MergeToken />{trail}`.
 
-3. **Section rhythm** — align outer spacing.
-   - Product band, segment grid, and draft card each separated by `mb-5`.
-   - Header eyebrow row and "One product · 6 segments" row use matching `text-[11px] uppercase tracking-wide text-gray-500`.
-   - Grid gap bumped from `gap-2` to `gap-2.5` so tabs breathe evenly across 3 columns.
+Example rewrites (all 6):
+- Dining-led → `Your dining habit could earn you [$xx.xx] more this year`
+- Grocery-led → `About [$xx.xx] back a year on the aisle you visit every week`
+- Commuter → `Roughly [$xx.xx] back a year at the pump and dinners out`
+- New parents → `[$xx.xx] back a year on the new-baby budget`
+- Just bought a home → `[$xx.xx] back a year on the aisle you'll live in`
+- Empty-nest → `[$xx.xx] back a year on travel and dinners out`
 
-4. **MergeToken sizing** — currently `text-[11px]` inline in `text-[13px]` body copy causes visual jitter.
-   - Keep inline body token at `text-[11px]` but add `leading-none` and `translate-y-[-1px]` to sit on the baseline cleanly.
-   - Chip-form token ($xx.xx / yr) matches other 11px chips exactly.
+## 2. Richer copy pulled from /bankdemo Customer-Choice card
 
-No changes to segment content, rotation logic, product band copy, or branding.
+The /bankdemo Campaign Studio has hand-crafted, sensory copy in `src/components/tepilot/campaigns/sections/buildMessageCards.ts` under `CUSTOMER_CHOICE_CARDS` (foodie, new-home, new-city, saving-toward-a-goal). Port that voice into the 6 segments so bodies read like real drafts instead of mechanic explainers:
+
+- **Dining-led** — "The daily coffee, the Friday pizza, dinners out that just happen. Set 3% on Dining and 2% on Grocery — the food you're feeding yourself anyway, finally feeding your rewards too."
+- **Grocery-led** — "The weekly cart, the school-week snack runs, the Costco Sunday. Set 3% on Grocery and keep 2% on Gas & Fuel for the commute in between."
+- **Commuter** — "You're on the road daily — pump stops, drive-thru dinners on the way home. Set 3% on Gas & Fuel and 2% on Dining. Plus a $200 welcome bonus after $1,000 in 90 days."
+- **New parents** — "New baby just rewrote the monthly budget: more grocery runs, more streaming for the 2 a.m. feeds. Pin 3% on Grocery and 2% on Streaming while everything settles."
+- **Just bought a home** — "Congrats on the new place — now come the hardware-store weekends and warehouse runs. Set 3% on Home Improvement and 2% on Wholesale Clubs before the first big project."
+- **Empty-nest** — "Kids are out, the calendar just cleared. Move 3% onto Travel and keep 2% on Dining for the trips and long dinners ahead."
+
+Keep merge tokens: append the existing "Based on the last 90 days of spend, we estimate `$xx.xx` back per year on this card." sentence to each body.
+
+## 3. Value-math strings — keep as-is
+
+The existing `valueMath` chips (`~$280/mo dining + ~$650/mo grocery ≈ $237/yr…`) are illustrative averages, not personalization claims, so they stay. The personalized number is the `$xx.xx / yr` chip beside them, unchanged.
+
+No changes to segment list, rotation, product band, angles, or reach numbers.
