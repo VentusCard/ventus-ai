@@ -1,271 +1,215 @@
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import TechnologyBackground from "@/components/technology/TechnologyBackground";
-import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { 
-  Brain, 
-  ArrowLeft, 
-  MapPin, 
-  TrendingUp, 
-  Tag, 
-  Zap,
-  Shield,
-  BarChart3,
-  FileText,
-  Building
-} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import ScrollReveal from "@/components/ScrollReveal";
+import EnrichmentHeroCard from "@/components/enrichment/EnrichmentHeroCard";
+import VentusTransactionEnrichment from "@/components/technology/demos/VentusTransactionEnrichment";
+import { Layers, Search, Heart, Activity } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+
+const capabilities = [
+  { icon: Layers, title: "Lifestyle Pillars", desc: "12 behavioral categories extracted from spending patterns. From Travel & Adventure to Financial Planning." },
+  { icon: Heart, title: "Life Event Detection", desc: "20+ life events detected in real time. New baby, home purchase, retirement, relocation, and more." },
+  { icon: Activity, title: "Travel Detection", desc: "Destinations, loyalty programs, hotel patterns, and travel frequency tracked across every transaction." },
+  { icon: Search, title: "Intent Signals", desc: "What is this customer planning to do next? We detect purchase intent before it becomes a transaction." },
+];
+
+const integrationSteps = [
+  { step: "01", title: "Connect", desc: "Banks securely send transaction data through a simple integration. No changes to core banking systems." },
+  { step: "02", title: "Enrich", desc: "Ventus AI detects lifestyle pillars, intent signals, and life events across 20+ categories in real time." },
+  { step: "03", title: "Activate", desc: "Intelligence flows automatically into rewards personalization, analytics, and advisor relationship tools." },
+];
 
 const Enrichment = () => {
-  const features = [
-    {
-      icon: Tag,
-      title: "Smart Category Detection",
-      description: "Automatically classify transactions into granular categories using contextual AI that understands merchant names, MCC codes, and transaction patterns."
-    },
-    {
-      icon: MapPin,
-      title: "Location Intelligence",
-      description: "Extract geographic insights from transactions to understand customer travel patterns, local vs. distant spending, and regional preferences."
-    },
-    {
-      icon: TrendingUp,
-      title: "Spending Velocity Analysis",
-      description: "Track spending momentum and detect unusual patterns in real-time, enabling proactive engagement and fraud prevention."
-    },
-    {
-      icon: Zap,
-      title: "Real-Time Processing",
-      description: "Enrich transactions as they occur with sub-second latency, enabling immediate personalization and alert capabilities."
-    }
-  ];
+  const [integrationVisible, setIntegrationVisible] = useState(false);
+  const integrationRef = useRef<HTMLDivElement>(null);
 
-  const useCases = [
-    {
-      icon: Shield,
-      title: "Fraud Detection",
-      description: "Identify anomalous transactions by comparing enriched data against established customer behavior patterns."
-    },
-    {
-      icon: BarChart3,
-      title: "Personalized Insights",
-      description: "Deliver spending summaries and financial health insights tailored to each customer's unique transaction history."
-    },
-    {
-      icon: FileText,
-      title: "Enhanced Statements",
-      description: "Transform cryptic merchant codes into clear, readable transaction descriptions customers actually understand."
-    },
-    {
-      icon: Building,
-      title: "Regulatory Compliance",
-      description: "Maintain detailed transaction metadata for AML monitoring and regulatory reporting requirements."
-    }
-  ];
+  useEffect(() => {
+    const el = integrationRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setIntegrationVisible(true); obs.disconnect(); } },
+      { threshold: 0.2 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
 
-  const benefits = [
-    "95%+ accuracy in merchant identification",
-    "40% reduction in customer service inquiries",
-    "Real-time enrichment under 100ms",
-    "Seamless API integration with existing systems"
-  ];
+  const scrollToDemo = () => {
+    document.getElementById("enrichment-demo")?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
-    <div className="min-h-screen bg-background relative">
-      <TechnologyBackground />
-      <Navbar />
-      <main className="pt-20 pb-10 relative z-10">
-        {/* Hero Section */}
-        <section className="py-6 md:py-10">
-            <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <Link 
-              to="/technology" 
-              className="inline-flex items-center gap-2 text-foreground/60 hover:text-foreground mb-8 transition-colors animate-fade-float"
-              style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}
-            >
-              <ArrowLeft className="w-4 h-4" />
-              Back to What We Do
-            </Link>
-            
-            <div 
-              className="flex items-center gap-4 mb-6 animate-fade-float"
-              style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
-            >
-              <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                <Brain className="w-8 h-8 text-primary" />
-              </div>
-              <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-                Advanced Transaction Enrichment
+    <div>
+      <main>
+        {/* SECTION 1 — HERO */}
+        <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8 w-full grid md:grid-cols-2 gap-12 items-center">
+            <div>
+              <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-4">Multi-rail Enrichment</p>
+              <h1 className="text-4xl md:text-5xl lg:text-[3.25rem] font-bold text-white leading-tight mb-6">
+                From raw transaction to consumer intelligence.{" "}
+                <span className="text-blue-400">In milliseconds.</span>
               </h1>
-            </div>
-            
-            <p 
-              className="text-xl text-foreground/70 max-w-3xl animate-fade-float"
-              style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
-            >
-              Transform raw transaction data into actionable intelligence with semantic AI 
-              that goes far beyond basic merchant name cleaning.
-            </p>
-          </div>
-        </section>
-
-        {/* Overview Section */}
-        <section className="py-4">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div 
-              className="p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-500 animate-fade-float"
-              style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
-            >
-              <h2 className="text-2xl font-semibold text-foreground mb-4">Overview</h2>
-              <p className="text-foreground/70 leading-relaxed text-lg">
-                Our semantic AI analyzes every transaction to extract deep, contextual signals—merchant 
-                category, location patterns, spending velocity, and more. Unlike traditional enrichment 
-                that simply cleans merchant names, Ventus builds a complete picture of customer behavior 
-                by understanding the context and meaning behind each transaction. This enables financial 
-                institutions to deliver truly personalized experiences while maintaining the highest 
-                standards of data accuracy.
+              <p className="text-lg text-gray-400 leading-relaxed mb-8 max-w-lg">
+                Ventus builds rich behavioral profiles from your customers' rolling transaction history — extracting lifestyle pillars, intent signals, and life events without touching your core infrastructure.
               </p>
-            </div>
-          </div>
-        </section>
-
-        {/* See It In Action */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2
-              className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
-              style={{ animationDelay: '0.45s', animationFillMode: 'backwards' }}
-            >
-              See It In Action
-            </h2>
-            <div
-              className="rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm overflow-hidden animate-fade-float"
-              style={{ animationDelay: '0.55s', animationFillMode: 'backwards' }}
-            >
-              <VentusTransactionEnrichment />
-            </div>
-          </div>
-        </section>
-
-        {/* Key Features Section */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 
-              className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
-              style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
-            >
-              Key Features
-            </h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {features.map((feature, index) => (
-                <div 
-                  key={index}
-                  className="group p-6 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm 
-                    hover:bg-white/10 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] 
-                    hover:scale-[1.02] transition-all duration-500 ease-out animate-fade-float"
-                  style={{ animationDelay: `${0.5 + (index + 1) * 0.1}s`, animationFillMode: 'backwards' }}
+              <div className="flex flex-wrap gap-3">
+                <Link to="/contact">
+                  <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                    Schedule Demo
+                  </Button>
+                </Link>
+                <Button
+                  variant="outline"
+                  className="border-gray-600 text-white hover:bg-white/10 hover:text-white"
+                  onClick={scrollToDemo}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 
-                    transition-all duration-500 group-hover:bg-primary/20 
-                    group-hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]">
-                    <feature.icon className="w-6 h-6 text-primary transition-all duration-300 group-hover:scale-110" />
+                  See It Work ↓
+                </Button>
+              </div>
+            </div>
+            <div className="hidden md:flex justify-center">
+              <EnrichmentHeroCard />
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 2 — THE PROBLEM */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">The Problem</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-snug max-w-3xl mb-12">
+                Most banks are sitting on the world's most predictive dataset.{" "}
+                <span className="text-blue-600">Almost none of them can read it.</span>
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-3 gap-6">
+              {[
+                "Your rewards team is sending the same catalog to a 28-year-old planning a wedding and a 62-year-old planning retirement.",
+                "A customer just made a $50k down payment. Your wealth advisor found out when they called to complain about fees.",
+                "You can see that someone shops at REI. You cannot see that they are about to book a $4,000 Alaska trip and need travel insurance.",
+              ].map((pain, i) => (
+                <ScrollReveal key={i} delay={i * 0.15}>
+                  <div className="relative rounded-xl p-6 bg-white shadow-md border border-gray-100 h-full">
+                    <span className="absolute top-4 left-4 flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full rounded-full bg-red-500 opacity-75 animate-[pulse-dot_1.5s_ease-in-out_infinite]" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
+                    </span>
+                    <p className="text-gray-600 leading-relaxed pl-4 pt-2">{pain}</p>
                   </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2 transition-colors duration-300 group-hover:text-primary">
-                    {feature.title}
-                  </h3>
-                  <p className="text-foreground/70">
-                    {feature.description}
-                  </p>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 3 — INTERACTIVE DEMO (How It Works) */}
+        <section id="enrichment-demo" className="py-24 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">How It Works</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">See the engine in action.</h2>
+              <p className="text-gray-500 text-lg mb-10 max-w-2xl">
+                Watch how Ventus builds a behavioral profile from a real customer's transaction history — updated with every new purchase.
+              </p>
+            </ScrollReveal>
+            <VentusTransactionEnrichment />
+          </div>
+        </section>
+
+        {/* SECTION 5 — CAPABILITIES */}
+        <section className="py-24 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <ScrollReveal>
+              <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-3">Capabilities</p>
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-12">
+                Four signal layers. Built from your transaction history.
+              </h2>
+            </ScrollReveal>
+            <div className="grid md:grid-cols-2 gap-6">
+              {capabilities.map((cap, i) => (
+                <ScrollReveal key={cap.title} delay={i * 0.1}>
+                  <div className="rounded-xl p-6 shadow-sm" style={{ background: "#f0f6ff" }}>
+                    <cap.icon className="w-6 h-6 text-blue-600 mb-4" />
+                    <h3 className="text-lg font-bold text-gray-900 mb-2">{cap.title}</h3>
+                    <p className="text-gray-500 text-sm leading-relaxed">{cap.desc}</p>
+                  </div>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* SECTION 6 — INTEGRATION */}
+        <section className="py-24" style={{ background: "#0a0f1e" }}>
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <p className="text-xs font-semibold tracking-widest text-blue-400 uppercase mb-3">Integration</p>
+            <h2 className="text-3xl md:text-4xl font-bold text-white mb-14">Plug in. No infrastructure changes.</h2>
+            <div ref={integrationRef} className="relative grid md:grid-cols-3 gap-8">
+              <div className="hidden md:block absolute top-1/2 left-[16.67%] right-[16.67%] h-px bg-[#1e2d4a] -translate-y-1/2 z-0">
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500 shadow-[0_0_12px_rgba(59,130,246,0.6)] z-10"
+                  style={{ animation: "connector-dot 3s ease-in-out infinite" }}
+                />
+              </div>
+              {integrationSteps.map((s, i) => (
+                <div
+                  key={s.step}
+                  className="relative z-10 rounded-xl p-6 transition-all duration-700"
+                  style={{
+                    background: "#111827",
+                    opacity: integrationVisible ? 1 : 0,
+                    transform: integrationVisible ? "translateY(0)" : "translateY(24px)",
+                    transitionDelay: `${i * 200}ms`,
+                  }}
+                >
+                  <p className="text-3xl font-bold text-blue-500 mb-3">{s.step}</p>
+                  <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
+                  <p className="text-gray-400 text-sm leading-relaxed">{s.desc}</p>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Use Cases Section */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <h2 
-              className="text-2xl font-semibold text-foreground mb-8 animate-fade-float"
-              style={{ animationDelay: '0.9s', animationFillMode: 'backwards' }}
-            >
-              Use Cases
-            </h2>
-            <div className="grid md:grid-cols-2 gap-6">
-              {useCases.map((useCase, index) => (
-                <div 
-                  key={index}
-                  className="group p-6 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm 
-                    hover:bg-white/10 hover:border-primary/30 hover:shadow-[0_0_40px_rgba(59,130,246,0.15)] 
-                    hover:scale-[1.02] transition-all duration-500 ease-out animate-fade-float"
-                  style={{ animationDelay: `${0.9 + (index + 1) * 0.1}s`, animationFillMode: 'backwards' }}
-                >
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-4 
-                    transition-all duration-500 group-hover:bg-primary/20 
-                    group-hover:shadow-[0_0_25px_rgba(59,130,246,0.4)]">
-                    <useCase.icon className="w-5 h-5 text-primary transition-all duration-300 group-hover:scale-110" />
-                  </div>
-                  <h3 className="text-lg font-semibold text-foreground mb-2 transition-colors duration-300 group-hover:text-primary">
-                    {useCase.title}
-                  </h3>
-                  <p className="text-foreground/70">
-                    {useCase.description}
-                  </p>
+        {/* SECTION 6.5 — STATS */}
+        <ScrollReveal>
+          <section className="py-20 bg-white">
+            <div className="max-w-4xl mx-auto px-6 md:px-8 grid grid-cols-1 sm:grid-cols-3 gap-8 text-center">
+              {[
+                { value: "Dynamic", label: "Behavioral labels" },
+                { value: "12", label: "Lifestyle categories" },
+                { value: "20+", label: "Life events detected" },
+              ].map((s) => (
+                <div key={s.label}>
+                  <p className="font-bold text-gray-900 text-3xl sm:text-[52px]">{s.value}</p>
+                  <p className="text-gray-500 mt-1 text-sm sm:text-lg">{s.label}</p>
                 </div>
               ))}
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
 
-        {/* Benefits Section */}
-        <section className="py-12">
-          <div className="max-w-7xl mx-auto px-4 md:px-8">
-            <div 
-              className="p-8 rounded-2xl border border-white/20 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all duration-500 animate-fade-float"
-              style={{ animationDelay: '1.3s', animationFillMode: 'backwards' }}
-            >
-              <h2 className="text-2xl font-semibold text-foreground mb-6">Benefits</h2>
-              <ul className="grid md:grid-cols-2 gap-4">
-                {benefits.map((benefit, index) => (
-                  <li key={index} className="flex items-center gap-3 text-foreground/80">
-                    <div className="w-2 h-2 rounded-full bg-primary" />
-                    {benefit}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </section>
-
-        {/* CTA Section */}
-        <section className="py-16">
-          <div 
-            className="max-w-7xl mx-auto px-4 md:px-8 text-center animate-fade-float"
-            style={{ animationDelay: '1.4s', animationFillMode: 'backwards' }}
-          >
-            <h2 className="text-2xl font-semibold text-foreground mb-4">
-              Ready to Transform Your Transaction Data?
-            </h2>
-            <p className="text-foreground/70 mb-8 max-w-2xl mx-auto">
-              Discover how Ventus enrichment can unlock new insights and opportunities for your institution.
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
+        {/* SECTION 7 — CTA */}
+        <ScrollReveal>
+          <section className="py-24 bg-white">
+            <div className="max-w-3xl mx-auto px-6 md:px-8 text-center">
+              
+              <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+                Ready to Experience Ventus AI?
+              </h2>
+              <p className="text-lg text-gray-500 mb-8">Everything else is built on top of this.</p>
               <Link to="/contact">
-                <Button size="lg" className="bg-primary text-white hover:bg-primary/90">
-                  Schedule a Demo
+                <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white">
+                  Schedule Demo
                 </Button>
               </Link>
-              <Link to="/technology">
-                <Button size="lg" variant="outline" className="border-white/20 hover:bg-white/10">
-                  Explore All Capabilities
-                </Button>
-              </Link>
+              <p className="text-sm text-gray-400 mt-4">No commitment. 30-minute walkthrough.</p>
             </div>
-          </div>
-        </section>
+          </section>
+        </ScrollReveal>
       </main>
-      <Footer />
     </div>
   );
 };

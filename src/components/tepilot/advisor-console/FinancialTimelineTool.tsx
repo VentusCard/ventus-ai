@@ -879,25 +879,25 @@ export function FinancialTimelineTool({
   // Funding gap = what's still needed
   const fundingGap = totalCosts - totalFunding;
   return <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
+      <DialogContent className="tepilot-popup max-w-6xl max-h-[90vh] overflow-y-auto bg-white text-slate-900">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Lightbulb className="w-5 h-5" />
+          <DialogTitle className="flex items-center gap-2 text-slate-900">
+            <Lightbulb className="w-5 h-5 text-slate-900" />
             Life Event Planner
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6">
           {/* AI Pre-fill Banner */}
-          {detectedEvent?.financial_projection && <Card className="bg-primary/5 border-primary/20">
+          {detectedEvent?.financial_projection && <Card className="bg-blue-50 border-blue-200">
               <CardContent className="pt-4">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-sm font-medium">
+                  <Sparkles className="w-4 h-4 text-blue-600" />
+                  <span className="text-sm font-medium text-slate-800">
                     Pre-filled from AI-detected: "{detectedEvent.event_name}" (Confidence: {detectedEvent.confidence}%)
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
+                <p className="text-xs text-slate-600 mt-1">
                   Review and adjust the projections below based on client conversation.
                 </p>
               </CardContent>

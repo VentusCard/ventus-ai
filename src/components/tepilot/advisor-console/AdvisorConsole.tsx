@@ -3,7 +3,7 @@ import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from "@/componen
 import { ClientSnapshotPanel } from "./ClientSnapshotPanel";
 import { VentusChatPanel } from "./VentusChatPanel";
 import { ActionWorkspacePanel } from "./ActionWorkspacePanel";
-import { ChatMessage, Task, sampleTasks, sampleClientData, NextStepsData, NextStepsActionItem, PsychologicalInsight } from "./sampleData";
+import { ChatMessage, Task, sampleTasks, sampleClientData, NextStepsData, NextStepsActionItem, PsychologicalInsight, MeetingNotesResult, NextMeetingInfo } from "./sampleData";
 import { AIInsights, SavedFinancialProjection, LifeEvent } from "@/types/lifestyle-signals";
 import { EnrichedTransaction } from "@/types/transaction";
 import { AdvisorContext, FinancialPlanContext } from "@/lib/advisorContextBuilder";
@@ -56,6 +56,7 @@ export function AdvisorConsole({
   const [pendingChatMessage, setPendingChatMessage] = useState<string | null>(null);
   const [pendingTimelineEvent, setPendingTimelineEvent] = useState<LifeEvent | null>(null);
   const [openTimelineTrigger, setOpenTimelineTrigger] = useState(false);
+  const [nextMeetingInfo, setNextMeetingInfo] = useState<NextMeetingInfo | null>(null);
 
   // When parent passes a new client via props, overwrite all client state
   useEffect(() => {
@@ -310,6 +311,21 @@ export function AdvisorConsole({
     setOpenTimelineTrigger(true);
   }, []);
 
+  const handleMeetingNotesResult = useCallback((result: MeetingNotesResult) => {
+    // Store products discussed for Product Recommendations chip
+    if (result.productsDiscussed.length > 0) {
+      sessionStorage.setItem("tepilot_products_discussed", JSON.stringify(result.productsDiscussed));
+    }
+
+    // Update next meeting info
+    if (result.nextMeetingDate) {
+      setNextMeetingInfo({
+        date: result.nextMeetingDate,
+        topic: result.nextMeetingTopic || undefined,
+      });
+    }
+  }, []);
+
   const handleSaveToDocument = (message: ChatMessage) => {
     console.log("Save to document:", message);
     // Future: Add to document builder
@@ -396,6 +412,7 @@ export function AdvisorConsole({
               setOpenTimelineTrigger(false);
               setPendingTimelineEvent(null);
             }}
+            onMeetingNotesResult={handleMeetingNotesResult}
           />
         </ResizablePanel>
 
@@ -410,6 +427,9 @@ export function AdvisorConsole({
             onAddActionItem={handleAddActionItem}
             savedProjection={savedProjection}
             onExportTimelinePDF={handleExportTimelinePDF}
+            nextMeeting={nextMeetingInfo}
+            clientProfile={clientProfile}
+            dashboardEvents={dashboardEvents}
           />
         </ResizablePanel>
       </ResizablePanelGroup>

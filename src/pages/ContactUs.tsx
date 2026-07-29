@@ -1,16 +1,32 @@
+import SEO from "@/components/SEO";
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, CheckCircle } from "lucide-react";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
-import TechnologyBackground from "@/components/technology/TechnologyBackground";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Mail, CheckCircle, ClipboardList, Calendar, Sparkles } from "lucide-react";
+import ScrollReveal from "@/components/ScrollReveal";
+
+const steps = [
+{
+  icon: ClipboardList,
+  title: "We review your message",
+  desc: "We read every inquiry personally, usually within a few hours."
+},
+{
+  icon: Calendar,
+  title: "We'll reach out to schedule time",
+  desc: "A member of our team will follow up to learn more about your needs."
+},
+{
+  icon: Sparkles,
+  title: "We prepare something custom",
+  desc: "Before any demo, we build a sample analysis tailored to your institution."
+}];
+
+
 const ContactUs = () => {
-  const [showSuccessOverlay, setShowSuccessOverlay] = useState(false);
-  const isMobile = useIsMobile();
+  const [showSuccess, setShowSuccess] = useState(false);
+
   const handleMailTo = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     const form = e.currentTarget.closest('form') as HTMLFormElement;
@@ -18,6 +34,7 @@ const ContactUs = () => {
     const formData = new FormData(form);
     const name = formData.get('name') as string;
     const email = formData.get('email') as string;
+    const company = formData.get('company') as string;
     const subject = formData.get('subject') as string;
     const message = formData.get('message') as string;
     const emailSubject = `Contact Form: ${subject}`;
@@ -27,6 +44,7 @@ Hello Ventus AI Team,
 I'm reaching out through your contact form with the following information:
 
 Name: ${name}
+Company: ${company}
 Email: ${email}
 Subject: ${subject}
 
@@ -43,98 +61,132 @@ ${name}
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    setShowSuccessOverlay(true);
+    setShowSuccess(true);
   };
-  const handleCloseOverlay = () => {
-    setShowSuccessOverlay(false);
-  };
-  return <div className="min-h-screen bg-background relative overflow-hidden">
-      <TechnologyBackground />
-      <Navbar />
-      
-      {/* Contact Form */}
-      <div className="px-4 md:px-8 pt-24 md:pt-28 pb-12 md:pb-16 relative z-10">
-        <div className={`mx-auto relative ${isMobile ? 'max-w-full' : 'max-w-2xl'}`}>
-          <Card 
-            className="bg-white/5 backdrop-blur-sm border-white/20 hover:bg-white/10 transition-all duration-300 animate-fade-float"
-            style={{ animationDelay: '0.1s', animationFillMode: 'backwards' }}
-          >
-            <CardHeader className="text-center p-4 md:p-6">
-              <CardTitle 
-                className="text-xl md:text-2xl font-bold text-foreground animate-fade-float"
-                style={{ animationDelay: '0.2s', animationFillMode: 'backwards' }}
-              >
-                Send us a Message
-              </CardTitle>
-              <p 
-                className="text-sm md:text-base text-muted-foreground leading-relaxed animate-fade-float"
-                style={{ animationDelay: '0.3s', animationFillMode: 'backwards' }}
-              >
-                Fill out the form below to contact us at info@ventusai.com and we'll get back to you within one business day!
-              </p>
-            </CardHeader>
-            <CardContent className="p-4 md:p-6">
-              <form className="space-y-4 md:space-y-6">
-                <div 
-                  className="grid grid-cols-1 md:grid-cols-2 gap-4 animate-fade-float"
-                  style={{ animationDelay: '0.4s', animationFillMode: 'backwards' }}
-                >
-                  <div>
-                    <label className="text-foreground font-medium mb-2 block text-sm md:text-base">Full Name</label>
-                    <Input name="name" placeholder="Enter your full name" className="h-12 text-base bg-secondary border-border" required />
+
+  return (
+    <div>
+      <SEO title="Contact — Ventus AI" description="Get in touch with the Ventus AI team to explore transaction intelligence for your bank or credit union." path="/contact" />
+      <main className="pt-36">
+        {/* Two-column: Trust + Form */}
+        <section className="py-8 md:py-14 bg-white">
+          <div className="max-w-7xl mx-auto px-6 md:px-8">
+            <div className="grid md:grid-cols-[42%_58%] gap-8 md:gap-12">
+
+              {/* LEFT — Trust & Context */}
+              <ScrollReveal>
+                <div>
+                  <p className="text-xs font-semibold tracking-widest text-blue-600 uppercase mb-2">Get In Touch</p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-3">Let's talk.</h2>
+                  <p className="text-base text-gray-500 max-w-md leading-relaxed mb-7">
+                    Whether you're exploring a partnership or ready to see a demo, we'd love to hear from you. We'll get back within one business day.
+                  </p>
+
+                  <h3 className="text-lg font-bold text-gray-900 mb-4">What happens next</h3>
+                  <div className="space-y-4 mb-6">
+                    {steps.map((step, i) =>
+                    <div key={i} className="flex gap-4">
+                        <div className="flex-shrink-0 w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "#f0f6ff" }}>
+                          <step.icon className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-xs font-bold text-blue-600">{String(i + 1).padStart(2, '0')}</span>
+                            <h4 className="text-sm font-bold text-gray-900">{step.title}</h4>
+                          </div>
+                          <p className="text-gray-500 text-sm leading-relaxed">{step.desc}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <div>
-                    <label className="text-foreground font-medium mb-2 block text-sm md:text-base">Email Address</label>
-                    <Input name="email" type="email" placeholder="your.email@example.com" className="h-12 text-base bg-secondary border-border" required />
+
+                  <div className="border-t border-gray-200 pt-4 mb-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: "#f0f6ff" }}>
+                        <Mail className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Email us directly</p>
+                        <a href="mailto:info@ventusai.com" className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
+                          info@ventusai.com
+                        </a>
+                      </div>
+                    </div>
                   </div>
+
+                  
+
+                  
                 </div>
+              </ScrollReveal>
 
-                <div 
-                  className="animate-fade-float"
-                  style={{ animationDelay: '0.5s', animationFillMode: 'backwards' }}
-                >
-                  <label className="text-foreground font-medium mb-2 block text-sm md:text-base">Subject</label>
-                  <Input name="subject" placeholder="How can we help?" className="h-12 text-base bg-secondary border-border" required />
+              {/* RIGHT — Form */}
+              <ScrollReveal delay={0.15}>
+                <div className="relative rounded-2xl border border-gray-200 bg-white shadow-sm p-5 md:p-6">
+                  {showSuccess &&
+                  <div className="absolute inset-0 z-10 bg-white/95 backdrop-blur-sm rounded-2xl flex items-center justify-center p-6">
+                      <div className="text-center max-w-sm">
+                        <CheckCircle className="w-14 h-14 text-blue-600 mx-auto mb-4" />
+                        <h3 className="text-2xl font-bold text-gray-900 mb-3">Message prepared!</h3>
+                        <p className="text-gray-500 text-sm mb-6 leading-relaxed">
+                          Your default email client should open with the pre-filled message. You can also email us directly at info@ventusai.com.
+                        </p>
+                        <Button onClick={() => setShowSuccess(false)} className="bg-blue-600 hover:bg-blue-700 text-white px-8 h-11">
+                          Close
+                        </Button>
+                      </div>
+                    </div>
+                  }
+
+                  <form className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="text-gray-900 font-medium mb-1.5 block text-sm">Full Name</label>
+                        <Input name="name" placeholder="Your name" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
+                      </div>
+                      <div>
+                        <label className="text-gray-900 font-medium mb-1.5 block text-sm">Company Name</label>
+                        <Input name="company" placeholder="Your company" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" />
+                      </div>
+                    </div>
+                    <div>
+                      <label className="text-gray-900 font-medium mb-1.5 block text-sm">Work Email</label>
+                      <Input name="email" type="email" placeholder="you@company.com" className="h-11 bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
+                    </div>
+                    <div>
+                      <label className="text-gray-900 font-medium mb-1.5 block text-sm">Subject</label>
+                      <select
+                        name="subject"
+                        className="flex h-11 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus-visible:outline-none focus:outline-none focus:ring-0"
+                        required>
+                        
+                        <option value="">Select a topic...</option>
+                        <option value="Schedule a Demo">Schedule a Demo</option>
+                        <option value="Partnership Inquiry">Partnership Inquiry</option>
+                        <option value="Technical Question">Technical Question</option>
+                        <option value="Other">Other</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="text-gray-900 font-medium mb-1.5 block text-sm">Message</label>
+                      <Textarea name="message" placeholder="Tell us about your needs..." className="min-h-[100px] resize-none bg-white border-gray-300 text-gray-900 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-gray-300" required />
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleMailTo}
+                      className="w-full h-12 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold text-base">
+                      
+                      Send Message
+                    </Button>
+                  </form>
                 </div>
+              </ScrollReveal>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>);
 
-                <div 
-                  className="animate-fade-float"
-                  style={{ animationDelay: '0.6s', animationFillMode: 'backwards' }}
-                >
-                  <label className="text-foreground font-medium mb-2 block text-sm md:text-base">Message</label>
-                  <Textarea name="message" placeholder="Please share your questions or feedback..." className="min-h-32 resize-none text-base bg-secondary border-border" required />
-                </div>
-
-                <div 
-                  className="flex justify-center pt-2 animate-fade-float"
-                  style={{ animationDelay: '0.7s', animationFillMode: 'backwards' }}
-                >
-                  <Button type="button" onClick={handleMailTo} className="h-12 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 px-6 md:px-8 text-sm md:text-base min-w-[200px]">
-                    <Mail className="mr-2 h-4 w-4" />
-                    Open Email Client
-                  </Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Success Overlay */}
-          {showSuccessOverlay && <div className={`${isMobile ? 'fixed inset-0 z-50' : 'absolute inset-0 z-10'} bg-background/95 backdrop-blur-sm ${isMobile ? '' : 'rounded-xl border-0 shadow-xl'} flex items-center justify-center p-4`}>
-              <div className="text-center p-6 md:p-8 max-w-md w-full">
-                <CheckCircle className="w-12 h-12 md:w-16 md:h-16 text-primary mx-auto mb-4" />
-                <h3 className="text-xl md:text-2xl font-bold text-foreground mb-4">Email Client Opened</h3>
-                <p className="text-sm md:text-base text-muted-foreground mb-6 leading-relaxed">
-                  Your default email client should open with the pre-filled message. It may not open if you do not have a default email client set up, you can always reach out to us directly at info@ventusai.com.
-                </p>
-                <Button onClick={handleCloseOverlay} className="h-12 px-6 text-base min-w-[120px]">
-                  Close
-                </Button>
-              </div>
-            </div>}
-        </div>
-      </div>
-
-      <Footer />
-    </div>;
 };
+
 export default ContactUs;

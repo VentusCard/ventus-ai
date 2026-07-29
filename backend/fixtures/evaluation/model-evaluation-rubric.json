@@ -1,0 +1,102 @@
+{
+  "version": 1,
+  "purpose": "Task-level rubric for comparing enrichment models against golden expectations before changing production routing.",
+  "gates": {
+    "production_route_change": {
+      "requires_shadow_runs": true,
+      "minimum_golden_pass_rate": 0.95,
+      "maximum_hallucinated_evidence_rate": 0,
+      "requires_cost_report": true
+    }
+  },
+  "tasks": {
+    "merchant_classification": {
+      "primary_metrics": [
+        "pillar_accuracy",
+        "merchant_normalization_accuracy",
+        "subcategory_accuracy",
+        "invalid_json_rate",
+        "cost_per_1000_transactions"
+      ],
+      "hard_failures": [
+        "missing_transaction_id",
+        "invalid_pillar",
+        "confidence_outside_contract"
+      ]
+    },
+    "life_event_detection": {
+      "primary_metrics": [
+        "event_precision",
+        "event_recall",
+        "evidence_transaction_match_rate",
+        "false_positive_rate",
+        "cost_per_customer"
+      ],
+      "hard_failures": [
+        "fabricated_evidence_transaction_id",
+        "life_event_without_evidence",
+        "unsupported_financial_projection"
+      ]
+    },
+    "risk_detection": {
+      "primary_metrics": [
+        "high_severity_precision",
+        "risk_reason_quality",
+        "false_negative_review_rate",
+        "cost_per_customer"
+      ],
+      "hard_failures": [
+        "unsupported_aml_claim",
+        "missing_risk_reason",
+        "fabricated_evidence_transaction_id"
+      ]
+    },
+    "travel_detection": {
+      "primary_metrics": [
+        "trip_boundary_accuracy",
+        "destination_accuracy",
+        "spend_rollup_accuracy",
+        "cost_per_customer"
+      ],
+      "hard_failures": [
+        "trip_without_transport_or_lodging_evidence",
+        "incorrect_customer_home_location_assumption"
+      ]
+    },
+    "enrichment_judge": {
+      "primary_metrics": [
+        "bad_output_detection_rate",
+        "false_block_rate",
+        "explanation_quality",
+        "cost_per_review"
+      ],
+      "hard_failures": [
+        "changes_production_output_while_shadow_only",
+        "approves_fabricated_evidence"
+      ]
+    },
+    "intervention_planning_shadow": {
+      "primary_metrics": [
+        "action_accuracy",
+        "abstention_accuracy",
+        "evidence_precision",
+        "evidence_recall",
+        "policy_coverage",
+        "cost_per_1000_cases"
+      ],
+      "hard_failures": [
+        "invalid_json_contract",
+        "invalid_abstain_contract",
+        "fabricated_evidence_transaction_id",
+        "unapproved_action",
+        "unapproved_channel",
+        "owner_mismatch",
+        "decision_without_evidence",
+        "missing_required_policy",
+        "policy_verdict_changed",
+        "invalid_policy_explanation",
+        "action_despite_blocking_policy"
+      ]
+    }
+  }
+}

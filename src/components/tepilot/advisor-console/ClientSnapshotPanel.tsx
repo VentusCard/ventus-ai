@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionItem, AccordionTrigger, AccordionContent } from "@/components/ui/accordion";
-import { Landmark, CreditCard, Home, TrendingUp, Plane, Users, Heart, UtensilsCrossed, Activity, AlertCircle, ShoppingBag, Sparkles, MessageSquare, RefreshCw } from "lucide-react";
+import { Landmark, CreditCard, Home, TrendingUp, Plane, Users, Heart, UtensilsCrossed, Activity, AlertCircle, ShoppingBag, Sparkles, MessageSquare, RefreshCw, DollarSign } from "lucide-react";
 import { AdvisorContext } from "@/lib/advisorContextBuilder";
 import { cn } from "@/lib/utils";
 import { AIInsights, LifeEvent } from "@/types/lifestyle-signals";
@@ -12,6 +12,7 @@ import { ClientProfileData } from "@/types/clientProfile";
 import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { LifeEventDetailsDialog } from "./LifeEventDetailsDialog";
 import { DetectedLifeEvent } from "@/types/dashboardClient";
+import { getEventTransactions } from "./PrepareEventDialog";
 
 interface ClientSnapshotPanelProps {
   onAskVentus?: (context: string) => void;
@@ -96,17 +97,23 @@ export function ClientSnapshotPanel({
 
   // Prioritize dashboard events if available, otherwise use AI insights
   const lifeEvents: LifeEvent[] = dashboardEvents?.length 
-    ? dashboardEvents.map(e => ({
-        event_name: e.eventName,
-        confidence: e.confidence,
-        evidence: e.keyEvidence.map(k => ({ 
-          merchant: "", 
-          amount: 0, 
-          date: "", 
-          relevance: k 
-        })),
-        talking_points: []
-      }))
+    ? dashboardEvents.map(e => {
+        // Use rich transaction data from the event preparation mock data
+        const richTransactions = getEventTransactions(e.eventType);
+        return {
+          event_name: e.eventName,
+          confidence: e.confidence,
+          evidence: richTransactions.length > 0
+            ? richTransactions.map(t => ({ 
+                merchant: t.merchant, 
+                amount: t.amount, 
+                date: t.date, 
+                relevance: t.relevance 
+              }))
+            : e.keyEvidence.map(k => ({ merchant: "", amount: 0, date: "", relevance: k })),
+          talking_points: []
+        };
+      })
     : (aiInsights?.detected_events || []);
 
   // Calculate overview stats
@@ -173,36 +180,80 @@ export function ClientSnapshotPanel({
 
         {/* Accordion Sections - All Collapsed by Default */}
         <Accordion type="multiple" className="space-y-2">
-          {/* Transaction Overview - Real Data */}
-          {hasRealData && (
-            <AccordionItem value="overview" className="bg-white rounded-lg border">
-              <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-blue-600" />
-                  <span className="text-sm font-semibold text-blue-900">Transaction Overview</span>
-                  <Badge variant="secondary" className="ml-auto text-xs">{advisorContext.overview.totalTransactions} txns</Badge>
-                </div>
-              </AccordionTrigger>
-              <AccordionContent className="px-4 pb-3">
-                <div className="space-y-2 text-xs">
-                  <div className="flex items-center justify-between py-2 border-b">
-                    <span className="text-slate-600">Total Spend</span>
-                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.totalSpend)}</span>
+          {/* Spending Overview - Uses real data when available, falls back to mock */}
+          {(() => {
+            const useRealData = lifestyleSignals.length > 0;
+            const spendingItems = useRealData
+              ? lifestyleSignals.map((signal, i) => {
+                  const seed = signal.category.length + i;
+                  const multiplier = 1.1 + ((seed % 20) / 100);
+                  const budget = Math.round(signal.spend * multiplier);
+                  const colors = ['#3b82f6', '#8b5cf6', '#f59e0b', '#10b981', '#ef4444', '#ec4899', '#06b6d4', '#f97316'];
+                  return { category: signal.category, monthlySpend: signal.spend, monthlyBudget: budget, color: colors[i % colors.length] };
+                })
+              : (displayData.spendingOverview || []);
+
+            if (spendingItems.length === 0) return null;
+
+            const totalSpend = spendingItems.reduce((s, c) => s + c.monthlySpend, 0);
+            const totalBudget = spendingItems.reduce((s, c) => s + c.monthlyBudget, 0);
+            const overallRatio = totalBudget > 0 ? totalSpend / totalBudget : 0;
+            const overallStatus = overallRatio > 1 ? 'over' : overallRatio >= 0.85 ? 'near' : 'under';
+            const statusColors = { over: 'bg-red-100 text-red-700 border-red-200', near: 'bg-yellow-100 text-yellow-700 border-yellow-200', under: 'bg-green-100 text-green-700 border-green-200' };
+            const statusLabels = { over: 'Over Budget', near: 'Near Limit', under: 'On Track' };
+            return (
+              <AccordionItem value="spending" className="bg-white rounded-lg border">
+                <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
+                  <div className="flex items-center gap-2">
+                    <DollarSign className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-semibold text-blue-900">Spending Overview</span>
+                    {useRealData && <Badge variant="outline" className="text-xs bg-blue-50 text-blue-600 border-blue-200">Live</Badge>}
+                    <Badge variant="outline" className={`ml-auto text-xs ${statusColors[overallStatus]}`}>
+                      {statusLabels[overallStatus]}
+                    </Badge>
                   </div>
-                  <div className="flex items-center justify-between py-2 border-b">
-                    <span className="text-slate-600">Avg. Transaction</span>
-                    <span className="font-semibold text-slate-900">{formatCurrency(advisorContext.overview.avgTransactionAmount)}</span>
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pb-3">
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between py-2 border-b mb-2">
+                      <span className="text-xs font-semibold text-slate-700">Monthly Total</span>
+                      <span className="text-xs text-slate-600">
+                        <span className="font-semibold text-slate-900">{formatCurrency(totalSpend)}</span>
+                        {' / '}{formatCurrency(totalBudget)}
+                      </span>
+                    </div>
+                    {spendingItems.map((cat, idx) => {
+                      const ratio = cat.monthlyBudget > 0 ? cat.monthlySpend / cat.monthlyBudget : 0;
+                      const barPct = Math.min(ratio * 100, 100);
+                      const barColor = ratio > 1 ? '#ef4444' : ratio >= 0.85 ? '#f59e0b' : '#22c55e';
+                      return (
+                        <div
+                          key={idx}
+                          className={cn("py-1.5", useRealData && "cursor-pointer hover:bg-slate-50 -mx-2 px-2 rounded")}
+                          onClick={useRealData ? () => onAskVentus?.(`Analyze ${cat.category} spending patterns in detail`) : undefined}
+                        >
+                          <div className="flex items-center justify-between text-xs mb-1">
+                            <div className="flex items-center gap-1.5">
+                              <div className="w-2 h-2 rounded-full" style={{ backgroundColor: cat.color }} />
+                              <span className="text-slate-700">{cat.category}</span>
+                            </div>
+                            <span className="text-slate-500">
+                              <span className="font-medium text-slate-800">{formatCurrency(cat.monthlySpend)}</span>
+                              {' / '}{formatCurrency(cat.monthlyBudget)}
+                              {ratio > 1 && <span className="text-red-500 ml-1 font-medium">+{Math.round((ratio - 1) * 100)}%</span>}
+                            </span>
+                          </div>
+                          <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                            <div className="h-full rounded-full transition-all" style={{ width: `${barPct}%`, backgroundColor: barColor }} />
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <div className="flex items-center justify-between py-2">
-                    <span className="text-slate-600">Date Range</span>
-                    <span className="font-semibold text-slate-900">
-                      {advisorContext.overview.dateRange.start} - {advisorContext.overview.dateRange.end}
-                    </span>
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          )}
+                </AccordionContent>
+              </AccordionItem>
+            );
+          })()}
 
           {/* Detected Life Events - Moved to second position */}
           <AccordionItem value="events" className="bg-white rounded-lg border">
@@ -211,7 +262,7 @@ export function ClientSnapshotPanel({
                 <Sparkles className={`w-4 h-4 text-blue-600 ${isLoadingInsights ? 'animate-pulse' : ''}`} />
                 <span className="text-sm font-semibold text-blue-900">Detected Life Events</span>
                 {isLoadingInsights ? (
-                  <Badge variant="secondary" className="ml-auto text-xs animate-pulse bg-primary/10 text-primary">
+                  <Badge variant="secondary" className="ml-auto text-xs animate-pulse bg-blue-50 text-blue-700 border-blue-200">
                     Analyzing...
                   </Badge>
                 ) : lifeEvents.length > 0 && (
@@ -379,44 +430,6 @@ export function ClientSnapshotPanel({
                     )}
                   </div>
                 </div>
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-
-          {/* Lifestyle Signals - Real Data */}
-          <AccordionItem value="lifestyle" className="bg-white rounded-lg border">
-            <AccordionTrigger className="px-4 hover:no-underline hover:bg-slate-50">
-              <div className="flex items-center gap-2">
-                <Activity className="w-4 h-4 text-blue-600" />
-                <span className="text-sm font-semibold text-blue-900">Top Spending Categories</span>
-                {lifestyleSignals.length > 0 && (
-                  <Badge variant="secondary" className="ml-auto text-xs">{lifestyleSignals.length}</Badge>
-                )}
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-3">
-              <div className="space-y-2">
-                {lifestyleSignals.length > 0 ? lifestyleSignals.map((signal, idx) => {
-                  const Icon = signal.icon;
-                  return (
-                    <div 
-                      key={idx} 
-                      className="flex items-center justify-between py-2 border-b last:border-0 cursor-pointer hover:bg-slate-50 -mx-2 px-2 rounded"
-                      onClick={() => onAskVentus?.(`Analyze ${signal.category} spending patterns in detail`)}
-                    >
-                      <div className="flex items-center gap-2">
-                        <Icon className="w-4 h-4 text-primary" />
-                        <span className="text-xs text-slate-700">{signal.category}</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-semibold text-slate-700">{formatCurrency(signal.spend)}</span>
-                        <MessageSquare className="w-3 h-3 text-slate-400" />
-                      </div>
-                    </div>
-                  );
-                }) : (
-                  <p className="text-xs text-muted-foreground py-2">No transaction data available</p>
-                )}
               </div>
             </AccordionContent>
           </AccordionItem>

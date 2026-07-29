@@ -17,57 +17,45 @@ interface Trip {
   reclassifiedCount: number;
 }
 
-function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Trip[] {
-  // Filter out transactions without valid destinations to prevent "Unknown" trips
-  const travelTransactions = transactions.filter(t => 
-    t.travel_context?.is_travel_related && 
-    t.travel_context?.travel_destination && 
-    t.travel_context.travel_destination.toLowerCase() !== 'unknown'
-  );
-  
-  // Group by destination + travel period
+export function parseTripLabel(label: string): { startDate: string; endDate: string; destination: string } | null {
+  // Parse "260301:260315 Banff Trip" → { startDate: "2026-03-01", endDate: "2026-03-15", destination: "Banff" }
+  const match = label.match(/^(\d{6}):(\d{6})\s+(.+)\s+Trip$/);
+  if (!match) return null;
+  const [, startRaw, endRaw, destination] = match;
+  const toISO = (raw: string) => `20${raw.slice(0, 2)}-${raw.slice(2, 4)}-${raw.slice(4, 6)}`;
+  return { startDate: toISO(startRaw), endDate: toISO(endRaw), destination };
+}
+
+export function groupTransactionsByTrip(transactions: EnrichedTransaction[]): Trip[] {
   const tripMap = new Map<string, EnrichedTransaction[]>();
-  
-  travelTransactions.forEach(t => {
-    const destination = t.travel_context?.travel_destination || 'Unknown';
-    const periodStart = t.travel_context?.travel_period_start || t.date;
-    const periodEnd = t.travel_context?.travel_period_end || t.date;
-    
-    // Create composite key for trip grouping
-    const tripKey = `${destination}|${periodStart}|${periodEnd}`;
-    
-    if (!tripMap.has(tripKey)) {
-      tripMap.set(tripKey, []);
-    }
-    tripMap.get(tripKey)!.push(t);
-  });
-  
-  // Convert to Trip objects
+
+  transactions
+    .filter(t => t.trip_label)
+    .forEach(t => {
+      if (!tripMap.has(t.trip_label!)) tripMap.set(t.trip_label!, []);
+      tripMap.get(t.trip_label!)!.push(t);
+    });
+
   const trips: Trip[] = [];
-  
-  tripMap.forEach((txns, key) => {
-    const [destination, periodStart, periodEnd] = key.split('|');
-    
-    // Get actual date range from transactions
+
+  tripMap.forEach((txns, label) => {
+    const parsed = parseTripLabel(label);
     const dates = txns.map(t => t.date).sort();
-    const actualStart = dates[0];
-    const actualEnd = dates[dates.length - 1];
-    
+
     trips.push({
-      destination,
-      startDate: periodStart || actualStart,
-      endDate: periodEnd || actualEnd,
+      destination: parsed?.destination || label,
+      startDate: parsed?.startDate || dates[0],
+      endDate: parsed?.endDate || dates[dates.length - 1],
       transactions: txns.sort((a, b) => a.date.localeCompare(b.date)),
       totalSpend: txns.reduce((sum, t) => sum + t.amount, 0),
-      reclassifiedCount: txns.filter(t => t.travel_context?.original_pillar !== "Travel & Experiences").length
+      reclassifiedCount: txns.filter(t => t.travel_context?.original_pillar !== t.pillar).length,
     });
   });
-  
-  // Sort trips by start date (most recent first)
+
   return trips.sort((a, b) => b.startDate.localeCompare(a.startDate));
 }
 
-function formatDateRange(startDate: string, endDate: string): string {
+export function formatDateRange(startDate: string, endDate: string): string {
   const start = new Date(startDate);
   const end = new Date(endDate);
   
@@ -82,14 +70,14 @@ function formatDateRange(startDate: string, endDate: string): string {
   return `${startMonth} ${startDay} - ${endMonth} ${endDay}`;
 }
 
-function calculateDays(startDate: string, endDate: string): number {
+export function calculateDays(startDate: string, endDate: string): number {
   const start = new Date(startDate);
   const end = new Date(endDate);
   const diffTime = Math.abs(end.getTime() - start.getTime());
   return Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
 }
 
-function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: boolean }) {
+export function TripSection({ trip, defaultOpen = false }: { trip: Trip; defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   
   // Group transactions by date

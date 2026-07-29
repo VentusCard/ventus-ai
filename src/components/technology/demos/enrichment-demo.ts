@@ -1,16 +1,16 @@
 export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
   <style>
     #ventus-te-enterprise{
-      --ink:#ffffff;
-      --muted:rgba(255,255,255,.62);
-      --hair:rgba(255,255,255,.20);
-      --wash:rgba(255,255,255,.05);
+      --ink:#0f172a;
+      --muted:rgba(15,23,42,.55);
+      --hair:rgba(15,23,42,.12);
+      --wash:rgba(15,23,42,.04);
       --radius:18px;
-      --sigBg: rgba(255,255,255,.08);
-      --sigBd: rgba(255,255,255,.20);
-      --sigInk: rgba(255,255,255,.90);
-      --hlBg: rgba(255,255,255,.04);
-      --hlBd: rgba(255,255,255,.16);
+      --sigBg: rgba(15,23,42,.05);
+      --sigBd: rgba(15,23,42,.18);
+      --sigInk: rgba(15,23,42,.88);
+      --hlBg: rgba(15,23,42,.03);
+      --hlBd: rgba(15,23,42,.12);
     }
 
     #ventus-te-enterprise, #ventus-te-enterprise *{ box-sizing:border-box; }
@@ -33,7 +33,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     .vte-head{
       padding: 16px 18px;
       border-bottom: 1px solid var(--hair);
-      background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
+      background: linear-gradient(180deg, rgba(15,23,42,.03), rgba(15,23,42,0));
       display:flex;
       justify-content: space-between;
       align-items: baseline;
@@ -97,13 +97,13 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
 
     .raw{ white-space: normal; word-break: break-word; line-height: 1.25; }
     .one{ white-space: nowrap; line-height: 1.2; }
-    .derived-text{ color: rgba(255,255,255,.80); font-weight: 650; }
+    .derived-text{ color: rgba(15,23,42,.70); font-weight: 650; }
 
     .vte-spacer{ height: 12px; }
 
     .vte-disclaimer{ margin-top: 16px; text-align: center; }
     .vte-disclaimer p{
-      margin: 0; font-size: 11px; color: rgba(255,255,255,.42);
+      margin: 0; font-size: 11px; color: rgba(15,23,42,.42);
       font-weight: 620; letter-spacing: -0.005em; line-height: 1.4;
     }
 
@@ -136,7 +136,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       letter-spacing: -0.012em;
       line-height: 1.2;
     }
-    .persona-summary .key{ font-weight: 920; }
+    .persona-summary .key{ font-weight: 920; color: #0f172a; }
 
     .signal-top{
       display:flex;
@@ -145,12 +145,12 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       gap: 10px;
       flex-wrap: wrap;
       padding-top: 10px;
-      border-top: 1px solid rgba(255,255,255,.12);
+      border-top: 1px solid rgba(15,23,42,.10);
     }
     .signal-label{
       font-size: 12px;
       font-weight: 820;
-      color: rgba(255,255,255,.82);
+      color: rgba(15,23,42,.65);
       letter-spacing: -0.01em;
     }
 
@@ -174,8 +174,8 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
       line-height: 1;
       white-space: nowrap;
     }
-    .chip strong{ font-weight: 880; letter-spacing: -0.01em; }
-    .chip .count{ font-weight: 820; color: rgba(255,255,255,.70); }
+    .chip strong{ font-weight: 880; letter-spacing: -0.01em; color: #0f172a; }
+    .chip .count{ font-weight: 820; color: rgba(15,23,42,.55); }
 
     /* fade-out state for the whole demo */
     .vte-fade-out .vte-row.data-row,
@@ -207,7 +207,7 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
 
   <div class="vte-card">
     <div class="vte-head">
-      <h3 class="vte-title">Transaction Enrichment</h3>
+      <h3 class="vte-title">Multi-rail Enrichment</h3>
     </div>
 
     <div class="vte-table">
@@ -232,9 +232,6 @@ export const enrichmentDemoHtml = `<div id="ventus-te-enterprise">
     <div class="persona-wrap" id="vte-persona"></div>
   </div>
 
-  <div class="vte-disclaimer">
-    <p>Example merchants and MCC codes shown for demonstration purposes. Actual merchant names and codes may differ.</p>
-  </div>
 
   <script>
     (function(){

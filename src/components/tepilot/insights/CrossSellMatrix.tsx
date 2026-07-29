@@ -71,6 +71,7 @@ export function CrossSellMatrix({ matrixData }: CrossSellMatrixProps) {
 
   return (
     <CollapsibleCard
+      defaultExpanded={true}
       title="Cross-Sell Opportunity Matrix"
       description="Annual opportunity and potential users for cross-selling from current card (rows) to target card (columns)"
       icon={<TrendingUp className="h-5 w-5 text-primary" />}

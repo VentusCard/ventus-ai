@@ -3,14 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Users, Target, Sparkles, Bookmark } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Users, Target, Sparkles, Bookmark, CreditCard } from "lucide-react";
 import { LifeEventTargeting } from "./LifeEventTargeting";
 import { LifestyleTargeting } from "./LifestyleTargeting";
 import { ProductTargeting } from "./ProductTargeting";
 import { AudiencePreview } from "./AudiencePreview";
 import { DemographicFilters } from "./DemographicFilters";
 import { SegmentExportControls } from "./SegmentExportControls";
+import { PersonalizationPreviewPanel } from "./PersonalizationPreviewPanel";
 import { estimateAudienceSize } from "@/lib/segmentData";
+import { DEMO_PRODUCTS } from "@/lib/samplePersonaGenerator";
 import type { 
   SavedSegment, 
   LifeEventCriteria, 
@@ -26,6 +29,7 @@ interface SegmentBuilderProps {
 
 export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
   const [targetingMode, setTargetingMode] = useState<TargetingMode>("life_event");
+  const [selectedProductId, setSelectedProductId] = useState<string>("travel_card");
   
   // Life event state
   const [lifeEventCriteria, setLifeEventCriteria] = useState<LifeEventCriteria>({
@@ -123,6 +127,21 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
     }
   }, [targetingMode, lifeEventCriteria, lifestyleCriteria, productCriteria]);
 
+  // Get selected product for personalization preview
+  const selectedProduct = useMemo(() => {
+    return DEMO_PRODUCTS.find(p => p.id === selectedProductId) || null;
+  }, [selectedProductId]);
+
+  // Get selected pillars for personalization
+  const selectedPillarsForPreview = useMemo(() => {
+    return targetingMode === "lifestyle" ? lifestyleCriteria.pillars : [];
+  }, [targetingMode, lifestyleCriteria.pillars]);
+
+  // Get selected life events for personalization
+  const selectedLifeEventsForPreview = useMemo(() => {
+    return targetingMode === "life_event" ? lifeEventCriteria.eventTypes : [];
+  }, [targetingMode, lifeEventCriteria.eventTypes]);
+
   const handleSaveSegment = () => {
     const segment: Partial<SavedSegment> = {
       targetingMode,
@@ -161,10 +180,30 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
           )}
         </div>
         <p className="text-sm text-slate-500">
-          Define your target audience using one of three targeting approaches
+          Preview how personalized campaigns reach different customer profiles
         </p>
       </CardHeader>
       <CardContent>
+        {/* Product Selector */}
+        <div className="mb-6 p-4 rounded-lg bg-slate-50 border border-slate-200">
+          <div className="flex items-center gap-2 mb-2">
+            <CreditCard className="w-4 h-4 text-primary" />
+            <span className="text-sm font-semibold text-slate-900">What product are you promoting?</span>
+          </div>
+          <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+            <SelectTrigger className="w-full max-w-xs bg-white">
+              <SelectValue placeholder="Select a product" />
+            </SelectTrigger>
+            <SelectContent>
+              {DEMO_PRODUCTS.map((product) => (
+                <SelectItem key={product.id} value={product.id}>
+                  {product.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Tabs 
           value={targetingMode} 
           onValueChange={(v) => setTargetingMode(v as TargetingMode)}
@@ -214,6 +253,18 @@ export function SegmentBuilder({ onSaveSegment }: SegmentBuilderProps) {
             onChange={setDemographicFilters}
           />
         </div>
+
+        {/* Personalization Preview Panel */}
+        {hasSelections && (
+          <div className="mt-6">
+            <PersonalizationPreviewPanel
+              selectedProduct={selectedProduct}
+              selectedPillars={selectedPillarsForPreview}
+              selectedLifeEvents={selectedLifeEventsForPreview}
+              hasSelections={hasSelections}
+            />
+          </div>
+        )}
 
         {/* Audience Preview */}
         {hasSelections && (

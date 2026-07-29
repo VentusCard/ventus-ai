@@ -13,9 +13,18 @@ import {
   SankeyData,
 } from "@/types/transaction";
 import { PILLAR_COLORS } from "./sampleData";
+import { isIncome } from "./transactionFlow";
+
+// Strip income rows so spend totals/charts don't include paychecks/deposits.
+// Merchant refunds (flow="income" but pillar is a normal spending pillar) are KEPT
+// so they net against the original spend in their pillar's totals.
+const stripIncome = <T extends { pillar?: string; merchant_name?: string; merchant?: string; description?: string }>(
+  txs: T[],
+): T[] => txs.filter((t) => !(t.pillar === "Income & Inflows" || (isIncome(t) && !t.pillar)));
 
 // MCC-based aggregations
 export function aggregateByMCC(transactions: Transaction[]): MCCAggregate[] {
+  transactions = stripIncome(transactions);
   const mccMap = new Map<string, { totalSpend: number; count: number }>();
 
   transactions.forEach((t) => {
@@ -38,6 +47,7 @@ export function aggregateByMCC(transactions: Transaction[]): MCCAggregate[] {
 }
 
 export function aggregateMCCTimeSeries(transactions: Transaction[]): TimeSeriesData[] {
+  transactions = stripIncome(transactions);
   const dateMap = new Map<string, Record<string, number>>();
 
   transactions.forEach((t) => {
@@ -56,6 +66,7 @@ export function aggregateMCCTimeSeries(transactions: Transaction[]): TimeSeriesD
 }
 
 export function getMCCDistribution(transactions: Transaction[]): PieChartData[] {
+  transactions = stripIncome(transactions);
   const aggregates = aggregateByMCC(transactions);
   const total = aggregates.reduce((sum, a) => sum + a.totalSpend, 0);
 
@@ -68,6 +79,7 @@ export function getMCCDistribution(transactions: Transaction[]): PieChartData[] 
 
 // Pillar-based aggregations with travel breakdown
 export function aggregateByPillarWithTravelBreakdown(transactions: EnrichedTransaction[]): PillarAggregateWithSegments[] {
+  transactions = stripIncome(transactions);
   const pillarMap = new Map<string, { 
     totalSpend: number; 
     count: number; 
@@ -95,7 +107,7 @@ export function aggregateByPillarWithTravelBreakdown(transactions: EnrichedTrans
     existing.subcats.set(t.subcategory, subcat);
 
     // Track segments by original pillar for travel-reclassified transactions
-    const segmentKey = (t.travel_context?.is_travel_related && t.travel_context?.original_pillar) 
+    const segmentKey = (t.trip_label && t.travel_context?.original_pillar) 
       ? t.travel_context.original_pillar 
       : t.pillar;
     existing.segments.set(segmentKey, (existing.segments.get(segmentKey) || 0) + t.amount);
@@ -124,6 +136,7 @@ export function aggregateByPillarWithTravelBreakdown(transactions: EnrichedTrans
 
 // Pillar-based aggregations (original function preserved)
 export function aggregateByPillar(transactions: EnrichedTransaction[]): PillarAggregate[] {
+  transactions = stripIncome(transactions);
   const pillarMap = new Map<string, { totalSpend: number; count: number; totalConfidence: number; subcats: Map<string, SubcategoryData> }>();
 
   transactions.forEach((t) => {
@@ -154,6 +167,7 @@ export function aggregateByPillar(transactions: EnrichedTransaction[]): PillarAg
 }
 
 export function aggregatePillarTimeSeries(transactions: EnrichedTransaction[]): TimeSeriesData[] {
+  transactions = stripIncome(transactions);
   const dateMap = new Map<string, Record<string, number>>();
 
   transactions.forEach((t) => {
@@ -171,6 +185,7 @@ export function aggregatePillarTimeSeries(transactions: EnrichedTransaction[]): 
 }
 
 export function getPillarDistribution(transactions: EnrichedTransaction[]): PieChartData[] {
+  transactions = stripIncome(transactions);
   const aggregates = aggregateByPillar(transactions);
   const total = aggregates.reduce((sum, a) => sum + a.totalSpend, 0);
 
@@ -183,6 +198,7 @@ export function getPillarDistribution(transactions: EnrichedTransaction[]): PieC
 
 // Subcategory drill-down
 export function getSubcategoriesForPillar(pillar: string, transactions: EnrichedTransaction[]): SubcategoryData[] {
+  transactions = stripIncome(transactions);
   const subcatMap = new Map<string, { totalSpend: number; count: number }>();
 
   transactions
@@ -206,6 +222,7 @@ export function getSubcategoriesForPillar(pillar: string, transactions: Enriched
 
 // Sankey data builder
 export function buildSankeyFlow(transactions: EnrichedTransaction[]): SankeyData {
+  transactions = stripIncome(transactions);
   const linkMap = new Map<string, number>();
 
   transactions.forEach((t) => {
@@ -265,12 +282,14 @@ export function applyFilters(transactions: EnrichedTransaction[], filters: Filte
 
 // Calculate metrics
 export function calculateMiscRate(transactions: EnrichedTransaction[]): number {
+  transactions = stripIncome(transactions);
   if (transactions.length === 0) return 0;
   const miscCount = transactions.filter((t) => t.pillar === "Miscellaneous & Unclassified").length;
   return (miscCount / transactions.length) * 100;
 }
 
 export function calculateAverageConfidence(transactions: EnrichedTransaction[]): number {
+  transactions = stripIncome(transactions);
   if (transactions.length === 0) return 0;
   const total = transactions.reduce((sum, t) => sum + t.confidence, 0);
   return total / transactions.length;

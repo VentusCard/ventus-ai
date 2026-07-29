@@ -1,6 +1,7 @@
 import { EnrichedTransaction, PillarAggregate } from "@/types/transaction";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { aggregateByPillar } from "./aggregations";
+import { isIncome } from "./transactionFlow";
 
 export interface FinancialPlanContext {
   monthlyIncome: number;
@@ -107,6 +108,7 @@ export function buildAdvisorContext(
   transactions: EnrichedTransaction[],
   aiInsights: AIInsights | null
 ): AdvisorContext {
+  transactions = transactions.filter((t) => !isIncome(t as any));
   if (transactions.length === 0) {
     return {
       overview: {
@@ -146,7 +148,7 @@ export function buildAdvisorContext(
 
   // Travel Analysis
   const travelTransactions = transactions.filter(
-    t => t.travel_context?.is_travel_related
+    t => t.trip_label
   );
   const travelSpend = travelTransactions.reduce((sum, t) => sum + t.amount, 0);
   const destinations = Array.from(

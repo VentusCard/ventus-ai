@@ -2,7 +2,11 @@
 
 export const getSubcategoryIcon = (subcategory: string): string => {
   const emojiMap: Record<string, string> = {
+    // General
     General: "🌐",
+    All: "🏆",
+
+    // Sports
     Golf: "⛳",
     "Snow Sports": "⛷️",
     "Tennis/Racquet Sports": "🎾",
@@ -20,10 +24,100 @@ export const getSubcategoryIcon = (subcategory: string): string => {
     "Water Sports": "🏄",
     "Fitness/Gym": "💪",
     "Yoga/Pilates": "🧘",
-    All: "🏆",
+
+    // Food & Dining
+    "Coffee & Cafes": "☕",
+    Coffee: "☕",
+    Cafes: "☕",
+    "Fast Casual": "🌯",
+    "Casual Dining": "🍽️",
+    "Fine Dining": "🥂",
+    "Fast Food": "🍔",
+    "Sports Bar": "🍺",
+    Bars: "🍺",
+    Bakery: "🥐",
+    Desserts: "🍰",
+    Delivery: "🚗",
+    "Food Delivery": "🚗",
+    Restaurants: "🍽️",
+    Dining: "🍕",
+
+    // Grocery & Essentials
+    Grocery: "🛒",
+    Groceries: "🛒",
+    Supermarket: "🛒",
+    "Gas & Fuel": "⛽",
+    Gas: "⛽",
+    Fuel: "⛽",
+    Pharmacy: "💊",
+    "Health & Pharmacy": "💊",
+
+    // Shopping & Retail
+    Shopping: "🛍️",
+    "Online Shopping": "🛍️",
+    Electronics: "📱",
+    "Clothing & Apparel": "👕",
+    Clothing: "👕",
+    Apparel: "👕",
+    "Home Improvement": "🏠",
+    "Home & Garden": "🏠",
+    Furniture: "🛋️",
+
+    // Travel & Transportation
+    Travel: "✈️",
+    Flights: "✈️",
+    Airlines: "✈️",
+    Hotels: "🏨",
+    Lodging: "🏨",
+    "Hotels & Lodging": "🏨",
+    Rideshare: "🚕",
+    "Ride Share": "🚕",
+    "Car Rental": "🚗",
+    "Public Transit": "🚇",
+    Parking: "🅿️",
+
+    // Entertainment & Culture
+    Entertainment: "🎭",
+    Streaming: "📺",
+    Music: "🎵",
+    "Movies & Cinema": "🎬",
+    Gaming: "🎮",
+    Books: "📚",
+    "Arts & Culture": "🎨",
+    "Concerts & Events": "🎤",
+    "Theme Parks": "🎢",
+
+    // Health & Wellness
+    "Gym & Fitness": "💪",
+    Wellness: "🧘",
+    Spa: "💆",
+    "Mental Health": "🧠",
+
+    // Beauty & Style
+    Beauty: "💄",
+    Salon: "💇",
+    "Beauty & Salon": "💇",
+    Cosmetics: "💄",
+
+    // Pets
+    Pet: "🐾",
+    Pets: "🐾",
+    "Pet Care": "🐾",
+    Veterinary: "🐾",
+
+    // Utilities & Services
+    Utilities: "💡",
+    Insurance: "🛡️",
+    Subscriptions: "📦",
+    "Digital Services": "💻",
+
+    // Family & Education
+    Education: "🎓",
+    Childcare: "👶",
+    "Kids Activities": "🧒",
   };
 
-  return emojiMap[subcategory] || "🏆";
+  return emojiMap[subcategory] || "🏷️";
 };
 
 export const getDealCategoryIcon = (dealCategory: string): string => {

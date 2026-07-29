@@ -1,0 +1,296 @@
+name: Infra Staging Diff And Deploy
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/infra-staging.yml"
+      - "backend/monitors/**"
+      - "backend/functions/ventus-demo-connectors/**"
+      - "backend/scripts/package-monitors.mjs"
+      - "backend/scripts/package-functions.mjs"
+      - "backend/shared/demo-connectors.mjs"
+      - "backend/shared/demo-connectors.test.mjs"
+      - "backend/shared/decision-ledger.mjs"
+      - "backend/shared/evidence-store-migrator.test.mjs"
+      - "backend/sql/**"
+      - "docs/cdk-deployment-review-checklist.md"
+      - "docs/github-aws-oidc-staging.md"
+      - "docs/live-demo-connectors.md"
+      - "docs/observability-readiness.md"
+      - "infra/**"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Choose whether to review a diff only or deploy the reviewed staging stack."
+        required: true
+        default: "diff"
+        type: choice
+        options:
+          - diff
+          - deploy
+      target_stack:
+        description: "Select the isolated stack to review or deploy."
+        required: true
+        default: "VentusExistingInfraStack"
+        type: choice
+        options:
+          - VentusExistingInfraStack
+          - VentusEvidenceStoreStack
+          - VentusDemoConnectorsStack
+      alert_email:
+        description: "Optional email subscription for the backend alert SNS topic."
+        required: false
+        default: "yusheng_cheb@ventusai.com"
+        type: string
+      enable_db_rotation_lambda:
+        description: "Opt in to synth/diff/deploy the DB secret rotation Lambda."
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "false"
+          - "true"
+      confirm_deploy:
+        description: "Required for deploy: type deploy-staging."
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+  AWS_ACCOUNT_ID: "373633008995"
+  AWS_REGION: us-east-2
+  ALERT_EMAIL: ${{ github.event.inputs.alert_email || 'yusheng_cheb@ventusai.com' }}
+  ENABLE_DB_ROTATION_LAMBDA: ${{ github.event.inputs.enable_db_rotation_lambda || 'true' }}
+  CDK_STACK_NAME: ${{ github.event.inputs.target_stack || 'VentusExistingInfraStack' }}
+  ENABLE_EVIDENCE_STORE_MIGRATOR: ${{ github.event.inputs.target_stack == 'VentusEvidenceStoreStack' && 'true' || 'false' }}
+  ENABLE_DEMO_CONNECTORS: ${{ github.event.inputs.target_stack == 'VentusDemoConnectorsStack' && 'true' || 'false' }}
+
+jobs:
+  diff:
+    name: CDK Diff
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate AWS Role Variable
+        run: test -n "${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          role-session-name: ventus-infra-staging-diff-${{ github.run_id }}
+
+      - name: Validate CDK Bootstrap
+        run: aws ssm get-parameter --name /cdk-bootstrap/hnb659fds/version --region "${AWS_REGION}"
+
+      - name: Detect Existing Staging Stack
+        run: |
+          if aws cloudformation describe-stacks --stack-name "${CDK_STACK_NAME}" --region "${AWS_REGION}" >/dev/null 2>&1; then
+            echo "CDK_STACK_EXISTS=true" >> "${GITHUB_ENV}"
+          else
+            echo "CDK_STACK_EXISTS=false" >> "${GITHUB_ENV}"
+            echo "::notice::${CDK_STACK_NAME} does not exist yet; initial create diffs are template comparisons until the first deploy."
+          fi
+
+      - name: Install Infra Dependencies
+        run: npm ci
+        working-directory: infra
+
+      - name: Typecheck CDK
+        run: npm run check
+        working-directory: infra
+
+      - name: Synthesize CDK Plan
+        run: |
+          context_args=()
+          if [ -n "${ALERT_EMAIL}" ]; then
+            context_args+=("-c" "alertEmail=${ALERT_EMAIL}")
+          fi
+          if [ "${ENABLE_DB_ROTATION_LAMBDA}" = "true" ]; then
+            context_args+=("-c" "enableDbRotationLambda=true")
+          fi
+          if [ "${ENABLE_EVIDENCE_STORE_MIGRATOR}" = "true" ]; then
+            context_args+=("-c" "enableEvidenceStoreMigrator=true")
+          fi
+          if [ "${ENABLE_DEMO_CONNECTORS}" = "true" ]; then
+            context_args+=("-c" "enableDemoConnectors=true")
+          fi
+          npm run synth -- \
+            "${CDK_STACK_NAME}" \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            "${context_args[@]}"
+        working-directory: infra
+
+      - name: Synthesize Isolated Evidence Store Plan
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run synth -- \
+            VentusEvidenceStoreStack \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            -c enableEvidenceStoreMigrator=true
+        working-directory: infra
+
+      - name: Synthesize Isolated Demo Connector Plan
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run synth -- \
+            VentusDemoConnectorsStack \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            -c enableDemoConnectors=true
+        working-directory: infra
+
+      - name: Diff Staging Stack
+        run: |
+          set -o pipefail
+          context_args=()
+          if [ -n "${ALERT_EMAIL}" ]; then
+            context_args+=("-c" "alertEmail=${ALERT_EMAIL}")
+          fi
+          if [ "${ENABLE_DB_ROTATION_LAMBDA}" = "true" ]; then
+            context_args+=("-c" "enableDbRotationLambda=true")
+          fi
+          if [ "${ENABLE_EVIDENCE_STORE_MIGRATOR}" = "true" ]; then
+            context_args+=("-c" "enableEvidenceStoreMigrator=true")
+          fi
+          if [ "${ENABLE_DEMO_CONNECTORS}" = "true" ]; then
+            context_args+=("-c" "enableDemoConnectors=true")
+          fi
+          npm run diff -- \
+            "${CDK_STACK_NAME}" \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            "${context_args[@]}" \
+            --no-color \
+            --verbose | tee cdk-diff.txt
+          if grep -q "Could not create a change set" cdk-diff.txt; then
+            if [ "${CDK_STACK_EXISTS}" = "false" ]; then
+              echo "::notice::CDK used template comparison because ${CDK_STACK_NAME} has not been deployed yet."
+              exit 0
+            fi
+            echo "CDK diff fell back to template comparison instead of a CloudFormation change set." >&2
+            exit 1
+          fi
+        working-directory: infra
+
+      - name: Upload CDK Diff
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cdk-staging-diff
+          path: infra/cdk-diff.txt
+
+      - name: Clean Up Initial Diff Review Stack
+        if: always() && env.CDK_STACK_EXISTS == 'false'
+        run: |
+          set -euo pipefail
+          resource_count="$(aws cloudformation list-stack-resources \
+            --stack-name "${CDK_STACK_NAME}" \
+            --region "${AWS_REGION}" \
+            --query 'length(StackResourceSummaries)' \
+            --output text 2>/dev/null || echo MISSING)"
+
+          if [ "${resource_count}" = "MISSING" ]; then
+            echo "::notice::No initial diff review stack found to clean up."
+            exit 0
+          fi
+
+          if [ "${resource_count}" != "0" ]; then
+            echo "Refusing to delete ${CDK_STACK_NAME}; it owns ${resource_count} resource(s)." >&2
+            exit 1
+          fi
+
+          aws cloudformation delete-change-set \
+            --stack-name "${CDK_STACK_NAME}" \
+            --change-set-name cdk-diff-change-set \
+            --region "${AWS_REGION}" 2>/dev/null || true
+          aws cloudformation delete-stack \
+            --stack-name "${CDK_STACK_NAME}" \
+            --region "${AWS_REGION}"
+          aws cloudformation wait stack-delete-complete \
+            --stack-name "${CDK_STACK_NAME}" \
+            --region "${AWS_REGION}"
+          echo "::notice::Cleaned up empty initial CDK diff review stack."
+
+  deploy:
+    name: Deploy Staging Stack
+    runs-on: ubuntu-latest
+    needs: diff
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'deploy' && github.event.inputs.confirm_deploy == 'deploy-staging'
+    environment: staging
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate AWS Role Variable
+        run: test -n "${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}"
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ vars.AWS_STAGING_DEPLOY_ROLE_ARN }}
+          role-session-name: ventus-infra-staging-deploy-${{ github.run_id }}
+
+      - name: Validate CDK Bootstrap
+        run: aws ssm get-parameter --name /cdk-bootstrap/hnb659fds/version --region "${AWS_REGION}"
+
+      - name: Detect Existing Staging Stack
+        run: |
+          if aws cloudformation describe-stacks --stack-name "${CDK_STACK_NAME}" --region "${AWS_REGION}" >/dev/null 2>&1; then
+            echo "::notice::Updating existing ${CDK_STACK_NAME} stack."
+          else
+            echo "::notice::Creating initial ${CDK_STACK_NAME} stack."
+          fi
+
+      - name: Install Infra Dependencies
+        run: npm ci
+        working-directory: infra
+
+      - name: Typecheck CDK
+        run: npm run check
+        working-directory: infra
+
+      - name: Deploy Staging Stack
+        run: |
+          context_args=()
+          if [ -n "${ALERT_EMAIL}" ]; then
+            context_args+=("-c" "alertEmail=${ALERT_EMAIL}")
+          fi
+          if [ "${ENABLE_DB_ROTATION_LAMBDA}" = "true" ]; then
+            context_args+=("-c" "enableDbRotationLambda=true")
+          fi
+          if [ "${ENABLE_EVIDENCE_STORE_MIGRATOR}" = "true" ]; then
+            context_args+=("-c" "enableEvidenceStoreMigrator=true")
+          fi
+          if [ "${ENABLE_DEMO_CONNECTORS}" = "true" ]; then
+            context_args+=("-c" "enableDemoConnectors=true")
+          fi
+          npm run deploy -- \
+            "${CDK_STACK_NAME}" \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            "${context_args[@]}" \
+            --require-approval never
+        working-directory: infra

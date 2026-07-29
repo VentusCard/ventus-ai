@@ -16,8 +16,8 @@ export function AfterInsightsPanel({ transactions, allTransactions }: AfterInsig
   const miscRate = calculateMiscRate(transactions);
   const avgConfidence = calculateAverageConfidence(transactions);
   
-  // Calculate travel metrics
-  const travelTransactions = transactions.filter(t => t.travel_context?.is_travel_related);
+  // Calculate travel metrics using trip_label
+  const travelTransactions = transactions.filter(t => t.trip_label);
   const travelSpend = travelTransactions.reduce((sum, t) => sum + t.amount, 0);
   const reclassifiedCount = travelTransactions.filter(t => t.travel_context?.original_pillar && 
     t.travel_context.original_pillar !== t.pillar).length;

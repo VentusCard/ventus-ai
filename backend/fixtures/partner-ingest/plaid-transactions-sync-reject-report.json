@@ -1,0 +1,43 @@
+{
+  "report_version": "2026-06-04",
+  "fixture_type": "partner_reject_report",
+  "source_system": "plaid",
+  "raw_fixture": "plaid-transactions-sync-raw.json",
+  "description": "Expected reject report for Plaid records that should not be passed to enrichment until mapping or required raw fields are fixed.",
+  "summary": {
+    "total_raw_records": 8,
+    "accepted_records": 5,
+    "rejected_records": 2,
+    "removed_records": 1
+  },
+  "rejected_records": [
+    {
+      "source_record_id": "plaid_reject_unmapped_account_0001",
+      "account_id": "plaid_acc_unknown_999",
+      "reason_codes": ["missing_account_customer_mapping", "missing_home_zip_mapping"],
+      "reason": "Plaid account_id is not present in the account-to-customer or account-to-home-ZIP mapping context. Do not enrich until the bank customer mapping is supplied.",
+      "retryable": true,
+      "raw_excerpt": {
+        "transaction_id": "plaid_reject_unmapped_account_0001",
+        "account_id": "plaid_acc_unknown_999",
+        "amount": 48.22,
+        "date": "2026-05-08",
+        "merchant_name": "Unknown Account Merchant"
+      }
+    },
+    {
+      "source_record_id": "plaid_reject_missing_description_0001",
+      "account_id": "plaid_acc_credit_001",
+      "reason_codes": ["missing_merchant_or_counterparty"],
+      "reason": "Plaid record has no usable merchant_name, name, original_description, or counterparty fallback. Do not enrich because the model would be forced to infer a merchant from insufficient evidence.",
+      "retryable": true,
+      "raw_excerpt": {
+        "transaction_id": "plaid_reject_missing_description_0001",
+        "account_id": "plaid_acc_credit_001",
+        "amount": 31.44,
+        "date": "2026-05-09",
+        "merchant_name": null
+      }
+    }
+  ]
+}

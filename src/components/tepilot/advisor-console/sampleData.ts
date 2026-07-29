@@ -6,7 +6,7 @@ export interface NextStepsActionItem {
   id: string;
   text: string;
   completed: boolean;
-  source: 'chat' | 'transcript' | 'manual' | 'timeline';
+  source: 'chat' | 'transcript' | 'manual' | 'timeline' | 'notes';
   chipSource?: string; // Track which chip generated this action item
   timestamp: Date;
 }
@@ -25,6 +25,37 @@ export interface NextStepsData {
   psychologicalInsights: PsychologicalInsight[];
   lastUpdated: Date | null;
 }
+
+export interface MeetingNotesResult {
+  actionItems: NextStepsActionItem[];
+  sentiment?: string;
+  productsDiscussed: string[];
+  meetingType: string;
+  nextMeetingDate?: Date;
+  nextMeetingTopic?: string;
+  chatSummary: string;
+}
+
+export interface NextMeetingInfo {
+  date: Date;
+  topic?: string;
+  participants?: string[];
+}
+
+// Sentiment to psychology mapping
+export const SENTIMENT_PSYCHOLOGY_MAP: Record<string, { sliderValue: number; assessment: string; actionTip: string }> = {
+  very_positive: { sliderValue: 5, assessment: "Highly engaged and optimistic", actionTip: "Leverage momentum" },
+  positive: { sliderValue: 4, assessment: "Comfortable and receptive", actionTip: "Introduce new ideas" },
+  neutral: { sliderValue: 3, assessment: "Balanced, no strong signals", actionTip: "Build rapport" },
+  concerned: { sliderValue: 2, assessment: "Showing worry, needs reassurance", actionTip: "Address concerns first" },
+  anxious: { sliderValue: 1, assessment: "Elevated anxiety, handle with care", actionTip: "Listen actively, reassure" },
+};
+
+// Life event detection keywords
+export const LIFE_EVENT_KEYWORDS = [
+  "retirement", "baby", "child", "wedding", "marriage", "home purchase",
+  "house", "college", "inheritance", "divorce", "job change", "relocation"
+];
 
 export interface ClientData {
   name: string;

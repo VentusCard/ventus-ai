@@ -4,6 +4,7 @@ import { extractLocationContext } from './geoLocationUtils';
 export interface TravelCandidate {
   transaction: EnrichedTransaction;
   reason: 'away_zip' | 'travel_anchor' | 'temporal_cluster';
+  anchor_type?: 'flight' | 'hotel' | 'car_rental' | 'transport' | null;
 }
 
 export interface PreFilterStats {
@@ -30,22 +31,31 @@ export function preFilterTravelCandidates(
   const homeCity = locationContext.homeCity;
   
   // US Hotels
-  const travelAnchors = [
+  const hotelAnchors = [
     'hotel', 'marriott', 'hilton', 'hyatt', 'holiday inn', 'airbnb', 'vrbo',
-    // International Hotels
     'premier inn', 'travelodge', 'ibis', 'mercure', 'novotel', 'accor', 'radisson',
-    // US Airlines
-    'airline', 'airways', 'delta', 'united', 'southwest', 'american airlines', 'jetblue',
-    // International Airlines
-    'british airways', 'air france', 'lufthansa', 'easyjet', 'ryanair', 
-    'emirates', 'qatar airways', 'singapore airlines', 'cathay', 'klm', 'virgin atlantic',
-    // US Car Rentals
-    'hertz', 'enterprise', 'avis', 'budget', 'car rental', 'alamo',
-    // International Car Rentals
-    'europcar', 'sixt',
-    // Transport
-    'airport', 'parking', 'eurotunnel', 'eurostar', 'channel tunnel'
   ];
+  
+  // Airlines
+  const airlineAnchors = [
+    'airline', 'airways', 'delta', 'united', 'southwest', 'american airlines', 'jetblue',
+    'british airways', 'air france', 'lufthansa', 'easyjet', 'ryanair',
+    'emirates', 'qatar airways', 'singapore airlines', 'cathay', 'klm', 'virgin atlantic',
+    'spirit', 'frontier', 'alaska air', 'hawaiian air', 'sun country',
+  ];
+  
+  // Car rentals
+  const carRentalAnchors = [
+    'hertz', 'enterprise', 'avis', 'budget', 'car rental', 'alamo',
+    'europcar', 'sixt',
+  ];
+  
+  // Transport
+  const transportAnchors = [
+    'airport', 'parking', 'eurotunnel', 'eurostar', 'channel tunnel',
+  ];
+  
+  const travelAnchors = [...hotelAnchors, ...airlineAnchors, ...carRentalAnchors, ...transportAnchors];
   
   // International city/location keywords to detect in merchant names
   const locationKeywords = [
@@ -121,12 +131,28 @@ export function preFilterTravelCandidates(
     
     if (isAwayZip || isTravelAnchor || isInternational || hasLocationInMerchant) {
       let reason: 'away_zip' | 'travel_anchor' | 'temporal_cluster' = 'away_zip';
-      if (isTravelAnchor) reason = 'travel_anchor';
-      else if (isInternational || hasLocationInMerchant) reason = 'away_zip';
+      let anchor_type: TravelCandidate['anchor_type'] = null;
+      
+      if (isTravelAnchor) {
+        reason = 'travel_anchor';
+        // Determine specific anchor type
+        if (airlineAnchors.some(a => merchant.includes(a))) {
+          anchor_type = 'flight';
+        } else if (hotelAnchors.some(a => merchant.includes(a))) {
+          anchor_type = 'hotel';
+        } else if (carRentalAnchors.some(a => merchant.includes(a))) {
+          anchor_type = 'car_rental';
+        } else {
+          anchor_type = 'transport';
+        }
+      } else if (isInternational || hasLocationInMerchant) {
+        reason = 'away_zip';
+      }
       
       candidateMap.set(tx.transaction_id, {
         transaction: tx,
-        reason
+        reason,
+        anchor_type
       });
     } else {
       homeZone.push(tx);

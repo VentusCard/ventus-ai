@@ -1,58 +1,56 @@
-import { useState } from "react";
-import { SegmentMetricsSummary } from "./SegmentMetricsSummary";
-import { SegmentBuilder } from "./SegmentBuilder";
-import { SegmentTemplateGrid } from "./SegmentTemplateGrid";
-import { SavedSegmentsTable } from "./SavedSegmentsTable";
-import { toast } from "sonner";
-import type { SegmentTemplate, SavedSegment } from "@/types/segment";
+import { useMemo, useState } from "react";
+import { TabHeader } from "@/components/tepilot/insights/TabHeader";
+import { Route } from "lucide-react";
+import { NextProductKpiStrip } from "./next-product/NextProductKpiStrip";
+import { CohortFilters, type LifeStageFilter, type SortKey } from "./next-product/CohortFilters";
+import { CohortProductHeatmap } from "./next-product/CohortProductHeatmap";
+import { CohortDrilldownPanel } from "./next-product/CohortDrilldownPanel";
+import { COHORTS, topProductFor } from "./next-product/data/cohorts";
 
 export function SegmentTargetingView() {
-  const [builderKey, setBuilderKey] = useState(0);
+  const [lifeStage, setLifeStage] = useState<LifeStageFilter>("All");
+  const [sort, setSort] = useState<SortKey>("score");
+  const [selectedId, setSelectedId] = useState<string | null>(COHORTS[0].id);
 
-  const handleTemplateSelect = (template: SegmentTemplate) => {
-    // In a real app, this would populate the segment builder with template criteria
-    toast.success(`Loaded "${template.name}" targeting criteria`, {
-      description: "Criteria applied to Segment Builder",
+  const visible = useMemo(() => {
+    const filtered = lifeStage === "All" ? COHORTS : COHORTS.filter((c) => c.lifeStage === lifeStage);
+    const sorted = [...filtered].sort((a, b) => {
+      if (sort === "audience") return b.audience - a.audience;
+      if (sort === "momentum") return b.momentum - a.momentum;
+      const aTop = a.scores[topProductFor(a).id] ?? 0;
+      const bTop = b.scores[topProductFor(b).id] ?? 0;
+      return bTop - aTop;
     });
-  };
+    return sorted;
+  }, [lifeStage, sort]);
 
-  const handleSaveSegment = (segment: Partial<SavedSegment>) => {
-    toast.success("Segment saved successfully!", {
-      description: `Estimated ${((segment.estimatedSize || 0) / 1_000_000).toFixed(1)}M contacts`,
-    });
-    // Reset builder for new segment
-    setBuilderKey(prev => prev + 1);
-  };
-
-  const handleEditSegment = (segment: SavedSegment) => {
-    // In a real app, this would load the segment into the builder
-    toast.info(`Editing "${segment.name}"`, {
-      description: "Loaded into Segment Builder",
-    });
-  };
+  const selected = visible.find((c) => c.id === selectedId) ?? visible[0] ?? null;
 
   return (
-    <div className="space-y-6">
-      {/* Intro Section */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 rounded-lg border border-slate-200">
-        <h2 className="text-2xl font-bold mb-2 text-slate-900">Segment Targeting</h2>
-        <p className="text-slate-600">
-          Build targeted audience segments based on behavioral signals, life events, and product holdings.
-          Export segments to your preferred marketing platform (Mailchimp, SendGrid, Twilio, etc.).
-        </p>
+    <div className="space-y-4">
+      <TabHeader
+        icon={<Route className="w-4 h-4" />}
+        title="Next-product"
+        subtitle="Customer cohorts ranked by the product Automated Flows is most likely to fire next — read-only intelligence rolled up from live signals."
+        howItWorks="Ventus aggregates every automated-flow signal across the book and scores each customer cohort against the product catalog. The heatmap shows the strongest next-product fit per cohort, with the feeding flows visible on drill-down."
+        whyItMatters="Bankers see where opportunity concentrates without authoring a single campaign — and which Automated Flows are doing the heavy lifting under the hood."
+      />
+
+      <NextProductKpiStrip />
+      <CohortFilters lifeStage={lifeStage} onLifeStage={setLifeStage} sort={sort} onSort={setSort} />
+
+      <div className="grid grid-cols-12 gap-4">
+        <div className="col-span-8 min-w-0">
+          <CohortProductHeatmap
+            cohorts={visible}
+            selectedId={selected?.id ?? null}
+            onSelect={(id) => setSelectedId(id)}
+          />
+        </div>
+        <div className="col-span-4 min-w-0">
+          <CohortDrilldownPanel cohort={selected} />
+        </div>
       </div>
-
-      {/* Metrics Summary */}
-      <SegmentMetricsSummary />
-
-      {/* Segment Builder */}
-      <SegmentBuilder key={builderKey} onSaveSegment={handleSaveSegment} />
-
-      {/* Segment Templates */}
-      <SegmentTemplateGrid onSelectTemplate={handleTemplateSelect} />
-
-      {/* Saved Segments */}
-      <SavedSegmentsTable onEditSegment={handleEditSegment} />
     </div>
   );
 }

@@ -1,0 +1,85 @@
+{
+  "fixture_version": "2026-05-19",
+  "source_system": "adversarial",
+  "description": "Canonical adversarial enrichment cases. These are intentionally tricky transactions designed to surface false-positive classifications, lookalike merchant confusions, ambiguous brand names, large legitimate purchases that resemble risk signals, dual-category merchants, and merchant strings with payment-processor prefixes. They are processor-agnostic and target the enrichment classification logic itself, not the parsing of any specific source system.",
+  "transactions": [
+    {
+      "transaction_id": "adv_lookalike_delta_dental_0001",
+      "customer_id": "qa_customer_adv_001",
+      "merchant_name": "DELTA DENTAL OF CA",
+      "amount": 168.0,
+      "date": "2026-04-09",
+      "mcc_code": "8021",
+      "zip_code": "94104",
+      "home_zip": "94107",
+      "rail": "card",
+      "source_profile": "card_healthcare",
+      "transaction_type": "debit"
+    },
+    {
+      "transaction_id": "adv_ambiguous_apple_billing_0001",
+      "customer_id": "qa_customer_adv_002",
+      "merchant_name": "APPLE.COM/BILL",
+      "amount": 9.99,
+      "date": "2026-04-11",
+      "mcc_code": "5818",
+      "zip_code": null,
+      "home_zip": "78701",
+      "rail": "card",
+      "source_profile": "card_subscription",
+      "transaction_type": "debit"
+    },
+    {
+      "transaction_id": "adv_ambiguous_apple_retail_0001",
+      "customer_id": "qa_customer_adv_003",
+      "merchant_name": "APPLE STORE R027",
+      "amount": 1299.0,
+      "date": "2026-04-14",
+      "mcc_code": "5732",
+      "zip_code": "10019",
+      "home_zip": "10003",
+      "rail": "card",
+      "source_profile": "card_electronics",
+      "transaction_type": "debit"
+    },
+    {
+      "transaction_id": "adv_large_legitimate_bestbuy_0001",
+      "customer_id": "qa_customer_adv_004",
+      "merchant_name": "BEST BUY #0987",
+      "amount": 4500.0,
+      "date": "2026-04-17",
+      "mcc_code": "5732",
+      "zip_code": "98101",
+      "home_zip": "98101",
+      "rail": "card",
+      "source_profile": "card_electronics",
+      "transaction_type": "debit"
+    },
+    {
+      "transaction_id": "adv_garbled_square_coffee_0001",
+      "customer_id": "qa_customer_adv_005",
+      "merchant_name": "SQ *EVANS COFFEE   GOTHAM   NY",
+      "amount": 6.75,
+      "date": "2026-04-19",
+      "mcc_code": "5814",
+      "zip_code": "10013",
+      "home_zip": "10003",
+      "rail": "card",
+      "source_profile": "card_dining",
+      "transaction_type": "debit"
+    },
+    {
+      "transaction_id": "adv_dual_category_walmart_0001",
+      "customer_id": "qa_customer_adv_006",
+      "merchant_name": "WAL-MART SUPERCENTER 1842",
+      "amount": 132.4,
+      "date": "2026-04-21",
+      "mcc_code": "5411",
+      "zip_code": "73108",
+      "home_zip": "73108",
+      "rail": "card",
+      "source_profile": "card_grocery",
+      "transaction_type": "debit"
+    }
+  ]
+}

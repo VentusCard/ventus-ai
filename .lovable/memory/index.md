@@ -1,0 +1,85 @@
+# Memory: index.md
+Updated: 3h ago
+
+# Project Memory
+
+## Core
+- Strict light theme: white bg, slate-200 borders. NO dark-mode utilities (`dark:`).
+- Typography: 'Manrope' for UI, 'ui-monospace' for raw transaction strings.
+- Never mention backend infrastructure (AWS/S3) or competitors (Plaid/MX) in public copy.
+- Demos require desktop (>=1024px); enforce with 'Desktop Required' message.
+- AI Tone: "Vaguely specific" behavioral labels. NO specific transaction counts or exact spend amounts.
+- Avoid stress/risk terminology in customer copy; frame as opportunity/optimization.
+- Domain is **ventusai.com** — never `ventus.ai` in copy, emails, or URLs.
+
+## Memories
+- [External Consumer Intelligence](mem://reference/external-consumer-intelligence) — Third-party enrichment source: 8 sources, 175+ attributes, 300M+ consumers / 125M+ households
+- [Travel Enrichment Logic](mem://technical/data-processing/travel-enrichment-logic) — Trip label rules, price heuristics, and fare matching
+- [Deal Personalization](mem://features/deal-personalization/implementation) — Copywriting rules for lifestyle-driven marketing messages
+- [Product Narrative](mem://strategy/product-narrative) — 4-act structure for product value proposition
+- [Spending Overview](mem://features/wealth-copilot/spending-overview) — Budget vs actual logic and live data fallback
+- [Infrastructure Abstraction](mem://constraints/infrastructure-abstraction) — Rules for hiding backend details in copy
+- [Wealth Demo Details](mem://features/technology/wealth-demo-details) — UI specifics for Wealth Management demo overlay
+- [Travel Experience Narrative](mem://features/travel-experience/page-narrative) — Step-by-step logic for the /travel page interactive demo
+- [Consumer Rewards UI](mem://features/consumer-rewards/product-logic) — Layout and typography constraints for Rewards demo
+- [Competitor References](mem://constraints/competitor-references) — Forbidden competitor names and preferred alternatives
+- [Demo Details UX](mem://features/customer-experience/demo-details) — Behavioral profile and app mockup layout
+- [Interactive Demo Layout](mem://features/technology/interactive-demos) — Standardized split-panel UI and border styles for demos
+- [Campaign Studio](mem://features/campaign-studio/implementation) — Dimensions, UI split, and AI brief generation
+- [Life Event Detection](mem://features/life-event-detection/implementation) — Prioritizing early signals and transaction evidence UI
+- [Advisor Console](mem://features/advisor-console/implementation) — 10-word AI action items and truncation rules
+- [Analytics Strategy](mem://features/analytics/personalization-strategy) — Generic vs personalized conversion rate baseline metrics
+- [Rewards Demo Showcase](mem://features/conference-demo/rewards-personalization-showcase) — 11-deal layout allocation for /deckmo
+- [Demo Access Control](mem://features/conference-demo/access-control) — Shared password gate and sessionStorage implementation
+- [Classification Schema](mem://technical/data-processing/transaction-classification-schema) — 3-tier hierarchy, tiers, and confidence scores
+- [Behavioral Tier Signals](mem://features/persona-generation/behavioral-tier-signals) — Extracting dominant spending tiers for tone adaptation
+- [Wallet Share Analytics](mem://features/analytics/wallet-share-intelligence) — Detecting outbound funds and win-back UI
+- [Financial Tip Chat](mem://features/financial-tip-chat/implementation) — Customer vs banker view and terminology rules
+- [Deckmo Opener](mem://features/conference-demo/cinematic-opener) — 6-beat narrative and 3 personalized messaging rules
+- [Life Event Context](mem://features/conference-demo/life-event-intelligence) — Data scope for life event detection window
+- [Desktop Constraint](mem://constraints/desktop-access-only) — Viewport limits for /deckmo and /tepilot
+- [Transaction Sources](mem://technical/data-processing/transaction-source-logic) — Card assignment rules based on amount and category
+- [Sample Demographics](mem://features/conference-demo/sample-demographics-logic) — Industry/Income fields driving personalization
+- [Enrichment Output UI](mem://features/conference-demo/enrichment-output-ui) — High-density table column sizing for engine view
+- [Rewards Intelligence](mem://features/analytics/rewards-intelligence) — Analytics dashboard exclusions and heatmap features
+- [Lifestyle Extensions](mem://features/analytics/lifestyle-extension-opportunities-ui) — Layout for merchant partnership opportunities
+- [Financial Journey](mem://features/analytics/financial-journey-targeting) — Product catalog mapping and categories
+- [Life Events Analytics](mem://features/analytics/life-events-intelligence) — Macro dashboard sorting and badges
+- [Wealth Copilot Launch](mem://features/wealth/copilot-launch-workflow) — Sign-in mock flow and payload handoff
+- [Location Experience](mem://features/rewards/location-experience-management) — City-based perks management UI and wealth tiers
+- [Light Theme Policy](mem://style/visuals/light-theme-policy) — Strict enterprise aesthetic and CSS constraints
+- [Demo Overlay Theme](mem://style/visuals/demo-overlay-theme) — Backdrop blur and styling for DemoDetailOverlay
+- [Sample Data Strategy](mem://features/conference-demo/sample-data-strategy) — Interspersing life-event transactions over time
+- [Pillar Deep Dive](mem://features/analytics/pillar-deep-dive) — Age x Region heatmap and over-index highlighting
+- [Personalized Wealth UI](mem://features/wealth/personalized-banking-relationship) — iPad layout, deals limitations, and CTAs
+- [iPad Mockup](mem://style/visuals/ipad-mockup) — Device frame styling and scroll container logic
+- [Financial Vulnerability](mem://features/analytics/financial-vulnerability-indicators) — 7 behavioral risk cohorts and scoring
+- [FVI Merchant Intel](mem://features/analytics/fvi-merchant-intelligence) — Obfuscated merchant identity mapping
+- [Ventus AI Chatbot](mem://features/analytics/ventus-ai-floating-chat) — Floating action button positioning and context actions
+- [Module Selector](mem://features/conference-demo/module-selector) — 3-line UI for demo settings dialog
+- [Consumer AI Chat](mem://features/conference-demo/ai-chatbot) — Length limits and disclaimer rules for phone mockup
+- [Mockup Rewards UI](mem://features/conference-demo/rewards-view-ui) — Top pick hero card and auto-scrolling pills
+- [Navigation Structure](mem://features/analytics/navigation-structure) — 5-group sidebar layout and naming
+- [Executive Signal Pills](mem://features/executive-demo/signal-visuals) — Entrance animations and fallback text logic
+- [Sample Data Schema](mem://technical/data-processing/sample-data-schema) — CSV structure, date ranges, and raw merchant strings
+- [Next-Purchase Intel](mem://features/executive-demo/next-purchase-intelligence) — Grouped persona layout and active deal limits
+- [Next-Offer Generation](mem://technical/edge-functions/next-offer-generation) — LLM constraints for lifestyle deal text
+- [Selection Dialog](mem://features/executive-demo/selection-dialog) — Layout for raw transaction table and LLM paste
+- [Persona Prompts](mem://technical/edge-functions/persona-synthesis-prompt) — Rules forbidding brand names in persona labels
+- [Persona Intelligence](mem://features/executive-demo/persona-intelligence) — UI dimensions and header text for persona panel
+- [MCC Standards](mem://technical/data-processing/mcc-standards) — Hardcoded ISO overrides for specific merchants
+- [Next-Product Intel](mem://features/executive-demo/next-product-intelligence) — Layout for product catalog and behavioral triggers
+- [Product Personalization](mem://strategy/product-personalization-thesis) — Vaguely specific messaging vs creepy tracking
+- [Product Cards Engine](mem://technical/edge-functions/product-card-generation) — Generic "Our Bank" product naming (no real brands)
+- [Risk Detection](mem://technical/edge-functions/risk-detection-logic) — Categories for Fraud/AML/Vice analysis
+- [Landing Page Structure](mem://site/landing-page-structure) — Section order and CTA standardization
+- [Phone Mockup Rewards](mem://features/executive-demo/phone-mockup-rewards) — Auto-rotating collection cards design
+- [Integration Partners](mem://features/integration/partners) — List of 6 authorized partner logos to display
+- [Integration Section](mem://site/integration-section) — 3-step vertical scroll UI on homepage
+- [Site Navigation](mem://site/navigation) — Available links and FAQ scroll behavior
+- [Transaction Tooltip](mem://features/executive-demo/transaction-tooltip) — 4-row high density layout and z-index
+- [Demo Branding](mem://features/executive-demo/branding-updates) — Required semantic enrichment terminology
+- [Hero Animation](mem://features/home/scroll-driven-hero) — 3-stage scroll sequence for the homepage card
+- [Capability Cards](mem://features/home/capability-cards) — Data type visual cues and subtext colors
+- [Phone Mockup Scrollbar](mem://style/visuals/phone-mockup-scrollbar) — All phone mockup scrollbars are light-themed via CSS scope
+- [Bankdemo Targeting Group](mem://features/bankdemo/targeting-group) — New Targeting sidebar group with product-first Automated Flows + Campaign Builder; mock data only

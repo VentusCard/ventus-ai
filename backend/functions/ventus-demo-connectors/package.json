@@ -1,0 +1,9 @@
+{
+  "name": "ventus-demo-connectors",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@aws-sdk/client-secrets-manager": "^3.1003.0"
+  }
+}

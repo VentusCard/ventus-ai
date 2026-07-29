@@ -1,0 +1,128 @@
+{
+  "taxonomy_version": "2026-05-19",
+  "description": "Provider-agnostic QA profiles for Ventus enrichment. Source systems such as FIS, Fiserv, Jack Henry, Salesforce, or direct bank exports map into these profiles; they do not define the enrichment behavior by themselves.",
+  "rails": {
+    "card": {
+      "description": "Card authorization, clearing, and posted purchase activity.",
+      "required_fields": ["transaction_id", "customer_id", "merchant_name", "amount", "date"],
+      "optional_fields": ["mcc_code", "zip_code", "home_zip"],
+      "profiles": {
+        "card_grocery": {
+          "expected_lifestyle_category": "Food & Dining",
+          "expected_signal_bias": "routine_spend"
+        },
+        "card_dining": {
+          "expected_lifestyle_category": "Food & Dining",
+          "expected_signal_bias": "discretionary_spend"
+        },
+        "card_electronics": {
+          "expected_lifestyle_category": "Technology & Digital Life",
+          "expected_signal_bias": "retail_spend"
+        },
+        "card_travel": {
+          "expected_lifestyle_category": "Travel & Exploration",
+          "expected_signal_bias": "travel_candidate"
+        },
+        "card_home_improvement": {
+          "expected_lifestyle_category": "Home & Living",
+          "expected_signal_bias": "life_event_candidate"
+        },
+        "card_pet_care": {
+          "expected_lifestyle_category": "Pets",
+          "expected_signal_bias": "behavioral_signal_candidate"
+        },
+        "card_healthcare": {
+          "expected_lifestyle_category": "Health & Wellness",
+          "expected_signal_bias": "routine_or_life_event_candidate"
+        },
+        "card_education": {
+          "expected_lifestyle_category": "Family & Community",
+          "expected_signal_bias": "life_event_candidate"
+        },
+        "card_subscription": {
+          "expected_lifestyle_category": "Technology & Digital Life",
+          "expected_signal_bias": "recurring_spend"
+        },
+        "atm_cash": {
+          "expected_lifestyle_category": "Financial & Aspirational",
+          "expected_signal_bias": "risk_review_candidate"
+        },
+        "refund_credit": {
+          "expected_lifestyle_category": "Miscellaneous & Unclassified",
+          "expected_signal_bias": "credit_adjustment"
+        },
+        "fee_charge": {
+          "expected_lifestyle_category": "Financial & Aspirational",
+          "expected_signal_bias": "bank_fee"
+        }
+      }
+    },
+    "ach": {
+      "description": "ACH credits/debits including payroll, recurring subscriptions, loan payments, and external account activity.",
+      "required_fields": ["transaction_id", "customer_id", "merchant_name", "amount", "date"],
+      "optional_fields": ["mcc_code", "zip_code", "home_zip"],
+      "profiles": {
+        "ach_payroll": {
+          "expected_lifestyle_category": "Financial & Aspirational",
+          "expected_signal_bias": "income_event"
+        },
+        "ach_subscription": {
+          "expected_lifestyle_category": "Technology & Digital Life",
+          "expected_signal_bias": "recurring_spend"
+        },
+        "ach_loan_payment": {
+          "expected_lifestyle_category": "Financial & Aspirational",
+          "expected_signal_bias": "debt_obligation"
+        }
+      }
+    },
+    "bill_pay": {
+      "description": "Online banking bill pay and payee-driven payment records.",
+      "required_fields": ["transaction_id", "customer_id", "merchant_name", "amount", "date"],
+      "optional_fields": ["mcc_code", "zip_code", "home_zip"],
+      "profiles": {
+        "bill_pay_utility": {
+          "expected_lifestyle_category": "Home & Living",
+          "expected_signal_bias": "household_obligation"
+        },
+        "bill_pay_mortgage": {
+          "expected_lifestyle_category": "Home & Living",
+          "expected_signal_bias": "home_ownership"
+        }
+      }
+    },
+    "p2p": {
+      "description": "Person-to-person transfers such as Zelle, Venmo-like, and internal transfers.",
+      "required_fields": ["transaction_id", "customer_id", "merchant_name", "amount", "date"],
+      "optional_fields": ["mcc_code", "zip_code", "home_zip"],
+      "profiles": {
+        "p2p_transfer": {
+          "expected_lifestyle_category": "Miscellaneous & Unclassified",
+          "expected_signal_bias": "transfer_not_merchant"
+        }
+      }
+    },
+    "wire": {
+      "description": "Domestic or international wire transfer activity.",
+      "required_fields": ["transaction_id", "customer_id", "merchant_name", "amount", "date"],
+      "optional_fields": ["mcc_code", "zip_code", "home_zip"],
+      "profiles": {
+        "wire_transfer": {
+          "expected_lifestyle_category": "Financial & Aspirational",
+          "expected_signal_bias": "large_transfer_review"
+        }
+      }
+    },
+    "merchant_integration": {
+      "description": "Signals from merchant, CRM, or partner systems that may enrich transaction interpretation.",
+      "required_fields": ["transaction_id", "customer_id", "merchant_name", "amount", "date"],
+      "optional_fields": ["mcc_code", "zip_code", "home_zip", "integration_name"],
+      "profiles": {
+        "merchant_crm_signal": {
+          "expected_lifestyle_category": "Financial & Aspirational",
+          "expected_signal_bias": "external_context"
+        }
+      }
+    }
+  }
+}

@@ -2,15 +2,13 @@
 
 const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-// Configuration
-const BATCH_SIZE = 30;
-const CONCURRENCY_LIMIT = 2;
+// Configuration — one-shot, no batching
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
 
-// Models
-const PRIMARY_MODEL = "google/gemini-2.5-flash";
-const FALLBACK_MODEL = "openai/gpt-5-mini";
+// Models — flash primary for speed, flash-lite fallback (Gemini only, no OpenAI).
+const PRIMARY_MODEL = "google/gemini-3.5-flash";
+const FALLBACK_MODEL = "google/gemini-3.1-flash-lite";
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
@@ -43,31 +41,15 @@ function getDelayMs(attempt: number): number {
   return Math.min(baseDelay + jitter, 8000);
 }
 
-// Concurrency-limited runner
-async function runWithConcurrency<T, R>(
-  items: T[],
-  limit: number,
-  worker: (item: T, index: number) => Promise<R>
-): Promise<R[]> {
-  const results: R[] = new Array(items.length);
-  let currentIndex = 0;
+// Airline keywords for flight detection
+const AIRLINE_KEYWORDS = [
+  "airline", "airways", "delta", "united", "southwest", "american airlines", "jetblue",
+  "british airways", "air france", "lufthansa", "easyjet", "ryanair",
+  "emirates", "qatar airways", "singapore airlines", "cathay", "klm", "virgin atlantic",
+  "spirit", "frontier", "alaska air", "hawaiian air", "sun country",
+];
 
-  async function processNext(): Promise<void> {
-    while (currentIndex < items.length) {
-      const index = currentIndex++;
-      results[index] = await worker(items[index], index);
-    }
-  }
-
-  const workers = Array(Math.min(limit, items.length))
-    .fill(null)
-    .map(() => processNext());
-
-  await Promise.all(workers);
-  return results;
-}
-
-// Enhanced Travel Detection Prompt with trip examples
+// Enhanced Travel Detection Prompt
 const TRAVEL_DETECTION_PROMPT = `You are analyzing PRE-FILTERED transactions that were flagged as potential travel because they:
 1. Have zip codes different from home (home zip: {homeZip})
 2. Are travel anchors (hotels, flights, car rentals)
@@ -120,6 +102,26 @@ RECLASSIFY CATEGORIES AT DESTINATION:
 - Rideshares/Uber → "Local Transportation"
 - Grocery/convenience stores → "Travel Essentials"
 
+FLIGHT-TO-TRIP MATCHING:
+When you see multiple flight/airline charges, you MUST actively assign each to a specific trip:
+1. PRICE SIGNAL: International trips (Europe, Asia, Middle East) typically have fares $500+.
+   Domestic US trips typically have fares $150-$400.
+   Example: Two DELTA charges — $289 and $1,142. The $289 likely = domestic (Florida), $1,142 likely = international (Paris).
+2. DATE PROXIMITY: Match each fare to the trip whose start date is closest to the fare's charge date.
+   A fare charged on March 1 likely belongs to the trip starting March 3, not the trip starting April 15.
+3. FARE PAIRS: Two similar amounts from the same airline within a trip window = round-trip pair.
+   Bracket them around the trip they belong to.
+4. SURPLUS FARES: If you see more flight charges than trips detected (e.g., 4 flights but only 1 trip
+   for the cardholder), mark the extras as third_party_likely: true with fare_match_reason
+   explaining "Fare does not match any detected trip window — likely paid for another traveler".
+5. SAME-DAY BOOKINGS: If multiple flights are booked on the same day, use PRICE SIGNAL first,
+   then DATE PROXIMITY to the nearest trip start, to differentiate them.
+
+For each flight/airline transaction, you MUST set:
+- fare_match_confidence: "high" (clear price/date match), "medium" (reasonable inference), or "low" (best guess)
+- fare_match_reason: Brief explanation of why this fare was assigned to this trip (or flagged third-party)
+- third_party_likely: true if this fare doesn't match any trip the cardholder took
+
 OUTPUT for each transaction:
 - is_travel_related: true/false
 - travel_period_start/end: ISO dates (REQUIRED if is_travel_related=true)
@@ -127,7 +129,10 @@ OUTPUT for each transaction:
 - original_pillar: Pillar before reclassification
 - reclassification_reason: Why this was marked travel/non-travel
 - reclassified_pillar: New pillar (if reclassified)
-- reclassified_subcategory: New subcategory (if reclassified)`;
+- reclassified_subcategory: New subcategory (if reclassified)
+- fare_match_confidence: "high" | "medium" | "low" (for flight/airline transactions)
+- fare_match_reason: string (for flight/airline transactions)
+- third_party_likely: boolean (for flight/airline transactions where fare doesn't match cardholder's trip)`;
 
 const TRAVEL_DETECTION_TOOL = [
   {
@@ -152,6 +157,9 @@ const TRAVEL_DETECTION_TOOL = [
                 reclassified_pillar: { type: "string" },
                 reclassified_subcategory: { type: "string" },
                 reclassification_reason: { type: "string" },
+                fare_match_confidence: { type: "string", enum: ["high", "medium", "low"] },
+                fare_match_reason: { type: "string" },
+                third_party_likely: { type: "boolean" },
               },
               required: ["transaction_id", "is_travel_related"],
             },
@@ -163,20 +171,16 @@ const TRAVEL_DETECTION_TOOL = [
   },
 ];
 
-// Core AI call for a batch
+// Single AI call — no batching
 async function callTravelDetectionAI(
   model: string,
-  batch: any[],
+  transactions: any[],
   homeZip: string,
-  batchNum: number,
-  attempt: number
+  attempt: number,
 ): Promise<any[]> {
   const isOpenAI = model.startsWith("openai/");
-  const isGemini = model.startsWith("google/");
 
-  const tokenParam = isOpenAI
-    ? { max_completion_tokens: 8000 }
-    : { max_tokens: 4000 };
+  const tokenParam = isOpenAI ? { max_completion_tokens: 8000 } : { max_tokens: 8000 };
 
   const requestBody: any = {
     model,
@@ -185,7 +189,7 @@ async function callTravelDetectionAI(
       { role: "system", content: TRAVEL_DETECTION_PROMPT.replace("{homeZip}", homeZip) },
       {
         role: "user",
-        content: `Analyze these ${batch.length} PRE-FILTERED travel candidates and call detect_travel_patterns:\n\n${JSON.stringify(batch, null, 2)}`,
+        content: `Analyze these ${transactions.length} PRE-FILTERED travel candidates and call detect_travel_patterns:\n\n${JSON.stringify(transactions, null, 2)}`,
       },
     ],
     tools: TRAVEL_DETECTION_TOOL,
@@ -193,7 +197,7 @@ async function callTravelDetectionAI(
 
   if (isOpenAI) {
     requestBody.tool_choice = { type: "function", function: { name: "detect_travel_patterns" } };
-  } else if (isGemini) {
+  } else {
     requestBody.tool_choice = "auto";
   }
 
@@ -208,7 +212,7 @@ async function callTravelDetectionAI(
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "");
-    console.error(`[BATCH ${batchNum}] ${model} failed (${response.status}): ${errorText.slice(0, 200)}`);
+    console.error(`[Travel] ${model} failed (${response.status}): ${errorText.slice(0, 200)}`);
     return [];
   }
 
@@ -216,14 +220,14 @@ async function callTravelDetectionAI(
   const choice = data.choices?.[0];
 
   if (choice?.finish_reason === "error" || choice?.native_finish_reason === "MALFORMED_FUNCTION_CALL") {
-    console.error(`[BATCH ${batchNum}] ${model} malformed function call`);
+    console.error(`[Travel] ${model} malformed function call`);
     return [];
   }
 
   const toolCalls = choice?.message?.tool_calls;
   if (!toolCalls || toolCalls.length === 0) {
     const rawStr = JSON.stringify(data).slice(0, 200);
-    console.warn(`[BATCH ${batchNum}] ${model} no tool calls (attempt ${attempt}): ${rawStr}`);
+    console.warn(`[Travel] ${model} no tool calls (attempt ${attempt}): ${rawStr}`);
     return [];
   }
 
@@ -232,56 +236,51 @@ async function callTravelDetectionAI(
     const results = typeof args === "string" ? JSON.parse(args) : args;
     return results.travel_updates || [];
   } catch (parseError: any) {
-    console.error(`[BATCH ${batchNum}] JSON parse error: ${parseError.message}`);
+    console.error(`[Travel] JSON parse error: ${parseError.message}`);
     return [];
   }
 }
 
-// Single batch processing with retries and model fallback
-async function processBatch(
-  batch: any[],
-  batchIndex: number,
-  totalBatches: number,
+// Process all transactions with retries and model fallback
+async function processTransactions(
+  transactions: any[],
   homeZip: string,
-  sendEvent: (event: string, data: any) => void
+  sendEvent: (event: string, data: any) => void,
 ): Promise<any[]> {
-  const batchNum = batchIndex + 1;
-
   for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
     const startTime = Date.now();
     const model = attempt === MAX_RETRIES ? FALLBACK_MODEL : PRIMARY_MODEL;
 
     if (attempt > 0) {
       const delay = getDelayMs(attempt - 1);
-      console.log(`[BATCH ${batchNum}] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`);
+      console.log(`[Travel] Retry ${attempt}/${MAX_RETRIES} (delay: ${Math.round(delay)}ms, model: ${model})`);
       await new Promise((r) => setTimeout(r, delay));
     }
 
     sendEvent("status", {
-      message: `Analyzing travel batch ${batchNum}/${totalBatches}${attempt > 0 ? ` (retry ${attempt})` : ""}...`,
+      message: `Analyzing ${transactions.length} travel candidates${attempt > 0 ? ` (retry ${attempt})` : ""}...`,
     });
 
     try {
-      const updates = await callTravelDetectionAI(model, batch, homeZip, batchNum, attempt);
+      const updates = await callTravelDetectionAI(model, transactions, homeZip, attempt);
 
       if (updates.length === 0) {
-        console.warn(`[BATCH ${batchNum}] Empty results (attempt ${attempt}, model ${model})`);
+        console.warn(`[Travel] Empty results (attempt ${attempt}, model ${model})`);
         continue;
       }
 
       const elapsed = Date.now() - startTime;
-      console.log(`[BATCH ${batchNum}] ✓ ${updates.length}/${batch.length} in ${elapsed}ms (model: ${model})`);
-
+      console.log(`[Travel] ✓ ${updates.length}/${transactions.length} in ${elapsed}ms (model: ${model})`);
       return updates;
     } catch (error: any) {
-      console.error(`[BATCH ${batchNum}] Exception (attempt ${attempt}):`, error.message);
+      console.error(`[Travel] Exception (attempt ${attempt}):`, error.message);
     }
   }
 
-  console.error(`[BATCH ${batchNum}] All ${MAX_RETRIES + 1} attempts failed`);
-  
-  // Return fallback for failed batch
-  return batch.map((t) => ({
+  console.error(`[Travel] All ${MAX_RETRIES + 1} attempts failed`);
+
+  // Return fallback for complete failure
+  return transactions.map((t) => ({
     transaction_id: t.id,
     is_travel_related: false,
     travel_destination: null,
@@ -294,6 +293,161 @@ async function processBatch(
   }));
 }
 
+// Post-processing: reconcile orphaned flights with detected trips
+function reconcileFlightsWithTrips(updates: any[], originalTransactions: any[]): any[] {
+  const txAmountMap = new Map<string, number>();
+  const txMerchantMap = new Map<string, string>();
+  originalTransactions.forEach((t) => {
+    txAmountMap.set(t.id, Math.abs(t.amount || 0));
+    txMerchantMap.set(t.id, (t.merchant || "").toLowerCase());
+  });
+
+  type Trip = {
+    destination: string;
+    start: string;
+    end: string;
+    tripLabel: string;
+    isInternational: boolean;
+  };
+  const trips: Trip[] = [];
+
+  const seenTrips = new Set<string>();
+  updates.forEach((u) => {
+    if (u.is_travel_related && u.travel_destination && u.travel_period_start) {
+      const key = `${u.travel_destination}|${u.travel_period_start}`;
+      if (!seenTrips.has(key)) {
+        seenTrips.add(key);
+        const dest = u.travel_destination.toLowerCase();
+        const internationalKeywords = [
+          "london", "paris", "rome", "berlin", "tokyo", "sydney", "dubai", "amsterdam",
+          "barcelona", "munich", "vienna", "prague", "lisbon", "madrid", "milan", "dublin",
+          "brussels", "zurich", "geneva", "singapore", "hong kong", "bangkok", "toronto",
+          "vancouver", "montreal", "cancun", "mexico", "caribbean", "bahamas", "jamaica",
+          "europe", "asia", "africa", "australia", "south america",
+        ];
+        const isInternational = internationalKeywords.some((kw) => dest.includes(kw));
+        trips.push({
+          destination: u.travel_destination,
+          start: u.travel_period_start,
+          end: u.travel_period_end || u.travel_period_start,
+          tripLabel: u.trip_label || "",
+          isInternational,
+        });
+      }
+    }
+  });
+
+  if (trips.length === 0) return updates;
+
+  return updates.map((u) => {
+    const merchant = txMerchantMap.get(u.transaction_id) || "";
+    const isAirline = AIRLINE_KEYWORDS.some((kw) => merchant.includes(kw));
+
+    if (!isAirline) return u;
+    if (u.is_travel_related && u.travel_destination && u.fare_match_confidence) return u;
+
+    const amount = txAmountMap.get(u.transaction_id) || 0;
+    const origTx = originalTransactions.find((t) => t.id === u.transaction_id);
+    const txDate = origTx ? new Date(origTx.date).getTime() : 0;
+
+    let bestTrip: Trip | null = null;
+    let bestScore = -Infinity;
+    let bestReason = "";
+
+    trips.forEach((trip) => {
+      let score = 0;
+      const reasons: string[] = [];
+
+      if (trip.isInternational && amount >= 500) {
+        score += 3;
+        reasons.push(`fare $${amount} matches international destination`);
+      } else if (!trip.isInternational && amount >= 100 && amount <= 500) {
+        score += 3;
+        reasons.push(`fare $${amount} matches domestic destination`);
+      } else if (trip.isInternational && amount < 300) {
+        score -= 2;
+        reasons.push(`fare $${amount} unusually low for international`);
+      } else if (!trip.isInternational && amount > 800) {
+        score -= 2;
+        reasons.push(`fare $${amount} unusually high for domestic`);
+      }
+
+      if (txDate > 0) {
+        const tripStart = new Date(trip.start).getTime();
+        const daysDiff = Math.abs(txDate - tripStart) / (1000 * 60 * 60 * 24);
+        if (daysDiff <= 7) {
+          score += 4;
+          reasons.push(`booked ${Math.round(daysDiff)}d before trip`);
+        } else if (daysDiff <= 30) {
+          score += 2;
+          reasons.push(`booked ${Math.round(daysDiff)}d before trip`);
+        } else if (daysDiff <= 90) {
+          score += 1;
+          reasons.push(`booked ${Math.round(daysDiff)}d before trip`);
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        bestTrip = trip;
+        bestReason = reasons.join("; ");
+      }
+    });
+
+    if (bestTrip && bestScore > 0) {
+      const matched = bestTrip as Trip;
+      const confidence = bestScore >= 5 ? "high" : bestScore >= 3 ? "medium" : "low";
+      return {
+        ...u,
+        is_travel_related: true,
+        travel_destination: matched.destination,
+        travel_period_start: matched.start,
+        travel_period_end: matched.end,
+        fare_match_confidence: u.fare_match_confidence || confidence,
+        fare_match_reason: u.fare_match_reason || `Reconciled: ${bestReason}`,
+        third_party_likely: false,
+        reclassification_reason: u.reclassification_reason || `Flight matched to ${matched.destination} trip`,
+      };
+    }
+
+    const allAirlineIds = updates
+      .filter((upd) => {
+        const m = txMerchantMap.get(upd.transaction_id) || "";
+        return AIRLINE_KEYWORDS.some((kw) => m.includes(kw));
+      })
+      .map((upd) => upd.transaction_id);
+
+    if (allAirlineIds.length > trips.length * 2) {
+      return {
+        ...u,
+        is_travel_related: false,
+        third_party_likely: true,
+        fare_match_confidence: "low",
+        fare_match_reason: `Surplus fare — ${allAirlineIds.length} flights for ${trips.length} trip(s). Likely paid for another traveler.`,
+        reclassification_reason: "Fare does not match any detected trip window",
+      };
+    }
+
+    return u;
+  });
+}
+
+// Destination normalization
+const DESTINATION_ALIASES: Record<string, string> = {
+  "new york city": "New York", "nyc": "New York", "manhattan": "New York",
+  "brooklyn": "New York", "queens": "New York", "bronx": "New York",
+  "los angeles": "Los Angeles", "la": "Los Angeles", "hollywood": "Los Angeles",
+  "san francisco": "San Francisco", "sf": "San Francisco", "san fran": "San Francisco",
+  "washington dc": "Washington D.C.", "washington d.c.": "Washington D.C.",
+  "washington, d.c.": "Washington D.C.", "dc": "Washington D.C.",
+  "las vegas": "Las Vegas", "vegas": "Las Vegas",
+  "chicago, il": "Chicago", "miami beach": "Miami", "fort lauderdale": "Fort Lauderdale",
+};
+
+function normalizeDestination(dest: string): string {
+  return DESTINATION_ALIASES[dest.toLowerCase().trim()] || dest.trim();
+}
+
 Deno.serve(async (req) => {
   const corsHeaders = getCorsHeaders(req.headers.get("origin"));
 
@@ -304,34 +458,27 @@ Deno.serve(async (req) => {
   try {
     const { transactions } = await req.json();
 
-    // Input validation
     if (!Array.isArray(transactions)) {
       return new Response(JSON.stringify({ error: "Invalid input format" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
     if (transactions.length === 0) {
       return new Response(JSON.stringify({ error: "Empty transactions array" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
-
     if (transactions.length > 1000) {
       return new Response(JSON.stringify({ error: "Too many transactions (max 1000)" }), {
-        status: 400,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log(`[Travel Detection] Starting for ${transactions.length} pre-classified transactions`);
+    console.log(`[Travel Detection] Starting one-shot for ${transactions.length} transactions`);
 
     const homeZip =
       transactions.find((t) => t.home_zip)?.home_zip || transactions.find((t) => t.zip_code)?.zip_code || "Unknown";
 
-    // Create SSE stream
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
       async start(controller) {
@@ -344,7 +491,6 @@ Deno.serve(async (req) => {
           sendEvent("status", { message: "Analyzing travel patterns..." });
           const startTime = Date.now();
 
-          // Prepare transaction summary
           const transactionSummary = transactions.map((t) => ({
             id: t.transaction_id,
             date: t.date,
@@ -353,30 +499,43 @@ Deno.serve(async (req) => {
             amount: t.amount,
             pillar: t.pillar,
             zip: t.zip_code || "unknown",
+            anchor_type: t.anchor_type || null,
           }));
 
-          // Split into batches
-          const batches: any[][] = [];
-          for (let i = 0; i < transactionSummary.length; i += BATCH_SIZE) {
-            batches.push(transactionSummary.slice(i, i + BATCH_SIZE));
-          }
+          console.log(`[Travel Detection] Sending ${transactionSummary.length} transactions in one shot (model: ${PRIMARY_MODEL})`);
 
-          console.log(`[Travel Detection] Processing ${transactionSummary.length} transactions in ${batches.length} batches (concurrency: ${CONCURRENCY_LIMIT})`);
+          // One-shot processing with retry + model fallback
+          let rawUpdates = await processTransactions(transactionSummary, homeZip, sendEvent);
 
-          // Process batches with limited concurrency
-          const batchResults = await runWithConcurrency(
-            batches,
-            CONCURRENCY_LIMIT,
-            (batch, idx) => processBatch(batch, idx, batches.length, homeZip, sendEvent)
-          );
+          // Normalize destinations
+          rawUpdates.forEach((u: any) => {
+            if (u.travel_destination) {
+              u.travel_destination = normalizeDestination(u.travel_destination);
+            }
+          });
 
-          const travelUpdates = batchResults.flat();
+          // Reconcile orphaned flights
+          sendEvent("status", { message: "Reconciling flight fares with trips..." });
+          rawUpdates = reconcileFlightsWithTrips(rawUpdates, transactionSummary);
+
+          // Build trip_label
+          const travelUpdates = rawUpdates.map((u: any) => {
+            if (!u.is_travel_related || !u.travel_destination || !u.travel_period_start) {
+              return { ...u, trip_label: null };
+            }
+            const start = u.travel_period_start.replace(/-/g, "").slice(2);
+            const end = (u.travel_period_end || u.travel_period_start).replace(/-/g, "").slice(2);
+            const dest = u.travel_destination;
+            return { ...u, trip_label: `${start}:${end} ${dest} Trip` };
+          });
 
           const totalTime = Date.now() - startTime;
-          const travelCount = travelUpdates.filter((u) => u.is_travel_related).length;
-          console.log(`[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel-related) in ${totalTime}ms`);
+          const travelCount = travelUpdates.filter((u: any) => u.is_travel_related).length;
+          const thirdPartyCount = travelUpdates.filter((u: any) => u.third_party_likely).length;
+          console.log(
+            `[Travel Detection] ✓ Completed: ${travelUpdates.length} updates (${travelCount} travel, ${thirdPartyCount} third-party) in ${totalTime}ms`,
+          );
 
-          // Send travel updates
           sendEvent("travel_updates", { travel_updates: travelUpdates });
           sendEvent("done", { message: "Travel detection complete" });
           controller.close();
@@ -399,8 +558,7 @@ Deno.serve(async (req) => {
   } catch (error: any) {
     console.error("[Travel Detection] Error:", error);
     return new Response(JSON.stringify({ error: "Service error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+      status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   }
 });

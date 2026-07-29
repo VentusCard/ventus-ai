@@ -70,7 +70,7 @@ export function DemographicsGenerator({
     });
   };
 
-  // No demographics - show ZIP + generate button in one row
+  // No demographics - show all fields for manual input + generate button
   if (!demographics) {
     return (
       <div className="space-y-2">
@@ -79,18 +79,84 @@ export function DemographicsGenerator({
           Customer Context
         </label>
         <div className="flex items-center gap-3 p-3 bg-slate-50 border border-slate-200 rounded-lg">
-          <div className="flex items-center gap-1.5 text-slate-700">
-            <MapPin className="h-3.5 w-3.5 text-slate-500" />
+          <div className="flex items-center gap-1.5">
+            <DollarSign className="h-3.5 w-3.5 text-green-600" />
+            <Select onValueChange={(value) => {
+              const profile = generateRandomProfile();
+              onDemographicsChange({
+                ...profile,
+                demographics: { ...profile.demographics, incomeLevel: value },
+              });
+              const zipMatch = profile.contact.address.match(/\d{5}$/);
+              if (zipMatch) onZipChange(zipMatch[0]);
+            }}>
+              <SelectTrigger className="w-[130px] h-8 bg-white border-slate-300 text-sm">
+                <SelectValue placeholder="Income" />
+              </SelectTrigger>
+              <SelectContent>
+                {INCOME_LEVELS.map((level) => (
+                  <SelectItem key={level} value={level}>{level}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-          <Input
-            type="text"
-            value={anchorZip}
-            onChange={(e) => onZipChange(e.target.value)}
-            placeholder="ZIP"
-            className="w-[80px] h-8 bg-white border-slate-300 text-sm font-mono"
-            maxLength={5}
-          />
-          <span className="text-xs text-slate-500">Home ZIP for travel detection</span>
+
+          <div className="flex items-center gap-1.5">
+            <Building2 className="h-3.5 w-3.5 text-blue-600" />
+            <Select onValueChange={(value) => {
+              const profile = generateRandomProfile();
+              onDemographicsChange({
+                ...profile,
+                demographics: { ...profile.demographics, industry: value },
+              });
+              const zipMatch = profile.contact.address.match(/\d{5}$/);
+              if (zipMatch) onZipChange(zipMatch[0]);
+            }}>
+              <SelectTrigger className="w-[120px] h-8 bg-white border-slate-300 text-sm">
+                <SelectValue placeholder="Industry" />
+              </SelectTrigger>
+              <SelectContent>
+                {INDUSTRIES.map((ind) => (
+                  <SelectItem key={ind} value={ind}>{ind}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <Users className="h-3.5 w-3.5 text-purple-600" />
+            <Select onValueChange={(value) => {
+              const profile = generateRandomProfile();
+              onDemographicsChange({
+                ...profile,
+                demographics: { ...profile.demographics, familyStatus: value },
+              });
+              const zipMatch = profile.contact.address.match(/\d{5}$/);
+              if (zipMatch) onZipChange(zipMatch[0]);
+            }}>
+              <SelectTrigger className="w-[160px] h-8 bg-white border-slate-300 text-sm">
+                <SelectValue placeholder="Family Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {FAMILY_STATUSES.map((status) => (
+                  <SelectItem key={status} value={status}>{status}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 text-slate-500" />
+            <Input
+              type="text"
+              value={anchorZip}
+              onChange={(e) => onZipChange(e.target.value)}
+              placeholder="ZIP"
+              className="w-[70px] h-8 bg-white border-slate-300 text-sm font-mono"
+              maxLength={5}
+            />
+          </div>
+
           <div className="flex-1" />
           <Button
             type="button"

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { EnrichedTransaction } from "@/types/transaction";
 import {
   Dialog,
@@ -7,27 +8,67 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { PILLAR_COLORS } from "@/lib/sampleData";
-import { Plane, MapPin } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { PILLAR_COLORS, LIFESTYLE_PILLARS } from "@/lib/sampleData";
+import { Plane, MapPin, Pencil, X } from "lucide-react";
 
 interface TransactionDetailModalProps {
   transaction: EnrichedTransaction | null;
   isOpen: boolean;
   onClose: () => void;
+  onCorrection?: (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => void;
 }
 
-export function TransactionDetailModal({ transaction, isOpen, onClose }: TransactionDetailModalProps) {
+export function TransactionDetailModal({ transaction, isOpen, onClose, onCorrection }: TransactionDetailModalProps) {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editPillar, setEditPillar] = useState("");
+  const [editSubcategory, setEditSubcategory] = useState("");
+  const [editReason, setEditReason] = useState("");
+
   if (!transaction) return null;
+
+  const startEditing = () => {
+    setEditPillar(transaction.pillar);
+    setEditSubcategory(transaction.subcategory);
+    setEditReason("");
+    setIsEditing(true);
+  };
+
+  const cancelEditing = () => setIsEditing(false);
+
+  const saveCorrection = () => {
+    onCorrection?.(transaction.transaction_id, editPillar, editSubcategory, editReason);
+    setIsEditing(false);
+    onClose();
+  };
+
+  const handleClose = () => {
+    setIsEditing(false);
+    onClose();
+  };
   
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="max-w-2xl tepilot-popup">
         <DialogHeader>
-          <DialogTitle className="text-slate-900">Transaction Details</DialogTitle>
-          <DialogDescription className="text-slate-500">
-            AI classification details and explanation
-          </DialogDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <DialogTitle className="text-slate-900">Transaction Details</DialogTitle>
+              <DialogDescription className="text-slate-500">
+                AI classification details and explanation
+              </DialogDescription>
+            </div>
+            {!isEditing && onCorrection && (
+              <Button variant="outline" size="sm" onClick={startEditing} className="gap-1.5">
+                <Pencil className="w-3.5 h-3.5" />
+                Edit
+              </Button>
+            )}
+          </div>
         </DialogHeader>
 
         <div className="space-y-4">
@@ -59,51 +100,103 @@ export function TransactionDetailModal({ transaction, isOpen, onClose }: Transac
 
           <Separator className="bg-slate-200" />
 
-          <div>
-            <p className="text-sm text-slate-500 mb-2">Lifestyle Pillar</p>
-            {transaction.travel_context?.is_travel_related && transaction.travel_context.original_pillar && transaction.travel_context.original_pillar !== "Travel & Exploration" ? (
-              <div className="flex items-center gap-2">
-                <Badge
-                  className="border flex items-center gap-1"
-                  style={{
-                    backgroundColor: `${PILLAR_COLORS["Travel & Exploration"]}15`,
-                    color: PILLAR_COLORS["Travel & Exploration"],
-                    borderColor: `${PILLAR_COLORS["Travel & Exploration"]}30`,
-                  }}
-                >
-                  <Plane className="w-4 h-4" />
-                  Travel Context
-                </Badge>
-                <span className="text-muted-foreground">for</span>
-                <Badge
-                  style={{
-                    backgroundColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}20`,
-                    color: PILLAR_COLORS[transaction.travel_context.original_pillar],
-                    borderColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}40`,
-                  }}
-                  className="border text-base px-3 py-1"
-                >
-                  {transaction.travel_context.original_pillar}
-                </Badge>
+          {isEditing ? (
+            <div className="space-y-4 bg-slate-50 border border-slate-200 rounded-lg p-4">
+              <p className="text-sm font-semibold text-slate-900">Edit Classification</p>
+              <div className="space-y-3">
+                <div>
+                  <label className="text-sm text-slate-500 mb-1 block">Lifestyle Pillar</label>
+                  <Select value={editPillar} onValueChange={setEditPillar}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {LIFESTYLE_PILLARS.map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-sm text-slate-500 mb-1 block">Subcategory</label>
+                  <Input value={editSubcategory} onChange={(e) => setEditSubcategory(e.target.value)} />
+                </div>
+                <div>
+                  <label className="text-sm text-slate-500 mb-1 block">Reason for correction</label>
+                  <Textarea
+                    value={editReason}
+                    onChange={(e) => setEditReason(e.target.value)}
+                    placeholder="Why is this classification incorrect?"
+                    className="min-h-[60px]"
+                  />
+                </div>
+                <div className="flex gap-2 justify-end">
+                  <Button variant="ghost" size="sm" onClick={cancelEditing}>
+                    <X className="w-3.5 h-3.5 mr-1" /> Cancel
+                  </Button>
+                  <Button size="sm" onClick={saveCorrection} disabled={!editReason.trim()}>
+                    Save Correction
+                  </Button>
+                </div>
               </div>
-            ) : (
-              <Badge
-                style={{
-                  backgroundColor: `${PILLAR_COLORS[transaction.pillar]}20`,
-                  color: PILLAR_COLORS[transaction.pillar],
-                  borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
-                }}
-                className="border text-base px-3 py-1"
-              >
-                {transaction.pillar}
-              </Badge>
-            )}
-          </div>
+            </div>
+          ) : (
+            <>
+              <div>
+                <p className="text-sm text-slate-500 mb-2">Lifestyle Pillar</p>
+                {transaction.travel_context?.is_travel_related && transaction.travel_context.original_pillar && transaction.travel_context.original_pillar !== "Travel & Exploration" ? (
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      className="border flex items-center gap-1"
+                      style={{
+                        backgroundColor: `${PILLAR_COLORS["Travel & Exploration"]}15`,
+                        color: PILLAR_COLORS["Travel & Exploration"],
+                        borderColor: `${PILLAR_COLORS["Travel & Exploration"]}30`,
+                      }}
+                    >
+                      <Plane className="w-4 h-4" />
+                      Travel Context
+                    </Badge>
+                    <span className="text-muted-foreground">for</span>
+                    <Badge
+                      style={{
+                        backgroundColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}20`,
+                        color: PILLAR_COLORS[transaction.travel_context.original_pillar],
+                        borderColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}40`,
+                      }}
+                      className="border text-base px-3 py-1"
+                    >
+                      {transaction.travel_context.original_pillar}
+                    </Badge>
+                  </div>
+                ) : (
+                  <Badge
+                    style={{
+                      backgroundColor: `${PILLAR_COLORS[transaction.pillar]}20`,
+                      color: PILLAR_COLORS[transaction.pillar],
+                      borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
+                    }}
+                    className="border text-base px-3 py-1"
+                  >
+                    {transaction.pillar}
+                  </Badge>
+                )}
+              </div>
 
-          <div>
-            <p className="text-sm text-slate-500 mb-2">Subcategory</p>
-            <p className="font-medium text-slate-900">{transaction.subcategory}</p>
-          </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <p className="text-sm text-slate-500 mb-2">Subcategory</p>
+                  <p className="font-medium text-slate-900">{transaction.subcategory}</p>
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500 mb-2">Purchase Frequency</p>
+                  <Badge variant="outline" className="text-base px-3 py-1">
+                    {transaction.purchase_frequency}
+                  </Badge>
+                </div>
+              </div>
+            </>
+          )}
 
           <div>
             <p className="text-sm text-slate-500 mb-2">Confidence Score</p>

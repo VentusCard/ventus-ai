@@ -27,8 +27,8 @@ export function extractLocationContext(transactions: EnrichedTransaction[]): Loc
   }>();
   
   transactions.forEach(t => {
-    if (t.travel_context?.is_travel_related && 
-        t.travel_context.travel_destination && 
+    if (t.trip_label && 
+        t.travel_context?.travel_destination && 
         t.travel_context.travel_destination.toLowerCase() !== 'unknown') {
       const dest = t.travel_context.travel_destination;
       if (!travelMap.has(dest)) {

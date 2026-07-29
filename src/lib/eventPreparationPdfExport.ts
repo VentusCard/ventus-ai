@@ -173,3 +173,118 @@ export async function exportEventPreparationPDF(data: EventPreparationData): Pro
   const eventTypeSlug = event.eventType.replace(/_/g, '-');
   doc.save(`${clientNameSlug}_${eventTypeSlug}_Preparation.pdf`);
 }
+
+export async function exportEventPreparationPDFBase64(data: EventPreparationData): Promise<string> {
+  const { client, event, transactions, recommendedSteps } = data;
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.getWidth();
+  let yPos = 20;
+
+  const config = LIFE_EVENT_CONFIG[event.eventType];
+  const eventLabel = config?.label || event.eventName;
+
+  doc.setFontSize(16);
+  doc.setFont("helvetica", "bold");
+  doc.text(`PREPARE: ${eventLabel.toUpperCase()}`, 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`${client.profile.name} | ${client.profile.segment} | ${event.confidence}% confidence`, 20, yPos);
+  yPos += 12;
+
+  doc.setDrawColor(200);
+  doc.line(20, yPos, pageWidth - 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text(`DETECTED SUPPORTING TRANSACTIONS (${transactions.length} total)`, 20, yPos);
+  yPos += 8;
+
+  const sortedTransactions = [...transactions].sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+
+  sortedTransactions.forEach((txn) => {
+    if (yPos > 260) { doc.addPage(); yPos = 20; }
+    const amountStr = formatCurrency(txn.amount);
+    doc.setFont("helvetica", "bold");
+    doc.text(txn.merchant, 25, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${amountStr}  ${txn.date}`, pageWidth - 20 - doc.getTextWidth(`${amountStr}  ${txn.date}`), yPos);
+    yPos += 5;
+    doc.setTextColor(100);
+    doc.text(txn.relevance, 25, yPos);
+    doc.setTextColor(0);
+    yPos += 7;
+  });
+
+  yPos += 5;
+  if (yPos > 180) { doc.addPage(); yPos = 20; }
+
+  doc.setDrawColor(200);
+  doc.line(20, yPos, pageWidth - 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("VENTUS AI INSIGHTS", 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  const insights = mockInsightsByEventType[event.eventType];
+  const insightLines = doc.splitTextToSize(insights, pageWidth - 45);
+  insightLines.forEach((line: string) => {
+    if (yPos > 270) { doc.addPage(); yPos = 20; }
+    doc.text(line, 25, yPos);
+    yPos += 5;
+  });
+
+  yPos += 8;
+  if (yPos > 200) { doc.addPage(); yPos = 20; }
+
+  doc.setDrawColor(200);
+  doc.line(20, yPos, pageWidth - 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(12);
+  doc.setFont("helvetica", "bold");
+  doc.text("RECOMMENDED NEXT STEPS", 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "normal");
+  recommendedSteps.forEach((step, idx) => {
+    if (yPos > 260) { doc.addPage(); yPos = 20; }
+    const stepLines = doc.splitTextToSize(`${idx + 1}. ${step}`, pageWidth - 50);
+    stepLines.forEach((line: string) => {
+      doc.text(line, 25, yPos);
+      yPos += 5;
+    });
+    yPos += 3;
+  });
+
+  yPos += 10;
+  if (yPos > 270) { doc.addPage(); yPos = 20; }
+
+  doc.setDrawColor(200);
+  doc.line(20, yPos, pageWidth - 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(8);
+  doc.setTextColor(120);
+  const timestamp = new Date().toLocaleString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric',
+    hour: 'numeric', minute: '2-digit', hour12: true,
+  });
+  doc.text(`Generated: ${timestamp}`, 20, yPos);
+  doc.setTextColor(0);
+
+  const dataUri = doc.output("datauristring");
+  return dataUri.split(",")[1];
+}

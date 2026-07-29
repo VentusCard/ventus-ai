@@ -36,9 +36,10 @@ export interface BankDeal {
 
 // Customer profile derived from transactions
 interface DerivedCustomerProfile {
-  topPillars: Array<{ pillar: string; annualSpend: number; topMerchant: string; transactionCount: number }>;
+  topPillars: Array<{ pillar: string; annualSpend: number; topMerchant: string; transactionCount: number; dominantTier?: string }>;
   topMerchants: Array<{ merchant: string; totalSpend: number; visits: number; pillar: string }>;
   lifestyleSignals: string[];
+  pillarTiers: Record<string, string>;
   locationContext: {
     homeCity?: string;
     homeState?: string;
@@ -188,6 +189,7 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
       topPillars: [],
       topMerchants: [],
       lifestyleSignals: [],
+      pillarTiers: {},
       locationContext: { travelDestinations: [] },
       totalSpend: 0,
       avgTransactionSize: 0
@@ -195,27 +197,35 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
   }
 
   // Calculate pillar spending
-  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number }> = {};
+  const pillarData: Record<string, { spend: number; merchants: Record<string, number>; count: number; tiers: Record<string, number> }> = {};
   transactions.forEach(t => {
     const pillar = t.pillar || 'Other';
     if (!pillarData[pillar]) {
-      pillarData[pillar] = { spend: 0, merchants: {}, count: 0 };
+      pillarData[pillar] = { spend: 0, merchants: {}, count: 0, tiers: {} };
     }
     pillarData[pillar].spend += t.amount;
     pillarData[pillar].count += 1;
     const merchant = t.merchant_name || 'Unknown';
     pillarData[pillar].merchants[merchant] = (pillarData[pillar].merchants[merchant] || 0) + t.amount;
+    const tier = t.spending_tier || "N/A";
+    if (tier !== "N/A") {
+      pillarData[pillar].tiers[tier] = (pillarData[pillar].tiers[tier] || 0) + 1;
+    }
   });
 
+  const pillarTiers: Record<string, string> = {};
   const topPillars = Object.entries(pillarData)
     .map(([pillar, data]) => {
       const topMerchant = Object.entries(data.merchants)
         .sort((a, b) => b[1] - a[1])[0]?.[0] || 'Various';
+      const dominantTier = Object.entries(data.tiers).sort((a, b) => b[1] - a[1])[0]?.[0];
+      if (dominantTier) pillarTiers[pillar] = dominantTier;
       return {
         pillar,
         annualSpend: data.spend,
         topMerchant,
-        transactionCount: data.count
+        transactionCount: data.count,
+        dominantTier
       };
     })
     .sort((a, b) => b.annualSpend - a.annualSpend)
@@ -244,25 +254,23 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
 
   // Derive lifestyle signals from pillars and merchants
   const lifestyleSignals: string[] = [];
+  const PILLAR_SHORT: Record<string, string> = {
+    "Travel & Exploration": "traveler", "Sports & Active Living": "athlete",
+    "Food & Dining": "diner", "Entertainment & Culture": "culture seeker",
+    "Style & Beauty": "fashion spender", "Health & Wellness": "wellness spender",
+    "Technology & Digital Life": "tech buyer", "Pets": "pet owner",
+    "Home & Living": "home spender", "Family & Community": "family spender",
+  };
   topPillars.forEach(p => {
-    if (p.pillar === 'Travel & Exploration' && p.annualSpend > 2000) {
-      lifestyleSignals.push('frequent traveler');
+    if (p.dominantTier && p.dominantTier !== "N/A" && PILLAR_SHORT[p.pillar]) {
+      lifestyleSignals.push(`${p.dominantTier.toLowerCase()} ${PILLAR_SHORT[p.pillar]}`);
     }
-    if (p.pillar === 'Sports & Active Living' && p.annualSpend > 1000) {
-      lifestyleSignals.push('fitness enthusiast');
-    }
-    if (p.pillar === 'Food & Dining' && p.annualSpend > 3000) {
-      lifestyleSignals.push('food connoisseur');
-    }
-    if (p.pillar === 'Entertainment & Culture' && p.annualSpend > 1500) {
-      lifestyleSignals.push('experience seeker');
-    }
-    if (p.pillar === 'Style & Beauty' && p.annualSpend > 2000) {
-      lifestyleSignals.push('style-conscious');
-    }
-    if (p.pillar === 'Health & Wellness' && p.annualSpend > 1500) {
-      lifestyleSignals.push('health-focused');
-    }
+    if (p.pillar === 'Travel & Exploration' && p.annualSpend > 2000) lifestyleSignals.push('frequent traveler');
+    if (p.pillar === 'Sports & Active Living' && p.annualSpend > 1000) lifestyleSignals.push('fitness enthusiast');
+    if (p.pillar === 'Food & Dining' && p.annualSpend > 3000) lifestyleSignals.push('food connoisseur');
+    if (p.pillar === 'Entertainment & Culture' && p.annualSpend > 1500) lifestyleSignals.push('experience seeker');
+    if (p.pillar === 'Style & Beauty' && p.annualSpend > 2000) lifestyleSignals.push('style-conscious');
+    if (p.pillar === 'Health & Wellness' && p.annualSpend > 1500) lifestyleSignals.push('health-focused');
   });
 
   // Extract location context
@@ -290,6 +298,7 @@ function deriveCustomerProfile(transactions: EnrichedTransaction[]): DerivedCust
     topPillars,
     topMerchants,
     lifestyleSignals: lifestyleSignals.length > 0 ? lifestyleSignals : ['active spender'],
+    pillarTiers,
     locationContext: {
       homeCity: homeZip ? `ZIP ${homeZip}` : undefined,
       travelDestinations: travelDestinations.slice(0, 5)
@@ -633,7 +642,8 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
             .map(([name, spend]) => ({ n: name, s: Math.round(spend) }))
             .sort((a, b) => b.s - a.s)
             .slice(0, 3),
-          signals: customerProfile.lifestyleSignals?.slice(0, 3) || []
+          signals: customerProfile.lifestyleSignals?.slice(0, 5) || [],
+          pillarTiers: customerProfile.pillarTiers || {},
         };
         
         // Build slim personal context for AI personalization
@@ -763,9 +773,12 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
           {/* Category Pills for quick filtering */}
           <div className="flex items-center gap-2 flex-wrap pb-2 border-b border-slate-100">
             <Button
-              variant={selectedCategory === null ? "default" : "outline"}
+              variant="outline"
               size="sm"
-              className="h-7 text-xs"
+              className={cn(
+                "h-7 text-xs bg-white text-black border-slate-200 hover:bg-slate-50",
+                selectedCategory === null && "bg-blue-50 text-blue-700 border-blue-300 shadow-sm"
+              )}
               onClick={() => setSelectedCategory(null)}
             >
               All
@@ -776,11 +789,12 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
               return (
                 <Button
                   key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
                   className={cn(
-                    "h-7 text-xs gap-1",
-                    isCustomerPillar && selectedCategory !== category && "border-primary/30 bg-primary/5"
+                    "h-7 text-xs gap-1 bg-white text-black border-slate-200 hover:bg-slate-50",
+                    selectedCategory === category && "bg-blue-50 text-blue-700 border-blue-300 shadow-sm",
+                    isCustomerPillar && selectedCategory !== category && "border-primary/30 bg-white"
                   )}
                   onClick={() => setSelectedCategory(selectedCategory === category ? null : category)}
                 >
@@ -811,8 +825,8 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                   <div className="flex items-center gap-2">
                     <Navigation className="h-4 w-4 text-primary" />
                     <span className="font-semibold text-sm text-slate-800">Local Experiences</span>
-                    <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 border-primary/30 bg-primary/5 text-primary">
-                      <MapPin className="h-2.5 w-2.5 mr-0.5" />
+                    <Badge variant="outline" className="text-[9px] px-1.5 py-0.5 border-blue-200" style={{ color: '#000000', backgroundColor: 'rgba(59,130,246,0.05)' }}>
+                      <MapPin className="h-2.5 w-2.5 mr-0.5" style={{ color: '#000000' }} />
                       {locationCity}
                     </Badge>
                   </div>
@@ -995,42 +1009,42 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
           </div>
         </div>
 
-        {/* Right: Deal Detail Panel (1/3 width) - Deep Red Theme */}
+        {/* Right: Deal Detail Panel (1/3 width) */}
         <div className="w-1/3">
-          <div className="bg-gradient-to-br from-red-900 via-rose-900 to-red-950 rounded-xl p-5 h-full min-h-[500px] text-white">
+          <div className="bg-white border border-slate-200 rounded-xl p-5 h-full min-h-[500px]">
             {selectedDeal ? (
               <div className="space-y-5">
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                  <Badge variant="outline" className="text-[10px] border-rose-700 bg-rose-800/50 text-rose-200">
+                  <Badge variant="outline" className="text-[10px] border-rose-200 bg-rose-50 text-rose-700">
                     {selectedDeal.merchantCategory.split(' ')[0]}
                   </Badge>
                 </div>
 
                 {/* Deal Info */}
                 <div className="space-y-1">
-                  <p className="text-sm text-rose-300/80">{selectedDeal.merchantName}</p>
-                  <h3 className="text-lg font-bold text-white">{selectedDeal.dealTitle}</h3>
+                  <p className="text-sm text-slate-500">{selectedDeal.merchantName}</p>
+                  <h3 className="text-lg font-bold text-slate-900">{selectedDeal.dealTitle}</h3>
                 </div>
 
                 {/* Personalized Message */}
-                <div className="space-y-2 pt-3 border-t border-rose-800/50">
-                  <span className="text-[10px] font-medium text-rose-400 uppercase tracking-wide">
+                <div className="space-y-2 pt-3 border-t border-slate-200">
+                  <span className="text-[10px] font-medium text-rose-600 uppercase tracking-wide">
                     {personalizedDeals.get(selectedDeal.id) ? 'AI-Personalized Message' : 'Deal Details'}
                   </span>
                   {(() => {
                     const aiMsg = personalizedDeals.get(selectedDeal.id);
                     return aiMsg ? (
                       <>
-                        <h4 className="text-base font-semibold text-rose-100 italic">"{aiMsg.message}"</h4>
-                        <p className="text-xs text-rose-300/70 leading-relaxed">
+                        <h4 className="text-base font-semibold text-slate-700 italic">"{aiMsg.message}"</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed">
                           {selectedDeal.dealDescription}
                         </p>
                       </>
                     ) : (
                       <>
-                        <h4 className="text-base font-semibold text-rose-100">{selectedDeal.dealTitle}</h4>
-                        <p className="text-xs text-rose-300/70 leading-relaxed">
+                        <h4 className="text-base font-semibold text-slate-700">{selectedDeal.dealTitle}</h4>
+                        <p className="text-xs text-slate-500 leading-relaxed">
                           {selectedDeal.dealDescription}
                         </p>
                       </>
@@ -1039,19 +1053,19 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                 </div>
 
                 {/* Deal Terms */}
-                <div className="space-y-2 pt-3 border-t border-rose-800/50">
-                  <span className="text-[10px] font-medium text-rose-400 uppercase tracking-wide">Deal Terms</span>
-                  <div className="space-y-1.5 text-xs text-rose-200">
+                <div className="space-y-2 pt-3 border-t border-slate-200">
+                  <span className="text-[10px] font-medium text-rose-600 uppercase tracking-wide">Deal Terms</span>
+                  <div className="space-y-1.5 text-xs text-slate-900">
                     <div className="flex items-center justify-between">
-                      <span className="text-rose-300">Reward</span>
+                      <span className="text-slate-500">Reward</span>
                       <span className="font-medium">{selectedDeal.rewardValue}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-rose-300">Valid Until</span>
+                      <span className="text-slate-500">Valid Until</span>
                       <span className="font-medium">{selectedDeal.validityPeriod.replace('Until ', '')}</span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-rose-300">Min. Purchase</span>
+                      <span className="text-slate-500">Min. Purchase</span>
                       <span className="font-medium">None</span>
                     </div>
                   </div>
@@ -1060,7 +1074,7 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
                 {/* Activate Deal Button */}
                 <div className="pt-4">
                   <Button 
-                    className="w-full bg-white hover:bg-rose-50 text-rose-900 font-semibold py-3 rounded-lg transition-all hover:shadow-lg"
+                    className="w-full bg-rose-600 hover:bg-rose-700 text-white font-semibold py-3 rounded-lg transition-all hover:shadow-lg"
                     onClick={() => {}}
                   >
                     {personalizedDeals.get(selectedDeal.id)?.cta || "Activate Deal"}
@@ -1069,13 +1083,13 @@ export function DealActivationPreview({ enrichedTransactions = [], personalConte
 
                 {/* Activation Count */}
                 <div className="pt-3 text-center">
-                  <p className="text-xs text-rose-400">
+                  <p className="text-xs text-slate-400">
                     {selectedDeal.activationCount.toLocaleString()} customers have activated this deal
                   </p>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center h-full text-rose-400/60">
+              <div className="flex flex-col items-center justify-center h-full text-slate-400">
                 <Target className="h-10 w-10 mb-3 opacity-50" />
                 <p className="text-sm">Select a deal to view details</p>
               </div>

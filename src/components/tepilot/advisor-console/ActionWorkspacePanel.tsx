@@ -6,8 +6,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Calendar, Users, Phone, Mail, Brain, ListChecks, MessageSquare, FileDown, Plus, X, ChevronDown } from "lucide-react";
-import { sampleMeeting, sampleEngagementData, NextStepsData } from "./sampleData";
+import { sampleMeeting, sampleEngagementData, sampleClientData, NextStepsData, NextMeetingInfo } from "./sampleData";
 import { SavedFinancialProjection } from "@/types/lifestyle-signals";
+import { format } from "date-fns";
+import { FollowUpEmailDialog } from "./FollowUpEmailDialog";
+import { ClientProfileData } from "@/types/clientProfile";
+import { DetectedLifeEvent } from "@/types/dashboardClient";
+
 interface ActionWorkspacePanelProps {
   nextStepsData: NextStepsData;
   onToggleActionItem: (itemId: string) => void;
@@ -15,6 +20,9 @@ interface ActionWorkspacePanelProps {
   onAddActionItem: (text: string) => void;
   savedProjection?: SavedFinancialProjection | null;
   onExportTimelinePDF?: () => void;
+  nextMeeting?: NextMeetingInfo | null;
+  clientProfile?: ClientProfileData | null;
+  dashboardEvents?: DetectedLifeEvent[] | null;
 }
 export function ActionWorkspacePanel({
   nextStepsData,
@@ -22,11 +30,15 @@ export function ActionWorkspacePanel({
   onDeleteActionItem,
   onAddActionItem,
   savedProjection,
-  onExportTimelinePDF
+  onExportTimelinePDF,
+  nextMeeting,
+  clientProfile,
+  dashboardEvents
 }: ActionWorkspacePanelProps) {
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [newItemText, setNewItemText] = useState("");
   const [isPsychologyOpen, setIsPsychologyOpen] = useState(true);
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const engagementColor = sampleEngagementData.status === 'high' ? 'bg-green-500' : sampleEngagementData.status === 'medium' ? 'bg-yellow-500' : 'bg-red-500';
   const engagementText = sampleEngagementData.status === 'high' ? 'Strong' : sampleEngagementData.status === 'medium' ? 'Moderate' : 'Needs Attention';
   const incompleteItems = nextStepsData.actionItems.filter(item => !item.completed);
@@ -74,12 +86,20 @@ export function ActionWorkspacePanel({
                 <Calendar className="w-4 h-4 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-semibold text-slate-900 text-sm">{sampleMeeting.date}</p>
-                <p className="text-xs text-slate-600">{sampleMeeting.time} • {sampleMeeting.duration} min</p>
-                <div className="flex items-center gap-1 mt-1 flex-wrap">
-                  <Users className="w-3 h-3 text-slate-400" />
-                  {sampleMeeting.participants.slice(0, 2).map((p, idx) => <span key={idx} className="text-xs text-slate-600">{p}{idx < 1 ? ',' : ''}</span>)}
-                </div>
+                <p className="font-semibold text-slate-900 text-sm">
+                  {nextMeeting ? format(nextMeeting.date, "MMMM d, yyyy") : sampleMeeting.date}
+                </p>
+                <p className="text-xs text-slate-600">
+                  {nextMeeting
+                    ? nextMeeting.topic || "Follow-up meeting"
+                    : `${sampleMeeting.time} • ${sampleMeeting.duration} min`}
+                </p>
+                {!nextMeeting && (
+                  <div className="flex items-center gap-1 mt-1 flex-wrap">
+                    <Users className="w-3 h-3 text-slate-400" />
+                    {sampleMeeting.participants.slice(0, 2).map((p, idx) => <span key={idx} className="text-xs text-slate-600">{p}{idx < 1 ? ',' : ''}</span>)}
+                  </div>
+                )}
               </div>
             </div>
           </Card>
@@ -293,7 +313,7 @@ export function ActionWorkspacePanel({
                 <Phone className="w-3 h-3 mr-1 flex-shrink-0" />
                 <span className="truncate">Call</span>
               </Button>
-              <Button size="sm" variant="outline" className="flex-1 min-w-0 text-xs">
+              <Button size="sm" variant="outline" className="flex-1 min-w-0 text-xs" onClick={() => setEmailDialogOpen(true)}>
                 <Mail className="w-3 h-3 mr-1 flex-shrink-0" />
                 <span className="truncate">Email</span>
               </Button>
@@ -303,6 +323,19 @@ export function ActionWorkspacePanel({
               </Button>
             </div>
           </div>
+
+          <FollowUpEmailDialog
+            open={emailDialogOpen}
+            onOpenChange={setEmailDialogOpen}
+            nextStepsData={nextStepsData}
+            clientName={clientProfile?.name || sampleClientData.name}
+            clientEmail={clientProfile?.contact?.email || sampleClientData.contact.email}
+            advisorName={sampleClientData.advisor}
+            savedProjection={savedProjection}
+            clientProfile={clientProfile}
+            lifeEvents={dashboardEvents}
+            psychologicalInsights={nextStepsData.psychologicalInsights}
+          />
         </div>
       </div>
     </div>;

@@ -4,16 +4,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Eye, Edit, Loader2, Plane, MapPin } from "lucide-react";
-import { PILLAR_COLORS } from "@/lib/sampleData";
+import { ArrowRight, Eye, Loader2, Plane, MapPin, Settings2 } from "lucide-react";
+import { PILLAR_COLORS, getSourceColor } from "@/lib/sampleData";
 import { TransactionDetailModal } from "./TransactionDetailModal";
-import { CorrectionModal } from "./CorrectionModal";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+
 
 interface ResultsTableProps {
   transactions: EnrichedTransaction[];
@@ -24,12 +24,32 @@ interface ResultsTableProps {
 
 export function ResultsTable({ transactions, currentPhase = "idle", statusMessage = "", onCorrection }: ResultsTableProps) {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
-  const [correctionTransaction, setCorrectionTransaction] = useState<EnrichedTransaction | null>(null);
+  
 
   const getConfidenceColor = (confidence: number) => {
     if (confidence >= 0.8) return "bg-green-500/10 text-green-700 border-green-500/20";
     if (confidence >= 0.5) return "bg-yellow-500/10 text-yellow-700 border-yellow-500/20";
     return "bg-red-500/10 text-red-700 border-red-500/20";
+  };
+
+  const getTierColor = (tier: string) => {
+    switch (tier) {
+      case "Premium": return "bg-amber-500/10 text-amber-700 border-amber-500/20";
+      case "Standard": return "bg-blue-500/10 text-blue-700 border-blue-500/20";
+      case "Budget": return "bg-teal-500/10 text-teal-700 border-teal-500/20";
+      default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
+  };
+
+  const getFrequencyColor = (frequency: string) => {
+    switch (frequency) {
+      case "Weekly": return "bg-indigo-500/10 text-indigo-700 border-indigo-500/20";
+      case "Monthly": return "bg-violet-500/10 text-violet-700 border-violet-500/20";
+      case "Occasional": return "bg-cyan-500/10 text-cyan-700 border-cyan-500/20";
+      case "Annually": return "bg-orange-500/10 text-orange-700 border-orange-500/20";
+      case "One-Time": return "bg-slate-500/10 text-slate-600 border-slate-500/20";
+      default: return "bg-gray-500/10 text-gray-500 border-gray-500/20";
+    }
   };
 
   return (
@@ -54,143 +74,175 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
             <div className="text-center py-12 text-slate-600">
               <Loader2 className="w-8 h-8 animate-spin mx-auto mb-3" />
               <p>Waiting for first batch of results...</p>
-              <p className="text-sm mt-2">This should take ~3 seconds</p>
+              <p className="text-sm mt-2">This should take ~10 seconds</p>
             </div>
           )}
           {transactions.length > 0 && (
             <div className="border border-slate-200 rounded-lg overflow-hidden">
-            <div className="max-h-[600px] overflow-y-auto">
-              <Table>
-                <TableHeader className="sticky top-0 bg-white">
+            <div className="max-h-[600px] overflow-auto">
+              <Table className="text-xs table-fixed w-full">
+                <colgroup>
+                  <col className="w-[110px]" /> {/* Merchant */}
+                  <col className="w-[52px]" />  {/* Amt */}
+                  <col className="w-[72px]" />  {/* Date */}
+                  <col className="w-[20px]" />  {/* Arrow */}
+                  <col className="w-[130px]" /> {/* Pillar */}
+                  <col className="w-[85px]" />  {/* Category */}
+                  <col className="w-[85px]" />  {/* Subcategories */}
+                  <col className="w-[60px]" />  {/* Trip */}
+                  <col className="w-[52px]" />  {/* Tier */}
+                  <col className="w-[56px]" />  {/* Freq */}
+                  {transactions.some(t => t.source) && <col className="w-[60px]" />}
+                  <col className="w-[40px]" />  {/* Conf */}
+                  <col className="w-[36px]" />  {/* Actions */}
+                </colgroup>
+                <TableHeader className="sticky top-0 bg-white z-10">
                   <TableRow>
-                    <TableHead className="text-slate-700">Merchant</TableHead>
-                    <TableHead className="text-slate-700">Amount</TableHead>
-                    <TableHead className="text-slate-700">Date</TableHead>
-                    <TableHead>
-                      <ArrowRight className="w-4 h-4 mx-auto" />
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Merchant</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Amt</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Date</TableHead>
+                    <TableHead className="px-0">
+                      <span className="sr-only">Arrow</span>
                     </TableHead>
-                    <TableHead className="text-slate-700">Pillar</TableHead>
-                    <TableHead className="text-slate-700">Subcategory</TableHead>
-                    <TableHead className="text-slate-700">Confidence</TableHead>
-                    <TableHead className="text-right text-slate-700">Actions</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Pillar</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Category</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Sub-cat</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Trip</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Tier</TableHead>
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Freq</TableHead>
+                    {transactions.some(t => t.source) && (
+                      <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Source</TableHead>
+                    )}
+                    <TableHead className="text-slate-700 text-[11px] px-1.5 py-1.5">Conf</TableHead>
+                    <TableHead className="text-center text-slate-700 text-[11px] px-1 py-1.5">
+                       <Settings2 className="w-4 h-4 text-slate-500 mx-auto" />
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {transactions.map((transaction) => (
-                    <TableRow key={transaction.transaction_id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium text-slate-900">{transaction.normalized_merchant}</div>
-                          {transaction.merchant_name !== transaction.normalized_merchant && (
-                            <div className="text-xs text-slate-600">
-                              {transaction.merchant_name}
-                            </div>
-                          )}
+                    <TableRow key={transaction.transaction_id} className="hover:bg-slate-50/50">
+                      <TableCell className="px-1.5 py-1">
+                        <div className="truncate font-medium text-slate-900" title={transaction.normalized_merchant}>
+                          {transaction.normalized_merchant}
                         </div>
+                        {transaction.merchant_name !== transaction.normalized_merchant && (
+                          <div className="text-[10px] text-slate-500 truncate" title={transaction.merchant_name}>
+                            {transaction.merchant_name}
+                          </div>
+                        )}
                       </TableCell>
-                      <TableCell className="font-mono text-slate-900">${transaction.amount.toFixed(2)}</TableCell>
-                      <TableCell className="text-sm text-slate-700">{transaction.date}</TableCell>
-                      <TableCell>
-                        <ArrowRight className="w-4 h-4 text-primary mx-auto" />
+                      <TableCell className="font-mono text-slate-900 px-1.5 py-1 whitespace-nowrap">${transaction.amount.toFixed(0)}</TableCell>
+                      <TableCell className="text-slate-700 whitespace-nowrap px-1.5 py-1">{transaction.date}</TableCell>
+                      <TableCell className="px-0 py-1">
+                        <ArrowRight className="w-3 h-3 text-primary mx-auto" />
                       </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          {transaction.travel_context?.is_travel_related && transaction.travel_context.original_pillar && transaction.travel_context.original_pillar !== "Travel & Exploration" ? (
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <div className="flex items-center gap-1.5 cursor-help">
-                                    <Badge
-                                      className="border flex items-center gap-1 text-xs px-2 py-0.5"
-                                      style={{
-                                        backgroundColor: `${PILLAR_COLORS["Travel & Exploration"]}15`,
-                                        color: PILLAR_COLORS["Travel & Exploration"],
-                                        borderColor: `${PILLAR_COLORS["Travel & Exploration"]}30`,
-                                      }}
-                                    >
-                                      <Plane className="w-3 h-3" />
-                                      Travel
-                                    </Badge>
-                                    <span className="text-slate-600">:</span>
-                                    <Badge
-                                      className="border"
-                                      style={{
-                                        backgroundColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}20`,
-                                        color: PILLAR_COLORS[transaction.travel_context.original_pillar],
-                                        borderColor: `${PILLAR_COLORS[transaction.travel_context.original_pillar]}40`,
-                                      }}
-                                    >
-                                      {transaction.travel_context.original_pillar}
-                                    </Badge>
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent className="max-w-xs">
-                                  <div className="text-xs space-y-1.5">
-                                    <p className="font-semibold flex items-center gap-1">
-                                      <MapPin className="w-3 h-3" />
-                                      Travel Context
-                                    </p>
-                                    {transaction.travel_context.travel_destination && (
-                                      <p>📍 Destination: {transaction.travel_context.travel_destination}</p>
-                                    )}
-                                    {transaction.travel_context.travel_period_start && (
-                                      <p>🗓️ Period: {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
-                                    )}
-                                    {transaction.travel_context.reclassification_reason && (
-                                      <p className="text-slate-600 italic pt-1 border-t border-slate-200 mt-1">
-                                        {transaction.travel_context.reclassification_reason}
-                                      </p>
-                                    )}
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : (
-                            <Badge
-                              style={{
-                                backgroundColor: `${PILLAR_COLORS[transaction.pillar]}20`,
-                                color: PILLAR_COLORS[transaction.pillar],
-                                borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
-                              }}
-                              className="border"
-                            >
-                              {transaction.pillar}
-                            </Badge>
-                          )}
-                          {!transaction.travel_context && currentPhase === "travel" && (
-                            <Badge variant="outline" className="text-xs bg-amber-50 text-amber-700 border-amber-200 font-medium">
-                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                              Analyzing...
-                            </Badge>
-                          )}
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm text-slate-700">{transaction.subcategory}</TableCell>
-                      <TableCell>
+                      <TableCell className="px-1.5 py-1">
                         <Badge
                           variant="outline"
-                          className={getConfidenceColor(transaction.confidence)}
+                          style={{
+                            backgroundColor: `${PILLAR_COLORS[transaction.pillar]}20`,
+                            color: PILLAR_COLORS[transaction.pillar],
+                            borderColor: `${PILLAR_COLORS[transaction.pillar]}40`,
+                          }}
+                          className="border text-[9px] px-1 py-0 truncate max-w-full text-center"
+                          title={transaction.pillar}
+                        >
+                          {transaction.pillar}
+                        </Badge>
+                        {!transaction.travel_context && currentPhase === "travel" && (
+                          <Badge variant="outline" className="text-[9px] bg-amber-50 text-amber-700 border-amber-200 font-medium mt-0.5 px-1 py-0">
+                            <Loader2 className="h-2.5 w-2.5 animate-spin mr-0.5" />
+                            …
+                          </Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-slate-700 px-1.5 py-1">
+                        <span className="truncate block" title={transaction.category}>{transaction.category || "—"}</span>
+                      </TableCell>
+                      <TableCell className="px-1.5 py-1">
+                        <div className="flex flex-wrap gap-0.5">
+                          {(transaction.subcategories ?? [transaction.subcategory]).map((sub, i) => (
+                            <span key={i} className="inline-block bg-slate-100 text-slate-600 text-[9px] px-1 py-px rounded truncate max-w-[80px]" title={sub}>{sub}</span>
+                          ))}
+                        </div>
+                      </TableCell>
+                      <TableCell className="px-1.5 py-1">
+                        {transaction.trip_label ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="inline-flex items-center gap-0.5 bg-purple-500/10 text-purple-700 border border-purple-500/20 text-[9px] px-1 py-px rounded cursor-help truncate max-w-full" title={transaction.trip_label}>
+                                  <Plane className="w-2.5 h-2.5 shrink-0" />
+                                  {transaction.travel_context?.travel_destination || "Trip"}
+                                </span>
+                              </TooltipTrigger>
+                              <TooltipContent className="max-w-xs">
+                                <div className="text-xs space-y-1.5">
+                                  <p className="font-semibold flex items-center gap-1">
+                                    <MapPin className="w-3 h-3" />
+                                    {transaction.trip_label}
+                                  </p>
+                                  {transaction.travel_context?.travel_period_start && (
+                                    <p>🗓️ {new Date(transaction.travel_context.travel_period_start).toLocaleDateString()} - {new Date(transaction.travel_context.travel_period_end!).toLocaleDateString()}</p>
+                                  )}
+                                  {transaction.travel_context?.reclassification_reason && (
+                                    <p className="text-slate-600 italic pt-1 border-t border-slate-200 mt-1">
+                                      {transaction.travel_context.reclassification_reason}
+                                    </p>
+                                  )}
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <span className="text-slate-400">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="px-1.5 py-1">
+                        <Badge
+                          variant="outline"
+                          className={`${getTierColor(transaction.spending_tier)} text-[9px] px-1 py-0`}
+                        >
+                          {transaction.spending_tier}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="px-1.5 py-1">
+                        <Badge
+                          variant="outline"
+                          className={`${getFrequencyColor(transaction.purchase_frequency)} text-[9px] px-1 py-0`}
+                        >
+                          {transaction.purchase_frequency}
+                        </Badge>
+                      </TableCell>
+                      {transactions.some(t => t.source) && (
+                        <TableCell className="px-1.5 py-1">
+                          {transaction.source ? (
+                            <Badge variant="outline" className={`text-[9px] font-medium px-1 py-0 ${getSourceColor(transaction.source)}`}>
+                              {transaction.source}
+                            </Badge>
+                          ) : (
+                            <span className="text-slate-400">—</span>
+                          )}
+                        </TableCell>
+                      )}
+                      <TableCell className="px-1.5 py-1">
+                        <Badge
+                          variant="outline"
+                          className={`${getConfidenceColor(transaction.confidence)} text-[9px] px-1 py-0`}
                         >
                           {(transaction.confidence * 100).toFixed(0)}%
                         </Badge>
                       </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex gap-1 justify-end">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setSelectedTransaction(transaction)}
-                          >
-                            <Eye className="w-4 h-4 text-slate-700" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => setCorrectionTransaction(transaction)}
-                          >
-                            <Edit className="w-4 h-4 text-slate-700" />
-                          </Button>
-                        </div>
+                      <TableCell className="text-center px-1 py-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-5 w-5 mx-auto"
+                          onClick={() => setSelectedTransaction(transaction)}
+                        >
+                          <Eye className="w-2.5 h-2.5 text-slate-700" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}
@@ -207,18 +259,7 @@ export function ResultsTable({ transactions, currentPhase = "idle", statusMessag
           transaction={selectedTransaction}
           isOpen={!!selectedTransaction}
           onClose={() => setSelectedTransaction(null)}
-        />
-      )}
-
-      {correctionTransaction && (
-        <CorrectionModal
-          transaction={correctionTransaction}
-          isOpen={!!correctionTransaction}
-          onClose={() => setCorrectionTransaction(null)}
-          onSave={(correctedPillar, correctedSubcategory, reason) => {
-            onCorrection(correctionTransaction.transaction_id, correctedPillar, correctedSubcategory, reason);
-            setCorrectionTransaction(null);
-          }}
+          onCorrection={onCorrection}
         />
       )}
     </>

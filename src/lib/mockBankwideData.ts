@@ -11,6 +11,9 @@ import type {
   StateSpendingData,
   SpendingTimingHighlight,
   RevenueOpportunity,
+  GamificationMetrics,
+  ManagedAchievement,
+  PillarDeepDiveCell,
 } from '@/types/bankwide';
 import { PILLAR_COLORS, LIFESTYLE_PILLARS } from '@/lib/sampleData';
 
@@ -1564,4 +1567,566 @@ export function getRevenueOpportunities(filters: BankwideFilters): RevenueOpport
   ];
 
   return opportunities.sort((a, b) => b.totalOpportunityAmount - a.totalOpportunityAmount);
+}
+
+// ─── Wallet Share Intelligence Mock Data ────────────────────────────────
+
+import type { CompetitorOutflow, WalletShareMetricsData, WinBackRecommendation, WalletShareTrendPoint } from '@/types/bankwide';
+
+export function getWalletShareMetrics(): WalletShareMetricsData {
+  return {
+    depositFlightRate: 23.4,
+    annualOutflowVolume: 18_200_000_000,
+    topCompetitor: 'Marcus by Goldman Sachs',
+    winBackOpportunity: 4_100_000_000,
+    depositFlightTrend: 2.1,
+    outflowTrend: 8.3,
+  };
+}
+
+export function getCompetitorOutflows(): CompetitorOutflow[] {
+  return [
+    // Competitor financial institutions
+    { institution: 'Marcus by Goldman Sachs', type: 'neobank', productCategory: 'High-Yield Savings', estimatedOutflow: 4_800_000_000, affectedCustomers: 1_240_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 3_870, riskLevel: 'high' },
+    { institution: 'Ally Bank', type: 'neobank', productCategory: 'High-Yield Savings', estimatedOutflow: 3_200_000_000, affectedCustomers: 980_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 3_265, riskLevel: 'high' },
+    { institution: 'Rocket Mortgage', type: 'fintech', productCategory: 'Mortgage Refinance', estimatedOutflow: 2_900_000_000, affectedCustomers: 145_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 1_680, riskLevel: 'high' },
+    { institution: 'SoFi', type: 'fintech', productCategory: 'Personal Loans', estimatedOutflow: 1_800_000_000, affectedCustomers: 620_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 2_903, riskLevel: 'medium' },
+    { institution: 'Wealthfront', type: 'brokerage', productCategory: 'Investment', estimatedOutflow: 1_600_000_000, affectedCustomers: 340_000, trend: 'growing', detectionMethod: 'ACH routing number', avgTransferAmount: 4_706, riskLevel: 'medium' },
+    { institution: 'Robinhood', type: 'brokerage', productCategory: 'Investment', estimatedOutflow: 1_400_000_000, affectedCustomers: 890_000, trend: 'stable', detectionMethod: 'ACH pattern analysis', avgTransferAmount: 1_573, riskLevel: 'medium' },
+    { institution: 'Apple Card', type: 'fintech', productCategory: 'Credit Cards', estimatedOutflow: 1_300_000_000, affectedCustomers: 760_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_711, riskLevel: 'medium' },
+    { institution: 'Affirm', type: 'bnpl', productCategory: 'BNPL / Lending', estimatedOutflow: 1_200_000_000, affectedCustomers: 1_100_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_091, riskLevel: 'low' },
+    // Rent & Housing
+    { institution: 'RentCafe / Yardi', type: 'rent', productCategory: 'Rent / Housing', estimatedOutflow: 6_200_000_000, affectedCustomers: 2_850_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 1_820, riskLevel: 'high' },
+    { institution: 'Apartments.com (CoStar)', type: 'rent', productCategory: 'Rent / Housing', estimatedOutflow: 3_100_000_000, affectedCustomers: 1_420_000, trend: 'growing', detectionMethod: 'ACH payee analysis', avgTransferAmount: 1_760, riskLevel: 'high' },
+    // Auto Loans
+    { institution: 'Toyota Financial Services', type: 'auto_loan', productCategory: 'Auto Loans', estimatedOutflow: 2_400_000_000, affectedCustomers: 680_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 485, riskLevel: 'medium' },
+    { institution: 'Capital One Auto Finance', type: 'auto_loan', productCategory: 'Auto Loans', estimatedOutflow: 1_900_000_000, affectedCustomers: 540_000, trend: 'stable', detectionMethod: 'ACH routing number', avgTransferAmount: 510, riskLevel: 'medium' },
+    // Student Loans
+    { institution: 'Navient', type: 'student_loan', productCategory: 'Student Loans', estimatedOutflow: 1_700_000_000, affectedCustomers: 920_000, trend: 'declining', detectionMethod: 'Payee name match', avgTransferAmount: 340, riskLevel: 'medium' },
+    { institution: 'Nelnet', type: 'student_loan', productCategory: 'Student Loans', estimatedOutflow: 1_300_000_000, affectedCustomers: 710_000, trend: 'declining', detectionMethod: 'Payee name match', avgTransferAmount: 310, riskLevel: 'low' },
+    // Utilities
+    { institution: 'ConEdison / Duke Energy', type: 'utility', productCategory: 'Utilities', estimatedOutflow: 2_100_000_000, affectedCustomers: 3_200_000, trend: 'stable', detectionMethod: 'Payee name match', avgTransferAmount: 185, riskLevel: 'low' },
+    // Insurance Premiums
+    { institution: 'Geico / Progressive', type: 'insurance', productCategory: 'Insurance Premiums', estimatedOutflow: 1_900_000_000, affectedCustomers: 1_650_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 220, riskLevel: 'low' },
+    { institution: 'State Farm', type: 'insurance', productCategory: 'Insurance Premiums', estimatedOutflow: 1_400_000_000, affectedCustomers: 1_180_000, trend: 'stable', detectionMethod: 'ACH payee analysis', avgTransferAmount: 245, riskLevel: 'low' },
+    // Childcare & Tuition
+    { institution: 'Bright Horizons / KinderCare', type: 'childcare', productCategory: 'Childcare / Tuition', estimatedOutflow: 1_600_000_000, affectedCustomers: 380_000, trend: 'growing', detectionMethod: 'Payee name match', avgTransferAmount: 1_420, riskLevel: 'medium' },
+    // Subscriptions
+    { institution: 'Streaming & SaaS (aggregated)', type: 'subscription', productCategory: 'Subscriptions', estimatedOutflow: 1_100_000_000, affectedCustomers: 4_100_000, trend: 'growing', detectionMethod: 'Recurring pattern detection', avgTransferAmount: 45, riskLevel: 'low' },
+  ];
+}
+
+export function getWinBackRecommendations(): WinBackRecommendation[] {
+  return [
+    {
+      id: 'wb-1',
+      outflowPattern: '1.24M customers sending monthly ACH to Marcus',
+      competitor: 'Marcus by Goldman Sachs',
+      affectedCustomers: 1_240_000,
+      behavioralContext: 'Rate-sensitive savers, avg age 34, 68% detected recent income increase. TEpilot personas show "Financial Optimizer" archetype — they chase yield.',
+      recommendedAction: 'Launch competitive 4.75% APY savings campaign targeting this segment. Bundle with cashback bonus on debit purchases to increase stickiness.',
+      estimatedRecapture: 1_440_000_000,
+      confidence: 87,
+      segmentTags: ['Rate Shoppers', 'Income Growth', 'Age 25-40'],
+      outflowVolume: 4_200_000_000,
+      avgTransferAmount: 3_387,
+      topPersona: 'Financial Optimizer',
+      timeToAction: 'Act within 14 days',
+      channelStrategy: ['In-App', 'Email', 'Push'],
+      successMetric: 'Deposit return within 60 days',
+      trend: 'growing',
+    },
+    {
+      id: 'wb-2',
+      outflowPattern: '145K customers with new mortgage payments to Rocket Mortgage',
+      competitor: 'Rocket Mortgage',
+      affectedCustomers: 145_000,
+      behavioralContext: 'Home buyers aged 28-42 who started home improvement spending 3-6 months before mortgage application. Life event: "Home Purchase" detected by TEpilot.',
+      recommendedAction: 'Deploy pre-emptive mortgage offer to customers showing home-buying signals (Zillow visits, furniture spending spikes) before they reach Rocket.',
+      estimatedRecapture: 870_000_000,
+      confidence: 79,
+      segmentTags: ['Home Buyers', 'Life Event', 'Pre-emptive'],
+      outflowVolume: 2_610_000_000,
+      avgTransferAmount: 18_000,
+      topPersona: 'Aspirational Homeowner',
+      timeToAction: 'Act within 30 days',
+      channelStrategy: ['Branch', 'Email', 'Phone'],
+      successMetric: 'Mortgage application started within 45 days',
+      trend: 'stable',
+    },
+    {
+      id: 'wb-3',
+      outflowPattern: '890K customers funding Robinhood & Wealthfront accounts',
+      competitor: 'Robinhood / Wealthfront',
+      affectedCustomers: 890_000,
+      behavioralContext: 'Young investors (avg age 29), 72% have subscription spending in fintech/tech. TEpilot detects "Wealth Builder" persona with growing discretionary income.',
+      recommendedAction: 'Partner with in-house wealth management to offer zero-fee ETF portfolio with automated investing. Cross-sell from checking to investment account.',
+      estimatedRecapture: 920_000_000,
+      confidence: 74,
+      segmentTags: ['Young Investors', 'Tech-Forward', 'Cross-Sell'],
+      outflowVolume: 1_780_000_000,
+      avgTransferAmount: 2_000,
+      topPersona: 'Wealth Builder',
+      timeToAction: 'Act within 21 days',
+      channelStrategy: ['In-App', 'Push', 'Email'],
+      successMetric: 'Investment account opened within 30 days',
+      trend: 'growing',
+    },
+    {
+      id: 'wb-4',
+      outflowPattern: '1.1M customers with recurring Affirm payments',
+      competitor: 'Affirm',
+      affectedCustomers: 1_100_000,
+      behavioralContext: 'BNPL users skewing younger (avg age 27), heavy e-commerce spenders. TEpilot shows high purchase frequency but lower credit utilization — prefer installments over revolving credit.',
+      recommendedAction: 'Launch card-linked installment plan feature (Pay-in-4) to capture BNPL demand within existing card products. No new app required.',
+      estimatedRecapture: 680_000_000,
+      confidence: 82,
+      segmentTags: ['BNPL Users', 'E-Commerce', 'Gen Z'],
+      outflowVolume: 1_320_000_000,
+      avgTransferAmount: 1_200,
+      topPersona: 'Digital Shopper',
+      timeToAction: 'Act within 7 days',
+      channelStrategy: ['In-App', 'Push'],
+      successMetric: 'Pay-in-4 adoption within 14 days',
+      trend: 'growing',
+    },
+    {
+      id: 'wb-5',
+      outflowPattern: '2.85M customers with monthly rent ACH to property management platforms',
+      competitor: 'RentCafe / Yardi / Apartments.com',
+      affectedCustomers: 2_850_000,
+      behavioralContext: 'Renters aged 22-38, 41% show income growth signals. TEpilot detects "Aspirational Homeowner" persona — high savings rate alongside rent payments suggests mortgage readiness.',
+      recommendedAction: 'Offer rent-reporting to credit bureaus as a free perk. Cross-sell first-time homebuyer mortgage products to renters with 12+ months of on-time ACH rent payments.',
+      estimatedRecapture: 1_860_000_000,
+      confidence: 76,
+      segmentTags: ['Renters', 'Homebuyer Pipeline', 'Credit Building'],
+      outflowVolume: 5_130_000_000,
+      avgTransferAmount: 1_800,
+      topPersona: 'Aspirational Homeowner',
+      timeToAction: 'Act within 60 days',
+      channelStrategy: ['Email', 'In-App', 'Branch'],
+      successMetric: 'Credit report opt-in within 30 days',
+      trend: 'stable',
+    },
+    {
+      id: 'wb-6',
+      outflowPattern: '1.22M customers with auto loan payments to external lenders',
+      competitor: 'Toyota Financial / Capital One Auto',
+      affectedCustomers: 1_220_000,
+      behavioralContext: 'Auto loan holders with avg remaining balance of $18K. TEpilot detects 34% have improved credit scores since origination — prime candidates for refinancing at lower rates.',
+      recommendedAction: 'Launch auto refi campaign targeting customers whose credit profile has improved since original loan. Offer 0.5% rate reduction with automatic payment from checking.',
+      estimatedRecapture: 720_000_000,
+      confidence: 81,
+      segmentTags: ['Auto Refi', 'Credit Improved', 'Rate Reduction'],
+      outflowVolume: 2_196_000_000,
+      avgTransferAmount: 1_800,
+      topPersona: 'Practical Optimizer',
+      timeToAction: 'Act within 30 days',
+      channelStrategy: ['Email', 'Phone', 'Branch'],
+      successMetric: 'Refi application within 45 days',
+      trend: 'declining',
+    },
+    {
+      id: 'wb-7',
+      outflowPattern: '920K customers with student loan payments to Navient/Nelnet',
+      competitor: 'Navient / Nelnet',
+      affectedCustomers: 920_000,
+      behavioralContext: 'Graduates aged 24-35 with avg $32K remaining balance. TEpilot shows "Career Ascender" persona — rising income but debt burden limiting investment and savings growth.',
+      recommendedAction: 'Offer student loan consolidation with employer contribution matching program. Bundle with high-yield savings to redirect freed-up cash flow.',
+      estimatedRecapture: 540_000_000,
+      confidence: 72,
+      segmentTags: ['Student Debt', 'Young Professionals', 'Consolidation'],
+      outflowVolume: 2_944_000_000,
+      avgTransferAmount: 3_200,
+      topPersona: 'Career Ascender',
+      timeToAction: 'Act within 45 days',
+      channelStrategy: ['Email', 'In-App', 'Push'],
+      successMetric: 'Consolidation inquiry within 30 days',
+      trend: 'stable',
+    },
+  ];
+}
+
+export function getWalletShareTrend(): WalletShareTrendPoint[] {
+  return [
+    { month: 'Apr 2025', outflowVolume: 1_320, flightRate: 19.8, winBackRate: 4.2 },
+    { month: 'May 2025', outflowVolume: 1_380, flightRate: 20.1, winBackRate: 4.5 },
+    { month: 'Jun 2025', outflowVolume: 1_410, flightRate: 20.6, winBackRate: 4.3 },
+    { month: 'Jul 2025', outflowVolume: 1_450, flightRate: 21.0, winBackRate: 4.8 },
+    { month: 'Aug 2025', outflowVolume: 1_520, flightRate: 21.4, winBackRate: 5.1 },
+    { month: 'Sep 2025', outflowVolume: 1_490, flightRate: 21.2, winBackRate: 5.4 },
+    { month: 'Oct 2025', outflowVolume: 1_540, flightRate: 21.8, winBackRate: 5.2 },
+    { month: 'Nov 2025', outflowVolume: 1_580, flightRate: 22.1, winBackRate: 5.6 },
+    { month: 'Dec 2025', outflowVolume: 1_620, flightRate: 22.5, winBackRate: 5.9 },
+    { month: 'Jan 2026', outflowVolume: 1_680, flightRate: 22.9, winBackRate: 6.1 },
+    { month: 'Feb 2026', outflowVolume: 1_710, flightRate: 23.1, winBackRate: 6.4 },
+    { month: 'Mar 2026', outflowVolume: 1_750, flightRate: 23.4, winBackRate: 6.7 },
+  ];
+}
+
+export function getOutflowByCategory(): Array<{ category: string; volume: number; color: string }> {
+  return [
+    { category: 'Rent / Housing', volume: 9_300_000_000, color: 'hsl(20, 90%, 55%)' },
+    { category: 'High-Yield Savings', volume: 8_000_000_000, color: 'hsl(217, 91%, 60%)' },
+    { category: 'Auto Loans', volume: 4_300_000_000, color: 'hsl(35, 92%, 50%)' },
+    { category: 'Insurance Premiums', volume: 3_300_000_000, color: 'hsl(48, 96%, 53%)' },
+    { category: 'Student Loans', volume: 3_000_000_000, color: 'hsl(280, 70%, 55%)' },
+    { category: 'Investment / Brokerage', volume: 3_000_000_000, color: 'hsl(262, 83%, 58%)' },
+    { category: 'Mortgage Refinance', volume: 2_900_000_000, color: 'hsl(142, 71%, 45%)' },
+    { category: 'Utilities', volume: 2_100_000_000, color: 'hsl(180, 60%, 45%)' },
+    { category: 'BNPL / Lending', volume: 1_800_000_000, color: 'hsl(340, 82%, 52%)' },
+    { category: 'Childcare / Tuition', volume: 1_600_000_000, color: 'hsl(310, 65%, 50%)' },
+    { category: 'Credit Cards', volume: 1_300_000_000, color: 'hsl(25, 95%, 53%)' },
+    { category: 'Subscriptions', volume: 1_100_000_000, color: 'hsl(200, 75%, 50%)' },
+  ];
+}
+
+export function getGamificationMetrics(): GamificationMetrics {
+  const achievements: ManagedAchievement[] = [
+    { id: "a1", title: "Diversified Spender", description: "Spend in 5+ lifestyle pillars within 90 days", icon: "Trophy", category: "Spending Diversity", targetValue: 5, triggerLogic: "Unique pillar count ≥ 5 in rolling 90d", isActive: true, completionRate: 72, inProgressRate: 18, reward: { type: "points", value: 500, fulfillment: "automatic", monthlyBudgetCap: 200000 } },
+    { id: "a2", title: "Wellness Investor", description: "Spend $200+ on health & wellness in a month", icon: "Heart", category: "Wellness", targetValue: 200, triggerLogic: "Health & Wellness pillar monthly spend ≥ $200", isActive: true, completionRate: 23, inProgressRate: 34, reward: { type: "gift_card", value: 10, merchantName: "Target", fulfillment: "automatic", monthlyBudgetCap: 80000 } },
+    { id: "a3", title: "Travel Planner", description: "Book 2+ trips with advance booking (30+ days out)", icon: "Plane", category: "Travel", targetValue: 2, triggerLogic: "Travel bookings ≥ 2 with lead time > 30 days", isActive: true, completionRate: 14, inProgressRate: 22, reward: { type: "cashback", value: 3, fulfillment: "automatic", monthlyBudgetCap: 150000 } },
+    { id: "a4", title: "Foodie Explorer", description: "Try 10+ unique restaurant merchants in 60 days", icon: "Utensils", category: "Dining", targetValue: 10, triggerLogic: "Unique restaurant MCCs ≥ 10 in 60d", isActive: true, completionRate: 45, inProgressRate: 28, reward: { type: "points", value: 300, fulfillment: "automatic", monthlyBudgetCap: 120000 } },
+    { id: "a5", title: "Home Builder", description: "Spend $500+ on home improvement in a quarter", icon: "Home", category: "Home", targetValue: 500, triggerLogic: "Home & Living pillar quarterly spend ≥ $500", isActive: true, completionRate: 31, inProgressRate: 19, reward: { type: "gift_card", value: 15, merchantName: "Amazon", fulfillment: "manual_approval", monthlyBudgetCap: 60000 } },
+    { id: "a6", title: "Savings Streak", description: "Maintain positive savings flow for 3 consecutive months", icon: "TrendingUp", category: "Savings", targetValue: 3, triggerLogic: "Net savings positive for 3 consecutive months", isActive: true, completionRate: 38, inProgressRate: 25, reward: { type: "points", value: 1000, fulfillment: "automatic", monthlyBudgetCap: 100000 } },
+    { id: "a7", title: "Active Lifestyle", description: "Spend across Sports & Active Living 4+ times/month", icon: "Dumbbell", category: "Engagement", targetValue: 4, triggerLogic: "Sports & Active Living txn count ≥ 4/month", isActive: true, completionRate: 29, inProgressRate: 31, reward: { type: "cashback", value: 2, fulfillment: "automatic", monthlyBudgetCap: 90000 } },
+    { id: "a8", title: "Community Champion", description: "Make 3+ donations or community purchases in a quarter", icon: "Users", category: "Community", targetValue: 3, triggerLogic: "Family & Community pillar txn count ≥ 3/quarter", isActive: false, completionRate: 12, inProgressRate: 15 },
+  ];
+
+  return {
+    enrolledUsers: 28_400_000,
+    enrollmentRate: 63,
+    avgHealthScore: 47,
+    totalUnlocks: 89_200_000,
+    avgUnlocksPerUser: 3.1,
+    engagementLift: 18.7,
+    achievements,
+    recommendations: [
+      { title: "Launch 'Wellness Week' Campaign", description: "Only 23% have Wellness Investor badge. Pair with health merchant deals to boost adoption by an estimated 12%.", impact: "+$4.2M annual revenue", priority: "high" },
+      { title: "Travel Planner Incentive", description: "At 14% completion, add advance-booking cashback incentive. Travel planners have 2.3x higher CLV.", impact: "+$8.1M annual revenue", priority: "high" },
+      { title: "Reactivate Community Champion", description: "Currently paused — 15% in progress. Re-enable with $5 donation match to drive engagement in underserved segment.", impact: "+1.2M engaged users", priority: "medium" },
+    ],
+  };
+}
+
+// ─── Pillar × Region Matrix ───────────────────────────────────────────────
+
+export interface PillarRegionCell {
+  pillar: string;
+  region: string;
+  spend: number;
+  userCount: number;
+  percentOfRegion: number;
+  color: string;
+}
+
+export function getPillarRegionMatrix(_filters: BankwideFilters): PillarRegionCell[] {
+  const regions = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'];
+  const regionSpends = [32_000_000_000, 38_000_000_000, 35_000_000_000, 33_000_000_000, 42_000_000_000];
+  const regionUsers = [8_000_000, 10_000_000, 9_000_000, 8_000_000, 10_000_000];
+
+  // Skew multipliers per pillar per region (relative to average)
+  const skews: Record<string, number[]> = {
+    'Food & Dining':              [1.1, 1.0, 1.05, 0.95, 1.15],
+    'Travel & Exploration':       [0.9, 1.1, 0.7,  0.85, 1.4],
+    'Style & Beauty':             [1.3, 0.9, 0.85, 0.95, 1.1],
+    'Home & Living':              [0.85, 1.15, 1.2, 1.1, 0.8],
+    'Entertainment & Culture':    [1.2, 0.95, 0.9, 1.0, 1.15],
+    'Health & Wellness':          [1.0, 0.9, 0.95, 1.1, 1.3],
+    'Financial & Aspirational':   [1.25, 0.85, 0.9, 0.95, 1.15],
+    'Family & Community':         [0.9, 1.2, 1.15, 1.1, 0.8],
+    'Sports & Active Living':     [0.85, 1.0, 1.2, 1.15, 1.1],
+    'Technology & Digital Life':   [1.15, 0.85, 0.9, 0.95, 1.35],
+    'Pets':                       [0.9, 1.1, 1.15, 1.05, 0.9],
+    'Miscellaneous & Unclassified': [1.0, 1.0, 1.0, 1.0, 1.0],
+  };
+
+  // Base pillar share of total spend
+  const pillarShares: Record<string, number> = {
+    'Food & Dining': 0.16,
+    'Travel & Exploration': 0.14,
+    'Style & Beauty': 0.13,
+    'Home & Living': 0.09,
+    'Entertainment & Culture': 0.10,
+    'Health & Wellness': 0.06,
+    'Financial & Aspirational': 0.04,
+    'Family & Community': 0.05,
+    'Sports & Active Living': 0.12,
+    'Technology & Digital Life': 0.05,
+    'Pets': 0.04,
+    'Miscellaneous & Unclassified': 0.02,
+  };
+
+  const result: PillarRegionCell[] = [];
+  for (const pillar of PILLARS) {
+    const baseShare = pillarShares[pillar] || 0.05;
+    const pillarSkews = skews[pillar] || [1, 1, 1, 1, 1];
+    for (let r = 0; r < regions.length; r++) {
+      const spend = Math.round(regionSpends[r] * baseShare * pillarSkews[r]);
+      const userCount = Math.round(regionUsers[r] * baseShare * pillarSkews[r] * 0.6);
+      const percentOfRegion = +((spend / regionSpends[r]) * 100).toFixed(1);
+      result.push({
+        pillar,
+        region: regions[r],
+        spend,
+        userCount,
+        percentOfRegion,
+        color: PILLAR_COLORS[pillar] || '#64748b',
+      });
+    }
+  }
+  return result;
+}
+
+// ─── Pillar × Age Matrix ──────────────────────────────────────────────────
+
+export interface PillarAgeCell {
+  pillar: string;
+  ageGroup: string;
+  spend: number;
+  spendIndex: number; // 100 = average
+  color: string;
+}
+
+export function getPillarAgeMatrix(_filters: BankwideFilters): PillarAgeCell[] {
+  const ageGroups = ['18-24', '25-34', '35-44', '45-54', '55+'];
+  const ageBaseSpend = [10_800_000_000, 46_800_000_000, 51_200_000_000, 51_000_000_000, 33_000_000_000];
+
+  // Index multipliers: which pillars over/under-index by age (100 = avg)
+  const indices: Record<string, number[]> = {
+    'Food & Dining':              [130, 120, 100, 90, 85],
+    'Travel & Exploration':       [60,  90,  110, 135, 140],
+    'Style & Beauty':             [155, 130, 95,  80, 70],
+    'Home & Living':              [40,  80,  130, 120, 110],
+    'Entertainment & Culture':    [145, 125, 95,  80, 65],
+    'Health & Wellness':          [70,  85,  100, 115, 145],
+    'Financial & Aspirational':   [45,  80,  110, 130, 135],
+    'Family & Community':         [50,  90,  140, 120, 95],
+    'Sports & Active Living':     [120, 130, 105, 85, 65],
+    'Technology & Digital Life':   [150, 140, 100, 70, 50],
+    'Pets':                       [80,  100, 120, 110, 95],
+    'Miscellaneous & Unclassified': [100, 100, 100, 100, 100],
+  };
+
+  const pillarShares: Record<string, number> = {
+    'Food & Dining': 0.16, 'Travel & Exploration': 0.14, 'Style & Beauty': 0.13,
+    'Home & Living': 0.09, 'Entertainment & Culture': 0.10, 'Health & Wellness': 0.06,
+    'Financial & Aspirational': 0.04, 'Family & Community': 0.05,
+    'Sports & Active Living': 0.12, 'Technology & Digital Life': 0.05,
+    'Pets': 0.04, 'Miscellaneous & Unclassified': 0.02,
+  };
+
+  const result: PillarAgeCell[] = [];
+  for (const pillar of PILLARS) {
+    const baseShare = pillarShares[pillar] || 0.05;
+    const pillarIndices = indices[pillar] || [100, 100, 100, 100, 100];
+    for (let a = 0; a < ageGroups.length; a++) {
+      const idx = pillarIndices[a];
+      const spend = Math.round(ageBaseSpend[a] * baseShare * (idx / 100));
+      result.push({
+        pillar,
+        ageGroup: ageGroups[a],
+        spend,
+        spendIndex: idx,
+        color: PILLAR_COLORS[pillar] || '#64748b',
+      });
+    }
+  }
+  return result;
+}
+
+// ─── Pillar Timing / Seasonality ──────────────────────────────────────────
+
+export interface PillarTimingEntry {
+  pillar: string;
+  monthly: number[]; // 12 values (Jan-Dec), normalized 0-100
+  peakQuarter: string;
+  deploymentTip: string;
+  color: string;
+}
+
+export function getPillarTimingData(): PillarTimingEntry[] {
+  return [
+    { pillar: 'Food & Dining', monthly: [70, 65, 72, 78, 82, 85, 88, 90, 80, 75, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Activate holiday dining deals in Oct for seasonal ramp', color: PILLAR_COLORS['Food & Dining'] },
+    { pillar: 'Travel & Exploration', monthly: [40, 45, 60, 75, 85, 100, 95, 90, 70, 50, 45, 55], peakQuarter: 'Q2-Q3', deploymentTip: 'Launch travel promotions by April to capture summer bookings', color: PILLAR_COLORS['Travel & Exploration'] },
+    { pillar: 'Style & Beauty', monthly: [65, 60, 75, 80, 85, 78, 72, 88, 92, 85, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Back-to-school Aug push + holiday gifting Nov-Dec', color: PILLAR_COLORS['Style & Beauty'] },
+    { pillar: 'Home & Living', monthly: [55, 60, 80, 90, 95, 100, 85, 80, 75, 70, 65, 60], peakQuarter: 'Q2', deploymentTip: 'Spring home improvement surge — activate deals by March', color: PILLAR_COLORS['Home & Living'] },
+    { pillar: 'Entertainment & Culture', monthly: [60, 55, 65, 70, 80, 90, 95, 85, 75, 80, 90, 100], peakQuarter: 'Q4', deploymentTip: 'Summer concerts + holiday entertainment peak — dual activation', color: PILLAR_COLORS['Entertainment & Culture'] },
+    { pillar: 'Health & Wellness', monthly: [100, 95, 85, 75, 70, 72, 68, 65, 80, 78, 70, 60], peakQuarter: 'Q1', deploymentTip: 'New Year resolution surge — activate wellness deals in Jan', color: PILLAR_COLORS['Health & Wellness'] },
+    { pillar: 'Financial & Aspirational', monthly: [90, 85, 95, 100, 60, 55, 50, 55, 70, 80, 75, 85], peakQuarter: 'Q1', deploymentTip: 'Tax season Q1 drives financial product interest', color: PILLAR_COLORS['Financial & Aspirational'] },
+    { pillar: 'Family & Community', monthly: [55, 60, 65, 70, 85, 90, 80, 100, 95, 75, 70, 80], peakQuarter: 'Q3', deploymentTip: 'Back-to-school Aug peak — family spending surge', color: PILLAR_COLORS['Family & Community'] },
+    { pillar: 'Sports & Active Living', monthly: [85, 80, 90, 95, 100, 95, 90, 85, 92, 88, 70, 60], peakQuarter: 'Q2', deploymentTip: 'Spring/summer sports seasons — activate by March', color: PILLAR_COLORS['Sports & Active Living'] },
+    { pillar: 'Technology & Digital Life', monthly: [70, 65, 68, 72, 75, 78, 80, 82, 90, 95, 100, 98], peakQuarter: 'Q4', deploymentTip: 'Product launches Sept-Nov drive tech spending peak', color: PILLAR_COLORS['Technology & Digital Life'] },
+    { pillar: 'Pets', monthly: [80, 75, 78, 82, 88, 90, 85, 80, 85, 90, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Holiday pet gifting + consistent year-round spend', color: PILLAR_COLORS['Pets'] },
+    { pillar: 'Miscellaneous & Unclassified', monthly: [80, 80, 85, 85, 90, 90, 85, 85, 90, 90, 95, 100], peakQuarter: 'Q4', deploymentTip: 'Seasonal general spending follows retail calendar', color: PILLAR_COLORS['Miscellaneous & Unclassified'] },
+  ];
+}
+
+// ─── Pillar Deep Dive — Age × Region Heatmap ──────────────────────────────
+
+const AGE_GROUPS = ['18-24', '25-34', '35-44', '45-54', '55+'] as const;
+const GEN_LABELS: Record<string, string> = {
+  '18-24': 'Gen-Z',
+  '25-34': 'Millennials',
+  '35-44': 'Gen-X',
+  '45-54': 'Boomers I',
+  '55+': 'Boomers II',
+};
+const REGIONS_DD = ['Northeast', 'Southeast', 'Midwest', 'Southwest', 'West'] as const;
+
+// Curated subcategory insights per pillar → ageGroup → region
+const SUBCATEGORY_MAP: Record<string, Record<string, Record<string, { sub: string; growth: number }>>> = {
+  'Sports & Active Living': {
+    '18-24': { Northeast: { sub: 'Rock Climbing', growth: 28 }, Southeast: { sub: 'Surfing', growth: 22 }, Midwest: { sub: 'CrossFit', growth: 19 }, Southwest: { sub: 'Pickleball', growth: 34 }, West: { sub: 'Skateboarding', growth: 25 } },
+    '25-34': { Northeast: { sub: 'Golf', growth: 12 }, Southeast: { sub: 'Tennis', growth: 15 }, Midwest: { sub: 'Cycling', growth: 20 }, Southwest: { sub: 'Trail Running', growth: 18 }, West: { sub: 'Surfing', growth: 16 } },
+    '35-44': { Northeast: { sub: 'Golf', growth: 8 }, Southeast: { sub: 'Boating', growth: 14 }, Midwest: { sub: 'Running', growth: 18 }, Southwest: { sub: 'Mountain Biking', growth: 21 }, West: { sub: 'Skiing', growth: 11 } },
+    '45-54': { Northeast: { sub: 'Tennis', growth: 6 }, Southeast: { sub: 'Golf', growth: 9 }, Midwest: { sub: 'Fishing', growth: 7 }, Southwest: { sub: 'Golf', growth: 10 }, West: { sub: 'Hiking', growth: 15 } },
+    '55+': { Northeast: { sub: 'Golf', growth: 4 }, Southeast: { sub: 'Fishing', growth: 5 }, Midwest: { sub: 'Bowling', growth: 3 }, Southwest: { sub: 'Walking Clubs', growth: 8 }, West: { sub: 'Hiking', growth: 22 } },
+  },
+  'Food & Dining': {
+    '18-24': { Northeast: { sub: 'Ramen Shops', growth: 28 }, Southeast: { sub: 'Boba Tea', growth: 32 }, Midwest: { sub: 'Food Trucks', growth: 24 }, Southwest: { sub: 'Taco Joints', growth: 18 }, West: { sub: 'Poke Bowls', growth: 30 } },
+    '25-34': { Northeast: { sub: 'Farm-to-Table', growth: 15 }, Southeast: { sub: 'Craft BBQ', growth: 12 }, Midwest: { sub: 'Brewpubs', growth: 17 }, Southwest: { sub: 'Mexican Fine Dining', growth: 20 }, West: { sub: 'Sushi', growth: 14 } },
+    '35-44': { Northeast: { sub: 'Wine Bars', growth: 10 }, Southeast: { sub: 'Steakhouses', growth: 8 }, Midwest: { sub: 'Supper Clubs', growth: 6 }, Southwest: { sub: 'Tex-Mex', growth: 9 }, West: { sub: 'Organic Cafes', growth: 13 } },
+    '45-54': { Northeast: { sub: 'Fine Dining', growth: 5 }, Southeast: { sub: 'Seafood', growth: 7 }, Midwest: { sub: 'Steakhouses', growth: 4 }, Southwest: { sub: 'Southwestern', growth: 6 }, West: { sub: 'Wine Country', growth: 11 } },
+    '55+': { Northeast: { sub: 'Bakeries', growth: 3 }, Southeast: { sub: 'Southern Comfort', growth: 4 }, Midwest: { sub: 'Diners', growth: 2 }, Southwest: { sub: 'Comfort Food', growth: 5 }, West: { sub: 'Farmers Markets', growth: 8 } },
+  },
+  'Travel & Exploration': {
+    '18-24': { Northeast: { sub: 'Hostels', growth: 35 }, Southeast: { sub: 'Beach Resorts', growth: 22 }, Midwest: { sub: 'Road Trips', growth: 28 }, Southwest: { sub: 'National Parks', growth: 31 }, West: { sub: 'Backpacking', growth: 26 } },
+    '25-34': { Northeast: { sub: 'Boutique Hotels', growth: 18 }, Southeast: { sub: 'Cruises', growth: 14 }, Midwest: { sub: 'Lake Cabins', growth: 16 }, Southwest: { sub: 'Glamping', growth: 24 }, West: { sub: 'International', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Family Resorts', growth: 12 }, Southeast: { sub: 'Disney', growth: 10 }, Midwest: { sub: 'Waterpark Resorts', growth: 15 }, Southwest: { sub: 'Dude Ranches', growth: 19 }, West: { sub: 'Hawaii', growth: 11 } },
+    '45-54': { Northeast: { sub: 'European Tours', growth: 8 }, Southeast: { sub: 'Caribbean', growth: 9 }, Midwest: { sub: 'National Parks', growth: 7 }, Southwest: { sub: 'Mexico Resorts', growth: 10 }, West: { sub: 'Alaska Cruises', growth: 13 } },
+    '55+': { Northeast: { sub: 'River Cruises', growth: 6 }, Southeast: { sub: 'Gulf Coast', growth: 4 }, Midwest: { sub: 'Bus Tours', growth: 3 }, Southwest: { sub: 'RV Travel', growth: 9 }, West: { sub: 'Wine Tours', growth: 7 } },
+  },
+  'Health & Wellness': {
+    '18-24': { Northeast: { sub: 'Pilates', growth: 32 }, Southeast: { sub: 'Yoga Studios', growth: 25 }, Midwest: { sub: 'Gym Memberships', growth: 18 }, Southwest: { sub: 'Hot Yoga', growth: 28 }, West: { sub: 'Meditation Apps', growth: 35 } },
+    '25-34': { Northeast: { sub: 'Boutique Fitness', growth: 20 }, Southeast: { sub: 'Spin Classes', growth: 16 }, Midwest: { sub: 'CrossFit', growth: 14 }, Southwest: { sub: 'Wellness Retreats', growth: 22 }, West: { sub: 'Acupuncture', growth: 18 } },
+    '35-44': { Northeast: { sub: 'Personal Training', growth: 10 }, Southeast: { sub: 'Spa Days', growth: 12 }, Midwest: { sub: 'Chiropractic', growth: 8 }, Southwest: { sub: 'Functional Medicine', growth: 15 }, West: { sub: 'Naturopathy', growth: 13 } },
+    '45-54': { Northeast: { sub: 'Physical Therapy', growth: 6 }, Southeast: { sub: 'Golf Fitness', growth: 7 }, Midwest: { sub: 'Swimming', growth: 5 }, Southwest: { sub: 'Holistic Health', growth: 9 }, West: { sub: 'Supplements', growth: 11 } },
+    '55+': { Northeast: { sub: 'Senior Yoga', growth: 4 }, Southeast: { sub: 'Water Aerobics', growth: 5 }, Midwest: { sub: 'Walking Groups', growth: 3 }, Southwest: { sub: 'Tai Chi', growth: 7 }, West: { sub: 'Senior Fitness', growth: 6 } },
+  },
+  'Style & Beauty': {
+    '18-24': { Northeast: { sub: 'Thrift Stores', growth: 30 }, Southeast: { sub: 'Fast Fashion', growth: 22 }, Midwest: { sub: 'Sneakers', growth: 26 }, Southwest: { sub: 'Streetwear', growth: 28 }, West: { sub: 'Vintage', growth: 32 } },
+    '25-34': { Northeast: { sub: 'Designer Brands', growth: 14 }, Southeast: { sub: 'Athleisure', growth: 18 }, Midwest: { sub: 'Workwear', growth: 12 }, Southwest: { sub: 'Western Wear', growth: 16 }, West: { sub: 'Sustainable Fashion', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Luxury Bags', growth: 8 }, Southeast: { sub: 'Jewelry', growth: 10 }, Midwest: { sub: 'Department Stores', growth: 5 }, Southwest: { sub: 'Boutiques', growth: 11 }, West: { sub: 'Skincare', growth: 15 } },
+    '45-54': { Northeast: { sub: 'Fine Jewelry', growth: 6 }, Southeast: { sub: 'Cosmetics', growth: 7 }, Midwest: { sub: 'Classic Brands', growth: 4 }, Southwest: { sub: 'Spas', growth: 8 }, West: { sub: 'Anti-Aging', growth: 12 } },
+    '55+': { Northeast: { sub: 'Classic Fashion', growth: 3 }, Southeast: { sub: 'Beauty Salons', growth: 4 }, Midwest: { sub: 'Catalog Shopping', growth: 2 }, Southwest: { sub: 'Comfort Brands', growth: 5 }, West: { sub: 'Dermatology', growth: 6 } },
+  },
+  'Home & Living': {
+    '18-24': { Northeast: { sub: 'IKEA', growth: 24 }, Southeast: { sub: 'Apartment Decor', growth: 20 }, Midwest: { sub: 'Thrift Furniture', growth: 22 }, Southwest: { sub: 'Smart Home', growth: 28 }, West: { sub: 'Plant Shops', growth: 30 } },
+    '25-34': { Northeast: { sub: 'Home Renovation', growth: 16 }, Southeast: { sub: 'Patio Furniture', growth: 14 }, Midwest: { sub: 'Hardware Stores', growth: 12 }, Southwest: { sub: 'Solar Panels', growth: 22 }, West: { sub: 'Interior Design', growth: 18 } },
+    '35-44': { Northeast: { sub: 'Kitchen Remodel', growth: 10 }, Southeast: { sub: 'Pool Install', growth: 12 }, Midwest: { sub: 'Landscaping', growth: 8 }, Southwest: { sub: 'Outdoor Living', growth: 15 }, West: { sub: 'Smart Home', growth: 14 } },
+    '45-54': { Northeast: { sub: 'Custom Furniture', growth: 6 }, Southeast: { sub: 'Deck Building', growth: 7 }, Midwest: { sub: 'Garage Systems', growth: 5 }, Southwest: { sub: 'Xeriscape', growth: 9 }, West: { sub: 'Wine Cellars', growth: 8 } },
+    '55+': { Northeast: { sub: 'Downsizing', growth: 4 }, Southeast: { sub: 'Garden Centers', growth: 5 }, Midwest: { sub: 'Home Security', growth: 3 }, Southwest: { sub: 'Retirement Homes', growth: 7 }, West: { sub: 'Accessibility', growth: 6 } },
+  },
+  'Entertainment & Culture': {
+    '18-24': { Northeast: { sub: 'Concert Tickets', growth: 30 }, Southeast: { sub: 'Music Festivals', growth: 26 }, Midwest: { sub: 'Gaming', growth: 24 }, Southwest: { sub: 'EDM Events', growth: 28 }, West: { sub: 'Streaming', growth: 22 } },
+    '25-34': { Northeast: { sub: 'Broadway', growth: 14 }, Southeast: { sub: 'Live Music', growth: 16 }, Midwest: { sub: 'Sports Events', growth: 18 }, Southwest: { sub: 'Comedy Shows', growth: 15 }, West: { sub: 'Film Festivals', growth: 12 } },
+    '35-44': { Northeast: { sub: 'Museums', growth: 8 }, Southeast: { sub: 'Theme Parks', growth: 10 }, Midwest: { sub: 'Family Shows', growth: 7 }, Southwest: { sub: 'Art Galleries', growth: 11 }, West: { sub: 'Wine Events', growth: 9 } },
+    '45-54': { Northeast: { sub: 'Opera', growth: 5 }, Southeast: { sub: 'Jazz Clubs', growth: 6 }, Midwest: { sub: 'Symphony', growth: 4 }, Southwest: { sub: 'Art Shows', growth: 7 }, West: { sub: 'Theater', growth: 8 } },
+    '55+': { Northeast: { sub: 'Classical Music', growth: 3 }, Southeast: { sub: 'Book Clubs', growth: 4 }, Midwest: { sub: 'Community Theater', growth: 2 }, Southwest: { sub: 'Cultural Tours', growth: 5 }, West: { sub: 'Art Classes', growth: 6 } },
+  },
+  'Technology & Digital Life': {
+    '18-24': { Northeast: { sub: 'Gaming PCs', growth: 28 }, Southeast: { sub: 'VR Headsets', growth: 32 }, Midwest: { sub: 'Streaming Gear', growth: 24 }, Southwest: { sub: 'Drones', growth: 26 }, West: { sub: 'AI Tools', growth: 38 } },
+    '25-34': { Northeast: { sub: 'Smart Watches', growth: 16 }, Southeast: { sub: 'Home Automation', growth: 18 }, Midwest: { sub: 'Laptops', growth: 12 }, Southwest: { sub: 'Electric Vehicles', growth: 22 }, West: { sub: 'SaaS Tools', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Home Office', growth: 10 }, Southeast: { sub: 'Security Cams', growth: 12 }, Midwest: { sub: 'Networking', growth: 8 }, Southwest: { sub: 'Solar Tech', growth: 14 }, West: { sub: 'Apple Products', growth: 11 } },
+    '45-54': { Northeast: { sub: 'Tablets', growth: 5 }, Southeast: { sub: 'Smart TVs', growth: 7 }, Midwest: { sub: 'Printers', growth: 4 }, Southwest: { sub: 'Smart Thermostats', growth: 9 }, West: { sub: 'Phones', growth: 6 } },
+    '55+': { Northeast: { sub: 'E-Readers', growth: 3 }, Southeast: { sub: 'Medical Devices', growth: 5 }, Midwest: { sub: 'Basic Phones', growth: 2 }, Southwest: { sub: 'Voice Assistants', growth: 7 }, West: { sub: 'Health Trackers', growth: 8 } },
+  },
+  'Family & Community': {
+    '18-24': { Northeast: { sub: 'Volunteer Orgs', growth: 20 }, Southeast: { sub: 'Church Groups', growth: 15 }, Midwest: { sub: 'Youth Sports', growth: 18 }, Southwest: { sub: 'Community Gardens', growth: 22 }, West: { sub: 'Co-ops', growth: 24 } },
+    '25-34': { Northeast: { sub: 'Daycare', growth: 16 }, Southeast: { sub: 'Preschool', growth: 14 }, Midwest: { sub: 'Family Outings', growth: 12 }, Southwest: { sub: 'Kids Activities', growth: 18 }, West: { sub: 'Nannies', growth: 20 } },
+    '35-44': { Northeast: { sub: 'Private School', growth: 10 }, Southeast: { sub: 'Tutoring', growth: 12 }, Midwest: { sub: 'Sports Leagues', growth: 8 }, Southwest: { sub: 'Summer Camps', growth: 14 }, West: { sub: 'Music Lessons', growth: 11 } },
+    '45-54': { Northeast: { sub: 'College Prep', growth: 6 }, Southeast: { sub: 'Family Vacations', growth: 7 }, Midwest: { sub: 'Community Events', growth: 5 }, Southwest: { sub: 'Family Reunions', growth: 8 }, West: { sub: 'College Tuition', growth: 9 } },
+    '55+': { Northeast: { sub: 'Grandkids Gifts', growth: 4 }, Southeast: { sub: 'Church Donations', growth: 5 }, Midwest: { sub: 'Community Center', growth: 3 }, Southwest: { sub: 'Senior Groups', growth: 6 }, West: { sub: 'Estate Planning', growth: 7 } },
+  },
+  'Financial & Aspirational': {
+    '18-24': { Northeast: { sub: 'Crypto', growth: 35 }, Southeast: { sub: 'Investing Apps', growth: 28 }, Midwest: { sub: 'Savings Apps', growth: 22 }, Southwest: { sub: 'Side Hustles', growth: 30 }, West: { sub: 'Stock Trading', growth: 32 } },
+    '25-34': { Northeast: { sub: 'Index Funds', growth: 18 }, Southeast: { sub: 'Real Estate', growth: 16 }, Midwest: { sub: '401k', growth: 14 }, Southwest: { sub: 'REITs', growth: 20 }, West: { sub: 'Venture', growth: 22 } },
+    '35-44': { Northeast: { sub: 'Tax Planning', growth: 10 }, Southeast: { sub: 'Insurance', growth: 8 }, Midwest: { sub: 'College Savings', growth: 12 }, Southwest: { sub: 'Property', growth: 14 }, West: { sub: 'Advisory', growth: 11 } },
+    '45-54': { Northeast: { sub: 'Retirement Planning', growth: 6 }, Southeast: { sub: 'Annuities', growth: 5 }, Midwest: { sub: 'Estate Planning', growth: 7 }, Southwest: { sub: 'Downsizing', growth: 8 }, West: { sub: 'Wealth Mgmt', growth: 9 } },
+    '55+': { Northeast: { sub: 'Fixed Income', growth: 3 }, Southeast: { sub: 'Medicare', growth: 4 }, Midwest: { sub: 'Social Security', growth: 2 }, Southwest: { sub: 'Pension', growth: 5 }, West: { sub: 'Trust Services', growth: 6 } },
+  },
+  'Pets': {
+    '18-24': { Northeast: { sub: 'Dog Adoption', growth: 28 }, Southeast: { sub: 'Pet Costumes', growth: 22 }, Midwest: { sub: 'Cat Cafes', growth: 24 }, Southwest: { sub: 'Reptile Supplies', growth: 18 }, West: { sub: 'Pet Insurance', growth: 30 } },
+    '25-34': { Northeast: { sub: 'Vet Care', growth: 16 }, Southeast: { sub: 'Dog Parks', growth: 14 }, Midwest: { sub: 'Pet Food', growth: 12 }, Southwest: { sub: 'Pet Tech', growth: 20 }, West: { sub: 'Premium Food', growth: 18 } },
+    '35-44': { Northeast: { sub: 'Pet Sitting', growth: 10 }, Southeast: { sub: 'Boarding', growth: 8 }, Midwest: { sub: 'Grooming', growth: 7 }, Southwest: { sub: 'Dog Training', growth: 12 }, West: { sub: 'Holistic Pet Care', growth: 14 } },
+    '45-54': { Northeast: { sub: 'Vet Specialists', growth: 5 }, Southeast: { sub: 'Pet Pharmacy', growth: 6 }, Midwest: { sub: 'Pet Supplies', growth: 4 }, Southwest: { sub: 'Horse Care', growth: 8 }, West: { sub: 'Pet Wellness', growth: 7 } },
+    '55+': { Northeast: { sub: 'Companion Pets', growth: 3 }, Southeast: { sub: 'Bird Supplies', growth: 4 }, Midwest: { sub: 'Pet Meds', growth: 2 }, Southwest: { sub: 'Pet Grooming', growth: 5 }, West: { sub: 'Senior Pet Care', growth: 6 } },
+  },
+  'Miscellaneous & Unclassified': {
+    '18-24': { Northeast: { sub: 'Subscriptions', growth: 20 }, Southeast: { sub: 'Gig Economy', growth: 18 }, Midwest: { sub: 'Online Shopping', growth: 16 }, Southwest: { sub: 'Marketplace Apps', growth: 22 }, West: { sub: 'Digital Services', growth: 24 } },
+    '25-34': { Northeast: { sub: 'Delivery Services', growth: 14 }, Southeast: { sub: 'Moving Services', growth: 12 }, Midwest: { sub: 'Storage Units', growth: 10 }, Southwest: { sub: 'Auto Services', growth: 15 }, West: { sub: 'Ride Shares', growth: 16 } },
+    '35-44': { Northeast: { sub: 'Dry Cleaning', growth: 6 }, Southeast: { sub: 'Lawn Care', growth: 8 }, Midwest: { sub: 'Car Wash', growth: 5 }, Southwest: { sub: 'Home Services', growth: 10 }, West: { sub: 'Cleaning Services', growth: 9 } },
+    '45-54': { Northeast: { sub: 'Professional Services', growth: 4 }, Southeast: { sub: 'Auto Repair', growth: 5 }, Midwest: { sub: 'Handyman', growth: 3 }, Southwest: { sub: 'Pest Control', growth: 6 }, West: { sub: 'Landscaping', growth: 7 } },
+    '55+': { Northeast: { sub: 'Tax Prep', growth: 2 }, Southeast: { sub: 'Legal Services', growth: 3 }, Midwest: { sub: 'Postal Services', growth: 1 }, Southwest: { sub: 'Notary', growth: 4 }, West: { sub: 'Accounting', growth: 5 } },
+  },
+};
+
+// Base spend amounts by age group (younger = lower base, older = higher)
+const AGE_BASE_SPEND: Record<string, number> = {
+  '18-24': 1_800_000,
+  '25-34': 4_200_000,
+  '35-44': 5_600_000,
+  '45-54': 4_800_000,
+  '55+': 3_200_000,
+};
+
+// Region multipliers
+const REGION_MULT: Record<string, number> = {
+  Northeast: 1.15,
+  Southeast: 0.95,
+  Midwest: 0.85,
+  Southwest: 1.05,
+  West: 1.20,
+};
+
+// Spend index variation seeds per pillar (deterministic)
+const PILLAR_INDEX_SEEDS: Record<string, number[][]> = {};
+function seedIndex(pillar: string): number[][] {
+  if (PILLAR_INDEX_SEEDS[pillar]) return PILLAR_INDEX_SEEDS[pillar];
+  let h = 0;
+  for (let i = 0; i < pillar.length; i++) h = (h * 31 + pillar.charCodeAt(i)) | 0;
+  const matrix: number[][] = [];
+  for (let a = 0; a < 5; a++) {
+    const row: number[] = [];
+    for (let r = 0; r < 5; r++) {
+      h = (h * 1103515245 + 12345) & 0x7fffffff;
+      row.push(70 + (h % 80)); // 70-149
+    }
+    matrix.push(row);
+  }
+  PILLAR_INDEX_SEEDS[pillar] = matrix;
+  return matrix;
+}
+
+export function getPillarDeepDive(pillar: string): PillarDeepDiveCell[] {
+  const color = PILLAR_COLORS[pillar] || '#64748b';
+  const indexMatrix = seedIndex(pillar);
+  const subMap = SUBCATEGORY_MAP[pillar] || SUBCATEGORY_MAP['Miscellaneous & Unclassified'];
+  const cells: PillarDeepDiveCell[] = [];
+
+  AGE_GROUPS.forEach((age, ai) => {
+    REGIONS_DD.forEach((region, ri) => {
+      const idx = indexMatrix[ai][ri];
+      const baseSpend = AGE_BASE_SPEND[age] * REGION_MULT[region];
+      const spend = Math.round(baseSpend * (idx / 100));
+      const subEntry = subMap[age]?.[region] || { sub: 'General', growth: 5 };
+      const yoy = Math.round((idx - 100) * 0.3 + subEntry.growth * 0.4);
+      
+      cells.push({
+        ageGroup: age,
+        generationLabel: GEN_LABELS[age],
+        region,
+        totalSpend: spend,
+        spendIndex: idx,
+        yoyGrowth: yoy,
+        topSubcategory: subEntry.sub,
+        subcategoryGrowth: subEntry.growth,
+        userCount: Math.round(spend / 42),
+        color,
+      });
+    });
+  });
+
+  return cells;
 }

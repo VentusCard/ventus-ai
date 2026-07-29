@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,6 +13,7 @@ import { Search, ChevronLeft, ChevronRight, Package, Users, TrendingUp, Sparkles
 import { AvailableDealCard } from "./AvailableDealCard";
 import { getAvailableDeals, getDealCategories, DEAL_CATEGORIES, type DealCategory } from "@/lib/availableDealsData";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
+import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 
 const DEALS_PER_PAGE = 40;
 
@@ -46,12 +48,16 @@ export function AvailableDealsGrid() {
       }
       return deals;
     }
+    if (isSearching) {
+      // AI search in progress -- show all deals, don't text-filter
+      return getAvailableDeals({ category: selectedCategory, search: "", sortBy });
+    }
     return getAvailableDeals({
       category: selectedCategory,
       search: searchQuery,
       sortBy,
     });
-  }, [isSemanticActive, matchingDealIds, allDeals, selectedCategory, searchQuery, sortBy]);
+  }, [isSemanticActive, matchingDealIds, allDeals, selectedCategory, searchQuery, sortBy, isSearching]);
 
   const totalPages = Math.ceil(filteredDeals.length / DEALS_PER_PAGE);
   const paginatedDeals = useMemo(() => {
@@ -80,16 +86,17 @@ export function AvailableDealsGrid() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Available Deals Library</h1>
-          <p className="text-slate-500 text-sm mt-1">
-            {filteredDeals.length} merchant deals across {Object.keys(DEAL_CATEGORIES).length} categories
-          </p>
-        </div>
-        
+      <TabHeader
+        icon={<Package className="w-4 h-4" />}
+        title="Deal Management"
+        subtitle={`${filteredDeals.length} merchant deals across ${Object.keys(DEAL_CATEGORIES).length} categories`}
+        howItWorks="Curated merchant deal library scored by customer affinity, category fit, and activation potential using Ventus behavioral data."
+        whyItMatters="Enables rewards teams to quickly evaluate, activate, and manage deals with data-backed prioritization."
+      />
+      {/* Stats + Search + Sort */}
+      <div className="flex flex-wrap items-center gap-3">
         {/* Stats */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 px-3 py-2 bg-slate-50 rounded-lg">
             <Package className="w-4 h-4 text-slate-400" />
             <span className="text-sm font-medium text-slate-700">{filteredDeals.length} Deals</span>
@@ -105,10 +112,11 @@ export function AvailableDealsGrid() {
             <span className="text-sm font-medium text-slate-700">{stats.avgRedemption}% Avg Rate</span>
           </div>
         </div>
-      </div>
 
-      {/* Search and Sort */}
-      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="flex-1 min-w-[20px]" />
+
+        {/* Search and Sort */}
+        <div className="flex flex-col sm:flex-row gap-3 flex-1 sm:flex-none sm:min-w-[640px]">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <Input
@@ -140,6 +148,7 @@ export function AvailableDealsGrid() {
           </SelectContent>
         </Select>
       </div>
+      </div>
 
       {/* Semantic Search Reasoning */}
       {isSemanticActive && searchReasoning && (
@@ -150,7 +159,7 @@ export function AvailableDealsGrid() {
       )}
 
       {/* Category Filter Pills */}
-      <div className="flex flex-wrap gap-2">
+      <div className="flex gap-2 overflow-x-auto pb-1">
         {categories.map((category) => {
           const isSelected = selectedCategory === category;
           const categoryConfig = category !== 'All' ? DEAL_CATEGORIES[category as DealCategory] : null;
@@ -161,11 +170,11 @@ export function AvailableDealsGrid() {
               variant={isSelected ? "default" : "outline"}
               size="sm"
               onClick={() => handleCategoryChange(category)}
-              className={`rounded-full text-xs transition-all ${
-                isSelected 
-                  ? 'bg-slate-900 text-white hover:bg-slate-800' 
-                  : 'hover:bg-slate-100'
-              }`}
+              className={`shrink-0 rounded-full text-xs transition-all ${
+                 isSelected 
+                   ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                   : 'hover:bg-slate-100'
+               }`}
             >
               {categoryConfig && (
                 <span className="mr-1">{categoryConfig.icon}</span>

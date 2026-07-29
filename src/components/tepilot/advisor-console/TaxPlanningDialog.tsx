@@ -21,7 +21,8 @@ import {
   Lightbulb,
   TrendingUp,
   Building,
-  FileText
+  FileText,
+  Sparkles
 } from "lucide-react";
 import { ClientProfileData } from "@/types/clientProfile";
 import { EnrichedTransaction } from "@/types/transaction";
@@ -555,28 +556,28 @@ export function TaxPlanningDialog({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-t px-6 py-4 bg-slate-50 flex justify-between items-center">
-          <Button variant="outline" size="sm" className="gap-2">
+        <div className="border-t px-6 py-4 bg-slate-50 flex justify-end items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 bg-white text-slate-800 border-slate-300 hover:bg-slate-50">
             <FileText className="w-4 h-4" />
             Export PDF
           </Button>
-          <div className="flex gap-2">
-            {onAskAI && (
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => {
-                  onAskAI(`Based on the tax planning analysis showing ${formatCurrency(totalTax)} estimated liability in ${STATE_TAX_RATES[selectedState]?.name}, what specific tax optimization strategies would you recommend for this client?`);
-                  onOpenChange(false);
-                }}
-              >
-                Ask AI
-              </Button>
-            )}
-            <Button variant="default" size="sm" onClick={() => onOpenChange(false)}>
-              Close
+          {onAskAI && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50"
+              onClick={() => {
+                onAskAI(`Based on the tax planning analysis showing ${formatCurrency(totalTax)} estimated liability in ${STATE_TAX_RATES[selectedState]?.name}, what specific tax optimization strategies would you recommend for this client?`);
+                onOpenChange(false);
+              }}
+            >
+              <Sparkles className="w-4 h-4 mr-2" />
+              Ask Ventus
             </Button>
-          </div>
+          )}
+          <Button variant="outline" size="sm" className="bg-white text-slate-800 border-slate-300 hover:bg-slate-50" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

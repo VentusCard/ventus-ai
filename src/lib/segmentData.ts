@@ -4,7 +4,6 @@ import type {
   LifeEventCriteria,
   LifestyleCriteria,
   ProductCriteria,
-  DemographicFilters,
 } from '@/types/segment';
 import { CARD_PRODUCTS } from './mockBankwideData';
 
@@ -69,22 +68,19 @@ export function estimateAudienceSize(
 // Segment templates focused on targeting criteria (no campaign-specific data)
 export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
   // Life Event Templates
+  // Life Event Templates
   {
     id: 'new-parent-segment',
     name: 'New Parents',
     description: 'Customers showing baby-related spending signals indicating new or expecting parents',
     category: 'life_event',
     iconHint: 'Baby',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['family'],
-        minConfidence: 0.7,
-        timingWindow: '6-12_months',
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 4_125_000,
     priority: 'high',
+    suggestedGoal: 'life_event',
+    recommendedProductId: 'high_yield_savings',
+    automatedTrigger: 'Baby-related spending detected (nursery, pediatrician, baby supplies)',
   },
   {
     id: 'pre-retiree-segment',
@@ -92,22 +88,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers aged 55-64 showing retirement planning signals and increased travel',
     category: 'life_event',
     iconHint: 'Plane',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['retirement'],
-        minConfidence: 0.65,
-        timingWindow: '12-24_months',
-      },
-      demographicFilters: {
-        ageRanges: ['55-64'],
-        regions: [],
-        incomeBands: [],
-        accountTenure: 'all',
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 3_150_000,
     priority: 'high',
+    suggestedGoal: 'life_event',
+    recommendedProductId: 'wealth_suite',
+    automatedTrigger: 'Retirement planning signals (401k changes, pension inquiries, travel increase)',
   },
   {
     id: 'home-buyers-segment',
@@ -115,15 +101,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers showing home purchase signals from furniture, moving, and home improvement spend',
     category: 'life_event',
     iconHint: 'Home',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['home'],
-        minConfidence: 0.6,
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 2_400_000,
     priority: 'medium',
+    suggestedGoal: 'life_event',
+    recommendedProductId: 'home_mortgage',
+    automatedTrigger: 'Home purchase signals (mortgage research, moving expenses, furniture stores)',
   },
 
   // Lifestyle Cohort Templates
@@ -133,15 +116,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Top 20% spenders in travel, airlines, and hotels categories',
     category: 'lifestyle',
     iconHint: 'Plane',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Travel & Exploration'],
-        spendingThreshold: 'top_20',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 15_000_000,
     priority: 'high',
+    suggestedGoal: 'cross_sell',
+    recommendedProductId: 'travel_card',
+    automatedTrigger: 'Crosses top 20% travel spending threshold',
   },
   {
     id: 'fitness-wellness-segment',
@@ -149,15 +129,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers with high gym, sports, and health-related spending',
     category: 'lifestyle',
     iconHint: 'Dumbbell',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Health & Wellness', 'Sports & Active Living'],
-        spendingThreshold: 'top_30',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 8_500_000,
     priority: 'medium',
+    suggestedGoal: 'brand_awareness',
+    recommendedProductId: 'cashback_card',
+    automatedTrigger: 'High wellness spending detected (gym, supplements, activewear)',
   },
   {
     id: 'foodies-segment',
@@ -165,15 +142,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Top restaurant and food delivery spenders',
     category: 'lifestyle',
     iconHint: 'UtensilsCrossed',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Food & Dining'],
-        spendingThreshold: 'top_20',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 12_000_000,
     priority: 'high',
+    suggestedGoal: 'brand_awareness',
+    recommendedProductId: 'rewards_card',
+    automatedTrigger: 'Consistent dining spend above $500/month for 3+ months',
   },
   {
     id: 'pet-parents-segment',
@@ -181,15 +155,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Customers with consistent pet store, vet, and pet service spending',
     category: 'lifestyle',
     iconHint: 'PawPrint',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Pets'],
-        spendingThreshold: 'above_average',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 18_750_000,
     priority: 'medium',
+    suggestedGoal: 'seasonal',
+    recommendedProductId: 'cashback_card',
+    automatedTrigger: 'Recurring pet-related spending (vet visits, pet stores, grooming)',
   },
 
   // Cross-Sell / Product Templates
@@ -199,16 +170,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Cashback cardholders who frequently spend on travel but lack a travel card',
     category: 'cross_sell',
     iconHint: 'ArrowUpRight',
-    suggestedAudience: {
-      targetingMode: 'product',
-      productCriteria: {
-        hasProducts: ['Cashback Card'],
-        lacksProducts: ['Travel Card', 'Premium Travel Card'],
-        spendingPatterns: { 'Travel & Exploration': 'high' },
-      },
-    },
+    suggestedAudience: { targetingMode: 'product' },
     estimatedSize: 6_400_000,
     priority: 'high',
+    suggestedGoal: 'cross_sell',
+    recommendedProductId: 'travel_card',
+    automatedTrigger: 'Cashback cardholder exceeds $2K/quarter travel spend without travel card',
   },
   {
     id: 'travel-card-no-hotel-segment',
@@ -216,15 +183,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Travel card holders with high hotel spend who could benefit from Hotel Card',
     category: 'cross_sell',
     iconHint: 'Building2',
-    suggestedAudience: {
-      targetingMode: 'product',
-      productCriteria: {
-        hasProducts: ['Travel Card'],
-        lacksProducts: ['Hotel Card'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'product' },
     estimatedSize: 4_200_000,
     priority: 'medium',
+    suggestedGoal: 'cross_sell',
+    recommendedProductId: 'premium_card',
+    automatedTrigger: 'Travel cardholder with $1K+/month hotel spend and no premium card',
   },
   {
     id: 'premium-upgrade-eligible-segment',
@@ -232,15 +196,12 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'High-spend basic cardholders who qualify for premium tier upgrade',
     category: 'cross_sell',
     iconHint: 'Crown',
-    suggestedAudience: {
-      targetingMode: 'product',
-      productCriteria: {
-        hasProducts: ['Cashback Card', 'Custom Cashback Card'],
-        lacksProducts: ['Premium Travel Card'],
-      },
-    },
+    suggestedAudience: { targetingMode: 'product' },
     estimatedSize: 3_200_000,
     priority: 'medium',
+    suggestedGoal: 'upsell',
+    recommendedProductId: 'premium_card',
+    automatedTrigger: 'Basic cardholder exceeds $5K/month total spend for 6+ months',
   },
 
   // Seasonal Templates
@@ -250,16 +211,13 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Travel spenders likely to book holiday trips',
     category: 'seasonal',
     iconHint: 'Snowflake',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Travel & Exploration'],
-        spendingThreshold: 'above_average',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 22_500_000,
     priority: 'high',
     seasonalWindow: 'Nov 1 - Dec 31',
+    suggestedGoal: 'seasonal',
+    recommendedProductId: 'travel_card',
+    automatedTrigger: 'Holiday travel booking pattern detected (Oct–Nov)',
   },
   {
     id: 'back-to-school-parents-segment',
@@ -267,16 +225,13 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'Parents with education and family signals for back-to-school season',
     category: 'seasonal',
     iconHint: 'GraduationCap',
-    suggestedAudience: {
-      targetingMode: 'life_event',
-      lifeEventCriteria: {
-        eventTypes: ['education', 'family'],
-        minConfidence: 0.5,
-      },
-    },
+    suggestedAudience: { targetingMode: 'life_event' },
     estimatedSize: 6_975_000,
     priority: 'medium',
     seasonalWindow: 'Jul 15 - Sep 15',
+    suggestedGoal: 'seasonal',
+    recommendedProductId: 'cashback_card',
+    automatedTrigger: 'Education-related spending spike (Jul–Aug)',
   },
   {
     id: 'tax-season-financial-segment',
@@ -284,16 +239,13 @@ export const SEGMENT_TEMPLATES: SegmentTemplate[] = [
     description: 'High earners and financially active customers during tax season',
     category: 'seasonal',
     iconHint: 'Calculator',
-    suggestedAudience: {
-      targetingMode: 'lifestyle',
-      lifestyleCriteria: {
-        pillars: ['Financial & Aspirational'],
-        spendingThreshold: 'top_30',
-      },
-    },
+    suggestedAudience: { targetingMode: 'lifestyle' },
     estimatedSize: 9_000_000,
     priority: 'low',
     seasonalWindow: 'Jan 15 - Apr 15',
+    suggestedGoal: 'seasonal',
+    recommendedProductId: 'wealth_suite',
+    automatedTrigger: 'Tax preparation spending detected (Jan–Mar)',
   },
 ];
 
@@ -304,8 +256,8 @@ export const SAVED_SEGMENTS: SavedSegment[] = [
     name: 'Travel-Heavy Cashback Users',
     targetingMode: 'product',
     productCriteria: {
-      hasProducts: ['Cashback Card'],
-      lacksProducts: ['Travel Card'],
+      hasProducts: ['Cashback'],
+      lacksProducts: ['Travel'],
     },
     estimatedSize: 8_200_000,
     createdAt: '2026-01-10',
@@ -343,8 +295,8 @@ export const SAVED_SEGMENTS: SavedSegment[] = [
     name: 'High-Spend Basic Cardholders',
     targetingMode: 'product',
     productCriteria: {
-      hasProducts: ['Cashback Card'],
-      lacksProducts: ['Premium Travel Card'],
+      hasProducts: ['Cashback'],
+      lacksProducts: ['Premium Travel'],
     },
     estimatedSize: 3_200_000,
     createdAt: '2025-12-15',

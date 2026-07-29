@@ -276,6 +276,14 @@ export default {
 				'0%, 100%': { transform: 'translateX(0)' },
 				'25%': { transform: 'translateX(-2px)' },
 				'75%': { transform: 'translateX(2px)' }
+			},
+			'scroll-up': {
+				'0%': { transform: 'translateY(0)' },
+				'100%': { transform: 'translateY(-50%)' }
+			},
+			'marquee': {
+				'0%': { transform: 'translateX(0)' },
+				'100%': { transform: 'translateX(-50%)' }
 			}
 		},
 
@@ -323,7 +331,9 @@ export default {
 		'icon-pulse': 'icon-pulse 0.6s ease-in-out',
 		'icon-bounce': 'icon-bounce 0.5s ease-in-out',
 		'icon-tilt': 'icon-tilt 0.4s ease-in-out',
-		'icon-wave': 'icon-wave 0.5s ease-in-out'
+		'icon-wave': 'icon-wave 0.5s ease-in-out',
+		'scroll-up': 'scroll-up 16s linear infinite',
+		'marquee': 'marquee 20s linear infinite'
 		}
 	}
 },

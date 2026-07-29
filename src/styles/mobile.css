@@ -7,8 +7,8 @@
       -webkit-tap-highlight-color: transparent;
     }
     
-    /* Improved touch targets */
-    button, [role="button"], input[type="radio"], input[type="checkbox"] {
+    /* Improved touch targets — exclude nav buttons */
+    button:not(nav button):not(nav *), [role="button"], input[type="radio"], input[type="checkbox"] {
       min-height: 44px;
       min-width: 44px;
       touch-action: manipulation;
@@ -109,9 +109,9 @@
       line-height: 1.5;
     }
 
-    /* Button text optimization */
+    /* Button text optimization — hero/CTA buttons */
     button {
-      font-size: 1rem; /* 16px minimum for buttons */
+      font-size: 0.8125rem; /* 13px on mobile */
     }
 
     /* Mobile form improvements */
@@ -160,18 +160,36 @@
       overflow-x: hidden;
     }
 
-    /* Better focus states */
+    /* Focus states — only for form elements */
     input:focus,
-    select:focus,
-    button:focus {
+    select:focus {
       outline: 2px solid #3b82f6;
       outline-offset: 2px;
     }
 
-    /* Button active states */
-    button:active {
-      transform: scale(0.98);
+    /* ── Mobile nav: nuclear reset ─────────────────────────── */
+    #mobile-nav-menu * {
+      min-height: auto !important;
+      min-width: auto !important;
+      box-shadow: none !important;
+      outline: none !important;
+      border: none !important;
+      border-radius: 0 !important;
+      background: transparent !important;
     }
+    #mobile-nav-menu {
+      background: white !important;
+      border-bottom: 1px solid #f3f4f6 !important;
+    }
+    /* Restore intentional dividers */
+    #mobile-nav-menu .border-b { border-bottom: 1px solid #f3f4f6 !important; }
+    #mobile-nav-menu .border-t { border-top: 1px solid #f3f4f6 !important; }
+    /* Restore Schedule Demo button styling */
+    #mobile-nav-menu .bg-blue-600 {
+      background: #2563eb !important;
+      border-radius: 9999px !important;
+    }
+    #mobile-nav-menu .bg-blue-600:hover { background: #1d4ed8 !important; }
 
     /* Select elements */
     select {
@@ -230,6 +248,20 @@
       display: none !important;
     }
 
+    .solution-carousel-dot {
+      display: inline-flex !important;
+      min-width: 0 !important;
+      min-height: 0 !important;
+      flex-shrink: 0;
+    }
+
+    @media (min-width: 640px) {
+      .solution-carousel-dot {
+        width: auto !important;
+        height: auto !important;
+      }
+    }
+
     /* Partner tools section cards - reduce vertical white space */
     
     /* Reduce CardHeader padding */
@@ -282,10 +314,10 @@
       box-shadow: 0 1px 4px hsla(222, 47%, 3%, 0.25) !important;
     }
 
-    /* Reduce main container horizontal padding */
+    /* Keep standard horizontal padding — don't reduce */
     .px-6 {
-      padding-left: 0.75rem !important;
-      padding-right: 0.75rem !important;
+      padding-left: 1.5rem !important;
+      padding-right: 1.5rem !important;
     }
 
     /* Reduce card content padding for tighter mobile layout */

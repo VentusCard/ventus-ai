@@ -93,7 +93,7 @@ const FinancialPlanningPage = () => {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => navigate("/tepilot/advisor-console")}
+            onClick={() => navigate("/tepilot/advisor-console", { state: { initialView: "client" } })}
             className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />

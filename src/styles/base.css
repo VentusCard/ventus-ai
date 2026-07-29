@@ -99,6 +99,36 @@
   }
 }
 
+@layer base {
+  /* Force light theme for everything inside /demo */
+  .demo-page,
+  .demo-page * {
+    color-scheme: light;
+  }
+
+  .demo-page {
+    --background: 0 0% 100%;
+    --foreground: 222 47% 11%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222 47% 11%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 217 91% 60%;
+  }
+}
+
 /* TePilot Light Theme - scoped override for demo pages */
 .tepilot-theme {
   --background: 0 0% 100%;
@@ -154,12 +184,55 @@
 
 /* Direct styling for portal-rendered dialogs */
 .tepilot-popup {
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222 47% 11%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
   background-color: white !important;
   color: hsl(222 47% 11%) !important;
+  color-scheme: light;
 }
 
-.tepilot-popup * {
+.tepilot-popup *,
+.tepilot-popup *::before,
+.tepilot-popup *::after {
   border-color: hsl(214 32% 91%);
+  color: inherit;
+}
+
+/* Ensure white text on primary/destructive/secondary buttons is never overridden */
+.tepilot-theme button.bg-primary,
+.tepilot-theme button[class*="bg-primary"],
+.tepilot-theme [class*="bg-primary"] {
+  color: white !important;
+}
+.tepilot-popup button.bg-primary,
+.tepilot-popup button[class*="bg-primary"],
+.tepilot-popup [class*="bg-primary"] {
+  color: white !important;
+}
+
+/* Force dark text on all inputs/textareas within tepilot */
+.tepilot-theme input,
+.tepilot-theme textarea,
+.tepilot-theme select,
+.tepilot-theme [role="combobox"],
+.tepilot-theme [contenteditable] {
+  color: hsl(222 47% 11%) !important;
+  background-color: hsl(0 0% 100%) !important;
+}
+
+.tepilot-theme input::placeholder,
+.tepilot-theme textarea::placeholder {
+  color: hsl(215 16% 47%) !important;
 }
 
 @layer base {
@@ -241,3 +314,11 @@
     @apply border-border;
   }
 }
+
+/* Hero scroll-driven card responsive sizing */
+.hero-tx-list { height: 220px; }
+@media (min-width: 768px) { .hero-tx-list { height: 260px; } }
+@media (min-width: 1280px) { .hero-tx-list { height: 295px; } }
+.hero-dark-card { min-height: 340px; }
+@media (min-width: 768px) { .hero-dark-card { min-height: 380px; } }
+@media (min-width: 1280px) { .hero-dark-card { min-height: 420px; } }

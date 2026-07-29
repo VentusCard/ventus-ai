@@ -7,15 +7,23 @@ export interface Transaction {
   date: string;
   zip_code?: string;
   home_zip?: string;
+  source?: string;
 }
 
 export interface EnrichedTransaction extends Transaction {
   normalized_merchant: string;
   pillar: string;
+  category: string;
+  subcategories: string[];
+  /** @deprecated Use subcategories[0] instead */
   subcategory: string;
   confidence: number;
+  spending_tier: "Budget" | "Standard" | "Premium" | "N/A";
+  purchase_frequency: "Weekly" | "Monthly" | "Occasional" | "Annually" | "One-Time";
   explanation: string;
   enriched_at: string;
+  /** Compact trip label e.g. "260301:260315 Banff Trip". Null for non-travel transactions. */
+  trip_label?: string | null;
   travel_context?: {
     is_travel_related: boolean;
     travel_period_start: string | null;

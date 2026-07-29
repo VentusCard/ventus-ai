@@ -82,8 +82,8 @@ export function generateRandomPsychologicalInsights(persona?: Persona): Psycholo
   ];
 }
 
-const firstNames = ['Sarah', 'James', 'Michelle', 'Robert', 'Emily', 'David', 'Jennifer', 'Michael', 'Amanda', 'Christopher', 'Jessica', 'Daniel', 'Ashley', 'Matthew', 'Lauren'];
-const lastNames = ['Mitchell', 'Patterson', 'Wong', 'Thompson', 'Garcia', 'Johnson', 'Williams', 'Chen', 'Anderson', 'Martinez', 'Taylor', 'Lee', 'Harris', 'Clark', 'Robinson'];
+const firstNames = ['Sarah', 'James', 'Michelle', 'Robert', 'Emily', 'David', 'Jennifer', 'Michael', 'Amanda', 'Christopher', 'Jessica', 'Daniel', 'Ashley', 'Matthew', 'Lauren', 'Priya', 'Marcus', 'Elena', 'Rafael', 'Yuki', 'Diane', 'Nadia', 'Charles', 'Peter', 'Sofia', 'Thomas', 'Rachel', 'Andre', 'Beatrice', 'Kenji', 'Olivia', 'Nathan', 'Camille', 'Julian', 'Isla', 'Vikram', 'Naomi', 'Grace', 'Ethan', 'Miriam'];
+const lastNames = ['Mitchell', 'Patterson', 'Wong', 'Thompson', 'Garcia', 'Johnson', 'Williams', 'Chen', 'Anderson', 'Martinez', 'Taylor', 'Lee', 'Harris', 'Clark', 'Robinson', "O'Brien", 'Kim', 'Rossi', 'Vasquez', 'Nakamura', 'Freeman', 'Ito', 'Alvarez', 'Henderson', 'Nguyen', 'Okafor', 'Sorensen', 'Blackwood', 'Delgado', 'Petrov', 'Bhatia', 'Rivera', 'Whitman', 'Ross', 'Sato', 'Larsen', 'Gomez', 'Novak', 'Fischer', 'Ashford'];
 
 const cities = [
   { city: 'San Francisco', state: 'CA', zip: '94102' },
@@ -133,7 +133,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   growingFamily: {
     ageRange: [32, 45],
-    familyStatuses: ['Married, 1 child', 'Married, 2 children', 'Married, 3 children'],
+    familyStatuses: ['Married, 1 dependent', 'Married, 2 dependents', 'Married, 3 dependents'],
     occupations: ['Senior Manager', 'Director of Operations', 'Physician', 'Attorney', 'Business Owner', 'VP of Sales'],
     industries: ['Healthcare', 'Legal', 'Finance', 'Technology', 'Real Estate'],
     incomeLevels: ['$150K-$250K', '$250K-$350K', '$350K-$500K'],
@@ -144,7 +144,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   establishedProfessional: {
     ageRange: [40, 55],
-    familyStatuses: ['Married, 2 children', 'Married, adult children', 'Divorced, children'],
+    familyStatuses: ['Married, 2 dependents', 'Married, adult dependents', 'Divorced, dependents'],
     occupations: ['Chief Technology Officer', 'Managing Partner', 'Surgeon', 'Investment Banker', 'Entrepreneur', 'Corporate Executive'],
     industries: ['Finance', 'Technology', 'Healthcare', 'Legal', 'Consulting'],
     incomeLevels: ['$250K-$400K', '$400K-$600K', '$600K-$1M'],
@@ -155,7 +155,7 @@ const profilePersonaConfig: Record<Persona, {
   },
   preRetiree: {
     ageRange: [55, 65],
-    familyStatuses: ['Married, adult children', 'Empty nester', 'Married, grandchildren'],
+    familyStatuses: ['Married, adult dependents', 'Empty nester', 'Married, grandchildren'],
     occupations: ['Senior Vice President', 'Retired Executive', 'Business Owner', 'Partner Emeritus', 'Board Member', 'Consultant'],
     industries: ['Finance', 'Real Estate', 'Energy', 'Manufacturing', 'Consulting'],
     incomeLevels: ['$300K-$500K', '$500K-$750K', '$750K+'],
@@ -231,6 +231,52 @@ function generateMilestones(tenure: number, segment: ClientProfileData['segment'
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     return dateB.getTime() - dateA.getTime();
+  });
+}
+
+const spendingCategories = [
+  { category: 'Housing', color: '#6366f1' },
+  { category: 'Transportation', color: '#8b5cf6' },
+  { category: 'Food & Dining', color: '#f59e0b' },
+  { category: 'Healthcare', color: '#ef4444' },
+  { category: 'Entertainment', color: '#ec4899' },
+  { category: 'Shopping', color: '#14b8a6' },
+  { category: 'Travel', color: '#3b82f6' },
+  { category: 'Savings', color: '#22c55e' },
+];
+
+const personaSpendWeights: Record<Persona, Record<string, [number, number]>> = {
+  youngProfessional: {
+    'Housing': [1800, 2800], 'Transportation': [300, 600], 'Food & Dining': [600, 1200],
+    'Healthcare': [100, 300], 'Entertainment': [300, 700], 'Shopping': [400, 900],
+    'Travel': [200, 600], 'Savings': [500, 1500],
+  },
+  growingFamily: {
+    'Housing': [2500, 4000], 'Transportation': [500, 1000], 'Food & Dining': [800, 1500],
+    'Healthcare': [300, 800], 'Entertainment': [200, 500], 'Shopping': [500, 1200],
+    'Travel': [300, 800], 'Savings': [1000, 3000],
+  },
+  establishedProfessional: {
+    'Housing': [3000, 5000], 'Transportation': [600, 1200], 'Food & Dining': [1000, 2000],
+    'Healthcare': [400, 1000], 'Entertainment': [400, 1000], 'Shopping': [800, 2000],
+    'Travel': [500, 1500], 'Savings': [2000, 5000],
+  },
+  preRetiree: {
+    'Housing': [2000, 3500], 'Transportation': [400, 800], 'Food & Dining': [600, 1200],
+    'Healthcare': [800, 2000], 'Entertainment': [300, 700], 'Shopping': [400, 1000],
+    'Travel': [600, 1500], 'Savings': [3000, 8000],
+  },
+};
+
+function generateSpendingOverview(persona: Persona, _aum: number): ClientProfileData['spendingOverview'] {
+  const weights = personaSpendWeights[persona];
+  return spendingCategories.map(({ category, color }) => {
+    const [min, max] = weights[category];
+    const monthlySpend = randomInRange(min, max);
+    // Budget is 80-120% of spend to create realistic over/under scenarios
+    const budgetMultiplier = 0.8 + Math.random() * 0.4;
+    const monthlyBudget = Math.round(monthlySpend * budgetMultiplier / 50) * 50;
+    return { category, monthlySpend, monthlyBudget, color };
   });
 }
 
@@ -317,6 +363,7 @@ export function generateRandomProfile(): ClientProfileData {
       riskProfile,
     },
     milestones: generateMilestones(tenure, segment),
+    spendingOverview: generateSpendingOverview(persona, aum),
   };
 }
 

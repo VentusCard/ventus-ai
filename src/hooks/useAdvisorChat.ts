@@ -11,9 +11,10 @@ interface Message {
 
 interface UseAdvisorChatProps {
   advisorContext?: Partial<AdvisorContext> & Record<string, unknown>;
+  functionName?: string;
 }
 
-export const useAdvisorChat = ({ advisorContext }: UseAdvisorChatProps) => {
+export const useAdvisorChat = ({ advisorContext, functionName = "advisor-chat" }: UseAdvisorChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -37,9 +38,9 @@ export const useAdvisorChat = ({ advisorContext }: UseAdvisorChatProps) => {
         content: m.content,
       }));
 
-      console.log("Sending message to advisor-chat...");
+      console.log(`Sending message to ${functionName}...`);
 
-      const { data, error } = await supabase.functions.invoke("advisor-chat", {
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: {
           message: content,
           conversationHistory,

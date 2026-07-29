@@ -22,9 +22,9 @@ const formatUsers = (num: number): string => {
 const getPriorityStyles = (priority: 'high' | 'medium' | 'low') => {
   switch (priority) {
     case 'high':
-      return 'bg-rose-50 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300 border-rose-200 dark:border-rose-800';
+      return 'bg-rose-50 text-rose-700 border-rose-200';
     case 'medium':
-      return 'bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-300 border-amber-200 dark:border-amber-800';
+      return 'bg-amber-50 text-amber-700 border-amber-200';
     case 'low':
       return 'bg-slate-100 text-slate-500 border-slate-200';
   }
@@ -54,21 +54,21 @@ export function GapContextCard({ opportunity }: GapContextCardProps) {
 
       {/* Current → Target State */}
       <div className="flex items-stretch gap-3 p-3 bg-slate-50 rounded-lg">
-        <div className="flex-1 p-3 bg-rose-50/40 dark:bg-rose-950/10 rounded-lg border border-rose-200/40 dark:border-rose-800/20">
-          <div className="text-xs font-medium text-rose-600/80 dark:text-rose-400/80 mb-1">Current State</div>
+        <div className="flex-1 p-3 bg-rose-50/40 rounded-lg border border-rose-200/40">
+          <div className="text-xs font-medium text-rose-600/80 mb-1">Current State</div>
           <div className="text-sm">{opportunity.currentState}</div>
         </div>
         <div className="flex items-center">
           <ArrowRight className="h-5 w-5 text-muted-foreground" />
         </div>
-        <div className="flex-1 p-3 bg-emerald-50/40 dark:bg-emerald-950/10 rounded-lg border border-emerald-200/40 dark:border-emerald-800/20">
-          <div className="text-xs font-medium text-emerald-600/80 dark:text-emerald-400/80 mb-1">Target State</div>
+        <div className="flex-1 p-3 bg-emerald-50/40 rounded-lg border border-emerald-200/40">
+          <div className="text-xs font-medium text-emerald-600/80 mb-1">Target State</div>
           <div className="text-sm">{opportunity.potentialState}</div>
         </div>
       </div>
 
       {/* Strategic Insight */}
-      <div className="p-3 bg-amber-50/30 dark:bg-amber-950/10 border-l-4 border-amber-400/60 rounded-r-lg">
+      <div className="p-3 bg-amber-50/30 border-l-4 border-amber-400/60 rounded-r-lg">
         <div className="flex items-start gap-2">
           <Lightbulb className="h-4 w-4 mt-0.5 text-amber-500/80 shrink-0" />
           <p className="text-sm">

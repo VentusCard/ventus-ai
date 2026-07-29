@@ -1,0 +1,544 @@
+{
+  "fixture_version": "2026-05-19",
+  "description": "Golden enrichment expectations for CI-safe QA of multi-rail mock banking transactions. These expectations do not change enrichment behavior; they define review targets for classification and downstream signal evaluation.",
+  "minimum_expected_coverage": {
+    "fis": 3,
+    "fiserv": 3,
+    "jack_henry": 3,
+    "generic_bank_export": 11,
+    "plaid": 5,
+    "adversarial": 6
+  },
+  "minimum_profile_coverage": {
+    "card/card_grocery": 1,
+    "card/card_travel": 2,
+    "card/card_home_improvement": 1,
+    "card/card_pet_care": 1,
+    "card/card_healthcare": 1,
+    "card/card_education": 1,
+    "card/card_subscription": 1,
+    "card/card_dining": 1,
+    "card/card_electronics": 2,
+    "card/atm_cash": 1,
+    "card/refund_credit": 1,
+    "card/fee_charge": 1,
+    "ach/ach_payroll": 1,
+    "ach/ach_subscription": 1,
+    "ach/ach_loan_payment": 1,
+    "bill_pay/bill_pay_utility": 1,
+    "bill_pay/bill_pay_mortgage": 1,
+    "p2p/p2p_transfer": 1,
+    "wire/wire_transfer": 1,
+    "merchant_integration/merchant_crm_signal": 1
+  },
+  "expectations": [
+    {
+      "transaction_id": "fis_txn_0001",
+      "source_system": "fis",
+      "rail": "card",
+      "source_profile": "card_grocery",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Whole Foods",
+      "expected_lifestyle_category": "Food & Dining",
+      "expected_merchant_category": "Grocery",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "fis_txn_0002",
+      "source_system": "fis",
+      "rail": "card",
+      "source_profile": "card_travel",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Delta Air Lines",
+      "expected_lifestyle_category": "Travel & Exploration",
+      "expected_merchant_category": "Flights",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": true,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "fis_txn_0003",
+      "source_system": "fis",
+      "rail": "card",
+      "source_profile": "card_home_improvement",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Home Depot",
+      "expected_lifestyle_category": "Home & Living",
+      "expected_merchant_category": "Home Improvement",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "fiserv_txn_0001",
+      "source_system": "fiserv",
+      "rail": "card",
+      "source_profile": "card_pet_care",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Chewy",
+      "expected_lifestyle_category": "Pets",
+      "expected_merchant_category": "Pet Food",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "fiserv_txn_0002",
+      "source_system": "fiserv",
+      "rail": "card",
+      "source_profile": "card_travel",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Marriott",
+      "expected_lifestyle_category": "Travel & Exploration",
+      "expected_merchant_category": "Hotels & Lodging",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": true,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "fiserv_txn_0003",
+      "source_system": "fiserv",
+      "rail": "card",
+      "source_profile": "card_subscription",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Apple",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Software & Apps",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "jh_txn_0001",
+      "source_system": "jack_henry",
+      "rail": "card",
+      "source_profile": "card_healthcare",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Local Dental Associates",
+      "expected_lifestyle_category": "Health & Wellness",
+      "expected_merchant_category": "Medical & Doctor Visits",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "jh_txn_0002",
+      "source_system": "jack_henry",
+      "rail": "card",
+      "source_profile": "card_travel",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "U-Haul",
+      "expected_lifestyle_category": "Travel & Exploration",
+      "expected_merchant_category": "Car Rentals",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "jh_txn_0003",
+      "source_system": "jack_henry",
+      "rail": "card",
+      "source_profile": "card_education",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "State University Bookstore",
+      "expected_lifestyle_category": "Family & Community",
+      "expected_merchant_category": "Childcare & Education",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "multi_ach_payroll_0001",
+      "source_system": "generic_bank_export",
+      "rail": "ach",
+      "source_profile": "ach_payroll",
+      "transaction_type": "credit",
+      "expected_clean_merchant_name": "Acme Corp Payroll",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Savings & Deposits",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "multi_ach_loan_0001",
+      "source_system": "generic_bank_export",
+      "rail": "ach",
+      "source_profile": "ach_loan_payment",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "SoFi Student Loan",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Financial Services",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_ach_subscription_0001",
+      "source_system": "generic_bank_export",
+      "rail": "ach",
+      "source_profile": "ach_subscription",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Netflix",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Streaming & Entertainment",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_billpay_utility_0001",
+      "source_system": "generic_bank_export",
+      "rail": "bill_pay",
+      "source_profile": "bill_pay_utility",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "ComEd Electric",
+      "expected_lifestyle_category": "Home & Living",
+      "expected_merchant_category": "Utilities",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_billpay_mortgage_0001",
+      "source_system": "generic_bank_export",
+      "rail": "bill_pay",
+      "source_profile": "bill_pay_mortgage",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Wells Fargo Home Mortgage",
+      "expected_lifestyle_category": "Home & Living",
+      "expected_merchant_category": "Mortgage & Housing",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "multi_p2p_zelle_0001",
+      "source_system": "generic_bank_export",
+      "rail": "p2p",
+      "source_profile": "p2p_transfer",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Personal Transfer",
+      "expected_lifestyle_category": "Miscellaneous & Unclassified",
+      "expected_merchant_category": "General",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_wire_0001",
+      "source_system": "generic_bank_export",
+      "rail": "wire",
+      "source_profile": "wire_transfer",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Title Company Escrow",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Financial Services",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "multi_atm_cash_0001",
+      "source_system": "generic_bank_export",
+      "rail": "card",
+      "source_profile": "atm_cash",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "ATM Withdrawal",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Financial Services",
+      "expected_confidence_min": 0.85,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": true,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_refund_0001",
+      "source_system": "generic_bank_export",
+      "rail": "card",
+      "source_profile": "refund_credit",
+      "transaction_type": "credit",
+      "expected_clean_merchant_name": "Target",
+      "expected_lifestyle_category": "Miscellaneous & Unclassified",
+      "expected_merchant_category": "General",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_fee_0001",
+      "source_system": "generic_bank_export",
+      "rail": "card",
+      "source_profile": "fee_charge",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Monthly Service Fee",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Financial Services",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "multi_crm_signal_0001",
+      "source_system": "generic_bank_export",
+      "rail": "merchant_integration",
+      "source_profile": "merchant_crm_signal",
+      "transaction_type": "signal",
+      "expected_clean_merchant_name": "Salesforce Merchant Offer",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Professional Development",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "adv_lookalike_delta_dental_0001",
+      "source_system": "adversarial",
+      "category": "lookalike",
+      "rationale": "Merchant name shares the 'Delta' brand with a major airline but is a dental insurance provider. Must not be classified as travel.",
+      "rail": "card",
+      "source_profile": "card_healthcare",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Delta Dental",
+      "expected_lifestyle_category": "Health & Wellness",
+      "expected_merchant_category": "Insurance & Premiums",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_ambiguous_apple_billing_0001",
+      "source_system": "adversarial",
+      "category": "ambiguous_brand",
+      "rationale": "Apple is a multi-purpose brand. APPLE.COM/BILL specifically indicates digital subscriptions, not in-store electronics retail.",
+      "rail": "card",
+      "source_profile": "card_subscription",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Apple",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Software & Apps",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_ambiguous_apple_retail_0001",
+      "source_system": "adversarial",
+      "category": "ambiguous_brand",
+      "rationale": "Apple is a multi-purpose brand. APPLE STORE with retail MCC 5732 indicates in-person electronics retail, not a digital subscription.",
+      "rail": "card",
+      "source_profile": "card_electronics",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Apple Store",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Electronics",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_large_legitimate_bestbuy_0001",
+      "source_system": "adversarial",
+      "category": "large_legitimate",
+      "rationale": "Large card amount at a known electronics retailer should not be flagged as risk. Amount alone is not sufficient signal for a risk flag.",
+      "rail": "card",
+      "source_profile": "card_electronics",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Best Buy",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Electronics",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_garbled_square_coffee_0001",
+      "source_system": "adversarial",
+      "category": "garbled_merchant",
+      "rationale": "Real-world merchant strings include payment-processor prefixes (Square 'SQ *'), location suffixes, and extra whitespace. Cleaning must strip processor prefixes and collapse whitespace.",
+      "rail": "card",
+      "source_profile": "card_dining",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Evans Coffee",
+      "expected_lifestyle_category": "Food & Dining",
+      "expected_merchant_category": "Coffee Shops",
+      "expected_confidence_min": 0.6,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "adv_dual_category_walmart_0001",
+      "source_system": "adversarial",
+      "category": "dual_category",
+      "rationale": "Walmart is a dual-category merchant (groceries + electronics + general). MCC 5411 disambiguates this charge as a grocery purchase; classification should follow MCC when present.",
+      "rail": "card",
+      "source_profile": "card_grocery",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Walmart",
+      "expected_lifestyle_category": "Food & Dining",
+      "expected_merchant_category": "Grocery",
+      "expected_confidence_min": 0.6,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_card_coffee_0001",
+      "source_system": "plaid",
+      "rail": "card",
+      "source_profile": "card_dining",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Starbucks",
+      "expected_lifestyle_category": "Food & Dining",
+      "expected_merchant_category": "Coffee Shops",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_payroll_0001",
+      "source_system": "plaid",
+      "rail": "ach",
+      "source_profile": "ach_payroll",
+      "transaction_type": "credit",
+      "expected_clean_merchant_name": "Acme Corp Payroll",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Income",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_zelle_0001",
+      "source_system": "plaid",
+      "rail": "p2p",
+      "source_profile": "p2p_transfer",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Zelle Payment To Alex R",
+      "expected_lifestyle_category": "Miscellaneous & Unclassified",
+      "expected_merchant_category": "Transfers",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_wire_escrow_0001",
+      "source_system": "plaid",
+      "rail": "wire",
+      "source_profile": "wire_transfer",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Title Company Escrow",
+      "expected_lifestyle_category": "Financial & Aspirational",
+      "expected_merchant_category": "Large Transfers",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": true,
+        "life_event_candidate": true
+      }
+    },
+    {
+      "transaction_id": "plaid_txn_streaming_posted_0001",
+      "source_system": "plaid",
+      "rail": "card",
+      "source_profile": "card_subscription",
+      "transaction_type": "debit",
+      "expected_clean_merchant_name": "Netflix",
+      "expected_lifestyle_category": "Technology & Digital Life",
+      "expected_merchant_category": "Streaming Subscriptions",
+      "expected_confidence_min": 0.7,
+      "expected_signals": {
+        "travel_candidate": false,
+        "risk_candidate": false,
+        "life_event_candidate": false
+      }
+    }
+  ]
+}

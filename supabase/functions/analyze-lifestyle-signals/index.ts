@@ -176,7 +176,7 @@ serve(async (req) => {
 
     // Build dynamic prompt based on transaction data
     const transactionSummary = sortedTransactions
-      .slice(0, 75) // Increased from 50 to catch more life event clusters
+      .slice(0, 100) // Increased to capture full life event clusters
       .map((t: any) => `- ${t.merchant_name || t.merchant}: $${t.amount} (${t.pillar || t.category || 'Unknown'}, ${t.subcategory || ''}) on ${t.date}`)
       .join('\n');
 
@@ -222,6 +222,12 @@ Ask: "Would an objective, skeptical observer AGREE this transaction proves the e
 - If the transaction could plausibly be for 3+ unrelated purposes → EXCLUDE
 - When in doubt → EXCLUDE. Fewer strong evidence items beat many weak ones.
 
+### MONEY MOVEMENT EXCLUSION (CRITICAL)
+Money-transfer, remittance, and P2P rails are NEVER evidence of a life event on their own. The merchant name tells you the *rail*, not the *purpose*.
+- ❌ ALWAYS EXCLUDE by default: Western Union, MoneyGram, Ria, Wise, Xoom, Remitly, WorldRemit, Zelle, Venmo, Cash App, PayPal, generic ACH, generic Wire Transfer, Bill Pay, "Money transfer fee", "Outbound transfer", bank-to-bank transfers.
+- ✅ ONLY INCLUDE if the transaction's \`description\` field contains an explicit, event-specific phrase that names the institution or purpose (e.g. "Stanford tuition fall semester", "Down payment closing", "Wedding venue deposit", "529 contribution", "Mortgage escrow"). The merchant name alone — even with a large amount — is never sufficient.
+- A $400 Western Union transfer with description "Money transfer fee" is NOT evidence of college prep, baby prep, home purchase, or any other event. It is a generic outbound transfer.
+
 ### RELEVANCE JUSTIFICATION REQUIREMENT
 For every evidence transaction you include, you MUST be able to complete this sentence:
 "This transaction is evidence of [EVENT] because [DIRECT CAUSAL EXPLANATION]"
@@ -229,14 +235,29 @@ For every evidence transaction you include, you MUST be able to complete this se
 BAD: "Delta Airlines is evidence of college prep because the client might have flown to visit a campus"
 GOOD: "Stanford Visitor Parking is evidence of college prep because it's a payment directly to Stanford's campus parking system during a college visit"
 
+BAD: "Western Union $400 is evidence of college prep because the client may be wiring tuition to a dependent"
+GOOD: "Wire Transfer $25,000 with description 'Stanford tuition fall semester' is evidence of college prep because the description directly names the institution"
+
 ## FINAL EVIDENCE QUALITY CHECK
 
 Before finalizing each detected event, review your evidence list:
 1. Remove any transaction where the connection requires speculation about intent
 2. Remove generic travel (airlines, hotels, car rentals) unless the merchant name explicitly contains the destination/purpose
-3. Ask: "If I showed only this evidence to an advisor, would they immediately understand why each transaction matters?"
+3. Remove any money-transfer / remittance / P2P transaction (Western Union, MoneyGram, Wise, Remitly, Xoom, WorldRemit, Zelle, Venmo, Cash App, PayPal, generic Wire/ACH, Bill Pay) unless its description contains an explicit, event-specific phrase naming the institution or purpose.
+4. Ask: "If I showed only this evidence to an advisor, would they immediately understand why each transaction matters?"
 
 PRECISION OVER RECALL: Missing a weak signal is acceptable. Including irrelevant transactions damages advisor trust.
+
+## BENEFICIARY REASONING
+The person paying is NOT always the direct beneficiary. Banks typically know: client age, marital status, number of dependents — but NOT the ages of dependents.
+Use the client's age + dependent count to infer the most likely beneficiary:
+- A 45-year-old with 1 dependent showing SAT/college transactions → likely has a college-age dependent. Event: "College Preparation for Dependent".
+- A 29-year-old with 0 dependents showing baby purchases → likely gifts for a sibling's or friend's baby. Event: "Baby Gifts / Family Support".
+- A 38-year-old with 2 dependents showing baby store transactions → could be expecting another child. Event: "Expecting a Baby".
+- Education spending by someone with no dependents could be for a niece/nephew, godchild, or charitable sponsorship.
+- Baby-related purchases by someone with no dependents are more likely gifts than personal.
+- Always state the inferred beneficiary relationship in the event_name and talking_points.
+- Use "dependent" rather than "child" or "teenager" — the bank doesn't know specific ages.
 
 ## WEALTH MANAGEMENT PRODUCT MAPPING
 Match detected events to appropriate financial products:
@@ -253,14 +274,9 @@ Match detected events to appropriate financial products:
 | Empty nest | Downsizing strategy, accelerated retirement savings, estate updates | 2-5 years |
 | Inheritance/windfall | Tax planning, trust considerations, philanthropy, debt payoff | Immediate |
 
-## TYPE 2: STANDOUT TRANSACTION SIGNALS
-Individual notable transactions as their own events:
-
-🔴 CONCERNING (prefix "[URGENT]"): Gambling, payday loans, crypto losses, unusual withdrawals
-🟡 MAJOR PURCHASES (prefix "[NOTABLE]"): 3x+ above typical, vehicles, luxury items, renovations
-🟢 POSITIVE (prefix "[OPPORTUNITY]"): Large deposits, investment contributions, debt payoffs
-
 ## OUTPUT REQUIREMENTS
+- Only return genuine life events: college, home purchase, wedding, baby, retirement, career change, elder care, business formation, wealth transfer, relocation, divorce, inheritance, empty nest.
+- Do NOT return spending pattern observations, notable purchases, generic spending increases, or individual standout transactions as life events.
 - Event names should be specific: "College Preparation for Child" not "Education"
 - Include ONLY transactions that pass ALL three evidence tests (causality, specificity, reasonable person)
 - For each evidence item, the "relevance" field MUST explain the DIRECT causal connection
@@ -294,7 +310,7 @@ Analyze these patterns and detect any significant life events. Use the provided 
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'google/gemini-3.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
@@ -340,7 +356,13 @@ Analyze these patterns and detect any significant life events. Use the provided 
     }
 
     const aiInsights = JSON.parse(toolCall.function.arguments);
-    console.log('Detected events:', aiInsights.detected_events.length);
+    // Filter out non-life-event signals (spending patterns, notable purchases)
+    aiInsights.detected_events = (aiInsights.detected_events || []).filter((e: any) =>
+      !e.event_name.includes('[NOTABLE]') &&
+      !e.event_name.includes('[URGENT]') &&
+      !e.event_name.includes('[OPPORTUNITY]')
+    );
+    console.log('Detected life events after filtering:', aiInsights.detected_events.length);
 
     return new Response(
       JSON.stringify(aiInsights),

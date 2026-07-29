@@ -1,20 +1,22 @@
 import { useState } from "react";
+import { Microscope } from "lucide-react";
 import { BankwideFilters } from "./BankwideFilters";
 import { BankwideMetrics } from "./BankwideMetrics";
-import { CardProductMatrix } from "./CardProductMatrix";
 import { BankwidePillarExplorer } from "./BankwidePillarExplorer";
-import { DemographicBreakdown } from "./DemographicBreakdown";
+import { PillarTimingGrid } from "./PillarTimingGrid";
 import { RevenueOpportunitiesCard } from "./RevenueOpportunitiesCard";
 import { CrossSellMatrix } from "./CrossSellMatrix";
+import { PillarDeepDiveHeatmap } from "./PillarDeepDiveHeatmap";
+
 
 import {
   getBankwideMetrics,
-  getFilteredCardProducts,
-  getFilteredAgeRanges,
   getCrossSellMatrix,
   getRevenueOpportunities,
 } from "@/lib/mockBankwideData";
 import type { BankwideFilters as Filters } from "@/types/bankwide";
+import { TabHeader } from "./TabHeader";
+import { BarChart3 } from "lucide-react";
 
 export function BankwideView() {
   const [filters, setFilters] = useState<Filters>({
@@ -22,24 +24,21 @@ export function BankwideView() {
     regions: [],
     ageRanges: [],
   });
+  
 
   const metrics = getBankwideMetrics(filters);
-  const cardProducts = getFilteredCardProducts(filters);
-  const ageRanges = getFilteredAgeRanges(filters);
   const crossSellMatrix = getCrossSellMatrix(filters);
   const revenueOpportunities = getRevenueOpportunities(filters);
 
   return (
     <div className="space-y-4">
-      {/* Intro Text */}
-      <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent p-4 rounded-lg border border-slate-200">
-        <h2 className="text-2xl font-bold mb-2 text-slate-900">Bank-wide Analytics Dashboard (Example)</h2>
-        <p className="text-slate-600">
-          This interactive dashboard demonstrates how Ventus AI insights scale to institutional portfolios.
-          Explore spending patterns, cross-sell opportunities, and revenue gaps across 70 million accounts from 45 million users.
-          Use filters to drill down into specific segments by card product, region, and demographics.
-        </p>
-      </div>
+      <TabHeader
+        icon={<BarChart3 className="w-4 h-4" />}
+        title="Lifestyle Pillar Intelligence"
+        subtitle="12 lifestyle pillars across 120M accounts from 75M users"
+        howItWorks="Ventus classifies every transaction into 12 lifestyle pillars using 3-level semantic labeling — not MCC codes. Patterns are updated in real time across your full customer base."
+        whyItMatters="Reveals behavioral segments traditional BI cannot see, enabling data-driven product and campaign decisions at the portfolio level."
+      />
 
       {/* Filters */}
       <BankwideFilters filters={filters} onChange={setFilters} />
@@ -47,16 +46,16 @@ export function BankwideView() {
       {/* Overview Metrics */}
       <BankwideMetrics metrics={metrics} />
 
-      {/* Card Product Matrix */}
-      <CardProductMatrix products={cardProducts} />
-
-      {/* 12-Pillar Interactive Grid with Chart Toggle */}
+      {/* 12-Pillar Interactive Grid */}
       <BankwidePillarExplorer filters={filters} />
 
-      {/* Demographic Breakdown */}
-      <DemographicBreakdown ageRanges={ageRanges} />
+      {/* Pillar Deep Dive Heatmap */}
+      <PillarDeepDiveHeatmap />
 
-      {/* Revenue Opportunities with Merchant Partnership Insights */}
+      {/* Pillar Seasonal Timing */}
+      <PillarTimingGrid />
+
+      {/* Revenue Opportunities */}
       <RevenueOpportunitiesCard opportunities={revenueOpportunities} />
 
       {/* Cross-Sell Matrix */}

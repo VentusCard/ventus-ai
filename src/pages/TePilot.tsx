@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { useNavigate, useLocation, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -8,8 +8,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Switch } from "@/components/ui/switch";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Target, Brain, Zap, CheckCircle, ArrowRight, ArrowLeft, Upload, BarChart3, Scan, RefreshCw, TrendingUp, Sparkles, Gift, Users, MapPin, Briefcase, PieChart, Shield, Building2, Award, TrendingDown, Loader2, ShoppingBag, CalendarClock, CalendarHeart, MessageSquare, ChevronDown, Monitor } from "lucide-react";
+import { Target, Brain, Zap, CheckCircle, ArrowRight, ArrowLeft, Upload, BarChart3, Scan, RefreshCw, TrendingUp, Sparkles, Gift, Users, MapPin, Briefcase, PieChart, Shield, Building2, Award, TrendingDown, Loader2, ShoppingBag, CalendarClock, CalendarHeart, MessageSquare, ChevronDown, Monitor, AlertTriangle } from "lucide-react";
 import { useIsMobile, useIsTablet } from "@/hooks/use-mobile";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
@@ -25,9 +26,11 @@ import { ResultsTable } from "@/components/tepilot/ResultsTable";
 import { ExportControls } from "@/components/tepilot/ExportControls";
 import { FilterControls } from "@/components/tepilot/FilterControls";
 import { OverviewMetrics } from "@/components/tepilot/insights/OverviewMetrics";
-import { TravelTimeline } from "@/components/tepilot/insights/TravelTimeline";
+
 import { PillarExplorer } from "@/components/tepilot/insights/PillarExplorer";
 import { BeforeAfterTransformation } from "@/components/tepilot/insights/BeforeAfterTransformation";
+import { FinancialAchievements } from "@/components/tepilot/insights/FinancialAchievements";
+import { FinancialTipCard } from "@/components/tepilot/insights/FinancialTipCard";
 import { AnalyticsContainer } from "@/components/tepilot/insights/AnalyticsContainer";
 import { BankwideView } from "@/components/tepilot/insights/BankwideView";
 
@@ -36,6 +39,7 @@ import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorCons
 import { PersonaCard } from "@/components/tepilot/PersonaCard";
 
 import { ColumnMapper } from "@/components/tepilot/ColumnMapper";
+// ComparisonSetup removed — multi-select now handled in UploadOrPasteContainer
 import { parseFile, parseMultipleFiles, parsePastedText, mapColumnsWithMapping, type MappingResult } from "@/lib/parsers";
 import { applyFilters, applyCorrections } from "@/lib/aggregations";
 import { extractLocationContext } from "@/lib/geoLocationUtils";
@@ -43,12 +47,15 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSSEEnrichment } from "@/hooks/useSSEEnrichment";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { PILLAR_COLORS } from "@/lib/sampleData";
+import { aggregateByPillar } from "@/lib/aggregations";
+import { initializeBudgets } from "@/lib/budgetUtils";
 import { SubcategoryTransactionsModal } from "@/components/tepilot/insights/SubcategoryTransactionsModal";
 import { TransactionDetailModal } from "@/components/tepilot/TransactionDetailModal";
 import { TopPillarsAnalysis } from "@/components/tepilot/insights/TopPillarsAnalysis";
 import { DealActivationPreview } from "@/components/tepilot/insights/DealActivationPreview";
 import { CollapsibleCard } from "@/components/tepilot/insights/CollapsibleCard";
-const CURRENT_VERSION = "V3.0";
+
+const CURRENT_VERSION = "V3.1";
 const TePilot = () => {
   const isMobile = useIsMobile();
   const isTablet = useIsTablet();
@@ -63,13 +70,25 @@ const TePilot = () => {
       activeTab?: string;
       insightType?: 'revenue' | 'relationship' | 'bankwide';
     } | null;
-    return navState?.activeTab || "upload";
+    if (navState?.activeTab) return navState.activeTab;
+    // Restore from sessionStorage
+    const stored = sessionStorage.getItem("tepilot_active_tab");
+    if (stored) return stored;
+    return "upload";
   });
-  const [inputMode, setInputMode] = useState<"paste" | "upload">("paste");
-  const [activeSelection, setActiveSelection] = useState<"sample" | "paste" | "upload">("sample");
-  const [rawInput, setRawInput] = useState("");
+  const [inputMode, setInputMode] = useState<"paste" | "upload">(() => {
+    return (sessionStorage.getItem("tepilot_input_mode") as "paste" | "upload") || "paste";
+  });
+  const [activeSelection, setActiveSelection] = useState<"sample" | "paste" | "upload">(() => {
+    return (sessionStorage.getItem("tepilot_active_selection") as "sample" | "paste" | "upload") || "sample";
+  });
+  const [rawInput, setRawInput] = useState(() => {
+    return sessionStorage.getItem("tepilot_raw_input") || "";
+  });
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [anchorZip, setAnchorZip] = useState("");
+  const [anchorZip, setAnchorZip] = useState(() => {
+    return sessionStorage.getItem("tepilot_anchor_zip") || "";
+  });
   const [parsedTransactions, setParsedTransactions] = useState<Transaction[]>([]);
   const [corrections, setCorrections] = useState<Map<string, Correction>>(new Map());
   const [recommendations, setRecommendations] = useState<any>(null);
@@ -77,11 +96,11 @@ const TePilot = () => {
   const [recommendationsLoaded, setRecommendationsLoaded] = useState(false);
   const [userPersona, setUserPersona] = useState<any>(null);
   const [analyticsView, setAnalyticsView] = useState<"single" | "bankwide">("single");
+  const [budgetMode, setBudgetMode] = useState(false);
+  const [budgets, setBudgets] = useState<Record<string, number>>({});
+  const [subcategoryBudgets, setSubcategoryBudgets] = useState<Record<string, number>>({});
   const [analyticsDefaultTab, setAnalyticsDefaultTab] = useState<'dashboard' | 'targeting'>('dashboard');
   const [insightType, setInsightType] = useState<'revenue' | 'relationship' | 'bankwide' | null>(() => {
-    // Check URL search params first, then navigation state
-    const viewParam = searchParams.get('view');
-    if (viewParam === 'bankwide') return 'bankwide';
     const navState = location.state as { insightType?: 'revenue' | 'relationship' | 'bankwide' } | null;
     return navState?.insightType || null;
   });
@@ -91,6 +110,10 @@ const TePilot = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<EnrichedTransaction | null>(null);
   const [userDemographics, setUserDemographics] = useState<ClientProfileData | null>(null);
   const [isFromSampleData, setIsFromSampleData] = useState(false);
+  
+
+
+
   const navigate = useNavigate();
   const handleNavigateToAdvisorConsole = async () => {
     // Ensure analysis runs before navigating if not already done
@@ -109,7 +132,7 @@ const TePilot = () => {
     navigate('/tepilot/advisor-console');
   };
 
-  // SSE Enrichment Hook
+  // SSE Enrichment Hook - Customer A (primary)
   const {
     enrichedTransactions,
     isProcessing,
@@ -120,6 +143,9 @@ const TePilot = () => {
     resetEnrichment,
     restoreEnrichedTransactions
   } = useSSEEnrichment();
+
+
+
   const [filters, setFilters] = useState<Filters>({
     dateRange: {
       start: null,
@@ -238,9 +264,31 @@ const TePilot = () => {
       sessionStorage.setItem("tepilot_parsed_transactions", JSON.stringify(parsedTransactions));
     }
   }, [parsedTransactions]);
+
+  // Persist UI state for navigation retention
+  useEffect(() => {
+    sessionStorage.setItem("tepilot_active_tab", activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (rawInput) sessionStorage.setItem("tepilot_raw_input", rawInput);
+  }, [rawInput]);
+
+  useEffect(() => {
+    sessionStorage.setItem("tepilot_input_mode", inputMode);
+  }, [inputMode]);
+
+  useEffect(() => {
+    sessionStorage.setItem("tepilot_active_selection", activeSelection);
+  }, [activeSelection]);
+
+  useEffect(() => {
+    if (anchorZip) sessionStorage.setItem("tepilot_anchor_zip", anchorZip);
+  }, [anchorZip]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === "2026proto") {
+    if (password === "ventusgang26") {
       setIsAuthenticated(true);
       sessionStorage.setItem("tepilot_auth", "authenticated");
       toast.success("Access granted");
@@ -329,6 +377,9 @@ const TePilot = () => {
     setActiveTab("results"); // Switch to results IMMEDIATELY
     await startEnrichment(parsedTransactions, anchorZip);
   };
+
+
+
   const handleCorrection = async (transactionId: string, correctedPillar: string, correctedSubcategory: string, reason: string) => {
     const transaction = enrichedTransactions.find(t => t.transaction_id === transactionId);
     if (!transaction) return;
@@ -359,6 +410,14 @@ const TePilot = () => {
 
   // Extract location context for geo-based deals - always computed at top level
   const locationContext = useMemo(() => extractLocationContext(displayTransactions), [displayTransactions]);
+
+  // Initialize budgets when enriched transactions become available
+  useEffect(() => {
+    if (displayTransactions.length > 0 && Object.keys(budgets).length === 0) {
+      const pillars = aggregateByPillar(displayTransactions);
+      setBudgets(initializeBudgets(pillars));
+    }
+  }, [displayTransactions]);
   const fetchLifestyleSignals = async () => {
     if (enrichedTransactions.length === 0) {
       toast.error('No enriched transactions available. Please enrich transactions first.');
@@ -460,11 +519,15 @@ const TePilot = () => {
               <Accordion type="single" collapsible className="w-full mt-2">
                 <AccordionItem value="release-notes" className="border-none">
                   <AccordionTrigger className="text-sm text-slate-900 py-1 hover:no-underline">
-                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-600 font-normal">— Life Event Intelligence Dashboard with early behavioral signal detection</span></span>
+                    <span><span className="font-semibold">Release Notes ({CURRENT_VERSION})</span> <span className="text-xs text-slate-600 font-normal">— Lifestyle-based budgeting, travel detection & improved message personalization</span></span>
                   </AccordionTrigger>
                   <AccordionContent className="text-xs text-slate-600 space-y-2">
                     <div className="border-l-2 border-blue-600 pl-3 py-1">
-                      <p className="font-semibold">V3.0 - Current</p>
+                      <p className="font-semibold">V3.1 - Current (February 26, 2026)</p>
+                      <p>Added lifestyle-based budgeting, travel detection, and improved message personalization.</p>
+                    </div>
+                    <div className="border-l-2 border-slate-300 pl-3 py-1">
+                      <p className="font-semibold text-slate-700">V3.0 - February 2026</p>
                       <p>Life Event Intelligence Dashboard now detects early behavioral signals before clients take financial action—enabling proactive advisor engagement. Updated Ventus AI Insights and Recommended Next Steps with opportunity-focused guidance.</p>
                     </div>
                     <div className="border-l-2 border-slate-300 pl-3 py-1">
@@ -772,9 +835,27 @@ const TePilot = () => {
 
             <Separator />
 
+            {/* Deprecation Notice */}
+            <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 mb-4">
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-sm text-amber-900 mb-1">TePilot is being phased out</h4>
+                  <p className="text-sm text-amber-800 leading-relaxed">
+                    TePilot is transitioning into client-specific pilots. Please contact the Ventus team for details on customized solutions for your institution.
+                  </p>
+                  <a href="/contact" className="inline-flex items-center gap-1.5 mt-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors">
+                    Contact Us →
+                  </a>
+                </div>
+              </div>
+            </div>
+
             {/* Password Form */}
             <div>
-              <h3 className="font-semibold text-lg mb-2 text-slate-900">Enter Password to Continue</h3>
+              <h3 className="font-semibold text-lg mb-2 text-slate-900">Internal Access</h3>
               <p className="text-sm text-slate-600 mb-4">
                 All data processing is ephemeral. Your transaction data is analyzed in real-time and never stored on our servers.
               </p>
@@ -850,123 +931,147 @@ const TePilot = () => {
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-5 bg-slate-100 text-slate-700">
             <TabsTrigger value="upload" className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Setup</TabsTrigger>
-            <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Preview</TabsTrigger>
-            <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Enrichment</TabsTrigger>
-            <TabsTrigger value="analytics" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Dashboard</TabsTrigger>
-            <TabsTrigger value="insights" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">Insight Tools</TabsTrigger>
+            <TabsTrigger value="preview" disabled={parsedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Preview
+            </TabsTrigger>
+            <TabsTrigger value="results" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Enrichment
+            </TabsTrigger>
+            <TabsTrigger value="analytics" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="insights" disabled={enrichedTransactions.length === 0} className="data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm">
+              Insight Tools
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="upload" className="space-y-6">
             {pendingMapping ? <ColumnMapper detectedColumns={pendingMapping.headers} suggestedMapping={pendingMapping.suggestedMapping} onConfirm={handleMappingConfirm} onCancel={handleMappingCancel} /> : <UploadOrPasteContainer 
-              mode={inputMode} 
-              onModeChange={(mode) => {
-                setInputMode(mode);
-              }} 
-              onLoadSample={(data, zip, demographics) => {
-                setRawInput(data);
-                setAnchorZip(zip);
-                setUserDemographics(demographics);
-                setIsFromSampleData(true);
-                setInputMode("paste");
-                sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
-              }}
-              activeSelection={activeSelection}
-              onActiveSelectionChange={setActiveSelection}
-            >
-                {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
-              </UploadOrPasteContainer>}
+                mode={inputMode} 
+                onModeChange={(mode) => {
+                  setInputMode(mode);
+                }} 
+                onLoadSample={(data, zip, demographics) => {
+                  setRawInput(data);
+                  setAnchorZip(zip);
+                  setUserDemographics(demographics);
+                  setIsFromSampleData(true);
+                  setInputMode("paste");
+                  sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(demographics));
+                }}
+                activeSelection={activeSelection}
+                onActiveSelectionChange={setActiveSelection}
+              >
+                  {inputMode === "paste" ? <PasteInput value={rawInput} onChange={setRawInput} onParse={handleParse} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} showFormatHint={activeSelection === "paste"} /> : <FileUploader onFileSelect={setUploadedFiles} onParse={files => handleParse(files)} anchorZip={anchorZip} onAnchorZipChange={setAnchorZip} demographics={userDemographics} onDemographicsChange={(d) => { setUserDemographics(d); setIsFromSampleData(false); if (d) sessionStorage.setItem("tepilot_user_demographics", JSON.stringify(d)); else sessionStorage.removeItem("tepilot_user_demographics"); }} isFromSampleData={isFromSampleData} />}
+                </UploadOrPasteContainer>
+            }
           </TabsContent>
 
           <TabsContent value="preview" className="space-y-6">
-            <PreviewTable transactions={parsedTransactions} />
-            <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
+              <>
+                <PreviewTable transactions={parsedTransactions} />
+                <EnrichActionBar transactionCount={parsedTransactions.length} isProcessing={isProcessing} statusMessage={statusMessage} currentPhase={currentPhase} onEnrich={handleEnrich} />
+              </>
           </TabsContent>
 
           <TabsContent value="results" className="space-y-6">
-            {currentPhase === "travel" && <Card className="border-yellow-200 bg-yellow-50">
-                <CardContent className="pt-6 flex items-center gap-3">
-                  <div className="h-5 w-5 animate-spin rounded-full border-2 border-yellow-600 border-t-transparent" />
-                  <p className="text-sm font-medium text-yellow-700">
-                    {statusMessage || "Analyzing travel patterns..."}
-                  </p>
-                </CardContent>
-              </Card>}
-            <div className="flex justify-end">
-              <ExportControls transactions={enrichedTransactions} />
-            </div>
-            <ResultsTable transactions={enrichedTransactions} currentPhase={currentPhase} statusMessage={statusMessage} onCorrection={handleCorrection} />
-            
-            {currentPhase === "complete" && enrichedTransactions.length > 0 && <Card className="border-blue-200 bg-blue-50">
-                <CardContent className="pt-6 flex flex-col items-center gap-4">
-                  <div className="text-center">
-                    <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to explore enriched customer profile dashboard?</h3>
-                    <p className="text-sm text-slate-600 mb-4">
-                      View aggregated spending patterns, travel analysis, and lifestyle breakdowns
-                    </p>
-                  </div>
-                  <Button onClick={() => setActiveTab("analytics")} size="lg" className="gap-2">
-                    View Enriched Customer Dashboard
-                    <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </CardContent>
-              </Card>}
+              <>
+                {currentPhase === "travel" && <Card className="border-yellow-200 bg-yellow-50">
+                    <CardContent className="pt-6 flex items-center gap-3">
+                      <div className="h-5 w-5 animate-spin rounded-full border-2 border-yellow-600 border-t-transparent" />
+                      <p className="text-sm font-medium text-yellow-700">
+                        {statusMessage || "Analyzing travel patterns..."}
+                      </p>
+                    </CardContent>
+                  </Card>}
+                <ResultsTable transactions={enrichedTransactions} currentPhase={currentPhase} statusMessage={statusMessage} onCorrection={handleCorrection} />
+                <div className="flex justify-end">
+                  <ExportControls transactions={enrichedTransactions} />
+                </div>
+                
+                {currentPhase === "complete" && enrichedTransactions.length > 0 && <Card className="border-blue-200 bg-blue-50">
+                    <CardContent className="pt-6 flex flex-col items-center gap-4">
+                      <div className="text-center">
+                        <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to explore enriched customer profile dashboard?</h3>
+                        <p className="text-sm text-slate-600 mb-4">
+                          View aggregated spending patterns, travel analysis, and lifestyle breakdowns
+                        </p>
+                      </div>
+                      <Button onClick={() => setActiveTab("analytics")} size="lg" className="gap-2">
+                        View Enriched Customer Dashboard
+                        <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </CardContent>
+                  </Card>}
+              </>
           </TabsContent>
 
           <TabsContent value="analytics" className="space-y-6">
-            {/* View Header */}
-            <Card className="p-6 bg-white border-slate-200">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900">
-                    {analyticsView === "single" ? "Customer Lifestyle Dashboard" : "Bank-wide Analytics"}
-                  </h2>
-                  <p className="text-sm text-slate-600 mt-1">
-                    {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
-                  </p>
-                </div>
-                
-              </div>
-            </Card>
-
-            {analyticsView === "single" ? <>
-                <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
-                
-                <PillarExplorer transactions={displayTransactions} />
-                
-                <TravelTimeline transactions={displayTransactions} />
-                
-                <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
-                
-                <Card className="border-blue-200 bg-blue-50">
-                  <CardContent className="pt-6 flex flex-col items-center gap-4">
-                    <div className="text-center">
-                      <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to Explore Ventus Insight Tools?</h3>
-                      <p className="text-sm text-slate-600 mb-4">
-                        Access specialized dashboards for Bank Leadership, Rewards Team, or Wealth Management
+              <>
+                {/* View Header */}
+                <Card className="p-6 bg-white border-slate-200">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-900">
+                        {analyticsView === "single" ? "Customer Lifestyle Dashboard" : "Bank-wide Analytics"}
+                      </h2>
+                      <p className="text-sm text-slate-600 mt-1">
+                        {analyticsView === "single" ? "Detailed analysis of individual spending patterns and opportunities" : "Aggregated portfolio insights across 70M accounts • 45M users • $180B"}
                       </p>
                     </div>
-                    <Button onClick={() => setActiveTab("insights")} size="lg" className="gap-2">
-                      Go to Insight Tools Selection
-                      <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </CardContent>
+                    {analyticsView === "single" && (
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-slate-700">Budgeting</span>
+                        <Switch checked={budgetMode} onCheckedChange={setBudgetMode} />
+                      </div>
+                    )}
+                  </div>
                 </Card>
-              </> : <Accordion type="single" collapsible defaultValue="bankwide">
-                <AccordionItem value="bankwide" className="border-slate-200">
-                  <AccordionTrigger className="text-lg hover:no-underline text-slate-900">
-                    <div className="flex items-center justify-between w-full pr-4">
-                      <span className="font-semibold">🏦 Bank-wide Analytics Dashboard</span>
-                      <span className="text-sm text-slate-500">70M accounts • 45M users • $180B portfolio</span>
+
+                {analyticsView === "single" ? <>
+                    <OverviewMetrics originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} />
+                    
+                    <PillarExplorer transactions={displayTransactions} budgetMode={budgetMode} budgets={budgets} setBudgets={setBudgets} subcategoryBudgets={subcategoryBudgets} setSubcategoryBudgets={setSubcategoryBudgets} />
+                    
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                      <FinancialAchievements enrichedTransactions={displayTransactions} />
+                      <FinancialTipCard enrichedTransactions={displayTransactions} />
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <BankwideView />
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>}
+                    
+                    <BeforeAfterTransformation originalTransactions={parsedTransactions} enrichedTransactions={displayTransactions} />
+                    
+                    <Card className="border-blue-200 bg-blue-50">
+                      <CardContent className="pt-6 flex flex-col items-center gap-4">
+                        <div className="text-center">
+                          <h3 className="text-lg font-semibold text-slate-900 mb-2">Ready to Explore Ventus Insight Tools?</h3>
+                          <p className="text-sm text-slate-600 mb-4">
+                            Access specialized dashboards for Bank Leadership, Rewards Team, or Wealth Management
+                          </p>
+                        </div>
+                        <Button onClick={() => setActiveTab("insights")} size="lg" className="gap-2">
+                          Go to Insight Tools Selection
+                          <ArrowRight className="h-4 w-4" />
+                        </Button>
+                      </CardContent>
+                    </Card>
+                  </> : <Accordion type="single" collapsible defaultValue="bankwide">
+                    <AccordionItem value="bankwide" className="border-slate-200">
+                      <AccordionTrigger className="text-lg hover:no-underline text-slate-900">
+                        <div className="flex items-center justify-between w-full pr-4">
+                          <span className="font-semibold">🏦 Bank-wide Analytics Dashboard</span>
+                          <span className="text-sm text-slate-500">70M accounts • 45M users • $180B portfolio</span>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <BankwideView />
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>}
+              </>
           </TabsContent>
 
           <TabsContent value="insights" className="space-y-6">
+            <>
             {!insightType && <>
                 {/* Header */}
                 <div className="text-center mb-8 mt-10">
@@ -979,7 +1084,7 @@ const TePilot = () => {
                 {/* Persona Cards Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   {/* Analytics Card */}
-                  <PersonaCard icon={Building2} title="Analytics & Targeting" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
+                  <PersonaCard icon={Building2} title="Bank-Wide Analytics" valueProposition="Make data-driven decisions across your entire portfolio" description="Discover actionable insights from portfolio-wide spending patterns to optimize product strategy and identify untapped growth opportunities across your customer base." keyFeatures={[
                     "Portfolio-wide behavioral analysis across 70M+ accounts",
                     "12-Pillar interactive spending category explorer with drill-down",
                     "Card product performance matrix comparing spend and frequency",
@@ -1068,27 +1173,20 @@ const TePilot = () => {
               </>}
 
             {/* Bank-wide Dashboard View */}
-            {insightType === 'bankwide' && <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Bank-wide Analytics</h2>
-                  <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => setInsightType(null)}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Insight Tools Selection
-                  </Button>
-                </div>
-                <AnalyticsContainer defaultTab={analyticsDefaultTab} />
+            {insightType === 'bankwide' && <div className="pt-6">
+                <AnalyticsContainer defaultTab={analyticsDefaultTab} userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onBack={() => setInsightType(null)} />
               </div>}
 
-            {insightType === 'revenue' && <div className="space-y-6">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-slate-900">Intelligent Reward Personalization</h2>
-                  <Button variant="outline" className="border-slate-300 text-slate-700 hover:bg-slate-100 hover:text-slate-900" onClick={() => {
+            {insightType === 'revenue' && <div className="space-y-6 pt-6">
+                <div className="flex items-center gap-3">
+                  <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-9 w-9" onClick={() => {
                 setActiveTab("insights");
                 setInsightType(null);
               }}>
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Back to Insight Tools Selection
+                    <ArrowLeft className="w-5 h-5" />
                   </Button>
+                  <h2 className="text-3xl font-extrabold text-slate-900">Intelligent Reward Personalization</h2>
+                  
                 </div>
                 
                 {/* AI-Powered Top 3 Pillars Analysis - shows immediately */}
@@ -1162,6 +1260,8 @@ const TePilot = () => {
                   <AdvisorConsole aiInsights={lifestyleSignals} isLoadingInsights={isLoadingLifestyleSignals} enrichedTransactions={enrichedTransactions} />
                 </div>
               </div>}
+            </>
+
           </TabsContent>
         </Tabs>
       </div>

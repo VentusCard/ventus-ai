@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
 
+
 export default function RewardsPipelinePage() {
   return (
     <div className="tepilot-theme min-h-screen bg-background">
@@ -10,7 +11,7 @@ export default function RewardsPipelinePage() {
         {/* Back Button */}
         <div className="mb-6">
           <Button variant="outline" asChild className="border-slate-300 text-slate-700 hover:bg-slate-100">
-            <Link to="/tepilot?view=bankwide">
+            <Link to="/bankdemo">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Bank-wide Analytics
             </Link>

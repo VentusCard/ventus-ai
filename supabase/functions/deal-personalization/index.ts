@@ -23,43 +23,47 @@ function getCorsHeaders(origin: string | null): Record<string, string> {
   };
 }
 
-const buildSystemPrompt = (dealCount: number) => `You personalize deal cards. Generate SHORT messages (15-25 words max).
+const buildSystemPrompt = (dealCount: number) => `You personalize retail deal/cashback cards. Generate SHORT messages (15-25 words max).
 
 You will receive ${dealCount} deals. Return EXACTLY ${dealCount} personalized recs.
 
 INPUT:
 - deals (id, m=merchant, c=category, r=reward)
 - profile (pillars with spend, signals from transactions)
-- ctx (optional personal context: demo with occ/fam/inc, persona with traits/interests)
+- ctx (optional personal context: demo with occ/fam, persona with traits/interests)
 
 PERSONALIZATION STRATEGY:
-When ctx is available, COMBINE signals naturally to create emotionally resonant messages:
-- Demo (occupation, family status) + Lifestyle signals (activities from transactions) + Merchant benefit
-- Focus on EMOTIONAL BENEFITS, not data exposure
+- Focus on the ACTUAL REWARD: cashback %, points multiplier, discount amount
+- Connect the reward to a relevant lifestyle signal or interest when possible
+- Keep it practical and benefit-focused — what does the customer GET?
 
-Examples of GREAT context-aware personalization:
-| Context | Merchant | Message |
-| Family + Snowsports spending | GoPro | "Capture precious family moments on the mountain with GoPro" |
-| Busy professional + Coffee lover | Starbucks | "Your morning fuel, now with 5% back every visit" |
-| Fitness enthusiast + Active lifestyle | Lululemon | "Gear up for your next workout with 15% off" |
-| Parent + Dining out | DoorDash | "Easy family dinners delivered - save $5 on orders $25+" |
-| Wellness focused + Self-care | Sephora | "Treat yourself to something special with 10% rewards" |
+Examples of GREAT deal personalization:
+| Context | Merchant | Reward | Message | CTA |
+| Coffee lover | Starbucks | 5% back | "Your daily brew now earns 5% back every visit" | "Fuel Your Mornings" |
+| Fitness enthusiast | Lululemon | 15% off | "Gear up for your next workout — 15% off awaits" | "Power Your Workout" |
+| Parent + Dining out | DoorDash | $5 off $25+ | "Easy family dinners delivered — save $5 on orders $25+" | "Simplify Family Night" |
+| Home cook | Williams-Sonoma | 7% cashback | "Stock your kitchen and earn 7% cashback on every purchase" | "Elevate Your Kitchen" |
+| Traveler | Delta | 3x points | "Earn triple points on your next getaway" | "Keep Exploring" |
+
+CTAs — keep them short (2-4 words) and LIFESTYLE-DRIVEN. The CTA should feel like the deal supports how the customer already lives:
+Good: "Fuel Your Passion", "Treat the Family", "Elevate Your Style", "Power Your Routine", "Keep Exploring", "Level Up Game Day", "Upgrade Date Night"
+Bad: "Shop Now", "Claim Offer", "Get Cashback" (too transactional), "Request Access", "Schedule Consultation" (banking products, NOT deals)
 
 OUTPUT: Valid JSON array with EXACTLY ${dealCount} entries:
-{"recs":[{"id":"deal_id","msg":"short personal message","cta":"2-5 word CTA"},...]}
+{"recs":[{"id":"deal_id","msg":"short personal message","cta":"2-4 word CTA"},...]}
 
 CRITICAL RULES:
 - Return one rec for EACH deal - match the input count exactly!
 - Under 25 words per message
-- CTAs: "Claim Now", "Start Earning", "Grab This", etc.
+- Message MUST reference the actual reward (cashback %, discount, points)
+- CTA must be retail-appropriate (see good/bad examples above)
 
 PRIVACY RULES (MANDATORY):
 - NEVER mention specific numbers (transaction counts, visit counts, exact spend amounts)
 - NEVER reference other merchants by name - only personalize for the CURRENT deal's merchant
 - NEVER mention exact income levels or specific demographic details
 - Reference occupations/family in GENERAL terms only ("busy professional", "family time", "adventure seeker")
-- Focus on emotional benefits and aspirations, not data points
-- Keep personalization warm and inspirational
+- Focus on practical benefits, not data points
 
 ONLY return valid JSON, no markdown.`;
 
@@ -97,7 +101,7 @@ Context:${ctx ? JSON.stringify(ctx) : "none"}`;
         "Authorization": `Bearer ${Deno.env.get("LOVABLE_API_KEY")}`,
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-3.5-flash",
         messages: [
           { role: "system", content: buildSystemPrompt(dealCount) },
           { role: "user", content: userPrompt },
@@ -153,7 +157,7 @@ Context:${ctx ? JSON.stringify(ctx) : "none"}`;
   } catch (error) {
     console.error("[deal-personalization] Error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Failed", recs: [] }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Failed", recs: [] }),
       { headers: { ...getCorsHeaders(req.headers.get("origin")), "Content-Type": "application/json" }, status: 500 }
     );
   }

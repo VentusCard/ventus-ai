@@ -9,13 +9,13 @@ interface UseSSEEnrichmentReturn {
   statusMessage: string;
   currentPhase: "idle" | "classification" | "travel" | "complete";
   error: string | null;
-  startEnrichment: (transactions: Transaction[], homeZip?: string) => Promise<void>;
+  startEnrichment: (transactions: Transaction[], homeZip?: string, onClassified?: (classified: EnrichedTransaction[]) => void, options?: { suppressToasts?: boolean }) => Promise<EnrichedTransaction[]>;
   resetEnrichment: () => void;
   restoreEnrichedTransactions: (transactions: EnrichedTransaction[]) => void;
 }
 
 // Constants for resilience
-const FETCH_TIMEOUT_MS = 60000; // 60 seconds
+const FETCH_TIMEOUT_MS = 120000; // 120 seconds
 const RETRY_DELAY_MS = 2000; // 2 seconds
 const MAX_RETRIES = 1;
 
@@ -86,13 +86,17 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
   const [currentPhase, setCurrentPhase] = useState<"idle" | "classification" | "travel" | "complete">("idle");
   const [error, setError] = useState<string | null>(null);
 
-  const callClassifyTransactions = useCallback(async (transactions: Transaction[]): Promise<EnrichedTransaction[]> => {
-    const url = `https://dy3pwpbu34.execute-api.us-east-2.amazonaws.com/classify-transactions`;
+  const callClassifyTransactions = useCallback(async (transactions: Transaction[], suppressToasts = false): Promise<EnrichedTransaction[]> => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+    const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+    const url = `${supabaseUrl}/functions/v1/classify-transactions`;
 
     const response = await fetchWithResilience(url, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${anonKey}`,
+        'apikey': anonKey
       },
       body: JSON.stringify({ transactions })
     });
@@ -112,80 +116,58 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       throw new Error('Empty response from server. Please retry.');
     }
 
-    // Check Content-Type to determine if this is a plain JSON or SSE stream response
-    const contentType = response.headers.get('content-type') || '';
-    const isSSE = contentType.includes('text/event-stream');
-
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let buffer = '';
     let classifiedTransactions: EnrichedTransaction[] = [];
 
-    if (!isSSE) {
-      // Plain JSON response: Lambda returns { enriched_transactions: [...], stats: {...} }
-      const json = await response.json();
-      if (json.enriched_transactions && Array.isArray(json.enriched_transactions)) {
-        classifiedTransactions = json.enriched_transactions;
-        setEnrichedTransactions(classifiedTransactions);
-        setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
-        toast.success(`${classifiedTransactions.length} transactions classified!`);
-        console.log('[Classification Done] (JSON)', classifiedTransactions.length, 'transactions', json.stats || '');
-      } else if (json.error) {
-        throw new Error(json.error);
-      } else {
-        throw new Error('Unexpected JSON response format from classify-transactions.');
-      }
-    } else {
-      // SSE stream response (legacy path)
-      const reader = response.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
 
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n\n');
+      buffer = lines.pop() || '';
 
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n\n');
-        buffer = lines.pop() || '';
+      for (const line of lines) {
+        if (!line.trim()) continue;
 
-        for (const line of lines) {
-          if (!line.trim()) continue;
+        const eventMatch = line.match(/^event: (.+)$/m);
+        const dataMatch = line.match(/^data: (.+)$/m);
 
-          const eventMatch = line.match(/^event: (.+)$/m);
-          const dataMatch = line.match(/^data: (.+)$/m);
+        if (!eventMatch || !dataMatch) continue;
 
-          if (!eventMatch || !dataMatch) continue;
+        const event = eventMatch[1];
+        
+        // Safe JSON parsing
+        const data = safeJsonParse(dataMatch[1]);
+        if (!data) {
+          console.warn('[Classification] Malformed SSE event, skipping:', line.substring(0, 100));
+          continue;
+        }
 
-          const event = eventMatch[1];
+        switch (event) {
+          case 'status':
+            setStatusMessage(data.message);
+            console.log('[Classification Status]', data.message);
+            break;
 
-          // Safe JSON parsing
-          const data = safeJsonParse(dataMatch[1]);
-          if (!data) {
-            console.warn('[Classification] Malformed SSE event, skipping:', line.substring(0, 100));
-            continue;
-          }
+          case 'batch_complete':
+            const { batchNum, totalBatches, count } = data;
+            setStatusMessage(`Classifying batch ${batchNum}/${totalBatches}... (${count} transactions)`);
+            console.log('[Classification Batch]', `${batchNum}/${totalBatches}`, count, 'transactions');
+            break;
 
-          switch (event) {
-            case 'status':
-              setStatusMessage(data.message);
-              console.log('[Classification Status]', data.message);
-              break;
+          case 'done':
+            classifiedTransactions = data.enriched_transactions;
+            setEnrichedTransactions(classifiedTransactions);
+            setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
+            if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
+            console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
+            break;
 
-            case 'batch_complete':
-              const { batchNum, totalBatches, count } = data;
-              setStatusMessage(`Classifying batch ${batchNum}/${totalBatches}... (${count} transactions)`);
-              console.log('[Classification Batch]', `${batchNum}/${totalBatches}`, count, 'transactions');
-              break;
-
-            case 'done':
-              classifiedTransactions = data.enriched_transactions;
-              setEnrichedTransactions(classifiedTransactions);
-              setStatusMessage(`Classification complete! ${classifiedTransactions.length} transactions classified.`);
-              toast.success(`${classifiedTransactions.length} transactions classified!`);
-              console.log('[Classification Done]', classifiedTransactions.length, 'transactions');
-              break;
-
-            case 'error':
-              throw new Error(data.message);
-          }
+          case 'error':
+            throw new Error(data.message);
         }
       }
     }
@@ -193,7 +175,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     return classifiedTransactions;
   }, []);
 
-  const callEnrichTransactions = useCallback(async (classifiedTransactions: EnrichedTransaction[], homeZip: string) => {
+  const callEnrichTransactions = useCallback(async (classifiedTransactions: EnrichedTransaction[], homeZip: string, suppressToasts = false) => {
     const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
     const anonKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
     const url = `${supabaseUrl}/functions/v1/travel-detection`;
@@ -214,7 +196,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
       setStatusMessage('Classification complete (no travel detected)');
       setCurrentPhase('complete');
       setIsProcessing(false);
-      toast.success(`${classifiedTransactions.length} transactions classified!`);
+      if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
       return;
     }
 
@@ -292,21 +274,11 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
               data.travel_updates.forEach((travelUpdate: any) => {
                 const idx = updated.findIndex(t => t.transaction_id === travelUpdate.transaction_id);
                 if (idx !== -1) {
-                  // Store original pillar before updating
+                  // Store original pillar — DO NOT overwrite pillar/category/subcategories
                   const originalPillar = updated[idx].pillar;
                   
-                  // If travel-related, ALWAYS set pillar to "Travel & Exploration"
-                  // The reclassified values from AI should be used as subcategories only
-                  if (travelUpdate.is_travel_related) {
-                    updated[idx].pillar = "Travel & Exploration";
-                    // Use reclassified_subcategory if provided, otherwise use reclassified_pillar as subcategory
-                    if (travelUpdate.reclassified_subcategory) {
-                      updated[idx].subcategory = travelUpdate.reclassified_subcategory;
-                    } else if (travelUpdate.reclassified_pillar) {
-                      // AI may have put subcategory name in reclassified_pillar field
-                      updated[idx].subcategory = travelUpdate.reclassified_pillar;
-                    }
-                  }
+                  // Set trip_label (e.g. "260301:260315 Banff Trip") — original classification preserved
+                  updated[idx].trip_label = travelUpdate.trip_label || null;
                   
                   // Add travel_context object with proper structure
                   updated[idx].travel_context = {
@@ -326,7 +298,7 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
             const travelCount = data.travel_updates.filter((u: any) => u.is_travel_related === true).length;
             if (travelCount > 0) {
               setStatusMessage(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
-              toast.success(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
+              if (!suppressToasts) toast.success(`${travelCount} travel pattern${travelCount > 1 ? 's' : ''} detected!`);
               console.log('[Travel Updates]', travelCount, 'travel patterns detected');
             } else {
               setStatusMessage('No travel patterns detected');
@@ -348,7 +320,13 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     }
   }, []);
 
-  const startEnrichment = useCallback(async (transactions: Transaction[], homeZip?: string) => {
+  const startEnrichment = useCallback(async (
+    transactions: Transaction[],
+    homeZip?: string,
+    onClassified?: (classified: EnrichedTransaction[]) => void,
+    options?: { suppressToasts?: boolean },
+  ): Promise<EnrichedTransaction[]> => {
+    const suppressToasts = options?.suppressToasts ?? false;
     setIsProcessing(true);
     setError(null);
     setEnrichedTransactions([]);
@@ -357,7 +335,10 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
     try {
       // Step 1: Classify transactions with flash-lite
       console.log('[Enrichment] Starting classification...');
-      const classifiedTransactions = await callClassifyTransactions(transactions);
+      const classifiedTransactions = await callClassifyTransactions(transactions, suppressToasts);
+
+      // Fire callback immediately so callers can start parallel work
+      onClassified?.(classifiedTransactions);
 
       // Step 2: Check if we have a valid home ZIP before running travel detection
       const hasValidHomeZip = homeZip && homeZip.trim() !== "" && homeZip.trim() !== "N/A";
@@ -367,22 +348,24 @@ export const useSSEEnrichment = (): UseSSEEnrichmentReturn => {
         console.log('[Enrichment] Starting ZIP-first travel detection...');
         setCurrentPhase("travel");
         setStatusMessage('Pre-filtering travel candidates...');
-        await callEnrichTransactions(classifiedTransactions, homeZip!);
+        await callEnrichTransactions(classifiedTransactions, homeZip!, suppressToasts);
       } else {
         // Skip travel detection if no valid home ZIP
         console.log('[Enrichment] Skipping travel detection (no home ZIP provided)');
         setStatusMessage('Classification complete (travel analysis skipped - no home ZIP provided)');
         setCurrentPhase('complete');
         setIsProcessing(false);
-        toast.success(`${classifiedTransactions.length} transactions classified!`);
+        if (!suppressToasts) toast.success(`${classifiedTransactions.length} transactions classified!`);
       }
 
+      return classifiedTransactions;
     } catch (err: any) {
       setError(err.message);
       setIsProcessing(false);
       setCurrentPhase('idle');
-      toast.error(`Enrichment failed: ${err.message}`);
+      if (!suppressToasts) toast.error(`Enrichment failed: ${err.message}`);
       console.error('[Enrichment Error]', err);
+      return [];
     }
   }, [callClassifyTransactions, callEnrichTransactions]);
 

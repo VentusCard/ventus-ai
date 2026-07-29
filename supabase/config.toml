@@ -1,4 +1,4 @@
-project_id = "theaknjrmfsyauxxvhmk"
+project_id = "qopysdercrqgwcrawndl"
 
 [functions.classify-transactions]
 verify_jwt = false
@@ -25,4 +25,38 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.local-experiences]
+verify_jwt = false
+
+[functions.generate-campaign-brief]
+verify_jwt = false
+
+[functions.parse-campaign-intent]
+verify_jwt = false
+
+[functions.send-follow-up-email]
+verify_jwt = false
+
+[functions.bankwide-chat]
+verify_jwt = false
+
+[functions.generate-exec-profile]
+verify_jwt = false
+
+[functions.generate-next-offers]
+verify_jwt = false
+
+[functions.generate-product-cards]
+verify_jwt = false
+
+[functions.generate-financial-tip]
+verify_jwt = false
+
+[functions.detect-risk-transactions]
+verify_jwt = false
+
+[functions.generate-product-actions]
+verify_jwt = false
+
+
+[functions.summarize-query-result]
 verify_jwt = false

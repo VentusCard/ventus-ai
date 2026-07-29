@@ -1,0 +1,606 @@
+import { useState, useMemo, useEffect } from "react";
+import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown, Sparkles } from "lucide-react";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
+import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
+import { getFlow, formatAccounting, isIncome } from "@/lib/transactionFlow";
+import { getExternalSignalsFor } from "@/lib/externalIntelligenceSignals";
+import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import ventusLogo from "@/assets/ventus-ai-wordmark.png";
+
+const SOURCE_COLORS: Record<string, string> = {
+  Checking: "bg-slate-100 text-slate-600",
+  "Cashback Card": "bg-emerald-50 text-emerald-700",
+  "Travel Card": "bg-blue-50 text-blue-700",
+  "Premium Card": "bg-rose-50 text-rose-700",
+  Checks: "bg-orange-50 text-orange-700",
+  ACH: "bg-slate-100 text-slate-600",
+  Wire: "bg-red-50 text-red-700",
+  Zelle: "bg-purple-50 text-purple-700",
+  HSA: "bg-amber-50 text-amber-700",
+};
+
+interface RawRow {
+  transaction_id: string;
+  merchant_name: string;
+  mcc_description: string;
+  mcc: string;
+  amount: string;
+  date: string;
+  zip_code: string;
+  source: string;
+}
+
+function parseCsvRows(csv: string): RawRow[] {
+  const lines = csv.trim().split("\n");
+  if (lines.length < 2) return [];
+  const header = lines[0].split(",").map((h) => h.trim().toLowerCase());
+  const idx = (col: string) => header.indexOf(col);
+
+  return lines
+    .slice(1)
+    .filter((l) => l.trim())
+    .map((line) => {
+      const cols = line.split(",").map((c) => c.trim());
+      const get = (col: string) => cols[idx(col)] || "";
+      const mcc = get("mcc");
+      return {
+        transaction_id: get("transaction_id"),
+        merchant_name: get("merchant_name"),
+        mcc_description: MCC_DESCRIPTIONS[mcc] || get("description") || "—",
+        mcc,
+        amount: get("amount"),
+        date: get("date"),
+        zip_code: get("zip_code") || get("home_zip"),
+        source: get("source"),
+      };
+    });
+}
+
+interface Props {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  selectedIdx: number;
+  onSelectCustomer: (idx: number) => void;
+  onRunAnalysis: () => void;
+  onLoadCustomCsv?: (csv: string, name: string) => void;
+  embedded?: boolean;
+  onBack?: () => void;
+}
+
+const DEFAULT_PERSONA =
+  "A 35-year-old tech professional in San Francisco who loves hiking, craft coffee, and is saving for a first home.";
+
+export default function ExecDemoSelectionDialog({
+  open,
+  onOpenChange,
+  selectedIdx,
+  onSelectCustomer,
+  onRunAnalysis,
+  onLoadCustomCsv,
+  embedded = false,
+  onBack,
+}: Props) {
+  const [showCustomFlow, setShowCustomFlow] = useState(false);
+  const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
+  const [copied, setCopied] = useState(false);
+  const [pasteValue, setPasteValue] = useState("");
+
+  const customer = DEMO_CUSTOMERS[selectedIdx];
+  const rawRows = useMemo(() => parseCsvRows(customer.csv), [customer.csv]);
+
+  const sourceGroups = useMemo(() => {
+    const map = new Map<string, RawRow[]>();
+    for (const r of rawRows) {
+      const key = r.source || "—";
+      if (!map.has(key)) map.set(key, []);
+      map.get(key)!.push(r);
+    }
+    const known = Object.keys(SOURCE_COLORS);
+    const ordered: { source: string; rows: RawRow[] }[] = [];
+    for (const k of known) {
+      if (map.has(k)) {
+        ordered.push({ source: k, rows: map.get(k)! });
+        map.delete(k);
+      }
+    }
+    for (const [k, rows] of map) ordered.push({ source: k, rows });
+    return ordered;
+  }, [rawRows]);
+
+  const incomeRows = useMemo(() => rawRows.filter((r) => isIncome(r)), [rawRows]);
+  const incomeTotal = useMemo(
+    () => incomeRows.reduce((s, r) => s + (isNaN(parseFloat(r.amount)) ? 0 : Math.abs(parseFloat(r.amount))), 0),
+    [incomeRows],
+  );
+
+  const [openSources, setOpenSources] = useState<Record<string, boolean>>({});
+  const [kycOpen, setKycOpen] = useState(false);
+  useEffect(() => {
+    setOpenSources({});
+    setKycOpen(false);
+  }, [customer.id]);
+
+  const allOpen = sourceGroups.length > 0 && sourceGroups.every((g) => openSources[g.source]);
+  const toggleAll = () => {
+    if (allOpen) {
+      setOpenSources({});
+    } else {
+      const next: Record<string, boolean> = {};
+      sourceGroups.forEach((g) => {
+        next[g.source] = true;
+      });
+      setOpenSources(next);
+    }
+  };
+
+  const handleRun = () => {
+    onOpenChange(false);
+    onRunAnalysis();
+  };
+
+  const handleCopyPrompt = () => {
+    const prompt = buildCustomerPrompt(personaInput);
+    navigator.clipboard.writeText(prompt);
+    setCopied(true);
+    toast.success("Prompt copied — paste into ChatGPT or Claude");
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleLoadCustomer = () => {
+    const parsed = parseUnifiedOutput(pasteValue);
+    if (!parsed) {
+      toast.error("Could not parse output. Make sure it contains === PROFILE === and === TRANSACTIONS === blocks.");
+      return;
+    }
+    const name = parsed.demographics.name || "Custom Customer";
+    onLoadCustomCsv?.(parsed.csv, name);
+    setShowCustomFlow(false);
+    setPasteValue("");
+    onOpenChange(false);
+    toast.success(`Loaded ${name}`);
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent
+        onPointerDownOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        className="max-w-[65vw] w-[65vw] h-[85vh] max-h-[85vh] p-0 gap-0 overflow-hidden rounded-2xl border-slate-200 bg-white flex flex-col [&>button[aria-label='Close']]:hidden [&>button.absolute.right-4.top-4]:hidden"
+      >
+        {/* Header */}
+        <div className="px-8 py-3 border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2">
+            {embedded && onBack && (
+              <button
+                onClick={onBack}
+                className="mr-1 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                aria-label="Back to Bank Demo"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back
+              </button>
+            )}
+            <img src={ventusLogo} alt="Ventus AI" className="h-9 w-auto" />
+            <span className="text-sm text-slate-400">·</span>
+            <h2 className="text-lg font-semibold text-slate-800 tracking-tight">Select a Customer Profile</h2>
+          </div>
+          <p className="text-sm text-slate-500 mt-0.5">
+            Ingests a holistic picture of every customer: KYC, and every transaction across rails
+          </p>
+        </div>
+
+        {/* Pills row */}
+        <div className="px-8 py-3 border-b border-slate-100 shrink-0">
+          <div className="flex flex-nowrap items-center gap-1.5 overflow-x-auto">
+            {(embedded ? DEMO_CUSTOMERS.slice(0, 1) : DEMO_CUSTOMERS).map((c, i) => (
+              <button
+                key={c.id}
+                onClick={() => {
+                  if (embedded) return;
+                  onSelectCustomer(i);
+                  setShowCustomFlow(false);
+                }}
+                disabled={embedded}
+                className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap ${
+                  selectedIdx === i && !showCustomFlow
+                    ? "bg-blue-600 text-white shadow-sm"
+                    : "bg-white border border-slate-200 text-slate-600 hover:border-slate-400 hover:bg-slate-50"
+                } ${embedded ? "cursor-default" : ""}`}
+              >
+                {({
+                  "Sarah Mitchell": "User #482719356",
+                  "James Rodriguez": "User #519384207",
+                  "Emily Chen": "User #264158093",
+                  "Michael Thompson": "User #730895142",
+                  "Amanda Williams": "User #395672481",
+                  "Robert Garcia": "User #847203615",
+                } as Record<string, string>)[c.profile.name] ?? c.profile.name}
+              </button>
+            ))}
+            {!embedded && (
+              <button
+                onClick={() => setShowCustomFlow(true)}
+                className={`px-3.5 py-2 rounded-full text-sm font-semibold transition-all duration-150 whitespace-nowrap flex items-center gap-1 shrink-0 ${
+                  showCustomFlow
+                    ? "bg-violet-600 text-white shadow-sm"
+                    : "bg-white border border-dashed border-slate-300 text-slate-500 hover:border-violet-400 hover:bg-violet-50"
+                }`}
+              >
+                <Pencil className="w-3 h-3" />
+                Custom
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Custom flow (inline, between pills and table) */}
+        {showCustomFlow && (
+          <div className="px-8 py-3 border-b border-slate-100 shrink-0">
+            <div className="max-w-2xl space-y-3">
+              <button
+                onClick={() => setShowCustomFlow(false)}
+                className="flex items-center gap-1 text-xs text-blue-500 hover:text-blue-700 font-medium"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> Back
+              </button>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    1. Describe a persona
+                  </div>
+                  <textarea
+                    value={personaInput}
+                    onChange={(e) => setPersonaInput(e.target.value)}
+                    rows={3}
+                    className="w-full text-sm rounded-lg border border-slate-200 bg-white px-3 py-2 text-slate-700 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none"
+                    placeholder="E.g. A 45-year-old surgeon in Boston who plays golf..."
+                  />
+                  <button
+                    onClick={handleCopyPrompt}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-lg py-2.5 text-sm font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors"
+                  >
+                    {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    {copied ? "Copied!" : "Copy Prompt"}
+                  </button>
+                </div>
+
+                <div className="space-y-2">
+                  <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    2. Paste LLM output
+                  </div>
+                  <textarea
+                    value={pasteValue}
+                    onChange={(e) => setPasteValue(e.target.value)}
+                    className="w-full text-xs font-mono rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-slate-600 placeholder:text-slate-300 focus:outline-none focus:ring-2 focus:ring-blue-300 resize-none min-h-[140px]"
+                    placeholder={"=== PROFILE ===\nname: ...\n\n=== TRANSACTIONS ===\ntransaction_id,merchant_name,..."}
+                  />
+                  <button
+                    onClick={handleLoadCustomer}
+                    disabled={!pasteValue.trim()}
+                    className={`w-full flex items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold transition-all ${
+                      pasteValue.trim()
+                        ? "bg-blue-600 text-white hover:bg-blue-700"
+                        : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                    }`}
+                  >
+                    Load Customer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Transaction cards — grouped by source */}
+        {!showCustomFlow && (
+          <div className="flex-1 min-h-0 flex flex-col">
+            {rawRows.length > 0 && (
+              <div className="px-8 pt-3 pb-2 flex items-center justify-between shrink-0">
+                <div className="text-sm text-slate-500">
+                  {rawRows.length} transactions · {sourceGroups.length} sources
+                </div>
+                <button onClick={toggleAll} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                  {allOpen ? "Collapse all" : "Expand all"}
+                </button>
+              </div>
+            )}
+
+            <ScrollArea className="flex-1 min-h-0 px-8 pb-2">
+              <div className="space-y-2">
+                {/* KYC card */}
+                <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                  <button
+                    onClick={() => setKycOpen((o) => !o)}
+                    className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-indigo-50 text-indigo-700">
+                        KYC
+                      </span>
+                      <span className="text-base font-semibold text-slate-700">Anonymized</span>
+                      <span className="text-sm text-slate-400">·</span>
+                      <span className="text-sm text-slate-500">No PII</span>
+                    </div>
+                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${kycOpen ? "rotate-180" : ""}`} />
+                  </button>
+                  {kycOpen && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 px-4 py-3 border-t border-slate-100">
+                      {(() => {
+                        const zipMatch = (customer.profile.contact.address || "").match(/\b\d{5}\b/);
+                        const addressVal = zipMatch ? `- (zip ${zipMatch[0]})` : "-";
+                        return [
+                          ["Name", "-"],
+                          ["Segment", customer.profile.segment],
+                          ["AUM", customer.profile.aum],
+                          ["Tenure", customer.profile.tenure],
+                          ["Age", customer.profile.demographics.age],
+                          ["Occupation", customer.profile.demographics.occupation],
+                          ["Industry", customer.profile.demographics.industry],
+                          ["Family Status", customer.profile.demographics.familyStatus],
+                          ["Income Level", customer.profile.demographics.incomeLevel],
+                          ["Email", "-"],
+                          ["Phone", "-"],
+                          ["Address", addressVal],
+                          ["KYC Status", customer.profile.compliance.kycStatus],
+                          ["Last Review", customer.profile.compliance.lastReview],
+                          ["Next Review", customer.profile.compliance.nextReview],
+                          ["Risk Profile", customer.profile.compliance.riskProfile],
+                        ].map(([label, value]) => (
+                          <div key={label} className="min-w-0">
+                            <div className="text-xs uppercase tracking-wider text-slate-500">{label}</div>
+                            <div className="text-[15px] text-slate-800 truncate" title={String(value)}>
+                              {value || "—"}
+                            </div>
+                          </div>
+                        ));
+                      })()}
+                    </div>
+                  )}
+                </div>
+
+
+                {sourceGroups.map(({ source, rows }) => {
+                  const isOpen = !!openSources[source];
+                  const total = rows.reduce((sum, r) => {
+                    const a = parseFloat(r.amount);
+                    return sum + (isNaN(a) ? 0 : Math.abs(a));
+                  }, 0);
+                  const fmtTotal = `$${total.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  return (
+                    <div key={source} className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, [source]: !p[source] }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span
+                            className={`inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap ${SOURCE_COLORS[source] || "bg-slate-50 text-slate-500"}`}
+                          >
+                            {source}
+                          </span>
+                          <span className="text-base font-semibold text-slate-700">{rows.length} txns</span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm font-mono tabular-nums text-slate-500">{fmtTotal}</span>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      {isOpen && (
+                        <div className="border-t border-slate-100">
+                          <table className="w-full text-left border-collapse">
+                            <thead>
+                              <tr className="bg-slate-50/60 border-b border-slate-200">
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  ID
+                                </th>
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Date
+                                </th>
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Merchant
+                                </th>
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  MCC
+                                </th>
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Description
+                                </th>
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">
+                                  Amount
+                                </th>
+                                <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">
+                                  Zip
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {rows.map((row, i) => {
+                                const amt = parseFloat(row.amount);
+                                const flow = getFlow(row);
+                                const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, flow);
+                                return (
+                                  <tr
+                                    key={i}
+                                    className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors"
+                                  >
+                                    <td className="px-3 py-1 text-slate-400 font-mono text-[13px]">
+                                      {row.transaction_id || i + 1}
+                                    </td>
+                                    <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">
+                                      {row.date}
+                                    </td>
+                                    <td
+                                      className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[260px] truncate"
+                                      title={row.merchant_name}
+                                    >
+                                      {row.merchant_name}
+                                    </td>
+                                    <td className="px-3 py-1">
+                                      {row.mcc ? (
+                                        <span className="inline-block bg-slate-100 text-slate-600 text-[13px] font-mono px-1.5 py-0.5 rounded">
+                                          {row.mcc}
+                                        </span>
+                                      ) : (
+                                        <span className="text-[13px] text-slate-300">—</span>
+                                      )}
+                                    </td>
+                                    <td
+                                      className="px-3 py-1 text-sm font-mono text-slate-500 max-w-[260px] truncate"
+                                      title={row.mcc_description}
+                                    >
+                                      {row.mcc_description}
+                                    </td>
+                                    <td className={`px-3 py-1 text-right font-mono text-sm tabular-nums whitespace-nowrap font-normal ${flow === "income" ? "text-emerald-600 font-semibold" : "text-slate-900"}`}>
+                                      {fmtAmt}
+                                    </td>
+                                    <td className="px-3 py-1 text-slate-500 text-[13px]">{row.zip_code || "—"}</td>
+                                  </tr>
+                                );
+                              })}
+                            </tbody>
+                          </table>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {/* Income card — counts all inflows regardless of source */}
+                {(() => {
+                  const incomeOpen = !!openSources["__income__"];
+                  const fmtIncome = `$${incomeTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  return (
+                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, __income__: !p["__income__"] }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-teal-100 text-teal-800">
+                            Income
+                          </span>
+                          <span className="text-base font-semibold text-slate-700">{incomeRows.length} txns</span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm font-mono tabular-nums text-slate-500">{fmtIncome}</span>
+                          <span className="text-xs text-slate-400">all sources</span>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform ${incomeOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      {incomeOpen && (
+                        <div className="border-t border-slate-100">
+                          {incomeRows.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-slate-500">No income detected in this profile.</div>
+                          ) : (
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-slate-50/60 border-b border-slate-200">
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Source</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Date</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Merchant</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {incomeRows.map((row, i) => {
+                                  const amt = parseFloat(row.amount);
+                                  const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, "income");
+                                  return (
+                                    <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+                                      <td className="px-3 py-1">
+                                        <span className={`inline-block px-2 py-0.5 rounded text-[12px] font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                                          {row.source || "—"}
+                                        </span>
+                                      </td>
+                                      <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
+                                      <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[420px] truncate" title={row.merchant_name}>
+                                        {row.merchant_name}
+                                      </td>
+                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-teal-800">
+                                        {fmtAmt}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+
+                {/* External Intelligence — dynamic signals from bureau + third-party enrichment */}
+                {(() => {
+                  const extSignals = getExternalSignalsFor(customer.id);
+                  if (extSignals.length === 0) return null;
+                  const extOpen = openSources["__external__"] ?? true;
+                  return (
+                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, __external__: !(p["__external__"] ?? true) }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-violet-50 text-violet-700">
+                            External Intelligence
+                          </span>
+                          <span className="text-base font-semibold text-slate-700">
+                            {extSignals.length} signal{extSignals.length === 1 ? "" : "s"}
+                          </span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm text-slate-500">Bureau + third-party enrichment</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${extOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {extOpen && (
+                        <div className="border-t border-slate-100 divide-y divide-slate-100">
+                          {extSignals.map((s) => (
+                            <div key={s.id} className="flex items-center gap-3 px-4 py-2.5">
+                              <Sparkles className="w-4 h-4 text-violet-500 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold text-slate-800 truncate">{s.headline}</div>
+                                <div className="text-[12px] text-slate-500 truncate">{s.detail}</div>
+                              </div>
+                              <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium whitespace-nowrap bg-slate-100 text-slate-600 shrink-0">
+                                {s.provider}
+                              </span>
+                              <span className="text-[11px] font-mono tabular-nums text-violet-600 shrink-0">
+                                {Math.round(s.confidence * 100)}%
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
+              </div>
+
+              {rawRows.length === 0 && (
+                <div className="text-center text-sm text-slate-300 py-16">No transactions available</div>
+              )}
+            </ScrollArea>
+          </div>
+        )}
+
+        {/* Footer */}
+        <div className="px-8 py-3 border-t border-slate-100 shrink-0">
+          <button
+            onClick={handleRun}
+            className="w-full flex items-center justify-center gap-2 rounded-full py-3.5 text-base font-semibold bg-blue-600 text-white hover:bg-blue-700 shadow-md hover:shadow-lg transition-all"
+          >
+            <Play className="w-5 h-5" />
+            Start
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

@@ -16,6 +16,7 @@ interface LifeEventAlertCardProps {
   onView: (clientId: string) => void;
   onScheduleCall: (clientId: string) => void;
   showEventLabel?: boolean;
+  sourceLabel?: string;
 }
 
 const iconMap: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -36,6 +37,7 @@ export function LifeEventAlertCard({
   onView,
   onScheduleCall,
   showEventLabel = false,
+  sourceLabel,
 }: LifeEventAlertCardProps) {
   const config = LIFE_EVENT_CONFIG[event.eventType];
   const IconComponent = iconMap[config.icon] || AlertTriangle;
@@ -59,9 +61,11 @@ export function LifeEventAlertCard({
     const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
     if (diffDays === 0) return 'Today';
     if (diffDays === 1) return 'Yesterday';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.floor(diffDays / 7)} weeks ago`;
-    return `${Math.floor(diffDays / 30)} months ago`;
+    if (diffDays < 7) return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+    const weeks = Math.floor(diffDays / 7);
+    if (diffDays < 30) return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    const months = Math.floor(diffDays / 30);
+    return `${months} ${months === 1 ? 'month' : 'months'} ago`;
   };
 
   return (
@@ -74,8 +78,15 @@ export function LifeEventAlertCard({
           </div>
 
           {/* Client Info */}
-          <div className="min-w-0 w-32 shrink-0">
-            <h3 className="font-medium text-slate-900 truncate text-sm">{client.profile.name}</h3>
+          <div className="min-w-0 w-36 shrink-0">
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-medium text-slate-900 truncate text-sm">{client.profile.name}</h3>
+              {sourceLabel && sourceLabel.includes('Enrichment') && (
+                <Badge className="text-[9px] px-1 py-0 shrink-0 whitespace-nowrap bg-emerald-100 text-emerald-700">
+                  {sourceLabel}
+                </Badge>
+              )}
+            </div>
             <div className="flex items-center gap-2 mt-0.5">
               <span className="text-xs text-slate-500">{client.profile.aum}</span>
               <Badge className={cn('text-[10px] px-1.5 py-0', getSegmentColorClasses(client.profile.segment))}>

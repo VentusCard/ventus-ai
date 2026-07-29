@@ -14,16 +14,33 @@ import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
 
+import type { DemoCustomer } from "@/lib/demoData";
+
 type ViewMode = "dashboard" | "client";
 
 const AdvisorConsolePage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const initialView = (location.state as { initialView?: ViewMode })?.initialView;
+  const routeState = location.state as {
+    initialView?: ViewMode;
+    demoCustomerA?: DemoCustomer;
+    demoCustomerB?: DemoCustomer;
+    activeCustomerId?: string;
+  } | null;
+  const initialView = routeState?.initialView;
   const [viewMode, setViewMode] = useState<ViewMode>(initialView || "dashboard");
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(
+    routeState?.activeCustomerId || null
+  );
   const [advisorContext, setAdvisorContext] = useState<AdvisorContext | undefined>(undefined);
   const [pendingVentusMessage, setPendingVentusMessage] = useState<string | null>(null);
+
+  // Store demo customers passed from the demo overlay (if any)
+  const [demoCustomers] = useState<{ a: DemoCustomer; b: DemoCustomer } | null>(
+    routeState?.demoCustomerA && routeState?.demoCustomerB
+      ? { a: routeState.demoCustomerA, b: routeState.demoCustomerB }
+      : null
+  );
 
   // Generate dashboard clients once on mount
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
@@ -31,8 +48,22 @@ const AdvisorConsolePage = () => {
   // Derive selected client data for direct prop passing
   const selectedClient = useMemo(() => {
     if (!selectedClientId) return null;
+    // Check demo customers first
+    if (demoCustomers) {
+      const demoMatch = [demoCustomers.a, demoCustomers.b].find(c => c.id === selectedClientId);
+      if (demoMatch) {
+        // Wrap DemoCustomer profile into a DashboardClient-like shape
+        return {
+          id: demoMatch.id,
+          profile: demoMatch.profile,
+          detectedEvents: [],
+          lastContactDate: new Date(),
+          engagementStatus: "active" as const,
+        } satisfies DashboardClient;
+      }
+    }
     return dashboardClients.find(c => c.id === selectedClientId) || null;
-  }, [selectedClientId, dashboardClients]);
+  }, [selectedClientId, dashboardClients, demoCustomers]);
 
   const handleBackToTePilot = () => {
     // Clear all advisor console related sessionStorage
@@ -166,6 +197,25 @@ const AdvisorConsolePage = () => {
     }
   }, []);
 
+  // Handle launch from WM Copilot sign-in dialog
+  useEffect(() => {
+    const launchData = sessionStorage.getItem("wm_copilot_launch_client");
+    if (launchData) {
+      try {
+        const profile = JSON.parse(launchData);
+        sessionStorage.setItem("tepilot_client_profile", JSON.stringify(profile));
+        sessionStorage.removeItem("wm_copilot_launch_client");
+        // Use a stable ID from the profile name
+        const syntheticId = `wm-launch-${profile.name?.replace(/\s+/g, '-').toLowerCase() || 'client'}`;
+        setSelectedClientId(syntheticId);
+        setViewMode("client");
+      } catch (e) {
+        console.error("Error parsing WM copilot launch data:", e);
+        sessionStorage.removeItem("wm_copilot_launch_client");
+      }
+    }
+  }, []);
+
   useEffect(() => {
     // Load advisor context from sessionStorage
     const contextStr = sessionStorage.getItem("tepilot_advisor_context");
@@ -207,13 +257,12 @@ const AdvisorConsolePage = () => {
         <div className="flex items-center justify-between max-w-full">
           <div className="flex items-center gap-4">
             <Button
-              variant="outline"
-              size="sm"
+              variant="ghost"
+              size="icon"
               onClick={handleBackToTePilot}
-              className="text-blue-900 border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+              className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 h-9 w-9 shrink-0"
             >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to TePilot
+              <ArrowLeft className="h-5 w-5" />
             </Button>
             
             {/* View Toggle */}
@@ -249,9 +298,12 @@ const AdvisorConsolePage = () => {
             </div>
           </div>
           
-          <h2 className="text-sm font-medium text-slate-500">
-            Wealth Management Copilot
-          </h2>
+          <div className="flex items-center gap-1">
+            <h2 className="text-sm font-medium text-slate-500">
+              Wealth Management Copilot
+            </h2>
+            
+          </div>
         </div>
       </div>
 

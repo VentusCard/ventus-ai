@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { EventPreparationData, CardTransaction, LIFE_EVENT_CONFIG, DetectedLifeEvent } from "@/types/dashboardClient";
 import {
   Dialog,
@@ -17,6 +18,7 @@ import { cn } from "@/lib/utils";
 import { getSegmentColorClasses } from "@/lib/segmentColors";
 import { toast } from "@/hooks/use-toast";
 import { exportEventPreparationPDF } from "@/lib/eventPreparationPdfExport";
+import { EventSummaryEmailDialog } from "./EventSummaryEmailDialog";
 
 interface PrepareEventDialogProps {
   open: boolean;
@@ -58,6 +60,7 @@ const mockInsightsByEventType: Record<DetectedLifeEvent['eventType'], string> = 
 };
 
 export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVentus }: PrepareEventDialogProps) {
+  const [emailDialogOpen, setEmailDialogOpen] = useState(false);
 
   if (!data) return null;
 
@@ -70,10 +73,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
   );
 
   const handleEmailMe = () => {
-    toast({
-      title: "Summary sent!",
-      description: `Event preparation summary for ${client.profile.name} has been sent to your email.`,
-    });
+    setEmailDialogOpen(true);
   };
 
   const handleDownloadPDF = async () => {
@@ -111,7 +111,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-white text-slate-900">
+      <DialogContent className="tepilot-popup max-w-4xl max-h-[90vh] overflow-hidden flex flex-col bg-white text-slate-900">
         <DialogHeader className="pb-3 border-b">
           <div className="flex items-center gap-2">
             <div className={cn('p-2 rounded-lg', `bg-${config?.color || 'slate'}-100`)}>
@@ -135,7 +135,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </div>
         </DialogHeader>
 
-        <ScrollArea className="flex-1 pr-4">
+        <div className="flex-1 min-h-0 overflow-y-auto pr-4">
           <div className="py-3 space-y-4">
             {/* Evidence Transactions Section */}
             <div>
@@ -184,7 +184,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
                 <ol className="space-y-1.5">
                   {recommendedSteps.map((step, idx) => (
                     <li key={idx} className="flex items-start gap-3 text-sm">
-                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary/10 text-primary text-xs font-medium flex items-center justify-center">
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-medium flex items-center justify-center">
                         {idx + 1}
                       </span>
                       <span className="text-slate-600">{step}</span>
@@ -194,7 +194,7 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
               </div>
             </div>
           </div>
-        </ScrollArea>
+        </div>
 
         <DialogFooter className="border-t pt-3 flex items-center gap-2">
           <Button variant="outline" onClick={handleAskVentus} className="gap-2">
@@ -211,15 +211,20 @@ export function PrepareEventDialog({ open, onOpenChange, data, onPrepareWithVent
           </Button>
         </DialogFooter>
       </DialogContent>
+
+      {data && (
+        <EventSummaryEmailDialog
+          open={emailDialogOpen}
+          onOpenChange={setEmailDialogOpen}
+          data={data}
+        />
+      )}
     </Dialog>
   );
 }
 
-// Mock data generator for event transactions
-export function generateEventPreparationData(
-  client: EventPreparationData['client'],
-  event: DetectedLifeEvent
-): EventPreparationData {
+// Shared transaction data by event type
+export function getEventTransactions(eventType: DetectedLifeEvent['eventType']): CardTransaction[] {
   const transactionsByEventType: Record<DetectedLifeEvent['eventType'], CardTransaction[]> = {
     retirement: [
       { cardType: 'Platinum Rewards', cardLast4: '4532', merchant: 'Fidelity Investments', amount: 6500, date: 'Jan 15, 2026', relevance: '401k contribution increase' },
@@ -274,6 +279,14 @@ export function generateEventPreparationData(
       { cardType: 'Primary Checking', cardLast4: '5678', merchant: 'ACH - Home Instead Services', amount: 3200, date: 'Jan 28, 2026', relevance: 'In-home caregiver weekly payment' },
     ],
   };
+  return transactionsByEventType[eventType] || [];
+}
+
+// Mock data generator for event transactions
+export function generateEventPreparationData(
+  client: EventPreparationData['client'],
+  event: DetectedLifeEvent
+): EventPreparationData {
 
   const recommendedStepsByEventType: Record<DetectedLifeEvent['eventType'], string[]> = {
     retirement: [
@@ -330,7 +343,7 @@ export function generateEventPreparationData(
   return {
     client,
     event,
-    transactions: transactionsByEventType[event.eventType] || [],
+    transactions: getEventTransactions(event.eventType),
     recommendedSteps: recommendedStepsByEventType[event.eventType] || [],
   };
 }

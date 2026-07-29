@@ -2,45 +2,43 @@ export const engagementDemoHtml = `
 <style>
   .vx-wrap{ max-width:1200px; margin:40px auto; padding:0 16px; }
   .vx-head{ margin-bottom:18px; }
-  .vx-title{ font-size:18px; font-weight:650; letter-spacing:-0.02em; color:#fff; }
-  .vx-sub{ margin-top:6px; font-size:13px; color:rgba(255,255,255,.60); max-width:920px; line-height:1.45; }
+  .vx-title{ font-size:18px; font-weight:650; letter-spacing:-0.02em; color:#0f172a; }
+  .vx-sub{ margin-top:6px; font-size:13px; color:rgba(15,23,42,.55); max-width:920px; line-height:1.45; }
 
   .phone-row{ display:grid; grid-template-columns:repeat(3,1fr); gap:18px; align-items:start; }
   @media(max-width:980px){ .phone-row{ grid-template-columns:1fr; } }
 
   .phone{
-    border:1px solid rgba(255,255,255,.18);
+    border:1px solid rgba(15,23,42,.12);
     border-radius:30px;
-    background: rgba(255,255,255,.06);
-    backdrop-filter:blur(18px);
-    -webkit-backdrop-filter:blur(18px);
-    box-shadow:0 10px 40px rgba(0,0,0,.25);
+    background: rgba(15,23,42,.02);
+    box-shadow:0 10px 40px rgba(0,0,0,.06);
     overflow:hidden;
     position:relative;
   }
 
   .statusbar{
     display:flex; justify-content:space-between; align-items:center;
-    padding:10px 14px 8px; font-size:12px; color:rgba(255,255,255,.65);
+    padding:10px 14px 8px; font-size:12px; color:rgba(15,23,42,.55);
   }
   .status-right{ display:flex; gap:8px; opacity:.70; }
-  .sig,.bat{ border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.10); }
+  .sig,.bat{ border:1px solid rgba(15,23,42,.15); background:rgba(15,23,42,.08); }
   .sig{ width:14px;height:10px;border-radius:2px; }
   .bat{ width:22px;height:10px;border-radius:2px; }
 
   .apphead{
     padding:10px 14px 12px;
-    border-bottom:1px solid rgba(255,255,255,.10);
-    background:rgba(255,255,255,.04);
+    border-bottom:1px solid rgba(15,23,42,.08);
+    background:rgba(15,23,42,.02);
   }
   .apphead-top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
-  .app-title{ font-size:14px; font-weight:700; letter-spacing:-0.01em; color:#fff; }
+  .app-title{ font-size:14px; font-weight:700; letter-spacing:-0.01em; color:#0f172a; }
   .app-chip{
     font-size:12px;padding:4px 8px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.08);
-    color:rgba(255,255,255,.80); white-space:nowrap;
+    border:1px solid rgba(15,23,42,.15); background:rgba(15,23,42,.05);
+    color:rgba(15,23,42,.70); white-space:nowrap;
   }
-  .app-sub{ margin-top:6px;font-size:12px;color:rgba(255,255,255,.60); line-height:1.35; }
+  .app-sub{ margin-top:6px;font-size:12px;color:rgba(15,23,42,.55); line-height:1.35; }
 
   .screen{
     height:640px;
@@ -51,74 +49,74 @@ export const engagementDemoHtml = `
   .screen::after{
     content:"";
     position:absolute; left:0; right:0; bottom:52px; height:36px;
-    background:linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.04));
+    background:linear-gradient(180deg, rgba(255,255,255,0), rgba(255,255,255,.8));
     pointer-events:none;
   }
 
   .bottomnav{
     position:absolute; left:0; right:0; bottom:0;
-    border-top:1px solid rgba(255,255,255,.10);
-    background:rgba(255,255,255,.06);
+    border-top:1px solid rgba(15,23,42,.08);
+    background:rgba(255,255,255,1);
     backdrop-filter:blur(12px);
     -webkit-backdrop-filter:blur(12px);
     padding:10px 10px 12px;
     display:flex; justify-content:space-around; gap:8px;
-    font-size:10px; color:rgba(255,255,255,.45);
+    font-size:10px; color:rgba(15,23,42,.40);
   }
   .navitem{ display:flex; flex-direction:column; align-items:center; gap:4px; min-width:62px; }
-  .navdot{ width:18px;height:18px;border:1px solid rgba(255,255,255,.18);border-radius:6px;background:rgba(255,255,255,.05); }
-  .navitem.active{ color:rgba(255,255,255,.88); font-weight:650; }
-  .navitem.active .navdot{ background:rgba(255,255,255,.14); }
+  .navdot{ width:18px;height:18px;border:1px solid rgba(15,23,42,.12);border-radius:6px;background:rgba(15,23,42,.04); }
+  .navitem.active{ color:rgba(15,23,42,.85); font-weight:650; }
+  .navitem.active .navdot{ background:rgba(15,23,42,.10); }
 
   .block{
-    border:1px solid rgba(255,255,255,.10);
+    border:1px solid rgba(15,23,42,.08);
     border-radius:16px;
-    background:rgba(255,255,255,.05);
+    background:rgba(15,23,42,.02);
     padding:12px;
     margin-bottom:10px;
   }
-  .block-title{ font-size:12px;font-weight:650;color:rgba(255,255,255,.55);margin-bottom:10px; }
+  .block-title{ font-size:12px;font-weight:650;color:rgba(15,23,42,.50);margin-bottom:10px; }
 
   .pill-row{ display:flex; flex-wrap:wrap; gap:8px; }
   .pill{
     font-size:12px;padding:6px 10px;border-radius:999px;
-    border:1px solid rgba(255,255,255,.18); background:rgba(255,255,255,.06);
-    color:rgba(255,255,255,.80); white-space:nowrap;
+    border:1px solid rgba(15,23,42,.12); background:rgba(15,23,42,.04);
+    color:rgba(15,23,42,.75); white-space:nowrap;
   }
 
   .row2{
     display:flex; justify-content:space-between; align-items:flex-start; gap:10px;
-    font-size:12px; color:rgba(255,255,255,.65);
+    font-size:12px; color:rgba(15,23,42,.60);
   }
-  .row2 strong{ font-weight:650; color:rgba(255,255,255,.88); }
+  .row2 strong{ font-weight:650; color:rgba(15,23,42,.85); }
   .row2 + .row2{ margin-top:8px; }
   .right{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
 
   .card{
     padding:10px;
-    border:1px solid rgba(255,255,255,.10);
+    border:1px solid rgba(15,23,42,.08);
     border-radius:14px;
-    background:rgba(255,255,255,.04);
+    background:rgba(15,23,42,.02);
     margin-bottom:8px;
   }
   .card:last-child{ margin-bottom:0; }
-  .card-title{ font-size:13px; font-weight:650; color:#fff; }
-  .card-sub{ margin-top:2px; font-size:12px; color:rgba(255,255,255,.60); line-height:1.35; }
+  .card-title{ font-size:13px; font-weight:650; color:#0f172a; }
+  .card-sub{ margin-top:2px; font-size:12px; color:rgba(15,23,42,.55); line-height:1.35; }
 
   .toggle{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     padding:10px;
-    border:1px solid rgba(255,255,255,.10);
+    border:1px solid rgba(15,23,42,.08);
     border-radius:14px;
-    background:rgba(255,255,255,.04);
+    background:rgba(15,23,42,.02);
   }
   .toggle-left{ min-width:0; }
-  .toggle-title{ font-size:13px; font-weight:650; color:#fff; }
-  .toggle-sub{ margin-top:2px; font-size:12px; color:rgba(255,255,255,.60); line-height:1.35; }
+  .toggle-title{ font-size:13px; font-weight:650; color:#0f172a; }
+  .toggle-sub{ margin-top:2px; font-size:12px; color:rgba(15,23,42,.55); line-height:1.35; }
   .switch{
     width:40px; height:22px; border-radius:999px;
-    border:1px solid rgba(255,255,255,.18);
-    background:rgba(255,255,255,.08);
+    border:1px solid rgba(15,23,42,.15);
+    background:rgba(15,23,42,.06);
     position:relative; flex:0 0 auto;
   }
   .switch::after{
@@ -126,117 +124,117 @@ export const engagementDemoHtml = `
     position:absolute; top:2px; left:2px;
     width:18px; height:18px;
     border-radius:999px;
-    background:rgba(255,255,255,.18);
+    background:rgba(15,23,42,.15);
     transition:transform .22s ease;
   }
-  .switch.on{ background:rgba(255,255,255,.12); }
-  .switch.on::after{ transform:translateX(18px); background:rgba(255,255,255,.55); }
+  .switch.on{ background:rgba(59,130,246,.15); }
+  .switch.on::after{ transform:translateX(18px); background:rgba(59,130,246,.65); }
 
   .deal{
     padding:10px 0;
-    border-top:1px solid rgba(255,255,255,.10);
+    border-top:1px solid rgba(15,23,42,.08);
   }
   .deal:first-child{ border-top:none; padding-top:0; }
-  .deal-merchant{ font-size:13px; font-weight:650; color:#fff; }
-  .deal-msg{ margin-top:2px; font-size:12px; color:rgba(255,255,255,.60); line-height:1.35; }
-  .deal-meta{ margin-top:6px; display:flex; justify-content:space-between; gap:10px; font-size:11px; color:rgba(255,255,255,.40); }
+  .deal-merchant{ font-size:13px; font-weight:650; color:#0f172a; }
+  .deal-msg{ margin-top:2px; font-size:12px; color:rgba(15,23,42,.55); line-height:1.35; }
+  .deal-meta{ margin-top:6px; display:flex; justify-content:space-between; gap:10px; font-size:11px; color:rgba(15,23,42,.40); }
   .deal-meta span{ white-space:nowrap; }
 
   .geo-head{
     padding:10px;
-    border:1px solid rgba(255,255,255,.10);
+    border:1px solid rgba(15,23,42,.08);
     border-radius:14px;
-    background:rgba(255,255,255,.04);
+    background:rgba(15,23,42,.02);
     margin-bottom:10px;
   }
-  .geo-city{ font-size:13px; font-weight:650; color:#fff; }
-  .geo-sub{ margin-top:2px; font-size:12px; color:rgba(255,255,255,.60); }
+  .geo-city{ font-size:13px; font-weight:650; color:#0f172a; }
+  .geo-sub{ margin-top:2px; font-size:12px; color:rgba(15,23,42,.55); }
 
   .cta-btn{
     margin-top:8px;padding:8px;
-    background:rgba(255,255,255,.10);
-    border:1px solid rgba(255,255,255,.18);
+    background:rgba(15,23,42,.06);
+    border:1px solid rgba(15,23,42,.12);
     border-radius:8px;text-align:center;
     font-size:12px;font-weight:600;
-    color:rgba(255,255,255,.88);
+    color:rgba(15,23,42,.80);
   }
   .cta-btn-blue{
     margin-top:8px;padding:8px;
-    background:rgba(255,255,255,.10);
-    border:1px solid rgba(255,255,255,.20);
+    background:rgba(59,130,246,.08);
+    border:1px solid rgba(59,130,246,.18);
     border-radius:8px;text-align:center;
     font-size:12px;font-weight:600;
-    color:rgba(255,255,255,.88);
+    color:rgba(59,130,246,.85);
   }
 
   .badge-green{
-    background:rgba(255,255,255,.12);
-    color:rgba(255,255,255,.85);
+    background:rgba(34,197,94,.10);
+    color:rgba(22,163,74,.85);
     padding:3px 7px;border-radius:6px;
     font-size:9px;font-weight:650;white-space:nowrap;margin-left:8px;
   }
   .badge-orange{
-    background:rgba(255,200,80,.15);
-    color:rgba(255,210,100,.90);
+    background:rgba(245,158,11,.10);
+    color:rgba(217,119,6,.85);
     padding:3px 7px;border-radius:6px;
     font-size:10px;font-weight:650;white-space:nowrap;margin-left:8px;
   }
   .badge-new{
-    background:rgba(120,180,255,.15);
-    color:rgba(160,210,255,.90);
+    background:rgba(59,130,246,.10);
+    color:rgba(37,99,235,.85);
     padding:3px 7px;border-radius:6px;
     font-size:10px;font-weight:650;white-space:nowrap;margin-left:8px;
   }
 
-  .tile-travel{ background:rgba(255,140,80,.18); border-radius:12px;padding:10px;min-height:90px; }
-  .tile-dining{ background:rgba(255,80,80,.18); border-radius:12px;padding:10px;min-height:90px; }
-  .tile-pets  { background:rgba(80,190,240,.18); border-radius:12px;padding:10px;min-height:90px; }
-  .tile-well  { background:rgba(80,200,160,.18); border-radius:12px;padding:10px;min-height:90px; }
-  .tile-label { font-size:13px;font-weight:650;margin-bottom:3px;color:#fff; }
-  .tile-copy  { font-size:11px;line-height:1.2;color:rgba(255,255,255,.75); }
+  .tile-travel{ background:rgba(255,140,80,.12); border-radius:12px;padding:10px;min-height:90px; }
+  .tile-dining{ background:rgba(255,80,80,.12); border-radius:12px;padding:10px;min-height:90px; }
+  .tile-pets  { background:rgba(80,190,240,.12); border-radius:12px;padding:10px;min-height:90px; }
+  .tile-well  { background:rgba(80,200,160,.12); border-radius:12px;padding:10px;min-height:90px; }
+  .tile-label { font-size:13px;font-weight:650;margin-bottom:3px;color:#0f172a; }
+  .tile-copy  { font-size:11px;line-height:1.2;color:rgba(15,23,42,.65); }
 
   .setting-row{
     padding:10px 12px;
-    border-bottom:1px solid rgba(255,255,255,.10);
+    border-bottom:1px solid rgba(15,23,42,.08);
     display:flex;justify-content:space-between;align-items:center;
-    font-size:12px;color:rgba(255,255,255,.80);
+    font-size:12px;color:rgba(15,23,42,.75);
   }
   .setting-row:last-child{ border-bottom:none; }
-  .setting-caret{ color:rgba(255,255,255,.40); }
+  .setting-caret{ color:rgba(15,23,42,.35); }
 
   .partner-badge{
-    padding:6px 12px;border:1px solid rgba(255,255,255,.18);border-radius:8px;
-    font-size:10px;font-weight:600;background:rgba(255,255,255,.05);
-    color:rgba(255,255,255,.70);
+    padding:6px 12px;border:1px solid rgba(15,23,42,.12);border-radius:8px;
+    font-size:10px;font-weight:600;background:rgba(15,23,42,.03);
+    color:rgba(15,23,42,.60);
   }
 
   .benefit-row{
     padding:10px 0;
-    border-top:1px solid rgba(255,255,255,.10);
+    border-top:1px solid rgba(15,23,42,.08);
     display:flex;justify-content:space-between;align-items:center;
   }
 
   .hero-deal{
-    background:linear-gradient(135deg, rgba(220,80,80,.60) 0%, rgba(180,60,60,.70) 100%);
-    border:1px solid rgba(255,255,255,.18);
+    background:linear-gradient(135deg, rgba(220,80,80,.55) 0%, rgba(180,60,60,.65) 100%);
+    border:1px solid rgba(220,80,80,.25);
     color:#fff;padding:14px;border-radius:16px;margin-bottom:12px;
   }
   .hero-cta{
-    background:rgba(255,255,255,.20);
-    border:1px solid rgba(255,255,255,.30);
+    background:rgba(255,255,255,.25);
+    border:1px solid rgba(255,255,255,.35);
     color:#fff;padding:10px;border-radius:10px;
     text-align:center;font-size:13px;font-weight:700;margin-top:10px;
   }
 
   .member-card{
-    background:linear-gradient(135deg, rgba(212,175,55,.55) 0%, rgba(180,148,35,.65) 100%);
-    border:1px solid rgba(255,255,255,.20);
+    background:linear-gradient(135deg, rgba(212,175,55,.50) 0%, rgba(180,148,35,.60) 100%);
+    border:1px solid rgba(212,175,55,.30);
     color:#fff;padding:14px;border-radius:16px;margin-bottom:12px;
   }
 
   .profile-card{
-    background:linear-gradient(135deg, rgba(0,100,180,.55) 0%, rgba(0,60,120,.65) 100%);
-    border:1px solid rgba(255,255,255,.18);
+    background:linear-gradient(135deg, rgba(0,100,180,.50) 0%, rgba(0,60,120,.60) 100%);
+    border:1px solid rgba(0,100,180,.25);
     color:#fff;border-radius:16px;padding:14px;margin-bottom:10px;
   }
 
@@ -276,9 +274,9 @@ export const engagementDemoHtml = `
       </div>
 
       <div class="screen">
-        <div style="padding:12px 14px 8px;border-bottom:1px solid rgba(255,255,255,.10);">
-          <div style="font-size:15px;font-weight:400;margin-bottom:6px;color:#fff;">Good morning</div>
-          <div style="font-size:12px;color:rgba(255,255,255,.60);line-height:1.3;">
+        <div style="padding:12px 14px 8px;border-bottom:1px solid rgba(15,23,42,.08);">
+          <div style="font-size:15px;font-weight:400;margin-bottom:6px;color:#0f172a;">Good morning</div>
+          <div style="font-size:12px;color:rgba(15,23,42,.55);line-height:1.3;">
             You've saved \$325 this quarter through personalized rewards.
           </div>
         </div>
@@ -347,14 +345,14 @@ export const engagementDemoHtml = `
               <div style="font-size:16px;font-weight:700;margin-bottom:4px;">REI Co-op</div>
               <div style="font-size:13px;line-height:1.3;opacity:0.90;">Get 10% back on outdoor gear and winter equipment</div>
             </div>
-            <div style="background:rgba(255,255,255,.18);border:1px solid rgba(255,255,255,.25);padding:4px 8px;border-radius:6px;font-size:11px;font-weight:650;white-space:nowrap;margin-left:8px;">Expires Jan 15</div>
+            <div style="background:rgba(15,23,42,.06);border:1px solid rgba(15,23,42,.12);padding:4px 8px;border-radius:6px;font-size:11px;font-weight:650;white-space:nowrap;margin-left:8px;color:rgba(15,23,42,.70);">Expires Jan 15</div>
           </div>
           <div class="hero-cta">Activate Offer</div>
         </div>
 
         <div class="block" style="padding:8px;margin-bottom:10px;">
           <div style="display:flex;gap:8px;flex-wrap:nowrap;">
-            <div class="pill" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.28);font-weight:600;flex-shrink:0;">🏔️ Outdoor</div>
+            <div class="pill" style="background:rgba(15,23,42,.08);border-color:rgba(15,23,42,.18);font-weight:600;flex-shrink:0;">🏔️ Outdoor</div>
             <div class="pill" style="flex-shrink:0;">🍽️ Dining</div>
             <div class="pill" style="flex-shrink:0;">🛍️ Shopping</div>
             <div class="pill" style="flex-shrink:0;">💪 Wellness</div>
@@ -405,7 +403,7 @@ export const engagementDemoHtml = `
                 <div class="card-title" style="font-size:13px;">Mountain Sports</div>
                 <div class="card-sub" style="font-size:11px;">20% off ski tuning services · 0.8 mi away</div>
               </div>
-              <div style="font-size:11px;color:rgba(255,255,255,.40);white-space:nowrap;margin-left:8px;">View</div>
+               <div style="font-size:11px;color:rgba(15,23,42,.40);white-space:nowrap;margin-left:8px;">View</div>
             </div>
           </div>
           <div class="card">
@@ -414,14 +412,14 @@ export const engagementDemoHtml = `
                 <div class="card-title" style="font-size:13px;">Summit Coffee</div>
                 <div class="card-sub" style="font-size:11px;">Buy 2 get 1 free · 1.2 mi away</div>
               </div>
-              <div style="font-size:11px;color:rgba(255,255,255,.40);white-space:nowrap;margin-left:8px;">View</div>
+              <div style="font-size:11px;color:rgba(15,23,42,.40);white-space:nowrap;margin-left:8px;">View</div>
             </div>
           </div>
         </div>
 
         <div class="block" style="padding:12px;text-align:center;">
-          <div style="font-size:12px;color:rgba(255,255,255,.60);margin-bottom:4px;">Saved Offers</div>
-          <div style="font-size:11px;color:rgba(255,255,255,.40);">Tap the bookmark icon to save offers for later</div>
+          <div style="font-size:12px;color:rgba(15,23,42,.55);margin-bottom:4px;">Saved Offers</div>
+          <div style="font-size:11px;color:rgba(15,23,42,.40);">Tap the bookmark icon to save offers for later</div>
         </div>
 
         <div class="bottomnav" aria-hidden="true">
@@ -452,7 +450,7 @@ export const engagementDemoHtml = `
         <div class="member-card">
           <div style="font-size:11px;opacity:0.80;margin-bottom:3px;">YOUR MEMBERSHIP</div>
           <div style="font-size:18px;font-weight:700;margin-bottom:6px;letter-spacing:-0.3px;">PREMIUM BANKING</div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.20);">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,255,255,.25);">
             <div>
               <div style="font-size:10px;opacity:0.75;margin-bottom:2px;">Perks Used</div>
               <div style="font-size:16px;font-weight:700;">12 this quarter</div>
@@ -464,7 +462,7 @@ export const engagementDemoHtml = `
           </div>
         </div>
 
-        <div style="padding:0 12px 8px;font-size:11px;color:rgba(255,255,255,.60);" id="locationContext">
+        <div style="padding:0 12px 8px;font-size:11px;color:rgba(15,23,42,.55);" id="locationContext">
           📍 Currently in New York City
         </div>
 
@@ -508,47 +506,47 @@ export const engagementDemoHtml = `
 
           <div class="benefit-row">
             <div>
-              <div style="font-size:13px;font-weight:650;color:#fff;">💳 Cashback Rewards</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.60);margin-top:2px;">3% on dining, 2% on travel</div>
+               <div style="font-size:13px;font-weight:650;color:#0f172a;">💳 Cashback Rewards</div>
+              <div style="font-size:11px;color:rgba(15,23,42,.55);margin-top:2px;">3% on dining, 2% on travel</div>
             </div>
-            <div style="color:rgba(255,255,255,.40);">›</div>
+            <div style="color:rgba(15,23,42,.35);">›</div>
           </div>
 
           <div class="benefit-row">
             <div>
-              <div style="font-size:13px;font-weight:650;color:#fff;">🏨 Hotel Benefits</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.60);margin-top:2px;">Room upgrades, late checkout, breakfast</div>
+               <div style="font-size:13px;font-weight:650;color:#0f172a;">🏨 Hotel Benefits</div>
+              <div style="font-size:11px;color:rgba(15,23,42,.55);margin-top:2px;">Room upgrades, late checkout, breakfast</div>
             </div>
-            <div style="color:rgba(255,255,255,.40);">›</div>
+            <div style="color:rgba(15,23,42,.35);">›</div>
           </div>
 
           <div class="benefit-row">
             <div>
-              <div style="font-size:13px;font-weight:650;color:#fff;">🎫 Entertainment Access</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.60);margin-top:2px;">Presale tickets, VIP seating, backstage passes</div>
+               <div style="font-size:13px;font-weight:650;color:#0f172a;">🎫 Entertainment Access</div>
+              <div style="font-size:11px;color:rgba(15,23,42,.55);margin-top:2px;">Presale tickets, VIP seating, backstage passes</div>
             </div>
-            <div style="color:rgba(255,255,255,.40);">›</div>
+            <div style="color:rgba(15,23,42,.35);">›</div>
           </div>
 
           <div class="benefit-row">
             <div>
-              <div style="font-size:13px;font-weight:650;color:#fff;">🛡️ Travel Protection</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.60);margin-top:2px;">Trip insurance, baggage coverage, rental car</div>
+               <div style="font-size:13px;font-weight:650;color:#0f172a;">🛡️ Travel Protection</div>
+              <div style="font-size:11px;color:rgba(15,23,42,.55);margin-top:2px;">Trip insurance, baggage coverage, rental car</div>
             </div>
-            <div style="color:rgba(255,255,255,.40);">›</div>
+            <div style="color:rgba(15,23,42,.35);">›</div>
           </div>
 
-          <div class="benefit-row" style="border-bottom:1px solid rgba(255,255,255,.10);padding-bottom:10px;">
+          <div class="benefit-row" style="border-bottom:1px solid rgba(15,23,42,.08);padding-bottom:10px;">
             <div>
-              <div style="font-size:13px;font-weight:650;color:#fff;">💪 Wellness &amp; Lifestyle</div>
-              <div style="font-size:11px;color:rgba(255,255,255,.60);margin-top:2px;">Gym discounts, spa access, fitness classes</div>
+              <div style="font-size:13px;font-weight:650;color:#0f172a;">💪 Wellness &amp; Lifestyle</div>
+              <div style="font-size:11px;color:rgba(15,23,42,.55);margin-top:2px;">Gym discounts, spa access, fitness classes</div>
             </div>
-            <div style="color:rgba(255,255,255,.40);">›</div>
+            <div style="color:rgba(15,23,42,.35);">›</div>
           </div>
         </div>
 
         <div class="block" style="text-align:center;padding:12px;">
-          <div style="font-size:11px;color:rgba(255,255,255,.60);margin-bottom:8px;">PARTNER NETWORK</div>
+          <div style="font-size:11px;color:rgba(15,23,42,.55);margin-bottom:8px;">PARTNER NETWORK</div>
           <div style="display:flex;justify-content:center;gap:12px;flex-wrap:wrap;">
             <div class="partner-badge">Priority Pass</div>
             <div class="partner-badge">Visa Infinite</div>

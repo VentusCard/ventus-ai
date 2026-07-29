@@ -1,0 +1,14 @@
+---
+name: Risk Detection Logic
+description: Edge function categories narrowed to Vice, Suspicious International, and AML only
+type: feature
+---
+The 'detect-risk-transactions' edge function (Gemini 3 Flash Preview) analyzes enriched transaction data for 3 categories only:
+
+1. **VICE** — Gambling, casinos, sports betting, adult content, payday/predatory loans, pawn shops, crypto mixing
+2. **SUSPICIOUS_INTERNATIONAL** — OFAC-sanctioned jurisdictions, unusual currency conversion, inconsistent international activity
+3. **AML** — Structuring below $10K thresholds, round-number rapid deposits/withdrawals, layering
+
+Removed categories: FRAUD (generic duplicates/geo anomalies) and HABIT_SHIFT (spending spikes/tier changes) — considered noise.
+
+The model is instructed to be conservative: only flag clear evidence, never flag normal travel or spending variations. Empty flags array is the expected default for most customers.

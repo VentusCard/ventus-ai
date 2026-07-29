@@ -158,6 +158,46 @@ export interface SpendingTimingHighlight {
 }
 
 // Pipeline Status Types for Consumer Rewards Dashboard
+// Gamification Management Types
+export interface RewardConfig {
+  type: 'points' | 'gift_card' | 'cashback' | 'custom';
+  value: number;
+  currency?: string;
+  merchantName?: string;
+  fulfillment: 'automatic' | 'manual_approval';
+  monthlyBudgetCap?: number;
+}
+
+export interface ManagedAchievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  category: string;
+  targetValue: number;
+  triggerLogic: string;
+  isActive: boolean;
+  completionRate: number;
+  inProgressRate: number;
+  reward?: RewardConfig;
+}
+
+export interface GamificationMetrics {
+  enrolledUsers: number;
+  enrollmentRate: number;
+  avgHealthScore: number;
+  totalUnlocks: number;
+  avgUnlocksPerUser: number;
+  engagementLift: number;
+  achievements: ManagedAchievement[];
+  recommendations: Array<{
+    title: string;
+    description: string;
+    impact: string;
+    priority: 'high' | 'medium';
+  }>;
+}
+
 export type PipelineStage = 'not_started' | 'contacted' | 'negotiating' | 'contract_sent' | 'live';
 
 export interface ContactLogEntry {
@@ -173,4 +213,99 @@ export interface PipelineStatus {
   notes: string[];
   lastUpdated: string;
   contactLog: ContactLogEntry[];
+}
+
+// Wallet Share Intelligence Types
+export interface CompetitorOutflow {
+  institution: string;
+  type: 'neobank' | 'brokerage' | 'fintech' | 'traditional' | 'bnpl' | 'crypto' | 'rent' | 'auto_loan' | 'student_loan' | 'utility' | 'insurance' | 'childcare' | 'subscription';
+  productCategory: string;
+  estimatedOutflow: number;
+  affectedCustomers: number;
+  trend: 'growing' | 'stable' | 'declining';
+  detectionMethod: string;
+  avgTransferAmount: number;
+  riskLevel: 'high' | 'medium' | 'low';
+}
+
+export interface WalletShareMetricsData {
+  depositFlightRate: number;
+  annualOutflowVolume: number;
+  topCompetitor: string;
+  winBackOpportunity: number;
+  depositFlightTrend: number;
+  outflowTrend: number;
+}
+
+export interface WinBackRecommendation {
+  id: string;
+  outflowPattern: string;
+  competitor: string;
+  affectedCustomers: number;
+  behavioralContext: string;
+  recommendedAction: string;
+  estimatedRecapture: number;
+  confidence: number;
+  segmentTags: string[];
+  outflowVolume: number;
+  avgTransferAmount: number;
+  topPersona: string;
+  timeToAction: string;
+  channelStrategy: string[];
+  successMetric: string;
+  trend: 'growing' | 'stable' | 'declining';
+}
+
+export interface WalletShareTrendPoint {
+  month: string;
+  outflowVolume: number;
+  flightRate: number;
+  winBackRate: number;
+}
+
+export interface MerchantDetail {
+  name: string;
+  product: string;
+  msrp: string;
+  link: string;
+}
+
+// Category Extension Opportunity — behaviorally adjacent deals that MCC codes can't connect
+export interface CategoryExtensionOpportunity {
+  id: string;
+  sourcePillar: string;
+  sourceCategory: string;
+  sourceSubcategory: string;
+  behavioralSignal: string;
+  extensionProduct: string;
+  extensionMerchant: string;
+  extensionCategory: string;
+  whyItFits: string;
+  mccDisconnectNote: string;
+  addressableUsers: number;
+  estimatedRevenue: number;
+  projectedConversionRate: number;
+  confidenceScore: number;
+  matchingPersonas: string[];
+  topAgeRanges: string[];
+  topRegions: string[];
+  peakSpendingWeeks: string;
+  optimalDeploymentWindow: string;
+  deploymentRationale: string;
+  priority: 'high' | 'medium' | 'low';
+  merchantDetails: MerchantDetail[];
+}
+
+// Pillar Deep Dive Heatmap Types
+export interface PillarDeepDiveCell {
+  ageGroup: string;
+  generationLabel: string;
+  region: string;
+  totalSpend: number;
+  spendIndex: number;
+  yoyGrowth: number;
+  topSubcategory: string;
+  subcategoryGrowth: number;
+  userCount: number;
+  color: string;
 }
