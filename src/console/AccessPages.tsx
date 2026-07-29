@@ -34,7 +34,7 @@ export function AppEntryPage() {
 }
 
 export function ProtectedDemoPage() {
-  const { user, loading, access, accessLoading } = useAuth();
+  const { user, session, loading, access, accessLoading } = useAuth();
   if (loading || accessLoading) return <AccessLoading />;
   if (!user) return <Navigate to="/app/login" replace />;
   if (!access || access.status !== "active") return <Navigate to="/app/access-pending" replace />;
@@ -50,6 +50,7 @@ export function ProtectedDemoPage() {
         audience="leadership"
         allowedPaths={allowedPaths}
         authenticated
+        accessToken={session?.access_token}
         sessionScope={user.id}
       />
     </Suspense>

@@ -58,7 +58,7 @@ Create or use a protected Amplify branch for live demonstrations. Set one non-se
 VITE_DEMO_CONNECTOR_API_BASE_URL=<DemoConnectorApiBaseUrl output>
 ```
 
-The value should end at `/v1/demo` with no trailing slash. Redeploy the branch after changing it. The stack accepts `https://demo.ventusai.com` by default; keep the public production branch without this variable. Any other origin must be an explicit, reviewed `demoAllowedOrigins` CDK context value.
+The value should end at `/v1/demo` with no trailing slash. Redeploy the branch after changing it. The stack accepts the protected `dev` and `staging` Amplify origins plus `https://demo.ventusai.com` by default; keep the public production branch without this variable. Any other origin must be an explicit, reviewed `demoAllowedOrigins` CDK context value.
 
 ## Smoke test
 
