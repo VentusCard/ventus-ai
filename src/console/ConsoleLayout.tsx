@@ -3,7 +3,7 @@
 // a single line at the foot of the rail.
 
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
-import { Activity, Building2, Layers, LineChart, ListChecks, Loader2, LogOut, Settings } from "lucide-react";
+import { Activity, Building2, Inbox, Layers, LineChart, ListChecks, Loader2, LogOut, Settings } from "lucide-react";
 import { AuthProvider, ConsoleProvider, useAuth, useConsole } from "@/console/state";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
@@ -11,6 +11,7 @@ import "@/styles/console.css";
 
 const NAV = [
   { to: "/app/moments", label: "Moments", icon: Activity, end: true },
+  { to: "/app/briefings", label: "Briefings", icon: Inbox, end: false },
   { to: "/app/plays", label: "Growth Plays", icon: ListChecks, end: false },
   { to: "/app/ledger", label: "Ledger", icon: Layers, end: false },
   { to: "/app/outcomes", label: "Outcomes", icon: LineChart, end: false },
@@ -118,10 +119,9 @@ function Shell() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 grid h-16 border-t bg-white/95 px-2 backdrop-blur md:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex h-16 overflow-x-auto border-t bg-white/95 px-2 backdrop-blur md:hidden"
         style={{
           borderColor: "var(--v2-rule)",
-          gridTemplateColumns: `repeat(${visibleNav.length}, minmax(0, 1fr))`,
         }}
         aria-label="Console navigation"
       >
@@ -130,7 +130,7 @@ function Shell() {
             key={to}
             to={to}
             end={end}
-            className="flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-semibold"
+            className="flex min-w-[68px] flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold"
             style={({ isActive }) => ({ color: isActive ? tenant.accent : "var(--v2-ink-faint)" })}
           >
             <Icon className="h-4 w-4" />

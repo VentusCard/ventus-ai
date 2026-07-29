@@ -1,132 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ventusai.dev/</loc>
+    <loc>https://ventusai.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/platform</loc>
+    <loc>https://ventusai.com/platform</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/transaction-enrichment</loc>
+    <loc>https://ventusai.com/transaction-enrichment</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/solutions/offer-intelligence</loc>
+    <loc>https://ventusai.com/solutions/offer-intelligence</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/solutions/product-intelligence</loc>
+    <loc>https://ventusai.com/solutions/product-intelligence</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/solutions/conversation-intelligence</loc>
+    <loc>https://ventusai.com/solutions/conversation-intelligence</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/solutions/portfolio-intelligence</loc>
+    <loc>https://ventusai.com/solutions/portfolio-intelligence</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/solutions/campaign-intelligence</loc>
+    <loc>https://ventusai.com/solutions/campaign-intelligence</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/coworker</loc>
+    <loc>https://ventusai.com/coworker</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/smartrewards</loc>
+    <loc>https://ventusai.com/smartrewards</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/engagement</loc>
+    <loc>https://ventusai.com/engagement</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/wealth</loc>
+    <loc>https://ventusai.com/wealth</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/travel</loc>
+    <loc>https://ventusai.com/travel</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/analytics</loc>
+    <loc>https://ventusai.com/analytics</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights</loc>
+    <loc>https://ventusai.com/insights</loc>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/faq</loc>
+    <loc>https://ventusai.com/faq</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/about</loc>
+    <loc>https://ventusai.com/about</loc>
     <changefreq>yearly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/contact</loc>
+    <loc>https://ventusai.com/contact</loc>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/meet-ventus-ai-coworker</loc>
+    <loc>https://ventusai.com/insights/meet-ventus-ai-coworker</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/what-is-semantic-transaction-enrichment</loc>
+    <loc>https://ventusai.com/insights/what-is-semantic-transaction-enrichment</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/ai-wont-replace-your-bank</loc>
+    <loc>https://ventusai.com/insights/ai-wont-replace-your-bank</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/transaction-enrichment-beyond-mcc</loc>
+    <loc>https://ventusai.com/insights/transaction-enrichment-beyond-mcc</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/life-event-detection-banking</loc>
+    <loc>https://ventusai.com/insights/life-event-detection-banking</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/rewards-personalization-at-scale</loc>
+    <loc>https://ventusai.com/insights/rewards-personalization-at-scale</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/wealth-management-copilot-design</loc>
+    <loc>https://ventusai.com/insights/wealth-management-copilot-design</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ventusai.dev/insights/bank-wide-analytics-behavioral-segmentation</loc>
+    <loc>https://ventusai.com/insights/bank-wide-analytics-behavioral-segmentation</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

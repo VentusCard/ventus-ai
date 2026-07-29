@@ -22,6 +22,7 @@ import {
   ProtectedDemoPage,
 } from "./console/AccessPages";
 import MomentsPage from "./console/MomentsPage";
+import BriefingsPage from "./console/BriefingsPage";
 import { FscOnboardingPage } from "./console/FscOnboardingPage";
 import { LedgerPage, OutcomesPage, PlaysPage, SettingsPage } from "./console/OpsPages";
 
@@ -95,6 +96,7 @@ const AppLayout = () => {
           <Route path="demo" element={<ProtectedDemoPage />} />
           <Route element={<ConsoleLayout />}>
             <Route path="moments" element={<MomentsPage />} />
+            <Route path="briefings" element={<BriefingsPage />} />
             <Route path="plays" element={<PlaysPage />} />
             <Route path="ledger" element={<LedgerPage />} />
             <Route path="outcomes" element={<OutcomesPage />} />
