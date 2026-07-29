@@ -16,7 +16,7 @@ type Segment = {
   valueMath: string;
 };
 
-const MergeToken = ({ children = "$xx.xx" }: { children?: React.ReactNode }) => (
+const MergeToken = ({ children = "$xxx" }: { children?: React.ReactNode }) => (
   <span className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded border border-dashed border-amber-300 bg-amber-50 text-amber-800 font-mono text-[11px] leading-none align-baseline -translate-y-[1px]">
     {children}
   </span>
