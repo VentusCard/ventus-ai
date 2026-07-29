@@ -115,7 +115,7 @@ const CampaignStudioPreview = () => {
                       : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"
                   }`}
                 >
-                  {e.label}
+                  {e.name}
                 </button>
               ))}
             </div>
