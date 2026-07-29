@@ -9,9 +9,9 @@ are related, but they are not the same thing.
 | Stage | Git source | Frontend | Backend and data | Purpose |
 | --- | --- | --- | --- | --- |
 | Pull request | Feature branch | Amplify PR preview when available | Fixtures or explicitly isolated sandbox services | Review one proposed change |
-| Development | `dev` | `https://dev.d1x0mm0pbkpcfs.amplifyapp.com` until `dev.ventusai.com` is approved | Development Cognito, Aurora, APIs, Plaid sandbox, and Salesforce FSC sandbox | Shared integration and product testing |
-| Staging | `staging` | `https://staging.d1x0mm0pbkpcfs.amplifyapp.com` | Protected staging stacks and sanctioned non-production data only | Release-candidate validation |
-| Production | `main` | `https://main.d1x0mm0pbkpcfs.amplifyapp.com` and approved production domains | Production services and customer data | Customer-facing release |
+| Development | `dev` | `https://dev.d1gaewa028qzng.amplifyapp.com` until `dev.ventusai.com` is approved | Development Cognito, Aurora, APIs, Plaid sandbox, and Salesforce FSC sandbox | Shared integration and product testing |
+| Staging | `staging` | `https://staging.d1gaewa028qzng.amplifyapp.com` | Protected staging stacks and sanctioned non-production data only | Release-candidate validation |
+| Production | `main` | `https://ventusai.com` | Production services and customer data | Customer-facing release |
 
 `main` is the Amplify production branch today. Do not use a PR preview as the
 shared development environment, and do not treat the existing `staging`
@@ -32,14 +32,12 @@ Production is never the place to discover environment-specific failures.
 
 ## One-time Amplify setup
 
-An Amplify administrator must connect the existing GitHub `dev` branch to app
-`d1x0mm0pbkpcfs`. Use `amplify.yml`, enable automatic builds, and do not copy
-production secrets into Amplify. Configure only reviewed, non-secret frontend
-values such as the development API base URL and Cognito public identifiers.
-
-The GitHub `dev` branch is currently an ancestor of `main`, with no unique
-commits. Fast-forward it to the approved baseline before the first shared
-development deployment.
+The canonical frontend is Amplify app `d1gaewa028qzng` in `us-east-1`. It owns
+`ventusai.com` and connects the GitHub `main`, `staging`, and `dev` branches.
+Use `amplify.yml`, enable automatic builds for non-production branches, and do
+not copy production secrets into Amplify. Configure only reviewed, non-secret
+frontend values such as the development API base URL and Cognito public
+identifiers.
 
 Keep `main` marked as the production branch. Do not point the production
 Ventus domain at `dev` or `staging`.
@@ -76,16 +74,18 @@ same application commit intended for production.
 ## Current state
 
 - `dev` is connected to the GitHub `dev` branch with automatic builds. Its
-  first Amplify build succeeded on July 28, 2026.
-- `staging` is connected to the GitHub `staging` branch, but its deployed
-  release dates to February 20, 2026. Refresh it only through the promotion
-  flow above.
+  first canonical Amplify deployment succeeded on July 28, 2026.
+- `staging` is connected to the GitHub `staging` branch and was refreshed
+  through pull request #198 on July 28, 2026. Amplify marks it as the `BETA`
+  branch and automatic builds are enabled.
 - `main` remains the Amplify production branch and was not changed during the
   environment correction.
-- The scoped MCP operator policy is attached to the live role and can inspect
-  or restart `dev` and `staging` jobs without access to `main` or secret values.
+- Amplify app `d1x0mm0pbkpcfs` in `us-east-2` is a temporary duplicate. Retire
+  it only after the canonical `dev` deployment and branch configuration are
+  verified.
+- The repository's scoped MCP operator policy targets the canonical app. An
+  AWS administrator must replace the live role's older Ohio-app policy before
+  MCP can inspect or restart canonical `dev` and `staging` jobs.
 - Keep active PR previews until their reviews close.
 - Remove stale PR preview branches, such as `pr-81`, through Amplify after
   confirming the corresponding pull request is closed.
-- Reconcile the diverged GitHub `dev` and `main` histories through reviewed
-  pull request #195; do not overwrite either branch.

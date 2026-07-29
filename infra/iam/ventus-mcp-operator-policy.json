@@ -71,10 +71,10 @@
         "amplify:StartJob"
       ],
       "Resource": [
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1x0mm0pbkpcfs/branches/dev",
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1x0mm0pbkpcfs/branches/dev/jobs/*",
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1x0mm0pbkpcfs/branches/staging",
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1x0mm0pbkpcfs/branches/staging/jobs/*"
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/dev",
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/dev/jobs/*",
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/staging",
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/staging/jobs/*"
       ],
       "Condition": {
         "StringEquals": {

@@ -27,7 +27,7 @@ Set `AWS_PROFILE=ventus-mcp` for the Codex desktop app and restart Codex so the 
 3. Attach `infra/iam/ventus-mcp-operator-policy.json` as an inline policy.
 4. Confirm CloudTrail is recording the role's calls.
 
-The policy only authorizes calls forwarded by the AWS-managed MCP Server. It can inspect the isolated demo stack, Lambda/API health, secret metadata, Amplify deployment jobs, logs, alarms, and costs. It can start an existing `dev` or `staging` deployment for Amplify app `d1x0mm0pbkpcfs`, but not `main`. It cannot create Amplify branches, read Amplify environment variables or secret values, administer IAM, alter DNS, or delete infrastructure.
+The policy only authorizes calls forwarded by the AWS-managed MCP Server. It can inspect the isolated demo stack, Lambda/API health, secret metadata, Amplify deployment jobs, logs, alarms, and costs. It can start an existing `dev` or `staging` deployment for the canonical Amplify app `d1gaewa028qzng` in `us-east-1`, but not `main`. It cannot create Amplify branches, read Amplify environment variables or secret values, administer IAM, alter DNS, or delete infrastructure.
 
 ## Operating split
 
