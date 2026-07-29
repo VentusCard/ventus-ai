@@ -186,6 +186,27 @@ test("FSC delivery creates a Decision Receipt, native Referral, and related bank
   assert.equal(writes[2].body.Outcome_Status__c, "measuring");
 });
 
+test("Salesforce delivery rejects a Decision Package from another tenant before authenticating", async () => {
+  configureSalesforceTestEnvironment();
+  let fetchCalled = false;
+  globalThis.fetch = async () => {
+    fetchCalled = true;
+    return new Response("unexpected", { status: 500 });
+  };
+
+  const response = await deliverToSalesforce(salesforceRequest({
+    decisionPackage: {
+      ...decisionPackage(),
+      tenantId: "another_bank",
+    },
+  }));
+  const result = await response.json() as { error?: string };
+
+  assert.equal(response.status, 403);
+  assert.match(result.error || "", /tenant does not match/i);
+  assert.equal(fetchCalled, false);
+});
+
 test("FSC delivery preserves Task delivery when Referral creation fails", async () => {
   configureSalesforceTestEnvironment();
   globalThis.fetch = async (input) => {
