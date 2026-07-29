@@ -14,7 +14,7 @@ const Footer = () => {
               {COMPANY_ONE_LINER} We extract signals in spending behavior, financial behavior, and
               major life events, then orchestrate them into the systems banks already run.
             </p>
-            <p className="mt-4 text-[11px] uppercase tracking-wider text-white/40">
+            <p className="mt-4 text-[11px] uppercase tracking-wider text-white/70">
               {OUTCOMES_INLINE}
             </p>
           </div>
@@ -23,11 +23,11 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Solutions</h4>
             <nav className="flex flex-col gap-2.5">
-              <p className="text-[11px] uppercase tracking-wider text-white/40">Behavioral Intelligence</p>
+              <p className="text-[11px] uppercase tracking-wider text-white/70">Behavioral Intelligence</p>
               <Link to="/solutions/offer-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Next Offer</Link>
               <Link to="/solutions/product-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Next Product</Link>
               <Link to="/solutions/conversation-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Next Conversation</Link>
-              <p className="text-[11px] uppercase tracking-wider text-white/40 mt-3">Analytics</p>
+              <p className="text-[11px] uppercase tracking-wider text-white/70 mt-3">Analytics</p>
               <Link to="/solutions/portfolio-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Customer Intelligence</Link>
               <Link to="/solutions/campaign-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Segment of One Campaigns</Link>
               <Link to="/coworker" className="text-white/60 hover:text-white text-sm transition-colors">Ventus AI Coworker</Link>
@@ -60,7 +60,7 @@ const Footer = () => {
         </div>
 
         <div className="border-t border-white/10 mt-12 pt-6 text-center">
-          <p className="text-white/40 text-xs">© 2026 Ventus Financial Technologies Inc. All rights reserved.</p>
+          <p className="text-white/70 text-xs">© 2026 Ventus Financial Technologies Inc. All rights reserved.</p>
         </div>
       </div>
     </footer>
