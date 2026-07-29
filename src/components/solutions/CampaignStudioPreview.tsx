@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Sparkles, Users, Mail, Pause, Play } from "lucide-react";
+import { Users, Mail, Pause, Play } from "lucide-react";
 
 type Segment = {
   id: string;
