@@ -114,6 +114,8 @@ const AppLayout = () => {
         <Route path="/insights" element={<Insights />} />
         <Route path="/insights/:slug" element={<InsightPost />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/tepilot" element={<TePilot />} />
         <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
         <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
