@@ -8,6 +8,8 @@ import { Construct } from 'constructs';
 
 const DEFAULT_ORIGINS = [
   'https://demo.ventusai.com',
+  'https://dev.d1gaewa028qzng.amplifyapp.com',
+  'https://staging.d1gaewa028qzng.amplifyapp.com',
 ];
 
 export class VentusDemoConnectorsStack extends cdk.Stack {

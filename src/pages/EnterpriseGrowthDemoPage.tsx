@@ -656,6 +656,7 @@ export default function EnterpriseGrowthDemoPage({
   autoEnter = false,
   allowedPaths = LEADERSHIP_PATHS,
   authenticated = false,
+  accessToken,
   sessionScope = "anonymous",
 }: {
   embedded?: boolean;
@@ -665,6 +666,7 @@ export default function EnterpriseGrowthDemoPage({
   autoEnter?: boolean;
   allowedPaths?: LeadershipPath[];
   authenticated?: boolean;
+  accessToken?: string;
   sessionScope?: string;
 }) {
   const permittedPaths = allowedPaths.length > 0 ? allowedPaths : LEADERSHIP_PATHS;
@@ -1091,6 +1093,7 @@ export default function EnterpriseGrowthDemoPage({
       )}
       {!internal && presenterSessionOpen && (
         <PresenterSessionPanel
+          accessToken={accessToken}
           currentSession={connectorSession}
           onConnected={(session) => {
             updateConnectorSession(session);
@@ -5492,11 +5495,13 @@ function ObjectiveContextBar({ config, controls, onReview }: { config: Leadershi
 }
 
 function PresenterSessionPanel({
+  accessToken,
   currentSession,
   onConnected,
   onDisconnect,
   onClose,
 }: {
+  accessToken?: string;
   currentSession: DemoConnectorSession | null;
   onConnected: (session: DemoConnectorSession) => void;
   onDisconnect: () => void;
@@ -5517,16 +5522,19 @@ function PresenterSessionPanel({
     setState("connecting");
     setError(null);
     try {
-      const { data: authData } = await supabase.auth.getSession();
-      const accessToken = authData.session?.access_token;
-      if (!accessToken) {
+      let connectorAccessToken = accessToken;
+      if (!connectorAccessToken) {
+        const { data: authData } = await supabase.auth.getSession();
+        connectorAccessToken = authData.session?.access_token;
+      }
+      if (!connectorAccessToken) {
         setError("Sign in again to connect the live sandboxes.");
         setState("idle");
         return;
       }
       const response = await fetch(DEMO_CONNECTOR_ENDPOINTS.session, {
         method: "POST",
-        headers: { Authorization: `Bearer ${accessToken}` },
+        headers: { Authorization: `Bearer ${connectorAccessToken}` },
       });
       const data = (await response.json().catch(() => ({}))) as Partial<DemoConnectorSession> & { error?: string };
       if (!response.ok || !data.token || !data.expiresAt || !data.connectors) {
