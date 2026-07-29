@@ -150,15 +150,24 @@ function V2Nav() {
             ),
           )}
         </nav>
-        <Link
-          to="/contact"
-          className="v2-btn !px-4 !py-2.5 !text-[13px]"
-          style={{ opacity: scrolled ? 1 : 0, pointerEvents: scrolled ? "auto" : "none", transition: "opacity 300ms ease" }}
-          tabIndex={scrolled ? 0 : -1}
-          aria-hidden={!scrolled}
-        >
-          Schedule a demo <ArrowRight className="h-3.5 w-3.5" />
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            to="/demo/enterprise"
+            className="text-[13px] font-semibold"
+            style={{ color: "var(--v2-ink-soft)" }}
+          >
+            View demo
+          </Link>
+          <Link
+            to="/contact"
+            className="v2-btn !px-4 !py-2.5 !text-[13px]"
+            style={{ opacity: scrolled ? 1 : 0, pointerEvents: scrolled ? "auto" : "none", transition: "opacity 300ms ease" }}
+            tabIndex={scrolled ? 0 : -1}
+            aria-hidden={!scrolled}
+          >
+            Schedule a demo <ArrowRight className="h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
     </header>
   );

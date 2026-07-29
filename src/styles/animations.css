@@ -1,4 +1,23 @@
 
+/* Governed-console append: every ledger/evidence row "arrives" the same way,
+   across the demo and the marketing surfaces (see src/lib/theme.ts). */
+@keyframes ventus-append {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="ventus-append"] {
+    animation: none !important;
+  }
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

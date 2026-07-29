@@ -8,6 +8,20 @@ import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import IndexV2 from "./pages/IndexV2";
+import ConsoleLayout, { ConsoleAuthBoundary } from "./console/ConsoleLayout";
+import {
+  ForgotPasswordPage,
+  LoginPage,
+  ResetPasswordPage,
+  SignupPage,
+} from "./console/AuthPages";
+import {
+  AccessPendingPage,
+  AppEntryPage,
+  ProtectedDemoPage,
+} from "./console/AccessPages";
+import MomentsPage from "./console/MomentsPage";
+import { LedgerPage, OutcomesPage, SettingsPage } from "./console/OpsPages";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -35,6 +49,10 @@ const CampaignIntelligencePage = lazy(() => import("./pages/solutions/CampaignIn
 const Pricing = lazy(() => import("./pages/Pricing"));
 const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard"));
 const CoworkerPage = lazy(() => import("./pages/CoworkerPage"));
+const EnterpriseGrowthDemoPage = lazy(() => import("./pages/EnterpriseGrowthDemoPage"));
+const InternalCapabilitiesPage = lazy(() => import("./pages/InternalCapabilitiesPage"));
+const InternalGrowthDeskPage = lazy(() => import("./pages/InternalGrowthDeskPage"));
+const LivePipelineLab = lazy(() => import("./pages/LivePipelineLab"));
 
 const queryClient = new QueryClient();
 
@@ -45,17 +63,37 @@ const RouteFallback = () => (
 const AppLayout = () => {
   const location = useLocation();
   const isTepilot = location.pathname.startsWith("/tepilot");
-  const isDemo = location.pathname === "/deckmo" || location.pathname === "/demo";
+  const isDemo = location.pathname === "/deckmo"
+    || location.pathname === "/demo"
+    || location.pathname === "/demo/enterprise";
   const isPricing = location.pathname === "/pricing";
   const isBankAnalytics = location.pathname === "/bankdemo" || location.pathname === "/bank-analytics";
   const isHomeV2 = location.pathname === "/v2";
+  const isConsole = location.pathname.startsWith("/app");
+  const isInternalCapabilities = location.pathname.startsWith("/internal/");
 
-  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isHomeV2;
+  const showChrome = !isTepilot && !isDemo && !isPricing && !isBankAnalytics && !isHomeV2 && !isConsole && !isInternalCapabilities;
 
   const routes = (
     <Suspense fallback={<RouteFallback />}>
       <Routes>
         <Route path="/" element={<Index />} />
+        {/* Growth Console — the authenticated white-label product. */}
+        <Route path="/app" element={<ConsoleAuthBoundary />}>
+          <Route path="login" element={<LoginPage />} />
+          <Route path="signup" element={<SignupPage />} />
+          <Route path="forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="reset-password" element={<ResetPasswordPage />} />
+          <Route index element={<AppEntryPage />} />
+          <Route path="access-pending" element={<AccessPendingPage />} />
+          <Route path="demo" element={<ProtectedDemoPage />} />
+          <Route element={<ConsoleLayout />}>
+            <Route path="moments" element={<MomentsPage />} />
+            <Route path="ledger" element={<LedgerPage />} />
+            <Route path="outcomes" element={<OutcomesPage />} />
+            <Route path="settings" element={<SettingsPage />} />
+          </Route>
+        </Route>
         <Route path="/classic" element={<Index noindex />} />
         <Route path="/v2" element={<IndexV2 />} />
         <Route path="/platform" element={<Platform />} />
@@ -73,11 +111,15 @@ const AppLayout = () => {
         <Route path="/tepilot/financial-planning" element={<FinancialPlanningPage />} />
         <Route path="/tepilot/rewards-pipeline" element={<RewardsPipelinePage />} />
         <Route path="/demo" element={<div className="h-screen"><ExecDemoPage /></div>} />
+        <Route path="/demo/enterprise" element={<div className="h-screen"><EnterpriseGrowthDemoPage /></div>} />
         <Route path="/deckmo" element={<DemoPage />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
         <Route path="/bank-analytics" element={<BankAnalyticsDashboard />} />
         <Route path="/coworker" element={<CoworkerPage />} />
+        <Route path="/internal/capabilities" element={<InternalCapabilitiesPage />} />
+        <Route path="/internal/growth-desk" element={<InternalGrowthDeskPage />} />
+        <Route path="/internal/live-lab" element={<LivePipelineLab />} />
         <Route path="/solutions/offer-intelligence" element={<NextOfferPage />} />
         <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
         <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />

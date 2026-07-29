@@ -7,6 +7,7 @@ import { SQSClient, SendMessageCommand, SendMessageBatchCommand } from '@aws-sdk
 import { createDbFactory } from '../../shared/db.mjs';
 import { resolveSecretId } from '../../shared/secrets.mjs';
 import { buildWebhookBody, recordWebhookDelivery } from '../../shared/webhooks.mjs';
+import { normalizeIngest, isSupportedIngestFormat } from '../../shared/ingest-normalizers.mjs';
 
 const sqs = new SQSClient({ region: 'us-east-2' });
 const app = express();
@@ -280,7 +281,7 @@ app.options('*splat', (req, res) => res.sendStatus(200));
 const AUTH_CACHE_TTL_MS = Number(process.env.AUTH_CACHE_TTL_MS ?? 5 * 60 * 1000);
 // Rate-limit last_used_at writes to once per key per interval.
 const LAST_USED_INTERVAL_MS = Number(process.env.AUTH_LAST_USED_INTERVAL_MS ?? 5 * 60 * 1000);
-const authCache = new Map();   // apiKey → { bankId, expiresAt }
+const authCache = new Map();   // apiKey → { bankId, ingestFormat, expiresAt }
 const lastUsedAt = new Map();  // apiKey → timestamp of last DB write
 
 async function touchLastUsed(apiKey) {
@@ -307,6 +308,7 @@ app.use(async (req, res, next) => {
   const cached = authCache.get(apiKey);
   if (cached && cached.expiresAt > now) {
     req.bankId = cached.bankId;
+    req.ingestFormat = cached.ingestFormat;
     touchLastUsed(apiKey); // fire-and-forget
     return next();
   }
@@ -315,15 +317,17 @@ app.use(async (req, res, next) => {
   await db.connect();
   try {
     const result = await db.query(
-      `SELECT bank_id FROM api_keys WHERE key = $1 AND is_active = true`,
+      `SELECT bank_id, ingest_format FROM api_keys WHERE key = $1 AND is_active = true`,
       [apiKey]
     );
     if (result.rows.length === 0)
       return res.status(403).json({ error: 'Invalid or inactive API key' });
 
     const bankId = result.rows[0].bank_id;
-    authCache.set(apiKey, { bankId, expiresAt: now + AUTH_CACHE_TTL_MS });
+    const ingestFormat = result.rows[0].ingest_format || 'normalized';
+    authCache.set(apiKey, { bankId, ingestFormat, expiresAt: now + AUTH_CACHE_TTL_MS });
     req.bankId = bankId;
+    req.ingestFormat = ingestFormat;
     touchLastUsed(apiKey); // fire-and-forget
     next();
   } catch (e) {
@@ -1473,11 +1477,52 @@ app.post('/v1/enrich', async (req, res) => {
   await db.connect();
   try {
     const bank_id = req.bankId;
-    const { transactions } = req.body;
+    const ingestFormat = req.ingestFormat || 'normalized';
 
-    if (!Array.isArray(transactions) || transactions.length === 0) {
-      return res.status(400).json({ error: 'transactions array required' });
+    if (!isSupportedIngestFormat(ingestFormat)) {
+      return res.status(400).json({ error: `unsupported ingest_format: ${ingestFormat}` });
     }
+
+    // Resolve the request body into canonical enrichment transactions. For
+    // 'normalized' callers send { transactions }; partner formats (e.g. 'plaid')
+    // send { mapping_context, payload } and are normalized server-side.
+    let transactions;
+    let ingestReport = null;
+    if (ingestFormat === 'normalized') {
+      transactions = req.body.transactions;
+      if (!Array.isArray(transactions) || transactions.length === 0) {
+        return res.status(400).json({ error: 'transactions array required' });
+      }
+    } else {
+      const { payload, mapping_context } = req.body;
+      if (!payload || typeof payload !== 'object') {
+        return res
+          .status(400)
+          .json({ error: `payload object required for ingest_format '${ingestFormat}'` });
+      }
+      if (!mapping_context || typeof mapping_context !== 'object') {
+        return res
+          .status(400)
+          .json({ error: `mapping_context object required for ingest_format '${ingestFormat}'` });
+      }
+      let normalized;
+      try {
+        normalized = normalizeIngest(ingestFormat, req.body);
+      } catch (err) {
+        return res
+          .status(400)
+          .json({ error: `failed to normalize '${ingestFormat}' payload: ${err.message}` });
+      }
+      transactions = normalized.transactions;
+      ingestReport = normalized.report;
+      if (!Array.isArray(transactions) || transactions.length === 0) {
+        return res.status(400).json({
+          error: 'no enrichable transactions after normalization',
+          ...(ingestReport ? { ingest_report: ingestReport } : {}),
+        });
+      }
+    }
+
     if (transactions.length > 1000) {
       return res.status(400).json({ error: 'batch size exceeds maximum of 1000 transactions' });
     }
@@ -1591,6 +1636,7 @@ app.post('/v1/enrich', async (req, res) => {
       transaction_count: transactions.length,
       customers: customerEntries.length,
       message: `Pipeline triggered. Poll /v1/jobs/${batchId} for status.`,
+      ...(ingestReport ? { ingest_report: ingestReport } : {}),
     });
   } catch (e) {
     console.error(e);

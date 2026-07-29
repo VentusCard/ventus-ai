@@ -25,4 +25,7 @@ backend/artifacts/
 *.njsproj
 *.sln
 *.sw?
-.env # if not already there
+.env
+.env.*
+!.env.example
+.vercel

@@ -1,0 +1,50 @@
+{
+  "task": "travel_detection",
+  "fixture_version": "2026-07-05",
+  "label_status": "synthetic_requires_human_review",
+  "description": "Synthetic per-customer trip-detection cases for model evaluation. Labels are illustrative and MUST be replaced with real, human-reviewed data before these scores are treated as decision-grade.",
+  "collection_key": "trips",
+  "cases": [
+    {
+      "customer_id": "eval_travel_01",
+      "inputs": {
+        "transactions": [
+          { "description": "DELTA AIR LINES 006", "amount": 412, "date": "2026-06-10" },
+          { "description": "MARRIOTT HOTELS", "amount": 289, "date": "2026-06-11" },
+          { "description": "LYFT *RIDE", "amount": 24.5, "date": "2026-06-12" }
+        ]
+      },
+      "expected": {
+        "trips": [
+          { "destination": "hotel_stay", "month": "2026-06" }
+        ]
+      }
+    },
+    {
+      "customer_id": "eval_travel_02",
+      "inputs": {
+        "transactions": [
+          { "description": "AIRBNB * STAY", "amount": 540, "date": "2026-03-04" },
+          { "description": "SHELL OIL 573301", "amount": 52.1, "date": "2026-03-05" }
+        ]
+      },
+      "expected": {
+        "trips": [
+          { "destination": "lodging_stay", "month": "2026-03" }
+        ]
+      }
+    },
+    {
+      "customer_id": "eval_travel_03",
+      "inputs": {
+        "transactions": [
+          { "description": "SHELL OIL 573301", "amount": 52.1, "date": "2026-04-01" },
+          { "description": "PARKING SF METER 44", "amount": 6, "date": "2026-04-02" }
+        ]
+      },
+      "expected": {
+        "trips": []
+      }
+    }
+  ]
+}
