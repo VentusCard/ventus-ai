@@ -1,35 +1,31 @@
-## Problem
-Two issues in the `/coworker` email reel:
-1. **Wasted horizontal space.** The reel container is `max-w-6xl` and the body inside it is further clamped to `max-w-3xl mx-auto`, so message content sits in a narrow column with large empty margins on wide viewports.
-2. **Type still reads inconsistently.** Sizes are unified at 11/13px, but the compact `DigestBody` uses bold 13px for section titles + client names right next to regular 13px body prose, which visually reads as "bigger." The stacked bold labels + short lines make the layout feel cramped and uneven.
+## Add Coworker to Solutions Dropdown
 
-## Changes
+### Goal
+Add a navigation entry for the new `/coworker` page inside the main site navbar’s **Solutions** dropdown, grouped with the existing bank-facing analytics offering.
 
-### 1. Widen the reel (`src/pages/CoworkerPage.tsx` + `CoworkerEmailReel.tsx`)
-- Bump the section wrapper on `CoworkerPage.tsx` from `max-w-6xl` to `max-w-7xl`.
-- In `CoworkerEmailReel.tsx`:
-  - Remove the inner `max-w-3xl mx-auto` on the body wrapper so content spans the full reel width with only side padding (`px-8`).
-  - Increase reel height from `620px` to `680px` so the wider content has vertical room.
-  - Bump body padding to `px-8 py-6` for breathing room at the new width.
+### Current state
+`src/components/Navbar.tsx` renders a Solutions dropdown with two sections:
+- **BEHAVIORAL INTELLIGENCE**: Next Offer, Next Product, Next Conversation
+- **ANALYTICS**: Customer Intelligence
 
-### 2. Tighten typography hierarchy in compact `DigestBody` (`AdvisorConversationThread.tsx`)
-Currently every heading, client name, and body line is 13px, only differentiated by weight — that reads as noisy.
-- Section title (e.g. "Priority signals"): keep `text-[13px] font-semibold`.
-- Client name: drop from `font-semibold` to `font-medium` so it doesn't compete with the section title.
-- Event label eyebrow + timing pill: unchanged (11px).
-- Body description + recommended offer line: unchanged (13px).
-- Count pill: keep 11px but align vertically with title baseline.
+The `/coworker` route exists in `src/App.tsx` and the page is built.
 
-### 3. Reply body layout (`REPLY_MESSAGES` renderers)
-At the new wider width, the transaction bullet lists and travel-card table look sparse.
-- Where replies render a client block + bullets + "Household" line, wrap them in a 2-column `md:grid-cols-2 gap-x-8` grid so two client blocks sit side-by-side instead of stacking in a narrow column.
-- Travel-card table already spans full width — leave as-is, it will simply be wider.
+### Changes
+1. **Rename the Analytics section header** to signal that both items are bank-facing, e.g. **BANK-FACING INTELLIGENCE**.
 
-## Out of scope
-- Colors, borders, animation timing.
-- The full (non-compact) `/bankdemo` layout.
-- Copy changes.
+2. **Desktop dropdown**
+   - Keep Customer Intelligence in the renamed section.
+   - Add a second item: **Ventus AI Coworker** → `/coworker`.
+   - Use a Lucide icon that fits an AI-assistant concept (e.g. `Bot` or `Sparkles`).
+   - Keep the existing hover/click behavior and styling consistent with the other items.
 
-## Technical notes
-- No new components. Edits confined to `CoworkerPage.tsx`, `CoworkerEmailReel.tsx`, and the compact branch of `AdvisorConversationThread.tsx`.
-- Verify with a viewport check at 1280px and 1523px (current preview width).
+3. **Mobile menu**
+   - Mirror the same renamed section and the two items under the Solutions expander so mobile users can also reach `/coworker`.
+
+### Files to modify
+- `src/components/Navbar.tsx` only.
+
+### Acceptance
+- Hovering Solutions on desktop shows the renamed bank-facing section with Customer Intelligence and Ventus AI Coworker.
+- Tapping Solutions on mobile expands to show the same two items.
+- Clicking Ventus AI Coworker navigates to `/coworker` and closes the menu.
