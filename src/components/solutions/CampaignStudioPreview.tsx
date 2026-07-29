@@ -15,6 +15,13 @@ type Segment = {
   valueMath: string;
 };
 
+const MergeToken = ({ children = "$xx.xx" }: { children?: React.ReactNode }) => (
+  <span className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded border border-dashed border-amber-300 bg-amber-50 text-amber-800 font-mono text-[11px] align-baseline">
+    {children}
+  </span>
+);
+
+
 const ANGLE_STYLE: Record<Angle, { label: string; chip: string }> = {
   behavioral: {
     label: "Behavioral",
