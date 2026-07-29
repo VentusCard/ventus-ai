@@ -29,3 +29,10 @@ closed.
 - The staging Cognito identifiers and Aurora endpoint are explicit deployment
   configuration. Move them to cross-stack/configuration references before creating
   another environment.
+
+## Manual access provisioning
+
+The Evidence Store migrator also exposes a private, confirmation-gated
+`provision-console-access` operation. It binds an existing Cognito subject to one
+institution, role, set of business lines, and set of Console entitlements. The
+public Console API cannot create or modify these records.
