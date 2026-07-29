@@ -170,7 +170,7 @@ const CampaignStudioPreview = () => {
       {/* Segment section */}
       <div className="flex items-center justify-between mb-3">
         <p className="text-[11px] uppercase tracking-wide text-gray-500">
-          One product · Three segments
+          One product · {SEGMENTS.length} segments
         </p>
         <button
           onClick={() => setPaused((p) => !p)}
