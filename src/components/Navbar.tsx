@@ -69,7 +69,7 @@ const Navbar = () => {
               <div className="absolute top-full left-0 pt-2" onMouseEnter={() => setSolutionsOpen(true)}>
                 <div className="bg-white rounded-lg shadow-lg border border-gray-100 py-4 w-[640px] grid grid-cols-2">
                   <div className="px-4">
-                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">BEHAVIORAL INTELLIGENCE</div>
+                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">Banking Personalization</div>
                     {behavioralIntelligenceItems.map((item) => (
                       <Link
                         key={item.to}
@@ -153,7 +153,7 @@ const Navbar = () => {
           </button>
           {mobileSolutionsOpen && (
               <div className="pl-4 border-b border-gray-100 pb-2">
-                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BEHAVIORAL INTELLIGENCE</div>
+                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">Banking Personalization</div>
                 {behavioralIntelligenceItems.map((item) => (
                   <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
                     <item.Icon size={14} className="text-blue-600" />
