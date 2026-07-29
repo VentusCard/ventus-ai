@@ -60,13 +60,13 @@ const DATE_STR = NOW.toLocaleDateString("en-US", {
   year: "numeric",
 });
 
-const ADVISOR = {
+export const ADVISOR = {
   name: "Morgan Chen",
   email: "morgan.chen@bank.com",
   initials: "MC",
 };
 
-const VENTUS = {
+export const VENTUS = {
   name: "Ventus AI Coworker",
   email: "wmcoworker@ventusai.com",
   initials: "VA",
@@ -228,7 +228,7 @@ const TRAVEL_CARD_ROTATION: Array<Omit<TravelCardRow, "name">> = [
   { recentTrip: "Mexico", tripWindow: "Apr 2026", estSavings: 155, timing: "Next 2 weeks" },
 ];
 
-const REPLY_MESSAGES: MessageDef[] = [
+export const REPLY_MESSAGES: MessageDef[] = [
   {
     sender: "advisor",
     time: "9:22 AM",
@@ -262,23 +262,25 @@ const REPLY_MESSAGES: MessageDef[] = [
         <>
           <p>Hi Morgan,</p>
           <p>Here's what we're actually seeing on the ledger:</p>
-          <div>
-            <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
-            <ul className="list-disc pl-5 space-y-1 mt-0.5">
-              {evA.transactions.map((t) => <li key={t}>{t}</li>)}
-            </ul>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
-            <p className="mt-0.5">{evA.household}</p>
-          </div>
-          <div>
-            <p className="font-medium text-slate-900">{nameB} <span className="text-slate-500 font-normal">· {labelB}</span></p>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
-            <ul className="list-disc pl-5 space-y-1 mt-0.5">
-              {evB.transactions.map((t) => <li key={t}>{t}</li>)}
-            </ul>
-            <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
-            <p className="mt-0.5">{evB.household}</p>
+          <div className="grid md:grid-cols-2 gap-x-8 gap-y-4">
+            <div>
+              <p className="font-medium text-slate-900">{nameA} <span className="text-slate-500 font-normal">· {labelA}</span></p>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+              <ul className="list-disc pl-5 space-y-1 mt-0.5">
+                {evA.transactions.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+              <p className="mt-0.5">{evA.household}</p>
+            </div>
+            <div>
+              <p className="font-medium text-slate-900">{nameB} <span className="text-slate-500 font-normal">· {labelB}</span></p>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1">Transactions (last 90 days)</p>
+              <ul className="list-disc pl-5 space-y-1 mt-0.5">
+                {evB.transactions.map((t) => <li key={t}>{t}</li>)}
+              </ul>
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mt-1.5">Household</p>
+              <p className="mt-0.5">{evB.household}</p>
+            </div>
           </div>
           <p>Want the fuller household picture for each — who's involved, what's changing around them?</p>
         </>
@@ -314,14 +316,14 @@ const REPLY_MESSAGES: MessageDef[] = [
         </ul>
         <p>8 candidates with recent trips where the card would have paid off:</p>
         <div className="border border-slate-200 rounded-md divide-y divide-slate-200 overflow-hidden">
-          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 bg-slate-50 text-[10px] uppercase tracking-wide text-slate-500">
+          <div className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
             <div>Client</div>
             <div className="text-right">Trip</div>
             <div className="text-right">Window</div>
             <div className="text-right">Saved</div>
           </div>
           {travelCardCohort.map((row) => (
-            <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 items-center text-[12px]">
+            <div key={row.name} className="grid grid-cols-[1fr_auto_auto_auto] gap-3 px-2.5 py-1.5 items-center text-[13px]">
               <div className="font-medium text-slate-900 truncate">{row.name}</div>
               <div className="text-right text-slate-700">{row.recentTrip}</div>
               <div className="text-right text-slate-700 tabular-nums">{row.tripWindow}</div>
@@ -775,8 +777,8 @@ interface DigestBodyProps {
   compact: boolean;
 }
 
-function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
-  const textCls = compact ? "text-[12px] leading-snug" : "text-sm leading-relaxed";
+export function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
+  const textCls = compact ? "text-[13px] leading-relaxed" : "text-sm leading-relaxed";
   return (
     <>
       <p className={cn(textCls, "text-slate-700")}>Hi Morgan,</p>
@@ -793,9 +795,9 @@ function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
             <div className={cn("flex items-center justify-between", compact ? "mb-1.5" : "mb-2.5")}>
               <div className="flex items-center gap-2">
                 <span className={cn("w-1.5 h-1.5 rounded-full", section.dot)} />
-                <div className={cn("font-semibold text-slate-900", compact ? "text-[12px]" : "text-sm")}>{section.title}</div>
+                <div className={cn("font-semibold text-slate-900", compact ? "text-[13px]" : "text-sm")}>{section.title}</div>
               </div>
-              <span className={cn("font-medium px-2 py-0.5 rounded-full", section.pill, compact ? "text-[10px]" : "text-xs")}>{rows.length}</span>
+              <span className={cn("font-medium px-2 py-0.5 rounded-full", section.pill, compact ? "text-[11px]" : "text-xs")}>{rows.length}</span>
             </div>
 
             <div>
@@ -815,24 +817,24 @@ function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
                 const offer = offerFor(event.eventType);
                 return (
                   <div key={`${client.id}-${event.eventType}-${idx}`} className={cn("border-b border-slate-100 last:border-b-0 flex items-start gap-2.5", compact ? "py-1.5" : "py-2.5")}>
-                    <div className={cn("rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center shrink-0 mt-0.5", compact ? "w-6 h-6 text-[10px]" : "w-8 h-8 text-[11px]")}>
+                    <div className={cn("rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center shrink-0 mt-0.5", compact ? "w-6 h-6 text-[11px]" : "w-8 h-8 text-[11px]")}>
                       {initials(client.profile.name)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5 flex-wrap">
-                        <span className={cn("font-semibold text-slate-900", compact ? "text-[12px]" : "text-sm")}>{client.profile.name}</span>
-                        <span className={cn("uppercase tracking-wide text-slate-500", compact ? "text-[9px]" : "text-[11px]")}>{cfg.label}</span>
-                        <span className={cn("font-medium px-1.5 py-0.5 rounded-full", section.pill, compact ? "text-[9px]" : "text-[11px]")}>{timingPhrase}</span>
+                        <span className={cn("text-slate-900", compact ? "text-[13px] font-medium" : "text-sm font-semibold")}>{client.profile.name}</span>
+                        <span className={cn("uppercase tracking-wide text-slate-500", compact ? "text-[11px]" : "text-[11px]")}>{cfg.label}</span>
+                        <span className={cn("font-medium px-1.5 py-0.5 rounded-full", section.pill, compact ? "text-[11px]" : "text-[11px]")}>{timingPhrase}</span>
                       </div>
-                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[11px] leading-snug" : "text-sm leading-relaxed")}>
+                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[13px] leading-relaxed" : "text-sm leading-relaxed")}>
                         {event.keyEvidence[0] || event.eventName}.{" "}
                         <span className="text-slate-500">
                           <span className="font-semibold text-slate-900">{signalCount}</span> signals over the past{" "}
                           <span className="font-semibold text-slate-900">{windowDays}</span> days · <span className="font-semibold text-slate-900">{confidencePct}%</span> confidence.
                         </span>
                       </div>
-                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[11px]" : "text-[13px]")}>
-                        <span className={cn("uppercase tracking-wide text-slate-500 mr-1", compact ? "text-[9px]" : "text-[11px]")}>Recommended offer:</span>
+                      <div className={cn("text-slate-700 mt-0.5", compact ? "text-[13px]" : "text-[13px]")}>
+                        <span className={cn("uppercase tracking-wide text-slate-500 mr-1", compact ? "text-[11px]" : "text-[11px]")}>Recommended offer:</span>
                         {offer}
                       </div>
                     </div>
@@ -845,7 +847,7 @@ function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
       })}
 
       {totalSignals === 0 && (
-        <div className={cn("italic text-slate-500", compact ? "text-[11px]" : "text-sm")}>Quiet morning — no new signals.</div>
+        <div className={cn("italic text-slate-500", compact ? "text-[13px]" : "text-sm")}>Quiet morning — no new signals.</div>
       )}
 
       <p className={cn(textCls, "text-slate-700")}>
@@ -853,4 +855,86 @@ function DigestBody({ grouped, totalSignals, compact }: DigestBodyProps) {
       </p>
     </>
   );
+}
+
+// ==================== EXPORTED DERIVATION (for reusable presentations) ====================
+
+export interface AdvisorConversationContext {
+  grouped: Record<"high" | "opportunity" | "risk", SignalRow[]>;
+  totalSignals: number;
+  nameA: string;
+  nameB: string;
+  labelA: string;
+  labelB: string;
+  eventTypeA: string;
+  eventTypeB: string;
+  travelCardCohort: TravelCardRow[];
+  digestRows: DigestRow[];
+}
+
+export function deriveAdvisorConversationContext(clients: DashboardClient[]): AdvisorConversationContext {
+  const grouped: Record<"high" | "opportunity" | "risk", SignalRow[]> = { high: [], opportunity: [], risk: [] };
+  const seenClients = new Set<string>();
+  const perClient: SignalRow[] = [];
+  for (const client of clients) {
+    if (!client.detectedEvents?.length) continue;
+    const top = [...client.detectedEvents].sort((a, b) => {
+      if (b.urgencyScore !== a.urgencyScore) return b.urgencyScore - a.urgencyScore;
+      return (b.confidence ?? 0) - (a.confidence ?? 0);
+    })[0];
+    perClient.push({ client, event: top });
+  }
+  perClient.sort((a, b) => b.event.urgencyScore - a.event.urgencyScore);
+  for (const row of perClient) {
+    if (seenClients.has(row.client.id)) continue;
+    seenClients.add(row.client.id);
+    grouped[bucketFor(row.event)].push(row);
+  }
+
+  const totalSignals = grouped.high.length + grouped.opportunity.length + grouped.risk.length;
+
+  const pool = [...grouped.high, ...grouped.opportunity, ...grouped.risk];
+  const topTwo: SignalRow[] = [];
+  const seen = new Set<string>();
+  for (const row of pool) {
+    if (seen.has(row.client.id)) continue;
+    seen.add(row.client.id);
+    topTwo.push(row);
+    if (topTwo.length === 2) break;
+  }
+
+  const nameA = topTwo[0]?.client.profile.name ?? "the first client";
+  const nameB = topTwo[1]?.client.profile.name ?? "the second client";
+  const labelA = topTwo[0] ? LIFE_EVENT_CONFIG[topTwo[0].event.eventType].label : "";
+  const labelB = topTwo[1] ? LIFE_EVENT_CONFIG[topTwo[1].event.eventType].label : "";
+  const eventTypeA = topTwo[0]?.event.eventType ?? "";
+  const eventTypeB = topTwo[1]?.event.eventType ?? "";
+
+  const excludeIds = new Set(topTwo.map((r) => r.client.id));
+  const travelPool = [...clients]
+    .filter((c) => !excludeIds.has(c.id))
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .slice(0, TRAVEL_CARD_ROTATION.length);
+  const travelCardCohort: TravelCardRow[] = travelPool.map((c, i) => ({
+    name: c.profile.name,
+    ...TRAVEL_CARD_ROTATION[i],
+  }));
+
+  const sectionLabel: Record<"high" | "opportunity" | "risk", string> = {
+    high: "Act Now",
+    opportunity: "Opportunity",
+    risk: "At Risk",
+  };
+  const digestRows: DigestRow[] = [];
+  (["high", "opportunity", "risk"] as const).forEach((k) => {
+    grouped[k].forEach(({ client, event }) => {
+      digestRows.push({
+        name: client.profile.name,
+        eventLabel: LIFE_EVENT_CONFIG[event.eventType].label,
+        sectionLabel: sectionLabel[k],
+      });
+    });
+  });
+
+  return { grouped, totalSignals, nameA, nameB, labelA, labelB, eventTypeA, eventTypeB, travelCardCohort, digestRows };
 }

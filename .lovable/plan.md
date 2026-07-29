@@ -1,32 +1,42 @@
-## Problem
+## Goal
+Make the content inside the segmented email draft card on `/solutions/campaign-intelligence` noticeably larger and easier to read without breaking the surrounding layout.
 
-The "Home Purchase / Transition" Life Event pill shows "4 signals" and does nothing when clicked — no rows highlight in the enrichment table.
+## Current state
+`CampaignStudioPreview.tsx` already uses the "Prominent campaign card" layout, but the copy inside the draft card is still small:
+- Subject line: `text-[15px]`
+- Body copy: `text-[14px]`
+- Category/value chips: `text-[12px]`
+- Channel chips: `text-[11px]`
+- Header title: `text-lg`
+- Icon container: `w-12 h-12` with `w-6 h-6` Mail icon
+- Card padding: `p-7`
 
-## Root cause
+## Proposed changes
+1. **Typography scale-up**
+   - Subject line: `text-[15px]` → `text-[18px]` (semibold)
+   - Body copy: `text-[14px]` → `text-[16px]` leading-relaxed
+   - Header title: `text-lg` → `text-xl`
+   - Category/value chips: `text-[12px]` → `text-[13px]`
+   - Channel chips: `text-[11px]` → `text-[12px]`
+   - "Draft" / "To" meta: keep at current size or bump to `text-[12px]`
 
-The pill labels itself with `evt.evidence.length` (falling back to "N signals") whenever `transaction_indices` is empty, but the click handler only passes `transaction_indices` to the table. Empty array in → nothing highlighted.
+2. **Icon & header presence**
+   - Icon container: `w-12 h-12` → `w-14 h-14`
+   - Mail icon: `w-6 h-6` → `w-7 h-7`
 
-`transaction_indices` end up empty because `synthesize-persona`'s `cleanIndices` strips any index whose upstream `txnOwner` tag is not `"life_event"` or `null`. A Home Depot / realtor / moving-services spike often gets pre-tagged `spending_habit` upstream, so all four of the LLM's chosen rows get filtered out. The event still passes the `evidence.length >= 2` survival bar, so the pill renders — but it has zero indices to click through to.
+3. **Card proportions**
+   - Padding: `p-7` → `p-8`
+   - Increase internal gaps (`mb-5` → `mb-6`, `gap-2` → `gap-3`) so the larger text breathes.
 
-Per the standing rule ("drop all frontend computes"), the fix belongs in the backend, not fuzzy-matching in the panel.
+4. **Segment tabs (optional, if needed)**
+   - Tab label: `text-[13px]` → `text-[14px]`
+   - Tab angle chip: `text-[10px]` → `text-[11px]`
 
-## Fix — backend only
+5. **Verify responsiveness**
+   - Check that the card still fits within the `max-w-7xl` page container at 1280px+ without overflow.
+   - Ensure the bottom progress bar and `-mx-8` negative margin math is updated to match new padding.
 
-In `supabase/functions/synthesize-persona/index.ts`, when constructing `filteredLE` (around lines 844-850):
-
-1. After `cleanIndices(..., ["life_event"])`, if the result is empty **and** the raw LLM `transaction_indices` are non-empty, retry with a widened allow-list `["life_event", "spending_habit"]` (still excluding `"risk"`, `"financial_signal"`, `"demographic"` to preserve the priority ladder against higher tiers).
-2. Only apply the widened rescue when the event survives the `evidence.length >= 2` bar — so we don't resurrect noise.
-3. The rescued indices then flow into `claimedByHigher`, which already causes the Spending Habits rollup pass to skip them, so no double-attribution.
-
-This keeps ownership rules intact for the higher-priority tiers (Financial, Demographic, Risk) while letting a well-evidenced Life Event reclaim rows that upstream had loosely tagged as habitual.
-
-## Guardrails
-
-- No change to frontend logic.
-- No change to Financial / Demographic / Risk cleaning.
-- Pet-vocab and relocation-travel guards continue to run after the rescue.
-- The College-prep demotion path is unaffected.
-
-## Verification
-
-After deploy, on the Sarah-Mitchell-style persona: the "Home Purchase / Transition" pill should render as `4 txns · $X.Xk` (not "4 signals") and clicking it should light up the corresponding rows in the enrichment table.
+## Acceptance criteria
+- Draft card subject and body are the most visually prominent elements in the card.
+- No text overlaps or truncation at desktop viewport.
+- Typecheck and build pass.

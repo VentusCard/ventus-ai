@@ -45,8 +45,10 @@ const NextOfferPage = lazy(() => import("./pages/solutions/NextOfferPage"));
 const NextProductPage = lazy(() => import("./pages/solutions/NextProductPage"));
 const NextConversationPage = lazy(() => import("./pages/solutions/NextConversationPage"));
 const PortfolioIntelligencePage = lazy(() => import("./pages/solutions/PortfolioIntelligencePage"));
+const CampaignIntelligencePage = lazy(() => import("./pages/solutions/CampaignIntelligencePage"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard"));
+const CoworkerPage = lazy(() => import("./pages/CoworkerPage"));
 const EnterpriseGrowthDemoPage = lazy(() => import("./pages/EnterpriseGrowthDemoPage"));
 const InternalCapabilitiesPage = lazy(() => import("./pages/InternalCapabilitiesPage"));
 const InternalGrowthDeskPage = lazy(() => import("./pages/InternalGrowthDeskPage"));
@@ -114,6 +116,7 @@ const AppLayout = () => {
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/bankdemo" element={<BankAnalyticsDashboard />} />
         <Route path="/bank-analytics" element={<BankAnalyticsDashboard />} />
+        <Route path="/coworker" element={<CoworkerPage />} />
         <Route path="/internal/capabilities" element={<InternalCapabilitiesPage />} />
         <Route path="/internal/growth-desk" element={<InternalGrowthDeskPage />} />
         <Route path="/internal/live-lab" element={<LivePipelineLab />} />
@@ -121,6 +124,7 @@ const AppLayout = () => {
         <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
         <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />
         <Route path="/solutions/portfolio-intelligence" element={<PortfolioIntelligencePage />} />
+        <Route path="/solutions/campaign-intelligence" element={<CampaignIntelligencePage />} />
         {/* Legacy redirects */}
         <Route path="/solutions/next-offer" element={<NextOfferPage />} />
         <Route path="/solutions/next-product" element={<NextProductPage />} />
