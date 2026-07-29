@@ -9,6 +9,7 @@ const CONNECTORS = new Set([
   'digital_channel',
   'microsoft_teams',
   'microsoft_outlook',
+  'slack',
 ]);
 const TERMINAL_STATUSES = new Set(['delivered', 'failed']);
 

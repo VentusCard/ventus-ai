@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowRight, Check, Clock3, Inbox, Landmark, Mail, MessageSquare, TrendingUp } from "lucide-react";
+import { ArrowRight, Check, Clock3, Inbox, Landmark, Mail, Slack, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useConsole, type ConsoleMoment, type ScenarioId } from "@/console/state";
 
@@ -162,10 +162,10 @@ export default function BriefingsPage() {
                   <Inbox className="h-3.5 w-3.5" /> Console active
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
-                  <MessageSquare className="h-3.5 w-3.5" /> Teams · admin setup
+                  <Mail className="h-3.5 w-3.5" /> Outlook · admin setup
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
-                  <Mail className="h-3.5 w-3.5" /> Outlook · admin setup
+                  <Slack className="h-3.5 w-3.5" /> Slack · admin setup
                 </span>
               </div>
               <Link to="/app/moments" className="inline-flex items-center gap-1 text-[11px] font-bold" style={{ color: "var(--c-accent)" }}>

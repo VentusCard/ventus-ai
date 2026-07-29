@@ -10,6 +10,7 @@ test('briefing delivery maps each channel onto the shared connector receipt cont
     console: ['bank_workbench', 'growth_console_briefing'],
     teams: ['microsoft_teams', 'teams_adaptive_card'],
     outlook: ['microsoft_outlook', 'outlook_actionable_message'],
+    slack: ['slack', 'slack_app_message'],
   };
   for (const [channel, [connector, destination]] of Object.entries(expected)) {
     const delivery = buildBriefingDelivery(input({ channel }));
@@ -36,7 +37,7 @@ test('briefing delivery is deterministic and deduplicates decision references', 
 
 test('briefing delivery rejects unsupported roles, channels, and empty decisions', () => {
   assert.throws(() => buildBriefingDelivery(input({ role: 'advisor' })), /role is unsupported/);
-  assert.throws(() => buildBriefingDelivery(input({ channel: 'slack' })), /channel is unsupported/);
+  assert.throws(() => buildBriefingDelivery(input({ channel: 'sms' })), /channel is unsupported/);
   assert.throws(() => buildBriefingDelivery(input({ decisionIds: [] })), /decisionIds/);
 });
 

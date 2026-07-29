@@ -36,7 +36,7 @@ ALTER TABLE connector_delivery_receipts
 ALTER TABLE connector_delivery_receipts
   ADD CONSTRAINT connector_delivery_receipts_connector_check CHECK (connector IN (
     'salesforce', 'bank_workbench', 'campaign_platform', 'digital_channel',
-    'microsoft_teams', 'microsoft_outlook'
+    'microsoft_teams', 'microsoft_outlook', 'slack'
   ));
 
 CREATE INDEX IF NOT EXISTS connector_delivery_decision_idx
