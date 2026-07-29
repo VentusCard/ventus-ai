@@ -1,42 +1,25 @@
-## Redo `CampaignStudioPreview.tsx`
+## Expand segments + fix branding in `CampaignStudioPreview.tsx`
 
-The left-side signal builder (Life Events, Spending Habits, Financial Signals, Demographics, Age, Income) is scrapped. The panel becomes a focused, single-story showcase of the **Cash Rewards 3-2-1 card** and how Ventus turns one product into segmented, personalized outreach.
+### Changes
 
-### New layout (single card, no split)
+1. **More segments** — expand from 3 to **6** (one per top-category), all still built on the same 3-2-1 Cash Rewards product:
+   - Dining-led households — 3% Dining / 2% Grocery — 18.4k
+   - Grocery-led families — 3% Grocery / 2% Gas — 24.3k
+   - Commuter households — 3% Gas / 2% Dining — 12.2k
+   - Frequent travelers — 3% Travel / 2% Dining — 9.6k
+   - Online shoppers — 3% Online Shopping / 2% Streaming — 15.8k
+   - Wholesale-club shoppers — 3% Wholesale / 2% Grocery — 7.4k
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│  ● Campaign Studio · Powered by Ventus         54,910 reach │
-├─────────────────────────────────────────────────────────────┤
-│  THE PRODUCT                                                │
-│  Cash Rewards Card — 3% top category · 2% second · 1% rest  │
-│  $0 annual fee · $200 welcome bonus                         │
-├─────────────────────────────────────────────────────────────┤
-│  ONE PRODUCT · THREE SEGMENTS                               │
-│  [Dining-led] [Grocery-led] [Commuter]   ← segment tabs     │
-│                                                             │
-│  ┌───────────────────────────────────────────────────────┐  │
-│  │ Segment chip · 18,420 reachable · Email/Push/In-App  │  │
-│  │ Subject: "Your dining habit could earn you $237..."   │  │
-│  │ Body preview...                                       │  │
-│  │ Value math chip: ~$280/mo dining + ~$650/mo grocery   │  │
-│  │ 3% category: Dining · 2% category: Grocery            │  │
-│  └───────────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────────┘
-```
+2. **Segment tab layout** — swap the 3-column grid for a wrapped 2- or 3-per-row grid so all 6 fit cleanly. Each tab keeps: segment number, label, and **population (reachable count)** shown prominently.
 
-### What changes
+3. **Population visibility** — add a small "population bar" under each tab label (thin bar scaled to the largest segment) so relative sizes are visually obvious, plus keep the numeric `18.4k reachable` line. Total reach in the header updates automatically.
 
-1. **Delete the entire left column** — remove Life Events, Spending Habits, Financial Signals, Demographics, Age and Income pickers, plus the `estimateStudioAudienceSize` call and all related state.
-2. **Product header** becomes a full-width band at the top (not a right-column card).
-3. **Segment selector**: replace the "Generate" button with 3 segment tabs (Dining-led / Grocery-led / Commuter). Clicking a tab swaps the visible email draft with a smooth fade.
-4. **Segment count strip**: a small row below the tabs shows all three reach counts so the "segment of one" story is visible at a glance (e.g. `Dining 18.4k · Grocery 24.3k · Commuter 12.2k · Total 54.9k`).
-5. **Email draft card** (single, larger): sender line ("Ventus AI Coworker · draft"), subject, body, value-math chip, and a "3% / 2%" mechanic row showing which categories map to that segment. Channel chips stay.
-6. **Auto-rotate**: the segment tabs auto-advance every ~5s (like `CoworkerEmailReel`), with pause on hover. Manual click pauses rotation.
-7. Keep the light-theme styling, `Manrope`, no dark utilities, no brand names.
+4. **Remove Ventus AI Coworker branding from the draft card**:
+   - Replace the avatar + "Ventus AI Coworker · Draft" header with a neutral **"Campaign draft"** header: envelope icon + "Segmented email · draft" eyebrow, segment label on the right.
+   - No mention of Coworker anywhere in this component (header pill "Powered by Ventus" stays as it's the studio brand).
+
+5. Auto-rotation, pause/play, progress bar, 3%/2%/1% chips, value-math chip and channel chips are unchanged — they just cycle through 6 segments now.
 
 ### Files touched
 
-- `src/components/solutions/CampaignStudioPreview.tsx` — full rewrite along the lines above.
-
-No other files change. No routing, no data-layer changes.
+- `src/components/solutions/CampaignStudioPreview.tsx` only.
