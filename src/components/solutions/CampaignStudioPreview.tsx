@@ -363,7 +363,7 @@ const CampaignStudioPreview = () => {
           </span>
           <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-gray-200 text-gray-600 text-[11px] leading-none">
             Personalized est.
-            <MergeToken>$xx.xx / yr</MergeToken>
+            <MergeToken>$xxx / yr</MergeToken>
           </span>
         </div>
 
