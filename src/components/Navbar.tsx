@@ -14,8 +14,8 @@ const behavioralIntelligenceItems = [
 
 const analyticsItems = [
   { to: "/solutions/portfolio-intelligence", title: "Customer Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
-  { to: "/coworker", title: "Ventus AI Coworker", desc: "AI teammate for advisors and banking teams.", Icon: Bot },
   { to: "/solutions/campaign-intelligence", title: "Segment of One Campaigns", desc: "Build micro-segment campaigns from life events, behavior, and financial signals.", Icon: Megaphone },
+  { to: "/coworker", title: "Ventus AI Coworker", desc: "AI teammate for advisors and banking teams.", Icon: Bot },
 ];
 
 const Navbar = () => {
