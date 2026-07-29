@@ -58,15 +58,15 @@ const faqs: QA[] = [
   },
   {
     q: "What is behavioral intelligence in banking?",
-    a: "Behavioral intelligence is the layer above enrichment. Instead of labeling one transaction, it interprets patterns across a customer's history to infer lifestyle, life events, financial obligations, and household context — the signals that determine which product, offer, or conversation is actually relevant right now.",
+    a: "Behavioral intelligence is the layer above enrichment. Instead of labeling one transaction, it interprets patterns across a customer's history — and across externally observed signals from national data partnerships — to extract spending behavior, financial behavior, and major life events: the signals that determine which product, offer, or conversation is actually relevant right now.",
   },
   {
     q: "How is Ventus AI different from a transaction enrichment API?",
-    a: "A transaction enrichment API answers 'what was this purchase?'. Ventus answers 'what does this customer need next, and why?'. Ventus enriches transactions and then produces five behavioral signal layers plus activation — offers, products, campaigns, and conversations — each traceable back to the transactions that justify it.",
+    a: "A transaction enrichment API answers 'what was this purchase?'. Ventus answers 'what does this customer need next, and why?'. Ventus applies proprietary behavioral enrichment across multi-rail internal data, combines it with externally observed signals from national data partnerships, and produces spending, financial, and life-event signals plus activation — offers, products, campaigns, and conversations — each traceable back to the transactions that justify it.",
   },
   {
     q: "How does life event detection work?",
-    a: "Ventus reads combinations of enriched transactions over time — such as inspection fees, moving services, and title payments — and scores them against life-event patterns. Each detected event carries a confidence level and the underlying transaction evidence, so a banker can see exactly why it fired.",
+    a: "Ventus reads combinations of enriched transactions over time — such as inspection fees, moving services, and title payments — scores them against life-event patterns, and corroborates them against externally observed signals where available. Each detected event carries a confidence level and the underlying transaction evidence, so a banker can see exactly why it fired.",
   },
   {
     q: "What is a next-best offer for a bank?",
@@ -74,15 +74,15 @@ const faqs: QA[] = [
   },
   {
     q: "Do banks need to change their core systems to use Ventus?",
-    a: "No. Ventus requires no changes to core banking infrastructure. Institutions send transaction data securely and receive enriched intelligence back through a simple API, which can be routed into existing digital banking, CRM, campaign, rewards, and advisor workflows.",
+    a: "No. Ventus requires no changes to core banking infrastructure. Institutions send transaction data securely and receive signals and activations back through a simple API, which orchestrates into the systems already in production: digital banking, CRM, campaign tools, rewards platforms, and advisor workflows.",
   },
   {
     q: "Is customer data secure?",
-    a: "Ventus runs on enterprise-grade cloud infrastructure with end-to-end encryption and complete data isolation between institutions. Ventus does not store PII — only anonymized transaction signals. SOC 2 certification is in progress.",
+    a: "Ventus runs on enterprise-grade cloud infrastructure with end-to-end encryption and complete data isolation between institutions. Ventus does not store PII — only anonymized behavioral signals. SOC 2 certification is in progress.",
   },
   {
     q: "Who uses behavioral intelligence inside a bank?",
-    a: "Digital banking teams use it for in-app personalization, rewards and loyalty teams for card-linked offers, marketing teams for segment-of-one campaigns, wealth advisors for timely client conversations, and executives for portfolio-level lifestyle and life-event analytics.",
+    a: "Digital banking teams use it for in-app personalization, rewards and loyalty teams for card-linked offers and redemption lift, marketing teams for segment-of-one campaigns, wealth advisors for timely client conversations, and executives for portfolio-level behavioral and life-event analytics. Across those teams, institutions target higher interchange, stronger deal redemption, product growth, and retention.",
   },
 ];
 
