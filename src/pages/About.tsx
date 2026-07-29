@@ -22,7 +22,7 @@ const About = () => {
     <div className="min-h-screen bg-white">
       <SEO
         title="About Ventus AI — Behavioral Intelligence & Personalization Engine"
-        description="Ventus AI is a behavioral intelligence and personalization engine for financial institutions, combining proprietary behavioral enrichment on multi-rail internal data with externally observed signals from national data partnerships."
+        description="Ventus AI combines multi-rail bank data with national data partnerships to extract spending, financial, and life-event signals for bank personalization."
         path="/about"
         keywords="about Ventus AI, behavioral intelligence engine for banks, personalization engine financial institutions, national data partnerships, multi-rail transaction data"
         jsonLd={[
