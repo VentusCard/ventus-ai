@@ -31,6 +31,7 @@ const NextOfferPage = lazy(() => import("./pages/solutions/NextOfferPage"));
 const NextProductPage = lazy(() => import("./pages/solutions/NextProductPage"));
 const NextConversationPage = lazy(() => import("./pages/solutions/NextConversationPage"));
 const PortfolioIntelligencePage = lazy(() => import("./pages/solutions/PortfolioIntelligencePage"));
+const CampaignIntelligencePage = lazy(() => import("./pages/solutions/CampaignIntelligencePage"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const BankAnalyticsDashboard = lazy(() => import("./pages/BankAnalyticsDashboard"));
 const CoworkerPage = lazy(() => import("./pages/CoworkerPage"));
@@ -81,6 +82,7 @@ const AppLayout = () => {
         <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
         <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />
         <Route path="/solutions/portfolio-intelligence" element={<PortfolioIntelligencePage />} />
+        <Route path="/solutions/campaign-intelligence" element={<CampaignIntelligencePage />} />
         {/* Legacy redirects */}
         <Route path="/solutions/next-offer" element={<NextOfferPage />} />
         <Route path="/solutions/next-product" element={<NextProductPage />} />

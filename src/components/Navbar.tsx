@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3, Bot } from "lucide-react";
+import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3, Bot, Megaphone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
@@ -15,6 +15,7 @@ const behavioralIntelligenceItems = [
 const analyticsItems = [
   { to: "/solutions/portfolio-intelligence", title: "Customer Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
   { to: "/coworker", title: "Ventus AI Coworker", desc: "AI teammate for advisors and banking teams.", Icon: Bot },
+  { to: "/solutions/campaign-intelligence", title: "Segment of One Campaigns", desc: "Build micro-segment campaigns from life events, behavior, and financial signals.", Icon: Megaphone },
 ];
 
 const Navbar = () => {
