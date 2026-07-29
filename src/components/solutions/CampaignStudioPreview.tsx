@@ -200,7 +200,7 @@ const CampaignStudioPreview = () => {
       </div>
 
       {/* Segment section */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <p className="text-[11px] uppercase tracking-wide text-gray-500">
           One product · {SEGMENTS.length} segments
         </p>
@@ -213,6 +213,12 @@ const CampaignStudioPreview = () => {
           {paused ? "Play" : "Pause"}
         </button>
       </div>
+      <p className="text-[11px] text-gray-500 mb-3">
+        Signal mix:{" "}
+        <span className="text-blue-700 font-medium">{ANGLE_MIX.behavioral} behavioral</span>{" · "}
+        <span className="text-amber-700 font-medium">{ANGLE_MIX["life-event"]} life event</span>{" · "}
+        <span className="text-purple-700 font-medium">{ANGLE_MIX.demographic} demographic</span>
+      </p>
 
       {/* Segment tabs */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
