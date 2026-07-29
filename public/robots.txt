@@ -48,4 +48,4 @@ Disallow: /bankdemo
 Disallow: /bank-analytics
 Disallow: /classic
 
-Sitemap: https://ventusai.dev/sitemap.xml
+Sitemap: https://ventusai.com/sitemap.xml
