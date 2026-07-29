@@ -16,10 +16,11 @@ type Segment = {
 };
 
 const MergeToken = ({ children = "$xx.xx" }: { children?: React.ReactNode }) => (
-  <span className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded border border-dashed border-amber-300 bg-amber-50 text-amber-800 font-mono text-[11px] align-baseline">
+  <span className="inline-flex items-center px-1.5 py-0.5 mx-0.5 rounded border border-dashed border-amber-300 bg-amber-50 text-amber-800 font-mono text-[11px] leading-none align-baseline -translate-y-[1px]">
     {children}
   </span>
 );
+
 
 
 const ANGLE_STYLE: Record<Angle, { label: string; chip: string }> = {
@@ -228,7 +229,7 @@ const CampaignStudioPreview = () => {
       </p>
 
       {/* Segment tabs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 mb-3">
         {SEGMENTS.map((s, i) => {
           const isActive = i === activeIdx;
           const pct = Math.round((s.reach / MAX_REACH) * 100);
@@ -239,7 +240,7 @@ const CampaignStudioPreview = () => {
                 setActiveIdx(i);
                 setPaused(true);
               }}
-              className={`relative overflow-hidden rounded-lg border p-3 text-left transition-all ${
+              className={`relative overflow-hidden rounded-lg border p-3.5 text-left transition-all ${
                 isActive
                   ? "border-blue-300 bg-blue-50/60"
                   : "border-gray-200 bg-white hover:border-gray-300"
@@ -260,13 +261,13 @@ const CampaignStudioPreview = () => {
                 </p>
               </div>
               <p
-                className={`text-[13px] font-semibold mt-0.5 leading-tight ${
+                className={`text-[13px] font-medium mt-1 leading-snug ${
                   isActive ? "text-gray-900" : "text-gray-700"
                 }`}
               >
                 {s.label}
               </p>
-              <div className="mt-2 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+              <div className="mt-2.5 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
                 <div
                   className={`h-full rounded-full ${
                     isActive ? "bg-blue-500" : "bg-gray-300"
@@ -274,9 +275,6 @@ const CampaignStudioPreview = () => {
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <p className="text-[10px] text-gray-500 mt-1">
-                {formatReach(s.reach)} reachable
-              </p>
               {isActive && !paused && (
                 <span
                   key={activeIdx}
@@ -290,6 +288,11 @@ const CampaignStudioPreview = () => {
           );
         })}
       </div>
+
+      <p className="text-[10px] text-gray-500 italic mb-5 text-right">
+        <MergeToken /> = personalized per-household calculation from the last 90 days of transactions.
+      </p>
+
 
       {/* Email draft card */}
       <div
@@ -331,34 +334,29 @@ const CampaignStudioPreview = () => {
           <MergeToken /> back per year on this card.
         </p>
 
-        <div className="flex flex-wrap gap-2 mb-3">
-          <span className="px-2.5 py-1 rounded-md bg-blue-600 text-white text-[11px] font-semibold">
+        <div className="flex flex-wrap gap-1.5 mb-3">
+          <span className="px-2 py-1 rounded-md bg-blue-600 text-white text-[11px] font-semibold leading-none">
             3% · {active.topCategory}
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-blue-100 text-blue-700 text-[11px] font-semibold">
+          <span className="px-2 py-1 rounded-md bg-blue-100 text-blue-700 text-[11px] font-semibold leading-none">
             2% · {active.secondCategory}
           </span>
-          <span className="px-2.5 py-1 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium">
+          <span className="px-2 py-1 rounded-md bg-gray-100 text-gray-600 text-[11px] font-medium leading-none">
             1% · everything else
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 mb-3">
-          <span className="text-[11px] text-emerald-700 bg-emerald-50 border border-emerald-100 rounded-md px-2.5 py-1.5">
+        <div className="flex flex-wrap items-center gap-1.5 mb-3">
+          <span className="px-2 py-1 rounded-md bg-emerald-50 border border-emerald-100 text-emerald-700 text-[11px] leading-none">
             {active.valueMath}
           </span>
-          <span className="inline-flex items-center gap-1 text-[11px] text-gray-600 bg-white border border-gray-200 rounded-md px-2.5 py-1.5">
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-white border border-gray-200 text-gray-600 text-[11px] leading-none">
             Personalized est.
             <MergeToken>$xx.xx / yr</MergeToken>
           </span>
         </div>
 
-        <p className="text-[10px] text-gray-500 mb-3 italic">
-          <MergeToken /> = personalized per-household calculation from the last 90 days of transactions.
-        </p>
-
         <div className="flex items-center gap-2 pt-3 border-t border-gray-100">
-
           <Mail className="w-3 h-3 text-gray-400" />
           <div className="flex flex-wrap gap-1.5">
             {["Email", "Mobile Push", "In-App"].map((c) => (
@@ -372,6 +370,7 @@ const CampaignStudioPreview = () => {
           </div>
         </div>
       </div>
+
 
       <style>{`
         @keyframes ventus-progress {
