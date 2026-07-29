@@ -41,12 +41,12 @@ export class VentusEvidenceStoreStack extends cdk.Stack {
       'alias/ventus/database-secrets',
     );
 
-    const runtimeSecret = new secretsmanager.Secret(this, 'VentusEvidenceAppRuntimeSecret', {
-      secretName: 'ventus/evidence-store/app-runtime',
+    const runtimeSecret = new secretsmanager.Secret(this, 'VentusEvidenceAppV1Secret', {
+      secretName: 'ventus/evidence-store/app-v1',
       description: 'Generated credentials for the non-bypass Ventus evidence-store runtime role.',
       encryptionKey: databaseSecretsKey,
       generateSecretString: {
-        secretStringTemplate: JSON.stringify({ username: 'ventus_evidence_app' }),
+        secretStringTemplate: JSON.stringify({ username: 'ventus_evidence_app_v1' }),
         generateStringKey: 'password',
         passwordLength: 40,
         excludePunctuation: true,

@@ -74,7 +74,7 @@ The durable decision/outcome evidence store is an opt-in, manually invoked deplo
 reuses the private Aurora cluster and adds only:
 
 - an isolated `ventus_evidence` schema;
-- a generated Secrets Manager credential for `ventus_evidence_app`, which is explicitly
+- a generated Secrets Manager credential for `ventus_evidence_app_v1`, which is explicitly
   `NOSUPERUSER NOBYPASSRLS`;
 - a private migration/verifier Lambda with no schedule and no API route.
 
