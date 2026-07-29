@@ -1,4 +1,4 @@
-// Console state: Supabase auth + the operating session (tenant, connector
+// Console state: provider-neutral employee auth + the operating session (tenant, connector
 // session, qualified moments, decision ledger). The browser ledger is a session
 // integrity trace; durable pilot evidence remains a server-side responsibility.
 
@@ -11,8 +11,14 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import {
+  currentAuthSession,
+  signOutConsole,
+  subscribeToAuth,
+  type ConsoleAuthSession,
+  type ConsoleAuthUser,
+} from "@/console/authClient";
+import { consoleApiUrl } from "@/console/api";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
   PLAID_FIXTURE_PRIMACY,
@@ -45,8 +51,8 @@ import {
 // ── Auth ──────────────────────────────────────────────────────────────────
 
 type AuthState = {
-  user: User | null;
-  session: Session | null;
+  user: ConsoleAuthUser | null;
+  session: ConsoleAuthSession | null;
   loading: boolean;
   access: ConsoleAccessProfile | null;
   accessLoading: boolean;
@@ -75,26 +81,32 @@ export type ConsoleAccessProfile = {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<ConsoleAuthSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [access, setAccess] = useState<ConsoleAccessProfile | null>(null);
   const [accessLoading, setAccessLoading] = useState(false);
   const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isSupabaseConfigured) {
-      setLoading(false);
-      return;
-    }
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    let active = true;
+    currentAuthSession()
+      .then((nextSession) => {
+        if (active) setSession(nextSession);
+      })
+      .catch(() => {
+        if (active) setSession(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    const unsubscribe = subscribeToAuth((nextSession) => {
       setSession(nextSession);
       setLoading(false);
     });
-    return () => subscription.subscription.unsubscribe();
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   const refreshAccess = useCallback(async () => {
@@ -107,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessLoading(true);
     setAccessError(null);
     try {
-      const response = await fetch("/api/console-access", {
+      const response = await fetch(consoleApiUrl("/api/console-access"), {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -132,8 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearConsoleStorage();
     clearTenantOverride();
     setAccess(null);
-    if (!isSupabaseConfigured) return;
-    await supabase.auth.signOut();
+    await signOutConsole();
   }, []);
 
   const value = useMemo(
@@ -450,7 +461,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
     setConnectError(null);
     try {
       if (!session?.access_token) throw new Error("Sign in again to start a connector session.");
-      const response = await fetch("/api/presenter-session", {
+      const response = await fetch(consoleApiUrl("/api/presenter-session"), {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -491,7 +502,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
 
       if (connectorSession?.token && connectorSession.connectors.plaid) {
         try {
-          const response = await fetch("/api/plaid-transactions", {
+          const response = await fetch(consoleApiUrl("/api/plaid-transactions"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -558,7 +569,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       if (!decision) {
         try {
           if (!session?.access_token) throw new Error("Sign in again to run the decision.");
-          const response = await fetch("/api/decision-run", {
+          const response = await fetch(consoleApiUrl("/api/decision-run"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -661,7 +672,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           if (selectedAction.id.replaceAll("-", "_") !== preparedDecision.actionId) {
             throw new Error("This pilot can route only the approved Growth Play action. Defer or decline to request a protocol change.");
           }
-          const governedResponse = await fetch("/api/standalone-pilot-activate", {
+          const governedResponse = await fetch(consoleApiUrl("/api/standalone-pilot-activate"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -749,7 +760,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const response = await fetch("/api/salesforce-deliver", {
+        const response = await fetch(consoleApiUrl("/api/salesforce-deliver"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -903,7 +914,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       setSyncingOutcome(momentId);
       setOutcomeSyncMessage(null);
       try {
-        const response = await fetch("/api/salesforce-outcomes", {
+        const response = await fetch(consoleApiUrl("/api/salesforce-outcomes"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

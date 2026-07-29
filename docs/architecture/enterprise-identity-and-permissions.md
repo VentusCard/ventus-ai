@@ -18,11 +18,15 @@ as `plaid_read` and `salesforce_write`; partner credentials remain server-side.
 
 ## Current Transition
 
-The existing Supabase email login remains active for the internal
-bank-employee walkthrough while the AWS path is validated in parallel. This is
-a temporary compatibility layer, not the target identity architecture.
+The application now has a provider-neutral login boundary. Supabase remains
+the default rollback adapter while the Cognito path is validated in AWS dev;
+it is a temporary compatibility layer, not the target identity architecture.
 
-- Confirmed `@ventusai.com` identities continue to use the existing demo.
+- Cognito uses authorization code + PKCE and an invite-only managed login.
+- The server accepts Cognito access tokens only when signature, issuer, client,
+  token use, and the immutable tenant routing claim all verify.
+- A Pre Token Generation trigger copies the immutable `tenant_id` attribute
+  into access tokens; it does not grant application access.
 - The Cognito user pool is invite-only for the pilot; public self-signup is
   disabled.
 - Cognito groups provide coarse identity administration. Aurora membership is
@@ -34,6 +38,9 @@ a temporary compatibility layer, not the target identity architecture.
   or modify memberships.
 - Passwords, MFA factors, IdP secrets, and partner OAuth grants are never stored
   in Aurora.
+- The hosted Amplify frontend must use a reviewed AWS Console API origin.
+  Amplify's static hosting does not turn the repository's local `/api` bridge
+  into production server functions.
 
 ## Pilot Roles
 

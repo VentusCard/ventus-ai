@@ -10,6 +10,7 @@ import Footer from "./components/Footer";
 import IndexV2 from "./pages/IndexV2";
 import ConsoleLayout, { ConsoleAuthBoundary } from "./console/ConsoleLayout";
 import {
+  AuthCallbackPage,
   ForgotPasswordPage,
   LoginPage,
   ResetPasswordPage,
@@ -85,6 +86,7 @@ const AppLayout = () => {
           <Route path="signup" element={<SignupPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
           <Route path="reset-password" element={<ResetPasswordPage />} />
+          <Route path="auth/callback" element={<AuthCallbackPage />} />
           <Route index element={<AppEntryPage />} />
           <Route path="access-pending" element={<AccessPendingPage />} />
           <Route path="demo" element={<ProtectedDemoPage />} />

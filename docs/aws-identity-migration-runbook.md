@@ -12,8 +12,9 @@ AWS-native foundation without interrupting the current employee demo:
 - API Gateway and Lambda for active server-side application functions.
 - Secrets Manager for connector and identity-provider secrets.
 
-This change is additive. It does not deploy resources, copy passwords, disable
-Supabase, or change the current login path.
+The code supports a reversible dual run. It does not deploy resources, copy
+passwords, or disable Supabase by itself. The active login path changes only
+when the frontend and server provider settings are deliberately updated.
 
 ## Source Of Truth
 
@@ -64,12 +65,47 @@ migration Lambda, review and approve it as a separate change.
 
 ## Phase 3: Application Dual Run
 
-Add the Cognito application adapter behind an explicit provider setting:
+The application includes a Cognito adapter behind explicit provider settings:
 
 ```text
-VENTUS_AUTH_PROVIDER=supabase   current path
-VENTUS_AUTH_PROVIDER=cognito    AWS validation path
+VITE_AUTH_PROVIDER=supabase     browser uses the rollback adapter
+VENTUS_AUTH_PROVIDER=supabase   server verifies Supabase sessions
+
+VITE_AUTH_PROVIDER=cognito      browser uses Cognito authorization code + PKCE
+VENTUS_AUTH_PROVIDER=cognito    server verifies Cognito access tokens
 ```
+
+Never run the browser and server on different providers. A mismatch fails
+closed and appears to the operator as an authenticated session without Console
+access.
+
+### Cognito environment
+
+Set these public identifiers in the protected Amplify branch:
+
+```text
+VITE_AUTH_PROVIDER=cognito
+VITE_COGNITO_AUTHORITY=https://cognito-idp.<region>.amazonaws.com/<user-pool-id>
+VITE_COGNITO_CLIENT_ID=<web-client-id>
+VITE_COGNITO_DOMAIN=https://<prefix>.auth.<region>.amazoncognito.com
+VITE_CONSOLE_API_BASE_URL=https://<reviewed-console-api-origin>
+```
+
+Set these only in the server runtime:
+
+```text
+VENTUS_AUTH_PROVIDER=cognito
+COGNITO_ISSUER=https://cognito-idp.<region>.amazonaws.com/<user-pool-id>
+COGNITO_CLIENT_ID=<web-client-id>
+DATABASE_URL=<runtime-role-connection>
+PGSSL=require
+```
+
+`VITE_CONSOLE_API_BASE_URL` exists because Amplify currently hosts a static
+frontend. It must point to the reviewed AWS API deployment that serves the
+Console endpoints; relative `/api` calls remain the local-development default.
+Do not switch the hosted branch until this API route is live and its CORS
+allowlist contains only the intended dev origin.
 
 The Cognito path must:
 
@@ -83,6 +119,24 @@ The Cognito path must:
 
 Use a dedicated non-production hostname or allowlisted internal cohort during
 dual run. Do not expose a public provider toggle.
+
+### Dev activation sequence
+
+1. Synthesize and review `VentusIdentityStack`; confirm the existing user pool
+   is not replaced.
+2. Deploy the identity stack to non-production.
+3. Apply `institution-access.sql` and verify tenant isolation as the runtime
+   role.
+4. Create one institution, its Cognito provider binding, and one active pilot
+   membership as the database owner.
+5. Invite the pilot user with the immutable Cognito `tenant_id` attribute.
+6. Configure the AWS Console API with the server variables above.
+7. Configure the Amplify `dev` branch with the frontend variables above and
+   redeploy it.
+8. Verify login, callback, membership resolution, entitlement denial, logout,
+   and one scoped connector action.
+9. Promote the same reviewed settings to staging only after the dev evidence is
+   retained.
 
 ## Phase 4: Institution SSO
 
@@ -117,7 +171,7 @@ Switch the application to Cognito only when all gates pass:
 
 If a cutover gate fails:
 
-1. Set the hosted application back to `VENTUS_AUTH_PROVIDER=supabase`.
+1. Set both `VITE_AUTH_PROVIDER` and `VENTUS_AUTH_PROVIDER` back to `supabase`.
 2. Keep Cognito and Aurora records intact for diagnosis.
 3. Revoke affected Cognito sessions if necessary.
 4. Do not remove or rewrite decision-ledger evidence.
