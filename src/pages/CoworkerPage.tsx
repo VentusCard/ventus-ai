@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import SEO from "@/components/SEO";
+import { breadcrumbSchema, softwareApplicationSchema } from "@/lib/seoSchema";
 import { Button } from "@/components/ui/button";
 import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
@@ -44,9 +45,11 @@ const CoworkerPage = () => {
   return (
     <main className="bg-white min-h-screen">
       <SEO
-        title="Ventus AI Coworker — Daily intelligence for banking teams"
+        title="Ventus AI Coworker — Daily AI Intelligence for Banking Teams"
         description="An email-based AI agent that delivers a daily digest of what changed across the book, the portfolio, or the institution — and lets anyone reply to collaborate 24/7."
         path="/coworker"
+        keywords="AI agent for banks, daily intelligence digest banking, AI coworker for advisors, email AI assistant financial institution"
+        jsonLd={[softwareApplicationSchema, breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Ventus AI Coworker", path: "/coworker" }])]}
       />
 
       {/* Hero */}

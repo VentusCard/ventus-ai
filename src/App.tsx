@@ -43,6 +43,7 @@ const InsightPost = lazy(() => import("./pages/InsightPost"));
 const DemoPage = lazy(() => import("./pages/DemoPage"));
 const ExecDemoPage = lazy(() => import("./pages/ExecDemoPage"));
 const Platform = lazy(() => import("./pages/Platform"));
+const TransactionEnrichmentPillar = lazy(() => import("./pages/TransactionEnrichmentPillar"));
 const NextOfferPage = lazy(() => import("./pages/solutions/NextOfferPage"));
 const NextProductPage = lazy(() => import("./pages/solutions/NextProductPage"));
 const NextConversationPage = lazy(() => import("./pages/solutions/NextConversationPage"));
@@ -102,6 +103,7 @@ const AppLayout = () => {
         <Route path="/classic" element={<Index noindex />} />
         <Route path="/v2" element={<IndexV2 />} />
         <Route path="/platform" element={<Platform />} />
+        <Route path="/transaction-enrichment" element={<TransactionEnrichmentPillar />} />
         <Route path="/smartrewards" element={<SmartRewards />} />
         <Route path="/engagement" element={<Engagement />} />
         <Route path="/wealth" element={<Wealth />} />

@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
@@ -36,7 +37,7 @@ const Insights = () => {
 
   return (
     <main className="bg-white min-h-screen">
-      <SEO title="Insights — Ventus AI" description="Research, product updates, and industry perspectives from the Ventus AI team on transaction intelligence and banking personalization." path="/insights" />
+      <SEO title="Insights — Behavioral Intelligence for Banking" description="Research, product updates, and industry perspectives from the Ventus AI team on transaction enrichment, behavioral intelligence, and banking personalization." path="/insights" keywords="banking personalization research, transaction intelligence insights, behavioral intelligence banking blog" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Insights", path: "/insights" }])} />
       {/* Hero — white, centered */}
       <section className="pt-48 pb-12 px-6">
         <div className="max-w-3xl mx-auto text-center">

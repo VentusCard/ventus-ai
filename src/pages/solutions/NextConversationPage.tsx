@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
@@ -27,7 +28,7 @@ const NextConversationPage = () => {
 
   return (
     <main className="bg-white min-h-screen">
-      <SEO title="Conversation Intelligence — Ventus AI" description="Surface the next-best conversation for advisors and bankers, grounded in transaction signals and customer life events." path="/solutions/conversation-intelligence" />
+      <SEO title="Next Best Conversation for Advisors — Ventus AI" description="Surface the next-best conversation for advisors and bankers, grounded in transaction signals and customer life events." path="/solutions/conversation-intelligence" keywords="next best conversation banking, advisor conversation intelligence, relationship manager AI" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Conversation Intelligence", path: "/solutions/conversation-intelligence" }])} />
       {/* Hero */}
       <section ref={hero.ref} className="pt-40 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[80vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">

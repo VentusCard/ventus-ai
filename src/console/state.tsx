@@ -669,7 +669,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           if (!preparedDecision || preparedDecision.abstain) {
             throw new Error("This prepared decision cannot be activated.");
           }
-          if (selectedAction.id.replaceAll("-", "_") !== preparedDecision.actionId) {
+          if (selectedAction.id.split("-").join("_") !== preparedDecision.actionId) {
             throw new Error("This pilot can route only the approved Growth Play action. Defer or decline to request a protocol change.");
           }
           const governedResponse = await fetch(consoleApiUrl("/api/standalone-pilot-activate"), {
@@ -958,7 +958,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           {
             eventKey: `${momentId}-outcome-${observation.eventId}`,
             kind: "outcome",
-            title: observation.eventType.replaceAll("_", " "),
+            title: observation.eventType.split("_").join(" "),
             detail: `Observed in Salesforce · ${data.evidenceClass} evidence · lift remains unmeasured`,
             ref: momentId,
             value: observation.value?.amount,

@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -37,7 +38,7 @@ const TravelExperience = () => {
 
   return (
     <div>
-      <SEO title="Travel Experience — Ventus AI" description="Detect trips, fares, and travel intent from transaction data to power richer rewards and customer experiences." path="/travel" />
+      <SEO title="Travel Intelligence from Transaction Data — Ventus AI" description="Detect trips, fares, and travel intent from transaction data to power richer travel rewards, offers, and customer experiences." path="/travel" keywords="travel intent detection, trip detection from transactions, travel rewards personalization banking" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Travel Experience", path: "/travel" }])} />
       <main>
         {/* SECTION 1 — HERO */}
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>

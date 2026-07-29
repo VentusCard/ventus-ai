@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -38,7 +39,7 @@ const Wealth = () => {
 
   return (
     <div>
-      <SEO title="Wealth Management — Ventus AI" description="Life event detection, urgency scoring, and automated meeting prep that helps wealth advisors reach the right client at the right time." path="/wealth" />
+      <SEO title="Wealth Management Life Event Intelligence — Ventus AI" description="Life event detection, urgency scoring, and automated meeting prep that helps wealth advisors reach the right client at the right moment, grounded in transaction evidence." path="/wealth" keywords="life event detection wealth management, advisor client intelligence, wealth signals from transaction data, meeting prep automation" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Wealth Management", path: "/wealth" }])} />
       <main>
         {/* SECTION 1 — HERO */}
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>

@@ -440,6 +440,7 @@ export function FscOnboardingPage() {
                 ["Decision Receipt", delivery.records?.decision],
                 ["Employee Task", delivery.records?.task],
               ].map(([label, record]) => {
+                const text = String(label);
                 const typed = record as { id: string; url: string } | null | undefined;
                 return (
                   <a
@@ -451,7 +452,7 @@ export function FscOnboardingPage() {
                     style={{ borderColor: "var(--v2-rule)", pointerEvents: typed ? "auto" : "none", opacity: typed ? 1 : 0.55 }}
                   >
                     <span>
-                      <span className="block text-[12px] font-bold" style={{ color: "var(--v2-ink)" }}>{label}</span>
+                      <span className="block text-[12px] font-bold" style={{ color: "var(--v2-ink)" }}>{text}</span>
                       <span className="v2-mono mt-0.5 block text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>{typed?.id ?? "not created"}</span>
                     </span>
                     {typed && <ArrowUpRight className="h-4 w-4" style={{ color: "var(--v2-ink-faint)" }} />}

@@ -24,6 +24,8 @@ const Footer = () => {
               <Link to="/solutions/conversation-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Next Conversation</Link>
               <p className="text-[11px] uppercase tracking-wider text-white/40 mt-3">Analytics</p>
               <Link to="/solutions/portfolio-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Customer Intelligence</Link>
+              <Link to="/solutions/campaign-intelligence" className="text-white/60 hover:text-white text-sm transition-colors">Segment of One Campaigns</Link>
+              <Link to="/coworker" className="text-white/60 hover:text-white text-sm transition-colors">Ventus AI Coworker</Link>
             </nav>
           </div>
 
@@ -31,6 +33,8 @@ const Footer = () => {
           <div>
             <h4 className="text-sm font-semibold text-white mb-4 uppercase tracking-wider">Company</h4>
             <nav className="flex flex-col gap-2.5">
+              <Link to="/platform" className="text-white/60 hover:text-white text-sm transition-colors">Platform</Link>
+              <Link to="/transaction-enrichment" className="text-white/60 hover:text-white text-sm transition-colors">Transaction Enrichment</Link>
               <Link to="/insights" className="text-white/60 hover:text-white text-sm transition-colors">Insights</Link>
               <Link
                 to="/?scrollTo=faq"

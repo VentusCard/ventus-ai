@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
@@ -27,9 +28,11 @@ const CampaignIntelligencePage = () => {
   return (
     <main className="bg-white min-h-screen">
       <SEO
-        title="Segment of One Campaigns — Ventus AI"
-        description="Build micro-segment campaigns from life events, behavioral signals, and financial intelligence."
+        title="Segment of One Campaigns for Banks — Ventus AI"
+        description="Build micro-segment banking campaigns from life events, behavioral signals, and financial intelligence, with personalized value math in every message."
         path="/solutions/campaign-intelligence"
+        keywords="segment of one marketing banking, micro-segmentation campaigns, personalized bank campaigns, life event marketing financial services"
+        jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Campaign Intelligence", path: "/solutions/campaign-intelligence" }])}
       />
 
       {/* Hero */}
