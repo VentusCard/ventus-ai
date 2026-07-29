@@ -18,7 +18,7 @@ import {
   type ConsoleAuthSession,
   type ConsoleAuthUser,
 } from "@/console/authClient";
-import { consoleApiUrl } from "@/console/api";
+import { consoleAccessUrl, consoleApiUrl } from "@/console/api";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
   PLAID_FIXTURE_PRIMACY,
@@ -119,7 +119,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessLoading(true);
     setAccessError(null);
     try {
-      const response = await fetch(consoleApiUrl("/api/console-access"), {
+      const response = await fetch(consoleAccessUrl(), {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
