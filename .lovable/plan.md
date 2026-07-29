@@ -1,31 +1,25 @@
-## Add Coworker to Solutions Dropdown
+## Plan: Horizontal Solutions Dropdown
 
 ### Goal
-Add a navigation entry for the new `/coworker` page inside the main site navbar’s **Solutions** dropdown, grouped with the existing bank-facing analytics offering.
-
-### Current state
-`src/components/Navbar.tsx` renders a Solutions dropdown with two sections:
-- **BEHAVIORAL INTELLIGENCE**: Next Offer, Next Product, Next Conversation
-- **ANALYTICS**: Customer Intelligence
-
-The `/coworker` route exists in `src/App.tsx` and the page is built.
+Restructure the desktop Solutions mega-menu so the two intelligence sections sit side-by-side instead of stacked vertically, making better use of dropdown width and visually grouping the two bank-facing items.
 
 ### Changes
-1. **Rename the Analytics section header** to signal that both items are bank-facing, e.g. **BANK-FACING INTELLIGENCE**.
+1. **File:** `src/components/Navbar.tsx`
+2. **Desktop dropdown container:**
+   - Replace single `w-80` column with a wider container (e.g., `w-[640px]` or `w-[680px]`).
+   - Use a flex/grid layout (`grid-cols-2`) so `behavioralIntelligenceItems` and `analyticsItems` each occupy one column.
+   - Keep each column's existing item styling (icon, title, description).
+   - Move the section labels (`BEHAVIORAL INTELLIGENCE`, `BANK-FACING INTELLIGENCE`) above each respective column.
+   - Remove the horizontal divider between sections on desktop (no longer needed with side-by-side columns).
+3. **Mobile behavior:**
+   - Preserve the existing vertical stacked layout inside the mobile menu; do not change the mobile structure.
+4. **Visual polish:**
+   - Add a subtle vertical divider between the two columns if needed for separation.
+   - Ensure hover states and click handlers remain intact.
+   - Keep the dropdown positioned correctly under the Solutions trigger.
 
-2. **Desktop dropdown**
-   - Keep Customer Intelligence in the renamed section.
-   - Add a second item: **Ventus AI Coworker** → `/coworker`.
-   - Use a Lucide icon that fits an AI-assistant concept (e.g. `Bot` or `Sparkles`).
-   - Keep the existing hover/click behavior and styling consistent with the other items.
-
-3. **Mobile menu**
-   - Mirror the same renamed section and the two items under the Solutions expander so mobile users can also reach `/coworker`.
-
-### Files to modify
-- `src/components/Navbar.tsx` only.
-
-### Acceptance
-- Hovering Solutions on desktop shows the renamed bank-facing section with Customer Intelligence and Ventus AI Coworker.
-- Tapping Solutions on mobile expands to show the same two items.
-- Clicking Ventus AI Coworker navigates to `/coworker` and closes the menu.
+### Verification
+- Open the preview and hover over Solutions on desktop.
+- Confirm both columns are visible, equal height, and items are clickable.
+- Confirm mobile menu still stacks vertically.
+- Run typecheck/build to ensure no TS errors.
