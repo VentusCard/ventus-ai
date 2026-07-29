@@ -299,9 +299,16 @@ const CampaignStudioPreview = () => {
               <p className="text-[12px] font-semibold text-gray-900 leading-tight">
                 Segmented email · draft
               </p>
-              <p className="text-[10px] uppercase tracking-wide text-gray-500">
-                To · {active.label}
-              </p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span
+                  className={`px-1.5 py-0.5 rounded border text-[10px] font-medium ${ANGLE_STYLE[active.angle].chip}`}
+                >
+                  {ANGLE_STYLE[active.angle].label}
+                </span>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                  To · {active.label}
+                </p>
+              </div>
             </div>
           </div>
           <span className="px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-[11px] font-medium border border-green-100">
