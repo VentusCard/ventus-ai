@@ -21,6 +21,31 @@ for (const file of files) {
     throw new Error(`${file} must include at least one Statement`);
   }
 
+  if (file === 'iam/github-oidc-trust-policy.json') {
+    const subjects = policy.Statement[0]?.Condition?.StringLike?.[
+      'token.actions.githubusercontent.com:sub'
+    ];
+    if (!Array.isArray(subjects) || !subjects.includes(
+      'repo:VentusCard/ventus-ai:ref:refs/heads/dev'
+    )) {
+      throw new Error(`${file} must allow reviewed dev-branch workflow dispatches`);
+    }
+  }
+
+  if (file === 'iam/github-staging-deploy-policy.json') {
+    const stackStatement = policy.Statement.find(
+      (statement) => statement.Sid === 'CloudFormationVentusStack'
+    );
+    const resources = Array.isArray(stackStatement?.Resource)
+      ? stackStatement.Resource
+      : [stackStatement?.Resource].filter(Boolean);
+    const identityStackArn =
+      'arn:aws:cloudformation:us-east-2:373633008995:stack/VentusIdentityStack/*';
+    if (!resources.includes(identityStackArn)) {
+      throw new Error(`${file} must allow the reviewed Ventus identity stack`);
+    }
+  }
+
   if (file.includes('secrets-kms-key-policy')) {
     for (const statement of policy.Statement) {
       const principals = statement.Principal?.AWS;
