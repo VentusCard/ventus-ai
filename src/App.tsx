@@ -82,6 +82,7 @@ const AppLayout = () => {
         <Route path="/solutions/product-intelligence" element={<NextProductPage />} />
         <Route path="/solutions/conversation-intelligence" element={<NextConversationPage />} />
         <Route path="/solutions/portfolio-intelligence" element={<PortfolioIntelligencePage />} />
+        <Route path="/solutions/campaign-intelligence" element={<CampaignIntelligencePage />} />
         {/* Legacy redirects */}
         <Route path="/solutions/next-offer" element={<NextOfferPage />} />
         <Route path="/solutions/next-product" element={<NextProductPage />} />
