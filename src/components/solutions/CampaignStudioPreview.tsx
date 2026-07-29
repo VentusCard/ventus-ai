@@ -335,8 +335,11 @@ const CampaignStudioPreview = () => {
         </div>
 
         <p className="text-[13px] font-semibold text-gray-900 mb-2 leading-snug">
-          {active.subject}
+          {active.subjectLead}
+          <MergeToken />
+          {active.subjectTrail}
         </p>
+
         <p className="text-[13px] text-gray-700 leading-relaxed mb-3">
           {active.body} Based on the last 90 days of spend, we estimate
           <MergeToken /> back per year on this card.
