@@ -76,9 +76,11 @@
         "amplify:GetJob",
         "amplify:ListBranches",
         "amplify:ListJobs",
-        "amplify:StartJob"
+        "amplify:StartJob",
+        "amplify:UpdateBranch"
       ],
       "Resource": [
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng",
         "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/dev",
         "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/dev/jobs/*",
         "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/staging",

@@ -4360,7 +4360,14 @@ function PendingMetric({ label, detail }: { label: string; detail: string }) {
 // the Prove step's rehearsal performs REAL network writes and shows the receiver's
 // receipts. Unset = simulated, and the demo never sends a payload anywhere.
 const REHEARSAL_URL = ((import.meta.env.VITE_REHEARSAL_URL as string | undefined) ?? "").trim();
-const DEMO_CONNECTOR_API_BASE_URL = ((import.meta.env.VITE_DEMO_CONNECTOR_API_BASE_URL as string | undefined) ?? "")
+const DEV_DEMO_CONNECTOR_API_BASE_URL = "https://8n6lilwaug.execute-api.us-east-2.amazonaws.com/demo/v1/demo";
+const DEV_AMPLIFY_HOSTNAME = "dev.d1gaewa028qzng.amplifyapp.com";
+const DEMO_CONNECTOR_API_BASE_URL = (
+  ((import.meta.env.VITE_DEMO_CONNECTOR_API_BASE_URL as string | undefined) ?? "")
+  || (typeof window !== "undefined" && window.location.hostname === DEV_AMPLIFY_HOSTNAME
+    ? DEV_DEMO_CONNECTOR_API_BASE_URL
+    : "")
+)
   .trim()
   .replace(/\/$/, "");
 const DEMO_CONNECTOR_ENDPOINTS = DEMO_CONNECTOR_API_BASE_URL
