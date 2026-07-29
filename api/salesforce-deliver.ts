@@ -46,6 +46,7 @@ type SalesforceInsightInput = {
 
 type SalesforceFscInput = {
   clientId?: unknown;
+  createReferral?: unknown;
   estimatedReferralValue?: unknown;
   referralRecordTypeId?: unknown;
 };
@@ -258,7 +259,7 @@ export function buildSalesforceDecisionRecord(
 
   const confidence = cleanConfidence(moment.confidence);
   const clientId = cleanSalesforceId(
-    process.env.SF_DEMO_ACCOUNT_ID || asRecord(body.fsc).clientId,
+    asRecord(body.fsc).clientId || process.env.SF_DEMO_ACCOUNT_ID,
   );
   const workflowRecordId = cleanSalesforceId(workflow.referralId || workflow.taskId);
   const evidence = Array.isArray(moment.evidence)
@@ -425,24 +426,29 @@ export async function POST(request: Request): Promise<Response> {
   const { task, activation } = buildSalesforceTaskRecord(body);
   const configuredClientId = cleanSalesforceId(process.env.SF_DEMO_ACCOUNT_ID);
   const configuredReferralRecordTypeId = cleanSalesforceId(process.env.SF_FSC_REFERRAL_RECORD_TYPE_ID);
-  const referralBody = configuredClientId && configuredReferralRecordTypeId
-    ? {
-        ...body,
-        fsc: {
-          ...body.fsc,
-          clientId: configuredClientId,
-          referralRecordTypeId: configuredReferralRecordTypeId,
-        },
-      }
-    : body;
-  const referralRecord = fscReferralEnabled() ? buildSalesforceReferralRecord(referralBody) : null;
+  const requestedClientId = cleanSalesforceId(body.fsc?.clientId);
+  const requestedReferralRecordTypeId = cleanSalesforceId(body.fsc?.referralRecordTypeId);
+  const referralBody = {
+    ...body,
+    fsc: {
+      ...body.fsc,
+      ...((requestedClientId || configuredClientId)
+        ? { clientId: requestedClientId || configuredClientId }
+        : {}),
+      ...((requestedReferralRecordTypeId || configuredReferralRecordTypeId)
+        ? { referralRecordTypeId: requestedReferralRecordTypeId || configuredReferralRecordTypeId }
+        : {}),
+    },
+  };
+  const referralRequested = fscReferralEnabled() && body.fsc?.createReferral !== false;
+  const referralRecord = referralRequested ? buildSalesforceReferralRecord(referralBody) : null;
 
   try {
     const { accessToken, instanceUrl } = await getToken(c);
     const warnings: Array<{ stage: string; message: string }> = [];
     let referral: { id: string; url: string } | null = null;
 
-    if (fscReferralEnabled()) {
+    if (referralRequested) {
       if (!referralRecord) {
         warnings.push({
           stage: "fsc_referral",

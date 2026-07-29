@@ -21,6 +21,7 @@ import {
   ProtectedDemoPage,
 } from "./console/AccessPages";
 import MomentsPage from "./console/MomentsPage";
+import { FscOnboardingPage } from "./console/FscOnboardingPage";
 import { LedgerPage, OutcomesPage, PlaysPage, SettingsPage } from "./console/OpsPages";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -92,6 +93,7 @@ const AppLayout = () => {
             <Route path="plays" element={<PlaysPage />} />
             <Route path="ledger" element={<LedgerPage />} />
             <Route path="outcomes" element={<OutcomesPage />} />
+            <Route path="onboarding" element={<FscOnboardingPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>

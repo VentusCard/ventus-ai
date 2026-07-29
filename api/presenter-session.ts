@@ -67,6 +67,7 @@ export async function POST(request: Request): Promise<Response> {
         "plaid_read",
         "salesforce_write",
         "salesforce_outcome_read",
+        ...(operator?.role === "admin" ? ["salesforce_schema_read"] : []),
         ...scenarioScopes,
         ...(governedDestinations.length ? ["growth_play_activate"] : []),
       ],
