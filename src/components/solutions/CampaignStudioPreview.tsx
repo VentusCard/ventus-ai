@@ -46,8 +46,9 @@ const SEGMENTS: Segment[] = [
     reach: 18420,
     topCategory: "Dining",
     secondCategory: "Grocery",
-    subject: "Your dining habit could earn you $237 more this year",
-    body: "You spend most nights out — pick Dining as your 3% category and keep 2% on groceries. Everything else earns 1%. $0 annual fee.",
+    subjectLead: "Your dining habit could earn you ",
+    subjectTrail: " more this year",
+    body: "The daily coffee, the Friday pizza, the dinners out that just kind of happen. Set 3% on Dining and 2% on Grocery — the food you're feeding yourself anyway, finally feeding your rewards too. $0 annual fee.",
     valueMath: "~$280/mo dining + ~$650/mo grocery ≈ $237/yr vs a flat 1% card.",
   },
   {
@@ -57,8 +58,9 @@ const SEGMENTS: Segment[] = [
     reach: 24310,
     topCategory: "Grocery",
     secondCategory: "Gas & Fuel",
-    subject: "3% back on the aisle you visit every week",
-    body: "Groceries are your #1 spend. Set 3% on Grocery, keep 2% on Gas & Fuel for the commute, and 1% on the rest.",
+    subjectLead: "About ",
+    subjectTrail: " back a year on the aisle you visit every week",
+    body: "The weekly cart, the school-week snack runs, the Sunday warehouse haul. Set 3% on Grocery and keep 2% on Gas & Fuel for the commute in between. 1% on the rest.",
     valueMath: "~$850/mo grocery + ~$220/mo gas ≈ $359/yr vs a flat 1% card.",
   },
   {
@@ -68,8 +70,9 @@ const SEGMENTS: Segment[] = [
     reach: 12180,
     topCategory: "Gas & Fuel",
     secondCategory: "Dining",
-    subject: "3% at the pump, 2% on dinners out",
-    body: "You're on the road daily. Choose Gas as your 3% category, keep Dining at 2%, and 1% everywhere else. Plus a $200 welcome bonus after $1,000 in 90 days.",
+    subjectLead: "Roughly ",
+    subjectTrail: " back a year at the pump and on dinners out",
+    body: "You're on the road daily — pump stops on the way in, drive-thru dinners on the way home. Set 3% on Gas & Fuel and 2% on Dining. Plus a $200 welcome bonus after $1,000 in 90 days.",
     valueMath: "~$320/mo gas + ~$180/mo dining ≈ $158/yr vs a flat 1% card.",
   },
   {
@@ -79,8 +82,9 @@ const SEGMENTS: Segment[] = [
     reach: 8940,
     topCategory: "Grocery",
     secondCategory: "Streaming",
-    subject: "New chapter, new top category",
-    body: "A new baby just rewrote the monthly budget. Grocery runs and streaming subscriptions are climbing — pin 3% on Grocery and 2% on Streaming while everything settles.",
+    subjectLead: "About ",
+    subjectTrail: " back a year on the new-baby budget",
+    body: "A new baby just rewrote the monthly budget — more grocery runs, more streaming for the 2 a.m. feeds. Pin 3% on Grocery and 2% on Streaming while everything settles.",
     valueMath: "~$920/mo grocery + ~$110/mo streaming ≈ $358/yr vs a flat 1% card.",
   },
   {
@@ -90,8 +94,9 @@ const SEGMENTS: Segment[] = [
     reach: 6120,
     topCategory: "Home Improvement",
     secondCategory: "Wholesale Clubs",
-    subject: "3% on the aisle you'll live in for a year",
-    body: "You just closed. Home improvement and warehouse runs are about to dominate the statement — set 3% on Home Improvement and 2% on Wholesale Clubs before the first big weekend project.",
+    subjectLead: "",
+    subjectTrail: " back a year on the aisle you'll live in",
+    body: "Congrats on the new place — now come the hardware-store weekends and the warehouse runs. Set 3% on Home Improvement and 2% on Wholesale Clubs before the first big project.",
     valueMath: "~$540/mo home projects + ~$310/mo wholesale ≈ $269/yr vs a flat 1% card.",
   },
   {
@@ -101,11 +106,13 @@ const SEGMENTS: Segment[] = [
     reach: 11460,
     topCategory: "Travel",
     secondCategory: "Dining",
-    subject: "Kids out of the house — reroute the food budget into travel",
-    body: "Household size just shrank and travel days just grew. Move 3% onto Travel and keep 2% on Dining for the trips ahead. Everything else stays at 1%.",
+    subjectLead: "",
+    subjectTrail: " back a year on the travel and long dinners ahead",
+    body: "Kids are out of the house, the calendar just cleared. Move 3% onto Travel and keep 2% on Dining for the trips and long dinners ahead. Everything else stays at 1%.",
     valueMath: "~$610/mo travel + ~$240/mo dining ≈ $277/yr vs a flat 1% card.",
   },
 ];
+
 
 const MAX_REACH = Math.max(...SEGMENTS.map((s) => s.reach));
 
