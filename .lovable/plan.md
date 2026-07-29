@@ -1,25 +1,32 @@
-## Expand segments + fix branding in `CampaignStudioPreview.tsx`
+## Segments driven by all signal types (behavioral, life-event, financial, demographic)
 
-### Changes
+The demo currently shows six behavioral segments only. The rest of the app already frames product pitches across **behavioral**, **life-event**, **financial-journey** and **demographic** angles (see `productCatalogExtras.ts` `MESSAGE_OVERRIDES` and `MessageAngle`). Bring that same variety into `CampaignStudioPreview.tsx` so the story is: one product, many signal types.
 
-1. **More segments** — expand from 3 to **6** (one per top-category), all still built on the same 3-2-1 Cash Rewards product:
-   - Dining-led households — 3% Dining / 2% Grocery — 18.4k
-   - Grocery-led families — 3% Grocery / 2% Gas — 24.3k
-   - Commuter households — 3% Gas / 2% Dining — 12.2k
-   - Frequent travelers — 3% Travel / 2% Dining — 9.6k
-   - Online shoppers — 3% Online Shopping / 2% Streaming — 15.8k
-   - Wholesale-club shoppers — 3% Wholesale / 2% Grocery — 7.4k
+### Re-mix the 6 segments
 
-2. **Segment tab layout** — swap the 3-column grid for a wrapped 2- or 3-per-row grid so all 6 fit cleanly. Each tab keeps: segment number, label, and **population (reachable count)** shown prominently.
+Keep the 3-2-1 Cash Rewards card fixed. Recompose the six segments to mix angles:
 
-3. **Population visibility** — add a small "population bar" under each tab label (thin bar scaled to the largest segment) so relative sizes are visually obvious, plus keep the numeric `18.4k reachable` line. Total reach in the header updates automatically.
+| # | Segment | Angle | 3% / 2% |
+|---|---------|-------|---------|
+| 1 | Dining-led households | Behavioral | Dining / Grocery |
+| 2 | Grocery-led families | Behavioral | Grocery / Gas |
+| 3 | Commuter households | Behavioral | Gas / Dining |
+| 4 | New parents — family formation | Life event | Grocery / Streaming |
+| 5 | Just bought a home | Life event | Home improvement / Wholesale |
+| 6 | Empty-nest pre-retirees | Demographic | Travel / Dining |
 
-4. **Remove Ventus AI Coworker branding from the draft card**:
-   - Replace the avatar + "Ventus AI Coworker · Draft" header with a neutral **"Campaign draft"** header: envelope icon + "Segmented email · draft" eyebrow, segment label on the right.
-   - No mention of Coworker anywhere in this component (header pill "Powered by Ventus" stays as it's the studio brand).
+Each segment gets tailored subject/body/value-math copy that references the underlying signal (e.g. "You just moved in — 3% on the aisle you'll live in for a year," "Kids out of the house — reroute the food budget into travel").
 
-5. Auto-rotation, pause/play, progress bar, 3%/2%/1% chips, value-math chip and channel chips are unchanged — they just cycle through 6 segments now.
+### Angle chips on tabs + draft card
+
+- Add an **angle chip** on each segment tab: color-coded (`Behavioral` blue, `Life event` amber, `Demographic` purple) using the palette already used in `ExecDemoIntelPanel`.
+- Draft card header: keep "Segmented email · draft" but add the same angle chip next to the "To · <segment>" line, so the viewer sees *why* this segment exists.
+
+### Small polish
+
+- Under the "One product · 6 segments" eyebrow, add a one-line legend: `Signal mix: 3 behavioral · 2 life event · 1 demographic`.
+- Population bars and totals continue to work unchanged.
 
 ### Files touched
 
-- `src/components/solutions/CampaignStudioPreview.tsx` only.
+- `src/components/solutions/CampaignStudioPreview.tsx` only. No routing, no data-layer changes.
