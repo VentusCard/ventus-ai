@@ -181,6 +181,10 @@ jobs:
         run: npm run synth -- VentusEvidenceStoreStack -c enableEvidenceStoreMigrator=true
         working-directory: infra
 
+      - name: Synthesize AWS Identity Foundation
+        run: npx cdk synth VentusIdentityStack -c enableIdentityFoundation=true --quiet
+        working-directory: infra
+
   frontend:
     name: Frontend Build And Lint
     runs-on: ubuntu-latest
