@@ -112,6 +112,19 @@
       }
     },
     {
+      "Sid": "OperateEvidenceStoreMigratorViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:373633008995:function:ventus-evidence-store-migrator",
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
       "Sid": "InspectVentusCostViaAwsMcp",
       "Effect": "Allow",
       "Action": [

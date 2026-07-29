@@ -6,6 +6,7 @@ const CHANNELS = new Map([
   ['console', { connector: 'bank_workbench', destination: 'growth_console_briefing' }],
   ['teams', { connector: 'microsoft_teams', destination: 'teams_adaptive_card' }],
   ['outlook', { connector: 'microsoft_outlook', destination: 'outlook_actionable_message' }],
+  ['slack', { connector: 'slack', destination: 'slack_app_message' }],
 ]);
 
 export function buildBriefingDelivery(input) {

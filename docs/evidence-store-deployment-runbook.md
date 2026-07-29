@@ -42,6 +42,10 @@ The first diff is template-only and does not create an empty review stack in Clo
 
 ## Read-only preflight
 
+The scoped AWS MCP role may invoke only this exact private Lambda. Ask Codex to
+run status mode after the current `infra/iam/ventus-mcp-operator-policy.json`
+has been attached to `VentusMcpOperatorRole`; no database URL is required.
+
 Invoke status mode before migration:
 
 ```bash
@@ -59,6 +63,10 @@ Expected before first migration: `mutationPerformed=false`, `exists=false`, and 
 ## Migration and verification
 
 This is the database mutation gate. Invoke only after the preflight and diff are reviewed:
+
+Codex can perform this invocation through AWS MCP after the user explicitly
+approves the migration. The Lambda resolves both Secrets Manager values inside
+AWS and never returns either credential.
 
 ```bash
 aws lambda invoke \
