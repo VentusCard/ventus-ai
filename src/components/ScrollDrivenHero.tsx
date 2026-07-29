@@ -328,7 +328,7 @@ const ScrollDrivenHero = () => {
                   </span>
                   {activePersona && (
                     <>
-                      <span className="text-gray-400">·</span>
+                      <span className="text-gray-500">·</span>
                       <span
                         className="text-[13px] font-bold tracking-tight"
                         style={{ color: activePersona.color }}
