@@ -56,6 +56,8 @@ const EnterpriseGrowthDemoPage = lazy(() => import("./pages/EnterpriseGrowthDemo
 const InternalCapabilitiesPage = lazy(() => import("./pages/InternalCapabilitiesPage"));
 const InternalGrowthDeskPage = lazy(() => import("./pages/InternalGrowthDeskPage"));
 const LivePipelineLab = lazy(() => import("./pages/LivePipelineLab"));
+const FAQPage = lazy(() => import("./pages/FAQ"));
+const AboutPage = lazy(() => import("./pages/About"));
 
 const queryClient = new QueryClient();
 
