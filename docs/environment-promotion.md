@@ -73,11 +73,19 @@ Development is usable only when:
 Staging additionally requires a reviewed CDK diff, smoke-test evidence, and the
 same application commit intended for production.
 
-## Current cleanup
+## Current state
 
-- Connect `dev` in Amplify after fast-forwarding the GitHub branch.
-- Refresh `staging` only through the promotion flow above.
+- `dev` is connected to the GitHub `dev` branch with automatic builds. Its
+  first Amplify build succeeded on July 28, 2026.
+- `staging` is connected to the GitHub `staging` branch, but its deployed
+  release dates to February 20, 2026. Refresh it only through the promotion
+  flow above.
+- `main` remains the Amplify production branch and was not changed during the
+  environment correction.
+- The scoped MCP operator policy is attached to the live role and can inspect
+  or restart `dev` and `staging` jobs without access to `main` or secret values.
 - Keep active PR previews until their reviews close.
 - Remove stale PR preview branches, such as `pr-81`, through Amplify after
   confirming the corresponding pull request is closed.
-- Preserve `main` unchanged until a release is explicitly approved.
+- Reconcile the diverged GitHub `dev` and `main` histories through reviewed
+  pull request #195; do not overwrite either branch.
