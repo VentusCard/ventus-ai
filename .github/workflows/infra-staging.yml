@@ -37,10 +37,11 @@ on:
           - VentusExistingInfraStack
           - VentusEvidenceStoreStack
           - VentusDemoConnectorsStack
+          - VentusIdentityStack
       alert_email:
         description: "Optional email subscription for the backend alert SNS topic."
         required: false
-        default: "yusheng_cheb@ventusai.com"
+        default: "yusheng_chen@ventusai.com"
         type: string
       enable_db_rotation_lambda:
         description: "Opt in to synth/diff/deploy the DB secret rotation Lambda."
@@ -63,11 +64,12 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
   AWS_ACCOUNT_ID: "373633008995"
   AWS_REGION: us-east-2
-  ALERT_EMAIL: ${{ github.event.inputs.alert_email || 'yusheng_cheb@ventusai.com' }}
+  ALERT_EMAIL: ${{ github.event.inputs.alert_email || 'yusheng_chen@ventusai.com' }}
   ENABLE_DB_ROTATION_LAMBDA: ${{ github.event.inputs.enable_db_rotation_lambda || 'true' }}
   CDK_STACK_NAME: ${{ github.event.inputs.target_stack || 'VentusExistingInfraStack' }}
   ENABLE_EVIDENCE_STORE_MIGRATOR: ${{ github.event.inputs.target_stack == 'VentusEvidenceStoreStack' && 'true' || 'false' }}
   ENABLE_DEMO_CONNECTORS: ${{ github.event.inputs.target_stack == 'VentusDemoConnectorsStack' && 'true' || 'false' }}
+  ENABLE_IDENTITY_FOUNDATION: ${{ github.event.inputs.target_stack == 'VentusIdentityStack' && 'true' || 'false' }}
 
 jobs:
   diff:
@@ -128,6 +130,9 @@ jobs:
           if [ "${ENABLE_DEMO_CONNECTORS}" = "true" ]; then
             context_args+=("-c" "enableDemoConnectors=true")
           fi
+          if [ "${ENABLE_IDENTITY_FOUNDATION}" = "true" ]; then
+            context_args+=("-c" "enableIdentityFoundation=true")
+          fi
           npm run synth -- \
             "${CDK_STACK_NAME}" \
             -c account=${AWS_ACCOUNT_ID} \
@@ -155,6 +160,16 @@ jobs:
             -c enableDemoConnectors=true
         working-directory: infra
 
+      - name: Synthesize Isolated Identity Plan
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run synth -- \
+            VentusIdentityStack \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            -c enableIdentityFoundation=true
+        working-directory: infra
+
       - name: Diff Staging Stack
         run: |
           set -o pipefail
@@ -170,6 +185,9 @@ jobs:
           fi
           if [ "${ENABLE_DEMO_CONNECTORS}" = "true" ]; then
             context_args+=("-c" "enableDemoConnectors=true")
+          fi
+          if [ "${ENABLE_IDENTITY_FOUNDATION}" = "true" ]; then
+            context_args+=("-c" "enableIdentityFoundation=true")
           fi
           npm run diff -- \
             "${CDK_STACK_NAME}" \
@@ -286,6 +304,9 @@ jobs:
           fi
           if [ "${ENABLE_DEMO_CONNECTORS}" = "true" ]; then
             context_args+=("-c" "enableDemoConnectors=true")
+          fi
+          if [ "${ENABLE_IDENTITY_FOUNDATION}" = "true" ]; then
+            context_args+=("-c" "enableIdentityFoundation=true")
           fi
           npm run deploy -- \
             "${CDK_STACK_NAME}" \
