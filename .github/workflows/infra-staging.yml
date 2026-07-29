@@ -6,6 +6,7 @@ on:
       - ".github/workflows/infra-staging.yml"
       - "backend/monitors/**"
       - "backend/functions/ventus-demo-connectors/**"
+      - "backend/functions/ventus-console-api/**"
       - "backend/scripts/package-monitors.mjs"
       - "backend/scripts/package-functions.mjs"
       - "backend/shared/demo-connectors.mjs"
@@ -38,6 +39,7 @@ on:
           - VentusEvidenceStoreStack
           - VentusDemoConnectorsStack
           - VentusIdentityStack
+          - VentusConsoleApiStack
       alert_email:
         description: "Optional email subscription for the backend alert SNS topic."
         required: false
@@ -70,6 +72,7 @@ env:
   ENABLE_EVIDENCE_STORE_MIGRATOR: ${{ github.event.inputs.target_stack == 'VentusEvidenceStoreStack' && 'true' || 'false' }}
   ENABLE_DEMO_CONNECTORS: ${{ github.event.inputs.target_stack == 'VentusDemoConnectorsStack' && 'true' || 'false' }}
   ENABLE_IDENTITY_FOUNDATION: ${{ github.event.inputs.target_stack == 'VentusIdentityStack' && 'true' || 'false' }}
+  ENABLE_CONSOLE_API: ${{ github.event.inputs.target_stack == 'VentusConsoleApiStack' && 'true' || 'false' }}
 
 jobs:
   diff:
@@ -133,6 +136,9 @@ jobs:
           if [ "${ENABLE_IDENTITY_FOUNDATION}" = "true" ]; then
             context_args+=("-c" "enableIdentityFoundation=true")
           fi
+          if [ "${ENABLE_CONSOLE_API}" = "true" ]; then
+            context_args+=("-c" "enableConsoleApi=true")
+          fi
           npm run synth -- \
             "${CDK_STACK_NAME}" \
             -c account=${AWS_ACCOUNT_ID} \
@@ -170,6 +176,16 @@ jobs:
             -c enableIdentityFoundation=true
         working-directory: infra
 
+      - name: Synthesize Isolated Console API Plan
+        if: github.event_name == 'pull_request'
+        run: |
+          npm run synth -- \
+            VentusConsoleApiStack \
+            -c account=${AWS_ACCOUNT_ID} \
+            -c region=${AWS_REGION} \
+            -c enableConsoleApi=true
+        working-directory: infra
+
       - name: Diff Staging Stack
         run: |
           set -o pipefail
@@ -189,6 +205,9 @@ jobs:
           fi
           if [ "${ENABLE_IDENTITY_FOUNDATION}" = "true" ]; then
             context_args+=("-c" "enableIdentityFoundation=true")
+          fi
+          if [ "${ENABLE_CONSOLE_API}" = "true" ]; then
+            context_args+=("-c" "enableConsoleApi=true")
           fi
           if [ "${CDK_STACK_EXISTS}" = "false" ]; then
             diff_args+=(--no-change-set)
@@ -275,6 +294,9 @@ jobs:
           fi
           if [ "${ENABLE_IDENTITY_FOUNDATION}" = "true" ]; then
             context_args+=("-c" "enableIdentityFoundation=true")
+          fi
+          if [ "${ENABLE_CONSOLE_API}" = "true" ]; then
+            context_args+=("-c" "enableConsoleApi=true")
           fi
           npm run deploy -- \
             "${CDK_STACK_NAME}" \

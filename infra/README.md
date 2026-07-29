@@ -78,6 +78,11 @@ reuses the private Aurora cluster and adds only:
   `NOSUPERUSER NOBYPASSRLS`;
 - a private migration/verifier Lambda with no schedule and no API route.
 
+The opt-in `VentusConsoleApiStack` adds the first authenticated, institution-scoped
+Growth Console endpoint. It verifies Cognito access tokens and resolves active
+memberships through the non-bypass Evidence Store runtime role. It remains separate
+from the current frontend login until the end-to-end Cognito path is proven.
+
 Review the additive template before deployment:
 
 ```bash

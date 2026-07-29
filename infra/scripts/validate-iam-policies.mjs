@@ -41,8 +41,13 @@ for (const file of files) {
       : [stackStatement?.Resource].filter(Boolean);
     const identityStackArn =
       'arn:aws:cloudformation:us-east-2:373633008995:stack/VentusIdentityStack/*';
+    const consoleApiStackArn =
+      'arn:aws:cloudformation:us-east-2:373633008995:stack/VentusConsoleApiStack/*';
     if (!resources.includes(identityStackArn)) {
       throw new Error(`${file} must allow the reviewed Ventus identity stack`);
+    }
+    if (!resources.includes(consoleApiStackArn)) {
+      throw new Error(`${file} must allow the reviewed Ventus Console API stack`);
     }
   }
 
