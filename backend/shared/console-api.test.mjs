@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { createHandler } from '../functions/ventus-console-api/index.mjs';
+import { createConsoleApiHandler } from './console-api.mjs';
 
 const identity = {
   subject: 'cognito_subject_123',
@@ -15,7 +15,7 @@ const membership = {
 };
 
 test('Console API returns the institution-scoped principal', async () => {
-  const handler = createHandler({
+  const handler = createConsoleApiHandler({
     verifyIdentity: async (token) => token === 'valid-token' ? identity : null,
     resolveMembership: async () => membership,
   });
@@ -32,13 +32,13 @@ test('Console API returns the institution-scoped principal', async () => {
 });
 
 test('Console API fails closed for invalid tokens and inactive memberships', async () => {
-  const invalidToken = createHandler({
+  const invalidToken = createConsoleApiHandler({
     verifyIdentity: async () => null,
     resolveMembership: async () => membership,
   });
   assert.equal((await invalidToken(request())).statusCode, 401);
 
-  const inactiveMembership = createHandler({
+  const inactiveMembership = createConsoleApiHandler({
     verifyIdentity: async () => identity,
     resolveMembership: async () => null,
   });
@@ -47,7 +47,7 @@ test('Console API fails closed for invalid tokens and inactive memberships', asy
 
 test('Console API rejects unapproved browser origins', async () => {
   process.env.VENTUS_ALLOWED_ORIGINS = 'https://dev.example.com';
-  const handler = createHandler({
+  const handler = createConsoleApiHandler({
     verifyIdentity: async () => identity,
     resolveMembership: async () => membership,
   });
