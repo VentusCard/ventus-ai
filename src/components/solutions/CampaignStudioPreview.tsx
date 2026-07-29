@@ -10,7 +10,8 @@ type Segment = {
   reach: number;
   topCategory: string;
   secondCategory: string;
-  subject: string;
+  subjectLead: string;
+  subjectTrail: string;
   body: string;
   valueMath: string;
 };
