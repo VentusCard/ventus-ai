@@ -56,6 +56,8 @@ const EnterpriseGrowthDemoPage = lazy(() => import("./pages/EnterpriseGrowthDemo
 const InternalCapabilitiesPage = lazy(() => import("./pages/InternalCapabilitiesPage"));
 const InternalGrowthDeskPage = lazy(() => import("./pages/InternalGrowthDeskPage"));
 const LivePipelineLab = lazy(() => import("./pages/LivePipelineLab"));
+const FAQPage = lazy(() => import("./pages/FAQ"));
+const AboutPage = lazy(() => import("./pages/About"));
 
 const queryClient = new QueryClient();
 
@@ -112,6 +114,8 @@ const AppLayout = () => {
         <Route path="/insights" element={<Insights />} />
         <Route path="/insights/:slug" element={<InsightPost />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/tepilot" element={<TePilot />} />
         <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
         <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />
