@@ -229,7 +229,7 @@ const CampaignStudioPreview = () => {
       </p>
 
       {/* Segment tabs */}
-      <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 mb-3">
         {SEGMENTS.map((s, i) => {
           const isActive = i === activeIdx;
           const pct = Math.round((s.reach / MAX_REACH) * 100);
@@ -240,7 +240,7 @@ const CampaignStudioPreview = () => {
                 setActiveIdx(i);
                 setPaused(true);
               }}
-              className={`relative overflow-hidden rounded-lg border p-3 text-left transition-all ${
+              className={`relative overflow-hidden rounded-lg border p-3.5 text-left transition-all ${
                 isActive
                   ? "border-blue-300 bg-blue-50/60"
                   : "border-gray-200 bg-white hover:border-gray-300"
@@ -261,13 +261,13 @@ const CampaignStudioPreview = () => {
                 </p>
               </div>
               <p
-                className={`text-[13px] font-semibold mt-0.5 leading-tight ${
+                className={`text-[13px] font-medium mt-1 leading-snug ${
                   isActive ? "text-gray-900" : "text-gray-700"
                 }`}
               >
                 {s.label}
               </p>
-              <div className="mt-2 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
+              <div className="mt-2.5 h-1 w-full rounded-full bg-gray-100 overflow-hidden">
                 <div
                   className={`h-full rounded-full ${
                     isActive ? "bg-blue-500" : "bg-gray-300"
@@ -275,9 +275,6 @@ const CampaignStudioPreview = () => {
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <p className="text-[10px] text-gray-500 mt-1">
-                {formatReach(s.reach)} reachable
-              </p>
               {isActive && !paused && (
                 <span
                   key={activeIdx}
@@ -291,6 +288,11 @@ const CampaignStudioPreview = () => {
           );
         })}
       </div>
+
+      <p className="text-[10px] text-gray-500 italic mb-5 text-right">
+        <MergeToken /> = personalized per-household calculation from the last 90 days of transactions.
+      </p>
+
 
       {/* Email draft card */}
       <div
