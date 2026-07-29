@@ -80,12 +80,12 @@ same application commit intended for production.
   branch and automatic builds are enabled.
 - `main` remains the Amplify production branch and was not changed during the
   environment correction.
-- Amplify app `d1x0mm0pbkpcfs` in `us-east-2` is a temporary duplicate. Retire
-  it only after the canonical `dev` deployment and branch configuration are
-  verified.
-- The repository's scoped MCP operator policy targets the canonical app. An
-  AWS administrator must replace the live role's older Ohio-app policy before
-  MCP can inspect or restart canonical `dev` and `staging` jobs.
+- The duplicate Amplify app `d1x0mm0pbkpcfs` in `us-east-2` was removed on
+  July 28, 2026 after confirming it had no custom domains or unique repository
+  dependency.
+- The live scoped MCP operator policy targets canonical `dev` and `staging`.
+  It can inspect or restart their jobs while `main` remains outside MCP
+  deployment authority.
 - Keep active PR previews until their reviews close.
 - Remove stale PR preview branches, such as `pr-81`, through Amplify after
   confirming the corresponding pull request is closed.
