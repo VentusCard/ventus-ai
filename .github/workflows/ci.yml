@@ -185,6 +185,10 @@ jobs:
         run: npx cdk synth VentusIdentityStack -c enableIdentityFoundation=true --quiet
         working-directory: infra
 
+      - name: Synthesize Growth Console API
+        run: npx cdk synth VentusConsoleApiStack -c enableConsoleApi=true --quiet
+        working-directory: infra
+
   frontend:
     name: Frontend Build And Lint
     runs-on: ubuntu-latest
