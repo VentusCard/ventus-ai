@@ -22,7 +22,7 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
     <div>
       <SEO
         title="Ventus AI — Behavioral Intelligence & Personalization for Banks"
-        description="Ventus AI is a behavioral intelligence and personalization engine for financial institutions — spending, financial, and life-event signals from multi-rail bank data plus national data partnerships, orchestrated into the systems banks already run."
+        description="Behavioral intelligence and personalization engine for banks — spending, financial, and life-event signals from multi-rail data and national partnerships."
         path={noindex ? "/classic" : "/"}
         noindex={noindex}
         keywords="behavioral intelligence, personalization engine for financial institutions, behavioral enrichment, multi-rail transaction data, life event detection banking, personalized rewards for banks, next best offer banking, card linked offer redemption, interchange growth"

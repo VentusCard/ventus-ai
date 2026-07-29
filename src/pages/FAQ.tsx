@@ -16,7 +16,7 @@ const FAQ = () => {
     <div className="bg-white">
       <SEO
         title="Ventus AI FAQ — Behavioral Intelligence for Financial Institutions"
-        description="How Ventus AI extracts spending, financial, and life-event signals from multi-rail bank data and national data partnerships — and what interchange, redemption, product growth, and retention gains to expect."
+        description="How Ventus AI extracts spending, financial, and life-event signals from bank data — and the interchange, redemption, and retention gains to expect."
         path="/faq"
         keywords="behavioral intelligence banking FAQ, bank personalization engine, life event detection banking, transaction data enrichment, interchange lift, card linked offer redemption"
         jsonLd={[
