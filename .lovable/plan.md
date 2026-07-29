@@ -1,64 +1,50 @@
 ## Goal
 
-Reposition the whole site around one message — **AI Behavioral Intelligence and Personalization Engine for Financial Institutions** — and make it machine-readable for both Google and AI answer engines (GEO: ChatGPT, Perplexity, Google AI Overviews).
+Make the new positioning statement the single source of truth across the site: signals from **spending behavior, financial behavior, and major life events**, built from **proprietary behavioral enrichment on multi-rail internal data + externally observed signals from national data partnerships**, **orchestrated into the systems banks already run**, delivering **higher interchange, stronger deal redemption, product growth, and retention**.
 
-## Current state (verified)
+Three things are currently off-message and will be fixed everywhere: "transaction intelligence platform/layer" language, no mention of external national data partnerships, and no mention of business outcomes.
 
-- `index.html` has a decent title/description but no canonical, no JSON-LD, no sitemap reference.
-- `src/components/SEO.tsx` handles per-route title/description/canonical/og — good foundation, but no JSON-LD support and no keyword-aligned copy.
-- There is **no `public/sitemap.xml`** and no sitemap generator.
-- `public/llms.txt` exists but is thin and missing `/coworker`, `/pricing`, `/solutions/campaign-intelligence`, and the insights posts.
-- ~20 indexable public routes; 8 insight posts already published.
-- Semrush: head terms are tiny but very winnable — "transaction data enrichment" 210/mo (KD 7), "transaction enrichment" 170/mo (KD 6), "transaction categorization api" 110/mo (KD 16), "ai for credit unions" 90/mo (KD 23). "Behavioral intelligence" phrasing has no measurable volume yet, so it becomes the **brand/positioning** layer while the enrichment + personalization terms carry the traffic.
+## 1. Canonical copy source
 
-## Keyword architecture
+Add `src/lib/companyCopy.ts` exporting the approved boilerplate in three lengths (one-liner, 2-sentence, full paragraph) plus the outcome list and the three signal families. Every surface below imports from it so future edits happen in one place.
 
-| Layer | Terms | Pages |
-|---|---|---|
-| Brand position | AI behavioral intelligence, personalization engine for financial institutions | Home, Platform |
-| Traffic head | transaction data enrichment, transaction enrichment API, transaction categorization API | Platform, new `/transaction-enrichment` pillar |
-| Solution | next best offer banking, bank personalization software, customer intelligence for banks | `/solutions/*` |
-| Life events | life event detection banking, life event triggers for banks | `/wealth`, existing insight post |
-| Rewards | personalized rewards banking, card-linked offers personalization | `/smartrewards` |
-| Audience | AI for credit unions, AI for banks | new FAQ/answer sections |
+## 2. FAQ overhaul (both FAQ surfaces)
 
-## What I'll build
+Rewrite the question sets in `src/pages/Index.tsx` (homepage FAQ, also feeds FAQPage schema) and `src/pages/FAQ.tsx` (which is currently stale/short and has no schema at all). One shared, deduplicated set:
 
-**1. Head metadata (sitewide)**
-- Rewrite `index.html` title/description/OG/Twitter to the new positioning; add canonical + Organization/SoftwareApplication JSON-LD.
-- Extend `SEO.tsx` to accept an optional `jsonLd` prop and optional `keywords`, so each route can ship its own schema.
+- What is Ventus AI? (new description verbatim-aligned)
+- What signals does Ventus extract? (spending behavior, financial behavior, major life events)
+- Where does the data come from? (multi-rail internal data + externally observed signals from national data partnerships) — new
+- What is proprietary behavioral enrichment / how is it different from enrichment vendors?
+- How does Ventus orchestrate into the systems we already run? (digital banking, CRM, campaign, rewards, advisor)
+- What results can an institution expect? (interchange, deal redemption, product growth, retention) — new
+- How does life event detection work?
+- Is our data secure?
+- Who inside the bank uses it?
 
-**2. Per-route metadata rewrite**
-Rewrite titles (<60 chars) and descriptions (<160) for all ~20 public routes so each targets a distinct term instead of the current near-duplicate "— Ventus AI" pattern. Add `noindex` to internal/demo routes (`/tepilot/*`, `/internal/*`, `/demo*`, `/deckmo`, `/bankdemo`, `/bank-analytics`, `/app`) so crawl budget goes to marketing pages.
+`src/pages/FAQ.tsx` also gets the `SEO` component with `faqSchema` + breadcrumbs (it has none today). Answers in `src/pages/TransactionEnrichmentPillar.tsx` get updated for the external-signal and outcomes language while keeping their enrichment-specific keyword targeting.
 
-**3. Structured data (the GEO lever)**
-- `Organization` + `WebSite` sitewide.
-- `SoftwareApplication` on Home and Platform.
-- `FAQPage` on Home (the 5 existing FAQs) and on new page-level FAQ blocks.
-- `Article` + `BreadcrumbList` on every `/insights/:slug`.
-- `BreadcrumbList` on `/solutions/*`.
+## 3. Footer
 
-**4. New pillar page: `/transaction-enrichment`**
-The highest-intent, lowest-difficulty term has no dedicated page. Build a substantive page — what enrichment is, MCC vs semantic, the 12 lifestyle pillars, life-event layer, API shape, FAQ — internally linked from Platform, Home, and relevant insight posts. This is the page most likely to actually rank.
+`src/components/Footer.tsx`:
+- Replace the brand blurb "The transaction intelligence layer for modern financial institutions." with the one-line version of the new description.
+- Add a compact outcomes line (interchange · redemption · product growth · retention).
+- Add a "Learn" column grouping so the SEO pillar pages (`/transaction-enrichment`, `/platform`, `/insights`, FAQ) are separate from `/about` and `/contact`, improving internal link structure. Existing links all preserved; `/about` added (currently unlinked from the footer).
 
-**5. Answer-engine content blocks**
-On Home, Platform, `/smartrewards`, `/wealth`, and the new pillar page, add short "question → direct answer" sections (40–60 words each, the format AI engines quote): *What is behavioral intelligence in banking? How do banks detect life events from transactions? How does personalization increase card spend?* Each is paired with FAQPage schema.
+## 4. Company description surfaces
 
-**6. Crawl + discovery infrastructure**
-- Add `scripts/generate-sitemap.ts` wired to `predev`/`prebuild`, emitting every public route plus all 8 insight slugs to `public/sitemap.xml` (base `https://ventusai.dev`).
-- Add `Sitemap:` directive to `robots.txt`; keep existing per-bot blocks; explicitly allow GPTBot, PerplexityBot, ClaudeBot, and CCBot (GEO — these must not be blocked).
-- Rewrite `public/llms.txt` to the full route list with the new positioning, plus every insight post.
+- `src/pages/About.tsx`: replace the "What is Ventus AI?" paragraph with the new description, and add an outcomes section (interchange, deal redemption, product growth, retention) plus a data-sources section covering multi-rail internal data and national data partnerships. Add `SEO` with Organization schema (About currently has no metadata).
 
-**7. On-page semantics**
-Audit each marketing page for a single H1 containing its target term, proper H2 hierarchy, descriptive alt text on imagery, and internal links from Home → pillar → solutions → insights.
+## 5. SEO / GEO
+
+- `src/lib/seoSchema.ts`: update `organizationSchema.description`, `softwareApplicationSchema.description`/`featureList`, and `knowsAbout` to include external observed signals, multi-rail data, interchange lift, and deal redemption.
+- `index.html`: refresh `<meta name="description">`, og/twitter descriptions, and the inline Organization JSON-LD fallback to the new one-liner.
+- `public/llms.txt`: rewrite the summary block and key-facts section (inputs now include externally observed signals from national data partnerships; add an Outcomes section). Add `/about` and `/faq` to the page list.
+- Per-route descriptions on the highest-value pages (`/`, `/platform`, `/transaction-enrichment`, solutions pages) get the outcome language woven in where it fits naturally without keyword stuffing.
+- `scripts/generate-sitemap.ts`: confirm `/faq` and `/about` are present; add if missing. No `lastmod` values will be fabricated.
 
 ## Technical notes
 
-- Client-side Helmet is enough for Googlebot (executes JS) but **not** for social/LinkedIn crawlers, which read only static `index.html`. Per-page social previews would need SSR — I'll set solid sitewide OG tags in `index.html` as the fallback and flag this rather than silently leaving it broken.
-- Canonical base stays `https://ventusai.dev` (matches the current `SEO.tsx` and where the site redirects).
-- No `og:image` will be invented — hosting injects one at serve time unless you provide an absolute URL.
-- No backend or demo logic touched; this is metadata, content, and static-file work only.
-
-## Out of scope unless you say otherwise
-
-Google Search Console verification/sitemap submission (I can run that as a follow-up once you're ready), and any paid-search work.
+- No backend, schema, or business-logic changes — copy, metadata, and JSON-LD only.
+- The site currently describes "five signal layers" (spending habits, life events, financial signals, demographics, risk). The new description names three families. I'll keep the five-layer taxonomy as the product-detail view and lead with the three families as the positioning, framing demographics and risk as supporting layers — so the demo UI and pill taxonomy stay untouched and consistent.
+- Verification: `tsgo` typecheck plus a Playwright pass on `/`, `/faq`, `/about`, `/transaction-enrichment` to confirm one H1, correct canonicals, and valid JSON-LD.
