@@ -60,6 +60,8 @@ VITE_DEMO_CONNECTOR_API_BASE_URL=<DemoConnectorApiBaseUrl output>
 
 The value should end at `/v1/demo` with no trailing slash. Redeploy the branch after changing it. The stack accepts the protected `dev` and `staging` Amplify origins plus `https://demo.ventusai.com` by default; keep the public production branch without this variable. Any other origin must be an explicit, reviewed `demoAllowedOrigins` CDK context value.
 
+The session endpoint is protected by the staging Growth Console Cognito user pool. A signed-in employee exchanges their Cognito access token for a narrower, 15-minute connector session; the browser never receives Plaid or Salesforce credentials.
+
 ## Smoke test
 
 1. Open `/demo/enterprise` on the protected Amplify deployment.
