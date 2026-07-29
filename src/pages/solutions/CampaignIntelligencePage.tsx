@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
 import SolutionsCTA from "@/components/solutions/SolutionsCTA";
-import { CampaignStudio } from "@/components/tepilot/campaigns/CampaignStudio";
+import CampaignStudioPreview from "@/components/solutions/CampaignStudioPreview";
 import { useSectionReveal, revealStyle } from "@/hooks/useSectionReveal";
 
 const flowSteps = [
