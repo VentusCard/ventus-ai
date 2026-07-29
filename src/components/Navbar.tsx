@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3 } from "lucide-react";
+import { Menu, X, ChevronDown, Gift, Package, MessageCircle, BarChart3, Bot } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
@@ -14,6 +14,7 @@ const behavioralIntelligenceItems = [
 
 const analyticsItems = [
   { to: "/solutions/portfolio-intelligence", title: "Customer Intelligence", desc: "Bank-wide behavioral intelligence for executive teams.", Icon: BarChart3 },
+  { to: "/coworker", title: "Ventus AI Coworker", desc: "AI teammate for advisors and banking teams.", Icon: Bot },
 ];
 
 const Navbar = () => {
@@ -85,7 +86,7 @@ const Navbar = () => {
                     </Link>
                   ))}
                   <div className="mx-4 my-1 border-t border-gray-200" />
-                  <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">ANALYTICS</div>
+                  <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
                   {analyticsItems.map((item) => (
                     <Link
                       key={item.to}
@@ -157,7 +158,7 @@ const Navbar = () => {
                   </Link>
                 ))}
                 <div className="mr-4 my-1 border-t border-gray-200" />
-                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">ANALYTICS</div>
+                <div className="pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
                 {analyticsItems.map((item) => (
                   <Link key={item.to} to={item.to} onClick={closeMobileMenu} className="flex items-center gap-2 py-2.5 text-sm text-gray-600 hover:text-gray-900">
                     <item.Icon size={14} className="text-blue-600" />
