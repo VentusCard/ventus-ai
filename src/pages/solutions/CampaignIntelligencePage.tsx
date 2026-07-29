@@ -64,9 +64,7 @@ const CampaignIntelligencePage = () => {
             </p>
           </div>
 
-          <div className="border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm" style={{ minHeight: 720 }}>
-            <CampaignStudio />
-          </div>
+          <CampaignStudioPreview />
         </div>
       </section>
 
