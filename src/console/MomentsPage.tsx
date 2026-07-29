@@ -206,7 +206,7 @@ export default function MomentsPage() {
           <div className="flex items-start justify-between gap-6 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}>
             <div className="min-w-0">
               <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
-                {decision.growthPlay.objective} · {decision.growthPlay.primaryMetric.replaceAll("_", " ")}
+                {decision.growthPlay.objective} · {decision.growthPlay.primaryMetric.split("_").join(" ")}
               </p>
               <h2 className="v2-display mt-2 text-[28px] md:text-[34px]">{decision.moment.type}</h2>
               <p className="v2-body mt-2 max-w-2xl text-[14px]">{decision.moment.summary}</p>
@@ -328,7 +328,7 @@ export default function MomentsPage() {
                 {outcomeObservation ? (
                   <div>
                     <p className="text-[13px] font-bold capitalize" style={{ color: "var(--v2-ink)" }}>
-                      {outcomeObservation.eventType.replaceAll("_", " ")}
+                      {outcomeObservation.eventType.split("_").join(" ")}
                     </p>
                     <p className="mt-0.5 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>
                       Salesforce observation received · holdout measurement pending

@@ -664,7 +664,7 @@ export default function EnterpriseGrowthDemoPage({
   evaluationEnabled?: boolean;
   initialPath?: LeadershipPath;
   autoEnter?: boolean;
-  allowedPaths?: LeadershipPath[];
+  allowedPaths?: readonly LeadershipPath[];
   authenticated?: boolean;
   accessToken?: string;
   sessionScope?: string;
@@ -5892,7 +5892,7 @@ function LeadershipCover({
   onPick: (path: LeadershipPath) => void;
   connectorSession: DemoConnectorSession | null;
   outcomeFeedReady: boolean;
-  allowedPaths: LeadershipPath[];
+  allowedPaths: readonly LeadershipPath[];
 }) {
   // The objective choice is the composition: two institutional color fields
   // meet at the cross-business seam. Entitlements can reduce this to one
@@ -5926,7 +5926,7 @@ function LeadershipCover({
     title: [string, string];
     metric: string;
     play: string;
-  }> = [
+  }> = ([
     {
       path: "deposit-retention",
       field: "#012169",
@@ -5943,7 +5943,14 @@ function LeadershipCover({
       metric: "Advised net new assets",
       play: "Qualified Wealth Growth",
     },
-  ].filter(({ path }) => allowedPaths.includes(path));
+  ] as Array<{
+    path: LeadershipPath;
+    field: string;
+    line: string;
+    title: [string, string];
+    metric: string;
+    play: string;
+  }>).filter(({ path }) => allowedPaths.includes(path));
 
   return (
     <div className="flex h-full w-full flex-col overflow-y-auto" style={{ backgroundColor: "#071225" }}>
@@ -6053,7 +6060,7 @@ function Cover({
   audience: DemoAudience;
   connectorSession: DemoConnectorSession | null;
   outcomeFeedReady: boolean;
-  allowedPaths: LeadershipPath[];
+  allowedPaths: readonly LeadershipPath[];
 }) {
   const internal = audience === "internal";
   if (!internal) {

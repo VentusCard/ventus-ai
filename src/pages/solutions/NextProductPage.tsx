@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -159,7 +160,7 @@ const NextProductPage = () => {
 
   return (
     <main className="bg-white min-h-screen">
-      <SEO title="Product Intelligence — Ventus AI" description="Recommend the next-best banking product for each customer based on behavioral triggers and life events." path="/solutions/product-intelligence" />
+      <SEO title="Next Best Product for Banks — Ventus AI Product Intelligence" description="Recommend the next-best banking product for each customer based on behavioral triggers, financial signals, and life events." path="/solutions/product-intelligence" keywords="next best product banking, product recommendation engine banks, cross-sell intelligence financial services" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Product Intelligence", path: "/solutions/product-intelligence" }])} />
       {/* Hero */}
       <section ref={hero.ref} className="pt-40 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[80vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">

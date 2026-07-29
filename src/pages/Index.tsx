@@ -1,4 +1,10 @@
 import SEO from "@/components/SEO";
+import {
+  faqSchema,
+  organizationSchema,
+  softwareApplicationSchema,
+  websiteSchema,
+} from "@/lib/seoSchema";
 import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
@@ -15,21 +21,25 @@ import {
 } from "@/components/ui/accordion";
 
 const faqs = [
-  { q: "What is Ventus AI?", a: "Ventus AI is a transaction intelligence platform for financial institutions. We go beyond basic enrichment, using AI to interpret transaction data and reveal consumer intent, behavior, and life events." },
-  { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data and receive enriched intelligence through a simple API." },
+  { q: "What is Ventus AI?", a: "Ventus AI is an AI behavioral intelligence and personalization engine for financial institutions. It enriches transaction data and interprets it into five signal layers — spending habits, life events, financial signals, demographics, and risk — then activates them as personalized offers, products, rewards, and conversations." },
+  { q: "What is behavioral intelligence in banking?", a: "Behavioral intelligence is the layer above transaction enrichment. Instead of labeling a single purchase, it interprets patterns across a customer's history to infer lifestyle, life events, financial obligations, and household context — the signals that determine what is relevant to that customer right now." },
+  { q: "How is Ventus different from traditional enrichment providers?", a: "Traditional enrichment platforms clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer, and every signal carries the transactions that justify it." },
+  { q: "How does life event detection work?", a: "Ventus scores combinations of enriched transactions over time against life-event patterns such as home purchase, new child, college preparation, or relocation. Each detected event carries a confidence level and its underlying transaction evidence." },
+  { q: "How does it integrate with existing systems?", a: "Ventus requires no changes to your core banking infrastructure. Banks securely send transaction data and receive enriched intelligence through a simple API that routes into digital banking, CRM, campaign, rewards, and advisor workflows." },
   { q: "Is our data secure?", a: "Ventus is built on enterprise-grade cloud infrastructure with end-to-end encryption and complete data isolation between institutions. We never store PII — only anonymized transaction signals. SOC 2 certification is in progress." },
-  { q: "Who is Ventus for?", a: "Built for banks and financial institutions — specifically digital banking teams, rewards and loyalty teams, and wealth management divisions." },
-  { q: "How is Ventus different from traditional enrichment providers?", a: "Traditional enrichment platforms clean and categorize transactions. Ventus understands them. We operate at the intent and life event layer, not the merchant-label layer." },
+  { q: "Who is Ventus for?", a: "Built for banks and credit unions — specifically digital banking teams, rewards and loyalty teams, marketing and campaign teams, and wealth management divisions." },
 ];
 
 const Index = ({ noindex = false }: { noindex?: boolean }) => {
   return (
     <div>
       <SEO
-        title="Ventus AI — Transaction Intelligence for Banks"
-        description="Ventus AI turns transaction data into analytics and human insight, powering personalization, smarter rewards, and next-gen banking experiences."
+        title="Ventus AI — Behavioral Intelligence & Personalization for Banks"
+        description="Ventus AI is an AI behavioral intelligence and personalization engine for banks and credit unions — transaction enrichment, life event detection, personalized rewards, and next-best offers."
         path={noindex ? "/classic" : "/"}
         noindex={noindex}
+        keywords="AI behavioral intelligence, personalization engine for financial institutions, transaction data enrichment, life event detection banking, personalized rewards for banks, next best offer banking"
+        jsonLd={noindex ? undefined : [organizationSchema, websiteSchema, softwareApplicationSchema, faqSchema(faqs)]}
       />
       <main className="flex flex-col">
         <ScrollDrivenHero />
