@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Users, Mail, Pause, Play } from "lucide-react";
 
+type Angle = "behavioral" | "life-event" | "demographic";
+
 type Segment = {
   id: string;
   label: string;
+  angle: Angle;
   reach: number;
   topCategory: string;
   secondCategory: string;
@@ -12,30 +15,48 @@ type Segment = {
   valueMath: string;
 };
 
+const ANGLE_STYLE: Record<Angle, { label: string; chip: string }> = {
+  behavioral: {
+    label: "Behavioral",
+    chip: "bg-blue-50 text-blue-700 border-blue-100",
+  },
+  "life-event": {
+    label: "Life event",
+    chip: "bg-amber-50 text-amber-700 border-amber-100",
+  },
+  demographic: {
+    label: "Demographic",
+    chip: "bg-purple-50 text-purple-700 border-purple-100",
+  },
+};
+
 const SEGMENTS: Segment[] = [
   {
     id: "dining",
     label: "Dining-led households",
+    angle: "behavioral",
     reach: 18420,
     topCategory: "Dining",
     secondCategory: "Grocery",
     subject: "Your dining habit could earn you $237 more this year",
-    body: "You spend most nights out — pick Dining as your 3% category and keep 2% on groceries and wholesale clubs. Everything else earns 1%. $0 annual fee.",
+    body: "You spend most nights out — pick Dining as your 3% category and keep 2% on groceries. Everything else earns 1%. $0 annual fee.",
     valueMath: "~$280/mo dining + ~$650/mo grocery ≈ $237/yr vs a flat 1% card.",
   },
   {
     id: "grocery",
     label: "Grocery-led families",
+    angle: "behavioral",
     reach: 24310,
     topCategory: "Grocery",
     secondCategory: "Gas & Fuel",
     subject: "3% back on the aisle you visit every week",
-    body: "Groceries are your #1 spend. Set 3% on Grocery, keep 2% on Gas & Fuel for the commute, and 1% on the rest. $0 annual fee.",
+    body: "Groceries are your #1 spend. Set 3% on Grocery, keep 2% on Gas & Fuel for the commute, and 1% on the rest.",
     valueMath: "~$850/mo grocery + ~$220/mo gas ≈ $359/yr vs a flat 1% card.",
   },
   {
     id: "commuter",
     label: "Commuter households",
+    angle: "behavioral",
     reach: 12180,
     topCategory: "Gas & Fuel",
     secondCategory: "Dining",
@@ -44,38 +65,49 @@ const SEGMENTS: Segment[] = [
     valueMath: "~$320/mo gas + ~$180/mo dining ≈ $158/yr vs a flat 1% card.",
   },
   {
-    id: "travel",
-    label: "Frequent travelers",
-    reach: 9640,
+    id: "new-parents",
+    label: "New parents · family formation",
+    angle: "life-event",
+    reach: 8940,
+    topCategory: "Grocery",
+    secondCategory: "Streaming",
+    subject: "New chapter, new top category",
+    body: "A new baby just rewrote the monthly budget. Grocery runs and streaming subscriptions are climbing — pin 3% on Grocery and 2% on Streaming while everything settles.",
+    valueMath: "~$920/mo grocery + ~$110/mo streaming ≈ $358/yr vs a flat 1% card.",
+  },
+  {
+    id: "just-moved",
+    label: "Just bought a home",
+    angle: "life-event",
+    reach: 6120,
+    topCategory: "Home Improvement",
+    secondCategory: "Wholesale Clubs",
+    subject: "3% on the aisle you'll live in for a year",
+    body: "You just closed. Home improvement and warehouse runs are about to dominate the statement — set 3% on Home Improvement and 2% on Wholesale Clubs before the first big weekend project.",
+    valueMath: "~$540/mo home projects + ~$310/mo wholesale ≈ $269/yr vs a flat 1% card.",
+  },
+  {
+    id: "empty-nest",
+    label: "Empty-nest pre-retirees",
+    angle: "demographic",
+    reach: 11460,
     topCategory: "Travel",
     secondCategory: "Dining",
-    subject: "3% on every flight and hotel this year",
-    body: "Your top spend lives on airlines and hotels. Set Travel as your 3% category and keep Dining at 2% for meals on the road. Everything else earns 1%.",
-    valueMath: "~$540/mo travel + ~$210/mo dining ≈ $246/yr vs a flat 1% card.",
-  },
-  {
-    id: "online",
-    label: "Online shoppers",
-    reach: 15780,
-    topCategory: "Online Shopping",
-    secondCategory: "Streaming",
-    subject: "3% back on the cart you already fill every week",
-    body: "Online marketplaces are your #1 spend. Pick Online Shopping as your 3% category and keep Streaming at 2%. No annual fee, no category caps.",
-    valueMath: "~$620/mo online + ~$95/mo streaming ≈ $234/yr vs a flat 1% card.",
-  },
-  {
-    id: "wholesale",
-    label: "Wholesale-club shoppers",
-    reach: 7420,
-    topCategory: "Wholesale Clubs",
-    secondCategory: "Grocery",
-    subject: "3% on every warehouse run",
-    body: "You buy in bulk. Set Wholesale Clubs as your 3% category, keep 2% on Grocery for the weekly top-up, and 1% on everything else.",
-    valueMath: "~$480/mo wholesale + ~$310/mo grocery ≈ $209/yr vs a flat 1% card.",
+    subject: "Kids out of the house — reroute the food budget into travel",
+    body: "Household size just shrank and travel days just grew. Move 3% onto Travel and keep 2% on Dining for the trips ahead. Everything else stays at 1%.",
+    valueMath: "~$610/mo travel + ~$240/mo dining ≈ $277/yr vs a flat 1% card.",
   },
 ];
 
 const MAX_REACH = Math.max(...SEGMENTS.map((s) => s.reach));
+
+const ANGLE_MIX = SEGMENTS.reduce<Record<Angle, number>>(
+  (acc, s) => {
+    acc[s.angle] = (acc[s.angle] ?? 0) + 1;
+    return acc;
+  },
+  { behavioral: 0, "life-event": 0, demographic: 0 }
+);
 
 const ROTATE_MS = 5500;
 
@@ -168,7 +200,7 @@ const CampaignStudioPreview = () => {
       </div>
 
       {/* Segment section */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-1">
         <p className="text-[11px] uppercase tracking-wide text-gray-500">
           One product · {SEGMENTS.length} segments
         </p>
@@ -181,6 +213,12 @@ const CampaignStudioPreview = () => {
           {paused ? "Play" : "Pause"}
         </button>
       </div>
+      <p className="text-[11px] text-gray-500 mb-3">
+        Signal mix:{" "}
+        <span className="text-blue-700 font-medium">{ANGLE_MIX.behavioral} behavioral</span>{" · "}
+        <span className="text-amber-700 font-medium">{ANGLE_MIX["life-event"]} life event</span>{" · "}
+        <span className="text-purple-700 font-medium">{ANGLE_MIX.demographic} demographic</span>
+      </p>
 
       {/* Segment tabs */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-2 mb-4">
@@ -201,13 +239,11 @@ const CampaignStudioPreview = () => {
               }`}
             >
               <div className="flex items-center justify-between">
-                <p
-                  className={`text-[10px] uppercase tracking-wide ${
-                    isActive ? "text-blue-600" : "text-gray-500"
-                  }`}
+                <span
+                  className={`px-1.5 py-0.5 rounded border text-[10px] font-medium ${ANGLE_STYLE[s.angle].chip}`}
                 >
-                  Segment {i + 1}
-                </p>
+                  {ANGLE_STYLE[s.angle].label}
+                </span>
                 <p
                   className={`text-[11px] font-mono ${
                     isActive ? "text-blue-700" : "text-gray-500"
@@ -263,9 +299,16 @@ const CampaignStudioPreview = () => {
               <p className="text-[12px] font-semibold text-gray-900 leading-tight">
                 Segmented email · draft
               </p>
-              <p className="text-[10px] uppercase tracking-wide text-gray-500">
-                To · {active.label}
-              </p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <span
+                  className={`px-1.5 py-0.5 rounded border text-[10px] font-medium ${ANGLE_STYLE[active.angle].chip}`}
+                >
+                  {ANGLE_STYLE[active.angle].label}
+                </span>
+                <p className="text-[10px] uppercase tracking-wide text-gray-500">
+                  To · {active.label}
+                </p>
+              </div>
             </div>
           </div>
           <span className="px-2 py-0.5 rounded-md bg-green-50 text-green-700 text-[11px] font-medium border border-green-100">
