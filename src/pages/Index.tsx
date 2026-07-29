@@ -1,10 +1,5 @@
 import SEO from "@/components/SEO";
-import {
-  faqSchema,
-  organizationSchema,
-  softwareApplicationSchema,
-  websiteSchema,
-} from "@/lib/seoSchema";
+import { faqSchema, softwareApplicationSchema } from "@/lib/seoSchema";
 import ScrollDrivenHero from "@/components/ScrollDrivenHero";
 import IntegrationSection from "@/components/IntegrationSection";
 import CTA from "@/components/CTA";
@@ -31,7 +26,7 @@ const Index = ({ noindex = false }: { noindex?: boolean }) => {
         path={noindex ? "/classic" : "/"}
         noindex={noindex}
         keywords="behavioral intelligence, personalization engine for financial institutions, behavioral enrichment, multi-rail transaction data, life event detection banking, personalized rewards for banks, next best offer banking, card linked offer redemption, interchange growth"
-        jsonLd={noindex ? undefined : [organizationSchema, websiteSchema, softwareApplicationSchema, faqSchema(COMPANY_FAQS)]}
+        jsonLd={noindex ? undefined : [softwareApplicationSchema, faqSchema(COMPANY_FAQS)]}
       />
       <main className="flex flex-col">
         <ScrollDrivenHero />
