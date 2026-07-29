@@ -21,6 +21,7 @@ test('evidence-store migrator validates identifiers and quotes password literals
     'connected-expansion-measurement.sql',
     'growth-play-registry.sql',
     'tenant-isolation.sql',
+    'institution-access.sql',
     'connector-delivery.sql',
   ]);
 });
@@ -41,4 +42,6 @@ test('evidence-store migrator verifies connected measurement and separately auth
   assert.doesNotMatch(source, /GRANT SELECT, INSERT ON[\s\S]{0,180}growth_play_protocols/, 'runtime must not receive registry insert access');
   assert.match(source, /crossTenantVisibleProtocols !== 0/, 'runtime verification should fail on cross-tenant protocol visibility');
   assert.match(source, /runtimeProtocolWriteDenied/, 'runtime verification should prove activation cannot register a protocol');
+  assert.match(source, /institution_memberships/, 'runtime verification should exercise institution membership isolation');
+  assert.match(source, /runtimeMembershipWriteDenied/, 'runtime verification should prove activation cannot provision memberships');
 });

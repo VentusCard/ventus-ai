@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const tenantSql = read('../backend/sql/tenant-isolation.sql');
+const institutionAccessSql = read('../backend/sql/institution-access.sql');
 const measurementSql = read('../backend/sql/experiment-measurement.sql');
 const connectedMeasurementSql = read('../backend/sql/connected-expansion-measurement.sql');
 const verificationSql = read('../backend/sql/verify-tenant-isolation.sql');
@@ -63,6 +64,23 @@ assert.match(deliverySql, /must transition from pending to a terminal status/, '
 assert.match(deliverySql, /FORCE ROW LEVEL SECURITY/, 'delivery receipts should force RLS');
 assert.match(deliverySql, /WITH CHECK \(tenant_id = ventus_current_tenant_id\(\)\)/, 'delivery receipt writes should be tenant-scoped');
 assert.match(deliverySource, /beginTenantTransaction\(db, reservation\.tenantId\)/, 'delivery reservations should set tenant context');
+for (const table of ['institutions', 'institution_identity_providers', 'institution_memberships']) {
+  assert.match(
+    institutionAccessSql,
+    new RegExp(`ALTER TABLE ${table} FORCE ROW LEVEL SECURITY`),
+    `${table} should force row-level security`,
+  );
+}
+assert.match(
+  institutionAccessSql,
+  /UNIQUE \(tenant_id, identity_provider_key, identity_subject\)/,
+  'institution membership should bind one IdP subject once per tenant',
+);
+assert.match(
+  institutionAccessSql,
+  /CHECK \(role IN \(/,
+  'institution membership roles should use a closed pilot taxonomy',
+);
 assert.match(deliverySource, /shouldDeliver = false/, 'duplicate reservations should block automatic redelivery');
 assert.match(deliverySource, /reconciliationRequired/, 'ambiguous pending reservations should require reconciliation');
 assert.match(registrySql, /Growth Play registry records are append-only/, 'protocol and approval records must be immutable');

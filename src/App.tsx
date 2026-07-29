@@ -21,7 +21,7 @@ import {
   ProtectedDemoPage,
 } from "./console/AccessPages";
 import MomentsPage from "./console/MomentsPage";
-import { LedgerPage, OutcomesPage, SettingsPage } from "./console/OpsPages";
+import { LedgerPage, OutcomesPage, PlaysPage, SettingsPage } from "./console/OpsPages";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -89,6 +89,7 @@ const AppLayout = () => {
           <Route path="demo" element={<ProtectedDemoPage />} />
           <Route element={<ConsoleLayout />}>
             <Route path="moments" element={<MomentsPage />} />
+            <Route path="plays" element={<PlaysPage />} />
             <Route path="ledger" element={<LedgerPage />} />
             <Route path="outcomes" element={<OutcomesPage />} />
             <Route path="settings" element={<SettingsPage />} />

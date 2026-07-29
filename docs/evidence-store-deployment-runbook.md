@@ -70,7 +70,7 @@ aws lambda invoke \
 cat /tmp/ventus-evidence-migration.json
 ```
 
-The invocation succeeds only when all six migrations commit and the generated runtime role:
+The invocation succeeds only when all seven migrations commit and the generated runtime role:
 
 - is `NOSUPERUSER NOBYPASSRLS`;
 - appends a signal → decision → activation → outcome lineage;

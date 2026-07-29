@@ -1,6 +1,6 @@
 \set ON_ERROR_STOP on
 
--- Run as the proposed non-production runtime role after applying all six migrations.
+-- Run as the proposed non-production runtime role after applying all seven migrations.
 -- The transaction rolls back every probe record.
 BEGIN;
 

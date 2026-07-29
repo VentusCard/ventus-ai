@@ -12,6 +12,7 @@ const SOURCE_AT = '2026-07-12T11:58:00.000Z';
 const ELIGIBILITY_AT = '2026-07-12T11:59:00.000Z';
 const ASSIGNED_AT = '2026-07-12T12:00:00.000Z';
 const RUN_AT = '2026-07-12T12:01:00.000Z';
+const ACTIVATED_AT = '2026-07-12T12:02:00.000Z';
 const OUTCOME_AT = '2026-08-12T12:00:00.000Z';
 const playDrafts = JSON.parse(readFileSync(new URL('../fixtures/evaluation/growth-play-drafts.json', import.meta.url), 'utf8'));
 const DEPOSIT_PLAY = testPlay(playDrafts.find((play) => play.growth_play_id === 'deposit-primacy-defense'));
@@ -106,6 +107,98 @@ test('deposit loop reaches a banker workbench action through the same institutio
   assert.equal(result.decision.connector, 'bank_workbench');
   assert.equal(result.activation, 'delivered');
   assert.equal(state.deliveryCalls, 1);
+});
+
+test('reviewed activation preserves pre-decision assignment and delivers the exact prepared decision once', async () => {
+  const state = createState();
+  const loop = createLoop(state);
+  const input = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'deposit_reviewed');
+  input.activationMode = 'sandbox_review';
+
+  const prepared = await loop.runHousehold(input);
+  assert.equal(prepared.assignment.arm, 'treatment');
+  assert.equal(prepared.activation, 'review_required');
+  assert.equal(state.deliveryCalls, 0);
+  assert.ok(state.ledger.some((event) => event.eventType === 'decision' && event.status === 'confirmed'));
+  assert.ok(!state.ledger.some((event) => event.eventType === 'activation'));
+
+  const activationInput = {
+    tenantId: prepared.tenantId,
+    decisionId: prepared.decisionId,
+    sessionId: input.sessionId,
+    activatedAt: ACTIVATED_AT,
+    decision: prepared.decision,
+  };
+  const activated = await loop.activatePreparedDecision(activationInput);
+  const activationIndex = state.ledger.findIndex((event) => event.eventType === 'activation');
+  assert.ok(activationIndex >= 0);
+  state.ledger.splice(activationIndex, 1);
+  const replay = await loop.activatePreparedDecision(activationInput);
+
+  assert.equal(activated.activation, 'delivered');
+  assert.equal(replay.activation, 'delivered');
+  assert.equal(state.deliveryCalls, 1, 'review replay must not create a second downstream action');
+  assert.equal(
+    state.ledger.filter((event) => event.eventType === 'activation').length,
+    1,
+    'a terminal delivery receipt must restore a missing activation event',
+  );
+  assert.ok(state.ledger.some((event) => (
+    event.eventType === 'activation'
+    && event.payload.decision_id === prepared.decisionId
+    && event.status === 'confirmed'
+  )));
+  assert.ok(
+    state.trace.indexOf(`assignment:${prepared.householdToken}`) < state.trace.indexOf(`deliver:${prepared.decisionId}`),
+    'assignment must remain earlier than reviewed activation',
+  );
+});
+
+test('reviewed activation rejects changed recommendations and revoked protocols before delivery', async () => {
+  const state = createState();
+  let activationAllowed = true;
+  const base = dependencies(state);
+  const loop = createPilotOperatingLoop({
+    ...base,
+    protocolRegistry: {
+      async requireApproved(input) {
+        if (!activationAllowed) throw new assert.AssertionError({ message: 'Growth Play protocol was revoked before activation' });
+        return base.protocolRegistry.requireApproved(input);
+      },
+    },
+    detector: async ({ householdToken }) => depositDecision(false, householdToken),
+  });
+  const input = depositInput(tokenForArm('treatment', 'deposit_pilot_01'), 'deposit_review_controls');
+  input.activationMode = 'sandbox_review';
+  const prepared = await loop.runHousehold(input);
+
+  await assert.rejects(
+    () => loop.activatePreparedDecision({
+      tenantId: prepared.tenantId,
+      decisionId: prepared.decisionId,
+      sessionId: input.sessionId,
+      activatedAt: ACTIVATED_AT,
+      decision: {
+        ...prepared.decision,
+        deliveryPayload: { ...prepared.decision.deliveryPayload, action: 'changed_after_review' },
+      },
+    }),
+    /prepared decision content does not match/,
+  );
+  assert.equal(state.deliveryCalls, 0);
+
+  activationAllowed = false;
+  await assert.rejects(
+    () => loop.activatePreparedDecision({
+      tenantId: prepared.tenantId,
+      decisionId: prepared.decisionId,
+      sessionId: input.sessionId,
+      activatedAt: ACTIVATED_AT,
+      decision: prepared.decision,
+    }),
+    /revoked before activation/,
+  );
+  assert.equal(state.deliveryCalls, 0);
 });
 
 test('blocking policy suppresses before assignment or connector delivery', async () => {
@@ -262,6 +355,15 @@ function dependencies(state) {
         state.trace.push(`ledger:${draft.idempotencyKey}`);
         return { inserted: true, record: draft };
       },
+      async loadPreparedDecision({ tenantId, decisionId }) {
+        const prepared = state.ledger.find((event) => (
+          event.tenantId === tenantId
+          && event.eventType === 'decision'
+          && event.payload.decision_id === decisionId
+        ));
+        assert.ok(prepared, 'prepared decision was not found');
+        return prepared;
+      },
     },
     measurementRepository: {
       async recordAssignment(assignment) {
@@ -319,7 +421,9 @@ function dependencies(state) {
         if (record.status === 'pending') {
           record.status = result.status;
           record.external_receipt_id = result.externalReceiptId;
+          record.external_receipt_url = result.externalReceiptUrl;
           record.error_code = result.errorCode;
+          record.completed_at = result.completedAt;
         }
         return { updated: true, record };
       },

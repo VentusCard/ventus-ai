@@ -6,6 +6,7 @@ export const EVIDENCE_STORE_MIGRATIONS = [
   'connected-expansion-measurement.sql',
   'growth-play-registry.sql',
   'tenant-isolation.sql',
+  'institution-access.sql',
   'connector-delivery.sql',
 ];
 

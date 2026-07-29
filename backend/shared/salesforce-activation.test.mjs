@@ -6,7 +6,25 @@ test('deposit activation becomes a banker-ready Salesforce brief', () => {
   const body = buildDepositRetentionSalesforceBody({
     input: {
       householdToken: 'tok_household_00000042',
-      growthPlay: { version: '1.0.0' },
+      tenantId: 'bank_pilot',
+      runAt: '2026-07-10T12:00:00.000Z',
+      objective: 'Retain primary deposit relationships',
+      growthPlay: {
+        growth_play_id: 'deposit-primacy-defense',
+        version: '1.0.0',
+        decision_protocol_id: 'dcp_deposit_001',
+        business_line: 'consumer-banking',
+        objective: 'Retain primary deposit relationships',
+        actions: [{
+          action_id: 'banker_retention_review',
+          owner_role: 'relationship_banker',
+          destination: 'salesforce_fsc_task',
+        }],
+        measurement: {
+          metric: 'deposit_retained',
+          outcome_window_days: 31,
+        },
+      },
       records: [
         { rail: 'ach', amount: -4800, category: 'INCOME', merchant_name: 'ACME PAYROLL' },
         { rail: 'ach', amount: -4800, category: 'INCOME', merchant_name: 'ACME PAYROLL' },
@@ -17,7 +35,7 @@ test('deposit activation becomes a banker-ready Salesforce brief', () => {
         { policy_id: 'consent', verdict: 'clear' },
         { policy_id: 'eligibility', verdict: 'clear' },
       ],
-      sourceReceipt: { sourceSystem: 'plaid_custom_user', recordCount: 4 },
+      sourceReceipt: { sourceSystem: 'plaid_custom_user', recordCount: 4, evidenceClass: 'sandbox' },
     },
     decision: {
       confidence: 0.91,
@@ -38,4 +56,11 @@ test('deposit activation becomes a banker-ready Salesforce brief', () => {
   assert.deepEqual(body.insight.controls, ['Consent', 'Eligibility']);
   assert.equal(body.whoId, '003000000000001AAA');
   assert.equal(body.whatId, '001000000000001AAA');
+  assert.equal(body.fsc.clientId, '001000000000001AAA');
+  assert.equal(body.decisionPackage.schemaVersion, '1.0');
+  assert.equal(body.decisionPackage.decisionId, 'dec_123');
+  assert.equal(body.decisionPackage.growthPlay.protocolId, 'dcp_deposit_001');
+  assert.equal(body.decisionPackage.recommendation.selectedAction.id, 'banker_retention_review');
+  assert.equal(body.decisionPackage.response.status, 'accepted');
+  assert.equal(body.decisionPackage.outcome.status, 'measuring');
 });
