@@ -220,6 +220,45 @@ test("FSC delivery preserves Task delivery when Referral creation fails", async 
   assert.match(result.warnings[0].message, /Referral unavailable/);
 });
 
+test("customer-linked onboarding proof skips Lead and relates the Task to the Account", async () => {
+  configureSalesforceTestEnvironment();
+  process.env.SF_DEMO_ACCOUNT_ID = "001000000000999AAA";
+  const writes: Array<{ url: string; body: Record<string, unknown> }> = [];
+  globalThis.fetch = async (input, init) => {
+    const url = String(input);
+    if (url.endsWith("/services/oauth2/token")) {
+      return Response.json({
+        access_token: "salesforce-access-token",
+        instance_url: "https://ventus2.my.salesforce.com",
+      });
+    }
+    const body = JSON.parse(String(init?.body)) as Record<string, unknown>;
+    writes.push({ url, body });
+    if (url.endsWith("/sobjects/Task")) return Response.json({ id: "00T000000000003AAA", success: true });
+    if (url.endsWith("/sobjects/Ventus_Decision__c")) return Response.json({ id: "a01000000000003AAA", success: true });
+    return new Response("unexpected Salesforce route", { status: 500 });
+  };
+
+  const response = await deliverToSalesforce(salesforceRequest({
+    fsc: {
+      clientId: "001000000000001AAA",
+      createReferral: false,
+    },
+  }));
+  const result = await response.json() as {
+    object: string;
+    records: { decision: { id: string }; referral: null; task: { id: string } };
+  };
+
+  assert.equal(response.status, 200);
+  assert.equal(result.object, "Task");
+  assert.equal(result.records.referral, null);
+  assert.equal(writes.some((write) => write.url.endsWith("/sobjects/Lead")), false);
+  assert.equal(writes[0].body.WhatId, "001000000000001AAA");
+  assert.equal(writes[1].body.Client_Account__c, "001000000000001AAA");
+  assert.equal(writes[1].body.Workflow_Record_Id__c, "00T000000000003AAA");
+});
+
 function configureSalesforceTestEnvironment() {
   process.env.ENABLE_LIVE_CONNECTORS = "true";
   process.env.VENTUS_CONNECTOR_SESSION_SECRET = SESSION_SECRET;
@@ -232,7 +271,7 @@ function configureSalesforceTestEnvironment() {
   process.env.SF_VENTUS_DECISION_ENABLED = "true";
 }
 
-function salesforceRequest() {
+function salesforceRequest(overrides: Record<string, unknown> = {}) {
   const token = issueConnectorSession({
     secret: SESSION_SECRET,
     tenantId: "bank_1",
@@ -260,6 +299,7 @@ function salesforceRequest() {
         decisionRef: "dec_123",
       },
       decisionPackage: decisionPackage(),
+      ...overrides,
     }),
   });
 }

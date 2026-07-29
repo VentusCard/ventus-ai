@@ -138,6 +138,28 @@ test("connector session carries only the operator's entitled scenarios", async (
   assert.equal(response.status, 200);
   assert.ok(principal?.scopes.includes("scenario_wealth_growth"));
   assert.equal(principal?.scopes.includes("scenario_deposit_retention"), false);
+  assert.equal(principal?.scopes.includes("salesforce_schema_read"), false);
+});
+
+test("connector session grants bounded FSC schema discovery only to administrators", async () => {
+  configure();
+  globalThis.fetch = async () => Response.json({
+    id: "admin_123",
+    email: "admin@ml.com",
+    email_confirmed_at: "2026-07-18T12:00:00Z",
+    app_metadata: {
+      tenant_id: "bofa",
+      console_role: "admin",
+      console_access_status: "active",
+      console_entitlements: ["wealth_demo", "growth_console", "live_connectors"],
+    },
+  });
+
+  const response = await POST(request("https://demo.ventusai.com", "supabase-token"));
+  const body = await response.json() as { token?: string };
+  const principal = verifyConnectorSession(body.token || "", SESSION_SECRET);
+  assert.equal(response.status, 200);
+  assert.ok(principal?.scopes.includes("salesforce_schema_read"));
 });
 
 test("governed activation is operator-only and isolated to entitled business lines", async () => {
