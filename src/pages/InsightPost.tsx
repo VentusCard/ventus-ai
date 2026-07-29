@@ -47,7 +47,7 @@ const InsightPost = () => {
           {/* Back link */}
           <Link
             to="/insights"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-12"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-600 transition-colors mb-12"
           >
             <ArrowLeft className="h-4 w-4" />
             All Insights
@@ -61,7 +61,7 @@ const InsightPost = () => {
             >
               {post.category}
             </Badge>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500">
               {post.date} · {post.readTime}
             </span>
           </div>

@@ -107,7 +107,7 @@ ${name}
                         <Mail className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Email us directly</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Email us directly</p>
                         <a href="mailto:info@ventusai.com" className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
                           info@ventusai.com
                         </a>
