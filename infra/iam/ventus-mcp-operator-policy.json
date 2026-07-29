@@ -2,7 +2,7 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "InspectDemoConnectorStackViaAwsMcp",
+      "Sid": "InspectVentusStacksViaAwsMcp",
       "Effect": "Allow",
       "Action": [
         "cloudformation:DescribeChangeSet",
@@ -14,7 +14,10 @@
         "cloudformation:GetTemplateSummary",
         "cloudformation:ListStackResources"
       ],
-      "Resource": "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*",
+      "Resource": [
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusIdentityStack/*"
+      ],
       "Condition": {
         "StringEquals": {
           "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
@@ -66,7 +69,10 @@
       "Sid": "InspectAndRedeployVentusAmplifyViaAwsMcp",
       "Effect": "Allow",
       "Action": [
+        "amplify:GetApp",
+        "amplify:GetBranch",
         "amplify:GetJob",
+        "amplify:ListBranches",
         "amplify:ListJobs",
         "amplify:StartJob"
       ],
@@ -76,6 +82,25 @@
         "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/staging",
         "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/staging/jobs/*"
       ],
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "InspectVentusIdentityAndDatabaseViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:DescribeUserPool",
+        "cognito-idp:DescribeUserPoolClient",
+        "cognito-idp:ListGroups",
+        "cognito-idp:ListUserPoolClients",
+        "cognito-idp:ListUserPools",
+        "rds:DescribeDBClusters",
+        "rds:DescribeDBInstances"
+      ],
+      "Resource": "*",
       "Condition": {
         "StringEquals": {
           "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
