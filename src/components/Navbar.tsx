@@ -67,42 +67,45 @@ const Navbar = () => {
             </button>
             {solutionsOpen && (
               <div className="absolute top-full left-0 pt-2" onMouseEnter={() => setSolutionsOpen(true)}>
-                <div className="bg-white rounded-lg shadow-lg border border-gray-100 py-2 w-80">
-                  <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BEHAVIORAL INTELLIGENCE</div>
-                  {behavioralIntelligenceItems.map((item) => (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setSolutionsOpen(false)}
-                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
-                        <item.Icon size={16} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
-                      </div>
-                    </Link>
-                  ))}
-                  <div className="mx-4 my-1 border-t border-gray-200" />
-                  <div className="px-4 pt-2 text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
-                  {analyticsItems.map((item) => (
-                    <Link
-                      key={item.to}
-                      to={item.to}
-                      onClick={() => setSolutionsOpen(false)}
-                      className="flex items-start gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                    >
-                      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
-                        <item.Icon size={16} />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-sm font-semibold text-gray-900">{item.title}</p>
-                        <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
-                      </div>
-                    </Link>
-                  ))}
+                <div className="bg-white rounded-lg shadow-lg border border-gray-100 py-4 w-[640px] grid grid-cols-2">
+                  <div className="px-4">
+                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">BEHAVIORAL INTELLIGENCE</div>
+                    {behavioralIntelligenceItems.map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setSolutionsOpen(false)}
+                        className="flex items-start gap-3 py-3 hover:bg-gray-50 transition-colors rounded-md"
+                      >
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
+                          <item.Icon size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                  <div className="px-4 border-l border-gray-100">
+                    <div className="text-[11px] uppercase tracking-wider text-[#9CA3AF]">BANK-FACING INTELLIGENCE</div>
+                    {analyticsItems.map((item) => (
+                      <Link
+                        key={item.to}
+                        to={item.to}
+                        onClick={() => setSolutionsOpen(false)}
+                        className="flex items-start gap-3 py-3 hover:bg-gray-50 transition-colors rounded-md"
+                      >
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blue-50 text-blue-600 mt-0.5">
+                          <item.Icon size={16} />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-sm font-semibold text-gray-900">{item.title}</p>
+                          <p className="text-xs text-gray-500 mt-0.5">{item.desc}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}
