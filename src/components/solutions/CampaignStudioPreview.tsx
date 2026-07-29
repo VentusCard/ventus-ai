@@ -256,15 +256,15 @@ const CampaignStudioPreview = () => {
       >
         <div className="flex items-center justify-between mb-3 pb-3 border-b border-gray-100">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full bg-blue-100 flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-blue-600" />
+            <div className="w-7 h-7 rounded-md bg-blue-100 flex items-center justify-center">
+              <Mail className="w-3.5 h-3.5 text-blue-600" />
             </div>
             <div>
               <p className="text-[12px] font-semibold text-gray-900 leading-tight">
-                Ventus AI Coworker
+                Segmented email · draft
               </p>
               <p className="text-[10px] uppercase tracking-wide text-gray-500">
-                Draft · to {active.label}
+                To · {active.label}
               </p>
             </div>
           </div>
