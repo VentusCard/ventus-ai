@@ -6,7 +6,10 @@ import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
-import { VENTUS_DATABASE_SECRET_ID } from './ventus-existing-infra-stack.ts';
+import {
+  VENTUS_DATABASE_KMS_KEY_ARN,
+  VENTUS_DATABASE_SECRET_ID,
+} from './ventus-existing-infra-stack.ts';
 
 /**
  * Isolated, additive stack for the durable Ventus decision/outcome evidence store.
@@ -93,7 +96,7 @@ export class VentusEvidenceStoreStack extends cdk.Stack {
     runtimeSecret.grantRead(migrator);
     migrator.addToRolePolicy(new iam.PolicyStatement({
       actions: ['kms:Decrypt', 'kms:DescribeKey'],
-      resources: [databaseSecretsKey.keyArn],
+      resources: [VENTUS_DATABASE_KMS_KEY_ARN],
       conditions: {
         StringEquals: {
           'kms:ViaService': 'secretsmanager.us-east-2.amazonaws.com',
