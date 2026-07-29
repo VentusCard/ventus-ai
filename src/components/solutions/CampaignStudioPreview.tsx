@@ -43,7 +43,39 @@ const SEGMENTS: Segment[] = [
     body: "You're on the road daily. Choose Gas as your 3% category, keep Dining at 2%, and 1% everywhere else. Plus a $200 welcome bonus after $1,000 in 90 days.",
     valueMath: "~$320/mo gas + ~$180/mo dining ≈ $158/yr vs a flat 1% card.",
   },
+  {
+    id: "travel",
+    label: "Frequent travelers",
+    reach: 9640,
+    topCategory: "Travel",
+    secondCategory: "Dining",
+    subject: "3% on every flight and hotel this year",
+    body: "Your top spend lives on airlines and hotels. Set Travel as your 3% category and keep Dining at 2% for meals on the road. Everything else earns 1%.",
+    valueMath: "~$540/mo travel + ~$210/mo dining ≈ $246/yr vs a flat 1% card.",
+  },
+  {
+    id: "online",
+    label: "Online shoppers",
+    reach: 15780,
+    topCategory: "Online Shopping",
+    secondCategory: "Streaming",
+    subject: "3% back on the cart you already fill every week",
+    body: "Online marketplaces are your #1 spend. Pick Online Shopping as your 3% category and keep Streaming at 2%. No annual fee, no category caps.",
+    valueMath: "~$620/mo online + ~$95/mo streaming ≈ $234/yr vs a flat 1% card.",
+  },
+  {
+    id: "wholesale",
+    label: "Wholesale-club shoppers",
+    reach: 7420,
+    topCategory: "Wholesale Clubs",
+    secondCategory: "Grocery",
+    subject: "3% on every warehouse run",
+    body: "You buy in bulk. Set Wholesale Clubs as your 3% category, keep 2% on Grocery for the weekly top-up, and 1% on everything else.",
+    valueMath: "~$480/mo wholesale + ~$310/mo grocery ≈ $209/yr vs a flat 1% card.",
+  },
 ];
+
+const MAX_REACH = Math.max(...SEGMENTS.map((s) => s.reach));
 
 const ROTATE_MS = 5500;
 
