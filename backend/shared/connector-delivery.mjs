@@ -2,7 +2,14 @@ import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
-const CONNECTORS = new Set(['salesforce', 'bank_workbench', 'campaign_platform', 'digital_channel']);
+const CONNECTORS = new Set([
+  'salesforce',
+  'bank_workbench',
+  'campaign_platform',
+  'digital_channel',
+  'microsoft_teams',
+  'microsoft_outlook',
+]);
 const TERMINAL_STATUSES = new Set(['delivered', 'failed']);
 
 export function buildDeliveryReservation(request) {

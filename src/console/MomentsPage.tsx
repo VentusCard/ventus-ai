@@ -4,6 +4,7 @@ import {
   Check,
   ChevronDown,
   Clock3,
+  Inbox,
   Landmark,
   Loader2,
   Plug,
@@ -18,6 +19,7 @@ import {
   type ConsoleMoment,
   type ScenarioId,
 } from "@/console/state";
+import { useSearchParams } from "react-router-dom";
 
 const SCENARIOS: Array<{ id: ScenarioId; label: string; Icon: typeof Landmark }> = [
   { id: "deposit-retention", label: "Consumer Banking", Icon: Landmark },
@@ -50,6 +52,9 @@ function StatusChip({ status }: { status: ConsoleMoment["status"] }) {
 }
 
 export default function MomentsPage() {
+  const [searchParams] = useSearchParams();
+  const requestedMomentId = searchParams.get("moment");
+  const openedFromBriefing = searchParams.get("source") === "briefing";
   const {
     tenant,
     connectorSession,
@@ -70,7 +75,7 @@ export default function MomentsPage() {
     decline,
     scenarioMeta,
   } = useConsole();
-  const [selectedId, setSelectedId] = useState<string | null>(moments[0]?.id ?? null);
+  const [selectedId, setSelectedId] = useState<string | null>(requestedMomentId ?? moments[0]?.id ?? null);
   const [controlMode, setControlMode] = useState<"none" | "modify" | "defer" | "decline">("none");
   const [selectedActionId, setSelectedActionId] = useState("");
   const [responseReason, setResponseReason] = useState("");
@@ -83,6 +88,12 @@ export default function MomentsPage() {
   useEffect(() => {
     if (!selectedId && moments[0]) setSelectedId(moments[0].id);
   }, [moments, selectedId]);
+
+  useEffect(() => {
+    if (requestedMomentId && moments.some((moment) => moment.id === requestedMomentId)) {
+      setSelectedId(requestedMomentId);
+    }
+  }, [moments, requestedMomentId]);
 
   useEffect(() => {
     if (!selected) return;
@@ -203,6 +214,12 @@ export default function MomentsPage() {
 
       {selected && decision && chosenAction && (
         <section className="min-w-0" aria-label="Decision package">
+          {openedFromBriefing && (
+            <div className="mb-4 flex items-center gap-2 border-b pb-3 text-[11px] font-semibold" style={{ borderColor: "var(--v2-rule)", color: "var(--c-accent)" }}>
+              <Inbox className="h-3.5 w-3.5" />
+              Opened from your role briefing
+            </div>
+          )}
           <div className="flex items-start justify-between gap-6 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}>
             <div className="min-w-0">
               <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>

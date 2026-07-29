@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import { ArrowRight, Check, Clock3, Inbox, Landmark, TrendingUp } from "lucide-react";
+import { ArrowRight, Check, Clock3, Inbox, Landmark, Mail, MessageSquare, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useConsole, type ConsoleMoment, type ScenarioId } from "@/console/state";
 
@@ -126,7 +126,7 @@ export default function BriefingsPage() {
               const Icon = moment.scenario === "deposit-retention" ? Landmark : TrendingUp;
               const isRouted = moment.status === "activated";
               return (
-                <div key={moment.id} className="grid gap-3 border-b px-4 py-4 last:border-0 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto]" style={{ borderColor: "var(--v2-rule)" }}>
+                <div key={moment.id} className="grid gap-3 border-b px-4 py-4 last:border-0 md:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)_auto_auto]" style={{ borderColor: "var(--v2-rule)" }}>
                   <div className="flex min-w-0 items-start gap-3">
                     <span className="mt-0.5 flex h-8 w-8 flex-none items-center justify-center rounded-md" style={{ color: "var(--c-accent)", backgroundColor: "var(--c-accent-wash)" }}>
                       <Icon className="h-4 w-4" />
@@ -146,15 +146,30 @@ export default function BriefingsPage() {
                     {isRouted ? <Check className="h-3.5 w-3.5" /> : <Clock3 className="h-3.5 w-3.5" />}
                     {statusLabel(moment.status)}
                   </span>
+                  <Link
+                    to={`/app/moments?moment=${encodeURIComponent(moment.id)}&source=briefing`}
+                    className="inline-flex items-center justify-end gap-1 text-[11px] font-bold"
+                    style={{ color: "var(--c-accent)" }}
+                  >
+                    Review <ArrowRight className="h-3.5 w-3.5" />
+                  </Link>
                 </div>
               );
             })}
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t bg-[#f7f6f2] px-4 py-3" style={{ borderColor: "var(--v2-rule)" }}>
-              <p className="v2-mono text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>
-                Outlook and Teams delivery require institution-approved adapters.
-              </p>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-t bg-[#f7f6f2] px-4 py-3" style={{ borderColor: "var(--v2-rule)" }}>
+              <div className="flex flex-wrap items-center gap-4">
+                <span className="inline-flex items-center gap-1.5 text-[10px] font-bold" style={{ color: "var(--v2-verified)" }}>
+                  <Inbox className="h-3.5 w-3.5" /> Console active
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
+                  <MessageSquare className="h-3.5 w-3.5" /> Teams · admin setup
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>
+                  <Mail className="h-3.5 w-3.5" /> Outlook · admin setup
+                </span>
+              </div>
               <Link to="/app/moments" className="inline-flex items-center gap-1 text-[11px] font-bold" style={{ color: "var(--c-accent)" }}>
-                Review decisions <ArrowRight className="h-3.5 w-3.5" />
+                Open all moments <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
           </div>
