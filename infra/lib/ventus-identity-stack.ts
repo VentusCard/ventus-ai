@@ -156,10 +156,20 @@ exports.handler = async (event) => {
     });
     if (enterpriseProvider) client.node.addDependency(enterpriseProvider);
 
-    userPool.addDomain('GrowthConsoleDomain', {
+    const domain = userPool.addDomain('GrowthConsoleDomain', {
       cognitoDomain: { domainPrefix },
       managedLoginVersion: cognito.ManagedLoginVersion.NEWER_MANAGED_LOGIN,
     });
+    const managedLoginBranding = new cognito.CfnManagedLoginBranding(
+      this,
+      'GrowthConsoleManagedLoginBranding',
+      {
+        userPoolId: userPool.userPoolId,
+        clientId: client.userPoolClientId,
+        useCognitoProvidedValues: true,
+      },
+    );
+    managedLoginBranding.node.addDependency(domain);
 
     const groups = [
       ['ventus-platform-admin', 'Ventus platform administrators', 10],
