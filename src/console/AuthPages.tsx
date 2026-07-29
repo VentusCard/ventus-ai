@@ -1,12 +1,17 @@
-// Sign-in and sign-up for the Growth Console. Split composition: the brand
-// panel states what the product is in one breath; the form asks for exactly
-// two things. Tenant resolution happens on the email domain — a BofA operator
-// signs up and lands in a console that is already theirs.
+// Growth Console authentication. Cognito uses an institution-provisioned
+// authorization-code flow; the legacy email form remains only for rollback.
 
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, Navigate, useNavigate, useSearchParams } from "react-router-dom";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
+import {
+  beginSignIn,
+  completeSignIn,
+  consoleAuthProvider,
+  isConsoleAuthConfigured,
+  signInWithPassword,
+} from "@/console/authClient";
 import { resolveTenantFromEmail } from "@/lib/tenant";
 import { useAuth } from "@/console/state";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
@@ -70,6 +75,43 @@ function AuthShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+function CognitoSignInButton({ label }: { label: string }) {
+  const [error, setError] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
+
+  const start = async () => {
+    setSubmitting(true);
+    setError(null);
+    try {
+      await beginSignIn();
+    } catch (cause) {
+      setSubmitting(false);
+      setError(cause instanceof Error ? cause.message : "Secure sign in could not start.");
+    }
+  };
+
+  return (
+    <>
+      {error && (
+        <p className="mt-5 text-[12px] font-semibold" style={{ color: "#b3261e" }} role="alert">
+          {error}
+        </p>
+      )}
+      <button
+        type="button"
+        onClick={() => void start()}
+        className="console-btn mt-8 w-full"
+        disabled={submitting || !isConsoleAuthConfigured}
+        style={{ backgroundColor: "var(--v2-ink)" }}
+      >
+        {submitting
+          ? <Loader2 className="h-4 w-4 animate-spin" />
+          : <>{label} <ArrowRight className="h-4 w-4" /></>}
+      </button>
+    </>
+  );
+}
+
 export function LoginPage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
@@ -78,24 +120,25 @@ export function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [searchParams] = useSearchParams();
+  const cognito = consoleAuthProvider === "cognito";
 
   if (!loading && user) return <Navigate to="/app" replace />;
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
-    if (!isSupabaseConfigured) {
+    if (!isConsoleAuthConfigured) {
       setError("Console authentication is not configured in this environment.");
       return;
     }
     setSubmitting(true);
     setError(null);
-    const { error: authError } = await supabase.auth.signInWithPassword({ email, password });
-    setSubmitting(false);
-    if (authError) {
-      setError(authError.message);
-      return;
+    try {
+      await signInWithPassword(email, password);
+      if (!cognito) navigate("/app", { replace: true });
+    } catch (authError) {
+      setSubmitting(false);
+      setError(authError instanceof Error ? authError.message : "Sign in failed.");
     }
-    navigate("/app", { replace: true });
   };
 
   return (
@@ -107,7 +150,7 @@ export function LoginPage() {
         Growth Console
       </p>
       <h2 className="v2-display mt-3 text-4xl">Sign in.</h2>
-      {!isSupabaseConfigured && (
+      {!isConsoleAuthConfigured && (
         <p className="mt-4 text-[12px] font-semibold" style={{ color: "#b3261e" }} role="status">
           Console authentication is not configured in this environment.
         </p>
@@ -118,44 +161,54 @@ export function LoginPage() {
         </p>
       )}
       <form onSubmit={submit} className="mt-8 space-y-3">
-        <input
-          className="console-field"
-          type="email"
-          autoComplete="email"
-          placeholder="Work email"
-          value={email}
-          onChange={(event) => setEmail(event.target.value)}
-          required
-        />
-        <input
-          className="console-field"
-          type="password"
-          autoComplete="current-password"
-          placeholder="Password"
-          value={password}
-          onChange={(event) => setPassword(event.target.value)}
-          required
-        />
+        {!cognito && (
+          <>
+            <input
+              className="console-field"
+              type="email"
+              autoComplete="email"
+              placeholder="Work email"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              required
+            />
+            <input
+              className="console-field"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              required
+            />
+          </>
+        )}
         {error && (
           <p className="text-[12px] font-semibold" style={{ color: "#b3261e" }} role="alert">
             {error}
           </p>
         )}
         <button type="submit" className="console-btn w-full" disabled={submitting} style={{ backgroundColor: "var(--v2-ink)" }}>
-          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Continue <ArrowRight className="h-4 w-4" /></>}
+          {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <>{cognito ? "Continue with work account" : "Continue"} <ArrowRight className="h-4 w-4" /></>}
         </button>
       </form>
-      <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>
-        <p>
-          New operator?{" "}
-          <Link to="/app/signup" className="font-semibold" style={{ color: "var(--v2-blue)" }}>
-            Create an account
-          </Link>
+      {cognito ? (
+        <p className="mt-6 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>
+          Access is provisioned by your institution. Password recovery and MFA continue in the secure sign-in flow.
         </p>
-        <Link to="/app/forgot-password" className="font-semibold" style={{ color: "var(--v2-blue)" }}>
-          Reset password
-        </Link>
-      </div>
+      ) : (
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>
+          <p>
+            New operator?{" "}
+            <Link to="/app/signup" className="font-semibold" style={{ color: "var(--v2-blue)" }}>
+              Create an account
+            </Link>
+          </p>
+          <Link to="/app/forgot-password" className="font-semibold" style={{ color: "var(--v2-blue)" }}>
+            Reset password
+          </Link>
+        </div>
+      )}
       <p className="v2-mono mt-10 text-[10px] leading-4" style={{ color: "var(--v2-ink-faint)" }}>
         Pilot access is restricted to approved work domains. Enterprise SSO is
         configured with each institution.
@@ -177,6 +230,20 @@ export function SignupPage() {
   const tenant = useMemo(() => resolveTenantFromEmail(email.includes("@") ? email : null), [email]);
 
   if (!loading && user) return <Navigate to="/app" replace />;
+  if (consoleAuthProvider === "cognito") {
+    return (
+      <AuthShell>
+        <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
+          Growth Console
+        </p>
+        <h2 className="v2-display mt-3 text-4xl">Institution access.</h2>
+        <p className="v2-body mt-5 text-[15px]">
+          Growth Console accounts are provisioned by your institution or Ventus pilot administrator.
+        </p>
+        <CognitoSignInButton label="Continue to sign in" />
+      </AuthShell>
+    );
+  }
 
   const submit = async (event: FormEvent) => {
     event.preventDefault();
@@ -324,6 +391,21 @@ export function ForgotPasswordPage() {
   const [sent, setSent] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  if (consoleAuthProvider === "cognito") {
+    return (
+      <AuthShell>
+        <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
+          Growth Console
+        </p>
+        <h2 className="v2-display mt-3 text-4xl">Recover access.</h2>
+        <p className="v2-body mt-5 text-[15px]">
+          Password recovery and MFA are managed in your institution's secure sign-in flow.
+        </p>
+        <CognitoSignInButton label="Continue to secure sign in" />
+      </AuthShell>
+    );
+  }
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!isSupabaseConfigured) {
@@ -393,6 +475,8 @@ export function ResetPasswordPage() {
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
+  if (consoleAuthProvider === "cognito") return <Navigate to="/app/forgot-password" replace />;
+
   const submit = async (event: FormEvent) => {
     event.preventDefault();
     if (!isSupabaseConfigured) {
@@ -444,6 +528,47 @@ export function ResetPasswordPage() {
             {submitting || loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <>Update password <ArrowRight className="h-4 w-4" /></>}
           </button>
         </form>
+      )}
+    </AuthShell>
+  );
+}
+
+export function AuthCallbackPage() {
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    completeSignIn()
+      .then(() => {
+        if (active) navigate("/app", { replace: true });
+      })
+      .catch(() => {
+        if (active) setError("The secure sign-in session expired or could not be verified.");
+      });
+    return () => {
+      active = false;
+    };
+  }, [navigate]);
+
+  return (
+    <AuthShell>
+      <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
+        Growth Console
+      </p>
+      <h2 className="v2-display mt-3 text-4xl">{error ? "Sign in could not finish." : "Securing your workspace."}</h2>
+      {error ? (
+        <>
+          <p className="mt-5 text-[13px] font-semibold" style={{ color: "#b3261e" }} role="alert">{error}</p>
+          <Link to="/app/login" className="console-btn mt-8 w-full" style={{ backgroundColor: "var(--v2-ink)" }}>
+            Return to sign in
+          </Link>
+        </>
+      ) : (
+        <div className="mt-8 flex items-center gap-3 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Verifying identity and institution access
+        </div>
       )}
     </AuthShell>
   );

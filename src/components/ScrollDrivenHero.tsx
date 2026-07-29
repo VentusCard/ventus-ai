@@ -256,7 +256,7 @@ const ScrollDrivenHero = () => {
   const scrollOffset = useMemo(() => scrollProgress * 200, [scrollProgress]);
 
   // Status dot color/label per stage
-  const statusColor = stage === 1 ? "#6b7280" : stage === 2 ? "#f59e0b" : "#22c55e";
+  const statusColor = stage === 1 ? "#94a3b8" : stage === 2 ? "#f59e0b" : "#22c55e";
   const statusLabel = stage === 1 ? "Analyzing..." : stage === 2 ? "Categorizing" : stage === 3 ? "Detected" : "Orchestrating";
 
   return (
@@ -308,7 +308,7 @@ const ScrollDrivenHero = () => {
             <div className="relative flex flex-col items-stretch" style={{ width: 400, maxWidth: "calc(100vw - 48px)" }}>
               {/* Ventus Orchestrate panel — sits ABOVE the dark card (desktop only) */}
               <div
-                className="relative transition-all duration-500 ease-out hidden xl:block"
+                className="relative transition-all duration-500 ease-out hidden xl:block text-gray-900"
                 style={{
                   opacity: stage === 4 ? 1 : 0,
                   transform: stage === 4 ? "translateY(0)" : "translateY(8px)",
@@ -328,7 +328,7 @@ const ScrollDrivenHero = () => {
                   </span>
                   {activePersona && (
                     <>
-                      <span className="text-gray-300">·</span>
+                      <span className="text-gray-500">·</span>
                       <span
                         className="text-[13px] font-bold tracking-tight"
                         style={{ color: activePersona.color }}
@@ -444,7 +444,7 @@ const ScrollDrivenHero = () => {
                   className="flex items-center justify-between px-5 pt-4 pb-3 border-b"
                   style={{ borderColor: "rgba(255,255,255,0.08)" }}
                 >
-                  <span className="font-mono text-xs text-gray-500">cust_013</span>
+                  <span className="font-mono text-xs text-slate-300">cust_013</span>
                   <div className="flex items-center gap-2">
                     <span
                       className="w-2 h-2 rounded-full transition-colors duration-[400ms]"

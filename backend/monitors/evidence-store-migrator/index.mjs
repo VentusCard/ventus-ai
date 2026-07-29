@@ -1,4 +1,5 @@
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager';
+import { createHash } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,12 +14,15 @@ import { compileGrowthPlayContract } from './shared/growth-play-contract.mjs';
 import {
   APPLY_EVIDENCE_SCHEMA_CONFIRMATION,
   EVIDENCE_STORE_MIGRATIONS,
+  PROVISION_CONSOLE_ACCESS_CONFIRMATION,
   checkedPgIdentifier,
   quotePgIdentifier,
   quotePgLiteral,
+  validateAccessProvisioning,
 } from './migration-safety.mjs';
 
 const APPLY_CONFIRMATION = APPLY_EVIDENCE_SCHEMA_CONFIRMATION;
+const PROVISION_ACCESS_CONFIRMATION = PROVISION_CONSOLE_ACCESS_CONFIRMATION;
 const MIGRATIONS = EVIDENCE_STORE_MIGRATIONS;
 const here = dirname(fileURLToPath(import.meta.url));
 const region = process.env.AWS_REGION || 'us-east-2';
@@ -83,16 +87,13 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
       `DO $role$
        BEGIN
          IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = ${quotePgLiteral(runtimeUsername)}) THEN
-           CREATE ROLE ${roleName} LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
+           CREATE ROLE ${roleName}
+             LOGIN PASSWORD ${quotePgLiteral(runtimeCredentials.password)}
+             NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS;
          END IF;
        END
        $role$`,
     );
-    await db.query(
-      `ALTER ROLE ${roleName} NOSUPERUSER NOCREATEDB NOCREATEROLE NOINHERIT NOBYPASSRLS`,
-    );
-    await db.query(`ALTER ROLE ${roleName} PASSWORD ${quotePgLiteral(runtimeCredentials.password)}`);
-    await db.query(`ALTER ROLE ${roleName} SET search_path TO ${schemaName}, public`);
     await db.query(`GRANT CONNECT ON DATABASE ${quotePgIdentifier(database)} TO ${roleName}`);
 
     for (const file of MIGRATIONS) {
@@ -112,13 +113,89 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
     await db.query(
       `GRANT SELECT ON
          ${schemaName}.growth_play_protocols,
-         ${schemaName}.growth_play_protocol_approval_events
+         ${schemaName}.growth_play_protocol_approval_events,
+         ${schemaName}.institutions,
+         ${schemaName}.institution_identity_providers,
+         ${schemaName}.institution_memberships
        TO ${roleName}`,
     );
     await db.query(
       `GRANT SELECT, INSERT, UPDATE ON ${schemaName}.connector_delivery_receipts TO ${roleName}`,
     );
     await db.query('COMMIT');
+  } catch (error) {
+    await db.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    await db.end();
+  }
+}
+
+async function provisionConsoleAccess(adminCredentials, input) {
+  const access = validateAccessProvisioning(input);
+  const membershipId = `mem_${createHash('sha256')
+    .update(`${access.tenantId}:${access.email}`)
+    .digest('hex')
+    .slice(0, 24)}`;
+  const db = clientFor(adminCredentials);
+  await db.connect();
+  try {
+    await db.query('BEGIN');
+    await db.query("SELECT set_config('app.current_tenant_id', $1, true)", [access.tenantId]);
+    await db.query(
+      `INSERT INTO institutions (tenant_id, display_name, status)
+       VALUES ($1, $2, 'pilot')
+       ON CONFLICT (tenant_id) DO NOTHING`,
+      [access.tenantId, access.displayName],
+    );
+    const provider = await db.query(
+      `SELECT issuer
+         FROM institution_identity_providers
+        WHERE tenant_id = $1 AND provider_key = 'cognito'`,
+      [access.tenantId],
+    );
+    if (provider.rows[0]?.issuer && provider.rows[0].issuer !== access.issuer) {
+      throw new Error('tenant Cognito issuer does not match the approved issuer');
+    }
+    await db.query(
+      `INSERT INTO institution_identity_providers
+         (tenant_id, provider_key, provider_type, issuer, status)
+       VALUES ($1, 'cognito', 'cognito', $2, 'testing')
+       ON CONFLICT (tenant_id, provider_key) DO UPDATE
+         SET status = 'testing', updated_at = now()`,
+      [access.tenantId, access.issuer],
+    );
+    await db.query(
+      `INSERT INTO institution_memberships
+         (membership_id, tenant_id, identity_provider_key, identity_subject, email,
+          role, status, business_lines, entitlements)
+       VALUES ($1, $2, 'cognito', $3, $4, $5, 'active', $6, $7)
+       ON CONFLICT (tenant_id, email) DO UPDATE
+         SET identity_subject = EXCLUDED.identity_subject,
+             role = EXCLUDED.role,
+             status = 'active',
+             business_lines = EXCLUDED.business_lines,
+             entitlements = EXCLUDED.entitlements,
+             updated_at = now()`,
+      [
+        membershipId,
+        access.tenantId,
+        access.identitySubject,
+        access.email,
+        access.role,
+        access.businessLines,
+        access.entitlements,
+      ],
+    );
+    await db.query('COMMIT');
+    return {
+      tenantId: access.tenantId,
+      membershipId,
+      email: access.email,
+      role: access.role,
+      businessLines: access.businessLines,
+      entitlements: access.entitlements,
+    };
   } catch (error) {
     await db.query('ROLLBACK').catch(() => {});
     throw error;
@@ -199,6 +276,47 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     changeRecordId: 'runtime_change_record',
     reason: 'Approved for non-production runtime verification.',
   });
+  const membershipId = `mem_${Date.now().toString(36)}`;
+  const identitySubject = `sub_${Date.now().toString(36)}`;
+  const identityAdmin = clientFor(adminCredentials);
+  await identityAdmin.connect();
+  try {
+    await identityAdmin.query('BEGIN');
+    await identityAdmin.query("SELECT set_config('app.current_tenant_id', $1, true)", [tenantId]);
+    await identityAdmin.query(
+      `INSERT INTO institutions (tenant_id, display_name, status)
+       VALUES ($1, $2, 'pilot')
+       ON CONFLICT (tenant_id) DO NOTHING`,
+      [tenantId, 'AWS runtime verification institution'],
+    );
+    await identityAdmin.query(
+      `INSERT INTO institution_identity_providers
+         (tenant_id, provider_key, provider_type, issuer, status)
+       VALUES ($1, 'cognito', 'cognito', $2, 'testing')
+       ON CONFLICT (tenant_id, provider_key) DO NOTHING`,
+      [tenantId, `https://cognito-idp.${region}.amazonaws.com/runtime-verification`],
+    );
+    await identityAdmin.query(
+      `INSERT INTO institution_memberships
+         (membership_id, tenant_id, identity_provider_key, identity_subject, email,
+          role, status, business_lines, entitlements)
+       VALUES ($1, $2, 'cognito', $3, $4, 'bank_operator', 'active', $5, $6)`,
+      [
+        membershipId,
+        tenantId,
+        identitySubject,
+        `${identitySubject}@example.invalid`,
+        ['consumer-banking'],
+        ['consumer_demo', 'growth_console'],
+      ],
+    );
+    await identityAdmin.query('COMMIT');
+  } catch (error) {
+    await identityAdmin.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    await identityAdmin.end();
+  }
   const protocolApproval = await protocolRegistry.requireApproved({
     tenantId,
     decisionProtocolId: protocol.decision_protocol_id,
@@ -226,6 +344,46 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   } catch (error) {
     runtimeProtocolWriteDenied = /permission denied|row-level security/i.test(error.message);
     if (!runtimeProtocolWriteDenied) throw error;
+  }
+  const membershipDb = await getDB();
+  await membershipDb.connect();
+  let ownVisibleMemberships;
+  let runtimeMembershipWriteDenied = false;
+  try {
+    await membershipDb.query('BEGIN');
+    await membershipDb.query("SELECT set_config('app.current_tenant_id', $1, true)", [tenantId]);
+    const membershipResult = await membershipDb.query(
+      `SELECT count(*)::int AS visible
+         FROM institution_memberships
+        WHERE identity_provider_key = 'cognito' AND identity_subject = $1`,
+      [identitySubject],
+    );
+    ownVisibleMemberships = Number(membershipResult.rows[0]?.visible ?? -1);
+    try {
+      await membershipDb.query(
+        `INSERT INTO institution_memberships
+           (membership_id, tenant_id, identity_provider_key, identity_subject, email,
+            role, status)
+         VALUES ($1, $2, 'cognito', $3, $4, 'bank_operator', 'active')`,
+        [
+          `${membershipId}_forbidden`,
+          tenantId,
+          `${identitySubject}_forbidden`,
+          `${identitySubject}_forbidden@example.invalid`,
+        ],
+      );
+    } catch (error) {
+      runtimeMembershipWriteDenied = /permission denied|row-level security/i.test(error.message);
+    }
+    await membershipDb.query('ROLLBACK');
+  } catch (error) {
+    await membershipDb.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    await membershipDb.end();
+  }
+  if (!runtimeMembershipWriteDenied) {
+    throw new Error('evidence runtime role can provision institution memberships');
   }
   const drafts = [
     { ...base, eventType: 'signal', idempotencyKey: `${tenantId}:signal`, payload: { evidence_class: 'sandbox' } },
@@ -285,15 +443,18 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   let crossTenantVisibleEvents;
   let crossTenantVisibleExposures;
   let crossTenantVisibleProtocols;
+  let crossTenantVisibleMemberships;
   try {
     await crossTenantDb.query('BEGIN');
     await crossTenantDb.query("SELECT set_config('app.current_tenant_id', $1, true)", [otherTenantId]);
     const ledgerResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM decision_ledger_events');
     const exposureResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM connected_exposure_events');
     const protocolResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM growth_play_protocols');
+    const membershipResult = await crossTenantDb.query('SELECT count(*)::int AS visible FROM institution_memberships');
     crossTenantVisibleEvents = Number(ledgerResult.rows[0]?.visible ?? -1);
     crossTenantVisibleExposures = Number(exposureResult.rows[0]?.visible ?? -1);
     crossTenantVisibleProtocols = Number(protocolResult.rows[0]?.visible ?? -1);
+    crossTenantVisibleMemberships = Number(membershipResult.rows[0]?.visible ?? -1);
     await crossTenantDb.query('ROLLBACK');
   } catch (error) {
     await crossTenantDb.query('ROLLBACK').catch(() => {});
@@ -312,8 +473,11 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     || crossTenantVisibleEvents !== 0
     || crossTenantVisibleExposures !== 0
     || crossTenantVisibleProtocols !== 0
+    || crossTenantVisibleMemberships !== 0
+    || ownVisibleMemberships !== 1
     || protocolApproval.decisionProtocolId !== protocol.decision_protocol_id
     || !runtimeProtocolWriteDenied
+    || !runtimeMembershipWriteDenied
   ) {
     throw new Error('runtime ledger, connected-measurement, idempotency, or tenant-isolation verification failed');
   }
@@ -338,6 +502,11 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
       crossTenantVisibleProtocols,
       runtimeProtocolWriteDenied,
     },
+    institutionAccess: {
+      ownVisibleMemberships,
+      crossTenantVisibleMemberships,
+      runtimeMembershipWriteDenied,
+    },
     headHashPrefix: own.events.at(-1).event_hash.slice(0, 16),
   };
 }
@@ -345,6 +514,19 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
 export async function handler(event = {}) {
   const adminCredentials = await getSecret(adminSecretId);
   const status = await schemaStatus(adminCredentials);
+  if (event.mode === 'provision-console-access') {
+    if (!status.exists) throw new Error('evidence schema must exist before provisioning access');
+    if (event.confirm !== PROVISION_ACCESS_CONFIRMATION) {
+      throw new Error(`provision-console-access requires confirm=${PROVISION_ACCESS_CONFIRMATION}`);
+    }
+    const provisioned = await provisionConsoleAccess(adminCredentials, event.access);
+    return {
+      ok: true,
+      mode: 'provision-console-access',
+      mutationPerformed: true,
+      provisioned,
+    };
+  }
   if (event.mode !== 'migrate-and-verify') {
     return { ok: true, mode: 'status', ...status, mutationPerformed: false };
   }

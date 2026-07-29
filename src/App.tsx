@@ -10,6 +10,7 @@ import Footer from "./components/Footer";
 import IndexV2 from "./pages/IndexV2";
 import ConsoleLayout, { ConsoleAuthBoundary } from "./console/ConsoleLayout";
 import {
+  AuthCallbackPage,
   ForgotPasswordPage,
   LoginPage,
   ResetPasswordPage,
@@ -21,7 +22,8 @@ import {
   ProtectedDemoPage,
 } from "./console/AccessPages";
 import MomentsPage from "./console/MomentsPage";
-import { LedgerPage, OutcomesPage, SettingsPage } from "./console/OpsPages";
+import { FscOnboardingPage } from "./console/FscOnboardingPage";
+import { LedgerPage, OutcomesPage, PlaysPage, SettingsPage } from "./console/OpsPages";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -41,6 +43,7 @@ const InsightPost = lazy(() => import("./pages/InsightPost"));
 const DemoPage = lazy(() => import("./pages/DemoPage"));
 const ExecDemoPage = lazy(() => import("./pages/ExecDemoPage"));
 const Platform = lazy(() => import("./pages/Platform"));
+const TransactionEnrichmentPillar = lazy(() => import("./pages/TransactionEnrichmentPillar"));
 const NextOfferPage = lazy(() => import("./pages/solutions/NextOfferPage"));
 const NextProductPage = lazy(() => import("./pages/solutions/NextProductPage"));
 const NextConversationPage = lazy(() => import("./pages/solutions/NextConversationPage"));
@@ -53,6 +56,8 @@ const EnterpriseGrowthDemoPage = lazy(() => import("./pages/EnterpriseGrowthDemo
 const InternalCapabilitiesPage = lazy(() => import("./pages/InternalCapabilitiesPage"));
 const InternalGrowthDeskPage = lazy(() => import("./pages/InternalGrowthDeskPage"));
 const LivePipelineLab = lazy(() => import("./pages/LivePipelineLab"));
+const FAQPage = lazy(() => import("./pages/FAQ"));
+const AboutPage = lazy(() => import("./pages/About"));
 
 const queryClient = new QueryClient();
 
@@ -84,19 +89,23 @@ const AppLayout = () => {
           <Route path="signup" element={<SignupPage />} />
           <Route path="forgot-password" element={<ForgotPasswordPage />} />
           <Route path="reset-password" element={<ResetPasswordPage />} />
+          <Route path="auth/callback" element={<AuthCallbackPage />} />
           <Route index element={<AppEntryPage />} />
           <Route path="access-pending" element={<AccessPendingPage />} />
           <Route path="demo" element={<ProtectedDemoPage />} />
           <Route element={<ConsoleLayout />}>
             <Route path="moments" element={<MomentsPage />} />
+            <Route path="plays" element={<PlaysPage />} />
             <Route path="ledger" element={<LedgerPage />} />
             <Route path="outcomes" element={<OutcomesPage />} />
+            <Route path="onboarding" element={<FscOnboardingPage />} />
             <Route path="settings" element={<SettingsPage />} />
           </Route>
         </Route>
         <Route path="/classic" element={<Index noindex />} />
         <Route path="/v2" element={<IndexV2 />} />
         <Route path="/platform" element={<Platform />} />
+        <Route path="/transaction-enrichment" element={<TransactionEnrichmentPillar />} />
         <Route path="/smartrewards" element={<SmartRewards />} />
         <Route path="/engagement" element={<Engagement />} />
         <Route path="/wealth" element={<Wealth />} />
@@ -105,6 +114,8 @@ const AppLayout = () => {
         <Route path="/insights" element={<Insights />} />
         <Route path="/insights/:slug" element={<InsightPost />} />
         <Route path="/contact" element={<ContactUs />} />
+        <Route path="/faq" element={<FAQPage />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="/tepilot" element={<TePilot />} />
         <Route path="/tepilot/recommendations" element={<RecommendationsPage />} />
         <Route path="/tepilot/advisor-console" element={<AdvisorConsolePage />} />

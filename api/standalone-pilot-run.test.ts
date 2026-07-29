@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test, { afterEach } from "node:test";
 import { issueConnectorSession } from "./_connectorAuth.ts";
+import { createStandalonePilotActivationHandler } from "./standalone-pilot-activate.ts";
 import { createPilotWebhookDelivery, createStandalonePilotHandler } from "./standalone-pilot-run.ts";
 import { compileGrowthPlayContract } from "../backend/shared/growth-play-contract.mjs";
 import { createInMemoryGrowthPlayRegistry } from "../backend/shared/growth-play-registry.mjs";
@@ -79,7 +80,7 @@ test("runtime derives tenant, protocol, experiment, timestamps, and session from
   assert.ok(Date.parse(input.runAt) > Date.parse(RUN_AT));
 });
 
-test("assisted runtime derives a stable protocol-bound experiment and preserves business-line isolation", async () => {
+test("review and assisted runtimes derive a stable protocol-bound experiment and preserve business-line isolation", async () => {
   process.env.VENTUS_CONNECTOR_SESSION_SECRET = SECRET;
   const registry = await approvedRegistry();
   const captured: CapturedInput[] = [];
@@ -90,12 +91,14 @@ test("assisted runtime derives a stable protocol-bound experiment and preserves 
     now: () => RUN_AT,
   });
   const consumer = runtimeToken("consumer-banking", "runtime_consumer_2");
-  assert.equal((await handle(request(consumer, bodyFor(deposit, "sandbox_assisted")))).status, 200);
+  assert.equal((await handle(request(consumer, bodyFor(deposit, "sandbox_review")))).status, 200);
   assert.equal(captured[0].experiment.experimentId, `exp_${deposit.decision_protocol_id.slice(4)}`);
   assert.equal(captured[0].experiment.holdoutPct, deposit.measurement.holdout_pct);
   assert.equal(captured[0].destinationEnvironment, "sandbox");
+  assert.equal((await handle(request(consumer, bodyFor(deposit, "sandbox_assisted")))).status, 200);
+  assert.equal(captured[1].experiment.experimentId, captured[0].experiment.experimentId);
   assert.equal((await handle(request(consumer, bodyFor(merrill, "shadow")))).status, 403);
-  assert.equal(captured.length, 1);
+  assert.equal(captured.length, 2);
 });
 
 test("runtime rejects legacy, local-demo, unknown-field, and production activation paths", async () => {
@@ -120,6 +123,44 @@ test("runtime rejects legacy, local-demo, unknown-field, and production activati
   const token = runtimeToken("consumer-banking", "runtime_consumer_3");
   assert.equal((await handle(request(token, { ...bodyFor(deposit, "shadow"), tenantId: "attacker" }))).status, 400);
   assert.equal((await handle(request(token, bodyFor(deposit, "production_assisted")))).status, 400);
+});
+
+test("reviewed activation derives tenant, session, and activation time from its scoped server session", async () => {
+  process.env.VENTUS_CONNECTOR_SESSION_SECRET = SECRET;
+  const captured: Record<string, unknown>[] = [];
+  const handle = createStandalonePilotActivationHandler({
+    operatingLoop: {
+      async activatePreparedDecision(input) {
+        captured.push(input);
+        return { activation: "delivered", decisionId: input.decisionId };
+      },
+    },
+    now: () => RUN_AT,
+  });
+  const token = activationToken("consumer-banking", "runtime_activation_1");
+  const response = await handle(activationRequest(token, {
+    decisionId: "dec_review_001",
+    businessLine: "consumer-banking",
+    decision: decision(),
+  }));
+  assert.equal(response.status, 200);
+  assert.equal(captured.length, 1);
+  assert.equal(captured[0].tenantId, "bank_1");
+  assert.equal(captured[0].sessionId, "runtime_activation_1");
+  assert.equal(captured[0].activatedAt, RUN_AT);
+
+  const runOnly = runtimeToken("consumer-banking", "runtime_activation_denied");
+  assert.equal((await handle(activationRequest(runOnly, {
+    decisionId: "dec_review_001",
+    businessLine: "consumer-banking",
+    decision: decision(),
+  }))).status, 403);
+  assert.equal((await handle(activationRequest(token, {
+    decisionId: "dec_review_001",
+    businessLine: "wealth-management",
+    decision: decision(),
+  }))).status, 403);
+  assert.equal(captured.length, 1);
 });
 
 test("webhook delivery requires HTTPS and a receipt, and returns a terminal failure otherwise", async () => {
@@ -176,6 +217,18 @@ function runtimeToken(businessLine: string, sessionId: string): string {
   });
 }
 
+function activationToken(businessLine: string, sessionId: string): string {
+  return issueConnectorSession({
+    secret: SECRET,
+    tenantId: "bank_1",
+    subject: "pilot_activation_service",
+    scopes: ["growth_play_activate"],
+    destinations: [businessLine],
+    sessionId,
+    ttlSeconds: 300,
+  });
+}
+
 function bodyFor(contract: CompiledContract, activationMode: string): Record<string, unknown> {
   const merrillPlay = contract.business_line === "wealth-management";
   const records = merrillPlay ? [
@@ -214,6 +267,14 @@ function record(transactionId: string, rail: string, amount: number, sourceSyste
 
 function request(token: string, body: Record<string, unknown>): Request {
   return new Request("http://local/api/standalone-pilot-run", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
+function activationRequest(token: string, body: Record<string, unknown>): Request {
+  return new Request("http://local/api/standalone-pilot-activate", {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
     body: JSON.stringify(body),

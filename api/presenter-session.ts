@@ -50,12 +50,28 @@ export async function POST(request: Request): Promise<Response> {
           ...(operator.entitlements.includes("wealth_demo") ? ["scenario_wealth_growth"] : []),
         ]
       : ["scenario_deposit_retention", "scenario_wealth_growth"];
+    const governedDestinations = operator
+      && process.env.ENABLE_STANDALONE_PILOT_RUNTIME === "true"
+      && operator.entitlements.includes("growth_console")
+      && operator.entitlements.includes("live_connectors")
+      ? [
+          ...(operator.entitlements.includes("consumer_demo") ? ["consumer-banking"] : []),
+          ...(operator.entitlements.includes("wealth_demo") ? ["wealth-management"] : []),
+        ]
+      : [];
     const token = issueConnectorSession({
       secret: sessionSecret,
       tenantId,
       subject,
-      scopes: ["plaid_read", "salesforce_write", ...scenarioScopes],
-      destinations: ["plaid", "salesforce"],
+      scopes: [
+        "plaid_read",
+        "salesforce_write",
+        "salesforce_outcome_read",
+        ...(operator?.role === "admin" ? ["salesforce_schema_read"] : []),
+        ...scenarioScopes,
+        ...(governedDestinations.length ? ["growth_play_activate"] : []),
+      ],
+      destinations: ["plaid", "salesforce", ...governedDestinations],
       sessionId,
       ttlSeconds: SESSION_SECONDS,
     });

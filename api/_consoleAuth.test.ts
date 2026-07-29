@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import test, { afterEach } from "node:test";
-import { authorizeConsoleUser } from "./_consoleAuth.ts";
+import {
+  authenticateCognitoConsoleUser,
+  authorizeConsoleUser,
+} from "./_consoleAuth.ts";
 
 const originalFetch = globalThis.fetch;
 const managed = [
@@ -9,6 +12,7 @@ const managed = [
   "VENTUS_CONSOLE_ALLOWED_EMAILS",
   "VENTUS_CONSOLE_INTERNAL_DOMAINS",
   "VENTUS_CONSOLE_ALLOWED_DOMAINS",
+  "VENTUS_AUTH_PROVIDER",
 ] as const;
 const originalEnvironment = Object.fromEntries(managed.map((name) => [name, process.env[name]]));
 
@@ -78,7 +82,64 @@ test("app metadata can bind an allowed operator to an approved tenant and role",
   assert.equal((await authorizeConsoleUser(request("supabase-token")))?.role, "admin");
 });
 
+test("Cognito identity plus an active Aurora membership grants scoped access", async () => {
+  const principal = await authenticateCognitoConsoleUser("cognito-token", {
+    verifyIdentity: async () => ({
+      subject: "cognito-subject:123",
+      tenantHint: "pilot_bank",
+      issuer: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example",
+    }),
+    resolveMembership: async () => ({
+      email: "owner@pilotbank.com",
+      role: "institution_admin",
+      businessLines: ["consumer"],
+      entitlements: ["consumer_demo", "growth_console", "live_connectors", "unknown"],
+    }),
+  });
+  assert.deepEqual(principal, {
+    userId: "cognito-subject:123",
+    email: "owner@pilotbank.com",
+    tenantId: "pilot_bank",
+    organizationId: "pilot_bank",
+    role: "admin",
+    status: "active",
+    entitlements: ["consumer_demo", "growth_console", "live_connectors"],
+  });
+});
+
+test("Cognito access fails closed without an active membership", async () => {
+  const principal = await authenticateCognitoConsoleUser("cognito-token", {
+    verifyIdentity: async () => ({
+      subject: "cognito-subject:123",
+      tenantHint: "pilot_bank",
+      issuer: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example",
+    }),
+    resolveMembership: async () => null,
+  });
+  assert.equal(principal, null);
+});
+
+test("Cognito bank operators remain operators and unentitled members remain pending", async () => {
+  const principal = await authenticateCognitoConsoleUser("cognito-token", {
+    verifyIdentity: async () => ({
+      subject: "cognito-subject:123",
+      tenantHint: "pilot_bank",
+      issuer: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example",
+    }),
+    resolveMembership: async () => ({
+      email: "banker@pilotbank.com",
+      role: "bank_operator",
+      businessLines: ["consumer"],
+      entitlements: [],
+    }),
+  });
+  assert.equal(principal?.role, "operator");
+  assert.equal(principal?.status, "pending");
+  assert.deepEqual(principal?.entitlements, []);
+});
+
 function configure() {
+  process.env.VENTUS_AUTH_PROVIDER = "supabase";
   process.env.SUPABASE_URL = "https://project.supabase.co";
   process.env.SUPABASE_ANON_KEY = "anon-key";
   process.env.VENTUS_CONSOLE_INTERNAL_DOMAINS = "ventusai.com";

@@ -18,6 +18,7 @@ const managedVariables = [
   "SF_LOGIN_URL",
   "SF_CLIENT_ID",
   "SF_CLIENT_SECRET",
+  "ENABLE_STANDALONE_PILOT_RUNTIME",
   "SUPABASE_URL",
   "SUPABASE_ANON_KEY",
   "VENTUS_CONSOLE_INTERNAL_DOMAINS",
@@ -71,6 +72,7 @@ test("hosted no-login demo path mints a demo-scoped session when explicitly enab
   // /api/plaid-transactions endpoint.
   assert.deepEqual(principal?.scopes.sort(), [
     "plaid_read",
+    "salesforce_outcome_read",
     "salesforce_write",
     "scenario_deposit_retention",
     "scenario_wealth_growth",
@@ -106,6 +108,7 @@ test("demo connector broker mints one short-lived Plaid and Salesforce session",
   const principal = verifyConnectorSession(body.token || "", SESSION_SECRET);
   assert.deepEqual(principal?.scopes.sort(), [
     "plaid_read",
+    "salesforce_outcome_read",
     "salesforce_write",
     "scenario_deposit_retention",
     "scenario_wealth_growth",
@@ -135,6 +138,60 @@ test("connector session carries only the operator's entitled scenarios", async (
   assert.equal(response.status, 200);
   assert.ok(principal?.scopes.includes("scenario_wealth_growth"));
   assert.equal(principal?.scopes.includes("scenario_deposit_retention"), false);
+  assert.equal(principal?.scopes.includes("salesforce_schema_read"), false);
+});
+
+test("connector session grants bounded FSC schema discovery only to administrators", async () => {
+  configure();
+  globalThis.fetch = async () => Response.json({
+    id: "admin_123",
+    email: "admin@ml.com",
+    email_confirmed_at: "2026-07-18T12:00:00Z",
+    app_metadata: {
+      tenant_id: "bofa",
+      console_role: "admin",
+      console_access_status: "active",
+      console_entitlements: ["wealth_demo", "growth_console", "live_connectors"],
+    },
+  });
+
+  const response = await POST(request("https://demo.ventusai.com", "supabase-token"));
+  const body = await response.json() as { token?: string };
+  const principal = verifyConnectorSession(body.token || "", SESSION_SECRET);
+  assert.equal(response.status, 200);
+  assert.ok(principal?.scopes.includes("salesforce_schema_read"));
+});
+
+test("governed activation is operator-only and isolated to entitled business lines", async () => {
+  configure();
+  process.env.ENABLE_STANDALONE_PILOT_RUNTIME = "true";
+  globalThis.fetch = async () => Response.json({
+    id: "advisor_456",
+    email: "advisor@ml.com",
+    email_confirmed_at: "2026-07-18T12:00:00Z",
+    app_metadata: {
+      tenant_id: "bofa",
+      console_access_status: "active",
+      console_entitlements: ["wealth_demo", "growth_console", "live_connectors"],
+    },
+  });
+
+  const response = await POST(request("https://demo.ventusai.com", "supabase-token"));
+  const body = await response.json() as { token?: string };
+  const principal = verifyConnectorSession(body.token || "", SESSION_SECRET);
+  assert.equal(response.status, 200);
+  assert.ok(principal?.scopes.includes("growth_play_activate"));
+  assert.equal(principal?.scopes.includes("growth_play_run"), false);
+  assert.ok(principal?.destinations.includes("wealth-management"));
+  assert.equal(principal?.destinations.includes("consumer-banking"), false);
+
+  process.env.VENTUS_ALLOW_ANON_DEMO_SESSION = "true";
+  const anonymousResponse = await POST(request("https://demo.ventusai.com", ""));
+  const anonymousBody = await anonymousResponse.json() as { token?: string };
+  const anonymous = verifyConnectorSession(anonymousBody.token || "", SESSION_SECRET);
+  assert.equal(anonymous?.scopes.includes("growth_play_activate"), false);
+  assert.equal(anonymous?.destinations.includes("wealth-management"), false);
+  assert.equal(anonymous?.destinations.includes("consumer-banking"), false);
 });
 
 function configure() {

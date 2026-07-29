@@ -73,6 +73,7 @@ Updated: 3h ago
 - [Product Cards Engine](mem://technical/edge-functions/product-card-generation) — Generic "Our Bank" product naming (no real brands)
 - [Risk Detection](mem://technical/edge-functions/risk-detection-logic) — Categories for Fraud/AML/Vice analysis
 - [Landing Page Structure](mem://site/landing-page-structure) — Section order and CTA standardization
+- [Company Description](mem://company/description-positioning) — Canonical boilerplate, 3 signal families, data sources, 4 outcomes
 - [Phone Mockup Rewards](mem://features/executive-demo/phone-mockup-rewards) — Auto-rotating collection cards design
 - [Integration Partners](mem://features/integration/partners) — List of 6 authorized partner logos to display
 - [Integration Section](mem://site/integration-section) — 3-step vertical scroll UI on homepage

@@ -16,10 +16,10 @@ treatment is assigned before decisioning, delivery is idempotent, lift is measur
 
 ## Activate the live legs (in this order)
 
-### 1. Durable ledger (Postgres)
+### 1. Durable ledger and access store (Aurora PostgreSQL)
 
-Provision a non-prod Postgres — Supabase free tier, local Docker, or a non-prod RDS. Apply
-the schema first as its owner:
+Provision non-production Aurora PostgreSQL. Local Docker PostgreSQL is acceptable for
+offline development, but it is not pilot evidence. Apply the schema first as its owner:
 
 ```bash
 DATABASE_URL=postgres://owner:pw@host:5432/db npm run db:migrate
@@ -32,7 +32,8 @@ CREATE ROLE ventus_runtime LOGIN PASSWORD '<managed secret>' NOSUPERUSER NOBYPAS
 GRANT USAGE ON SCHEMA public TO ventus_runtime;
 GRANT SELECT, INSERT ON decision_ledger_events, experiment_assignments, outcome_events, connected_exposure_events TO ventus_runtime;
 GRANT SELECT, INSERT, UPDATE ON connector_delivery_receipts TO ventus_runtime;
-GRANT SELECT ON growth_play_protocols, growth_play_protocol_approval_events TO ventus_runtime;
+GRANT SELECT ON growth_play_protocols, growth_play_protocol_approval_events,
+  institutions, institution_identity_providers, institution_memberships TO ventus_runtime;
 ```
 
 Use a separate configuration role to register and approve protocols. The activation runtime must
@@ -52,10 +53,6 @@ DATABASE_URL=postgres://runtime_role:pw@host:5432/db npm run db:verify
 `db:verify` asserts the runtime role cannot bypass RLS *before it writes anything*, appends
 a real signal→decision→activation→outcome lineage through the same repository the app uses,
 reads it back inside tenant context, and verifies the hash chain from the database rows.
-
-> **Supabase note:** the default `service_role` key is `BYPASSRLS` and will fail the safety
-> check by design. Create a dedicated `NOSUPERUSER NOBYPASSRLS` role for the app and point
-> `DATABASE_URL` at it. Then run `backend/sql/verify-tenant-isolation.sql` as that role.
 
 Once `DATABASE_URL` is set, `pilot:e2e` first rejects a `SUPERUSER` or `BYPASSRLS` role, then uses
 the real repositories for the hash ledger, immutable assignments, outcomes, and at-most-once
