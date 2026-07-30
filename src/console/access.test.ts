@@ -4,6 +4,7 @@ import {
   canAccessDestination,
   defaultPathForAccess,
   destinationForPath,
+  entryPathForAccess,
 } from "./access";
 import type { ConsoleAccessProfile } from "./state";
 
@@ -57,4 +58,24 @@ test("console routes resolve to their authorization destinations", () => {
   assert.equal(destinationForPath("/app/moments"), "moments");
   assert.equal(destinationForPath("/app/connections"), "connections");
   assert.equal(destinationForPath("/app/demo"), null);
+});
+
+test("Growth Console access takes priority over optional leadership demos", () => {
+  const admin = access("institution_admin");
+  admin.entitlements = ["growth_console", "consumer_demo", "wealth_demo"];
+  assert.equal(entryPathForAccess(admin), "/app/connections");
+
+  const operator = access("bank_operator");
+  operator.entitlements = ["growth_console", "consumer_demo"];
+  assert.equal(entryPathForAccess(operator), "/app/today");
+});
+
+test("demo-only and unentitled users enter only their permitted routes", () => {
+  const demoOnly = access("executive_viewer");
+  demoOnly.entitlements = ["wealth_demo"];
+  assert.equal(entryPathForAccess(demoOnly), "/app/demo");
+
+  const pending = access("executive_viewer");
+  pending.entitlements = [];
+  assert.equal(entryPathForAccess(pending), "/app/access-pending");
 });

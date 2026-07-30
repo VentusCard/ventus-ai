@@ -37,6 +37,14 @@ export function defaultPathForAccess(access: ConsoleAccessProfile): string {
   return DESTINATION_PATHS.today;
 }
 
+export function entryPathForAccess(access: ConsoleAccessProfile): string {
+  if (access.entitlements.includes("growth_console")) return defaultPathForAccess(access);
+  if (access.entitlements.some((entitlement) => entitlement === "consumer_demo" || entitlement === "wealth_demo")) {
+    return "/app/demo";
+  }
+  return "/app/access-pending";
+}
+
 export function destinationForPath(pathname: string): ConsoleDestination | null {
   const entry = Object.entries(DESTINATION_PATHS).find(([, path]) => pathname === path);
   return entry ? entry[0] as ConsoleDestination : null;
