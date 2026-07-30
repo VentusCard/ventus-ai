@@ -18,7 +18,12 @@ import {
   type ConsoleAuthSession,
   type ConsoleAuthUser,
 } from "@/console/authClient";
-import { consoleAccessUrl, consoleApiUrl, consoleDecisionRunUrl } from "@/console/api";
+import {
+  connectorApiUrl,
+  consoleAccessUrl,
+  consoleApiUrl,
+  consoleDecisionRunUrl,
+} from "@/console/api";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
   PLAID_FIXTURE_PRIMACY,
@@ -462,7 +467,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
     setConnectError(null);
     try {
       if (!session?.access_token) throw new Error("Sign in again to start a connector session.");
-      const response = await fetch(consoleApiUrl("/api/presenter-session"), {
+      const response = await fetch(connectorApiUrl("session"), {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -503,7 +508,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
 
       if (connectorSession?.token && connectorSession.connectors.plaid) {
         try {
-          const response = await fetch(consoleApiUrl("/api/plaid-transactions"), {
+          const response = await fetch(connectorApiUrl("plaid-transactions"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -762,7 +767,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const response = await fetch(consoleApiUrl("/api/salesforce-deliver"), {
+        const response = await fetch(connectorApiUrl("salesforce-task"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
