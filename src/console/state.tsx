@@ -767,7 +767,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const response = await fetch(connectorApiUrl("salesforce-task"), {
+        const response = await fetch(connectorApiUrl("salesforce-deliver"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -921,7 +921,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       setSyncingOutcome(momentId);
       setOutcomeSyncMessage(null);
       try {
-        const response = await fetch(consoleApiUrl("/api/salesforce-outcomes"), {
+        const response = await fetch(connectorApiUrl("salesforce-outcomes"), {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

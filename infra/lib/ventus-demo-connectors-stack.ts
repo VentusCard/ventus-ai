@@ -61,7 +61,7 @@ export class VentusDemoConnectorsStack extends cdk.Stack {
 
     const connectorFunction = new lambda.Function(this, 'VentusDemoConnectorFunction', {
       functionName: 'ventus-demo-connectors',
-      description: 'Sandbox-only Plaid pull and Salesforce Task delivery for the protected executive demo.',
+      description: 'Sandbox-only Plaid and Salesforce FSC workflow connector for the protected executive demo.',
       runtime: lambda.Runtime.NODEJS_22_X,
       architecture: lambda.Architecture.ARM_64,
       handler: 'index.handler',
@@ -110,6 +110,9 @@ export class VentusDemoConnectorsStack extends cdk.Stack {
     });
     demo.addResource('plaid-transactions').addMethod('POST', integration);
     demo.addResource('salesforce-task').addMethod('POST', integration);
+    demo.addResource('salesforce-onboarding').addMethod('POST', integration);
+    demo.addResource('salesforce-deliver').addMethod('POST', integration);
+    demo.addResource('salesforce-outcomes').addMethod('POST', integration);
 
     new cloudwatch.Alarm(this, 'VentusDemoConnectorErrorsAlarm', {
       alarmName: 'ventus-demo-connectors-errors',

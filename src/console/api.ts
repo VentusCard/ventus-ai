@@ -27,11 +27,19 @@ export function consoleDecisionRunUrl(): string {
 }
 
 export function connectorApiUrl(
-  route: "session" | "plaid-transactions" | "salesforce-task",
+  route:
+    | "session"
+    | "plaid-transactions"
+    | "salesforce-task"
+    | "salesforce-onboarding"
+    | "salesforce-deliver"
+    | "salesforce-outcomes",
 ): string {
   const baseUrl = configuredConnectorBaseUrl || devConnectorBaseUrl;
   if (baseUrl) return `${baseUrl}/${route}`;
   if (route === "session") return "/api/presenter-session";
   if (route === "plaid-transactions") return "/api/plaid-transactions";
+  if (route === "salesforce-onboarding") return "/api/salesforce-onboarding";
+  if (route === "salesforce-outcomes") return "/api/salesforce-outcomes";
   return "/api/salesforce-deliver";
 }

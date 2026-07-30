@@ -11,6 +11,8 @@ on:
       - "backend/scripts/package-functions.mjs"
       - "backend/shared/demo-connectors.mjs"
       - "backend/shared/demo-connectors.test.mjs"
+      - "backend/shared/salesforce-fsc.mjs"
+      - "backend/shared/salesforce-fsc.test.mjs"
       - "backend/shared/decision-ledger.mjs"
       - "backend/shared/evidence-store-migrator.test.mjs"
       - "backend/sql/**"

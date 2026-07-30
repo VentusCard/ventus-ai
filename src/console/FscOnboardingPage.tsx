@@ -10,7 +10,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useAuth, useConsole } from "@/console/state";
-import { consoleApiUrl } from "@/console/api";
+import { connectorApiUrl } from "@/console/api";
 import {
   createDecisionPackage,
   respondToDecision,
@@ -214,7 +214,7 @@ export function FscOnboardingPage() {
         PROOF_ACTION,
         "Administrator approved a customer-linked onboarding proof.",
       );
-      const response = await fetch(consoleApiUrl("/api/salesforce-deliver"), {
+      const response = await fetch(connectorApiUrl("salesforce-deliver"), {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -477,7 +477,7 @@ async function onboardingRequest<T>(
   body: Record<string, unknown>,
 ): Promise<T> {
   if (!token) throw new Error("Start a scoped connector session first.");
-  const response = await fetch(consoleApiUrl("/api/salesforce-onboarding"), {
+  const response = await fetch(connectorApiUrl("salesforce-onboarding"), {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

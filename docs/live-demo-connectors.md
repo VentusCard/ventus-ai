@@ -1,6 +1,9 @@
 # AWS live demo connectors
 
-The executive demo can pull a Plaid sandbox custom user and create a Salesforce sandbox Task without sending either partner credential to the browser. This path is for controlled demonstrations only; it must not receive production or customer data.
+The protected demo can pull a Plaid sandbox custom user and deliver a governed
+Salesforce FSC workflow without sending either partner credential to the browser.
+This path is for controlled demonstrations only; it must not receive production
+or customer data.
 
 ## Architecture
 
@@ -12,7 +15,12 @@ Protected Amplify demo branch
   -> Plaid sandbox and Salesforce sandbox/Developer Edition
 ```
 
-The browser first requests a 15-minute connector session. The session is limited to Plaid reads and Salesforce Task writes. The public demo remains usable with clearly labeled presentation data when the AWS connector URL is absent or the connector stack is disabled.
+The browser first requests a 15-minute connector session tied to the signed-in
+Cognito subject and demo tenant. The session is limited to Plaid reads and
+bounded Salesforce schema, delivery, and outcome operations. It cannot execute
+arbitrary SOQL or access secrets. The public demo remains usable with clearly
+labeled presentation data when the AWS connector URL is absent or the connector
+stack is disabled.
 
 ## Deploy the isolated stack
 
@@ -44,11 +52,18 @@ In AWS Secrets Manager, open `ventus/staging/demo-connectors` and replace the pl
   "plaidSecret": "<Plaid sandbox secret>",
   "salesforceLoginUrl": "https://<my-domain>.my.salesforce.com",
   "salesforceClientId": "<Salesforce connected-app client id>",
-  "salesforceClientSecret": "<Salesforce connected-app client secret>"
+  "salesforceClientSecret": "<Salesforce connected-app client secret>",
+  "salesforceDemoAccountId": "<optional sandbox Account id>",
+  "salesforceReferralRecordTypeId": "<optional institution Referral record type id>"
 }
 ```
 
 Do not place these values in GitHub, Amplify environment variables, browser storage, or Vite variables.
+
+The final two keys are optional. Without them, the connector still creates a
+structured Decision Receipt and Task when the browser supplies an explicitly
+verified Account ID. A Referral is attempted only when both an Account and a
+bank-approved Referral record type are configured.
 
 ## Configure Amplify
 
@@ -69,19 +84,28 @@ The session endpoint is protected by the staging Growth Console Cognito user poo
 
 ## Smoke test
 
-1. Open `/demo/enterprise` on the protected Amplify deployment.
-2. Select **Connect live demo** and confirm Plaid and Salesforce show **Ready**.
-3. Run either objective and confirm the source receipt says `Plaid sandbox`.
-4. Select **Create sandbox Task** and open the returned Salesforce record.
-5. Confirm the Task contains the recommended action, business outcome, supporting signals, policy status, routing, confidence, and audit references.
-6. Confirm the CloudWatch error and throttle alarms remain clear.
+1. Sign in to `/app` on the protected Amplify deployment.
+2. Start a live connector session and confirm Plaid and Salesforce show **Ready**.
+3. In **FSC onboarding**, discover the bounded schema and verify one sandbox Account.
+4. Create the onboarding proof. Confirm Salesforce receives an Account-linked
+   Task and, when the metadata package is installed, a `Ventus_Decision__c`
+   Decision Receipt.
+5. Run a Consumer Banking or Wealth Growth Play and confirm the source receipt
+   says `Plaid sandbox`.
+6. Accept the prepared action and open the linked Salesforce receipt.
+7. Update a sandbox outcome field and use **Sync outcome** to prove the bounded
+   return path. It remains an observed event, not a causal-lift claim.
+8. Confirm the CloudWatch error and throttle alarms remain clear.
 
 ## Guardrails and rollback
 
 - The CDK stack accepts only HTTPS origins configured through `demoAllowedOrigins`.
 - API Gateway throttles the sandbox surface and Lambda concurrency is capped at two; the function has no access to production banking data.
 - Credentials are read from Secrets Manager and cached in the Lambda process for 60 seconds.
-- The connector session is short-lived and scope-limited. It is not a substitute for employee authentication.
+- The connector session is short-lived, identity-bound, and scope-limited. It is
+  not a substitute for employee authentication.
+- Salesforce receives a bounded mirror. Ventus remains the system of record for
+  decision evidence, governance, experimental assignment, and measured lift.
 - A protected Amplify branch is required because CORS and an unlisted API URL do not authenticate a user.
 - To stop live use immediately, set `ENABLE_LIVE_CONNECTORS=false` on the Lambda or remove `VITE_DEMO_CONNECTOR_API_BASE_URL` from Amplify and redeploy. The UI then falls back to presentation mode.
 
