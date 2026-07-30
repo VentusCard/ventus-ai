@@ -48,3 +48,24 @@ institution, role, set of business lines, explicitly assigned work queues, and
 set of Console entitlements. The public Console API cannot create or modify these
 records. An empty `queueScopes` array is valid for roles without a customer-work
 queue, such as an executive viewer.
+
+The private request carries its grant under `access` so the confirmation gate and
+the authorization payload are distinct:
+
+```json
+{
+  "mode": "provision-console-access",
+  "confirm": "PROVISION_VENTUS_STAGING_ACCESS",
+  "access": {
+    "tenantId": "example-bank",
+    "displayName": "Example Bank",
+    "issuer": "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example",
+    "identitySubject": "verified-cognito-subject",
+    "email": "operator@example-bank.com",
+    "role": "bank_operator",
+    "businessLines": ["consumer-banking"],
+    "queueScopes": ["consumer-review"],
+    "entitlements": ["growth_console", "consumer_demo"]
+  }
+}
+```
