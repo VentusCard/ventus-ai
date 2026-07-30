@@ -32,6 +32,29 @@ export function consoleDecisionRunUrl(): string {
     : "/api/decision-run";
 }
 
+export function consoleTodayUrl(): string | null {
+  const baseUrl = configuredBaseUrl || devConsoleBaseUrl;
+  return baseUrl ? `${baseUrl}/today` : null;
+}
+
+export function consoleMomentsUrl(decisionId?: string): string | null {
+  const baseUrl = configuredBaseUrl || devConsoleBaseUrl;
+  if (!baseUrl) return null;
+  return decisionId
+    ? `${baseUrl}/moments/${encodeURIComponent(decisionId)}`
+    : `${baseUrl}/moments`;
+}
+
+export function consoleMomentResponseUrl(decisionId: string): string | null {
+  const momentUrl = consoleMomentsUrl(decisionId);
+  return momentUrl ? `${momentUrl}/responses` : null;
+}
+
+export function consoleMomentDeliveryUrl(decisionId: string): string | null {
+  const momentUrl = consoleMomentsUrl(decisionId);
+  return momentUrl ? `${momentUrl}/deliveries` : null;
+}
+
 export function connectorApiUrl(
   route:
     | "session"

@@ -21,8 +21,10 @@ import {
 import {
   connectorApiUrl,
   consoleAccessUrl,
-  consoleApiUrl,
   consoleDecisionRunUrl,
+  consoleMomentDeliveryUrl,
+  consoleMomentResponseUrl,
+  consoleMomentsUrl,
 } from "@/console/api";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
@@ -34,7 +36,6 @@ import {
 } from "@/lib/plaid";
 import type { DecisionRunResult } from "@/lib/decision-contract";
 import type {
-  GovernedActivationResult,
   GovernedPilotResult,
   GovernedRuntimeEnvelope,
 } from "@/lib/governed-runtime";
@@ -48,7 +49,6 @@ import {
 import {
   applyOutcomeObservation,
   createDecisionPackage,
-  respondToDecision,
   type DecisionAction,
   type DecisionOutcomeObservation,
   type DecisionPackage,
@@ -214,7 +214,7 @@ export type ConsoleMoment = {
   runtime: DecisionRunResult["runtime"];
   ledgerReceipt?: DecisionRunResult["ledgerReceipt"];
   governedReview?: GovernedPilotResult;
-  status: "queued" | "activated" | "deferred" | "declined" | "dismissed";
+  status: "queued" | "approved" | "delivery_reserved" | "delivery_failed" | "activated" | "deferred" | "declined" | "dismissed";
   decisionPackage?: DecisionPackage;
   receipt?: {
     id: string;
@@ -247,11 +247,13 @@ type SalesforceOutcomeSync = {
   causalClaimAllowed: false;
 };
 
-const STORAGE_PREFIX = "ventus_console_";
+type DurableMomentMutation = {
+  moment: Omit<ConsoleMoment, "transactions">;
+  receipt?: { deliveryId?: string; status?: string };
+  error?: string;
+};
 
-function scopedKey(name: string, tenantId: string, userId: string): string {
-  return `${STORAGE_PREFIX}${name}:${tenantId}:${userId}`;
-}
+const STORAGE_PREFIX = "ventus_console_";
 
 function clearConsoleStorage(): void {
   if (typeof window === "undefined") return;
@@ -263,22 +265,11 @@ function clearConsoleStorage(): void {
   }
 }
 
-function restore<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = window.sessionStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function persist(key: string, value: unknown): void {
-  try {
-    window.sessionStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Session storage is a convenience cache; the console works without it.
-  }
+function mutationKey(prefix: string): string {
+  const random = typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID().replaceAll("-", "")
+    : `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+  return `${prefix}_${random}`;
 }
 
 export const SCENARIO_META: Record<ScenarioId, {
@@ -425,9 +416,9 @@ type ConsoleState = {
   syncingOutcome: string | null;
   outcomeSyncMessage: string | null;
   syncOutcome: (momentId: string) => Promise<void>;
-  defer: (momentId: string, reason?: string) => void;
-  decline: (momentId: string, reason?: string) => void;
-  dismiss: (momentId: string) => void;
+  defer: (momentId: string, reason?: string) => Promise<void>;
+  decline: (momentId: string, reason?: string) => Promise<void>;
+  dismiss: (momentId: string) => Promise<void>;
   ledger: LedgerEvent[];
   chainVerified: boolean;
   scenarioMeta: typeof SCENARIO_META;
@@ -440,36 +431,40 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
   const authTenant = useMemo(() => TENANTS[access?.tenantId ?? ""] ?? resolveTenantFromEmail(user?.email), [access?.tenantId, user?.email]);
   const tenant = useMemo(() => resolveTenant(authTenant.id === "ventus" ? user?.email : undefined), [authTenant.id, user?.email]);
   const userId = user?.id ?? "anonymous";
-  const sessionKey = scopedKey("connector_session", authTenant.id, userId);
-  const momentsKey = scopedKey("moments", authTenant.id, userId);
-  const ledgerKey = scopedKey("ledger", authTenant.id, userId);
 
-  const [connectorSession, setConnectorSession] = useState<ConnectorSession | null>(() => {
-    const stored = restore<ConnectorSession | null>(sessionKey, null);
-    return stored
-      && stored.expiresAt * 1000 > Date.now()
-      && stored.tenantId === authTenant.id
-      && stored.subject === userId
-      ? stored
-      : null;
-  });
+  const [connectorSession, setConnectorSession] = useState<ConnectorSession | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
-  const [moments, setMoments] = useState<ConsoleMoment[]>(() => restore(momentsKey, []));
+  const [moments, setMoments] = useState<ConsoleMoment[]>([]);
   const [ingesting, setIngesting] = useState(false);
   const [ingestError, setIngestError] = useState<string | null>(null);
   const [activating, setActivating] = useState<string | null>(null);
   const [activateError, setActivateError] = useState<string | null>(null);
   const [syncingOutcome, setSyncingOutcome] = useState<string | null>(null);
   const [outcomeSyncMessage, setOutcomeSyncMessage] = useState<string | null>(null);
-  const [ledger, setLedger] = useState<LedgerEvent[]>(() => restore(ledgerKey, []));
+  const [ledger, setLedger] = useState<LedgerEvent[]>([]);
 
-  useEffect(() => persist(momentsKey, moments), [moments, momentsKey]);
-  useEffect(() => persist(ledgerKey, ledger), [ledger, ledgerKey]);
   useEffect(() => {
-    if (connectorSession) persist(sessionKey, connectorSession);
-    else window.sessionStorage.removeItem(sessionKey);
-  }, [connectorSession, sessionKey]);
+    if (!session?.access_token) {
+      setMoments([]);
+      return;
+    }
+    const url = consoleMomentsUrl();
+    if (!url) return;
+    let active = true;
+    fetch(url, { headers: { Authorization: `Bearer ${session.access_token}` } })
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({})) as { moments?: ConsoleMoment[] };
+        if (!response.ok) throw new Error("moment projection unavailable");
+        if (active) setMoments(data.moments ?? []);
+      })
+      .catch(() => {
+        // A local preview can still exercise the controlled fixture demo. Durable
+        // product state is never recovered from browser storage.
+        if (active) setMoments([]);
+      });
+    return () => { active = false; };
+  }, [authTenant.id, session?.access_token]);
 
   const record = useCallback((drafts: LedgerDraft[]) => {
     setLedger((prev) => appendEvents(prev, drafts));
@@ -600,7 +595,10 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
               source: { mode: sourceMode, name: sourceName },
             }),
           });
-          const data = (await response.json().catch(() => ({}))) as DecisionRunResult & { error?: string };
+          const data = (await response.json().catch(() => ({}))) as DecisionRunResult & {
+            moment?: Omit<ConsoleMoment, "transactions">;
+            error?: string;
+          };
           if (!response.ok || !data.decisionId) {
             throw new Error(data.error ?? `decision run failed (${response.status})`);
           }
@@ -643,7 +641,16 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         status: "queued",
       };
       moment.decisionPackage = decisionPackageForMoment(moment, authTenant);
-      setMoments((prev) => [moment, ...prev]);
+      const durableMoment = (decision as DecisionRunResult & { moment?: Omit<ConsoleMoment, "transactions"> }).moment;
+      if (durableMoment) {
+        setMoments((prev) => [
+          { ...durableMoment, transactions: [] },
+          ...prev.filter((item) => item.decisionId !== durableMoment.decisionId),
+        ]);
+      } else {
+        // Local fixture fallback is in-memory only. It is not restored after a refresh.
+        setMoments((prev) => [moment, ...prev]);
+      }
       record([
         {
           eventKey: `${id}-signal`,
@@ -670,159 +677,115 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
   const activate = useCallback(
     async (momentId: string, actionId?: string) => {
       const moment = moments.find((item) => item.id === momentId);
-      if (!moment || !connectorSession?.token) return;
+      if (!moment) return;
+      if (!session?.access_token) {
+        setActivateError("Sign in again to respond to this Moment.");
+        return;
+      }
       const meta = SCENARIO_META[moment.scenario];
-      const draftPackage = decisionPackageForMoment(moment, authTenant, actionId);
-      const selectedAction = draftPackage.recommendation.selectedAction;
-      const responseStatus = selectedAction.id === meta.actions[0].id ? "accepted" : "modified";
-      const decisionPackage = respondToDecision(
-        draftPackage,
-        responseStatus,
-        user?.email ?? "unknown",
-        selectedAction,
-      );
       setActivating(momentId);
       setActivateError(null);
       try {
-        if (moment.governedReview) {
-          const preparedDecision = moment.governedReview.decision;
-          if (!preparedDecision || preparedDecision.abstain) {
-            throw new Error("This prepared decision cannot be activated.");
-          }
-          if (selectedAction.id.split("-").join("_") !== preparedDecision.actionId) {
-            throw new Error("This pilot can route only the approved Growth Play action. Defer or decline to request a protocol change.");
-          }
-          const governedResponse = await fetch(consoleApiUrl("/api/standalone-pilot-activate"), {
+        let current = moment;
+        if (current.status === "queued") {
+          const responseUrl = consoleMomentResponseUrl(current.decisionId);
+          if (!responseUrl) throw new Error("The durable Console API is not configured for this environment.");
+          const selectedAction = current.decisionPackage?.recommendation.selectedAction
+            ?? decisionPackageForMoment(current, authTenant, actionId).recommendation.selectedAction;
+          const requestedAction = actionId ?? selectedAction.id;
+          const responseStatus = requestedAction === meta.actions[0].id ? "accepted" : "modified";
+          const response = await fetch(responseUrl, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${connectorSession.token}`,
+              Authorization: `Bearer ${session.access_token}`,
+              "Idempotency-Key": mutationKey("response"),
             },
             body: JSON.stringify({
-              decisionId: moment.governedReview.decisionId,
-              businessLine: moment.scenario === "deposit-retention"
-                ? "consumer-banking"
-                : "wealth-management",
-              decision: preparedDecision,
+              expectedState: "queued",
+              clientRequestedAt: new Date().toISOString(),
+              response: { status: responseStatus, actionId: requestedAction },
             }),
           });
-          const governed = (await governedResponse.json().catch(() => ({}))) as GovernedActivationResult & {
-            error?: string;
-          };
-          if (!governedResponse.ok || governed.activation !== "delivered") {
-            if (governedResponse.status === 401 || governedResponse.status === 403) setConnectorSession(null);
-            throw new Error(governed.error ?? `Governed activation failed (${governedResponse.status})`);
-          }
-          const durableReceipt = governed.receipt;
-          const receiptId = durableReceipt?.external_receipt_id
-            ?? durableReceipt?.externalReceiptId
-            ?? durableReceipt?.delivery_id
-            ?? durableReceipt?.deliveryId;
-          if (!receiptId) throw new Error("Governed activation did not return a delivery receipt.");
-          const receiptUrl = durableReceipt?.external_receipt_url
-            ?? durableReceipt?.externalReceiptUrl
-            ?? undefined;
-
-          setMoments((prev) =>
-            prev.map((item) =>
-              item.id === momentId
-                ? {
-                    ...item,
-                    status: "activated",
-                    decisionPackage: {
-                      ...decisionPackage,
-                      workflow: {
-                        connector: preparedDecision.connector ?? "employee-workflow",
-                        status: "delivered",
-                        records: {},
-                      },
-                      outcome: {
-                        ...decisionPackage.outcome,
-                        status: "measuring",
-                      },
-                    },
-                    receipt: {
-                      id: receiptId,
-                      url: receiptUrl,
-                      object: "Delivery receipt",
-                      subject: meta.subject,
-                    },
-                  }
-                : item,
-            ),
-          );
-          record([
-            {
-              eventKey: `${momentId}-decision`,
-              kind: "decision",
-              title: `${meta.play} accepted`,
-              detail: `${selectedAction.title} · exact prepared decision verified`,
-              ref: moment.governedReview.decisionId,
-              status: "confirmed",
-            },
-            {
-              eventKey: `${momentId}-activation`,
-              kind: "activation",
-              title: "Governed workflow delivered",
-              detail: `Durable receipt ${receiptId} · at-most-once delivery`,
-              ref: receiptId,
-              status: "confirmed",
-            },
-            {
-              eventKey: `${momentId}-outcome`,
-              kind: "outcome",
-              title: "Outcome window opened",
-              detail: "Measured against the pre-decision holdout when the bank outcome feed posts",
-              ref: momentId,
-              status: "pending",
-            },
-          ]);
-          return;
+          const data = (await response.json().catch(() => ({}))) as DurableMomentMutation;
+          if (!response.ok || !data.moment) throw new Error(data.error ?? `Response could not be recorded (${response.status})`);
+          current = { ...data.moment, transactions: [] };
+          setMoments((prev) => prev.map((item) => item.id === momentId ? current : item));
         }
-
-        throw new Error(
-          "This moment is not backed by a server-prepared governed decision and cannot be delivered.",
-        );
+        const deliveryUrl = consoleMomentDeliveryUrl(current.decisionId);
+        if (!deliveryUrl) throw new Error("The durable Console API is not configured for this environment.");
+        const delivery = await fetch(deliveryUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            "Idempotency-Key": mutationKey("delivery"),
+          },
+          body: JSON.stringify({ expectedState: "approved", clientRequestedAt: new Date().toISOString() }),
+        });
+        const data = (await delivery.json().catch(() => ({}))) as DurableMomentMutation;
+        if (!delivery.ok || !data.moment) throw new Error(data.error ?? `Delivery could not be reserved (${delivery.status})`);
+        const nextMoment = { ...data.moment, transactions: [] };
+        setMoments((prev) => prev.map((item) => item.id === momentId ? nextMoment : item));
+        record([
+          {
+            eventKey: `${momentId}-response`,
+            kind: "decision",
+            title: `${meta.play} response recorded`,
+            detail: "Server-authoritative response receipt created",
+            ref: current.decisionId,
+            status: "confirmed",
+          },
+          {
+            eventKey: `${momentId}-reservation`,
+            kind: "activation",
+            title: "Workflow delivery reserved",
+            detail: "Idempotent connector reservation awaits reconciliation",
+            ref: data.receipt?.deliveryId,
+            status: "pending",
+          },
+        ]);
       } catch (error) {
         setActivateError(error instanceof Error ? error.message : "Activation failed");
       } finally {
         setActivating(null);
       }
     },
-    [moments, connectorSession, authTenant, user?.email, record],
+    [moments, session?.access_token, authTenant, record],
   );
 
   const respondWithoutDelivery = useCallback(
-    (momentId: string, status: "deferred" | "declined", reason?: string) => {
-      setMoments((prev) =>
-        prev.map((item) => {
-          if (item.id !== momentId) return item;
-          const currentPackage = item.decisionPackage ?? decisionPackageForMoment(item, authTenant);
-          return {
-            ...item,
-            status,
-            decisionPackage: respondToDecision(
-              currentPackage,
-              status,
-              user?.email ?? "unknown",
-              currentPackage.recommendation.selectedAction,
-              reason,
-            ),
-          };
-        }),
-      );
-      record([
-        {
-          eventKey: `${momentId}-${status}`,
-          kind: "decision",
-          title: `Moment ${status} by operator`,
-          detail: `${reason || "No reason supplied"} · feedback returned to play`,
-          ref: momentId,
-          status: "confirmed",
-        },
-      ]);
+    async (momentId: string, status: "deferred" | "declined", reason?: string) => {
+      const moment = moments.find((item) => item.id === momentId);
+      const responseUrl = moment ? consoleMomentResponseUrl(moment.decisionId) : null;
+      if (!moment || !responseUrl || !session?.access_token) {
+        setActivateError("Sign in again to record this response.");
+        return;
+      }
+      try {
+        const response = await fetch(responseUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            "Idempotency-Key": mutationKey(status),
+          },
+          body: JSON.stringify({
+            expectedState: "queued",
+            clientRequestedAt: new Date().toISOString(),
+            response: { status, reason },
+          }),
+        });
+        const data = (await response.json().catch(() => ({}))) as DurableMomentMutation;
+        if (!response.ok || !data.moment) throw new Error(data.error ?? `Response could not be recorded (${response.status})`);
+        const nextMoment = { ...data.moment, transactions: [] };
+        setMoments((prev) => prev.map((item) => item.id === momentId ? nextMoment : item));
+        record([{ eventKey: `${momentId}-${status}`, kind: "decision", title: `Moment ${status}`, detail: "Server-authoritative response receipt created", ref: moment.decisionId, status: "confirmed" }]);
+      } catch (error) {
+        setActivateError(error instanceof Error ? error.message : "Response could not be recorded");
+      }
     },
-    [authTenant, record, user?.email],
+    [moments, record, session?.access_token],
   );
 
   const syncOutcome = useCallback(

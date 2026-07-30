@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS decision_ledger_events (
   idempotency_key text NOT NULL,
   event_type text NOT NULL CHECK (event_type IN (
     'signal', 'enrich', 'score', 'gate', 'decision', 'policy',
-    'activation', 'outcome', 'counterfactual', 'skill'
+    'activation', 'outcome', 'counterfactual', 'skill', 'response'
   )),
   household_token text,
   growth_play_id text,

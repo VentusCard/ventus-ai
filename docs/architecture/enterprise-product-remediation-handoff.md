@@ -1,7 +1,7 @@
 # Enterprise Product Remediation Handoff
 
-Status: Sol architecture pass complete; Terra implementation and Luna
-verification remain.
+Status: Sol architecture pass and the first Terra durable-journey slice are
+complete. The membership-aware product connector and Luna verification remain.
 
 Authority: `docs/architecture/enterprise-product-blueprint.md`
 
@@ -39,6 +39,15 @@ Authority: `docs/architecture/enterprise-product-blueprint.md`
   delivery when no governed server decision exists.
 - Negative tests cover executive misuse, cross-business access, role
   preservation, and generic Salesforce bypass.
+- Today and Moments are now server-loaded projections. A browser can submit a
+  bounded employee response, but it cannot replace a Decision Package or mark
+  a downstream delivery as complete.
+- Responses are append-only ledger events. Delivery reservations are
+  server-derived from the approved decision and action, so retries and
+  double-clicks cannot create a second delivery.
+- The Console API and CDK surface now include `GET /today`, `GET /moments`,
+  `GET /moments/{decision_id}`, `POST /responses`, and `POST /deliveries`.
+  The `enterprise-console-journey.sql` migration is part of `db:migrate`.
 
 ## Terra Scope
 
@@ -66,6 +75,10 @@ Do not infer product permissions from email domains or generic Cognito groups.
 
 ### P0: Durable employee journey
 
+Completed in the first Terra slice. The remaining delivery execution work is
+intentionally separated below: the Console records a reservation only until a
+membership-aware connector completes it with an external receipt.
+
 Implement the minimum server contracts from Blueprint Section 13:
 
 1. `GET /today`
@@ -86,6 +99,11 @@ Raw transaction records must not be stored in browser storage.
 Connect the delivery endpoint to the existing reservation and connector
 delivery repositories. It must load the server-side Decision Package and
 response by ID; the browser may not submit a replacement decision payload.
+
+The reservation half is now complete. Next, implement the authenticated
+connector worker/session that owns the external Salesforce call and records a
+terminal `delivered` or `failed` receipt. Do not use the presenter connector
+for this work.
 
 Keep FSC schema discovery and account verification admin-only. Move the current
 customer-linked onboarding write proof behind a dedicated server-prepared proof

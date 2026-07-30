@@ -1,6 +1,8 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import pg from 'pg';
 import { createConsoleApiHandler } from '../../shared/console-api.mjs';
+import { createConsoleJourneyRepository } from '../../shared/console-journey.mjs';
+import { createConnectorDeliveryRepository } from '../../shared/connector-delivery.mjs';
 import { createDecisionLedgerRepository } from '../../shared/decision-ledger.mjs';
 import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
@@ -23,6 +25,7 @@ export const handler = createConsoleApiHandler({
   resolveMembership: resolveCognitoMembership,
   executeDecision: executeHostedDecision,
   appendDecision: persistDecision,
+  journey: consoleJourney(),
 });
 
 async function verifyCognitoAccessToken(token) {
@@ -99,58 +102,19 @@ async function resolveCognitoMembership(identity) {
 }
 
 async function persistDecision({ decision, requestId }) {
-  const repository = createDecisionLedgerRepository({ getDB: runtimeDatabase });
-  const status = decision.source.mode === 'fixture'
-    ? 'simulated'
-    : decision.status === 'qualified'
-      ? 'confirmed'
-      : 'suppressed';
-  const result = await repository.append({
-    tenantId: decision.tenantId,
-    idempotencyKey: `console:${decision.decisionId}:${requestId}`,
-    eventType: 'decision',
-    growthPlayId: decision.scenario === 'deposit-retention'
-      ? 'deposit-primacy-defense'
-      : 'merrill-relationship-growth',
-    modelProvider: null,
-    modelName: null,
-    modelVersion: null,
-    policyVersion: decision.runtime.policyVersion,
-    status,
-    occurredAt: decision.generatedAt,
-    payload: {
-      schema_version: decision.schemaVersion,
-      decision_id: decision.decisionId,
-      scenario: decision.scenario,
-      decision_status: decision.status,
-      source_mode: decision.source.mode,
-      source_name: decision.source.name,
-      source_record_count: decision.source.recordCount,
-      transaction_refs: decision.source.transactionRefs,
-      opportunity: decision.opportunity ? {
-        type: decision.opportunity.type,
-        action: decision.opportunity.action,
-        destination: decision.opportunity.destination,
-        pnl_hint: decision.opportunity.pnlHint,
-        confidence: decision.opportunity.confidence,
-        signals: decision.opportunity.signals.map((signal) => ({
-          type: signal.type,
-          strength: signal.strength,
-          evidence_transaction_ids: signal.evidence.map((item) => item.transactionId),
-        })),
-      } : null,
-      policy: decision.policy,
-      runtime: decision.runtime,
-    },
-  });
-  const record = result.record;
-  return {
-    persisted: true,
-    inserted: result.inserted,
-    sequenceNumber: Number(record.sequence_number ?? record.sequenceNumber),
-    eventHash: record.event_hash ?? record.eventHash,
-    recordedAt: new Date(record.recorded_at ?? record.occurred_at ?? record.occurredAt).toISOString(),
-  };
+  return consoleJourney().recordDecision({ decision, requestId });
+}
+
+let journeyRepository;
+function consoleJourney() {
+  if (!journeyRepository) {
+    journeyRepository = createConsoleJourneyRepository({
+      getDB: runtimeDatabase,
+      ledgerRepository: createDecisionLedgerRepository({ getDB: runtimeDatabase }),
+      deliveryRepository: createConnectorDeliveryRepository({ getDB: runtimeDatabase }),
+    });
+  }
+  return journeyRepository;
 }
 
 async function runtimeDatabase() {

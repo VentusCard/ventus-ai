@@ -1,7 +1,7 @@
 // Ledger, Outcomes, and Settings — the governance surfaces of the console.
-// The ledger renders the same hash chain the pipeline writes; outcomes state
-// plainly what is measured versus pending; settings shows exactly which
-// connectors are live and which institution owns the chrome.
+// Durable decisions, responses, and delivery reservations are server-owned.
+// This page keeps only a current-session activity trace until the full
+// Governance projection is bound to its durable API.
 
 import { useMemo, useState } from "react";
 import { Check, Layers, Loader2, Plug, ShieldCheck, Target, X } from "lucide-react";
@@ -54,7 +54,7 @@ export function LedgerPage() {
       <div className="console-cell mt-5 overflow-hidden">
         <div className="flex items-center justify-between border-b px-4 py-3" style={{ borderColor: "var(--v2-rule)" }}>
           <span className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
-            Decision ledger · session
+            Activity trace · current session
           </span>
           <span className="flex items-center gap-1.5 text-[11px] font-bold" style={{ color: chainVerified ? "var(--v2-verified)" : "#b3261e" }}>
             {chainVerified ? <Check className="h-3.5 w-3.5" /> : <X className="h-3.5 w-3.5" />}
@@ -90,7 +90,7 @@ export function LedgerPage() {
           ))}
         </div>
         <p className="v2-mono border-t px-4 py-2.5 text-[9px]" style={{ borderColor: "var(--v2-rule)", color: "var(--v2-ink-faint)" }}>
-          append-only · hash-chained · live receipts confirmed, fixtures labeled · production runs in your perimeter with tokens, not PII
+          Local activity view only · durable decision, response, and delivery receipts are retained server-side
         </p>
       </div>
     </div>

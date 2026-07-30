@@ -1,6 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const repositoryRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
 
 const tenantSql = read('../backend/sql/tenant-isolation.sql');
 const institutionAccessSql = read('../backend/sql/institution-access.sql');
@@ -9,6 +13,7 @@ const connectedMeasurementSql = read('../backend/sql/connected-expansion-measure
 const verificationSql = read('../backend/sql/verify-tenant-isolation.sql');
 const deliverySql = read('../backend/sql/connector-delivery.sql');
 const registrySql = read('../backend/sql/growth-play-registry.sql');
+const enterpriseConsoleJourneySql = read('../backend/sql/enterprise-console-journey.sql');
 const tenantContextSource = read('../backend/shared/tenant-context.mjs');
 const ledgerSource = read('../backend/shared/decision-ledger.mjs');
 const measurementSource = read('../backend/shared/experiment-measurement.mjs');
@@ -83,6 +88,8 @@ assert.match(
 );
 assert.match(deliverySource, /shouldDeliver = false/, 'duplicate reservations should block automatic redelivery');
 assert.match(deliverySource, /reconciliationRequired/, 'ambiguous pending reservations should require reconciliation');
+assert.match(enterpriseConsoleJourneySql, /'response'/, 'authenticated console responses should be persisted as append-only ledger events');
+assert.match(enterpriseConsoleJourneySql, /decision_ledger_decision_projection_idx/, 'authenticated console projections should have a tenant-scoped decision lookup index');
 assert.match(registrySql, /Growth Play registry records are append-only/, 'protocol and approval records must be immutable');
 assert.match(registrySql, /decision IN \('approved', 'revoked'\)/, 'registry must support explicit approval and revocation');
 assert.match(registrySql, /registered_by_session_id text NOT NULL/, 'protocol registration must retain the authenticated session');
@@ -99,5 +106,5 @@ assert.match(runbook, /NOBYPASSRLS/, 'runbook should require a non-bypass runtim
 console.log('Persistence readiness ok: transaction tenant context, forced RLS, approved Growth Play registry, at-most-once delivery, and rollback-only isolation probes');
 
 function read(path) {
-  return readFileSync(resolve(path), 'utf8');
+  return readFileSync(resolve(repositoryRoot, path.replace(/^\.\.\//, '')), 'utf8');
 }

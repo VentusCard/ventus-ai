@@ -1,4 +1,4 @@
-// Apply the seven evidence and access migrations to a non-production Postgres, in dependency
+// Apply the evidence, access, delivery, and authenticated-console migrations to a non-production Postgres, in dependency
 // order. Idempotent — every migration uses IF NOT EXISTS / CREATE OR REPLACE / DROP IF
 // EXISTS, so re-running is safe.
 //
@@ -29,6 +29,7 @@ const MIGRATIONS = [
   'institution-access.sql',
   'enterprise-access-phase0.sql',
   'connector-delivery.sql',
+  'enterprise-console-journey.sql',
 ];
 
 async function main() {
