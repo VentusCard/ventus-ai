@@ -37,6 +37,7 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
   assert.equal(typeof getDB, 'function', 'getDB is required');
   assert.equal(typeof ledgerRepository?.append, 'function', 'ledgerRepository.append is required');
   assert.equal(typeof deliveryRepository?.reserve, 'function', 'deliveryRepository.reserve is required');
+  assert.equal(typeof deliveryRepository?.complete, 'function', 'deliveryRepository.complete is required');
 
   return {
     async recordDecision({ decision, requestId }) {
@@ -195,6 +196,77 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
           externalReceiptUrl: reservation.record.external_receipt_url ?? null,
         },
         moment: await this.loadMoment({ tenantId, decisionId }),
+        // This private field is only used by the in-process API broker. It is
+        // removed before an HTTP response is generated.
+        reservation: {
+          shouldDeliver: reservation.shouldDeliver,
+          reconciliationRequired: reservation.reconciliationRequired,
+          record: reservation.record,
+        },
+      };
+    },
+
+    async completeDelivery({
+      tenantId,
+      decisionId,
+      sessionId,
+      deliveryId,
+      status,
+      externalReceiptId,
+      externalReceiptUrl,
+      errorCode,
+      records,
+      warnings,
+      completedAt,
+    }) {
+      validateTenantId(tenantId);
+      assertId(decisionId, 'decisionId');
+      assertId(sessionId, 'sessionId');
+      assert.ok(/^dlv_[a-f0-9]{24}$/.test(deliveryId), 'deliveryId is invalid');
+      assert.ok(['delivered', 'failed'].includes(status), 'delivery status is invalid');
+      assertIso(completedAt, 'completedAt');
+      const moment = await this.loadMoment({ tenantId, decisionId });
+      const completion = await deliveryRepository.complete({
+        tenantId,
+        deliveryId,
+        status,
+        sessionId,
+        externalReceiptId: status === 'delivered' ? externalReceiptId : undefined,
+        externalReceiptUrl: status === 'delivered' ? externalReceiptUrl : undefined,
+        errorCode: status === 'failed' ? errorCode : undefined,
+        completedAt,
+      });
+      const record = completion.record;
+      assert.equal(record.decision_id, decisionId, 'delivery receipt belongs to another decision');
+      const terminalStatus = record.status;
+      const terminalAt = new Date(record.completed_at ?? completedAt).toISOString();
+      await ledgerRepository.append({
+        tenantId,
+        idempotencyKey: `ledger:delivery-completion:${deliveryId}`,
+        eventType: 'activation',
+        householdToken: moment.decisionPackage.subject.token,
+        growthPlayId: moment.decisionPackage.growthPlay.id,
+        policyVersion: moment.decisionPackage.growthPlay.protocolId,
+        status: terminalStatus === 'delivered' ? 'confirmed' : 'failed',
+        occurredAt: terminalAt,
+        payload: {
+          decision_id: decisionId,
+          stage: terminalStatus === 'delivered' ? 'delivery_completed' : 'delivery_failed',
+          delivery_id: deliveryId,
+          connector: record.connector,
+          destination: record.destination,
+          action_id: record.action_id,
+          delivery_status: terminalStatus,
+          external_receipt_id: record.external_receipt_id ?? null,
+          external_receipt_url: record.external_receipt_url ?? null,
+          external_records: terminalStatus === 'delivered' ? normalizeExternalRecords(records) : undefined,
+          external_warnings: terminalStatus === 'delivered' ? normalizeWarnings(warnings) : undefined,
+          error_code: terminalStatus === 'failed' ? record.error_code ?? errorCode : undefined,
+        },
+      });
+      return {
+        receipt: receiptProjection(record, { records, warnings }),
+        moment: await this.loadMoment({ tenantId, decisionId }),
       };
     },
   };
@@ -315,6 +387,8 @@ export function projectMoment(rows) {
       url: activation.external_receipt_url ?? undefined,
       object: 'Connector delivery receipt',
       subject: packageProjection.growthPlay.name,
+      records: normalizeExternalRecords(activation.external_records),
+      warnings: normalizeWarnings(activation.external_warnings),
     } : undefined,
   };
 }
@@ -401,6 +475,41 @@ function ledgerReceipt(record) {
     eventHash: record.event_hash ?? record.eventHash,
     recordedAt: occurredAt(record),
   };
+}
+
+function receiptProjection(record, { records, warnings } = {}) {
+  return {
+    deliveryId: record.delivery_id,
+    status: record.status,
+    externalReceiptId: record.external_receipt_id ?? null,
+    externalReceiptUrl: record.external_receipt_url ?? null,
+    records: normalizeExternalRecords(records),
+    warnings: normalizeWarnings(warnings),
+  };
+}
+
+function normalizeExternalRecords(value) {
+  const source = value && typeof value === 'object' ? value : {};
+  const record = (item) => {
+    if (!item || typeof item !== 'object') return null;
+    const id = typeof item.id === 'string' ? item.id.slice(0, 256) : '';
+    const url = typeof item.url === 'string' && /^https:\/\//.test(item.url) ? item.url.slice(0, 2048) : '';
+    return id && url ? { id, url } : null;
+  };
+  return {
+    decision: record(source.decision),
+    referral: record(source.referral),
+    task: record(source.task),
+  };
+}
+
+function normalizeWarnings(value) {
+  return Array.isArray(value)
+    ? value.slice(0, 4).map((item) => ({
+      stage: typeof item?.stage === 'string' ? item.stage.slice(0, 80) : '',
+      message: typeof item?.message === 'string' ? item.message.slice(0, 220) : '',
+    })).filter((item) => item.stage || item.message)
+    : [];
 }
 
 function action(id, title, instructions, ownerRole, destination) {

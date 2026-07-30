@@ -1,7 +1,7 @@
 # Enterprise Product Remediation Handoff
 
-Status: Sol architecture pass and the first Terra durable-journey slice are
-complete. The membership-aware product connector and Luna verification remain.
+Status: Sol architecture pass and the Terra durable-journey and product
+Salesforce-delivery slices are complete. Luna verification remains.
 
 Authority: `docs/architecture/enterprise-product-blueprint.md`
 
@@ -48,6 +48,18 @@ Authority: `docs/architecture/enterprise-product-blueprint.md`
 - The Console API and CDK surface now include `GET /today`, `GET /moments`,
   `GET /moments/{decision_id}`, `POST /responses`, and `POST /deliveries`.
   The `enterprise-console-journey.sql` migration is part of `db:migrate`.
+- A first delivery reservation is now brokered by the authenticated Console
+  Lambda, which loads the durable Decision Package and human response,
+  performs the server-only Salesforce/FSC call, and writes a terminal delivery
+  receipt back to the same evidence trail.
+- Product Salesforce credentials use a distinct `ventus/staging/product-connectors`
+  secret readable only by the Console Lambda. Presenter credentials remain in
+  the separate demo secret. The browser receives neither secret nor a
+  Salesforce write token.
+- Successful delivery projects bounded Decision Receipt, referral, and Task
+  links into the Moment. Configuration failures preserve the approved action
+  and report a truthful failed delivery; ambiguous network/API failures remain
+  pending for reconciliation rather than being incorrectly marked failed.
 
 ## Terra Scope
 
@@ -56,22 +68,15 @@ above.
 
 ### P0: Membership-aware AWS product connector
 
-The current AWS `ventus-demo-connectors` service is a presentation connector.
-Its session broker derives a coarse role from Cognito groups and cannot serve as
-the product authorization root.
+Completed for the product Salesforce path. The existing authenticated Console
+API resolves the Aurora membership, enforces canonical role, business-line
+scope, and entitlement, then brokers delivery without granting a browser a
+Salesforce capability. The presenter connector remains a separately scoped
+sandbox service.
 
-Build a separate product connector session endpoint or move session issuance
-behind the existing Console API so it:
-
-- resolves the Aurora membership server-side;
-- requires active status and the exact capability;
-- carries canonical role, business-line scopes, queue scopes, tenant, actor,
-  environment, and purpose;
-- never grants `salesforce_write` to the browser;
-- keeps the current presenter connector available only for labeled sandbox
-  demonstrations.
-
-Do not infer product permissions from email domains or generic Cognito groups.
+Before a non-demo institution deployment, replace the optional non-production
+default Account mapping with a governed native customer-identity resolution
+contract. Do not accept Account, Contact, or relationship IDs from the browser.
 
 ### P0: Durable employee journey
 
@@ -100,10 +105,15 @@ Connect the delivery endpoint to the existing reservation and connector
 delivery repositories. It must load the server-side Decision Package and
 response by ID; the browser may not submit a replacement decision payload.
 
-The reservation half is now complete. Next, implement the authenticated
-connector worker/session that owns the external Salesforce call and records a
-terminal `delivered` or `failed` receipt. Do not use the presenter connector
-for this work.
+Completed for the Salesforce/FSC vertical slice. The Console Lambda owns the
+external call and terminal receipt; it does not use the presenter connector.
+The remaining operational step is to deploy the stack and populate the new
+product-only secret with a sandbox connected-app credential.
+
+Before enabling the connector, verify that the Console Lambda private subnets
+have an approved egress path to Salesforce. This is a deployment gate, not an
+assumption. The current operator role did not have permission to inspect those
+route tables during implementation.
 
 Keep FSC schema discovery and account verification admin-only. Move the current
 customer-linked onboarding write proof behind a dedicated server-prepared proof
@@ -140,6 +150,10 @@ Growth Play behavior, or integration architecture.
 - A browser-authored Decision Package cannot reach Salesforce.
 - Repeated delivery with the same idempotency key creates no duplicate.
 - Sign-out or session expiry invalidates connector capability.
+- Salesforce/FSC credentials are readable only by the product Lambda and are
+  different from presentation credentials.
+- A terminal Salesforce receipt is linked to the Moment; an ambiguous upstream
+  failure remains pending for reconciliation.
 - Presenter-demo behavior remains labeled sandbox behavior and cannot be
   replayed as a product session.
 - No raw transaction, canonical Moment, response, or evidence ledger is stored

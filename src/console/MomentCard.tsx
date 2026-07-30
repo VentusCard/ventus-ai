@@ -26,6 +26,7 @@ export function MomentCard({ moment, decision, action, variant = "full", onSyncO
   const band = confidenceBand(decision.moment.confidence);
   const delivered = moment.status === "activated" && moment.receipt;
   const reserved = moment.status === "delivery_reserved" && moment.receipt;
+  const deliveryFailed = moment.status === "delivery_failed" && moment.receipt;
 
   if (variant !== "full") {
     return (
@@ -98,6 +99,11 @@ export function MomentCard({ moment, decision, action, variant = "full", onSyncO
         <div className="flex items-center gap-2 p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>
           <Clock3 className="h-4 w-4" />
           Delivery is reserved with an idempotent receipt. The approved connector service will reconcile the destination result.
+        </div>
+      ) : deliveryFailed ? (
+        <div className="p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>
+          <p className="font-bold" style={{ color: "var(--v2-ink)" }}>Delivery needs connection setup</p>
+          <p className="mt-1">The approved action was preserved, but no employee workflow record was created. An institution administrator can complete the server-side connector setup before the action is retried.</p>
         </div>
       ) : children ? <div className="p-5">{children}</div> : <div className="flex items-center gap-2 p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}><Clock3 className="h-4 w-4" />Awaiting the authorized employee response.</div>}
     </article>

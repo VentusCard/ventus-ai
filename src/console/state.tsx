@@ -739,10 +739,10 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           {
             eventKey: `${momentId}-reservation`,
             kind: "activation",
-            title: "Workflow delivery reserved",
-            detail: "Idempotent connector reservation awaits reconciliation",
+            title: data.moment.status === "activated" ? "Workflow delivered" : data.moment.status === "delivery_failed" ? "Workflow delivery needs configuration" : "Workflow delivery reserved",
+            detail: data.moment.status === "activated" ? "Server-authoritative connector receipt recorded" : data.moment.status === "delivery_failed" ? "The connector did not run; review the server-side connection setup" : "Idempotent connector reservation awaits reconciliation",
             ref: data.receipt?.deliveryId,
-            status: "pending",
+            status: data.moment.status === "activated" ? "confirmed" : data.moment.status === "delivery_failed" ? "failed" : "pending",
           },
         ]);
       } catch (error) {

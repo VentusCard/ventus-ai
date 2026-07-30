@@ -5,6 +5,7 @@ import * as ec2 from 'aws-cdk-lib/aws-ec2';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
+import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 import { VENTUS_DATABASE_KMS_KEY_ARN } from './ventus-existing-infra-stack.ts';
 
@@ -12,6 +13,7 @@ const COGNITO_ISSUER =
   'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_M9Ipbusin';
 const COGNITO_CLIENT_ID = '7p8ii113apn8s99t9khf0n4uib';
 const EVIDENCE_RUNTIME_SECRET_ID = 'ventus/evidence-store/app-v1';
+const PRODUCT_CONNECTOR_SECRET_NAME = 'ventus/staging/product-connectors';
 const RDS_HOST =
   'ventus-bofa-cluster.cluster-chm2goicq5dx.us-east-2.rds.amazonaws.com';
 const DEFAULT_ORIGINS = [
@@ -51,6 +53,25 @@ export class VentusConsoleApiStack extends cdk.Stack {
       retention: logs.RetentionDays.SIX_MONTHS,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
+    // Product connector credentials are intentionally distinct from the
+    // presenter/demo connector. The Console Lambda is the sole reader.
+    const productConnectorSecret = new secretsmanager.Secret(this, 'ProductConnectorSecret', {
+      secretName: PRODUCT_CONNECTOR_SECRET_NAME,
+      description: 'Server-only Salesforce/FSC credentials for authenticated Ventus product delivery.',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          salesforceLoginUrl: 'CONFIGURE_SALESFORCE_LOGIN_URL',
+          salesforceClientId: 'CONFIGURE_SALESFORCE_CLIENT_ID',
+          salesforceClientSecret: 'CONFIGURE_SALESFORCE_CLIENT_SECRET',
+          salesforceDefaultAccountId: 'CONFIGURE_SALESFORCE_DEFAULT_ACCOUNT_ID',
+          salesforceReferralRecordTypeId: 'CONFIGURE_SALESFORCE_REFERRAL_RECORD_TYPE_ID',
+          salesforceCreateReferral: false,
+        }),
+        generateStringKey: 'placeholder',
+        excludePunctuation: true,
+      },
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
     const consoleFunction = new lambda.Function(this, 'ConsoleApiFunction', {
       functionName: 'ventus-console-api',
       description: 'Cognito and institution-membership boundary for the Ventus Growth Console.',
@@ -69,6 +90,7 @@ export class VentusConsoleApiStack extends cdk.Stack {
         COGNITO_ISSUER,
         COGNITO_CLIENT_ID,
         EVIDENCE_RUNTIME_SECRET_ID,
+        VENTUS_PRODUCT_CONNECTOR_SECRET_ID: productConnectorSecret.secretArn,
         RDS_HOST,
         RDS_PORT: '5432',
         RDS_DATABASE: 'ventus_bofa',
@@ -85,6 +107,7 @@ export class VentusConsoleApiStack extends cdk.Stack {
       actions: ['secretsmanager:GetSecretValue'],
       resources: [runtimeSecretArn],
     }));
+    productConnectorSecret.grantRead(consoleFunction);
     consoleFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['kms:Decrypt', 'kms:DescribeKey'],
       resources: [VENTUS_DATABASE_KMS_KEY_ARN],

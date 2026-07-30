@@ -86,6 +86,7 @@ test('delivery reservation uses a server-derived decision and action key', async
         reservationCalls.push(request);
         return { replayed: false, record: { delivery_id: 'dlv_1234567890abcdef12345678', status: 'pending', connector: 'salesforce', destination: 'salesforce-fsc', action_id: request.actionId } };
       },
+      async complete() { throw new Error('should not complete'); },
     },
   });
   repository.loadMoment = async () => projectMoment(records);
@@ -98,6 +99,28 @@ test('delivery reservation uses a server-derived decision and action key', async
     requestedAt: '2026-07-30T12:05:00.000Z',
   });
   assert.equal(reservationCalls[0].idempotencyKey, `delivery:${decision.decisionId}:banker-retention-review`);
+});
+
+test('Moment projection exposes only bounded Salesforce receipt links after delivery', () => {
+  const packageProjection = buildDecisionPackage(decision);
+  const moment = projectMoment([
+    row(1, 'decision', { decision_id: decision.decisionId, scenario: decision.scenario, source: decision.source, opportunity: decision.opportunity, policy: decision.policy, runtime: decision.runtime, decision_package: packageProjection }),
+    row(2, 'response', { decision_id: decision.decisionId, actor_id: 'operator_1', response: { status: 'accepted', actionId: 'banker-retention-review' } }),
+    row(3, 'activation', {
+      decision_id: decision.decisionId,
+      delivery_id: 'dlv_1234567890abcdef12345678',
+      delivery_status: 'delivered',
+      external_receipt_id: '00T123456789012EAA',
+      external_receipt_url: 'https://example.my.salesforce.com/lightning/r/Task/00T123456789012EAA/view',
+      external_records: {
+        decision: { id: 'a01123456789012EAA', url: 'https://example.my.salesforce.com/lightning/r/Ventus_Decision__c/a01123456789012EAA/view' },
+        task: { id: '00T123456789012EAA', url: 'https://example.my.salesforce.com/lightning/r/Task/00T123456789012EAA/view' },
+      },
+    }),
+  ]);
+  assert.equal(moment.status, 'activated');
+  assert.equal(moment.receipt.records.task.id, '00T123456789012EAA');
+  assert.equal(JSON.stringify(moment.receipt).includes('txn_a'), false);
 });
 
 function row(sequenceNumber, eventType, payload) {
