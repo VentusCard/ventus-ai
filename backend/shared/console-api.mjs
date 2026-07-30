@@ -19,6 +19,7 @@ export function createConsoleApiHandler({
   executeDecision,
   appendDecision,
   journey,
+  deliverReserved,
 }) {
   if (typeof verifyIdentity !== 'function' || typeof resolveMembership !== 'function') {
     throw new Error('Console API identity and membership adapters are required');
@@ -106,7 +107,7 @@ export function createConsoleApiHandler({
         if (mutation.expectedState !== 'approved') {
           throw new ConsoleRequestError('deliveries can only be reserved from the approved state');
         }
-        const result = await journey.reserveDelivery({
+        const reservation = await journey.reserveDelivery({
           tenantId: identity.tenantHint,
           decisionId: momentPath.decisionId,
           sessionId: event.requestContext?.requestId || identity.subject,
@@ -114,7 +115,21 @@ export function createConsoleApiHandler({
           expectedState: mutation.expectedState,
           requestedAt: mutation.clientRequestedAt,
         });
-        return response(201, { ...result, serverAuthoritative: true }, responseHeaders);
+        const result = reservation.reservation?.shouldDeliver && typeof deliverReserved === 'function'
+          ? await deliverReserved({
+            tenantId: identity.tenantHint,
+            decisionId: momentPath.decisionId,
+            sessionId: event.requestContext?.requestId || identity.subject,
+            reservation: reservation.reservation,
+            moment: reservation.moment,
+          })
+          : reservation;
+        const { reservation: internalReservation, ...publicResult } = result;
+        return response(201, {
+          ...publicResult,
+          ...(internalReservation?.reconciliationRequired ? { reconciliationRequired: true } : {}),
+          serverAuthoritative: true,
+        }, responseHeaders);
       }
 
       if (path.endsWith('/decision-run')) {

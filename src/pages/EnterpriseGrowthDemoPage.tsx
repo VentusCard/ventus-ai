@@ -5570,6 +5570,7 @@ function LeadershipFlow({
               onClick={() => setStep(index)}
               disabled={(index > 0 && !pipelineReady) || (index >= 2 && !frontlineApproved) || (index === 3 && !shadowReady)}
               className="flex items-center gap-1.5 disabled:cursor-not-allowed disabled:opacity-50"
+              style={{ minWidth: 0 }}
             >
               <span className="flex h-6 w-6 items-center justify-center rounded-full text-[10px] font-bold text-white" style={{ backgroundColor: index <= step ? (index === step ? NAVY : GREEN) : "#cbd5e1" }}>
                 {index < step ? <Check className="h-3 w-3" /> : index + 1}

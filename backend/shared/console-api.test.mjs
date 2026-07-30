@@ -270,6 +270,41 @@ test('Console API does not permit a cross-business delivery reservation', async 
   assert.equal(result.statusCode, 403);
 });
 
+test('Console API brokers a first reservation to the server-side delivery executor', async () => {
+  const calls = [];
+  const approvedMoment = { ...moment('deposit-retention'), status: 'approved', decisionPackage: { response: { status: 'accepted' } } };
+  const activatedMoment = { ...approvedMoment, status: 'activated' };
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'bank_operator', entitlements: ['growth_console', 'consumer_demo'], businessLines: ['consumer-banking'], queueScopes: [] }),
+    journey: {
+      async loadMoment() { return approvedMoment; },
+      async reserveDelivery() {
+        return {
+          receipt: { deliveryId: 'dlv_1234567890abcdef12345678', status: 'pending' },
+          moment: approvedMoment,
+          reservation: { shouldDeliver: true, reconciliationRequired: false, record: { delivery_id: 'dlv_1234567890abcdef12345678', status: 'pending' } },
+        };
+      },
+    },
+    async deliverReserved(input) {
+      calls.push(input);
+      return { receipt: { deliveryId: 'dlv_1234567890abcdef12345678', status: 'delivered' }, moment: activatedMoment };
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/moments/dec_deposit-retention/deliveries',
+    headers: { authorization: 'Bearer valid-token', origin: 'https://dev.example.com', 'idempotency-key': 'delivery_456' },
+    body: JSON.stringify({ expectedState: 'approved', clientRequestedAt: '2026-07-30T12:00:00.000Z' }),
+  }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 201);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].reservation.record.delivery_id, 'dlv_1234567890abcdef12345678');
+  assert.equal(body.moment.status, 'activated');
+  assert.equal('reservation' in body, false);
+});
+
 function request(origin = 'https://dev.example.com', overrides = {}) {
   process.env.VENTUS_ALLOWED_ORIGINS = 'https://dev.example.com';
   return {

@@ -6,6 +6,10 @@ import { createConnectorDeliveryRepository } from '../../shared/connector-delive
 import { createDecisionLedgerRepository } from '../../shared/decision-ledger.mjs';
 import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
+import {
+  createProductSalesforceConnector,
+  ProductSalesforceConnectorError,
+} from '../../shared/product-salesforce-connector.mjs';
 
 const { Client } = pg;
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9:_-]{1,255}$/;
@@ -19,6 +23,8 @@ const ALLOWED_ENTITLEMENTS = new Set([
 ]);
 const jwksByIssuer = new Map();
 let getDatabaseCredentials;
+let getProductConnectorCredentials;
+let productSalesforceConnector;
 
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
@@ -26,6 +32,7 @@ export const handler = createConsoleApiHandler({
   executeDecision: executeHostedDecision,
   appendDecision: persistDecision,
   journey: consoleJourney(),
+  deliverReserved: deliverReservedSalesforce,
 });
 
 async function verifyCognitoAccessToken(token) {
@@ -115,6 +122,90 @@ function consoleJourney() {
     });
   }
   return journeyRepository;
+}
+
+async function deliverReservedSalesforce({ tenantId, decisionId, sessionId, reservation, moment }) {
+  if (!reservation?.shouldDeliver || reservation.record?.status !== 'pending') {
+    return { receipt: deliveryReceipt(reservation?.record), moment };
+  }
+  try {
+    const result = await productConnector().deliver({
+      tenantId,
+      decisionPackage: moment.decisionPackage,
+    });
+    return consoleJourney().completeDelivery({
+      tenantId,
+      decisionId,
+      sessionId,
+      deliveryId: reservation.record.delivery_id,
+      status: 'delivered',
+      externalReceiptId: result.id,
+      externalReceiptUrl: result.url,
+      records: result.records,
+      warnings: result.warnings,
+      completedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    if (error instanceof ProductSalesforceConnectorError && error.terminalFailure) {
+      return consoleJourney().completeDelivery({
+        tenantId,
+        decisionId,
+        sessionId,
+        deliveryId: reservation.record.delivery_id,
+        status: 'failed',
+        errorCode: error.code,
+        completedAt: new Date().toISOString(),
+      });
+    }
+    // A timeout or downstream 5xx may occur after Salesforce accepted the
+    // write. Leave the durable reservation pending for reconciliation.
+    console.error(JSON.stringify({
+      event: 'product_salesforce_delivery_pending_reconciliation',
+      tenantId,
+      decisionId,
+      deliveryId: reservation.record.delivery_id,
+      message: String(error?.message || error).slice(0, 180),
+    }));
+    return {
+      receipt: deliveryReceipt(reservation.record),
+      moment,
+      reservation: { reconciliationRequired: true },
+    };
+  }
+}
+
+function productConnector() {
+  if (!productSalesforceConnector) {
+    if (!process.env.VENTUS_PRODUCT_CONNECTOR_SECRET_ID) {
+      throw new ProductSalesforceConnectorError(
+        'The product Salesforce connector secret is not configured for this environment.',
+        { code: 'salesforce_connector_secret_missing', terminalFailure: true },
+      );
+    }
+    productSalesforceConnector = createProductSalesforceConnector({
+      getSecrets: productConnectorCredentialsProvider(),
+    });
+  }
+  return productSalesforceConnector;
+}
+
+function productConnectorCredentialsProvider() {
+  if (!getProductConnectorCredentials) {
+    getProductConnectorCredentials = createSecretsProvider({
+      secretId: process.env.VENTUS_PRODUCT_CONNECTOR_SECRET_ID,
+      region: process.env.AWS_REGION || 'us-east-2',
+    });
+  }
+  return getProductConnectorCredentials;
+}
+
+function deliveryReceipt(record) {
+  return {
+    deliveryId: record?.delivery_id ?? null,
+    status: record?.status ?? 'pending',
+    externalReceiptId: record?.external_receipt_id ?? null,
+    externalReceiptUrl: record?.external_receipt_url ?? null,
+  };
 }
 
 async function runtimeDatabase() {
