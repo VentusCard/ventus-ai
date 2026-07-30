@@ -1,6 +1,8 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import pg from 'pg';
 import { createConsoleApiHandler } from '../../shared/console-api.mjs';
+import { createDecisionLedgerRepository } from '../../shared/decision-ledger.mjs';
+import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
 
 const { Client } = pg;
@@ -19,6 +21,8 @@ let getDatabaseCredentials;
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
   resolveMembership: resolveCognitoMembership,
+  executeDecision: executeHostedDecision,
+  appendDecision: persistDecision,
 });
 
 async function verifyCognitoAccessToken(token) {
@@ -52,18 +56,7 @@ async function verifyCognitoAccessToken(token) {
 }
 
 async function resolveCognitoMembership(identity) {
-  const credentials = await databaseCredentialsProvider()();
-  const client = new Client({
-    host: process.env.RDS_HOST,
-    port: Number(process.env.RDS_PORT || 5432),
-    database: process.env.RDS_DATABASE || 'ventus_bofa',
-    user: credentials.username,
-    password: credentials.password,
-    ssl: { rejectUnauthorized: false },
-    connectionTimeoutMillis: 5_000,
-    statement_timeout: 5_000,
-    options: '-c search_path=ventus_evidence,public',
-  });
+  const client = await runtimeDatabase();
   await client.connect();
   try {
     await client.query('BEGIN READ ONLY');
@@ -101,6 +94,76 @@ async function resolveCognitoMembership(identity) {
   } finally {
     await client.end();
   }
+}
+
+async function persistDecision({ decision, requestId }) {
+  const repository = createDecisionLedgerRepository({ getDB: runtimeDatabase });
+  const status = decision.source.mode === 'fixture'
+    ? 'simulated'
+    : decision.status === 'qualified'
+      ? 'confirmed'
+      : 'suppressed';
+  const result = await repository.append({
+    tenantId: decision.tenantId,
+    idempotencyKey: `console:${decision.decisionId}:${requestId}`,
+    eventType: 'decision',
+    growthPlayId: decision.scenario === 'deposit-retention'
+      ? 'deposit-primacy-defense'
+      : 'merrill-relationship-growth',
+    modelProvider: null,
+    modelName: null,
+    modelVersion: null,
+    policyVersion: decision.runtime.policyVersion,
+    status,
+    occurredAt: decision.generatedAt,
+    payload: {
+      schema_version: decision.schemaVersion,
+      decision_id: decision.decisionId,
+      scenario: decision.scenario,
+      decision_status: decision.status,
+      source_mode: decision.source.mode,
+      source_name: decision.source.name,
+      source_record_count: decision.source.recordCount,
+      transaction_refs: decision.source.transactionRefs,
+      opportunity: decision.opportunity ? {
+        type: decision.opportunity.type,
+        action: decision.opportunity.action,
+        destination: decision.opportunity.destination,
+        pnl_hint: decision.opportunity.pnlHint,
+        confidence: decision.opportunity.confidence,
+        signals: decision.opportunity.signals.map((signal) => ({
+          type: signal.type,
+          strength: signal.strength,
+          evidence_transaction_ids: signal.evidence.map((item) => item.transactionId),
+        })),
+      } : null,
+      policy: decision.policy,
+      runtime: decision.runtime,
+    },
+  });
+  const record = result.record;
+  return {
+    persisted: true,
+    inserted: result.inserted,
+    sequenceNumber: Number(record.sequence_number ?? record.sequenceNumber),
+    eventHash: record.event_hash ?? record.eventHash,
+    recordedAt: new Date(record.recorded_at ?? record.occurred_at ?? record.occurredAt).toISOString(),
+  };
+}
+
+async function runtimeDatabase() {
+  const credentials = await databaseCredentialsProvider()();
+  return new Client({
+    host: process.env.RDS_HOST,
+    port: Number(process.env.RDS_PORT || 5432),
+    database: process.env.RDS_DATABASE || 'ventus_bofa',
+    user: credentials.username,
+    password: credentials.password,
+    ssl: { rejectUnauthorized: false },
+    connectionTimeoutMillis: 5_000,
+    statement_timeout: 5_000,
+    options: '-c search_path=ventus_evidence,public',
+  });
 }
 
 function databaseCredentialsProvider() {

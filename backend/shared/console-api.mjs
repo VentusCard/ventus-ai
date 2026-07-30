@@ -1,4 +1,11 @@
-export function createConsoleApiHandler({ verifyIdentity, resolveMembership }) {
+import { requiredEntitlementForScenario } from './hosted-decision-runtime.mjs';
+
+export function createConsoleApiHandler({
+  verifyIdentity,
+  resolveMembership,
+  executeDecision,
+  appendDecision,
+}) {
   if (typeof verifyIdentity !== 'function' || typeof resolveMembership !== 'function') {
     throw new Error('Console API identity and membership adapters are required');
   }
@@ -23,6 +30,27 @@ export function createConsoleApiHandler({ verifyIdentity, resolveMembership }) {
       const membership = await resolveMembership(identity);
       if (!membership) return response(403, { error: 'institution access is not active' }, responseHeaders);
 
+      const path = String(event.path || event.rawPath || event.resource || '');
+      if (path.endsWith('/decision-run')) {
+        if (typeof executeDecision !== 'function' || typeof appendDecision !== 'function') {
+          return response(503, { error: 'hosted decision runtime is unavailable' }, responseHeaders);
+        }
+        const body = parseBody(event.body);
+        const requiredEntitlement = requiredEntitlementForScenario(body.scenario);
+        if (
+          !membership.entitlements.includes('growth_console')
+          || !membership.entitlements.includes(requiredEntitlement)
+        ) {
+          return response(403, { error: 'scenario is not entitled for this operator' }, responseHeaders);
+        }
+        const decision = executeDecision({ tenantId: identity.tenantHint, body });
+        const ledgerReceipt = await appendDecision({
+          decision,
+          requestId: event.requestContext?.requestId || 'console-request',
+        });
+        return response(200, { ...decision, ledgerReceipt }, responseHeaders);
+      }
+
       return response(200, {
         userId: identity.subject,
         email: membership.email,
@@ -37,6 +65,9 @@ export function createConsoleApiHandler({ verifyIdentity, resolveMembership }) {
         authProvider: 'cognito',
       }, responseHeaders);
     } catch (error) {
+      if (error?.name === 'DecisionRequestError') {
+        return response(400, { error: String(error.message).slice(0, 180) }, responseHeaders);
+      }
       console.error(JSON.stringify({
         event: 'console_access_error',
         requestId: event.requestContext?.requestId,
@@ -45,6 +76,18 @@ export function createConsoleApiHandler({ verifyIdentity, resolveMembership }) {
       return response(500, { error: 'Console access check failed' }, responseHeaders);
     }
   };
+}
+
+function parseBody(value) {
+  if (!value) return {};
+  if (typeof value === 'object') return value;
+  try {
+    return JSON.parse(value);
+  } catch {
+    const error = new Error('invalid JSON');
+    error.name = 'DecisionRequestError';
+    throw error;
+  }
 }
 
 function parseAllowedOrigins(value) {

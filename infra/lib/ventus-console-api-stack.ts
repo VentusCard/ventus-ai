@@ -116,8 +116,9 @@ export class VentusConsoleApiStack extends cdk.Stack {
       },
     });
     const integration = new apigateway.LambdaIntegration(consoleFunction, { proxy: true });
-    api.root.addResource('v1').addResource('console').addResource('access')
-      .addMethod('POST', integration);
+    const consoleApi = api.root.addResource('v1').addResource('console');
+    consoleApi.addResource('access').addMethod('POST', integration);
+    consoleApi.addResource('decision-run').addMethod('POST', integration);
 
     new cloudwatch.Alarm(this, 'ConsoleApiLambdaErrors', {
       alarmName: 'ventus-console-api-errors',
