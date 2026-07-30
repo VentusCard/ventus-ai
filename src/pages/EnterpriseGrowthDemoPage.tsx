@@ -888,11 +888,11 @@ export default function EnterpriseGrowthDemoPage({
           )}
           {!internal && (
             <a
-              href={authenticated ? "/app/moments" : "/v2"}
+              href={authenticated ? "/app" : "/v2"}
               className="flex items-center gap-1.5 rounded-lg bg-white px-3.5 py-1.5 text-xs font-bold transition hover:opacity-90"
               style={{ color: "#071225" }}
             >
-              {authenticated ? "Operator console" : "Back to Ventus"} <ArrowRight className="h-3 w-3" />
+              {authenticated ? "Growth Console" : "Back to Ventus"} <ArrowRight className="h-3 w-3" />
             </a>
           )}
           {entered && internal && scene > 0 && scene < 5 && (
