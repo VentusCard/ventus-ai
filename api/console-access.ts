@@ -16,6 +16,8 @@ export async function POST(request: Request): Promise<Response> {
     role: principal.role,
     status: principal.status,
     entitlements: principal.entitlements,
+    businessLineScopes: principal.businessLineScopes,
+    queueScopes: principal.queueScopes,
     authProvider: consoleAuthProvider(),
   });
   response.headers.set("Cache-Control", "no-store");

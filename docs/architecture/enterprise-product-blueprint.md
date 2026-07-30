@@ -1079,6 +1079,15 @@ exports use the stable event vocabulary.
 - Credentials reside in AWS Secrets Manager and are used server-side.
 - Connector sessions are short-lived, tenant-bound, actor-bound, and
   capability-scoped.
+- Presenter-demo sessions and authenticated product sessions are separate
+  security purposes. A presenter session may exercise explicitly labeled
+  sandbox integrations, but it cannot authorize a Growth Console mutation.
+- Product connector capabilities are minted only after the server resolves the
+  active Aurora membership, canonical role, business-line scopes, queue scopes,
+  and entitlements. Cognito group names alone are not sufficient authorization.
+- The Growth Console never receives a generic Salesforce write capability.
+  Delivery follows a server-prepared decision, recorded human response,
+  reservation, and idempotent connector request.
 - Discovery and mapping are admin-only.
 - Operators receive only the specific action capability required by the play.
 - Environment is explicit; sandbox credentials cannot deliver to production.

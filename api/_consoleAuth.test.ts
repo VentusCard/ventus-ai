@@ -40,7 +40,7 @@ test("verified, confirmed, allowlisted operators receive a server tenant", async
     email: "operator@ventusai.com",
     tenantId: "ventus",
     organizationId: "ventus",
-    role: "operator",
+    role: "bank_operator",
     status: "active",
     entitlements: [
       "consumer_demo",
@@ -48,6 +48,8 @@ test("verified, confirmed, allowlisted operators receive a server tenant", async
       "growth_console",
       "live_connectors",
     ],
+    businessLineScopes: ["consumer-banking", "wealth-management"],
+    queueScopes: [],
   });
 });
 
@@ -79,7 +81,7 @@ test("app metadata can bind an allowed operator to an approved tenant and role",
     app_metadata: { tenant_id: "pilot_bank", console_role: "admin" },
   });
   assert.equal((await authorizeConsoleUser(request("supabase-token")))?.tenantId, "pilot_bank");
-  assert.equal((await authorizeConsoleUser(request("supabase-token")))?.role, "admin");
+  assert.equal((await authorizeConsoleUser(request("supabase-token")))?.role, "institution_admin");
 });
 
 test("Cognito identity plus an active Aurora membership grants scoped access", async () => {
@@ -92,7 +94,9 @@ test("Cognito identity plus an active Aurora membership grants scoped access", a
     resolveMembership: async () => ({
       email: "owner@pilotbank.com",
       role: "institution_admin",
+      status: "active",
       businessLines: ["consumer"],
+      queueScopes: ["consumer-review"],
       entitlements: ["consumer_demo", "growth_console", "live_connectors", "unknown"],
     }),
   });
@@ -101,9 +105,11 @@ test("Cognito identity plus an active Aurora membership grants scoped access", a
     email: "owner@pilotbank.com",
     tenantId: "pilot_bank",
     organizationId: "pilot_bank",
-    role: "admin",
+    role: "institution_admin",
     status: "active",
     entitlements: ["consumer_demo", "growth_console", "live_connectors"],
+    businessLineScopes: ["consumer"],
+    queueScopes: ["consumer-review"],
   });
 });
 
@@ -129,13 +135,36 @@ test("Cognito bank operators remain operators and unentitled members remain pend
     resolveMembership: async () => ({
       email: "banker@pilotbank.com",
       role: "bank_operator",
+      status: "pending",
       businessLines: ["consumer"],
+      queueScopes: [],
       entitlements: [],
     }),
   });
-  assert.equal(principal?.role, "operator");
+  assert.equal(principal?.role, "bank_operator");
   assert.equal(principal?.status, "pending");
   assert.deepEqual(principal?.entitlements, []);
+});
+
+test("Cognito preserves risk-reviewer identity and scopes without operator elevation", async () => {
+  const principal = await authenticateCognitoConsoleUser("cognito-token", {
+    verifyIdentity: async () => ({
+      subject: "cognito-subject:456",
+      tenantHint: "pilot_bank",
+      issuer: "https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example",
+    }),
+    resolveMembership: async () => ({
+      email: "risk@pilotbank.com",
+      role: "risk_reviewer",
+      status: "active",
+      businessLines: ["wealth-management"],
+      queueScopes: ["wealth-exceptions"],
+      entitlements: ["wealth_demo", "growth_console", "live_connectors"],
+    }),
+  });
+  assert.equal(principal?.role, "risk_reviewer");
+  assert.deepEqual(principal?.businessLineScopes, ["wealth-management"]);
+  assert.deepEqual(principal?.queueScopes, ["wealth-exceptions"]);
 });
 
 function configure() {

@@ -292,6 +292,34 @@ function configureSalesforceTestEnvironment() {
   process.env.SF_VENTUS_DECISION_ENABLED = "true";
 }
 
+test("authenticated console sessions cannot use the generic Salesforce writer", async () => {
+  configureSalesforceTestEnvironment();
+  const token = issueConnectorSession({
+    secret: SESSION_SECRET,
+    tenantId: "bank_1",
+    subject: "operator_1",
+    scopes: ["salesforce_write"],
+    destinations: ["salesforce"],
+    sessionId: "session_console_bypass",
+    sessionKind: "console",
+    role: "bank_operator",
+    businessLineScopes: ["consumer-banking"],
+  });
+  const response = await deliverToSalesforce(new Request("http://local/api/salesforce-deliver", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      subject: "Browser-authored action",
+      decisionPackage: decisionPackage(),
+    }),
+  }));
+  assert.equal(response.status, 403);
+  assert.match((await response.json() as { error: string }).error, /server-prepared governed decision/i);
+});
+
 function salesforceRequest(overrides: Record<string, unknown> = {}) {
   const token = issueConnectorSession({
     secret: SESSION_SECRET,

@@ -38,6 +38,10 @@ test("signed connector session is tenant, scope, destination, and lifetime bound
     scopes: ["salesforce_write"],
     destinations: ["salesforce"],
     sessionId: "session_001",
+    sessionKind: "console",
+    role: "bank_operator",
+    businessLineScopes: ["consumer-banking"],
+    queueScopes: ["deposit-review"],
     ttlSeconds: 300,
     now,
   });
@@ -45,6 +49,10 @@ test("signed connector session is tenant, scope, destination, and lifetime bound
   assert.equal(principal?.tenantId, "bank_1");
   assert.equal(principal?.subject, "service_workflow_1");
   assert.equal(principal?.authMode, "session");
+  assert.equal(principal?.sessionKind, "console");
+  assert.equal(principal?.role, "bank_operator");
+  assert.deepEqual(principal?.businessLineScopes, ["consumer-banking"]);
+  assert.deepEqual(principal?.queueScopes, ["deposit-review"]);
   assert.equal(verifyConnectorSession(token, SECRET, now + 301), null);
   assert.equal(verifyConnectorSession(`${token.slice(0, -1)}x`, SECRET, now + 1), null);
 });

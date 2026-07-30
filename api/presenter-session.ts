@@ -1,12 +1,13 @@
-// Short-lived connector session broker for the hosted executive demo.
+// Compatibility broker for hosted presenter demos and authenticated console reads.
 //
-// Deployment access controls protect the demo. This endpoint returns a session scoped
-// only to Plaid sandbox reads and Salesforce sandbox writes. Partner credentials never
-// enter the browser.
+// Presenter sessions may exercise explicitly enabled sandbox connectors. Console
+// sessions retain canonical membership scopes and cannot call the generic Salesforce
+// writer. Partner credentials never enter the browser.
 declare const process: { env: Record<string, string | undefined> };
 import { randomUUID } from "node:crypto";
 import { connectorDisabledResponse, issueConnectorSession, liveConnectorsEnabled } from "./_connectorAuth.js";
 import { authorizeConsoleUser } from "./_consoleAuth.js";
+import { authorizeScenarioDecision } from "../backend/shared/console-authorization.mjs";
 
 export const maxDuration = 10;
 
@@ -44,35 +45,62 @@ export async function POST(request: Request): Promise<Response> {
     // Operators are scoped to only the scenarios they are entitled to. The no-login demo
     // path receives both scenarios so it works end-to-end with the scenario-scoped
     // /api/plaid-transactions endpoint.
+    const depositAllowed = operator
+      ? authorizeScenarioDecision(operator, "deposit-retention").allowed
+      : true;
+    const wealthAllowed = operator
+      ? authorizeScenarioDecision(operator, "wealth-growth").allowed
+      : true;
     const scenarioScopes = operator
       ? [
-          ...(operator.entitlements.includes("consumer_demo") ? ["scenario_deposit_retention"] : []),
-          ...(operator.entitlements.includes("wealth_demo") ? ["scenario_wealth_growth"] : []),
+          ...(depositAllowed ? ["scenario_deposit_retention"] : []),
+          ...(wealthAllowed ? ["scenario_wealth_growth"] : []),
         ]
       : ["scenario_deposit_retention", "scenario_wealth_growth"];
-    const governedDestinations = operator
+    const governedDestinations = operator?.role === "bank_operator"
       && process.env.ENABLE_STANDALONE_PILOT_RUNTIME === "true"
       && operator.entitlements.includes("growth_console")
       && operator.entitlements.includes("live_connectors")
       ? [
-          ...(operator.entitlements.includes("consumer_demo") ? ["consumer-banking"] : []),
-          ...(operator.entitlements.includes("wealth_demo") ? ["wealth-management"] : []),
+          ...(depositAllowed ? ["consumer-banking"] : []),
+          ...(wealthAllowed ? ["wealth-management"] : []),
         ]
       : [];
+    const scopes = operator
+      ? [
+          ...(operator.role === "bank_operator" && scenarioScopes.length
+            ? ["plaid_read", "salesforce_outcome_read", ...scenarioScopes]
+            : []),
+          ...(operator.role === "institution_admin" ? ["salesforce_schema_read"] : []),
+          ...(governedDestinations.length ? ["growth_play_activate"] : []),
+        ]
+      : [
+          "plaid_read",
+          "salesforce_write",
+          "salesforce_outcome_read",
+          ...scenarioScopes,
+        ];
+    const destinations = operator
+      ? [
+          ...(operator.role === "bank_operator" && scenarioScopes.length ? ["plaid", "salesforce"] : []),
+          ...(operator.role === "institution_admin" ? ["salesforce"] : []),
+          ...governedDestinations,
+        ]
+      : ["plaid", "salesforce"];
+    if (!scopes.length || !destinations.length) {
+      return Response.json({ error: "this role has no live connector operation" }, { status: 403 });
+    }
     const token = issueConnectorSession({
       secret: sessionSecret,
       tenantId,
       subject,
-      scopes: [
-        "plaid_read",
-        "salesforce_write",
-        "salesforce_outcome_read",
-        ...(operator?.role === "admin" ? ["salesforce_schema_read"] : []),
-        ...scenarioScopes,
-        ...(governedDestinations.length ? ["growth_play_activate"] : []),
-      ],
-      destinations: ["plaid", "salesforce", ...governedDestinations],
+      scopes,
+      destinations,
       sessionId,
+      sessionKind: operator ? "console" : "presenter",
+      role: operator?.role,
+      businessLineScopes: operator?.businessLineScopes ?? [],
+      queueScopes: operator?.queueScopes ?? [],
       ttlSeconds: SESSION_SECONDS,
     });
     const response = Response.json({

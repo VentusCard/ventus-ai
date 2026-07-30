@@ -196,7 +196,7 @@ export type ConnectorSession = {
   connectors: { plaid: boolean; salesforce: boolean };
   tenantId: string;
   subject: string;
-  role: "operator" | "admin";
+  role: ConsoleAccessProfile["role"] | "demo";
 };
 
 export type ScenarioId = "deposit-retention" | "wealth-growth";
@@ -498,7 +498,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         connectors: data.connectors ?? { plaid: false, salesforce: false },
         tenantId: data.tenantId,
         subject: data.subject,
-        role: data.role === "admin" ? "admin" : "operator",
+        role: data.role ?? "bank_operator",
       });
     } catch (error) {
       setConnectError(error instanceof Error ? error.message : "Connector session unavailable");
@@ -780,110 +780,9 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           return;
         }
 
-        const response = await fetch(connectorApiUrl("salesforce-deliver"), {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${connectorSession.token}`,
-          },
-          body: JSON.stringify({
-            subject: meta.subject,
-            dueInDays: moment.scenario === "deposit-retention" ? 2 : 3,
-            source: `console-${authTenant.id}`,
-            decisionPackage,
-            insight: {
-              businessLine: decisionPackage.growthPlay.businessLine,
-              growthPlay: meta.play,
-              customerRef: `household-${moment.id}`,
-              moment: moment.opportunity.type,
-              whyNow: moment.opportunity.reason,
-              recommendedAction: selectedAction.instructions,
-              expectedOutcome: meta.outcome,
-              confidence: moment.opportunity.confidence,
-              destination: selectedAction.destination,
-              evidence: moment.opportunity.signals.slice(0, 4).map((signal) => ({
-                label: signal.label,
-                confidence: Math.round(signal.strength * 100),
-              })),
-              controls: [moment.policy.reason],
-              sourceName: `${moment.sourceName} · ${moment.transactions.length} tokenized records`,
-              decisionRef: moment.decisionId ?? `${moment.scenario}:${moment.id}`,
-            },
-          }),
-        });
-        const data = (await response.json().catch(() => ({}))) as {
-          id?: string;
-          url?: string;
-          object?: string;
-          error?: string;
-          activation?: { subject?: string };
-          records?: ConsoleMoment["receipt"]["records"];
-          warnings?: Array<{ stage: string; message: string }>;
-        };
-        if (!response.ok || !data.id) {
-          if (response.status === 401 || response.status === 403) setConnectorSession(null);
-          throw new Error(data.error ?? `Salesforce write failed (${response.status})`);
-        }
-        setMoments((prev) =>
-          prev.map((item) =>
-            item.id === momentId
-              ? {
-                  ...item,
-                  status: "activated",
-                  decisionPackage: {
-                    ...decisionPackage,
-                    workflow: {
-                      connector: "salesforce-fsc",
-                      status: "delivered",
-                      records: {
-                        ...(data.records?.decision?.id ? { decision: data.records.decision.id } : {}),
-                        ...(data.records?.referral?.id ? { referral: data.records.referral.id } : {}),
-                        ...(data.records?.task?.id ? { task: data.records.task.id } : {}),
-                      },
-                    },
-                    outcome: {
-                      ...decisionPackage.outcome,
-                      status: "measuring",
-                    },
-                  },
-                  receipt: {
-                    id: data.id!,
-                    url: data.url,
-                    object: data.object,
-                    subject: data.activation?.subject ?? meta.subject,
-                    records: data.records,
-                    warnings: data.warnings,
-                  },
-                }
-              : item,
-          ),
+        throw new Error(
+          "This moment is not backed by a server-prepared governed decision and cannot be delivered.",
         );
-        record([
-          {
-            eventKey: `${momentId}-decision`,
-            kind: "decision",
-            title: `${meta.play} ${responseStatus}`,
-            detail: `${selectedAction.title} · operator ${user?.email ?? "unknown"}`,
-            ref: momentId,
-            status: "confirmed",
-          },
-          {
-            eventKey: `${momentId}-activation`,
-            kind: "activation",
-            title: "Salesforce workflow delivered",
-            detail: `${Object.values(data.records ?? {}).filter(Boolean).length || 1} record(s) · sandbox org`,
-            ref: data.id,
-            status: "confirmed",
-          },
-          {
-            eventKey: `${momentId}-outcome`,
-            kind: "outcome",
-            title: "Outcome window opened",
-            detail: "Measured against reserved holdout when the bank feed posts",
-            ref: momentId,
-            status: "pending",
-          },
-        ]);
       } catch (error) {
         setActivateError(error instanceof Error ? error.message : "Activation failed");
       } finally {
