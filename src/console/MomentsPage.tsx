@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, Landmark, Send } from "lucide-react";
+import { Check, Landmark, Loader2, Plug, Send } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { MomentCard } from "@/console/MomentCard";
 import { decisionPackageForMoment, useConsole } from "@/console/state";
@@ -8,7 +8,26 @@ import { useAuth } from "@/console/state";
 export default function MomentsPage() {
   const [searchParams] = useSearchParams();
   const { access } = useAuth();
-  const { tenant, moments, activating, activateError, activate, defer, decline, scenarioMeta, syncingOutcome, outcomeSyncMessage, syncOutcome } = useConsole();
+  const {
+    tenant,
+    connectorSession,
+    connecting,
+    connectError,
+    connect,
+    ingesting,
+    ingestError,
+    ingest,
+    moments,
+    activating,
+    activateError,
+    activate,
+    defer,
+    decline,
+    scenarioMeta,
+    syncingOutcome,
+    outcomeSyncMessage,
+    syncOutcome,
+  } = useConsole();
   const [selectedId, setSelectedId] = useState<string | null>(searchParams.get("moment"));
   const [selectedActionId, setSelectedActionId] = useState("");
   const [mode, setMode] = useState<"none" | "modify" | "defer" | "decline">("none");
@@ -31,7 +50,49 @@ export default function MomentsPage() {
   }, [decision, selected]);
 
   if (!visibleMoments.length) {
-    return <div className="mx-auto flex min-h-[65vh] max-w-xl flex-col items-center justify-center text-center"><Landmark className="h-9 w-9" style={{ color: "var(--v2-ink-faint)" }} /><h2 className="v2-display mt-5 text-2xl">No Consumer Deposit Primacy moments.</h2><p className="v2-body mt-3 text-[13px]">Qualified moments are created by the governed runtime and appear here once assigned. Fixture transactions stay in the separate demo experience.</p></div>;
+    const livePlaidReady = Boolean(connectorSession?.connectors.plaid);
+    const loadMoment = () => {
+      if (livePlaidReady) {
+        void ingest("deposit-retention");
+        return;
+      }
+      void connect();
+    };
+    const buttonLabel = connecting
+      ? "Connecting"
+      : ingesting
+        ? "Loading moment"
+        : livePlaidReady
+          ? "Load sandbox moment"
+          : "Start sandbox session";
+
+    return (
+      <div className="mx-auto flex min-h-[65vh] max-w-xl flex-col items-center justify-center text-center">
+        <Landmark className="h-9 w-9" style={{ color: "var(--v2-ink-faint)" }} />
+        <h2 className="v2-display mt-5 text-2xl">No Consumer Deposit Primacy moments.</h2>
+        <p className="v2-body mt-3 text-[13px]">
+          Start a scoped sandbox session to pull the approved Plaid sample and create one governed review.
+        </p>
+        <button onClick={loadMoment} disabled={connecting || ingesting} className="console-btn mt-6 !px-4 !py-2.5 !text-[12px]">
+          {connecting || ingesting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plug className="h-3.5 w-3.5" />}
+          {buttonLabel}
+        </button>
+        {livePlaidReady ? (
+          <p className="v2-mono mt-3 text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-verified)" }}>
+            Plaid sandbox connected · read only
+          </p>
+        ) : (
+          <p className="v2-mono mt-3 text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>
+            Credentials stay server-side · session is tenant and operator scoped
+          </p>
+        )}
+        {connectError || ingestError ? (
+          <p className="mt-3 text-[12px] font-semibold" style={{ color: "#b3261e" }}>
+            {connectError ?? ingestError}
+          </p>
+        ) : null}
+      </div>
+    );
   }
 
   const confirm = () => {
