@@ -1,8 +1,8 @@
 import { lazy, Suspense } from "react";
 import { ArrowRight, Check, Clock3, Loader2, LogOut } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
-import { useAuth, type ConsoleEntitlement } from "@/console/state";
-import { defaultPathForAccess } from "@/console/access";
+import { useAuth } from "@/console/state";
+import { entryPathForAccess } from "@/console/access";
 import type { LeadershipPath } from "@/lib/leadership";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
@@ -25,13 +25,7 @@ export function AppEntryPage() {
   if (accessError || !access || access.status !== "active") {
     return <Navigate to="/app/access-pending" replace />;
   }
-  if (hasAny(access.entitlements, ["consumer_demo", "wealth_demo"])) {
-    return <Navigate to="/app/demo" replace />;
-  }
-  if (access.entitlements.includes("growth_console")) {
-    return <Navigate to={defaultPathForAccess(access)} replace />;
-  }
-  return <Navigate to="/app/access-pending" replace />;
+  return <Navigate to={entryPathForAccess(access)} replace />;
 }
 
 export function ProtectedDemoPage() {
@@ -102,8 +96,4 @@ export function AccessPendingPage() {
       </div>
     </div>
   );
-}
-
-function hasAny(current: ConsoleEntitlement[], required: ConsoleEntitlement[]): boolean {
-  return required.some((entitlement) => current.includes(entitlement));
 }
