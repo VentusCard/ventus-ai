@@ -42,6 +42,7 @@ import {
   clearTenantOverride,
   resolveTenant,
   resolveTenantFromEmail,
+  TENANTS,
   type Tenant,
 } from "@/lib/tenant";
 import {
@@ -77,8 +78,16 @@ export type ConsoleAccessProfile = {
   email: string;
   tenantId: string;
   organizationId: string;
-  role: "operator" | "admin";
-  status: "active" | "pending";
+  role:
+    | "ventus_platform_admin"
+    | "institution_admin"
+    | "growth_play_owner"
+    | "bank_operator"
+    | "risk_reviewer"
+    | "executive_viewer";
+  status: "active" | "pending" | "suspended";
+  businessLineScopes: string[];
+  queueScopes: string[];
   entitlements: ConsoleEntitlement[];
   authProvider: string;
 };
@@ -132,7 +141,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!response.ok || !data.userId) {
         throw new Error(data.error ?? `access lookup failed (${response.status})`);
       }
-      setAccess(data);
+      setAccess({
+        ...data,
+        businessLineScopes: data.businessLineScopes ?? [],
+        queueScopes: data.queueScopes ?? [],
+      });
     } catch (error) {
       setAccess(null);
       setAccessError(error instanceof Error ? error.message : "Access lookup unavailable");
@@ -423,9 +436,9 @@ type ConsoleState = {
 const ConsoleContext = createContext<ConsoleState | null>(null);
 
 export function ConsoleProvider({ children }: { children: ReactNode }) {
-  const { user, session } = useAuth();
-  const tenant = useMemo(() => resolveTenant(user?.email), [user?.email]);
-  const authTenant = useMemo(() => resolveTenantFromEmail(user?.email), [user?.email]);
+  const { user, session, access } = useAuth();
+  const authTenant = useMemo(() => TENANTS[access?.tenantId ?? ""] ?? resolveTenantFromEmail(user?.email), [access?.tenantId, user?.email]);
+  const tenant = useMemo(() => resolveTenant(authTenant.id === "ventus" ? user?.email : undefined), [authTenant.id, user?.email]);
   const userId = user?.id ?? "anonymous";
   const sessionKey = scopedKey("connector_session", authTenant.id, userId);
   const momentsKey = scopedKey("moments", authTenant.id, userId);

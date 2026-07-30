@@ -100,7 +100,7 @@ export function FscOnboardingPage() {
     [account?.verified, delivery, live, schema?.requiredMappingsReady],
   );
 
-  if (access?.role !== "admin") {
+  if (access?.role !== "institution_admin" && access?.role !== "ventus_platform_admin") {
     return (
       <div className="mx-auto flex min-h-[65vh] max-w-md flex-col items-center justify-center text-center">
         <ShieldCheck className="h-9 w-9" style={{ color: "var(--v2-ink-faint)" }} />

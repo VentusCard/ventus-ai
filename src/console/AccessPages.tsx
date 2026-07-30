@@ -2,6 +2,7 @@ import { lazy, Suspense } from "react";
 import { ArrowRight, Check, Clock3, Loader2, LogOut } from "lucide-react";
 import { Link, Navigate } from "react-router-dom";
 import { useAuth, type ConsoleEntitlement } from "@/console/state";
+import { defaultPathForAccess } from "@/console/access";
 import type { LeadershipPath } from "@/lib/leadership";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
@@ -28,7 +29,7 @@ export function AppEntryPage() {
     return <Navigate to="/app/demo" replace />;
   }
   if (access.entitlements.includes("growth_console")) {
-    return <Navigate to="/app/moments" replace />;
+    return <Navigate to={defaultPathForAccess(access)} replace />;
   }
   return <Navigate to="/app/access-pending" replace />;
 }
