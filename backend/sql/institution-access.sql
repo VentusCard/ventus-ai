@@ -43,11 +43,13 @@ CREATE TABLE IF NOT EXISTS institution_memberships (
       'institution_admin',
       'growth_play_owner',
       'bank_operator',
-      'risk_reviewer'
+      'risk_reviewer',
+      'executive_viewer'
     )),
   status text NOT NULL DEFAULT 'invited'
     CHECK (status IN ('invited', 'active', 'suspended', 'revoked')),
   business_lines text[] NOT NULL DEFAULT '{}',
+  queue_scopes text[] NOT NULL DEFAULT '{}',
   entitlements text[] NOT NULL DEFAULT '{}',
   created_at timestamptz NOT NULL DEFAULT now(),
   updated_at timestamptz NOT NULL DEFAULT now(),
@@ -61,6 +63,7 @@ CREATE TABLE IF NOT EXISTS institution_memberships (
   CHECK (email = lower(email)),
   CHECK (email ~ '^[^[:space:]@]+@[^[:space:]@]+\.[^[:space:]@]+$'),
   CHECK (array_position(business_lines, NULL) IS NULL),
+  CHECK (array_position(queue_scopes, NULL) IS NULL),
   CHECK (array_position(entitlements, NULL) IS NULL)
 );
 
@@ -103,4 +106,4 @@ COMMENT ON TABLE institutions IS
 COMMENT ON TABLE institution_identity_providers IS
   'Non-secret Cognito/SAML/OIDC bindings and claim mappings for an institution.';
 COMMENT ON TABLE institution_memberships IS
-  'Institution-scoped role, business-line, and entitlement authorization for a verified IdP subject.';
+  'Institution-scoped canonical role, business-line, queue, and entitlement authorization for a verified IdP subject.';

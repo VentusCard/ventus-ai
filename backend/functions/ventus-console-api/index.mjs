@@ -62,7 +62,7 @@ async function resolveCognitoMembership(identity) {
     await client.query('BEGIN READ ONLY');
     await client.query("SELECT set_config('app.current_tenant_id', $1, true)", [identity.tenantHint]);
     const result = await client.query(
-      `SELECT m.email, m.role, m.entitlements, m.business_lines
+      `SELECT m.email, m.role, m.status, m.entitlements, m.business_lines, m.queue_scopes
          FROM ventus_evidence.institution_memberships m
          JOIN ventus_evidence.institutions i
            ON i.tenant_id = m.tenant_id
@@ -72,7 +72,7 @@ async function resolveCognitoMembership(identity) {
         WHERE m.tenant_id = $1
           AND m.identity_provider_key = 'cognito'
           AND m.identity_subject = $2
-          AND m.status = 'active'
+          AND m.status IN ('invited', 'active', 'suspended')
           AND i.status IN ('pilot', 'active')
           AND p.status IN ('testing', 'active')
           AND p.issuer = $3
@@ -85,8 +85,10 @@ async function resolveCognitoMembership(identity) {
     return {
       email: row.email.toLowerCase(),
       role: row.role,
+      status: row.status === 'active' ? 'active' : row.status === 'suspended' ? 'suspended' : 'pending',
       entitlements: safeStringArray(row.entitlements).filter((item) => ALLOWED_ENTITLEMENTS.has(item)),
       businessLines: safeStringArray(row.business_lines),
+      queueScopes: safeStringArray(row.queue_scopes),
     };
   } catch (error) {
     await client.query('ROLLBACK').catch(() => undefined);

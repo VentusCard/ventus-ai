@@ -38,6 +38,8 @@ export function createConsoleApiHandler({
         const body = parseBody(event.body);
         const requiredEntitlement = requiredEntitlementForScenario(body.scenario);
         if (
+          membership.status !== 'active'
+          ||
           !membership.entitlements.includes('growth_console')
           || !membership.entitlements.includes(requiredEntitlement)
         ) {
@@ -56,12 +58,11 @@ export function createConsoleApiHandler({
         email: membership.email,
         tenantId: identity.tenantHint,
         organizationId: identity.tenantHint,
-        role: ['ventus_platform_admin', 'institution_admin'].includes(membership.role)
-          ? 'admin'
-          : 'operator',
-        status: membership.entitlements.length > 0 ? 'active' : 'pending',
+        role: membership.role,
+        status: membership.status || (membership.entitlements.length > 0 ? 'active' : 'pending'),
         entitlements: membership.entitlements,
-        businessLines: membership.businessLines,
+        businessLineScopes: membership.businessLines,
+        queueScopes: membership.queueScopes || [],
         authProvider: 'cognito',
       }, responseHeaders);
     } catch (error) {

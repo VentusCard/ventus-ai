@@ -11,8 +11,10 @@ const identity = {
 const membership = {
   email: 'operator@ventusai.com',
   role: 'institution_admin',
+  status: 'active',
   entitlements: ['growth_console', 'wealth_demo'],
   businessLines: ['wealth'],
+  queueScopes: ['wealth-advisory'],
 };
 
 test('Console API returns the institution-scoped principal', async () => {
@@ -25,9 +27,10 @@ test('Console API returns the institution-scoped principal', async () => {
 
   assert.equal(result.statusCode, 200);
   assert.equal(body.tenantId, 'ventus');
-  assert.equal(body.role, 'admin');
+  assert.equal(body.role, 'institution_admin');
   assert.deepEqual(body.entitlements, ['growth_console', 'wealth_demo']);
-  assert.deepEqual(body.businessLines, ['wealth']);
+  assert.deepEqual(body.businessLineScopes, ['wealth']);
+  assert.deepEqual(body.queueScopes, ['wealth-advisory']);
   assert.equal(body.authProvider, 'cognito');
   assert.equal(result.headers['Cache-Control'], 'no-store');
 });
@@ -44,6 +47,21 @@ test('Console API fails closed for invalid tokens and inactive memberships', asy
     resolveMembership: async () => null,
   });
   assert.equal((await inactiveMembership(request())).statusCode, 403);
+});
+
+test('Console API reports pending access without granting console operations', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, status: 'pending' }),
+    executeDecision: executeHostedDecision,
+    appendDecision: async () => { throw new Error('should not write'); },
+  });
+  const access = JSON.parse((await handler(request())).body);
+  assert.equal(access.status, 'pending');
+  const decision = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run', body: JSON.stringify(decisionBody()),
+  }));
+  assert.equal(decision.statusCode, 403);
 });
 
 test('Console API rejects unapproved browser origins', async () => {
