@@ -31,34 +31,45 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
         );
       }
       const selectedAction = decisionPackage.recommendation.selectedAction;
-      const result = await salesforce.deliver({
-        config,
-        tenantId,
-        body: {
-          source,
-          priority: decisionPackage.moment.confidence >= 85 ? 'High' : 'Normal',
-          subject: `${decisionPackage.growthPlay.name} - ${selectedAction.title}`,
-          insight: {
-            customerRef: decisionPackage.subject.token,
-            whyNow: decisionPackage.moment.summary,
-            moment: decisionPackage.moment.type,
-            recommendedAction: selectedAction.instructions || selectedAction.title,
-            expectedOutcome: `Measure ${decisionPackage.growthPlay.primaryMetric} over ${decisionPackage.outcome.windowDays} days.`,
-            evidence: decisionPackage.moment.evidence,
-            controls: decisionPackage.governance.controls,
-            destination: selectedAction.destination,
-            growthPlay: decisionPackage.growthPlay.name,
-            businessLine: decisionPackage.growthPlay.businessLine,
-            decisionRef: decisionPackage.decisionId,
-            sourceName: source,
-            confidence: decisionPackage.moment.confidence,
+      let result;
+      try {
+        result = await salesforce.deliver({
+          config,
+          tenantId,
+          body: {
+            source,
+            priority: decisionPackage.moment.confidence >= 85 ? 'High' : 'Normal',
+            subject: `${decisionPackage.growthPlay.name} - ${selectedAction.title}`,
+            insight: {
+              customerRef: decisionPackage.subject.token,
+              whyNow: decisionPackage.moment.summary,
+              moment: decisionPackage.moment.type,
+              recommendedAction: selectedAction.instructions || selectedAction.title,
+              expectedOutcome: `Measure ${decisionPackage.growthPlay.primaryMetric} over ${decisionPackage.outcome.windowDays} days.`,
+              evidence: decisionPackage.moment.evidence,
+              controls: decisionPackage.governance.controls,
+              destination: selectedAction.destination,
+              growthPlay: decisionPackage.growthPlay.name,
+              businessLine: decisionPackage.growthPlay.businessLine,
+              decisionRef: decisionPackage.decisionId,
+              sourceName: source,
+              confidence: decisionPackage.moment.confidence,
+            },
+            decisionPackage,
+            fsc: {
+              createReferral: config.salesforceCreateReferral,
+            },
           },
-          decisionPackage,
-          fsc: {
-            createReferral: config.salesforceCreateReferral,
-          },
-        },
-      });
+        });
+      } catch (error) {
+        if (error?.name === 'SalesforceFscError' && /authentication|token response/i.test(String(error.message))) {
+          throw new ProductSalesforceConnectorError(
+            'Salesforce authentication is not configured for the product connector.',
+            { code: 'salesforce_auth_invalid', terminalFailure: true },
+          );
+        }
+        throw error;
+      }
       return sanitizeDelivery(result);
     },
   };

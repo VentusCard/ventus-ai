@@ -83,7 +83,9 @@ export class VentusConsoleApiStack extends cdk.Stack {
       vpcSubnets: { subnets: lambdaSubnets },
       securityGroups: [databaseSecurityGroup],
       memorySize: 512,
-      timeout: cdk.Duration.seconds(15),
+      // API Gateway REST integrations allow roughly 29 seconds. Leave room
+      // for a cold start plus Salesforce auth and bounded FSC record writes.
+      timeout: cdk.Duration.seconds(25),
       reservedConcurrentExecutions: 5,
       logGroup,
       environment: {

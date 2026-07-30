@@ -54,3 +54,24 @@ test('product connector derives the Salesforce payload from the Decision Package
   assert.equal(calls[0].body.decisionPackage, decisionPackage);
   assert.equal(result.records.task.id, '00T123456789012EAA');
 });
+
+test('product connector treats authentication failure as terminal configuration failure', async () => {
+  const connector = createProductSalesforceConnector({
+    getSecrets: async () => ({
+      salesforceLoginUrl: 'https://example.my.salesforce.com',
+      salesforceClientId: 'client',
+      salesforceClientSecret: 'secret',
+    }),
+    fscService: {
+      async deliver() {
+        const error = new Error('Salesforce authentication failed (400)');
+        error.name = 'SalesforceFscError';
+        throw error;
+      },
+    },
+  });
+  await assert.rejects(
+    connector.deliver({ tenantId: 'pilot_bank', decisionPackage }),
+    (error) => error instanceof ProductSalesforceConnectorError && error.code === 'salesforce_auth_invalid' && error.terminalFailure,
+  );
+});
