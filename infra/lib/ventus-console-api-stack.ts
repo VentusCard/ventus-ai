@@ -110,8 +110,8 @@ export class VentusConsoleApiStack extends cdk.Stack {
       },
       defaultCorsPreflightOptions: {
         allowOrigins: allowedOrigins,
-        allowMethods: ['POST', 'OPTIONS'],
-        allowHeaders: ['Authorization', 'Content-Type'],
+        allowMethods: ['GET', 'POST', 'OPTIONS'],
+        allowHeaders: ['Authorization', 'Content-Type', 'Idempotency-Key'],
         maxAge: cdk.Duration.hours(1),
       },
     });
@@ -119,6 +119,13 @@ export class VentusConsoleApiStack extends cdk.Stack {
     const consoleApi = api.root.addResource('v1').addResource('console');
     consoleApi.addResource('access').addMethod('POST', integration);
     consoleApi.addResource('decision-run').addMethod('POST', integration);
+    consoleApi.addResource('today').addMethod('GET', integration);
+    const moments = consoleApi.addResource('moments');
+    moments.addMethod('GET', integration);
+    const moment = moments.addResource('{decision_id}');
+    moment.addMethod('GET', integration);
+    moment.addResource('responses').addMethod('POST', integration);
+    moment.addResource('deliveries').addMethod('POST', integration);
 
     new cloudwatch.Alarm(this, 'ConsoleApiLambdaErrors', {
       alarmName: 'ventus-console-api-errors',

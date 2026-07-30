@@ -25,6 +25,7 @@ function confidenceBand(confidence: number): "low" | "medium" | "high" {
 export function MomentCard({ moment, decision, action, variant = "full", onSyncOutcome, syncingOutcome, outcomeSyncMessage, children }: MomentCardProps) {
   const band = confidenceBand(decision.moment.confidence);
   const delivered = moment.status === "activated" && moment.receipt;
+  const reserved = moment.status === "delivery_reserved" && moment.receipt;
 
   if (variant !== "full") {
     return (
@@ -92,6 +93,11 @@ export function MomentCard({ moment, decision, action, variant = "full", onSyncO
             {onSyncOutcome ? <button onClick={onSyncOutcome} disabled={syncingOutcome || !moment.receipt?.records?.decision} className="inline-flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--c-accent)" }} title={!moment.receipt?.records?.decision ? "A Decision Receipt is required" : undefined}>{syncingOutcome ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}Check Salesforce</button> : null}
           </div>
           {outcomeSyncMessage ? <p className="mt-2 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>{outcomeSyncMessage}</p> : null}
+        </div>
+      ) : reserved ? (
+        <div className="flex items-center gap-2 p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>
+          <Clock3 className="h-4 w-4" />
+          Delivery is reserved with an idempotent receipt. The approved connector service will reconcile the destination result.
         </div>
       ) : children ? <div className="p-5">{children}</div> : <div className="flex items-center gap-2 p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}><Clock3 className="h-4 w-4" />Awaiting the authorized employee response.</div>}
     </article>

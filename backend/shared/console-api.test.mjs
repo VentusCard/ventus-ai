@@ -82,6 +82,7 @@ test('Console API persists an entitled hosted decision and returns its receipt',
       role: 'bank_operator',
       entitlements: ['growth_console', 'consumer_demo'],
       businessLines: ['consumer-banking'],
+      queueScopes: [],
     }),
     executeDecision: executeHostedDecision,
     appendDecision: async ({ decision, requestId }) => ({
@@ -157,6 +158,118 @@ test('Console API blocks a decision outside the operator entitlement', async () 
   assert.equal(result.statusCode, 403);
 });
 
+test('Console API gives executives a durable aggregate Today view without customer Moments', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'executive_viewer',
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['consumer-banking'],
+      queueScopes: [],
+    }),
+    journey: {
+      async listMoments() {
+        return [moment('deposit-retention'), moment('wealth-growth')];
+      },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    httpMethod: 'GET', path: '/staging/v1/console/today', body: undefined,
+  }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 200);
+  assert.equal(body.aggregateOnly, true);
+  assert.equal(body.counts.total, 1);
+  assert.equal(body.moments, undefined);
+});
+
+test('Console API records a response through the durable server contract', async () => {
+  const calls = [];
+  const consumerOperator = {
+    ...membership,
+    role: 'bank_operator',
+    entitlements: ['growth_console', 'consumer_demo'],
+    businessLines: ['consumer-banking'],
+    queueScopes: [],
+  };
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => consumerOperator,
+    journey: {
+      async loadMoment() { return moment('deposit-retention'); },
+      async recordResponse(input) {
+        calls.push(input);
+        return { receipt: { sequenceNumber: 4 }, moment: moment('deposit-retention') };
+      },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/moments/dec_123/responses',
+    headers: { authorization: 'Bearer valid-token', origin: 'https://dev.example.com', 'idempotency-key': 'response_123' },
+    body: JSON.stringify({
+      expectedState: 'queued',
+      clientRequestedAt: '2026-07-30T12:00:00.000Z',
+      response: { status: 'accepted', actionId: 'banker-retention-review' },
+    }),
+  }));
+  assert.equal(result.statusCode, 201);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].actorId, identity.subject);
+  assert.equal(calls[0].idempotencyKey, 'response_123');
+  assert.equal(calls[0].response.actionId, 'banker-retention-review');
+});
+
+test('Console API rejects a response once a Moment has left the queued state', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'bank_operator',
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['consumer-banking'],
+      queueScopes: [],
+    }),
+    journey: {
+      async loadMoment() { return moment('deposit-retention'); },
+      async recordResponse() { throw new Error('should not record'); },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/moments/dec_123/responses',
+    headers: { authorization: 'Bearer valid-token', origin: 'https://dev.example.com', 'idempotency-key': 'response_456' },
+    body: JSON.stringify({
+      expectedState: 'approved',
+      clientRequestedAt: '2026-07-30T12:00:00.000Z',
+      response: { status: 'modified', actionId: 'digital-retention-message' },
+    }),
+  }));
+  assert.equal(result.statusCode, 400);
+});
+
+test('Console API does not permit a cross-business delivery reservation', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'bank_operator',
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['consumer-banking'],
+      queueScopes: [],
+    }),
+    journey: {
+      async loadMoment() { return moment('wealth-growth'); },
+      async reserveDelivery() { throw new Error('should not reserve'); },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/moments/dec_wealth/deliveries',
+    headers: { authorization: 'Bearer valid-token', origin: 'https://dev.example.com', 'idempotency-key': 'delivery_123' },
+    body: JSON.stringify({ expectedState: 'approved', clientRequestedAt: '2026-07-30T12:00:00.000Z' }),
+  }));
+  assert.equal(result.statusCode, 403);
+});
+
 function request(origin = 'https://dev.example.com', overrides = {}) {
   process.env.VENTUS_ALLOWED_ORIGINS = 'https://dev.example.com';
   return {
@@ -192,5 +305,16 @@ function decisionBody() {
         personal_finance_category: { primary: 'TRANSFER_OUT', detailed: 'TRANSFER_OUT_ACCOUNT_TRANSFER' },
       },
     ],
+  };
+}
+
+function moment(scenario) {
+  return {
+    id: `mom_${scenario}`,
+    decisionId: `dec_${scenario}`,
+    scenario,
+    status: 'queued',
+    createdAt: '2026-07-30T00:00:00.000Z',
+    decisionPackage: { response: { status: 'pending' } },
   };
 }
