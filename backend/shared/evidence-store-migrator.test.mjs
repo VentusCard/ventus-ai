@@ -24,7 +24,9 @@ test('evidence-store migrator validates identifiers and quotes password literals
     'growth-play-registry.sql',
     'tenant-isolation.sql',
     'institution-access.sql',
+    'enterprise-access-phase0.sql',
     'connector-delivery.sql',
+    'enterprise-console-journey.sql',
   ]);
 });
 
