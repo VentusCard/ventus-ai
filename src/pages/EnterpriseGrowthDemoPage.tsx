@@ -46,6 +46,11 @@ import { pipelineEvents, runPipeline, type PipelineInput, type PipelineDerived }
 import { leadershipCapabilities } from "@/lib/capabilities";
 import { buildOpportunityFromPlaid, type DetectedOpportunity, type PlaidTransaction } from "@/lib/plaid";
 import {
+  createDecisionPackage,
+  respondToDecision,
+  type DecisionAction,
+} from "@/lib/decisionPackage";
+import {
   compileObjectiveToSkill,
   promoteSkill,
   validateSkill,
@@ -629,6 +634,9 @@ type DemoConnectorSession = {
   token: string;
   expiresAt: number;
   connectors: { plaid: boolean; salesforce: boolean };
+  tenantId?: string;
+  subject?: string;
+  role?: "admin" | "operator";
 };
 
 const DEMO_CONNECTOR_SESSION_KEY = "ventus_demo_connector_session";
@@ -4374,7 +4382,7 @@ const DEMO_CONNECTOR_ENDPOINTS = DEMO_CONNECTOR_API_BASE_URL
   ? {
       session: `${DEMO_CONNECTOR_API_BASE_URL}/session`,
       plaid: `${DEMO_CONNECTOR_API_BASE_URL}/plaid-transactions`,
-      salesforce: `${DEMO_CONNECTOR_API_BASE_URL}/salesforce-task`,
+      salesforce: `${DEMO_CONNECTOR_API_BASE_URL}/salesforce-deliver`,
     }
   : {
       session: "/api/presenter-session",
@@ -4389,6 +4397,25 @@ type LeadershipRunEvidence = {
   transactions: PlaidTransaction[];
   opportunity: DetectedOpportunity | null;
   authorizationMode?: string;
+};
+
+type SalesforceRecordReceipt = {
+  id: string;
+  url: string;
+};
+
+type LiveActivationReceipt = {
+  id: string;
+  receipt: string;
+  url?: string;
+  route: "salesforce" | "rehearsal" | "simulated";
+  object?: string;
+  records?: {
+    decision?: SalesforceRecordReceipt | null;
+    referral?: SalesforceRecordReceipt | null;
+    task?: SalesforceRecordReceipt | null;
+  };
+  warnings?: Array<{ stage: string; message: string }>;
 };
 
 function opportunityFromLeadershipEvidence(
@@ -4701,6 +4728,8 @@ function SalesforceActivationPreview({
   delivered,
   receipt,
   url,
+  recordLabel,
+  fallback,
   simulated = false,
 }: {
   subject: string;
@@ -4713,6 +4742,8 @@ function SalesforceActivationPreview({
   delivered: boolean;
   receipt?: string;
   url?: string;
+  recordLabel?: string;
+  fallback?: boolean;
   simulated?: boolean;
 }) {
   return (
@@ -4758,7 +4789,12 @@ function SalesforceActivationPreview({
 
       {delivered && receipt && (
         <div className={`mt-3 flex items-center justify-between gap-3 border-t pt-3 ${simulated ? "border-amber-200" : "border-emerald-200"}`}>
-          <p className={`min-w-0 truncate font-mono text-[10px] font-semibold ${simulated ? "text-amber-800" : "text-emerald-800"}`}>{simulated ? `Staged ${receipt} · no system written` : `Task ${receipt}`}</p>
+          <div className="min-w-0">
+            <p className={`truncate font-mono text-[10px] font-semibold ${simulated ? "text-amber-800" : "text-emerald-800"}`}>
+              {simulated ? `Staged ${receipt} · no system written` : `${recordLabel ?? "Activation"} · ${receipt}`}
+            </p>
+            {fallback && <p className="mt-0.5 text-[9px] font-semibold text-amber-700">Task delivered · Decision Receipt setup pending</p>}
+          </div>
           {url && <a href={url} target="_blank" rel="noopener noreferrer" className="flex-none rounded-lg bg-white px-3 py-1.5 text-[11px] font-semibold text-emerald-800 shadow-sm">Open record</a>}
         </div>
       )}
@@ -4799,7 +4835,7 @@ function LeadershipFlow({
   const [measurementPreview, setMeasurementPreview] = useState(false);
   const [playOpen, setPlayOpen] = useState(false);
   const [executiveDecision, setExecutiveDecision] = useState<ExecutiveDecision | null>(null);
-  const [liveReceipts, setLiveReceipts] = useState<{ id: string; receipt: string; url?: string; route: "salesforce" | "rehearsal" | "simulated" }[]>([]);
+  const [liveReceipts, setLiveReceipts] = useState<LiveActivationReceipt[]>([]);
   const [deliveryNote, setDeliveryNote] = useState<string | null>(null);
   const config = leadershipConfig(path);
   const { opp, skill } = config;
@@ -4861,6 +4897,17 @@ function LeadershipFlow({
   const { subject: salesforceSubject, outcome: salesforceOutcome } = salesforceCopyFor(path);
   const actionOptions = actionOptionsFor(path);
   const selectedAction = actionOptions[actionChoice] ?? actionOptions[0];
+  const activationReceipt = liveReceipts[0];
+  const activationRecordLabel = activationReceipt?.records?.decision
+    ? "Decision Receipt + workflow"
+    : activationReceipt?.records?.referral
+      ? "FSC referral + Task"
+      : activationReceipt?.route === "salesforce"
+        ? "Salesforce Task"
+        : "Activation";
+  const taskOnlyFallback = activationReceipt?.route === "salesforce"
+    && !activationReceipt.records?.decision
+    && !activationReceipt.records?.referral;
 
   const runOutcomeSimulation = () => {
     if (outcomeSim !== "idle") return;
@@ -4940,6 +4987,74 @@ function LeadershipFlow({
     setDeliveryNote(null);
     setDryRunState("running");
     const detected = runEvidence?.opportunity;
+    const evidence = detected?.signals?.length
+      ? detected.signals.slice(0, 4).map((signal) => ({
+          id: signal.type,
+          label: signal.label,
+          confidence: Math.round(signal.strength * 100),
+          source: runEvidence?.sourceName ?? "Presentation data",
+        }))
+      : opp.rawTransactions.slice(0, 4).map((transaction, index) => ({
+          id: `${opp.id}-${index + 1}`,
+          label: transaction.tag,
+          confidence: Math.round(transaction.conf * 100),
+          source: runEvidence?.sourceName ?? "Presentation data",
+        }));
+    const decisionAction: DecisionAction = {
+      id: `${path}-${actionChoice + 1}`,
+      title: salesforceSubject,
+      instructions: selectedAction,
+      ownerRole: destination,
+      destination: "Salesforce FSC",
+    };
+    const decisionPackage = respondToDecision(
+      createDecisionPackage({
+        decisionId: `dec_${globalThis.crypto.randomUUID().replaceAll("-", "")}`,
+        tenantId: connectorSession.tenantId ?? "ventus",
+        createdAt: new Date().toISOString(),
+        evidenceClass: runEvidence?.sourceMode === "live" ? "sandbox" : "fixture",
+        growthPlay: {
+          id: skill.slug,
+          name: config.playTitle,
+          businessLine: config.businessLine,
+          objective: config.objective,
+          primaryMetric: config.primaryMetric,
+          protocolId: `${skill.slug}@${skill.version}`,
+        },
+        subject: {
+          token: `tok_${path}_${opp.id}`,
+        },
+        moment: {
+          type: evidenceOpp.type,
+          summary: evidenceOpp.reason,
+          confidence: evidenceOpp.confidence,
+          evidence,
+        },
+        recommendation: {
+          selectedAction: decisionAction,
+          alternatives: [],
+        },
+        governance: {
+          policyStatus: "cleared",
+          controls: activeControls,
+          humanReviewRequired: true,
+          assignmentArm: "treatment",
+        },
+        decisionMethod: {
+          active: "deterministic-baseline",
+          shadowCandidate: "model-assisted-planner",
+        },
+        outcome: {
+          metric: config.primaryMetric,
+          windowDays: path === "deposit-retention" ? 45 : 90,
+          status: "measuring",
+        },
+      }),
+      frontlineDecision === "adjusted" ? "modified" : "accepted",
+      connectorSession.subject ?? "authenticated-demo-operator",
+      decisionAction,
+      frontlineFeedback ?? undefined,
+    );
     try {
       const response = await fetch(DEMO_CONNECTOR_ENDPOINTS.salesforce, {
         method: "POST",
@@ -4948,6 +5063,7 @@ function LeadershipFlow({
           subject: salesforceSubject,
           dueInDays: path === "deposit-retention" ? 2 : 3,
           source: runEvidence?.sourceMode === "live" ? "leadership-demo-plaid" : "leadership-demo",
+          decisionPackage,
           insight: {
             businessLine: config.businessLine,
             growthPlay: config.playTitle,
@@ -4958,27 +5074,47 @@ function LeadershipFlow({
             expectedOutcome: salesforceOutcome,
             confidence: evidenceOpp.confidence,
             destination,
-            evidence: detected?.signals?.length
-              ? detected.signals.slice(0, 4).map((signal) => ({ label: signal.label, confidence: Math.round(signal.strength * 100) }))
-              : opp.rawTransactions.slice(0, 4).map((transaction) => ({ label: transaction.tag, confidence: Math.round(transaction.conf * 100) })),
+            evidence: evidence.map(({ label, confidence }) => ({ label, confidence })),
             controls: activeControls,
             sourceName: runEvidence?.sourceName ?? "Presentation data",
             decisionRef: `${path}:${opp.id}`,
           },
         }),
       });
-      const data = (await response.json().catch(() => ({}))) as { id?: string; url?: string; error?: string; activation?: { subject?: string } };
+      const data = (await response.json().catch(() => ({}))) as {
+        id?: string;
+        object?: string;
+        url?: string;
+        error?: string;
+        activation?: { subject?: string };
+        records?: LiveActivationReceipt["records"];
+        warnings?: LiveActivationReceipt["warnings"];
+      };
       if (response.ok && data.id) {
-        setLiveReceipts([{ id: opp.id, receipt: data.id, url: data.url, route: "salesforce" }]);
-        setDeliveryNote(`${data.activation?.subject ?? salesforceSubject} created`);
+        const receipt: LiveActivationReceipt = {
+          id: opp.id,
+          receipt: data.id,
+          url: data.url,
+          route: "salesforce",
+          object: data.object,
+          records: data.records,
+          warnings: data.warnings,
+        };
+        setLiveReceipts([receipt]);
+        const deliverySummary = data.records?.decision
+          ? "Decision Receipt and employee workflow created"
+          : data.records?.referral
+            ? "FSC referral and employee Task created"
+            : "Employee Task created · Decision Receipt setup pending";
+        setDeliveryNote(deliverySummary);
         setDryRunState("complete");
         setShadowReady(true);
         appendSession([
           {
             eventKey: `lf-${path}-activation`,
             kind: "activation",
-            title: "Salesforce Task created",
-            detail: `${data.id} · sandbox org · live write`,
+            title: "Salesforce activation package created",
+            detail: `${deliverySummary} · ${data.id}`,
             ref: data.id,
             status: "confirmed",
           },
@@ -5025,7 +5161,7 @@ function LeadershipFlow({
     setShadowReady(false);
   };
 
-  const nextLabels = ["See employee experience", "Create Salesforce Task", "Measure outcome"];
+  const nextLabels = ["See employee experience", "Send to Salesforce FSC", "Measure outcome"];
   const activeControls = activeControlChips(path, controls);
   const frontlineApproved = frontlineDecision === "accepted" || frontlineDecision === "adjusted";
   const econ = illustrativeRange(assumptions);
@@ -5160,14 +5296,14 @@ function LeadershipFlow({
             {step === 2 && (
               <div className="w-full">
                 <LeadershipEyebrow>Activate · system of record</LeadershipEyebrow>
-                <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight" style={{ color: NAVY }}>Create the action in Salesforce.</h1>
+                <h1 className="mt-2 text-3xl font-extrabold leading-tight tracking-tight" style={{ color: NAVY }}>Land the decision in Salesforce.</h1>
                 <div className="mt-3 grid gap-4 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
                   <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
                     <div className="grid items-center gap-2 sm:grid-cols-[1fr_auto_1fr_auto_1fr]">
                       {[
                         { label: runEvidence?.sourceName ?? config.sourceLabel, detail: `${runEvidence?.transactions.length || 3} records`, Icon: Layers },
                         { label: "Ventus decision", detail: "Qualified moment", Icon: Wand2 },
-                        { label: "Salesforce FSC", detail: "Task · sandbox", Icon: Network },
+                        { label: "Salesforce FSC", detail: "Decision + workflow", Icon: Network },
                       ].map((node, index) => (
                         <div key={node.label} className="contents">
                           {index > 0 && <ArrowRight className="hidden h-4 w-4 text-slate-300 sm:block" />}
@@ -5191,6 +5327,8 @@ function LeadershipFlow({
                       delivered={liveReceipts.length > 0}
                       receipt={liveReceipts[0]?.receipt}
                       url={liveReceipts[0]?.url}
+                      recordLabel={activationRecordLabel}
+                      fallback={taskOnlyFallback}
                       simulated={liveReceipts[0]?.route === "simulated"}
                     />
 
@@ -5199,7 +5337,7 @@ function LeadershipFlow({
                     )}
 
                     <button onClick={runRehearsal} disabled={dryRunState === "running" || liveReceipts.length > 0} className="mt-3 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white disabled:cursor-not-allowed disabled:opacity-70" style={{ backgroundColor: liveReceipts.length > 0 ? GREEN : NAVY }}>
-                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Writing to Salesforce</> : liveReceipts.length > 0 ? <><Check className="h-4 w-4" /> Receipt returned</> : !connectorSession?.token ? <><LockKeyhole className="h-4 w-4" /> Unlock live delivery</> : dryRunState === "failed" ? <><RotateCcw className="h-4 w-4" /> Retry sandbox Task</> : <><Rocket className="h-4 w-4" /> Create sandbox Task</>}
+                      {dryRunState === "running" ? <><Loader2 className="h-4 w-4 animate-spin" /> Writing to Salesforce</> : liveReceipts.length > 0 ? <><Check className="h-4 w-4" /> Activation returned</> : !connectorSession?.token ? <><LockKeyhole className="h-4 w-4" /> Unlock live delivery</> : dryRunState === "failed" ? <><RotateCcw className="h-4 w-4" /> Retry activation</> : <><Rocket className="h-4 w-4" /> Create activation package</>}
                     </button>
                     {liveReceipts.length === 0 && (!connectorSession?.token || dryRunState === "failed") && (
                       <button onClick={stageSimulatedDelivery} className="mt-2 w-full text-center text-[11px] font-semibold text-slate-500 transition hover:text-slate-800">
@@ -5214,7 +5352,7 @@ function LeadershipFlow({
                       {[
                         { label: "Source", value: `${runEvidence?.sourceName ?? "Presentation data"} · ${runEvidence?.transactions.length || 3} records`, live: runEvidence?.sourceMode === "live" },
                         { label: "Decision", value: `${config.playTitle} · ${runEvidence?.opportunity?.confidence ?? opp.confidence}%`, live: true },
-                        { label: "Activation", value: liveReceipts[0] ? (liveReceipts[0].route === "simulated" ? `Staged ${liveReceipts[0].receipt} (simulated)` : `Salesforce Task ${liveReceipts[0].receipt}`) : deliveryNote ?? "Awaiting write", live: liveReceipts.length > 0 && liveReceipts[0].route !== "simulated" },
+                        { label: "Activation", value: liveReceipts[0] ? (liveReceipts[0].route === "simulated" ? `Staged ${liveReceipts[0].receipt} (simulated)` : `${activationRecordLabel} · ${liveReceipts[0].receipt}`) : deliveryNote ?? "Awaiting write", live: liveReceipts.length > 0 && liveReceipts[0].route !== "simulated" },
                       ].map((item) => (
                         <div key={item.label} className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
                           <span className={`h-2 w-2 flex-none rounded-full ${item.live ? "bg-emerald-500" : "bg-slate-300"}`} />
@@ -5227,7 +5365,7 @@ function LeadershipFlow({
                       <div className="mt-2 space-y-1 font-mono text-[9px] leading-4 text-slate-500">
                         <p>source_mode={runEvidence?.sourceMode ?? "demo"}</p>
                         <p>auth={runEvidence?.authorizationMode ?? "presentation"}</p>
-                        <p>destination={liveReceipts[0]?.route ?? "salesforce_fsc_task"}</p>
+                        <p>destination={liveReceipts[0]?.object ?? liveReceipts[0]?.route ?? "salesforce_fsc"}</p>
                       </div>
                     </details>
                   </section>
