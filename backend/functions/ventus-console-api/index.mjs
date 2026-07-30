@@ -25,6 +25,7 @@ const jwksByIssuer = new Map();
 let getDatabaseCredentials;
 let getProductConnectorCredentials;
 let productSalesforceConnector;
+let journeyRepository;
 
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
@@ -112,7 +113,6 @@ async function persistDecision({ decision, requestId }) {
   return consoleJourney().recordDecision({ decision, requestId });
 }
 
-let journeyRepository;
 function consoleJourney() {
   if (!journeyRepository) {
     journeyRepository = createConsoleJourneyRepository({
