@@ -36,6 +36,7 @@ export function validateAccessProvisioning(value = {}) {
   const email = String(value.email || '').trim().toLowerCase();
   const role = String(value.role || '').trim();
   const businessLines = safeArray(value.businessLines, /^[a-z][a-z0-9_-]{1,62}$/);
+  const queueScopes = safeArray(value.queueScopes ?? [], /^[a-z][a-z0-9_-]{1,62}$/);
   const entitlements = safeArray(
     value.entitlements,
     /^(consumer_demo|wealth_demo|growth_console|live_connectors)$/,
@@ -53,11 +54,16 @@ export function validateAccessProvisioning(value = {}) {
     'growth_play_owner',
     'bank_operator',
     'risk_reviewer',
+    'executive_viewer',
   ].includes(role)) {
     throw new Error('invalid role');
   }
   if (businessLines.length === 0 || entitlements.length === 0) {
     throw new Error('businessLines and entitlements are required');
+  }
+  if (value.queueScopes !== undefined && (!Array.isArray(value.queueScopes)
+    || (queueScopes.length === 0 && value.queueScopes.length > 0))) {
+    throw new Error('invalid queueScopes');
   }
   return {
     tenantId,
@@ -67,6 +73,7 @@ export function validateAccessProvisioning(value = {}) {
     email,
     role,
     businessLines,
+    queueScopes,
     entitlements,
   };
 }

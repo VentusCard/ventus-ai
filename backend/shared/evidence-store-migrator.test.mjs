@@ -38,8 +38,9 @@ test('Console access provisioning accepts only explicit institution-scoped grant
     issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example',
     identitySubject: 'subject_123',
     email: 'Yusheng@VentusAI.com',
-    role: 'institution_admin',
+    role: 'executive_viewer',
     businessLines: ['consumer-banking', 'wealth'],
+    queueScopes: ['wealth-advisory'],
     entitlements: ['growth_console', 'consumer_demo', 'wealth_demo'],
   }), {
     tenantId: 'ventus',
@@ -47,8 +48,9 @@ test('Console access provisioning accepts only explicit institution-scoped grant
     issuer: 'https://cognito-idp.us-east-2.amazonaws.com/us-east-2_example',
     identitySubject: 'subject_123',
     email: 'yusheng@ventusai.com',
-    role: 'institution_admin',
+    role: 'executive_viewer',
     businessLines: ['consumer-banking', 'wealth'],
+    queueScopes: ['wealth-advisory'],
     entitlements: ['growth_console', 'consumer_demo', 'wealth_demo'],
   });
   assert.throws(() => validateAccessProvisioning({
@@ -71,6 +73,17 @@ test('Console access provisioning accepts only explicit institution-scoped grant
     businessLines: ['wealth'],
     entitlements: ['unknown'],
   }));
+  assert.throws(() => validateAccessProvisioning({
+    tenantId: 'ventus',
+    displayName: 'Ventus AI',
+    issuer: 'https://issuer.example.com',
+    identitySubject: 'subject_123',
+    email: 'operator@example.com',
+    role: 'bank_operator',
+    businessLines: ['consumer-banking'],
+    queueScopes: ['consumer-review;drop'],
+    entitlements: ['growth_console', 'consumer_demo'],
+  }), /invalid queueScopes/);
 });
 
 test('evidence-store migrator verifies connected measurement and separately authorized protocol persistence', () => {
@@ -96,6 +109,7 @@ test('evidence-store migrator verifies connected measurement and separately auth
     /identity_provider_key = 'cognito'[\s\S]*identity_subject = \$2[\s\S]*RETURNING membership_id, email/,
     'access provisioning should update the stable Cognito identity before considering email',
   );
+  assert.match(source, /queue_scopes = \$5/, 'access provisioning should write explicit queue scopes');
   assert.match(
     source,
     /ON CONFLICT \(tenant_id, email\) DO UPDATE[\s\S]*identity_provider_key = 'cognito'/,

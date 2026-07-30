@@ -44,5 +44,7 @@ browser response or ledger receipt.
 
 The Evidence Store migrator also exposes a private, confirmation-gated
 `provision-console-access` operation. It binds an existing Cognito subject to one
-institution, role, set of business lines, and set of Console entitlements. The
-public Console API cannot create or modify these records.
+institution, role, set of business lines, explicitly assigned work queues, and
+set of Console entitlements. The public Console API cannot create or modify these
+records. An empty `queueScopes` array is valid for roles without a customer-work
+queue, such as an executive viewer.

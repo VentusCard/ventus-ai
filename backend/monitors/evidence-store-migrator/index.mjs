@@ -170,17 +170,19 @@ async function provisionConsoleAccess(adminCredentials, input) {
           SET role = $3,
               status = 'active',
               business_lines = $4,
-              entitlements = $5,
+              queue_scopes = $5,
+              entitlements = $6,
               updated_at = now()
         WHERE tenant_id = $1
           AND identity_provider_key = 'cognito'
           AND identity_subject = $2
-      RETURNING membership_id, email`,
+      RETURNING membership_id, email, queue_scopes`,
       [
         access.tenantId,
         access.identitySubject,
         access.role,
         access.businessLines,
+        access.queueScopes,
         access.entitlements,
       ],
     );
@@ -188,17 +190,18 @@ async function provisionConsoleAccess(adminCredentials, input) {
       membership = await db.query(
         `INSERT INTO institution_memberships
            (membership_id, tenant_id, identity_provider_key, identity_subject, email,
-            role, status, business_lines, entitlements)
-         VALUES ($1, $2, 'cognito', $3, $4, $5, 'active', $6, $7)
+            role, status, business_lines, queue_scopes, entitlements)
+         VALUES ($1, $2, 'cognito', $3, $4, $5, 'active', $6, $7, $8)
          ON CONFLICT (tenant_id, email) DO UPDATE
            SET identity_provider_key = 'cognito',
                identity_subject = EXCLUDED.identity_subject,
                role = EXCLUDED.role,
                status = 'active',
                business_lines = EXCLUDED.business_lines,
+               queue_scopes = EXCLUDED.queue_scopes,
                entitlements = EXCLUDED.entitlements,
                updated_at = now()
-        RETURNING membership_id, email`,
+        RETURNING membership_id, email, queue_scopes`,
         [
           membershipId,
           access.tenantId,
@@ -206,6 +209,7 @@ async function provisionConsoleAccess(adminCredentials, input) {
           access.email,
           access.role,
           access.businessLines,
+          access.queueScopes,
           access.entitlements,
         ],
       );
@@ -218,6 +222,7 @@ async function provisionConsoleAccess(adminCredentials, input) {
       email: resolvedMembership.email,
       role: access.role,
       businessLines: access.businessLines,
+      queueScopes: access.queueScopes,
       entitlements: access.entitlements,
     };
   } catch (error) {
