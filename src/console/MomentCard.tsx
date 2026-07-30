@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { ArrowUpRight, Check, ChevronDown, Clock3, Send, ShieldCheck } from "lucide-react";
+import { ArrowUpRight, Check, ChevronDown, Clock3, RefreshCw, ShieldCheck } from "lucide-react";
 import type { ConsoleMoment } from "@/console/state";
 import type { DecisionAction, DecisionPackage } from "@/lib/decisionPackage";
 
@@ -10,6 +10,9 @@ type MomentCardProps = {
   decision: DecisionPackage;
   action: DecisionAction;
   variant?: MomentCardVariant;
+  onSyncOutcome?: () => void;
+  syncingOutcome?: boolean;
+  outcomeSyncMessage?: string | null;
   children?: ReactNode;
 };
 
@@ -19,7 +22,7 @@ function confidenceBand(confidence: number): "low" | "medium" | "high" {
   return "low";
 }
 
-export function MomentCard({ moment, decision, action, variant = "full", children }: MomentCardProps) {
+export function MomentCard({ moment, decision, action, variant = "full", onSyncOutcome, syncingOutcome, outcomeSyncMessage, children }: MomentCardProps) {
   const band = confidenceBand(decision.moment.confidence);
   const delivered = moment.status === "activated" && moment.receipt;
 
@@ -84,6 +87,11 @@ export function MomentCard({ moment, decision, action, variant = "full", childre
           <div className="mt-4 grid gap-px overflow-hidden rounded-md border sm:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>
             {[["Decision receipt", moment.receipt?.records?.decision], ["Qualified referral", moment.receipt?.records?.referral], ["Employee task", moment.receipt?.records?.task]].map(([label, record]) => <div key={label} className="bg-white p-3"><p className="v2-mono text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p>{record && typeof record === "object" && "url" in record ? <a href={record.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-1 text-[12px] font-bold" style={{ color: "var(--c-accent)" }}>Open record <ArrowUpRight className="h-3.5 w-3.5" /></a> : <p className="mt-2 text-[12px] font-semibold" style={{ color: "var(--v2-ink-soft)" }}>Receipt pending reconciliation</p>}</div>)}
           </div>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: "var(--v2-rule)" }}>
+            <p className="text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>{decision.outcome.observation ? "Outcome observation received; measurement gates remain authoritative." : "Waiting for the registered outcome receipt."}</p>
+            {onSyncOutcome ? <button onClick={onSyncOutcome} disabled={syncingOutcome || !moment.receipt?.records?.decision} className="inline-flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--c-accent)" }} title={!moment.receipt?.records?.decision ? "A Decision Receipt is required" : undefined}>{syncingOutcome ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}Check Salesforce</button> : null}
+          </div>
+          {outcomeSyncMessage ? <p className="mt-2 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>{outcomeSyncMessage}</p> : null}
         </div>
       ) : children ? <div className="p-5">{children}</div> : <div className="flex items-center gap-2 p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}><Clock3 className="h-4 w-4" />Awaiting the authorized employee response.</div>}
     </article>
