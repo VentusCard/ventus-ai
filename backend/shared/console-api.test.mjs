@@ -305,6 +305,30 @@ test('Console API brokers a first reservation to the server-side delivery execut
   assert.equal('reservation' in body, false);
 });
 
+test('Console API permits one delivery retry only after a terminal configuration failure', async () => {
+  const calls = [];
+  const failedMoment = { ...moment('deposit-retention'), status: 'delivery_failed', decisionPackage: { response: { status: 'accepted' } } };
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'bank_operator', entitlements: ['growth_console', 'consumer_demo'], businessLines: ['consumer-banking'], queueScopes: [] }),
+    journey: {
+      async loadMoment() { return failedMoment; },
+      async reserveDelivery(input) {
+        calls.push(input);
+        return { receipt: { deliveryId: 'dlv_1234567890abcdef12345678', status: 'pending' }, moment: failedMoment, reservation: { shouldDeliver: false, reconciliationRequired: false, record: { delivery_id: 'dlv_1234567890abcdef12345678', status: 'pending' } } };
+      },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/moments/dec_deposit-retention/deliveries',
+    headers: { authorization: 'Bearer valid-token', origin: 'https://dev.example.com', 'idempotency-key': 'delivery_retry_456' },
+    body: JSON.stringify({ expectedState: 'delivery_failed', clientRequestedAt: '2026-07-30T12:00:00.000Z' }),
+  }));
+  assert.equal(result.statusCode, 201);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].expectedState, 'delivery_failed');
+});
+
 function request(origin = 'https://dev.example.com', overrides = {}) {
   process.env.VENTUS_ALLOWED_ORIGINS = 'https://dev.example.com';
   return {

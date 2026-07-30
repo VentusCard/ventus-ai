@@ -141,7 +141,7 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
       assertId(sessionId, 'sessionId');
       assertId(idempotencyKey, 'idempotencyKey');
       assertIso(requestedAt, 'requestedAt');
-      assert.equal(expectedState, 'approved', 'deliveries can only be reserved from the approved state');
+      assert.ok(['approved', 'delivery_failed'].includes(expectedState), 'deliveries can only be reserved from the approved or terminally failed state');
       const moment = await this.loadMoment({ tenantId, decisionId });
       assert.equal(moment.status, expectedState, 'moment state changed; refresh before delivery');
       const response = moment.decisionPackage.response;
@@ -149,7 +149,11 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
       const selectedAction = moment.decisionPackage.recommendation.selectedAction;
       // The browser key deduplicates its request; the delivery key is derived
       // server-side so retries or double-clicks cannot create a second action.
-      const deliveryIdempotencyKey = `delivery:${decisionId}:${selectedAction.id}`;
+      // A terminal configuration failure is safe to retry once with the same
+      // approved package. Pending writes remain reconciliation-only.
+      const deliveryIdempotencyKey = expectedState === 'delivery_failed'
+        ? `delivery-retry:${decisionId}:${selectedAction.id}`
+        : `delivery:${decisionId}:${selectedAction.id}`;
       const reservation = await deliveryRepository.reserve({
         tenantId,
         idempotencyKey: deliveryIdempotencyKey,
@@ -177,7 +181,7 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
         occurredAt: requestedAt,
         payload: {
           decision_id: decisionId,
-          stage: 'delivery_reserved',
+          stage: expectedState === 'delivery_failed' ? 'delivery_retry_reserved' : 'delivery_reserved',
           delivery_id: reservation.record.delivery_id,
           connector: reservation.record.connector,
           destination: reservation.record.destination,

@@ -104,8 +104,8 @@ export function createConsoleApiHandler({
         }
         const body = parseBody(event.body);
         const mutation = mutationMeta(event, body);
-        if (mutation.expectedState !== 'approved') {
-          throw new ConsoleRequestError('deliveries can only be reserved from the approved state');
+        if (!['approved', 'delivery_failed'].includes(mutation.expectedState)) {
+          throw new ConsoleRequestError('deliveries can only be reserved from an approved or terminally failed state');
         }
         const reservation = await journey.reserveDelivery({
           tenantId: identity.tenantHint,
@@ -234,7 +234,7 @@ function mutationMeta(event, body) {
   if (!/^[A-Za-z0-9][A-Za-z0-9_.:@-]{1,255}$/.test(idempotencyKey)) {
     throw new ConsoleRequestError('Idempotency-Key header is required');
   }
-  if (!['queued', 'approved'].includes(expectedState)) throw new ConsoleRequestError('expectedState is invalid');
+  if (!['queued', 'approved', 'delivery_failed'].includes(expectedState)) throw new ConsoleRequestError('expectedState is invalid');
   if (Number.isNaN(Date.parse(clientRequestedAt))) throw new ConsoleRequestError('clientRequestedAt is invalid');
   return { idempotencyKey, expectedState, clientRequestedAt };
 }

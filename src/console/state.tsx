@@ -413,6 +413,7 @@ type ConsoleState = {
   activating: string | null;
   activateError: string | null;
   activate: (momentId: string, actionId?: string) => Promise<void>;
+  retryDelivery: (momentId: string) => Promise<void>;
   syncingOutcome: string | null;
   outcomeSyncMessage: string | null;
   syncOutcome: (momentId: string) => Promise<void>;
@@ -714,14 +715,15 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         }
         const deliveryUrl = consoleMomentDeliveryUrl(current.decisionId);
         if (!deliveryUrl) throw new Error("The durable Console API is not configured for this environment.");
+        const expectedState = current.status === "delivery_failed" ? "delivery_failed" : "approved";
         const delivery = await fetch(deliveryUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${session.access_token}`,
-            "Idempotency-Key": mutationKey("delivery"),
+            "Idempotency-Key": mutationKey(expectedState === "delivery_failed" ? "delivery-retry" : "delivery"),
           },
-          body: JSON.stringify({ expectedState: "approved", clientRequestedAt: new Date().toISOString() }),
+          body: JSON.stringify({ expectedState, clientRequestedAt: new Date().toISOString() }),
         });
         const data = (await delivery.json().catch(() => ({}))) as DurableMomentMutation;
         if (!delivery.ok || !data.moment) throw new Error(data.error ?? `Delivery could not be reserved (${delivery.status})`);
@@ -752,6 +754,15 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       }
     },
     [moments, session?.access_token, authTenant, record],
+  );
+
+  const retryDelivery = useCallback(
+    async (momentId: string) => {
+      const moment = moments.find((item) => item.id === momentId);
+      if (!moment || moment.status !== "delivery_failed") return;
+      await activate(momentId);
+    },
+    [activate, moments],
   );
 
   const respondWithoutDelivery = useCallback(
@@ -878,6 +889,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       activating,
       activateError,
       activate,
+      retryDelivery,
       syncingOutcome,
       outcomeSyncMessage,
       syncOutcome,
@@ -888,7 +900,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       chainVerified: ledger.length > 0 && verifyChain(ledger),
       scenarioMeta: SCENARIO_META,
     }),
-    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, syncingOutcome, outcomeSyncMessage, syncOutcome, defer, decline, dismiss, ledger],
+    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, retryDelivery, syncingOutcome, outcomeSyncMessage, syncOutcome, defer, decline, dismiss, ledger],
   );
 
   return <ConsoleContext.Provider value={value}>{children}</ConsoleContext.Provider>;

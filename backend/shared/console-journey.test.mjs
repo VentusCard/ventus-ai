@@ -101,6 +101,31 @@ test('delivery reservation uses a server-derived decision and action key', async
   assert.equal(reservationCalls[0].idempotencyKey, `delivery:${decision.decisionId}:banker-retention-review`);
 });
 
+test('a terminal configuration failure receives one separate, server-derived retry key', async () => {
+  const packageProjection = buildDecisionPackage(decision);
+  const records = [
+    row(1, 'decision', { decision_id: decision.decisionId, scenario: decision.scenario, source: decision.source, opportunity: decision.opportunity, policy: decision.policy, runtime: decision.runtime, decision_package: packageProjection }),
+    row(2, 'response', { decision_id: decision.decisionId, actor_id: 'operator_1', response: { status: 'accepted', actionId: 'banker-retention-review' } }),
+    row(3, 'activation', { decision_id: decision.decisionId, delivery_id: 'dlv_1234567890abcdef12345678', delivery_status: 'failed' }),
+  ];
+  const reservationCalls = [];
+  const repository = createConsoleJourneyRepository({
+    getDB: async () => ({ connect: async () => {}, end: async () => {} }),
+    ledgerRepository: { async append() { return { record: row(4, 'activation', { decision_id: decision.decisionId, delivery_id: 'dlv_abcdef1234567890abcdef12', delivery_status: 'pending' }) }; } },
+    deliveryRepository: { async reserve(request) { reservationCalls.push(request); return { replayed: false, record: { delivery_id: 'dlv_abcdef1234567890abcdef12', status: 'pending', connector: 'salesforce', destination: 'salesforce-fsc', action_id: request.actionId } }; }, async complete() { throw new Error('should not complete'); } },
+  });
+  repository.loadMoment = async () => projectMoment(records);
+  await repository.reserveDelivery({
+    tenantId: decision.tenantId,
+    decisionId: decision.decisionId,
+    sessionId: 'session_1',
+    idempotencyKey: 'browser_delivery_retry_2',
+    expectedState: 'delivery_failed',
+    requestedAt: '2026-07-30T12:06:00.000Z',
+  });
+  assert.equal(reservationCalls[0].idempotencyKey, `delivery-retry:${decision.decisionId}:banker-retention-review`);
+});
+
 test('Moment projection exposes only bounded Salesforce receipt links after delivery', () => {
   const packageProjection = buildDecisionPackage(decision);
   const moment = projectMoment([

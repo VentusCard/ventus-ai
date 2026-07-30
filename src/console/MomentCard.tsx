@@ -13,6 +13,8 @@ type MomentCardProps = {
   onSyncOutcome?: () => void;
   syncingOutcome?: boolean;
   outcomeSyncMessage?: string | null;
+  onRetryDelivery?: () => void;
+  retrying?: boolean;
   children?: ReactNode;
 };
 
@@ -22,7 +24,7 @@ function confidenceBand(confidence: number): "low" | "medium" | "high" {
   return "low";
 }
 
-export function MomentCard({ moment, decision, action, variant = "full", onSyncOutcome, syncingOutcome, outcomeSyncMessage, children }: MomentCardProps) {
+export function MomentCard({ moment, decision, action, variant = "full", onSyncOutcome, syncingOutcome, outcomeSyncMessage, onRetryDelivery, retrying, children }: MomentCardProps) {
   const band = confidenceBand(decision.moment.confidence);
   const delivered = moment.status === "activated" && moment.receipt;
   const reserved = moment.status === "delivery_reserved" && moment.receipt;
@@ -103,7 +105,11 @@ export function MomentCard({ moment, decision, action, variant = "full", onSyncO
       ) : deliveryFailed ? (
         <div className="p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>
           <p className="font-bold" style={{ color: "var(--v2-ink)" }}>Delivery needs connection setup</p>
-          <p className="mt-1">The approved action was preserved, but no employee workflow record was created. An institution administrator can complete the server-side connector setup before the action is retried.</p>
+          <p className="mt-1">The approved action was preserved and no employee workflow record was created. After the institution connector is configured, retry the same approved action.</p>
+          {onRetryDelivery ? <button onClick={onRetryDelivery} disabled={retrying} className="console-btn mt-4 !px-4 !py-2.5 !text-[12px]">
+            {retrying ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}
+            Retry delivery
+          </button> : null}
         </div>
       ) : children ? <div className="p-5">{children}</div> : <div className="flex items-center gap-2 p-5 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}><Clock3 className="h-4 w-4" />Awaiting the authorized employee response.</div>}
     </article>
