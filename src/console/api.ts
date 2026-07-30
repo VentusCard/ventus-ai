@@ -12,3 +12,9 @@ export function consoleAccessUrl(): string {
     ? `${configuredBaseUrl}/access`
     : "/api/console-access";
 }
+
+export function consoleDecisionRunUrl(): string {
+  return configuredBaseUrl
+    ? `${configuredBaseUrl}/decision-run`
+    : "/api/decision-run";
+}

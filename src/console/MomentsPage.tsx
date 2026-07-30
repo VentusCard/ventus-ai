@@ -225,6 +225,11 @@ export default function MomentsPage() {
               <p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>
                 {decision.growthPlay.objective} · {decision.growthPlay.primaryMetric.split("_").join(" ")}
               </p>
+              {selected.ledgerReceipt?.persisted && (
+                <p className="v2-mono mt-2 text-[9px] font-semibold uppercase tracking-[0.12em]" style={{ color: "var(--v2-verified)" }}>
+                  Recorded · ledger #{selected.ledgerReceipt.sequenceNumber} · {selected.ledgerReceipt.eventHash.slice(0, 8)}
+                </p>
+              )}
               <h2 className="v2-display mt-2 text-[28px] md:text-[34px]">{decision.moment.type}</h2>
               <p className="v2-body mt-2 max-w-2xl text-[14px]">{decision.moment.summary}</p>
             </div>

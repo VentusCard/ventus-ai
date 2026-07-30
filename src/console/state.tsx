@@ -18,7 +18,7 @@ import {
   type ConsoleAuthSession,
   type ConsoleAuthUser,
 } from "@/console/authClient";
-import { consoleAccessUrl, consoleApiUrl } from "@/console/api";
+import { consoleAccessUrl, consoleApiUrl, consoleDecisionRunUrl } from "@/console/api";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
   PLAID_FIXTURE_PRIMACY,
@@ -194,6 +194,7 @@ export type ConsoleMoment = {
   opportunity: DetectedOpportunity;
   policy: OpportunityPolicyDecision;
   runtime: DecisionRunResult["runtime"];
+  ledgerReceipt?: DecisionRunResult["ledgerReceipt"];
   governedReview?: GovernedPilotResult;
   status: "queued" | "activated" | "deferred" | "declined" | "dismissed";
   decisionPackage?: DecisionPackage;
@@ -569,7 +570,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       if (!decision) {
         try {
           if (!session?.access_token) throw new Error("Sign in again to run the decision.");
-          const response = await fetch(consoleApiUrl("/api/decision-run"), {
+          const response = await fetch(consoleDecisionRunUrl(), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -619,6 +620,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         opportunity,
         policy,
         runtime: decision.runtime,
+        ledgerReceipt: decision.ledgerReceipt,
         governedReview,
         status: "queued",
       };

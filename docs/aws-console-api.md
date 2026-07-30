@@ -3,10 +3,11 @@
 `VentusConsoleApiStack` is the non-production server-side authorization boundary for
 the Growth Console. It is additive and does not switch the current frontend login.
 
-The first route is:
+The authenticated routes are:
 
 ```text
 POST /v1/console/access
+POST /v1/console/decision-run
 Authorization: Bearer <Cognito access token>
 ```
 
@@ -20,10 +21,19 @@ lines, and allowed Console capabilities. Invalid tokens, inactive institutions,
 unapproved identity providers, missing memberships, and cross-tenant lookups fail
 closed.
 
+`decision-run` additionally requires the `growth_console` entitlement and the
+scenario-specific `consumer_demo` or `wealth_demo` entitlement. It runs the
+model-free deterministic baseline server-side, appends a tokenized decision event
+through the non-bypass runtime role, and returns the durable ledger sequence and
+event hash. Raw credentials and direct customer identifiers never enter the
+browser response or ledger receipt.
+
 ## Deliberate limits
 
 - Staging only; no production route or custom domain.
-- No frontend auth cutover until a provisioned Cognito user passes end to end.
+- The decision route is a deterministic baseline, not a claim of model accuracy or
+  production economic lift.
+- Activation and measured outcomes remain separate governed operations.
 - No self-sign-up or browser-held database credentials.
 - No SAML provider until a bank supplies reviewed IdP metadata and claims.
 - The staging Cognito identifiers and Aurora endpoint are explicit deployment

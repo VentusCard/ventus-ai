@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createConsoleApiHandler } from './console-api.mjs';
+import { executeHostedDecision } from './hosted-decision-runtime.mjs';
 
 const identity = {
   subject: 'cognito_subject_123',
@@ -55,7 +56,51 @@ test('Console API rejects unapproved browser origins', async () => {
   assert.equal(result.statusCode, 403);
 });
 
-function request(origin = 'https://dev.example.com') {
+test('Console API persists an entitled hosted decision and returns its receipt', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['consumer-banking'],
+    }),
+    executeDecision: executeHostedDecision,
+    appendDecision: async ({ decision, requestId }) => ({
+      persisted: true,
+      inserted: true,
+      sequenceNumber: 7,
+      eventHash: `${decision.decisionId.slice(4).padEnd(64, '0')}`,
+      recordedAt: '2026-07-30T00:00:00.000Z',
+      requestId,
+    }),
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run',
+    body: JSON.stringify(decisionBody()),
+  }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 200);
+  assert.equal(body.status, 'qualified');
+  assert.equal(body.tenantId, 'ventus');
+  assert.equal(body.ledgerReceipt.persisted, true);
+  assert.equal(body.ledgerReceipt.sequenceNumber, 7);
+});
+
+test('Console API blocks a decision outside the operator entitlement', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => membership,
+    executeDecision: executeHostedDecision,
+    appendDecision: async () => { throw new Error('should not write'); },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run',
+    body: JSON.stringify(decisionBody()),
+  }));
+  assert.equal(result.statusCode, 403);
+});
+
+function request(origin = 'https://dev.example.com', overrides = {}) {
   process.env.VENTUS_ALLOWED_ORIGINS = 'https://dev.example.com';
   return {
     httpMethod: 'POST',
@@ -64,5 +109,31 @@ function request(origin = 'https://dev.example.com') {
       origin,
     },
     requestContext: { requestId: 'test-request' },
+    ...overrides,
+  };
+}
+
+function decisionBody() {
+  return {
+    scenario: 'deposit-retention',
+    source: { mode: 'fixture', name: 'Plaid-shaped fixture' },
+    transactions: [
+      {
+        transaction_id: 'tx_payroll',
+        name: 'PAYROLL',
+        merchant_name: 'ADP',
+        amount: -4200,
+        date: '2026-07-01',
+        personal_finance_category: { primary: 'INCOME', detailed: 'INCOME_WAGES' },
+      },
+      {
+        transaction_id: 'tx_transfer',
+        name: 'CHIME TRANSFER',
+        merchant_name: 'Chime',
+        amount: 1800,
+        date: '2026-07-03',
+        personal_finance_category: { primary: 'TRANSFER_OUT', detailed: 'TRANSFER_OUT_ACCOUNT_TRANSFER' },
+      },
+    ],
   };
 }
