@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Navigate, Routes, Route, useLocation } from "react-router-dom";
 import ScrollToTop from "./components/ScrollToTop";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -24,7 +24,7 @@ import {
 import MomentsPage from "./console/MomentsPage";
 import BriefingsPage from "./console/BriefingsPage";
 import { FscOnboardingPage } from "./console/FscOnboardingPage";
-import { LedgerPage, OutcomesPage, PlaysPage, SettingsPage } from "./console/OpsPages";
+import { LedgerPage, OutcomesPage, PlaysPage } from "./console/OpsPages";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -95,13 +95,17 @@ const AppLayout = () => {
           <Route path="access-pending" element={<AccessPendingPage />} />
           <Route path="demo" element={<ProtectedDemoPage />} />
           <Route element={<ConsoleLayout />}>
+            <Route path="today" element={<BriefingsPage />} />
             <Route path="moments" element={<MomentsPage />} />
-            <Route path="briefings" element={<BriefingsPage />} />
             <Route path="plays" element={<PlaysPage />} />
-            <Route path="ledger" element={<LedgerPage />} />
-            <Route path="outcomes" element={<OutcomesPage />} />
-            <Route path="onboarding" element={<FscOnboardingPage />} />
-            <Route path="settings" element={<SettingsPage />} />
+            <Route path="results" element={<OutcomesPage />} />
+            <Route path="governance" element={<LedgerPage />} />
+            <Route path="connections" element={<FscOnboardingPage />} />
+            <Route path="briefings" element={<Navigate to="/app/today" replace />} />
+            <Route path="outcomes" element={<Navigate to="/app/results" replace />} />
+            <Route path="ledger" element={<Navigate to="/app/governance?view=ledger" replace />} />
+            <Route path="onboarding" element={<Navigate to="/app/connections?connector=salesforce" replace />} />
+            <Route path="settings" element={<Navigate to="/app/connections" replace />} />
           </Route>
         </Route>
         <Route path="/classic" element={<Index noindex />} />

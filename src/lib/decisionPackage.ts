@@ -1,4 +1,5 @@
 export const DECISION_PACKAGE_VERSION = "1.1" as const;
+export const DECISION_PACKAGE_V12_VERSION = "1.2" as const;
 
 export type DecisionAction = {
   id: string;
@@ -85,6 +86,92 @@ export type DecisionPackage = {
     observation?: DecisionOutcomeObservation;
   };
 };
+
+// v1.2 is additive. Existing connector and demo consumers continue to receive
+// v1.1 until their server-side parser advertises v1.2 support.
+export type DecisionPackageV12 = Omit<
+  DecisionPackage,
+  "schemaVersion" | "subject" | "moment" | "recommendation" | "governance" | "workflow" | "outcome"
+> & {
+  schemaVersion: typeof DECISION_PACKAGE_V12_VERSION;
+  subject: DecisionPackage["subject"] & {
+    scope: "customer" | "household" | "account" | "business";
+    displayReference?: string;
+  };
+  moment: DecisionPackage["moment"] & {
+    confidenceBand: "low" | "medium" | "high";
+    observedAt: string;
+    expiresAt?: string;
+    urgency: "routine" | "time-sensitive" | "urgent";
+    evidence: Array<DecisionEvidence & { receiptId?: string; observedAt?: string }>;
+  };
+  recommendation: DecisionPackage["recommendation"] & {
+    rationale: string;
+    actionCatalogVersion: string;
+  };
+  governance: DecisionPackage["governance"] & {
+    protocolApprovalId: string;
+    exceptionStatus: "none" | "open" | "resolved";
+  };
+  workflow: Omit<DecisionPackage["workflow"], "status"> & {
+    destination: string;
+    ownerRole: string;
+    status: "ready" | "reserved" | "delivered" | "failed" | "reconciled";
+    deliveryId?: string;
+  };
+  outcome: DecisionPackage["outcome"] & {
+    coverageStatus: "pending" | "insufficient" | "passed";
+    claimStatus: "blocked" | "observational" | "measured";
+  };
+};
+
+export function decisionPackageV12FromV11(
+  decision: DecisionPackage,
+  additions: {
+    subjectScope: DecisionPackageV12["subject"]["scope"];
+    protocolApprovalId: string;
+    actionCatalogVersion: string;
+    rationale: string;
+    observedAt?: string;
+    urgency?: DecisionPackageV12["moment"]["urgency"];
+    workflow?: Partial<DecisionPackageV12["workflow"]>;
+    outcome?: Partial<Pick<DecisionPackageV12["outcome"], "coverageStatus" | "claimStatus">>;
+  },
+): DecisionPackageV12 {
+  const confidenceBand = decision.moment.confidence >= 80 ? "high" : decision.moment.confidence >= 60 ? "medium" : "low";
+  return {
+    ...decision,
+    schemaVersion: DECISION_PACKAGE_V12_VERSION,
+    subject: { ...decision.subject, scope: additions.subjectScope },
+    moment: {
+      ...decision.moment,
+      confidenceBand,
+      observedAt: additions.observedAt ?? decision.createdAt,
+      urgency: additions.urgency ?? "routine",
+    },
+    recommendation: {
+      ...decision.recommendation,
+      rationale: additions.rationale,
+      actionCatalogVersion: additions.actionCatalogVersion,
+    },
+    governance: {
+      ...decision.governance,
+      protocolApprovalId: additions.protocolApprovalId,
+      exceptionStatus: "none",
+    },
+    workflow: {
+      ...decision.workflow,
+      destination: decision.recommendation.selectedAction.destination,
+      ownerRole: decision.recommendation.selectedAction.ownerRole,
+      ...additions.workflow,
+    },
+    outcome: {
+      ...decision.outcome,
+      coverageStatus: additions.outcome?.coverageStatus ?? "pending",
+      claimStatus: additions.outcome?.claimStatus ?? "blocked",
+    },
+  };
+}
 
 export type DecisionPackageInput = Omit<
   DecisionPackage,

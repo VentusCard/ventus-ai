@@ -44,6 +44,9 @@ export function createStandalonePilotHandler({
   return async function handle(request: Request): Promise<Response> {
     const scoped = authorizeConnector(request, { scope: "growth_play_run" });
     if (!scoped || scoped.authMode !== "session") return Response.json({ error: "forbidden" }, { status: 403 });
+    if (scoped.sessionKind === "console" && scoped.role !== "bank_operator") {
+      return Response.json({ error: "forbidden" }, { status: 403 });
+    }
 
     let body: Record<string, unknown>;
     try {
@@ -58,6 +61,9 @@ export function createStandalonePilotHandler({
       const businessLine = requiredId(body.businessLine, "businessLine");
       const principal = authorizeConnector(request, { scope: "growth_play_run", destination: businessLine });
       if (!principal || principal.authMode !== "session") return Response.json({ error: "forbidden" }, { status: 403 });
+      if (principal.sessionKind === "console" && principal.role !== "bank_operator") {
+        return Response.json({ error: "forbidden" }, { status: 403 });
+      }
       const decisionProtocolId = requiredId(body.decisionProtocolId, "decisionProtocolId");
       const caseId = requiredId(body.caseId, "caseId");
       const householdToken = typeof body.householdToken === "string" ? body.householdToken : "";

@@ -1,4 +1,5 @@
 import { requiredEntitlementForScenario } from './hosted-decision-runtime.mjs';
+import { authorizeScenarioDecision } from './console-authorization.mjs';
 
 export function createConsoleApiHandler({
   verifyIdentity,
@@ -36,12 +37,12 @@ export function createConsoleApiHandler({
           return response(503, { error: 'hosted decision runtime is unavailable' }, responseHeaders);
         }
         const body = parseBody(event.body);
-        const requiredEntitlement = requiredEntitlementForScenario(body.scenario);
-        if (
-          !membership.entitlements.includes('growth_console')
-          || !membership.entitlements.includes(requiredEntitlement)
-        ) {
-          return response(403, { error: 'scenario is not entitled for this operator' }, responseHeaders);
+        requiredEntitlementForScenario(body.scenario);
+        const authorization = authorizeScenarioDecision(membership, body.scenario);
+        if (!authorization.allowed) {
+          return response(403, {
+            error: 'operator role and business-line access are required for this scenario',
+          }, responseHeaders);
         }
         const decision = executeDecision({ tenantId: identity.tenantHint, body });
         const ledgerReceipt = await appendDecision({
@@ -56,12 +57,11 @@ export function createConsoleApiHandler({
         email: membership.email,
         tenantId: identity.tenantHint,
         organizationId: identity.tenantHint,
-        role: ['ventus_platform_admin', 'institution_admin'].includes(membership.role)
-          ? 'admin'
-          : 'operator',
-        status: membership.entitlements.length > 0 ? 'active' : 'pending',
+        role: membership.role,
+        status: membership.status || (membership.entitlements.length > 0 ? 'active' : 'pending'),
         entitlements: membership.entitlements,
-        businessLines: membership.businessLines,
+        businessLineScopes: membership.businessLines,
+        queueScopes: membership.queueScopes || [],
         authProvider: 'cognito',
       }, responseHeaders);
     } catch (error) {

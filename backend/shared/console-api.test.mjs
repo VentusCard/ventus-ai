@@ -11,8 +11,10 @@ const identity = {
 const membership = {
   email: 'operator@ventusai.com',
   role: 'institution_admin',
+  status: 'active',
   entitlements: ['growth_console', 'wealth_demo'],
   businessLines: ['wealth'],
+  queueScopes: ['wealth-advisory'],
 };
 
 test('Console API returns the institution-scoped principal', async () => {
@@ -25,9 +27,10 @@ test('Console API returns the institution-scoped principal', async () => {
 
   assert.equal(result.statusCode, 200);
   assert.equal(body.tenantId, 'ventus');
-  assert.equal(body.role, 'admin');
+  assert.equal(body.role, 'institution_admin');
   assert.deepEqual(body.entitlements, ['growth_console', 'wealth_demo']);
-  assert.deepEqual(body.businessLines, ['wealth']);
+  assert.deepEqual(body.businessLineScopes, ['wealth']);
+  assert.deepEqual(body.queueScopes, ['wealth-advisory']);
   assert.equal(body.authProvider, 'cognito');
   assert.equal(result.headers['Cache-Control'], 'no-store');
 });
@@ -46,6 +49,21 @@ test('Console API fails closed for invalid tokens and inactive memberships', asy
   assert.equal((await inactiveMembership(request())).statusCode, 403);
 });
 
+test('Console API reports pending access without granting console operations', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, status: 'pending' }),
+    executeDecision: executeHostedDecision,
+    appendDecision: async () => { throw new Error('should not write'); },
+  });
+  const access = JSON.parse((await handler(request())).body);
+  assert.equal(access.status, 'pending');
+  const decision = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run', body: JSON.stringify(decisionBody()),
+  }));
+  assert.equal(decision.statusCode, 403);
+});
+
 test('Console API rejects unapproved browser origins', async () => {
   process.env.VENTUS_ALLOWED_ORIGINS = 'https://dev.example.com';
   const handler = createConsoleApiHandler({
@@ -61,6 +79,7 @@ test('Console API persists an entitled hosted decision and returns its receipt',
     verifyIdentity: async () => identity,
     resolveMembership: async () => ({
       ...membership,
+      role: 'bank_operator',
       entitlements: ['growth_console', 'consumer_demo'],
       businessLines: ['consumer-banking'],
     }),
@@ -84,6 +103,44 @@ test('Console API persists an entitled hosted decision and returns its receipt',
   assert.equal(body.tenantId, 'ventus');
   assert.equal(body.ledgerReceipt.persisted, true);
   assert.equal(body.ledgerReceipt.sequenceNumber, 7);
+});
+
+test('Console API blocks executive viewers even when scenario entitlements are present', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'executive_viewer',
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['consumer-banking'],
+    }),
+    executeDecision: executeHostedDecision,
+    appendDecision: async () => { throw new Error('should not write'); },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run',
+    body: JSON.stringify(decisionBody()),
+  }));
+  assert.equal(result.statusCode, 403);
+});
+
+test('Console API blocks operators outside the scenario business line', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'bank_operator',
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['wealth-management'],
+    }),
+    executeDecision: executeHostedDecision,
+    appendDecision: async () => { throw new Error('should not write'); },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run',
+    body: JSON.stringify(decisionBody()),
+  }));
+  assert.equal(result.statusCode, 403);
 });
 
 test('Console API blocks a decision outside the operator entitlement', async () => {

@@ -16,8 +16,10 @@ export type CognitoIdentity = {
 export type CognitoMembership = {
   email: string;
   role: string;
+  status: "active" | "pending" | "suspended";
   entitlements: string[];
   businessLines: string[];
+  queueScopes: string[];
 };
 
 export async function verifyCognitoAccessToken(token: string): Promise<CognitoIdentity | null> {
@@ -79,7 +81,7 @@ export async function resolveCognitoMembership(
     await client.query("BEGIN");
     await client.query("SELECT set_config('app.current_tenant_id', $1, true)", [identity.tenantHint]);
     const result = await client.query(
-      `SELECT m.email, m.role, m.entitlements, m.business_lines
+      `SELECT m.email, m.role, m.status, m.entitlements, m.business_lines, m.queue_scopes
          FROM institution_memberships m
          JOIN institutions i
            ON i.tenant_id = m.tenant_id
@@ -89,7 +91,7 @@ export async function resolveCognitoMembership(
         WHERE m.tenant_id = $1
           AND m.identity_provider_key = 'cognito'
           AND m.identity_subject = $2
-          AND m.status = 'active'
+          AND m.status IN ('invited', 'active', 'suspended')
           AND i.status IN ('pilot', 'active')
           AND p.status IN ('testing', 'active')
           AND p.issuer = $3
@@ -102,8 +104,14 @@ export async function resolveCognitoMembership(
     return {
       email: typeof row.email === "string" ? row.email.toLowerCase() : "",
       role: typeof row.role === "string" ? row.role : "",
+      status: row.status === "active"
+        ? "active"
+        : row.status === "suspended"
+          ? "suspended"
+          : "pending",
       entitlements: stringArray(row.entitlements),
       businessLines: stringArray(row.business_lines),
+      queueScopes: stringArray(row.queue_scopes),
     };
   } catch {
     await client.query("ROLLBACK").catch(() => undefined);

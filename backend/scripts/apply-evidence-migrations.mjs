@@ -27,6 +27,7 @@ const MIGRATIONS = [
   'growth-play-registry.sql',
   'tenant-isolation.sql',
   'institution-access.sql',
+  'enterprise-access-phase0.sql',
   'connector-delivery.sql',
 ];
 
@@ -51,7 +52,7 @@ async function main() {
       console.log('ok');
     }
     await client.query('COMMIT');
-    console.log('\nAll seven evidence and access migrations applied.');
+    console.log('\nAll evidence and access migrations applied.');
     console.log('Next: run live verification AS THE RUNTIME ROLE — npm run db:verify.');
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});

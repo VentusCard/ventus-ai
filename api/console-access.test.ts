@@ -68,8 +68,10 @@ test("IdP-controlled metadata provisions one institution and selected demos", as
     app_metadata: {
       tenant_id: "bofa",
       organization_id: "bofa",
+      console_role: "bank_operator",
       console_access_status: "active",
       console_entitlements: ["wealth_demo", "growth_console", "unknown"],
+      console_business_lines: ["wealth-management"],
     },
   });
 

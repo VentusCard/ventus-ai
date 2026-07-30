@@ -406,6 +406,12 @@ export async function POST(request: Request): Promise<Response> {
   if (!liveConnectorsEnabled()) return connectorDisabledResponse();
   const principal = authorizeConnector(request, { scope: "salesforce_write", destination: "salesforce" });
   if (!principal) return Response.json({ error: "forbidden" }, { status: 403 });
+  if (principal.authMode === "session" && principal.sessionKind === "console") {
+    return Response.json(
+      { error: "Growth Console delivery requires a server-prepared governed decision." },
+      { status: 403 },
+    );
+  }
 
   const c = creds();
   if (!c) {

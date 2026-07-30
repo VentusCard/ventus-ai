@@ -3,20 +3,20 @@
 // a single line at the foot of the rail.
 
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
-import { Activity, Building2, Inbox, Layers, LineChart, ListChecks, Loader2, LogOut, Settings } from "lucide-react";
+import { Activity, Building2, ClipboardCheck, Inbox, LineChart, ListChecks, Loader2, LogOut } from "lucide-react";
 import { AuthProvider, ConsoleProvider, useAuth, useConsole } from "@/console/state";
+import { canAccessDestination, defaultPathForAccess, destinationForPath, type ConsoleDestination } from "@/console/access";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
 import "@/styles/console.css";
 
-const NAV = [
-  { to: "/app/moments", label: "Moments", icon: Activity, end: true },
-  { to: "/app/briefings", label: "Briefings", icon: Inbox, end: false },
-  { to: "/app/plays", label: "Growth Plays", icon: ListChecks, end: false },
-  { to: "/app/ledger", label: "Ledger", icon: Layers, end: false },
-  { to: "/app/outcomes", label: "Outcomes", icon: LineChart, end: false },
-  { to: "/app/onboarding", label: "Setup", icon: Building2, end: false, adminOnly: true },
-  { to: "/app/settings", label: "Settings", icon: Settings, end: false },
+const NAV: Array<{ to: string; label: string; icon: typeof Activity; destination: ConsoleDestination }> = [
+  { to: "/app/today", label: "Today", icon: Inbox, destination: "today" },
+  { to: "/app/moments", label: "Moments", icon: Activity, destination: "moments" },
+  { to: "/app/plays", label: "Growth Plays", icon: ListChecks, destination: "plays" },
+  { to: "/app/results", label: "Results", icon: LineChart, destination: "results" },
+  { to: "/app/governance", label: "Governance", icon: ClipboardCheck, destination: "governance" },
+  { to: "/app/connections", label: "Connections", icon: Building2, destination: "connections" },
 ];
 
 function TenantMark({ size = 32 }: { size?: number }) {
@@ -41,10 +41,10 @@ function Shell() {
   const { user, access, signOut } = useAuth();
   const { tenant, connectorSession, ledger, moments } = useConsole();
   const location = useLocation();
-  const visibleNav = NAV.filter((item) => !item.adminOnly || access?.role === "admin");
+  const visibleNav = NAV.filter((item) => canAccessDestination(access, item.destination));
   const live = connectorSession && connectorSession.expiresAt * 1000 > Date.now();
   const queued = moments.filter((moment) => moment.status === "queued").length;
-  const title = visibleNav.find((item) => (item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)))?.label ?? "Console";
+  const title = visibleNav.find((item) => location.pathname === item.to)?.label ?? "Console";
 
   return (
     <div className="console v2 flex min-h-svh pb-16 md:pb-0" style={{ ["--c-accent" as string]: tenant.accent, ["--c-accent-wash" as string]: tenant.accentWash }}>
@@ -60,8 +60,8 @@ function Shell() {
             </div>
           </div>
           <nav className="console-mobile-nav flex gap-1 overflow-x-auto pb-1 md:block md:space-y-1 md:overflow-visible md:pb-0">
-            {visibleNav.map(({ to, label, icon: Icon, end }) => (
-              <NavLink key={to} to={to} end={end} className="console-rail-link flex-none" data-active={end ? location.pathname === to : location.pathname.startsWith(to)}>
+            {visibleNav.map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to} end className="console-rail-link flex-none" data-active={location.pathname === to}>
                 <Icon className="h-4 w-4 flex-none" />
                 <span className="flex-1">{label}</span>
                 {label === "Moments" && queued > 0 && (
@@ -125,11 +125,11 @@ function Shell() {
         }}
         aria-label="Console navigation"
       >
-        {visibleNav.map(({ to, label, icon: Icon, end }) => (
+        {visibleNav.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
-            end={end}
+            end
             className="flex min-w-[68px] flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold"
             style={({ isActive }) => ({ color: isActive ? tenant.accent : "var(--v2-ink-faint)" })}
           >
@@ -155,6 +155,7 @@ export function ConsoleAuthBoundary() {
 // Route element for the authenticated portion of /app.
 export default function ConsoleLayout() {
   const { user, loading, access, accessLoading } = useAuth();
+  const location = useLocation();
   if (loading || accessLoading) {
     return (
       <div className="v2 flex min-h-svh items-center justify-center" style={{ backgroundColor: "var(--v2-paper)" }}>
@@ -168,6 +169,10 @@ export default function ConsoleLayout() {
     return access.entitlements.some((entitlement) => entitlement === "consumer_demo" || entitlement === "wealth_demo")
       ? <Navigate to="/app/demo" replace />
       : <Navigate to="/app/access-pending" replace />;
+  }
+  const destination = destinationForPath(location.pathname);
+  if (destination && !canAccessDestination(access, destination)) {
+    return <Navigate to={defaultPathForAccess(access)} replace />;
   }
   return (
     <ConsoleProvider>

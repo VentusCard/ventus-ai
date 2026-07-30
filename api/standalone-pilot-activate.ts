@@ -27,6 +27,9 @@ export function createStandalonePilotActivationHandler({
   return async function handle(request: Request): Promise<Response> {
     const scoped = authorizeConnector(request, { scope: "growth_play_activate" });
     if (!scoped || scoped.authMode !== "session") return Response.json({ error: "forbidden" }, { status: 403 });
+    if (scoped.sessionKind === "console" && scoped.role !== "bank_operator") {
+      return Response.json({ error: "forbidden" }, { status: 403 });
+    }
 
     let body: Record<string, unknown>;
     try {
@@ -45,6 +48,9 @@ export function createStandalonePilotActivationHandler({
         destination: businessLine,
       });
       if (!principal || principal.authMode !== "session") return Response.json({ error: "forbidden" }, { status: 403 });
+      if (principal.sessionKind === "console" && principal.role !== "bank_operator") {
+        return Response.json({ error: "forbidden" }, { status: 403 });
+      }
       const decisionId = requiredId(body.decisionId, "decisionId");
       if (!body.decision || typeof body.decision !== "object" || Array.isArray(body.decision)) {
         throw new PilotActivationError("decision is required");

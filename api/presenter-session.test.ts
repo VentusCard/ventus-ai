@@ -67,6 +67,7 @@ test("hosted no-login demo path mints a demo-scoped session when explicitly enab
   const principal = verifyConnectorSession(body.token || "", SESSION_SECRET);
   assert.equal(principal?.tenantId, "demo_bank");
   assert.equal(principal?.subject, "demo_operator");
+  assert.equal(principal?.sessionKind, "presenter");
   assert.equal(body.role, "demo");
   // The demo path must carry both scenarios so it works with the scenario-scoped
   // /api/plaid-transactions endpoint.
@@ -109,13 +110,14 @@ test("demo connector broker mints one short-lived Plaid and Salesforce session",
   assert.deepEqual(principal?.scopes.sort(), [
     "plaid_read",
     "salesforce_outcome_read",
-    "salesforce_write",
     "scenario_deposit_retention",
     "scenario_wealth_growth",
   ].sort());
   assert.deepEqual(principal?.destinations.sort(), ["plaid", "salesforce"]);
   assert.equal(principal?.tenantId, "ventus");
   assert.equal(principal?.subject, "operator_123");
+  assert.equal(principal?.sessionKind, "console");
+  assert.equal(principal?.role, "bank_operator");
   assert.ok((body.expiresAt ?? 0) > Math.floor(Date.now() / 1000));
 });
 
@@ -127,8 +129,10 @@ test("connector session carries only the operator's entitled scenarios", async (
     email_confirmed_at: "2026-07-18T12:00:00Z",
     app_metadata: {
       tenant_id: "bofa",
+      console_role: "bank_operator",
       console_access_status: "active",
       console_entitlements: ["wealth_demo", "growth_console", "live_connectors"],
+      console_business_lines: ["wealth-management"],
     },
   });
 
@@ -171,8 +175,10 @@ test("governed activation is operator-only and isolated to entitled business lin
     email_confirmed_at: "2026-07-18T12:00:00Z",
     app_metadata: {
       tenant_id: "bofa",
+      console_role: "bank_operator",
       console_access_status: "active",
       console_entitlements: ["wealth_demo", "growth_console", "live_connectors"],
+      console_business_lines: ["wealth-management"],
     },
   });
 

@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   applyOutcomeObservation,
   createDecisionPackage,
+  decisionPackageV12FromV11,
   respondToDecision,
 } from "./decisionPackage.ts";
 
@@ -91,4 +92,16 @@ test("decision package carries a portable governed decision contract", () => {
   });
   assert.equal(reopened.outcome.status, "measuring");
   assert.equal(reopened.outcome.observation, undefined);
+
+  const v12 = decisionPackageV12FromV11(accepted, {
+    subjectScope: "household",
+    protocolApprovalId: "approval_123",
+    actionCatalogVersion: "deposit-actions-v1",
+    rationale: "Payroll and off-bank migration meet the approved play criteria.",
+  });
+  assert.equal(v12.schemaVersion, "1.2");
+  assert.equal(v12.subject.scope, "household");
+  assert.equal(v12.moment.confidenceBand, "high");
+  assert.equal(v12.workflow.destination, "Salesforce FSC");
+  assert.equal(v12.outcome.claimStatus, "blocked");
 });
