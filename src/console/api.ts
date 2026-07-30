@@ -4,8 +4,12 @@ const configuredBaseUrl = String(import.meta.env.VITE_CONSOLE_API_BASE_URL || ""
 const configuredConnectorBaseUrl = String(import.meta.env.VITE_DEMO_CONNECTOR_API_BASE_URL || "")
   .trim()
   .replace(/\/$/, "");
-const devConnectorBaseUrl = typeof window !== "undefined"
-  && window.location.hostname === "dev.d1gaewa028qzng.amplifyapp.com"
+const devAmplify = typeof window !== "undefined"
+  && window.location.hostname === "dev.d1gaewa028qzng.amplifyapp.com";
+const devConsoleBaseUrl = devAmplify
+  ? "https://6iaouncicd.execute-api.us-east-2.amazonaws.com/staging/v1/console"
+  : "";
+const devConnectorBaseUrl = devAmplify
   ? "https://8n6lilwaug.execute-api.us-east-2.amazonaws.com/demo/v1/demo"
   : "";
 
@@ -15,14 +19,16 @@ export function consoleApiUrl(path: string): string {
 }
 
 export function consoleAccessUrl(): string {
-  return configuredBaseUrl
-    ? `${configuredBaseUrl}/access`
+  const baseUrl = configuredBaseUrl || devConsoleBaseUrl;
+  return baseUrl
+    ? `${baseUrl}/access`
     : "/api/console-access";
 }
 
 export function consoleDecisionRunUrl(): string {
-  return configuredBaseUrl
-    ? `${configuredBaseUrl}/decision-run`
+  const baseUrl = configuredBaseUrl || devConsoleBaseUrl;
+  return baseUrl
+    ? `${baseUrl}/decision-run`
     : "/api/decision-run";
 }
 
