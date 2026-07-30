@@ -89,4 +89,14 @@ test('evidence-store migrator verifies connected measurement and separately auth
   assert.match(source, /runtimeProtocolWriteDenied/, 'runtime verification should prove activation cannot register a protocol');
   assert.match(source, /institution_memberships/, 'runtime verification should exercise institution membership isolation');
   assert.match(source, /runtimeMembershipWriteDenied/, 'runtime verification should prove activation cannot provision memberships');
+  assert.match(
+    source,
+    /identity_provider_key = 'cognito'[\s\S]*identity_subject = \$2[\s\S]*RETURNING membership_id, email/,
+    'access provisioning should update the stable Cognito identity before considering email',
+  );
+  assert.match(
+    source,
+    /ON CONFLICT \(tenant_id, email\) DO UPDATE[\s\S]*identity_provider_key = 'cognito'/,
+    'legacy email memberships should be migrated to the Cognito provider',
+  );
 });
