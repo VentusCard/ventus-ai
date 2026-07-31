@@ -978,6 +978,79 @@ Employee acceptance, task completion, response time, and capacity are operating
 metrics. They explain delivery performance but do not replace the registered
 P&L outcome.
 
+#### 10.7.1 Authoritative outcome-source hierarchy
+
+The primary outcome must come from the institution system that owns the
+economic event. A workflow system may report that work happened, but it cannot
+by itself prove deposit retention or net new assets.
+
+Source precedence is:
+
+1. **Economic system of record:** core deposit ledger, wealth books and records,
+   or another institution-approved ledger that owns the posted balance or flow.
+2. **Certified institution outcome view:** a bank-governed warehouse or
+   calculation layer may return the registered metric when its lineage,
+   reconciliation, version, and accountable owner are approved.
+3. **Workflow system:** Salesforce/FSC, a bank workbench, Outlook, or Slack may
+   return assignment, acceptance, completion, timing, and reason codes as
+   operating observations only.
+4. **Sandbox or fixture:** proves the contract and mechanism but cannot support
+   a sanctioned-pilot result.
+
+The MVP does not ask Ventus to reconstruct bank accounting from raw
+transactions. The institution computes one pre-registered primary metric value
+for every assigned subject, including holdout, and returns only the approved
+outcome envelope:
+
+```ts
+type AuthoritativeOutcomeObservation = {
+  subjectToken: string;
+  metric: string;
+  value: { amount: number; currency: "USD" } | null;
+  eventType: string;
+  sourceSystem: string;
+  sourceRecordId: string;
+  sourceVersion: string;
+  occurredAt: string;
+  observedAt: string;
+  correctionSequence: number;
+  reasonCode?: string;
+};
+```
+
+The feed cannot supply tenant, experiment, treatment arm, decision, protocol,
+or claim status. Ventus resolves those from the persisted assignment and
+approved Growth Play. A null value is missing, not zero. A valid zero must be
+sent explicitly.
+
+The first pilot uses a daily batch or approved event feed; real-time outcome
+streaming is not required. Treatment and holdout must use the same source,
+metric version, cadence, correction rules, and freshness threshold. A source
+change creates a new protocol version and cannot be mixed into an open result.
+
+**Consumer Deposit Primacy default:** the authoritative source is the
+institution's deposit ledger or certified deposit-outcome view. The registered
+`deposit_retained` value is the USD eligible deposit balance at the registered
+measurement anchor for the assigned subject. Eligible account types,
+aggregation level, end-of-window anchor, treatment of closed accounts, and
+baseline balance snapshot are frozen before assignment. The MVP intent-to-treat
+result compares mean end-anchor value between treatment and holdout; any
+baseline-adjusted estimator requires a separately approved analysis version.
+Salesforce completion is an operating metric only.
+
+**Merrill Qualified Wealth Growth default:** the authoritative source is the
+wealth books-and-records platform or certified NNA view. Registered
+`net_new_assets` includes posted and settled qualified external flows during
+the window, expressed as signed USD inflows minus outflows. It excludes market
+appreciation, internal transfers, reversals, and other institution-defined
+non-NNA movement. The MVP intent-to-treat result compares mean qualified NNA
+between treatment and holdout. Salesforce opportunity, referral, meeting, and
+task states are operating metrics only.
+
+For the first real-bank pilot, implement Consumer Deposit Primacy first. Reuse
+the same envelope and validation path for Merrill only after its NNA owner,
+source, exclusions, timing, and correction contract are approved.
+
 ## 11. AI and Model Boundary
 
 AI may:
@@ -1141,7 +1214,9 @@ Salesforce returns:
 
 - assignment and completion state;
 - employee response when Salesforce is the response surface;
-- institution-approved outcome or relationship events.
+- institution-approved workflow or relationship events;
+- economic outcomes only when Salesforce is explicitly certified as the
+  institution's authoritative outcome view for that metric.
 
 Comments are a demo fallback, not the production integration contract.
 
@@ -1357,8 +1432,10 @@ Onboarding follows six ordered gates:
    bounded sandbox write and reconciliation test.
 5. **Outcome return:** register the authoritative event, source, subject
    linkage, explicit-zero behavior, correction semantics, delay, coverage,
-   window, and analysis freeze. Pass treatment and holdout contract fixtures
-   before real assignments.
+   window, source version, reconciliation owner, and analysis freeze. Prove
+   that the source owns the economic metric, or document the certified
+   institution view and its lineage. Pass treatment and holdout contract
+   fixtures before real assignments.
 6. **Growth Play proof:** complete the Studio, register and independently
    approve the protocol, run qualified/suppressed/abstained/holdout cases in
    shadow, verify capacity, then authorize a bounded pilot population.
@@ -1402,6 +1479,10 @@ Objective: protect primary deposit relationships within Consumer Banking.
 
 Primary metric: institution-defined `deposit_retained` observation over the
 registered outcome window.
+
+Authoritative source: the institution deposit ledger or an approved,
+reconciled deposit-outcome view. Salesforce response and completion events are
+operating evidence and do not determine `deposit_retained`.
 
 Qualified moment: an approved combination of payroll anchoring and evidence of
 relationship migration, evaluated under the institution's eligibility,
@@ -1504,6 +1585,11 @@ Merrill configures:
 - capacity and routing;
 - `net_new_assets` or another institution-approved primary metric;
 - a longer outcome window where required.
+
+The authoritative NNA source must be the institution wealth
+books-and-records platform or a certified NNA view. CRM opportunity,
+appointment, referral, and completion states remain operating observations and
+cannot substitute for posted, qualified NNA.
 
 Merrill must be provable with Merrill-controlled data and workflow. Consumer
 Banking evidence is optional expansion, not a prerequisite.

@@ -36,6 +36,10 @@ Authority: `docs/architecture/enterprise-product-blueprint.md`
     data is not required.
 11. Model promotion is Skill- and task-specific. The deterministic baseline
     remains active through offline benchmark and sanctioned-data shadow review.
+12. Primary P&L outcomes come from the institution's economic system of record
+    or a certified, reconciled outcome view. Salesforce/FSC and Coworker
+    channels return operating observations unless explicitly certified for the
+    registered economic metric.
 
 ## Next Terra Work Packages
 
@@ -57,6 +61,12 @@ Implement these as separate, non-overlapping slices in this order:
 5. **Skill shadow registry:** persist the frozen benchmark reference,
    candidate artifact, three-run evaluation, sanctioned shadow evidence,
    approvals, fallback, cost, latency, and promotion state.
+6. **Authoritative outcome adapter:** implement the approved outcome envelope
+   for one Consumer Deposit Primacy source first. Resolve tenant, experiment,
+   arm, decision, and protocol from durable Ventus records; accept no
+   caller-authored lineage. Enforce source/version/event/metric/window,
+   explicit-zero, correction, freshness, and treatment/holdout parity before
+   appending an observation. Keep FSC workflow observations separate.
 
 Each package requires its own API/schema tests and Luna verification before the
 next package changes the same product surface.

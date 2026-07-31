@@ -22,6 +22,33 @@ The primary analysis is intent-to-treat on one pre-registered P&L metric. Employ
 completion, response time, and capacity are operating metrics; they do not replace the primary
 outcome. Secondary metrics are exploratory and cannot determine pilot success.
 
+## Outcome-source authority
+
+The primary metric must come from the institution system that owns the
+economic event:
+
+- Deposit Primacy uses the deposit ledger or a certified, reconciled
+  deposit-outcome view.
+- Merrill Relationship Growth uses wealth books and records or a certified,
+  reconciled NNA view.
+- Salesforce/FSC and employee workbenches contribute workflow observations
+  such as assignment, acceptance, completion, timing, and reason codes. They
+  are not authoritative for economic lift unless the institution formally
+  certifies the specific view and lineage.
+
+For the MVP, the institution returns a precomputed registered metric value for
+each treatment and holdout subject. Ventus does not infer accounting outcomes
+from CRM state or re-create bank accounting from raw transactions. The return
+feed includes only the opaque subject token, metric, value, event and source
+identifiers, source version, occurrence and observation times, correction
+sequence, and optional reason code. Ventus derives tenant, experiment, arm,
+decision, activation, Growth Play, and protocol from persisted evidence.
+
+Treatment and holdout must share the same source, metric definition, version,
+cadence, correction rules, and freshness threshold. A null observation remains
+missing; a real zero must be explicit. Corrections are append-only, and the
+latest valid correction inside the registered window is used.
+
 ## Integrity controls
 
 - A summary may contain exactly one tenant and one experiment.
@@ -83,8 +110,15 @@ review.
 
 ## MVP metrics
 
-- Deposit Primacy: bank-approved retained deposit balance or another pre-registered deposit metric.
-- Merrill Relationship Growth: qualified net new assets posted during the approved outcome window.
+- Deposit Primacy: bank-approved eligible deposit amount retained at the
+  registered measurement anchor, returned by the deposit ledger or certified
+  outcome view. The MVP estimator compares mean end-anchor eligible balance
+  between treatment and holdout.
+- Merrill Relationship Growth: signed USD posted and settled qualified external
+  inflows minus outflows during the approved outcome window, excluding market
+  movement, internal transfers, reversals, and other pre-registered
+  exclusions. The MVP estimator compares mean qualified NNA between treatment
+  and holdout.
 - Connected Liquidity-to-Wealth: incremental qualified NNA versus the standalone arm, not merely
   versus no action.
 
