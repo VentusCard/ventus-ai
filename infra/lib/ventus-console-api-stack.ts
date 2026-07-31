@@ -83,7 +83,12 @@ export class VentusConsoleApiStack extends cdk.Stack {
     const experimentSecret = new secretsmanager.Secret(this, 'ExperimentAssignmentSecret', {
       secretName: 'ventus/staging/experiment-assignment',
       description: 'Server-only assignment secret for controlled Ventus sandbox experiments.',
-      generateSecretString: { generateStringKey: 'assignmentSalt', excludePunctuation: true, passwordLength: 48 },
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({}),
+        generateStringKey: 'assignmentSalt',
+        excludePunctuation: true,
+        passwordLength: 48,
+      },
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
     const consoleFunction = new lambda.Function(this, 'ConsoleApiFunction', {
