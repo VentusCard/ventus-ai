@@ -17,6 +17,15 @@ test('delivery reservation identity is deterministic across payload key order', 
   assert.match(first.requestHash, /^[a-f0-9]{64}$/);
 });
 
+test('FSC Growth Play connector is accepted by the durable delivery contract', () => {
+  const reservation = buildDeliveryReservation(request({
+    connector: 'salesforce-fsc',
+    destination: 'fsc_task',
+  }));
+  assert.equal(reservation.connector, 'salesforce-fsc');
+  assert.equal(reservation.destination, 'fsc_task');
+});
+
 test('duplicate reservation blocks a second downstream write and flags pending reconciliation', async () => {
   const state = { receipts: [], queries: [] };
   const repository = createConnectorDeliveryRepository({ getDB: async () => fakeDb(state) });

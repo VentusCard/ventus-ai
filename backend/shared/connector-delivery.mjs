@@ -4,6 +4,7 @@ import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const CONNECTORS = new Set([
   'salesforce',
+  'salesforce-fsc',
   'bank_workbench',
   'campaign_platform',
   'digital_channel',
