@@ -73,22 +73,11 @@ export class VentusConsoleApiStack extends cdk.Stack {
       },
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
-    const coworkerConnectorSecret = new secretsmanager.Secret(this, 'CoworkerConnectorSecret', {
-      secretName: COWORKER_CONNECTOR_SECRET_NAME,
-      description: 'Server-only Outlook and Slack credentials for authenticated Ventus Coworker delivery.',
-      generateSecretString: {
-        secretStringTemplate: JSON.stringify({
-          microsoftTenantId: 'CONFIGURE_MICROSOFT_TENANT_ID',
-          microsoftClientId: 'CONFIGURE_MICROSOFT_CLIENT_ID',
-          microsoftClientSecret: 'CONFIGURE_MICROSOFT_CLIENT_SECRET',
-          microsoftSenderUserId: 'CONFIGURE_MICROSOFT_SENDER_USER_ID',
-          slackBotToken: 'CONFIGURE_SLACK_BOT_TOKEN',
-        }),
-        generateStringKey: 'placeholder',
-        excludePunctuation: true,
-      },
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-    });
+    const coworkerConnectorSecret = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      'CoworkerConnectorSecret',
+      COWORKER_CONNECTOR_SECRET_NAME,
+    );
     const consoleFunction = new lambda.Function(this, 'ConsoleApiFunction', {
       functionName: 'ventus-console-api',
       description: 'Cognito and institution-membership boundary for the Ventus Growth Console.',
