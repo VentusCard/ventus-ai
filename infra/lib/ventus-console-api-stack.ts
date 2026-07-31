@@ -164,6 +164,9 @@ export class VentusConsoleApiStack extends cdk.Stack {
     const skills = consoleApi.addResource('skills').addResource('shadows');
     skills.addMethod('GET', integration);
     skills.addMethod('POST', integration);
+    const skillVersion = skills.addResource('{skill_id}').addResource('{version}');
+    skillVersion.addResource('approvals').addMethod('POST', integration);
+    skillVersion.addResource('transitions').addMethod('POST', integration);
     const growthPlays = consoleApi.addResource('growth-plays');
     growthPlays.addMethod('GET', integration);
     growthPlays.addResource('drafts').addMethod('POST', integration);

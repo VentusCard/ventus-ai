@@ -15,6 +15,10 @@ import {
   authorizeGrowthPlayRead,
   authorizeGrowthPlayWrite,
   authorizeResultsRead,
+  authorizeSkillApproval,
+  authorizeSkillDraft,
+  authorizeSkillRead,
+  authorizeSkillTransition,
 } from './console-authorization.mjs';
 
 export class ConsoleRequestError extends Error {
@@ -63,28 +67,79 @@ export function createConsoleApiHandler({
       const path = String(event.path || event.rawPath || event.resource || '');
       if (method === 'GET' && path.endsWith('/results')) {
         if (!controlPlane) return unavailable('product results', responseHeaders);
-        if (!authorizeResultsRead(membership).allowed) return forbidden('results', responseHeaders);
-        return response(200, await controlPlane.results({ tenantId: identity.tenantHint }), responseHeaders);
+        const authorization = authorizeResultsRead(membership);
+        if (!authorization.allowed) return forbidden('results', responseHeaders);
+        return response(200, await controlPlane.results({
+          tenantId: identity.tenantHint,
+          projection: authorization.projection,
+          actorId: identity.subject,
+          businessLineScopes: membership.businessLines || [],
+        }), responseHeaders);
       }
       if (method === 'GET' && path.endsWith('/governance')) {
         if (!controlPlane) return unavailable('governance', responseHeaders);
-        if (!authorizeGovernanceRead(membership).allowed) return forbidden('governance', responseHeaders);
-        return response(200, await controlPlane.governance({ tenantId: identity.tenantHint }), responseHeaders);
+        const authorization = authorizeGovernanceRead(membership);
+        if (!authorization.allowed) return forbidden('governance', responseHeaders);
+        return response(200, await controlPlane.governance({
+          tenantId: identity.tenantHint,
+          projection: authorization.projection,
+          businessLineScopes: membership.businessLines || [],
+        }), responseHeaders);
       }
       if (method === 'GET' && path.endsWith('/skills/shadows')) {
         if (!controlPlane) return unavailable('Skill shadow registry', responseHeaders);
-        if (!authorizeGovernanceRead(membership).allowed) return forbidden('Skill shadow registry', responseHeaders);
+        if (!authorizeSkillRead(membership).allowed) return forbidden('Skill shadow registry', responseHeaders);
         return response(200, await controlPlane.listSkillShadows({ tenantId: identity.tenantHint }), responseHeaders);
       }
       if (method === 'POST' && path.endsWith('/skills/shadows')) {
         if (!controlPlane) return unavailable('Skill shadow registry', responseHeaders);
-        if (!authorizeGrowthPlayWrite(membership).allowed) return forbidden('Skill shadow registry', responseHeaders);
+        if (!authorizeSkillDraft(membership).allowed) return forbidden('Skill shadow registry', responseHeaders);
         const body = parseBody(event.body);
-        const skill = await controlPlane.saveSkillShadow({
+        if (body.status !== undefined) {
+          throw new ConsoleRequestError('Skill status is derived by the server from governed transitions');
+        }
+        const result = await controlPlane.createSkillDraft({
           tenantId: identity.tenantHint, skillId: body.skillId, version: body.version,
-          status: body.status, benchmark: body.benchmark, actorId: identity.subject,
+          benchmark: body.benchmark, actorId: identity.subject,
         });
-        return response(201, { skill, serverAuthoritative: true }, responseHeaders);
+        return response(201, { ...result, serverAuthoritative: true }, responseHeaders);
+      }
+      const skillApprovalPath = parseSkillApprovalPath(path);
+      if (method === 'POST' && skillApprovalPath) {
+        if (!controlPlane) return unavailable('Skill governance', responseHeaders);
+        const body = parseBody(event.body);
+        if (!authorizeSkillApproval(membership, body.phase, body.approvalType).allowed) return forbidden('Skill approval', responseHeaders);
+        const result = await controlPlane.recordSkillApproval({
+          tenantId: identity.tenantHint,
+          skillId: skillApprovalPath.skillId,
+          version: skillApprovalPath.version,
+          expectedRevision: body.expectedRevision,
+          phase: body.phase,
+          approvalType: body.approvalType,
+          decision: body.decision,
+          actorId: identity.subject,
+          reason: body.reason,
+        });
+        return response(201, { ...result, serverAuthoritative: true }, responseHeaders);
+      }
+      const skillTransitionPath = parseSkillTransitionPath(path);
+      if (method === 'POST' && skillTransitionPath) {
+        if (!controlPlane) return unavailable('Skill governance', responseHeaders);
+        const body = parseBody(event.body);
+        if (body.status !== undefined) {
+          throw new ConsoleRequestError('Skill status is derived by the server from governed transitions');
+        }
+        if (!authorizeSkillTransition(membership, body.action).allowed) return forbidden('Skill transition', responseHeaders);
+        const result = await controlPlane.transitionSkill({
+          tenantId: identity.tenantHint,
+          skillId: skillTransitionPath.skillId,
+          version: skillTransitionPath.version,
+          expectedRevision: body.expectedRevision,
+          action: body.action,
+          actorId: identity.subject,
+          reason: body.reason,
+        });
+        return response(201, { ...result, serverAuthoritative: true }, responseHeaders);
       }
       if (method === 'GET' && path.endsWith('/growth-plays')) {
         if (!controlPlane) return unavailable('Growth Plays', responseHeaders);
@@ -447,6 +502,16 @@ function parseMomentPath(path) {
 function parseProtocolApprovalPath(path) {
   const matched = path.match(/\/growth-plays\/protocols\/([A-Za-z0-9][A-Za-z0-9_.:@-]{1,255})\/approvals$/);
   return matched ? { decisionProtocolId: matched[1] } : null;
+}
+
+function parseSkillApprovalPath(path) {
+  const matched = path.match(/\/skills\/shadows\/([A-Za-z0-9][A-Za-z0-9_.:@-]{1,255})\/([A-Za-z0-9][A-Za-z0-9_.:@-]{0,79})\/approvals$/);
+  return matched ? { skillId: matched[1], version: matched[2] } : null;
+}
+
+function parseSkillTransitionPath(path) {
+  const matched = path.match(/\/skills\/shadows\/([A-Za-z0-9][A-Za-z0-9_.:@-]{1,255})\/([A-Za-z0-9][A-Za-z0-9_.:@-]{0,79})\/transitions$/);
+  return matched ? { skillId: matched[1], version: matched[2] } : null;
 }
 
 function parseConnectionTransitionPath(path) {

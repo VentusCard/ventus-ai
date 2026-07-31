@@ -12,7 +12,7 @@ export const DESTINATION_ROLES: Record<ConsoleDestination, ConsoleAccessProfile[
   today: ["bank_operator", "growth_play_owner", "risk_reviewer", "institution_admin", "executive_viewer", "ventus_platform_admin"],
   moments: ["bank_operator", "growth_play_owner", "risk_reviewer"],
   plays: ["growth_play_owner", "risk_reviewer", "institution_admin", "executive_viewer", "ventus_platform_admin"],
-  results: ["bank_operator", "growth_play_owner", "risk_reviewer", "executive_viewer", "ventus_platform_admin"],
+  results: ["bank_operator", "growth_play_owner", "risk_reviewer", "executive_viewer", "institution_admin", "ventus_platform_admin"],
   governance: ["risk_reviewer", "institution_admin", "ventus_platform_admin"],
   connections: ["institution_admin", "ventus_platform_admin"],
 };
