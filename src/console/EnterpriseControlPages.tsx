@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronRight, CircleAlert, Loader2, Mail, Plug, Send, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronRight, CircleAlert, FileText, Loader2, Mail, Plug, Send, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { useAuth, useConsole } from "@/console/state";
 import {
   consoleConnectionsUrl,
