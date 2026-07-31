@@ -886,7 +886,8 @@ export function fscObservationReceiptId({ tenantId, decisionRecordId, outcome })
 }
 
 function isLegacyFscObservationReplay(error) {
-  return error instanceof Error && error.message === 'ledger idempotency key reused for different event content';
+  return error instanceof Error
+    && error.message.startsWith('ledger idempotency key reused for different event content');
 }
 
 function projectDraft(row) {

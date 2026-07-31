@@ -50,7 +50,7 @@ test('FSC observation retries preserve their original timestamp and recover lega
     ledgerRepository: {
       async append(draft) {
         appendCalls.push(draft);
-        throw new Error('ledger idempotency key reused for different event content');
+        throw new Error('ledger idempotency key reused for different event content + actual - expected');
       },
     },
     getDB: async () => ({
