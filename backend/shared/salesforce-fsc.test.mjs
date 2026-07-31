@@ -41,6 +41,54 @@ test('FSC schema discovery distinguishes native workflow support from the Ventus
   assert.equal(summary.requiredMappingsReady, true);
 });
 
+test('FSC outcome mapping verification checks the approved object and fields without customer reads', async () => {
+  const requested = [];
+  const service = createSalesforceFscService({
+    buildTaskRecord: buildSalesforceTaskRecord,
+    fetchImpl: async (url) => {
+      if (url.endsWith('/services/oauth2/token')) {
+        return json({ access_token: 'salesforce-access', instance_url: 'https://instance.salesforce.com' });
+      }
+      requested.push(url);
+      return json({ fields: Object.values({
+        decisionReferenceField: 'Bank_Decision_Reference__c', decisionPackageField: 'Bank_Decision_Snapshot__c',
+        humanResponseField: 'Bank_Response__c', outcomeStatusField: 'Bank_Outcome_Status__c',
+        outcomeEventTypeField: 'Bank_Outcome_Event__c', outcomeMetricField: 'Bank_Outcome_Metric__c',
+        outcomeAmountField: 'Bank_Outcome_Amount__c', outcomeOccurredAtField: 'Bank_Outcome_At__c',
+        outcomeSourceRecordIdField: 'Bank_Outcome_Source__c', outcomeReasonCodeField: 'Bank_Outcome_Reason__c',
+      }).map((name) => ({ name })) });
+    },
+  });
+  const result = await service.verifyOutcomeMapping({
+    config,
+    mapping: {
+      decisionObject: 'Bank_Decision__c', decisionReferenceField: 'Bank_Decision_Reference__c',
+      decisionPackageField: 'Bank_Decision_Snapshot__c', humanResponseField: 'Bank_Response__c',
+      outcomeStatusField: 'Bank_Outcome_Status__c', outcomeEventTypeField: 'Bank_Outcome_Event__c',
+      outcomeMetricField: 'Bank_Outcome_Metric__c', outcomeAmountField: 'Bank_Outcome_Amount__c',
+      outcomeOccurredAtField: 'Bank_Outcome_At__c', outcomeSourceRecordIdField: 'Bank_Outcome_Source__c',
+      outcomeReasonCodeField: 'Bank_Outcome_Reason__c',
+    },
+  });
+
+  assert.match(requested[0], /sobjects\/Bank_Decision__c\/describe$/);
+  assert.equal(result.check, 'outcome_mapping_verified');
+  assert.equal(result.mappedFieldCount, 10);
+});
+
+test('FSC outcome mapping verification refuses a missing approved field', async () => {
+  const service = createSalesforceFscService({
+    buildTaskRecord: buildSalesforceTaskRecord,
+    fetchImpl: async (url) => url.endsWith('/services/oauth2/token')
+      ? json({ access_token: 'salesforce-access', instance_url: 'https://instance.salesforce.com' })
+      : json({ fields: [{ name: 'Decision_Reference__c' }] }),
+  });
+  await assert.rejects(
+    service.verifyOutcomeMapping({ config }),
+    (error) => error instanceof SalesforceFscError && /missing fields/.test(error.message),
+  );
+});
+
 test('FSC delivery writes a linked Task and a structured Decision Receipt', async () => {
   const writes = [];
   const service = createSalesforceFscService({
@@ -109,6 +157,69 @@ test('FSC delivery preserves the Task when the optional Decision Receipt is unav
   assert.equal(result.id, '00T000000000001');
   assert.equal(result.records.decision, null);
   assert.equal(result.warnings[0].stage, 'decision_receipt');
+});
+
+test('FSC outcome return honors an institution-approved Decision Receipt mapping', async () => {
+  const requested = [];
+  const service = createSalesforceFscService({
+    buildTaskRecord: buildSalesforceTaskRecord,
+    fetchImpl: async (url) => {
+      if (url.endsWith('/services/oauth2/token')) {
+        return json({
+          access_token: 'salesforce-access',
+          instance_url: 'https://instance.salesforce.com',
+        });
+      }
+      requested.push(url);
+      return json({
+        Id: 'a01000000000001',
+        Bank_Decision_Reference__c: 'dec_fsc_001',
+        Bank_Decision_Snapshot__c: JSON.stringify({
+          schemaVersion: '1.0',
+          tenantId: 'demo_bank',
+          decisionId: 'dec_fsc_001',
+          evidenceClass: 'sandbox',
+          response: { status: 'accepted' },
+          outcome: { status: 'measuring', metric: 'deposit_retained' },
+        }),
+        Bank_Response__c: 'accepted',
+        Bank_Outcome_Status__c: 'measured',
+        Bank_Outcome_Event__c: 'deposit_balance_observed',
+        Bank_Outcome_Metric__c: 'deposit_retained',
+        Bank_Outcome_Amount__c: '18400',
+        Bank_Outcome_At__c: '2026-08-01T00:00:00.000Z',
+        Bank_Outcome_Source__c: 'core_123',
+        Bank_Outcome_Reason__c: 'balance_retained',
+        LastModifiedById: '005000000000001',
+        LastModifiedDate: '2026-08-01T01:00:00.000Z',
+      });
+    },
+  });
+
+  const result = await service.readOutcome({
+    config,
+    tenantId: 'demo_bank',
+    decisionRecordId: 'a01000000000001',
+    mapping: {
+      decisionObject: 'Bank_Decision__c',
+      decisionReferenceField: 'Bank_Decision_Reference__c',
+      decisionPackageField: 'Bank_Decision_Snapshot__c',
+      humanResponseField: 'Bank_Response__c',
+      outcomeStatusField: 'Bank_Outcome_Status__c',
+      outcomeEventTypeField: 'Bank_Outcome_Event__c',
+      outcomeMetricField: 'Bank_Outcome_Metric__c',
+      outcomeAmountField: 'Bank_Outcome_Amount__c',
+      outcomeOccurredAtField: 'Bank_Outcome_At__c',
+      outcomeSourceRecordIdField: 'Bank_Outcome_Source__c',
+      outcomeReasonCodeField: 'Bank_Outcome_Reason__c',
+    },
+  });
+
+  assert.match(requested[0], /sobjects\/Bank_Decision__c/);
+  assert.equal(result.decisionId, 'dec_fsc_001');
+  assert.equal(result.outcome.status, 'measured');
+  assert.equal(result.outcome.observation.metric, 'deposit_retained');
+  assert.equal(result.outcome.observation.amount, 18400);
 });
 
 test('FSC delivery rejects a Decision Package from another tenant before Salesforce is called', async () => {

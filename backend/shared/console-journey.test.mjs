@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildDecisionPackage, createConsoleJourneyRepository, projectMoment, projectMoments } from './console-journey.mjs';
+import { buildDecisionPackage, buildDecisionPackageV12, createConsoleJourneyRepository, projectMoment, projectMoments } from './console-journey.mjs';
+import { compileGrowthPlayContract } from './growth-play-contract.mjs';
 
 const decision = {
   schemaVersion: 'ventus.decision-run.v1',
@@ -26,6 +27,55 @@ test('server Decision Package retains only an opaque subject and bounded evidenc
   assert.equal(result.recommendation.selectedAction.id, 'banker-retention-review');
   assert.deepEqual(result.response, { status: 'pending' });
   assert.equal(JSON.stringify(result).includes('txn_a'), false);
+});
+
+test('Decision Package v1.2 has a stable immutable digest and excludes mutable receipts', () => {
+  const legacy = buildDecisionPackage(decision);
+  const first = buildDecisionPackageV12(legacy, decision);
+  const second = buildDecisionPackageV12({ ...legacy, response: { status: 'accepted' } }, decision);
+  assert.equal(first.schemaVersion, '1.2');
+  assert.match(first.packageDigest, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(first.packageDigest, second.packageDigest);
+  assert.equal('response' in first, false);
+  assert.equal('outcome' in first, false);
+  assert.equal(first.subject.scope, 'customer');
+  assert.equal(first.moment.confidenceBand, 'high');
+  assert.equal(first.recommendation.actionCatalogVersion, 'deposit-retention-v1');
+  assert.equal(first.governance.approvalStatus, 'not_attested');
+  assert.equal(first.decisionMethod.runtimeType, 'deterministic');
+  assert.equal(first.workflowIntent.ownerRole, 'Relationship banker');
+});
+
+test('approved runtime binds the Decision Package to the exact protocol, action, and measurement contract', () => {
+  const contract = approvedDepositContract();
+  const approvedDecision = {
+    ...decision,
+    source: { mode: 'live', evidenceClass: 'partner_sandbox', name: 'Plaid sandbox', recordCount: 2, transactionRefs: ['txn_a', 'txn_b'] },
+    runtime: {
+      ...decision.runtime,
+      policyVersion: contract.policy.version,
+      growthPlayId: contract.growth_play_id,
+      businessLine: contract.business_line,
+      protocolId: contract.decision_protocol_id,
+      protocolDigest: contract.protocol_digest,
+      protocolApprovalId: 'gpa_approved_123',
+      approvedContract: contract,
+      measurementPlan: {
+        outcomeEventTypes: contract.measurement.outcome_event_types,
+        outcomeSourceSystems: contract.measurement.outcome_source_systems,
+      },
+    },
+  };
+  const legacy = buildDecisionPackage(approvedDecision);
+  const immutable = buildDecisionPackageV12(legacy, approvedDecision);
+  assert.equal(legacy.growthPlay.protocolId, contract.decision_protocol_id);
+  assert.equal(legacy.recommendation.selectedAction.id, 'banker_retention_review');
+  assert.equal(legacy.workflow.connector, 'salesforce-fsc');
+  assert.equal(immutable.governance.protocolApprovalId, 'gpa_approved_123');
+  assert.equal(immutable.governance.approvalStatus, 'approved');
+  assert.equal(immutable.recommendation.actionCatalogVersion, contract.decision_protocol_id);
+  assert.equal(immutable.workflowIntent.destination, 'fsc_task');
+  assert.deepEqual(immutable.measurementPlan.outcomeEventTypes, ['deposit_balance_observed']);
 });
 
 test('Moment projection applies an append-only response and delivery reservation', () => {
@@ -126,6 +176,61 @@ test('a terminal configuration failure receives one separate, server-derived ret
   assert.equal(reservationCalls[0].idempotencyKey, `delivery-retry:${decision.decisionId}:banker-retention-review`);
 });
 
+test('a connected Moment cannot be delivered after its protocol is revoked', async () => {
+  const contract = approvedDepositContract();
+  const approvedDecision = {
+    ...decision,
+    source: { mode: 'live', evidenceClass: 'partner_sandbox', name: 'Plaid sandbox', recordCount: 2, transactionRefs: ['txn_a', 'txn_b'] },
+    runtime: {
+      ...decision.runtime,
+      protocolId: contract.decision_protocol_id,
+      protocolApprovalId: 'gpa_approved_123',
+      approvedContract: contract,
+    },
+  };
+  const packageProjection = buildDecisionPackage(approvedDecision);
+  const records = [
+    row(1, 'decision', {
+      decision_id: approvedDecision.decisionId,
+      scenario: approvedDecision.scenario,
+      source: approvedDecision.source,
+      opportunity: approvedDecision.opportunity,
+      policy: approvedDecision.policy,
+      runtime: approvedDecision.runtime,
+      decision_package: packageProjection,
+    }),
+    row(2, 'response', {
+      decision_id: approvedDecision.decisionId,
+      actor_id: 'operator_1',
+      response: { status: 'accepted', actionId: 'banker_retention_review' },
+    }),
+  ];
+  let reserveCalled = false;
+  const repository = createConsoleJourneyRepository({
+    getDB: async () => ({ connect: async () => {}, end: async () => {} }),
+    ledgerRepository: { async append() { throw new Error('should not append'); } },
+    deliveryRepository: {
+      async reserve() { reserveCalled = true; throw new Error('should not reserve'); },
+      async complete() { throw new Error('should not complete'); },
+    },
+    protocolRegistry: {
+      async requireApproved() {
+        throw new Error('Growth Play protocol is not approved at run time');
+      },
+    },
+  });
+  repository.loadMoment = async () => projectMoment(records);
+  await assert.rejects(() => repository.reserveDelivery({
+    tenantId: approvedDecision.tenantId,
+    decisionId: approvedDecision.decisionId,
+    sessionId: 'session_1',
+    idempotencyKey: 'browser_delivery_request_1',
+    expectedState: 'approved',
+    requestedAt: '2026-07-30T12:05:00.000Z',
+  }), /not approved at run time/);
+  assert.equal(reserveCalled, false);
+});
+
 test('Moment projection exposes only bounded Salesforce receipt links after delivery', () => {
   const packageProjection = buildDecisionPackage(decision);
   const moment = projectMoment([
@@ -147,6 +252,39 @@ test('Moment projection exposes only bounded Salesforce receipt links after deli
   assert.equal(moment.receipt.records.task.id, '00T123456789012EAA');
   assert.equal(JSON.stringify(moment.receipt).includes('txn_a'), false);
 });
+
+function approvedDepositContract() {
+  return compileGrowthPlayContract({
+    contract_version: '1.0',
+    growth_play_id: 'deposit-primacy-defense',
+    version: '1.0.0',
+    business_line: 'consumer-banking',
+    objective: 'Retain primary deposit relationships through governed banker review',
+    source: {
+      receipt_source_systems: ['plaid_custom_user'],
+      schema_versions: ['plaid-transactions-1'],
+      record_sources: [{ source_system: 'deposit_core', allowed_rails: ['ach', 'card', 'p2p', 'wire'] }],
+    },
+    eligibility: { criteria_version: 'deposit-primacy-eligibility-v1' },
+    policy: { version: 'mvp-policy-v1', required_policy_ids: ['consent', 'eligibility', 'vulnerability'] },
+    actions: [{
+      action_id: 'banker_retention_review',
+      owner_role: 'relationship_banker',
+      connector: 'salesforce-fsc',
+      destination: 'fsc_task',
+      destination_environment: 'sandbox',
+    }],
+    measurement: {
+      metric: 'deposit_retained',
+      outcome_event_types: ['deposit_balance_observed'],
+      outcome_source_systems: ['deposit_core_sandbox'],
+      outcome_window_days: 31,
+      holdout_pct: 10,
+      minimum_per_arm: 30,
+      minimum_coverage: 0.9,
+    },
+  });
+}
 
 function row(sequenceNumber, eventType, payload) {
   return {

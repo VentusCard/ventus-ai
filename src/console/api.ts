@@ -55,6 +55,28 @@ export function consoleMomentDeliveryUrl(decisionId: string): string | null {
   return momentUrl ? `${momentUrl}/deliveries` : null;
 }
 
+function consoleEndpoint(path: string): string | null {
+  const baseUrl = configuredBaseUrl || devConsoleBaseUrl;
+  return baseUrl ? `${baseUrl}${path}` : null;
+}
+
+export function consoleResultsUrl(): string | null { return consoleEndpoint('/results'); }
+export function consoleGovernanceUrl(): string | null { return consoleEndpoint('/governance'); }
+export function consoleOnboardingReadinessUrl(): string | null { return consoleEndpoint('/onboarding/readiness'); }
+export function consoleSkillShadowsUrl(): string | null { return consoleEndpoint('/skills/shadows'); }
+export function consoleGrowthPlaysUrl(): string | null { return consoleEndpoint('/growth-plays'); }
+export function consoleGrowthPlayDraftsUrl(): string | null { return consoleEndpoint('/growth-plays/drafts'); }
+export function consoleGrowthPlayRegisterUrl(): string | null { return consoleEndpoint('/growth-plays/register'); }
+export function consoleGrowthPlayApprovalUrl(protocolId: string): string | null {
+  return consoleEndpoint(`/growth-plays/protocols/${encodeURIComponent(protocolId)}/approvals`);
+}
+export function consoleConnectionsUrl(): string | null { return consoleEndpoint('/connections'); }
+export function consoleConnectionTransitionUrl(mappingId: string, action: 'test' | 'approve' | 'activate' | 'revoke'): string | null {
+  return consoleEndpoint(`/connections/${encodeURIComponent(mappingId)}/${action}`);
+}
+export function consoleCoworkerDeliveryUrl(): string | null { return consoleEndpoint('/briefings/deliveries'); }
+export function consoleSalesforceOutcomeSyncUrl(): string | null { return consoleEndpoint('/outcomes/salesforce-sync'); }
+
 export function connectorApiUrl(
   route:
     | "session"

@@ -22,6 +22,54 @@ Authority: `docs/architecture/enterprise-product-blueprint.md`
    do not inherit customer-action permissions.
 6. The browser is a projection and interaction surface. It is not the
    authoritative store for Moments, responses, delivery state, or evidence.
+7. Decision Package v1.2 is an immutable qualification-time decision. Mutable
+   response, delivery, and outcome state remains in append-only receipts and
+   rebuildable projections.
+8. Growth Play Studio uses the six-step Outcome, Moment, Action, Controls,
+   Proof, and Review flow. AI drafts typed fields but never creates executable
+   policy directly.
+9. One primary metric and intent-to-treat comparison govern each protocol.
+   Sandbox defaults cannot create business claims; sanctioned pilots freeze a
+   power-informed analysis plan before assignment.
+10. The first bank onboarding is one tenant, business line, play, source,
+    destination, and outcome return through six ordered gates. Cross-business
+    data is not required.
+11. Model promotion is Skill- and task-specific. The deterministic baseline
+    remains active through offline benchmark and sanctioned-data shadow review.
+12. Primary P&L outcomes come from the institution's economic system of record
+    or a certified, reconciled outcome view. Salesforce/FSC and Coworker
+    channels return operating observations unless explicitly certified for the
+    registered economic metric.
+
+## Next Terra Work Packages
+
+Implement these as separate, non-overlapping slices in this order:
+
+1. **Decision Package v1.2:** add the immutable package fields, digest,
+   compatibility writer, receipt-aware projection, and v1.1 compatibility
+   tests. Do not migrate existing v1.1 protocols in place.
+2. **Growth Play Studio:** implement the six-step structured draft and live
+   readiness projection. Support save, readiness, registration, review, and
+   approval as separate commands. Keep one destination and one primary outcome
+   per MVP play.
+3. **Results contract:** bind result states and the registered
+   intent-to-treat calculation to durable assignment/outcome records. Keep
+   operating metrics separate from the primary P&L outcome.
+4. **Onboarding gates:** project institution, identity, evidence, workflow,
+   outcome, and play readiness into Connections, Growth Plays, and Governance.
+   Do not build a separate onboarding product.
+5. **Skill shadow registry:** persist the frozen benchmark reference,
+   candidate artifact, three-run evaluation, sanctioned shadow evidence,
+   approvals, fallback, cost, latency, and promotion state.
+6. **Authoritative outcome adapter:** implement the approved outcome envelope
+   for one Consumer Deposit Primacy source first. Resolve tenant, experiment,
+   arm, decision, and protocol from durable Ventus records; accept no
+   caller-authored lineage. Enforce source/version/event/metric/window,
+   explicit-zero, correction, freshness, and treatment/holdout parity before
+   appending an observation. Keep FSC workflow observations separate.
+
+Each package requires its own API/schema tests and Luna verification before the
+next package changes the same product surface.
 
 ## Implemented In This Pass
 

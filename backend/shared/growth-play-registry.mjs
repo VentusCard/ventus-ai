@@ -188,6 +188,45 @@ export function createGrowthPlayRegistry({ getDB }) {
         return approvalReceipt(record);
       });
     },
+
+    async requireLatestApproved({ tenantId, growthPlayId, businessLine, at }) {
+      validateTenantId(tenantId);
+      assertIdentifier(growthPlayId, 'growthPlayId');
+      assertIdentifier(businessLine, 'businessLine');
+      assertIsoDate(at, 'at');
+      return inTenantTransaction(getDB, tenantId, async (db) => {
+        const result = await db.query(
+          `SELECT p.decision_protocol_id, p.growth_play_id, p.business_line,
+                  p.protocol_digest, p.contract, a.approval_event_id, a.decision,
+                  a.decided_by, a.decided_by_session_id, a.identity_provider,
+                  a.decided_at, a.change_record_id
+             FROM growth_play_protocols p
+             JOIN LATERAL (
+               SELECT * FROM growth_play_protocol_approval_events
+                WHERE tenant_id = p.tenant_id
+                  AND decision_protocol_id = p.decision_protocol_id
+                  AND decided_at <= $4
+                ORDER BY decided_at DESC, approval_event_id DESC
+                LIMIT 1
+             ) a ON true
+            WHERE p.tenant_id = $1
+              AND p.growth_play_id = $2
+              AND p.business_line = $3
+              AND p.registered_at <= $4
+            ORDER BY a.decided_at DESC, a.approval_event_id DESC
+            LIMIT 1`,
+          [tenantId, growthPlayId, businessLine, at],
+        );
+        assert.equal(result.rows.length, 1, 'Growth Play does not have a reviewed protocol for this tenant and business line');
+        const record = result.rows[0];
+        assert.equal(record.decision, 'approved', 'Latest Growth Play protocol review is not approved at run time');
+        const compiled = validateCompiledGrowthPlayContract(record.contract);
+        assert.equal(compiled.growth_play_id, growthPlayId, 'stored Growth Play ID is invalid');
+        assert.equal(compiled.decision_protocol_id, record.decision_protocol_id, 'stored Growth Play protocol ID is invalid');
+        assert.equal(compiled.protocol_digest, record.protocol_digest, 'stored Growth Play protocol digest is invalid');
+        return approvalReceipt(record);
+      });
+    },
   };
 }
 
@@ -235,20 +274,52 @@ export function createInMemoryGrowthPlayRegistry() {
       assert.ok(latest, 'Growth Play protocol is not registered and approved for this tenant and business line');
       assert.equal(latest.decision, 'approved', 'Growth Play protocol is not approved at run time');
       validateCompiledGrowthPlayContract(protocol.contract);
-      return {
-        approvalEventId: latest.approvalEventId,
-        decisionProtocolId,
-        growthPlayId: protocol.growthPlayId,
-        businessLine: protocol.businessLine,
-        protocolDigest: protocol.protocolDigest,
-        contract: protocol.contract,
-        decidedBy: latest.decidedBy,
-        decidedBySessionId: latest.decidedBySessionId,
-        identityProvider: latest.identityProvider,
-        decidedAt: latest.decidedAt,
-        changeRecordId: latest.changeRecordId,
-      };
+      return inMemoryApprovalReceipt(protocol, latest);
     },
+
+    async requireLatestApproved({ tenantId, growthPlayId, businessLine, at }) {
+      validateTenantId(tenantId);
+      assertIdentifier(growthPlayId, 'growthPlayId');
+      assertIdentifier(businessLine, 'businessLine');
+      assertIsoDate(at, 'at');
+      const candidates = [...protocols.values()]
+        .filter((protocol) => protocol.tenantId === tenantId
+          && protocol.growthPlayId === growthPlayId
+          && protocol.businessLine === businessLine
+          && Date.parse(protocol.registeredAt) <= Date.parse(at))
+        .map((protocol) => ({
+          protocol,
+          latest: approvals
+            .filter((item) => item.tenantId === tenantId
+              && item.decisionProtocolId === protocol.decisionProtocolId
+              && Date.parse(item.decidedAt) <= Date.parse(at))
+            .sort((left, right) => right.decidedAt.localeCompare(left.decidedAt)
+              || right.approvalEventId.localeCompare(left.approvalEventId))[0],
+        }))
+        .filter((candidate) => candidate.latest)
+        .sort((left, right) => right.latest.decidedAt.localeCompare(left.latest.decidedAt)
+          || right.latest.approvalEventId.localeCompare(left.latest.approvalEventId));
+      assert.ok(candidates[0], 'Growth Play does not have a reviewed protocol for this tenant and business line');
+      assert.equal(candidates[0].latest.decision, 'approved', 'Latest Growth Play protocol review is not approved at run time');
+      validateCompiledGrowthPlayContract(candidates[0].protocol.contract);
+      return inMemoryApprovalReceipt(candidates[0].protocol, candidates[0].latest);
+    },
+  };
+}
+
+function inMemoryApprovalReceipt(protocol, approval) {
+  return {
+    approvalEventId: approval.approvalEventId,
+    decisionProtocolId: protocol.decisionProtocolId,
+    growthPlayId: protocol.growthPlayId,
+    businessLine: protocol.businessLine,
+    protocolDigest: protocol.protocolDigest,
+    contract: protocol.contract,
+    decidedBy: approval.decidedBy,
+    decidedBySessionId: approval.decidedBySessionId,
+    identityProvider: approval.identityProvider,
+    decidedAt: approval.decidedAt,
+    changeRecordId: approval.changeRecordId,
   };
 }
 

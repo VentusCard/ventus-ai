@@ -6,6 +6,7 @@ const RECORD_KEYS = new Set([
   "operation", "decisionProtocolId", "businessLine", "eventId", "householdToken",
   "eventType", "occurredAt", "value", "sourceSystem", "sourceRecordId", "reasonCode",
 ]);
+const AUTHORITATIVE_RECORD_KEYS = new Set(["operation", "decisionProtocolId", "businessLine", "observation"]);
 const MEASURE_KEYS = new Set(["operation", "decisionProtocolId", "businessLine"]);
 
 class OutcomeRequestError extends Error {
@@ -67,16 +68,27 @@ type OperatingLoop = {
   }): Promise<Record<string, unknown>>;
 };
 
+type AuthoritativeOutcomeAdapter = {
+  record(input: {
+    tenantId: string;
+    decisionProtocolId: string;
+    businessLine: string;
+    observation: Record<string, unknown>;
+  }): Promise<Record<string, unknown>>;
+};
+
 export function createPilotOutcomeHandler({
   protocolRegistry,
   measurementRepository,
   ledgerRepository,
   operatingLoop,
+  authoritativeOutcomeAdapter,
 }: {
   protocolRegistry: ProtocolRegistry;
   measurementRepository: MeasurementRepository;
   ledgerRepository: LedgerRepository;
   operatingLoop: OperatingLoop;
+  authoritativeOutcomeAdapter?: AuthoritativeOutcomeAdapter | null;
 }) {
   return async function handle(request: Request): Promise<Response> {
     let body: Record<string, unknown>;
@@ -86,15 +98,31 @@ export function createPilotOutcomeHandler({
       return Response.json({ error: "invalid JSON" }, { status: 400 });
     }
     try {
-      if (body.operation !== "record" && body.operation !== "measure") {
+      if (body.operation !== "record" && body.operation !== "measure" && body.operation !== "record_authoritative") {
         throw new OutcomeRequestError("operation must be record or measure");
       }
-      assertExactKeys(body, body.operation === "record" ? RECORD_KEYS : MEASURE_KEYS);
+      assertExactKeys(body,
+        body.operation === "record" ? RECORD_KEYS
+          : body.operation === "record_authoritative" ? AUTHORITATIVE_RECORD_KEYS
+            : MEASURE_KEYS);
       const businessLine = requiredId(body.businessLine, "businessLine");
-      const scope = body.operation === "record" ? "growth_play_outcome_write" : "growth_play_measure_read";
+      const scope = body.operation === "measure" ? "growth_play_measure_read" : "growth_play_outcome_write";
       const principal = authorizeConnector(request, { scope, destination: businessLine });
       if (!principal || principal.authMode !== "session") return Response.json({ error: "forbidden" }, { status: 403 });
       const decisionProtocolId = requiredId(body.decisionProtocolId, "decisionProtocolId");
+      if (body.operation === "record_authoritative") {
+        if (!authoritativeOutcomeAdapter) throw new OutcomeRequestError("authoritative outcome source is not configured");
+        const recorded = await authoritativeOutcomeAdapter.record({
+          tenantId: principal.tenantId,
+          decisionProtocolId,
+          businessLine,
+          observation: requiredObject(body.observation, "observation"),
+        });
+        return Response.json({
+          ...recorded,
+          authorization: { tenantId: principal.tenantId, sessionId: principal.sessionId, businessLine, mode: principal.authMode },
+        }, { status: recorded.inserted ? 201 : 200 });
+      }
       const experimentId = `exp_${decisionProtocolId.replace(/^dcp_/, "")}`;
       const loaded = await measurementRepository.loadExperiment({ tenantId: principal.tenantId, experimentId });
       if (!loaded.assignments.length) throw new OutcomeRequestError("experiment has no persisted assignments");
@@ -216,6 +244,11 @@ function nullableId(value: unknown, label: string): string | null {
   return requiredId(value, label);
 }
 
+function requiredObject(value: unknown, label: string): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) throw new OutcomeRequestError(`${label} is required`);
+  return value as Record<string, unknown>;
+}
+
 function requiredDate(value: unknown, label: string): string {
   if (typeof value !== "string" || Number.isNaN(Date.parse(value))) throw new OutcomeRequestError(`${label} must be ISO date-time`);
   return new Date(value).toISOString();
@@ -238,13 +271,14 @@ let runtimeRoleVerification: Promise<unknown> | null = null;
 async function configuredOutcomeService() {
   const connectionString = (process.env.VENTUS_DATABASE_URL || process.env.DATABASE_URL || "").trim();
   if (!connectionString) return null;
-  const [dbModule, ledgerModule, measurementModule, registryModule, loopModule, detectorModule] = await Promise.all([
+  const [dbModule, ledgerModule, measurementModule, registryModule, loopModule, detectorModule, outcomeAdapterModule] = await Promise.all([
     import("../backend/shared/db-url.mjs"),
     import("../backend/shared/decision-ledger.mjs"),
     import("../backend/shared/experiment-measurement.mjs"),
     import("../backend/shared/growth-play-registry.mjs"),
     import("../backend/shared/pilot-operating-loop.mjs"),
     import("../backend/shared/standalone-growth-play-detectors.mjs"),
+    import("../backend/shared/authoritative-outcome-adapter.mjs"),
   ]);
   const getDB = dbModule.createUrlDbFactory({ connectionString });
   runtimeRoleVerification ??= dbModule.assertNonBypassRole(getDB);
@@ -264,7 +298,24 @@ async function configuredOutcomeService() {
     deliveryRepository: unavailableDelivery,
     async deliver() { throw new Error("outcome service cannot deliver"); },
   });
-  return { protocolRegistry, measurementRepository, ledgerRepository, operatingLoop };
+  const sourceContractText = (process.env.VENTUS_AUTHORITATIVE_OUTCOME_SOURCE_CONFIG || "").trim();
+  let authoritativeOutcomeAdapter = null;
+  if (sourceContractText) {
+    let sourceContract;
+    try {
+      sourceContract = JSON.parse(sourceContractText);
+    } catch {
+      throw new Error("VENTUS_AUTHORITATIVE_OUTCOME_SOURCE_CONFIG must be valid JSON");
+    }
+    authoritativeOutcomeAdapter = outcomeAdapterModule.createAuthoritativeOutcomeAdapter({
+      protocolRegistry,
+      measurementRepository,
+      ledgerRepository,
+      operatingLoop,
+      sourceContract,
+    });
+  }
+  return { protocolRegistry, measurementRepository, ledgerRepository, operatingLoop, authoritativeOutcomeAdapter };
 }
 
 export async function POST(request: Request): Promise<Response> {

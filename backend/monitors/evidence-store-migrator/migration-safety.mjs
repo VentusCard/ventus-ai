@@ -11,6 +11,7 @@ export const EVIDENCE_STORE_MIGRATIONS = [
   'enterprise-access-phase0.sql',
   'connector-delivery.sql',
   'enterprise-console-journey.sql',
+  'enterprise-product-control-plane.sql',
 ];
 
 export function checkedPgIdentifier(value, label = 'identifier') {

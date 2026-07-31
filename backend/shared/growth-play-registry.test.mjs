@@ -71,6 +71,62 @@ test('revocation fails closed from its effective timestamp without rewriting his
   }), /not approved at run time/);
 });
 
+test('runtime resolution uses the latest reviewed protocol and never falls back after revocation', async () => {
+  const registry = createInMemoryGrowthPlayRegistry();
+  await registerAndApprove(registry, 'bank_1', deposit);
+  const replacement = compileGrowthPlayContract({
+    ...drafts[0],
+    version: '1.1.0',
+    objective: 'Retain primary deposit relationships through governed banker review',
+  });
+  await registry.register({
+    tenantId: 'bank_1',
+    contract: replacement,
+    registeredBy: 'pilot_ops_2',
+    registeredBySessionId: 'session_pilot_ops_2',
+    identityProvider: 'bank_sso',
+    registeredAt: '2026-07-12T12:30:00.000Z',
+  });
+  await registry.recordApproval({
+    tenantId: 'bank_1',
+    decisionProtocolId: replacement.decision_protocol_id,
+    businessLine: replacement.business_line,
+    decision: 'approved',
+    decidedBy: 'consumer_risk_2',
+    decidedBySessionId: 'session_consumer_risk_2',
+    identityProvider: 'bank_sso',
+    decidedAt: '2026-07-12T13:00:00.000Z',
+    changeRecordId: 'change_deposit_002',
+    reason: 'Approved replacement protocol for controlled evaluation.',
+  });
+  const resolved = await registry.requireLatestApproved({
+    tenantId: 'bank_1',
+    growthPlayId: 'deposit-primacy-defense',
+    businessLine: 'consumer-banking',
+    at: '2026-07-12T14:00:00.000Z',
+  });
+  assert.equal(resolved.decisionProtocolId, replacement.decision_protocol_id);
+
+  await registry.recordApproval({
+    tenantId: 'bank_1',
+    decisionProtocolId: replacement.decision_protocol_id,
+    businessLine: replacement.business_line,
+    decision: 'revoked',
+    decidedBy: 'consumer_risk_2',
+    decidedBySessionId: 'session_consumer_risk_2',
+    identityProvider: 'bank_sso',
+    decidedAt: '2026-07-12T15:00:00.000Z',
+    changeRecordId: 'change_deposit_002_revoke',
+    reason: 'Replacement protocol suspended pending policy review.',
+  });
+  await assert.rejects(() => registry.requireLatestApproved({
+    tenantId: 'bank_1',
+    growthPlayId: 'deposit-primacy-defense',
+    businessLine: 'consumer-banking',
+    at: '2026-07-12T15:00:01.000Z',
+  }), /Latest Growth Play protocol review is not approved/);
+});
+
 test('approval IDs are deterministic and approvals cannot predate registration', async () => {
   const input = {
     tenantId: 'bank_1',

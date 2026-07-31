@@ -70,6 +70,56 @@ test("holdout outcome resolves its server decision context without inventing an 
   assert.equal(event.assignment.arm, "holdout");
 });
 
+test("authoritative outcome operation accepts only the bank envelope and uses the injected adapter", async () => {
+  process.env.VENTUS_CONNECTOR_SESSION_SECRET = SECRET;
+  const captured: Record<string, unknown>[] = [];
+  const dependenciesValue = await dependencies(captured);
+  dependenciesValue.authoritativeOutcomeAdapter = {
+    async record(input: Record<string, unknown>) {
+      captured.push(input);
+      return { inserted: true, eventId: "evt_authoritative_001", sourceVersion: "deposit-retention-v1" };
+    },
+  };
+  const handle = createPilotOutcomeHandler(dependenciesValue);
+  const response = await handle(jsonRequest(serviceToken("growth_play_outcome_write", "authoritative_writer_001"), {
+    operation: "record_authoritative",
+    decisionProtocolId: deposit.decision_protocol_id,
+    businessLine: deposit.business_line,
+    observation: {
+      eventId: "evt_authoritative_001",
+      subjectToken: "tok_household_000001",
+      metric: "deposit_retained",
+      value: { amount: 0, currency: "USD" },
+      eventType: "deposit_balance_observed",
+      sourceSystem: "deposit_core_sandbox",
+      sourceRecordId: "balance_001",
+      sourceVersion: "deposit-retention-v1",
+      occurredAt: OUTCOME_AT,
+      observedAt: "2026-08-02T12:00:00.000Z",
+      correctionSequence: 0,
+      reasonCode: null,
+    },
+  }));
+  assert.equal(response.status, 201);
+  assert.equal((captured[0] as Record<string, unknown>).tenantId, "bank_1");
+  assert.equal((captured[0] as Record<string, unknown>).decisionProtocolId, deposit.decision_protocol_id);
+  assert.equal((captured[0] as Record<string, unknown>).observation && typeof (captured[0] as Record<string, unknown>).observation, "object");
+  assert.equal((await response.json() as Record<string, unknown>).sourceVersion, "deposit-retention-v1");
+});
+
+test("authoritative outcome operation fails closed when no source adapter is configured", async () => {
+  process.env.VENTUS_CONNECTOR_SESSION_SECRET = SECRET;
+  const handle = createPilotOutcomeHandler(await dependencies([]));
+  const response = await handle(jsonRequest(serviceToken("growth_play_outcome_write", "authoritative_writer_002"), {
+    operation: "record_authoritative",
+    decisionProtocolId: deposit.decision_protocol_id,
+    businessLine: deposit.business_line,
+    observation: { eventId: "evt_authoritative_002" },
+  }));
+  assert.equal(response.status, 400);
+  assert.match((await response.json() as { error: string }).error, /source is not configured/);
+});
+
 test("measurement endpoint returns only coverage-gated non-claim output", async () => {
   process.env.VENTUS_CONNECTOR_SESSION_SECRET = SECRET;
   const handle = createPilotOutcomeHandler(await dependencies([]));

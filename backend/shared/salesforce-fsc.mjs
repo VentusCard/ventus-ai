@@ -1,5 +1,19 @@
 const API_VERSION = 'v61.0';
 const SALESFORCE_ID = /^[A-Za-z0-9]{15}(?:[A-Za-z0-9]{3})?$/;
+const SALESFORCE_API_NAME = /^[A-Za-z][A-Za-z0-9_]*$/;
+const DEFAULT_OUTCOME_MAPPING = Object.freeze({
+  decisionObject: 'Ventus_Decision__c',
+  decisionReferenceField: 'Decision_Reference__c',
+  decisionPackageField: 'Decision_Package__c',
+  humanResponseField: 'Human_Response__c',
+  outcomeStatusField: 'Outcome_Status__c',
+  outcomeEventTypeField: 'Outcome_Event_Type__c',
+  outcomeMetricField: 'Outcome_Metric__c',
+  outcomeAmountField: 'Outcome_Amount__c',
+  outcomeOccurredAtField: 'Outcome_Occurred_At__c',
+  outcomeSourceRecordIdField: 'Outcome_Source_Record_Id__c',
+  outcomeReasonCodeField: 'Outcome_Reason_Code__c',
+});
 
 const OBJECT_DEFINITIONS = [
   {
@@ -158,6 +172,51 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
     };
   }
 
+  // Authentication plus a harmless platform read. This deliberately avoids
+  // creating, changing, or querying any customer record during setup.
+  async function healthCheck({ config }) {
+    const auth = await authenticate(config);
+    await salesforceJson({
+      auth,
+      path: `/services/data/${API_VERSION}/limits`,
+    });
+    return {
+      system: 'Salesforce FSC',
+      apiVersion: API_VERSION,
+      instanceDomain: new URL(auth.instanceUrl).hostname,
+      check: 'authenticated_api_read',
+    };
+  }
+
+  // Validate the approved outcome-return contract without reading any customer
+  // records. A connection may only advance when its configured FSC schema is real.
+  async function verifyOutcomeMapping({ config, mapping }) {
+    const outcomeMapping = normalizeFscOutcomeMapping(mapping);
+    const auth = await authenticate(config);
+    const description = await salesforceJson({
+      auth,
+      path: `/services/data/${API_VERSION}/sobjects/${encodeURIComponent(outcomeMapping.decisionObject)}/describe`,
+    });
+    const available = new Set(
+      (Array.isArray(description.fields) ? description.fields : [])
+        .map((field) => cleanText(field?.name, 120))
+        .filter(Boolean),
+    );
+    const required = Object.values(outcomeMapping).filter((field) => field !== outcomeMapping.decisionObject);
+    const missing = required.filter((field) => !available.has(field));
+    if (missing.length) {
+      throw new SalesforceFscError(`Salesforce outcome mapping is missing fields: ${missing.join(', ')}`, 409);
+    }
+    return {
+      system: 'Salesforce FSC',
+      apiVersion: API_VERSION,
+      instanceDomain: new URL(auth.instanceUrl).hostname,
+      check: 'outcome_mapping_verified',
+      decisionObject: outcomeMapping.decisionObject,
+      mappedFieldCount: required.length,
+    };
+  }
+
   async function verifyAccount({ config, accountId }) {
     const id = cleanSalesforceId(accountId);
     if (!id) throw new SalesforceFscError('A valid 15- or 18-character Salesforce Account ID is required');
@@ -238,33 +297,34 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
     };
   }
 
-  async function readOutcome({ config, decisionRecordId, tenantId }) {
+  async function readOutcome({ config, decisionRecordId, tenantId, mapping }) {
     const id = cleanSalesforceId(decisionRecordId);
     if (!id) throw new SalesforceFscError('decisionRecordId is invalid');
+    const outcomeMapping = normalizeFscOutcomeMapping(mapping);
     const auth = await authenticate(config);
-    const fields = encodeURIComponent([
+    const fields = encodeURIComponent([...new Set([
       'Id',
-      'Decision_Reference__c',
-      'Decision_Package__c',
-      'Human_Response__c',
-      'Outcome_Status__c',
-      'Outcome_Event_Type__c',
-      'Outcome_Metric__c',
-      'Outcome_Amount__c',
-      'Outcome_Occurred_At__c',
-      'Outcome_Source_Record_Id__c',
-      'Outcome_Reason_Code__c',
+      outcomeMapping.decisionReferenceField,
+      outcomeMapping.decisionPackageField,
+      outcomeMapping.humanResponseField,
+      outcomeMapping.outcomeStatusField,
+      outcomeMapping.outcomeEventTypeField,
+      outcomeMapping.outcomeMetricField,
+      outcomeMapping.outcomeAmountField,
+      outcomeMapping.outcomeOccurredAtField,
+      outcomeMapping.outcomeSourceRecordIdField,
+      outcomeMapping.outcomeReasonCodeField,
       'LastModifiedById',
       'LastModifiedDate',
-    ].join(','));
+    ])].join(','));
     const record = await salesforceJson({
       auth,
-      path: `/services/data/${API_VERSION}/sobjects/Ventus_Decision__c/${id}?fields=${fields}`,
+      path: `/services/data/${API_VERSION}/sobjects/${encodeURIComponent(outcomeMapping.decisionObject)}/${id}?fields=${fields}`,
     });
-    return normalizeOutcome(record, tenantId);
+    return normalizeOutcome(record, tenantId, outcomeMapping);
   }
 
-  return { discover, verifyAccount, deliver, readOutcome };
+  return { discover, healthCheck, verifyOutcomeMapping, verifyAccount, deliver, readOutcome };
 }
 
 export function buildFscSchemaSummary(globalObjects, describes) {
@@ -362,6 +422,7 @@ function buildReferralRecord(body, config, now) {
 
 function buildDecisionRecord(body, config, workflow, now) {
   const decisionPackage = asRecord(body.decisionPackage);
+  const decisionPackageV12 = asRecord(body.decisionPackageV12);
   const decisionId = cleanText(decisionPackage.decisionId, 160);
   if (!decisionId) return null;
   const growthPlay = asRecord(decisionPackage.growthPlay);
@@ -378,6 +439,10 @@ function buildDecisionRecord(body, config, workflow, now) {
   const confidence = finitePercentage(moment.confidence);
   const snapshot = {
     schemaVersion: cleanText(decisionPackage.schemaVersion, 20) || '1.0',
+    immutablePackage: {
+      schemaVersion: cleanText(decisionPackageV12.schemaVersion, 20) || null,
+      digest: cleanText(decisionPackageV12.packageDigest, 80) || null,
+    },
     decisionId,
     tenantId: cleanText(decisionPackage.tenantId, 100),
     createdAt: cleanText(decisionPackage.createdAt, 40),
@@ -440,11 +505,20 @@ function buildDecisionRecord(body, config, workflow, now) {
   };
 }
 
-function normalizeOutcome(record, tenantId) {
+export function normalizeFscOutcomeMapping(value) {
+  const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  return Object.fromEntries(Object.entries(DEFAULT_OUTCOME_MAPPING).map(([key, fallback]) => {
+    const candidate = cleanText(source[key], 120);
+    return [key, SALESFORCE_API_NAME.test(candidate) ? candidate : fallback];
+  }));
+}
+
+function normalizeOutcome(record, tenantId, mapping) {
   const decisionRecordId = requireSalesforceId(record.Id, 'Salesforce decision record');
+  const read = (field) => record[mapping[field]];
   let snapshot;
   try {
-    snapshot = JSON.parse(record.Decision_Package__c);
+    snapshot = JSON.parse(read('decisionPackageField'));
   } catch {
     throw new SalesforceFscError('Decision Receipt contains malformed Decision Package JSON', 409);
   }
@@ -452,17 +526,17 @@ function normalizeOutcome(record, tenantId) {
     throw new SalesforceFscError('Decision Receipt belongs to another tenant', 403);
   }
   const decisionId = cleanText(snapshot.decisionId, 160);
-  if (!decisionId || cleanText(record.Decision_Reference__c, 160) !== decisionId) {
+  if (!decisionId || cleanText(read('decisionReferenceField'), 160) !== decisionId) {
     throw new SalesforceFscError('Decision Receipt reference mismatch', 409);
   }
-  const outcomeStatus = cleanText(record.Outcome_Status__c || snapshot.outcome?.status, 40);
+  const outcomeStatus = cleanText(read('outcomeStatusField') || snapshot.outcome?.status, 40);
   return {
     decisionRecordId,
     decisionId,
     schemaVersion: cleanText(snapshot.schemaVersion, 20),
     evidenceClass: cleanText(snapshot.evidenceClass, 40),
     response: {
-      status: cleanText(record.Human_Response__c || snapshot.response?.status || 'pending', 40),
+      status: cleanText(read('humanResponseField') || snapshot.response?.status || 'pending', 40),
       actorToken: cleanText(record.LastModifiedById, 32) || null,
       recordedAt: nullableIsoDate(record.LastModifiedDate),
     },
@@ -470,13 +544,13 @@ function normalizeOutcome(record, tenantId) {
       status: outcomeStatus,
       observation: outcomeStatus === 'measured'
         ? {
-            eventType: cleanText(record.Outcome_Event_Type__c, 128),
-            occurredAt: nullableIsoDate(record.Outcome_Occurred_At__c),
+            eventType: cleanText(read('outcomeEventTypeField'), 128),
+            occurredAt: nullableIsoDate(read('outcomeOccurredAtField')),
             sourceSystem: 'salesforce-fsc',
-            sourceRecordId: cleanText(record.Outcome_Source_Record_Id__c, 128) || decisionRecordId,
-            reasonCode: cleanText(record.Outcome_Reason_Code__c, 128) || null,
-            metric: cleanText(record.Outcome_Metric__c || snapshot.outcome?.metric, 100),
-            amount: Number.isFinite(record.Outcome_Amount__c) ? record.Outcome_Amount__c : null,
+            sourceRecordId: cleanText(read('outcomeSourceRecordIdField'), 128) || decisionRecordId,
+            reasonCode: cleanText(read('outcomeReasonCodeField'), 128) || null,
+            metric: cleanText(read('outcomeMetricField') || snapshot.outcome?.metric, 100),
+            amount: finiteNumber(read('outcomeAmountField')),
             currency: 'USD',
           }
         : null,
@@ -485,6 +559,12 @@ function normalizeOutcome(record, tenantId) {
     businessClaimAllowed: false,
     causalClaimAllowed: false,
   };
+}
+
+function finiteNumber(value) {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim() && Number.isFinite(Number(value))) return Number(value);
+  return null;
 }
 
 function cleanText(value, maxLength) {

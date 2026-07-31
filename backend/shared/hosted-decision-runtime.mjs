@@ -1,8 +1,26 @@
 import { createHash } from 'node:crypto';
+import assert from 'node:assert/strict';
+import { validateCompiledGrowthPlayContract } from './growth-play-contract.mjs';
 import { OFFBANK_ALL } from './offbank-patterns.mjs';
 
-const SCENARIOS = new Set(['deposit-retention', 'wealth-growth']);
+const SCENARIOS = Object.freeze({
+  'deposit-retention': {
+    entitlement: 'consumer_demo',
+    growthPlayId: 'deposit-primacy-defense',
+    businessLine: 'consumer-banking',
+    displayName: 'Deposit Primacy Defense',
+  },
+  'wealth-growth': {
+    entitlement: 'wealth_demo',
+    growthPlayId: 'merrill-relationship-growth',
+    businessLine: 'wealth-management',
+    displayName: 'Merrill Relationship Growth',
+  },
+});
 const SOURCE_MODES = new Set(['live', 'fixture']);
+const RUNTIME_POLICY_VERSION = 'mvp-policy-v1';
+const SUPPORTED_POLICY_IDS = new Set(['consent', 'eligibility', 'vulnerability']);
+const SUPPORTED_WORKFLOW_CONNECTORS = new Set(['salesforce', 'salesforce-fsc']);
 
 export class DecisionRequestError extends Error {
   constructor(message) {
@@ -11,8 +29,13 @@ export class DecisionRequestError extends Error {
   }
 }
 
-export function executeHostedDecision({ tenantId, body, now = new Date() }) {
+export function executeHostedDecision({ tenantId, body, now = new Date(), protocolApproval = null }) {
   const request = parseDecisionRequest(body);
+  const scope = decisionScopeForScenario(request.scenario);
+  const approved = normalizeProtocolApproval(protocolApproval, scope);
+  if (request.source.mode === 'live' && !approved) {
+    throw new DecisionRequestError('connected evidence requires an independently approved Growth Play protocol');
+  }
   const opportunity = buildOpportunity(request.transactions);
   const policy = applyPolicy(opportunity, request.policyContext);
   const decisionId = stableDecisionId(tenantId, request);
@@ -21,22 +44,32 @@ export function executeHostedDecision({ tenantId, body, now = new Date() }) {
     decisionId,
     tenantId,
     scenario: request.scenario,
-    growthPlay: request.scenario === 'deposit-retention'
-      ? 'Deposit Primacy Defense'
-      : 'Merrill Relationship Growth',
+    growthPlay: scope.displayName,
     generatedAt: now.toISOString(),
     status: !opportunity ? 'abstained' : policy.allowed ? 'qualified' : 'suppressed',
     source: {
       mode: request.source.mode,
       name: request.source.name,
+      evidenceClass: request.source.mode === 'live' ? 'partner_sandbox' : 'fixture',
       recordCount: request.transactions.length,
       transactionRefs: request.transactions.map((transaction) => transaction.transaction_id),
     },
     runtime: {
       engine: 'deterministic-baseline',
       version: 'plaid-rules-v1',
-      policyVersion: 'mvp-policy-v1',
+      policyVersion: approved?.contract.policy.version ?? RUNTIME_POLICY_VERSION,
       modelInvocation: null,
+      growthPlayId: scope.growthPlayId,
+      businessLine: scope.businessLine,
+      protocolId: approved?.decisionProtocolId ?? null,
+      protocolDigest: approved?.protocolDigest ?? null,
+      protocolApprovalId: approved?.approvalEventId ?? null,
+      protocolApprovedAt: approved?.decidedAt ?? null,
+      approvedContract: approved?.contract ?? null,
+      measurementPlan: approved ? {
+        outcomeEventTypes: approved.contract.measurement.outcome_event_types,
+        outcomeSourceSystems: approved.contract.measurement.outcome_source_systems,
+      } : null,
     },
     opportunity,
     policy,
@@ -44,15 +77,20 @@ export function executeHostedDecision({ tenantId, body, now = new Date() }) {
 }
 
 export function requiredEntitlementForScenario(scenario) {
-  if (!SCENARIOS.has(scenario)) throw new DecisionRequestError('valid scenario required');
-  return scenario === 'deposit-retention' ? 'consumer_demo' : 'wealth_demo';
+  return decisionScopeForScenario(scenario).entitlement;
+}
+
+export function decisionScopeForScenario(scenario) {
+  const scope = SCENARIOS[scenario];
+  if (!scope) throw new DecisionRequestError('valid scenario required');
+  return { ...scope };
 }
 
 function parseDecisionRequest(body) {
   if (!body || typeof body !== 'object' || Array.isArray(body)) {
     throw new DecisionRequestError('valid decision request required');
   }
-  const scenario = SCENARIOS.has(body.scenario) ? body.scenario : null;
+  const scenario = SCENARIOS[body.scenario] ? body.scenario : null;
   if (!scenario) throw new DecisionRequestError('valid scenario required');
   if (!body.source || typeof body.source !== 'object' || Array.isArray(body.source)) {
     throw new DecisionRequestError('valid source required');
@@ -75,6 +113,29 @@ function parseDecisionRequest(body) {
     transactions,
     policyContext: parsePolicyContext(body.policyContext),
   };
+}
+
+function normalizeProtocolApproval(value, scope) {
+  if (value === null || value === undefined) return null;
+  assert.ok(value && typeof value === 'object' && !Array.isArray(value), 'protocol approval is invalid');
+  const contract = validateCompiledGrowthPlayContract(value.contract);
+  assert.equal(value.growthPlayId, scope.growthPlayId, 'approved protocol belongs to another Growth Play');
+  assert.equal(value.businessLine, scope.businessLine, 'approved protocol belongs to another business line');
+  assert.equal(value.decisionProtocolId, contract.decision_protocol_id, 'approved protocol identity is invalid');
+  assert.equal(value.protocolDigest, contract.protocol_digest, 'approved protocol digest is invalid');
+  assert.equal(contract.growth_play_id, scope.growthPlayId, 'approved contract belongs to another Growth Play');
+  assert.equal(contract.business_line, scope.businessLine, 'approved contract belongs to another business line');
+  assert.ok(
+    contract.policy.required_policy_ids.every((policyId) => SUPPORTED_POLICY_IDS.has(policyId)),
+    'approved policy pack requires controls this runtime does not support',
+  );
+  assert.ok(
+    contract.actions.every((action) => SUPPORTED_WORKFLOW_CONNECTORS.has(action.connector)),
+    'approved action catalog requires a workflow connector this runtime does not support',
+  );
+  assert.ok(typeof value.approvalEventId === 'string' && value.approvalEventId.length > 1, 'protocol approval receipt is invalid');
+  assert.ok(typeof value.decidedAt === 'string' && !Number.isNaN(Date.parse(value.decidedAt)), 'protocol approval timestamp is invalid');
+  return { ...value, contract };
 }
 
 function parseTransaction(value) {

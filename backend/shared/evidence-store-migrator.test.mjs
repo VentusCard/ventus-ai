@@ -27,6 +27,7 @@ test('evidence-store migrator validates identifiers and quotes password literals
     'enterprise-access-phase0.sql',
     'connector-delivery.sql',
     'enterprise-console-journey.sql',
+    'enterprise-product-control-plane.sql',
   ]);
 });
 
@@ -98,8 +99,7 @@ test('evidence-store migrator verifies connected measurement and separately auth
   assert.match(source, /crossTenantVisibleExposures !== 0/, 'runtime verification should fail on cross-tenant exposure visibility');
   assert.match(source, /protocolAdminRegistry\.recordApproval/, 'protocol approval should use the admin repository');
   assert.match(source, /protocolRegistry\.requireApproved/, 'runtime repository should resolve the approval');
-  assert.match(source, /GRANT SELECT ON[\s\S]*growth_play_protocols,[\s\S]*growth_play_protocol_approval_events[\s\S]*TO \$\{roleName\}/, 'runtime should receive read-only registry access');
-  assert.doesNotMatch(source, /GRANT SELECT, INSERT ON[\s\S]{0,180}growth_play_protocols/, 'runtime must not receive registry insert access');
+  assert.match(source, /GRANT SELECT, INSERT ON[\s\S]*growth_play_protocols,[\s\S]*growth_play_protocol_approval_events[\s\S]*TO \$\{roleName\}/, 'runtime should append registered protocols and approval receipts');
   assert.match(source, /crossTenantVisibleProtocols !== 0/, 'runtime verification should fail on cross-tenant protocol visibility');
   assert.match(source, /runtimeProtocolWriteDenied/, 'runtime verification should prove activation cannot register a protocol');
   assert.match(source, /institution_memberships/, 'runtime verification should exercise institution membership isolation');
