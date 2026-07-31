@@ -398,20 +398,56 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
     async results({ tenantId }) {
       return queryTenant(getDB, tenantId, async (db) => {
         const result = await db.query(
-          `SELECT a.experiment_id, a.evidence_class, a.decision_protocol_id,
+          `WITH ranked_outcomes AS (
+             SELECT o.*,
+                    row_number() OVER (
+                      PARTITION BY o.tenant_id, o.experiment_id, o.household_token
+                      ORDER BY COALESCE((o.payload->'provenance'->>'observed_at')::timestamptz, o.occurred_at) DESC,
+                               COALESCE((o.payload->'provenance'->>'correction_sequence')::int, 0) DESC,
+                               o.occurred_at DESC, o.event_id DESC
+                    ) AS outcome_rank
+               FROM outcome_events o
+              WHERE o.tenant_id = $1
+           )
+           SELECT a.experiment_id, a.evidence_class, a.decision_protocol_id,
+                  COALESCE((p.contract->'measurement'->>'minimum_per_arm')::int, 30) AS minimum_per_arm,
+                  COALESCE((p.contract->'measurement'->>'minimum_coverage')::numeric, 0.9) AS minimum_coverage,
                   count(*) FILTER (WHERE a.arm = 'treatment')::int AS treatment_assigned,
                   count(*) FILTER (WHERE a.arm = 'holdout')::int AS holdout_assigned,
-                  count(o.event_id)::int AS outcomes_observed,
-                  max(o.occurred_at) AS last_outcome_at,
-                  avg(o.amount) FILTER (WHERE a.arm = 'treatment') AS treatment_mean,
-                  avg(o.amount) FILTER (WHERE a.arm = 'holdout') AS holdout_mean
+                  count(ro.event_id) FILTER (
+                    WHERE a.arm = 'treatment'
+                      AND ro.outcome_rank = 1
+                      AND ro.metric = p.contract->'measurement'->>'metric'
+                  )::int AS treatment_outcomes_observed,
+                  count(ro.event_id) FILTER (
+                    WHERE a.arm = 'holdout'
+                      AND ro.outcome_rank = 1
+                      AND ro.metric = p.contract->'measurement'->>'metric'
+                  )::int AS holdout_outcomes_observed,
+                  max(ro.occurred_at) FILTER (
+                    WHERE ro.outcome_rank = 1
+                      AND ro.metric = p.contract->'measurement'->>'metric'
+                  ) AS last_outcome_at,
+                  avg(ro.amount) FILTER (
+                    WHERE a.arm = 'treatment'
+                      AND ro.outcome_rank = 1
+                      AND ro.metric = p.contract->'measurement'->>'metric'
+                  ) AS treatment_mean,
+                  avg(ro.amount) FILTER (
+                    WHERE a.arm = 'holdout'
+                      AND ro.outcome_rank = 1
+                      AND ro.metric = p.contract->'measurement'->>'metric'
+                  ) AS holdout_mean
              FROM experiment_assignments a
-             LEFT JOIN outcome_events o
-               ON o.tenant_id = a.tenant_id
-              AND o.experiment_id = a.experiment_id
-              AND o.household_token = a.household_token
+             LEFT JOIN growth_play_protocols p
+               ON p.tenant_id = a.tenant_id
+              AND p.decision_protocol_id = a.decision_protocol_id
+             LEFT JOIN ranked_outcomes ro
+               ON ro.tenant_id = a.tenant_id
+              AND ro.experiment_id = a.experiment_id
+              AND ro.household_token = a.household_token
             WHERE a.tenant_id = $1
-            GROUP BY a.experiment_id, a.evidence_class, a.decision_protocol_id
+            GROUP BY a.experiment_id, a.evidence_class, a.decision_protocol_id, p.contract
             ORDER BY max(a.assigned_at) DESC
             LIMIT 50`,
           [tenantId],
@@ -433,20 +469,23 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
           ),
         ]);
         return {
-          experiments: result.rows.map((row) => ({
+          experiments: result.rows.map((row) => {
+            const readiness = projectMeasurementReadiness(row);
+            return {
+            ...readiness,
             experimentId: row.experiment_id,
             evidenceClass: row.evidence_class,
             decisionProtocolId: row.decision_protocol_id,
             treatmentAssigned: Number(row.treatment_assigned),
             holdoutAssigned: Number(row.holdout_assigned),
-            outcomesObserved: Number(row.outcomes_observed),
+            outcomesObserved: Number(row.treatment_outcomes_observed) + Number(row.holdout_outcomes_observed),
             lastOutcomeAt: row.last_outcome_at,
-            coverage: Number(row.treatment_assigned) + Number(row.holdout_assigned) ? Number(row.outcomes_observed) / (Number(row.treatment_assigned) + Number(row.holdout_assigned)) : 0,
-            sampleReady: Number(row.treatment_assigned) >= 30 && Number(row.holdout_assigned) >= 30,
-            intentToTreatLift: row.treatment_mean === null || row.holdout_mean === null ? null : Number(row.treatment_mean) - Number(row.holdout_mean),
-            confidence: Number(row.outcomes_observed) >= 60 ? 'reviewable' : 'insufficient_sample',
-            claimStatus: Number(row.outcomes_observed) >= 60 ? 'independent_review_required' : 'not_eligible',
-          })),
+            treatmentOutcomesObserved: Number(row.treatment_outcomes_observed),
+            holdoutOutcomesObserved: Number(row.holdout_outcomes_observed),
+            intentToTreatLift: readiness.ready && row.treatment_mean !== null && row.holdout_mean !== null
+              ? Number(row.treatment_mean) - Number(row.holdout_mean) : null,
+            };
+          }),
           deliveries: Object.fromEntries(deliveries.rows.map((row) => [row.status, Number(row.count)])),
           outcomeObservations: observations.rows.reduce((sum, row) => sum + Number(row.count), 0),
           observationReconciliation: Object.fromEntries(observations.rows.map((row) => [row.status, {
@@ -689,6 +728,34 @@ function projectDraft(row) {
     status: row.status,
     updatedBy: row.updated_by,
     updatedAt: row.updated_at,
+  };
+}
+
+function projectMeasurementReadiness(row) {
+  const treatmentAssigned = Number(row.treatment_assigned || 0);
+  const holdoutAssigned = Number(row.holdout_assigned || 0);
+  const treatmentObserved = Number(row.treatment_outcomes_observed || 0);
+  const holdoutObserved = Number(row.holdout_outcomes_observed || 0);
+  const minimumPerArm = Number(row.minimum_per_arm || 30);
+  const minimumCoverage = Number(row.minimum_coverage || 0.9);
+  const treatmentCoverage = treatmentAssigned > 0 ? treatmentObserved / treatmentAssigned : 0;
+  const holdoutCoverage = holdoutAssigned > 0 ? holdoutObserved / holdoutAssigned : 0;
+  const coverage = Math.min(treatmentCoverage, holdoutCoverage);
+  const sampleReady = treatmentAssigned >= minimumPerArm && holdoutAssigned >= minimumPerArm;
+  const coverageReady = treatmentCoverage >= minimumCoverage && holdoutCoverage >= minimumCoverage;
+  const ready = sampleReady && coverageReady;
+  return {
+    coverage,
+    treatmentCoverage,
+    holdoutCoverage,
+    minimumPerArm,
+    minimumCoverage,
+    sampleReady,
+    coverageReady,
+    ready,
+    evaluationStatus: ready ? 'measured' : !sampleReady ? 'insufficient_sample' : 'incomplete_outcome_coverage',
+    confidence: ready ? 'reviewable' : !sampleReady ? 'insufficient_sample' : 'coverage_incomplete',
+    claimStatus: ready ? 'independent_review_required' : 'not_eligible',
   };
 }
 
