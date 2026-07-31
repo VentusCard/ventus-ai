@@ -55,7 +55,14 @@ export function ResultsPage() {
         const entries = await Promise.all(results.experiments.map(async (experiment) => {
           try {
             const bundle = await serverRequest<{ holdoutProtection?: { status: string; assigned: number; reservationReceipts: number; decisionEvents: number; activationEvents: number; workflowRecords: { status: string; count: number } } }>(session?.access_token, consoleEvidenceBundleUrl(experiment.experimentId));
-            return [experiment.experimentId, bundle.holdoutProtection] as const;
+            return [experiment.experimentId, bundle.holdoutProtection ?? {
+              status: "unavailable",
+              assigned: experiment.holdoutAssigned,
+              reservationReceipts: 0,
+              decisionEvents: 0,
+              activationEvents: 0,
+              workflowRecords: { status: "not_checked", count: 0 },
+            }] as const;
           } catch {
             return [experiment.experimentId, { status: "unavailable", assigned: experiment.holdoutAssigned, reservationReceipts: 0, decisionEvents: 0, activationEvents: 0, workflowRecords: { status: "not_checked", count: 0 } }] as const;
           }
