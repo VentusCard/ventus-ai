@@ -8,6 +8,7 @@ import { createEnterpriseControlPlane } from '../../shared/enterprise-control-pl
 import { createGrowthPlayRegistry } from '../../shared/growth-play-registry.mjs';
 import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
 import { createControlledSandboxRunner } from '../../shared/controlled-sandbox-run.mjs';
+import { createSandboxEvidenceBundleService } from '../../shared/sandbox-evidence-bundle.mjs';
 import { createDemoConnectorService } from '../../shared/demo-connectors.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
 import { createCoworkerDeliveryService } from '../../shared/coworker-delivery.mjs';
@@ -40,6 +41,7 @@ let demoConnectorService;
 let controlledSandboxRunner;
 let getDemoConnectorCredentials;
 let getExperimentAssignmentCredentials;
+let sandboxEvidenceBundleService;
 
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
@@ -53,6 +55,7 @@ export const handler = createConsoleApiHandler({
   deliverCoworkerBriefing,
   readSalesforceOutcome,
   runControlledSandbox: runControlledSandbox,
+  exportEvidenceBundle: exportSandboxEvidenceBundle,
 });
 
 async function verifyCognitoAccessToken(token) {
@@ -192,6 +195,16 @@ async function runControlledSandbox(input) {
     });
   }
   return controlledSandboxRunner(input);
+}
+
+async function exportSandboxEvidenceBundle(input) {
+  if (!sandboxEvidenceBundleService) {
+    sandboxEvidenceBundleService = createSandboxEvidenceBundleService({
+      ledgerRepository: decisionLedger(),
+      getDB: runtimeDatabase,
+    });
+  }
+  return sandboxEvidenceBundleService.exportBundle(input);
 }
 
 function demoConnectors() {

@@ -109,6 +109,12 @@ export function authorizeResultsRead(membership) {
   return { ...base, projection: projectionByRole[canonicalConsoleRole(membership.role)] };
 }
 
+// Evidence bundles contain an immutable protocol and receipt trace. They are a
+// review artifact, not an operator queue or an executive dashboard export.
+export function authorizeEvidenceBundleRead(membership) {
+  return authorizeConsoleRoles(membership, ['risk_reviewer']);
+}
+
 export function authorizeGovernanceRead(membership) {
   const base = authorizeConsoleRoles(membership, ['risk_reviewer', 'institution_admin', 'ventus_platform_admin']);
   if (!base.allowed) return base;

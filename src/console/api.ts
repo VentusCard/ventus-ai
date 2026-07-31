@@ -65,6 +65,9 @@ function consoleEndpoint(path: string): string | null {
 }
 
 export function consoleResultsUrl(): string | null { return consoleEndpoint('/results'); }
+export function consoleEvidenceBundleUrl(experimentId: string): string | null {
+  return consoleEndpoint(`/evidence-bundles/${encodeURIComponent(experimentId)}`);
+}
 export function consoleGovernanceUrl(): string | null { return consoleEndpoint('/governance'); }
 export function consoleOnboardingReadinessUrl(): string | null { return consoleEndpoint('/onboarding/readiness'); }
 export function consoleSkillShadowsUrl(): string | null { return consoleEndpoint('/skills/shadows'); }

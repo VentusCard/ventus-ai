@@ -4,6 +4,7 @@ import { useAuth, useConsole } from "@/console/state";
 import {
   consoleConnectionsUrl,
   consoleConnectionTransitionUrl,
+  consoleEvidenceBundleUrl,
   consoleGovernanceUrl,
   consoleGrowthPlayApprovalUrl,
   consoleGrowthPlayDraftsUrl,
@@ -43,6 +44,7 @@ export function ResultsPage() {
   const [data, setData] = useState<{ experiments: Array<{ experimentId: string; evidenceClass: string; treatmentAssigned: number; holdoutAssigned: number; outcomesObserved: number; lastOutcomeAt: string | null; coverage: number; sampleReady: boolean; intentToTreatLift: number | null; confidence: string; claimStatus: string }>; deliveries: Record<string, number>; outcomeObservations: number; observationReconciliation: Record<string, { count: number; lastSyncedAt: string | null }> } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [syncing, setSyncing] = useState<string | null>(null);
+  const [exporting, setExporting] = useState<string | null>(null);
   const load = async () => { try { setError(null); setData(await serverRequest(session?.access_token, consoleResultsUrl())); } catch (cause) { setError(cause instanceof Error ? cause.message : "Results are unavailable"); } };
   useEffect(() => { void load(); }, [session?.access_token]);
   if (!data) return <PageState loading={!error} error={error} empty="No server-side outcome evidence is available yet." />;
@@ -62,10 +64,28 @@ export function ResultsPage() {
       setSyncing(null);
     }
   };
+  const exportEvidence = async (experimentId: string) => {
+    try {
+      setExporting(experimentId);
+      const bundle = await serverRequest<Record<string, unknown>>(session?.access_token, consoleEvidenceBundleUrl(experimentId));
+      const file = new Blob([JSON.stringify(bundle, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(file);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `${experimentId}-evidence-bundle.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Evidence bundle export failed");
+    } finally {
+      setExporting(null);
+    }
+  };
+  const canExportEvidence = access?.role === "risk_reviewer";
   return <div className="mx-auto max-w-5xl">
     <header className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>Server-backed measurement</p><h2 className="v2-display mt-2 text-2xl">Results</h2><p className="v2-body mt-2 text-[13px]">Outcome observations and delivery receipts, kept separate from claims until the experiment gates pass.</p></div><button onClick={() => void load()} className="console-btn-ghost !px-3 !py-2 !text-[11px]">Refresh</button></header>
     <div className="mt-5 grid gap-px overflow-hidden rounded-md border md:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>{[["Experiments", data.experiments.length], ["Outcome observations", data.outcomeObservations], ["Workflow receipts", total]].map(([label, value]) => <div key={String(label)} className="bg-white p-5"><p className="console-stat text-[40px]">{value}</p><p className="v2-mono mt-1 text-[9px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p></div>)}</div>
-    <div className="console-cell mt-5 overflow-hidden"><div className="grid grid-cols-[1.25fr_.65fr_.65fr_.65fr_.9fr] gap-3 border-b bg-[#f7f6f2] px-4 py-2" style={{ borderColor: "var(--v2-rule)" }}>{["Experiment", "Treatment", "Holdout", "Coverage", "Evaluation"].map((item) => <p key={item} className="v2-mono text-[8px] font-bold uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{item}</p>)}</div>{data.experiments.length ? data.experiments.map((item) => <div key={item.experimentId} className="grid grid-cols-[1.25fr_.65fr_.65fr_.65fr_.9fr] gap-3 border-b px-4 py-3 last:border-0" style={{ borderColor: "var(--v2-rule)" }}><div><p className="text-[12px] font-bold">{item.experimentId}</p><p className="text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{item.evidenceClass} · {item.claimStatus.replaceAll("_", " ")}</p></div><p className="text-[12px]">{item.treatmentAssigned}</p><p className="text-[12px]">{item.holdoutAssigned}</p><p className="text-[12px]">{Math.round(item.coverage * 100)}%</p><div><p className="text-[11px] font-semibold">{item.sampleReady ? item.confidence.replaceAll("_", " ") : "sample building"}</p><p className="text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{item.intentToTreatLift === null ? "ITT not ready" : `ITT ${item.intentToTreatLift.toFixed(2)}`}</p></div></div>) : <p className="p-5 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>Assignments will appear once a registered Growth Play begins a controlled run.</p>}</div>
+    <div className="console-cell mt-5 overflow-hidden"><div className="grid grid-cols-[1.25fr_.65fr_.65fr_.65fr_.9fr] gap-3 border-b bg-[#f7f6f2] px-4 py-2" style={{ borderColor: "var(--v2-rule)" }}>{["Experiment", "Treatment", "Holdout", "Coverage", "Evaluation"].map((item) => <p key={item} className="v2-mono text-[8px] font-bold uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{item}</p>)}</div>{data.experiments.length ? data.experiments.map((item) => <div key={item.experimentId} className="grid grid-cols-[1.25fr_.65fr_.65fr_.65fr_.9fr] gap-3 border-b px-4 py-3 last:border-0" style={{ borderColor: "var(--v2-rule)" }}><div><p className="text-[12px] font-bold">{item.experimentId}</p><p className="text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{item.evidenceClass} · {item.claimStatus.replaceAll("_", " ")}</p>{canExportEvidence && <button onClick={() => void exportEvidence(item.experimentId)} disabled={exporting === item.experimentId} className="mt-2 flex items-center gap-1 text-[10px] font-semibold" style={{ color: "var(--c-accent)" }}>{exporting === item.experimentId ? <Loader2 className="h-3 w-3 animate-spin" /> : <FileText className="h-3 w-3" />} Export evidence</button>}</div><p className="text-[12px]">{item.treatmentAssigned}</p><p className="text-[12px]">{item.holdoutAssigned}</p><p className="text-[12px]">{Math.round(item.coverage * 100)}%</p><div><p className="text-[11px] font-semibold">{item.sampleReady ? item.confidence.replaceAll("_", " ") : "sample building"}</p><p className="text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{item.intentToTreatLift === null ? "ITT not ready" : `ITT ${item.intentToTreatLift.toFixed(2)}`}</p></div></div>) : <p className="p-5 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>Assignments will appear once a registered Growth Play begins a controlled run.</p>}</div>
     {syncable.length > 0 && <section className="console-cell mt-5 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[12px] font-bold">FSC outcome return</p><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>Read the linked Decision Receipt through the active FSC mapping; Ventus preserves it as an observation, not a lift claim.</p></div>{syncable.slice(0, 1).map((moment) => <button key={moment.decisionId} onClick={() => void syncSalesforceOutcome(moment.decisionId)} disabled={syncing === moment.decisionId} className="console-btn-ghost !px-3 !py-2 !text-[11px]">{syncing === moment.decisionId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Sync linked receipt</button>)}</div></section>}
     {error && <p className="mt-3 text-[11px]" style={{ color: error.startsWith("Salesforce outcome") ? "var(--v2-ink-soft)" : "#b3261e" }}>{error}</p>}
   </div>;

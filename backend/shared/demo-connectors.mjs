@@ -168,7 +168,7 @@ export function createDemoConnectorService({
   // This is intentionally not exposed by the connector HTTP surface. It lets
   // another server-side Ventus service obtain the same sandbox evidence without
   // sending transactions, access tokens, or assignment inputs through a browser.
-  async function pullPlaidScenario({ scenario = 'deposit-retention' } = {}) {
+  async function pullPlaidScenario({ scenario = 'deposit-retention', cohortMemberId = null } = {}) {
     const configured = await secrets();
     if (!configured.plaidClientId || !configured.plaidSecret) {
       throw new DemoConnectorError('Plaid sandbox is not configured', 503);
@@ -177,12 +177,13 @@ export function createDemoConnectorService({
     const customUser = selectedScenario === 'wealth-growth'
       ? WEALTH_GROWTH_CUSTOM_USER
       : DEPOSIT_PRIMACY_CUSTOM_USER;
+    const cohortUser = cohortMemberId ? sandboxVariant(customUser, cohortMemberId) : customUser;
     const auth = { client_id: configured.plaidClientId, secret: configured.plaidSecret };
     const publicToken = await plaid('/sandbox/public_token/create', {
       ...auth,
       institution_id: PLAID_INSTITUTION_ID,
       initial_products: ['transactions'],
-      options: { override_username: 'user_custom', override_password: JSON.stringify(customUser) },
+      options: { override_username: 'user_custom', override_password: JSON.stringify(cohortUser) },
     });
     if (!publicToken.public_token) throw new DemoConnectorError('Plaid did not return a public token', 502);
     const exchanged = await plaid('/item/public_token/exchange', {
@@ -320,6 +321,25 @@ export function createDemoConnectorService({
     deliverSalesforce,
     readSalesforceOutcome,
     createSalesforceTask,
+  };
+}
+
+function sandboxVariant(template, cohortMemberId) {
+  const variant = Number.parseInt(crypto.createHash('sha256').update(cohortMemberId).digest('hex').slice(0, 4), 16) % 4;
+  const account = template.override_accounts?.[0];
+  if (!account) return template;
+  const transactions = account.transactions.map((transaction, index) => ({
+    ...transaction,
+    // The shape remains approved and scenario-valid while avoiding a single
+    // repeated customer record in the controlled sandbox validation cohort.
+    amount: index === 0 ? transaction.amount - (variant * 25) : transaction.amount,
+  }));
+  return {
+    override_accounts: [{
+      ...account,
+      starting_balance: account.starting_balance + (variant * 100),
+      transactions,
+    }],
   };
 }
 

@@ -176,6 +176,7 @@ export class VentusConsoleApiStack extends cdk.Stack {
     consoleApi.addResource('access').addMethod('POST', integration);
     consoleApi.addResource('decision-run').addMethod('POST', integration);
     consoleApi.addResource('controlled-sandbox-run').addMethod('POST', integration);
+    consoleApi.addResource('evidence-bundles').addResource('{experiment_id}').addMethod('GET', integration);
     consoleApi.addResource('today').addMethod('GET', integration);
     consoleApi.addResource('results').addMethod('GET', integration);
     consoleApi.addResource('governance').addMethod('GET', integration);

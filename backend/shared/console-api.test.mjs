@@ -148,6 +148,25 @@ test('Console API permits a controlled sandbox run only for an entitled operator
   assert.equal(JSON.parse(result.body).status, 'holdout');
 });
 
+test('Console API limits sandbox evidence bundles to a risk reviewer', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'risk_reviewer',
+      entitlements: ['growth_console'],
+      businessLines: ['consumer-banking'],
+    }),
+    exportEvidenceBundle: async ({ tenantId, experimentId }) => ({ tenantId, experimentId, evidenceClass: 'partner_sandbox' }),
+  });
+  const result = await handler(request('https://dev.example.com', {
+    httpMethod: 'GET',
+    path: '/staging/v1/console/evidence-bundles/exp_123',
+  }));
+  assert.equal(result.statusCode, 200);
+  assert.equal(JSON.parse(result.body).experimentId, 'exp_123');
+});
+
 test('Console API binds connected evidence to the latest approved protocol before execution', async () => {
   const calls = [];
   const contract = approvedDepositContract();

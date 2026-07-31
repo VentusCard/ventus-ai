@@ -4399,6 +4399,9 @@ type LeadershipRunEvidence = {
   transactions: PlaidTransaction[];
   opportunity: DetectedOpportunity | null;
   authorizationMode?: string;
+  recordCount?: number;
+  safeActivity?: string[];
+  cohort?: { treatmentAssigned?: number; holdoutAssigned?: number; analysisEligible?: boolean };
 };
 
 type SalesforceRecordReceipt = {
@@ -4485,10 +4488,11 @@ function LeadershipPipelineRun({
   const pathConfig = leadershipConfig(path);
   const rails = [...new Set(opp.rawTransactions.map((transaction) => transaction.src ?? "Bank feed"))];
   const detected = runEvidence?.opportunity;
-  const recordCount = runEvidence?.transactions.length || opp.rawTransactions.length;
+  const recordCount = runEvidence?.recordCount ?? runEvidence?.transactions.length ?? opp.rawTransactions.length;
+  const normalizedCount = runEvidence?.recordCount ?? detected?.enriched.length ?? opp.rawTransactions.length;
   const stages = [
     { label: "Map", detail: `${recordCount} records`, icon: Upload },
-    { label: "Enrich", detail: `${detected?.enriched.length ?? opp.rawTransactions.length} normalized`, icon: Cpu },
+    { label: "Enrich", detail: `${normalizedCount} normalized`, icon: Cpu },
     { label: "Infer", detail: "Financial state", icon: Activity },
     { label: "Decide", detail: "Next best action", icon: Wand2 },
     { label: "Govern", detail: `${activeControls.length} controls loaded`, icon: ShieldCheck },
@@ -4525,7 +4529,13 @@ function LeadershipPipelineRun({
           headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
           body: JSON.stringify({ scenario: path }),
         });
-        const result = await response.json().catch(() => ({})) as { status?: string; error?: string; decision?: { opportunity?: DetectedOpportunity } };
+        const result = await response.json().catch(() => ({})) as {
+          status?: string;
+          error?: string;
+          decision?: { opportunity?: DetectedOpportunity };
+          sourceReceipt?: { recordCount?: number; safeActivity?: string[] };
+          cohort?: { treatmentAssigned?: number; holdoutAssigned?: number; analysisEligible?: boolean };
+        };
         if (!response.ok) throw new Error(result.error ?? "controlled sandbox run unavailable");
         const holdout = result.status === "holdout";
         evidence = {
@@ -4533,8 +4543,13 @@ function LeadershipPipelineRun({
           sourceMode: "live",
           sourceName: holdout ? "Plaid sandbox · holdout" : "Plaid sandbox · governed",
           opportunity: holdout ? null : result.decision?.opportunity ?? null,
+          recordCount: result.sourceReceipt?.recordCount,
+          safeActivity: result.sourceReceipt?.safeActivity,
+          cohort: result.cohort,
         };
-        if (holdout) setConnectionNote("Reserved as holdout. No employee action was generated.");
+        setConnectionNote(holdout
+          ? "Controlled holdout recorded. No decision or employee action was created."
+          : `${result.cohort?.treatmentAssigned ?? 1} treatment and ${result.cohort?.holdoutAssigned ?? 1} holdout assignment recorded.`);
         setRunEvidence(evidence);
         setSourceStatus("live");
         onEvidence(evidence);
@@ -4617,7 +4632,7 @@ function LeadershipPipelineRun({
           {sourceStatus === "connecting" ? <><Loader2 className="h-4 w-4 animate-spin" /> Connecting</> : runComplete ? <><RotateCcw className="h-4 w-4" /> Run again</> : runStage > 0 ? <><Loader2 className="h-4 w-4 animate-spin" /> Deciding</> : <><Rocket className="h-4 w-4" /> {connectorToken ? "Run live decision" : "Run decision"}</>}
         </button>
       </div>
-      {connectionNote && <p className="mt-2 text-right text-[10px] font-semibold text-amber-700">{connectionNote} · using presentation data</p>}
+      {connectionNote && <p className="mt-2 text-right text-[10px] font-semibold text-slate-500">{connectionNote}</p>}
 
       <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,0.9fr)_minmax(180px,0.56fr)_minmax(0,1.04fr)]">
         <section className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
@@ -4629,7 +4644,15 @@ function LeadershipPipelineRun({
             <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500">{runEvidence?.sourceName ?? `${rails.length} permitted sources`}</span>
           </div>
           <div className="divide-y divide-slate-100 px-4">
-            {runEvidence?.transactions.length ? runEvidence.transactions.slice(0, 4).map((transaction, rowIndex) => (
+            {runEvidence?.sourceMode === "live" && runEvidence.safeActivity?.length ? runEvidence.safeActivity.map((activity, rowIndex) => (
+              <div key={activity} className="py-3" style={{ animation: appendDelay(rowIndex) }}>
+                <div className="flex items-center justify-between gap-2">
+                  <span className="truncate font-mono text-[11px] font-semibold text-slate-700">Plaid sandbox activity</span>
+                  <span className="flex-none text-[9px] font-bold uppercase text-emerald-700">received</span>
+                </div>
+                <p className={`mt-1 text-[9px] font-semibold text-blue-700 transition ${runStage >= 1 ? "opacity-100" : "opacity-0"}`}>{activity}</p>
+              </div>
+            )) : runEvidence?.transactions.length ? runEvidence.transactions.slice(0, 4).map((transaction, rowIndex) => (
               <div key={transaction.transaction_id} className="py-3" style={{ animation: appendDelay(rowIndex) }}>
                 <div className="flex items-center justify-between gap-2">
                   <span className="truncate font-mono text-[11px] font-semibold text-slate-700">{transaction.name}</span>
