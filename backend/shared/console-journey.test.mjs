@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildDecisionPackage, createConsoleJourneyRepository, projectMoment, projectMoments } from './console-journey.mjs';
+import { buildDecisionPackage, buildDecisionPackageV12, createConsoleJourneyRepository, projectMoment, projectMoments } from './console-journey.mjs';
 
 const decision = {
   schemaVersion: 'ventus.decision-run.v1',
@@ -26,6 +26,17 @@ test('server Decision Package retains only an opaque subject and bounded evidenc
   assert.equal(result.recommendation.selectedAction.id, 'banker-retention-review');
   assert.deepEqual(result.response, { status: 'pending' });
   assert.equal(JSON.stringify(result).includes('txn_a'), false);
+});
+
+test('Decision Package v1.2 has a stable immutable digest and excludes mutable receipts', () => {
+  const legacy = buildDecisionPackage(decision);
+  const first = buildDecisionPackageV12(legacy, decision);
+  const second = buildDecisionPackageV12({ ...legacy, response: { status: 'accepted' } }, decision);
+  assert.equal(first.schemaVersion, '1.2');
+  assert.match(first.packageDigest, /^sha256:[a-f0-9]{64}$/);
+  assert.equal(first.packageDigest, second.packageDigest);
+  assert.equal('response' in first, false);
+  assert.equal('outcome' in first, false);
 });
 
 test('Moment projection applies an append-only response and delivery reservation', () => {

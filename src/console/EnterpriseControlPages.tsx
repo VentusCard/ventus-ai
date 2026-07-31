@@ -1,0 +1,119 @@
+import { useEffect, useMemo, useState } from "react";
+import { Check, ChevronRight, CircleAlert, Loader2, Mail, Plug, Send, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { useAuth, useConsole } from "@/console/state";
+import {
+  consoleConnectionsUrl,
+  consoleConnectionTransitionUrl,
+  consoleGovernanceUrl,
+  consoleGrowthPlayApprovalUrl,
+  consoleGrowthPlayDraftsUrl,
+  consoleGrowthPlayRegisterUrl,
+  consoleGrowthPlaysUrl,
+  consoleResultsUrl,
+  consoleSalesforceOutcomeSyncUrl,
+} from "@/console/api";
+
+type Contract = Record<string, unknown>;
+type Draft = { draftId: string; version: number; contract: Contract; status: string; updatedAt: string };
+type Protocol = { decisionProtocolId: string; growthPlayId: string; businessLine: string; version: string; approvalStatus: string | null; registeredAt: string };
+type Mapping = { mappingId: string; connector: string; version: number; status: string; configuration: Record<string, unknown>; lastTestStatus?: string | null };
+
+async function serverRequest<T>(token: string | undefined, url: string | null, init?: RequestInit): Promise<T> {
+  if (!token || !url) throw new Error("The authenticated Console API is unavailable in this environment.");
+  const response = await fetch(url, {
+    ...init,
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json", ...(init?.headers ?? {}) },
+  });
+  const data = await response.json().catch(() => ({})) as T & { error?: string };
+  if (!response.ok) throw new Error(data.error ?? `Request failed (${response.status})`);
+  return data;
+}
+
+function PageState({ error, loading, empty }: { error: string | null; loading: boolean; empty: string }) {
+  if (loading) return <div className="flex min-h-[40vh] items-center justify-center"><Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--c-accent)" }} /></div>;
+  if (error) return <div className="console-cell mx-auto mt-10 max-w-xl p-5 text-[13px]" style={{ color: "#b3261e" }}><CircleAlert className="mb-3 h-5 w-5" />{error}</div>;
+  return <div className="console-cell mx-auto mt-10 max-w-xl p-5 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>{empty}</div>;
+}
+
+export function ResultsPage() {
+  const { session } = useAuth();
+  const { moments } = useConsole();
+  const [data, setData] = useState<{ experiments: Array<{ experimentId: string; evidenceClass: string; treatmentAssigned: number; holdoutAssigned: number; outcomesObserved: number; lastOutcomeAt: string | null }>; deliveries: Record<string, number> } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [syncing, setSyncing] = useState<string | null>(null);
+  const load = async () => { try { setError(null); setData(await serverRequest(session?.access_token, consoleResultsUrl())); } catch (cause) { setError(cause instanceof Error ? cause.message : "Results are unavailable"); } };
+  useEffect(() => { void load(); }, [session?.access_token]);
+  if (!data) return <PageState loading={!error} error={error} empty="No server-side outcome evidence is available yet." />;
+  const total = Object.values(data.deliveries).reduce((sum, value) => sum + value, 0);
+  const syncable = moments.filter((moment) => moment.receipt?.records?.decision);
+  const syncSalesforceOutcome = async (decisionId: string) => {
+    try {
+      setSyncing(decisionId);
+      const result = await serverRequest<{ outcome: { outcome?: { status?: string } } }>(session?.access_token, consoleSalesforceOutcomeSyncUrl(), { method: "POST", body: JSON.stringify({ decisionId }) });
+      setError(`Salesforce outcome status: ${result.outcome.outcome?.status ?? "awaiting outcome"}. It remains an observation until the holdout gates pass.`);
+      await load();
+    } catch (cause) {
+      setError(cause instanceof Error ? cause.message : "Salesforce outcome sync failed");
+    } finally {
+      setSyncing(null);
+    }
+  };
+  return <div className="mx-auto max-w-5xl">
+    <header className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>Server-backed measurement</p><h2 className="v2-display mt-2 text-2xl">Results</h2><p className="v2-body mt-2 text-[13px]">Outcome observations and delivery receipts, kept separate from claims until the experiment gates pass.</p></div><button onClick={() => void load()} className="console-btn-ghost !px-3 !py-2 !text-[11px]">Refresh</button></header>
+    <div className="mt-5 grid gap-px overflow-hidden rounded-md border md:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>{[["Experiments", data.experiments.length], ["Outcome observations", data.experiments.reduce((sum, item) => sum + item.outcomesObserved, 0)], ["Workflow receipts", total]].map(([label, value]) => <div key={String(label)} className="bg-white p-5"><p className="console-stat text-[40px]">{value}</p><p className="v2-mono mt-1 text-[9px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p></div>)}</div>
+    <div className="console-cell mt-5 overflow-hidden"><div className="grid grid-cols-[1.25fr_.8fr_.8fr_.8fr] gap-3 border-b bg-[#f7f6f2] px-4 py-2" style={{ borderColor: "var(--v2-rule)" }}>{["Experiment", "Treatment", "Holdout", "Observed"].map((item) => <p key={item} className="v2-mono text-[8px] font-bold uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{item}</p>)}</div>{data.experiments.length ? data.experiments.map((item) => <div key={item.experimentId} className="grid grid-cols-[1.25fr_.8fr_.8fr_.8fr] gap-3 border-b px-4 py-3 last:border-0" style={{ borderColor: "var(--v2-rule)" }}><div><p className="text-[12px] font-bold">{item.experimentId}</p><p className="text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{item.evidenceClass} · independent review required</p></div><p className="text-[12px]">{item.treatmentAssigned}</p><p className="text-[12px]">{item.holdoutAssigned}</p><p className="text-[12px]">{item.outcomesObserved}</p></div>) : <p className="p-5 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>Assignments will appear once a registered Growth Play begins a controlled run.</p>}</div>
+    {syncable.length > 0 && <section className="console-cell mt-5 p-4"><div className="flex flex-wrap items-center justify-between gap-3"><div><p className="text-[12px] font-bold">FSC outcome return</p><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>Read the linked Decision Receipt through the active FSC mapping; Ventus preserves it as an observation, not a lift claim.</p></div>{syncable.slice(0, 1).map((moment) => <button key={moment.decisionId} onClick={() => void syncSalesforceOutcome(moment.decisionId)} disabled={syncing === moment.decisionId} className="console-btn-ghost !px-3 !py-2 !text-[11px]">{syncing === moment.decisionId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Sync linked receipt</button>)}</div></section>}
+    {error && <p className="mt-3 text-[11px]" style={{ color: error.startsWith("Salesforce outcome") ? "var(--v2-ink-soft)" : "#b3261e" }}>{error}</p>}
+  </div>;
+}
+
+export function GovernancePage() {
+  const { session } = useAuth();
+  const [data, setData] = useState<{ protocols: Protocol[]; recentEvents: Array<{ type: string; occurredAt: string; decisionId: string | null }>; connections: Array<{ connector: string; status: string }> } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  useEffect(() => { void (async () => { try { setData(await serverRequest(session?.access_token, consoleGovernanceUrl())); } catch (cause) { setError(cause instanceof Error ? cause.message : "Governance is unavailable"); } })(); }, [session?.access_token]);
+  if (!data) return <PageState loading={!error} error={error} empty="No governed records are available yet." />;
+  return <div className="mx-auto max-w-5xl"><header className="border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><p className="v2-mono text-[10px] font-semibold uppercase tracking-[.16em]" style={{ color: "var(--v2-ink-faint)" }}>Authoritative record</p><h2 className="v2-display mt-2 text-2xl">Governance</h2><p className="v2-body mt-2 text-[13px]">The approved protocol, connector configuration, and event record behind each decision.</p></header><div className="mt-5 grid gap-5 md:grid-cols-[1.25fr_.75fr]"><section className="console-cell overflow-hidden"><p className="v2-mono border-b px-4 py-3 text-[9px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)", borderColor: "var(--v2-rule)" }}>Protocols</p>{data.protocols.length ? data.protocols.map((protocol) => <div key={protocol.decisionProtocolId} className="flex items-center justify-between gap-4 border-b px-4 py-3 last:border-0" style={{ borderColor: "var(--v2-rule)" }}><div className="min-w-0"><p className="truncate text-[12px] font-bold">{protocol.growthPlayId}</p><p className="text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{protocol.businessLine} · {protocol.decisionProtocolId.slice(0, 16)}</p></div><span className="v2-mono text-[9px] uppercase" style={{ color: protocol.approvalStatus === "approved" ? "var(--v2-verified)" : "var(--v2-amber)" }}>{protocol.approvalStatus ?? "review"}</span></div>) : <p className="p-4 text-[13px]" style={{ color: "var(--v2-ink-soft)" }}>No registered protocols.</p>}</section><aside className="console-cell p-4"><p className="v2-mono text-[9px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>Recent record</p><div className="mt-3 space-y-3">{data.recentEvents.slice(0, 6).map((event, index) => <div key={`${event.occurredAt}-${index}`} className="flex gap-2"><span className="console-dot mt-1.5" style={{ backgroundColor: "var(--c-accent)" }} /><div><p className="text-[11px] font-semibold capitalize">{event.type}</p><p className="v2-mono text-[9px]" style={{ color: "var(--v2-ink-faint)" }}>{event.decisionId ?? "control record"}</p></div></div>)}</div></aside></div></div>;
+}
+
+const defaultContract = (): Contract => ({
+  contract_version: "1.0", growth_play_id: "deposit-primacy-defense", version: "1.0.0", business_line: "consumer-banking", objective: "Retain primary deposit relationships before recurring income moves elsewhere.",
+  source: { receipt_source_systems: ["partner_sandbox", "plaid_custom_user"], schema_versions: ["1.0", "plaid-transactions-1"], record_sources: [{ source_system: "deposit_core", allowed_rails: ["ach", "card", "p2p", "wire"] }] },
+  eligibility: { criteria_version: "deposit-primacy-eligibility-v1" },
+  policy: { version: "consumer-policy-v1", required_policy_ids: ["consent", "eligibility", "vulnerability"] },
+  actions: [{ action_id: "banker_retention_review", owner_role: "relationship_banker", connector: "salesforce", destination: "fsc_task", destination_environment: "sandbox" }],
+  measurement: { metric: "deposit_retained", outcome_event_types: ["deposit_balance_observed"], outcome_source_systems: ["deposit_core_sandbox"], outcome_window_days: 31, holdout_pct: 10, minimum_per_arm: 30, minimum_coverage: 0.9 },
+});
+
+export function GrowthPlaysPage() {
+  const { access, session } = useAuth();
+  const [data, setData] = useState<{ drafts: Draft[]; protocols: Protocol[] } | null>(null);
+  const [draft, setDraft] = useState<Contract>(defaultContract());
+  const [saved, setSaved] = useState<Draft | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const canWrite = ["growth_play_owner", "institution_admin", "ventus_platform_admin"].includes(access?.role ?? "");
+  const canApprove = ["risk_reviewer", "ventus_platform_admin"].includes(access?.role ?? "");
+  const load = async () => { const result = await serverRequest<{ drafts: Draft[]; protocols: Protocol[] }>(session?.access_token, consoleGrowthPlaysUrl()); setData(result); if (!saved && result.drafts[0]) { setSaved(result.drafts[0]); setDraft(result.drafts[0].contract); } };
+  useEffect(() => { void load().catch((cause) => setMessage(cause instanceof Error ? cause.message : "Growth Plays are unavailable")); }, [session?.access_token]);
+  const setField = (field: "growth_play_id" | "business_line" | "objective", value: string) => setDraft((current) => ({ ...current, [field]: value }));
+  const save = async () => { try { setBusy(true); setMessage(null); const draftId = saved?.draftId ?? `gp_${String(draft.growth_play_id).replace(/[^A-Za-z0-9_-]/g, "_")}`; const result = await serverRequest<{ draft: Draft }>(session?.access_token, consoleGrowthPlayDraftsUrl(), { method: "POST", body: JSON.stringify({ draftId, expectedVersion: saved?.version ?? 0, contract: draft }) }); setSaved(result.draft); setMessage("Draft saved. Register it when the operating definition is ready for review."); await load(); } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Could not save draft"); } finally { setBusy(false); } };
+  const register = async () => { if (!saved) return; try { setBusy(true); const result = await serverRequest<{ protocol: Protocol }>(session?.access_token, consoleGrowthPlayRegisterUrl(), { method: "POST", body: JSON.stringify({ draftId: saved.draftId }) }); setMessage(`Registered ${result.protocol.decisionProtocolId}. A separate reviewer must approve it.`); await load(); } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Could not register Growth Play"); } finally { setBusy(false); } };
+  const approve = async (protocol: Protocol) => { try { setBusy(true); await serverRequest(session?.access_token, consoleGrowthPlayApprovalUrl(protocol.decisionProtocolId), { method: "POST", body: JSON.stringify({ businessLine: protocol.businessLine, decision: "approved", changeRecordId: `change_${Date.now().toString(36)}`, reason: "Approved for non-production controlled evaluation." }) }); setMessage("Protocol approved for controlled evaluation."); await load(); } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Could not approve protocol"); } finally { setBusy(false); } };
+  const steps = [["Outcome", "objective"], ["Moment", "source"], ["Action", "actions"], ["Controls", "policy"], ["Proof", "measurement"], ["Review", "registered"]];
+  return <div className="mx-auto max-w-5xl"><header className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[10px] font-semibold uppercase tracking-[.16em]" style={{ color: "var(--v2-ink-faint)" }}>Decision design</p><h2 className="v2-display mt-2 text-2xl">Growth Plays</h2><p className="v2-body mt-2 max-w-2xl text-[13px]">Define the business outcome first; Ventus binds the moment, policy, action, and proof into one reviewable operating contract.</p></div><SlidersHorizontal className="h-5 w-5" style={{ color: "var(--c-accent)" }} /></header><div className="mt-5 grid gap-5 lg:grid-cols-[1.25fr_.75fr]"><section className="console-cell p-5"><div className="grid gap-2 sm:grid-cols-3">{steps.map(([label, key], index) => <div key={label} className="border-l pl-2" style={{ borderColor: index < 5 ? "var(--c-accent)" : "var(--v2-rule)" }}><p className="v2-mono text-[8px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>0{index + 1}</p><p className="text-[11px] font-bold">{label}</p></div>)}</div><div className="mt-6 grid gap-4"><label className="text-[11px] font-semibold">Growth Play ID<input value={String(draft.growth_play_id ?? "")} disabled={!canWrite} onChange={(event) => setField("growth_play_id", event.target.value)} className="mt-1 w-full border bg-white px-3 py-2 text-[13px]" style={{ borderColor: "var(--v2-rule)" }} /></label><label className="text-[11px] font-semibold">Business line<input value={String(draft.business_line ?? "")} disabled={!canWrite} onChange={(event) => setField("business_line", event.target.value)} className="mt-1 w-full border bg-white px-3 py-2 text-[13px]" style={{ borderColor: "var(--v2-rule)" }} /></label><label className="text-[11px] font-semibold">Primary outcome<textarea value={String(draft.objective ?? "")} disabled={!canWrite} onChange={(event) => setField("objective", event.target.value)} rows={3} className="mt-1 w-full resize-none border bg-white px-3 py-2 text-[13px]" style={{ borderColor: "var(--v2-rule)" }} /></label></div>{canWrite && <div className="mt-5 flex flex-wrap gap-2"><button disabled={busy} onClick={() => void save()} className="console-btn !px-4 !py-2 !text-[12px]">{busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Save draft</button><button disabled={busy || !saved} onClick={() => void register()} className="console-btn-ghost !px-4 !py-2 !text-[12px]">Register for review <ChevronRight className="h-3.5 w-3.5" /></button></div>}{message && <p className="mt-4 text-[11px]" style={{ color: message.includes("Could not") || message.includes("unavailable") ? "#b3261e" : "var(--v2-verified)" }}>{message}</p>}</section><aside className="console-cell overflow-hidden"><p className="v2-mono border-b px-4 py-3 text-[9px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)", borderColor: "var(--v2-rule)" }}>Review queue</p>{data?.protocols.length ? data.protocols.map((protocol) => <div key={protocol.decisionProtocolId} className="border-b px-4 py-3 last:border-0" style={{ borderColor: "var(--v2-rule)" }}><p className="text-[12px] font-bold">{protocol.growthPlayId}</p><p className="mt-1 text-[10px]" style={{ color: "var(--v2-ink-faint)" }}>{protocol.approvalStatus ?? "Waiting for independent review"}</p>{canApprove && !protocol.approvalStatus && <button disabled={busy} onClick={() => void approve(protocol)} className="mt-2 flex items-center gap-1 text-[10px] font-bold" style={{ color: "var(--c-accent)" }}><Check className="h-3 w-3" /> Approve pilot protocol</button>}</div>) : <p className="p-4 text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>Register a saved definition to create the review record.</p>}</aside></div></div>;
+}
+
+export function ConnectionsPage() {
+  const { session } = useAuth();
+  const [data, setData] = useState<{ mappings: Mapping[] } | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [busy, setBusy] = useState<string | null>(null);
+  const load = async () => setData(await serverRequest(session?.access_token, consoleConnectionsUrl()));
+  useEffect(() => { void load().catch((cause) => setMessage(cause instanceof Error ? cause.message : "Connections are unavailable")); }, [session?.access_token]);
+  const definitions = [{ connector: "salesforce-fsc", name: "Salesforce FSC", configuration: { decisionObject: "Ventus_Decision__c", outcomeStatusField: "Outcome_Status__c", outcomeMetricField: "Outcome_Metric__c" } }, { connector: "microsoft-outlook", name: "Outlook", configuration: { recipient: "growth-operations@example.invalid" } }, { connector: "slack", name: "Slack", configuration: { channelId: "C_CONFIGURE" } }];
+  const createDraft = async (definition: typeof definitions[number]) => { try { setBusy(definition.connector); const existing = data?.mappings.find((item) => item.connector === definition.connector); await serverRequest(session?.access_token, consoleConnectionsUrl(), { method: "POST", body: JSON.stringify({ mappingId: existing?.mappingId ?? `map_${definition.connector.replace(/[^A-Za-z0-9]/g, "_")}`, connector: definition.connector, expectedVersion: existing?.version ?? 0, status: "draft", configuration: existing?.configuration ?? definition.configuration }) }); setMessage(`${definition.name} mapping saved as draft. Credentials remain server-side.`); await load(); } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Could not save mapping"); } finally { setBusy(null); } };
+  const transition = async (mapping: Mapping, action: 'test' | 'approve' | 'activate' | 'revoke') => { try { setBusy(mapping.connector); const result = await serverRequest<{ receipt?: { receiptId?: string } }>(session?.access_token, consoleConnectionTransitionUrl(mapping.mappingId, action), { method: "POST", body: JSON.stringify({ expectedVersion: mapping.version }) }); setMessage(action === "test" ? `Configuration test passed${result.receipt?.receiptId ? ` · receipt ${result.receipt.receiptId}` : ""}.` : `${mapping.connector} is now ${action === "revoke" ? "revoked" : action + "d"}.`); await load(); } catch (cause) { setMessage(cause instanceof Error ? cause.message : "Could not update mapping"); } finally { setBusy(null); } };
+  const nextAction = (mapping: Mapping | undefined) => !mapping ? "Create draft" : mapping.status === "draft" ? "Test" : mapping.status === "tested" ? "Approve" : mapping.status === "approved" ? "Activate" : mapping.status === "active" ? "Rotate / revoke" : "Create draft";
+  return <div className="mx-auto max-w-5xl"><header className="border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><p className="v2-mono text-[10px] font-semibold uppercase tracking-[.16em]" style={{ color: "var(--v2-ink-faint)" }}>Institution configuration</p><h2 className="v2-display mt-2 text-2xl">Connections</h2><p className="v2-body mt-2 text-[13px]">Map where evidence returns and where employees receive work. Each mapping moves through test, approval, activation, and rotation.</p></header><div className="mt-5 grid gap-4 md:grid-cols-3">{definitions.map((definition) => { const mapping = data?.mappings.find((item) => item.connector === definition.connector); const action = nextAction(mapping); return <section key={definition.connector} className="console-cell flex min-h-52 flex-col p-5"><Plug className="h-4 w-4" style={{ color: "var(--c-accent)" }} /><h3 className="mt-4 text-[15px] font-bold">{definition.name}</h3><p className="mt-2 text-[11px] leading-4" style={{ color: "var(--v2-ink-soft)" }}>{definition.connector === "salesforce-fsc" ? "Decision receipt and outcome-return mapping." : definition.connector === "microsoft-outlook" ? "Executive and operator briefings." : "Team routing and follow-through."}</p><div className="mt-auto pt-4"><p className="v2-mono text-[9px] uppercase tracking-[.1em]" style={{ color: mapping?.status === "active" ? "var(--v2-verified)" : "var(--v2-ink-faint)" }}>{mapping?.status ?? "not mapped"}{mapping?.lastTestStatus ? ` · ${mapping.lastTestStatus}` : ""}</p>{!mapping || mapping.status === "disabled" ? <button disabled={busy === definition.connector} onClick={() => void createDraft(definition)} className="mt-3 console-btn-ghost !px-3 !py-2 !text-[11px]">{busy === definition.connector ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}{action}</button> : <div className="mt-3 flex gap-2"><button disabled={busy === definition.connector} onClick={() => void transition(mapping, mapping.status === "draft" ? "test" : mapping.status === "tested" ? "approve" : mapping.status === "approved" ? "activate" : "revoke")} className="console-btn-ghost !px-3 !py-2 !text-[11px]">{busy === definition.connector ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}{action}</button>{mapping.status === "active" && <button disabled={busy === definition.connector} onClick={() => void createDraft(definition)} className="console-btn-ghost !px-3 !py-2 !text-[11px]">Rotate</button>}</div>}</div></section>; })}</div>{message && <p className="mt-4 text-[12px]" style={{ color: message.includes("Could not") || message.includes("unavailable") ? "#b3261e" : "var(--v2-ink-soft)" }}>{message}</p>}</div>;
+}

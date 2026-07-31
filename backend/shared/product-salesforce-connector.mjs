@@ -72,6 +72,31 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
       }
       return sanitizeDelivery(result);
     },
+    async readOutcome({ tenantId, decisionRecordId }) {
+      if (typeof salesforce.readOutcome !== 'function') {
+        throw new ProductSalesforceConnectorError('Salesforce outcome return is not available for this connector.', {
+          code: 'salesforce_outcome_return_unavailable', terminalFailure: true,
+        });
+      }
+      const config = normalizeConfig(await getSecrets());
+      if (!config.salesforceLoginUrl || !config.salesforceClientId || !config.salesforceClientSecret) {
+        throw new ProductSalesforceConnectorError(
+          'The product Salesforce connector is not configured for this environment.',
+          { code: 'salesforce_connector_unconfigured', terminalFailure: true },
+        );
+      }
+      try {
+        return await salesforce.readOutcome({ config, decisionRecordId, tenantId });
+      } catch (error) {
+        if (error?.name === 'SalesforceFscError' && /authentication|token response/i.test(String(error.message))) {
+          throw new ProductSalesforceConnectorError(
+            'Salesforce authentication is not configured for the product connector.',
+            { code: 'salesforce_auth_invalid', terminalFailure: true },
+          );
+        }
+        throw error;
+      }
+    },
   };
 }
 

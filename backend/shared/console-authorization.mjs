@@ -79,6 +79,52 @@ export function authorizedTodayScenarios(membership) {
   ));
 }
 
+export function authorizeGrowthPlayRead(membership) {
+  return authorizeConsoleRoles(membership, [
+    'growth_play_owner', 'risk_reviewer', 'institution_admin', 'executive_viewer', 'ventus_platform_admin',
+  ]);
+}
+
+export function authorizeGrowthPlayWrite(membership) {
+  return authorizeConsoleRoles(membership, ['growth_play_owner', 'institution_admin', 'ventus_platform_admin']);
+}
+
+export function authorizeGrowthPlayApproval(membership) {
+  return authorizeConsoleRoles(membership, ['risk_reviewer', 'ventus_platform_admin']);
+}
+
+export function authorizeResultsRead(membership) {
+  return authorizeConsoleRoles(membership, [
+    'bank_operator', 'growth_play_owner', 'risk_reviewer', 'executive_viewer', 'institution_admin', 'ventus_platform_admin',
+  ]);
+}
+
+export function authorizeGovernanceRead(membership) {
+  return authorizeConsoleRoles(membership, ['risk_reviewer', 'institution_admin', 'ventus_platform_admin']);
+}
+
+export function authorizeConnectionsRead(membership) {
+  return authorizeConsoleRoles(membership, ['institution_admin', 'ventus_platform_admin']);
+}
+
+export function authorizeConnectionsWrite(membership) {
+  return authorizeConsoleRoles(membership, ['institution_admin', 'ventus_platform_admin']);
+}
+
+export function authorizeCoworkerDelivery(membership) {
+  return authorizeConsoleRoles(membership, ['growth_play_owner', 'institution_admin', 'ventus_platform_admin']);
+}
+
+function authorizeConsoleRoles(membership, allowedRoles) {
+  if (!membership || membership.status !== 'active') return { allowed: false, reason: 'inactive_membership' };
+  const entitlements = Array.isArray(membership.entitlements) ? membership.entitlements : [];
+  if (!entitlements.includes('growth_console')) return { allowed: false, reason: 'scenario_not_entitled' };
+  const role = canonicalConsoleRole(membership.role);
+  return allowedRoles.includes(role)
+    ? { allowed: true, reason: 'authorized' }
+    : { allowed: false, reason: 'role_not_authorized' };
+}
+
 function authorizeScenarioScope(membership, access) {
   if (!access) return { allowed: false, reason: 'invalid_scenario' };
   if (!membership || membership.status !== 'active') {

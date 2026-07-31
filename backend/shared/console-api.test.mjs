@@ -329,6 +329,118 @@ test('Console API permits one delivery retry only after a terminal configuration
   assert.equal(calls[0].expectedState, 'delivery_failed');
 });
 
+test('Console API exposes results and governed projections only through server adapters', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'executive_viewer', entitlements: ['growth_console'], businessLines: ['wealth-management'] }),
+    controlPlane: {
+      async results({ tenantId }) { return { tenantId, experiments: [], deliveries: { delivered: 1 }, serverAuthoritative: true }; },
+      async governance() { throw new Error('executives cannot read governance'); },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', { httpMethod: 'GET', path: '/staging/v1/console/results', body: undefined }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 200);
+  assert.equal(body.serverAuthoritative, true);
+  assert.equal(body.deliveries.delivered, 1);
+  const governance = await handler(request('https://dev.example.com', { httpMethod: 'GET', path: '/staging/v1/console/governance', body: undefined }));
+  assert.equal(governance.statusCode, 403);
+});
+
+test('Console API requires independent risk review for Growth Play approval', async () => {
+  const calls = [];
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'risk_reviewer', entitlements: ['growth_console'], businessLines: ['wealth-management'] }),
+    growthPlayRegistry: {
+      async recordApproval(input) { calls.push(input); return { record: { approval_event_id: 'gpa_123' } }; },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/growth-plays/protocols/dcp_123/approvals',
+    body: JSON.stringify({ businessLine: 'wealth-management', decision: 'approved', changeRecordId: 'change_123', reason: 'Approved for controlled pilot evaluation.' }),
+  }));
+  assert.equal(result.statusCode, 201);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].decidedBy, identity.subject);
+});
+
+test('Console API only delivers Coworker briefings through an active server-side mapping', async () => {
+  const calls = [];
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'growth_play_owner', entitlements: ['growth_console'], businessLines: ['wealth-management'] }),
+    controlPlane: {
+      async activeConnection() { return { mappingId: 'map_outlook', connector: 'microsoft-outlook', status: 'active', configuration: { recipient: 'ops@example.com' } }; },
+    },
+    async deliverCoworkerBriefing(input) { calls.push(input); return { receipt: { status: 'delivered' } }; },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/briefings/deliveries',
+    body: JSON.stringify({ channel: 'outlook', title: 'Growth review', counts: { needsReview: 1, routed: 1, outcomesObserved: 0 }, decisionIds: ['dec_123'] }),
+  }));
+  assert.equal(result.statusCode, 201);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].mapping.mappingId, 'map_outlook');
+});
+
+test('Console API advances a connector only through a server-side lifecycle transition', async () => {
+  const calls = [];
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'institution_admin', entitlements: ['growth_console'], businessLines: ['consumer-banking'] }),
+    controlPlane: {
+      async transitionConnection(input) { calls.push(input); return { mapping: { mappingId: input.mappingId, status: 'tested' }, receipt: { receiptId: 'ctr_123' } }; },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/connections/map_salesforce/test',
+    body: JSON.stringify({ expectedVersion: 1 }),
+  }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 201);
+  assert.equal(calls[0].targetStatus, 'tested');
+  assert.equal(body.receipt.receiptId, 'ctr_123');
+});
+
+test('Console API resolves FSC outcomes from the Moment-linked Decision Receipt, not browser-supplied Salesforce IDs', async () => {
+  const calls = [];
+  const consumerOperator = {
+    ...membership,
+    role: 'bank_operator',
+    entitlements: ['growth_console', 'consumer_demo'],
+    businessLines: ['consumer-banking'],
+    queueScopes: [],
+  };
+  const linkedMoment = {
+    ...moment('deposit-retention'),
+    receipt: { records: { decision: { id: 'a08_server_linked_only' } } },
+  };
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => consumerOperator,
+    journey: { async loadMoment() { return linkedMoment; } },
+    controlPlane: {
+      async activeConnection() { return { mappingId: 'map_fsc', version: 2, connector: 'salesforce-fsc' }; },
+      async recordFscOutcome() { return { observation: { observationId: 'obs_123' }, eligibleForLift: false }; },
+    },
+    async readSalesforceOutcome(input) {
+      calls.push(input);
+      return { observed: true, outcome: { status: 'contacted' } };
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/outcomes/salesforce-sync',
+    body: JSON.stringify({ decisionId: 'dec_deposit-retention', salesforceRecordId: 'browser_controlled_value' }),
+  }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 200);
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].decisionRecordId, 'a08_server_linked_only');
+  assert.equal(body.mapping.mappingId, 'map_fsc');
+  assert.equal(body.recorded.observation.observationId, 'obs_123');
+});
+
 function request(origin = 'https://dev.example.com', overrides = {}) {
   process.env.VENTUS_ALLOWED_ORIGINS = 'https://dev.example.com';
   return {

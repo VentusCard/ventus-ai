@@ -45,21 +45,28 @@ run. A later-arriving outcome must remain inside the protocol's approved measure
 
 ## Pilot workflow
 
-1. The business-line owner supplies a draft based on
-   `backend/fixtures/evaluation/growth-play-drafts.json`.
-2. Data, policy, workflow, and measurement owners review their respective sections.
-3. Run `npm run test:growth-plays`. Optionally set `VENTUS_GROWTH_PLAY_OUTPUT` to write the compiled
+1. The business-line owner completes the Studio's Outcome, Moment, Action, Controls, Proof, and
+   Review steps. An incomplete draft remains non-executable.
+2. The readiness view identifies missing contracts, assumptions, representative
+   qualified/suppressed/abstained cases, connector health, capacity, and measurement feasibility.
+3. Data, policy, workflow, and measurement owners review their respective sections.
+4. Run `npm run test:growth-plays`. Optionally set `VENTUS_GROWTH_PLAY_OUTPUT` to write the compiled
    contracts for the non-production configuration store.
-4. An identity-bound `protocol_configurator` registers the compiled contract for the entitled
+5. An identity-bound `protocol_configurator` registers the compiled contract for the entitled
    business line through the control-plane API.
-5. A different authenticated subject with `business_line_owner` entitlement appends the approval
+6. A different authenticated subject with `business_line_owner` entitlement appends the approval
    event and names the pilot change record.
-6. Record the protocol and approval-event IDs with the pilot change record before shadow or
+7. Record the protocol and approval-event IDs with the pilot change record before shadow or
    assisted runs. The operating loop persists both references with source evidence.
-7. Any configuration change creates a new protocol ID and requires a new review; historical
+8. Any configuration change creates a new protocol ID and requires a new review; historical
    assignments and outcomes remain bound to the prior version.
-8. To stop future runs, append a revocation event. Do not mutate or delete the protocol or its
+9. To stop future runs, append a revocation event. Do not mutate or delete the protocol or its
    earlier approval event.
+
+The first real-bank onboarding is bounded to one non-production tenant, business line, Growth Play,
+sanctioned source, employee workflow destination, and authoritative outcome return. It must pass
+institution, identity, evidence, workflow, outcome, and Growth Play gates in that order. It does
+not require cross-business data or a bulk employee rollout.
 
 ## Evidence boundary
 

@@ -6,14 +6,21 @@ Ventus measures one pre-registered metric for one tenant and one experiment at a
 must occur before activation and remain immutable. The current calculator compares the latest
 eligible household outcome in treatment with the held-out baseline.
 
-A result remains unavailable unless both arms have:
+A development or sandbox result remains unavailable unless both arms have:
 
 - at least 30 observed households by default; and
 - at least 90% outcome coverage by default.
 
-The pilot may set stricter thresholds before predictions or outcomes are opened. Missing outcomes
-must not be treated as zero implicitly. The bank feed must send an explicit zero-valued observation
-when zero is the valid measurement, or the result remains coverage-incomplete.
+These defaults are mechanism checks and cannot authorize a business claim. A sanctioned pilot must
+freeze a power-informed minimum sample, coverage threshold, outcome window, assignment salt custody,
+contamination policy, and analysis plan before the first assignment. Thresholds cannot be relaxed
+after results are opened. Missing outcomes must not be treated as zero implicitly. The bank feed
+must send an explicit zero-valued observation when zero is the valid measurement, or the result
+remains coverage-incomplete.
+
+The primary analysis is intent-to-treat on one pre-registered P&L metric. Employee acceptance, task
+completion, response time, and capacity are operating metrics; they do not replace the primary
+outcome. Secondary metrics are exploratory and cannot determine pilot success.
 
 ## Integrity controls
 
@@ -39,6 +46,11 @@ This interval is decision support, not automatic proof of causality. The output 
 `causalClaimAllowed: false` pending independent review of randomization, metric definition,
 covariate balance, attrition, contamination, noncompliance, multiple testing, and business context.
 Bank-approved analysis may require a different estimator or a larger sample.
+
+The product distinguishes awaiting outcomes, measuring, descriptive, review-ready, and approved
+claim states. Passing sample and coverage gates makes a result descriptive. Only an institution-
+approved review of the exact design, method, language, and audience can authorize a causal or
+external business claim.
 
 ## Connected-data incrementality
 

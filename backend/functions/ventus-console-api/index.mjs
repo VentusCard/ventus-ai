@@ -4,8 +4,11 @@ import { createConsoleApiHandler } from '../../shared/console-api.mjs';
 import { createConsoleJourneyRepository } from '../../shared/console-journey.mjs';
 import { createConnectorDeliveryRepository } from '../../shared/connector-delivery.mjs';
 import { createDecisionLedgerRepository } from '../../shared/decision-ledger.mjs';
+import { createEnterpriseControlPlane } from '../../shared/enterprise-control-plane.mjs';
+import { createGrowthPlayRegistry } from '../../shared/growth-play-registry.mjs';
 import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
+import { createCoworkerDeliveryService } from '../../shared/coworker-delivery.mjs';
 import {
   createProductSalesforceConnector,
   ProductSalesforceConnectorError,
@@ -26,6 +29,10 @@ let getDatabaseCredentials;
 let getProductConnectorCredentials;
 let productSalesforceConnector;
 let journeyRepository;
+let controlPlaneRepository;
+let growthPlayRegistry;
+let coworkerDeliveryService;
+let getCoworkerConnectorCredentials;
 
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
@@ -34,6 +41,10 @@ export const handler = createConsoleApiHandler({
   appendDecision: persistDecision,
   journey: consoleJourney(),
   deliverReserved: deliverReservedSalesforce,
+  controlPlane: enterpriseControlPlane(),
+  growthPlayRegistry: consoleGrowthPlayRegistry(),
+  deliverCoworkerBriefing,
+  readSalesforceOutcome,
 });
 
 async function verifyCognitoAccessToken(token) {
@@ -124,6 +135,46 @@ function consoleJourney() {
   return journeyRepository;
 }
 
+function consoleGrowthPlayRegistry() {
+  if (!growthPlayRegistry) growthPlayRegistry = createGrowthPlayRegistry({ getDB: runtimeDatabase });
+  return growthPlayRegistry;
+}
+
+function enterpriseControlPlane() {
+  if (!controlPlaneRepository) {
+    controlPlaneRepository = createEnterpriseControlPlane({
+      getDB: runtimeDatabase,
+      growthPlayRegistry: consoleGrowthPlayRegistry(),
+    });
+  }
+  return controlPlaneRepository;
+}
+
+async function deliverCoworkerBriefing(input) {
+  return coworkerDelivery().deliver(input);
+}
+
+async function readSalesforceOutcome(input) {
+  return productConnector().readOutcome(input);
+}
+
+function coworkerDelivery() {
+  if (!coworkerDeliveryService) {
+    if (!process.env.VENTUS_COWORKER_CONNECTOR_SECRET_ID) {
+      throw new ProductSalesforceConnectorError(
+        'The Coworker connector secret is not configured for this environment.',
+        { code: 'coworker_connector_secret_missing', terminalFailure: true },
+      );
+    }
+    coworkerDeliveryService = createCoworkerDeliveryService({
+      getSecrets: coworkerConnectorCredentialsProvider(),
+      deliveryRepository: createConnectorDeliveryRepository({ getDB: runtimeDatabase }),
+      consoleBaseUrl: process.env.VENTUS_CONSOLE_PUBLIC_URL,
+    });
+  }
+  return coworkerDeliveryService;
+}
+
 async function deliverReservedSalesforce({ tenantId, decisionId, sessionId, reservation, moment }) {
   if (!reservation?.shouldDeliver || reservation.record?.status !== 'pending') {
     return { receipt: deliveryReceipt(reservation?.record), moment };
@@ -197,6 +248,16 @@ function productConnectorCredentialsProvider() {
     });
   }
   return getProductConnectorCredentials;
+}
+
+function coworkerConnectorCredentialsProvider() {
+  if (!getCoworkerConnectorCredentials) {
+    getCoworkerConnectorCredentials = createSecretsProvider({
+      secretId: process.env.VENTUS_COWORKER_CONNECTOR_SECRET_ID,
+      region: process.env.AWS_REGION || 'us-east-2',
+    });
+  }
+  return getCoworkerConnectorCredentials;
 }
 
 function deliveryReceipt(record) {

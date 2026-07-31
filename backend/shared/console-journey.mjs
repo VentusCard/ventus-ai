@@ -42,6 +42,7 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
   return {
     async recordDecision({ decision, requestId }) {
       const packageProjection = buildDecisionPackage(decision);
+      const immutablePackage = buildDecisionPackageV12(packageProjection, decision);
       const result = await ledgerRepository.append({
         tenantId: decision.tenantId,
         idempotencyKey: `console:${decision.decisionId}`,
@@ -67,6 +68,7 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
           policy: decision.policy,
           runtime: decision.runtime,
           decision_package: packageProjection,
+          decision_package_v12: immutablePackage,
         },
       });
       return {
@@ -326,6 +328,39 @@ export function buildDecisionPackage(decision) {
   };
 }
 
+// v1.2 is the immutable decision identity shared with every connector. Human
+// responses, delivery receipts, and outcomes are deliberately separate events.
+export function buildDecisionPackageV12(packageProjection, decision) {
+  const immutable = {
+    schemaVersion: '1.2',
+    decisionId: packageProjection.decisionId,
+    tenantId: packageProjection.tenantId,
+    createdAt: packageProjection.createdAt,
+    evidenceClass: packageProjection.evidenceClass,
+    subject: packageProjection.subject,
+    growthPlay: packageProjection.growthPlay,
+    moment: packageProjection.moment,
+    recommendation: packageProjection.recommendation,
+    governance: {
+      policyStatus: packageProjection.governance.policyStatus,
+      controls: packageProjection.governance.controls,
+      humanReviewRequired: packageProjection.governance.humanReviewRequired,
+      assignmentArm: packageProjection.governance.assignmentArm,
+      policyVersion: decision.runtime.policyVersion ?? null,
+      protocolId: packageProjection.growthPlay.protocolId,
+    },
+    decisionMethod: {
+      active: packageProjection.decisionMethod.active,
+      shadowCandidate: packageProjection.decisionMethod.shadowCandidate,
+      runtimeVersion: decision.runtime.runtimeVersion ?? decision.runtime.version ?? 'console-runtime-v1',
+      skillVersions: [{ skillId: packageProjection.growthPlay.id, version: packageProjection.growthPlay.protocolId }],
+    },
+    workflowIntent: { connector: packageProjection.workflow.connector, destination: packageProjection.recommendation.selectedAction.destination },
+    measurementPlan: { metric: packageProjection.outcome.metric, windowDays: packageProjection.outcome.windowDays },
+  };
+  return { ...immutable, packageDigest: canonicalDigest(immutable) };
+}
+
 export function projectMoments(rows) {
   const grouped = new Map();
   for (const row of rows) {
@@ -386,6 +421,7 @@ export function projectMoment(rows) {
     runtime: decisionPayload.runtime,
     status: momentStatus(packageProjection, activation),
     decisionPackage: packageProjection,
+    decisionPackageV12: decisionPayload.decision_package_v12 ?? null,
     receipt: activation?.delivery_id ? {
       id: activation.delivery_id,
       url: activation.external_receipt_url ?? undefined,
@@ -471,6 +507,18 @@ function destinationForAction(actionValue) {
 
 function subjectToken(tenantId, decisionId) {
   return `tok_${createHash('sha256').update(`${tenantId}\u001f${decisionId}`).digest('hex').slice(0, 24)}`;
+}
+
+function canonicalDigest(value) {
+  return `sha256:${createHash('sha256').update(canonicalJson(value)).digest('hex')}`;
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
 }
 
 function ledgerReceipt(record) {

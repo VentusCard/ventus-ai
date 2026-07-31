@@ -23,8 +23,7 @@ import {
 } from "./console/AccessPages";
 import MomentsPage from "./console/MomentsPage";
 import BriefingsPage from "./console/BriefingsPage";
-import { FscOnboardingPage } from "./console/FscOnboardingPage";
-import { LedgerPage, OutcomesPage, PlaysPage } from "./console/OpsPages";
+import { ConnectionsPage, GovernancePage, GrowthPlaysPage, ResultsPage } from "./console/EnterpriseControlPages";
 
 const Index = lazy(() => import("./pages/Index"));
 const ContactUs = lazy(() => import("./pages/ContactUs"));
@@ -97,11 +96,11 @@ const AppLayout = () => {
           <Route element={<ConsoleLayout />}>
             <Route path="today" element={<BriefingsPage />} />
             <Route path="moments" element={<MomentsPage />} />
-            <Route path="plays" element={<PlaysPage />} />
-            <Route path="results" element={<OutcomesPage />} />
-            <Route path="governance" element={<LedgerPage />} />
-            <Route path="connections" element={<FscOnboardingPage />} />
-            <Route path="briefings" element={<Navigate to="/app/today" replace />} />
+            <Route path="plays" element={<GrowthPlaysPage />} />
+            <Route path="results" element={<ResultsPage />} />
+            <Route path="governance" element={<GovernancePage />} />
+            <Route path="connections" element={<ConnectionsPage />} />
+            <Route path="briefings" element={<BriefingsPage />} />
             <Route path="outcomes" element={<Navigate to="/app/results" replace />} />
             <Route path="ledger" element={<Navigate to="/app/governance?view=ledger" replace />} />
             <Route path="onboarding" element={<Navigate to="/app/connections?connector=salesforce" replace />} />

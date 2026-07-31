@@ -1,6 +1,8 @@
-import { ArrowRight, Check, Clock3, Inbox, Landmark, ShieldCheck, Target } from "lucide-react";
+import { useState } from "react";
+import { ArrowRight, Check, Clock3, Inbox, Landmark, Loader2, Send, ShieldCheck, Target } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth, useConsole, type ConsoleMoment } from "@/console/state";
+import { consoleCoworkerDeliveryUrl } from "@/console/api";
 
 function statusLabel(status: ConsoleMoment["status"]): string {
   if (status === "queued") return "Needs review";
@@ -10,7 +12,7 @@ function statusLabel(status: ConsoleMoment["status"]): string {
 }
 
 export default function BriefingsPage() {
-  const { access } = useAuth();
+  const { access, session } = useAuth();
   const { tenant, moments, scenarioMeta } = useConsole();
   const role = access?.role ?? "bank_operator";
   const consumerMoments = moments.filter((moment) => moment.scenario === "deposit-retention");
@@ -28,6 +30,8 @@ export default function BriefingsPage() {
   const isOwner = role === "growth_play_owner";
   const isRisk = role === "risk_reviewer" || role === "ventus_platform_admin";
   const isAdmin = role === "institution_admin";
+  const [deliveryState, setDeliveryState] = useState<string | null>(null);
+  const [deliveryError, setDeliveryError] = useState<string | null>(null);
   const title = isOperator
     ? `${queued} deposit relationship${queued === 1 ? "" : "s"} need attention`
     : isOwner
@@ -46,6 +50,34 @@ export default function BriefingsPage() {
         : isAdmin
           ? "Review connector health and mapping work. Customer moments remain outside this role by default."
           : "View aggregate reach, outcome coverage, and the current claim status for Consumer Deposit Primacy.";
+  const canBrief = isOwner || isAdmin || role === "ventus_platform_admin";
+  const sendBriefing = async (channel: "outlook" | "slack") => {
+    const url = consoleCoworkerDeliveryUrl();
+    if (!url || !session?.access_token) {
+      setDeliveryError("The authenticated Console API is unavailable in this environment.");
+      return;
+    }
+    setDeliveryState(channel);
+    setDeliveryError(null);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${session.access_token}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          channel,
+          title: `${tenant.shortName} growth briefing`,
+          counts: { needsReview: queued, routed: delivered, outcomesObserved: observed },
+          decisionIds: consumerMoments.map((moment) => moment.decisionId).slice(0, 10),
+        }),
+      });
+      const body = await response.json().catch(() => ({})) as { error?: string; receipt?: { status?: string } };
+      if (!response.ok) throw new Error(body.error ?? `Delivery failed (${response.status})`);
+      setDeliveryState(`${channel} ${body.receipt?.status === "delivered" ? "sent" : "recorded"}`);
+    } catch (cause) {
+      setDeliveryError(cause instanceof Error ? cause.message : "Briefing delivery failed");
+      setDeliveryState(null);
+    }
+  };
 
   return (
     <div className="mx-auto max-w-5xl">
@@ -55,6 +87,17 @@ export default function BriefingsPage() {
         </p>
         <h2 className="v2-display mt-2 text-3xl">{title}</h2>
         <p className="v2-body mt-2 max-w-2xl text-[13px]">{description}</p>
+        {canBrief && (
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {(["outlook", "slack"] as const).map((channel) => (
+              <button key={channel} onClick={() => void sendBriefing(channel)} disabled={deliveryState === channel} className="console-btn-ghost !px-3 !py-2 !text-[11px]">
+                {deliveryState === channel ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Send className="h-3.5 w-3.5" />} Send {channel === "outlook" ? "Outlook" : "Slack"} briefing
+              </button>
+            ))}
+            {deliveryState && deliveryState !== "outlook" && deliveryState !== "slack" && <span className="text-[11px]" style={{ color: "var(--v2-verified)" }}>{deliveryState}</span>}
+            {deliveryError && <span className="text-[11px]" style={{ color: "#b3261e" }}>{deliveryError}</span>}
+          </div>
+        )}
       </div>
 
       {isOperator ? (

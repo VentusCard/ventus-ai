@@ -523,8 +523,13 @@ Invariants:
 ## 9. Decision Package Contract
 
 `DecisionPackage` v1.1 remains the current compatible contract. The next version
-must be additive and introduced as v1.2; existing consumers must continue to
-parse v1.1.
+is additive and introduced as v1.2; existing consumers must continue to parse
+v1.1 during the compatibility window.
+
+The v1.2 package is the immutable decision at qualification time. Employee
+responses, workflow state, external record identifiers, and outcomes are
+separate append-only receipts joined into a Moment projection. They must not
+mutate the original package.
 
 ### 9.1 Required v1.2 additions
 
@@ -535,6 +540,7 @@ type DecisionPackageV12 = Omit<
   "governance" | "workflow" | "outcome"
 > & {
   schemaVersion: "1.2";
+  evidenceClass: "fixture" | "partner_sandbox" | "sanctioned_pilot";
   subject: {
     token: string;
     scope: "customer" | "household" | "account" | "business";
@@ -563,6 +569,16 @@ type DecisionPackageV12 = Omit<
     rationale: string;
     actionCatalogVersion: string;
   };
+  decisionMethod: {
+    runtimeType: "deterministic" | "model_assisted";
+    runtimeVersion: string;
+    skillVersions: string[];
+    modelInvocation?: {
+      provider: string;
+      model: string;
+      modelArtifactVersion: string;
+    };
+  };
   governance: {
     policyStatus: "cleared" | "suppressed" | "review";
     controls: string[];
@@ -571,24 +587,19 @@ type DecisionPackageV12 = Omit<
     protocolApprovalId: string;
     exceptionStatus: "none" | "open" | "resolved";
   };
-  workflow: {
+  workflowIntent: {
     connector: string;
     destination: string;
     ownerRole: string;
-    ownerToken?: string;
     dueAt?: string;
-    status: "ready" | "reserved" | "delivered" | "failed" | "reconciled";
-    deliveryId?: string;
-    records?: Record<string, string>;
   };
-  outcome: {
+  measurementPlan: {
     metric: string;
+    outcomeEventTypes: string[];
+    outcomeSourceSystems: string[];
     windowDays: number;
-    status: "not-opened" | "measuring" | "measured";
-    coverageStatus: "pending" | "insufficient" | "passed";
-    claimStatus: "blocked" | "observational" | "measured";
-    observation?: DecisionOutcomeObservation;
   };
+  packageDigest: string;
 };
 ```
 
@@ -600,11 +611,44 @@ type DecisionPackageV12 = Omit<
   ledger.
 - Recommended and alternative actions come from the approved action catalog.
 - Holdout packages cannot be delivered as treatment actions.
-- A delivery receipt is idempotent per approved action and destination.
-- Human response identity is server-verified.
-- Outcome observations cannot predate assignment or fall outside the registered
-  window.
+- `packageDigest` covers the canonical package before the digest field is added.
+- The server seals the package before it is shown to a user or connector.
+- Response receipts reference the package digest and server-verified actor.
+- Delivery receipts are idempotent per package, approved action, and
+  destination.
+- Outcome receipts reference the package and immutable assignment but remain
+  outside the package.
 - Destination-specific objects never become the canonical Ventus schema.
+
+### 9.3 Projection contract
+
+The product joins the immutable package with append-only records to render the
+current Moment:
+
+```text
+DecisionPackage v1.2
+  + assignment record
+  + employee response history
+  + delivery reservation and terminal receipt
+  + outcome observations
+  = current authorized Moment projection
+```
+
+The projection may show current status and destination links. It is disposable
+and can be rebuilt from durable records. Salesforce Task IDs, Outlook message
+IDs, mutable owner assignments, task completion, and measured results belong
+only in receipts or projections.
+
+### 9.4 Compatibility decision
+
+- v1.2 writers also produce the existing v1.1-compatible fields during one
+  compatibility window.
+- v1.1 consumers ignore v1.2 additions and continue to render the bounded
+  recommendation.
+- New receipt-aware surfaces require v1.2 and must not infer mutable state from
+  the legacy `workflow` or `outcome` fields.
+- A protocol pins one package schema version. Upgrading the package schema
+  requires a new protocol version and shadow verification.
 
 ## 10. Growth Play Contract
 
@@ -824,6 +868,116 @@ incident, and outcome-feed gates pass.
 - Every approval is append-only and references a change record.
 - Revocation applies immediately to new assignments.
 
+### 10.6 Growth Play Studio decision
+
+The Studio uses one guided six-step flow. It does not expose the compiled JSON
+as the primary experience and does not begin with an open-ended AI prompt.
+
+1. **Outcome:** choose one institution-approved objective, one primary P&L
+   metric, the accountable owner, hypothesis, and time horizon.
+2. **Moment:** define subject scope, eligible population, exclusions, approved
+   evidence, freshness, the qualified moment, and abstention behavior.
+3. **Action:** choose a closed action catalog, accountable employee role,
+   destination, service level, capacity, and overflow behavior.
+4. **Controls:** attach consent, policy, vulnerability, suitability, contact,
+   human-review, and suppression rules.
+5. **Proof:** register assignment unit, holdout, outcome event and source,
+   outcome window, minimum sample, coverage, and claim policy.
+6. **Review:** inspect the compiled summary, unresolved assumptions, version
+   diff, representative qualified/suppressed/abstained examples, connector
+   test, capacity estimate, and readiness result.
+
+The persistent workspace shows these three panes:
+
+```text
+left: six-step configuration and completion state
+center: current structured section
+right: live readiness, assumptions, preview, and impact evidence
+```
+
+The right pane never predicts lift before measured evidence exists. Before a
+pilot it may show estimated eligible population, expected work volume, employee
+capacity, evidence coverage, and measurement feasibility, each labeled with its
+source and confidence.
+
+AI assistance is available inside a section as **Draft with Ventus**. It may
+propose typed values, explain missing information, or compare approved options.
+Every proposal is visibly marked, editable, and non-executable until the owner
+accepts it into the structured draft.
+
+The user can save an incomplete draft at any point. The following controls are
+separate and increasingly consequential:
+
+```text
+Save draft -> Run readiness -> Register version -> Submit for review
+  -> Approve -> Start shadow -> Start bounded pilot
+```
+
+Rules:
+
+- `Save draft` is always reversible and creates no executable behavior.
+- `Run readiness` produces field-level failures and warnings; it is not an
+  approval.
+- `Register version` compiles and seals the exact behavior digest.
+- `Submit for review` routes business, risk/model, and connector/data sections
+  to their authorized reviewers.
+- An owner cannot edit a registered version; changes create a new draft.
+- The configurator cannot satisfy a required independent approval.
+- A connector health check, representative dry run, and outcome contract must
+  pass before Shadow.
+- Only authorized deployment transitions can move an approved version to
+  Shadow or Pilot.
+
+The MVP supports one action destination and one primary outcome per play.
+Additional destinations or primary metrics require another play or a future
+contract version.
+
+### 10.7 Outcome measurement decision
+
+Each protocol pre-registers one primary outcome metric and one intent-to-treat
+estimand. Secondary metrics are exploratory and cannot determine pilot success.
+
+The measurement sequence is fixed:
+
+1. Resolve the eligible assignment unit and create immutable treatment or
+   holdout assignment before treatment decisioning.
+2. Open the outcome window at assignment time unless the registered protocol
+   names another objective anchor.
+3. Accept outcomes only from the registered source, event types, metric,
+   subject token, and window.
+4. Treat missing as missing. A valid zero must arrive as an explicit
+   observation.
+5. Keep corrections append-only and select the latest valid observation inside
+   the window.
+6. Report treatment and holdout counts, coverage, means, absolute and relative
+   difference, uncertainty interval, attrition, and claim state.
+
+Development and sandbox runs may use the existing defaults of 30 observed
+subjects per arm and 90 percent outcome coverage, but they can never produce a
+business claim. A sanctioned pilot must freeze a power-informed minimum sample,
+coverage threshold, outcome window, assignment salt custody, contamination
+policy, and analysis plan before the first assignment. Thresholds cannot be
+relaxed after results are opened.
+
+Result states are:
+
+| State | Meaning |
+| --- | --- |
+| Awaiting outcomes | Outcome window is open but no valid return feed exists |
+| Measuring | Valid observations exist but the window, sample, or coverage gate remains open |
+| Descriptive | Gates passed and Ventus can report the registered comparison |
+| Review-ready | Randomization and integrity checks passed; independent review is required |
+| Approved claim | The institution approved the exact method, language, and audience |
+
+`measured` in the underlying state model means the descriptive gate passed. It
+does not automatically authorize causal language. Causal claims require
+pre-registered randomization, balance, attrition, contamination, noncompliance,
+and multiple-testing review by an accountable institution-approved reviewer.
+
+Employee acceptance, task completion, response time, and capacity are operating
+metrics. They explain delivery performance but do not replace the registered
+P&L outcome.
+
 ## 11. AI and Model Boundary
 
 AI may:
@@ -858,6 +1012,81 @@ For the MVP:
 The multi-model strategy is task routing, not model voting by default. Use the
 least expensive model that passes the task gate, with escalation for ambiguity
 or material impact.
+
+### 11.1 Model-shadow promotion decision
+
+Promotion applies to one versioned model-assisted Skill for one task and one
+Growth Play context. A provider or model is never approved globally.
+
+The promotion path is:
+
+```text
+candidate
+  -> frozen offline benchmark
+  -> repeated evaluation
+  -> sanctioned-data shadow
+  -> independent review
+  -> assisted pilot
+  -> separately approved live version
+```
+
+The deterministic runtime remains the active baseline until the Skill reaches
+assisted pilot. Shadow candidates receive the same approved evidence available
+to the baseline, write typed predictions and evaluation receipts, and cannot
+alter assignment, operator recommendations, or destination delivery.
+
+Before candidate predictions are opened:
+
+- at least two independent reviewers label and adjudicate the benchmark;
+- benchmark cases, expectations, slice definitions, and scoring are frozen and
+  hash-bound;
+- the deterministic baseline is run and retained;
+- critical-failure definitions and the cost/latency budget are registered.
+
+The initial intervention-ranking and employee-brief Skills use these minimum
+offline gates:
+
+- 100 percent schema-valid output;
+- zero fabricated evidence references;
+- zero actions outside the approved catalog;
+- zero policy, consent, holdout, tenant, or business-line violations;
+- at least 95 percent case acceptance on the frozen benchmark;
+- at least a two-percentage-point quality improvement over the deterministic
+  baseline;
+- no material regression on registered ambiguity, suppression, vulnerability,
+  business-line, or demographic-proxy slices;
+- all hard gates pass on three independently captured runs;
+- mean model cost no greater than USD 0.02 per evaluated case and p95 runtime no
+  greater than five seconds, unless the registered Skill budget is stricter.
+
+Sanctioned-data shadow requires at least 500 eligible cases or 30 consecutive
+days, whichever is later. It must show:
+
+- zero critical failures;
+- stable quality and abstention by registered slice;
+- no meaningful increase in operator overrides or unsafe escalation;
+- cost and latency inside the registered budget;
+- complete model, prompt, routing, evidence, and prediction receipts.
+
+If a pilot cannot reach this volume, the candidate remains an evaluation
+artifact and cannot be described as promoted.
+
+Promotion to assisted pilot requires append-only approval from:
+
+- the Growth Play owner for business usefulness and capacity;
+- the risk or model reviewer for quality, policy, fairness, and limitations;
+- the institution administrator for the approved environment and data route.
+
+The promoted protocol pins the exact Skill, provider route, model artifact,
+prompt, schemas, thresholds, fallback, and budget. Runtime policy, eligibility,
+assignment, action validation, idempotency, and claims remain deterministic.
+The model may abstain or fall back to the deterministic baseline; it may never
+fail open.
+
+Any critical failure, contract drift, material slice regression, budget breach,
+or model/provider change pauses the Skill and restores the last approved
+deterministic or model-assisted version. Learning produces a proposed new Skill
+version; it never silently modifies the active version.
 
 ## 12. Coworker
 
@@ -1100,6 +1329,70 @@ exports use the stable event vocabulary.
 - Cost, latency, grounding, policy, and fairness thresholds.
 - Human review according to risk.
 - Kill switch, rollback, and version-specific audit.
+
+### 14.7 First real-bank onboarding contract
+
+The first real-bank onboarding is one bounded non-production tenant, one
+business line, one Growth Play, one sanctioned source contract, one employee
+workflow destination, and one authoritative outcome return. It is not a bulk
+enterprise rollout and does not require cross-business data.
+
+Onboarding follows six ordered gates:
+
+1. **Institution boundary:** create the tenant, environments, data residency,
+   support policy, retention policy, encryption ownership, and named business,
+   risk, identity, data, workflow, and measurement owners.
+2. **Identity and access:** connect the approved SAML/OIDC provider, map groups
+   to canonical roles and business-line/queue scopes, define session and
+   step-up rules, test joiner/mover/leaver behavior, and verify an access
+   review. SCIM is required before production scale but may be manual for the
+   bounded non-production pilot if the institution approves the process.
+3. **Evidence source:** approve a field-level schema and purpose, tokenization
+   boundary, subject-linkage method, freshness, consent, correction, retention,
+   deletion, and source-receipt contract. Ventus receives only allowlisted
+   fields and derived evidence needed by the play.
+4. **Workflow destination:** configure the server-side connector, bank-owned
+   customer resolution, object and field mapping, owner routing, allowed
+   actions, deep link, error handling, and outcome-return identifiers. Pass a
+   bounded sandbox write and reconciliation test.
+5. **Outcome return:** register the authoritative event, source, subject
+   linkage, explicit-zero behavior, correction semantics, delay, coverage,
+   window, and analysis freeze. Pass treatment and holdout contract fixtures
+   before real assignments.
+6. **Growth Play proof:** complete the Studio, register and independently
+   approve the protocol, run qualified/suppressed/abstained/holdout cases in
+   shadow, verify capacity, then authorize a bounded pilot population.
+
+Each gate produces a durable, reviewable artifact:
+
+| Gate | Required artifact |
+| --- | --- |
+| Institution | Tenant charter and named accountable owners |
+| Identity | Signed role/scope mapping and access-test report |
+| Evidence | Approved data contract, sample receipt, and retention decision |
+| Workflow | Approved mapping version, health check, and external receipt |
+| Outcome | Frozen metric and event contract with validation report |
+| Growth Play | Immutable protocol, approvals, shadow report, and pilot change record |
+
+The go/no-go review has three independent decisions:
+
+- the Growth Play owner accepts the objective, action, capacity, and operating
+  responsibility;
+- the risk/model reviewer accepts policy, measurement, model evidence, and
+  prohibited claims;
+- the institution administrator accepts identity, data, connector, and
+  environment configuration.
+
+Ventus may provide templates and automated checks, but it cannot approve on
+behalf of the institution. Failed or incomplete gates remain visible in
+Connections, Growth Plays, or Governance and block the relevant deployment
+transition.
+
+For the first pilot, customer identity remains bank-owned. Ventus stores opaque
+subject references and destination linkage receipts; it does not become the
+customer master. Production onboarding additionally requires completed
+security, privacy, legal, model-risk, incident, resilience, records-management,
+SSO/SCIM, backup/recovery, and procurement gates.
 
 ## 15. Consumer Deposit Primacy Vertical Slice
 

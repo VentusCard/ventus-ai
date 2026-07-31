@@ -14,6 +14,7 @@ const COGNITO_ISSUER =
 const COGNITO_CLIENT_ID = '7p8ii113apn8s99t9khf0n4uib';
 const EVIDENCE_RUNTIME_SECRET_ID = 'ventus/evidence-store/app-v1';
 const PRODUCT_CONNECTOR_SECRET_NAME = 'ventus/staging/product-connectors';
+const COWORKER_CONNECTOR_SECRET_NAME = 'ventus/staging/coworker-connectors';
 const RDS_HOST =
   'ventus-bofa-cluster.cluster-chm2goicq5dx.us-east-2.rds.amazonaws.com';
 const DEFAULT_ORIGINS = [
@@ -72,6 +73,22 @@ export class VentusConsoleApiStack extends cdk.Stack {
       },
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
+    const coworkerConnectorSecret = new secretsmanager.Secret(this, 'CoworkerConnectorSecret', {
+      secretName: COWORKER_CONNECTOR_SECRET_NAME,
+      description: 'Server-only Outlook and Slack credentials for authenticated Ventus Coworker delivery.',
+      generateSecretString: {
+        secretStringTemplate: JSON.stringify({
+          microsoftTenantId: 'CONFIGURE_MICROSOFT_TENANT_ID',
+          microsoftClientId: 'CONFIGURE_MICROSOFT_CLIENT_ID',
+          microsoftClientSecret: 'CONFIGURE_MICROSOFT_CLIENT_SECRET',
+          microsoftSenderUserId: 'CONFIGURE_MICROSOFT_SENDER_USER_ID',
+          slackBotToken: 'CONFIGURE_SLACK_BOT_TOKEN',
+        }),
+        generateStringKey: 'placeholder',
+        excludePunctuation: true,
+      },
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
     const consoleFunction = new lambda.Function(this, 'ConsoleApiFunction', {
       functionName: 'ventus-console-api',
       description: 'Cognito and institution-membership boundary for the Ventus Growth Console.',
@@ -93,6 +110,8 @@ export class VentusConsoleApiStack extends cdk.Stack {
         COGNITO_CLIENT_ID,
         EVIDENCE_RUNTIME_SECRET_ID,
         VENTUS_PRODUCT_CONNECTOR_SECRET_ID: productConnectorSecret.secretArn,
+        VENTUS_COWORKER_CONNECTOR_SECRET_ID: coworkerConnectorSecret.secretArn,
+        VENTUS_CONSOLE_PUBLIC_URL: 'https://dev.d1gaewa028qzng.amplifyapp.com',
         RDS_HOST,
         RDS_PORT: '5432',
         RDS_DATABASE: 'ventus_bofa',
@@ -110,6 +129,7 @@ export class VentusConsoleApiStack extends cdk.Stack {
       resources: [runtimeSecretArn],
     }));
     productConnectorSecret.grantRead(consoleFunction);
+    coworkerConnectorSecret.grantRead(consoleFunction);
     consoleFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['kms:Decrypt', 'kms:DescribeKey'],
       resources: [VENTUS_DATABASE_KMS_KEY_ARN],
@@ -145,6 +165,27 @@ export class VentusConsoleApiStack extends cdk.Stack {
     consoleApi.addResource('access').addMethod('POST', integration);
     consoleApi.addResource('decision-run').addMethod('POST', integration);
     consoleApi.addResource('today').addMethod('GET', integration);
+    consoleApi.addResource('results').addMethod('GET', integration);
+    consoleApi.addResource('governance').addMethod('GET', integration);
+    const skills = consoleApi.addResource('skills').addResource('shadows');
+    skills.addMethod('GET', integration);
+    skills.addMethod('POST', integration);
+    const growthPlays = consoleApi.addResource('growth-plays');
+    growthPlays.addMethod('GET', integration);
+    growthPlays.addResource('drafts').addMethod('POST', integration);
+    growthPlays.addResource('register').addMethod('POST', integration);
+    growthPlays.addResource('protocols').addResource('{decision_protocol_id}').addResource('approvals').addMethod('POST', integration);
+    const connections = consoleApi.addResource('connections');
+    connections.addMethod('GET', integration);
+    connections.addMethod('POST', integration);
+    const connection = connections.addResource('{mapping_id}');
+    connection.addResource('test').addMethod('POST', integration);
+    connection.addResource('approve').addMethod('POST', integration);
+    connection.addResource('activate').addMethod('POST', integration);
+    connection.addResource('revoke').addMethod('POST', integration);
+    consoleApi.addResource('onboarding').addResource('readiness').addMethod('GET', integration);
+    consoleApi.addResource('briefings').addResource('deliveries').addMethod('POST', integration);
+    consoleApi.addResource('outcomes').addResource('salesforce-sync').addMethod('POST', integration);
     const moments = consoleApi.addResource('moments');
     moments.addMethod('GET', integration);
     const moment = moments.addResource('{decision_id}');

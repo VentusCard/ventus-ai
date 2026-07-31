@@ -122,6 +122,13 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
     await db.query(
       `GRANT SELECT, INSERT, UPDATE ON ${schemaName}.connector_delivery_receipts TO ${roleName}`,
     );
+    await db.query(
+      `GRANT SELECT, INSERT, UPDATE ON ${schemaName}.growth_play_drafts,
+         ${schemaName}.connector_mapping_versions,
+         ${schemaName}.connector_mapping_test_receipts,
+         ${schemaName}.outcome_observation_receipts,
+         ${schemaName}.skill_shadow_registry TO ${roleName}`,
+    );
     await db.query('COMMIT');
   } catch (error) {
     await db.query('ROLLBACK').catch(() => {});
