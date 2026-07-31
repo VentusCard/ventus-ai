@@ -14,6 +14,7 @@ import {
   authorizeGrowthPlayApproval,
   authorizeGrowthPlayRead,
   authorizeGrowthPlayWrite,
+  authorizeEvidenceBundleRead,
   authorizeResultsRead,
   authorizeSkillApproval,
   authorizeSkillDraft,
@@ -40,6 +41,7 @@ export function createConsoleApiHandler({
   deliverCoworkerBriefing,
   readSalesforceOutcome,
   runControlledSandbox,
+  exportEvidenceBundle,
 }) {
   if (typeof verifyIdentity !== 'function' || typeof resolveMembership !== 'function') {
     throw new Error('Console API identity and membership adapters are required');
@@ -66,6 +68,15 @@ export function createConsoleApiHandler({
       if (!membership) return response(403, { error: 'institution access is not active' }, responseHeaders);
 
       const path = String(event.path || event.rawPath || event.resource || '');
+      const evidenceBundlePath = parseEvidenceBundlePath(path);
+      if (method === 'GET' && evidenceBundlePath) {
+        if (typeof exportEvidenceBundle !== 'function') return unavailable('sandbox evidence bundle', responseHeaders);
+        if (!authorizeEvidenceBundleRead(membership).allowed) return forbidden('sandbox evidence bundle', responseHeaders);
+        return response(200, await exportEvidenceBundle({
+          tenantId: identity.tenantHint,
+          experimentId: evidenceBundlePath.experimentId,
+        }), responseHeaders);
+      }
       if (method === 'GET' && path.endsWith('/results')) {
         if (!controlPlane) return unavailable('product results', responseHeaders);
         const authorization = authorizeResultsRead(membership);
@@ -477,6 +488,11 @@ function parseBody(value) {
     error.name = 'DecisionRequestError';
     throw error;
   }
+}
+
+function parseEvidenceBundlePath(path) {
+  const match = String(path).match(/\/evidence-bundles\/([A-Za-z0-9:_-]{2,128})$/);
+  return match ? { experimentId: match[1] } : null;
 }
 
 function parseAllowedOrigins(value) {
