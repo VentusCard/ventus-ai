@@ -286,7 +286,10 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
           `INSERT INTO outcome_observation_receipts
              (tenant_id, observation_id, decision_id, decision_record_id, household_token, mapping_id, mapping_version, status, observation, synced_by, synced_at)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,now())
-           ON CONFLICT (tenant_id, observation_id) DO UPDATE SET synced_at = now()
+           -- A source observation is immutable. Retrying its readback must not
+           -- change the timestamp that anchors its ledger event.
+           ON CONFLICT (tenant_id, observation_id) DO UPDATE
+             SET observation_id = outcome_observation_receipts.observation_id
            RETURNING observation_id, status, observation, synced_at`,
           [tenantId, receiptId, outcome.decisionId, outcome.decisionRecordId, moment.decisionPackage.subject.token, mapping.mappingId, mapping.version, outcome.outcome?.status ?? 'awaiting_outcome', observation, actorId],
         );
@@ -305,25 +308,36 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
         return { observation: observationReceipt, measurement, eligibleForLift: measurement.status === 'recorded' };
       });
       if (!ledgerRepository || typeof ledgerRepository.append !== 'function') return recorded;
-      const event = await ledgerRepository.append({
-        tenantId,
-        idempotencyKey: `fsc-observation:${recorded.observation.observationId}`,
-        eventType: 'outcome',
-        householdToken: moment.decisionPackage.subject.token,
-        growthPlayId: moment.decisionPackage.growthPlay.id,
-        policyVersion: moment.decisionPackageV12?.governance?.policyVersion ?? moment.decisionPackage.growthPlay.protocolId,
-        status: 'confirmed',
-        occurredAt: new Date(recorded.observation.syncedAt).toISOString(),
-        payload: {
-          decision_id: outcome.decisionId,
-          decision_record_id: outcome.decisionRecordId,
-          observation_id: recorded.observation.observationId,
-          observation_only: true,
-          source_system: 'salesforce-fsc',
-          package_digest: moment.decisionPackageV12?.packageDigest ?? null,
-        },
-      });
-      const ledgerReceipt = { sequenceNumber: Number(event.record.sequence_number ?? event.record.sequenceNumber), eventHash: event.record.event_hash ?? event.record.eventHash };
+      let event;
+      try {
+        event = await ledgerRepository.append({
+          tenantId,
+          idempotencyKey: `fsc-observation:${recorded.observation.observationId}`,
+          eventType: 'outcome',
+          householdToken: moment.decisionPackage.subject.token,
+          growthPlayId: moment.decisionPackage.growthPlay.id,
+          policyVersion: moment.decisionPackageV12?.governance?.policyVersion ?? moment.decisionPackage.growthPlay.protocolId,
+          status: 'confirmed',
+          occurredAt: new Date(recorded.observation.syncedAt).toISOString(),
+          payload: {
+            decision_id: outcome.decisionId,
+            decision_record_id: outcome.decisionRecordId,
+            observation_id: recorded.observation.observationId,
+            observation_only: true,
+            source_system: 'salesforce-fsc',
+            package_digest: moment.decisionPackageV12?.packageDigest ?? null,
+          },
+        });
+      } catch (error) {
+        // Earlier sandbox runs updated synced_at on each retry. The same
+        // immutable observation can therefore already have a ledger entry
+        // whose timestamp differs only because of that legacy behavior.
+        if (!isLegacyFscObservationReplay(error)) throw error;
+        event = { record: null, replayedLegacyObservation: true };
+      }
+      const ledgerReceipt = event.record
+        ? { sequenceNumber: Number(event.record.sequence_number ?? event.record.sequenceNumber), eventHash: event.record.event_hash ?? event.record.eventHash }
+        : { replayedLegacyObservation: true };
       let measurementLedgerReceipt = null;
       if (recorded.measurement.status === 'recorded') {
         const measurementEvent = await ledgerRepository.append({
@@ -869,6 +883,10 @@ export function fscObservationReceiptId({ tenantId, decisionRecordId, outcome })
     },
   });
   return `obs_${createHash('sha256').update(`${tenantId}\u001f${decisionRecordId}\u001f${fingerprint}`).digest('hex').slice(0, 24)}`;
+}
+
+function isLegacyFscObservationReplay(error) {
+  return error instanceof Error && error.message === 'ledger idempotency key reused for different event content';
 }
 
 function projectDraft(row) {

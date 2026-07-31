@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildFscMeasurementEvent, fscObservationReceiptId, projectMeasurementReadiness } from './enterprise-control-plane.mjs';
+import { buildFscMeasurementEvent, createEnterpriseControlPlane, fscObservationReceiptId, projectMeasurementReadiness } from './enterprise-control-plane.mjs';
 
 test('FSC measurement promotion produces an immutable event tied to the existing assignment', () => {
   const event = buildFscMeasurementEvent({
@@ -41,6 +41,54 @@ test('FSC corrections receive a new receipt identity while exact retries remain 
   });
   assert.equal(original, retry);
   assert.notEqual(original, correction);
+});
+
+test('FSC observation retries preserve their original timestamp and recover legacy replay records', async () => {
+  const appendCalls = [];
+  const controlPlane = createEnterpriseControlPlane({
+    growthPlayRegistry: { register() { throw new Error('not used'); } },
+    ledgerRepository: {
+      async append(draft) {
+        appendCalls.push(draft);
+        throw new Error('ledger idempotency key reused for different event content');
+      },
+    },
+    getDB: async () => ({
+      async connect() {},
+      async end() {},
+      async query(sql) {
+        if (sql.includes('INSERT INTO outcome_observation_receipts')) {
+          return {
+            rows: [{
+              observation_id: 'obs_legacy_001', status: 'measuring', observation: null,
+              synced_at: '2026-07-31T00:00:00.000Z',
+            }],
+          };
+        }
+        return { rows: [] };
+      },
+    }),
+  });
+
+  const result = await controlPlane.recordFscOutcome({
+    tenantId: 'pilot_bank',
+    actorId: 'operator_001',
+    mapping: { mappingId: 'map_fsc_001', version: 1 },
+    moment: {
+      decisionPackage: {
+        subject: { token: 'tok_abcdefgh' },
+        growthPlay: { id: 'deposit-primacy-defense', protocolId: 'dcp_deposit_001' },
+      },
+    },
+    outcome: {
+      decisionId: 'dec_legacy_001',
+      decisionRecordId: 'a09123456789012AAA',
+      outcome: { status: 'measuring', observation: null },
+    },
+  });
+
+  assert.deepEqual(result.ledgerReceipt, { replayedLegacyObservation: true });
+  assert.equal(appendCalls[0].occurredAt, '2026-07-31T00:00:00.000Z');
 });
 
 test('measurement readiness requires measured outcomes in both arms, not only assignments', () => {
