@@ -188,6 +188,35 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
     };
   }
 
+  // Validate the approved outcome-return contract without reading any customer
+  // records. A connection may only advance when its configured FSC schema is real.
+  async function verifyOutcomeMapping({ config, mapping }) {
+    const outcomeMapping = normalizeFscOutcomeMapping(mapping);
+    const auth = await authenticate(config);
+    const description = await salesforceJson({
+      auth,
+      path: `/services/data/${API_VERSION}/sobjects/${encodeURIComponent(outcomeMapping.decisionObject)}/describe`,
+    });
+    const available = new Set(
+      (Array.isArray(description.fields) ? description.fields : [])
+        .map((field) => cleanText(field?.name, 120))
+        .filter(Boolean),
+    );
+    const required = Object.values(outcomeMapping).filter((field) => field !== outcomeMapping.decisionObject);
+    const missing = required.filter((field) => !available.has(field));
+    if (missing.length) {
+      throw new SalesforceFscError(`Salesforce outcome mapping is missing fields: ${missing.join(', ')}`, 409);
+    }
+    return {
+      system: 'Salesforce FSC',
+      apiVersion: API_VERSION,
+      instanceDomain: new URL(auth.instanceUrl).hostname,
+      check: 'outcome_mapping_verified',
+      decisionObject: outcomeMapping.decisionObject,
+      mappedFieldCount: required.length,
+    };
+  }
+
   async function verifyAccount({ config, accountId }) {
     const id = cleanSalesforceId(accountId);
     if (!id) throw new SalesforceFscError('A valid 15- or 18-character Salesforce Account ID is required');
@@ -295,7 +324,7 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
     return normalizeOutcome(record, tenantId, outcomeMapping);
   }
 
-  return { discover, healthCheck, verifyAccount, deliver, readOutcome };
+  return { discover, healthCheck, verifyOutcomeMapping, verifyAccount, deliver, readOutcome };
 }
 
 export function buildFscSchemaSummary(globalObjects, describes) {

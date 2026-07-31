@@ -154,7 +154,7 @@ function enterpriseControlPlane() {
 }
 
 async function testConnectorConnection({ connector, mapping }) {
-  if (connector === 'salesforce-fsc') return productConnector().testConnection();
+  if (connector === 'salesforce-fsc') return productConnector().testConnection({ mapping });
   if (connector === 'microsoft-outlook') return coworkerDelivery().testConnection({ channel: 'outlook', mapping });
   if (connector === 'slack') return coworkerDelivery().testConnection({ channel: 'slack', mapping });
   throw new ProductSalesforceConnectorError('The selected connector is unsupported.', {

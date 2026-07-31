@@ -40,6 +40,25 @@ test('product connector performs a safe authenticated Salesforce health check', 
   assert.match(result.detail, /Authenticated API read succeeded/);
 });
 
+test('product connector verifies the approved FSC outcome mapping before it can be activated', async () => {
+  const calls = [];
+  const connector = createProductSalesforceConnector({
+    getSecrets: async () => ({
+      salesforceLoginUrl: 'https://example.my.salesforce.com', salesforceClientId: 'client', salesforceClientSecret: 'secret',
+    }),
+    fscService: {
+      async deliver() { throw new Error('delivery must not run during a mapping check'); },
+      async healthCheck() { throw new Error('mapping checks must not fall back to a generic health check'); },
+      async verifyOutcomeMapping(input) { calls.push(input); return { check: 'outcome_mapping_verified', decisionObject: 'Bank_Decision__c', instanceDomain: 'example.my.salesforce.com' }; },
+    },
+  });
+  const result = await connector.testConnection({ mapping: { configuration: { decisionObject: 'Bank_Decision__c' } } });
+  assert.equal(calls.length, 1);
+  assert.equal(calls[0].mapping.decisionObject, 'Bank_Decision__c');
+  assert.equal(result.check, 'outcome_mapping_verified');
+  assert.match(result.detail, /Approved outcome mapping verified/);
+});
+
 test('product connector passes the approved FSC field mapping only to the server-side outcome reader', async () => {
   const calls = [];
   const connector = createProductSalesforceConnector({

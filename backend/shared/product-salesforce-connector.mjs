@@ -21,7 +21,7 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
   if (typeof salesforce.deliver !== 'function') throw new Error('fscService.deliver is required');
 
   return {
-    async testConnection() {
+    async testConnection({ mapping } = {}) {
       if (typeof salesforce.healthCheck !== 'function') {
         throw new ProductSalesforceConnectorError('Salesforce connection testing is not available for this connector.', {
           code: 'salesforce_connection_test_unavailable', terminalFailure: true,
@@ -35,11 +35,16 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
         );
       }
       try {
-        const result = await salesforce.healthCheck({ config });
+        const outcomeMapping = mapping?.configuration ?? mapping;
+        const result = outcomeMapping && typeof salesforce.verifyOutcomeMapping === 'function'
+          ? await salesforce.verifyOutcomeMapping({ config, mapping: outcomeMapping })
+          : await salesforce.healthCheck({ config });
         return {
           connector: 'salesforce-fsc',
-          check: 'authenticated_api_read',
-          detail: `Authenticated API read succeeded for ${cleanText(result?.instanceDomain, 180) || 'the configured Salesforce org'}.`,
+          check: cleanText(result?.check, 80) || 'authenticated_api_read',
+          detail: result?.check === 'outcome_mapping_verified'
+            ? `Approved outcome mapping verified for ${cleanText(result?.decisionObject, 120)} in ${cleanText(result?.instanceDomain, 180) || 'the configured Salesforce org'}.`
+            : `Authenticated API read succeeded for ${cleanText(result?.instanceDomain, 180) || 'the configured Salesforce org'}.`,
         };
       } catch (error) {
         if (error?.name === 'SalesforceFscError' && /authentication|token response/i.test(String(error.message))) {

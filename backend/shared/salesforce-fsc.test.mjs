@@ -41,6 +41,54 @@ test('FSC schema discovery distinguishes native workflow support from the Ventus
   assert.equal(summary.requiredMappingsReady, true);
 });
 
+test('FSC outcome mapping verification checks the approved object and fields without customer reads', async () => {
+  const requested = [];
+  const service = createSalesforceFscService({
+    buildTaskRecord: buildSalesforceTaskRecord,
+    fetchImpl: async (url) => {
+      if (url.endsWith('/services/oauth2/token')) {
+        return json({ access_token: 'salesforce-access', instance_url: 'https://instance.salesforce.com' });
+      }
+      requested.push(url);
+      return json({ fields: Object.values({
+        decisionReferenceField: 'Bank_Decision_Reference__c', decisionPackageField: 'Bank_Decision_Snapshot__c',
+        humanResponseField: 'Bank_Response__c', outcomeStatusField: 'Bank_Outcome_Status__c',
+        outcomeEventTypeField: 'Bank_Outcome_Event__c', outcomeMetricField: 'Bank_Outcome_Metric__c',
+        outcomeAmountField: 'Bank_Outcome_Amount__c', outcomeOccurredAtField: 'Bank_Outcome_At__c',
+        outcomeSourceRecordIdField: 'Bank_Outcome_Source__c', outcomeReasonCodeField: 'Bank_Outcome_Reason__c',
+      }).map((name) => ({ name })) });
+    },
+  });
+  const result = await service.verifyOutcomeMapping({
+    config,
+    mapping: {
+      decisionObject: 'Bank_Decision__c', decisionReferenceField: 'Bank_Decision_Reference__c',
+      decisionPackageField: 'Bank_Decision_Snapshot__c', humanResponseField: 'Bank_Response__c',
+      outcomeStatusField: 'Bank_Outcome_Status__c', outcomeEventTypeField: 'Bank_Outcome_Event__c',
+      outcomeMetricField: 'Bank_Outcome_Metric__c', outcomeAmountField: 'Bank_Outcome_Amount__c',
+      outcomeOccurredAtField: 'Bank_Outcome_At__c', outcomeSourceRecordIdField: 'Bank_Outcome_Source__c',
+      outcomeReasonCodeField: 'Bank_Outcome_Reason__c',
+    },
+  });
+
+  assert.match(requested[0], /sobjects\/Bank_Decision__c\/describe$/);
+  assert.equal(result.check, 'outcome_mapping_verified');
+  assert.equal(result.mappedFieldCount, 10);
+});
+
+test('FSC outcome mapping verification refuses a missing approved field', async () => {
+  const service = createSalesforceFscService({
+    buildTaskRecord: buildSalesforceTaskRecord,
+    fetchImpl: async (url) => url.endsWith('/services/oauth2/token')
+      ? json({ access_token: 'salesforce-access', instance_url: 'https://instance.salesforce.com' })
+      : json({ fields: [{ name: 'Decision_Reference__c' }] }),
+  });
+  await assert.rejects(
+    service.verifyOutcomeMapping({ config }),
+    (error) => error instanceof SalesforceFscError && /missing fields/.test(error.message),
+  );
+});
+
 test('FSC delivery writes a linked Task and a structured Decision Receipt', async () => {
   const writes = [];
   const service = createSalesforceFscService({
