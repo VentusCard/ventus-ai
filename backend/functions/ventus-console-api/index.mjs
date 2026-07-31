@@ -11,8 +11,8 @@ import { createSecretsProvider } from '../../shared/secrets.mjs';
 import { createCoworkerDeliveryService } from '../../shared/coworker-delivery.mjs';
 import {
   createProductSalesforceConnector,
-  ProductSalesforceConnectorError,
 } from '../../shared/product-salesforce-connector.mjs';
+import { testConfiguredConnector } from '../../shared/connector-test-router.mjs';
 
 const { Client } = pg;
 const OPAQUE_ID = /^[A-Za-z0-9][A-Za-z0-9:_-]{1,255}$/;
@@ -157,11 +157,11 @@ function enterpriseControlPlane() {
 }
 
 async function testConnectorConnection({ connector, mapping }) {
-  if (connector === 'salesforce-fsc') return productConnector().testConnection({ mapping });
-  if (connector === 'microsoft-outlook') return coworkerDelivery().testConnection({ channel: 'outlook', mapping });
-  if (connector === 'slack') return coworkerDelivery().testConnection({ channel: 'slack', mapping });
-  throw new ProductSalesforceConnectorError('The selected connector is unsupported.', {
-    code: 'connector_unsupported', terminalFailure: true,
+  return testConfiguredConnector({
+    connector,
+    mapping,
+    testSalesforce: (input) => productConnector().testConnection(input),
+    testCoworker: (input) => coworkerDelivery().testConnection(input),
   });
 }
 
