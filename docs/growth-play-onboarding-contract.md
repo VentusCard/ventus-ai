@@ -68,6 +68,47 @@ sanctioned source, employee workflow destination, and authoritative outcome retu
 institution, identity, evidence, workflow, outcome, and Growth Play gates in that order. It does
 not require cross-business data or a bulk employee rollout.
 
+## First-bank profile: Consumer Deposit Primacy
+
+This is the first onboarding profile Ventus is prepared to run. It is an approval template, not a
+claim that any particular bank has already supplied or certified these values.
+
+| Item | Ventus default | Bank must confirm |
+| --- | --- | --- |
+| Environment | One bounded non-production tenant | Tenant ID, residency, retention, and support boundary |
+| Business line | Consumer Banking | Accountable business owner and eligible queue |
+| Growth Play | `deposit-primacy-defense` | Objective, population, exclusions, and pilot change record |
+| Primary metric | `deposit_retained` in USD | Deposit definition, eligible account types, aggregation, and measurement anchor |
+| Economic source | Deposit ledger or certified deposit-outcome view | System owner, lineage, reconciliation, and certification |
+| Return cadence | Daily batch or approved event feed | Delivery schedule, delay, retry, and reconciliation owner |
+| Outcome event | `deposit_balance_observed` | Event semantics and whether the returned value is posted/settled |
+| Source version | Bank-defined, immutable during pilot | Version ID and change-control policy |
+| Freshness | Maximum seven days from occurrence to observation | Agreed threshold and late-arrival policy |
+| Corrections | Append-only, strictly increasing sequence per source record | Correction authority and replay procedure |
+| Subject linkage | Ventus opaque subject token | Bank-controlled linkage and deletion process |
+| Employee destination | One approved employee workflow, candidate: FSC | Native object, field mapping, owner routing, deep link, and sandbox write permission |
+| CRM evidence | Assignment, acceptance, completion, timing, and reason code | Reconciliation fields and workflow owner |
+| Claims | Sandbox/mechanism evidence only until reviewed | Analysis owner, holdout design, and claim-approval process |
+
+The bank return envelope contains only the opaque subject token, registered metric, value or null,
+event type, source system and record identifiers, source version, occurrence and observation times,
+correction sequence, and optional reason code. It must not contain tenant, experiment, arm, decision,
+protocol, claim status, or direct customer PII. Ventus derives those fields from its persisted
+assignment and decision records.
+
+The profile is ready for a bounded pilot only when all six artifacts exist:
+
+1. Tenant charter and named business, risk, identity, data, workflow, and measurement owners.
+2. Signed role and business-line scope mapping plus access tests.
+3. Allowlisted evidence schema, token-linkage, retention, deletion, consent, and source receipt.
+4. Approved workflow mapping, sandbox write receipt, and reconciliation result.
+5. Frozen authoritative outcome contract with treatment/holdout fixtures and validation report.
+6. Independently approved immutable Growth Play protocol with qualified, suppressed, abstained, and
+   holdout shadow evidence.
+
+No source, destination, or outcome field is considered production-ready merely because the Ventus
+demo or a Salesforce sandbox can display it. A bank owner must approve the mapping and its lineage.
+
 ## Evidence boundary
 
 The repository proves compilation, tamper detection, tenant-isolated approval resolution,
