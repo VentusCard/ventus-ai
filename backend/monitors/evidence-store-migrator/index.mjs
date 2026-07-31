@@ -275,6 +275,7 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   const repo = createDecisionLedgerRepository({ getDB });
   const measurementRepo = createMeasurementRepository({ getDB });
   const protocolRegistry = createGrowthPlayRegistry({ getDB, useControlledWrites: true });
+  const rawProtocolRegistry = createGrowthPlayRegistry({ getDB });
   const protocolAdminRegistry = createGrowthPlayRegistry({ getDB: async () => clientFor(adminCredentials) });
   const tenantId = `aws_verify_${Date.now().toString(36)}`;
   const otherTenantId = `${tenantId}_other`;
@@ -375,17 +376,30 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     businessLine: protocol.business_line,
     at: new Date().toISOString(),
   });
+  const protocolDraft = structuredClone(protocol);
+  delete protocolDraft.decision_protocol_id;
+  delete protocolDraft.protocol_digest;
+  const controlledProtocol = compileGrowthPlayContract({
+    ...protocolDraft,
+    version: '1.0.1',
+    objective: 'Runtime may append a governed protocol through the approved procedure',
+  });
+  const controlledProtocolWrite = await protocolRegistry.register({
+    tenantId,
+    contract: controlledProtocol,
+    registeredBy: 'activation_runtime',
+    registeredBySessionId: 'activation_runtime_session',
+    identityProvider: 'runtime_controlled',
+    registeredAt: new Date().toISOString(),
+  });
   let runtimeProtocolWriteDenied = false;
   try {
-    const protocolDraft = structuredClone(protocol);
-    delete protocolDraft.decision_protocol_id;
-    delete protocolDraft.protocol_digest;
     const unauthorizedProtocol = compileGrowthPlayContract({
       ...protocolDraft,
-      version: '1.0.1',
-      objective: 'Runtime must not authorize a changed operating protocol',
+      version: '1.0.2',
+      objective: 'Runtime must not write a changed operating protocol directly',
     });
-    await protocolRegistry.register({
+    await rawProtocolRegistry.register({
       tenantId,
       contract: unauthorizedProtocol,
       registeredBy: 'activation_runtime',
@@ -528,6 +542,7 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     membershipTenantIsolation: crossTenantVisibleMemberships === 0,
     ownMembershipVisible: ownVisibleMemberships === 1,
     approvedProtocolResolved: protocolApproval.decisionProtocolId === protocol.decision_protocol_id,
+    controlledProtocolWriteSucceeded: Boolean(controlledProtocolWrite.record),
     runtimeProtocolWriteDenied,
     runtimeMembershipWriteDenied,
   };
