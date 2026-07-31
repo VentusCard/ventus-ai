@@ -104,7 +104,8 @@ test('evidence-store migrator verifies connected measurement and separately auth
   assert.match(source, /REVOKE INSERT, UPDATE, DELETE ON[\s\S]*growth_play_protocols,[\s\S]*growth_play_protocol_approval_events[\s\S]*FROM \$\{roleName\}/, 'runtime should not write protocols directly');
   assert.match(source, /GRANT EXECUTE ON FUNCTION[\s\S]*ventus_append_growth_play_protocol/, 'runtime should use controlled protocol append procedures');
   assert.match(source, /protocolTenantIsolation/, 'runtime verification should report cross-tenant protocol isolation');
-  assert.match(source, /useControlledWrites: true/, 'runtime verification should prove controlled protocol procedures remain usable');
+  assert.match(source, /controlledProtocolWriteSucceeded/, 'runtime verification should prove controlled protocol procedures remain usable');
+  assert.match(source, /rawProtocolRegistry = createGrowthPlayRegistry\(\{ getDB \}\)/, 'runtime verification should prove raw protocol writes are denied');
   assert.match(source, /institution_memberships/, 'runtime verification should exercise institution membership isolation');
   assert.match(source, /runtimeMembershipWriteDenied/, 'runtime verification should prove activation cannot provision memberships');
   assert.match(
