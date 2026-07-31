@@ -212,7 +212,11 @@ export function createConsoleApiHandler({
         if (!mapping) throw new ConsoleRequestError('No active Salesforce FSC outcome mapping exists for this institution');
         const decisionRecordId = moment.receipt?.records?.decision?.id;
         if (!decisionRecordId) throw new ConsoleRequestError('This moment has no Salesforce Decision Receipt to reconcile');
-        const outcome = await readSalesforceOutcome({ tenantId: identity.tenantHint, decisionRecordId });
+        const outcome = await readSalesforceOutcome({
+          tenantId: identity.tenantHint,
+          decisionRecordId,
+          mapping,
+        });
         const recorded = await controlPlane.recordFscOutcome({
           tenantId: identity.tenantHint,
           moment,

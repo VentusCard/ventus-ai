@@ -105,7 +105,7 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
       }
       return sanitizeDelivery(result);
     },
-    async readOutcome({ tenantId, decisionRecordId }) {
+    async readOutcome({ tenantId, decisionRecordId, mapping }) {
       if (typeof salesforce.readOutcome !== 'function') {
         throw new ProductSalesforceConnectorError('Salesforce outcome return is not available for this connector.', {
           code: 'salesforce_outcome_return_unavailable', terminalFailure: true,
@@ -119,7 +119,12 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
         );
       }
       try {
-        return await salesforce.readOutcome({ config, decisionRecordId, tenantId });
+        return await salesforce.readOutcome({
+          config,
+          decisionRecordId,
+          tenantId,
+          mapping: mapping?.configuration ?? mapping,
+        });
       } catch (error) {
         if (error?.name === 'SalesforceFscError' && /authentication|token response/i.test(String(error.message))) {
           throw new ProductSalesforceConnectorError(

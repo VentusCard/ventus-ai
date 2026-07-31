@@ -422,7 +422,7 @@ test('Console API resolves FSC outcomes from the Moment-linked Decision Receipt,
     resolveMembership: async () => consumerOperator,
     journey: { async loadMoment() { return linkedMoment; } },
     controlPlane: {
-      async activeConnection() { return { mappingId: 'map_fsc', version: 2, connector: 'salesforce-fsc' }; },
+      async activeConnection() { return { mappingId: 'map_fsc', version: 2, connector: 'salesforce-fsc', configuration: { decisionObject: 'Bank_Decision__c' } }; },
       async recordFscOutcome() { return { observation: { observationId: 'obs_123' }, eligibleForLift: false }; },
     },
     async readSalesforceOutcome(input) {
@@ -438,6 +438,8 @@ test('Console API resolves FSC outcomes from the Moment-linked Decision Receipt,
   assert.equal(result.statusCode, 200);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].decisionRecordId, 'a08_server_linked_only');
+  assert.equal(calls[0].mapping.mappingId, 'map_fsc');
+  assert.equal(calls[0].mapping.configuration.decisionObject, 'Bank_Decision__c');
   assert.equal(body.mapping.mappingId, 'map_fsc');
   assert.equal(body.recorded.observation.observationId, 'obs_123');
 });

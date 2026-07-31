@@ -40,6 +40,37 @@ test('product connector performs a safe authenticated Salesforce health check', 
   assert.match(result.detail, /Authenticated API read succeeded/);
 });
 
+test('product connector passes the approved FSC field mapping only to the server-side outcome reader', async () => {
+  const calls = [];
+  const connector = createProductSalesforceConnector({
+    getSecrets: async () => ({
+      salesforceLoginUrl: 'https://example.my.salesforce.com', salesforceClientId: 'client', salesforceClientSecret: 'secret',
+    }),
+    fscService: {
+      async deliver() { throw new Error('delivery is not part of outcome readback'); },
+      async readOutcome(input) {
+        calls.push(input);
+        return { decisionId: 'dec_123', outcome: { status: 'measuring' } };
+      },
+    },
+  });
+  const mapping = {
+    configuration: {
+      decisionObject: 'Bank_Decision__c',
+      outcomeStatusField: 'Bank_Outcome_Status__c',
+    },
+  };
+
+  await connector.readOutcome({
+    tenantId: 'pilot_bank',
+    decisionRecordId: 'a01000000000001',
+    mapping,
+  });
+
+  assert.equal(calls.length, 1);
+  assert.deepEqual(calls[0].mapping, mapping.configuration);
+});
+
 test('product connector derives the Salesforce payload from the Decision Package only', async () => {
   const calls = [];
   const connector = createProductSalesforceConnector({

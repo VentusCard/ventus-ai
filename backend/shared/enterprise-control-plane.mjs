@@ -552,6 +552,14 @@ function validateMappingConfiguration(connector, value) {
   const serialized = JSON.stringify(value).toLowerCase();
   assert.ok(!/(client[_-]?secret|access[_-]?token|refresh[_-]?token|password|api[_-]?key)/.test(serialized), 'connection mappings must not contain credentials');
   if (connector === 'salesforce-fsc') {
+    for (const field of [
+      'decisionObject', 'decisionReferenceField', 'decisionPackageField', 'humanResponseField',
+      'outcomeStatusField', 'outcomeEventTypeField', 'outcomeMetricField', 'outcomeAmountField',
+      'outcomeOccurredAtField', 'outcomeSourceRecordIdField', 'outcomeReasonCodeField',
+    ]) {
+      if (value[field] === undefined) continue;
+      assert.ok(typeof value[field] === 'string' && /^[A-Za-z][A-Za-z0-9_]{0,119}$/.test(value[field]), `Salesforce ${field} is invalid`);
+    }
     assert.ok(typeof value.decisionObject === 'string' && value.decisionObject.length <= 120, 'Salesforce decision object is required');
     assert.ok(typeof value.outcomeStatusField === 'string' && value.outcomeStatusField.length <= 120, 'Salesforce outcome status field is required');
   }
