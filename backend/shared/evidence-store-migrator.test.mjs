@@ -28,6 +28,7 @@ test('evidence-store migrator validates identifiers and quotes password literals
     'connector-delivery.sql',
     'enterprise-console-journey.sql',
     'enterprise-product-control-plane.sql',
+    'enterprise-skill-governance.sql',
   ]);
 });
 
@@ -115,4 +116,17 @@ test('evidence-store migrator verifies connected measurement and separately auth
     /ON CONFLICT \(tenant_id, email\) DO UPDATE[\s\S]*identity_provider_key = 'cognito'/,
     'legacy email memberships should be migrated to the Cognito provider',
   );
+});
+
+test('Skill governance migration seals status changes behind append-only receipts', () => {
+  const source = readFileSync(
+    new URL('../sql/enterprise-skill-governance.sql', import.meta.url),
+    'utf8',
+  );
+  assert.match(source, /CREATE TABLE IF NOT EXISTS skill_shadow_transition_receipts/);
+  assert.match(source, /CREATE TABLE IF NOT EXISTS skill_shadow_approval_receipts/);
+  assert.match(source, /action IN \('create_draft', 'submit_shadow', 'request_promotion', 'auto_promote', 'pause'\)/);
+  assert.match(source, /UNIQUE \(tenant_id, skill_id, version, revision, phase, approval_type\)/);
+  assert.match(source, /Skill governance receipts are append-only/);
+  assert.match(source, /FORCE ROW LEVEL SECURITY/);
 });

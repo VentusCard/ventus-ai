@@ -58,22 +58,69 @@ calculate eligibility, policy clearance, experiment assignment, or lift.
 
 ## 3. Evidence Boundary
 
-The product must distinguish four states without visual ambiguity:
+Evidence origin, measurement maturity, and claim authority are separate axes.
+No status on one axis may upgrade another.
 
-| State | Meaning | Allowed claim |
+Canonical evidence origins:
+
+| `evidenceClass` | Display label | Meaning | Maximum claim from origin alone |
+| --- | --- | --- | --- |
+| `fixture` | Fixture | Ventus-authored synthetic or test records | Interaction and contract demonstration only |
+| `partner_sandbox` | Partner sandbox | A live external sandbox call using synthetic or test records | Connector and mechanism demonstration |
+| `sanctioned_pilot` | Sanctioned pilot | Institution-approved data and workflow under a signed scope | Operational evidence within that approved scope |
+
+`measured` is not an evidence class. Measurement maturity is recorded
+separately:
+
+| `measurementStatus` | Display label | Meaning |
 | --- | --- | --- |
-| Fixture | Ventus-authored test records | Interaction and contract demonstration only |
-| Partner sandbox | Live call to a partner sandbox with synthetic records | Connector and mechanism demonstration |
-| Sanctioned pilot | Institution-approved data and workflow | Operational evidence, subject to approved scope |
-| Measured | Registered outcome coverage and statistical gates passed | Measured result with method and limitations |
+| `not_started` | Not started | No registered outcomes for the analysis window |
+| `collecting` | Collecting | Outcomes are arriving but the analysis window is open |
+| `insufficient_sample` | Sample building | The pre-registered minimum sample has not been reached |
+| `incomplete_coverage` | Coverage incomplete | Required outcome coverage or treatment/holdout parity has not been reached |
+| `measured` | Measured | The registered method has run on an eligible, complete sample |
+
+Claim authority is recorded independently:
+
+| `claimStatus` | Display label | Permitted language |
+| --- | --- | --- |
+| `not_eligible` | Not eligible | Mechanism or operational facts only |
+| `descriptive` | Descriptive | Observed counts, rates, and differences with method and limitations |
+| `independent_review_required` | Review required | A pre-registered result exists but cannot be presented as an approved business or causal claim |
+| `approved` | Approved claim | Only the language and scope named in an append-only reviewer approval receipt |
+
+A result may be `measured` and still be `not_eligible` for a business claim.
+Causal language additionally requires an approved experiment design and
+analysis; neither a Salesforce completion nor a treatment/holdout difference
+alone proves causality.
+
+An evidence bundle preserves the class of every component. A bundle containing
+a partner-sandbox delivery receipt and fixture outcomes is labeled **Mixed
+evidence** in its manifest and inherits the lowest support required for the
+claim being made. `mixed` is a presentation label, not a row-level
+`evidenceClass`, and evidence is never averaged or upgraded across components.
+
+Existing runtime aliases are normalized at the Decision Package v1.2 boundary:
+
+```text
+synthetic -> fixture
+sandbox   -> partner_sandbox
+sanctioned -> sanctioned_pilot
+```
+
+Legacy adapters may accept the aliases during migration, but new v1.2 packages,
+receipts, API responses, and UI labels use only the canonical values.
 
 Current evidence proves fixture and partner-sandbox operating loops, a live
 Salesforce sandbox write, tenant-scoped identity and persistence primitives, and
 the decision-package boundary. It does not prove production bank integration,
 customer impact, causal lift, bank SSO, SCIM, or certification.
 
-The UI must display the evidence class at the receipt or result level. It should
-not repeat technical disclaimers on every working screen.
+The UI must display evidence origin at the receipt or result level and show
+measurement and claim status where a result is presented. It should not repeat
+technical disclaimers on every working screen. Numeric pilot thresholds,
+including employee response targets, are proposed calibration targets until
+the institution approves a baseline, service window, and pre-registered plan.
 
 ## 4. Product Information Architecture
 
@@ -156,17 +203,98 @@ type EnterpriseAccessProfile = {
 
 Permission summary:
 
-| Capability | Operator | Play owner | Risk | Institution admin | Executive |
-| --- | --- | --- | --- | --- | --- |
-| Read assigned customer moments | Yes | Optional by scope | Audit basis | No by default | No by default |
-| Respond to allowed action | Yes | No by default | No | No | No |
-| Draft a Growth Play version | No | Yes | No | No | No |
-| Register a version | No | Yes | No | No | No |
-| Approve business behavior | No | Separate owner subject if allowed | Yes when policy/model review is required | No | No |
-| Approve connector mapping | No | No | Inspect | Yes | No |
-| View aggregate results | Scoped | Yes | Yes | Health only | Yes |
-| View decision evidence | Assigned only | Aggregate and sampled by policy | Yes | Connector diagnostics only | Aggregate only |
-| Manage membership and SSO | No | No | No | Yes | No |
+| Capability | Operator | Play owner | Risk | Institution admin | Executive | Platform admin |
+| --- | --- | --- | --- | --- | --- | --- |
+| Read customer moments | Assigned only | No by default | Audit sample by policy | No | No | Break-glass only |
+| Respond to allowed action | Yes | No | No | No | No | No |
+| Draft or register a Growth Play version | No | Yes, in scope | No | No | No | No |
+| Approve Growth Play business behavior | No | No | Yes, when independent | No | No | No |
+| Approve connector mapping | No | No | Inspect only | Yes | No | No |
+| View Results | Own queue only | Owned plays | Scoped review | System health only | Scoped aggregate | Tenant health only |
+| View decision evidence | Assigned only | Aggregate or approved sample | Yes, in scope | Connector diagnostics only | Aggregate only | Metadata; break-glass for content |
+| Manage membership and SSO | No | No | No | Yes | No | No |
+| Register or sponsor a Skill candidate | No | Sponsor for owned play | Review only | Route attestation only | No | Register platform candidate |
+| Pause a Skill | No | Request only | Yes, for control failure | Yes, for route or data risk | No | Emergency pause only |
+
+### 5.1.1 Normative role boundaries
+
+Authorization is server-enforced and defaults to deny. Navigation and disabled
+controls are usability aids, not security boundaries. Every response is a
+role-specific projection: endpoint access alone must not expose fields that the
+role is prohibited from seeing.
+
+**`bank_operator`**
+
+- May read moments assigned to the subject's tenant, business-line scope, and
+  queue scope; submit an approved response; and inspect the resulting delivery
+  state.
+- May see only the evidence needed to perform the assigned work and, when
+  entitled, a scoped operational summary of that work.
+- May not draft, register, or approve Growth Plays; configure connectors;
+  inspect governance-wide evidence; manage Skills; or view holdout subjects.
+
+**`growth_play_owner`**
+
+- May draft and register immutable Growth Play versions within the subject's
+  business-line scope, sponsor a Skill candidate for a specific play, and read
+  aggregate capacity and result views for owned plays.
+- May pause a play within registered authority but may not approve the same
+  protocol version, approve connector mappings, promote a Skill alone, or act
+  on customer moments.
+
+**`risk_reviewer`**
+
+- May inspect policy, decision, model, approval, exception, and evidence
+  records; approve or reject a Growth Play protocol when independent from its
+  registrant; approve or reject the quality and policy portion of a Skill
+  transition; and pause a Skill on a critical control failure.
+- May not draft business behavior, configure or activate connectors, act on
+  customer moments, or promote or resume a Skill alone.
+
+**`institution_admin`**
+
+- May manage memberships, identity mappings, connector lifecycle, retention,
+  data routes, destinations, and onboarding readiness for the institution.
+- May attest the environment and data-route portion of a Skill transition.
+- May not draft, register, or approve Growth Play business behavior; approve
+  Skill quality; act on customer moments; or receive business-performance
+  Results beyond connector, identity, and system health.
+
+**`executive_viewer`**
+
+- May read aggregate program status, capacity, measurement maturity, claim
+  status, and approved results within scope.
+- May not read customer-level moments or raw decision evidence and has no write,
+  approval, connector, or Skill-management permission.
+
+**`ventus_platform_admin`**
+
+- May operate infrastructure, migrations, tenant health, and support tooling
+  through separately logged support access; may register a platform-owned Skill
+  candidate and invoke an emergency pause.
+- Has no automatic cross-tenant customer-data access and may not approve an
+  institution's business behavior, connector mapping, Skill promotion or
+  resumption, or customer action. Break-glass access requires a reason,
+  expiration, institution-visible receipt, and post-access review.
+
+### 5.1.2 Separation-of-duties invariants
+
+- A Growth Play registrant cannot approve the same protocol version. Approval
+  records identify distinct authenticated subjects, the immutable protocol
+  digest, decision, reason, timestamp, and version.
+- Connector testing creates a receipt but never activates the connector.
+  Institution-admin approval and a separate activate operation are required.
+- A browser cannot author a Skill status, promotion result, claim status, or
+  approval boolean. The server derives transitions from durable evidence and
+  append-only approval receipts.
+- Skill promotion requires three scoped decisions: business sponsorship from
+  the Growth Play owner, quality and policy approval from the risk reviewer,
+  and environment and data-route approval from the institution administrator.
+- Platform support authority never substitutes for an institution approval.
+- The MVP assigns one canonical role to each active user-and-tenant membership;
+  business-line, queue, and entitlement fields narrow that role. Role unions
+  and inferred composite roles are not supported. A UI label or job profile
+  never grants permission.
 
 ### 5.2 Job profiles
 
@@ -1174,6 +1302,59 @@ or model/provider change pauses the Skill and restores the last approved
 deterministic or model-assisted version. Learning produces a proposed new Skill
 version; it never silently modifies the active version.
 
+### 11.2 Normative Skill lifecycle
+
+The MVP uses five states. A Skill is an immutable, versioned capability bound
+to one tenant, business line, task, and Growth Play context. Promotion is never
+provider-wide or model-wide.
+
+```text
+draft
+  -> shadow
+  -> promotion_review
+  -> promoted
+  -> paused
+```
+
+| State | Runtime effect | Entry requirements | Exit authority |
+| --- | --- | --- | --- |
+| `draft` | None | Typed input/output schema, exact task and context, provider route, model artifact, prompt, fallback, budget, and digest | Owner sponsors; risk and institution admin approve shadow scope |
+| `shadow` | Writes typed predictions and evaluation receipts only; cannot alter ranking, recommendations, assignment, or delivery | Frozen benchmark and baseline receipt; distinct owner sponsorship, risk scope approval, and institution data-route approval | Server derives eligibility for review from registered gates |
+| `promotion_review` | Same as shadow | Offline and sanctioned-shadow gates satisfied; immutable evaluation digest created | Three independent scoped approval receipts |
+| `promoted` | Eligible to be pinned by a new Growth Play protocol; does not change live behavior by itself | Business, risk/model, and environment approvals all bind the same Skill and evaluation digests | A separately approved Growth Play version activates use; a failure or authorized pause stops it |
+| `paused` | No new model-assisted decisions; deterministic approved fallback resumes | Automatic critical gate or drift trigger, risk pause, institution route/data pause, or audited platform emergency pause | No in-place resume in the MVP; create and approve a new Skill version |
+
+The transition API accepts actions, not target states:
+
+```ts
+type SkillTransitionAction =
+  | "submit_shadow"
+  | "request_promotion"
+  | "pause";
+```
+
+Each transition requires the expected version, current Skill digest,
+idempotency key, authenticated actor, reason, and applicable evidence or
+approval receipt identifiers. The server loads and verifies the referenced
+artifacts, derives the next state, appends the transition receipt, and rejects
+stale or repeated writes. `request_promotion` can create
+`promotion_review`; it cannot directly create `promoted`.
+
+Approvals are append-only resources, not fields on the Skill. Revocation or a
+material change creates a new decision record and pauses or supersedes the
+version; it never rewrites history. Provider, model, prompt, schema, threshold,
+fallback, budget, benchmark, data route, or Growth Play changes require a new
+Skill version.
+
+The following remain deterministic and outside the Skill boundary:
+
+- policy and consent enforcement;
+- eligibility and suppression;
+- treatment or holdout assignment;
+- action-catalog validation;
+- connector authorization and idempotency;
+- measurement and claim eligibility.
+
 ## 12. Coworker
 
 Coworker is Ventus's attention and briefing layer. It is not a second decision
@@ -1555,7 +1736,8 @@ The play must not depend on Merrill data or cross-business sharing.
 - Secrets remain server-side.
 - Protocol, approval, assignment, response, delivery, and outcome evidence is
   durable.
-- Sandbox, sanctioned, and measured states are unmistakable.
+- Evidence origin, measurement maturity, and claim authority are unmistakable
+  and use the canonical labels in Section 3.
 
 ### 15.3 Completion evidence
 
@@ -1798,8 +1980,8 @@ The enterprise redesign is coherent only when:
    with durable evidence.
 6. The Merrill configuration reuses the same components and contracts without a
    UI fork or Consumer dependency.
-7. Sandbox, sanctioned, measured, observational, and causal states are
-   accurately labeled.
+7. Evidence origin, measurement maturity, and claim authority are accurately
+   labeled as separate states; causal language is independently gated.
 8. Tenant, role, business-line, connector, secret, and sensitive-data boundaries
    pass server-side tests.
 9. AI is bounded by typed contracts, approved actions, deterministic controls,
@@ -1852,3 +2034,47 @@ Approval states:
   direct evidence.
 - **Accepted for production:** all institution-specific production gates and
   controls have been independently approved.
+
+### 22.1 Acceptance matrix
+
+Every row requires a linked runtime artifact. A unit test or screenshot may
+support a row but cannot replace the authoritative server receipt, database
+record, or partner response when one exists.
+
+| Control area | Conditionally accepted for sandbox | Accepted for sanctioned pilot | Reject when |
+| --- | --- | --- | --- |
+| Identity and session | All six canonical roles can authenticate; expired, invalid, and suspended sessions fail closed | Bank-approved IdP or explicitly approved non-production identity exception; session policy and owner recorded | An unauthenticated, invalid, or suspended subject can access protected data or mutate state |
+| Role projection | Start routes, navigation, fields, and denied operations match Section 5 for every role | Bank role/group mapping and joiner/mover/leaver procedure are approved and tested | Endpoint access exposes prohibited customer, result, governance, or connector fields |
+| Tenant, business-line, and queue isolation | Cross-tenant, cross-line, and unassigned-queue probes are denied server-side | Same probes pass using the bank's mappings and runtime database role | Any customer or administrative data crosses an unauthorized boundary |
+| Growth Play separation of duties | Registrant cannot approve the same immutable version; a real change and approval chronology is retained | Named bank owner and independent reviewer approve the sanctioned protocol | Self-approval, mutable approved fields, or activation without the required approval succeeds |
+| Skill governance | Skill remains draft or shadow; transitions are server-derived and every prediction has a typed receipt | Any model-assisted use is pinned to an approved Skill and separately approved Growth Play version | Browser-authored status or approval succeeds; a shadow Skill changes action, assignment, or delivery; fail-open behavior occurs |
+| Source and provenance | Fixture and partner-sandbox inputs retain correct evidence labels and source receipts | Sanctioned source contract, allowed fields, freshness, retention, and correction handling are approved | Evidence origin is missing, upgraded, mislabeled, or cannot be traced to the decision |
+| Assignment and holdout | Assignment precedes decisioning; holdout bypasses operator and destination surfaces | Unit, salt custody, holdout rate, exclusions, and sample plan are pre-registered | A holdout subject is surfaced, acted on, or delivered |
+| Operator response | Allowed responses validate server-side and create immutable receipts | Bank-approved action catalog, reason codes, capacity, and service window are configured | An unapproved action, mutation, or destination can be selected or submitted |
+| Delivery and reconciliation | One real partner-sandbox delivery returns a durable receipt; retries remain idempotent; ambiguous failures reconcile | Approved bank workflow mapping, owner, deep-link policy, and correction path are verified | Duplicate records are created, a false success is shown, or an ambiguous delivery cannot be reconciled |
+| Outcome return | Outcomes for treatment and holdout can be ingested, corrected, and joined without altering history | Authoritative source, explicit-zero rule, timing, parity, corrections, and reconciliation owner are approved | Missing-arm bias is hidden, corrections overwrite history, or an outcome cannot be traced to assignment |
+| Results and claims | Counts and mechanism status reconcile; fixture or sandbox results remain non-business claims | Coverage, sample, integrity, method, and reviewer gates produce the exact claim status in Section 3 | A claim exceeds its evidence class, measurement maturity, approved wording, or scope |
+| Decision Package consistency | The same digest and bounded fields appear in Ventus, FSC, and enabled Coworker surfaces | Bank-approved field and redaction mappings preserve that identity across live pilot surfaces | Surfaces disagree about subject, action, evidence, policy, assignment, or protocol version |
+| RLS and secrets | Runtime role cannot bypass forced RLS; secret values never reach browser, logs, receipts, or model prompts | Bank tenant, runtime roles, key ownership, rotation, and support-access controls are verified | RLS bypass, plaintext secret exposure, or unauthorized cross-tenant support access is possible |
+| Merrill and institutional reuse | Merrill configuration uses the same contracts without a UI fork, Consumer dependency, or BofA-coded runtime logic | A second approved configuration maps its own source, action, outcome, and policy contracts | Business-line behavior requires a product fork or silently relies on another line's data |
+| UX, resilience, and accessibility | Role journeys, empty/error states, responsive layouts, and presenter regression pass; failures are honest and recoverable | Bank service levels, observability, incident path, accessibility target, and support owner are approved | The UI implies success after failure, hides a blocked control, leaks technical internals, or prevents the assigned job |
+
+### 22.2 Decision rules
+
+- A single rejection condition in security, tenant isolation, policy,
+  separation of duties, evidence integrity, holdout integrity, or claims makes
+  the overall decision **Rejected**.
+- **Conditionally accepted for sandbox** requires every sandbox cell above to
+  pass. Fixture outcomes are permitted only when labeled at the artifact and
+  bundle level; they cannot support a business-value claim.
+- **Accepted for pilot** requires every sanctioned-pilot cell to pass, a
+  complete Section 15.3 evidence bundle, and the six onboarding gates in
+  Section 14.7 to be approved by their named owners.
+- **Accepted for production** additionally requires institution-specific
+  procurement, security, resilience, support, data-residency, identity,
+  monitoring, and incident controls. Sandbox or pilot acceptance never implies
+  production readiness.
+- Employee response rate, minimum sample, coverage, confidence, and latency
+  thresholds are accepted only when pre-registered for the institution. The
+  current 70 percent response rate is a proposed calibration target, not a
+  universal product gate.

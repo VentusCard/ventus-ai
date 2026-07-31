@@ -86,21 +86,77 @@ export function authorizeGrowthPlayRead(membership) {
 }
 
 export function authorizeGrowthPlayWrite(membership) {
-  return authorizeConsoleRoles(membership, ['growth_play_owner', 'institution_admin', 'ventus_platform_admin']);
+  return authorizeConsoleRoles(membership, ['growth_play_owner']);
 }
 
 export function authorizeGrowthPlayApproval(membership) {
-  return authorizeConsoleRoles(membership, ['risk_reviewer', 'ventus_platform_admin']);
+  return authorizeConsoleRoles(membership, ['risk_reviewer']);
 }
 
 export function authorizeResultsRead(membership) {
-  return authorizeConsoleRoles(membership, [
+  const base = authorizeConsoleRoles(membership, [
     'bank_operator', 'growth_play_owner', 'risk_reviewer', 'executive_viewer', 'institution_admin', 'ventus_platform_admin',
   ]);
+  if (!base.allowed) return base;
+  const projectionByRole = {
+    bank_operator: 'assigned_results',
+    growth_play_owner: 'owned_play_results',
+    risk_reviewer: 'review_results',
+    executive_viewer: 'executive_aggregate',
+    institution_admin: 'system_health',
+    ventus_platform_admin: 'tenant_health',
+  };
+  return { ...base, projection: projectionByRole[canonicalConsoleRole(membership.role)] };
 }
 
 export function authorizeGovernanceRead(membership) {
-  return authorizeConsoleRoles(membership, ['risk_reviewer', 'institution_admin', 'ventus_platform_admin']);
+  const base = authorizeConsoleRoles(membership, ['risk_reviewer', 'institution_admin', 'ventus_platform_admin']);
+  if (!base.allowed) return base;
+  const projectionByRole = {
+    risk_reviewer: 'full_governance',
+    institution_admin: 'connector_health',
+    ventus_platform_admin: 'platform_health',
+  };
+  return { ...base, projection: projectionByRole[canonicalConsoleRole(membership.role)] };
+}
+
+export function authorizeSkillDraft(membership) {
+  return authorizeConsoleRoles(membership, ['growth_play_owner']);
+}
+
+export function authorizeSkillRead(membership) {
+  return authorizeConsoleRoles(membership, ['growth_play_owner', 'risk_reviewer', 'ventus_platform_admin']);
+}
+
+export function authorizeSkillTransition(membership, action) {
+  const role = canonicalConsoleRole(membership?.role);
+  const allowed = action === 'submit_shadow'
+    ? role === 'growth_play_owner'
+    : action === 'request_promotion'
+      ? role === 'risk_reviewer'
+      : action === 'pause'
+        ? ['risk_reviewer', 'institution_admin', 'ventus_platform_admin'].includes(role)
+        : false;
+  const base = authorizeConsoleRoles(membership, CANONICAL_CONSOLE_ROLES);
+  return base.allowed && allowed
+    ? { ...base, projection: role }
+    : { allowed: false, reason: base.allowed ? 'role_not_authorized' : base.reason };
+}
+
+export function authorizeSkillApproval(membership, phase, approvalType) {
+  const role = canonicalConsoleRole(membership?.role);
+  const expectedRole = approvalType === 'business_sponsorship'
+    ? 'growth_play_owner'
+    : approvalType === 'risk_review'
+      ? 'risk_reviewer'
+      : approvalType === 'environment_route'
+        ? 'institution_admin'
+        : null;
+  const validPhase = ['shadow_scope', 'promotion'].includes(phase);
+  const base = authorizeConsoleRoles(membership, CANONICAL_CONSOLE_ROLES);
+  return base.allowed && validPhase && role === expectedRole
+    ? { ...base, projection: role }
+    : { allowed: false, reason: base.allowed ? 'role_not_authorized' : base.reason };
 }
 
 export function authorizeConnectionsRead(membership) {

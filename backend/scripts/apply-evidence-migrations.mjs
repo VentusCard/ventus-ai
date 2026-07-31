@@ -31,6 +31,7 @@ const MIGRATIONS = [
   'connector-delivery.sql',
   'enterprise-console-journey.sql',
   'enterprise-product-control-plane.sql',
+  'enterprise-skill-governance.sql',
 ];
 
 async function main() {

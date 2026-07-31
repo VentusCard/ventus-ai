@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { compileGrowthPlayContract } from './growth-play-contract.mjs';
 import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
@@ -358,11 +358,15 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
     async listSkillShadows({ tenantId }) {
       return queryTenant(getDB, tenantId, async (db) => {
         const result = await db.query(
-          `SELECT skill_id, version, status, benchmark, updated_by, updated_at
-             FROM skill_shadow_registry WHERE tenant_id = $1
+          `SELECT s.skill_id, s.version, s.status, s.benchmark, s.revision, s.skill_digest, s.updated_by, s.updated_at,
+                  (SELECT count(*)::int FROM skill_shadow_transition_receipts t
+                    WHERE t.tenant_id = s.tenant_id AND t.skill_id = s.skill_id AND t.version = s.version) AS transition_count,
+                  (SELECT count(*)::int FROM skill_shadow_approval_receipts a
+                    WHERE a.tenant_id = s.tenant_id AND a.skill_id = s.skill_id AND a.version = s.version) AS approval_count
+             FROM skill_shadow_registry s WHERE s.tenant_id = $1
              ORDER BY updated_at DESC LIMIT 50`, [tenantId],
         );
-        return { skills: result.rows.map((row) => ({ skillId: row.skill_id, version: row.version, status: row.status, benchmark: row.benchmark, updatedBy: row.updated_by, updatedAt: row.updated_at })) };
+        return { skills: result.rows.map(projectSkill) };
       });
     },
 
@@ -387,30 +391,106 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
       });
     },
 
-    async saveSkillShadow({ tenantId, skillId, version, status, benchmark, actorId }) {
+    async createSkillDraft({ tenantId, skillId, version, benchmark, actorId }) {
       validateTenantId(tenantId);
       assertIdentifier(skillId, 'skillId');
       assert.ok(typeof version === 'string' && version.length > 0 && version.length <= 80, 'skill version is invalid');
-      assert.ok(['draft', 'shadow', 'promotion_review', 'promoted', 'paused'].includes(status), 'skill status is invalid');
       assertIdentifier(actorId, 'actorId');
-      assertJson(benchmark, 'skill benchmark');
-      if (status === 'promoted') assert.equal(benchmark?.approval?.approved, true, 'promoted Skills require an independent approval receipt');
+      validateSkillBenchmark(benchmark);
+      const digest = skillDigest({ skillId, version, benchmark });
       return queryTenant(getDB, tenantId, async (db) => {
         const result = await db.query(
-          `INSERT INTO skill_shadow_registry (tenant_id, skill_id, version, status, benchmark, updated_by, updated_at)
-           VALUES ($1,$2,$3,$4,$5,$6,now())
-           ON CONFLICT (tenant_id, skill_id, version) DO UPDATE
-             SET status = EXCLUDED.status, benchmark = EXCLUDED.benchmark, updated_by = EXCLUDED.updated_by, updated_at = now()
-           RETURNING skill_id, version, status, benchmark, updated_by, updated_at`,
-          [tenantId, skillId, version, status, benchmark, actorId],
+          `INSERT INTO skill_shadow_registry
+             (tenant_id, skill_id, version, status, benchmark, revision, skill_digest, updated_by, updated_at)
+           VALUES ($1,$2,$3,'draft',$4,1,$5,$6,now())
+           ON CONFLICT (tenant_id, skill_id, version) DO NOTHING
+           RETURNING skill_id, version, status, benchmark, revision, skill_digest, updated_by, updated_at`,
+          [tenantId, skillId, version, benchmark, digest, actorId],
         );
-        const row = result.rows[0];
-        return { skillId: row.skill_id, version: row.version, status: row.status, benchmark: row.benchmark, updatedBy: row.updated_by, updatedAt: row.updated_at };
+        assert.equal(result.rows.length, 1, 'Skill version already exists; create a new immutable version');
+        const skill = projectSkill(result.rows[0]);
+        const receipt = await insertSkillTransitionReceipt(db, {
+          tenantId, skill, action: 'create_draft', fromStatus: null, toStatus: 'draft', actorId,
+          reason: 'Registered immutable Skill candidate.',
+        });
+        return { skill, receipt };
       });
     },
 
-    async results({ tenantId }) {
+    async recordSkillApproval({ tenantId, skillId, version, expectedRevision, phase, approvalType, decision, actorId, reason }) {
+      validateTenantId(tenantId);
+      assertIdentifier(skillId, 'skillId');
+      assert.ok(typeof version === 'string' && version.length > 0 && version.length <= 80, 'skill version is invalid');
+      assert.ok(Number.isInteger(expectedRevision) && expectedRevision > 0, 'expected Skill revision is invalid');
+      assert.ok(['shadow_scope', 'promotion'].includes(phase), 'Skill approval phase is invalid');
+      assert.ok(['business_sponsorship', 'risk_review', 'environment_route'].includes(approvalType), 'Skill approval type is invalid');
+      assert.ok(['approved', 'rejected'].includes(decision), 'Skill approval decision is invalid');
+      assertIdentifier(actorId, 'actorId');
+      assertReason(reason);
       return queryTenant(getDB, tenantId, async (db) => {
+        const skill = await loadSkillForUpdate(db, { tenantId, skillId, version, expectedRevision });
+        assert.equal(skill.status, phase === 'shadow_scope' ? 'draft' : 'promotion_review', 'Skill is not in the required approval state');
+        const existing = await db.query(
+          `SELECT 1 FROM skill_shadow_approval_receipts
+            WHERE tenant_id = $1 AND skill_id = $2 AND version = $3 AND revision = $4
+              AND phase = $5 AND approval_type = $6`,
+          [tenantId, skillId, version, skill.revision, phase, approvalType],
+        );
+        assert.equal(existing.rows.length, 0, 'Skill approval type is already recorded for this revision');
+        const approval = await insertSkillApprovalReceipt(db, {
+          tenantId, skill, phase, approvalType, decision, actorId, reason,
+        });
+        if (phase === 'promotion' && decision === 'approved' && await hasCompleteSkillApprovalSet(db, { tenantId, skill })) {
+          const promoted = await transitionSkillRecord(db, {
+            tenantId, skill, action: 'auto_promote', toStatus: 'promoted', actorId,
+            reason: 'All independent promotion approvals are recorded.',
+          });
+          return { approval, skill: promoted.skill, transition: promoted.receipt };
+        }
+        return { approval, skill, transition: null };
+      });
+    },
+
+    async transitionSkill({ tenantId, skillId, version, expectedRevision, action, actorId, reason }) {
+      validateTenantId(tenantId);
+      assertIdentifier(skillId, 'skillId');
+      assert.ok(typeof version === 'string' && version.length > 0 && version.length <= 80, 'skill version is invalid');
+      assert.ok(Number.isInteger(expectedRevision) && expectedRevision > 0, 'expected Skill revision is invalid');
+      assert.ok(['submit_shadow', 'request_promotion', 'pause'].includes(action), 'Skill transition is invalid');
+      assertIdentifier(actorId, 'actorId');
+      assertReason(reason);
+      return queryTenant(getDB, tenantId, async (db) => {
+        const skill = await loadSkillForUpdate(db, { tenantId, skillId, version, expectedRevision });
+        if (action === 'submit_shadow') {
+          assert.equal(skill.status, 'draft', 'Only draft Skills can enter shadow');
+          assert.ok(hasFrozenBenchmark(skill.benchmark), 'Skill shadow requires a frozen benchmark and baseline receipt');
+          assert.ok(await hasCompleteSkillApprovalSet(db, { tenantId, skill, phase: 'shadow_scope' }), 'Skill shadow requires business, risk, and environment approvals');
+          return transitionSkillRecord(db, { tenantId, skill, action, toStatus: 'shadow', actorId, reason });
+        }
+        if (action === 'request_promotion') {
+          assert.equal(skill.status, 'shadow', 'Only shadow Skills can request promotion review');
+          assert.ok(hasPromotionEvaluation(skill.benchmark), 'Skill promotion review requires registered sanctioned-shadow evaluation evidence');
+          return transitionSkillRecord(db, { tenantId, skill, action, toStatus: 'promotion_review', actorId, reason });
+        }
+        assert.notEqual(skill.status, 'paused', 'Skill is already paused');
+        return transitionSkillRecord(db, { tenantId, skill, action, toStatus: 'paused', actorId, reason });
+      });
+    },
+
+    async results({ tenantId, projection = 'review_results', actorId = null, businessLineScopes = [] }) {
+      assert.ok(['assigned_results', 'owned_play_results', 'review_results', 'executive_aggregate', 'system_health', 'tenant_health'].includes(projection), 'results projection is invalid');
+      return queryTenant(getDB, tenantId, async (db) => {
+        const resultParams = [tenantId];
+        const resultWhere = ['a.tenant_id = $1'];
+        if (['assigned_results', 'owned_play_results', 'review_results', 'executive_aggregate'].includes(projection) && businessLineScopes.length > 0) {
+          resultParams.push(businessLineScopes);
+          resultWhere.push(`p.business_line = ANY($${resultParams.length}::text[])`);
+        }
+        if (projection === 'owned_play_results') {
+          assertIdentifier(actorId, 'Results owner');
+          resultParams.push(actorId);
+          resultWhere.push(`p.registered_by = $${resultParams.length}`);
+        }
         const result = await db.query(
           `WITH ranked_outcomes AS (
              SELECT o.*,
@@ -423,7 +503,7 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
                FROM outcome_events o
               WHERE o.tenant_id = $1
            )
-           SELECT a.experiment_id, a.evidence_class, a.decision_protocol_id,
+           SELECT a.experiment_id, a.evidence_class, a.decision_protocol_id, p.business_line,
                   COALESCE((p.contract->'measurement'->>'minimum_per_arm')::int, 30) AS minimum_per_arm,
                   COALESCE((p.contract->'measurement'->>'minimum_coverage')::numeric, 0.9) AS minimum_coverage,
                   count(*) FILTER (WHERE a.arm = 'treatment')::int AS treatment_assigned,
@@ -460,11 +540,11 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
                ON ro.tenant_id = a.tenant_id
               AND ro.experiment_id = a.experiment_id
               AND ro.household_token = a.household_token
-            WHERE a.tenant_id = $1
-            GROUP BY a.experiment_id, a.evidence_class, a.decision_protocol_id, p.contract
+            WHERE ${resultWhere.join(' AND ')}
+            GROUP BY a.experiment_id, a.evidence_class, a.decision_protocol_id, p.business_line, p.contract
             ORDER BY max(a.assigned_at) DESC
             LIMIT 50`,
-          [tenantId],
+          resultParams,
         );
         const [deliveries, observations] = await Promise.all([
           db.query(
@@ -482,14 +562,14 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
             [tenantId],
           ),
         ]);
-        return {
-          experiments: result.rows.map((row) => {
+        const experiments = result.rows.map((row) => {
             const readiness = projectMeasurementReadiness(row);
             return {
             ...readiness,
             experimentId: row.experiment_id,
             evidenceClass: row.evidence_class,
             decisionProtocolId: row.decision_protocol_id,
+            businessLine: row.business_line,
             treatmentAssigned: Number(row.treatment_assigned),
             holdoutAssigned: Number(row.holdout_assigned),
             outcomesObserved: Number(row.treatment_outcomes_observed) + Number(row.holdout_outcomes_observed),
@@ -499,18 +579,33 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
             intentToTreatLift: readiness.ready && row.treatment_mean !== null && row.holdout_mean !== null
               ? Number(row.treatment_mean) - Number(row.holdout_mean) : null,
             };
-          }),
-          deliveries: Object.fromEntries(deliveries.rows.map((row) => [row.status, Number(row.count)])),
+          });
+        const deliveriesByStatus = Object.fromEntries(deliveries.rows.map((row) => [row.status, Number(row.count)]));
+        const observationReconciliation = Object.fromEntries(observations.rows.map((row) => [row.status, {
+          count: Number(row.count), lastSyncedAt: row.last_synced_at,
+        }]));
+        const health = {
+          deliveries: deliveriesByStatus,
           outcomeObservations: observations.rows.reduce((sum, row) => sum + Number(row.count), 0),
-          observationReconciliation: Object.fromEntries(observations.rows.map((row) => [row.status, {
-            count: Number(row.count), lastSyncedAt: row.last_synced_at,
-          }])),
+          observationReconciliation,
+        };
+        if (['system_health', 'tenant_health'].includes(projection)) {
+          return { experiments: [], ...health, projection, serverAuthoritative: true };
+        }
+        const safeExperiments = projection === 'executive_aggregate'
+          ? experiments.map(({ decisionProtocolId, ...experiment }) => experiment)
+          : experiments;
+        return {
+          experiments: safeExperiments,
+          ...health,
+          projection,
           serverAuthoritative: true,
         };
       });
     },
 
-    async governance({ tenantId }) {
+    async governance({ tenantId, projection = 'full_governance', businessLineScopes = [] }) {
+      assert.ok(['full_governance', 'connector_health', 'platform_health'].includes(projection), 'governance projection is invalid');
       return queryTenant(getDB, tenantId, async (db) => {
         const [protocols, events, mappings, observations, skills, deliveries] = await Promise.all([
           db.query(
@@ -544,8 +639,26 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
             [tenantId],
           ),
         ]);
+        const connections = mappings.rows.map((row) => ({ connector: row.connector, status: row.status, updatedAt: row.updated_at }));
+        const outcomeReconciliation = Object.fromEntries(observations.rows.map((row) => [row.status, Number(row.count)]));
+        const deliveryReconciliation = Object.fromEntries(deliveries.rows.map((row) => [row.status, {
+          count: Number(row.count), lastCompletedAt: row.last_completed_at,
+        }]));
+        const exceptions = deliveries.rows
+          .filter((row) => row.status !== 'delivered')
+          .map((row) => ({ type: `delivery_${row.status}`, count: Number(row.count), lastOccurredAt: row.last_completed_at }));
+        if (projection !== 'full_governance') {
+          return {
+            protocols: [], recentEvents: [], skills: [], connections,
+            outcomeReconciliation, deliveryReconciliation, exceptions,
+            projection, serverAuthoritative: true,
+          };
+        }
+        const scopedProtocols = protocols.rows
+          .filter((row) => businessLineScopes.length === 0 || businessLineScopes.includes(row.business_line))
+          .map(projectProtocol);
         return {
-          protocols: protocols.rows.map(projectProtocol),
+          protocols: scopedProtocols,
           recentEvents: events.rows.map((row) => ({
             type: row.event_type,
             occurredAt: row.occurred_at,
@@ -556,15 +669,12 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
               ? row.payload.decision_package_v12.decisionMethod.skillVersions.join(', ')
               : null,
           })),
-          connections: mappings.rows.map((row) => ({ connector: row.connector, status: row.status, updatedAt: row.updated_at })),
-          outcomeReconciliation: Object.fromEntries(observations.rows.map((row) => [row.status, Number(row.count)])),
-          deliveryReconciliation: Object.fromEntries(deliveries.rows.map((row) => [row.status, {
-            count: Number(row.count), lastCompletedAt: row.last_completed_at,
-          }])),
-          exceptions: deliveries.rows
-            .filter((row) => row.status !== 'delivered')
-            .map((row) => ({ type: `delivery_${row.status}`, count: Number(row.count), lastOccurredAt: row.last_completed_at })),
+          connections,
+          outcomeReconciliation,
+          deliveryReconciliation,
+          exceptions,
           skills: skills.rows.map((row) => ({ skillId: row.skill_id, version: row.version, status: row.status, updatedAt: row.updated_at })),
+          projection,
           serverAuthoritative: true,
         };
       });
@@ -824,6 +934,140 @@ function projectMapping(row) {
     updatedAt: row.updated_at,
     lastTestedAt: row.last_tested_at,
     lastTestStatus: row.last_test_status,
+  };
+}
+
+function projectSkill(row) {
+  return {
+    skillId: row.skill_id,
+    version: row.version,
+    status: row.status,
+    benchmark: row.benchmark,
+    revision: Number(row.revision || 1),
+    skillDigest: row.skill_digest,
+    transitionCount: Number(row.transition_count || 0),
+    approvalCount: Number(row.approval_count || 0),
+    updatedBy: row.updated_by,
+    updatedAt: row.updated_at,
+  };
+}
+
+function validateSkillBenchmark(value) {
+  assert.ok(value && typeof value === 'object' && !Array.isArray(value), 'Skill benchmark is required');
+  assertJson(value, 'Skill benchmark');
+  const serialized = JSON.stringify(value).toLowerCase();
+  assert.ok(!/(client[_-]?secret|access[_-]?token|refresh[_-]?token|password|api[_-]?key)/.test(serialized), 'Skill benchmark must not contain credentials');
+}
+
+function skillDigest({ skillId, version, benchmark }) {
+  return createHash('sha256')
+    .update(stableJson({ skillId, version, benchmark }))
+    .digest('hex');
+}
+
+function stableJson(value) {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
+  if (!value || typeof value !== 'object') return JSON.stringify(value);
+  return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(',')}}`;
+}
+
+function assertReason(value) {
+  assert.ok(typeof value === 'string' && value.trim().length >= 8 && value.trim().length <= 500, 'Skill transition reason is invalid');
+}
+
+function hasFrozenBenchmark(benchmark) {
+  return benchmark?.benchmarkFrozen === true
+    && typeof benchmark?.baselineReceiptId === 'string'
+    && /^[A-Za-z0-9][A-Za-z0-9_.:@-]{2,255}$/.test(benchmark.baselineReceiptId);
+}
+
+function hasPromotionEvaluation(benchmark) {
+  return hasFrozenBenchmark(benchmark)
+    && typeof benchmark?.sanctionedShadowReceiptId === 'string'
+    && /^[A-Za-z0-9][A-Za-z0-9_.:@-]{2,255}$/.test(benchmark.sanctionedShadowReceiptId)
+    && typeof benchmark?.evaluationDigest === 'string'
+    && /^[a-f0-9]{64}$/.test(benchmark.evaluationDigest)
+    && benchmark?.criticalFailures === 0
+    && benchmark?.withinBudget === true;
+}
+
+async function loadSkillForUpdate(db, { tenantId, skillId, version, expectedRevision }) {
+  const result = await db.query(
+    `SELECT skill_id, version, status, benchmark, revision, skill_digest, updated_by, updated_at
+       FROM skill_shadow_registry
+      WHERE tenant_id = $1 AND skill_id = $2 AND version = $3
+      FOR UPDATE`,
+    [tenantId, skillId, version],
+  );
+  assert.equal(result.rows.length, 1, 'Skill version was not found');
+  const skill = projectSkill(result.rows[0]);
+  assert.equal(skill.revision, expectedRevision, 'Skill changed; refresh before continuing');
+  assert.ok(/^[a-f0-9]{64}$/.test(skill.skillDigest), 'Skill digest is invalid');
+  return skill;
+}
+
+async function hasCompleteSkillApprovalSet(db, { tenantId, skill, phase = 'promotion' }) {
+  const result = await db.query(
+    `SELECT approval_type, decided_by
+       FROM skill_shadow_approval_receipts
+      WHERE tenant_id = $1 AND skill_id = $2 AND version = $3 AND revision = $4
+        AND phase = $5 AND decision = 'approved'`,
+    [tenantId, skill.skillId, skill.version, skill.revision, phase],
+  );
+  const required = new Set(['business_sponsorship', 'risk_review', 'environment_route']);
+  const types = new Set(result.rows.map((row) => row.approval_type));
+  const approvers = new Set(result.rows.map((row) => row.decided_by));
+  return required.size === types.size && [...required].every((type) => types.has(type)) && approvers.size === required.size;
+}
+
+async function transitionSkillRecord(db, { tenantId, skill, action, toStatus, actorId, reason }) {
+  const nextRevision = skill.revision + 1;
+  const updated = await db.query(
+    `UPDATE skill_shadow_registry
+        SET status = $5, revision = $6, updated_by = $7, updated_at = now()
+      WHERE tenant_id = $1 AND skill_id = $2 AND version = $3 AND revision = $4
+      RETURNING skill_id, version, status, benchmark, revision, skill_digest, updated_by, updated_at`,
+    [tenantId, skill.skillId, skill.version, skill.revision, toStatus, nextRevision, actorId],
+  );
+  assert.equal(updated.rows.length, 1, 'Skill changed; refresh before continuing');
+  const nextSkill = projectSkill(updated.rows[0]);
+  const receipt = await insertSkillTransitionReceipt(db, {
+    tenantId, skill: nextSkill, action, fromStatus: skill.status, toStatus, actorId, reason,
+  });
+  return { skill: nextSkill, receipt };
+}
+
+async function insertSkillTransitionReceipt(db, { tenantId, skill, action, fromStatus, toStatus, actorId, reason }) {
+  const transitionId = `str_${randomUUID().replaceAll('-', '')}`;
+  const result = await db.query(
+    `INSERT INTO skill_shadow_transition_receipts
+       (tenant_id, transition_id, skill_id, version, revision, action, from_status, to_status, skill_digest, actor_id, reason, occurred_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now())
+     RETURNING transition_id, action, from_status, to_status, skill_digest, actor_id, reason, occurred_at`,
+    [tenantId, transitionId, skill.skillId, skill.version, skill.revision, action, fromStatus, toStatus, skill.skillDigest, actorId, reason],
+  );
+  const row = result.rows[0];
+  return {
+    transitionId: row.transition_id, action: row.action, fromStatus: row.from_status,
+    toStatus: row.to_status, skillDigest: row.skill_digest, actorId: row.actor_id,
+    reason: row.reason, occurredAt: row.occurred_at,
+  };
+}
+
+async function insertSkillApprovalReceipt(db, { tenantId, skill, phase, approvalType, decision, actorId, reason }) {
+  const approvalId = `sar_${randomUUID().replaceAll('-', '')}`;
+  const result = await db.query(
+    `INSERT INTO skill_shadow_approval_receipts
+       (tenant_id, approval_id, skill_id, version, revision, phase, approval_type, decision, skill_digest, decided_by, reason, decided_at)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,now())
+     RETURNING approval_id, phase, approval_type, decision, skill_digest, decided_by, reason, decided_at`,
+    [tenantId, approvalId, skill.skillId, skill.version, skill.revision, phase, approvalType, decision, skill.skillDigest, actorId, reason],
+  );
+  const row = result.rows[0];
+  return {
+    approvalId: row.approval_id, phase: row.phase, approvalType: row.approval_type,
+    decision: row.decision, skillDigest: row.skill_digest, decidedBy: row.decided_by,
+    reason: row.reason, decidedAt: row.decided_at,
   };
 }
 

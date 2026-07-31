@@ -426,6 +426,87 @@ test('Console API exposes results and governed projections only through server a
   assert.equal(governance.statusCode, 403);
 });
 
+test('Console API gives institution administrators health-only Results and Governance projections', async () => {
+  const calls = [];
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'institution_admin', entitlements: ['growth_console'], businessLines: ['consumer-banking'] }),
+    controlPlane: {
+      async results(input) { calls.push({ type: 'results', input }); return { experiments: [], deliveries: { delivered: 2 }, outcomeObservations: 1 }; },
+      async governance(input) { calls.push({ type: 'governance', input }); return { protocols: [], recentEvents: [], connections: [{ connector: 'salesforce-fsc', status: 'active' }] }; },
+    },
+  });
+  assert.equal((await handler(request('https://dev.example.com', { httpMethod: 'GET', path: '/staging/v1/console/results', body: undefined }))).statusCode, 200);
+  assert.equal((await handler(request('https://dev.example.com', { httpMethod: 'GET', path: '/staging/v1/console/governance', body: undefined }))).statusCode, 200);
+  assert.deepEqual(calls.map(({ type, input }) => [type, input.projection, input.actorId]), [
+    ['results', 'system_health', identity.subject],
+    ['governance', 'connector_health', undefined],
+  ]);
+});
+
+test('Console API prevents institution and platform administrators from authoring or approving Growth Plays', async () => {
+  const calls = [];
+  for (const role of ['institution_admin', 'ventus_platform_admin']) {
+    const handler = createConsoleApiHandler({
+      verifyIdentity: async () => identity,
+      resolveMembership: async () => ({ ...membership, role, entitlements: ['growth_console'], businessLines: ['consumer-banking'] }),
+      controlPlane: { async saveDraft(input) { calls.push(input); return input; } },
+      growthPlayRegistry: { async recordApproval(input) { calls.push(input); return { record: input }; } },
+    });
+    const draft = await handler(request('https://dev.example.com', {
+      path: '/staging/v1/console/growth-plays/drafts', body: JSON.stringify({ draftId: 'gp_123', expectedVersion: 0, contract: {} }),
+    }));
+    const approval = await handler(request('https://dev.example.com', {
+      path: '/staging/v1/console/growth-plays/protocols/dcp_123/approvals',
+      body: JSON.stringify({ businessLine: 'consumer-banking', decision: 'approved', changeRecordId: 'change_123', reason: 'Not authorized.' }),
+    }));
+    assert.equal(draft.statusCode, 403);
+    assert.equal(approval.statusCode, 403);
+  }
+  assert.equal(calls.length, 0);
+});
+
+test('Console API uses server-derived Skill transitions with immutable approval receipts', async () => {
+  const calls = [];
+  const ownerHandler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'growth_play_owner', entitlements: ['growth_console'], businessLines: ['consumer-banking'] }),
+    controlPlane: {
+      async createSkillDraft(input) { calls.push({ type: 'draft', input }); return { skill: { status: 'draft' }, receipt: { transitionId: 'str_1' } }; },
+      async transitionSkill(input) { calls.push({ type: 'transition', input }); return { skill: { status: 'shadow' }, receipt: { transitionId: 'str_2' } }; },
+    },
+  });
+  const draft = await ownerHandler(request('https://dev.example.com', {
+    path: '/staging/v1/console/skills/shadows',
+    body: JSON.stringify({ skillId: 'enrichment-routing', version: '0.1.0', benchmark: { evaluation: 'pending' } }),
+  }));
+  const transition = await ownerHandler(request('https://dev.example.com', {
+    path: '/staging/v1/console/skills/shadows/enrichment-routing/0.1.0/transitions',
+    body: JSON.stringify({ expectedRevision: 1, action: 'submit_shadow', reason: 'Ready for shadow evaluation.' }),
+  }));
+  const rejectedMutableStatus = await ownerHandler(request('https://dev.example.com', {
+    path: '/staging/v1/console/skills/shadows',
+    body: JSON.stringify({ skillId: 'other-skill', version: '0.1.0', status: 'promoted', benchmark: {} }),
+  }));
+  assert.equal(draft.statusCode, 201);
+  assert.equal(transition.statusCode, 201);
+  assert.equal(rejectedMutableStatus.statusCode, 400);
+  assert.equal(calls[0].input.status, undefined);
+  assert.equal(calls[1].input.action, 'submit_shadow');
+
+  const riskHandler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'risk_reviewer', entitlements: ['growth_console'], businessLines: ['consumer-banking'] }),
+    controlPlane: { async recordSkillApproval(input) { calls.push({ type: 'approval', input }); return { approval: { approvalId: 'sar_1' }, skill: { status: 'shadow' } }; } },
+  });
+  const approval = await riskHandler(request('https://dev.example.com', {
+    path: '/staging/v1/console/skills/shadows/enrichment-routing/0.1.0/approvals',
+    body: JSON.stringify({ expectedRevision: 2, phase: 'shadow_scope', approvalType: 'risk_review', decision: 'approved', reason: 'Scope is acceptable.' }),
+  }));
+  assert.equal(approval.statusCode, 201);
+  assert.equal(calls[2].input.actorId, identity.subject);
+});
+
 test('Console API requires independent risk review for Growth Play approval', async () => {
   const calls = [];
   const handler = createConsoleApiHandler({
