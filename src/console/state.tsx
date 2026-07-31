@@ -99,22 +99,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<ConsoleAuthSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [access, setAccess] = useState<ConsoleAccessProfile | null>(null);
-  const [accessLoading, setAccessLoading] = useState(false);
+  const [accessLoading, setAccessLoading] = useState(true);
   const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
     let active = true;
     currentAuthSession()
       .then((nextSession) => {
-        if (active) setSession(nextSession);
+        if (!active) return;
+        setAccess(null);
+        setAccessError(null);
+        setAccessLoading(Boolean(nextSession?.access_token));
+        setSession(nextSession);
       })
       .catch(() => {
-        if (active) setSession(null);
+        if (!active) return;
+        setAccess(null);
+        setAccessError(null);
+        setAccessLoading(false);
+        setSession(null);
       })
       .finally(() => {
         if (active) setLoading(false);
-      });
+    });
     const unsubscribe = subscribeToAuth((nextSession) => {
+      setAccess(null);
+      setAccessError(null);
+      setAccessLoading(Boolean(nextSession?.access_token));
       setSession(nextSession);
       setLoading(false);
     });
