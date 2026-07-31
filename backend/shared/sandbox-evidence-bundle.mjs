@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { createMeasurementRepository, summarizeIncrementalLift } from './experiment-measurement.mjs';
-import { validateTenantId } from './tenant-context.mjs';
+import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 // A bank-review artifact, generated from the append-only stores at request time.
 // It intentionally contains opaque subject references and safe event projections,
@@ -32,6 +32,12 @@ export function createSandboxEvidenceBundleService({ ledgerRepository, getDB, me
       const armCounts = countBy(experiment.assignments, (assignment) => assignment.arm);
       const outcomesByArm = countBy(experiment.outcomes, (outcome) => outcome.assignment?.arm ?? outcome.arm);
       const traces = events.map(projectTrace);
+      const holdoutProtection = await verifyHoldoutProtection({
+        tenantId,
+        assignments: experiment.assignments,
+        events,
+        getDB,
+      });
 
       return {
         schemaVersion: 'ventus_sandbox_evidence_bundle/v1',
@@ -67,6 +73,7 @@ export function createSandboxEvidenceBundleService({ ledgerRepository, getDB, me
           outcomeTraces: traces.filter((trace) => trace.type === 'outcome'),
           counterfactualTraces: traces.filter((trace) => trace.type === 'counterfactual'),
         },
+        holdoutProtection,
         evidenceLabels: {
           source: 'Plaid sandbox custom users',
           destination: 'Configured sandbox connector when delivery is approved',
@@ -76,6 +83,80 @@ export function createSandboxEvidenceBundleService({ ledgerRepository, getDB, me
       };
     },
   };
+}
+
+async function verifyHoldoutProtection({ tenantId, assignments, events, getDB }) {
+  const holdouts = assignments.filter((assignment) => assignment.arm === 'holdout');
+  if (!holdouts.length) {
+    return {
+      status: 'not_applicable',
+      assigned: 0,
+      reservationReceipts: 0,
+      decisionEvents: 0,
+      activationEvents: 0,
+      workflowRecords: { status: 'not_checked', count: 0 },
+    };
+  }
+
+  const holdoutTokens = new Set(holdouts.map((assignment) => assignment.householdToken));
+  const assignmentIds = new Set(holdouts.map((assignment) => assignment.assignmentId));
+  const holdoutEvents = events.filter((event) => holdoutTokens.has(event.household_token ?? event.householdToken));
+  const reservationEvents = holdoutEvents.filter((event) => {
+    const payload = event.payload ?? {};
+    return (event.event_type ?? event.eventType) === 'counterfactual'
+      && payload.experiment_id
+      && assignmentIds.has(payload.assignment_id)
+      && payload.arm === 'holdout';
+  });
+  const reservedDecisionIds = new Set(reservationEvents
+    .map((event) => event.payload?.decision_id)
+    .filter((value) => typeof value === 'string' && value.length > 0));
+  const decisionEvents = holdoutEvents.filter((event) => {
+    const payload = event.payload ?? {};
+    return (event.event_type ?? event.eventType) === 'decision'
+      && reservedDecisionIds.has(payload.decision_id);
+  }).length;
+  const activationEvents = holdoutEvents.filter((event) => {
+    const payload = event.payload ?? {};
+    return (event.event_type ?? event.eventType) === 'activation'
+      && reservedDecisionIds.has(payload.decision_id);
+  }).length;
+  const workflowRecords = await countWorkflowRecords({ tenantId, decisionIds: [...reservedDecisionIds], getDB });
+  const reservationsComplete = reservationEvents.length === holdouts.length;
+  const noExposure = decisionEvents === 0 && activationEvents === 0 && workflowRecords.count === 0;
+
+  return {
+    status: reservationsComplete && noExposure && workflowRecords.status === 'checked' ? 'verified' : 'attention_required',
+    assigned: holdouts.length,
+    reservationReceipts: reservationEvents.length,
+    decisionEvents,
+    activationEvents,
+    workflowRecords,
+  };
+}
+
+async function countWorkflowRecords({ tenantId, decisionIds, getDB }) {
+  if (typeof getDB !== 'function') return { status: 'not_checked', count: 0 };
+  if (!decisionIds.length) return { status: 'checked', count: 0 };
+  const db = await getDB();
+  await db.connect();
+  try {
+    await beginTenantTransaction(db, tenantId);
+    const result = await db.query(
+      `SELECT count(*)::int AS count
+         FROM connector_delivery_receipts
+        WHERE tenant_id = $1
+          AND decision_id = ANY($2::text[])`,
+      [tenantId, decisionIds],
+    );
+    await db.query('COMMIT');
+    return { status: 'checked', count: Number(result.rows[0]?.count ?? 0) };
+  } catch (error) {
+    await db.query('ROLLBACK').catch(() => {});
+    throw error;
+  } finally {
+    await db.end();
+  }
 }
 
 function projectAssignment(assignment) {
