@@ -83,34 +83,43 @@ export function buildProtocolApproval({
   };
 }
 
-export function createGrowthPlayRegistry({ getDB }) {
+export function createGrowthPlayRegistry({ getDB, useControlledWrites = false }) {
   assert.equal(typeof getDB, 'function', 'getDB is required');
   return {
     async register(input) {
       const registration = buildProtocolRegistration(input);
       return inTenantTransaction(getDB, registration.tenantId, async (db) => {
-        const inserted = await db.query(
-          `INSERT INTO growth_play_protocols
-             (tenant_id, decision_protocol_id, growth_play_id, version, business_line,
-              protocol_digest, contract, registered_by, registered_by_session_id,
-              identity_provider, registered_at)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-           ON CONFLICT (tenant_id, decision_protocol_id) DO NOTHING
-           RETURNING *`,
-          [registration.tenantId, registration.decisionProtocolId, registration.growthPlayId,
-            registration.version, registration.businessLine, registration.protocolDigest,
-            registration.contract, registration.registeredBy, registration.registeredBySessionId,
-            registration.identityProvider, registration.registeredAt],
-        );
-        const record = inserted.rows[0] ?? (await db.query(
-          `SELECT * FROM growth_play_protocols
-            WHERE tenant_id = $1 AND decision_protocol_id = $2`,
-          [registration.tenantId, registration.decisionProtocolId],
-        )).rows[0];
+        const values = [registration.tenantId, registration.decisionProtocolId, registration.growthPlayId,
+          registration.version, registration.businessLine, registration.protocolDigest,
+          registration.contract, registration.registeredBy, registration.registeredBySessionId,
+          registration.identityProvider, registration.registeredAt];
+        const inserted = useControlledWrites
+          ? await db.query(
+            `SELECT was_inserted, protocol_record
+               FROM ventus_append_growth_play_protocol($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+            values,
+          )
+          : await db.query(
+            `INSERT INTO growth_play_protocols
+               (tenant_id, decision_protocol_id, growth_play_id, version, business_line,
+                protocol_digest, contract, registered_by, registered_by_session_id,
+                identity_provider, registered_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+             ON CONFLICT (tenant_id, decision_protocol_id) DO NOTHING
+             RETURNING *`,
+            values,
+          );
+        const record = useControlledWrites
+          ? inserted.rows[0]?.protocol_record
+          : inserted.rows[0] ?? (await db.query(
+            `SELECT * FROM growth_play_protocols
+              WHERE tenant_id = $1 AND decision_protocol_id = $2`,
+            [registration.tenantId, registration.decisionProtocolId],
+          )).rows[0];
         assert.ok(record, 'registered Growth Play protocol could not be read back');
         assert.equal(record.protocol_digest, registration.protocolDigest, 'protocol ID collision or changed contract');
         assert.deepEqual(record.contract, registration.contract, 'registered protocol contract differs');
-        return { inserted: Boolean(inserted.rows[0]), record };
+        return { inserted: useControlledWrites ? inserted.rows[0]?.was_inserted === true : Boolean(inserted.rows[0]), record };
       });
     },
 
@@ -130,27 +139,36 @@ export function createGrowthPlayRegistry({ getDB }) {
         if (approval.decision === 'approved') {
           assert.notEqual(protocol.rows[0].registered_by, approval.decidedBy, 'protocol registration and approval require different subjects');
         }
-        const inserted = await db.query(
-          `INSERT INTO growth_play_protocol_approval_events
-             (tenant_id, approval_event_id, decision_protocol_id, decision, decided_by,
-              decided_by_session_id, identity_provider, decided_at, change_record_id, reason)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-           ON CONFLICT (tenant_id, approval_event_id) DO NOTHING
-           RETURNING *`,
-          [approval.tenantId, approval.approvalEventId, approval.decisionProtocolId,
-            approval.decision, approval.decidedBy, approval.decidedBySessionId,
-            approval.identityProvider, approval.decidedAt, approval.changeRecordId,
-            approval.reason],
-        );
-        const record = inserted.rows[0] ?? (await db.query(
-          `SELECT * FROM growth_play_protocol_approval_events
-            WHERE tenant_id = $1 AND approval_event_id = $2`,
-          [approval.tenantId, approval.approvalEventId],
-        )).rows[0];
+        const values = [approval.tenantId, approval.approvalEventId, approval.decisionProtocolId,
+          approval.decision, approval.decidedBy, approval.decidedBySessionId,
+          approval.identityProvider, approval.decidedAt, approval.changeRecordId,
+          approval.reason];
+        const inserted = useControlledWrites
+          ? await db.query(
+            `SELECT was_inserted, approval_record
+               FROM ventus_append_growth_play_protocol_approval($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+            values,
+          )
+          : await db.query(
+            `INSERT INTO growth_play_protocol_approval_events
+               (tenant_id, approval_event_id, decision_protocol_id, decision, decided_by,
+                decided_by_session_id, identity_provider, decided_at, change_record_id, reason)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+             ON CONFLICT (tenant_id, approval_event_id) DO NOTHING
+             RETURNING *`,
+            values,
+          );
+        const record = useControlledWrites
+          ? inserted.rows[0]?.approval_record
+          : inserted.rows[0] ?? (await db.query(
+            `SELECT * FROM growth_play_protocol_approval_events
+              WHERE tenant_id = $1 AND approval_event_id = $2`,
+            [approval.tenantId, approval.approvalEventId],
+          )).rows[0];
         assert.ok(record, 'Growth Play approval event could not be read back');
         assert.equal(record.decision_protocol_id, approval.decisionProtocolId, 'approval replay protocol differs');
         assert.equal(record.decision, approval.decision, 'approval replay decision differs');
-        return { inserted: Boolean(inserted.rows[0]), record };
+        return { inserted: useControlledWrites ? inserted.rows[0]?.was_inserted === true : Boolean(inserted.rows[0]), record };
       });
     },
 

@@ -111,9 +111,21 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
        TO ${roleName}`,
     );
     await db.query(
-      `GRANT SELECT, INSERT ON
+      `REVOKE INSERT, UPDATE, DELETE ON
          ${schemaName}.growth_play_protocols,
          ${schemaName}.growth_play_protocol_approval_events
+       FROM ${roleName}`,
+    );
+    await db.query(
+      `GRANT SELECT ON
+         ${schemaName}.growth_play_protocols,
+         ${schemaName}.growth_play_protocol_approval_events
+       TO ${roleName}`,
+    );
+    await db.query(
+      `GRANT EXECUTE ON FUNCTION
+         ${schemaName}.ventus_append_growth_play_protocol(text, text, text, text, text, text, jsonb, text, text, text, timestamptz),
+         ${schemaName}.ventus_append_growth_play_protocol_approval(text, text, text, text, text, text, text, timestamptz, text, text)
        TO ${roleName}`,
     );
     await db.query(
@@ -262,7 +274,7 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
 
   const repo = createDecisionLedgerRepository({ getDB });
   const measurementRepo = createMeasurementRepository({ getDB });
-  const protocolRegistry = createGrowthPlayRegistry({ getDB });
+  const protocolRegistry = createGrowthPlayRegistry({ getDB, useControlledWrites: true });
   const protocolAdminRegistry = createGrowthPlayRegistry({ getDB: async () => clientFor(adminCredentials) });
   const tenantId = `aws_verify_${Date.now().toString(36)}`;
   const otherTenantId = `${tenantId}_other`;
