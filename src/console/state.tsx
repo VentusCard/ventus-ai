@@ -25,6 +25,7 @@ import {
   consoleMomentDeliveryUrl,
   consoleMomentResponseUrl,
   consoleMomentsUrl,
+  consoleSalesforceOutcomeSyncUrl,
 } from "@/console/api";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
@@ -230,21 +231,30 @@ export type ConsoleMoment = {
   };
 };
 
-type SalesforceOutcomeSync = {
-  decisionId: string;
-  evidenceClass: "fixture" | "sandbox" | "sanctioned";
-  response: {
+type SalesforceOutcomeReturn = {
+  response?: {
     status: DecisionPackage["response"]["status"];
     actorToken: string | null;
     recordedAt: string | null;
   };
   outcome: {
     status: DecisionPackage["outcome"]["status"];
-    observation: DecisionOutcomeObservation | null;
+    observation: {
+      eventType?: string;
+      occurredAt?: string | null;
+      sourceSystem?: string;
+      sourceRecordId?: string;
+      reasonCode?: string | null;
+      metric?: string | null;
+      amount?: number | null;
+      currency?: "USD";
+    } | null;
   };
-  measurementStatus: "awaiting_outcome" | "observed_unmeasured";
-  businessClaimAllowed: false;
-  causalClaimAllowed: false;
+  recorded?: {
+    observation?: { observationId?: string };
+    measurement?: { status?: string; eventId?: string; reason?: string };
+  };
+  error?: string;
 };
 
 type DurableMomentMutation = {
@@ -254,6 +264,25 @@ type DurableMomentMutation = {
 };
 
 const STORAGE_PREFIX = "ventus_console_";
+
+function fscObservationToDecisionObservation(
+  observation: SalesforceOutcomeReturn["outcome"]["observation"],
+  fallbackSourceRecordId: string,
+): DecisionOutcomeObservation | undefined {
+  if (!observation?.eventType || !observation.occurredAt) return undefined;
+  const amount = observation.amount;
+  return {
+    eventId: `fsc_${fallbackSourceRecordId}_${observation.eventType}_${observation.occurredAt}`,
+    eventType: observation.eventType,
+    occurredAt: observation.occurredAt,
+    sourceSystem: observation.sourceSystem || "salesforce-fsc",
+    sourceRecordId: observation.sourceRecordId || fallbackSourceRecordId,
+    ...(observation.reasonCode ? { reasonCode: observation.reasonCode } : {}),
+    ...(typeof amount === "number" && Number.isFinite(amount) && observation.metric
+      ? { value: { metric: observation.metric, amount, currency: "USD" as const } }
+      : {}),
+  };
+}
 
 function clearConsoleStorage(): void {
   if (typeof window === "undefined") return;
@@ -802,33 +831,33 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
   const syncOutcome = useCallback(
     async (momentId: string) => {
       const moment = moments.find((item) => item.id === momentId);
-      const decisionRecordId = moment?.receipt?.records?.decision?.id;
-      if (!moment || !decisionRecordId || !connectorSession?.token) return;
+      const outcomeSyncUrl = consoleSalesforceOutcomeSyncUrl();
+      if (!moment) return;
+      if (!session?.access_token || !outcomeSyncUrl) {
+        setOutcomeSyncMessage("Sign in again to reconcile this FSC receipt.");
+        return;
+      }
       setSyncingOutcome(momentId);
       setOutcomeSyncMessage(null);
       try {
-        const response = await fetch(connectorApiUrl("salesforce-outcomes"), {
+        const response = await fetch(outcomeSyncUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${connectorSession.token}`,
+            Authorization: `Bearer ${session.access_token}`,
           },
-          body: JSON.stringify({ decisionRecordId }),
+          body: JSON.stringify({ decisionId: moment.decisionId }),
         });
-        const data = await response.json().catch(() => ({})) as SalesforceOutcomeSync & {
-          error?: string;
-        };
-        if (!response.ok || !data.decisionId) {
-          if (response.status === 401 || response.status === 403) setConnectorSession(null);
-          throw new Error(data.error ?? `Salesforce outcome read failed (${response.status})`);
-        }
-        if (data.decisionId !== moment.decisionId) {
-          throw new Error("Salesforce outcome did not match the selected decision.");
-        }
+        const data = await response.json().catch(() => ({})) as SalesforceOutcomeReturn;
+        if (!response.ok || !data.outcome) throw new Error(data.error ?? `Salesforce outcome sync failed (${response.status})`);
 
         const currentPackage = moment.decisionPackage ?? decisionPackageForMoment(moment, authTenant);
+        const observation = fscObservationToDecisionObservation(
+          data.outcome.observation,
+          moment.receipt?.records?.decision?.id ?? moment.decisionId,
+        );
         const nextPackage = applyOutcomeObservation(currentPackage, {
-          response: data.response.status === "pending"
+          response: data.response?.status === "pending" || !data.response
             ? undefined
             : {
                 status: data.response.status,
@@ -836,38 +865,42 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
                 recordedAt: data.response.recordedAt ?? currentPackage.response.recordedAt,
               },
           status: data.outcome.status,
-          observation: data.outcome.observation ?? undefined,
+          observation,
         });
         setMoments((prev) => prev.map((item) => (
           item.id === momentId ? { ...item, decisionPackage: nextPackage } : item
         )));
 
-        const observation = data.outcome.observation;
         if (!observation) {
-          setOutcomeSyncMessage("No measured outcome has been posted in Salesforce yet.");
+          setOutcomeSyncMessage("FSC receipt reconciled and recorded. No measured outcome has been posted yet.");
           return;
         }
         record([
           {
-            eventKey: `${momentId}-outcome-${observation.eventId}`,
+            eventKey: `${momentId}-outcome-${data.recorded?.observation?.observationId ?? observation.eventId}`,
             kind: "outcome",
             title: observation.eventType.split("_").join(" "),
-            detail: `Observed in Salesforce · ${data.evidenceClass} evidence · lift remains unmeasured`,
+            detail: "Observed in Salesforce FSC and recorded in the durable evidence ledger",
             ref: momentId,
             value: observation.value?.amount,
             status: "confirmed",
           },
         ]);
-        setOutcomeSyncMessage("Salesforce outcome imported. Holdout measurement remains pending.");
+        const measurement = data.recorded?.measurement;
+        setOutcomeSyncMessage(
+          measurement?.status === "recorded"
+            ? `FSC outcome recorded as measurement ${measurement.eventId ?? "event"}.`
+            : `FSC outcome recorded. ${measurement?.reason ? measurement.reason.replaceAll("_", " ") : "Lift remains gated by the experiment design."}`,
+        );
       } catch (error) {
         setOutcomeSyncMessage(
-          error instanceof Error ? error.message : "Salesforce outcome read failed",
+          error instanceof Error ? error.message : "Salesforce outcome sync failed",
         );
       } finally {
         setSyncingOutcome(null);
       }
     },
-    [authTenant, connectorSession, moments, record],
+    [authTenant, moments, record, session?.access_token],
   );
 
   const defer = useCallback((momentId: string, reason?: string) => respondWithoutDelivery(momentId, "deferred", reason), [respondWithoutDelivery]);
