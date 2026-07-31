@@ -164,14 +164,21 @@ export function createConsoleApiHandler({
         if (!controlPlane) return unavailable('connections', responseHeaders);
         if (!authorizeConnectionsWrite(membership).allowed) return forbidden('connection configuration', responseHeaders);
         const body = parseBody(event.body);
-        const result = await controlPlane.transitionConnection({
+        const result = connectionTransition.targetStatus === 'tested' && typeof controlPlane.testConnection === 'function'
+          ? await controlPlane.testConnection({
+            tenantId: identity.tenantHint,
+            mappingId: connectionTransition.mappingId,
+            expectedVersion: body.expectedVersion,
+            actorId: identity.subject,
+          })
+          : await controlPlane.transitionConnection({
           tenantId: identity.tenantHint,
           mappingId: connectionTransition.mappingId,
           expectedVersion: body.expectedVersion,
           targetStatus: connectionTransition.targetStatus,
           actorId: identity.subject,
           detail: body.detail,
-        });
+          });
         return response(201, { ...result, serverAuthoritative: true }, responseHeaders);
       }
       if (method === 'POST' && path.endsWith('/briefings/deliveries')) {

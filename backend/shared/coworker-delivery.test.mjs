@@ -54,3 +54,19 @@ test('Coworker fails closed when Slack is not configured', async () => {
   assert.equal(result.receipt.status, 'failed');
   assert.equal(repo.records[0].external_receipt_id, null);
 });
+
+test('Coworker health checks authenticate without sending a briefing', async () => {
+  const calls = [];
+  const service = createCoworkerDeliveryService({
+    getSecrets: async () => ({ slackBotToken: 'xoxb-test' }),
+    deliveryRepository: repository(),
+    fetchImpl: async (url, options) => {
+      calls.push({ url, options });
+      return new Response(JSON.stringify({ ok: true, team_id: 'T1' }), { status: 200 });
+    },
+  });
+  const result = await service.testConnection({ channel: 'slack', mapping: { configuration: { channelId: 'C123456' } } });
+  assert.equal(result.check, 'authenticated_identity_read');
+  assert.equal(calls.length, 1);
+  assert.match(calls[0].url, /auth\.test/);
+});

@@ -147,9 +147,19 @@ function enterpriseControlPlane() {
       getDB: runtimeDatabase,
       growthPlayRegistry: consoleGrowthPlayRegistry(),
       ledgerRepository: decisionLedger(),
+      connectionTester: testConnectorConnection,
     });
   }
   return controlPlaneRepository;
+}
+
+async function testConnectorConnection({ connector, mapping }) {
+  if (connector === 'salesforce-fsc') return productConnector().testConnection();
+  if (connector === 'microsoft-outlook') return coworkerDelivery().testConnection({ channel: 'outlook', mapping });
+  if (connector === 'slack') return coworkerDelivery().testConnection({ channel: 'slack', mapping });
+  throw new ProductSalesforceConnectorError('The selected connector is unsupported.', {
+    code: 'connector_unsupported', terminalFailure: true,
+  });
 }
 
 function decisionLedger() {

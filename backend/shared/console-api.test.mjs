@@ -390,6 +390,7 @@ test('Console API advances a connector only through a server-side lifecycle tran
     verifyIdentity: async () => identity,
     resolveMembership: async () => ({ ...membership, role: 'institution_admin', entitlements: ['growth_console'], businessLines: ['consumer-banking'] }),
     controlPlane: {
+      async testConnection(input) { calls.push({ ...input, targetStatus: 'tested' }); return { mapping: { mappingId: input.mappingId, status: 'tested' }, receipt: { receiptId: 'ctr_123' } }; },
       async transitionConnection(input) { calls.push(input); return { mapping: { mappingId: input.mappingId, status: 'tested' }, receipt: { receiptId: 'ctr_123' } }; },
     },
   });

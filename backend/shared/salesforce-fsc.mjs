@@ -158,6 +158,22 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
     };
   }
 
+  // Authentication plus a harmless platform read. This deliberately avoids
+  // creating, changing, or querying any customer record during setup.
+  async function healthCheck({ config }) {
+    const auth = await authenticate(config);
+    await salesforceJson({
+      auth,
+      path: `/services/data/${API_VERSION}/limits`,
+    });
+    return {
+      system: 'Salesforce FSC',
+      apiVersion: API_VERSION,
+      instanceDomain: new URL(auth.instanceUrl).hostname,
+      check: 'authenticated_api_read',
+    };
+  }
+
   async function verifyAccount({ config, accountId }) {
     const id = cleanSalesforceId(accountId);
     if (!id) throw new SalesforceFscError('A valid 15- or 18-character Salesforce Account ID is required');
@@ -264,7 +280,7 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
     return normalizeOutcome(record, tenantId);
   }
 
-  return { discover, verifyAccount, deliver, readOutcome };
+  return { discover, healthCheck, verifyAccount, deliver, readOutcome };
 }
 
 export function buildFscSchemaSummary(globalObjects, describes) {

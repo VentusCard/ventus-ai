@@ -4,12 +4,13 @@ import { compileGrowthPlayContract } from './growth-play-contract.mjs';
 import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const CONNECTORS = new Set(['salesforce-fsc', 'microsoft-outlook', 'slack']);
+const MEASUREMENT_METRICS = new Set(['deposit_balance', 'deposit_retained', 'net_new_assets', 'estimated_revenue']);
 
 /**
  * Durable, tenant-scoped control-plane projections. It intentionally stores
  * mappings and contracts, never OAuth/API secrets. Those stay in Secrets Manager.
  */
-export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledgerRepository = null }) {
+export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledgerRepository = null, connectionTester = null }) {
   assert.equal(typeof getDB, 'function', 'getDB is required');
   assert.ok(growthPlayRegistry && typeof growthPlayRegistry.register === 'function', 'growthPlayRegistry is required');
 
@@ -210,6 +211,37 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
       });
     },
 
+    async testConnection({ tenantId, mappingId, expectedVersion, actorId }) {
+      validateTenantId(tenantId);
+      assertIdentifier(mappingId, 'mappingId');
+      assert.ok(Number.isInteger(expectedVersion) && expectedVersion > 0, 'expectedVersion is invalid');
+      assertIdentifier(actorId, 'actorId');
+      const mapping = await queryTenant(getDB, tenantId, async (db) => {
+        const result = await db.query(
+          `SELECT mapping_id, connector, version, status, configuration, updated_by, updated_at, last_tested_at, last_test_status
+             FROM connector_mapping_versions
+            WHERE tenant_id = $1 AND mapping_id = $2 AND version = $3`,
+          [tenantId, mappingId, expectedVersion],
+        );
+        assert.equal(result.rows.length, 1, 'Connection mapping version was not found');
+        const current = projectMapping(result.rows[0]);
+        assert.equal(current.status, 'draft', 'Only draft mappings can be tested');
+        validateMappingConfiguration(current.connector, current.configuration);
+        return current;
+      });
+      try {
+        const check = connectionTester
+          ? await connectionTester({ tenantId, mapping })
+          : { detail: 'Configuration validated; no live connector tester is deployed for this environment.' };
+        const detail = safeConnectionDetail(check?.detail || 'Authenticated connector check succeeded.');
+        return this.transitionConnection({ tenantId, mappingId, expectedVersion, targetStatus: 'tested', actorId, detail });
+      } catch (error) {
+        const detail = safeConnectionDetail(error?.message || 'Connector check failed.');
+        const receipt = await this.recordConnectionTest({ tenantId, mappingId, version: expectedVersion, status: 'failed', detail, actorId });
+        return { mapping, receipt, failed: true };
+      }
+    },
+
     async recordConnectionTest({ tenantId, mappingId, version, status, detail, actorId }) {
       validateTenantId(tenantId);
       assertIdentifier(mappingId, 'mappingId');
@@ -244,7 +276,19 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
            RETURNING observation_id, status, observation, synced_at`,
           [tenantId, receiptId, outcome.decisionId, outcome.decisionRecordId, moment.decisionPackage.subject.token, mapping.mappingId, mapping.version, outcome.outcome?.status ?? 'awaiting_outcome', observation, actorId],
         );
-        return { observation: { observationId: inserted.rows[0].observation_id, status: inserted.rows[0].status, observation: inserted.rows[0].observation, syncedAt: inserted.rows[0].synced_at }, eligibleForLift: false };
+        const observationReceipt = {
+          observationId: inserted.rows[0].observation_id,
+          status: inserted.rows[0].status,
+          observation: inserted.rows[0].observation,
+          syncedAt: inserted.rows[0].synced_at,
+        };
+        const measurement = await promoteFscObservation(db, {
+          tenantId,
+          moment,
+          outcome,
+          observationReceipt,
+        });
+        return { observation: observationReceipt, measurement, eligibleForLift: measurement.status === 'recorded' };
       });
       if (!ledgerRepository || typeof ledgerRepository.append !== 'function') return recorded;
       const event = await ledgerRepository.append({
@@ -265,7 +309,36 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
           package_digest: moment.decisionPackageV12?.packageDigest ?? null,
         },
       });
-      return { ...recorded, ledgerReceipt: { sequenceNumber: Number(event.record.sequence_number ?? event.record.sequenceNumber), eventHash: event.record.event_hash ?? event.record.eventHash } };
+      const ledgerReceipt = { sequenceNumber: Number(event.record.sequence_number ?? event.record.sequenceNumber), eventHash: event.record.event_hash ?? event.record.eventHash };
+      let measurementLedgerReceipt = null;
+      if (recorded.measurement.status === 'recorded') {
+        const measurementEvent = await ledgerRepository.append({
+          tenantId,
+          idempotencyKey: `fsc-measurement:${recorded.measurement.eventId}`,
+          eventType: 'outcome',
+          householdToken: moment.decisionPackage.subject.token,
+          growthPlayId: moment.decisionPackage.growthPlay.id,
+          policyVersion: moment.decisionPackageV12?.governance?.policyVersion ?? moment.decisionPackage.growthPlay.protocolId,
+          status: recorded.measurement.evidenceClass === 'sanctioned' ? 'confirmed' : 'simulated',
+          occurredAt: recorded.measurement.occurredAt,
+          payload: {
+            event_id: recorded.measurement.eventId,
+            decision_id: outcome.decisionId,
+            experiment_id: recorded.measurement.experimentId,
+            arm: recorded.measurement.arm,
+            metric: recorded.measurement.metric,
+            evidence_class: recorded.measurement.evidenceClass,
+            source_system: 'salesforce-fsc',
+            observation_id: recorded.observation.observationId,
+            decision_protocol_id: moment.decisionPackage.growthPlay.protocolId,
+          },
+        });
+        measurementLedgerReceipt = {
+          sequenceNumber: Number(measurementEvent.record.sequence_number ?? measurementEvent.record.sequenceNumber),
+          eventHash: measurementEvent.record.event_hash ?? measurementEvent.record.eventHash,
+        };
+      }
+      return { ...recorded, ledgerReceipt, measurementLedgerReceipt };
     },
 
     async listSkillShadows({ tenantId }) {
@@ -493,6 +566,111 @@ function validateMappingConfiguration(connector, value) {
 function assertJson(value, label) {
   const serialized = JSON.stringify(value);
   assert.ok(serialized && serialized.length <= 24_000, `${label} is too large`);
+}
+
+function safeConnectionDetail(value) {
+  return String(value)
+    .replace(/(client[_-]?secret|access[_-]?token|refresh[_-]?token|password|api[_-]?key)\s*[:=]\s*[^\s,;]+/gi, '$1=[redacted]')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 500);
+}
+
+async function promoteFscObservation(db, { tenantId, moment, outcome, observationReceipt }) {
+  const observation = outcome?.outcome?.observation;
+  if (outcome?.outcome?.status !== 'measured' || !observation) {
+    return { status: 'observation_only', reason: 'awaiting_measured_outcome' };
+  }
+  const metric = cleanMeasurementMetric(observation.metric);
+  const expectedMetric = cleanMeasurementMetric(moment?.decisionPackage?.outcome?.metric);
+  const amount = Number(observation.amount);
+  const occurredAt = typeof observation.occurredAt === 'string' && !Number.isNaN(Date.parse(observation.occurredAt))
+    ? new Date(observation.occurredAt).toISOString()
+    : null;
+  if (!metric || !expectedMetric || metric !== expectedMetric || !Number.isFinite(amount) || !occurredAt) {
+    return { status: 'observation_only', reason: 'outcome_does_not_match_registered_measurement' };
+  }
+  const assignmentResult = await db.query(
+    `SELECT experiment_id, household_token, assignment_id, arm, assigned_at, evidence_class, decision_protocol_id
+       FROM experiment_assignments
+      WHERE tenant_id = $1
+        AND household_token = $2
+        AND decision_protocol_id = $3
+        AND assigned_at <= $4
+      ORDER BY assigned_at DESC
+      LIMIT 1`,
+    [tenantId, moment.decisionPackage.subject.token, moment.decisionPackage.growthPlay.protocolId, occurredAt],
+  );
+  const assignment = assignmentResult.rows[0];
+  if (!assignment) return { status: 'observation_only', reason: 'no_preexisting_assignment' };
+  const assignmentContext = await db.query(
+    `SELECT 1
+       FROM decision_ledger_events
+      WHERE tenant_id = $1
+        AND household_token = $2
+        AND event_type = 'counterfactual'
+        AND payload->>'experiment_id' = $3
+        AND payload->>'decision_id' = $4
+        AND payload->>'assignment_id' = $5
+        AND payload->>'arm' = $6
+        AND payload->>'decision_protocol_id' = $7
+      LIMIT 1`,
+    [tenantId, assignment.household_token, assignment.experiment_id, outcome.decisionId, assignment.assignment_id, assignment.arm, assignment.decision_protocol_id],
+  );
+  if (!assignmentContext.rows[0]) return { status: 'observation_only', reason: 'assignment_lineage_not_verified' };
+  const windowDays = Number(moment.decisionPackage?.outcome?.windowDays);
+  const deadline = Date.parse(assignment.assigned_at) + windowDays * 24 * 60 * 60 * 1000;
+  if (!Number.isFinite(windowDays) || windowDays < 1 || Date.parse(occurredAt) > deadline) {
+    return { status: 'observation_only', reason: 'outcome_outside_registered_window' };
+  }
+  const event = buildFscMeasurementEvent({ tenantId, moment, outcome, observationReceipt, assignment, metric, amount, occurredAt });
+  await db.query(
+    `INSERT INTO outcome_events
+       (tenant_id, event_id, experiment_id, household_token, growth_play_id, decision_id,
+        activation_id, event_type, occurred_at, arm, assigned_at, metric, amount, currency,
+        source_system, source_record_id, reason_code, payload)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18)
+     ON CONFLICT (tenant_id, event_id) DO NOTHING`,
+    [event.tenant_id, event.event_id, event.assignment.experiment_id, event.household_token,
+      event.growth_play_id, event.decision_id, event.activation_id, event.event_type,
+      event.occurred_at, event.assignment.arm, event.assignment.assigned_at,
+      event.value.metric, event.value.amount, event.value.currency, event.source_system,
+      event.source_record_id, event.reason_code, event],
+  );
+  return {
+    status: 'recorded', eventId: event.event_id, experimentId: event.assignment.experiment_id,
+    arm: event.assignment.arm, metric: event.value.metric, occurredAt: event.occurred_at,
+    evidenceClass: assignment.evidence_class,
+  };
+}
+
+export function buildFscMeasurementEvent({ tenantId, moment, outcome, observationReceipt, assignment, metric, amount, occurredAt }) {
+  const eventId = `evt_${createHash('sha256').update(`${tenantId}\u001f${observationReceipt.observationId}\u001f${assignment.experiment_id}`).digest('hex').slice(0, 24)}`;
+  return {
+    contract_version: '1.0',
+    event_id: eventId,
+    tenant_id: tenantId,
+    household_token: moment.decisionPackage.subject.token,
+    growth_play_id: moment.decisionPackage.growthPlay.id,
+    decision_id: outcome.decisionId,
+    activation_id: null,
+    event_type: String(observationReceipt.observation?.eventType || 'fsc_measured_outcome').slice(0, 128),
+    occurred_at: occurredAt,
+    assignment: {
+      experiment_id: assignment.experiment_id,
+      arm: assignment.arm,
+      assigned_at: new Date(assignment.assigned_at).toISOString(),
+      decision_protocol_id: assignment.decision_protocol_id,
+    },
+    value: { metric, amount, currency: 'USD' },
+    source_system: 'salesforce-fsc',
+    source_record_id: String(observationReceipt.observation?.sourceRecordId || outcome.decisionRecordId).slice(0, 128),
+    reason_code: typeof observationReceipt.observation?.reasonCode === 'string' ? observationReceipt.observation.reasonCode.slice(0, 128) : null,
+  };
+}
+
+function cleanMeasurementMetric(value) {
+  return typeof value === 'string' && MEASUREMENT_METRICS.has(value) ? value : null;
 }
 
 function projectDraft(row) {

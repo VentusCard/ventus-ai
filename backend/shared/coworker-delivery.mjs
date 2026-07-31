@@ -17,6 +17,12 @@ export function createCoworkerDeliveryService({ getSecrets, deliveryRepository, 
   if (!deliveryRepository || typeof deliveryRepository.reserve !== 'function') throw new Error('deliveryRepository is required');
 
   return {
+    async testConnection({ channel, mapping }) {
+      const secrets = normalizeSecrets(await getSecrets());
+      if (channel === 'outlook') return testOutlook({ secrets, mapping, fetchImpl });
+      if (channel === 'slack') return testSlack({ secrets, mapping, fetchImpl });
+      throw new CoworkerDeliveryError('Coworker channel is unsupported.', { code: 'coworker_channel_unsupported', terminalFailure: true });
+    },
     async deliver({ tenantId, channel, role, sessionId, title, counts, decisionIds, mapping }) {
       const briefing = buildBriefingDelivery({
         tenantId,
@@ -62,6 +68,51 @@ export function createCoworkerDeliveryService({ getSecrets, deliveryRepository, 
       }
     },
   };
+}
+
+async function testOutlook({ secrets, mapping, fetchImpl }) {
+  if (!secrets.microsoftTenantId || !secrets.microsoftClientId || !secrets.microsoftClientSecret || !secrets.microsoftSenderUserId) {
+    throw new CoworkerDeliveryError('Outlook delivery is not configured for this environment.', { code: 'outlook_unconfigured', terminalFailure: true });
+  }
+  if (!cleanEmail(mapping?.configuration?.recipient)) {
+    throw new CoworkerDeliveryError('Outlook routing is not configured for this institution.', { code: 'outlook_mapping_inactive', terminalFailure: true });
+  }
+  const tokenResponse = await fetchImpl(`https://login.microsoftonline.com/${encodeURIComponent(secrets.microsoftTenantId)}/oauth2/v2.0/token`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: secrets.microsoftClientId,
+      client_secret: secrets.microsoftClientSecret,
+      grant_type: 'client_credentials',
+      scope: 'https://graph.microsoft.com/.default',
+    }).toString(),
+  });
+  const token = await tokenResponse.json().catch(() => ({}));
+  if (!tokenResponse.ok || typeof token.access_token !== 'string') {
+    throw new CoworkerDeliveryError('Outlook authentication failed.', { code: 'outlook_auth_failed', terminalFailure: true });
+  }
+  const response = await fetchImpl(
+    `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(secrets.microsoftSenderUserId)}?$select=id`,
+    { headers: { Authorization: `Bearer ${token.access_token}` } },
+  );
+  if (!response.ok) throw new CoworkerDeliveryError('Outlook sender validation failed.', { code: 'outlook_sender_unavailable', terminalFailure: true });
+  return { connector: 'microsoft-outlook', check: 'authenticated_sender_read', detail: 'Authenticated Graph sender read succeeded.' };
+}
+
+async function testSlack({ secrets, mapping, fetchImpl }) {
+  if (!secrets.slackBotToken) {
+    throw new CoworkerDeliveryError('Slack delivery is not configured for this environment.', { code: 'slack_unconfigured', terminalFailure: true });
+  }
+  if (!cleanIdentifier(mapping?.configuration?.channelId)) {
+    throw new CoworkerDeliveryError('Slack routing is not configured for this institution.', { code: 'slack_mapping_inactive', terminalFailure: true });
+  }
+  const response = await fetchImpl('https://slack.com/api/auth.test', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${secrets.slackBotToken}` },
+  });
+  const body = await response.json().catch(() => ({}));
+  if (!response.ok || body.ok !== true) throw new CoworkerDeliveryError('Slack authentication failed.', { code: 'slack_auth_failed', terminalFailure: true });
+  return { connector: 'slack', check: 'authenticated_identity_read', detail: 'Authenticated Slack identity check succeeded.' };
 }
 
 async function deliverOutlook({ secrets, mapping, briefing, consoleBaseUrl, fetchImpl }) {

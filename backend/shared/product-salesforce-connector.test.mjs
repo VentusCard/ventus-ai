@@ -25,6 +25,21 @@ test('product connector fails clearly when server-only Salesforce configuration 
   );
 });
 
+test('product connector performs a safe authenticated Salesforce health check', async () => {
+  const connector = createProductSalesforceConnector({
+    getSecrets: async () => ({
+      salesforceLoginUrl: 'https://example.my.salesforce.com', salesforceClientId: 'client', salesforceClientSecret: 'secret',
+    }),
+    fscService: {
+      async deliver() { throw new Error('delivery must not run during a health check'); },
+      async healthCheck() { return { instanceDomain: 'example.my.salesforce.com' }; },
+    },
+  });
+  const result = await connector.testConnection();
+  assert.equal(result.connector, 'salesforce-fsc');
+  assert.match(result.detail, /Authenticated API read succeeded/);
+});
+
 test('product connector derives the Salesforce payload from the Decision Package only', async () => {
   const calls = [];
   const connector = createProductSalesforceConnector({

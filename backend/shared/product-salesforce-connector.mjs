@@ -21,6 +21,36 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
   if (typeof salesforce.deliver !== 'function') throw new Error('fscService.deliver is required');
 
   return {
+    async testConnection() {
+      if (typeof salesforce.healthCheck !== 'function') {
+        throw new ProductSalesforceConnectorError('Salesforce connection testing is not available for this connector.', {
+          code: 'salesforce_connection_test_unavailable', terminalFailure: true,
+        });
+      }
+      const config = normalizeConfig(await getSecrets());
+      if (!config.salesforceLoginUrl || !config.salesforceClientId || !config.salesforceClientSecret) {
+        throw new ProductSalesforceConnectorError(
+          'The product Salesforce connector is not configured for this environment.',
+          { code: 'salesforce_connector_unconfigured', terminalFailure: true },
+        );
+      }
+      try {
+        const result = await salesforce.healthCheck({ config });
+        return {
+          connector: 'salesforce-fsc',
+          check: 'authenticated_api_read',
+          detail: `Authenticated API read succeeded for ${cleanText(result?.instanceDomain, 180) || 'the configured Salesforce org'}.`,
+        };
+      } catch (error) {
+        if (error?.name === 'SalesforceFscError' && /authentication|token response/i.test(String(error.message))) {
+          throw new ProductSalesforceConnectorError(
+            'Salesforce authentication is not configured for the product connector.',
+            { code: 'salesforce_auth_invalid', terminalFailure: true },
+          );
+        }
+        throw error;
+      }
+    },
     async deliver({ tenantId, decisionPackage, decisionPackageV12 = null, source = 'ventus-growth-console' }) {
       validateDecisionPackage({ tenantId, decisionPackage });
       validateDecisionPackageV12(decisionPackageV12, decisionPackage);
