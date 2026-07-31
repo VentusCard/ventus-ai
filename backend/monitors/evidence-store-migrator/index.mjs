@@ -502,24 +502,28 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   } finally {
     await crossTenantDb.end();
   }
-  if (
-    replay.inserted
-    || !own.verified
-    || own.events.length !== drafts.length
-    || !exposureWrite.inserted
-    || exposureReplay.inserted
-    || experiment.assignments.length !== 1
-    || experiment.exposures.length !== 1
-    || crossTenantVisibleEvents !== 0
-    || crossTenantVisibleExposures !== 0
-    || crossTenantVisibleProtocols !== 0
-    || crossTenantVisibleMemberships !== 0
-    || ownVisibleMemberships !== 1
-    || protocolApproval.decisionProtocolId !== protocol.decision_protocol_id
-    || !runtimeProtocolWriteDenied
-    || !runtimeMembershipWriteDenied
-  ) {
-    throw new Error('runtime ledger, connected-measurement, idempotency, or tenant-isolation verification failed');
+  const checks = {
+    ledgerReplayRejected: !replay.inserted,
+    ledgerHashChainVerified: own.verified,
+    ledgerEventCountMatches: own.events.length === drafts.length,
+    exposureInserted: exposureWrite.inserted,
+    exposureReplayRejected: !exposureReplay.inserted,
+    assignmentIdempotent: experiment.assignments.length === 1,
+    exposureIdempotent: experiment.exposures.length === 1,
+    ledgerTenantIsolation: crossTenantVisibleEvents === 0,
+    exposureTenantIsolation: crossTenantVisibleExposures === 0,
+    protocolTenantIsolation: crossTenantVisibleProtocols === 0,
+    membershipTenantIsolation: crossTenantVisibleMemberships === 0,
+    ownMembershipVisible: ownVisibleMemberships === 1,
+    approvedProtocolResolved: protocolApproval.decisionProtocolId === protocol.decision_protocol_id,
+    runtimeProtocolWriteDenied,
+    runtimeMembershipWriteDenied,
+  };
+  const failedChecks = Object.entries(checks)
+    .filter(([, passed]) => !passed)
+    .map(([name]) => name);
+  if (failedChecks.length > 0) {
+    throw new Error(`runtime verification failed: ${failedChecks.join(', ')}`);
   }
   return {
     runtimeRole: runtimeUsername,

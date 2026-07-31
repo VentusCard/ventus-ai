@@ -97,11 +97,11 @@ test('evidence-store migrator verifies connected measurement and separately auth
   assert.match(source, /recordExposure\(exposure\)/, 'runtime verification should persist an exposure receipt');
   assert.match(source, /decisionProtocolId/, 'runtime verification should pin a connected decision protocol');
   assert.match(source, /loadExperiment/, 'runtime verification should read the connected experiment back');
-  assert.match(source, /crossTenantVisibleExposures !== 0/, 'runtime verification should fail on cross-tenant exposure visibility');
+  assert.match(source, /exposureTenantIsolation/, 'runtime verification should report cross-tenant exposure isolation');
   assert.match(source, /protocolAdminRegistry\.recordApproval/, 'protocol approval should use the admin repository');
   assert.match(source, /protocolRegistry\.requireApproved/, 'runtime repository should resolve the approval');
   assert.match(source, /GRANT SELECT, INSERT ON[\s\S]*growth_play_protocols,[\s\S]*growth_play_protocol_approval_events[\s\S]*TO \$\{roleName\}/, 'runtime should append registered protocols and approval receipts');
-  assert.match(source, /crossTenantVisibleProtocols !== 0/, 'runtime verification should fail on cross-tenant protocol visibility');
+  assert.match(source, /protocolTenantIsolation/, 'runtime verification should report cross-tenant protocol isolation');
   assert.match(source, /runtimeProtocolWriteDenied/, 'runtime verification should prove activation cannot register a protocol');
   assert.match(source, /institution_memberships/, 'runtime verification should exercise institution membership isolation');
   assert.match(source, /runtimeMembershipWriteDenied/, 'runtime verification should prove activation cannot provision memberships');
