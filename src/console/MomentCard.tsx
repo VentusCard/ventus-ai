@@ -93,7 +93,7 @@ export function MomentCard({ moment, decision, action, variant = "full", onSyncO
           </div>
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t pt-4" style={{ borderColor: "var(--v2-rule)" }}>
             <p className="text-[12px]" style={{ color: "var(--v2-ink-soft)" }}>{decision.outcome.observation ? "Outcome observation received; measurement gates remain authoritative." : "Waiting for the registered outcome receipt."}</p>
-            {onSyncOutcome ? <button onClick={onSyncOutcome} disabled={syncingOutcome || !moment.receipt?.records?.decision} className="inline-flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--c-accent)" }} title={!moment.receipt?.records?.decision ? "A Decision Receipt is required" : undefined}>{syncingOutcome ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}Check Salesforce</button> : null}
+            {onSyncOutcome ? <button onClick={onSyncOutcome} disabled={syncingOutcome || !moment.receipt?.records?.decision} className="inline-flex items-center gap-2 text-[12px] font-bold" style={{ color: "var(--c-accent)" }} title={!moment.receipt?.records?.decision ? "A Decision Receipt is required" : undefined}>{syncingOutcome ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}Sync FSC receipt</button> : null}
           </div>
           {outcomeSyncMessage ? <p className="mt-2 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>{outcomeSyncMessage}</p> : null}
         </div>
