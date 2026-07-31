@@ -160,7 +160,12 @@ export class VentusConsoleApiStack extends cdk.Stack {
         maxAge: cdk.Duration.hours(1),
       },
     });
-    const integration = new apigateway.LambdaIntegration(consoleFunction, { proxy: true });
+    // One API-scoped invoke permission prevents Lambda's resource policy from
+    // growing once for every Console route as the product expands.
+    const integration = new apigateway.LambdaIntegration(consoleFunction, {
+      proxy: true,
+      scopePermissionToMethod: false,
+    });
     const consoleApi = api.root.addResource('v1').addResource('console');
     consoleApi.addResource('access').addMethod('POST', integration);
     consoleApi.addResource('decision-run').addMethod('POST', integration);
