@@ -584,7 +584,12 @@ type DecisionPackageV12 = Omit<
     controls: string[];
     humanReviewRequired: boolean;
     assignmentArm: "treatment" | "holdout";
-    protocolApprovalId: string;
+    policyVersion: string | null;
+    protocolId: string;
+    // Fixture and partner-sandbox packages are explicit when no independently
+    // approved protocol exists. They are never eligible for a bank claim.
+    protocolApprovalId: string | null;
+    approvalStatus: "approved" | "not_attested";
     exceptionStatus: "none" | "open" | "resolved";
   };
   workflowIntent: {
@@ -607,6 +612,14 @@ type DecisionPackageV12 = Omit<
 
 - `tenantId`, `decisionId`, `growthPlay.protocolId`, and subject token are
   immutable.
+- `approvalStatus: "not_attested"` means the package is fixture or partner-
+  sandbox evidence only. It must not be presented as a sanctioned operating
+  protocol or a bank-approved result.
+- A connected Console run resolves the latest reviewed protocol for the tenant,
+  Growth Play, and business line. If that latest review is not approved, the
+  runtime fails closed; it never falls back to an older approved version.
+- Approval is checked again when delivery is reserved. Revoking a protocol
+  blocks queued Moments from creating new downstream workflow records.
 - The package references source receipts; it does not replace the evidence
   ledger.
 - Recommended and alternative actions come from the approved action catalog.

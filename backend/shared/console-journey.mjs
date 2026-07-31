@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
+import { validateCompiledGrowthPlayContract } from './growth-play-contract.mjs';
 import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const MOMENT_LIMIT = 100;
@@ -33,7 +34,7 @@ const ACTIONS = Object.freeze({
   },
 });
 
-export function createConsoleJourneyRepository({ getDB, ledgerRepository, deliveryRepository }) {
+export function createConsoleJourneyRepository({ getDB, ledgerRepository, deliveryRepository, protocolRegistry = null }) {
   assert.equal(typeof getDB, 'function', 'getDB is required');
   assert.equal(typeof ledgerRepository?.append, 'function', 'ledgerRepository.append is required');
   assert.equal(typeof deliveryRepository?.reserve, 'function', 'deliveryRepository.reserve is required');
@@ -146,6 +147,15 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
       assert.ok(['approved', 'delivery_failed'].includes(expectedState), 'deliveries can only be reserved from the approved or terminally failed state');
       const moment = await this.loadMoment({ tenantId, decisionId });
       assert.equal(moment.status, expectedState, 'moment state changed; refresh before delivery');
+      if (moment.sourceMode === 'live') {
+        assert.equal(typeof protocolRegistry?.requireApproved, 'function', 'Growth Play approval enforcement is unavailable');
+        await protocolRegistry.requireApproved({
+          tenantId,
+          decisionProtocolId: moment.decisionPackage.growthPlay.protocolId,
+          businessLine: moment.decisionPackage.growthPlay.businessLine,
+          at: requestedAt,
+        });
+      }
       const response = moment.decisionPackage.response;
       assert.ok(['accepted', 'modified'].includes(response.status), 'an accepted or modified response is required');
       const selectedAction = moment.decisionPackage.recommendation.selectedAction;
@@ -281,6 +291,17 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
 
 export function buildDecisionPackage(decision) {
   const catalog = scenarioCatalog(decision.scenario);
+  const approvedContract = decision.runtime?.approvedContract
+    ? validateCompiledGrowthPlayContract(decision.runtime.approvedContract)
+    : null;
+  if (approvedContract) {
+    assert.equal(approvedContract.growth_play_id, catalog.growthPlayId, 'approved contract belongs to another Growth Play');
+    assert.equal(approvedContract.business_line, catalog.businessLine, 'approved contract belongs to another business line');
+    assert.equal(approvedContract.decision_protocol_id, decision.runtime.protocolId, 'runtime protocol identity is inconsistent');
+  }
+  const approvedActions = approvedContract
+    ? approvedContract.actions.map((approvedAction, index) => actionFromContract(approvedAction, catalog.actions[index]))
+    : catalog.actions;
   const opportunity = decision.opportunity;
   assert.ok(opportunity, 'only actionable decisions can create a Moment');
   return {
@@ -288,14 +309,16 @@ export function buildDecisionPackage(decision) {
     decisionId: decision.decisionId,
     tenantId: decision.tenantId,
     createdAt: decision.generatedAt,
-    evidenceClass: decision.source.mode === 'live' ? 'sandbox' : 'fixture',
+    evidenceClass: decision.source.evidenceClass === 'sanctioned_pilot'
+      ? 'sanctioned'
+      : decision.source.mode === 'live' ? 'sandbox' : 'fixture',
     growthPlay: {
-      id: catalog.growthPlayId,
+      id: approvedContract?.growth_play_id ?? catalog.growthPlayId,
       name: catalog.growthPlay,
-      businessLine: catalog.businessLine,
-      objective: catalog.objective,
-      primaryMetric: catalog.primaryMetric,
-      protocolId: catalog.protocolId,
+      businessLine: approvedContract?.business_line ?? catalog.businessLine,
+      objective: approvedContract?.objective ?? catalog.objective,
+      primaryMetric: approvedContract?.measurement.metric ?? catalog.primaryMetric,
+      protocolId: approvedContract?.decision_protocol_id ?? catalog.protocolId,
     },
     subject: { token: subjectToken(decision.tenantId, decision.decisionId) },
     moment: {
@@ -310,8 +333,8 @@ export function buildDecisionPackage(decision) {
       })),
     },
     recommendation: {
-      selectedAction: catalog.actions[0],
-      alternatives: catalog.actions.slice(1),
+      selectedAction: approvedActions[0],
+      alternatives: approvedActions.slice(1),
     },
     governance: {
       policyStatus: decision.policy.allowed ? 'cleared' : 'suppressed',
@@ -324,24 +347,44 @@ export function buildDecisionPackage(decision) {
       shadowCandidate: 'model-assisted-planner',
     },
     response: { status: 'pending' },
-    workflow: { connector: 'salesforce-fsc', status: 'ready' },
-    outcome: { metric: catalog.primaryMetric, windowDays: 30, status: 'not-opened' },
+    workflow: { connector: connectorForAction(approvedActions[0]), status: 'ready' },
+    outcome: {
+      metric: approvedContract?.measurement.metric ?? catalog.primaryMetric,
+      windowDays: approvedContract?.measurement.outcome_window_days ?? 30,
+      status: 'not-opened',
+    },
   };
 }
 
 // v1.2 is the immutable decision identity shared with every connector. Human
 // responses, delivery receipts, and outcomes are deliberately separate events.
 export function buildDecisionPackageV12(packageProjection, decision) {
+  const protocolApprovalId = typeof decision.runtime?.protocolApprovalId === 'string'
+    ? decision.runtime.protocolApprovalId
+    : null;
+  const modelInvocation = normalizedModelInvocation(decision.runtime?.modelInvocation);
   const immutable = {
     schemaVersion: '1.2',
     decisionId: packageProjection.decisionId,
     tenantId: packageProjection.tenantId,
     createdAt: packageProjection.createdAt,
-    evidenceClass: packageProjection.evidenceClass,
-    subject: packageProjection.subject,
+    evidenceClass: decision.source.evidenceClass === 'sanctioned_pilot'
+      ? 'sanctioned_pilot'
+      : decision.source.mode === 'fixture' ? 'fixture' : 'partner_sandbox',
+    subject: { ...packageProjection.subject, scope: 'customer' },
     growthPlay: packageProjection.growthPlay,
-    moment: packageProjection.moment,
-    recommendation: packageProjection.recommendation,
+    moment: {
+      ...packageProjection.moment,
+      confidenceBand: confidenceBand(packageProjection.moment.confidence),
+      observedAt: packageProjection.createdAt,
+      urgency: packageProjection.moment.confidence >= 90 ? 'time-sensitive' : 'routine',
+      evidence: packageProjection.moment.evidence.map((evidence) => ({ ...evidence, observedAt: packageProjection.createdAt })),
+    },
+    recommendation: {
+      ...packageProjection.recommendation,
+      rationale: packageProjection.moment.summary,
+      actionCatalogVersion: packageProjection.growthPlay.protocolId,
+    },
     governance: {
       policyStatus: packageProjection.governance.policyStatus,
       controls: packageProjection.governance.controls,
@@ -349,15 +392,31 @@ export function buildDecisionPackageV12(packageProjection, decision) {
       assignmentArm: packageProjection.governance.assignmentArm,
       policyVersion: decision.runtime.policyVersion ?? null,
       protocolId: packageProjection.growthPlay.protocolId,
+      protocolApprovalId,
+      approvalStatus: protocolApprovalId ? 'approved' : 'not_attested',
+      exceptionStatus: packageProjection.governance.policyStatus === 'suppressed' ? 'open' : 'none',
     },
     decisionMethod: {
-      active: packageProjection.decisionMethod.active,
-      shadowCandidate: packageProjection.decisionMethod.shadowCandidate,
+      runtimeType: modelInvocation ? 'model_assisted' : 'deterministic',
       runtimeVersion: decision.runtime.runtimeVersion ?? decision.runtime.version ?? 'console-runtime-v1',
-      skillVersions: [{ skillId: packageProjection.growthPlay.id, version: packageProjection.growthPlay.protocolId }],
+      skillVersions: [`${packageProjection.growthPlay.id}:${packageProjection.growthPlay.protocolId}`],
+      ...(modelInvocation ? { modelInvocation } : {}),
     },
-    workflowIntent: { connector: packageProjection.workflow.connector, destination: packageProjection.recommendation.selectedAction.destination },
-    measurementPlan: { metric: packageProjection.outcome.metric, windowDays: packageProjection.outcome.windowDays },
+    workflowIntent: {
+      connector: packageProjection.workflow.connector,
+      destination: destinationForAction(packageProjection.recommendation.selectedAction),
+      ownerRole: packageProjection.recommendation.selectedAction.ownerRole,
+    },
+    measurementPlan: {
+      metric: packageProjection.outcome.metric,
+      outcomeEventTypes: Array.isArray(decision.runtime?.measurementPlan?.outcomeEventTypes)
+        ? decision.runtime.measurementPlan.outcomeEventTypes
+        : [],
+      outcomeSourceSystems: Array.isArray(decision.runtime?.measurementPlan?.outcomeSourceSystems)
+        ? decision.runtime.measurementPlan.outcomeSourceSystems
+        : [],
+      windowDays: packageProjection.outcome.windowDays,
+    },
   };
   return { ...immutable, packageDigest: canonicalDigest(immutable) };
 }
@@ -499,10 +558,12 @@ function scenarioCatalog(scenario) {
 }
 
 function connectorForAction(actionValue) {
+  if (typeof actionValue.connector === 'string' && actionValue.connector) return actionValue.connector;
   return actionValue.destination === 'Salesforce FSC' ? 'salesforce' : 'campaign_platform';
 }
 
 function destinationForAction(actionValue) {
+  if (typeof actionValue.destinationKey === 'string' && actionValue.destinationKey) return actionValue.destinationKey;
   return actionValue.destination === 'Salesforce FSC' ? 'salesforce-fsc' : 'journey-orchestration';
 }
 
@@ -512,6 +573,20 @@ function subjectToken(tenantId, decisionId) {
 
 function canonicalDigest(value) {
   return `sha256:${createHash('sha256').update(canonicalJson(value)).digest('hex')}`;
+}
+
+function confidenceBand(confidence) {
+  return confidence >= 80 ? 'high' : confidence >= 60 ? 'medium' : 'low';
+}
+
+function normalizedModelInvocation(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null;
+  const provider = typeof value.provider === 'string' ? value.provider.slice(0, 80) : '';
+  const model = typeof value.model === 'string' ? value.model.slice(0, 120) : '';
+  const modelArtifactVersion = typeof value.modelArtifactVersion === 'string'
+    ? value.modelArtifactVersion.slice(0, 120)
+    : typeof value.version === 'string' ? value.version.slice(0, 120) : '';
+  return provider && model && modelArtifactVersion ? { provider, model, modelArtifactVersion } : null;
 }
 
 function canonicalJson(value) {
@@ -565,8 +640,38 @@ function normalizeWarnings(value) {
     : [];
 }
 
-function action(id, title, instructions, ownerRole, destination) {
-  return { id, title, instructions, ownerRole, destination };
+function action(id, title, instructions, ownerRole, destination, routing = null) {
+  return {
+    id,
+    title,
+    instructions,
+    ownerRole,
+    destination,
+    ...(routing?.connector ? { connector: routing.connector } : {}),
+    ...(routing?.destinationKey ? { destinationKey: routing.destinationKey } : {}),
+    ...(routing?.destinationEnvironment ? { destinationEnvironment: routing.destinationEnvironment } : {}),
+  };
+}
+
+function actionFromContract(approved, fallback) {
+  return action(
+    approved.action_id,
+    fallback?.title ?? humanizeIdentifier(approved.action_id),
+    fallback?.instructions ?? `Review this qualified moment and complete the approved ${humanizeIdentifier(approved.action_id).toLowerCase()} workflow.`,
+    humanizeIdentifier(approved.owner_role),
+    humanizeIdentifier(approved.destination),
+    {
+      connector: approved.connector,
+      destinationKey: approved.destination,
+      destinationEnvironment: approved.destination_environment,
+    },
+  );
+}
+
+function humanizeIdentifier(value) {
+  return String(value)
+    .replace(/[-_]+/g, ' ')
+    .replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 function payload(row) {

@@ -20,7 +20,7 @@ function repository() {
 }
 
 const input = {
-  tenantId: 'bank_1', channel: 'outlook', role: 'growth_play_owner', sessionId: 'session_1',
+  tenantId: 'bank_1', channel: 'outlook', role: 'growth_play_owner', businessLine: 'consumer-banking', sessionId: 'session_1',
   title: 'One decision needs attention', counts: { needsReview: 1, routed: 0, outcomesObserved: 0 },
   decisionIds: ['decision_001'], mapping: { configuration: { recipient: 'ops@example.com' } },
 };
@@ -53,6 +53,17 @@ test('Coworker fails closed when Slack is not configured', async () => {
   const result = await service.deliver({ ...input, channel: 'slack', mapping: { configuration: { channelId: 'C123456' } } });
   assert.equal(result.receipt.status, 'failed');
   assert.equal(repo.records[0].external_receipt_id, null);
+});
+
+test('Coworker uses the selected business line for its briefing route', async () => {
+  const repo = repository();
+  const service = createCoworkerDeliveryService({
+    getSecrets: async () => ({ slackBotToken: 'xoxb-test' }),
+    deliveryRepository: repo,
+    fetchImpl: async () => new Response(JSON.stringify({ ok: true, channel: 'C123456', ts: '123.456' }), { status: 200 }),
+  });
+  await service.deliver({ ...input, channel: 'slack', businessLine: 'wealth-management', mapping: { configuration: { channelId: 'C123456' } } });
+  assert.equal(repo.records[0].actionId, 'briefing_wealth_growth');
 });
 
 test('Coworker health checks authenticate without sending a briefing', async () => {

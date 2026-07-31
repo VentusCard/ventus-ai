@@ -44,6 +44,10 @@ CREATE TABLE IF NOT EXISTS connector_mapping_test_receipts (
 CREATE INDEX IF NOT EXISTS connector_mapping_versions_latest_idx
   ON connector_mapping_versions (tenant_id, mapping_id, version DESC);
 
+CREATE UNIQUE INDEX IF NOT EXISTS connector_mapping_versions_one_active_per_connector_idx
+  ON connector_mapping_versions (tenant_id, connector)
+  WHERE status = 'active';
+
 -- Connector-return observations are immutable source receipts. They remain
 -- separate from experimental outcome_events until an approved assignment and
 -- measurement contract make a causal calculation eligible.

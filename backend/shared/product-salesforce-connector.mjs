@@ -1,3 +1,4 @@
+import { createHash } from 'node:crypto';
 import { createSalesforceFscService } from './salesforce-fsc.mjs';
 import { buildSalesforceTaskRecord } from './salesforce-task-record.mjs';
 
@@ -182,6 +183,69 @@ function validateDecisionPackageV12(packageV12, decisionPackage) {
   if (packageV12.decisionId !== decisionPackage.decisionId || packageV12.tenantId !== decisionPackage.tenantId) {
     throw new ProductSalesforceConnectorError('Decision Package v1.2 does not match the delivery decision.', { code: 'decision_package_v12_mismatch', terminalFailure: true });
   }
+  const required = [
+    packageV12.createdAt,
+    packageV12.growthPlay?.id,
+    packageV12.growthPlay?.protocolId,
+    packageV12.subject?.token,
+    packageV12.subject?.scope,
+    packageV12.moment?.type,
+    packageV12.moment?.summary,
+    packageV12.moment?.confidenceBand,
+    packageV12.moment?.observedAt,
+    packageV12.moment?.urgency,
+    packageV12.recommendation?.selectedAction?.id,
+    packageV12.recommendation?.rationale,
+    packageV12.recommendation?.actionCatalogVersion,
+    packageV12.governance?.policyStatus,
+    packageV12.governance?.approvalStatus,
+    packageV12.governance?.exceptionStatus,
+    packageV12.decisionMethod?.runtimeType,
+    packageV12.decisionMethod?.runtimeVersion,
+    packageV12.workflowIntent?.connector,
+    packageV12.workflowIntent?.destination,
+    packageV12.workflowIntent?.ownerRole,
+    packageV12.measurementPlan?.metric,
+  ];
+  if (required.some((value) => typeof value !== 'string' || value.length === 0)
+    || !['customer', 'household', 'account', 'business'].includes(packageV12.subject.scope)
+    || !['low', 'medium', 'high'].includes(packageV12.moment.confidenceBand)
+    || !['routine', 'time-sensitive', 'urgent'].includes(packageV12.moment.urgency)
+    || !['cleared', 'suppressed', 'review'].includes(packageV12.governance.policyStatus)
+    || !['approved', 'not_attested'].includes(packageV12.governance.approvalStatus)
+    || !['none', 'open', 'resolved'].includes(packageV12.governance.exceptionStatus)
+    || !['deterministic', 'model_assisted'].includes(packageV12.decisionMethod.runtimeType)
+    || !Array.isArray(packageV12.decisionMethod.skillVersions)
+    || packageV12.decisionMethod.skillVersions.some((value) => typeof value !== 'string' || !value)
+    || !Array.isArray(packageV12.measurementPlan.outcomeEventTypes)
+    || !Array.isArray(packageV12.measurementPlan.outcomeSourceSystems)
+    || !Number.isInteger(packageV12.measurementPlan.windowDays)
+    || packageV12.measurementPlan.windowDays < 1
+    || (packageV12.governance.protocolApprovalId !== null && typeof packageV12.governance.protocolApprovalId !== 'string')
+    || (packageV12.governance.approvalStatus === 'approved' && !packageV12.governance.protocolApprovalId)
+    || (packageV12.evidenceClass !== 'fixture' && packageV12.governance.approvalStatus !== 'approved')
+    || (packageV12.recommendation.selectedAction.connector
+      && packageV12.recommendation.selectedAction.connector !== packageV12.workflowIntent.connector)
+    || (packageV12.recommendation.selectedAction.destinationKey
+      && packageV12.recommendation.selectedAction.destinationKey !== packageV12.workflowIntent.destination)) {
+    throw new ProductSalesforceConnectorError('Decision Package v1.2 is incomplete.', { code: 'invalid_decision_package_v12', terminalFailure: true });
+  }
+  const { packageDigest, ...immutable } = packageV12;
+  if (packageDigest !== canonicalDigest(immutable)) {
+    throw new ProductSalesforceConnectorError('Decision Package v1.2 digest does not match its immutable content.', { code: 'invalid_decision_package_v12', terminalFailure: true });
+  }
+}
+
+function canonicalDigest(value) {
+  return `sha256:${createHash('sha256').update(canonicalJson(value)).digest('hex')}`;
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
 }
 
 function normalizeConfig(value) {

@@ -1,4 +1,7 @@
-import { requiredEntitlementForScenario } from './hosted-decision-runtime.mjs';
+import {
+  decisionScopeForScenario,
+  requiredEntitlementForScenario,
+} from './hosted-decision-runtime.mjs';
 import {
   authorizeScenarioDecision,
   authorizeScenarioRead,
@@ -187,12 +190,16 @@ export function createConsoleApiHandler({
         const body = parseBody(event.body);
         const connector = body.channel === 'outlook' ? 'microsoft-outlook' : body.channel === 'slack' ? 'slack' : '';
         if (!connector) throw new ConsoleRequestError('Coworker channel is unsupported');
+        const scenario = typeof body.scenario === 'string' ? body.scenario : '';
+        const scenarioAuthorization = authorizeScenarioRead(membership, scenario);
+        if (!scenarioAuthorization.allowed) return forbidden('briefing scenario', responseHeaders);
         const mapping = await controlPlane.activeConnection({ tenantId: identity.tenantHint, connector });
         if (!mapping) throw new ConsoleRequestError('No active institution mapping exists for this Coworker channel');
         const delivery = await deliverCoworkerBriefing({
           tenantId: identity.tenantHint,
           channel: body.channel,
           role: membership.role,
+          businessLine: scenarioAuthorization.businessLine,
           sessionId: event.requestContext?.requestId || identity.subject,
           title: body.title,
           counts: body.counts,
@@ -330,7 +337,33 @@ export function createConsoleApiHandler({
             error: 'operator role and business-line access are required for this scenario',
           }, responseHeaders);
         }
-        const decision = executeDecision({ tenantId: identity.tenantHint, body });
+        const decisionAt = new Date();
+        let protocolApproval = null;
+        if (body.source?.mode === 'live') {
+          if (typeof growthPlayRegistry?.requireLatestApproved !== 'function') {
+            return response(503, { error: 'Growth Play approval enforcement is unavailable' }, responseHeaders);
+          }
+          const scope = decisionScopeForScenario(body.scenario);
+          try {
+            protocolApproval = await growthPlayRegistry.requireLatestApproved({
+              tenantId: identity.tenantHint,
+              growthPlayId: scope.growthPlayId,
+              businessLine: scope.businessLine,
+              at: decisionAt.toISOString(),
+            });
+          } catch {
+            return response(409, {
+              error: 'An independently approved Growth Play protocol is required before connected evidence can be evaluated.',
+              code: 'growth_play_approval_required',
+            }, responseHeaders);
+          }
+        }
+        const decision = executeDecision({
+          tenantId: identity.tenantHint,
+          body,
+          now: decisionAt,
+          protocolApproval,
+        });
         const recorded = await appendDecision({
           decision,
           requestId: event.requestContext?.requestId || 'console-request',

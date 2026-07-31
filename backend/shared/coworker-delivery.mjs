@@ -23,11 +23,11 @@ export function createCoworkerDeliveryService({ getSecrets, deliveryRepository, 
       if (channel === 'slack') return testSlack({ secrets, mapping, fetchImpl });
       throw new CoworkerDeliveryError('Coworker channel is unsupported.', { code: 'coworker_channel_unsupported', terminalFailure: true });
     },
-    async deliver({ tenantId, channel, role, sessionId, title, counts, decisionIds, mapping }) {
+    async deliver({ tenantId, channel, role, businessLine, sessionId, title, counts, decisionIds, mapping }) {
       const briefing = buildBriefingDelivery({
         tenantId,
         briefingId: briefingId(tenantId, channel, title, decisionIds),
-        role: normalizeRole(role),
+        role: normalizeRole(role, businessLine),
         channel,
         requestedBySessionId: sessionId,
         generatedAt: new Date().toISOString(),
@@ -189,10 +189,9 @@ function normalizeSecrets(value) {
   };
 }
 
-function normalizeRole(role) {
+function normalizeRole(role, businessLine) {
   if (role === 'executive_viewer') return 'executive';
-  if (role === 'growth_play_owner' || role === 'bank_operator') return 'consumer_growth';
-  return 'wealth_growth';
+  return businessLine === 'wealth-management' ? 'wealth_growth' : 'consumer_growth';
 }
 
 function briefingId(tenantId, channel, title, decisionIds) {

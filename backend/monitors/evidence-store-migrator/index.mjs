@@ -111,9 +111,13 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
        TO ${roleName}`,
     );
     await db.query(
-      `GRANT SELECT ON
+      `GRANT SELECT, INSERT ON
          ${schemaName}.growth_play_protocols,
-         ${schemaName}.growth_play_protocol_approval_events,
+         ${schemaName}.growth_play_protocol_approval_events
+       TO ${roleName}`,
+    );
+    await db.query(
+      `GRANT SELECT ON
          ${schemaName}.institutions,
          ${schemaName}.institution_identity_providers,
          ${schemaName}.institution_memberships

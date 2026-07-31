@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { createConsoleApiHandler } from './console-api.mjs';
+import { compileGrowthPlayContract } from './growth-play-contract.mjs';
 import { executeHostedDecision } from './hosted-decision-runtime.mjs';
 
 const identity = {
@@ -104,6 +105,84 @@ test('Console API persists an entitled hosted decision and returns its receipt',
   assert.equal(body.tenantId, 'ventus');
   assert.equal(body.ledgerReceipt.persisted, true);
   assert.equal(body.ledgerReceipt.sequenceNumber, 7);
+});
+
+test('Console API fails closed when connected evidence has no independently approved Growth Play', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'bank_operator',
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['consumer-banking'],
+      queueScopes: [],
+    }),
+    executeDecision: executeHostedDecision,
+    appendDecision: async () => { throw new Error('should not write'); },
+    growthPlayRegistry: {
+      async requireLatestApproved() {
+        throw new Error('no approved protocol');
+      },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run',
+    body: JSON.stringify({ ...decisionBody(), source: { mode: 'live', name: 'Plaid sandbox' } }),
+  }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 409);
+  assert.equal(body.code, 'growth_play_approval_required');
+});
+
+test('Console API binds connected evidence to the latest approved protocol before execution', async () => {
+  const calls = [];
+  const contract = approvedDepositContract();
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'bank_operator',
+      entitlements: ['growth_console', 'consumer_demo'],
+      businessLines: ['consumer-banking'],
+      queueScopes: [],
+    }),
+    executeDecision: executeHostedDecision,
+    appendDecision: async ({ decision }) => {
+      calls.push(decision);
+      return {
+        persisted: true,
+        inserted: true,
+        sequenceNumber: 8,
+        eventHash: 'b'.repeat(64),
+        recordedAt: decision.generatedAt,
+      };
+    },
+    growthPlayRegistry: {
+      async requireLatestApproved(input) {
+        assert.equal(input.growthPlayId, 'deposit-primacy-defense');
+        assert.equal(input.businessLine, 'consumer-banking');
+        return {
+          approvalEventId: 'gpa_approved_123',
+          decisionProtocolId: contract.decision_protocol_id,
+          growthPlayId: contract.growth_play_id,
+          businessLine: contract.business_line,
+          protocolDigest: contract.protocol_digest,
+          contract,
+          decidedAt: '2026-07-29T12:00:00.000Z',
+          changeRecordId: 'change_approved_123',
+        };
+      },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/decision-run',
+    body: JSON.stringify({ ...decisionBody(), source: { mode: 'live', name: 'Plaid sandbox' } }),
+  }));
+  const body = JSON.parse(result.body);
+  assert.equal(result.statusCode, 200);
+  assert.equal(body.runtime.protocolId, contract.decision_protocol_id);
+  assert.equal(body.runtime.protocolApprovalId, 'gpa_approved_123');
+  assert.equal(calls[0].runtime.approvedContract.protocol_digest, contract.protocol_digest);
 });
 
 test('Console API blocks executive viewers even when scenario entitlements are present', async () => {
@@ -369,7 +448,7 @@ test('Console API only delivers Coworker briefings through an active server-side
   const calls = [];
   const handler = createConsoleApiHandler({
     verifyIdentity: async () => identity,
-    resolveMembership: async () => ({ ...membership, role: 'growth_play_owner', entitlements: ['growth_console'], businessLines: ['wealth-management'] }),
+    resolveMembership: async () => ({ ...membership, role: 'growth_play_owner', entitlements: ['growth_console', 'wealth_demo'], businessLines: ['wealth-management'] }),
     controlPlane: {
       async activeConnection() { return { mappingId: 'map_outlook', connector: 'microsoft-outlook', status: 'active', configuration: { recipient: 'ops@example.com' } }; },
     },
@@ -377,11 +456,12 @@ test('Console API only delivers Coworker briefings through an active server-side
   });
   const result = await handler(request('https://dev.example.com', {
     path: '/staging/v1/console/briefings/deliveries',
-    body: JSON.stringify({ channel: 'outlook', title: 'Growth review', counts: { needsReview: 1, routed: 1, outcomesObserved: 0 }, decisionIds: ['dec_123'] }),
+    body: JSON.stringify({ channel: 'outlook', scenario: 'wealth-growth', title: 'Growth review', counts: { needsReview: 1, routed: 1, outcomesObserved: 0 }, decisionIds: ['dec_123'] }),
   }));
   assert.equal(result.statusCode, 201);
   assert.equal(calls.length, 1);
   assert.equal(calls[0].mapping.mappingId, 'map_outlook');
+  assert.equal(calls[0].businessLine, 'wealth-management');
 });
 
 test('Console API advances a connector only through a server-side lifecycle transition', async () => {
@@ -480,6 +560,39 @@ function decisionBody() {
       },
     ],
   };
+}
+
+function approvedDepositContract() {
+  return compileGrowthPlayContract({
+    contract_version: '1.0',
+    growth_play_id: 'deposit-primacy-defense',
+    version: '1.0.0',
+    business_line: 'consumer-banking',
+    objective: 'Retain primary deposit relationships through governed banker review',
+    source: {
+      receipt_source_systems: ['plaid_custom_user'],
+      schema_versions: ['plaid-transactions-1'],
+      record_sources: [{ source_system: 'deposit_core', allowed_rails: ['ach', 'card', 'p2p', 'wire'] }],
+    },
+    eligibility: { criteria_version: 'deposit-primacy-eligibility-v1' },
+    policy: { version: 'mvp-policy-v1', required_policy_ids: ['consent', 'eligibility', 'vulnerability'] },
+    actions: [{
+      action_id: 'banker_retention_review',
+      owner_role: 'relationship_banker',
+      connector: 'salesforce-fsc',
+      destination: 'fsc_task',
+      destination_environment: 'sandbox',
+    }],
+    measurement: {
+      metric: 'deposit_retained',
+      outcome_event_types: ['deposit_balance_observed'],
+      outcome_source_systems: ['deposit_core_sandbox'],
+      outcome_window_days: 31,
+      holdout_pct: 10,
+      minimum_per_arm: 30,
+      minimum_coverage: 0.9,
+    },
+  });
 }
 
 function moment(scenario) {

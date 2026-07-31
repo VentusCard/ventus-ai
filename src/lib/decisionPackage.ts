@@ -7,6 +7,9 @@ export type DecisionAction = {
   instructions: string;
   ownerRole: string;
   destination: string;
+  connector?: string;
+  destinationKey?: string;
+  destinationEnvironment?: "sandbox" | "production";
 };
 
 export type DecisionEvidence = {
@@ -91,9 +94,10 @@ export type DecisionPackage = {
 // v1.1 until their server-side parser advertises v1.2 support.
 export type DecisionPackageV12 = Omit<
   DecisionPackage,
-  "schemaVersion" | "subject" | "moment" | "recommendation" | "governance" | "workflow" | "outcome"
+  "schemaVersion" | "evidenceClass" | "subject" | "moment" | "recommendation" | "governance" | "decisionMethod" | "response" | "workflow" | "outcome"
 > & {
   schemaVersion: typeof DECISION_PACKAGE_V12_VERSION;
+  evidenceClass: "fixture" | "partner_sandbox" | "sanctioned_pilot";
   subject: DecisionPackage["subject"] & {
     scope: "customer" | "household" | "account" | "business";
     displayReference?: string;
@@ -110,38 +114,57 @@ export type DecisionPackageV12 = Omit<
     actionCatalogVersion: string;
   };
   governance: DecisionPackage["governance"] & {
-    protocolApprovalId: string;
+    policyVersion: string | null;
+    protocolApprovalId: string | null;
+    approvalStatus: "approved" | "not_attested";
     exceptionStatus: "none" | "open" | "resolved";
   };
-  workflow: Omit<DecisionPackage["workflow"], "status"> & {
+  decisionMethod: {
+    runtimeType: "deterministic" | "model_assisted";
+    runtimeVersion: string;
+    skillVersions: string[];
+    modelInvocation?: {
+      provider: string;
+      model: string;
+      modelArtifactVersion: string;
+    };
+  };
+  workflowIntent: {
+    connector: string;
     destination: string;
     ownerRole: string;
-    status: "ready" | "reserved" | "delivered" | "failed" | "reconciled";
-    deliveryId?: string;
   };
-  outcome: DecisionPackage["outcome"] & {
-    coverageStatus: "pending" | "insufficient" | "passed";
-    claimStatus: "blocked" | "observational" | "measured";
+  measurementPlan: {
+    metric: string;
+    outcomeEventTypes: string[];
+    outcomeSourceSystems: string[];
+    windowDays: number;
   };
+  packageDigest: string;
 };
 
-export function decisionPackageV12FromV11(
+export async function decisionPackageV12FromV11(
   decision: DecisionPackage,
   additions: {
     subjectScope: DecisionPackageV12["subject"]["scope"];
-    protocolApprovalId: string;
+    protocolApprovalId?: string | null;
     actionCatalogVersion: string;
     rationale: string;
     observedAt?: string;
     urgency?: DecisionPackageV12["moment"]["urgency"];
-    workflow?: Partial<DecisionPackageV12["workflow"]>;
-    outcome?: Partial<Pick<DecisionPackageV12["outcome"], "coverageStatus" | "claimStatus">>;
+    runtimeVersion?: string;
+    outcomeEventTypes?: string[];
+    outcomeSourceSystems?: string[];
   },
-): DecisionPackageV12 {
+): Promise<DecisionPackageV12> {
   const confidenceBand = decision.moment.confidence >= 80 ? "high" : decision.moment.confidence >= 60 ? "medium" : "low";
-  return {
-    ...decision,
+  const immutable = {
     schemaVersion: DECISION_PACKAGE_V12_VERSION,
+    decisionId: decision.decisionId,
+    tenantId: decision.tenantId,
+    createdAt: decision.createdAt,
+    evidenceClass: decision.evidenceClass === "fixture" ? "fixture" : decision.evidenceClass === "sanctioned" ? "sanctioned_pilot" : "partner_sandbox",
+    growthPlay: decision.growthPlay,
     subject: { ...decision.subject, scope: additions.subjectScope },
     moment: {
       ...decision.moment,
@@ -156,21 +179,43 @@ export function decisionPackageV12FromV11(
     },
     governance: {
       ...decision.governance,
-      protocolApprovalId: additions.protocolApprovalId,
+      policyVersion: null,
+      protocolApprovalId: additions.protocolApprovalId ?? null,
+      approvalStatus: additions.protocolApprovalId ? "approved" : "not_attested",
       exceptionStatus: "none",
     },
-    workflow: {
-      ...decision.workflow,
+    decisionMethod: {
+      runtimeType: decision.decisionMethod.active === "model-assisted" ? "model_assisted" : "deterministic",
+      runtimeVersion: additions.runtimeVersion ?? "console-runtime-v1",
+      skillVersions: [`${decision.growthPlay.id}:${decision.growthPlay.protocolId}`],
+    },
+    workflowIntent: {
+      connector: decision.workflow.connector,
       destination: decision.recommendation.selectedAction.destination,
       ownerRole: decision.recommendation.selectedAction.ownerRole,
-      ...additions.workflow,
     },
-    outcome: {
-      ...decision.outcome,
-      coverageStatus: additions.outcome?.coverageStatus ?? "pending",
-      claimStatus: additions.outcome?.claimStatus ?? "blocked",
+    measurementPlan: {
+      metric: decision.outcome.metric,
+      outcomeEventTypes: additions.outcomeEventTypes ?? [],
+      outcomeSourceSystems: additions.outcomeSourceSystems ?? [],
+      windowDays: decision.outcome.windowDays,
     },
   };
+  return { ...immutable, packageDigest: await digestDecisionPackage(immutable) };
+}
+
+async function digestDecisionPackage(value: object): Promise<string> {
+  const bytes = new TextEncoder().encode(canonicalJson(value));
+  const digest = await crypto.subtle.digest("SHA-256", bytes);
+  return `sha256:${[...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function canonicalJson(value: unknown): string {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(",")}]`;
+  if (value && typeof value === "object") {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson((value as Record<string, unknown>)[key])}`).join(",")}}`;
+  }
+  return JSON.stringify(value);
 }
 
 export type DecisionPackageInput = Omit<

@@ -167,7 +167,8 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
                   updated_by, updated_at, last_tested_at, last_test_status
              FROM connector_mapping_versions
             WHERE tenant_id = $1 AND connector = $2 AND status = 'active'
-            ORDER BY updated_at DESC, version DESC`,
+            ORDER BY updated_at DESC, version DESC
+            LIMIT 1`,
           [tenantId, connector],
         );
         return result.rows.map(projectMapping)[0] || null;
@@ -200,6 +201,19 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
             [tenantId, mappingId, mapping.version, actorId],
           );
           return { mapping: projectMapping(updated.rows[0]), receipt };
+        }
+        if (targetStatus === 'active') {
+          // A connector has one effective routing configuration at a time. A
+          // rotated mapping must never leave an older active route behind.
+          await db.query(
+            `UPDATE connector_mapping_versions
+                SET status = 'disabled', updated_by = $3, updated_at = now()
+              WHERE tenant_id = $1
+                AND connector = $2
+                AND status = 'active'
+                AND NOT (mapping_id = $4 AND version = $5)`,
+            [tenantId, mapping.connector, actorId, mapping.mappingId, mapping.version],
+          );
         }
         const updated = await db.query(
           `UPDATE connector_mapping_versions SET status = $4, updated_by = $5, updated_at = now()
@@ -267,7 +281,7 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
       assert.ok(outcome?.decisionRecordId && outcome?.decisionId, 'Salesforce outcome receipt is required');
       const recorded = await queryTenant(getDB, tenantId, async (db) => {
         const observation = outcome.outcome?.observation ?? null;
-        const receiptId = `obs_${createHash('sha256').update(`${tenantId}\u001f${outcome.decisionRecordId}\u001f${outcome.outcome?.status ?? 'awaiting'}`).digest('hex').slice(0, 24)}`;
+        const receiptId = fscObservationReceiptId({ tenantId, decisionRecordId: outcome.decisionRecordId, outcome });
         const inserted = await db.query(
           `INSERT INTO outcome_observation_receipts
              (tenant_id, observation_id, decision_id, decision_record_id, household_token, mapping_id, mapping_version, status, observation, synced_by, synced_at)
@@ -354,11 +368,11 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
 
     async onboardingReadiness({ tenantId }) {
       return queryTenant(getDB, tenantId, async (db) => {
-        const [protocols, mappings, membership, observations] = await Promise.all([
+        const [protocols, mappings, membership, measurements] = await Promise.all([
           db.query(`SELECT count(*) FILTER (WHERE latest.decision = 'approved')::int AS approved FROM growth_play_protocols p LEFT JOIN LATERAL (SELECT decision FROM growth_play_protocol_approval_events WHERE tenant_id = p.tenant_id AND decision_protocol_id = p.decision_protocol_id ORDER BY decided_at DESC LIMIT 1) latest ON true WHERE p.tenant_id = $1`, [tenantId]),
           db.query(`SELECT connector, bool_or(status = 'active') AS active FROM connector_mapping_versions WHERE tenant_id = $1 GROUP BY connector`, [tenantId]),
           db.query(`SELECT count(*) FILTER (WHERE status = 'active')::int AS active FROM institution_memberships WHERE tenant_id = $1`, [tenantId]),
-          db.query(`SELECT count(*)::int AS count FROM outcome_observation_receipts WHERE tenant_id = $1`, [tenantId]),
+          db.query(`SELECT count(*)::int AS count FROM outcome_events WHERE tenant_id = $1`, [tenantId]),
         ]);
         const activeConnectors = new Set(mappings.rows.filter((row) => row.active).map((row) => row.connector));
         const gates = [
@@ -367,7 +381,7 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
           gate('system_of_record', activeConnectors.has('salesforce-fsc'), 'Active FSC mapping'),
           gate('coworker_route', activeConnectors.has('microsoft-outlook') || activeConnectors.has('slack'), 'Active employee notification route'),
           gate('outcome_return', activeConnectors.has('salesforce-fsc'), 'FSC return mapping is active'),
-          gate('measurement_evidence', Number(observations.rows[0]?.count || 0) > 0, 'At least one durable outcome observation'),
+          gate('measurement_evidence', Number(measurements.rows[0]?.count || 0) > 0, 'At least one reconciled measurement event'),
         ];
         return { gates, ready: gates.every((item) => item.ready), serverAuthoritative: true };
       });
@@ -401,7 +415,7 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
           `WITH ranked_outcomes AS (
              SELECT o.*,
                     row_number() OVER (
-                      PARTITION BY o.tenant_id, o.experiment_id, o.household_token
+                      PARTITION BY o.tenant_id, o.experiment_id, o.household_token, o.metric
                       ORDER BY COALESCE((o.payload->'provenance'->>'observed_at')::timestamptz, o.occurred_at) DESC,
                                COALESCE((o.payload->'provenance'->>'correction_sequence')::int, 0) DESC,
                                o.occurred_at DESC, o.event_id DESC
@@ -537,8 +551,10 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
             occurredAt: row.occurred_at,
             decisionId: row.payload?.decision_id || null,
             policyVersion: row.payload?.runtime?.policyVersion ?? row.payload?.policy?.version ?? null,
-            modelVersion: row.payload?.decision_package_v12?.decisionMethod?.active?.version ?? null,
-            skillVersion: row.payload?.decision_package_v12?.decisionMethod?.skill?.version ?? null,
+            modelVersion: row.payload?.decision_package_v12?.decisionMethod?.runtimeVersion ?? null,
+            skillVersion: Array.isArray(row.payload?.decision_package_v12?.decisionMethod?.skillVersions)
+              ? row.payload.decision_package_v12.decisionMethod.skillVersions.join(', ')
+              : null,
           })),
           connections: mappings.rows.map((row) => ({ connector: row.connector, status: row.status, updatedAt: row.updated_at })),
           outcomeReconciliation: Object.fromEntries(observations.rows.map((row) => [row.status, Number(row.count)])),
@@ -692,6 +708,9 @@ async function promoteFscObservation(db, { tenantId, moment, outcome, observatio
 }
 
 export function buildFscMeasurementEvent({ tenantId, moment, outcome, observationReceipt, assignment, metric, amount, occurredAt }) {
+  const observedAt = typeof observationReceipt.syncedAt === 'string' && !Number.isNaN(Date.parse(observationReceipt.syncedAt))
+    ? new Date(observationReceipt.syncedAt).toISOString()
+    : occurredAt;
   const eventId = `evt_${createHash('sha256').update(`${tenantId}\u001f${observationReceipt.observationId}\u001f${assignment.experiment_id}`).digest('hex').slice(0, 24)}`;
   return {
     contract_version: '1.0',
@@ -713,11 +732,33 @@ export function buildFscMeasurementEvent({ tenantId, moment, outcome, observatio
     source_system: 'salesforce-fsc',
     source_record_id: String(observationReceipt.observation?.sourceRecordId || outcome.decisionRecordId).slice(0, 128),
     reason_code: typeof observationReceipt.observation?.reasonCode === 'string' ? observationReceipt.observation.reasonCode.slice(0, 128) : null,
+    provenance: {
+      source_version: 'salesforce-fsc-v1',
+      observed_at: observedAt,
+      correction_sequence: 0,
+    },
   };
 }
 
 function cleanMeasurementMetric(value) {
   return typeof value === 'string' && MEASUREMENT_METRICS.has(value) ? value : null;
+}
+
+export function fscObservationReceiptId({ tenantId, decisionRecordId, outcome }) {
+  const observation = outcome?.outcome?.observation ?? null;
+  const fingerprint = JSON.stringify({
+    status: outcome?.outcome?.status ?? 'awaiting_outcome',
+    observation: observation && {
+      eventType: observation.eventType ?? null,
+      occurredAt: observation.occurredAt ?? null,
+      sourceRecordId: observation.sourceRecordId ?? null,
+      reasonCode: observation.reasonCode ?? null,
+      metric: observation.metric ?? null,
+      amount: Number.isFinite(observation.amount) ? observation.amount : null,
+      currency: observation.currency ?? null,
+    },
+  });
+  return `obs_${createHash('sha256').update(`${tenantId}\u001f${decisionRecordId}\u001f${fingerprint}`).digest('hex').slice(0, 24)}`;
 }
 
 function projectDraft(row) {
@@ -731,7 +772,7 @@ function projectDraft(row) {
   };
 }
 
-function projectMeasurementReadiness(row) {
+export function projectMeasurementReadiness(row) {
   const treatmentAssigned = Number(row.treatment_assigned || 0);
   const holdoutAssigned = Number(row.holdout_assigned || 0);
   const treatmentObserved = Number(row.treatment_outcomes_observed || 0);
@@ -741,7 +782,7 @@ function projectMeasurementReadiness(row) {
   const treatmentCoverage = treatmentAssigned > 0 ? treatmentObserved / treatmentAssigned : 0;
   const holdoutCoverage = holdoutAssigned > 0 ? holdoutObserved / holdoutAssigned : 0;
   const coverage = Math.min(treatmentCoverage, holdoutCoverage);
-  const sampleReady = treatmentAssigned >= minimumPerArm && holdoutAssigned >= minimumPerArm;
+  const sampleReady = treatmentObserved >= minimumPerArm && holdoutObserved >= minimumPerArm;
   const coverageReady = treatmentCoverage >= minimumCoverage && holdoutCoverage >= minimumCoverage;
   const ready = sampleReady && coverageReady;
   return {

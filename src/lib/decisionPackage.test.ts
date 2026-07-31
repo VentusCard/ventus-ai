@@ -15,7 +15,7 @@ const primaryAction = {
   destination: "Salesforce FSC",
 };
 
-test("decision package carries a portable governed decision contract", () => {
+test("decision package carries a portable governed decision contract", async () => {
   const decision = createDecisionPackage({
     decisionId: "dec_123",
     tenantId: "bank_1",
@@ -93,7 +93,7 @@ test("decision package carries a portable governed decision contract", () => {
   assert.equal(reopened.outcome.status, "measuring");
   assert.equal(reopened.outcome.observation, undefined);
 
-  const v12 = decisionPackageV12FromV11(accepted, {
+  const v12 = await decisionPackageV12FromV11(accepted, {
     subjectScope: "household",
     protocolApprovalId: "approval_123",
     actionCatalogVersion: "deposit-actions-v1",
@@ -102,6 +102,7 @@ test("decision package carries a portable governed decision contract", () => {
   assert.equal(v12.schemaVersion, "1.2");
   assert.equal(v12.subject.scope, "household");
   assert.equal(v12.moment.confidenceBand, "high");
-  assert.equal(v12.workflow.destination, "Salesforce FSC");
-  assert.equal(v12.outcome.claimStatus, "blocked");
+  assert.equal(v12.workflowIntent.destination, "Salesforce FSC");
+  assert.equal(v12.governance.approvalStatus, "approved");
+  assert.match(v12.packageDigest, /^sha256:[a-f0-9]{64}$/);
 });

@@ -131,6 +131,7 @@ function consoleJourney() {
       getDB: runtimeDatabase,
       ledgerRepository: decisionLedger(),
       deliveryRepository: createConnectorDeliveryRepository({ getDB: runtimeDatabase }),
+      protocolRegistry: consoleGrowthPlayRegistry(),
     });
   }
   return journeyRepository;

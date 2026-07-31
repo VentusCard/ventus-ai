@@ -110,7 +110,7 @@ const defaultContract = (): Contract => ({
   contract_version: "1.0", growth_play_id: "deposit-primacy-defense", version: "1.0.0", business_line: "consumer-banking", objective: "Retain primary deposit relationships before recurring income moves elsewhere.",
   source: { receipt_source_systems: ["partner_sandbox", "plaid_custom_user"], schema_versions: ["1.0", "plaid-transactions-1"], record_sources: [{ source_system: "deposit_core", allowed_rails: ["ach", "card", "p2p", "wire"] }] },
   eligibility: { criteria_version: "deposit-primacy-eligibility-v1" },
-  policy: { version: "consumer-policy-v1", required_policy_ids: ["consent", "eligibility", "vulnerability"] },
+  policy: { version: "mvp-policy-v1", required_policy_ids: ["consent", "eligibility", "vulnerability"] },
   actions: [{ action_id: "banker_retention_review", owner_role: "relationship_banker", connector: "salesforce-fsc", destination: "fsc_task", destination_environment: "sandbox" }],
   measurement: { metric: "deposit_retained", outcome_event_types: ["deposit_balance_observed"], outcome_source_systems: ["deposit_core_sandbox"], outcome_window_days: 31, holdout_pct: 10, minimum_per_arm: 30, minimum_coverage: 0.9 },
 });

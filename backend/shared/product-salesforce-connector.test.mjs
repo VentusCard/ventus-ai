@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { createProductSalesforceConnector, ProductSalesforceConnectorError } from './product-salesforce-connector.mjs';
 
@@ -122,12 +123,7 @@ test('product connector derives the Salesforce payload from the Decision Package
 
 test('product connector carries the immutable Decision Package v1.2 identity to FSC', async () => {
   const calls = [];
-  const packageV12 = {
-    schemaVersion: '1.2',
-    tenantId: 'pilot_bank',
-    decisionId: 'dec_123',
-    packageDigest: `sha256:${'a'.repeat(64)}`,
-  };
+  const packageV12 = completePackageV12();
   const connector = createProductSalesforceConnector({
     getSecrets: async () => ({
       salesforceLoginUrl: 'https://example.my.salesforce.com', salesforceClientId: 'client', salesforceClientSecret: 'secret', salesforceCreateReferral: false,
@@ -142,6 +138,33 @@ test('product connector carries the immutable Decision Package v1.2 identity to 
   await connector.deliver({ tenantId: 'pilot_bank', decisionPackage, decisionPackageV12: packageV12 });
   assert.equal(calls[0].body.decisionPackageV12.packageDigest, packageV12.packageDigest);
   assert.equal(calls[0].body.insight.decisionPackageDigest, packageV12.packageDigest);
+});
+
+test('product connector refuses an incomplete or tampered Decision Package v1.2', async () => {
+  const connector = createProductSalesforceConnector({
+    getSecrets: async () => ({
+      salesforceLoginUrl: 'https://example.my.salesforce.com', salesforceClientId: 'client', salesforceClientSecret: 'secret',
+    }),
+    fscService: { async deliver() { throw new Error('must not deliver'); } },
+  });
+  const incomplete = { schemaVersion: '1.2', tenantId: 'pilot_bank', decisionId: 'dec_123', packageDigest: `sha256:${'a'.repeat(64)}` };
+  await assert.rejects(
+    connector.deliver({ tenantId: 'pilot_bank', decisionPackage, decisionPackageV12: incomplete }),
+    (error) => error instanceof ProductSalesforceConnectorError && error.code === 'invalid_decision_package_v12',
+  );
+  const tampered = { ...completePackageV12(), recommendation: { ...completePackageV12().recommendation, rationale: 'Changed after qualification.' } };
+  await assert.rejects(
+    connector.deliver({ tenantId: 'pilot_bank', decisionPackage, decisionPackageV12: tampered }),
+    (error) => error instanceof ProductSalesforceConnectorError && error.code === 'invalid_decision_package_v12',
+  );
+  const unapprovedConnected = sealPackageV12({
+    ...completePackageV12(),
+    evidenceClass: 'partner_sandbox',
+  });
+  await assert.rejects(
+    connector.deliver({ tenantId: 'pilot_bank', decisionPackage, decisionPackageV12: unapprovedConnected }),
+    (error) => error instanceof ProductSalesforceConnectorError && error.code === 'invalid_decision_package_v12',
+  );
 });
 
 test('product connector treats authentication failure as terminal configuration failure', async () => {
@@ -164,3 +187,29 @@ test('product connector treats authentication failure as terminal configuration 
     (error) => error instanceof ProductSalesforceConnectorError && error.code === 'salesforce_auth_invalid' && error.terminalFailure,
   );
 });
+
+function completePackageV12() {
+  const immutable = {
+    schemaVersion: '1.2', tenantId: 'pilot_bank', decisionId: 'dec_123', createdAt: '2026-07-30T12:00:00.000Z', evidenceClass: 'fixture',
+    growthPlay: { id: 'deposit-primacy-defense', protocolId: 'deposit-retention-v1' },
+    subject: { token: 'tok_123', scope: 'customer' },
+    moment: { type: 'Checking primacy at risk', summary: 'Spend is moving off-bank.', confidence: 90, confidenceBand: 'high', observedAt: '2026-07-30T12:00:00.000Z', urgency: 'routine', evidence: [] },
+    recommendation: { selectedAction: { id: 'banker-retention-review' }, rationale: 'Spend is moving off-bank.', actionCatalogVersion: 'deposit-actions-v1' },
+    governance: { policyStatus: 'cleared', approvalStatus: 'not_attested', protocolApprovalId: null, exceptionStatus: 'none' },
+    decisionMethod: { runtimeType: 'deterministic', runtimeVersion: 'rules-v1', skillVersions: ['deposit-primacy-defense:deposit-retention-v1'] },
+    workflowIntent: { connector: 'salesforce-fsc', destination: 'Salesforce FSC', ownerRole: 'Relationship banker' },
+    measurementPlan: { metric: 'deposit_retained', outcomeEventTypes: [], outcomeSourceSystems: [], windowDays: 30 },
+  };
+  return sealPackageV12(immutable);
+}
+
+function sealPackageV12(value) {
+  const { packageDigest: _ignored, ...immutable } = value;
+  return { ...immutable, packageDigest: `sha256:${createHash('sha256').update(canonicalJson(immutable)).digest('hex')}` };
+}
+
+function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  return JSON.stringify(value);
+}
