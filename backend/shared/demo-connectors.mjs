@@ -161,6 +161,14 @@ export function createDemoConnectorService({
 
   async function pullPlaidTransactions({ authorization, scenario = 'deposit-retention' }) {
     const principal = await authorize(authorization, { scope: 'plaid_read', destination: 'plaid' });
+    const result = await pullPlaidScenario({ scenario });
+    return { ...result, authorization: principalSummary(principal) };
+  }
+
+  // This is intentionally not exposed by the connector HTTP surface. It lets
+  // another server-side Ventus service obtain the same sandbox evidence without
+  // sending transactions, access tokens, or assignment inputs through a browser.
+  async function pullPlaidScenario({ scenario = 'deposit-retention' } = {}) {
     const configured = await secrets();
     if (!configured.plaidClientId || !configured.plaidSecret) {
       throw new DemoConnectorError('Plaid sandbox is not configured', 503);
@@ -207,7 +215,6 @@ export function createDemoConnectorService({
       ready: demoScenarioReady(selectedScenario, best),
       transactions: best,
       count: best.length,
-      authorization: principalSummary(principal),
     };
   }
 
@@ -307,6 +314,7 @@ export function createDemoConnectorService({
     status,
     issueSession,
     pullPlaidTransactions,
+    pullPlaidScenario,
     discoverSalesforce,
     verifySalesforceAccount,
     deliverSalesforce,

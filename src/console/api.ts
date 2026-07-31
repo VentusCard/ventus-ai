@@ -31,6 +31,10 @@ export function consoleDecisionRunUrl(): string {
     ? `${baseUrl}/decision-run`
     : "/api/decision-run";
 }
+export function consoleControlledSandboxRunUrl(): string {
+  const baseUrl = configuredBaseUrl || devConsoleBaseUrl;
+  return baseUrl ? `${baseUrl}/controlled-sandbox-run` : "/api/controlled-sandbox-run";
+}
 
 export function consoleTodayUrl(): string | null {
   const baseUrl = configuredBaseUrl || devConsoleBaseUrl;

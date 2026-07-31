@@ -64,6 +64,7 @@ import {
   MERRILL_RELATIONSHIP_GROWTH_SKILL,
   type SkillArtifact,
 } from "@/lib/skills";
+import { consoleControlledSandboxRunUrl } from "@/console/api";
 import {
   LEADERSHIP_PATHS,
   OPERATING_POSTURES,
@@ -979,6 +980,7 @@ export default function EnterpriseGrowthDemoPage({
             updateConnectorSession(null);
             setPresenterSessionOpen(true);
           }}
+          accessToken={accessToken}
         />
       ) : (
         <>
@@ -4460,6 +4462,7 @@ function LeadershipPipelineRun({
   onComplete,
   connectorToken,
   onConnectorSessionInvalid,
+  accessToken,
 }: {
   path: LeadershipPath;
   opp: Opportunity;
@@ -4472,6 +4475,7 @@ function LeadershipPipelineRun({
   onComplete: () => void;
   connectorToken?: string;
   onConnectorSessionInvalid: () => void;
+  accessToken?: string;
 }) {
   const [runStage, setRunStage] = useState(0);
   const [sourceStatus, setSourceStatus] = useState<"idle" | "connecting" | "live" | "demo">("idle");
@@ -4515,6 +4519,28 @@ function LeadershipPipelineRun({
       opportunity: null,
     };
     try {
+      if (accessToken) {
+        const response = await fetch(consoleControlledSandboxRunUrl(), {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Authorization: `Bearer ${accessToken}` },
+          body: JSON.stringify({ scenario: path }),
+        });
+        const result = await response.json().catch(() => ({})) as { status?: string; error?: string; decision?: { opportunity?: DetectedOpportunity } };
+        if (!response.ok) throw new Error(result.error ?? "controlled sandbox run unavailable");
+        const holdout = result.status === "holdout";
+        evidence = {
+          ...evidence,
+          sourceMode: "live",
+          sourceName: holdout ? "Plaid sandbox · holdout" : "Plaid sandbox · governed",
+          opportunity: holdout ? null : result.decision?.opportunity ?? null,
+        };
+        if (holdout) setConnectionNote("Reserved as holdout. No employee action was generated.");
+        setRunEvidence(evidence);
+        setSourceStatus("live");
+        onEvidence(evidence);
+        setRunStage(1);
+        return;
+      }
       if (!connectorToken) throw new Error("presentation-mode");
       const response = await fetch(DEMO_CONNECTOR_ENDPOINTS.plaid, {
         method: "POST",
@@ -4809,6 +4835,7 @@ function LeadershipFlow({
   onRequestPresenterSession,
   onConnectorSessionInvalid,
   onOutcomeSimulated,
+  accessToken,
 }: {
   path: LeadershipPath;
   onExit: () => void;
@@ -4816,6 +4843,7 @@ function LeadershipFlow({
   onRequestPresenterSession: () => void;
   onConnectorSessionInvalid: () => void;
   onOutcomeSimulated?: () => void;
+  accessToken?: string;
 }) {
   const [step, setStep] = useState(0);
   const [scopeOpen, setScopeOpen] = useState(false);
@@ -5189,6 +5217,7 @@ function LeadershipFlow({
                 onEvidence={setRunEvidence}
                 onComplete={handlePipelineComplete}
                 connectorToken={connectorSession?.token}
+                accessToken={accessToken}
                 onConnectorSessionInvalid={onConnectorSessionInvalid}
               />
             )}

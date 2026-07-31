@@ -15,6 +15,7 @@ const COGNITO_CLIENT_ID = '7p8ii113apn8s99t9khf0n4uib';
 const EVIDENCE_RUNTIME_SECRET_ID = 'ventus/evidence-store/app-v1';
 const PRODUCT_CONNECTOR_SECRET_NAME = 'ventus/staging/product-connectors';
 const COWORKER_CONNECTOR_SECRET_NAME = 'ventus/staging/coworker-connectors';
+const DEMO_CONNECTOR_SECRET_NAME = 'ventus/staging/demo-connectors';
 const RDS_HOST =
   'ventus-bofa-cluster.cluster-chm2goicq5dx.us-east-2.rds.amazonaws.com';
 const DEFAULT_ORIGINS = [
@@ -78,6 +79,13 @@ export class VentusConsoleApiStack extends cdk.Stack {
       'CoworkerConnectorSecret',
       COWORKER_CONNECTOR_SECRET_NAME,
     );
+    const demoConnectorSecret = secretsmanager.Secret.fromSecretNameV2(this, 'DemoConnectorSecret', DEMO_CONNECTOR_SECRET_NAME);
+    const experimentSecret = new secretsmanager.Secret(this, 'ExperimentAssignmentSecret', {
+      secretName: 'ventus/staging/experiment-assignment',
+      description: 'Server-only assignment secret for controlled Ventus sandbox experiments.',
+      generateSecretString: { generateStringKey: 'assignmentSalt', excludePunctuation: true, passwordLength: 48 },
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
     const consoleFunction = new lambda.Function(this, 'ConsoleApiFunction', {
       functionName: 'ventus-console-api',
       description: 'Cognito and institution-membership boundary for the Ventus Growth Console.',
@@ -100,6 +108,8 @@ export class VentusConsoleApiStack extends cdk.Stack {
         EVIDENCE_RUNTIME_SECRET_ID,
         VENTUS_PRODUCT_CONNECTOR_SECRET_ID: productConnectorSecret.secretArn,
         VENTUS_COWORKER_CONNECTOR_SECRET_ID: coworkerConnectorSecret.secretArn,
+        VENTUS_DEMO_CONNECTOR_SECRET_ID: demoConnectorSecret.secretArn,
+        VENTUS_EXPERIMENT_ASSIGNMENT_SECRET_ID: experimentSecret.secretArn,
         VENTUS_CONSOLE_PUBLIC_URL: 'https://dev.d1gaewa028qzng.amplifyapp.com',
         RDS_HOST,
         RDS_PORT: '5432',
@@ -119,6 +129,8 @@ export class VentusConsoleApiStack extends cdk.Stack {
     }));
     productConnectorSecret.grantRead(consoleFunction);
     coworkerConnectorSecret.grantRead(consoleFunction);
+    demoConnectorSecret.grantRead(consoleFunction);
+    experimentSecret.grantRead(consoleFunction);
     consoleFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['kms:Decrypt', 'kms:DescribeKey'],
       resources: [VENTUS_DATABASE_KMS_KEY_ARN],
@@ -158,6 +170,7 @@ export class VentusConsoleApiStack extends cdk.Stack {
     const consoleApi = api.root.addResource('v1').addResource('console');
     consoleApi.addResource('access').addMethod('POST', integration);
     consoleApi.addResource('decision-run').addMethod('POST', integration);
+    consoleApi.addResource('controlled-sandbox-run').addMethod('POST', integration);
     consoleApi.addResource('today').addMethod('GET', integration);
     consoleApi.addResource('results').addMethod('GET', integration);
     consoleApi.addResource('governance').addMethod('GET', integration);

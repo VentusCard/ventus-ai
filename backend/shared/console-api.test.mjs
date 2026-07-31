@@ -134,6 +134,20 @@ test('Console API fails closed when connected evidence has no independently appr
   assert.equal(body.code, 'growth_play_approval_required');
 });
 
+test('Console API permits a controlled sandbox run only for an entitled operator', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({ ...membership, role: 'bank_operator', entitlements: ['growth_console', 'consumer_demo'], businessLines: ['consumer-banking'], queueScopes: [] }),
+    runControlledSandbox: async (input) => ({ status: 'holdout', tenantId: input.tenantId, businessClaimAllowed: false }),
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/controlled-sandbox-run',
+    body: JSON.stringify({ scenario: 'deposit-retention' }),
+  }));
+  assert.equal(result.statusCode, 200);
+  assert.equal(JSON.parse(result.body).status, 'holdout');
+});
+
 test('Console API binds connected evidence to the latest approved protocol before execution', async () => {
   const calls = [];
   const contract = approvedDepositContract();

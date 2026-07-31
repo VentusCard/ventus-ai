@@ -7,6 +7,8 @@ import { createDecisionLedgerRepository } from '../../shared/decision-ledger.mjs
 import { createEnterpriseControlPlane } from '../../shared/enterprise-control-plane.mjs';
 import { createGrowthPlayRegistry } from '../../shared/growth-play-registry.mjs';
 import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
+import { createControlledSandboxRunner } from '../../shared/controlled-sandbox-run.mjs';
+import { createDemoConnectorService } from '../../shared/demo-connectors.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
 import { createCoworkerDeliveryService } from '../../shared/coworker-delivery.mjs';
 import {
@@ -34,6 +36,10 @@ let growthPlayRegistry;
 let coworkerDeliveryService;
 let getCoworkerConnectorCredentials;
 let ledgerRepository;
+let demoConnectorService;
+let controlledSandboxRunner;
+let getDemoConnectorCredentials;
+let getExperimentAssignmentCredentials;
 
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
@@ -46,6 +52,7 @@ export const handler = createConsoleApiHandler({
   growthPlayRegistry: consoleGrowthPlayRegistry(),
   deliverCoworkerBriefing,
   readSalesforceOutcome,
+  runControlledSandbox: runControlledSandbox,
 });
 
 async function verifyCognitoAccessToken(token) {
@@ -168,6 +175,50 @@ async function testConnectorConnection({ connector, mapping }) {
 function decisionLedger() {
   if (!ledgerRepository) ledgerRepository = createDecisionLedgerRepository({ getDB: runtimeDatabase });
   return ledgerRepository;
+}
+
+async function runControlledSandbox(input) {
+  if (!controlledSandboxRunner) {
+    const assignmentSecret = await experimentAssignmentCredentialsProvider()();
+    const assignmentSalt = typeof assignmentSecret.assignmentSalt === 'string' ? assignmentSecret.assignmentSalt : '';
+    controlledSandboxRunner = createControlledSandboxRunner({
+      pullPlaidScenario: (request) => demoConnectors().pullPlaidScenario(request),
+      growthPlayRegistry: consoleGrowthPlayRegistry(),
+      ledgerRepository: decisionLedger(),
+      getDB: runtimeDatabase,
+      assignmentSalt,
+      executeDecision: executeHostedDecision,
+      appendDecision: persistDecision,
+    });
+  }
+  return controlledSandboxRunner(input);
+}
+
+function demoConnectors() {
+  if (!demoConnectorService) {
+    demoConnectorService = createDemoConnectorService({ getSecrets: demoConnectorCredentialsProvider() });
+  }
+  return demoConnectorService;
+}
+
+function demoConnectorCredentialsProvider() {
+  if (!getDemoConnectorCredentials) {
+    getDemoConnectorCredentials = createSecretsProvider({
+      secretId: process.env.VENTUS_DEMO_CONNECTOR_SECRET_ID,
+      region: process.env.AWS_REGION || 'us-east-2',
+    });
+  }
+  return getDemoConnectorCredentials;
+}
+
+function experimentAssignmentCredentialsProvider() {
+  if (!getExperimentAssignmentCredentials) {
+    getExperimentAssignmentCredentials = createSecretsProvider({
+      secretId: process.env.VENTUS_EXPERIMENT_ASSIGNMENT_SECRET_ID,
+      region: process.env.AWS_REGION || 'us-east-2',
+    });
+  }
+  return getExperimentAssignmentCredentials;
 }
 
 async function deliverCoworkerBriefing(input) {

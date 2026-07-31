@@ -320,7 +320,7 @@ export function buildDecisionPackage(decision) {
       primaryMetric: approvedContract?.measurement.metric ?? catalog.primaryMetric,
       protocolId: approvedContract?.decision_protocol_id ?? catalog.protocolId,
     },
-    subject: { token: subjectToken(decision.tenantId, decision.decisionId) },
+    subject: { token: decision.trustedSubjectToken ?? subjectToken(decision.tenantId, decision.decisionId) },
     moment: {
       type: opportunity.type,
       summary: opportunity.reason,

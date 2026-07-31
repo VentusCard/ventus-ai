@@ -29,7 +29,7 @@ export class DecisionRequestError extends Error {
   }
 }
 
-export function executeHostedDecision({ tenantId, body, now = new Date(), protocolApproval = null }) {
+export function executeHostedDecision({ tenantId, body, now = new Date(), protocolApproval = null, trustedSubjectToken = null }) {
   const request = parseDecisionRequest(body);
   const scope = decisionScopeForScenario(request.scenario);
   const approved = normalizeProtocolApproval(protocolApproval, scope);
@@ -71,6 +71,9 @@ export function executeHostedDecision({ tenantId, body, now = new Date(), protoc
         outcomeSourceSystems: approved.contract.measurement.outcome_source_systems,
       } : null,
     },
+    ...(typeof trustedSubjectToken === 'string' && /^tok_[A-Za-z0-9_-]{8,120}$/.test(trustedSubjectToken)
+      ? { trustedSubjectToken }
+      : {}),
     opportunity,
     policy,
   };

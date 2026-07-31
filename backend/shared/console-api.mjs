@@ -39,6 +39,7 @@ export function createConsoleApiHandler({
   growthPlayRegistry,
   deliverCoworkerBriefing,
   readSalesforceOutcome,
+  runControlledSandbox,
 }) {
   if (typeof verifyIdentity !== 'function' || typeof resolveMembership !== 'function') {
     throw new Error('Console API identity and membership adapters are required');
@@ -425,6 +426,19 @@ export function createConsoleApiHandler({
         });
         const { moment, ...ledgerReceipt } = recorded;
         return response(200, { ...decision, ledgerReceipt, ...(moment ? { moment } : {}) }, responseHeaders);
+      }
+
+      if (path.endsWith('/controlled-sandbox-run')) {
+        if (method !== 'POST') return response(405, { error: 'method not allowed' }, responseHeaders);
+        if (typeof runControlledSandbox !== 'function') return unavailable('controlled sandbox runner', responseHeaders);
+        const body = parseBody(event.body);
+        requiredEntitlementForScenario(body.scenario);
+        if (!authorizeScenarioDecision(membership, body.scenario).allowed) return forbidden('controlled sandbox run', responseHeaders);
+        const result = await runControlledSandbox({
+          tenantId: identity.tenantHint, scenario: body.scenario,
+          requestId: event.requestContext?.requestId || identity.subject,
+        });
+        return response(200, { ...result, serverAuthoritative: true }, responseHeaders);
       }
 
       return response(200, {
