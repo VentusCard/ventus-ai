@@ -169,6 +169,7 @@ export function createConsoleJourneyRepository({ getDB, ledgerRepository, delive
           decision_id: decisionId,
           request_idempotency_key: idempotencyKey,
           decision_package: moment.decisionPackage,
+          decision_package_v12: moment.decisionPackageV12,
         },
         requestedAt,
       });

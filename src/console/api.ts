@@ -62,6 +62,8 @@ function consoleEndpoint(path: string): string | null {
 
 export function consoleResultsUrl(): string | null { return consoleEndpoint('/results'); }
 export function consoleGovernanceUrl(): string | null { return consoleEndpoint('/governance'); }
+export function consoleOnboardingReadinessUrl(): string | null { return consoleEndpoint('/onboarding/readiness'); }
+export function consoleSkillShadowsUrl(): string | null { return consoleEndpoint('/skills/shadows'); }
 export function consoleGrowthPlaysUrl(): string | null { return consoleEndpoint('/growth-plays'); }
 export function consoleGrowthPlayDraftsUrl(): string | null { return consoleEndpoint('/growth-plays/drafts'); }
 export function consoleGrowthPlayRegisterUrl(): string | null { return consoleEndpoint('/growth-plays/register'); }

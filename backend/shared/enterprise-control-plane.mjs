@@ -9,7 +9,7 @@ const CONNECTORS = new Set(['salesforce-fsc', 'microsoft-outlook', 'slack']);
  * Durable, tenant-scoped control-plane projections. It intentionally stores
  * mappings and contracts, never OAuth/API secrets. Those stay in Secrets Manager.
  */
-export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
+export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledgerRepository = null }) {
   assert.equal(typeof getDB, 'function', 'getDB is required');
   assert.ok(growthPlayRegistry && typeof growthPlayRegistry.register === 'function', 'growthPlayRegistry is required');
 
@@ -233,7 +233,7 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
       validateTenantId(tenantId);
       assert.ok(moment?.decisionPackage?.subject?.token, 'Moment Decision Package is required');
       assert.ok(outcome?.decisionRecordId && outcome?.decisionId, 'Salesforce outcome receipt is required');
-      return queryTenant(getDB, tenantId, async (db) => {
+      const recorded = await queryTenant(getDB, tenantId, async (db) => {
         const observation = outcome.outcome?.observation ?? null;
         const receiptId = `obs_${createHash('sha256').update(`${tenantId}\u001f${outcome.decisionRecordId}\u001f${outcome.outcome?.status ?? 'awaiting'}`).digest('hex').slice(0, 24)}`;
         const inserted = await db.query(
@@ -246,6 +246,26 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
         );
         return { observation: { observationId: inserted.rows[0].observation_id, status: inserted.rows[0].status, observation: inserted.rows[0].observation, syncedAt: inserted.rows[0].synced_at }, eligibleForLift: false };
       });
+      if (!ledgerRepository || typeof ledgerRepository.append !== 'function') return recorded;
+      const event = await ledgerRepository.append({
+        tenantId,
+        idempotencyKey: `fsc-observation:${recorded.observation.observationId}`,
+        eventType: 'outcome',
+        householdToken: moment.decisionPackage.subject.token,
+        growthPlayId: moment.decisionPackage.growthPlay.id,
+        policyVersion: moment.decisionPackageV12?.governance?.policyVersion ?? moment.decisionPackage.growthPlay.protocolId,
+        status: 'confirmed',
+        occurredAt: new Date(recorded.observation.syncedAt).toISOString(),
+        payload: {
+          decision_id: outcome.decisionId,
+          decision_record_id: outcome.decisionRecordId,
+          observation_id: recorded.observation.observationId,
+          observation_only: true,
+          source_system: 'salesforce-fsc',
+          package_digest: moment.decisionPackageV12?.packageDigest ?? null,
+        },
+      });
+      return { ...recorded, ledgerReceipt: { sequenceNumber: Number(event.record.sequence_number ?? event.record.sequenceNumber), eventHash: event.record.event_hash ?? event.record.eventHash } };
     },
 
     async listSkillShadows({ tenantId }) {
@@ -323,13 +343,22 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
             LIMIT 50`,
           [tenantId],
         );
-        const deliveries = await db.query(
-          `SELECT status, count(*)::int AS count
-             FROM connector_delivery_receipts
-            WHERE tenant_id = $1
-            GROUP BY status`,
-          [tenantId],
-        );
+        const [deliveries, observations] = await Promise.all([
+          db.query(
+            `SELECT status, count(*)::int AS count
+               FROM connector_delivery_receipts
+              WHERE tenant_id = $1
+              GROUP BY status`,
+            [tenantId],
+          ),
+          db.query(
+            `SELECT status, count(*)::int AS count, max(synced_at) AS last_synced_at
+               FROM outcome_observation_receipts
+              WHERE tenant_id = $1
+              GROUP BY status`,
+            [tenantId],
+          ),
+        ]);
         return {
           experiments: result.rows.map((row) => ({
             experimentId: row.experiment_id,
@@ -346,6 +375,10 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
             claimStatus: Number(row.outcomes_observed) >= 60 ? 'independent_review_required' : 'not_eligible',
           })),
           deliveries: Object.fromEntries(deliveries.rows.map((row) => [row.status, Number(row.count)])),
+          outcomeObservations: observations.rows.reduce((sum, row) => sum + Number(row.count), 0),
+          observationReconciliation: Object.fromEntries(observations.rows.map((row) => [row.status, {
+            count: Number(row.count), lastSyncedAt: row.last_synced_at,
+          }])),
           serverAuthoritative: true,
         };
       });
@@ -353,7 +386,7 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
 
     async governance({ tenantId }) {
       return queryTenant(getDB, tenantId, async (db) => {
-        const [protocols, events, mappings, observations, skills] = await Promise.all([
+        const [protocols, events, mappings, observations, skills, deliveries] = await Promise.all([
           db.query(
             `SELECT p.decision_protocol_id, p.growth_play_id, p.business_line, p.registered_at,
                     latest.decision AS approval_status, latest.decided_at AS approval_decided_at
@@ -377,6 +410,13 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
               GROUP BY connector, status`, [tenantId]),
           db.query(`SELECT status, count(*)::int AS count FROM outcome_observation_receipts WHERE tenant_id = $1 GROUP BY status`, [tenantId]),
           db.query(`SELECT skill_id, version, status, updated_at FROM skill_shadow_registry WHERE tenant_id = $1 ORDER BY updated_at DESC LIMIT 20`, [tenantId]),
+          db.query(
+            `SELECT status, count(*)::int AS count, max(completed_at) AS last_completed_at
+               FROM connector_delivery_receipts
+              WHERE tenant_id = $1
+              GROUP BY status`,
+            [tenantId],
+          ),
         ]);
         return {
           protocols: protocols.rows.map(projectProtocol),
@@ -384,9 +424,18 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry }) {
             type: row.event_type,
             occurredAt: row.occurred_at,
             decisionId: row.payload?.decision_id || null,
+            policyVersion: row.payload?.runtime?.policyVersion ?? row.payload?.policy?.version ?? null,
+            modelVersion: row.payload?.decision_package_v12?.decisionMethod?.active?.version ?? null,
+            skillVersion: row.payload?.decision_package_v12?.decisionMethod?.skill?.version ?? null,
           })),
           connections: mappings.rows.map((row) => ({ connector: row.connector, status: row.status, updatedAt: row.updated_at })),
           outcomeReconciliation: Object.fromEntries(observations.rows.map((row) => [row.status, Number(row.count)])),
+          deliveryReconciliation: Object.fromEntries(deliveries.rows.map((row) => [row.status, {
+            count: Number(row.count), lastCompletedAt: row.last_completed_at,
+          }])),
+          exceptions: deliveries.rows
+            .filter((row) => row.status !== 'delivered')
+            .map((row) => ({ type: `delivery_${row.status}`, count: Number(row.count), lastOccurredAt: row.last_completed_at })),
           skills: skills.rows.map((row) => ({ skillId: row.skill_id, version: row.version, status: row.status, updatedAt: row.updated_at })),
           serverAuthoritative: true,
         };

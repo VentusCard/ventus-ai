@@ -21,8 +21,9 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
   if (typeof salesforce.deliver !== 'function') throw new Error('fscService.deliver is required');
 
   return {
-    async deliver({ tenantId, decisionPackage, source = 'ventus-growth-console' }) {
+    async deliver({ tenantId, decisionPackage, decisionPackageV12 = null, source = 'ventus-growth-console' }) {
       validateDecisionPackage({ tenantId, decisionPackage });
+      validateDecisionPackageV12(decisionPackageV12, decisionPackage);
       const config = normalizeConfig(await getSecrets());
       if (!config.salesforceLoginUrl || !config.salesforceClientId || !config.salesforceClientSecret) {
         throw new ProductSalesforceConnectorError(
@@ -54,8 +55,10 @@ export function createProductSalesforceConnector({ getSecrets, fscService } = {}
               decisionRef: decisionPackage.decisionId,
               sourceName: source,
               confidence: decisionPackage.moment.confidence,
+              decisionPackageDigest: decisionPackageV12?.packageDigest ?? null,
             },
             decisionPackage,
+            decisionPackageV12,
             fsc: {
               createReferral: config.salesforceCreateReferral,
             },
@@ -125,6 +128,19 @@ function validateDecisionPackage({ tenantId, decisionPackage }) {
     throw new ProductSalesforceConnectorError('The Decision Package does not contain an approved action.', {
       code: 'delivery_action_missing', terminalFailure: true,
     });
+  }
+}
+
+function validateDecisionPackageV12(packageV12, decisionPackage) {
+  if (packageV12 === null || packageV12 === undefined) return;
+  if (!packageV12 || typeof packageV12 !== 'object' || Array.isArray(packageV12)) {
+    throw new ProductSalesforceConnectorError('Decision Package v1.2 is malformed.', { code: 'invalid_decision_package_v12', terminalFailure: true });
+  }
+  if (packageV12.schemaVersion !== '1.2' || typeof packageV12.packageDigest !== 'string' || !/^sha256:[a-f0-9]{64}$/.test(packageV12.packageDigest)) {
+    throw new ProductSalesforceConnectorError('Decision Package v1.2 identity is invalid.', { code: 'invalid_decision_package_v12', terminalFailure: true });
+  }
+  if (packageV12.decisionId !== decisionPackage.decisionId || packageV12.tenantId !== decisionPackage.tenantId) {
+    throw new ProductSalesforceConnectorError('Decision Package v1.2 does not match the delivery decision.', { code: 'decision_package_v12_mismatch', terminalFailure: true });
   }
 }
 

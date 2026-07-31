@@ -362,6 +362,7 @@ function buildReferralRecord(body, config, now) {
 
 function buildDecisionRecord(body, config, workflow, now) {
   const decisionPackage = asRecord(body.decisionPackage);
+  const decisionPackageV12 = asRecord(body.decisionPackageV12);
   const decisionId = cleanText(decisionPackage.decisionId, 160);
   if (!decisionId) return null;
   const growthPlay = asRecord(decisionPackage.growthPlay);
@@ -378,6 +379,10 @@ function buildDecisionRecord(body, config, workflow, now) {
   const confidence = finitePercentage(moment.confidence);
   const snapshot = {
     schemaVersion: cleanText(decisionPackage.schemaVersion, 20) || '1.0',
+    immutablePackage: {
+      schemaVersion: cleanText(decisionPackageV12.schemaVersion, 20) || null,
+      digest: cleanText(decisionPackageV12.packageDigest, 80) || null,
+    },
     decisionId,
     tenantId: cleanText(decisionPackage.tenantId, 100),
     createdAt: cleanText(decisionPackage.createdAt, 40),

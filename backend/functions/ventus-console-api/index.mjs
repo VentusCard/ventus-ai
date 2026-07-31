@@ -33,6 +33,7 @@ let controlPlaneRepository;
 let growthPlayRegistry;
 let coworkerDeliveryService;
 let getCoworkerConnectorCredentials;
+let ledgerRepository;
 
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
@@ -128,7 +129,7 @@ function consoleJourney() {
   if (!journeyRepository) {
     journeyRepository = createConsoleJourneyRepository({
       getDB: runtimeDatabase,
-      ledgerRepository: createDecisionLedgerRepository({ getDB: runtimeDatabase }),
+      ledgerRepository: decisionLedger(),
       deliveryRepository: createConnectorDeliveryRepository({ getDB: runtimeDatabase }),
     });
   }
@@ -145,9 +146,15 @@ function enterpriseControlPlane() {
     controlPlaneRepository = createEnterpriseControlPlane({
       getDB: runtimeDatabase,
       growthPlayRegistry: consoleGrowthPlayRegistry(),
+      ledgerRepository: decisionLedger(),
     });
   }
   return controlPlaneRepository;
+}
+
+function decisionLedger() {
+  if (!ledgerRepository) ledgerRepository = createDecisionLedgerRepository({ getDB: runtimeDatabase });
+  return ledgerRepository;
 }
 
 async function deliverCoworkerBriefing(input) {
@@ -183,6 +190,7 @@ async function deliverReservedSalesforce({ tenantId, decisionId, sessionId, rese
     const result = await productConnector().deliver({
       tenantId,
       decisionPackage: moment.decisionPackage,
+      decisionPackageV12: moment.decisionPackageV12,
     });
     return consoleJourney().completeDelivery({
       tenantId,

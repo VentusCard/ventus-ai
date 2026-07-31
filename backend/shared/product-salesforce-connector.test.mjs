@@ -55,6 +55,30 @@ test('product connector derives the Salesforce payload from the Decision Package
   assert.equal(result.records.task.id, '00T123456789012EAA');
 });
 
+test('product connector carries the immutable Decision Package v1.2 identity to FSC', async () => {
+  const calls = [];
+  const packageV12 = {
+    schemaVersion: '1.2',
+    tenantId: 'pilot_bank',
+    decisionId: 'dec_123',
+    packageDigest: `sha256:${'a'.repeat(64)}`,
+  };
+  const connector = createProductSalesforceConnector({
+    getSecrets: async () => ({
+      salesforceLoginUrl: 'https://example.my.salesforce.com', salesforceClientId: 'client', salesforceClientSecret: 'secret', salesforceCreateReferral: false,
+    }),
+    fscService: {
+      async deliver(input) {
+        calls.push(input);
+        return { object: 'Task', id: '00T123456789012EAA', url: 'https://example.my.salesforce.com/lightning/r/Task/00T123456789012EAA/view', records: {} };
+      },
+    },
+  });
+  await connector.deliver({ tenantId: 'pilot_bank', decisionPackage, decisionPackageV12: packageV12 });
+  assert.equal(calls[0].body.decisionPackageV12.packageDigest, packageV12.packageDigest);
+  assert.equal(calls[0].body.insight.decisionPackageDigest, packageV12.packageDigest);
+});
+
 test('product connector treats authentication failure as terminal configuration failure', async () => {
   const connector = createProductSalesforceConnector({
     getSecrets: async () => ({
