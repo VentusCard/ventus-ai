@@ -96,6 +96,24 @@ correction sequence, and optional reason code. It must not contain tenant, exper
 protocol, claim status, or direct customer PII. Ventus derives those fields from its persisted
 assignment and decision records.
 
+The server-side outcome ingress is enabled only when the deployment supplies an approved source
+contract through `VENTUS_AUTHORITATIVE_OUTCOME_SOURCE_CONFIG`. The first profile has this shape:
+
+```json
+{
+  "sourceSystem": "deposit_core_sandbox",
+  "sourceVersion": "deposit-retention-v1",
+  "metric": "deposit_retained",
+  "eventTypes": ["deposit_balance_observed"],
+  "maxObservationLagDays": 7
+}
+```
+
+This configuration is deployment-side policy, not browser state and not a customer-provided field.
+The existing authenticated connector session remains the transport authorization boundary. A bank
+integration may later deliver the same envelope through a managed batch, queue, or event adapter
+without changing the decision-lineage or measurement rules.
+
 The profile is ready for a bounded pilot only when all six artifacts exist:
 
 1. Tenant charter and named business, risk, identity, data, workflow, and measurement owners.
