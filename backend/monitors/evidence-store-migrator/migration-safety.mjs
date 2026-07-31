@@ -13,6 +13,7 @@ export const EVIDENCE_STORE_MIGRATIONS = [
   'enterprise-console-journey.sql',
   'enterprise-product-control-plane.sql',
   'enterprise-skill-governance.sql',
+  'enterprise-protocol-writer.sql',
 ];
 
 export function checkedPgIdentifier(value, label = 'identifier') {

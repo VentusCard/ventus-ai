@@ -32,6 +32,7 @@ const MIGRATIONS = [
   'enterprise-console-journey.sql',
   'enterprise-product-control-plane.sql',
   'enterprise-skill-governance.sql',
+  'enterprise-protocol-writer.sql',
 ];
 
 async function main() {

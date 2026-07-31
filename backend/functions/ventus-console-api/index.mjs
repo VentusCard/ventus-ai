@@ -138,7 +138,9 @@ function consoleJourney() {
 }
 
 function consoleGrowthPlayRegistry() {
-  if (!growthPlayRegistry) growthPlayRegistry = createGrowthPlayRegistry({ getDB: runtimeDatabase });
+  if (!growthPlayRegistry) {
+    growthPlayRegistry = createGrowthPlayRegistry({ getDB: runtimeDatabase, useControlledWrites: true });
+  }
   return growthPlayRegistry;
 }
 

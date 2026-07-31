@@ -29,6 +29,7 @@ test('evidence-store migrator validates identifiers and quotes password literals
     'enterprise-console-journey.sql',
     'enterprise-product-control-plane.sql',
     'enterprise-skill-governance.sql',
+    'enterprise-protocol-writer.sql',
   ]);
 });
 
@@ -100,9 +101,10 @@ test('evidence-store migrator verifies connected measurement and separately auth
   assert.match(source, /exposureTenantIsolation/, 'runtime verification should report cross-tenant exposure isolation');
   assert.match(source, /protocolAdminRegistry\.recordApproval/, 'protocol approval should use the admin repository');
   assert.match(source, /protocolRegistry\.requireApproved/, 'runtime repository should resolve the approval');
-  assert.match(source, /GRANT SELECT, INSERT ON[\s\S]*growth_play_protocols,[\s\S]*growth_play_protocol_approval_events[\s\S]*TO \$\{roleName\}/, 'runtime should append registered protocols and approval receipts');
+  assert.match(source, /REVOKE INSERT, UPDATE, DELETE ON[\s\S]*growth_play_protocols,[\s\S]*growth_play_protocol_approval_events[\s\S]*FROM \$\{roleName\}/, 'runtime should not write protocols directly');
+  assert.match(source, /GRANT EXECUTE ON FUNCTION[\s\S]*ventus_append_growth_play_protocol/, 'runtime should use controlled protocol append procedures');
   assert.match(source, /protocolTenantIsolation/, 'runtime verification should report cross-tenant protocol isolation');
-  assert.match(source, /runtimeProtocolWriteDenied/, 'runtime verification should prove activation cannot register a protocol');
+  assert.match(source, /useControlledWrites: true/, 'runtime verification should prove controlled protocol procedures remain usable');
   assert.match(source, /institution_memberships/, 'runtime verification should exercise institution membership isolation');
   assert.match(source, /runtimeMembershipWriteDenied/, 'runtime verification should prove activation cannot provision memberships');
   assert.match(
@@ -116,6 +118,16 @@ test('evidence-store migrator verifies connected measurement and separately auth
     /ON CONFLICT \(tenant_id, email\) DO UPDATE[\s\S]*identity_provider_key = 'cognito'/,
     'legacy email memberships should be migrated to the Cognito provider',
   );
+});
+
+test('protocol writer migration exposes only tenant-bound append procedures', () => {
+  const source = readFileSync(
+    new URL('../sql/enterprise-protocol-writer.sql', import.meta.url),
+    'utf8',
+  );
+  assert.match(source, /SECURITY DEFINER/, 'controlled protocol procedures should own the narrow write boundary');
+  assert.match(source, /p_tenant_id IS DISTINCT FROM ventus_current_tenant_id\(\)/, 'protocol writes should require the transaction tenant context');
+  assert.match(source, /REVOKE ALL ON FUNCTION/, 'public callers must not execute protocol writers');
 });
 
 test('Skill governance migration seals status changes behind append-only receipts', () => {
