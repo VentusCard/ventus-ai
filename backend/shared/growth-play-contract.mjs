@@ -105,7 +105,9 @@ export function validateGrowthPlayOutcome(event, assignment, contract) {
   assert.equal(assignment.decisionProtocolId, play.decision_protocol_id, 'persisted assignment does not match the compiled contract');
   assert.ok(play.measurement.outcome_event_types.includes(event.event_type), 'outcome event type is not approved by the Growth Play');
   assert.ok(play.measurement.outcome_source_systems.includes(event.source_system), 'outcome source system is not approved by the Growth Play');
-  assert.equal(event.value?.metric, play.measurement.metric, 'outcome metric does not match the Growth Play');
+  if (event.value !== null && event.value !== undefined) {
+    assert.equal(event.value.metric, play.measurement.metric, 'outcome metric does not match the Growth Play');
+  }
   const elapsedMs = Date.parse(event.occurred_at) - Date.parse(assignment.assignedAt);
   assert.ok(elapsedMs >= 0, 'outcome cannot predate assignment');
   assert.ok(elapsedMs <= play.measurement.outcome_window_days * 86_400_000, 'outcome is outside the approved measurement window');

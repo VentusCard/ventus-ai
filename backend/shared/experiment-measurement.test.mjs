@@ -181,6 +181,30 @@ test('measurement with incomplete outcome coverage withholds lift', () => {
   assert.equal(result.evidenceStatus, 'not_ready');
 });
 
+test('measurement selects the latest valid append-only correction by observation time', () => {
+  const fixture = measurementFixture(1, 1);
+  const original = fixture.outcomes.find((event) => event.assignment.arm === 'treatment');
+  fixture.outcomes.push({
+    ...original,
+    event_id: `${original.event_id}_correction_1`,
+    value: { ...original.value, amount: 1400 },
+    provenance: {
+      source_version: 'deposit-retention-v1',
+      observed_at: '2026-08-03T00:00:00.000Z',
+      correction_sequence: 1,
+    },
+  });
+  const result = summarizeIncrementalLift({
+    ...fixture,
+    metric: 'deposit_retained',
+    minimumPerArm: 1,
+    minimumCoverage: 1,
+  });
+  assert.equal(result.status, 'measured');
+  assert.equal(result.treatment.mean, 1400);
+  assert.equal(result.absoluteLift, 400);
+});
+
 test('measurement rejects mixed experiments and unmatched target outcomes', () => {
   const mixed = measurementFixture(40, 40);
   mixed.assignments[0] = { ...mixed.assignments[0], experimentId: 'other_experiment' };
