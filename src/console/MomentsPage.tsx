@@ -43,6 +43,22 @@ export default function MomentsPage() {
   const action = actions.find((candidate) => candidate.id === selectedActionId) ?? actions[0];
   const canRespond = access?.role === "bank_operator";
   const canStartSandbox = access?.role === "bank_operator";
+  const livePlaidReady = Boolean(connectorSession?.connectors.plaid);
+  const hasActionableMoment = visibleMoments.some((moment) => ["queued", "approved", "delivery_failed"].includes(moment.status));
+  const loadMoment = () => {
+    if (livePlaidReady) {
+      void ingest("deposit-retention");
+      return;
+    }
+    void connect();
+  };
+  const sandboxButtonLabel = connecting
+    ? "Connecting"
+    : ingesting
+      ? "Loading moment"
+      : livePlaidReady
+        ? "Load next sandbox moment"
+        : "Start sandbox session";
 
   useEffect(() => {
     if (!selected || !decision) return;
@@ -63,21 +79,6 @@ export default function MomentsPage() {
         </div>
       );
     }
-    const livePlaidReady = Boolean(connectorSession?.connectors.plaid);
-    const loadMoment = () => {
-      if (livePlaidReady) {
-        void ingest("deposit-retention");
-        return;
-      }
-      void connect();
-    };
-    const buttonLabel = connecting
-      ? "Connecting"
-      : ingesting
-        ? "Loading moment"
-        : livePlaidReady
-          ? "Load sandbox moment"
-          : "Start sandbox session";
 
     return (
       <div className="mx-auto flex min-h-[65vh] max-w-xl flex-col items-center justify-center text-center">
@@ -88,7 +89,7 @@ export default function MomentsPage() {
         </p>
         <button onClick={loadMoment} disabled={connecting || ingesting} className="console-btn mt-6 !px-4 !py-2.5 !text-[12px]">
           {connecting || ingesting ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plug className="h-3.5 w-3.5" />}
-          {buttonLabel}
+          {sandboxButtonLabel}
         </button>
         {livePlaidReady ? (
           <p className="v2-mono mt-3 text-[9px] uppercase tracking-[0.1em]" style={{ color: "var(--v2-verified)" }}>
@@ -117,7 +118,7 @@ export default function MomentsPage() {
   };
 
   return <div className="mx-auto grid max-w-6xl gap-8 xl:grid-cols-[minmax(0,0.34fr)_minmax(0,0.66fr)]">
-    <section aria-label="Qualified Consumer Deposit Primacy moments"><div className="border-b pb-3" style={{ borderColor: "var(--v2-rule)" }}><p className="v2-display text-[17px]">Assigned moments</p><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>Consumer Banking · governed queue</p></div><div className="border-t" style={{ borderColor: "var(--v2-rule)" }}>{visibleMoments.map((moment) => <button key={moment.id} onClick={() => setSelectedId(moment.id)} className="relative block w-full border-b py-4 pl-4 pr-2 text-left" style={{ borderColor: "var(--v2-rule)", backgroundColor: selected?.id === moment.id ? "var(--c-accent-wash)" : "transparent" }}><div className="flex items-baseline justify-between gap-3"><p className="truncate text-[14px] font-bold" style={{ color: "var(--v2-ink)" }}>{moment.opportunity.type}</p><span className="console-stat text-[22px]" style={{ color: "var(--c-accent)" }}>{moment.opportunity.confidence}%</span></div><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>{moment.status === "queued" ? "Needs review" : moment.status} · {moment.sourceMode === "fixture" ? "fixture" : "partner sandbox"}</p></button>)}</div></section>
+    <section aria-label="Qualified Consumer Deposit Primacy moments"><div className="flex items-end justify-between gap-4 border-b pb-3" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-display text-[17px]">Assigned moments</p><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>Consumer Banking · governed queue</p></div>{canStartSandbox && !hasActionableMoment ? <button onClick={loadMoment} disabled={connecting || ingesting} className="console-btn !px-3 !py-2 !text-[10px]"><Plug className="h-3.5 w-3.5" />{sandboxButtonLabel}</button> : null}</div><div className="border-t" style={{ borderColor: "var(--v2-rule)" }}>{visibleMoments.map((moment) => <button key={moment.id} onClick={() => setSelectedId(moment.id)} className="relative block w-full border-b py-4 pl-4 pr-2 text-left" style={{ borderColor: "var(--v2-rule)", backgroundColor: selected?.id === moment.id ? "var(--c-accent-wash)" : "transparent" }}><div className="flex items-baseline justify-between gap-3"><p className="truncate text-[14px] font-bold" style={{ color: "var(--v2-ink)" }}>{moment.opportunity.type}</p><span className="console-stat text-[22px]" style={{ color: "var(--c-accent)" }}>{moment.opportunity.confidence}%</span></div><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>{moment.status === "queued" ? "Needs review" : moment.status} · {moment.sourceMode === "fixture" ? "fixture" : "partner sandbox"}</p></button>)}</div></section>
     {selected && decision && action ? <MomentCard moment={selected} decision={decision} action={action} onSyncOutcome={access?.role === "risk_reviewer" ? () => void syncOutcome(selected.id) : undefined} syncingOutcome={syncingOutcome === selected.id} outcomeSyncMessage={outcomeSyncMessage} onRetryDelivery={canRespond && selected.status === "delivery_failed" ? () => void retryDelivery(selected.id) : undefined} retrying={activating === selected.id}>{canRespond && ["queued", "approved"].includes(selected.status) ? <div>
       {selected.status === "queued" && mode === "modify" ? <div className="mb-4 space-y-2">{actions.map((candidate) => <label key={candidate.id} className="flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5" style={{ borderColor: selectedActionId === candidate.id ? "var(--c-accent)" : "var(--v2-rule)" }}><input type="radio" checked={selectedActionId === candidate.id} onChange={() => setSelectedActionId(candidate.id)} /><span><span className="block text-[12px] font-bold">{candidate.title}</span><span className="block text-[10px]" style={{ color: "var(--v2-ink-soft)" }}>{candidate.ownerRole} · {candidate.destination}</span></span></label>)}</div> : null}
       {(mode === "defer" || mode === "decline") ? <div className="mb-4"><label className="v2-mono text-[9px] uppercase tracking-[0.12em]" style={{ color: "var(--v2-ink-faint)" }}>{mode === "defer" ? "Deferral reason" : "Decline reason"}</label><div className="mt-2 flex gap-2"><input value={reason} onChange={(event) => setReason(event.target.value)} className="console-field !py-2.5 !text-[13px]" placeholder="Optional note" /><button onClick={confirm} className="console-btn !px-4 !py-2.5"><Check className="h-4 w-4" /></button></div></div> : null}
