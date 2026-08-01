@@ -1,7 +1,6 @@
 import { UserManager, WebStorageStateStore, type User as OidcUser } from "oidc-client-ts";
-import { isSupabaseConfigured, supabase } from "@/integrations/supabase/client";
 
-export type ConsoleAuthProvider = "cognito" | "supabase";
+export type ConsoleAuthProvider = "cognito";
 
 export type ConsoleAuthUser = {
   id: string;
@@ -15,21 +14,18 @@ export type ConsoleAuthSession = {
 
 type AuthListener = (session: ConsoleAuthSession | null) => void;
 
-const configuredProvider = String(import.meta.env.VITE_AUTH_PROVIDER || "supabase")
+const configuredProvider = String(import.meta.env.VITE_AUTH_PROVIDER || "cognito")
   .trim()
   .toLowerCase();
 
-export const consoleAuthProvider: ConsoleAuthProvider = configuredProvider === "cognito"
-  ? "cognito"
-  : "supabase";
+export const consoleAuthProvider: ConsoleAuthProvider = "cognito";
 
 const cognitoAuthority = String(import.meta.env.VITE_COGNITO_AUTHORITY || "").trim().replace(/\/$/, "");
 const cognitoClientId = String(import.meta.env.VITE_COGNITO_CLIENT_ID || "").trim();
 const cognitoDomain = String(import.meta.env.VITE_COGNITO_DOMAIN || "").trim().replace(/\/$/, "");
 
-export const isConsoleAuthConfigured = consoleAuthProvider === "cognito"
-  ? Boolean(cognitoAuthority && cognitoClientId)
-  : isSupabaseConfigured;
+export const isConsoleAuthConfigured = configuredProvider === "cognito"
+  && Boolean(cognitoAuthority && cognitoClientId);
 
 let cognitoManager: UserManager | null = null;
 
@@ -56,33 +52,11 @@ function manager(): UserManager {
 
 export async function currentAuthSession(): Promise<ConsoleAuthSession | null> {
   if (!isConsoleAuthConfigured) return null;
-  if (consoleAuthProvider === "supabase") {
-    const { data } = await supabase.auth.getSession();
-    const session = data.session;
-    return session?.access_token && session.user.email
-      ? {
-          access_token: session.access_token,
-          user: { id: session.user.id, email: session.user.email },
-        }
-      : null;
-  }
   return fromOidcUser(await manager().getUser());
 }
 
 export function subscribeToAuth(listener: AuthListener): () => void {
   if (!isConsoleAuthConfigured) return () => undefined;
-  if (consoleAuthProvider === "supabase") {
-    const { data } = supabase.auth.onAuthStateChange((_event, session) => {
-      listener(session?.access_token && session.user.email
-        ? {
-            access_token: session.access_token,
-            user: { id: session.user.id, email: session.user.email },
-          }
-        : null);
-    });
-    return () => data.subscription.unsubscribe();
-  }
-
   const userManager = manager();
   const loaded = (user: OidcUser) => listener(fromOidcUser(user));
   const cleared = () => listener(null);
@@ -97,37 +71,17 @@ export function subscribeToAuth(listener: AuthListener): () => void {
 }
 
 export async function beginSignIn(): Promise<void> {
-  if (consoleAuthProvider === "cognito") {
-    await manager().signinRedirect();
-    return;
-  }
-  throw new Error("Email and password are required for the current authentication provider.");
+  await manager().signinRedirect();
 }
 
 export async function completeSignIn(): Promise<ConsoleAuthSession> {
-  if (consoleAuthProvider !== "cognito") {
-    throw new Error("The Cognito callback is not active.");
-  }
   const session = fromOidcUser(await manager().signinRedirectCallback());
   if (!session) throw new Error("Cognito did not return a valid employee session.");
   return session;
 }
 
-export async function signInWithPassword(email: string, password: string): Promise<void> {
-  if (consoleAuthProvider !== "supabase") {
-    await beginSignIn();
-    return;
-  }
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) throw error;
-}
-
 export async function signOutConsole(): Promise<void> {
   if (!isConsoleAuthConfigured) return;
-  if (consoleAuthProvider === "supabase") {
-    await supabase.auth.signOut();
-    return;
-  }
   await manager().removeUser();
   if (cognitoDomain) {
     const logout = new URL(`${cognitoDomain}/logout`);

@@ -46,7 +46,7 @@ test('sandbox evidence bundle exports an opaque, receipt-backed and claim-gated 
   });
 
   const bundle = await service.exportBundle({ tenantId: 'ventus', experimentId: 'exp_001' });
-  assert.equal(bundle.evidenceClass, 'partner_sandbox');
+  assert.equal(bundle.evidenceClass, 'sandbox');
   assert.equal(bundle.receiptChain.verified, true);
   assert.equal(bundle.experiment.arms.treatment, 1);
   assert.equal(bundle.experiment.arms.holdout, 1);

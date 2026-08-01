@@ -419,11 +419,17 @@ export function createConsoleApiHandler({
             return response(503, { error: 'Growth Play approval enforcement is unavailable' }, responseHeaders);
           }
           const scope = decisionScopeForScenario(body.scenario);
+          const growthPlayId = typeof body.growthPlayId === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$/.test(body.growthPlayId)
+            ? body.growthPlayId
+            : scope.growthPlayId;
+          const businessLine = typeof body.businessLine === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{1,127}$/.test(body.businessLine)
+            ? body.businessLine
+            : scope.businessLine;
           try {
             protocolApproval = await growthPlayRegistry.requireLatestApproved({
               tenantId: identity.tenantHint,
-              growthPlayId: scope.growthPlayId,
-              businessLine: scope.businessLine,
+              growthPlayId,
+              businessLine,
               at: decisionAt.toISOString(),
             });
           } catch {
@@ -454,7 +460,10 @@ export function createConsoleApiHandler({
         requiredEntitlementForScenario(body.scenario);
         if (!authorizeScenarioDecision(membership, body.scenario).allowed) return forbidden('controlled sandbox run', responseHeaders);
         const result = await runControlledSandbox({
-          tenantId: identity.tenantHint, scenario: body.scenario,
+          tenantId: identity.tenantHint,
+          scenario: body.scenario,
+          growthPlayId: body.growthPlayId,
+          businessLine: body.businessLine,
           requestId: event.requestContext?.requestId || identity.subject,
         });
         return response(200, { ...result, serverAuthoritative: true }, responseHeaders);

@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildFscMeasurementEvent, createEnterpriseControlPlane, fscObservationReceiptId, projectMeasurementReadiness } from './enterprise-control-plane.mjs';
+import { buildFscMeasurementEvent, createEnterpriseControlPlane, deriveEvidenceClass, fscObservationReceiptId, projectMeasurementReadiness } from './enterprise-control-plane.mjs';
+
+test('evidence class is derived across the package, including mixed experiments', () => {
+  assert.equal(deriveEvidenceClass([]), 'none');
+  assert.equal(deriveEvidenceClass([{ evidenceClass: 'partner_sandbox' }, { evidenceClass: 'sandbox' }]), 'sandbox');
+  assert.equal(deriveEvidenceClass([{ evidenceClass: 'fixture' }, { evidenceClass: 'sandbox' }]), 'mixed');
+  assert.equal(deriveEvidenceClass([{ evidenceClass: 'sanctioned' }, { evidenceClass: 'sanctioned' }]), 'sanctioned');
+});
 
 test('FSC measurement promotion produces an immutable event tied to the existing assignment', () => {
   const event = buildFscMeasurementEvent({

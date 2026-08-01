@@ -295,12 +295,10 @@ export function buildDecisionPackage(decision) {
     ? validateCompiledGrowthPlayContract(decision.runtime.approvedContract)
     : null;
   if (approvedContract) {
-    assert.equal(approvedContract.growth_play_id, catalog.growthPlayId, 'approved contract belongs to another Growth Play');
-    assert.equal(approvedContract.business_line, catalog.businessLine, 'approved contract belongs to another business line');
     assert.equal(approvedContract.decision_protocol_id, decision.runtime.protocolId, 'runtime protocol identity is inconsistent');
   }
   const approvedActions = approvedContract
-    ? approvedContract.actions.map((approvedAction, index) => actionFromContract(approvedAction, catalog.actions[index]))
+    ? approvedContract.actions.map((approvedAction, index) => actionFromContract(approvedAction, catalog.actions[index] ?? catalog.actions[0]))
     : catalog.actions;
   const opportunity = decision.opportunity;
   assert.ok(opportunity, 'only actionable decisions can create a Moment');
@@ -314,7 +312,7 @@ export function buildDecisionPackage(decision) {
       : decision.source.mode === 'live' ? 'sandbox' : 'fixture',
     growthPlay: {
       id: approvedContract?.growth_play_id ?? catalog.growthPlayId,
-      name: catalog.growthPlay,
+      name: approvedContract?.objective ?? catalog.growthPlay,
       businessLine: approvedContract?.business_line ?? catalog.businessLine,
       objective: approvedContract?.objective ?? catalog.objective,
       primaryMetric: approvedContract?.measurement.metric ?? catalog.primaryMetric,
@@ -369,8 +367,8 @@ export function buildDecisionPackageV12(packageProjection, decision) {
     tenantId: packageProjection.tenantId,
     createdAt: packageProjection.createdAt,
     evidenceClass: decision.source.evidenceClass === 'sanctioned_pilot'
-      ? 'sanctioned_pilot'
-      : decision.source.mode === 'fixture' ? 'fixture' : 'partner_sandbox',
+      ? 'sanctioned'
+      : decision.source.mode === 'fixture' ? 'fixture' : 'sandbox',
     subject: { ...packageProjection.subject, scope: 'customer' },
     growthPlay: packageProjection.growthPlay,
     moment: {

@@ -1,5 +1,6 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import pg from 'pg';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 import { createConsoleApiHandler } from '../../shared/console-api.mjs';
 import { createConsoleJourneyRepository } from '../../shared/console-journey.mjs';
 import { createConnectorDeliveryRepository } from '../../shared/connector-delivery.mjs';
@@ -9,12 +10,7 @@ import { createGrowthPlayRegistry } from '../../shared/growth-play-registry.mjs'
 import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
 import { createControlledSandboxRunner } from '../../shared/controlled-sandbox-run.mjs';
 import { createSandboxEvidenceBundleService } from '../../shared/sandbox-evidence-bundle.mjs';
-import { createDemoConnectorService } from '../../shared/demo-connectors.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
-import { createCoworkerDeliveryService } from '../../shared/coworker-delivery.mjs';
-import {
-  createProductSalesforceConnector,
-} from '../../shared/product-salesforce-connector.mjs';
 import { testConfiguredConnector } from '../../shared/connector-test-router.mjs';
 
 const { Client } = pg;
@@ -29,19 +25,14 @@ const ALLOWED_ENTITLEMENTS = new Set([
 ]);
 const jwksByIssuer = new Map();
 let getDatabaseCredentials;
-let getProductConnectorCredentials;
-let productSalesforceConnector;
 let journeyRepository;
 let controlPlaneRepository;
 let growthPlayRegistry;
-let coworkerDeliveryService;
-let getCoworkerConnectorCredentials;
 let ledgerRepository;
-let demoConnectorService;
 let controlledSandboxRunner;
-let getDemoConnectorCredentials;
 let getExperimentAssignmentCredentials;
 let sandboxEvidenceBundleService;
+const lambdaClient = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-2' });
 
 export const handler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
@@ -170,8 +161,8 @@ async function testConnectorConnection({ connector, mapping }) {
   return testConfiguredConnector({
     connector,
     mapping,
-    testSalesforce: (input) => productConnector().testConnection(input),
-    testCoworker: (input) => coworkerDelivery().testConnection(input),
+    testSalesforce: (input) => invokeConnector('product', 'test', input),
+    testCoworker: (input) => invokeConnector('coworker', 'test', input),
   });
 }
 
@@ -185,7 +176,7 @@ async function runControlledSandbox(input) {
     const assignmentSecret = await experimentAssignmentCredentialsProvider()();
     const assignmentSalt = typeof assignmentSecret.assignmentSalt === 'string' ? assignmentSecret.assignmentSalt : '';
     controlledSandboxRunner = createControlledSandboxRunner({
-      pullPlaidScenario: (request) => demoConnectors().pullPlaidScenario(request),
+      pullPlaidScenario: (request) => invokeConnector('demo', 'pullPlaidScenario', request),
       growthPlayRegistry: consoleGrowthPlayRegistry(),
       ledgerRepository: decisionLedger(),
       getDB: runtimeDatabase,
@@ -207,23 +198,6 @@ async function exportSandboxEvidenceBundle(input) {
   return sandboxEvidenceBundleService.exportBundle(input);
 }
 
-function demoConnectors() {
-  if (!demoConnectorService) {
-    demoConnectorService = createDemoConnectorService({ getSecrets: demoConnectorCredentialsProvider() });
-  }
-  return demoConnectorService;
-}
-
-function demoConnectorCredentialsProvider() {
-  if (!getDemoConnectorCredentials) {
-    getDemoConnectorCredentials = createSecretsProvider({
-      secretId: process.env.VENTUS_DEMO_CONNECTOR_SECRET_ID,
-      region: process.env.AWS_REGION || 'us-east-2',
-    });
-  }
-  return getDemoConnectorCredentials;
-}
-
 function experimentAssignmentCredentialsProvider() {
   if (!getExperimentAssignmentCredentials) {
     getExperimentAssignmentCredentials = createSecretsProvider({
@@ -235,28 +209,11 @@ function experimentAssignmentCredentialsProvider() {
 }
 
 async function deliverCoworkerBriefing(input) {
-  return coworkerDelivery().deliver(input);
+  return invokeConnector('coworker', 'deliver', input);
 }
 
 async function readSalesforceOutcome(input) {
-  return productConnector().readOutcome(input);
-}
-
-function coworkerDelivery() {
-  if (!coworkerDeliveryService) {
-    if (!process.env.VENTUS_COWORKER_CONNECTOR_SECRET_ID) {
-      throw new ProductSalesforceConnectorError(
-        'The Coworker connector secret is not configured for this environment.',
-        { code: 'coworker_connector_secret_missing', terminalFailure: true },
-      );
-    }
-    coworkerDeliveryService = createCoworkerDeliveryService({
-      getSecrets: coworkerConnectorCredentialsProvider(),
-      deliveryRepository: createConnectorDeliveryRepository({ getDB: runtimeDatabase }),
-      consoleBaseUrl: process.env.VENTUS_CONSOLE_PUBLIC_URL,
-    });
-  }
-  return coworkerDeliveryService;
+  return invokeConnector('product', 'readOutcome', input);
 }
 
 async function deliverReservedSalesforce({ tenantId, decisionId, sessionId, reservation, moment }) {
@@ -264,7 +221,7 @@ async function deliverReservedSalesforce({ tenantId, decisionId, sessionId, rese
     return { receipt: deliveryReceipt(reservation?.record), moment };
   }
   try {
-    const result = await productConnector().deliver({
+    const result = await invokeConnector('product', 'deliver', {
       tenantId,
       decisionPackage: moment.decisionPackage,
       decisionPackageV12: moment.decisionPackageV12,
@@ -282,7 +239,7 @@ async function deliverReservedSalesforce({ tenantId, decisionId, sessionId, rese
       completedAt: new Date().toISOString(),
     });
   } catch (error) {
-    if (error instanceof ProductSalesforceConnectorError && error.terminalFailure) {
+    if (error?.terminalFailure) {
       return consoleJourney().completeDelivery({
         tenantId,
         decisionId,
@@ -310,39 +267,22 @@ async function deliverReservedSalesforce({ tenantId, decisionId, sessionId, rese
   }
 }
 
-function productConnector() {
-  if (!productSalesforceConnector) {
-    if (!process.env.VENTUS_PRODUCT_CONNECTOR_SECRET_ID) {
-      throw new ProductSalesforceConnectorError(
-        'The product Salesforce connector secret is not configured for this environment.',
-        { code: 'salesforce_connector_secret_missing', terminalFailure: true },
-      );
-    }
-    productSalesforceConnector = createProductSalesforceConnector({
-      getSecrets: productConnectorCredentialsProvider(),
-    });
-  }
-  return productSalesforceConnector;
-}
-
-function productConnectorCredentialsProvider() {
-  if (!getProductConnectorCredentials) {
-    getProductConnectorCredentials = createSecretsProvider({
-      secretId: process.env.VENTUS_PRODUCT_CONNECTOR_SECRET_ID,
-      region: process.env.AWS_REGION || 'us-east-2',
-    });
-  }
-  return getProductConnectorCredentials;
-}
-
-function coworkerConnectorCredentialsProvider() {
-  if (!getCoworkerConnectorCredentials) {
-    getCoworkerConnectorCredentials = createSecretsProvider({
-      secretId: process.env.VENTUS_COWORKER_CONNECTOR_SECRET_ID,
-      region: process.env.AWS_REGION || 'us-east-2',
-    });
-  }
-  return getCoworkerConnectorCredentials;
+async function invokeConnector(component, operation, input) {
+  const functionName = {
+    product: process.env.VENTUS_PRODUCT_CONNECTOR_FUNCTION_NAME,
+    coworker: process.env.VENTUS_COWORKER_CONNECTOR_FUNCTION_NAME,
+    demo: process.env.VENTUS_DEMO_CONNECTOR_FUNCTION_NAME,
+  }[component];
+  if (!functionName) throw new Error(`${component} connector runtime is not configured`);
+  const response = await lambdaClient.send(new InvokeCommand({
+    FunctionName: functionName,
+    InvocationType: 'RequestResponse',
+    Payload: Buffer.from(JSON.stringify({ operation, input })),
+  }));
+  const payload = response.Payload ? JSON.parse(Buffer.from(response.Payload).toString('utf8')) : {};
+  if (payload.FunctionError) throw new Error(`${component} connector failed`);
+  if (payload.errorMessage) throw new Error(String(payload.errorMessage).slice(0, 180));
+  return payload;
 }
 
 function deliveryReceipt(record) {

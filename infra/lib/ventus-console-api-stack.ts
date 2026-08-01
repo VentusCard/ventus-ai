@@ -55,8 +55,8 @@ export class VentusConsoleApiStack extends cdk.Stack {
       retention: logs.RetentionDays.SIX_MONTHS,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
-    // Product connector credentials are intentionally distinct from the
-    // presenter/demo connector. The Console Lambda is the sole reader.
+    // Connector credentials are intentionally read by their own runtimes. The
+    // Console API retains policy, ledger, and tenant access, never connector secrets.
     const productConnectorSecret = new secretsmanager.Secret(this, 'ProductConnectorSecret', {
       secretName: PRODUCT_CONNECTOR_SECRET_NAME,
       description: 'Server-only Salesforce/FSC credentials for authenticated Ventus product delivery.',
@@ -111,9 +111,6 @@ export class VentusConsoleApiStack extends cdk.Stack {
         COGNITO_ISSUER,
         COGNITO_CLIENT_ID,
         EVIDENCE_RUNTIME_SECRET_ID,
-        VENTUS_PRODUCT_CONNECTOR_SECRET_ID: productConnectorSecret.secretArn,
-        VENTUS_COWORKER_CONNECTOR_SECRET_ID: coworkerConnectorSecret.secretArn,
-        VENTUS_DEMO_CONNECTOR_SECRET_ID: demoConnectorSecret.secretArn,
         VENTUS_EXPERIMENT_ASSIGNMENT_SECRET_ID: experimentSecret.secretArn,
         VENTUS_CONSOLE_PUBLIC_URL: 'https://dev.d1gaewa028qzng.amplifyapp.com',
         RDS_HOST,
@@ -128,13 +125,76 @@ export class VentusConsoleApiStack extends cdk.Stack {
       resourceName: `${EVIDENCE_RUNTIME_SECRET_ID}-*`,
       arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
     });
+
+    const connectorWorkerBase = {
+      runtime: lambda.Runtime.NODEJS_22_X,
+      architecture: lambda.Architecture.ARM_64,
+      memorySize: 512,
+      timeout: cdk.Duration.seconds(25),
+      reservedConcurrentExecutions: 5,
+      logGroup,
+    };
+    const productConnectorFunction = new lambda.Function(this, 'ProductConnectorFunction', {
+      ...connectorWorkerBase,
+      functionName: 'ventus-product-connector',
+      description: 'Server-side Salesforce FSC connector; sole reader of product connector credentials.',
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-product-connector.zip'),
+      environment: { VENTUS_PRODUCT_CONNECTOR_SECRET_ID: productConnectorSecret.secretArn },
+    });
+    const demoConnectorWorker = new lambda.Function(this, 'DemoConnectorWorkerFunction', {
+      ...connectorWorkerBase,
+      functionName: 'ventus-demo-connector-worker',
+      description: 'Server-side Plaid sandbox connector; sole reader of demo connector credentials for the Console API.',
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-demo-connector-worker.zip'),
+      environment: { VENTUS_DEMO_CONNECTOR_SECRET_ID: demoConnectorSecret.secretArn },
+    });
+    const coworkerConnectorFunction = new lambda.Function(this, 'CoworkerConnectorFunction', {
+      ...connectorWorkerBase,
+      functionName: 'ventus-coworker-connector',
+      description: 'Server-side Outlook and Slack connector; sole reader of Coworker credentials.',
+      handler: 'index.handler',
+      code: lambda.Code.fromAsset('../backend/dist/lambda/ventus-coworker-connector.zip'),
+      vpc,
+      vpcSubnets: { subnets: lambdaSubnets },
+      securityGroups: [databaseSecurityGroup],
+      environment: {
+        EVIDENCE_RUNTIME_SECRET_ID,
+        VENTUS_COWORKER_CONNECTOR_SECRET_ID: coworkerConnectorSecret.secretArn,
+        VENTUS_CONSOLE_PUBLIC_URL: 'https://dev.d1gaewa028qzng.amplifyapp.com',
+        RDS_HOST,
+        RDS_PORT: '5432',
+        RDS_DATABASE: 'ventus_bofa',
+      },
+    });
+    consoleFunction.addEnvironment('VENTUS_PRODUCT_CONNECTOR_FUNCTION_NAME', productConnectorFunction.functionName);
+    consoleFunction.addEnvironment('VENTUS_COWORKER_CONNECTOR_FUNCTION_NAME', coworkerConnectorFunction.functionName);
+    consoleFunction.addEnvironment('VENTUS_DEMO_CONNECTOR_FUNCTION_NAME', demoConnectorWorker.functionName);
+    productConnectorFunction.grantInvoke(consoleFunction);
+    coworkerConnectorFunction.grantInvoke(consoleFunction);
+    demoConnectorWorker.grantInvoke(consoleFunction);
+    productConnectorSecret.grantRead(productConnectorFunction);
+    coworkerConnectorSecret.grantRead(coworkerConnectorFunction);
+    demoConnectorSecret.grantRead(demoConnectorWorker);
+    coworkerConnectorFunction.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['secretsmanager:GetSecretValue'],
+      resources: [runtimeSecretArn],
+    }));
+    for (const worker of [coworkerConnectorFunction]) worker.addToRolePolicy(new iam.PolicyStatement({
+      actions: ['kms:Decrypt', 'kms:DescribeKey'],
+      resources: [VENTUS_DATABASE_KMS_KEY_ARN],
+      conditions: {
+        StringEquals: {
+          'kms:ViaService': 'secretsmanager.us-east-2.amazonaws.com',
+          'kms:CallerAccount': this.account,
+        },
+      },
+    }));
     consoleFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['secretsmanager:GetSecretValue'],
       resources: [runtimeSecretArn],
     }));
-    productConnectorSecret.grantRead(consoleFunction);
-    coworkerConnectorSecret.grantRead(consoleFunction);
-    demoConnectorSecret.grantRead(consoleFunction);
     experimentSecret.grantRead(consoleFunction);
     consoleFunction.addToRolePolicy(new iam.PolicyStatement({
       actions: ['kms:Decrypt', 'kms:DescribeKey'],

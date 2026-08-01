@@ -439,7 +439,7 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
       return {
         packageVersion: '1.0',
         generatedAt: new Date().toISOString(),
-        evidenceClass: 'partner_sandbox',
+        evidenceClass: deriveEvidenceClass(results.experiments),
         claimBoundary: {
           status: 'descriptive_only',
           detail: 'Workflow and source receipts are reviewable. Business and causal claims remain blocked until the approved outcome and holdout gates pass.',
@@ -1171,6 +1171,19 @@ async function insertSkillApprovalReceipt(db, { tenantId, skill, phase, approval
     decision: row.decision, skillDigest: row.skill_digest, decidedBy: row.decided_by,
     reason: row.reason, decidedAt: row.decided_at,
   };
+}
+
+export function deriveEvidenceClass(experiments = []) {
+  const classes = [...new Set(experiments
+    .map((experiment) => normalizeEvidenceClass(experiment.evidenceClass))
+    .filter(Boolean))];
+  if (!classes.length) return 'none';
+  return classes.length === 1 ? classes[0] : 'mixed';
+}
+
+function normalizeEvidenceClass(value) {
+  if (value === 'partner_sandbox') return 'sandbox';
+  return ['fixture', 'sandbox', 'sanctioned'].includes(value) ? value : null;
 }
 
 function gate(id, ready, requirement) {
