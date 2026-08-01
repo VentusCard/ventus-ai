@@ -57,8 +57,15 @@ export function createBankReviewBundleService({ ledgerRepository, getDB, measure
           ?? firstEvidenceClass(events), assignmentOrigin),
         decision: canonicalEvidenceClass(decisionPayload.decision_package_v12?.evidenceClass
           ?? decisionPayload.decision_package?.evidenceClass, assignmentOrigin),
-        delivery: deliveryReceipts.length ? 'partner_sandbox' : null,
-        outcomes: outcomes.length ? bundleEvidenceClass(experiment.assignments) : null,
+        // Delivery and outcome traces inherit the assignment origin unless the
+        // immutable receipt itself carries a more specific source label. This
+        // avoids presenting a sandbox assumption as provenance in a bank export.
+        delivery: deliveryReceipts.length
+          ? canonicalEvidenceClass(firstEvidenceClassForTypes(events, ['activation']), assignmentOrigin)
+          : null,
+        outcomes: outcomes.length
+          ? canonicalEvidenceClass(firstEvidenceClassForTypes(events, ['outcome']), assignmentOrigin)
+          : null,
       };
       const evidenceClass = bundleEvidenceClass(Object.values(componentOrigins).filter(Boolean));
       const independentReview = claimReviewStatus({
@@ -372,6 +379,16 @@ function normalizeMeasurementStatus(value) {
 
 function firstEvidenceClass(events) {
   for (const event of events) {
+    const value = event.payload?.evidence_class ?? event.payload?.source_receipt?.evidence_class;
+    if (canonicalEvidenceClass(value)) return value;
+  }
+  return null;
+}
+
+function firstEvidenceClassForTypes(events, types) {
+  const allowed = new Set(types);
+  for (const event of events) {
+    if (!allowed.has(event.event_type ?? event.eventType)) continue;
     const value = event.payload?.evidence_class ?? event.payload?.source_receipt?.evidence_class;
     if (canonicalEvidenceClass(value)) return value;
   }

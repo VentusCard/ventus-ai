@@ -50,6 +50,7 @@ test('sandbox evidence bundle exports an opaque, receipt-backed and claim-gated 
   });
 
   const bundle = await service.exportBundle({ tenantId: 'ventus', experimentId: 'exp_001' });
+  const repeatedBundle = await service.exportBundle({ tenantId: 'ventus', experimentId: 'exp_001' });
   assert.equal(bundle.schemaVersion, 'ventus_bank_review_bundle/v1');
   assert.equal(bundle.evidenceClass, 'partner_sandbox');
   assert.match(bundle.manifest.manifestDigest, /^[a-f0-9]{64}$/);
@@ -60,6 +61,8 @@ test('sandbox evidence bundle exports an opaque, receipt-backed and claim-gated 
   assert.equal(bundle.protocol.decisionProtocolId, 'dcp_001');
   assert.equal(bundle.decisionPackage.packageDigest, 'b'.repeat(64));
   assert.equal(bundle.generatedAt, bundle.manifest.generatedAt);
+  assert.equal(bundle.manifest.manifestDigest, repeatedBundle.manifest.manifestDigest,
+    'unchanged evidence must produce a repeatable review manifest');
   assert.equal(bundle.claimReview.status, 'approved');
   assert.equal(bundle.holdoutProtection.assigned, 1);
   assert.equal(bundle.holdoutProtection.status, 'verified');
