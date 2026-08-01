@@ -1,32 +1,15 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { buildFscMeasurementEvent, createEnterpriseControlPlane, deriveEvidenceClass, fscObservationReceiptId, projectMeasurementReadiness } from './enterprise-control-plane.mjs';
+import { createEnterpriseControlPlane, deriveEvidenceClass, fscObservationReceiptId, projectMeasurementReadiness } from './enterprise-control-plane.mjs';
 
 test('evidence class is derived across the package, including mixed experiments', () => {
   assert.equal(deriveEvidenceClass([]), 'none');
-  assert.equal(deriveEvidenceClass([{ evidenceClass: 'partner_sandbox' }, { evidenceClass: 'sandbox' }]), 'sandbox');
+  assert.equal(deriveEvidenceClass([{ evidenceClass: 'partner_sandbox' }, { evidenceClass: 'sandbox' }]), 'partner_sandbox');
   assert.equal(deriveEvidenceClass([{ evidenceClass: 'fixture' }, { evidenceClass: 'sandbox' }]), 'mixed');
-  assert.equal(deriveEvidenceClass([{ evidenceClass: 'sanctioned' }, { evidenceClass: 'sanctioned' }]), 'sanctioned');
+  assert.equal(deriveEvidenceClass([{ evidenceClass: 'sanctioned' }, { evidenceClass: 'sanctioned_pilot' }]), 'sanctioned_pilot');
 });
 
-test('FSC measurement promotion produces an immutable event tied to the existing assignment', () => {
-  const event = buildFscMeasurementEvent({
-    tenantId: 'pilot_bank',
-    moment: { decisionPackage: { subject: { token: 'tok_abcdefgh' }, growthPlay: { id: 'deposit-primacy-defense' } } },
-    outcome: { decisionId: 'dec_123', decisionRecordId: 'a09123456789012AAA' },
-    observationReceipt: { observationId: 'obs_123', observation: { eventType: 'deposit_retained', sourceRecordId: 'core_123' } },
-    assignment: { experiment_id: 'exp_123', arm: 'treatment', assigned_at: '2026-07-30T00:00:00.000Z', decision_protocol_id: 'deposit-retention-v1' },
-    metric: 'deposit_retained', amount: 1, occurredAt: '2026-07-31T00:00:00.000Z',
-  });
-
-  assert.equal(event.contract_version, '1.0');
-  assert.equal(event.assignment.experiment_id, 'exp_123');
-  assert.equal(event.value.metric, 'deposit_retained');
-  assert.match(event.event_id, /^evt_[a-f0-9]{24}$/);
-  assert.equal(event.provenance.source_version, 'salesforce-fsc-v1');
-});
-
-test('FSC corrections receive a new receipt identity while exact retries remain idempotent', () => {
+test('FSC workflow receipt identity is independent from economic corrections', () => {
   const base = {
     tenantId: 'pilot_bank',
     decisionRecordId: 'a09123456789012AAA',
@@ -47,7 +30,12 @@ test('FSC corrections receive a new receipt identity while exact retries remain 
     outcome: { outcome: { ...base.outcome.outcome, observation: { ...base.outcome.outcome.observation, amount: 125 } } },
   });
   assert.equal(original, retry);
-  assert.notEqual(original, correction);
+  assert.equal(original, correction);
+  const workflowChange = fscObservationReceiptId({
+    ...base,
+    outcome: { ...base.outcome, workflow: { status: 'completed', observedAt: '2026-07-31T02:00:00.000Z' } },
+  });
+  assert.notEqual(original, workflowChange);
 });
 
 test('FSC observation retries preserve their original timestamp and recover legacy replay records', async () => {
@@ -96,6 +84,25 @@ test('FSC observation retries preserve their original timestamp and recover lega
 
   assert.deepEqual(result.ledgerReceipt, { replayedLegacyObservation: true });
   assert.equal(appendCalls[0].occurredAt, '2026-07-31T00:00:00.000Z');
+});
+
+test('FSC mappings default to workflow evidence and certified economic views require a complete contract', async () => {
+  const controlPlane = createEnterpriseControlPlane({
+    growthPlayRegistry: { register() { throw new Error('not used'); } },
+    getDB: async () => { throw new Error('validation should fail before opening the database'); },
+  });
+  const base = {
+    tenantId: 'pilot_bank', mappingId: 'map_fsc_001', connector: 'salesforce-fsc',
+    expectedVersion: 0, status: 'draft', actorId: 'admin_001',
+  };
+  await assert.rejects(() => controlPlane.saveConnection({
+    ...base,
+    configuration: {
+      authorityType: 'certified_economic_view',
+      decisionObject: 'Ventus_Decision__c',
+      outcomeStatusField: 'Outcome_Status__c',
+    },
+  }), /certificationId/);
 });
 
 test('measurement readiness requires measured outcomes in both arms, not only assignments', () => {

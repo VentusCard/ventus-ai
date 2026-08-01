@@ -18,6 +18,10 @@ test('sandbox evidence bundle exports an opaque, receipt-backed and claim-gated 
               decision_package_v12: { packageDigest: 'b'.repeat(64), decisionId: 'dec_001', growthPlay: { id: 'deposit-primacy-defense', protocolId: 'dcp_001', businessLine: 'consumer-banking' }, governance: { policyVersion: 'policy_001', assignmentArm: 'treatment' } },
               decision_package: { outcome: { metric: 'deposit_retained' } },
             }),
+            trace(5, 'gate', {
+              gate_type: 'claim_review', experiment_id: 'exp_001',
+              decision_protocol_id: 'dcp_001', decision: 'approved',
+            }),
           ],
         };
       },
@@ -46,13 +50,17 @@ test('sandbox evidence bundle exports an opaque, receipt-backed and claim-gated 
   });
 
   const bundle = await service.exportBundle({ tenantId: 'ventus', experimentId: 'exp_001' });
-  assert.equal(bundle.evidenceClass, 'sandbox');
+  assert.equal(bundle.schemaVersion, 'ventus_bank_review_bundle/v1');
+  assert.equal(bundle.evidenceClass, 'partner_sandbox');
+  assert.match(bundle.manifest.manifestDigest, /^[a-f0-9]{64}$/);
   assert.equal(bundle.receiptChain.verified, true);
   assert.equal(bundle.experiment.arms.treatment, 1);
   assert.equal(bundle.experiment.arms.holdout, 1);
   assert.equal(bundle.claimEligibility.businessClaimAllowed, false);
   assert.equal(bundle.protocol.decisionProtocolId, 'dcp_001');
   assert.equal(bundle.decisionPackage.packageDigest, 'b'.repeat(64));
+  assert.equal(bundle.generatedAt, bundle.manifest.generatedAt);
+  assert.equal(bundle.claimReview.status, 'approved');
   assert.equal(bundle.holdoutProtection.assigned, 1);
   assert.equal(bundle.holdoutProtection.status, 'verified');
   assert.equal(bundle.holdoutProtection.reservationReceipts, 1);

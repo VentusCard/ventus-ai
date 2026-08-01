@@ -78,6 +78,7 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
   const schemaName = quotePgIdentifier(schema);
   const roleName = quotePgIdentifier(runtimeUsername);
   const db = clientFor(adminCredentials);
+  const migrationDigests = [];
   await db.connect();
   try {
     await db.query('BEGIN');
@@ -98,6 +99,7 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
 
     for (const file of MIGRATIONS) {
       const sql = await readFile(resolve(here, 'sql', file), 'utf8');
+      migrationDigests.push({ file, sha256: createHash('sha256').update(sql).digest('hex') });
       await db.query(sql);
     }
 
@@ -152,6 +154,7 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
        TO ${roleName}`,
     );
     await db.query('COMMIT');
+    return migrationDigests;
   } catch (error) {
     await db.query('ROLLBACK').catch(() => {});
     throw error;
@@ -458,7 +461,7 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     throw new Error('evidence runtime role can provision institution memberships');
   }
   const drafts = [
-    { ...base, eventType: 'signal', idempotencyKey: `${tenantId}:signal`, payload: { evidence_class: 'sandbox' } },
+    { ...base, eventType: 'signal', idempotencyKey: `${tenantId}:signal`, payload: { evidence_class: 'partner_sandbox' } },
     { ...base, eventType: 'decision', idempotencyKey: `${tenantId}:decision`, payload: { action: 'warm_wealth_referral' } },
     { ...base, eventType: 'activation', idempotencyKey: `${tenantId}:activation`, payload: { destination: 'sandbox_workflow' } },
     { ...base, eventType: 'outcome', idempotencyKey: `${tenantId}:outcome`, payload: { metric: 'net_new_assets', state: 'pending' } },
@@ -466,6 +469,16 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
   for (const draft of drafts) await repo.append(draft);
   const replay = await repo.append(drafts[0]);
   const own = await repo.exportTenant(tenantId);
+  const ledgerUpdateDenied = await runtimeMutationDenied({
+    getDB, tenantId,
+    sql: 'UPDATE decision_ledger_events SET status = status WHERE tenant_id = $1',
+    params: [tenantId],
+  });
+  const ledgerDeleteDenied = await runtimeMutationDenied({
+    getDB, tenantId,
+    sql: 'DELETE FROM decision_ledger_events WHERE tenant_id = $1',
+    params: [tenantId],
+  });
 
   const assignedAt = new Date().toISOString();
   const assignment = assignConnectedExpansionExperiment({
@@ -551,6 +564,8 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
     controlledProtocolWriteSucceeded: Boolean(controlledProtocolWrite.record),
     runtimeProtocolWriteDenied,
     runtimeMembershipWriteDenied,
+    ledgerUpdateDenied,
+    ledgerDeleteDenied,
   };
   const failedChecks = Object.entries(checks)
     .filter(([, passed]) => !passed)
@@ -584,11 +599,51 @@ async function verifyRuntime(adminCredentials, runtimeCredentials) {
       crossTenantVisibleMemberships,
       runtimeMembershipWriteDenied,
     },
+    ledger: {
+      eventCount: own.events.length,
+      hashChainVerified: verifyLedgerChain(own.events),
+      headHash: own.events.at(-1).event_hash,
+      updateDenied: ledgerUpdateDenied,
+      deleteDenied: ledgerDeleteDenied,
+    },
+    separationOfDuties: {
+      runtimeProtocolWriteDenied,
+      runtimeMembershipWriteDenied,
+    },
+    crossTenantDenial: {
+      ledger: crossTenantVisibleEvents === 0,
+      exposure: crossTenantVisibleExposures === 0,
+      protocol: crossTenantVisibleProtocols === 0,
+      membership: crossTenantVisibleMemberships === 0,
+    },
+    idempotency: {
+      ledgerReplayRejected: !replay.inserted,
+      assignment: experiment.assignments.length === 1,
+      exposure: experiment.exposures.length === 1 && !exposureReplay.inserted,
+    },
     headHashPrefix: own.events.at(-1).event_hash.slice(0, 16),
   };
 }
 
-export async function handler(event = {}) {
+async function runtimeMutationDenied({ getDB, tenantId, sql, params }) {
+  const db = await getDB();
+  await db.connect();
+  try {
+    await db.query('BEGIN');
+    await db.query("SELECT set_config('app.current_tenant_id', $1, true)", [tenantId]);
+    await db.query(sql, params);
+    await db.query('ROLLBACK');
+    return false;
+  } catch (error) {
+    await db.query('ROLLBACK').catch(() => {});
+    return /permission denied|immutable|cannot update|cannot delete/i.test(error.message);
+  } finally {
+    await db.end();
+  }
+}
+
+export async function handler(event = {}, context = {}) {
+  const requestId = context.awsRequestId || event.requestContext?.requestId || null;
   const adminCredentials = await getSecret(adminSecretId);
   const status = await schemaStatus(adminCredentials);
   if (event.mode === 'provision-console-access') {
@@ -601,23 +656,29 @@ export async function handler(event = {}) {
       ok: true,
       mode: 'provision-console-access',
       mutationPerformed: true,
+      requestId,
       provisioned,
     };
   }
   if (event.mode !== 'migrate-and-verify') {
-    return { ok: true, mode: 'status', ...status, mutationPerformed: false };
+    return { ok: true, mode: 'status', ...status, requestId, mutationPerformed: false };
   }
   if (event.confirm !== APPLY_CONFIRMATION) {
     throw new Error(`migrate-and-verify requires confirm=${APPLY_CONFIRMATION}`);
   }
   const runtimeCredentials = await getSecret(runtimeSecretId);
-  await applyMigrations(adminCredentials, runtimeCredentials);
+  const migrationDigests = await applyMigrations(adminCredentials, runtimeCredentials);
   const verification = await verifyRuntime(adminCredentials, runtimeCredentials);
+  const inventory = await schemaStatus(adminCredentials);
   return {
     ok: true,
     mode: 'migrate-and-verify',
     schema,
     migrations: MIGRATIONS,
+    migrationDigests,
+    schemaInventory: inventory.tables,
+    migrationCount: MIGRATIONS.length,
+    requestId,
     mutationPerformed: true,
     verification,
   };

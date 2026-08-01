@@ -112,6 +112,13 @@ test('evidence-store migrator verifies connected measurement and separately auth
   assert.match(source, /controlledProtocolWriteSucceeded/, 'runtime verification should prove controlled protocol procedures remain usable');
   assert.match(source, /rawProtocolRegistry = createGrowthPlayRegistry\(\{ getDB \}\)/, 'runtime verification should prove raw protocol writes are denied');
   assert.match(source, /institution_memberships/, 'runtime verification should exercise institution membership isolation');
+  assert.match(source, /migrationDigests/, 'migration acceptance must record every applied migration digest');
+  assert.match(source, /migrationCount: MIGRATIONS\.length/, 'acceptance must report all configured migrations');
+  assert.match(source, /schemaInventory: inventory\.tables/, 'acceptance must record the deployed schema inventory');
+  assert.match(source, /requestId/, 'acceptance must record the Lambda request ID');
+  assert.match(source, /headHash: own\.events\.at\(-1\)\.event_hash/, 'acceptance must retain the full ledger head hash');
+  assert.match(source, /ledgerUpdateDenied/, 'runtime verification must prove ledger updates are denied');
+  assert.match(source, /ledgerDeleteDenied/, 'runtime verification must prove ledger deletes are denied');
   assert.match(source, /runtimeMembershipWriteDenied/, 'runtime verification should prove activation cannot provision memberships');
   assert.match(
     source,

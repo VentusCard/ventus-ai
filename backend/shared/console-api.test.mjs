@@ -636,11 +636,11 @@ test('Console API advances a connector only through a server-side lifecycle tran
   assert.equal(body.receipt.receiptId, 'ctr_123');
 });
 
-test('Console API resolves FSC outcomes from the Moment-linked Decision Receipt, not browser-supplied Salesforce IDs', async () => {
+test('Console API lets a risk reviewer resolve FSC outcomes from the server-linked Decision Receipt', async () => {
   const calls = [];
-  const consumerOperator = {
+  const consumerReviewer = {
     ...membership,
-    role: 'bank_operator',
+    role: 'risk_reviewer',
     entitlements: ['growth_console', 'consumer_demo'],
     businessLines: ['consumer-banking'],
     queueScopes: [],
@@ -651,7 +651,7 @@ test('Console API resolves FSC outcomes from the Moment-linked Decision Receipt,
   };
   const handler = createConsoleApiHandler({
     verifyIdentity: async () => identity,
-    resolveMembership: async () => consumerOperator,
+    resolveMembership: async () => consumerReviewer,
     journey: { async loadMoment() { return linkedMoment; } },
     controlPlane: {
       async activeConnection() { return { mappingId: 'map_fsc', version: 2, connector: 'salesforce-fsc', configuration: { decisionObject: 'Bank_Decision__c' } }; },
@@ -674,6 +674,49 @@ test('Console API resolves FSC outcomes from the Moment-linked Decision Receipt,
   assert.equal(calls[0].mapping.configuration.decisionObject, 'Bank_Decision__c');
   assert.equal(body.mapping.mappingId, 'map_fsc');
   assert.equal(body.recorded.observation.observationId, 'obs_123');
+});
+
+test('Console API blocks manual FSC reconciliation for every non-reviewer role', async () => {
+  for (const role of ['ventus_platform_admin', 'institution_admin', 'growth_play_owner', 'bank_operator', 'executive_viewer']) {
+    const handler = createConsoleApiHandler({
+      verifyIdentity: async () => identity,
+      resolveMembership: async () => ({ ...membership, role, entitlements: ['growth_console', 'consumer_demo'], businessLines: ['consumer-banking'] }),
+      journey: { async loadMoment() { throw new Error('should not load'); } },
+      controlPlane: {},
+      readSalesforceOutcome: async () => { throw new Error('should not read'); },
+    });
+    const result = await handler(request('https://dev.example.com', {
+      path: '/staging/v1/console/outcomes/salesforce-sync',
+      body: JSON.stringify({ decisionId: 'dec_123' }),
+    }));
+    assert.equal(result.statusCode, 403, role);
+  }
+});
+
+test('Console API accepts the IAM-scoped service reconciliation route without a user token', async () => {
+  const calls = [];
+  const linkedMoment = {
+    ...moment('deposit-retention'),
+    receipt: { records: { decision: { id: 'a08_server_linked_only' } } },
+  };
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => { throw new Error('user identity should not run'); },
+    resolveMembership: async () => { throw new Error('membership should not run'); },
+    resolveServiceIdentity: async () => ({ kind: 'service', serviceId: 'fsc_outcome_reconciler', status: 'active', tenantScopes: ['ventus'] }),
+    journey: { async loadMoment() { return linkedMoment; } },
+    controlPlane: {
+      async activeConnection() { return { mappingId: 'map_fsc', version: 2, connector: 'salesforce-fsc', configuration: {} }; },
+      async recordFscOutcome(input) { calls.push(input); return { observation: { observationId: 'obs_service' } }; },
+    },
+    readSalesforceOutcome: async () => ({ outcome: { status: 'completed' } }),
+  });
+  const result = await handler(request('https://dev.example.com', {
+    path: '/staging/v1/console/internal/outcomes/salesforce-sync',
+    headers: { origin: 'https://dev.example.com' },
+    body: JSON.stringify({ tenantId: 'ventus', decisionId: 'dec_123' }),
+  }));
+  assert.equal(result.statusCode, 200);
+  assert.equal(calls[0].actorId, 'service:fsc_outcome_reconciler');
 });
 
 function request(origin = 'https://dev.example.com', overrides = {}) {

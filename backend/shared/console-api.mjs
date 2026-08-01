@@ -15,6 +15,8 @@ import {
   authorizeGrowthPlayRead,
   authorizeGrowthPlayWrite,
   authorizeEvidenceBundleRead,
+  authorizeOutcomeReconciliation,
+  authorizeOutcomeReconciliationService,
   authorizeResultsRead,
   authorizeSkillApproval,
   authorizeSkillDraft,
@@ -42,6 +44,7 @@ export function createConsoleApiHandler({
   readSalesforceOutcome,
   runControlledSandbox,
   exportEvidenceBundle,
+  resolveServiceIdentity,
 }) {
   if (typeof verifyIdentity !== 'function' || typeof resolveMembership !== 'function') {
     throw new Error('Console API identity and membership adapters are required');
@@ -58,6 +61,23 @@ export function createConsoleApiHandler({
       return response(403, { error: 'origin is not allowed' }, responseHeaders);
     }
 
+    const path = String(event.path || event.rawPath || event.resource || '');
+    if (method === 'POST' && path.endsWith('/internal/outcomes/salesforce-sync')) {
+      if (typeof resolveServiceIdentity !== 'function') return forbidden('Salesforce outcome reconciliation service', responseHeaders);
+      const body = parseBody(event.body);
+      const serviceIdentity = await resolveServiceIdentity(event);
+      const serviceAuthorization = authorizeOutcomeReconciliationService(serviceIdentity, body.tenantId);
+      if (!serviceAuthorization.allowed) return forbidden('Salesforce outcome reconciliation service', responseHeaders);
+      return response(200, await reconcileSalesforceOutcome({
+        tenantId: body.tenantId,
+        decisionId: body.decisionId,
+        actorId: serviceAuthorization.actorId,
+        journey,
+        controlPlane,
+        readSalesforceOutcome,
+      }), responseHeaders);
+    }
+
     const token = bearerToken(header(event, 'authorization'));
     if (!token) return response(401, { error: 'active Console access required' }, responseHeaders);
 
@@ -67,7 +87,6 @@ export function createConsoleApiHandler({
       const membership = await resolveMembership(identity);
       if (!membership) return response(403, { error: 'institution access is not active' }, responseHeaders);
 
-      const path = String(event.path || event.rawPath || event.resource || '');
       const evidenceBundlePath = parseEvidenceBundlePath(path);
       if (method === 'GET' && evidenceBundlePath) {
         if (typeof exportEvidenceBundle !== 'function') return unavailable('sandbox evidence bundle', responseHeaders);
@@ -285,33 +304,19 @@ export function createConsoleApiHandler({
       }
       if (method === 'POST' && path.endsWith('/outcomes/salesforce-sync')) {
         if (!controlPlane || typeof readSalesforceOutcome !== 'function' || !journey) return unavailable('Salesforce outcome return', responseHeaders);
-        if (!authorizeResultsRead(membership).allowed) return forbidden('Salesforce outcome return', responseHeaders);
+        if (!authorizeOutcomeReconciliation(membership).allowed) return forbidden('Salesforce outcome return', responseHeaders);
         const body = parseBody(event.body);
-        if (typeof body.decisionId !== 'string') throw new ConsoleRequestError('decisionId is required');
         const moment = await journey.loadMoment({ tenantId: identity.tenantHint, decisionId: body.decisionId });
         if (!authorizeScenarioRead(membership, moment.scenario).allowed) return forbidden('moment', responseHeaders);
-        const mapping = await controlPlane.activeConnection({ tenantId: identity.tenantHint, connector: 'salesforce-fsc' });
-        if (!mapping) throw new ConsoleRequestError('No active Salesforce FSC outcome mapping exists for this institution');
-        const decisionRecordId = moment.receipt?.records?.decision?.id;
-        if (!decisionRecordId) throw new ConsoleRequestError('This moment has no Salesforce Decision Receipt to reconcile');
-        const outcome = await readSalesforceOutcome({
+        return response(200, await reconcileSalesforceOutcome({
           tenantId: identity.tenantHint,
-          decisionRecordId,
-          mapping,
-        });
-        const recorded = await controlPlane.recordFscOutcome({
-          tenantId: identity.tenantHint,
-          moment,
-          outcome,
-          mapping,
+          decisionId: body.decisionId,
           actorId: identity.subject,
-        });
-        return response(200, {
-          mapping: { mappingId: mapping.mappingId, version: mapping.version, connector: mapping.connector },
-          outcome,
-          recorded,
-          serverAuthoritative: true,
-        }, responseHeaders);
+          journey,
+          controlPlane,
+          readSalesforceOutcome,
+          loadedMoment: moment,
+        }), responseHeaders);
       }
       if (method === 'GET' && path.endsWith('/today')) {
         if (!journey) return response(503, { error: 'durable Console journey is unavailable' }, responseHeaders);
@@ -603,6 +608,36 @@ function todayProjection(moments, aggregateOnly) {
     aggregateOnly,
     counts,
     ...(aggregateOnly ? {} : { moments: moments.slice(0, 8) }),
+    serverAuthoritative: true,
+  };
+}
+
+async function reconcileSalesforceOutcome({
+  tenantId,
+  decisionId,
+  actorId,
+  journey,
+  controlPlane,
+  readSalesforceOutcome,
+  loadedMoment = null,
+}) {
+  if (!controlPlane || typeof readSalesforceOutcome !== 'function' || !journey) {
+    throw new ConsoleRequestError('Salesforce outcome return is unavailable');
+  }
+  if (typeof decisionId !== 'string' || !decisionId.trim()) {
+    throw new ConsoleRequestError('decisionId is required');
+  }
+  const moment = loadedMoment ?? await journey.loadMoment({ tenantId, decisionId });
+  const mapping = await controlPlane.activeConnection({ tenantId, connector: 'salesforce-fsc' });
+  if (!mapping) throw new ConsoleRequestError('No active Salesforce FSC outcome mapping exists for this institution');
+  const decisionRecordId = moment.receipt?.records?.decision?.id;
+  if (!decisionRecordId) throw new ConsoleRequestError('This moment has no Salesforce Decision Receipt to reconcile');
+  const outcome = await readSalesforceOutcome({ tenantId, decisionRecordId, mapping });
+  const recorded = await controlPlane.recordFscOutcome({ tenantId, moment, outcome, mapping, actorId });
+  return {
+    mapping: { mappingId: mapping.mappingId, version: mapping.version, connector: mapping.connector },
+    outcome,
+    recorded,
     serverAuthoritative: true,
   };
 }

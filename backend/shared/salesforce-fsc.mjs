@@ -202,7 +202,9 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
         .map((field) => cleanText(field?.name, 120))
         .filter(Boolean),
     );
-    const required = Object.values(outcomeMapping).filter((field) => field !== outcomeMapping.decisionObject);
+    const required = Object.entries(outcomeMapping)
+      .filter(([key]) => key !== 'decisionObject')
+      .map(([, field]) => field);
     const missing = required.filter((field) => !available.has(field));
     if (missing.length) {
       throw new SalesforceFscError(`Salesforce outcome mapping is missing fields: ${missing.join(', ')}`, 409);
@@ -314,9 +316,10 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
       outcomeMapping.outcomeOccurredAtField,
       outcomeMapping.outcomeSourceRecordIdField,
       outcomeMapping.outcomeReasonCodeField,
+      outcomeMapping.outcomeCorrectionSequenceField,
       'LastModifiedById',
       'LastModifiedDate',
-    ])].join(','));
+    ].filter(Boolean))].join(','));
     const record = await salesforceJson({
       auth,
       path: `/services/data/${API_VERSION}/sobjects/${encodeURIComponent(outcomeMapping.decisionObject)}/${id}?fields=${fields}`,
@@ -507,10 +510,15 @@ function buildDecisionRecord(body, config, workflow, now) {
 
 export function normalizeFscOutcomeMapping(value) {
   const source = value && typeof value === 'object' && !Array.isArray(value) ? value : {};
-  return Object.fromEntries(Object.entries(DEFAULT_OUTCOME_MAPPING).map(([key, fallback]) => {
+  const mapping = Object.fromEntries(Object.entries(DEFAULT_OUTCOME_MAPPING).map(([key, fallback]) => {
     const candidate = cleanText(source[key], 120);
     return [key, SALESFORCE_API_NAME.test(candidate) ? candidate : fallback];
   }));
+  const correctionField = cleanText(source.outcomeCorrectionSequenceField, 120);
+  return {
+    ...mapping,
+    ...(SALESFORCE_API_NAME.test(correctionField) ? { outcomeCorrectionSequenceField: correctionField } : {}),
+  };
 }
 
 function normalizeOutcome(record, tenantId, mapping, instanceUrl) {
@@ -530,6 +538,8 @@ function normalizeOutcome(record, tenantId, mapping, instanceUrl) {
     throw new SalesforceFscError('Decision Receipt reference mismatch', 409);
   }
   const outcomeStatus = cleanText(read('outcomeStatusField') || snapshot.outcome?.status, 40);
+  const observedAt = nullableIsoDate(record.LastModifiedDate);
+  const reasonCode = cleanText(read('outcomeReasonCodeField'), 128) || null;
   return {
     decisionRecordId,
     recordUrl: salesforceRecordUrl(instanceUrl, decisionRecordId),
@@ -539,7 +549,15 @@ function normalizeOutcome(record, tenantId, mapping, instanceUrl) {
     response: {
       status: cleanText(read('humanResponseField') || snapshot.response?.status || 'pending', 40),
       actorToken: cleanText(record.LastModifiedById, 32) || null,
-      recordedAt: nullableIsoDate(record.LastModifiedDate),
+      recordedAt: observedAt,
+    },
+    workflow: {
+      taskId: cleanSalesforceId(snapshot.workflow?.taskId) || null,
+      referralId: cleanSalesforceId(snapshot.workflow?.referralId) || null,
+      status: outcomeStatus || 'awaiting_outcome',
+      completedAt: outcomeStatus === 'measured' || outcomeStatus === 'completed' ? observedAt : null,
+      observedAt,
+      reasonCode,
     },
     outcome: {
       status: outcomeStatus,
@@ -549,10 +567,14 @@ function normalizeOutcome(record, tenantId, mapping, instanceUrl) {
             occurredAt: nullableIsoDate(read('outcomeOccurredAtField')),
             sourceSystem: 'salesforce-fsc',
             sourceRecordId: cleanText(read('outcomeSourceRecordIdField'), 128) || decisionRecordId,
-            reasonCode: cleanText(read('outcomeReasonCodeField'), 128) || null,
+            reasonCode,
             metric: cleanText(read('outcomeMetricField') || snapshot.outcome?.metric, 100),
             amount: finiteNumber(read('outcomeAmountField')),
             currency: 'USD',
+            observedAt,
+            correctionSequence: mapping.outcomeCorrectionSequenceField
+              ? nonNegativeInteger(record[mapping.outcomeCorrectionSequenceField])
+              : null,
           }
         : null,
     },
@@ -575,6 +597,11 @@ function finiteNumber(value) {
   if (typeof value === 'number' && Number.isFinite(value)) return value;
   if (typeof value === 'string' && value.trim() && Number.isFinite(Number(value))) return Number(value);
   return null;
+}
+
+function nonNegativeInteger(value) {
+  const numeric = typeof value === 'string' && value.trim() ? Number(value) : value;
+  return Number.isInteger(numeric) && numeric >= 0 ? numeric : null;
 }
 
 function cleanText(value, maxLength) {

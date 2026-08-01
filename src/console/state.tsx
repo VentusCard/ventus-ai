@@ -399,6 +399,8 @@ export function decisionPackageForMoment(moment: ConsoleMoment, tenant: Tenant, 
     decisionId: moment.decisionId,
     tenantId: tenant.id,
     createdAt: moment.createdAt,
+    // This compatibility projection remains a v1.1 Decision Package. The
+    // immutable v1.2 package carries the canonical partner_sandbox label.
     evidenceClass: moment.sourceMode === "live" ? "sandbox" : "fixture",
     growthPlay: {
       id: moment.scenario,

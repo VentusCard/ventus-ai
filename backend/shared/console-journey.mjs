@@ -367,8 +367,8 @@ export function buildDecisionPackageV12(packageProjection, decision) {
     tenantId: packageProjection.tenantId,
     createdAt: packageProjection.createdAt,
     evidenceClass: decision.source.evidenceClass === 'sanctioned_pilot'
-      ? 'sanctioned'
-      : decision.source.mode === 'fixture' ? 'fixture' : 'sandbox',
+      ? 'sanctioned_pilot'
+      : decision.source.mode === 'fixture' ? 'fixture' : 'partner_sandbox',
     subject: { ...packageProjection.subject, scope: 'customer' },
     growthPlay: packageProjection.growthPlay,
     moment: {
