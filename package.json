@@ -97,6 +97,7 @@
     "zod": "^3.25.76"
   },
   "devDependencies": {
+    "@aws-sdk/client-lambda": "^3.1101.0",
     "@eslint/js": "^9.9.0",
     "@tailwindcss/typography": "^0.5.15",
     "@types/node": "^22.5.5",
