@@ -167,6 +167,43 @@ test('Console API limits sandbox evidence bundles to a risk reviewer', async () 
   assert.equal(JSON.parse(result.body).experimentId, 'exp_123');
 });
 
+test('Console API exports a redacted bank-review package only to a risk reviewer', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => ({
+      ...membership,
+      role: 'risk_reviewer',
+      entitlements: ['growth_console'],
+      businessLines: ['consumer-banking'],
+    }),
+    controlPlane: {
+      async bankReviewPackage(input) {
+        assert.equal(input.tenantId, 'ventus');
+        return { packageVersion: '1.0', evidenceClass: 'partner_sandbox', serverAuthoritative: true };
+      },
+    },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    httpMethod: 'GET',
+    path: '/staging/v1/console/bank-review-package',
+  }));
+  assert.equal(result.statusCode, 200);
+  assert.equal(JSON.parse(result.body).serverAuthoritative, true);
+});
+
+test('Console API blocks bank-review package export for non-reviewers', async () => {
+  const handler = createConsoleApiHandler({
+    verifyIdentity: async () => identity,
+    resolveMembership: async () => membership,
+    controlPlane: { async bankReviewPackage() { throw new Error('should not run'); } },
+  });
+  const result = await handler(request('https://dev.example.com', {
+    httpMethod: 'GET',
+    path: '/staging/v1/console/bank-review-package',
+  }));
+  assert.equal(result.statusCode, 403);
+});
+
 test('Console API binds connected evidence to the latest approved protocol before execution', async () => {
   const calls = [];
   const contract = approvedDepositContract();

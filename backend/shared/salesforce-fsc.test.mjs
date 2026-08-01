@@ -217,6 +217,7 @@ test('FSC outcome return honors an institution-approved Decision Receipt mapping
 
   assert.match(requested[0], /sobjects\/Bank_Decision__c/);
   assert.equal(result.decisionId, 'dec_fsc_001');
+  assert.equal(result.recordUrl, 'https://instance.salesforce.com/lightning/r/a01000000000001/view');
   assert.equal(result.outcome.status, 'measured');
   assert.equal(result.outcome.observation.metric, 'deposit_retained');
   assert.equal(result.outcome.observation.amount, 18400);

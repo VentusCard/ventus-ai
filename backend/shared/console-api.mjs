@@ -77,6 +77,11 @@ export function createConsoleApiHandler({
           experimentId: evidenceBundlePath.experimentId,
         }), responseHeaders);
       }
+      if (method === 'GET' && path.endsWith('/bank-review-package')) {
+        if (!controlPlane || typeof controlPlane.bankReviewPackage !== 'function') return unavailable('bank review package', responseHeaders);
+        if (!authorizeEvidenceBundleRead(membership).allowed) return forbidden('bank review package', responseHeaders);
+        return response(200, await controlPlane.bankReviewPackage({ tenantId: identity.tenantHint }), responseHeaders);
+      }
       if (method === 'GET' && path.endsWith('/results')) {
         if (!controlPlane) return unavailable('product results', responseHeaders);
         const authorization = authorizeResultsRead(membership);
