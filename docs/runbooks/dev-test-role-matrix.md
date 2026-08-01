@@ -16,18 +16,20 @@ tenant-scoped role, business-line scope, queue scope, and entitlements.
 | `rojchen98+operator@gmail.com` | `bank_operator` | Consumer Banking; `consumer-deposit-primacy` queue | Review a treatment Moment and deliver its approved FSC action | Cognito account confirmed on 2026-08-01; live UI journey still needs a fresh sign-in |
 | `rojchen98+reviewer@gmail.com` | `risk_reviewer` | Ventus pilot | Governance review and evidence-bundle export | Cognito account confirmed on 2026-08-01; live UI journey still needs a fresh sign-in |
 | `rojchen98+executive@gmail.com` | `executive_viewer` | Ventus tenant | Aggregate Results and outcome coverage without customer-level access | Live UI verified on 2026-08-01: aggregate Results only; `/app/moments` redirected to Results |
+| `rojchen98+platformadmin@gmail.com` | `ventus_platform_admin` | Ventus tenant; Consumer Banking and Wealth | Platform governance, Connections, and cross-institution operating health | Cognito account and active Aurora membership provisioned on 2026-08-01; invitation acceptance and live UI journey pending |
 | `yusheng@ventuscard.com` | Unresolved legacy test mapping | Ventus tenant | Do not use for role-specific acceptance tests | Previously exposed a customer queue but produced inconsistent response permissions; reconcile before reuse |
 
-There is currently no confirmed `ventus_platform_admin` Cognito identity in the dev pool. The
-six-role acceptance matrix is therefore not complete; platform-admin behavior remains covered by
-authorization tests only until a dedicated identity is provisioned and tested.
+The `ventus_platform_admin` identity is now provisioned, but its invitation has not yet been
+accepted and its live UI journey has not been tested. The six-role acceptance matrix is therefore
+still not complete; platform-admin behavior is covered by authorization tests until that sign-in is
+completed.
 
 ## Current acceptance boundary
 
 - **Live verified:** Cognito password login; executive aggregate Results; executive denial of
   customer-level Moments.
 - **Cognito provisioned, fresh live journey pending:** institution admin, Growth Play owner,
-  bank operator, and risk reviewer.
+  bank operator, risk reviewer, and platform admin.
 - **Automated authorization coverage:** all six role destinations and route boundaries, including
   the missing platform-admin role, are covered by `npm run test:connector-sessions`.
 - **Not claimed:** a complete six-role live acceptance pass, bank SSO, or production access review.
@@ -44,8 +46,8 @@ authorization tests only until a dedicated identity is provisioned and tested.
    views.
 5. Use `rojchen98+executive@gmail.com` to validate aggregate Results and confirm
    that customer-level Moments remain unavailable.
-6. Provision a separate `ventus_platform_admin` identity before claiming the
-   complete six-role live matrix.
+6. Use `rojchen98+platformadmin@gmail.com` to complete the invitation and validate the
+   `ventus_platform_admin` journey before claiming the complete six-role live matrix.
 
 ## Maintenance Rules
 

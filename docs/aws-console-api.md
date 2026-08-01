@@ -34,7 +34,8 @@ browser response or ledger receipt.
 - Staging only; no production route or custom domain.
 - Dev deployment is live-verified for Cognito authentication and the aggregate executive Results
   boundary; operator, owner, reviewer, and institution-admin journeys still require fresh role
-  sign-ins before being called live-accepted.
+  sign-ins, and the newly provisioned platform-admin identity still requires invitation acceptance,
+  before those journeys can be called live-accepted.
 - The decision route is a deterministic baseline, not a claim of model accuracy or
   production economic lift.
 - Activation and measured outcomes remain separate governed operations.
