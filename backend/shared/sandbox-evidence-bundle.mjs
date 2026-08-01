@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { createMeasurementRepository, summarizeIncrementalLift } from './experiment-measurement.mjs';
+import { bundleEvidenceClass, canonicalEvidenceClass, deriveClaimStatus } from './evidence-taxonomy.mjs';
 import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 // A bank-review artifact, generated from the append-only stores at request time.
 // It intentionally contains opaque subject references and safe event projections,
 // never connector credentials, access tokens, or raw financial account details.
-export function createSandboxEvidenceBundleService({ ledgerRepository, getDB, measurementRepository = null, now = () => new Date() }) {
+export function createBankReviewBundleService({ ledgerRepository, getDB, measurementRepository = null, now = () => new Date() }) {
   assert.equal(typeof ledgerRepository?.exportTenant, 'function', 'ledgerRepository.exportTenant is required');
   const measurements = measurementRepository ?? createMeasurementRepository({ getDB });
 
@@ -39,51 +41,161 @@ export function createSandboxEvidenceBundleService({ ledgerRepository, getDB, me
         getDB,
       });
 
+      const assignments = experiment.assignments.map(projectAssignment);
+      const outcomes = experiment.outcomes.map(projectOutcome);
+      const decisionPackage = projectDecisionPackage(decisionPayload.decision_package_v12 ?? null);
+      const generatedAt = now().toISOString();
+      const sourceReceipts = traces.filter((trace) => trace.type === 'signal');
+      const responseReceipts = traces.filter((trace) => trace.type === 'response');
+      const deliveryReceipts = traces.filter((trace) => trace.type === 'activation');
+      const outcomeReceipts = traces.filter((trace) => trace.type === 'outcome');
+      const assignmentOrigin = bundleEvidenceClass(assignments);
+      const componentOrigins = {
+        assignments: assignmentOrigin,
+        source: canonicalEvidenceClass(decisionPayload.decision_package_v12?.evidenceClass
+          ?? decisionPayload.decision_package?.evidenceClass
+          ?? firstEvidenceClass(events), assignmentOrigin),
+        decision: canonicalEvidenceClass(decisionPayload.decision_package_v12?.evidenceClass
+          ?? decisionPayload.decision_package?.evidenceClass, assignmentOrigin),
+        // Delivery and outcome traces inherit the assignment origin unless the
+        // immutable receipt itself carries a more specific source label. This
+        // avoids presenting a sandbox assumption as provenance in a bank export.
+        delivery: deliveryReceipts.length
+          ? canonicalEvidenceClass(firstEvidenceClassForTypes(events, ['activation']), assignmentOrigin)
+          : null,
+        outcomes: outcomes.length
+          ? canonicalEvidenceClass(firstEvidenceClassForTypes(events, ['outcome']), assignmentOrigin)
+          : null,
+      };
+      const evidenceClass = bundleEvidenceClass(Object.values(componentOrigins).filter(Boolean));
+      const independentReview = claimReviewStatus({
+        events,
+        experimentId,
+        decisionProtocolId: decisionPackage?.growthPlay?.protocolId
+          ?? decisionPayload.decision_protocol_id
+          ?? null,
+      });
+      const protocol = {
+        decisionProtocolId: decisionPayload.runtime?.protocolId ?? firstPayload(events, 'decision_protocol_id'),
+        approvalChronology: decisionPayload.runtime?.protocolApprovalId ? [{
+          approvalId: decisionPayload.runtime.protocolApprovalId,
+          decision: 'approved',
+          decidedAt: decisionPayload.runtime.protocolApprovedAt ?? null,
+        }] : [],
+        protocolDigest: decisionPayload.runtime?.approvedContract?.protocol_digest ?? null,
+        policyVersion: decisionPayload.runtime?.policyVersion ?? null,
+      };
+      const ledgerVerification = {
+        verified: ledger.verified === true,
+        eventCount: traces.length,
+        headHash: traces.at(-1)?.eventHash ?? null,
+      };
+      const permissionIsolationEvidence = {
+        tenantScopedExport: true,
+        reviewerAuthorization: 'risk_reviewer',
+        subjectTokensRedacted: true,
+        holdoutProtection: holdoutProtection.status,
+        runtimeVerifier: ledger.verified === true ? 'ledger_chain_verified' : 'not_verified',
+      };
+      const completenessChecks = {
+        sourceReceipt: sourceReceipts.length > 0,
+        protocolApproval: protocol.approvalChronology.length > 0,
+        decisionPackageDigest: Boolean(decisionPackage?.packageDigest),
+        treatmentAndHoldout: Boolean(armCounts.treatment && armCounts.holdout),
+        workflowReceipt: responseReceipts.length > 0 || deliveryReceipts.length > 0,
+        outcomeCoverage: outcomes.length > 0,
+        ledgerVerified: ledgerVerification.verified,
+        holdoutVerified: holdoutProtection.status === 'verified',
+      };
+      const artifactReferences = Object.entries({
+        sourceReceipts,
+        protocol,
+        assignments,
+        decisionPackage,
+        responseReceipts,
+        deliveryReceipts,
+        outcomes,
+        measurement,
+        ledgerVerification,
+        permissionIsolationEvidence,
+      }).map(([name, value]) => ({ name, digest: digest(value) }));
+      const manifestCore = {
+        schemaVersion: 'ventus_bank_review_bundle/v1',
+        generatedAt,
+        experimentId,
+        evidenceClass,
+        componentOrigins,
+        artifactReferences,
+        completeness: {
+          complete: Object.values(completenessChecks).every(Boolean),
+          checks: completenessChecks,
+          missing: Object.entries(completenessChecks).filter(([, passed]) => !passed).map(([name]) => name),
+        },
+      };
+
       return {
-        schemaVersion: 'ventus_sandbox_evidence_bundle/v1',
-        generatedAt: now().toISOString(),
-        evidenceClass: 'sandbox',
+        schemaVersion: 'ventus_bank_review_bundle/v1',
+        compatibility: { replaces: 'ventus_sandbox_evidence_bundle/v1', additive: true },
+        manifest: { ...manifestCore, manifestDigest: digest(manifestCore) },
+        generatedAt,
+        evidenceClass,
+        componentOrigins,
         claimEligibility: {
+          claimStatus: deriveClaimStatus({
+            evidenceClass,
+            measurementStatus: measurement.status,
+            gatesPassed: measurement.status === 'measured',
+            independentReview,
+          }),
           businessClaimAllowed: false,
           causalClaimAllowed: false,
-          reason: 'Partner-sandbox validation demonstrates the governed mechanism, not bank performance.',
+          reason: evidenceClass === 'sanctioned_pilot'
+            ? 'Sanctioned evidence remains limited to the exact approved measurement and claim review scope.'
+            : 'Fixture and partner-sandbox evidence demonstrate the governed mechanism, not bank performance.',
         },
         experiment: {
           experimentId,
           arms: armCounts,
-          assignments: experiment.assignments.map(projectAssignment),
+          assignments,
           outcomesByArm,
+          outcomes,
           metric,
           measurement,
         },
-        protocol: {
-          decisionProtocolId: decisionPayload.runtime?.protocolId ?? firstPayload(events, 'decision_protocol_id'),
-          approvalId: decisionPayload.runtime?.protocolApprovalId ?? null,
-          protocolDigest: decisionPayload.runtime?.approvedContract?.protocol_digest ?? null,
-          policyVersion: decisionPayload.runtime?.policyVersion ?? null,
-        },
-        decisionPackage: projectDecisionPackage(decisionPayload.decision_package_v12 ?? null),
+        protocol,
+        claimReview: { status: independentReview },
+        decisionPackage,
         receiptChain: {
-          verified: ledger.verified === true,
+          ...ledgerVerification,
           eventCount: traces.length,
-          sourceReceipts: traces.filter((trace) => trace.type === 'signal'),
+          sourceReceipts,
           decisionTraces: traces.filter((trace) => trace.type === 'decision'),
-          responseTraces: traces.filter((trace) => trace.type === 'response'),
-          deliveryTraces: traces.filter((trace) => trace.type === 'activation'),
-          outcomeTraces: traces.filter((trace) => trace.type === 'outcome'),
+          responseTraces: responseReceipts,
+          deliveryTraces: deliveryReceipts,
+          outcomeTraces: outcomeReceipts,
           counterfactualTraces: traces.filter((trace) => trace.type === 'counterfactual'),
         },
+        reconciliation: {
+          workflowReceipts: deliveryReceipts,
+          outcomeReceipts,
+          corrections: outcomes.filter((outcome) => outcome.correctionSequence > 0),
+        },
         holdoutProtection,
+        permissionIsolationEvidence,
+        artifactReferences,
         evidenceLabels: {
           source: 'Plaid sandbox custom users',
           destination: 'Configured sandbox connector when delivery is approved',
-        classification: 'sandbox',
-          analysisEligibility: 'not eligible for business or causal claims',
+          classification: evidenceClass,
+          analysisEligibility: evidenceClass === 'sanctioned_pilot' ? 'subject to registered gates' : 'not eligible for business or causal claims',
         },
       };
     },
   };
 }
+
+// Compatibility export for callers that have not renamed the service yet.
+export const createSandboxEvidenceBundleService = createBankReviewBundleService;
 
 async function verifyHoldoutProtection({ tenantId, assignments, events, getDB }) {
   const holdouts = assignments.filter((assignment) => assignment.arm === 'holdout');
@@ -164,8 +276,28 @@ function projectAssignment(assignment) {
     assignmentId: assignment.assignmentId,
     arm: assignment.arm,
     bucket: assignment.bucket,
-    evidenceClass: assignment.evidenceClass,
+    evidenceClass: canonicalEvidenceClass(assignment.evidenceClass, 'fixture'),
     assignedAt: assignment.assignedAt,
+  };
+}
+
+function projectOutcome(outcome) {
+  return {
+    eventId: outcome.event_id ?? outcome.eventId ?? null,
+    arm: outcome.assignment?.arm ?? outcome.arm ?? null,
+    eventType: outcome.event_type ?? outcome.eventType ?? null,
+    occurredAt: outcome.occurred_at ?? outcome.occurredAt ?? null,
+    metric: outcome.value?.metric ?? null,
+    amountPresent: outcome.value !== null && outcome.value?.amount !== null && outcome.value?.amount !== undefined,
+    sourceSystem: outcome.source_system ?? outcome.sourceSystem ?? null,
+    sourceVersion: outcome.provenance?.source_version ?? null,
+    correctionSequence: Number.isInteger(outcome.provenance?.correction_sequence)
+      ? outcome.provenance.correction_sequence : 0,
+    artifactDigest: digest({
+      eventId: outcome.event_id ?? outcome.eventId ?? null,
+      sourceRecordId: outcome.source_record_id ?? outcome.sourceRecordId ?? null,
+      correctionSequence: outcome.provenance?.correction_sequence ?? 0,
+    }),
   };
 }
 
@@ -218,13 +350,17 @@ function safeMeasurement(experiment, metric) {
       metric,
     });
     return {
-      status: summary.status,
+      status: normalizeMeasurementStatus(summary.status),
       coverage: {
         treatment: summary.treatment?.coverage ?? 0,
         holdout: summary.holdout?.coverage ?? 0,
       },
       sampleReady: summary.status === 'measured',
-      claimStatus: 'not_eligible_sandbox',
+      claimStatus: deriveClaimStatus({
+        evidenceClass: bundleEvidenceClass(experiment.assignments),
+        measurementStatus: normalizeMeasurementStatus(summary.status),
+        gatesPassed: summary.status === 'measured',
+      }),
     };
   } catch {
     return notReadyMeasurement('measurement_not_ready');
@@ -232,7 +368,43 @@ function safeMeasurement(experiment, metric) {
 }
 
 function notReadyMeasurement(reason) {
-  return { status: 'not_ready', coverage: { treatment: 0, holdout: 0 }, sampleReady: false, claimStatus: 'not_eligible_sandbox', reason };
+  return { status: 'not_started', coverage: { treatment: 0, holdout: 0 }, sampleReady: false, claimStatus: 'not_eligible', reason };
+}
+
+function normalizeMeasurementStatus(value) {
+  return ['not_started', 'collecting', 'insufficient_sample', 'incomplete_coverage', 'measured'].includes(value)
+    ? value
+    : value === 'not_ready' ? 'insufficient_sample' : 'not_started';
+}
+
+function firstEvidenceClass(events) {
+  for (const event of events) {
+    const value = event.payload?.evidence_class ?? event.payload?.source_receipt?.evidence_class;
+    if (canonicalEvidenceClass(value)) return value;
+  }
+  return null;
+}
+
+function firstEvidenceClassForTypes(events, types) {
+  const allowed = new Set(types);
+  for (const event of events) {
+    if (!allowed.has(event.event_type ?? event.eventType)) continue;
+    const value = event.payload?.evidence_class ?? event.payload?.source_receipt?.evidence_class;
+    if (canonicalEvidenceClass(value)) return value;
+  }
+  return null;
+}
+
+function digest(value) {
+  return createHash('sha256').update(stableJson(value)).digest('hex');
+}
+
+function stableJson(value) {
+  if (Array.isArray(value)) return `[${value.map(stableJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${stableJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value ?? null);
 }
 
 function firstPayload(events, field) {
@@ -240,6 +412,20 @@ function firstPayload(events, field) {
     if (event.payload?.[field]) return event.payload[field];
   }
   return null;
+}
+
+function claimReviewStatus({ events, experimentId, decisionProtocolId }) {
+  const receipt = [...events]
+    .reverse()
+    .find((event) => {
+      const payload = event.payload ?? {};
+      return (event.event_type ?? event.eventType) === 'gate'
+        && payload.gate_type === 'claim_review'
+        && payload.experiment_id === experimentId
+        && payload.decision_protocol_id === decisionProtocolId;
+    });
+  const decision = receipt?.payload?.decision;
+  return decision === 'approved' ? 'approved' : decision === 'pending' ? 'pending' : 'not_started';
 }
 
 function countBy(items, getKey) {

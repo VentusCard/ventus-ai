@@ -109,6 +109,25 @@ export function authorizeResultsRead(membership) {
   return { ...base, projection: projectionByRole[canonicalConsoleRole(membership.role)] };
 }
 
+// Reconciliation mutates durable evidence. It is intentionally narrower than
+// Results read access and cannot be exercised by operators or administrators.
+export function authorizeOutcomeReconciliation(membership) {
+  return authorizeConsoleRoles(membership, ['risk_reviewer']);
+}
+
+export function authorizeOutcomeReconciliationService(principal, tenantId) {
+  if (!principal || principal.kind !== 'service' || principal.status !== 'active') {
+    return { allowed: false, reason: 'inactive_service_identity' };
+  }
+  if (principal.serviceId !== 'fsc_outcome_reconciler') {
+    return { allowed: false, reason: 'service_not_authorized' };
+  }
+  const tenantScopes = Array.isArray(principal.tenantScopes) ? principal.tenantScopes : [];
+  return tenantScopes.includes(tenantId)
+    ? { allowed: true, reason: 'authorized', actorId: `service:${principal.serviceId}` }
+    : { allowed: false, reason: 'tenant_not_authorized' };
+}
+
 // Evidence bundles contain an immutable protocol and receipt trace. They are a
 // review artifact, not an operator queue or an executive dashboard export.
 export function authorizeEvidenceBundleRead(membership) {

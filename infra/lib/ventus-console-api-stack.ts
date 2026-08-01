@@ -49,6 +49,11 @@ export class VentusConsoleApiStack extends cdk.Stack {
       'sg-08836ed15d778ecd6',
       { mutable: false },
     );
+    const outcomeReconciliationRole = new iam.Role(this, 'OutcomeReconciliationRole', {
+      roleName: 'ventus-fsc-outcome-reconciler',
+      description: 'Scoped service identity for scheduled FSC outcome reconciliation.',
+      assumedBy: new iam.ServicePrincipal('events.amazonaws.com'),
+    });
 
     const logGroup = new logs.LogGroup(this, 'ConsoleApiLogGroup', {
       logGroupName: '/aws/lambda/ventus-console-api',
@@ -117,6 +122,8 @@ export class VentusConsoleApiStack extends cdk.Stack {
         RDS_PORT: '5432',
         RDS_DATABASE: 'ventus_bofa',
         VENTUS_ALLOWED_ORIGINS: allowedOrigins.join(','),
+        VENTUS_OUTCOME_RECONCILIATION_ROLE_ARN: outcomeReconciliationRole.roleArn,
+        VENTUS_OUTCOME_RECONCILIATION_TENANTS: 'ventus',
       },
     });
     const runtimeSecretArn = this.formatArn({
@@ -263,6 +270,14 @@ export class VentusConsoleApiStack extends cdk.Stack {
     consoleApi.addResource('onboarding').addResource('readiness').addMethod('GET', integration);
     consoleApi.addResource('briefings').addResource('deliveries').addMethod('POST', integration);
     consoleApi.addResource('outcomes').addResource('salesforce-sync').addMethod('POST', integration);
+    const internalOutcomeSync = consoleApi.addResource('internal').addResource('outcomes').addResource('salesforce-sync');
+    internalOutcomeSync.addMethod('POST', integration, {
+      authorizationType: apigateway.AuthorizationType.IAM,
+    });
+    outcomeReconciliationRole.addToPolicy(new iam.PolicyStatement({
+      actions: ['execute-api:Invoke'],
+      resources: [api.arnForExecuteApi('POST', '/v1/console/internal/outcomes/salesforce-sync', 'staging')],
+    }));
     const moments = consoleApi.addResource('moments');
     moments.addMethod('GET', integration);
     const moment = moments.addResource('{decision_id}');
@@ -294,6 +309,10 @@ export class VentusConsoleApiStack extends cdk.Stack {
     new cdk.CfnOutput(this, 'ConsoleApiBaseUrl', {
       value: `${api.url}v1/console`,
       description: 'Non-production server-side API base URL for the Growth Console.',
+    });
+    new cdk.CfnOutput(this, 'OutcomeReconciliationRoleArn', {
+      value: outcomeReconciliationRole.roleArn,
+      description: 'IAM service identity permitted to invoke the internal FSC reconciliation route.',
     });
   }
 }

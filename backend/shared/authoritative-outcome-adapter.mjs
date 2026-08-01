@@ -51,6 +51,7 @@ export function createAuthoritativeOutcomeAdapter({
       });
       assertContextMatches(context, assignment, approved.contract, decisionProtocolId);
       assertSourceMatchesGrowthPlay(approved.contract, normalized, source);
+      assertObservationWindow(assignment, approved.contract, normalized);
       assertCorrectionSemantics(loaded.outcomes, normalized);
       assertTreatmentHoldoutParity(loaded.outcomes, normalized, source);
 
@@ -190,6 +191,15 @@ function assertSourceMatchesGrowthPlay(contract, observation, source) {
   assert.equal(measurement.metric, observation.metric, 'outcome metric does not match the approved Growth Play');
   assert.ok(measurement.outcome_event_types.includes(observation.eventType), 'outcome event type is not approved by the Growth Play');
   assert.ok(measurement.outcome_source_systems.includes(observation.sourceSystem), 'outcome source system is not approved by the Growth Play');
+}
+
+function assertObservationWindow(assignment, contract, observation) {
+  const windowDays = Number(contract?.measurement?.outcome_window_days ?? contract?.measurement?.window_days);
+  assert.ok(Number.isInteger(windowDays) && windowDays >= 1, 'approved Growth Play outcome window is invalid');
+  const assignedAt = Date.parse(assignment.assignedAt);
+  const occurredAt = Date.parse(observation.occurredAt);
+  assert.ok(occurredAt >= assignedAt, 'outcome cannot predate assignment');
+  assert.ok(occurredAt <= assignedAt + windowDays * 86_400_000, 'outcome exceeds the approved Growth Play window');
 }
 
 function assertCorrectionSemantics(outcomes, observation) {

@@ -9,7 +9,7 @@ import { createEnterpriseControlPlane } from '../../shared/enterprise-control-pl
 import { createGrowthPlayRegistry } from '../../shared/growth-play-registry.mjs';
 import { executeHostedDecision } from '../../shared/hosted-decision-runtime.mjs';
 import { createControlledSandboxRunner } from '../../shared/controlled-sandbox-run.mjs';
-import { createSandboxEvidenceBundleService } from '../../shared/sandbox-evidence-bundle.mjs';
+import { createBankReviewBundleService } from '../../shared/sandbox-evidence-bundle.mjs';
 import { createSecretsProvider } from '../../shared/secrets.mjs';
 import { testConfiguredConnector } from '../../shared/connector-test-router.mjs';
 
@@ -31,10 +31,10 @@ let growthPlayRegistry;
 let ledgerRepository;
 let controlledSandboxRunner;
 let getExperimentAssignmentCredentials;
-let sandboxEvidenceBundleService;
+let bankReviewBundleService;
 const lambdaClient = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-2' });
 
-export const handler = createConsoleApiHandler({
+const consoleApiHandler = createConsoleApiHandler({
   verifyIdentity: verifyCognitoAccessToken,
   resolveMembership: resolveCognitoMembership,
   executeDecision: executeHostedDecision,
@@ -47,7 +47,10 @@ export const handler = createConsoleApiHandler({
   readSalesforceOutcome,
   runControlledSandbox: runControlledSandbox,
   exportEvidenceBundle: exportSandboxEvidenceBundle,
+  resolveServiceIdentity: resolveOutcomeReconciliationService,
 });
+
+export const handler = (event) => consoleApiHandler(event);
 
 async function verifyCognitoAccessToken(token) {
   const issuer = process.env.COGNITO_ISSUER?.trim().replace(/\/$/, '') || '';
@@ -122,6 +125,30 @@ async function resolveCognitoMembership(identity) {
   }
 }
 
+async function resolveOutcomeReconciliationService(event) {
+  const callerArn = event?.requestContext?.identity?.userArn
+    || event?.requestContext?.authorizer?.iam?.userArn
+    || '';
+  const roleArn = process.env.VENTUS_OUTCOME_RECONCILIATION_ROLE_ARN?.trim() || '';
+  if (!roleArn || !callerMatchesRole(callerArn, roleArn)) return null;
+  const tenantScopes = (process.env.VENTUS_OUTCOME_RECONCILIATION_TENANTS || '')
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value) => TENANT_ID.test(value));
+  return {
+    kind: 'service',
+    serviceId: 'fsc_outcome_reconciler',
+    status: 'active',
+    tenantScopes,
+  };
+}
+
+function callerMatchesRole(callerArn, roleArn) {
+  if (callerArn === roleArn) return true;
+  const roleName = roleArn.split('/').pop();
+  return Boolean(roleName && callerArn.startsWith(`arn:aws:sts::${roleArn.split(':')[4]}:assumed-role/${roleName}/`));
+}
+
 async function persistDecision({ decision, requestId }) {
   return consoleJourney().recordDecision({ decision, requestId });
 }
@@ -189,13 +216,13 @@ async function runControlledSandbox(input) {
 }
 
 async function exportSandboxEvidenceBundle(input) {
-  if (!sandboxEvidenceBundleService) {
-    sandboxEvidenceBundleService = createSandboxEvidenceBundleService({
+  if (!bankReviewBundleService) {
+    bankReviewBundleService = createBankReviewBundleService({
       ledgerRepository: decisionLedger(),
       getDB: runtimeDatabase,
     });
   }
-  return sandboxEvidenceBundleService.exportBundle(input);
+  return bankReviewBundleService.exportBundle(input);
 }
 
 function experimentAssignmentCredentialsProvider() {

@@ -66,7 +66,7 @@ export function createControlledSandboxRunner({
           experiment_id: experimentId,
           arm: assignment.arm,
           decision_protocol_id: approval.decisionProtocolId,
-          evidence_class: 'sandbox',
+          evidence_class: 'partner_sandbox',
           source_system: 'plaid_custom_user',
           sandbox_validation_member: member.memberId,
         },
@@ -79,7 +79,7 @@ export function createControlledSandboxRunner({
         throw new Error('Plaid sandbox did not return the approved scenario evidence');
       }
       const sourceReceipt = {
-        evidence_class: 'sandbox',
+        evidence_class: 'partner_sandbox',
         source_system: 'plaid_custom_user',
         record_count: source.count,
         safe_activity: safeActivitySummary(source.transactions),
@@ -127,7 +127,7 @@ export function createControlledSandboxRunner({
 
     if (!treatmentResult || !treatmentSource) throw new Error('controlled sandbox cohort did not produce a treatment path');
     const sourceReceipt = {
-      evidenceClass: 'sandbox',
+      evidenceClass: 'partner_sandbox',
       sourceSystem: 'plaid_custom_user',
       recordCount: treatmentSource.count,
       safeActivity: safeActivitySummary(treatmentSource.transactions),
@@ -153,7 +153,7 @@ export function createControlledSandboxRunner({
         analysisEligible: false,
       },
       evidenceLabels: {
-        evidenceClass: 'sandbox',
+        evidenceClass: 'partner_sandbox',
         businessClaimAllowed: false,
         causalClaimAllowed: false,
         label: 'Sandbox validation',
@@ -205,7 +205,7 @@ function publicAssignment(assignment) {
     arm: assignment.arm,
     bucket: assignment.bucket,
     assignedAt: assignment.assignedAt,
-    evidenceClass: assignment.evidenceClass,
+    evidenceClass: assignment.evidenceClass === 'sandbox' ? 'partner_sandbox' : assignment.evidenceClass,
   };
 }
 

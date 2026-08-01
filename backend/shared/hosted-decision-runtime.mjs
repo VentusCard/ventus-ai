@@ -58,7 +58,7 @@ export function executeHostedDecision({ tenantId, body, now = new Date(), protoc
     source: {
       mode: request.source.mode,
       name: request.source.name,
-      evidenceClass: request.source.mode === 'live' ? 'sandbox' : 'fixture',
+      evidenceClass: request.source.mode === 'live' ? 'partner_sandbox' : 'fixture',
       recordCount: request.transactions.length,
       transactionRefs: request.transactions.map((transaction) => transaction.transaction_id),
     },

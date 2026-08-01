@@ -161,6 +161,8 @@ export function FscOnboardingPage() {
         decisionId,
         tenantId: connectorSession.tenantId,
         createdAt: now.toISOString(),
+        // The onboarding proof still emits v1.1 for the legacy connector.
+        // Its companion v1.2 receipt is canonicalized server-side.
         evidenceClass: "sandbox",
         growthPlay: {
           id: "fsc-onboarding-proof",
