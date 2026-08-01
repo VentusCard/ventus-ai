@@ -428,13 +428,13 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
       });
     },
 
-    async bankReviewPackage({ tenantId }) {
+    async bankReviewPackage({ tenantId, businessLineScopes = [] }) {
       validateTenantId(tenantId);
       const [readiness, connections, results, governance] = await Promise.all([
         this.onboardingReadiness({ tenantId }),
         this.listConnections({ tenantId }),
-        this.results({ tenantId, projection: 'review_results', businessLineScopes: [] }),
-        this.governance({ tenantId, projection: 'full_governance', businessLineScopes: [] }),
+        this.results({ tenantId, projection: 'review_results', businessLineScopes }),
+        this.governance({ tenantId, projection: 'full_governance', businessLineScopes }),
       ]);
       return {
         packageVersion: '1.0',

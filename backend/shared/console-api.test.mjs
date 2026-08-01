@@ -179,6 +179,7 @@ test('Console API exports a redacted bank-review package only to a risk reviewer
     controlPlane: {
       async bankReviewPackage(input) {
         assert.equal(input.tenantId, 'ventus');
+        assert.deepEqual(input.businessLineScopes, ['consumer-banking']);
         return { packageVersion: '1.0', evidenceClass: 'partner_sandbox', serverAuthoritative: true };
       },
     },
