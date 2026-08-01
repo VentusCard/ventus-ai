@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Check, ChevronRight, CircleAlert, FileText, Loader2, Mail, Plug, Send, ShieldCheck, SlidersHorizontal } from "lucide-react";
+import { Check, ChevronRight, CircleAlert, FileText, Loader2, Mail, Plug, RefreshCw, Send, ShieldCheck, SlidersHorizontal } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth, useConsole } from "@/console/state";
 import {
@@ -55,10 +55,12 @@ export function ResultsPage() {
   const [data, setData] = useState<{ experiments: Array<{ experimentId: string; evidenceClass: string; treatmentAssigned: number; holdoutAssigned: number; outcomesObserved: number; lastOutcomeAt: string | null; coverage: number; sampleReady: boolean; intentToTreatLift: number | null; confidence: string; claimStatus: string }>; deliveries: Record<string, number>; outcomeObservations: number; observationReconciliation: Record<string, { count: number; lastSyncedAt: string | null }> } | null>(null);
   const [holdoutProtection, setHoldoutProtection] = useState<Record<string, { status: string; assigned: number; reservationReceipts: number; decisionEvents: number; activationEvents: number; workflowRecords: { status: string; count: number } }>>({});
   const [error, setError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
   const [syncing, setSyncing] = useState<string | null>(null);
   const [exporting, setExporting] = useState<string | null>(null);
   const [fscRecordUrl, setFscRecordUrl] = useState<string | null>(null);
   const load = async () => {
+    setRefreshing(true);
     try {
       setError(null);
       const results = await serverRequest<{ experiments: Array<{ experimentId: string; evidenceClass: string; treatmentAssigned: number; holdoutAssigned: number; outcomesObserved: number; lastOutcomeAt: string | null; coverage: number; sampleReady: boolean; intentToTreatLift: number | null; confidence: string; claimStatus: string }>; deliveries: Record<string, number>; outcomeObservations: number; observationReconciliation: Record<string, { count: number; lastSyncedAt: string | null }> }>(session?.access_token, consoleResultsUrl());
@@ -85,6 +87,8 @@ export function ResultsPage() {
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Results are unavailable");
+    } finally {
+      setRefreshing(false);
     }
   };
   useEffect(() => { void load(); }, [access?.role, session?.access_token]);
@@ -125,7 +129,7 @@ export function ResultsPage() {
   };
   const canExportEvidence = access?.role === "risk_reviewer";
   return <div className="mx-auto max-w-5xl">
-    <header className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>Server-backed measurement</p><h2 className="v2-display mt-2 text-2xl">Results</h2><p className="v2-body mt-2 text-[13px]">Outcome observations and delivery receipts, kept separate from claims until the experiment gates pass.</p></div><button onClick={() => void load()} className="console-btn-ghost !px-3 !py-2 !text-[11px]">Refresh</button></header>
+    <header className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>Server-backed measurement</p><h2 className="v2-display mt-2 text-2xl">Results</h2><p className="v2-body mt-2 text-[13px]">Outcome observations and delivery receipts, kept separate from claims until the experiment gates pass.</p></div><button onClick={() => void load()} disabled={refreshing} aria-busy={refreshing} className="console-btn-ghost flex items-center gap-1.5 !px-3 !py-2 !text-[11px]">{refreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}{refreshing ? "Refreshing" : "Refresh"}</button></header>
     <div className="mt-5 grid gap-px overflow-hidden rounded-md border md:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>{[["Experiments", data.experiments.length], ["Outcome observations", data.outcomeObservations], ["Workflow receipts", total]].map(([label, value]) => <div key={String(label)} className="bg-white p-5"><p className="console-stat text-[40px]">{value}</p><p className="v2-mono mt-1 text-[9px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p></div>)}</div>
     <div className="console-cell mt-5 overflow-hidden">
       <div className="hidden grid-cols-[1.25fr_.65fr_.65fr_.65fr_.9fr] gap-3 border-b bg-[#f7f6f2] px-4 py-2 md:grid" style={{ borderColor: "var(--v2-rule)" }}>{["Experiment", "Treatment", "Holdout", "Coverage", "Evaluation"].map((item) => <p key={item} className="v2-mono text-[8px] font-bold uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{item}</p>)}</div>{data.experiments.length ? data.experiments.map((item) => {
