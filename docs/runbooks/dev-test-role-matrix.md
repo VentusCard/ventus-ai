@@ -11,7 +11,7 @@ tenant-scoped role, business-line scope, queue scope, and entitlements.
 
 | Sign-in email | Role | Scope | Primary test use | Verification |
 | --- | --- | --- | --- | --- |
-| `yusheng@ventusai.com` | `institution_admin` | Ventus tenant | Connections, connector mappings, and institution health | Cognito account confirmed on 2026-08-01; prior live UI verification on 2026-07-31; fresh role journey not rerun in this pass |
+| `yusheng@ventusai.com` | `institution_admin` | Ventus tenant | Connections, connector mappings, and institution health | Live UI verified on 2026-08-01: Connections/readiness visible; `/app/moments` redirected to Connections |
 | `rojchen98@gmail.com` | `growth_play_owner` | Consumer Banking pilot | Growth Play configuration, operating status, and owner briefings | Cognito account confirmed on 2026-08-01; prior live UI verification on 2026-07-31; fresh role journey not rerun in this pass |
 | `rojchen98+operator@gmail.com` | `bank_operator` | Consumer Banking; `consumer-deposit-primacy` queue | Review a treatment Moment and deliver its approved FSC action | Cognito account confirmed on 2026-08-01; live UI journey still needs a fresh sign-in |
 | `rojchen98+reviewer@gmail.com` | `risk_reviewer` | Ventus pilot | Governance review and evidence-bundle export | Cognito account confirmed on 2026-08-01; live UI journey still needs a fresh sign-in |
@@ -20,17 +20,18 @@ tenant-scoped role, business-line scope, queue scope, and entitlements.
 | `yusheng@ventuscard.com` | Unresolved legacy test mapping | Ventus tenant | Do not use for role-specific acceptance tests | Previously exposed a customer queue but produced inconsistent response permissions; reconcile before reuse |
 
 The `ventus_platform_admin` identity is provisioned and live-verified. The six-role acceptance
-matrix is still not complete because the institution admin, Growth Play owner, bank operator, and
-risk reviewer journeys still need fresh sign-ins in this release.
+matrix is still not complete because the Growth Play owner, bank operator, and risk reviewer
+journeys still need fresh sign-ins in this release.
 
 ## Current acceptance boundary
 
-- **Live verified:** Cognito password login; executive aggregate Results; executive denial of
-  customer-level Moments.
-- **Cognito provisioned, fresh live journey pending:** institution admin, Growth Play owner,
-  bank operator, and risk reviewer.
+- **Live verified:** Cognito password login; executive aggregate Results; institution-admin
+  Connections/readiness; platform-admin Governance, Connections, and Results; customer-level
+  Moments denied for both tested administrative roles.
+- **Cognito provisioned, fresh live journey pending:** Growth Play owner, bank operator, and risk
+  reviewer.
 - **Automated authorization coverage:** all six role destinations and route boundaries, including
-  the missing platform-admin role, are covered by `npm run test:connector-sessions`.
+  the platform-admin role, are covered by `npm run test:connector-sessions`.
 - **Not claimed:** a complete six-role live acceptance pass, bank SSO, or production access review.
 
 ## Test Sequence
