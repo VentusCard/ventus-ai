@@ -11,7 +11,6 @@ const membership = (role) => ({
   status: 'active',
   entitlements: ['growth_console'],
 });
-
 test('manual outcome reconciliation is limited to the risk reviewer', () => {
   for (const role of CANONICAL_CONSOLE_ROLES) {
     assert.equal(authorizeOutcomeReconciliation(membership(role)).allowed, role === 'risk_reviewer', role);
@@ -30,4 +29,3 @@ test('scheduled outcome reconciliation requires the scoped service identity', ()
   assert.equal(authorizeOutcomeReconciliationService({ ...service, serviceId: 'other' }, 'bank_1').allowed, false);
   assert.equal(authorizeOutcomeReconciliationService(membership('risk_reviewer'), 'bank_1').allowed, false);
 });
-

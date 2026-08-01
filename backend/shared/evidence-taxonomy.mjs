@@ -19,7 +19,6 @@ export function canonicalEvidenceClass(value, fallback = null) {
   if (Object.hasOwn(EVIDENCE_ALIASES, value)) return EVIDENCE_ALIASES[value];
   return fallback;
 }
-
 export function storageEvidenceClass(value) {
   const canonical = canonicalEvidenceClass(value);
   assert.ok(canonical, 'evidenceClass is invalid');
@@ -52,4 +51,3 @@ export function deriveClaimStatus({
   if (independentReview === 'pending') return 'independent_review_required';
   return 'descriptive';
 }
-

@@ -15,7 +15,6 @@ test('evidence aliases are accepted only at the compatibility boundary', () => {
   assert.equal(bundleEvidenceClass(['sandbox', 'partner_sandbox']), 'partner_sandbox');
   assert.equal(bundleEvidenceClass(['fixture', 'partner_sandbox']), 'mixed');
 });
-
 test('claim authority never upgrades fixture or partner-sandbox evidence', () => {
   for (const evidenceClass of ['fixture', 'partner_sandbox']) {
     assert.equal(deriveClaimStatus({
@@ -33,4 +32,3 @@ test('sanctioned claims advance only through measurement gates and exact review'
   assert.equal(deriveClaimStatus({ evidenceClass: 'sanctioned_pilot', measurementStatus: 'measured', gatesPassed: true, independentReview: 'pending' }), 'independent_review_required');
   assert.equal(deriveClaimStatus({ evidenceClass: 'sanctioned_pilot', measurementStatus: 'measured', gatesPassed: true, independentReview: 'approved' }), 'approved');
 });
-
