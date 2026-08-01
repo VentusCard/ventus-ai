@@ -16,6 +16,7 @@ const EVIDENCE_RUNTIME_SECRET_ID = 'ventus/evidence-store/app-v1';
 const PRODUCT_CONNECTOR_SECRET_NAME = 'ventus/staging/product-connectors';
 const COWORKER_CONNECTOR_SECRET_NAME = 'ventus/staging/coworker-connectors';
 const DEMO_CONNECTOR_SECRET_NAME = 'ventus/staging/demo-connectors';
+const EXPERIMENT_ASSIGNMENT_SECRET_NAME = 'ventus/staging/experiment-assignment';
 const RDS_HOST =
   'ventus-bofa-cluster.cluster-chm2goicq5dx.us-east-2.rds.amazonaws.com';
 const DEFAULT_ORIGINS = [
@@ -62,40 +63,22 @@ export class VentusConsoleApiStack extends cdk.Stack {
     });
     // Connector credentials are intentionally read by their own runtimes. The
     // Console API retains policy, ledger, and tenant access, never connector secrets.
-    const productConnectorSecret = new secretsmanager.Secret(this, 'ProductConnectorSecret', {
-      secretName: PRODUCT_CONNECTOR_SECRET_NAME,
-      description: 'Server-only Salesforce/FSC credentials for authenticated Ventus product delivery.',
-      generateSecretString: {
-        secretStringTemplate: JSON.stringify({
-          salesforceLoginUrl: 'CONFIGURE_SALESFORCE_LOGIN_URL',
-          salesforceClientId: 'CONFIGURE_SALESFORCE_CLIENT_ID',
-          salesforceClientSecret: 'CONFIGURE_SALESFORCE_CLIENT_SECRET',
-          salesforceDefaultAccountId: 'CONFIGURE_SALESFORCE_DEFAULT_ACCOUNT_ID',
-          salesforceReferralRecordTypeId: 'CONFIGURE_SALESFORCE_REFERRAL_RECORD_TYPE_ID',
-          salesforceCreateReferral: false,
-        }),
-        generateStringKey: 'placeholder',
-        excludePunctuation: true,
-      },
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-    });
+    const productConnectorSecret = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      'ProductConnectorSecret',
+      PRODUCT_CONNECTOR_SECRET_NAME,
+    );
     const coworkerConnectorSecret = secretsmanager.Secret.fromSecretNameV2(
       this,
       'CoworkerConnectorSecret',
       COWORKER_CONNECTOR_SECRET_NAME,
     );
     const demoConnectorSecret = secretsmanager.Secret.fromSecretNameV2(this, 'DemoConnectorSecret', DEMO_CONNECTOR_SECRET_NAME);
-    const experimentSecret = new secretsmanager.Secret(this, 'ExperimentAssignmentSecret', {
-      secretName: 'ventus/staging/experiment-assignment',
-      description: 'Server-only assignment secret for controlled Ventus sandbox experiments.',
-      generateSecretString: {
-        secretStringTemplate: JSON.stringify({}),
-        generateStringKey: 'assignmentSalt',
-        excludePunctuation: true,
-        passwordLength: 48,
-      },
-      removalPolicy: cdk.RemovalPolicy.RETAIN,
-    });
+    const experimentSecret = secretsmanager.Secret.fromSecretNameV2(
+      this,
+      'ExperimentAssignmentSecret',
+      EXPERIMENT_ASSIGNMENT_SECRET_NAME,
+    );
     const consoleFunction = new lambda.Function(this, 'ConsoleApiFunction', {
       functionName: 'ventus-console-api',
       description: 'Cognito and institution-membership boundary for the Ventus Growth Console.',
