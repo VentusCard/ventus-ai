@@ -24,11 +24,15 @@ export function createControlledSandboxRunner({
   }
   const measurements = measurementRepository ?? createMeasurementRepository({ getDB });
 
-  return async ({ tenantId, scenario, requestId, runAt = new Date() }) => {
-    const scope = decisionScopeForScenario(scenario);
+  return async ({ tenantId, scenario, growthPlayId = null, businessLine = null, requestId, runAt = new Date() }) => {
+    const sourceScope = decisionScopeForScenario(scenario);
     const approval = await growthPlayRegistry.requireLatestApproved({
-      tenantId, growthPlayId: scope.growthPlayId, businessLine: scope.businessLine, at: runAt.toISOString(),
+      tenantId,
+      growthPlayId: growthPlayId || sourceScope.growthPlayId,
+      businessLine: businessLine || sourceScope.businessLine,
+      at: runAt.toISOString(),
     });
+    const scope = { ...sourceScope, growthPlayId: approval.contract.growth_play_id, businessLine: approval.contract.business_line };
     const experimentId = `exp_${digest(`${tenantId}:${approval.decisionProtocolId}`).slice(0, 24)}`;
     const cohort = buildSandboxValidationCohort({
       tenantId,
@@ -149,10 +153,10 @@ export function createControlledSandboxRunner({
         analysisEligible: false,
       },
       evidenceLabels: {
-        evidenceClass: 'partner_sandbox',
+        evidenceClass: 'sandbox',
         businessClaimAllowed: false,
         causalClaimAllowed: false,
-        label: 'Partner-sandbox validation',
+        label: 'Sandbox validation',
       },
       businessClaimAllowed: false,
       causalClaimAllowed: false,

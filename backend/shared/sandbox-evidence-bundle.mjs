@@ -42,7 +42,7 @@ export function createSandboxEvidenceBundleService({ ledgerRepository, getDB, me
       return {
         schemaVersion: 'ventus_sandbox_evidence_bundle/v1',
         generatedAt: now().toISOString(),
-        evidenceClass: 'partner_sandbox',
+        evidenceClass: 'sandbox',
         claimEligibility: {
           businessClaimAllowed: false,
           causalClaimAllowed: false,
@@ -77,7 +77,7 @@ export function createSandboxEvidenceBundleService({ ledgerRepository, getDB, me
         evidenceLabels: {
           source: 'Plaid sandbox custom users',
           destination: 'Configured sandbox connector when delivery is approved',
-          classification: 'partner_sandbox',
+        classification: 'sandbox',
           analysisEligibility: 'not eligible for business or causal claims',
         },
       };
@@ -224,7 +224,7 @@ function safeMeasurement(experiment, metric) {
         holdout: summary.holdout?.coverage ?? 0,
       },
       sampleReady: summary.status === 'measured',
-      claimStatus: 'not_eligible_partner_sandbox',
+      claimStatus: 'not_eligible_sandbox',
     };
   } catch {
     return notReadyMeasurement('measurement_not_ready');
@@ -232,7 +232,7 @@ function safeMeasurement(experiment, metric) {
 }
 
 function notReadyMeasurement(reason) {
-  return { status: 'not_ready', coverage: { treatment: 0, holdout: 0 }, sampleReady: false, claimStatus: 'not_eligible_partner_sandbox', reason };
+  return { status: 'not_ready', coverage: { treatment: 0, holdout: 0 }, sampleReady: false, claimStatus: 'not_eligible_sandbox', reason };
 }
 
 function firstPayload(events, field) {

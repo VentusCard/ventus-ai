@@ -31,8 +31,16 @@ export class DecisionRequestError extends Error {
 
 export function executeHostedDecision({ tenantId, body, now = new Date(), protocolApproval = null, trustedSubjectToken = null }) {
   const request = parseDecisionRequest(body);
-  const scope = decisionScopeForScenario(request.scenario);
-  const approved = normalizeProtocolApproval(protocolApproval, scope);
+  const sourceScope = decisionScopeForScenario(request.scenario);
+  const approved = normalizeProtocolApproval(protocolApproval);
+  const scope = approved
+    ? {
+        ...sourceScope,
+        growthPlayId: approved.contract.growth_play_id,
+        businessLine: approved.contract.business_line,
+        displayName: approved.contract.objective,
+      }
+    : sourceScope;
   if (request.source.mode === 'live' && !approved) {
     throw new DecisionRequestError('connected evidence requires an independently approved Growth Play protocol');
   }
@@ -50,7 +58,7 @@ export function executeHostedDecision({ tenantId, body, now = new Date(), protoc
     source: {
       mode: request.source.mode,
       name: request.source.name,
-      evidenceClass: request.source.mode === 'live' ? 'partner_sandbox' : 'fixture',
+      evidenceClass: request.source.mode === 'live' ? 'sandbox' : 'fixture',
       recordCount: request.transactions.length,
       transactionRefs: request.transactions.map((transaction) => transaction.transaction_id),
     },
@@ -118,16 +126,14 @@ function parseDecisionRequest(body) {
   };
 }
 
-function normalizeProtocolApproval(value, scope) {
+function normalizeProtocolApproval(value) {
   if (value === null || value === undefined) return null;
   assert.ok(value && typeof value === 'object' && !Array.isArray(value), 'protocol approval is invalid');
   const contract = validateCompiledGrowthPlayContract(value.contract);
-  assert.equal(value.growthPlayId, scope.growthPlayId, 'approved protocol belongs to another Growth Play');
-  assert.equal(value.businessLine, scope.businessLine, 'approved protocol belongs to another business line');
+  assert.equal(value.growthPlayId, contract.growth_play_id, 'approved protocol identity is invalid');
+  assert.equal(value.businessLine, contract.business_line, 'approved protocol business line is invalid');
   assert.equal(value.decisionProtocolId, contract.decision_protocol_id, 'approved protocol identity is invalid');
   assert.equal(value.protocolDigest, contract.protocol_digest, 'approved protocol digest is invalid');
-  assert.equal(contract.growth_play_id, scope.growthPlayId, 'approved contract belongs to another Growth Play');
-  assert.equal(contract.business_line, scope.businessLine, 'approved contract belongs to another business line');
   assert.ok(
     contract.policy.required_policy_ids.every((policyId) => SUPPORTED_POLICY_IDS.has(policyId)),
     'approved policy pack requires controls this runtime does not support',

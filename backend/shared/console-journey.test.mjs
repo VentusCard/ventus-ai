@@ -50,7 +50,7 @@ test('approved runtime binds the Decision Package to the exact protocol, action,
   const contract = approvedDepositContract();
   const approvedDecision = {
     ...decision,
-    source: { mode: 'live', evidenceClass: 'partner_sandbox', name: 'Plaid sandbox', recordCount: 2, transactionRefs: ['txn_a', 'txn_b'] },
+    source: { mode: 'live', evidenceClass: 'sandbox', name: 'Plaid sandbox', recordCount: 2, transactionRefs: ['txn_a', 'txn_b'] },
     runtime: {
       ...decision.runtime,
       policyVersion: contract.policy.version,
@@ -180,7 +180,7 @@ test('a connected Moment cannot be delivered after its protocol is revoked', asy
   const contract = approvedDepositContract();
   const approvedDecision = {
     ...decision,
-    source: { mode: 'live', evidenceClass: 'partner_sandbox', name: 'Plaid sandbox', recordCount: 2, transactionRefs: ['txn_a', 'txn_b'] },
+    source: { mode: 'live', evidenceClass: 'sandbox', name: 'Plaid sandbox', recordCount: 2, transactionRefs: ['txn_a', 'txn_b'] },
     runtime: {
       ...decision.runtime,
       protocolId: contract.decision_protocol_id,

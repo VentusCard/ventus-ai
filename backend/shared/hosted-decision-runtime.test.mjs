@@ -37,6 +37,38 @@ test('hosted decision runtime qualifies deposit primacy from tokenized Plaid evi
   assert.deepEqual(result.source.transactionRefs, ['tx_payroll', 'tx_transfer']);
 });
 
+test('hosted decision runtime accepts a tenant-defined Growth Play contract', () => {
+  const contract = customCashflowContract();
+  const result = executeHostedDecision({
+    tenantId: 'regional_bank',
+    now: new Date('2026-07-30T00:00:00.000Z'),
+    protocolApproval: {
+      approvalEventId: 'gpa_custom_123',
+      decisionProtocolId: contract.decision_protocol_id,
+      growthPlayId: contract.growth_play_id,
+      businessLine: contract.business_line,
+      protocolDigest: contract.protocol_digest,
+      contract,
+      decidedAt: '2026-07-29T12:00:00.000Z',
+    },
+    body: {
+      scenario: 'deposit-retention',
+      growthPlayId: contract.growth_play_id,
+      businessLine: contract.business_line,
+      source: { mode: 'live', name: 'Plaid sandbox' },
+      transactions: [
+        transaction('tx_payroll', 'PAYROLL', 'ADP', -4200, 'INCOME'),
+        transaction('tx_transfer', 'CHIME TRANSFER', 'Chime', 1800, 'TRANSFER_OUT'),
+      ],
+    },
+  });
+  assert.equal(result.status, 'qualified');
+  assert.equal(result.runtime.growthPlayId, 'cashflow-stability');
+  assert.equal(result.runtime.businessLine, 'retail-deposits');
+  assert.equal(result.runtime.approvedContract.growth_play_id, 'cashflow-stability');
+  assert.equal(result.runtime.approvedContract.business_line, 'retail-deposits');
+});
+
 test('hosted decision runtime suppresses under policy and validates requests', () => {
   const body = {
     scenario: 'wealth-growth',
@@ -94,6 +126,39 @@ function approvedDepositContract() {
     policy: { version: 'mvp-policy-v1', required_policy_ids: ['consent', 'eligibility', 'vulnerability'] },
     actions: [{
       action_id: 'banker_retention_review',
+      owner_role: 'relationship_banker',
+      connector: 'salesforce-fsc',
+      destination: 'fsc_task',
+      destination_environment: 'sandbox',
+    }],
+    measurement: {
+      metric: 'deposit_retained',
+      outcome_event_types: ['deposit_balance_observed'],
+      outcome_source_systems: ['deposit_core_sandbox'],
+      outcome_window_days: 31,
+      holdout_pct: 10,
+      minimum_per_arm: 30,
+      minimum_coverage: 0.9,
+    },
+  });
+}
+
+function customCashflowContract() {
+  return compileGrowthPlayContract({
+    contract_version: '1.0',
+    growth_play_id: 'cashflow-stability',
+    version: '1.0.0',
+    business_line: 'retail-deposits',
+    objective: 'Help households stabilize cash flow before an external transfer becomes habitual',
+    source: {
+      receipt_source_systems: ['plaid_custom_user'],
+      schema_versions: ['plaid-transactions-1'],
+      record_sources: [{ source_system: 'deposit_core', allowed_rails: ['ach', 'card', 'p2p', 'wire'] }],
+    },
+    eligibility: { criteria_version: 'cashflow-stability-eligibility-v1' },
+    policy: { version: 'mvp-policy-v1', required_policy_ids: ['consent', 'eligibility', 'vulnerability'] },
+    actions: [{
+      action_id: 'cashflow_coaching_review',
       owner_role: 'relationship_banker',
       connector: 'salesforce-fsc',
       destination: 'fsc_task',
