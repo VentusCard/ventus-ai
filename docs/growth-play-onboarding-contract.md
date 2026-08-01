@@ -131,8 +131,9 @@ demo or a Salesforce sandbox can display it. A bank owner must approve the mappi
 
 The repository proves compilation, tamper detection, tenant-isolated approval resolution,
 revocation enforcement, runtime allow-list enforcement, household routing integrity, and
-outcome-boundary checks on synthetic and sandbox fixtures. The registry migration is built but not
-deployed by this change. Internal identity-bound RBAC is tested, but bank SSO claim mapping is not
+outcome-boundary checks on synthetic and sandbox fixtures. The registry and Evidence Store
+deployment infrastructure is deployed in dev, but the migration and forced-RLS runtime receipt
+are still pending. Internal identity-bound RBAC is tested, but bank SSO claim mapping is not
 implemented. A repository approval event does not prove that a bank owner actually
 approved the configuration, that a source mapping is correct for sanctioned data, or that the
 selected action creates economic lift.
