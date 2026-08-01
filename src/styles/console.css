@@ -130,3 +130,102 @@
   border-radius: 999px;
   flex: none;
 }
+
+/* Growth Play Studio: authoring needs stronger affordances than read-only
+   console surfaces. Keep the same paper palette, but make the editable
+   contract unmistakably legible at a glance. */
+.growth-play-studio {
+  color: var(--v2-ink);
+}
+
+.growth-play-studio .v2-body {
+  color: #475569;
+}
+
+.growth-play-steps {
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background: #f1f5f9;
+  padding: 10px;
+}
+
+.growth-play-step {
+  min-height: 54px;
+  border-left-width: 3px !important;
+  border-radius: 4px;
+  background: #ffffff;
+  padding: 10px 12px;
+}
+
+.growth-play-step[data-complete="true"] {
+  background: #eff4ff;
+}
+
+.growth-play-step p:first-child {
+  color: #475569 !important;
+}
+
+.growth-play-step p:last-child {
+  color: #0f172a;
+}
+
+.growth-play-section {
+  border-radius: 7px;
+  background: #f8fafc;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+}
+
+.growth-play-section > p:first-child {
+  color: #0f172a !important;
+}
+
+.growth-play-studio label {
+  color: #1e293b;
+}
+
+.growth-play-field {
+  min-height: 40px;
+  border-radius: 5px;
+  border-color: #94a3b8 !important;
+  background: #ffffff !important;
+  color: #0f172a !important;
+  color-scheme: light;
+  box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.04);
+}
+
+.growth-play-field:disabled {
+  cursor: not-allowed;
+  border-color: #cbd5e1 !important;
+  background: #eef2f7 !important;
+  color: #334155 !important;
+  opacity: 1;
+}
+
+.growth-play-field:focus {
+  outline: none;
+  border-color: var(--c-accent) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--c-accent) 16%, transparent);
+}
+
+.growth-play-studio .console-btn-ghost {
+  border-color: #94a3b8;
+  color: #1e293b;
+}
+
+.growth-play-studio .console-btn-ghost:hover:not(:disabled) {
+  border-color: #0f172a;
+}
+
+.growth-play-studio .console-btn {
+  box-shadow: 0 2px 4px rgba(32, 96, 232, 0.18);
+}
+
+.growth-play-queue {
+  border-color: #cbd5e1;
+}
+
+.growth-play-queue > p:first-child {
+  background: #f1f5f9;
+  color: #334155 !important;
+  font-weight: 700;
+}
