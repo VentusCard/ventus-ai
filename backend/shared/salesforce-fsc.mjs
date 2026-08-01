@@ -321,7 +321,7 @@ export function createSalesforceFscService({ fetchImpl = fetch, buildTaskRecord 
       auth,
       path: `/services/data/${API_VERSION}/sobjects/${encodeURIComponent(outcomeMapping.decisionObject)}/${id}?fields=${fields}`,
     });
-    return normalizeOutcome(record, tenantId, outcomeMapping);
+    return normalizeOutcome(record, tenantId, outcomeMapping, auth.instanceUrl);
   }
 
   return { discover, healthCheck, verifyOutcomeMapping, verifyAccount, deliver, readOutcome };
@@ -513,7 +513,7 @@ export function normalizeFscOutcomeMapping(value) {
   }));
 }
 
-function normalizeOutcome(record, tenantId, mapping) {
+function normalizeOutcome(record, tenantId, mapping, instanceUrl) {
   const decisionRecordId = requireSalesforceId(record.Id, 'Salesforce decision record');
   const read = (field) => record[mapping[field]];
   let snapshot;
@@ -532,6 +532,7 @@ function normalizeOutcome(record, tenantId, mapping) {
   const outcomeStatus = cleanText(read('outcomeStatusField') || snapshot.outcome?.status, 40);
   return {
     decisionRecordId,
+    recordUrl: salesforceRecordUrl(instanceUrl, decisionRecordId),
     decisionId,
     schemaVersion: cleanText(snapshot.schemaVersion, 20),
     evidenceClass: cleanText(snapshot.evidenceClass, 40),
@@ -559,6 +560,15 @@ function normalizeOutcome(record, tenantId, mapping) {
     businessClaimAllowed: false,
     causalClaimAllowed: false,
   };
+}
+
+function salesforceRecordUrl(instanceUrl, recordId) {
+  try {
+    const base = new URL(instanceUrl);
+    return `${base.origin}/lightning/r/${encodeURIComponent(recordId)}/view`;
+  } catch {
+    return null;
+  }
 }
 
 function finiteNumber(value) {

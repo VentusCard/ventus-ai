@@ -23,6 +23,7 @@ import {
 } from "./console/AccessPages";
 import MomentsPage from "./console/MomentsPage";
 import BriefingsPage from "./console/BriefingsPage";
+import { FscOnboardingPage } from "./console/FscOnboardingPage";
 import { ConnectionsPage, GovernancePage, GrowthPlaysPage, ResultsPage } from "./console/EnterpriseControlPages";
 
 const Index = lazy(() => import("./pages/Index"));
@@ -103,7 +104,7 @@ const AppLayout = () => {
             <Route path="briefings" element={<BriefingsPage />} />
             <Route path="outcomes" element={<Navigate to="/app/results" replace />} />
             <Route path="ledger" element={<Navigate to="/app/governance?view=ledger" replace />} />
-            <Route path="onboarding" element={<Navigate to="/app/connections?connector=salesforce" replace />} />
+            <Route path="onboarding" element={<FscOnboardingPage />} />
             <Route path="settings" element={<Navigate to="/app/connections" replace />} />
           </Route>
         </Route>

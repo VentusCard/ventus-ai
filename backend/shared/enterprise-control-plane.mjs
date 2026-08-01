@@ -116,12 +116,25 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
     async listConnections({ tenantId }) {
       return queryTenant(getDB, tenantId, async (db) => {
         const result = await db.query(
-          `SELECT DISTINCT ON (mapping_id)
-                  mapping_id, connector, version, status, configuration,
-                  updated_by, updated_at, last_tested_at, last_test_status
-             FROM connector_mapping_versions
-            WHERE tenant_id = $1
-            ORDER BY mapping_id, version DESC`,
+          `SELECT DISTINCT ON (m.mapping_id)
+                  m.mapping_id, m.connector, m.version, m.status, m.configuration,
+                  m.updated_by, m.updated_at, m.last_tested_at, m.last_test_status,
+                  latest_test.receipt_id AS last_test_receipt_id,
+                  latest_test.status AS last_test_receipt_status,
+                  latest_test.detail AS last_test_receipt_detail,
+                  latest_test.tested_at AS last_test_receipt_at
+             FROM connector_mapping_versions m
+             LEFT JOIN LATERAL (
+               SELECT receipt_id, status, detail, tested_at
+                 FROM connector_mapping_test_receipts
+                WHERE tenant_id = m.tenant_id
+                  AND mapping_id = m.mapping_id
+                  AND mapping_version = m.version
+                ORDER BY tested_at DESC, receipt_id DESC
+                LIMIT 1
+             ) latest_test ON true
+            WHERE m.tenant_id = $1
+            ORDER BY m.mapping_id, m.version DESC`,
           [tenantId],
         );
         return { mappings: result.rows.map(projectMapping) };
@@ -286,7 +299,10 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
           `INSERT INTO outcome_observation_receipts
              (tenant_id, observation_id, decision_id, decision_record_id, household_token, mapping_id, mapping_version, status, observation, synced_by, synced_at)
            VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,now())
-           ON CONFLICT (tenant_id, observation_id) DO UPDATE SET synced_at = now()
+           -- A source observation is immutable. Retrying its readback must not
+           -- change the timestamp that anchors its ledger event.
+           ON CONFLICT (tenant_id, observation_id) DO UPDATE
+             SET observation_id = outcome_observation_receipts.observation_id
            RETURNING observation_id, status, observation, synced_at`,
           [tenantId, receiptId, outcome.decisionId, outcome.decisionRecordId, moment.decisionPackage.subject.token, mapping.mappingId, mapping.version, outcome.outcome?.status ?? 'awaiting_outcome', observation, actorId],
         );
@@ -305,25 +321,36 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
         return { observation: observationReceipt, measurement, eligibleForLift: measurement.status === 'recorded' };
       });
       if (!ledgerRepository || typeof ledgerRepository.append !== 'function') return recorded;
-      const event = await ledgerRepository.append({
-        tenantId,
-        idempotencyKey: `fsc-observation:${recorded.observation.observationId}`,
-        eventType: 'outcome',
-        householdToken: moment.decisionPackage.subject.token,
-        growthPlayId: moment.decisionPackage.growthPlay.id,
-        policyVersion: moment.decisionPackageV12?.governance?.policyVersion ?? moment.decisionPackage.growthPlay.protocolId,
-        status: 'confirmed',
-        occurredAt: new Date(recorded.observation.syncedAt).toISOString(),
-        payload: {
-          decision_id: outcome.decisionId,
-          decision_record_id: outcome.decisionRecordId,
-          observation_id: recorded.observation.observationId,
-          observation_only: true,
-          source_system: 'salesforce-fsc',
-          package_digest: moment.decisionPackageV12?.packageDigest ?? null,
-        },
-      });
-      const ledgerReceipt = { sequenceNumber: Number(event.record.sequence_number ?? event.record.sequenceNumber), eventHash: event.record.event_hash ?? event.record.eventHash };
+      let event;
+      try {
+        event = await ledgerRepository.append({
+          tenantId,
+          idempotencyKey: `fsc-observation:${recorded.observation.observationId}`,
+          eventType: 'outcome',
+          householdToken: moment.decisionPackage.subject.token,
+          growthPlayId: moment.decisionPackage.growthPlay.id,
+          policyVersion: moment.decisionPackageV12?.governance?.policyVersion ?? moment.decisionPackage.growthPlay.protocolId,
+          status: 'confirmed',
+          occurredAt: new Date(recorded.observation.syncedAt).toISOString(),
+          payload: {
+            decision_id: outcome.decisionId,
+            decision_record_id: outcome.decisionRecordId,
+            observation_id: recorded.observation.observationId,
+            observation_only: true,
+            source_system: 'salesforce-fsc',
+            package_digest: moment.decisionPackageV12?.packageDigest ?? null,
+          },
+        });
+      } catch (error) {
+        // Earlier sandbox runs updated synced_at on each retry. The same
+        // immutable observation can therefore already have a ledger entry
+        // whose timestamp differs only because of that legacy behavior.
+        if (!isLegacyFscObservationReplay(error)) throw error;
+        event = { record: null, replayedLegacyObservation: true };
+      }
+      const ledgerReceipt = event.record
+        ? { sequenceNumber: Number(event.record.sequence_number ?? event.record.sequenceNumber), eventHash: event.record.event_hash ?? event.record.eventHash }
+        : { replayedLegacyObservation: true };
       let measurementLedgerReceipt = null;
       if (recorded.measurement.status === 'recorded') {
         const measurementEvent = await ledgerRepository.append({
@@ -372,23 +399,85 @@ export function createEnterpriseControlPlane({ getDB, growthPlayRegistry, ledger
 
     async onboardingReadiness({ tenantId }) {
       return queryTenant(getDB, tenantId, async (db) => {
-        const [protocols, mappings, membership, measurements] = await Promise.all([
+        const [protocols, mappings, membership, measurements, connectionTests] = await Promise.all([
           db.query(`SELECT count(*) FILTER (WHERE latest.decision = 'approved')::int AS approved FROM growth_play_protocols p LEFT JOIN LATERAL (SELECT decision FROM growth_play_protocol_approval_events WHERE tenant_id = p.tenant_id AND decision_protocol_id = p.decision_protocol_id ORDER BY decided_at DESC LIMIT 1) latest ON true WHERE p.tenant_id = $1`, [tenantId]),
           db.query(`SELECT connector, bool_or(status = 'active') AS active FROM connector_mapping_versions WHERE tenant_id = $1 GROUP BY connector`, [tenantId]),
           db.query(`SELECT count(*) FILTER (WHERE status = 'active')::int AS active FROM institution_memberships WHERE tenant_id = $1`, [tenantId]),
           db.query(`SELECT count(*)::int AS count FROM outcome_events WHERE tenant_id = $1`, [tenantId]),
+          db.query(`SELECT m.connector, bool_or(r.status = 'passed') AS passed
+                      FROM connector_mapping_versions m
+                      JOIN connector_mapping_test_receipts r
+                        ON r.tenant_id = m.tenant_id
+                       AND r.mapping_id = m.mapping_id
+                       AND r.mapping_version = m.version
+                     WHERE m.tenant_id = $1
+                     GROUP BY m.connector`, [tenantId]),
         ]);
         const activeConnectors = new Set(mappings.rows.filter((row) => row.active).map((row) => row.connector));
+        const testedConnectors = new Set(connectionTests.rows.filter((row) => row.passed).map((row) => row.connector));
         const gates = [
           gate('identity_access', Number(membership.rows[0]?.active || 0) > 0, 'At least one scoped institution member'),
           gate('approved_growth_play', Number(protocols.rows[0]?.approved || 0) > 0, 'An independently approved Growth Play'),
           gate('system_of_record', activeConnectors.has('salesforce-fsc'), 'Active FSC mapping'),
+          gate('connector_lifecycle_proof', testedConnectors.has('salesforce-fsc'), 'Authenticated FSC mapping test receipt'),
           gate('coworker_route', activeConnectors.has('microsoft-outlook') || activeConnectors.has('slack'), 'Active employee notification route'),
-          gate('outcome_return', activeConnectors.has('salesforce-fsc'), 'FSC return mapping is active'),
+          gate('outcome_return', activeConnectors.has('salesforce-fsc') && testedConnectors.has('salesforce-fsc'), 'FSC return mapping is active and verified'),
           gate('measurement_evidence', Number(measurements.rows[0]?.count || 0) > 0, 'At least one reconciled measurement event'),
         ];
         return { gates, ready: gates.every((item) => item.ready), serverAuthoritative: true };
       });
+    },
+
+    async bankReviewPackage({ tenantId }) {
+      validateTenantId(tenantId);
+      const [readiness, connections, results, governance] = await Promise.all([
+        this.onboardingReadiness({ tenantId }),
+        this.listConnections({ tenantId }),
+        this.results({ tenantId, projection: 'review_results', businessLineScopes: [] }),
+        this.governance({ tenantId, projection: 'full_governance', businessLineScopes: [] }),
+      ]);
+      return {
+        packageVersion: '1.0',
+        generatedAt: new Date().toISOString(),
+        evidenceClass: 'partner_sandbox',
+        claimBoundary: {
+          status: 'descriptive_only',
+          detail: 'Workflow and source receipts are reviewable. Business and causal claims remain blocked until the approved outcome and holdout gates pass.',
+        },
+        onboarding: readiness,
+        connectors: connections.mappings.map((mapping) => ({
+          mappingId: mapping.mappingId,
+          connector: mapping.connector,
+          version: mapping.version,
+          status: mapping.status,
+          lastTestedAt: mapping.lastTestedAt,
+          lastTestStatus: mapping.lastTestStatus,
+          lastTestReceipt: mapping.lastTestReceipt ?? null,
+        })),
+        growthPlays: governance.protocols.map((protocol) => ({
+          decisionProtocolId: protocol.decisionProtocolId,
+          growthPlayId: protocol.growthPlayId,
+          businessLine: protocol.businessLine,
+          approvalStatus: protocol.approvalStatus,
+          approvalDecidedAt: protocol.approvalDecidedAt,
+        })),
+        measurements: results.experiments.map((experiment) => ({
+          experimentId: experiment.experimentId,
+          evidenceClass: experiment.evidenceClass,
+          treatmentAssigned: experiment.treatmentAssigned,
+          holdoutAssigned: experiment.holdoutAssigned,
+          outcomesObserved: experiment.outcomesObserved,
+          coverage: experiment.coverage,
+          evaluationStatus: experiment.evaluationStatus,
+          claimStatus: experiment.claimStatus,
+        })),
+        reconciliation: {
+          delivery: governance.deliveryReconciliation,
+          outcomes: governance.outcomeReconciliation,
+          exceptions: governance.exceptions,
+        },
+        serverAuthoritative: true,
+      };
     },
 
     async createSkillDraft({ tenantId, skillId, version, benchmark, actorId }) {
@@ -871,6 +960,11 @@ export function fscObservationReceiptId({ tenantId, decisionRecordId, outcome })
   return `obs_${createHash('sha256').update(`${tenantId}\u001f${decisionRecordId}\u001f${fingerprint}`).digest('hex').slice(0, 24)}`;
 }
 
+function isLegacyFscObservationReplay(error) {
+  return error instanceof Error
+    && error.message.startsWith('ledger idempotency key reused for different event content');
+}
+
 function projectDraft(row) {
   return {
     draftId: row.draft_id,
@@ -934,6 +1028,14 @@ function projectMapping(row) {
     updatedAt: row.updated_at,
     lastTestedAt: row.last_tested_at,
     lastTestStatus: row.last_test_status,
+    lastTestReceipt: row.last_test_receipt_id
+      ? {
+        receiptId: row.last_test_receipt_id,
+        status: row.last_test_receipt_status,
+        detail: row.last_test_receipt_detail,
+        testedAt: row.last_test_receipt_at,
+      }
+      : null,
   };
 }
 
