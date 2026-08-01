@@ -31,6 +31,8 @@ type Mapping = {
   lastTestedAt?: string | null;
   lastTestReceipt?: { receiptId: string; status: string; detail?: string | null; testedAt?: string | null } | null;
 };
+type HoldoutProtection = { status: string; assigned: number; reservationReceipts: number; decisionEvents: number; activationEvents: number; workflowRecords: { status: string; count: number } };
+type EvidenceSummary = { evidenceClass: string; claimStatus: string; businessClaimAllowed: boolean; causalClaimAllowed: boolean; complete: boolean; missing: string[]; subjectTokensRedacted: boolean | null; manifestDigest: string | null };
 
 async function serverRequest<T>(token: string | undefined, url: string | null, init?: RequestInit): Promise<T> {
   if (!token || !url) throw new Error("The authenticated Console API is unavailable in this environment.");
@@ -53,7 +55,8 @@ export function ResultsPage() {
   const { access, session } = useAuth();
   const { moments } = useConsole();
   const [data, setData] = useState<{ experiments: Array<{ experimentId: string; evidenceClass: string; treatmentAssigned: number; holdoutAssigned: number; outcomesObserved: number; lastOutcomeAt: string | null; coverage: number; sampleReady: boolean; intentToTreatLift: number | null; confidence: string; claimStatus: string }>; deliveries: Record<string, number>; outcomeObservations: number; observationReconciliation: Record<string, { count: number; lastSyncedAt: string | null }> } | null>(null);
-  const [holdoutProtection, setHoldoutProtection] = useState<Record<string, { status: string; assigned: number; reservationReceipts: number; decisionEvents: number; activationEvents: number; workflowRecords: { status: string; count: number } }>>({});
+  const [holdoutProtection, setHoldoutProtection] = useState<Record<string, HoldoutProtection>>({});
+  const [evidenceSummary, setEvidenceSummary] = useState<Record<string, EvidenceSummary>>({});
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [syncing, setSyncing] = useState<string | null>(null);
@@ -67,23 +70,56 @@ export function ResultsPage() {
       setData(results);
       if (access?.role === "risk_reviewer") {
         const entries = await Promise.all(results.experiments.map(async (experiment) => {
+          const fallbackProtection: HoldoutProtection = {
+            status: "unavailable",
+            assigned: experiment.holdoutAssigned,
+            reservationReceipts: 0,
+            decisionEvents: 0,
+            activationEvents: 0,
+            workflowRecords: { status: "not_checked", count: 0 },
+          };
           try {
-            const bundle = await serverRequest<{ holdoutProtection?: { status: string; assigned: number; reservationReceipts: number; decisionEvents: number; activationEvents: number; workflowRecords: { status: string; count: number } } }>(session?.access_token, consoleEvidenceBundleUrl(experiment.experimentId));
-            return [experiment.experimentId, bundle.holdoutProtection ?? {
-              status: "unavailable",
-              assigned: experiment.holdoutAssigned,
-              reservationReceipts: 0,
-              decisionEvents: 0,
-              activationEvents: 0,
-              workflowRecords: { status: "not_checked", count: 0 },
+            const bundle = await serverRequest<{
+              evidenceClass?: string;
+              holdoutProtection?: HoldoutProtection;
+              claimEligibility?: { claimStatus?: string; businessClaimAllowed?: boolean; causalClaimAllowed?: boolean };
+              manifest?: { completeness?: { complete?: boolean; missing?: string[] }; manifestDigest?: string | null };
+              permissionIsolationEvidence?: { subjectTokensRedacted?: boolean };
+            }>(session?.access_token, consoleEvidenceBundleUrl(experiment.experimentId));
+            return [experiment.experimentId, {
+              protection: bundle.holdoutProtection ?? fallbackProtection,
+              summary: {
+                evidenceClass: bundle.evidenceClass ?? experiment.evidenceClass,
+                claimStatus: bundle.claimEligibility?.claimStatus ?? experiment.claimStatus,
+                businessClaimAllowed: bundle.claimEligibility?.businessClaimAllowed ?? false,
+                causalClaimAllowed: bundle.claimEligibility?.causalClaimAllowed ?? false,
+                complete: bundle.manifest?.completeness?.complete ?? false,
+                missing: bundle.manifest?.completeness?.missing ?? [],
+                subjectTokensRedacted: bundle.permissionIsolationEvidence?.subjectTokensRedacted ?? null,
+                manifestDigest: bundle.manifest?.manifestDigest ?? null,
+              },
             }] as const;
           } catch {
-            return [experiment.experimentId, { status: "unavailable", assigned: experiment.holdoutAssigned, reservationReceipts: 0, decisionEvents: 0, activationEvents: 0, workflowRecords: { status: "not_checked", count: 0 } }] as const;
+            return [experiment.experimentId, {
+              protection: fallbackProtection,
+              summary: {
+                evidenceClass: experiment.evidenceClass,
+                claimStatus: experiment.claimStatus,
+                businessClaimAllowed: false,
+                causalClaimAllowed: false,
+                complete: false,
+                missing: ["evidence_bundle"],
+                subjectTokensRedacted: null,
+                manifestDigest: null,
+              },
+            }] as const;
           }
         }));
-        setHoldoutProtection(Object.fromEntries(entries.filter((entry): entry is readonly [string, NonNullable<typeof entry[1]>] => Boolean(entry[1]))));
+        setHoldoutProtection(Object.fromEntries(entries.map(([experimentId, value]) => [experimentId, value.protection])));
+        setEvidenceSummary(Object.fromEntries(entries.map(([experimentId, value]) => [experimentId, value.summary])));
       } else {
         setHoldoutProtection({});
+        setEvidenceSummary({});
       }
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "Results are unavailable");
@@ -128,9 +164,17 @@ export function ResultsPage() {
     }
   };
   const canExportEvidence = access?.role === "risk_reviewer";
+  const evidenceReviews = Object.values(evidenceSummary);
+  const reviewClaims = evidenceReviews.length === 0 ? "Awaiting bundle" : evidenceReviews.every((item) => item.businessClaimAllowed && item.causalClaimAllowed) ? "Claims eligible" : "Descriptive only";
+  const reviewEvidence = evidenceReviews.length === 0 ? "Awaiting bundle" : [...new Set(evidenceReviews.map((item) => item.evidenceClass))].map((item) => item.replaceAll("_", " ")).join(" · ");
+  const reviewControls = Object.values(holdoutProtection).length > 0 && Object.values(holdoutProtection).every((item) => item.status === "verified") ? "Holdout protected" : "Review required";
+  const reviewRedaction = evidenceReviews.length > 0 && evidenceReviews.every((item) => item.subjectTokensRedacted === true) ? "Redaction verified" : "Review required";
+  const reviewCompleteness = evidenceReviews.length === 0 ? "Awaiting bundle" : evidenceReviews.every((item) => item.complete) ? "Complete" : `${new Set(evidenceReviews.flatMap((item) => item.missing)).size} gates open`;
+  const openReviewGates = [...new Set(evidenceReviews.flatMap((item) => item.missing))];
   return <div className="mx-auto max-w-5xl">
-    <header className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>Server-backed measurement</p><h2 className="v2-display mt-2 text-2xl">Results</h2><p className="v2-body mt-2 text-[13px]">Outcome observations and delivery receipts, kept separate from claims until the experiment gates pass.</p></div><button onClick={() => void load()} disabled={refreshing} aria-busy={refreshing} className="console-btn-ghost flex items-center gap-1.5 !px-3 !py-2 !text-[11px]">{refreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}{refreshing ? "Refreshing" : "Refresh"}</button></header>
+    <header className="flex items-end justify-between gap-5 border-b pb-5" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[10px] font-semibold uppercase tracking-[0.16em]" style={{ color: "var(--v2-ink-faint)" }}>Reviewer workspace</p><h2 className="v2-display mt-2 text-2xl">Results</h2><p className="v2-body mt-2 text-[13px]">Verify the evidence trail before a bank claim is made.</p></div><button onClick={() => void load()} disabled={refreshing} aria-busy={refreshing} className="console-btn-ghost flex items-center gap-1.5 !px-3 !py-2 !text-[11px]">{refreshing ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />}{refreshing ? "Refreshing" : "Refresh"}</button></header>
     <div className="mt-5 grid gap-px overflow-hidden rounded-md border md:grid-cols-3" style={{ borderColor: "var(--v2-rule)", backgroundColor: "var(--v2-rule)" }}>{[["Experiments", data.experiments.length], ["Outcome observations", data.outcomeObservations], ["Workflow receipts", total]].map(([label, value]) => <div key={String(label)} className="bg-white p-5"><p className="console-stat text-[40px]">{value}</p><p className="v2-mono mt-1 text-[9px] uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p></div>)}</div>
+    {canExportEvidence && <section className="console-cell mt-5 overflow-hidden"><div className="flex flex-wrap items-start justify-between gap-4 border-b p-4" style={{ borderColor: "var(--v2-rule)" }}><div><p className="v2-mono text-[9px] font-bold uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>Reviewer posture</p><p className="mt-2 text-[12px] font-semibold">{reviewClaims === "Descriptive only" ? "Mechanism reviewable; performance claims remain gated." : reviewClaims}</p></div><Link to="/app/governance" className="console-btn-ghost flex items-center gap-1 !px-3 !py-2 !text-[11px]">Open Governance <ChevronRight className="h-3.5 w-3.5" /></Link></div><div className="grid gap-px bg-[var(--v2-rule)] sm:grid-cols-2 lg:grid-cols-4">{[["Evidence", reviewEvidence], ["Controls", reviewControls], ["Privacy", reviewRedaction], ["Completeness", reviewCompleteness]].map(([label, value]) => <div key={label} className="bg-white px-4 py-3"><p className="v2-mono text-[8px] uppercase tracking-[.1em]" style={{ color: "var(--v2-ink-faint)" }}>{label}</p><p className="mt-1 text-[11px] font-semibold capitalize">{value}</p></div>)}</div>{openReviewGates.length > 0 && <p className="border-t px-4 py-3 text-[10px]" style={{ borderColor: "var(--v2-rule)", color: "var(--v2-ink-soft)" }}>Open gates: {openReviewGates.map((gate) => gate.replaceAll("_", " ")).join(" · ")}</p>}</section>}
     <div className="console-cell mt-5 overflow-hidden">
       <div className="hidden grid-cols-[1.25fr_.65fr_.65fr_.65fr_.9fr] gap-3 border-b bg-[#f7f6f2] px-4 py-2 md:grid" style={{ borderColor: "var(--v2-rule)" }}>{["Experiment", "Treatment", "Holdout", "Coverage", "Evaluation"].map((item) => <p key={item} className="v2-mono text-[8px] font-bold uppercase tracking-[.12em]" style={{ color: "var(--v2-ink-faint)" }}>{item}</p>)}</div>{data.experiments.length ? data.experiments.map((item) => {
       const protection = holdoutProtection[item.experimentId];
