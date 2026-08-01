@@ -42,6 +42,7 @@ export default function MomentsPage() {
   const actions = selected ? scenarioMeta[selected.scenario].actions : [];
   const action = actions.find((candidate) => candidate.id === selectedActionId) ?? actions[0];
   const canRespond = access?.role === "bank_operator";
+  const canStartSandbox = access?.role === "bank_operator";
 
   useEffect(() => {
     if (!selected || !decision) return;
@@ -51,6 +52,17 @@ export default function MomentsPage() {
   }, [decision, selected]);
 
   if (!visibleMoments.length) {
+    if (!canStartSandbox) {
+      return (
+        <div className="mx-auto flex min-h-[65vh] max-w-xl flex-col items-center justify-center text-center">
+          <Landmark className="h-9 w-9" style={{ color: "var(--v2-ink-faint)" }} />
+          <h2 className="v2-display mt-5 text-2xl">No moments assigned.</h2>
+          <p className="v2-body mt-3 text-[13px]">
+            This role can review governed evidence without starting customer-level sandbox work.
+          </p>
+        </div>
+      );
+    }
     const livePlaidReady = Boolean(connectorSession?.connectors.plaid);
     const loadMoment = () => {
       if (livePlaidReady) {
