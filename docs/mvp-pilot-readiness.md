@@ -28,7 +28,7 @@ Use these labels when describing the current build:
   attached to this release record yet.
 - **Sandbox-only:** Plaid custom-user reads and Salesforce FSC Task/decision receipts. They prove
   connector mechanics in a partner sandbox, not bank production access or economic lift.
-- **Still unbuilt or bank-dependent:** bank SSO/group mapping, fresh live acceptance for three
+- **Still unbuilt or bank-dependent:** bank SSO/group mapping, fresh live acceptance for two
   remaining roles, sanctioned source mappings, an authoritative bank outcome feed, independent
   model-label review, and any bank-specific lift claim.
 
