@@ -231,13 +231,25 @@ function SkillShadowPanel({ accessToken, canManage }: { accessToken: string | un
   const [version, setVersion] = useState("0.1.0");
   const [message, setMessage] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const load = async () => {
+  const [loading, setLoading] = useState(true);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const load = async (announce = false) => {
     try {
+      setLoading(true);
+      setLoadFailed(false);
+      if (announce) setMessage(null);
       const result = await serverRequest<{ skills: Array<{ skillId: string; version: string; status: string }> }>(accessToken, consoleSkillShadowsUrl());
       setSkills(result.skills);
-      setMessage(null);
+      if (announce) {
+        setMessage(result.skills.length ? `Registry refreshed - ${result.skills.length} candidate${result.skills.length === 1 ? "" : "s"} found.` : "Registry refreshed - no shadow candidates registered.");
+      } else {
+        setMessage(null);
+      }
     } catch (cause) {
+      setLoadFailed(true);
       setMessage(cause instanceof Error ? cause.message : "Skill registry is unavailable");
+    } finally {
+      setLoading(false);
     }
   };
   useEffect(() => { void load(); }, [accessToken]);
@@ -254,7 +266,7 @@ function SkillShadowPanel({ accessToken, canManage }: { accessToken: string | un
       setBusy(false);
     }
   };
-  return <section className="console-cell mt-5 p-4"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-[12px] font-bold">Skill shadow registry</p><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>Candidates observe governed inputs without changing live decisions.</p></div><div className="flex flex-wrap items-end gap-2">{canManage && <><label className="text-[10px] font-semibold">Skill<input value={skillId} onChange={(event) => setSkillId(event.target.value)} className="mt-1 w-36 border bg-white px-2 py-1.5 text-[11px]" style={{ borderColor: "var(--v2-rule)" }} /></label><label className="text-[10px] font-semibold">Version<input value={version} onChange={(event) => setVersion(event.target.value)} className="mt-1 w-20 border bg-white px-2 py-1.5 text-[11px]" style={{ borderColor: "var(--v2-rule)" }} /></label><button disabled={busy} onClick={() => void save()} className="console-btn-ghost !px-3 !py-2 !text-[11px]">{busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Register draft</button></>}<button onClick={() => void load()} className="console-btn-ghost !px-3 !py-2 !text-[11px]">Retry</button></div></div><div className="mt-4 grid gap-2 md:grid-cols-3">{skills.length ? skills.map((skill) => <div key={`${skill.skillId}-${skill.version}`} className="border px-3 py-2" style={{ borderColor: "var(--v2-rule)" }}><p className="text-[11px] font-semibold">{skill.skillId}</p><p className="v2-mono mt-1 text-[9px] uppercase" style={{ color: skill.status === "promoted" ? "var(--v2-verified)" : "var(--v2-ink-faint)" }}>{skill.version} · {skill.status}</p></div>) : <p className="text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>No shadow candidates registered.</p>}</div>{message && <p className="mt-3 text-[11px]" style={{ color: message.includes("Could not") || message.includes("unavailable") ? "#b3261e" : "var(--v2-verified)" }}>{message}</p>}</section>;
+  return <section className="console-cell mt-5 p-4"><div className="flex flex-wrap items-start justify-between gap-4"><div><p className="text-[12px] font-bold">Skill shadow registry</p><p className="mt-1 text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>Candidates observe governed inputs without changing live decisions.</p></div><div className="flex flex-wrap items-end gap-2">{canManage && <><label className="text-[10px] font-semibold">Skill<input value={skillId} onChange={(event) => setSkillId(event.target.value)} className="mt-1 w-36 border bg-white px-2 py-1.5 text-[11px]" style={{ borderColor: "var(--v2-rule)" }} /></label><label className="text-[10px] font-semibold">Version<input value={version} onChange={(event) => setVersion(event.target.value)} className="mt-1 w-20 border bg-white px-2 py-1.5 text-[11px]" style={{ borderColor: "var(--v2-rule)" }} /></label><button disabled={busy} onClick={() => void save()} className="console-btn-ghost !px-3 !py-2 !text-[11px]">{busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null} Register draft</button></>}<button disabled={loading || busy} aria-busy={loading} onClick={() => void load(true)} className="console-btn-ghost !px-3 !py-2 !text-[11px]">{loading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <RefreshCw className="h-3.5 w-3.5" />} {loading ? "Refreshing..." : loadFailed ? "Retry" : "Refresh"}</button></div></div><div className="mt-4 grid gap-2 md:grid-cols-3">{loading ? <p className="text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>Loading shadow candidates...</p> : skills.length ? skills.map((skill) => <div key={`${skill.skillId}-${skill.version}`} className="border px-3 py-2" style={{ borderColor: "var(--v2-rule)" }}><p className="text-[11px] font-semibold">{skill.skillId}</p><p className="v2-mono mt-1 text-[9px] uppercase" style={{ color: skill.status === "promoted" ? "var(--v2-verified)" : "var(--v2-ink-faint)" }}>{skill.version} · {skill.status}</p></div>) : <p className="text-[11px]" style={{ color: "var(--v2-ink-soft)" }}>No shadow candidates registered.</p>}</div>{message && <p className="mt-3 text-[11px]" style={{ color: loadFailed || message.includes("Could not") || message.includes("unavailable") ? "#b3261e" : "var(--v2-verified)" }} role="status">{message}</p>}</section>;
 }
 
 const defaultContract = (): Contract => ({
