@@ -80,7 +80,10 @@ export function createConsoleApiHandler({
       if (method === 'GET' && path.endsWith('/bank-review-package')) {
         if (!controlPlane || typeof controlPlane.bankReviewPackage !== 'function') return unavailable('bank review package', responseHeaders);
         if (!authorizeEvidenceBundleRead(membership).allowed) return forbidden('bank review package', responseHeaders);
-        return response(200, await controlPlane.bankReviewPackage({ tenantId: identity.tenantHint }), responseHeaders);
+        return response(200, await controlPlane.bankReviewPackage({
+          tenantId: identity.tenantHint,
+          businessLineScopes: membership.businessLines || [],
+        }), responseHeaders);
       }
       if (method === 'GET' && path.endsWith('/results')) {
         if (!controlPlane) return unavailable('product results', responseHeaders);
