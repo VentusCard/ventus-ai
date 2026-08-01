@@ -21,15 +21,16 @@ Use these labels when describing the current build:
 
 - **Deployed and live-verified:** AWS Cognito password authentication, the dev Console API,
   aggregate Results for `executive_viewer`, and the executive boundary that redirects customer-level
-  Moments back to Results.
+  Moments back to Results; institution-admin Connections/readiness; Growth Play owner controls;
+  bank-operator treatment review and workflow delivery; and platform-admin Governance/Connections.
 - **Deployed, awaiting final verification:** the Evidence Store stack, generated non-bypass runtime
   credential, control-plane/registry migrations, and the deployed Console API's durable persistence
   path. The migration, forced-RLS probe, backup/restore check, and runtime cutover receipt are not
   attached to this release record yet.
 - **Sandbox-only:** Plaid custom-user reads and Salesforce FSC Task/decision receipts. They prove
   connector mechanics in a partner sandbox, not bank production access or economic lift.
-- **Still unbuilt or bank-dependent:** bank SSO/group mapping, fresh live acceptance for two
-  remaining roles, sanctioned source mappings, an authoritative bank outcome feed, independent
+- **Still unbuilt or bank-dependent:** bank SSO/group mapping, fresh live acceptance for the remaining
+  risk-reviewer role, sanctioned source mappings, an authoritative bank outcome feed, independent
   model-label review, and any bank-specific lift claim.
 
 ## Evidence delivered in this repository
