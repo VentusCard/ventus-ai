@@ -75,5 +75,6 @@ Repository tests prove server-derived context, business-line isolation, protocol
 identity, default-off behavior, legacy/local rejection, production-activation rejection,
 deterministic Consumer and Merrill decisions, review-before-delivery, immutable decision
 fingerprints, protocol revalidation, and at-most-once receipt handling. This is not evidence of a
-deployed database, authenticated bank source, bank workflow delivery, model accuracy, or economic
-lift.
+completed durable runtime verification, authenticated bank source, bank workflow delivery, model
+accuracy, or economic lift. The Console API and Evidence Store infrastructure are deployed in dev;
+the migration, RLS probe, and runtime cutover still need a recorded receipt.

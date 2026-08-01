@@ -12,6 +12,15 @@ opening Aurora to the public internet or changing existing application Lambdas.
 - a least-privilege Lambda execution role and policy;
 - the private, manually invoked `ventus-evidence-store-migrator` Lambda.
 
+## Current release status · 2026-08-01
+
+`VentusEvidenceStoreStack` is deployed in `us-east-2` with CloudFormation status
+`UPDATE_COMPLETE`. The generated non-bypass runtime credential and migrator are present. The
+database migration, forced-RLS isolation probe, backup/restore check, and durable application
+cutover still need a recorded non-production receipt, so the evidence store is **deployed,
+awaiting final verification**, not yet “durably verified.” The AWS MCP role is intentionally
+blocked from reading secret values.
+
 The Lambda creates the isolated `ventus_evidence` schema only after receiving the exact
 confirmation phrase. It has no API route and no schedule.
 

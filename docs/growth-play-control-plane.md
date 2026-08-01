@@ -38,6 +38,10 @@ the control-plane handler and protocol-admin credential in a separately deployed
 function boundary; the activation service must not receive that secret even if both services use
 the same source repository.
 
+The control-plane API and Evidence Store infrastructure are deployed in the dev environment. The
+registry migration, forced-RLS probe, and durable runtime cutover still require a recorded
+non-production verification receipt.
+
 ## Identity path
 
 For non-production evaluation, `POST /api/control-plane-session` can mint a short-lived control
@@ -52,6 +56,6 @@ mapping, access review, and deprovisioning evidence are not implemented or claim
 ## Evidence boundary
 
 Unit and API tests prove signature, expiry, tenant, role, business-line, identity-lineage, and
-separation-of-duty enforcement. The migration and AWS verifier prove read-only activation-runtime
-access and cross-tenant isolation structurally. A live bank IdP login, deployed database, access
-review, and named bank-owner approval remain external pilot gates.
+separation-of-duty enforcement. The deployed Evidence Store stack provides the migration and AWS
+verification path, but its runtime receipt is still pending. A live bank IdP login, access review,
+cross-tenant runtime probe, and named bank-owner approval remain external pilot gates.

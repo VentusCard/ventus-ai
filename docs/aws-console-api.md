@@ -1,7 +1,8 @@
 # Growth Console API foundation
 
 `VentusConsoleApiStack` is the non-production server-side authorization boundary for
-the Growth Console. It is additive and does not switch the current frontend login.
+the Growth Console. It is deployed in the dev environment and is used by the Cognito-authenticated
+frontend; bank SSO remains a separate integration step.
 
 The authenticated routes are:
 
@@ -31,6 +32,12 @@ browser response or ledger receipt.
 ## Deliberate limits
 
 - Staging only; no production route or custom domain.
+- Dev deployment is live-verified for Cognito authentication, the aggregate executive Results
+  boundary, institution-admin Connections, owner configuration without self-approval, the operator
+  treatment-review/workflow-delivery path, and reviewer Governance/evidence export. The
+  platform-admin identity is
+  provisioned and live-verified for Governance, Connections, Results, and the customer-Moments
+  boundary.
 - The decision route is a deterministic baseline, not a claim of model accuracy or
   production economic lift.
 - Activation and measured outcomes remain separate governed operations.
