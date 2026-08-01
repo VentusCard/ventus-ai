@@ -145,6 +145,12 @@ async function applyMigrations(adminCredentials, runtimeCredentials) {
          ${schemaName}.outcome_observation_receipts,
          ${schemaName}.skill_shadow_registry TO ${roleName}`,
     );
+    await db.query(
+      `GRANT SELECT, INSERT ON
+         ${schemaName}.skill_shadow_transition_receipts,
+         ${schemaName}.skill_shadow_approval_receipts
+       TO ${roleName}`,
+    );
     await db.query('COMMIT');
   } catch (error) {
     await db.query('ROLLBACK').catch(() => {});
