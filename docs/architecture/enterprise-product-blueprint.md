@@ -53,6 +53,12 @@ The console is the control and review plane. The AWS runtime is the canonical
 decision and evidence plane. Salesforce, Outlook, Slack, and future bank
 workbenches are execution and attention surfaces.
 
+The everyday product journey is Today to Moment to employee decision to native
+workflow to Results. The evidence bundle and bank-review export are the
+approval product for risk, procurement, audit, and model governance. They prove
+and package the operating journey; they do not replace it or create a separate
+decision system.
+
 The frontend may render and collect responses. It must not authoritatively
 calculate eligibility, policy clearance, experiment assignment, or lift.
 
@@ -1125,6 +1131,15 @@ The primary outcome must come from the institution system that owns the
 economic event. A workflow system may report that work happened, but it cannot
 by itself prove deposit retention or net new assets.
 
+The MVP therefore has two distinct return paths. Salesforce/FSC returns
+treatment workflow observations such as assignment, response, completion,
+timing, reason, external record, and reconciliation state. It has no holdout
+treatment record and cannot satisfy the primary P&L metric. A bank-owned ledger,
+books-and-records system, or certified outcome view returns the registered
+economic observation for both treatment and holdout. Ventus joins both paths
+to its persisted assignment and Decision Package lineage; it never substitutes
+workflow completion for a missing economic outcome.
+
 Source precedence is:
 
 1. **Economic system of record:** core deposit ledger, wealth books and records,
@@ -1257,8 +1272,16 @@ Before candidate predictions are opened:
 - the deterministic baseline is run and retained;
 - critical-failure definitions and the cost/latency budget are registered.
 
-The initial intervention-ranking and employee-brief Skills use these minimum
-offline gates:
+Employee brief generation is the first model-assisted promotion candidate. It
+operates after deterministic qualification and action selection, uses only the
+bounded Decision Package projection, and cannot change qualification, ranking,
+policy, assignment, action, destination, or claim fields. Intervention ranking
+is the shadow-only moat track for the next implementation cycle and cannot
+alter the active recommendation or any operator or delivery surface.
+Model-assisted moment qualification is not in the next-cycle scope.
+
+The current sandbox evaluation profile for intervention-ranking and
+employee-brief Skills uses these planning gates:
 
 - 100 percent schema-valid output;
 - zero fabricated evidence references;
@@ -1273,8 +1296,14 @@ offline gates:
 - mean model cost no greater than USD 0.02 per evaluated case and p95 runtime no
   greater than five seconds, unless the registered Skill budget is stricter.
 
-Sanctioned-data shadow requires at least 500 eligible cases or 30 consecutive
-days, whichever is later. It must show:
+The acceptance rate, improvement delta, repeat count, cost, runtime, shadow
+volume, and shadow duration are calibration proposals until registered for the
+institution and task. Schema validity and zero fabricated evidence, catalog,
+policy, consent, holdout, tenant, business-line, privacy, or critical grounding
+failures remain hard controls.
+
+The current sanctioned-data shadow planning profile uses at least 500 eligible
+cases or 30 consecutive days, whichever is later. It must show:
 
 - zero critical failures;
 - stable quality and abstention by registered slice;
@@ -1606,6 +1635,17 @@ business line, one Growth Play, one sanctioned source contract, one employee
 workflow destination, and one authoritative outcome return. It is not a bulk
 enterprise rollout and does not require cross-business data.
 
+The paid engagement has two phases. Paid readiness and integration begins with
+a Gate 5 outcome-feasibility preflight before institution-specific workflow
+customization, then completes Gates 1 through 5 and prepares Gate 6 shadow
+proof. A paid sanctioned pilot begins only after all six gates, independent
+approvals, assignment design, capacity, stop conditions, and analysis freeze
+pass. This is a work-order decision, not a control bypass: no real assignment
+or activation occurs out of sequence. Readiness claims stop at mechanism and
+integration feasibility. Pilot claims remain descriptive and institution-
+bounded unless an append-only approval authorizes the exact stronger wording,
+method, audience, and limitations.
+
 Onboarding follows six ordered gates:
 
 1. **Institution boundary:** create the tenant, environments, data residency,
@@ -1845,6 +1885,16 @@ These are discovery questions, not product requirements:
 Until validated, the product uses configurable adapters and neutral vocabulary.
 It must not hard-code named BofA systems as universal architecture.
 
+### 17.1 Account strategy
+
+BofA remains the strategic founding and anchor partner for enterprise control
+requirements, Consumer Deposit Primacy, Merrill reuse, and long-horizon account
+design. Ventus may execute the same bounded proof with a faster institution in
+parallel to shorten evidence latency and test portability. The parallel account
+uses a separate tenant, credentials, release manifest, approvals, evidence, and
+claims. It does not receive a product fork or relaxed gate, and no result,
+endorsement, or authority transfers between institutions.
+
 ## 18. Implementation Sequence
 
 ### Phase 0: Contract alignment
@@ -1946,6 +1996,7 @@ Implementation must read these sources before replacing behavior:
 
 | Concern | Current authority |
 | --- | --- |
+| Post-acceptance release, pilot, account, and next-cycle package decisions | `docs/architecture/sol-post-acceptance-decision-record.md` |
 | Product goal and evidence limits | `docs/product-goal.md`, `docs/product-goal-evidence-matrix.md` |
 | Runtime boundary | `docs/architecture/intelligence-control-plane.md` |
 | Identity and roles | `docs/architecture/enterprise-identity-and-permissions.md`, `backend/sql/institution-access.sql` |
@@ -2043,6 +2094,7 @@ record, or partner response when one exists.
 
 | Control area | Conditionally accepted for sandbox | Accepted for sanctioned pilot | Reject when |
 | --- | --- | --- | --- |
+| Release identity and lineage | One secret-free manifest binds the exact frontend job/commit, API deployment, public configuration digest, identity target, data migrations, connector mappings, acceptance receipts, claims boundary, and independent reviewer | The same manifest binds the bank-review staging release and sanctioned configuration; every exception has an owner and disposition | A component, target, digest, receipt, or reviewer is unknown; a dev/staging mismatch is hidden rather than declared |
 | Identity and session | All six canonical roles can authenticate; expired, invalid, and suspended sessions fail closed | Bank-approved IdP or explicitly approved non-production identity exception; session policy and owner recorded | An unauthenticated, invalid, or suspended subject can access protected data or mutate state |
 | Role projection | Start routes, navigation, fields, and denied operations match Section 5 for every role | Bank role/group mapping and joiner/mover/leaver procedure are approved and tested | Endpoint access exposes prohibited customer, result, governance, or connector fields |
 | Tenant, business-line, and queue isolation | Cross-tenant, cross-line, and unassigned-queue probes are denied server-side | Same probes pass using the bank's mappings and runtime database role | Any customer or administrative data crosses an unauthorized boundary |
@@ -2074,7 +2126,11 @@ record, or partner response when one exists.
   procurement, security, resilience, support, data-residency, identity,
   monitoring, and incident controls. Sandbox or pilot acceptance never implies
   production readiness.
-- Employee response rate, minimum sample, coverage, confidence, and latency
-  thresholds are accepted only when pre-registered for the institution. The
-  current 70 percent response rate is a proposed calibration target, not a
-  universal product gate.
+- Employee response rate, holdout rate, minimum sample, coverage, outcome
+  window, confidence method, service level, capacity, model quality delta,
+  repeat count, shadow volume/duration, latency, and cost thresholds are
+  accepted only when pre-registered for the institution and task. Current
+  numeric defaults are calibration proposals, not universal product gates.
+  Zero tenant, authorization, consent, policy, holdout, secret,
+  business-line, fabricated-evidence, or out-of-catalog-action violations
+  remain hard controls.
