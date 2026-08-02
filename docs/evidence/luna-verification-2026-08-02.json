@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:06:00Z",
+  "recordedAt": "2026-08-02T17:12:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -50,6 +50,13 @@
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-ci-reconciliation-2026-08-02.json",
         "digest": "sha256:f041f439885c765a3f9b433d5ffae8decafcffb8ab4baf5702e2b987e4c4f408",
         "observation": "CI #783 and infrastructure diff #226 pass for the evidence-only head; the manifest check returns not_bank_review_ready, the CDK diff artifact is recorded, and staging deployment is skipped."
+      },
+      {
+        "id": "runtime-role-tenant-reconciliation",
+        "result": "pass_supporting_runtime_role_release_reference",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-runtime-tenant-reconciliation-2026-08-02.json",
+        "digest": "sha256:d73c4b1dd78fe520cde346576cfa2d25560794de7e8691c1aea6a366aa109a21",
+        "observation": "A rolled-back Data API transaction switched to ventus_evidence_app_v1, exercised two opaque tenant contexts, and observed zero reciprocal cross-tenant visibility across institutions, memberships, ledger, deliveries, and outcomes. Deployed auth, six-role, denial, and four-eyes receipts remain open."
       }
     ],
     "openAcceptance": [
@@ -221,7 +228,7 @@
       "id": "A3",
       "control": "tenant_and_four_eyes",
       "status": "open_release_bound",
-      "evidence": "supporting isolation/separation tests pass; release-bound identity and approval receipts are absent; canonical schema policies and non-bypass role metadata are supporting only; release-bound tenant-context/four-eyes receipt is absent"
+      "evidence": "supporting isolation/separation tests pass; release-bound identity and approval receipts are absent; canonical schema policies and non-bypass role metadata are supporting only; release-bound tenant-context/four-eyes receipt is absent; runtime-role transaction receipt records two-tenant reciprocal zero visibility; release-bound identity/four-eyes receipt remains absent"
     },
     {
       "id": "A4",
