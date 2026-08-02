@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "ventus_luna_m1_ci_reconciliation/v1",
+  "recordedAt": "2026-08-02T16:44:20Z",
+  "evidenceClass": "supporting",
+  "release": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "manifestCheck": "not_bank_review_ready",
+    "requireReadyCheck": "failed_closed_locally"
+  },
+  "commitUnderTest": "08e23caee4f0cfa03e527717eb3ed98ef07b205e",
+  "workflows": {
+    "ci": {
+      "runId": 30757142980,
+      "runNumber": 783,
+      "conclusion": "success",
+      "scope": "evidence-only branch"
+    },
+    "infraDiff": {
+      "runId": 30757142984,
+      "runNumber": 226,
+      "conclusion": "success",
+      "cdkDiffJobId": 91521156448,
+      "manifestCheckOutput": "not_bank_review_ready",
+      "cdkDiffArtifact": {
+        "id": 8836324277,
+        "name": "cdk-staging-diff",
+        "digest": "sha256:f90b0b2382b1c81604d81f25aff32802d4dc8328e84b2f5ea854fa8ac73bcd33"
+      },
+      "deployStagingStack": "skipped"
+    }
+  },
+  "interpretation": {
+    "status": "supporting_pass_bank_review_still_closed",
+    "finding": "The exact release manifest is syntactically and contract-valid, but correctly remains not_bank_review_ready. CDK diff passed and no staging deployment occurred.",
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false
+  }
+}
