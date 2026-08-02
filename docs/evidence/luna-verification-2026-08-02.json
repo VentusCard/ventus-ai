@@ -174,5 +174,103 @@
     "businessClaimAllowed": false,
     "causalClaimAllowed": false,
     "releaseDecision": "conditionally_accepted_for_sandbox_pending_external_and_release_bound_artifacts"
-  }
+  },
+  "acceptanceMatrix": [
+    {
+      "id": "A1",
+      "control": "release_identity",
+      "status": "open",
+      "evidence": "manifest status not_bank_review_ready; known frontend/configuration/integration/reviewer gaps"
+    },
+    {
+      "id": "A2",
+      "control": "six_role_projection",
+      "status": "open_release_bound",
+      "evidence": "staging login says console authentication is not configured; 82/82 supporting tests are not manifest-bound"
+    },
+    {
+      "id": "A3",
+      "control": "tenant_and_four_eyes",
+      "status": "open_release_bound",
+      "evidence": "supporting isolation/separation tests pass; release-bound identity and approval receipts are absent"
+    },
+    {
+      "id": "A4",
+      "control": "treatment_workflow",
+      "status": "conditional_sandbox",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-outcome-verification-2026-08-02.json",
+      "digest": "sha256:b1493ca178936fe6dd3b0f00dc5d50dc9d361de078f8d410df8e4f9dd2323a28",
+      "evidence": "FSC workflow contract pass; live treatment reconciliation remains external"
+    },
+    {
+      "id": "A5",
+      "control": "holdout_integrity",
+      "status": "conditional_sandbox",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-outcome-verification-2026-08-02.json",
+      "digest": "sha256:b1493ca178936fe6dd3b0f00dc5d50dc9d361de078f8d410df8e4f9dd2323a28",
+      "evidence": "negative destination contract pass; release-bound trace remains open"
+    },
+    {
+      "id": "A6",
+      "control": "two_arm_outcome",
+      "status": "conditional_sandbox_external_source_open",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/authoritative-outcome-rehearsal-2026-08-02.json",
+      "digest": "sha256:bafce22d997f1871e4b363fd072d70b09f816bc8bf49467ee8b9e68d237cbcef",
+      "evidence": "two-arm rehearsal pass; bank-owned source/return absent"
+    },
+    {
+      "id": "A7",
+      "control": "measurement_and_claims",
+      "status": "conditional_sandbox",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-outcome-verification-2026-08-02.json",
+      "digest": "sha256:b1493ca178936fe6dd3b0f00dc5d50dc9d361de078f8d410df8e4f9dd2323a28",
+      "evidence": "missing-arm/parity/claims gates pass; business and causal flags remain false"
+    },
+    {
+      "id": "A8",
+      "control": "decision_package_v12",
+      "status": "open_release_bound",
+      "evidence": "contract tests pass; cross-surface digest and deployed Results receipt absent"
+    },
+    {
+      "id": "A9",
+      "control": "pilot_gates",
+      "status": "draft_external_dependency",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/paid-pilot-pack-2026-08-02.json",
+      "digest": "sha256:2d338c4aa75b9c7b0bde869b72bb6f29214c2e3929f0de2a5788191c95b99d15",
+      "evidence": "Gate-5-first pack documented; institution artifacts/signatures absent"
+    },
+    {
+      "id": "A10",
+      "control": "mutual_obligations",
+      "status": "draft_external_dependency",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/paid-pilot-pack-2026-08-02.json",
+      "digest": "sha256:2d338c4aa75b9c7b0bde869b72bb6f29214c2e3929f0de2a5788191c95b99d15",
+      "evidence": "obligations and stop/extend effects drafted; signed scope absent"
+    },
+    {
+      "id": "A11",
+      "control": "employee_brief_skill",
+      "status": "evaluation_only_external_review_required",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m4-skill-verification-2026-08-02.json",
+      "digest": "sha256:4b19950e79a2138fb3727bf718a68a5fcc6aefd4eea5e2ab1d09d086daba2019",
+      "evidence": "fallback/control tests pass; frozen independent benchmark and three approvals absent"
+    },
+    {
+      "id": "A12",
+      "control": "ranking_moat_boundary",
+      "status": "shadow_only",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m4-skill-verification-2026-08-02.json",
+      "digest": "sha256:4b19950e79a2138fb3727bf718a68a5fcc6aefd4eea5e2ab1d09d086daba2019",
+      "evidence": "no-production-influence guard passes; release-bound influence receipt remains open"
+    },
+    {
+      "id": "A13",
+      "control": "institutional_portability",
+      "status": "draft_external_dependency",
+      "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/paid-pilot-pack-2026-08-02.json",
+      "digest": "sha256:2d338c4aa75b9c7b0bde869b72bb6f29214c2e3929f0de2a5788191c95b99d15",
+      "evidence": "isolated charter drafted; proof institution not selected/authorized"
+    }
+  ]
 }
