@@ -1,0 +1,409 @@
+{
+  "schemaVersion": "ventus_release_evidence_manifest/v1",
+  "release": {
+    "releaseId": "bank-review-staging-2026-08-01",
+    "environmentClass": "bank_review_staging",
+    "createdAt": "2026-08-01T19:37:35Z",
+    "repository": "VentusCard/ventus-ai",
+    "reviewedCommit": "2bb214403af1a9d051879d79af5b8637b031fa0d",
+    "reviewerState": {
+      "status": "pending",
+      "releaseOwner": null,
+      "independentReviewer": null
+    }
+  },
+  "frontend": {
+    "url": "https://staging.d1gaewa028qzng.amplifyapp.com",
+    "amplify": {
+      "appId": "d1gaewa028qzng",
+      "branch": "staging",
+      "jobId": null
+    },
+    "deployedCommit": null,
+    "buildArtifactDigest": null,
+    "buildResult": "unknown",
+    "observedAt": null
+  },
+  "api": {
+    "baseUrl": "https://6iaouncicd.execute-api.us-east-2.amazonaws.com/staging/v1/console",
+    "stage": "staging",
+    "account": "373633008995",
+    "region": "us-east-2",
+    "stack": "VentusConsoleApiStack",
+    "deployRunId": "30714682448",
+    "deployedCommit": "2bb214403af1a9d051879d79af5b8637b031fa0d",
+    "artifactDigests": [],
+    "deployStatus": "success",
+    "observedAt": "2026-08-01T19:37:35Z"
+  },
+  "publicConfiguration": {
+    "apiTarget": {
+      "valueDigest": "sha256:4a7fcdc7efcd66e15e3778a8d135fa594bb1b3c0ad4e872c0b7c4121e93b4e9e"
+    },
+    "identityTarget": {
+      "valueDigest": null
+    },
+    "enabledFlags": [],
+    "corsOrigins": [],
+    "configurationDigest": null
+  },
+  "identityAuthorization": {
+    "userPool": {
+      "idDigest": null,
+      "issuerDigest": null
+    },
+    "clientIdDigest": null,
+    "membershipSchemaVersion": null,
+    "sixRoleReceipt": {
+      "id": null,
+      "digest": null,
+      "result": "unknown"
+    },
+    "deniedOperationReceipt": {
+      "id": null,
+      "digest": null,
+      "result": "unknown"
+    }
+  },
+  "dataPlane": {
+    "stacks": [
+      "VentusEvidenceStoreStack",
+      "VentusConsoleApiStack"
+    ],
+    "migration": {
+      "count": 12,
+      "digests": [
+        {
+          "file": "decision-ledger.sql",
+          "sha256": "0694489c5e40fcc8d4f7120744b152554e146c2c54454aaa77ced3f104be204c"
+        },
+        {
+          "file": "experiment-measurement.sql",
+          "sha256": "69594dce9e17952c5b34ca052bf42302ec8f77d59013d772f98209519d1f0f54"
+        },
+        {
+          "file": "connected-expansion-measurement.sql",
+          "sha256": "de6edd75ead8398c72255e298ff8790defe127c36adb43cd1ec7c4b939997c98"
+        },
+        {
+          "file": "growth-play-registry.sql",
+          "sha256": "8ac40cc000911a3b1f75317e79463aeaa7cab03e0ba7aafeeb04ac5848dc5e04"
+        },
+        {
+          "file": "tenant-isolation.sql",
+          "sha256": "a8d3479930e7b474c637801a92f252d8e22ca5402eebc26108e0388a669b99c4"
+        },
+        {
+          "file": "institution-access.sql",
+          "sha256": "b85e8018b7cb3ff2f5e804902dfc9ecc333a1b84adf0bcb705e5fc046f11a800"
+        },
+        {
+          "file": "enterprise-access-phase0.sql",
+          "sha256": "55af23accbe19113e7e0dd932fe37b43fb3ad0cca35b6aa1598180c35354e2c6"
+        },
+        {
+          "file": "connector-delivery.sql",
+          "sha256": "e5abcf88d9a1e03e77109dcfcfd31c815d59fa629bf772f296ca26ce6718bab7"
+        },
+        {
+          "file": "enterprise-console-journey.sql",
+          "sha256": "d4b5c02c8de090ccfafff3339f2f995718754afea2243dbd2f02b261d03afb93"
+        },
+        {
+          "file": "enterprise-product-control-plane.sql",
+          "sha256": "9e2a8e944faefd0f740da97501cc8f9fee632329537976ab63f2d9fcb4c40b9"
+        },
+        {
+          "file": "enterprise-skill-governance.sql",
+          "sha256": "ab86a299feb79f8cd318d123825f4ff3d2139ca26bb716aa79fd2c41bc49416f"
+        },
+        {
+          "file": "enterprise-protocol-writer.sql",
+          "sha256": "37cc984b592d777ca58dfed1fb8958085073bfceb65b92a96b4946ba48021401"
+        }
+      ]
+    },
+    "schemaInventory": [
+      "connected_exposure_events",
+      "connector_delivery_receipts",
+      "connector_mapping_test_receipts",
+      "connector_mapping_versions",
+      "decision_ledger_events",
+      "experiment_assignments",
+      "growth_play_drafts",
+      "growth_play_protocol_approval_events",
+      "growth_play_protocols",
+      "institution_identity_providers",
+      "institution_memberships",
+      "institutions",
+      "outcome_events",
+      "outcome_observation_receipts",
+      "skill_shadow_approval_receipts",
+      "skill_shadow_registry",
+      "skill_shadow_transition_receipts"
+    ],
+    "runtimeRole": "ventus_evidence_app_v1",
+    "forcedRlsNonBypass": true,
+    "ledger": {
+      "headHash": "ebf1b6cb073fcf43afa71afabc69f9b7397d5f530c60df30772c5c4929811394",
+      "verified": true
+    },
+    "observedAt": "2026-08-01T19:37:35Z"
+  },
+  "integrations": [
+    {
+      "name": "salesforce-fsc",
+      "environment": "sandbox",
+      "mappingVersion": null,
+      "credentialMetadataRef": null,
+      "healthReceiptId": null,
+      "deliveryReceiptId": null,
+      "reconciliationReceiptId": null,
+      "status": "unknown"
+    },
+    {
+      "name": "plaid-sandbox",
+      "environment": "sandbox",
+      "mappingVersion": null,
+      "credentialMetadataRef": null,
+      "healthReceiptId": null,
+      "deliveryReceiptId": null,
+      "reconciliationReceiptId": null,
+      "status": "unknown"
+    }
+  ],
+  "productContract": {
+    "decisionPackageVersion": "1.2",
+    "decisionPackageDigest": null,
+    "approvedProtocols": [],
+    "deterministicVersion": null,
+    "skills": []
+  },
+  "acceptance": [
+    {
+      "rowId": "A1",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A2",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A3",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A4",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A5",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A6",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A7",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A8",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A9",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A10",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A11",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A12",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    },
+    {
+      "rowId": "A13",
+      "result": "open",
+      "artifact": {
+        "uri": null,
+        "digest": null
+      },
+      "actor": null,
+      "timestamp": null
+    }
+  ],
+  "claims": {
+    "evidenceClass": "partner_sandbox",
+    "measurementStatus": "not_ready",
+    "claimStatus": "not_bank_review_ready",
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "prohibitedWording": [
+      "bank performance",
+      "causal lift",
+      "production readiness"
+    ],
+    "knownLimitations": [
+      "The verified development frontend is wired to the staging Console API.",
+      "Frontend build identity and exact staging promotion are not yet bound."
+    ]
+  },
+  "exceptions": [
+    {
+      "code": "frontend_job_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "The canonical staging frontend job is unknown."
+    },
+    {
+      "code": "frontend_commit_or_build_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "The frontend commit, artifact digest, and passing build are not bound to the reviewed commit."
+    },
+    {
+      "code": "public_configuration_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Public API and identity targets do not have a complete configuration digest."
+    },
+    {
+      "code": "identity_acceptance_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Identity, six-role, or denied-operation evidence is incomplete."
+    },
+    {
+      "code": "data_plane_integrity_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Forced-RLS and ledger integrity evidence is incomplete."
+    },
+    {
+      "code": "integration_receipts_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Connector mapping, health, and reconciliation receipts are incomplete."
+    },
+    {
+      "code": "product_contract_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Decision Package, protocol, or deterministic runtime identity is incomplete."
+    },
+    {
+      "code": "acceptance_matrix_open",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "One or more manifest-bound acceptance rows remain open."
+    },
+    {
+      "code": "independent_approval_missing",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Release owner and independent reviewer receipts are required."
+    }
+  ],
+  "approval": {
+    "releaseOwner": {
+      "actor": null,
+      "receiptId": null,
+      "approvedAt": null
+    },
+    "independentReviewer": {
+      "actor": null,
+      "receiptId": null,
+      "approvedAt": null
+    }
+  },
+  "status": "not_bank_review_ready",
+  "manifestDigest": "sha256:678b1ebdb6f0b9ce2d9f35a01e536aa25a365d22842b93b09c73e1634ef0ae20"
+}
