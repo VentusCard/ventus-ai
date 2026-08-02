@@ -1,0 +1,274 @@
+{
+  "schemaVersion": "ventus_paid_pilot_pack/v1",
+  "recordedAt": "2026-08-02T16:18:00Z",
+  "status": "draft_external_dependency",
+  "releaseReference": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "evidenceClass": "partner_sandbox"
+  },
+  "decision": {
+    "gate5First": true,
+    "customIntegrationBeforeGate5": false,
+    "assignmentBeforeAllSixGates": false,
+    "bofaStrategy": "strategic_founding_anchor",
+    "parallelProofInstitutionAllowed": true,
+    "productForkAllowed": false
+  },
+  "phaseA": {
+    "name": "paid readiness and integration",
+    "purpose": "Establish outcome feasibility and governed mechanism before institution-specific workflow spend.",
+    "sequence": [
+      "Run Gate 5 feasibility preflight.",
+      "Complete Gates 1-5 and prepare Gate 6 shadow proof.",
+      "Draft immutable Growth Play and Decision Package v1.2 binding.",
+      "Record mutual dependency register with owner, due date, artifact, and stop/extend effect.",
+      "Obtain signed Phase B go/no-go from the three independent decision owners."
+    ],
+    "allowedEvidence": [
+      "fixture",
+      "partner_sandbox"
+    ],
+    "claimsCeiling": [
+      "mechanism",
+      "control operation",
+      "integration feasibility",
+      "observed sandbox workflow"
+    ],
+    "prohibitedClaims": [
+      "bank value",
+      "treatment-versus-holdout lift",
+      "causality",
+      "production readiness",
+      "BofA endorsement"
+    ],
+    "exitCriteria": [
+      "Gates 1-5 artifacts",
+      "draft immutable protocol",
+      "mutual obligations register",
+      "signed Phase B go/no-go"
+    ]
+  },
+  "phaseB": {
+    "name": "paid sanctioned pilot",
+    "purpose": "Operate one bounded non-production tenant, business line, Growth Play, sanctioned source, employee destination, and authoritative outcome return.",
+    "prerequisites": [
+      "all six gates approved",
+      "environment acceptance",
+      "four-eyes protocol approval",
+      "assignment design",
+      "capacity and stop conditions",
+      "analysis freeze"
+    ],
+    "outputs": [
+      "FSC treatment workflow receipts",
+      "protected holdout evidence",
+      "authoritative treatment and holdout outcomes",
+      "coverage/integrity result",
+      "independent claim decision"
+    ],
+    "claimsCeiling": "Descriptive and institution-bounded to the registered population, metric, protocol version, and completed window. Stronger wording requires append-only approval naming method, wording, audience, and limitations.",
+    "paymentDoesNotGuarantee": [
+      "positive lift",
+      "business claim",
+      "causal claim",
+      "production acceptance"
+    ]
+  },
+  "sixGates": [
+    {
+      "id": 1,
+      "name": "Institution boundary",
+      "artifact": "tenant charter, environments, residency, retention, support policy, named owners",
+      "owner": "institution administrator",
+      "status": "external_artifact_required"
+    },
+    {
+      "id": 2,
+      "name": "Identity and access",
+      "artifact": "signed role/scope mapping, joiner/mover/leaver test, access review",
+      "owner": "identity owner",
+      "status": "external_artifact_required"
+    },
+    {
+      "id": 3,
+      "name": "Evidence source",
+      "artifact": "allowlisted data contract, sample receipt, linkage, freshness, consent, correction, retention decision",
+      "owner": "data owner",
+      "status": "external_artifact_required"
+    },
+    {
+      "id": 4,
+      "name": "Workflow destination",
+      "artifact": "approved FSC mapping version, health check, sandbox write, reconciliation receipt",
+      "owner": "workflow owner",
+      "status": "external_artifact_required"
+    },
+    {
+      "id": 5,
+      "name": "Outcome return",
+      "artifact": "frozen metric/event contract, source lineage, explicit-zero rule, correction semantics, window, coverage, analysis owner, validation report",
+      "owner": "measurement owner",
+      "status": "external_artifact_required",
+      "precedesCustomIntegration": true
+    },
+    {
+      "id": 6,
+      "name": "Growth Play proof",
+      "artifact": "immutable protocol, independent approvals, shadow report, capacity check, pilot change record",
+      "owner": "Growth Play owner plus independent reviewers",
+      "status": "external_artifact_required"
+    }
+  ],
+  "independentGoNoGo": [
+    {
+      "decision": "business",
+      "owner": "Growth Play owner",
+      "scope": [
+        "objective",
+        "action",
+        "capacity",
+        "operating responsibility"
+      ]
+    },
+    {
+      "decision": "risk_model",
+      "owner": "risk/model reviewer",
+      "scope": [
+        "policy",
+        "measurement",
+        "model evidence",
+        "prohibited claims"
+      ]
+    },
+    {
+      "decision": "institution_environment",
+      "owner": "institution administrator",
+      "scope": [
+        "identity",
+        "data",
+        "connector",
+        "environment configuration"
+      ]
+    }
+  ],
+  "mutualObligations": {
+    "ventus": [
+      "Provide bounded environment, contracts, mapping templates, tests, receipts, evidence bundle, and support path.",
+      "Preserve tenant, role, four-eyes, holdout, secret, and evidence boundaries.",
+      "Disclose defects, ambiguous connector states, model changes, and evidence limitations promptly.",
+      "Pause or stop according to the approved control record; never manufacture missing bank evidence."
+    ],
+    "institution": [
+      "Name accountable business, risk/model, identity, data, workflow, measurement, security, legal, and procurement owners.",
+      "Provide approved IdP/role mappings, allowlisted evidence, sanctioned sandbox workflow access, subject linkage, and authoritative treatment/holdout outcome return.",
+      "Approve metric, population, holdout, policy, action catalog, capacity, window, correction rules, analysis plan, employee process, and claims wording.",
+      "Disclose source/policy changes, preserve assignment integrity, and avoid selective outcome return or off-protocol holdout treatment."
+    ],
+    "dependencyRecord": "Every dependency requires owner, due date, artifact, and stop/extend effect; delayed bank dependencies pause the affected evidence clock."
+  },
+  "stopConditions": [
+    "Gate 5 cannot name a credible bank-owned source and two-arm return.",
+    "Any tenant, authorization, consent, policy, holdout, secret, business-line, fabricated-evidence, or out-of-catalog-action violation.",
+    "Identity, workflow, outcome, or Decision Package mapping is unknown or mismatched.",
+    "Missing arm, parity, freshness, correction, or analysis-freeze evidence.",
+    "Independent reviewer approval is absent, stale, or self-approved.",
+    "Model critical grounding/privacy/policy failure, material slice regression, budget breach, or provider/Skill drift."
+  ],
+  "calibrationRegister": [
+    {
+      "name": "pilot duration",
+      "proposal": "31 days",
+      "status": "calibration_proposal",
+      "approval": "institution pre-registration required"
+    },
+    {
+      "name": "operator population",
+      "proposal": "10-25 bankers",
+      "status": "calibration_proposal",
+      "approval": "institution capacity plan required"
+    },
+    {
+      "name": "employee response",
+      "proposal": "at least 70%",
+      "status": "calibration_proposal",
+      "approval": "institution process approval required"
+    },
+    {
+      "name": "holdout percentage",
+      "proposal": "registered per experiment",
+      "status": "calibration_proposal"
+    },
+    {
+      "name": "minimum sample/coverage/window/freshness",
+      "proposal": "30 per arm / 90% / 31 days / source-specific",
+      "status": "calibration_proposal"
+    },
+    {
+      "name": "employee-brief benchmark",
+      "proposal": "95% acceptance and +2pp baseline",
+      "status": "calibration_proposal"
+    },
+    {
+      "name": "shadow volume/duration",
+      "proposal": "500 cases or 30 days",
+      "status": "calibration_proposal"
+    },
+    {
+      "name": "model budget",
+      "proposal": "USD 0.02 per case and p95 5 seconds",
+      "status": "calibration_proposal"
+    }
+  ],
+  "hardControls": [
+    "schema-valid contracts",
+    "zero tenant/authorization/consent/policy/holdout/secret/business-line violations",
+    "zero fabricated evidence",
+    "approved action catalog only",
+    "immutable assignment and approvals",
+    "append-only corrections",
+    "fail-closed behavior",
+    "exact evidence and claim labeling"
+  ],
+  "accountStrategy": {
+    "bofa": {
+      "role": "strategic_founding_anchor",
+      "purpose": [
+        "enterprise control requirements",
+        "Consumer Deposit Primacy",
+        "Merrill reuse",
+        "long-horizon account design"
+      ],
+      "currentStatus": "external_validation_and_owner_artifacts_required",
+      "commitment": "Do not demote BofA to design partner only."
+    },
+    "proofInstitution": {
+      "role": "parallel_faster_proof",
+      "selected": false,
+      "criteria": [
+        "accepts same bounded pilot/outcome/security/claims contract",
+        "separate tenant",
+        "separate manifest and reviewer set",
+        "thin adapters/configuration only",
+        "no data, approval, result, endorsement, or claim transfer"
+      ],
+      "currentStatus": "candidate_selection_external_dependency"
+    }
+  },
+  "changeControl": {
+    "materialContractChange": "requires Sol review and new protocol or Skill version",
+    "numericThresholdChange": "must be registered and approved before use",
+    "noSilentRelaxation": true
+  },
+  "acceptance": {
+    "A9": "open_external_artifacts",
+    "A10": "open_signed_commercial_scope",
+    "A13": "open_proof_institution_selection_and_isolation"
+  },
+  "claimBoundary": {
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "signedSow": false,
+    "pilotAssignmentAuthorized": false
+  }
+}
