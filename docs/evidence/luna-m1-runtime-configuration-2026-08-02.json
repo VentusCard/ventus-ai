@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_m1_runtime_configuration_receipt/v1",
-  "recordedAt": "2026-08-02T17:42:00Z",
+  "recordedAt": "2026-08-02T17:48:00Z",
   "evidenceClass": "supporting",
   "releaseReference": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -31,13 +31,43 @@
       "VITE_SUPABASE_PUBLISHABLE_KEY",
       "VITE_SUPABASE_URL"
     ],
-    "traceabilityFinding": "Backend Lambda has staging/dev origin and Cognito/outcome-role configuration; Amplify staging has no branch environment variables and app-level variables are legacy Supabase keys."
+    "traceabilityFinding": "Backend Lambda has staging/dev origin and Cognito/outcome-role configuration; Amplify staging has no branch environment variables and app-level variables are legacy Supabase keys.",
+    "cognitoGroupCount": 6,
+    "cognitoGroupRoleArnsPresent": 0
   },
   "result": {
     "status": "supporting_backend_config_frontend_binding_open",
     "canonicalPublicConfigurationBound": false,
     "releaseBound": false,
     "businessClaimAllowed": false,
-    "causalClaimAllowed": false
-  }
+    "causalClaimAllowed": false,
+    "identityGroupsConfigured": true,
+    "releaseBoundUserProjection": false
+  },
+  "cognitoGroups": [
+    {
+      "name": "ventus-platform-admin",
+      "precedence": 10
+    },
+    {
+      "name": "institution-admin",
+      "precedence": 20
+    },
+    {
+      "name": "growth-play-owner",
+      "precedence": 30
+    },
+    {
+      "name": "bank-operator",
+      "precedence": 40
+    },
+    {
+      "name": "risk-reviewer",
+      "precedence": 50
+    },
+    {
+      "name": "executive-viewer",
+      "precedence": 60
+    }
+  ]
 }
