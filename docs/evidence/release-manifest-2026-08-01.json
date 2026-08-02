@@ -161,10 +161,11 @@
       "recordedAt": "2026-08-01T19:37:35Z"
     },
     "backupRestoreReceipt": {
-      "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/backup-restore-receipt-2026-08-01.json",
-      "digest": "sha256:3c7c7d1d0fe06cab7734c13952e79cc16cb7386e0d4076c22b0bcffa9a14467b",
-      "status": "blocked_external_dependency",
-      "recordedAt": "2026-08-01T23:45:00-05:00"
+      "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/backup-restore-receipt-2026-08-02.json",
+      "digest": "sha256:98bb2df271708e72b792d33ef6d56b48e459006e7791324ef59df40912a5dff2",
+      "status": "completed",
+      "sourceCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+      "recordedAt": "2026-08-02T15:42:11Z"
     }
   },
   "integrations": [
@@ -344,7 +345,7 @@
       "The development frontend's staging API fallback is a traceability path, not a disconnected operating system.",
       "The public Amplify identity target and complete public configuration digest were not observed in the release receipt.",
       "Release-bound six-role and denied-operation receipts, connector health/mapping/reconciliation receipts, Decision Package v1.2 digest, and independent approval remain unbound.",
-      "The backup/restore receipt records blocked_external_dependency; no restore claim is permitted.",
+      "The backup/restore receipt records isolated restore equivalence with source/restore rowset and head-hash matches; no resilience SLA or business continuity claim is permitted, and five historical activation rows do not replay under the current canonicalizer.",
       "FSC workflow and authoritative two-arm code rehearsals do not establish bank economic outcomes or treatment-versus-holdout lift."
     ]
   },
@@ -405,5 +406,5 @@
     }
   },
   "status": "not_bank_review_ready",
-  "manifestDigest": "sha256:212f7b29acc889fbd300e17445e6202cf118f07d61980a2dd40a7edfe70f4aa5"
+  "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6"
 }
