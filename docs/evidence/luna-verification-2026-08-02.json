@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T15:55:00Z",
+  "recordedAt": "2026-08-02T16:34:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -31,11 +31,19 @@
         "observation": "The deployed staging login states that console authentication is not configured in this environment; no role or denial receipt was inferred."
       }
     ],
-    "openAcceptance": ["A1", "A2", "A3", "A5", "A8", "A11", "A12"],
+    "openAcceptance": [
+      "A1",
+      "A2",
+      "A3",
+      "A5",
+      "A8",
+      "A11",
+      "A12"
+    ],
     "claimBoundary": "No release-bound six-role, denied-operation, or independent approval claim."
   },
   "M2": {
-    "status": "conditional_sandbox",
+    "status": "conditional_sandbox_external_dependency",
     "evidence": [
       {
         "id": "salesforce-contract-tests",
@@ -46,31 +54,74 @@
         "id": "outcome-contract-rehearsal",
         "result": "pass",
         "observation": "Treatment/holdout contract fixtures and connected-arm receipts validate explicit arm structure without a bank economic claim."
+      },
+      {
+        "id": "luna-m2-outcome-verification",
+        "result": "pass_contracts_external_live_receipts_open",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-outcome-verification-2026-08-02.json",
+        "digest": "sha256:b1493ca178936fe6dd3b0f00dc5d50dc9d361de078f8d410df8e4f9dd2323a28",
+        "observation": "78/78 governed FSC, holdout, correction, parity, freshness, mixed-version, claims, Decision Package, and Results contract tests pass."
+      },
+      {
+        "id": "authoritative-outcome-rehearsal",
+        "result": "pass_sandbox",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/authoritative-outcome-rehearsal-2026-08-02.json",
+        "digest": "sha256:bafce22d997f1871e4b363fd072d70b09f816bc8bf49467ee8b9e68d237cbcef",
+        "observation": "Both arms include explicit zero and non-zero observations, one append-only correction, complete coverage, and an inconclusive rehearsal difference; claim flags remain false."
       }
     ],
-    "openAcceptance": ["A4", "A5", "A6", "A7", "A8"],
+    "openAcceptance": [
+      "A4",
+      "A5",
+      "A6",
+      "A7",
+      "A8"
+    ],
     "externalDependencies": [
       "bank-owned authoritative outcome source and correction owner",
       "release-bound FSC treatment reconciliation",
       "negative holdout destination trace",
       "Decision Package v1.2 cross-surface digest receipt",
       "Results evidence from the deployed release"
-    ]
+    ],
+    "rehearsal": {
+      "tests": 78,
+      "bothArmsExplicitZero": true,
+      "correctionPreserved": true,
+      "missingArmWithholdsLift": true,
+      "parityFreshnessMixedVersionFailClosed": true,
+      "bankOwnedOutcome": false
+    }
   },
   "M3": {
-    "status": "blocked_external_dependency",
-    "openAcceptance": ["A9", "A10", "A13"],
+    "status": "draft_external_dependency",
+    "openAcceptance": [
+      "A9",
+      "A10",
+      "A13"
+    ],
     "requiredArtifacts": [
       "Phase A/Phase B paid-pilot SOW",
       "Gate 5 feasibility artifact and six-gate index",
       "mutual obligations, stop conditions, claims ceiling, and calibration register",
       "BofA founding/anchor plan",
-      "separate proof-institution charter with tenant, manifest, adapter, and claims isolation"
+      "separate proof-institution charter with tenant, manifest, adapter, and claims isolation",
+      "signed Phase A/Phase B scope and three independent go/no-go decisions",
+      "named Gate 5 source owner, dated outcome feasibility artifact, and selected parallel proof institution"
     ],
-    "owner": "founder, institution administrators, and bank reviewers"
+    "owner": "founder, institution administrators, and bank reviewers",
+    "evidence": [
+      {
+        "id": "paid-pilot-pack",
+        "result": "pass_draft",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/paid-pilot-pack-2026-08-02.json",
+        "digest": "sha256:2d338c4aa75b9c7b0bde869b72bb6f29214c2e3929f0de2a5788191c95b99d15",
+        "observation": "Gate-5-first Phase A/B structure, six-gate index, mutual obligations, claims ceiling, calibration register, BofA anchor strategy, and isolated proof-institution charter are documented; signatures and institution selection remain external."
+      }
+    ]
   },
   "M4": {
-    "status": "evaluation_only",
+    "status": "evaluation_only_external_review_required",
     "evidence": [
       {
         "id": "model-gateway-readiness",
@@ -90,9 +141,19 @@
         "expectationsSha256": "8ff36a6f8d15c026393c77da262b97b0bc49aad0ac1a7f455512dcaa90df11eb",
         "independentReviewComplete": false,
         "baselinePassRate": 0.8571
+      },
+      {
+        "id": "luna-m4-skill-verification",
+        "result": "pass_boundaries_open_promotion",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m4-skill-verification-2026-08-02.json",
+        "digest": "sha256:4b19950e79a2138fb3727bf718a68a5fcc6aefd4eea5e2ab1d09d086daba2019",
+        "observation": "Model gateway readiness passes for seven routed tasks; governance 16/16 and briefing/control 39/39 pass; employee brief remains unfrozen pending independent review, and intervention ranking has no production influence."
       }
     ],
-    "openAcceptance": ["A11", "A12"],
+    "openAcceptance": [
+      "A11",
+      "A12"
+    ],
     "promotionBoundary": "Employee brief is the first low-risk promotion candidate; intervention ranking remains shadow-only and moment qualification remains deterministic."
   },
   "finalFableEvidenceRequired": [
@@ -104,7 +165,10 @@
     "BofA anchor plan and separate proof-institution charter",
     "frozen employee-brief benchmark, shadow receipts, critical slices, cost/latency, fallback, and three approval subjects",
     "intervention-ranking non-influence traces",
-    "Luna A1-A13 matrix with artifact links, digests, timestamps, reviewers, and external owners"
+    "Luna A1-A13 matrix with artifact links, digests, timestamps, reviewers, and external owners",
+    "release-bound M2 receipt and bank-owned treatment/holdout outcome return",
+    "signed pilot pack and selected proof institution",
+    "independent employee-brief benchmark freeze and approval receipts"
   ],
   "claimBoundary": {
     "businessClaimAllowed": false,
