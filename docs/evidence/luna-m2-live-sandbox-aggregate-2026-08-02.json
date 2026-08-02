@@ -1,0 +1,108 @@
+{
+  "schemaVersion": "ventus_luna_m2_live_sandbox_aggregate/v1",
+  "recordedAt": "2026-08-02T17:18:00Z",
+  "evidenceClass": "staging_sandbox_supporting",
+  "releaseReference": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "environment": "bank_review_staging"
+  },
+  "source": {
+    "account": "373633008995",
+    "region": "us-east-2",
+    "clusterIdentifier": "ventus-bofa-cluster",
+    "database": "ventus_bofa",
+    "schema": "ventus_evidence",
+    "queryMode": "read_only_aggregate",
+    "rawSubjectRowsRead": false,
+    "secretValuesRead": false
+  },
+  "aggregates": {
+    "connectorMappingVersions": [
+      {
+        "connector": "salesforce-fsc",
+        "status": "active",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "connector": "microsoft-outlook",
+        "status": "draft",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "connector": "slack",
+        "status": "draft",
+        "rows": 1,
+        "tenants": 1
+      }
+    ],
+    "connectorMappingTests": [
+      {
+        "mappingId": "map_salesforce_fsc",
+        "mappingVersion": 1,
+        "status": "passed",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "mappingId": "map_salesforce_fsc",
+        "mappingVersion": 1,
+        "status": "failed",
+        "rows": 1,
+        "tenants": 1
+      }
+    ],
+    "connectorDeliveryReceipts": [
+      {
+        "connector": "salesforce",
+        "destination": "salesforce-fsc",
+        "status": "delivered",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "connector": "salesforce",
+        "destination": "salesforce-fsc",
+        "status": "failed",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "connector": "salesforce-fsc",
+        "destination": "fsc_task",
+        "status": "delivered",
+        "rows": 3,
+        "tenants": 1
+      }
+    ],
+    "outcomeObservationReceipts": [
+      {
+        "status": "not-opened",
+        "mappingVersion": 1,
+        "rows": 2,
+        "tenants": 1,
+        "oldest": "2026-07-31 16:40:29.549241",
+        "newest": "2026-07-31 23:47:02.711546"
+      }
+    ],
+    "outcomeEvents": [],
+    "protocolApprovalEvents": [
+      {
+        "decision": "approved",
+        "rows": 17,
+        "tenants": 17
+      }
+    ]
+  },
+  "interpretation": {
+    "status": "live_sandbox_receipts_present_external_outcome_open",
+    "fscTreatmentWorkflow": "Sandbox delivery and mapping evidence is present, but external account identity, workflow-owner attestation, employee response/completion/timing/reason reconciliation, and release-bound receipt linkage remain open.",
+    "authoritativeOutcome": "No canonical outcome_events are present. Two not-opened observation receipts do not provide treatment/holdout arms or bank-owned economic outcomes.",
+    "decisionPackage": "Seventeen approved protocol events are supporting metadata only; cross-surface Decision Package v1.2 digest and independent four-eyes approval remain unbound.",
+    "bankOwnedSourcePresent": false,
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false
+  }
+}
