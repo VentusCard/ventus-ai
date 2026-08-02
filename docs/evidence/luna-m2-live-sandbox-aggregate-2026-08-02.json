@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_m2_live_sandbox_aggregate/v1",
-  "recordedAt": "2026-08-02T17:22:00Z",
+  "recordedAt": "2026-08-02T17:30:00Z",
   "evidenceClass": "staging_sandbox_supporting",
   "releaseReference": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -102,13 +102,23 @@
       "request_idempotency_key": 5,
       "decision_package_v12": 3
     },
-    "outcomeObservationPayloadKeys": []
+    "outcomeObservationPayloadKeys": [],
+    "protocolApprovalSeparation": {
+      "protocolsWithEvents": 17,
+      "minEventsPerProtocol": 1,
+      "maxEventsPerProtocol": 1,
+      "minDistinctDeciders": 1,
+      "maxDistinctDeciders": 1,
+      "protocolsWithTwoDeciders": 0,
+      "protocolsWithNonRegistrarApproval": 17,
+      "fourEyesSatisfied": false
+    }
   },
   "interpretation": {
     "status": "live_sandbox_receipts_present_external_outcome_open",
     "fscTreatmentWorkflow": "Sandbox delivery and mapping evidence is present, but external account identity, workflow-owner attestation, employee response/completion/timing/reason reconciliation, and release-bound receipt linkage remain open.",
     "authoritativeOutcome": "No canonical outcome_events are present. Two not-opened observation receipts do not provide treatment/holdout arms or bank-owned economic outcomes.",
-    "decisionPackage": "Five delivery payloads carry the expected schema/decision/idempotency keys; three carry decision_package_v12. This is supporting receipt metadata only; the cross-surface digest, independent approval linkage, and deployed Results evidence remain open.",
+    "decisionPackage": "Five delivery payloads carry the expected schema/decision/idempotency keys; three carry decision_package_v12. Seventeen protocols have one approved event each and zero have two distinct deciders. This is supporting metadata only; the cross-surface digest, independent four-eyes approval linkage, and deployed Results evidence remain open.",
     "bankOwnedSourcePresent": false,
     "businessClaimAllowed": false,
     "causalClaimAllowed": false
