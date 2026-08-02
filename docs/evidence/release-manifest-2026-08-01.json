@@ -348,7 +348,50 @@
       "FSC workflow and authoritative two-arm code rehearsals do not establish bank economic outcomes or treatment-versus-holdout lift."
     ]
   },
-  "exceptions": [],
+  "exceptions": [
+    {
+      "code": "public_configuration_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Public API and identity targets do not have a complete configuration digest."
+    },
+    {
+      "code": "identity_acceptance_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Identity, six-role, or denied-operation evidence is incomplete."
+    },
+    {
+      "code": "integration_receipts_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Connector mapping, health, and reconciliation receipts are incomplete."
+    },
+    {
+      "code": "product_contract_unbound",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Decision Package, protocol, or deterministic runtime identity is incomplete."
+    },
+    {
+      "code": "acceptance_matrix_open",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "One or more manifest-bound acceptance rows remain open."
+    },
+    {
+      "code": "independent_approval_missing",
+      "severity": "blocking",
+      "blocksBankReview": true,
+      "owner": "release_owner",
+      "effect": "Release owner and independent reviewer receipts are required."
+    }
+  ],
   "approval": {
     "releaseOwner": {
       "actor": null,
@@ -362,5 +405,5 @@
     }
   },
   "status": "not_bank_review_ready",
-  "manifestDigest": "sha256:04a8c5bb2d71f04835cd51e90e3f24d04dcf6d9c5ecef86913eecc72a9691a1a"
+  "manifestDigest": "sha256:212f7b29acc889fbd300e17445e6202cf118f07d61980a2dd40a7edfe70f4aa5"
 }
