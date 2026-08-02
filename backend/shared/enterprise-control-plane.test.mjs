@@ -86,6 +86,99 @@ test('FSC observation retries preserve their original timestamp and recover lega
   assert.equal(appendCalls[0].occurredAt, '2026-07-31T00:00:00.000Z');
 });
 
+test('FSC treatment reconciliation records immutable workflow evidence without lift eligibility', async () => {
+  const inserts = [];
+  const ledgerEvents = [];
+  const getDB = async () => ({
+    async connect() {},
+    async end() {},
+    async query(sql, params = []) {
+      if (sql.includes('INSERT INTO outcome_observation_receipts')) {
+        inserts.push(params);
+        return {
+          rows: [{
+            observation_id: params[1],
+            status: params[7],
+            observation: params[8],
+            synced_at: '2026-08-01T21:00:00.000Z',
+          }],
+        };
+      }
+      return { rows: [] };
+    },
+  });
+  const controlPlane = createEnterpriseControlPlane({
+    growthPlayRegistry: { register() { throw new Error('not used'); } },
+    getDB,
+    ledgerRepository: {
+      async append(event) {
+        ledgerEvents.push(event);
+        return { record: { sequence_number: 41, event_hash: 'a'.repeat(64) } };
+      },
+    },
+  });
+  const input = {
+    tenantId: 'pilot_bank',
+    actorId: 'reviewer_001',
+    mapping: {
+      mappingId: 'map_fsc_001', version: 3,
+      configuration: { authorityType: 'workflow_observation' },
+    },
+    moment: {
+      decisionPackage: {
+        subject: { token: 'tok_abcdefgh' },
+        growthPlay: {
+          id: 'deposit-primacy-defense',
+          protocolId: 'dcp_deposit_001',
+        },
+      },
+      decisionPackageV12: {
+        packageDigest: 'b'.repeat(64),
+        governance: { policyVersion: 'policy_deposit_001' },
+      },
+    },
+    outcome: {
+      decisionId: 'dec_treatment_001',
+      decisionRecordId: 'a09123456789012AAA',
+      response: {
+        status: 'accepted',
+        actorToken: 'employee_opaque_001',
+        recordedAt: '2026-08-01T20:58:00.000Z',
+      },
+      workflow: {
+        taskId: '00T123456789012AAA',
+        referralId: '00Q123456789012AAA',
+        status: 'completed',
+        completedAt: '2026-08-01T20:59:00.000Z',
+        observedAt: '2026-08-01T21:00:00.000Z',
+        reasonCode: 'customer_contacted',
+      },
+      outcome: { status: 'completed', observation: null },
+    },
+  };
+
+  const first = await controlPlane.recordFscOutcome(input);
+  const retry = await controlPlane.recordFscOutcome(input);
+
+  assert.equal(first.observation.observation.kind, 'workflow_observation');
+  assert.equal(first.observation.observation.response.status, 'accepted');
+  assert.equal(first.observation.observation.status, 'completed');
+  assert.equal(first.observation.observation.reasonCode, 'customer_contacted');
+  assert.equal(first.measurement.status, 'workflow_only');
+  assert.equal(first.eligibleForLift, false);
+  assert.equal(first.workflowLedgerReceipt.sequenceNumber, 41);
+  assert.equal(first.measurementLedgerReceipt, null);
+  assert.equal(retry.observation.observationId, first.observation.observationId);
+  assert.equal(inserts[0][0], 'pilot_bank');
+  assert.equal(inserts[0][2], 'dec_treatment_001');
+  assert.equal(inserts[0][4], 'tok_abcdefgh');
+  assert.equal(inserts[0][5], 'map_fsc_001');
+  assert.equal(inserts[0][6], 3);
+  assert.equal(ledgerEvents[0].payload.workflow_observation_only, true);
+  assert.equal(ledgerEvents[0].payload.package_digest, 'b'.repeat(64));
+  assert.equal(ledgerEvents[0].idempotencyKey, ledgerEvents[1].idempotencyKey);
+});
+
 test('FSC mappings default to workflow evidence and certified economic views require a complete contract', async () => {
   const controlPlane = createEnterpriseControlPlane({
     growthPlayRegistry: { register() { throw new Error('not used'); } },
