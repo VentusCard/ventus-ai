@@ -11,7 +11,7 @@
     }
   },
   "M1": {
-    "status": "conditional_sandbox",
+    "status": "conditional_sandbox_release_identity_verified",
     "evidence": [
       {
         "id": "connector-session-and-role-tests",
@@ -29,6 +29,13 @@
         "id": "staging-login-observation",
         "result": "blocked_external_dependency",
         "observation": "The deployed staging login states that console authentication is not configured in this environment; no role or denial receipt was inferred."
+      },
+      {
+        "id": "luna-m1-independent-release-reconciliation",
+        "result": "pass_integrity_external_acceptance_open",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-release-reconciliation-2026-08-02.json",
+        "digest": "sha256:4c382c776933d791e9bea0efa2a7a06034493e8521e897c168b4e4c4cb203702",
+        "observation": "Standalone digest recomputation matches the manifest; CI manifest check and AWS preservation probes pass. Release-bound six-role, denial, four-eyes, and canonical public identity receipts remain open."
       }
     ],
     "openAcceptance": [
@@ -40,7 +47,13 @@
       "A11",
       "A12"
     ],
-    "claimBoundary": "No release-bound six-role, denied-operation, or independent approval claim."
+    "claimBoundary": "No release-bound six-role, denied-operation, or independent approval claim.",
+    "independentDigest": {
+      "expected": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+      "actual": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+      "match": true,
+      "verifier": "standalone Node crypto"
+    }
   },
   "M2": {
     "status": "conditional_sandbox_external_dependency",
