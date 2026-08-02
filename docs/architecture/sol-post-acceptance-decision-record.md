@@ -310,7 +310,20 @@ File boundary:
 - `backend/shared/console-api.mjs` and its FSC reconciliation tests;
 - `backend/shared/enterprise-control-plane.mjs` and its FSC observation tests;
 - `backend/functions/ventus-console-api/index.mjs` and its tests;
-- no outcome-measurement, SQL, frontend, infra, or documentation files.
+- `infra/lib/ventus-console-api-stack.ts`, limited to the existing-role
+  EventBridge trigger for the IAM-authenticated internal route;
+- no outcome-measurement, SQL, frontend, new IAM role/trust, or product-surface
+  files.
+
+Approved amendment A1 (2026-08-02): the trigger is an EventBridge event-pattern
+entry point for `ventus.console` / `fsc_outcome_reconciliation_requested`.
+It passes only the event's tenant and decision identifiers to the existing
+`/internal/outcomes/salesforce-sync` route, is constrained to the tenants
+already listed in `VENTUS_OUTCOME_RECONCILIATION_TENANTS`, and assumes the
+existing `ventus-fsc-outcome-reconciler` role. It must not add a schedule,
+broaden role trust or API authorization, read another tenant, or create a new
+user-facing surface. The event producer remains an external/runtime dependency
+until its permissioned release path is separately evidenced.
 
 Acceptance:
 
