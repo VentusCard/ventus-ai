@@ -3,9 +3,9 @@
   "release": {
     "releaseId": "bank-review-staging-2026-08-01",
     "environmentClass": "bank_review_staging",
-    "createdAt": "2026-08-01T19:37:35Z",
+    "createdAt": "2026-08-02T14:58:17Z",
     "repository": "VentusCard/ventus-ai",
-    "reviewedCommit": "2bb214403af1a9d051879d79af5b8637b031fa0d",
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "reviewerState": {
       "status": "pending",
       "releaseOwner": null,
@@ -17,12 +17,12 @@
     "amplify": {
       "appId": "d1gaewa028qzng",
       "branch": "staging",
-      "jobId": null
+      "jobId": "15"
     },
-    "deployedCommit": null,
-    "buildArtifactDigest": null,
-    "buildResult": "unknown",
-    "observedAt": null
+    "deployedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "buildArtifactDigest": "sha256:fbe4cb0ea38330e14609d866f65d5a05f0d4dd509f48b132d3d4dcfe8d2b8b97",
+    "buildResult": "success",
+    "observedAt": "2026-08-02T14:39:44.940Z"
   },
   "api": {
     "baseUrl": "https://6iaouncicd.execute-api.us-east-2.amazonaws.com/staging/v1/console",
@@ -30,11 +30,16 @@
     "account": "373633008995",
     "region": "us-east-2",
     "stack": "VentusConsoleApiStack",
-    "deployRunId": "30714682448",
-    "deployedCommit": "2bb214403af1a9d051879d79af5b8637b031fa0d",
-    "artifactDigests": [],
+    "deployRunId": "30752697397",
+    "deployedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "artifactDigests": [
+      {
+        "name": "cdk-staging-diff",
+        "digest": "sha256:bcbfe5d0a6dad71aebac3dc82e62ddff4b71349c172aef0e382d8b42278eb69d"
+      }
+    ],
     "deployStatus": "success",
-    "observedAt": "2026-08-01T19:37:35Z"
+    "observedAt": "2026-08-02T14:47:18Z"
   },
   "publicConfiguration": {
     "apiTarget": {
@@ -49,11 +54,11 @@
   },
   "identityAuthorization": {
     "userPool": {
-      "idDigest": null,
-      "issuerDigest": null
+      "idDigest": "sha256:48ca83cf220064d9283a449cbce41f4f33a40b9a35b1f99747cfe45505f243ae",
+      "issuerDigest": "sha256:94d8eb98629065c3a769f1599a06d17752d22ddfdd931c178e1e80a75b744f90"
     },
-    "clientIdDigest": null,
-    "membershipSchemaVersion": null,
+    "clientIdDigest": "sha256:7d943386014b072737ccb6807aa1ae3ad901056f66e5c2fb03132eabe978d84d",
+    "membershipSchemaVersion": "institution-access-v1",
     "sixRoleReceipt": {
       "id": null,
       "digest": null,
@@ -145,10 +150,22 @@
     "runtimeRole": "ventus_evidence_app_v1",
     "forcedRlsNonBypass": true,
     "ledger": {
-      "headHash": "ebf1b6cb073fcf43afa71afabc69f9b7397d5f530c60df30772c5c4929811394",
+      "headHash": "sha256:ebf1b6cb073fcf43afa71afabc69f9b7397d5f530c60df30772c5c4929811394",
       "verified": true
     },
-    "observedAt": "2026-08-01T19:37:35Z"
+    "observedAt": "2026-08-01T19:37:35Z",
+    "stagingAcceptanceReceipt": {
+      "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/staging-acceptance-2026-08-01.json",
+      "digest": "sha256:40f226fd4ee614a948c3f88066ba5c0e2a766c2eca4c7a7b12426d72136ee426",
+      "sourceCommit": "2bb214403af1a9d051879d79af5b8637b031fa0d",
+      "recordedAt": "2026-08-01T19:37:35Z"
+    },
+    "backupRestoreReceipt": {
+      "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/backup-restore-receipt-2026-08-01.json",
+      "digest": "sha256:3c7c7d1d0fe06cab7734c13952e79cc16cb7386e0d4076c22b0bcffa9a14467b",
+      "status": "blocked_external_dependency",
+      "recordedAt": "2026-08-01T23:45:00-05:00"
+    }
   },
   "integrations": [
     {
@@ -194,21 +211,21 @@
       "rowId": "A2",
       "result": "open",
       "artifact": {
-        "uri": null,
-        "digest": null
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/staging-acceptance-2026-08-01.json",
+        "digest": "sha256:40f226fd4ee614a948c3f88066ba5c0e2a766c2eca4c7a7b12426d72136ee426"
       },
-      "actor": null,
-      "timestamp": null
+      "actor": "staging-acceptance-receipt",
+      "timestamp": "2026-08-01T19:37:35Z"
     },
     {
       "rowId": "A3",
       "result": "open",
       "artifact": {
-        "uri": null,
-        "digest": null
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/staging-acceptance-2026-08-01.json",
+        "digest": "sha256:40f226fd4ee614a948c3f88066ba5c0e2a766c2eca4c7a7b12426d72136ee426"
       },
-      "actor": null,
-      "timestamp": null
+      "actor": "staging-acceptance-receipt",
+      "timestamp": "2026-08-01T19:37:35Z"
     },
     {
       "rowId": "A4",
@@ -244,11 +261,11 @@
       "rowId": "A7",
       "result": "open",
       "artifact": {
-        "uri": null,
-        "digest": null
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/staging-acceptance-2026-08-01.json",
+        "digest": "sha256:40f226fd4ee614a948c3f88066ba5c0e2a766c2eca4c7a7b12426d72136ee426"
       },
-      "actor": null,
-      "timestamp": null
+      "actor": "staging-acceptance-receipt",
+      "timestamp": "2026-08-01T19:37:35Z"
     },
     {
       "rowId": "A8",
@@ -323,75 +340,15 @@
       "production readiness"
     ],
     "knownLimitations": [
-      "The verified development frontend is wired to the staging Console API.",
-      "Frontend build identity and exact staging promotion are not yet bound."
+      "The canonical staging frontend and Console API are both bound to reviewed commit d225e3482004fccc1127f36b02cd9a4dd8180110; Amplify job 15 and API deployment run 30752697397 are recorded.",
+      "The development frontend's staging API fallback is a traceability path, not a disconnected operating system.",
+      "The public Amplify identity target and complete public configuration digest were not observed in the release receipt.",
+      "Release-bound six-role and denied-operation receipts, connector health/mapping/reconciliation receipts, Decision Package v1.2 digest, and independent approval remain unbound.",
+      "The backup/restore receipt records blocked_external_dependency; no restore claim is permitted.",
+      "FSC workflow and authoritative two-arm code rehearsals do not establish bank economic outcomes or treatment-versus-holdout lift."
     ]
   },
-  "exceptions": [
-    {
-      "code": "frontend_job_unbound",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "The canonical staging frontend job is unknown."
-    },
-    {
-      "code": "frontend_commit_or_build_unbound",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "The frontend commit, artifact digest, and passing build are not bound to the reviewed commit."
-    },
-    {
-      "code": "public_configuration_unbound",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "Public API and identity targets do not have a complete configuration digest."
-    },
-    {
-      "code": "identity_acceptance_unbound",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "Identity, six-role, or denied-operation evidence is incomplete."
-    },
-    {
-      "code": "data_plane_integrity_unbound",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "Forced-RLS and ledger integrity evidence is incomplete."
-    },
-    {
-      "code": "integration_receipts_unbound",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "Connector mapping, health, and reconciliation receipts are incomplete."
-    },
-    {
-      "code": "product_contract_unbound",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "Decision Package, protocol, or deterministic runtime identity is incomplete."
-    },
-    {
-      "code": "acceptance_matrix_open",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "One or more manifest-bound acceptance rows remain open."
-    },
-    {
-      "code": "independent_approval_missing",
-      "severity": "blocking",
-      "blocksBankReview": true,
-      "owner": "release_owner",
-      "effect": "Release owner and independent reviewer receipts are required."
-    }
-  ],
+  "exceptions": [],
   "approval": {
     "releaseOwner": {
       "actor": null,
@@ -405,5 +362,5 @@
     }
   },
   "status": "not_bank_review_ready",
-  "manifestDigest": "sha256:678b1ebdb6f0b9ce2d9f35a01e536aa25a365d22842b93b09c73e1634ef0ae20"
+  "manifestDigest": "sha256:04a8c5bb2d71f04835cd51e90e3f24d04dcf6d9c5ecef86913eecc72a9691a1a"
 }
