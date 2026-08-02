@@ -45,13 +45,6 @@
         "observation": "Read-only Data API aggregate of ventus_bofa: canonical ventus_evidence has 17 forced-RLS tables, 17 policies, non-bypass runtime-role metadata, and all six role labels represented as active memberships; the legacy public schema has no RLS. Administrative execution is supporting only, so release-bound Cognito projection, denials, tenant context, and four-eyes receipts remain open."
       },
       {
-        "id": "latest-ci-diff-reconciliation",
-        "result": "pass_integrity_bank_review_closed",
-        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-ci-reconciliation-2026-08-02.json",
-        "digest": "sha256:f041f439885c765a3f9b433d5ffae8decafcffb8ab4baf5702e2b987e4c4f408",
-        "observation": "CI #783 and infrastructure diff #226 pass for the evidence-only head; the manifest check returns not_bank_review_ready, the CDK diff artifact is recorded, and staging deployment is skipped."
-      },
-      {
         "id": "runtime-role-tenant-reconciliation",
         "result": "pass_supporting_runtime_role_release_reference",
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-runtime-tenant-reconciliation-2026-08-02.json",
