@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:43:00Z",
+  "recordedAt": "2026-08-02T17:48:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -62,8 +62,8 @@
         "id": "runtime-configuration-traceability",
         "result": "pass_supporting_backend_frontend_binding_open",
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-runtime-configuration-2026-08-02.json",
-        "digest": "sha256:374b192e69930ce1e86935486ea1f774639394943110a91307ed89fec9177199",
-        "observation": "Non-secret Lambda configuration digests bind allowed origins, console URL, Cognito issuer/client, and outcome reconciler scope; Amplify staging has no branch variables and retains only legacy Supabase app variables, so canonical public configuration remains unbound."
+        "digest": "sha256:aac9a4006643e9878f48e8a957edc5cf840df971a730a13b2aa9e3b8f69239ea",
+        "observation": "Non-secret Lambda configuration and Cognito metadata are digest-bound: six role groups with explicit precedence exist, while Amplify staging has no branch variables and retains only legacy Supabase app variables. Release-bound user projections, denied operations, and canonical public configuration remain open."
       }
     ],
     "openAcceptance": [
@@ -243,7 +243,7 @@
       "id": "A2",
       "control": "six_role_projection",
       "status": "open_release_bound",
-      "evidence": "staging login says console authentication is not configured; 82/82 supporting tests are not manifest-bound; canonical membership aggregate contains all six active role labels, but deployed Cognito projection and denied-operation receipts remain absent"
+      "evidence": "staging login says console authentication is not configured; 82/82 supporting tests are not manifest-bound; canonical membership aggregate contains all six active role labels, but deployed Cognito projection and denied-operation receipts remain absent; Cognito metadata lists six role groups with precedence, but no release-bound user projections/denial receipt"
     },
     {
       "id": "A3",
