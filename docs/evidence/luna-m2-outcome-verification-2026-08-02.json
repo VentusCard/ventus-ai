@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "ventus_luna_m2_verification/v1",
+  "recordedAt": "2026-08-02T16:12:00Z",
+  "release": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "evidenceClass": "sandbox",
+    "releaseBound": false,
+    "reason": "The deployed staging console is not authenticated/configured; this receipt is contract and rehearsal evidence, not a live bank receipt."
+  },
+  "execution": {
+    "testCommand": "node --test backend/shared/authoritative-outcome-adapter.test.mjs backend/shared/experiment-measurement.test.mjs backend/shared/pilot-operating-loop.test.mjs backend/shared/sandbox-evidence-bundle.test.mjs backend/shared/enterprise-control-plane.test.mjs backend/shared/salesforce-fsc.test.mjs backend/shared/product-salesforce-connector.test.mjs backend/shared/console-api.test.mjs",
+    "result": "pass",
+    "tests": 78,
+    "passed": 78,
+    "failed": 0,
+    "sourceCheckout": "terra-t2",
+    "note": "Supporting tests exercise the governed contracts; they do not replace release-bound partner receipts."
+  },
+  "rehearsal": {
+    "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/authoritative-outcome-rehearsal-2026-08-02.json",
+    "fileSha256": "sha256:bafce22d997f1871e4b363fd072d70b09f816bc8bf49467ee8b9e68d237cbcef",
+    "manifestDigest": "sha256:388d7e3acf3aaeb1038503878b5dc4939a02216b1b6a416836229b0b7596c94d",
+    "experimentId": "exp_ca06edc8277399c4933fdff0",
+    "protocolDigest": "sha256:ca06edc8277399c4933fdff09e7506528e9ac6ecc910f6a8f8e018f2eabaff39",
+    "assignments": 4,
+    "observations": 5,
+    "corrections": 1,
+    "treatment": {
+      "assigned": 2,
+      "observed": 2,
+      "coverage": 1,
+      "mean": 125
+    },
+    "holdout": {
+      "assigned": 2,
+      "observed": 2,
+      "coverage": 1,
+      "mean": 50
+    },
+    "absoluteLift": 75,
+    "signal": "inconclusive",
+    "explicitZero": {
+      "treatment": true,
+      "holdout": true
+    },
+    "appendOnly": true,
+    "earlierCorrectionPreserved": true,
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false
+  },
+  "cases": [
+    {
+      "id": "A4-fsc-treatment",
+      "result": "pass",
+      "evidence": "FSC workflow receipt preserves response/completion/timing/reason and mapping lineage; no economic eligibility."
+    },
+    {
+      "id": "A4-fsc-retry",
+      "result": "pass",
+      "evidence": "FSC observation retry keeps original timestamp/identity and does not duplicate the workflow receipt."
+    },
+    {
+      "id": "A5-holdout-destination",
+      "result": "pass",
+      "evidence": "Holdout bypasses decisioning, employee action, connector delivery, and FSC treatment record; sandbox bundle reports zero decision/activation/workflow records."
+    },
+    {
+      "id": "A5-suppression",
+      "result": "pass",
+      "evidence": "Policy-blocked case suppresses before assignment or connector delivery."
+    },
+    {
+      "id": "A5-abstention",
+      "result": "pass",
+      "evidence": "Treatment abstention remains assigned for intention-to-treat measurement."
+    },
+    {
+      "id": "A4-ambiguous-delivery",
+      "result": "pass",
+      "evidence": "Optional FSC receipt failure preserves the Task and does not assert false success."
+    },
+    {
+      "id": "A6-explicit-zero",
+      "result": "pass",
+      "evidence": "Adapter preserves zero-valued treatment and holdout observations as observations."
+    },
+    {
+      "id": "A6-correction",
+      "result": "pass",
+      "evidence": "Higher correction sequence appends; measurement selects the latest valid correction while retaining the earlier record."
+    },
+    {
+      "id": "A6-missing-arm",
+      "result": "pass",
+      "evidence": "Measurement readiness and incomplete coverage tests withhold lift until both arms have measured outcomes."
+    },
+    {
+      "id": "A6-parity",
+      "result": "pass",
+      "evidence": "Treatment/holdout source-version parity is enforced before an observation is accepted."
+    },
+    {
+      "id": "A6-freshness",
+      "result": "pass",
+      "evidence": "Stale authoritative observations are rejected against the registered freshness threshold."
+    },
+    {
+      "id": "A6-mixed-version",
+      "result": "pass",
+      "evidence": "Mixed experiments, unmatched target outcomes, caller lineage, and invalid source versions fail closed."
+    },
+    {
+      "id": "A7-claims",
+      "result": "pass",
+      "evidence": "Sandbox evidence computes only an inconclusive rehearsal difference; businessClaimAllowed and causalClaimAllowed remain false."
+    },
+    {
+      "id": "A8-decision-package",
+      "result": "pass",
+      "evidence": "Connector tests carry immutable Decision Package v1.2 identity and reject incomplete/tampered packages."
+    },
+    {
+      "id": "A8-results",
+      "result": "pass",
+      "evidence": "Console Results projection is server-adapter-only and health-only roles are constrained; deployed Results evidence remains open."
+    }
+  ],
+  "claimBoundary": {
+    "status": "conditional_sandbox",
+    "bankEconomicOutcome": false,
+    "treatmentVersusHoldoutLift": false,
+    "releaseBoundFscReconciliation": false,
+    "releaseBoundResults": false,
+    "reason": "FSC returns treatment workflow evidence. A bank-owned authoritative source must return economic observations for both arms before any pilot measurement or claim."
+  },
+  "openExternalEvidence": [
+    "bank-owned authoritative outcome source, source version, correction owner, and dated treatment/holdout return",
+    "manifest-bound FSC treatment reconciliation and negative holdout destination trace",
+    "Decision Package v1.2 digest cross-surface receipt from Ventus, FSC, and enabled employee brief",
+    "Results receipt from the deployed release"
+  ]
+}
