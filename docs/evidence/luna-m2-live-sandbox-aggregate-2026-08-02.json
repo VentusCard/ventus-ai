@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_m2_live_sandbox_aggregate/v1",
-  "recordedAt": "2026-08-02T17:34:00Z",
+  "recordedAt": "2026-08-02T17:40:00Z",
   "evidenceClass": "staging_sandbox_supporting",
   "releaseReference": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -121,15 +121,20 @@
         "max": 71
       },
       "allSha256Format": true,
-      "matchingRegisteredProtocolDigests": 0,
-      "crossSurfaceDigestStatus": "mismatch_fail_closed"
+      "crossSurfaceDigestStatus": "open_release_bound",
+      "registeredProtocolDigestComparison": {
+        "observedMatches": 0,
+        "comparison": "decision_package_v12.packageDigest vs growth_play_protocols.protocol_digest",
+        "result": "invalid_comparison_not_evidence",
+        "reason": "The fields hash different canonical objects and intentionally use different formats."
+      }
     }
   },
   "interpretation": {
     "status": "live_sandbox_receipts_present_external_outcome_open",
     "fscTreatmentWorkflow": "Sandbox delivery and mapping evidence is present, but external account identity, workflow-owner attestation, employee response/completion/timing/reason reconciliation, and release-bound receipt linkage remain open.",
     "authoritativeOutcome": "No canonical outcome_events are present. Two not-opened observation receipts do not provide treatment/holdout arms or bank-owned economic outcomes.",
-    "decisionPackage": "Five delivery payloads carry the expected schema/decision/idempotency keys; three carry decision_package_v12 with well-formed package digests, but 0/3 match a registered protocol digest. Seventeen protocols have one approved event each and zero have two distinct deciders. Cross-surface Decision Package reconciliation and four-eyes approval remain open.",
+    "decisionPackage": "Five delivery payloads carry the expected schema/decision/idempotency keys; three carry decision_package_v12 with well-formed package digests. The package digest and registered protocol digest are separate identities, so the prior 0/3 comparison is not a package-integrity test. Protocol-ID registry linkage, same-package cross-surface preservation, deployed Results identity, and independent approval remain unverified.",
     "bankOwnedSourcePresent": false,
     "businessClaimAllowed": false,
     "causalClaimAllowed": false
