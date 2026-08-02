@@ -34,8 +34,8 @@
         "id": "ci-reconciliation",
         "result": "pass_supporting_manifest_closed",
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-ci-reconciliation-2026-08-02.json",
-        "digest": "sha256:93666786b7902b9d40fa2ce6a158e0266686f20fbcb226effdc67630aa153040",
-        "observation": "Current branch head 77840662b48807f62ab0ae7790ea5a80016e2261 passed CI #810 and infrastructure diff #253; the manifest check returned not_bank_review_ready, the CDK diff artifact was captured, and the staging deployment job was skipped after a change-set race retry."
+        "digest": "sha256:8094642dec6bf062445e92d42c7870136413dea807d010fefe594a4b34f96b70",
+        "observation": "Candidate branch head 56c280cd3ec18e6a2883ab8722b37e426ccf8b54 passed CI #814 and infrastructure diff #257; the manifest check remained not_bank_review_ready, and the staging deployment job was skipped."
       },
       {
         "id": "live-database-aggregate",
