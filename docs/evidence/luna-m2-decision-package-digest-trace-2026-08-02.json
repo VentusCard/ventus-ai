@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "ventus_luna_m2_decision_package_digest_trace/v1",
+  "recordedAt": "2026-08-02T17:38:40Z",
+  "evidenceClass": "repository_trace_supporting",
+  "releaseReference": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "environment": "bank_review_staging"
+  },
+  "sourceBoundary": {
+    "rawSubjectRowsRead": false,
+    "secretValuesRead": false,
+    "runtimeChanged": false
+  },
+  "generators": {
+    "decisionPackageDigest": {
+      "sourceFile": "backend/shared/console-journey.mjs",
+      "function": "buildDecisionPackageV12",
+      "input": "immutable Decision Package v1.2 fields before packageDigest",
+      "algorithm": "sha256(canonicalJson(immutable))",
+      "format": "sha256:<64 lowercase hex>",
+      "mutableReceiptsExcluded": true
+    },
+    "growthPlayProtocolDigest": {
+      "sourceFile": "backend/shared/growth-play-contract.mjs",
+      "function": "compileGrowthPlayContract",
+      "input": "normalized Growth Play contract",
+      "algorithm": "sha256(canonicalStringify(normalized))",
+      "format": "<64 lowercase hex>",
+      "storedField": "growth_play_protocols.protocol_digest"
+    }
+  },
+  "linkageContract": {
+    "packageProtocolIdentity": [
+      "decision_package_v12.growthPlay.protocolId",
+      "decision_package_v12.governance.protocolId",
+      "decision_package_v12.recommendation.actionCatalogVersion"
+    ],
+    "registryKey": "growth_play_protocols.decision_protocol_id",
+    "requiredRelation": "package protocol identifiers equal the registered decision_protocol_id; the registered protocol_digest validates the registered contract; packageDigest is independently validated against the immutable Decision Package.",
+    "crossSurfaceRequirement": "the same packageDigest must be preserved for the same decision across Ventus, FSC, and enabled Coworker surfaces"
+  },
+  "liveObservation": {
+    "payloadRowsWithDecisionPackageV12": 3,
+    "packageDigestsWellFormed": true,
+    "packageDigestVsProtocolDigestComparison": {
+      "observedMatches": 0,
+      "comparison": "decision_package_v12.packageDigest vs growth_play_protocols.protocol_digest",
+      "result": "invalid_comparison_not_evidence",
+      "reason": "the two fields hash different canonical objects and intentionally use different formats"
+    },
+    "requiredReleaseChecks": {
+      "samePackageDigestAcrossEnabledSurfaces": "not_verified",
+      "packageProtocolIdToRegistryLinkage": "not_verified",
+      "registeredProtocolRecompilation": "not_verified",
+      "deployedResultsPackageIdentity": "not_verified"
+    }
+  },
+  "decision": {
+    "status": "open_release_bound",
+    "interpretation": "expected_hash_non_equivalence",
+    "releaseEffect": "The prior 0/3 hash comparison must not be treated as a package-integrity failure. A8 remains open because no release-bound same-package cross-surface receipt, registry-linkage receipt, or deployed Results identity receipt is present.",
+    "claims": {
+      "businessClaimAllowed": false,
+      "causalClaimAllowed": false
+    }
+  }
+}
