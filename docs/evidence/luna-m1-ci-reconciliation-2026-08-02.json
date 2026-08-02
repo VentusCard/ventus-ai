@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_m1_ci_reconciliation/v1",
-  "recordedAt": "2026-08-02T16:44:20Z",
+  "recordedAt": "2026-08-02T17:50:00Z",
   "evidenceClass": "supporting",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -8,31 +8,32 @@
     "manifestCheck": "not_bank_review_ready",
     "requireReadyCheck": "failed_closed_locally"
   },
-  "commitUnderTest": "08e23caee4f0cfa03e527717eb3ed98ef07b205e",
+  "commitUnderTest": "77840662b48807f62ab0ae7790ea5a80016e2261",
   "workflows": {
     "ci": {
-      "runId": 30757142980,
-      "runNumber": 783,
+      "runId": 30759377411,
+      "runNumber": 810,
       "conclusion": "success",
-      "scope": "evidence-only branch"
+      "scope": "release-evidence branch head"
     },
     "infraDiff": {
-      "runId": 30757142984,
-      "runNumber": 226,
+      "runId": 30759377416,
+      "runNumber": 253,
       "conclusion": "success",
-      "cdkDiffJobId": 91521156448,
+      "cdkDiffJobId": 91527465505,
       "manifestCheckOutput": "not_bank_review_ready",
       "cdkDiffArtifact": {
-        "id": 8836324277,
+        "id": 8837049451,
         "name": "cdk-staging-diff",
-        "digest": "sha256:f90b0b2382b1c81604d81f25aff32802d4dc8328e84b2f5ea854fa8ac73bcd33"
+        "digest": "sha256:11469087a0105867c768d6ed9cba2bb8e324c9ee4f96af55d2b68e07f4ef12bc"
       },
-      "deployStagingStack": "skipped"
+      "deployStagingStack": "skipped",
+      "retry": "A prior attempt hit a CloudFormation change-set ClientToken race; only the failed job was rerun."
     }
   },
   "interpretation": {
     "status": "supporting_pass_bank_review_still_closed",
-    "finding": "The exact release manifest is syntactically and contract-valid, but correctly remains not_bank_review_ready. CDK diff passed and no staging deployment occurred.",
+    "finding": "The exact release manifest is syntactically and contract-valid, but correctly remains not_bank_review_ready. CI and CDK diff passed on the current branch head; the staging deployment job was skipped.",
     "businessClaimAllowed": false,
     "causalClaimAllowed": false
   }
