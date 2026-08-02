@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "ventus_luna_verification/v1",
+  "recordedAt": "2026-08-02T15:55:00Z",
+  "release": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "manifestValidation": {
+      "check": "not_bank_review_ready",
+      "requireReady": "failed_closed"
+    }
+  },
+  "M1": {
+    "status": "conditional_sandbox",
+    "evidence": [
+      {
+        "id": "connector-session-and-role-tests",
+        "result": "pass",
+        "count": "82/82",
+        "scope": "dev-integration checkout; supporting, not manifest-bound"
+      },
+      {
+        "id": "isolated-restore-receipt",
+        "result": "pass",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/backup-restore-receipt-2026-08-02.json",
+        "digest": "sha256:98bb2df271708e72b792d33ef6d56b48e459006e7791324ef59df40912a5dff2"
+      },
+      {
+        "id": "staging-login-observation",
+        "result": "blocked_external_dependency",
+        "observation": "The deployed staging login states that console authentication is not configured in this environment; no role or denial receipt was inferred."
+      }
+    ],
+    "openAcceptance": ["A1", "A2", "A3", "A5", "A8", "A11", "A12"],
+    "claimBoundary": "No release-bound six-role, denied-operation, or independent approval claim."
+  },
+  "M2": {
+    "status": "conditional_sandbox",
+    "evidence": [
+      {
+        "id": "salesforce-contract-tests",
+        "result": "pass",
+        "observation": "Unconfigured mode verifies guard and documented 503 fallback; no live FSC write or treatment reconciliation receipt."
+      },
+      {
+        "id": "outcome-contract-rehearsal",
+        "result": "pass",
+        "observation": "Treatment/holdout contract fixtures and connected-arm receipts validate explicit arm structure without a bank economic claim."
+      }
+    ],
+    "openAcceptance": ["A4", "A5", "A6", "A7", "A8"],
+    "externalDependencies": [
+      "bank-owned authoritative outcome source and correction owner",
+      "release-bound FSC treatment reconciliation",
+      "negative holdout destination trace",
+      "Decision Package v1.2 cross-surface digest receipt",
+      "Results evidence from the deployed release"
+    ]
+  },
+  "M3": {
+    "status": "blocked_external_dependency",
+    "openAcceptance": ["A9", "A10", "A13"],
+    "requiredArtifacts": [
+      "Phase A/Phase B paid-pilot SOW",
+      "Gate 5 feasibility artifact and six-gate index",
+      "mutual obligations, stop conditions, claims ceiling, and calibration register",
+      "BofA founding/anchor plan",
+      "separate proof-institution charter with tenant, manifest, adapter, and claims isolation"
+    ],
+    "owner": "founder, institution administrators, and bank reviewers"
+  },
+  "M4": {
+    "status": "evaluation_only",
+    "evidence": [
+      {
+        "id": "model-gateway-readiness",
+        "result": "pass",
+        "observation": "Seven routed tasks validated; enrichment judge and intervention planner remain shadow-only."
+      },
+      {
+        "id": "model-governance-tests",
+        "result": "pass",
+        "count": "16/16",
+        "observation": "Typed output, evidence grounding, policy hard-fail, baseline comparison, and shadow-route guards pass."
+      },
+      {
+        "id": "intervention-benchmark",
+        "result": "draft",
+        "cases": 21,
+        "expectationsSha256": "8ff36a6f8d15c026393c77da262b97b0bc49aad0ac1a7f455512dcaa90df11eb",
+        "independentReviewComplete": false,
+        "baselinePassRate": 0.8571
+      }
+    ],
+    "openAcceptance": ["A11", "A12"],
+    "promotionBoundary": "Employee brief is the first low-risk promotion candidate; intervention ranking remains shadow-only and moment qualification remains deterministic."
+  },
+  "finalFableEvidenceRequired": [
+    "manifest-bound six-role, denial, tenant/RLS, ledger, secret-boundary, and four-eyes receipts",
+    "FSC treatment reconciliation and negative holdout destination trace",
+    "authoritative treatment/holdout outcome validation with explicit zero, correction, missing-arm, parity, freshness, and mixed-version cases",
+    "Decision Package v1.2 cross-surface digest reconciliation and Results evidence",
+    "Phase A/Phase B scope, Gate 5 artifact, six-gate index, mutual obligations, stop conditions, claims ceiling, and calibration register",
+    "BofA anchor plan and separate proof-institution charter",
+    "frozen employee-brief benchmark, shadow receipts, critical slices, cost/latency, fallback, and three approval subjects",
+    "intervention-ranking non-influence traces",
+    "Luna A1-A13 matrix with artifact links, digests, timestamps, reviewers, and external owners"
+  ],
+  "claimBoundary": {
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "releaseDecision": "conditionally_accepted_for_sandbox_pending_external_and_release_bound_artifacts"
+  }
+}
