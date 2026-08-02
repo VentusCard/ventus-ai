@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:48:00Z",
+  "recordedAt": "2026-08-02T17:42:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -114,8 +114,15 @@
         "id": "live-sandbox-aggregate",
         "result": "pass_sandbox_receipts_external_outcome_open",
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-live-sandbox-aggregate-2026-08-02.json",
-        "digest": "sha256:d5761b22139aa90e4621d3c7af202b12d58cdaf9153b0cbefcd079aa3b2e0298",
-        "observation": "Canonical staging aggregates show active FSC mapping v1, mapping test pass/fail, five deliveries, three Decision Package v1.2 payloads with valid digest format but 0/3 matching registered protocol digests, two not-opened observations, 17 one-approver protocols, and zero authoritative outcome_events. Cross-surface reconciliation and four-eyes remain fail-closed."
+        "digest": "sha256:1f72463fcd617c51579b9dc594b663492d3d31b5524adaacf13ebd5a0ed26a3f",
+        "observation": "Canonical staging aggregates show active FSC mapping v1, mapping test pass/fail, five deliveries, three Decision Package v1.2 payloads with valid package digests, two not-opened observations, 17 one-approver protocols, and zero authoritative outcome_events. Package and protocol hashes are separate identities; protocol-ID linkage and same-package cross-surface reconciliation remain open."
+      },
+      {
+        "id": "decision-package-digest-trace",
+        "result": "pass_repository_trace_open_release_binding",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-decision-package-digest-trace-2026-08-02.json",
+        "digest": "sha256:3681cc61e7f8ccf45ddd0b3f6fb6e7a5af011fbfe91fc18319a2687f9085f29e",
+        "observation": "Repository trace confirms packageDigest hashes immutable Decision Package v1.2 content while protocol_digest hashes the normalized Growth Play contract; the prior 0/3 cross-hash comparison is invalid, and the real same-package cross-surface plus protocol-ID linkage receipt remains open."
       }
     ],
     "openAcceptance": [
@@ -287,7 +294,7 @@
       "id": "A8",
       "control": "decision_package_v12",
       "status": "open_release_bound",
-      "evidence": "contract tests pass; cross-surface digest and deployed Results receipt absent; 17 approved protocol events are supporting only; cross-surface DP v1.2 digest and independent approval remain absent; live payload aggregate finds 0/3 package digests matching registered protocol digests, so cross-surface reconciliation fails closed"
+      "evidence": "Contract tests pass; a repository trace confirms packageDigest and protocol_digest are intentionally distinct hashes. The prior 0/3 cross-hash comparison is not an integrity failure. Release-bound same-package cross-surface digest, protocol-ID registry linkage, deployed Results identity, and independent approval receipts remain absent."
     },
     {
       "id": "A9",
