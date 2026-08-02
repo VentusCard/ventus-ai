@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:38:00Z",
+  "recordedAt": "2026-08-02T17:42:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -57,6 +57,13 @@
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-runtime-tenant-reconciliation-2026-08-02.json",
         "digest": "sha256:d73c4b1dd78fe520cde346576cfa2d25560794de7e8691c1aea6a366aa109a21",
         "observation": "A rolled-back Data API transaction switched to ventus_evidence_app_v1, exercised two opaque tenant contexts, and observed zero reciprocal cross-tenant visibility across institutions, memberships, ledger, deliveries, and outcomes. Deployed auth, six-role, denial, and four-eyes receipts remain open."
+      },
+      {
+        "id": "runtime-configuration-traceability",
+        "result": "pass_supporting_backend_frontend_binding_open",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-runtime-configuration-2026-08-02.json",
+        "digest": "sha256:",
+        "observation": "Non-secret Lambda configuration digests bind allowed origins, console URL, Cognito issuer/client, and outcome reconciler scope; Amplify staging has no branch variables and retains only legacy Supabase app variables, so canonical public configuration remains unbound."
       }
     ],
     "openAcceptance": [
