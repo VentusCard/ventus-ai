@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_live_database_aggregate_receipt/v1",
-  "recordedAt": "2026-08-02T17:06:00Z",
+  "recordedAt": "2026-08-02T17:38:00Z",
   "evidenceClass": "supporting",
   "releaseReference": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -78,11 +78,49 @@
         "skill_shadow_registry": 0,
         "skill_shadow_transition_receipts": 0
       }
-    }
+    },
+    "membershipRoleCounts": [
+      {
+        "role": "bank_operator",
+        "status": "active",
+        "rows": 18,
+        "tenants": 17
+      },
+      {
+        "role": "executive_viewer",
+        "status": "active",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "role": "growth_play_owner",
+        "status": "active",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "role": "institution_admin",
+        "status": "active",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "role": "risk_reviewer",
+        "status": "active",
+        "rows": 1,
+        "tenants": 1
+      },
+      {
+        "role": "ventus_platform_admin",
+        "status": "active",
+        "rows": 2,
+        "tenants": 2
+      }
+    ]
   },
   "interpretation": {
     "status": "supporting_schema_verified_release_binding_open",
-    "finding": "The Lambda-configured ventus_bofa database contains both a legacy public schema (without RLS flags) and the canonical ventus_evidence schema (17 tables, 17 forced-RLS tables, 17 policies, and a non-bypass runtime role). This reconciles the schema inventory but remains supporting evidence because the query used an administrative role and does not prove release-bound six-role, denial, four-eyes, or tenant-context execution.",
+    "finding": "The Lambda-configured ventus_bofa database contains both a legacy public schema (without RLS flags) and the canonical ventus_evidence schema (17 tables, 17 forced-RLS tables, 17 policies, a non-bypass runtime role, and all six role labels represented as active membership metadata). This reconciles the schema inventory but remains supporting evidence because the query used an administrative role and does not prove release-bound Cognito projection, denied operations, four-eyes approval, or tenant-context execution through the deployed API.",
     "requiredFollowup": "Bind the canonical schema/runtime role and current frontend/API configuration to the release receipt, then attach release-bound role/denial/tenant/four-eyes probes. Keep live FSC, bank-owned outcome, Decision Package, and Results evidence external until returned.",
     "businessClaimAllowed": false,
     "causalClaimAllowed": false,
