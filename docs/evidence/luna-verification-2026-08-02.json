@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:34:00Z",
+  "recordedAt": "2026-08-02T17:38:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -41,8 +41,8 @@
         "id": "live-database-aggregate",
         "result": "pass_supporting_canonical_schema_release_open",
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-live-database-aggregate-2026-08-02.json",
-        "digest": "sha256:579736421a9378d820c4614fd2f4a6c871246a4abaa582e139c34f86e9bd077f",
-        "observation": "Read-only Data API aggregate of Lambda-configured database ventus_bofa: canonical ventus_evidence has 17 tables, 17 forced-RLS tables, 17 policies, non-bypass runtime-role metadata, and bounded aggregate rows; the legacy public schema has no RLS. Administrative execution is supporting only, so release-bound tenant-context, six-role, denial, and four-eyes receipts remain open."
+        "digest": "sha256:fde898dde97e589decaf6aa3c11d4e1550f32c9e59f3aafcc453f3224dc41aa6",
+        "observation": "Read-only Data API aggregate of ventus_bofa: canonical ventus_evidence has 17 forced-RLS tables, 17 policies, non-bypass runtime-role metadata, and all six role labels represented as active memberships; the legacy public schema has no RLS. Administrative execution is supporting only, so release-bound Cognito projection, denials, tenant context, and four-eyes receipts remain open."
       },
       {
         "id": "latest-ci-diff-reconciliation",
@@ -236,7 +236,7 @@
       "id": "A2",
       "control": "six_role_projection",
       "status": "open_release_bound",
-      "evidence": "staging login says console authentication is not configured; 82/82 supporting tests are not manifest-bound"
+      "evidence": "staging login says console authentication is not configured; 82/82 supporting tests are not manifest-bound; canonical membership aggregate contains all six active role labels, but deployed Cognito projection and denied-operation receipts remain absent"
     },
     {
       "id": "A3",
