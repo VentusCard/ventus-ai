@@ -1,0 +1,661 @@
+{
+  "schemaVersion": "ventus_authoritative_outcome_rehearsal/v1",
+  "generatedAt": "2026-08-02T16:06:35.022Z",
+  "evidenceClass": "sandbox",
+  "sourceContract": {
+    "sourceSystem": "deposit_core_rehearsal",
+    "sourceVersion": "deposit-retention-v1",
+    "metric": "deposit_retained",
+    "eventTypes": [
+      "deposit_balance_observed"
+    ],
+    "maxObservationLagDays": 7
+  },
+  "protocol": {
+    "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+    "protocolDigest": "ca06edc8277399c4933fdff09e7506528e9ac6ecc910f6a8f8e018f2eabaff39",
+    "businessLine": "consumer-banking"
+  },
+  "experiment": {
+    "tenantId": "bank_rehearsal",
+    "experimentId": "exp_ca06edc8277399c4933fdff0",
+    "assignments": [
+      {
+        "assignmentId": "asn_rehearsal_treatment_zero",
+        "tenantId": "bank_rehearsal",
+        "experimentId": "exp_ca06edc8277399c4933fdff0",
+        "householdToken": "tok_rehearsal_treatment_zero",
+        "arm": "treatment",
+        "design": "binary",
+        "holdoutPct": 50,
+        "bucket": 8000,
+        "evidenceClass": "sandbox",
+        "assignedAt": "2026-07-01T00:00:00.000Z",
+        "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0"
+      },
+      {
+        "assignmentId": "asn_rehearsal_treatment_value",
+        "tenantId": "bank_rehearsal",
+        "experimentId": "exp_ca06edc8277399c4933fdff0",
+        "householdToken": "tok_rehearsal_treatment_value",
+        "arm": "treatment",
+        "design": "binary",
+        "holdoutPct": 50,
+        "bucket": 8001,
+        "evidenceClass": "sandbox",
+        "assignedAt": "2026-07-01T00:00:00.000Z",
+        "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0"
+      },
+      {
+        "assignmentId": "asn_rehearsal_holdout_zero",
+        "tenantId": "bank_rehearsal",
+        "experimentId": "exp_ca06edc8277399c4933fdff0",
+        "householdToken": "tok_rehearsal_holdout_zero",
+        "arm": "holdout",
+        "design": "binary",
+        "holdoutPct": 50,
+        "bucket": 1000,
+        "evidenceClass": "sandbox",
+        "assignedAt": "2026-07-01T00:00:00.000Z",
+        "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0"
+      },
+      {
+        "assignmentId": "asn_rehearsal_holdout_value",
+        "tenantId": "bank_rehearsal",
+        "experimentId": "exp_ca06edc8277399c4933fdff0",
+        "householdToken": "tok_rehearsal_holdout_value",
+        "arm": "holdout",
+        "design": "binary",
+        "holdoutPct": 50,
+        "bucket": 1001,
+        "evidenceClass": "sandbox",
+        "assignedAt": "2026-07-01T00:00:00.000Z",
+        "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0"
+      }
+    ],
+    "observations": [
+      {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_treatment_zero",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_treatment_zero",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_treatment_zero",
+        "activation_id": "activation_rehearsal_treatment_zero",
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "treatment",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 0,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_treatment_zero",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_treatment_value_v1",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_treatment_value",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_treatment_value",
+        "activation_id": "activation_rehearsal_treatment_value",
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "treatment",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 200,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_treatment_value",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_holdout_zero",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_holdout_zero",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_holdout_zero",
+        "activation_id": null,
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "holdout",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 0,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_holdout_zero",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_holdout_value",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_holdout_value",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_holdout_value",
+        "activation_id": null,
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "holdout",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 100,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_holdout_value",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_treatment_value_v2",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_treatment_value",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_treatment_value",
+        "activation_id": "activation_rehearsal_treatment_value",
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "treatment",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 250,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_treatment_value",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-04T00:00:00.000Z",
+          "correction_sequence": 1
+        }
+      }
+    ],
+    "corrections": [
+      {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_treatment_value_v2",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_treatment_value",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_treatment_value",
+        "activation_id": "activation_rehearsal_treatment_value",
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "treatment",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 250,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_treatment_value",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-04T00:00:00.000Z",
+          "correction_sequence": 1
+        }
+      }
+    ]
+  },
+  "adapterReceipts": [
+    {
+      "inserted": true,
+      "record": {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_treatment_zero",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_treatment_zero",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_treatment_zero",
+        "activation_id": "activation_rehearsal_treatment_zero",
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "treatment",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 0,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_treatment_zero",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      "evidenceClass": "sandbox",
+      "eventId": "evt_rehearsal_treatment_zero",
+      "tenantId": "bank_rehearsal",
+      "householdToken": "tok_rehearsal_treatment_zero",
+      "growthPlayId": "deposit-primacy-defense",
+      "decisionId": "decision_rehearsal_treatment_zero",
+      "activationId": "activation_rehearsal_treatment_zero",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "arm": "treatment",
+      "sourceVersion": "deposit-retention-v1",
+      "correctionSequence": 0,
+      "businessClaimAllowed": false,
+      "causalClaimAllowed": false
+    },
+    {
+      "inserted": true,
+      "record": {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_treatment_value_v1",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_treatment_value",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_treatment_value",
+        "activation_id": "activation_rehearsal_treatment_value",
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "treatment",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 200,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_treatment_value",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      "evidenceClass": "sandbox",
+      "eventId": "evt_rehearsal_treatment_value_v1",
+      "tenantId": "bank_rehearsal",
+      "householdToken": "tok_rehearsal_treatment_value",
+      "growthPlayId": "deposit-primacy-defense",
+      "decisionId": "decision_rehearsal_treatment_value",
+      "activationId": "activation_rehearsal_treatment_value",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "arm": "treatment",
+      "sourceVersion": "deposit-retention-v1",
+      "correctionSequence": 0,
+      "businessClaimAllowed": false,
+      "causalClaimAllowed": false
+    },
+    {
+      "inserted": true,
+      "record": {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_holdout_zero",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_holdout_zero",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_holdout_zero",
+        "activation_id": null,
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "holdout",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 0,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_holdout_zero",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      "evidenceClass": "sandbox",
+      "eventId": "evt_rehearsal_holdout_zero",
+      "tenantId": "bank_rehearsal",
+      "householdToken": "tok_rehearsal_holdout_zero",
+      "growthPlayId": "deposit-primacy-defense",
+      "decisionId": "decision_rehearsal_holdout_zero",
+      "activationId": null,
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "arm": "holdout",
+      "sourceVersion": "deposit-retention-v1",
+      "correctionSequence": 0,
+      "businessClaimAllowed": false,
+      "causalClaimAllowed": false
+    },
+    {
+      "inserted": true,
+      "record": {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_holdout_value",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_holdout_value",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_holdout_value",
+        "activation_id": null,
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "holdout",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 100,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_holdout_value",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-03T00:00:00.000Z",
+          "correction_sequence": 0
+        }
+      },
+      "evidenceClass": "sandbox",
+      "eventId": "evt_rehearsal_holdout_value",
+      "tenantId": "bank_rehearsal",
+      "householdToken": "tok_rehearsal_holdout_value",
+      "growthPlayId": "deposit-primacy-defense",
+      "decisionId": "decision_rehearsal_holdout_value",
+      "activationId": null,
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "arm": "holdout",
+      "sourceVersion": "deposit-retention-v1",
+      "correctionSequence": 0,
+      "businessClaimAllowed": false,
+      "causalClaimAllowed": false
+    },
+    {
+      "inserted": true,
+      "record": {
+        "contract_version": "1.0",
+        "event_id": "evt_rehearsal_treatment_value_v2",
+        "tenant_id": "bank_rehearsal",
+        "household_token": "tok_rehearsal_treatment_value",
+        "growth_play_id": "deposit-primacy-defense",
+        "decision_id": "decision_rehearsal_treatment_value",
+        "activation_id": "activation_rehearsal_treatment_value",
+        "event_type": "deposit_balance_observed",
+        "occurred_at": "2026-07-02T00:00:00.000Z",
+        "assignment": {
+          "experiment_id": "exp_ca06edc8277399c4933fdff0",
+          "arm": "treatment",
+          "assigned_at": "2026-07-01T00:00:00.000Z",
+          "decision_protocol_id": "dcp_ca06edc8277399c4933fdff0"
+        },
+        "value": {
+          "metric": "deposit_retained",
+          "amount": 250,
+          "currency": "USD"
+        },
+        "source_system": "deposit_core_rehearsal",
+        "source_record_id": "record_treatment_value",
+        "reason_code": "rehearsal_source_observation",
+        "provenance": {
+          "source_version": "deposit-retention-v1",
+          "observed_at": "2026-07-04T00:00:00.000Z",
+          "correction_sequence": 1
+        }
+      },
+      "evidenceClass": "sandbox",
+      "eventId": "evt_rehearsal_treatment_value_v2",
+      "tenantId": "bank_rehearsal",
+      "householdToken": "tok_rehearsal_treatment_value",
+      "growthPlayId": "deposit-primacy-defense",
+      "decisionId": "decision_rehearsal_treatment_value",
+      "activationId": "activation_rehearsal_treatment_value",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "arm": "treatment",
+      "sourceVersion": "deposit-retention-v1",
+      "correctionSequence": 1,
+      "businessClaimAllowed": false,
+      "causalClaimAllowed": false
+    }
+  ],
+  "ledgerReceipts": [
+    {
+      "receiptType": "assignment",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "assignmentId": "asn_rehearsal_treatment_zero",
+      "householdToken": "tok_rehearsal_treatment_zero",
+      "arm": "treatment",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "recordedAt": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "receiptType": "assignment",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "assignmentId": "asn_rehearsal_treatment_value",
+      "householdToken": "tok_rehearsal_treatment_value",
+      "arm": "treatment",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "recordedAt": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "receiptType": "assignment",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "assignmentId": "asn_rehearsal_holdout_zero",
+      "householdToken": "tok_rehearsal_holdout_zero",
+      "arm": "holdout",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "recordedAt": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "receiptType": "assignment",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "assignmentId": "asn_rehearsal_holdout_value",
+      "householdToken": "tok_rehearsal_holdout_value",
+      "arm": "holdout",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "recordedAt": "2026-07-01T00:00:00.000Z"
+    },
+    {
+      "receiptType": "outcome",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "eventId": "evt_rehearsal_treatment_zero",
+      "householdToken": "tok_rehearsal_treatment_zero",
+      "arm": "treatment",
+      "decisionId": "decision_rehearsal_treatment_zero",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "correctionSequence": 0,
+      "recordedAt": "2026-07-02T00:00:00.000Z"
+    },
+    {
+      "receiptType": "outcome",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "eventId": "evt_rehearsal_treatment_value_v1",
+      "householdToken": "tok_rehearsal_treatment_value",
+      "arm": "treatment",
+      "decisionId": "decision_rehearsal_treatment_value",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "correctionSequence": 0,
+      "recordedAt": "2026-07-02T00:00:00.000Z"
+    },
+    {
+      "receiptType": "outcome",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "eventId": "evt_rehearsal_holdout_zero",
+      "householdToken": "tok_rehearsal_holdout_zero",
+      "arm": "holdout",
+      "decisionId": "decision_rehearsal_holdout_zero",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "correctionSequence": 0,
+      "recordedAt": "2026-07-02T00:00:00.000Z"
+    },
+    {
+      "receiptType": "outcome",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "eventId": "evt_rehearsal_holdout_value",
+      "householdToken": "tok_rehearsal_holdout_value",
+      "arm": "holdout",
+      "decisionId": "decision_rehearsal_holdout_value",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "correctionSequence": 0,
+      "recordedAt": "2026-07-02T00:00:00.000Z"
+    },
+    {
+      "receiptType": "outcome",
+      "tenantId": "bank_rehearsal",
+      "experimentId": "exp_ca06edc8277399c4933fdff0",
+      "eventId": "evt_rehearsal_treatment_value_v2",
+      "householdToken": "tok_rehearsal_treatment_value",
+      "arm": "treatment",
+      "decisionId": "decision_rehearsal_treatment_value",
+      "decisionProtocolId": "dcp_ca06edc8277399c4933fdff0",
+      "correctionSequence": 1,
+      "recordedAt": "2026-07-02T00:00:00.000Z"
+    }
+  ],
+  "measurement": {
+    "tenantId": "bank_rehearsal",
+    "experimentId": "exp_ca06edc8277399c4933fdff0",
+    "evidenceClass": "sandbox",
+    "metric": "deposit_retained",
+    "status": "measured",
+    "minimumPerArm": 2,
+    "minimumCoverage": 1,
+    "treatment": {
+      "assigned": 2,
+      "observed": 2,
+      "coverage": 1,
+      "mean": 125
+    },
+    "holdout": {
+      "assigned": 2,
+      "observed": 2,
+      "coverage": 1,
+      "mean": 50
+    },
+    "absoluteLift": 75,
+    "relativeLiftPct": 150,
+    "inference": {
+      "method": "difference_in_means_normal_approximation",
+      "confidenceLevel": 0.95,
+      "standardError": 134.6291,
+      "confidenceInterval": {
+        "lower": -188.8731,
+        "upper": 338.8731
+      },
+      "signal": "inconclusive",
+      "limitations": [
+        "Requires valid pre-activation assignment and complete outcome mapping.",
+        "Does not adjust for multiple testing, spillovers, noncompliance, or covariate imbalance."
+      ]
+    },
+    "evidenceStatus": "inconclusive",
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "reviewRequired": "independent_statistical_and_experiment_review"
+  },
+  "state": {
+    "status": "measured",
+    "treatment": {
+      "assigned": 2,
+      "observed": 2,
+      "coverage": 1,
+      "mean": 125
+    },
+    "holdout": {
+      "assigned": 2,
+      "observed": 2,
+      "coverage": 1,
+      "mean": 50
+    },
+    "appendOnly": true,
+    "earlierCorrectionRecordsPreserved": true
+  },
+  "claimBoundary": {
+    "evidenceClass": "sandbox",
+    "liftComputedForRehearsal": true,
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "reason": "Deterministic partner-sandbox rehearsal; no business or causal claim is authorized."
+  },
+  "manifestDigest": "sha256:388d7e3acf3aaeb1038503878b5dc4939a02216b1b6a416836229b0b7596c94d"
+}
