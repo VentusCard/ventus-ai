@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T16:38:38Z",
+  "recordedAt": "2026-08-02T16:44:20Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -43,6 +43,13 @@
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-live-database-aggregate-2026-08-02.json",
         "digest": "sha256:af000fd46500e8c9f06ef2731c4d5d6b084570090abd33a71eaae37232acba78",
         "observation": "Read-only Data API aggregate targeted Lambda-configured database ventus_bofa: 21 public tables, no public-table RLS or forced-RLS flags, and a legacy schema rowset. This is supporting evidence only; it does not prove the manifest runtime role or canonical evidence database."
+      },
+      {
+        "id": "latest-ci-diff-reconciliation",
+        "result": "pass_integrity_bank_review_closed",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-ci-reconciliation-2026-08-02.json",
+        "digest": "sha256:f041f439885c765a3f9b433d5ffae8decafcffb8ab4baf5702e2b987e4c4f408",
+        "observation": "CI #783 and infrastructure diff #226 pass for the evidence-only head; the manifest check returns not_bank_review_ready, the CDK diff artifact is recorded, and staging deployment is skipped."
       }
     ],
     "openAcceptance": [
@@ -202,7 +209,7 @@
       "id": "A1",
       "control": "release_identity",
       "status": "open",
-      "evidence": "manifest status not_bank_review_ready; known frontend/configuration/integration/reviewer gaps; live aggregate is supporting only and shows the configured database/schema does not carry the asserted runtime RLS flags"
+      "evidence": "manifest status not_bank_review_ready; known frontend/configuration/integration/reviewer gaps; live aggregate is supporting only and shows the configured database/schema does not carry the asserted runtime RLS flags; CI #783 and infra diff #226 pass, but manifest remains not_bank_review_ready and deployment is skipped"
     },
     {
       "id": "A2",
