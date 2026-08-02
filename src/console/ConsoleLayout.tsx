@@ -3,17 +3,20 @@
 // a single line at the foot of the rail.
 
 import { NavLink, Navigate, Outlet, useLocation } from "react-router-dom";
-import { Activity, Layers, LineChart, Loader2, LogOut, Settings } from "lucide-react";
+import { Activity, Building2, ClipboardCheck, Inbox, LineChart, ListChecks, Loader2, LogOut } from "lucide-react";
 import { AuthProvider, ConsoleProvider, useAuth, useConsole } from "@/console/state";
+import { canAccessDestination, defaultPathForAccess, destinationForPath, type ConsoleDestination } from "@/console/access";
 import ventusLogo from "@/assets/ventus-logo-transparent.png";
 import "@/styles/v2-theme.css";
 import "@/styles/console.css";
 
-const NAV = [
-  { to: "/app/moments", label: "Moments", icon: Activity, end: true },
-  { to: "/app/ledger", label: "Ledger", icon: Layers, end: false },
-  { to: "/app/outcomes", label: "Outcomes", icon: LineChart, end: false },
-  { to: "/app/settings", label: "Settings", icon: Settings, end: false },
+const NAV: Array<{ to: string; label: string; icon: typeof Activity; destination: ConsoleDestination }> = [
+  { to: "/app/today", label: "Today", icon: Inbox, destination: "today" },
+  { to: "/app/moments", label: "Moments", icon: Activity, destination: "moments" },
+  { to: "/app/plays", label: "Growth Plays", icon: ListChecks, destination: "plays" },
+  { to: "/app/results", label: "Results", icon: LineChart, destination: "results" },
+  { to: "/app/governance", label: "Governance", icon: ClipboardCheck, destination: "governance" },
+  { to: "/app/connections", label: "Connections", icon: Building2, destination: "connections" },
 ];
 
 function TenantMark({ size = 32 }: { size?: number }) {
@@ -35,18 +38,19 @@ function TenantMark({ size = 32 }: { size?: number }) {
 }
 
 function Shell() {
-  const { user, signOut } = useAuth();
+  const { user, access, signOut } = useAuth();
   const { tenant, connectorSession, ledger, moments } = useConsole();
   const location = useLocation();
+  const visibleNav = NAV.filter((item) => canAccessDestination(access, item.destination));
   const live = connectorSession && connectorSession.expiresAt * 1000 > Date.now();
   const queued = moments.filter((moment) => moment.status === "queued").length;
-  const title = NAV.find((item) => (item.end ? location.pathname === item.to : location.pathname.startsWith(item.to)))?.label ?? "Console";
+  const title = visibleNav.find((item) => location.pathname === item.to)?.label ?? "Console";
 
   return (
     <div className="console v2 flex min-h-svh pb-16 md:pb-0" style={{ ["--c-accent" as string]: tenant.accent, ["--c-accent-wash" as string]: tenant.accentWash }}>
       <aside className="console-rail hidden w-60 flex-none flex-col justify-between p-4 md:flex">
         <div>
-          <div className="flex items-center gap-3 px-2 pb-6 pt-2">
+          <div className="flex items-center gap-3 px-2 pb-3 pt-1 md:pb-6 md:pt-2">
             <TenantMark />
             <div className="min-w-0">
               <p className="truncate text-[13px] font-bold text-white">{tenant.name}</p>
@@ -55,9 +59,9 @@ function Shell() {
               </p>
             </div>
           </div>
-          <nav className="space-y-1">
-            {NAV.map(({ to, label, icon: Icon, end }) => (
-              <NavLink key={to} to={to} end={end} className="console-rail-link" data-active={end ? location.pathname === to : location.pathname.startsWith(to)}>
+          <nav className="console-mobile-nav flex gap-1 overflow-x-auto pb-1 md:block md:space-y-1 md:overflow-visible md:pb-0">
+            {visibleNav.map(({ to, label, icon: Icon }) => (
+              <NavLink key={to} to={to} end className="console-rail-link flex-none" data-active={location.pathname === to}>
                 <Icon className="h-4 w-4 flex-none" />
                 <span className="flex-1">{label}</span>
                 {label === "Moments" && queued > 0 && (
@@ -72,7 +76,7 @@ function Shell() {
             ))}
           </nav>
         </div>
-        <div className="space-y-4 px-2">
+        <div className="hidden space-y-4 px-2 md:block">
           <div className="flex items-center gap-2">
             <span className="console-dot" style={{ backgroundColor: live ? "#34D399" : "#545d6b" }} />
             <span className="v2-mono text-[9px] uppercase tracking-[0.12em]" style={{ color: "var(--v2-console-soft)" }}>
@@ -115,16 +119,18 @@ function Shell() {
       </div>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-40 grid h-16 grid-cols-4 border-t bg-white/95 px-2 backdrop-blur md:hidden"
-        style={{ borderColor: "var(--v2-rule)" }}
+        className="fixed inset-x-0 bottom-0 z-40 flex h-16 overflow-x-auto border-t bg-white/95 px-2 backdrop-blur md:hidden"
+        style={{
+          borderColor: "var(--v2-rule)",
+        }}
         aria-label="Console navigation"
       >
-        {NAV.map(({ to, label, icon: Icon, end }) => (
+        {visibleNav.map(({ to, label, icon: Icon }) => (
           <NavLink
             key={to}
             to={to}
-            end={end}
-            className="flex min-w-0 flex-col items-center justify-center gap-1 text-[10px] font-semibold"
+            end
+            className="flex min-w-[68px] flex-1 flex-col items-center justify-center gap-1 text-[10px] font-semibold"
             style={({ isActive }) => ({ color: isActive ? tenant.accent : "var(--v2-ink-faint)" })}
           >
             <Icon className="h-4 w-4" />
@@ -149,6 +155,7 @@ export function ConsoleAuthBoundary() {
 // Route element for the authenticated portion of /app.
 export default function ConsoleLayout() {
   const { user, loading, access, accessLoading } = useAuth();
+  const location = useLocation();
   if (loading || accessLoading) {
     return (
       <div className="v2 flex min-h-svh items-center justify-center" style={{ backgroundColor: "var(--v2-paper)" }}>
@@ -162,6 +169,10 @@ export default function ConsoleLayout() {
     return access.entitlements.some((entitlement) => entitlement === "consumer_demo" || entitlement === "wealth_demo")
       ? <Navigate to="/app/demo" replace />
       : <Navigate to="/app/access-pending" replace />;
+  }
+  const destination = destinationForPath(location.pathname);
+  if (destination && !canAccessDestination(access, destination)) {
+    return <Navigate to={defaultPathForAccess(access)} replace />;
   }
   return (
     <ConsoleProvider>

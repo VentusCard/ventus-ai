@@ -36,6 +36,7 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
 - Confirm cost guardrail permissions are alert-only and do not introduce budget actions that can stop services.
 - Confirm no broad write access to core production infrastructure is introduced.
 - Confirm the staging deploy role includes the exact `VentusDemoConnectorsStack` CloudFormation ARN before attempting the first connector deployment.
+- Confirm the staging deploy role includes the exact `VentusConsoleApiStack` CloudFormation ARN before attempting the first Console API deployment.
 
 ## Network Review
 

@@ -13,8 +13,11 @@ journey:
 6. Assign every eligible, policy-clear household to treatment or holdout before model decisioning.
 7. Keep holdout out of the detector entirely and retain treatment abstentions or failures in the
    assigned population for intention-to-treat measurement.
-8. Reserve an at-most-once employee-workflow delivery and preserve its external receipt.
-9. Ingest bank outcomes and calculate coverage-gated treatment-versus-holdout evidence.
+8. Either deliver immediately or persist the exact recommendation for separately scoped human
+   review; revalidate the protocol before later activation.
+9. Reserve an at-most-once employee-workflow delivery, restore ledger evidence from a terminal
+   receipt after an interrupted run, and preserve the external receipt.
+10. Ingest bank outcomes and calculate coverage-gated treatment-versus-holdout evidence.
 
 The standalone contract is tested independently for Deposit Primacy and Merrill Relationship
 Growth. Connected Liquidity-to-Wealth uses the separate expansion contract described below.
@@ -39,12 +42,14 @@ eligibility or standalone decisions and records immutable data-scope exposure re
 
 ## Evidence boundaries
 
-Every source receipt is immutable-classified as `synthetic`, `sandbox`, or `sanctioned`, and the
-classification follows the experiment assignment and outcome ledger.
+Every new source receipt is immutable-classified as `fixture`, `partner_sandbox`, or
+`sanctioned_pilot`; legacy storage aliases (`synthetic`, `sandbox`, and `sanctioned`) are
+normalized at the boundary. Classification follows the experiment assignment and outcome ledger.
 
-- Synthetic records may run only in shadow mode and cannot activate a connector.
-- Sandbox records may reach an approved sandbox workflow but all outcomes remain simulated evidence.
-- Production-assisted activation requires sanctioned evidence and a production destination.
+- Fixture records may run only in shadow mode and cannot activate a connector.
+- Partner-sandbox records may wait in a review-required state or reach an approved sandbox workflow, but
+  all outcomes remain simulated evidence.
+- Production-assisted activation requires sanctioned-pilot evidence and a production destination.
 - Every returned result keeps `businessClaimAllowed: false`; independent review and the release
   gates still determine whether a bank may rely on the result.
 

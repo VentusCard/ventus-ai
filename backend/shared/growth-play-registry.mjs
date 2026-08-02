@@ -83,34 +83,43 @@ export function buildProtocolApproval({
   };
 }
 
-export function createGrowthPlayRegistry({ getDB }) {
+export function createGrowthPlayRegistry({ getDB, useControlledWrites = false }) {
   assert.equal(typeof getDB, 'function', 'getDB is required');
   return {
     async register(input) {
       const registration = buildProtocolRegistration(input);
       return inTenantTransaction(getDB, registration.tenantId, async (db) => {
-        const inserted = await db.query(
-          `INSERT INTO growth_play_protocols
-             (tenant_id, decision_protocol_id, growth_play_id, version, business_line,
-              protocol_digest, contract, registered_by, registered_by_session_id,
-              identity_provider, registered_at)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
-           ON CONFLICT (tenant_id, decision_protocol_id) DO NOTHING
-           RETURNING *`,
-          [registration.tenantId, registration.decisionProtocolId, registration.growthPlayId,
-            registration.version, registration.businessLine, registration.protocolDigest,
-            registration.contract, registration.registeredBy, registration.registeredBySessionId,
-            registration.identityProvider, registration.registeredAt],
-        );
-        const record = inserted.rows[0] ?? (await db.query(
-          `SELECT * FROM growth_play_protocols
-            WHERE tenant_id = $1 AND decision_protocol_id = $2`,
-          [registration.tenantId, registration.decisionProtocolId],
-        )).rows[0];
+        const values = [registration.tenantId, registration.decisionProtocolId, registration.growthPlayId,
+          registration.version, registration.businessLine, registration.protocolDigest,
+          registration.contract, registration.registeredBy, registration.registeredBySessionId,
+          registration.identityProvider, registration.registeredAt];
+        const inserted = useControlledWrites
+          ? await db.query(
+            `SELECT was_inserted, protocol_record
+               FROM ventus_append_growth_play_protocol($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)`,
+            values,
+          )
+          : await db.query(
+            `INSERT INTO growth_play_protocols
+               (tenant_id, decision_protocol_id, growth_play_id, version, business_line,
+                protocol_digest, contract, registered_by, registered_by_session_id,
+                identity_provider, registered_at)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11)
+             ON CONFLICT (tenant_id, decision_protocol_id) DO NOTHING
+             RETURNING *`,
+            values,
+          );
+        const record = useControlledWrites
+          ? inserted.rows[0]?.protocol_record
+          : inserted.rows[0] ?? (await db.query(
+            `SELECT * FROM growth_play_protocols
+              WHERE tenant_id = $1 AND decision_protocol_id = $2`,
+            [registration.tenantId, registration.decisionProtocolId],
+          )).rows[0];
         assert.ok(record, 'registered Growth Play protocol could not be read back');
         assert.equal(record.protocol_digest, registration.protocolDigest, 'protocol ID collision or changed contract');
         assert.deepEqual(record.contract, registration.contract, 'registered protocol contract differs');
-        return { inserted: Boolean(inserted.rows[0]), record };
+        return { inserted: useControlledWrites ? inserted.rows[0]?.was_inserted === true : Boolean(inserted.rows[0]), record };
       });
     },
 
@@ -130,27 +139,36 @@ export function createGrowthPlayRegistry({ getDB }) {
         if (approval.decision === 'approved') {
           assert.notEqual(protocol.rows[0].registered_by, approval.decidedBy, 'protocol registration and approval require different subjects');
         }
-        const inserted = await db.query(
-          `INSERT INTO growth_play_protocol_approval_events
-             (tenant_id, approval_event_id, decision_protocol_id, decision, decided_by,
-              decided_by_session_id, identity_provider, decided_at, change_record_id, reason)
-           VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
-           ON CONFLICT (tenant_id, approval_event_id) DO NOTHING
-           RETURNING *`,
-          [approval.tenantId, approval.approvalEventId, approval.decisionProtocolId,
-            approval.decision, approval.decidedBy, approval.decidedBySessionId,
-            approval.identityProvider, approval.decidedAt, approval.changeRecordId,
-            approval.reason],
-        );
-        const record = inserted.rows[0] ?? (await db.query(
-          `SELECT * FROM growth_play_protocol_approval_events
-            WHERE tenant_id = $1 AND approval_event_id = $2`,
-          [approval.tenantId, approval.approvalEventId],
-        )).rows[0];
+        const values = [approval.tenantId, approval.approvalEventId, approval.decisionProtocolId,
+          approval.decision, approval.decidedBy, approval.decidedBySessionId,
+          approval.identityProvider, approval.decidedAt, approval.changeRecordId,
+          approval.reason];
+        const inserted = useControlledWrites
+          ? await db.query(
+            `SELECT was_inserted, approval_record
+               FROM ventus_append_growth_play_protocol_approval($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)`,
+            values,
+          )
+          : await db.query(
+            `INSERT INTO growth_play_protocol_approval_events
+               (tenant_id, approval_event_id, decision_protocol_id, decision, decided_by,
+                decided_by_session_id, identity_provider, decided_at, change_record_id, reason)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)
+             ON CONFLICT (tenant_id, approval_event_id) DO NOTHING
+             RETURNING *`,
+            values,
+          );
+        const record = useControlledWrites
+          ? inserted.rows[0]?.approval_record
+          : inserted.rows[0] ?? (await db.query(
+            `SELECT * FROM growth_play_protocol_approval_events
+              WHERE tenant_id = $1 AND approval_event_id = $2`,
+            [approval.tenantId, approval.approvalEventId],
+          )).rows[0];
         assert.ok(record, 'Growth Play approval event could not be read back');
         assert.equal(record.decision_protocol_id, approval.decisionProtocolId, 'approval replay protocol differs');
         assert.equal(record.decision, approval.decision, 'approval replay decision differs');
-        return { inserted: Boolean(inserted.rows[0]), record };
+        return { inserted: useControlledWrites ? inserted.rows[0]?.was_inserted === true : Boolean(inserted.rows[0]), record };
       });
     },
 
@@ -184,6 +202,45 @@ export function createGrowthPlayRegistry({ getDB }) {
         assert.equal(record.decision, 'approved', 'Growth Play protocol is not approved at run time');
         const compiled = validateCompiledGrowthPlayContract(record.contract);
         assert.equal(compiled.decision_protocol_id, decisionProtocolId, 'stored Growth Play protocol ID is invalid');
+        assert.equal(compiled.protocol_digest, record.protocol_digest, 'stored Growth Play protocol digest is invalid');
+        return approvalReceipt(record);
+      });
+    },
+
+    async requireLatestApproved({ tenantId, growthPlayId, businessLine, at }) {
+      validateTenantId(tenantId);
+      assertIdentifier(growthPlayId, 'growthPlayId');
+      assertIdentifier(businessLine, 'businessLine');
+      assertIsoDate(at, 'at');
+      return inTenantTransaction(getDB, tenantId, async (db) => {
+        const result = await db.query(
+          `SELECT p.decision_protocol_id, p.growth_play_id, p.business_line,
+                  p.protocol_digest, p.contract, a.approval_event_id, a.decision,
+                  a.decided_by, a.decided_by_session_id, a.identity_provider,
+                  a.decided_at, a.change_record_id
+             FROM growth_play_protocols p
+             JOIN LATERAL (
+               SELECT * FROM growth_play_protocol_approval_events
+                WHERE tenant_id = p.tenant_id
+                  AND decision_protocol_id = p.decision_protocol_id
+                  AND decided_at <= $4
+                ORDER BY decided_at DESC, approval_event_id DESC
+                LIMIT 1
+             ) a ON true
+            WHERE p.tenant_id = $1
+              AND p.growth_play_id = $2
+              AND p.business_line = $3
+              AND p.registered_at <= $4
+            ORDER BY a.decided_at DESC, a.approval_event_id DESC
+            LIMIT 1`,
+          [tenantId, growthPlayId, businessLine, at],
+        );
+        assert.equal(result.rows.length, 1, 'Growth Play does not have a reviewed protocol for this tenant and business line');
+        const record = result.rows[0];
+        assert.equal(record.decision, 'approved', 'Latest Growth Play protocol review is not approved at run time');
+        const compiled = validateCompiledGrowthPlayContract(record.contract);
+        assert.equal(compiled.growth_play_id, growthPlayId, 'stored Growth Play ID is invalid');
+        assert.equal(compiled.decision_protocol_id, record.decision_protocol_id, 'stored Growth Play protocol ID is invalid');
         assert.equal(compiled.protocol_digest, record.protocol_digest, 'stored Growth Play protocol digest is invalid');
         return approvalReceipt(record);
       });
@@ -235,20 +292,52 @@ export function createInMemoryGrowthPlayRegistry() {
       assert.ok(latest, 'Growth Play protocol is not registered and approved for this tenant and business line');
       assert.equal(latest.decision, 'approved', 'Growth Play protocol is not approved at run time');
       validateCompiledGrowthPlayContract(protocol.contract);
-      return {
-        approvalEventId: latest.approvalEventId,
-        decisionProtocolId,
-        growthPlayId: protocol.growthPlayId,
-        businessLine: protocol.businessLine,
-        protocolDigest: protocol.protocolDigest,
-        contract: protocol.contract,
-        decidedBy: latest.decidedBy,
-        decidedBySessionId: latest.decidedBySessionId,
-        identityProvider: latest.identityProvider,
-        decidedAt: latest.decidedAt,
-        changeRecordId: latest.changeRecordId,
-      };
+      return inMemoryApprovalReceipt(protocol, latest);
     },
+
+    async requireLatestApproved({ tenantId, growthPlayId, businessLine, at }) {
+      validateTenantId(tenantId);
+      assertIdentifier(growthPlayId, 'growthPlayId');
+      assertIdentifier(businessLine, 'businessLine');
+      assertIsoDate(at, 'at');
+      const candidates = [...protocols.values()]
+        .filter((protocol) => protocol.tenantId === tenantId
+          && protocol.growthPlayId === growthPlayId
+          && protocol.businessLine === businessLine
+          && Date.parse(protocol.registeredAt) <= Date.parse(at))
+        .map((protocol) => ({
+          protocol,
+          latest: approvals
+            .filter((item) => item.tenantId === tenantId
+              && item.decisionProtocolId === protocol.decisionProtocolId
+              && Date.parse(item.decidedAt) <= Date.parse(at))
+            .sort((left, right) => right.decidedAt.localeCompare(left.decidedAt)
+              || right.approvalEventId.localeCompare(left.approvalEventId))[0],
+        }))
+        .filter((candidate) => candidate.latest)
+        .sort((left, right) => right.latest.decidedAt.localeCompare(left.latest.decidedAt)
+          || right.latest.approvalEventId.localeCompare(left.latest.approvalEventId));
+      assert.ok(candidates[0], 'Growth Play does not have a reviewed protocol for this tenant and business line');
+      assert.equal(candidates[0].latest.decision, 'approved', 'Latest Growth Play protocol review is not approved at run time');
+      validateCompiledGrowthPlayContract(candidates[0].protocol.contract);
+      return inMemoryApprovalReceipt(candidates[0].protocol, candidates[0].latest);
+    },
+  };
+}
+
+function inMemoryApprovalReceipt(protocol, approval) {
+  return {
+    approvalEventId: approval.approvalEventId,
+    decisionProtocolId: protocol.decisionProtocolId,
+    growthPlayId: protocol.growthPlayId,
+    businessLine: protocol.businessLine,
+    protocolDigest: protocol.protocolDigest,
+    contract: protocol.contract,
+    decidedBy: approval.decidedBy,
+    decidedBySessionId: approval.decidedBySessionId,
+    identityProvider: approval.identityProvider,
+    decidedAt: approval.decidedAt,
+    changeRecordId: approval.changeRecordId,
   };
 }
 

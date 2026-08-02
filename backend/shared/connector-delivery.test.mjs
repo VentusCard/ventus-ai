@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import {
   buildDeliveryReservation,
@@ -15,6 +16,20 @@ test('delivery reservation identity is deterministic across payload key order', 
   assert.equal(first.requestHash, second.requestHash);
   assert.match(first.deliveryId, /^dlv_[a-f0-9]{24}$/);
   assert.match(first.requestHash, /^[a-f0-9]{64}$/);
+});
+
+test('FSC Growth Play connector is accepted by the durable delivery contract', () => {
+  const reservation = buildDeliveryReservation(request({
+    connector: 'salesforce-fsc',
+    destination: 'fsc_task',
+  }));
+  assert.equal(reservation.connector, 'salesforce-fsc');
+  assert.equal(reservation.destination, 'fsc_task');
+});
+
+test('delivery receipt schema accepts the canonical FSC connector name', () => {
+  const schema = readFileSync(new URL('../sql/connector-delivery.sql', import.meta.url), 'utf8');
+  assert.match(schema, /'salesforce-fsc'/);
 });
 
 test('duplicate reservation blocks a second downstream write and flags pending reconciliation', async () => {

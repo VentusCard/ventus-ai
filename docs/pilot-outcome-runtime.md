@@ -47,6 +47,7 @@ its assignment timestamp is `approved`. This prevents a direct repository write 
 revocation even if the application orchestration is misused.
 
 Tests prove treatment and holdout lineage, historical approval resolution, scope separation,
-caller-lineage rejection, and non-claim measurement output. They do not prove a deployed database,
-bank-authenticated outcome feed, completed measurement window, statistical validity, or economic
-impact.
+caller-lineage rejection, and non-claim measurement output. They do not prove completed durable
+runtime verification, a bank-authenticated outcome feed, a completed measurement window,
+statistical validity, or economic impact. The supporting dev infrastructure is deployed, but the
+migration and runtime receipt remain pending.

@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { articleSchema, breadcrumbSchema } from "@/lib/seoSchema";
 import { useParams, Link, Navigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import { insightsPosts } from "@/lib/insightsData";
@@ -21,13 +22,32 @@ const InsightPost = () => {
 
   return (
     <main className="bg-white min-h-screen">
-      <SEO title={`${post.title} — Ventus AI`} description={post.excerpt} path={`/insights/${post.slug}`} type="article" />
+      <SEO
+        title={`${post.title} — Ventus AI`}
+        description={post.excerpt}
+        path={`/insights/${post.slug}`}
+        type="article"
+        jsonLd={[
+          articleSchema({
+            headline: post.title,
+            description: post.excerpt,
+            path: `/insights/${post.slug}`,
+            datePublished: new Date(post.date).toISOString().slice(0, 10),
+            section: post.category,
+          }),
+          breadcrumbSchema([
+            { name: "Home", path: "/" },
+            { name: "Insights", path: "/insights" },
+            { name: post.title, path: `/insights/${post.slug}` },
+          ]),
+        ]}
+      />
       <article className="pt-40 pb-32 px-6">
         <div className="max-w-3xl mx-auto">
           {/* Back link */}
           <Link
             to="/insights"
-            className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-12"
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-600 transition-colors mb-12"
           >
             <ArrowLeft className="h-4 w-4" />
             All Insights
@@ -41,7 +61,7 @@ const InsightPost = () => {
             >
               {post.category}
             </Badge>
-            <span className="text-xs text-gray-400">
+            <span className="text-xs text-gray-500">
               {post.date} · {post.readTime}
             </span>
           </div>

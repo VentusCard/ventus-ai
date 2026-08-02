@@ -1,4 +1,4 @@
-// Console state: Supabase auth + the operating session (tenant, connector
+// Console state: provider-neutral employee auth + the operating session (tenant, connector
 // session, qualified moments, decision ledger). The browser ledger is a session
 // integrity trace; durable pilot evidence remains a server-side responsibility.
 
@@ -11,8 +11,22 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import type { Session, User } from "@supabase/supabase-js";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  currentAuthSession,
+  signOutConsole,
+  subscribeToAuth,
+  type ConsoleAuthSession,
+  type ConsoleAuthUser,
+} from "@/console/authClient";
+import {
+  connectorApiUrl,
+  consoleAccessUrl,
+  consoleDecisionRunUrl,
+  consoleMomentDeliveryUrl,
+  consoleMomentResponseUrl,
+  consoleMomentsUrl,
+  consoleSalesforceOutcomeSyncUrl,
+} from "@/console/api";
 import { appendEvents, verifyChain, type LedgerDraft, type LedgerEvent } from "@/lib/ledger";
 import {
   PLAID_FIXTURE_PRIMACY,
@@ -22,18 +36,30 @@ import {
   type PlaidTransaction,
 } from "@/lib/plaid";
 import type { DecisionRunResult } from "@/lib/decision-contract";
+import type {
+  GovernedPilotResult,
+  GovernedRuntimeEnvelope,
+} from "@/lib/governed-runtime";
 import {
   clearTenantOverride,
   resolveTenant,
   resolveTenantFromEmail,
+  TENANTS,
   type Tenant,
 } from "@/lib/tenant";
+import {
+  applyOutcomeObservation,
+  createDecisionPackage,
+  type DecisionAction,
+  type DecisionOutcomeObservation,
+  type DecisionPackage,
+} from "@/lib/decisionPackage";
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 
 type AuthState = {
-  user: User | null;
-  session: Session | null;
+  user: ConsoleAuthUser | null;
+  session: ConsoleAuthSession | null;
   loading: boolean;
   access: ConsoleAccessProfile | null;
   accessLoading: boolean;
@@ -53,8 +79,16 @@ export type ConsoleAccessProfile = {
   email: string;
   tenantId: string;
   organizationId: string;
-  role: "operator" | "admin";
-  status: "active" | "pending";
+  role:
+    | "ventus_platform_admin"
+    | "institution_admin"
+    | "growth_play_owner"
+    | "bank_operator"
+    | "risk_reviewer"
+    | "executive_viewer";
+  status: "active" | "pending" | "suspended";
+  businessLineScopes: string[];
+  queueScopes: string[];
   entitlements: ConsoleEntitlement[];
   authProvider: string;
 };
@@ -62,22 +96,43 @@ export type ConsoleAccessProfile = {
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<ConsoleAuthSession | null>(null);
   const [loading, setLoading] = useState(true);
   const [access, setAccess] = useState<ConsoleAccessProfile | null>(null);
-  const [accessLoading, setAccessLoading] = useState(false);
+  const [accessLoading, setAccessLoading] = useState(true);
   const [accessError, setAccessError] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
+    let active = true;
+    currentAuthSession()
+      .then((nextSession) => {
+        if (!active) return;
+        setAccess(null);
+        setAccessError(null);
+        setAccessLoading(Boolean(nextSession?.access_token));
+        setSession(nextSession);
+      })
+      .catch(() => {
+        if (!active) return;
+        setAccess(null);
+        setAccessError(null);
+        setAccessLoading(false);
+        setSession(null);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
     });
-    const { data: subscription } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+    const unsubscribe = subscribeToAuth((nextSession) => {
+      setAccess(null);
+      setAccessError(null);
+      setAccessLoading(Boolean(nextSession?.access_token));
       setSession(nextSession);
       setLoading(false);
     });
-    return () => subscription.subscription.unsubscribe();
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   }, []);
 
   const refreshAccess = useCallback(async () => {
@@ -90,7 +145,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setAccessLoading(true);
     setAccessError(null);
     try {
-      const response = await fetch("/api/console-access", {
+      const response = await fetch(consoleAccessUrl(), {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -98,7 +153,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!response.ok || !data.userId) {
         throw new Error(data.error ?? `access lookup failed (${response.status})`);
       }
-      setAccess(data);
+      setAccess({
+        ...data,
+        businessLineScopes: data.businessLineScopes ?? [],
+        queueScopes: data.queueScopes ?? [],
+      });
     } catch (error) {
       setAccess(null);
       setAccessError(error instanceof Error ? error.message : "Access lookup unavailable");
@@ -115,7 +174,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearConsoleStorage();
     clearTenantOverride();
     setAccess(null);
-    await supabase.auth.signOut();
+    await signOutConsole();
   }, []);
 
   const value = useMemo(
@@ -149,7 +208,7 @@ export type ConnectorSession = {
   connectors: { plaid: boolean; salesforce: boolean };
   tenantId: string;
   subject: string;
-  role: "operator" | "admin";
+  role: ConsoleAccessProfile["role"] | "demo";
 };
 
 export type ScenarioId = "deposit-retention" | "wealth-growth";
@@ -165,14 +224,75 @@ export type ConsoleMoment = {
   opportunity: DetectedOpportunity;
   policy: OpportunityPolicyDecision;
   runtime: DecisionRunResult["runtime"];
-  status: "queued" | "activated" | "dismissed";
-  receipt?: { id: string; url?: string; subject: string };
+  ledgerReceipt?: DecisionRunResult["ledgerReceipt"];
+  governedReview?: GovernedPilotResult;
+  status: "queued" | "approved" | "delivery_reserved" | "delivery_failed" | "activated" | "deferred" | "declined" | "dismissed";
+  decisionPackage?: DecisionPackage;
+  receipt?: {
+    id: string;
+    url?: string;
+    subject: string;
+    object?: string;
+    records?: {
+      decision?: { id: string; url: string } | null;
+      referral?: { id: string; url: string } | null;
+      task?: { id: string; url: string } | null;
+    };
+    warnings?: Array<{ stage: string; message: string }>;
+  };
+};
+
+type SalesforceOutcomeReturn = {
+  response?: {
+    status: DecisionPackage["response"]["status"];
+    actorToken: string | null;
+    recordedAt: string | null;
+  };
+  outcome: {
+    status: DecisionPackage["outcome"]["status"];
+    observation: {
+      eventType?: string;
+      occurredAt?: string | null;
+      sourceSystem?: string;
+      sourceRecordId?: string;
+      reasonCode?: string | null;
+      metric?: string | null;
+      amount?: number | null;
+      currency?: "USD";
+    } | null;
+  };
+  recorded?: {
+    observation?: { observationId?: string };
+    measurement?: { status?: string; eventId?: string; reason?: string };
+  };
+  error?: string;
+};
+
+type DurableMomentMutation = {
+  moment: Omit<ConsoleMoment, "transactions">;
+  receipt?: { deliveryId?: string; status?: string };
+  error?: string;
 };
 
 const STORAGE_PREFIX = "ventus_console_";
 
-function scopedKey(name: string, tenantId: string, userId: string): string {
-  return `${STORAGE_PREFIX}${name}:${tenantId}:${userId}`;
+function fscObservationToDecisionObservation(
+  observation: SalesforceOutcomeReturn["outcome"]["observation"],
+  fallbackSourceRecordId: string,
+): DecisionOutcomeObservation | undefined {
+  if (!observation?.eventType || !observation.occurredAt) return undefined;
+  const amount = observation.amount;
+  return {
+    eventId: `fsc_${fallbackSourceRecordId}_${observation.eventType}_${observation.occurredAt}`,
+    eventType: observation.eventType,
+    occurredAt: observation.occurredAt,
+    sourceSystem: observation.sourceSystem || "salesforce-fsc",
+    sourceRecordId: observation.sourceRecordId || fallbackSourceRecordId,
+    ...(observation.reasonCode ? { reasonCode: observation.reasonCode } : {}),
+    ...(typeof amount === "number" && Number.isFinite(amount) && observation.metric
+      ? { value: { metric: observation.metric, amount, currency: "USD" as const } }
+      : {}),
+  };
 }
 
 function clearConsoleStorage(): void {
@@ -185,40 +305,141 @@ function clearConsoleStorage(): void {
   }
 }
 
-function restore<T>(key: string, fallback: T): T {
-  if (typeof window === "undefined") return fallback;
-  try {
-    const raw = window.sessionStorage.getItem(key);
-    return raw ? (JSON.parse(raw) as T) : fallback;
-  } catch {
-    return fallback;
-  }
+function mutationKey(prefix: string): string {
+  const random = typeof crypto !== "undefined" && "randomUUID" in crypto
+    ? crypto.randomUUID().replaceAll("-", "")
+    : `${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;
+  return `${prefix}_${random}`;
 }
 
-function persist(key: string, value: unknown): void {
-  try {
-    window.sessionStorage.setItem(key, JSON.stringify(value));
-  } catch {
-    // Session storage is a convenience cache; the console works without it.
-  }
-}
-
-const SCENARIO_META: Record<ScenarioId, { label: string; play: string; subject: string; outcome: string; action: string }> = {
+export const SCENARIO_META: Record<ScenarioId, {
+  label: string;
+  play: string;
+  subject: string;
+  outcome: string;
+  objective: string;
+  primaryMetric: string;
+  protocolId: string;
+  businessLineIndex: number;
+  actions: DecisionAction[];
+}> = {
   "deposit-retention": {
     label: "Deposit primacy",
     play: "Deposit Primacy Defense",
     subject: "Primary deposit relationship review",
     outcome: "Retain the primary deposit relationship",
-    action: "Contact the customer before the next payroll cycle to review their everyday-banking setup and an approved retention option.",
+    objective: "Protect primary deposit relationships",
+    primaryMetric: "deposit_retained",
+    protocolId: "deposit-retention-v1",
+    businessLineIndex: 0,
+    actions: [
+      {
+        id: "banker-retention-review",
+        title: "Open a banker retention review",
+        instructions: "Contact the customer before the next payroll cycle to review their everyday-banking setup and an approved retention option.",
+        ownerRole: "Relationship banker",
+        destination: "Salesforce FSC",
+      },
+      {
+        id: "digital-retention-message",
+        title: "Prepare an approved digital message",
+        instructions: "Queue an approved, non-product-specific primacy message for the next eligible digital session.",
+        ownerRole: "Lifecycle marketing",
+        destination: "Journey orchestration",
+      },
+      {
+        id: "specialist-relationship-review",
+        title: "Route to a relationship specialist",
+        instructions: "Ask a specialist to review the relationship before any customer outreach.",
+        ownerRole: "Relationship specialist",
+        destination: "Salesforce FSC",
+      },
+    ],
   },
   "wealth-growth": {
     label: "Wealth readiness",
     play: "Qualified Wealth Growth",
     subject: "Qualified wealth opportunity review",
     outcome: "Convert the qualified moment into an advised relationship",
-    action: "Assign the best-fit advisor and prepare a consolidation review while the intent is active.",
+    objective: "Grow qualified advised relationships",
+    primaryMetric: "net_new_assets",
+    protocolId: "wealth-growth-v1",
+    businessLineIndex: 1,
+    actions: [
+      {
+        id: "advisor-consolidation-review",
+        title: "Open an advisor consolidation review",
+        instructions: "Assign the best-fit advisor and prepare a consolidation review while the intent is active.",
+        ownerRole: "Financial advisor",
+        destination: "Salesforce FSC",
+      },
+      {
+        id: "planning-conversation",
+        title: "Prepare a planning conversation",
+        instructions: "Invite the client to a goals-based planning conversation without presenting a product.",
+        ownerRole: "Wealth relationship manager",
+        destination: "Salesforce FSC",
+      },
+      {
+        id: "specialist-triage",
+        title: "Send for specialist triage",
+        instructions: "Route the moment to the wealth specialist desk for suitability and ownership review.",
+        ownerRole: "Wealth specialist",
+        destination: "Specialist queue",
+      },
+    ],
   },
 };
+
+export function decisionPackageForMoment(moment: ConsoleMoment, tenant: Tenant, actionId?: string): DecisionPackage {
+  const meta = SCENARIO_META[moment.scenario];
+  const selectedAction = meta.actions.find((action) => action.id === actionId) ?? meta.actions[0];
+  const businessLine = tenant.businessLines[meta.businessLineIndex] ?? tenant.defaultBusinessLine;
+  return createDecisionPackage({
+    decisionId: moment.decisionId,
+    tenantId: tenant.id,
+    createdAt: moment.createdAt,
+    // This compatibility projection remains a v1.1 Decision Package. The
+    // immutable v1.2 package carries the canonical partner_sandbox label.
+    evidenceClass: moment.sourceMode === "live" ? "sandbox" : "fixture",
+    growthPlay: {
+      id: moment.scenario,
+      name: meta.play,
+      businessLine,
+      objective: meta.objective,
+      primaryMetric: meta.primaryMetric,
+      protocolId: meta.protocolId,
+    },
+    subject: {
+      token: `tok_${moment.id.replace(/[^A-Za-z0-9_-]/g, "_")}`,
+    },
+    moment: {
+      type: moment.opportunity.type,
+      summary: moment.opportunity.reason,
+      confidence: moment.opportunity.confidence,
+      evidence: moment.opportunity.signals.slice(0, 4).map((signal) => ({
+        id: signal.type,
+        label: signal.label,
+        confidence: Math.round(signal.strength * 100),
+        source: moment.sourceName,
+      })),
+    },
+    recommendation: {
+      selectedAction,
+      alternatives: meta.actions.filter((action) => action.id !== selectedAction.id),
+    },
+    governance: {
+      policyStatus: moment.policy.allowed ? "cleared" : "suppressed",
+      controls: [moment.policy.reason],
+      humanReviewRequired: true,
+      assignmentArm: "treatment",
+    },
+    decisionMethod: {
+      active: "deterministic-baseline",
+      shadowCandidate: "model-assisted-planner",
+    },
+  });
+}
 
 type ConsoleState = {
   tenant: Tenant;
@@ -233,8 +454,14 @@ type ConsoleState = {
   ingest: (scenario: ScenarioId) => Promise<void>;
   activating: string | null;
   activateError: string | null;
-  activate: (momentId: string) => Promise<void>;
-  dismiss: (momentId: string) => void;
+  activate: (momentId: string, actionId?: string) => Promise<void>;
+  retryDelivery: (momentId: string) => Promise<void>;
+  syncingOutcome: string | null;
+  outcomeSyncMessage: string | null;
+  syncOutcome: (momentId: string) => Promise<void>;
+  defer: (momentId: string, reason?: string) => Promise<void>;
+  decline: (momentId: string, reason?: string) => Promise<void>;
+  dismiss: (momentId: string) => Promise<void>;
   ledger: LedgerEvent[];
   chainVerified: boolean;
   scenarioMeta: typeof SCENARIO_META;
@@ -243,38 +470,44 @@ type ConsoleState = {
 const ConsoleContext = createContext<ConsoleState | null>(null);
 
 export function ConsoleProvider({ children }: { children: ReactNode }) {
-  const { user, session } = useAuth();
-  const tenant = useMemo(() => resolveTenant(user?.email), [user?.email]);
-  const authTenant = useMemo(() => resolveTenantFromEmail(user?.email), [user?.email]);
+  const { user, session, access } = useAuth();
+  const authTenant = useMemo(() => TENANTS[access?.tenantId ?? ""] ?? resolveTenantFromEmail(user?.email), [access?.tenantId, user?.email]);
+  const tenant = useMemo(() => resolveTenant(authTenant.id === "ventus" ? user?.email : undefined), [authTenant.id, user?.email]);
   const userId = user?.id ?? "anonymous";
-  const sessionKey = scopedKey("connector_session", authTenant.id, userId);
-  const momentsKey = scopedKey("moments", authTenant.id, userId);
-  const ledgerKey = scopedKey("ledger", authTenant.id, userId);
 
-  const [connectorSession, setConnectorSession] = useState<ConnectorSession | null>(() => {
-    const stored = restore<ConnectorSession | null>(sessionKey, null);
-    return stored
-      && stored.expiresAt * 1000 > Date.now()
-      && stored.tenantId === authTenant.id
-      && stored.subject === userId
-      ? stored
-      : null;
-  });
+  const [connectorSession, setConnectorSession] = useState<ConnectorSession | null>(null);
   const [connecting, setConnecting] = useState(false);
   const [connectError, setConnectError] = useState<string | null>(null);
-  const [moments, setMoments] = useState<ConsoleMoment[]>(() => restore(momentsKey, []));
+  const [moments, setMoments] = useState<ConsoleMoment[]>([]);
   const [ingesting, setIngesting] = useState(false);
   const [ingestError, setIngestError] = useState<string | null>(null);
   const [activating, setActivating] = useState<string | null>(null);
   const [activateError, setActivateError] = useState<string | null>(null);
-  const [ledger, setLedger] = useState<LedgerEvent[]>(() => restore(ledgerKey, []));
+  const [syncingOutcome, setSyncingOutcome] = useState<string | null>(null);
+  const [outcomeSyncMessage, setOutcomeSyncMessage] = useState<string | null>(null);
+  const [ledger, setLedger] = useState<LedgerEvent[]>([]);
 
-  useEffect(() => persist(momentsKey, moments), [moments, momentsKey]);
-  useEffect(() => persist(ledgerKey, ledger), [ledger, ledgerKey]);
   useEffect(() => {
-    if (connectorSession) persist(sessionKey, connectorSession);
-    else window.sessionStorage.removeItem(sessionKey);
-  }, [connectorSession, sessionKey]);
+    if (!session?.access_token) {
+      setMoments([]);
+      return;
+    }
+    const url = consoleMomentsUrl();
+    if (!url) return;
+    let active = true;
+    fetch(url, { headers: { Authorization: `Bearer ${session.access_token}` } })
+      .then(async (response) => {
+        const data = await response.json().catch(() => ({})) as { moments?: ConsoleMoment[] };
+        if (!response.ok) throw new Error("moment projection unavailable");
+        if (active) setMoments(data.moments ?? []);
+      })
+      .catch(() => {
+        // A local preview can still exercise the controlled fixture demo. Durable
+        // product state is never recovered from browser storage.
+        if (active) setMoments([]);
+      });
+    return () => { active = false; };
+  }, [authTenant.id, session?.access_token]);
 
   const record = useCallback((drafts: LedgerDraft[]) => {
     setLedger((prev) => appendEvents(prev, drafts));
@@ -285,7 +518,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
     setConnectError(null);
     try {
       if (!session?.access_token) throw new Error("Sign in again to start a connector session.");
-      const response = await fetch("/api/presenter-session", {
+      const response = await fetch(connectorApiUrl("session"), {
         method: "POST",
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
@@ -303,7 +536,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         connectors: data.connectors ?? { plaid: false, salesforce: false },
         tenantId: data.tenantId,
         subject: data.subject,
-        role: data.role === "admin" ? "admin" : "operator",
+        role: data.role ?? "bank_operator",
       });
     } catch (error) {
       setConnectError(error instanceof Error ? error.message : "Connector session unavailable");
@@ -322,10 +555,11 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       let sourceMode: ConsoleMoment["sourceMode"] = "fixture";
       let sourceName = "Plaid-shaped fixture";
       let decision: DecisionRunResult | null = null;
+      let governedReview: GovernedPilotResult | undefined;
 
       if (connectorSession?.token && connectorSession.connectors.plaid) {
         try {
-          const response = await fetch("/api/plaid-transactions", {
+          const response = await fetch(connectorApiUrl("plaid-transactions"), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -336,6 +570,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
           const data = (await response.json().catch(() => ({}))) as {
             transactions?: PlaidTransaction[];
             decision?: DecisionRunResult | null;
+            governedRuntime?: GovernedRuntimeEnvelope;
             error?: string;
           };
           if (response.ok && data.transactions?.length) {
@@ -343,6 +578,40 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
             sourceMode = "live";
             sourceName = "Plaid sandbox · live pull";
             decision = data.decision ?? null;
+            if (data.governedRuntime?.state === "unavailable") {
+              setIngestError(data.governedRuntime.error);
+              setIngesting(false);
+              return;
+            }
+            if (data.governedRuntime?.state === "holdout") {
+              record([{
+                eventKey: `${data.governedRuntime.result.decisionId}-holdout`,
+                kind: "counterfactual",
+                title: "Household reserved for holdout",
+                detail: "Assignment occurred before decisioning; no employee action was surfaced.",
+                ref: data.governedRuntime.result.householdToken,
+                status: "confirmed",
+              }]);
+              setIngestError("This household is in the pilot holdout, so no employee action was created.");
+              setIngesting(false);
+              return;
+            }
+            if (data.governedRuntime?.state === "suppressed") {
+              record([{
+                eventKey: `${data.governedRuntime.result.decisionId}-suppressed`,
+                kind: "gate",
+                title: "Governed decision suppressed",
+                detail: data.governedRuntime.result.decision?.abstainReason ?? "The approved policy blocked activation.",
+                ref: data.governedRuntime.result.householdToken,
+                status: "confirmed",
+              }]);
+              setIngestError("The governed runtime suppressed this action under the approved policy.");
+              setIngesting(false);
+              return;
+            }
+            if (data.governedRuntime?.state === "prepared") {
+              governedReview = data.governedRuntime.result;
+            }
           } else if (response.status === 401 || response.status === 403) {
             setConnectorSession(null);
           }
@@ -357,7 +626,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       if (!decision) {
         try {
           if (!session?.access_token) throw new Error("Sign in again to run the decision.");
-          const response = await fetch("/api/decision-run", {
+          const response = await fetch(consoleDecisionRunUrl(), {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -369,7 +638,10 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
               source: { mode: sourceMode, name: sourceName },
             }),
           });
-          const data = (await response.json().catch(() => ({}))) as DecisionRunResult & { error?: string };
+          const data = (await response.json().catch(() => ({}))) as DecisionRunResult & {
+            moment?: Omit<ConsoleMoment, "transactions">;
+            error?: string;
+          };
           if (!response.ok || !data.decisionId) {
             throw new Error(data.error ?? `decision run failed (${response.status})`);
           }
@@ -398,7 +670,7 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       const id = `mo_${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
       const moment: ConsoleMoment = {
         id,
-        decisionId: decision.decisionId,
+        decisionId: governedReview?.decisionId ?? decision.decisionId,
         scenario,
         createdAt: new Date().toISOString(),
         sourceMode,
@@ -407,15 +679,27 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         opportunity,
         policy,
         runtime: decision.runtime,
+        ledgerReceipt: decision.ledgerReceipt,
+        governedReview,
         status: "queued",
       };
-      setMoments((prev) => [moment, ...prev]);
+      moment.decisionPackage = decisionPackageForMoment(moment, authTenant);
+      const durableMoment = (decision as DecisionRunResult & { moment?: Omit<ConsoleMoment, "transactions"> }).moment;
+      if (durableMoment) {
+        setMoments((prev) => [
+          { ...durableMoment, transactions: [] },
+          ...prev.filter((item) => item.decisionId !== durableMoment.decisionId),
+        ]);
+      } else {
+        // Local fixture fallback is in-memory only. It is not restored after a refresh.
+        setMoments((prev) => [moment, ...prev]);
+      }
       record([
         {
           eventKey: `${id}-signal`,
           kind: "signal",
           title: `${opportunity.type} detected`,
-          detail: `${sourceName} · ${transactions.length} records · ${opportunity.confidence}% · ${decision.runtime.version}`,
+          detail: `${sourceName} · ${transactions.length} records · ${opportunity.confidence}% · ${governedReview ? "durable review prepared" : decision.runtime.version}`,
           ref: id,
           status: sourceMode === "live" ? "confirmed" : "simulated",
         },
@@ -430,88 +714,79 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       ]);
       setIngesting(false);
     },
-    [authTenant.id, connectorSession, record, session?.access_token],
+    [authTenant, connectorSession, record, session?.access_token],
   );
 
   const activate = useCallback(
-    async (momentId: string) => {
+    async (momentId: string, actionId?: string) => {
       const moment = moments.find((item) => item.id === momentId);
-      if (!moment || !connectorSession?.token) return;
+      if (!moment) return;
+      if (!session?.access_token) {
+        setActivateError("Sign in again to respond to this Moment.");
+        return;
+      }
       const meta = SCENARIO_META[moment.scenario];
       setActivating(momentId);
       setActivateError(null);
       try {
-        const response = await fetch("/api/salesforce-deliver", {
+        let current = moment;
+        if (current.status === "queued") {
+          const responseUrl = consoleMomentResponseUrl(current.decisionId);
+          if (!responseUrl) throw new Error("The durable Console API is not configured for this environment.");
+          const selectedAction = current.decisionPackage?.recommendation.selectedAction
+            ?? decisionPackageForMoment(current, authTenant, actionId).recommendation.selectedAction;
+          const requestedAction = actionId ?? selectedAction.id;
+          const responseStatus = requestedAction === meta.actions[0].id ? "accepted" : "modified";
+          const response = await fetch(responseUrl, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${session.access_token}`,
+              "Idempotency-Key": mutationKey("response"),
+            },
+            body: JSON.stringify({
+              expectedState: "queued",
+              clientRequestedAt: new Date().toISOString(),
+              response: { status: responseStatus, actionId: requestedAction },
+            }),
+          });
+          const data = (await response.json().catch(() => ({}))) as DurableMomentMutation;
+          if (!response.ok || !data.moment) throw new Error(data.error ?? `Response could not be recorded (${response.status})`);
+          current = { ...data.moment, transactions: [] };
+          setMoments((prev) => prev.map((item) => item.id === momentId ? current : item));
+        }
+        const deliveryUrl = consoleMomentDeliveryUrl(current.decisionId);
+        if (!deliveryUrl) throw new Error("The durable Console API is not configured for this environment.");
+        const expectedState = current.status === "delivery_failed" ? "delivery_failed" : "approved";
+        const delivery = await fetch(deliveryUrl, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${connectorSession.token}`,
+            Authorization: `Bearer ${session.access_token}`,
+            "Idempotency-Key": mutationKey(expectedState === "delivery_failed" ? "delivery-retry" : "delivery"),
           },
-          body: JSON.stringify({
-            subject: meta.subject,
-            dueInDays: moment.scenario === "deposit-retention" ? 2 : 3,
-            source: `console-${authTenant.id}`,
-            insight: {
-              businessLine: authTenant.businessLines[moment.scenario === "deposit-retention" ? 0 : 1] ?? authTenant.defaultBusinessLine,
-              growthPlay: meta.play,
-              customerRef: `household-${moment.id}`,
-              moment: moment.opportunity.type,
-              whyNow: moment.opportunity.reason,
-              recommendedAction: meta.action,
-              expectedOutcome: meta.outcome,
-              confidence: moment.opportunity.confidence,
-              destination: moment.opportunity.destination,
-              evidence: moment.opportunity.signals.slice(0, 4).map((signal) => ({
-                label: signal.label,
-                confidence: Math.round(signal.strength * 100),
-              })),
-              controls: [moment.policy.reason],
-              sourceName: `${moment.sourceName} · ${moment.transactions.length} tokenized records`,
-              decisionRef: moment.decisionId ?? `${moment.scenario}:${moment.id}`,
-            },
-          }),
+          body: JSON.stringify({ expectedState, clientRequestedAt: new Date().toISOString() }),
         });
-        const data = (await response.json().catch(() => ({}))) as {
-          id?: string;
-          url?: string;
-          error?: string;
-          activation?: { subject?: string };
-        };
-        if (!response.ok || !data.id) {
-          if (response.status === 401 || response.status === 403) setConnectorSession(null);
-          throw new Error(data.error ?? `Salesforce write failed (${response.status})`);
-        }
-        setMoments((prev) =>
-          prev.map((item) =>
-            item.id === momentId
-              ? { ...item, status: "activated", receipt: { id: data.id!, url: data.url, subject: data.activation?.subject ?? meta.subject } }
-              : item,
-          ),
-        );
+        const data = (await delivery.json().catch(() => ({}))) as DurableMomentMutation;
+        if (!delivery.ok || !data.moment) throw new Error(data.error ?? `Delivery could not be reserved (${delivery.status})`);
+        const nextMoment = { ...data.moment, transactions: [] };
+        setMoments((prev) => prev.map((item) => item.id === momentId ? nextMoment : item));
         record([
           {
-            eventKey: `${momentId}-decision`,
+            eventKey: `${momentId}-response`,
             kind: "decision",
-            title: `${meta.play} accepted`,
-            detail: `Operator ${user?.email ?? "unknown"}`,
-            ref: momentId,
+            title: `${meta.play} response recorded`,
+            detail: "Server-authoritative response receipt created",
+            ref: current.decisionId,
             status: "confirmed",
           },
           {
-            eventKey: `${momentId}-activation`,
+            eventKey: `${momentId}-reservation`,
             kind: "activation",
-            title: "Salesforce Task created",
-            detail: `${data.id} · sandbox org`,
-            ref: data.id,
-            status: "confirmed",
-          },
-          {
-            eventKey: `${momentId}-outcome`,
-            kind: "outcome",
-            title: "Outcome window opened",
-            detail: "Measured against reserved holdout when the bank feed posts",
-            ref: momentId,
-            status: "pending",
+            title: data.moment.status === "activated" ? "Workflow delivered" : data.moment.status === "delivery_failed" ? "Workflow delivery needs configuration" : "Workflow delivery reserved",
+            detail: data.moment.status === "activated" ? "Server-authoritative connector receipt recorded" : data.moment.status === "delivery_failed" ? "The connector did not run; review the server-side connection setup" : "Idempotent connector reservation awaits reconciliation",
+            ref: data.receipt?.deliveryId,
+            status: data.moment.status === "activated" ? "confirmed" : data.moment.status === "delivery_failed" ? "failed" : "pending",
           },
         ]);
       } catch (error) {
@@ -520,25 +795,130 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
         setActivating(null);
       }
     },
-    [moments, connectorSession, authTenant, user?.email, record],
+    [moments, session?.access_token, authTenant, record],
   );
 
-  const dismiss = useCallback(
-    (momentId: string) => {
-      setMoments((prev) => prev.map((item) => (item.id === momentId ? { ...item, status: "dismissed" } : item)));
-      record([
-        {
-          eventKey: `${momentId}-dismiss`,
-          kind: "decision",
-          title: "Moment dismissed by operator",
-          detail: `Operator ${user?.email ?? "unknown"} · feedback returned to play`,
-          ref: momentId,
-          status: "confirmed",
-        },
-      ]);
+  const retryDelivery = useCallback(
+    async (momentId: string) => {
+      const moment = moments.find((item) => item.id === momentId);
+      if (!moment || moment.status !== "delivery_failed") return;
+      await activate(momentId);
     },
-    [record, user?.email],
+    [activate, moments],
   );
+
+  const respondWithoutDelivery = useCallback(
+    async (momentId: string, status: "deferred" | "declined", reason?: string) => {
+      const moment = moments.find((item) => item.id === momentId);
+      const responseUrl = moment ? consoleMomentResponseUrl(moment.decisionId) : null;
+      if (!moment || !responseUrl || !session?.access_token) {
+        setActivateError("Sign in again to record this response.");
+        return;
+      }
+      try {
+        const response = await fetch(responseUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+            "Idempotency-Key": mutationKey(status),
+          },
+          body: JSON.stringify({
+            expectedState: "queued",
+            clientRequestedAt: new Date().toISOString(),
+            response: { status, reason },
+          }),
+        });
+        const data = (await response.json().catch(() => ({}))) as DurableMomentMutation;
+        if (!response.ok || !data.moment) throw new Error(data.error ?? `Response could not be recorded (${response.status})`);
+        const nextMoment = { ...data.moment, transactions: [] };
+        setMoments((prev) => prev.map((item) => item.id === momentId ? nextMoment : item));
+        record([{ eventKey: `${momentId}-${status}`, kind: "decision", title: `Moment ${status}`, detail: "Server-authoritative response receipt created", ref: moment.decisionId, status: "confirmed" }]);
+      } catch (error) {
+        setActivateError(error instanceof Error ? error.message : "Response could not be recorded");
+      }
+    },
+    [moments, record, session?.access_token],
+  );
+
+  const syncOutcome = useCallback(
+    async (momentId: string) => {
+      const moment = moments.find((item) => item.id === momentId);
+      const outcomeSyncUrl = consoleSalesforceOutcomeSyncUrl();
+      if (!moment) return;
+      if (!session?.access_token || !outcomeSyncUrl) {
+        setOutcomeSyncMessage("Sign in again to reconcile this FSC receipt.");
+        return;
+      }
+      setSyncingOutcome(momentId);
+      setOutcomeSyncMessage(null);
+      try {
+        const response = await fetch(outcomeSyncUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: JSON.stringify({ decisionId: moment.decisionId }),
+        });
+        const data = await response.json().catch(() => ({})) as SalesforceOutcomeReturn;
+        if (!response.ok || !data.outcome) throw new Error(data.error ?? `Salesforce outcome sync failed (${response.status})`);
+
+        const currentPackage = moment.decisionPackage ?? decisionPackageForMoment(moment, authTenant);
+        const observation = fscObservationToDecisionObservation(
+          data.outcome.observation,
+          moment.receipt?.records?.decision?.id ?? moment.decisionId,
+        );
+        const nextPackage = applyOutcomeObservation(currentPackage, {
+          response: data.response?.status === "pending" || !data.response
+            ? undefined
+            : {
+                status: data.response.status,
+                actor: data.response.actorToken ?? currentPackage.response.actor,
+                recordedAt: data.response.recordedAt ?? currentPackage.response.recordedAt,
+              },
+          status: data.outcome.status,
+          observation,
+        });
+        setMoments((prev) => prev.map((item) => (
+          item.id === momentId ? { ...item, decisionPackage: nextPackage } : item
+        )));
+
+        if (!observation) {
+          setOutcomeSyncMessage("FSC receipt reconciled and recorded. No measured outcome has been posted yet.");
+          return;
+        }
+        record([
+          {
+            eventKey: `${momentId}-outcome-${data.recorded?.observation?.observationId ?? observation.eventId}`,
+            kind: "outcome",
+            title: observation.eventType.split("_").join(" "),
+            detail: "Observed in Salesforce FSC and recorded in the durable evidence ledger",
+            ref: momentId,
+            value: observation.value?.amount,
+            status: "confirmed",
+          },
+        ]);
+        const measurement = data.recorded?.measurement;
+        setOutcomeSyncMessage(
+          measurement?.status === "recorded"
+            ? `FSC outcome recorded as measurement ${measurement.eventId ?? "event"}.`
+            : `FSC outcome recorded. ${measurement?.reason ? measurement.reason.replaceAll("_", " ") : "Lift remains gated by the experiment design."}`,
+        );
+      } catch (error) {
+        setOutcomeSyncMessage(
+          error instanceof Error ? error.message : "Salesforce outcome sync failed",
+        );
+      } finally {
+        setSyncingOutcome(null);
+      }
+    },
+    [authTenant, moments, record, session?.access_token],
+  );
+
+  const defer = useCallback((momentId: string, reason?: string) => respondWithoutDelivery(momentId, "deferred", reason), [respondWithoutDelivery]);
+  const decline = useCallback((momentId: string, reason?: string) => respondWithoutDelivery(momentId, "declined", reason), [respondWithoutDelivery]);
+  const dismiss = useCallback((momentId: string) => decline(momentId, "Not relevant"), [decline]);
 
   const value = useMemo<ConsoleState>(
     () => ({
@@ -555,12 +935,18 @@ export function ConsoleProvider({ children }: { children: ReactNode }) {
       activating,
       activateError,
       activate,
+      retryDelivery,
+      syncingOutcome,
+      outcomeSyncMessage,
+      syncOutcome,
+      defer,
+      decline,
       dismiss,
       ledger,
       chainVerified: ledger.length > 0 && verifyChain(ledger),
       scenarioMeta: SCENARIO_META,
     }),
-    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, dismiss, ledger],
+    [tenant, connectorSession, connecting, connectError, connect, disconnect, moments, ingesting, ingestError, ingest, activating, activateError, activate, retryDelivery, syncingOutcome, outcomeSyncMessage, syncOutcome, defer, decline, dismiss, ledger],
   );
 
   return <ConsoleContext.Provider value={value}>{children}</ConsoleContext.Provider>;

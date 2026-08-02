@@ -1,4 +1,4 @@
-// Apply the six evidence-store migrations to a non-production Postgres, in dependency
+// Apply the evidence, access, delivery, and authenticated-console migrations to a non-production Postgres, in dependency
 // order. Idempotent — every migration uses IF NOT EXISTS / CREATE OR REPLACE / DROP IF
 // EXISTS, so re-running is safe.
 //
@@ -6,11 +6,11 @@
 //
 // Connect as an OWNER/admin role here (migrations create tables, functions, policies).
 // The RUNTIME role that the app uses must be separate and NOSUPERUSER NOBYPASSRLS — run
-// backend/sql/verify-tenant-isolation.sql as that runtime role afterward (npm run db:probe).
+// the live verification as that runtime role afterward (npm run db:verify).
 //
 // If DATABASE_URL is unset this prints the setup path and exits 0 (nothing is provisioned
-// for you). Order follows the SQL dependencies: ledger → binary measurement → connected
-// measurement → tenant isolation → delivery (whose policy calls the tenant-context function).
+// for you). Order follows the SQL dependencies: ledger → measurement → protocol registry →
+// tenant isolation → institution access → delivery.
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
@@ -26,14 +26,20 @@ const MIGRATIONS = [
   'connected-expansion-measurement.sql',
   'growth-play-registry.sql',
   'tenant-isolation.sql',
+  'institution-access.sql',
+  'enterprise-access-phase0.sql',
   'connector-delivery.sql',
+  'enterprise-console-journey.sql',
+  'enterprise-product-control-plane.sql',
+  'enterprise-skill-governance.sql',
+  'enterprise-protocol-writer.sql',
 ];
 
 async function main() {
   const url = databaseUrl();
   if (!url) {
     console.log('DATABASE_URL is unset — nothing applied.');
-    console.log('Provision a non-prod Postgres (Supabase free tier, local docker, or non-prod RDS), then:');
+    console.log('Provision non-production Aurora PostgreSQL (or local Docker for offline development), then:');
     console.log('  DATABASE_URL=postgres://owner:pw@host:5432/db npm run db:migrate');
     console.log('Migrations to apply, in order:', MIGRATIONS.join(' → '));
     process.exit(0);
@@ -50,8 +56,8 @@ async function main() {
       console.log('ok');
     }
     await client.query('COMMIT');
-    console.log('\nAll six evidence-store migrations applied.');
-    console.log('Next: run the isolation probe AS THE RUNTIME ROLE — npm run db:probe (see verify-tenant-isolation.sql).');
+    console.log('\nAll evidence and access migrations applied.');
+    console.log('Next: run live verification AS THE RUNTIME ROLE — npm run db:verify.');
   } catch (error) {
     await client.query('ROLLBACK').catch(() => {});
     throw error;

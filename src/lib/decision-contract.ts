@@ -41,6 +41,13 @@ export type DecisionRunResult = {
     policyVersion: "mvp-policy-v1";
     modelInvocation: null;
   };
+  ledgerReceipt?: {
+    persisted: true;
+    inserted: boolean;
+    sequenceNumber: number;
+    eventHash: string;
+    recordedAt: string;
+  };
   opportunity: DetectedOpportunity | null;
   policy: OpportunityPolicyDecision;
 };

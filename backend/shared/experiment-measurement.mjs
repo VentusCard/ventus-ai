@@ -117,6 +117,7 @@ export function validateOutcomeEvent(event, assignment) {
   assertIdentifier(event.decision_id, 'decision_id');
   assertIdentifier(event.source_system, 'source_system');
   assertIsoDate(event.occurred_at, 'occurred_at');
+  if (event.provenance !== undefined) validateOutcomeProvenance(event.provenance, event.occurred_at);
   assert.ok(event.assignment && typeof event.assignment === 'object', 'assignment is required');
   assertIdentifier(event.assignment.experiment_id, 'assignment.experiment_id');
   assert.ok(ARMS.has(event.assignment.arm), 'assignment.arm is unsupported');
@@ -148,6 +149,23 @@ export function validateOutcomeEvent(event, assignment) {
     'assignment must predate the measured event',
   );
   return event;
+}
+
+function validateOutcomeProvenance(provenance, occurredAt) {
+  assert.ok(provenance && typeof provenance === 'object' && !Array.isArray(provenance), 'provenance must be an object');
+  assertExactKeys(provenance, ['source_version', 'observed_at', 'correction_sequence'], 'provenance');
+  assertIdentifier(provenance.source_version, 'provenance.source_version');
+  assertIsoDate(provenance.observed_at, 'provenance.observed_at');
+  assert.ok(Number.isInteger(provenance.correction_sequence) && provenance.correction_sequence >= 0,
+    'provenance.correction_sequence must be a non-negative integer');
+  assert.ok(Date.parse(provenance.observed_at) >= Date.parse(occurredAt), 'outcome observation cannot predate the economic event');
+}
+
+function assertExactKeys(value, allowed, label) {
+  const allowedKeys = new Set(allowed);
+  for (const key of Object.keys(value)) {
+    assert.ok(allowedKeys.has(key), `${label} has unknown field ${key}`);
+  }
 }
 
 export function summarizeIncrementalLift({
@@ -193,7 +211,7 @@ export function summarizeIncrementalLift({
     assert.ok(assignment, `target outcome ${event.event_id ?? 'unknown'} has no matching assignment`);
     validateOutcomeEvent(event, assignment);
     const previous = latest.get(key);
-    if (!previous || Date.parse(event.occurred_at) > Date.parse(previous.occurred_at)) {
+    if (!previous || compareOutcomeRecency(event, previous) > 0) {
       latest.set(key, event);
     }
   }
@@ -251,6 +269,16 @@ export function summarizeIncrementalLift({
     causalClaimAllowed: false,
     reviewRequired: 'independent_statistical_and_experiment_review',
   };
+}
+
+function compareOutcomeRecency(left, right) {
+  const leftObservedAt = left.provenance?.observed_at ?? left.occurred_at;
+  const rightObservedAt = right.provenance?.observed_at ?? right.occurred_at;
+  const observationOrder = Date.parse(leftObservedAt) - Date.parse(rightObservedAt);
+  if (observationOrder !== 0) return observationOrder;
+  const correctionOrder = (left.provenance?.correction_sequence ?? 0) - (right.provenance?.correction_sequence ?? 0);
+  if (correctionOrder !== 0) return correctionOrder;
+  return left.event_id.localeCompare(right.event_id);
 }
 
 export function validateConnectedExposure(event, assignment) {

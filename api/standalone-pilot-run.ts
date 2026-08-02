@@ -44,6 +44,9 @@ export function createStandalonePilotHandler({
   return async function handle(request: Request): Promise<Response> {
     const scoped = authorizeConnector(request, { scope: "growth_play_run" });
     if (!scoped || scoped.authMode !== "session") return Response.json({ error: "forbidden" }, { status: 403 });
+    if (scoped.sessionKind === "console" && scoped.role !== "bank_operator") {
+      return Response.json({ error: "forbidden" }, { status: 403 });
+    }
 
     let body: Record<string, unknown>;
     try {
@@ -58,12 +61,15 @@ export function createStandalonePilotHandler({
       const businessLine = requiredId(body.businessLine, "businessLine");
       const principal = authorizeConnector(request, { scope: "growth_play_run", destination: businessLine });
       if (!principal || principal.authMode !== "session") return Response.json({ error: "forbidden" }, { status: 403 });
+      if (principal.sessionKind === "console" && principal.role !== "bank_operator") {
+        return Response.json({ error: "forbidden" }, { status: 403 });
+      }
       const decisionProtocolId = requiredId(body.decisionProtocolId, "decisionProtocolId");
       const caseId = requiredId(body.caseId, "caseId");
       const householdToken = typeof body.householdToken === "string" ? body.householdToken : "";
       const activationMode = body.activationMode;
-      if (activationMode !== "shadow" && activationMode !== "sandbox_assisted") {
-        throw new PilotRequestError("activationMode must be shadow or sandbox_assisted");
+      if (activationMode !== "shadow" && activationMode !== "sandbox_review" && activationMode !== "sandbox_assisted") {
+        throw new PilotRequestError("activationMode must be shadow, sandbox_review, or sandbox_assisted");
       }
       const assignedAt = now();
       if (Number.isNaN(Date.parse(assignedAt))) throw new Error("server clock returned an invalid timestamp");
@@ -91,7 +97,7 @@ export function createStandalonePilotHandler({
         policyVersion: body.policyVersion,
         policies: body.policies,
       };
-      if (activationMode === "sandbox_assisted") {
+      if (activationMode === "sandbox_review" || activationMode === "sandbox_assisted") {
         input.experiment = {
           experimentId: `exp_${decisionProtocolId.replace(/^dcp_/, "")}`,
           holdoutPct: (growthPlay.measurement as { holdout_pct?: unknown })?.holdout_pct,
@@ -167,7 +173,7 @@ export function createPilotWebhookDelivery({
 
 let runtimeRoleVerification: Promise<unknown> | null = null;
 
-async function configuredRuntime() {
+export async function configuredRuntime() {
   const connectionString = (process.env.VENTUS_DATABASE_URL || process.env.DATABASE_URL || "").trim();
   const assignmentSalt = process.env.VENTUS_EXPERIMENT_ASSIGNMENT_SALT?.trim();
   const deliveryUrl = process.env.VENTUS_PILOT_DELIVERY_WEBHOOK_URL?.trim();

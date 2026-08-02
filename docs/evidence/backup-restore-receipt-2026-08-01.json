@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "ventus_evidence_backup_restore_receipt/v1",
+  "receiptId": "backup_restore_2026_08_01",
+  "recordedAt": "2026-08-01T23:45:00-05:00",
+  "environment": "staging",
+  "mode": "isolated_non_serving",
+  "source": {
+    "clusterIdentifier": "ventus-bofa-cluster",
+    "snapshotIdentifier": null,
+    "snapshotTime": null,
+    "servingEndpointUnchanged": true
+  },
+  "restore": {
+    "targetIdentifier": null,
+    "isolated": true,
+    "serving": false,
+    "startedAt": null,
+    "completedAt": null,
+    "observedRtoSeconds": null,
+    "observedRpoSeconds": null,
+    "cleanupDisposition": "not_run"
+  },
+  "migrationInventory": [],
+  "tenantRlsProbe": {
+    "status": "not_run",
+    "crossTenantRows": null,
+    "nonBypass": null
+  },
+  "ledger": {
+    "status": "not_run",
+    "verified": null,
+    "sourceHeadHash": null,
+    "restoredHeadHash": null
+  },
+  "status": "blocked_external_dependency",
+  "claimBoundary": {
+    "resilienceClaimAllowed": false,
+    "reason": "No snapshot or restore was run; this receipt records an external prerequisite only."
+  },
+  "dependencies": [
+    {
+      "code": "isolated_restore_authority",
+      "owner": "infrastructure_owner",
+      "effect": "Provide a read-only snapshot identifier and approve a new non-serving verification target before execution."
+    }
+  ]
+}

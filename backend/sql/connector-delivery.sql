@@ -7,9 +7,7 @@ CREATE TABLE IF NOT EXISTS connector_delivery_receipts (
   tenant_id text NOT NULL,
   delivery_id text NOT NULL CHECK (delivery_id ~ '^dlv_[a-f0-9]{24}$'),
   idempotency_key text NOT NULL,
-  connector text NOT NULL CHECK (connector IN (
-    'salesforce', 'bank_workbench', 'campaign_platform', 'digital_channel'
-  )),
+  connector text NOT NULL,
   destination text NOT NULL,
   decision_id text NOT NULL,
   action_id text NOT NULL,
@@ -32,6 +30,14 @@ CREATE TABLE IF NOT EXISTS connector_delivery_receipts (
     (status = 'failed' AND completed_at IS NOT NULL AND external_receipt_id IS NULL AND error_code IS NOT NULL)
   )
 );
+
+ALTER TABLE connector_delivery_receipts
+  DROP CONSTRAINT IF EXISTS connector_delivery_receipts_connector_check;
+ALTER TABLE connector_delivery_receipts
+  ADD CONSTRAINT connector_delivery_receipts_connector_check CHECK (connector IN (
+    'salesforce', 'salesforce-fsc', 'bank_workbench', 'campaign_platform', 'digital_channel',
+    'microsoft_teams', 'microsoft_outlook', 'slack'
+  ));
 
 CREATE INDEX IF NOT EXISTS connector_delivery_decision_idx
   ON connector_delivery_receipts (tenant_id, decision_id, requested_at DESC);

@@ -58,13 +58,33 @@ test("operator cannot run a business-line scenario outside their entitlements", 
     email_confirmed_at: "2026-07-18T12:00:00Z",
     app_metadata: {
       tenant_id: "bofa",
+      console_role: "bank_operator",
       console_access_status: "active",
       console_entitlements: ["wealth_demo", "growth_console", "live_connectors"],
+      console_business_lines: ["wealth-management"],
     },
   });
 
   const response = await POST(request());
   assert.equal(response.status, 403);
+});
+
+test("executive viewers cannot run customer-level decisions", async () => {
+  configure();
+  globalThis.fetch = async () => Response.json({
+    id: "executive_123",
+    email: "executive@example.com",
+    email_confirmed_at: "2026-07-18T12:00:00Z",
+    app_metadata: {
+      tenant_id: "pilot_bank",
+      console_role: "executive_viewer",
+      console_access_status: "active",
+      console_entitlements: ["consumer_demo", "growth_console", "live_connectors"],
+      console_business_lines: ["consumer-banking"],
+    },
+  });
+
+  assert.equal((await POST(request())).status, 403);
 });
 
 function configure() {

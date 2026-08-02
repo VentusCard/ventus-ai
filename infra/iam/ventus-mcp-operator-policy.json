@@ -2,7 +2,7 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "InspectDemoConnectorStackViaAwsMcp",
+      "Sid": "InspectVentusStacksViaAwsMcp",
       "Effect": "Allow",
       "Action": [
         "cloudformation:DescribeChangeSet",
@@ -14,7 +14,12 @@
         "cloudformation:GetTemplateSummary",
         "cloudformation:ListStackResources"
       ],
-      "Resource": "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*",
+      "Resource": [
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusIdentityStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusEvidenceStoreStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusConsoleApiStack/*"
+      ],
       "Condition": {
         "StringEquals": {
           "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
@@ -66,16 +71,53 @@
       "Sid": "InspectAndRedeployVentusAmplifyViaAwsMcp",
       "Effect": "Allow",
       "Action": [
+        "amplify:GetApp",
+        "amplify:GetBranch",
         "amplify:GetJob",
+        "amplify:ListBranches",
         "amplify:ListJobs",
-        "amplify:StartJob"
+        "amplify:StartJob",
+        "amplify:UpdateBranch"
       ],
       "Resource": [
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/staging",
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/staging/jobs/*",
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/demo",
-        "arn:aws:amplify:us-east-2:373633008995:apps/d1gaewa028qzng/branches/demo/jobs/*"
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng",
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/dev",
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/dev/jobs/*",
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/staging",
+        "arn:aws:amplify:us-east-1:373633008995:apps/d1gaewa028qzng/branches/staging/jobs/*"
       ],
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "InspectVentusIdentityAndDatabaseViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:DescribeUserPool",
+        "cognito-idp:DescribeUserPoolClient",
+        "cognito-idp:ListGroups",
+        "cognito-idp:ListUserPoolClients",
+        "cognito-idp:ListUserPools",
+        "rds:DescribeDBClusters",
+        "rds:DescribeDBInstances"
+      ],
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"
+        }
+      }
+    },
+    {
+      "Sid": "OperateEvidenceStoreMigratorViaAwsMcp",
+      "Effect": "Allow",
+      "Action": [
+        "lambda:InvokeFunction"
+      ],
+      "Resource": "arn:aws:lambda:us-east-2:373633008995:function:ventus-evidence-store-migrator",
       "Condition": {
         "StringEquals": {
           "aws:CalledViaAWSMCP": "aws-mcp.amazonaws.com"

@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -66,7 +67,7 @@ ${name}
 
   return (
     <div>
-      <SEO title="Contact — Ventus AI" description="Get in touch with the Ventus AI team to explore transaction intelligence for your bank or credit union." path="/contact" />
+      <SEO title="Contact Ventus AI — Schedule a Demo" description="Get in touch with the Ventus AI team to explore behavioral intelligence and personalization for your bank or credit union." path="/contact" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Contact", path: "/contact" }])} />
       <main className="pt-36">
         {/* Two-column: Trust + Form */}
         <section className="py-8 md:py-14 bg-white">
@@ -106,7 +107,7 @@ ${name}
                         <Mail className="w-4 h-4 text-blue-600" />
                       </div>
                       <div>
-                        <p className="text-xs text-gray-400 uppercase tracking-wider font-semibold">Email us directly</p>
+                        <p className="text-xs text-gray-500 uppercase tracking-wider font-semibold">Email us directly</p>
                         <a href="mailto:info@ventusai.com" className="text-sm font-semibold text-gray-900 hover:text-blue-600 transition-colors">
                           info@ventusai.com
                         </a>

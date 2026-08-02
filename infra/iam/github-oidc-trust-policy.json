@@ -15,6 +15,7 @@
           "token.actions.githubusercontent.com:sub": [
             "repo:VentusCard/ventus-ai:pull_request",
             "repo:VentusCard/ventus-ai:ref:refs/heads/main",
+            "repo:VentusCard/ventus-ai:ref:refs/heads/dev",
             "repo:VentusCard/ventus-ai:ref:refs/heads/staging",
             "repo:VentusCard/ventus-ai:environment:staging"
           ]

@@ -9,7 +9,7 @@ import {
 } from './growth-play-contract.mjs';
 import { validateTenantId } from './tenant-context.mjs';
 
-const ACTIVATION_MODES = new Set(['shadow', 'sandbox_assisted', 'production_assisted']);
+const ACTIVATION_MODES = new Set(['shadow', 'sandbox_review', 'sandbox_assisted', 'production_assisted']);
 const EVIDENCE_CLASSES = new Set(['synthetic', 'sandbox', 'sanctioned']);
 const POLICY_VERDICTS = new Set(['clear', 'review', 'block']);
 
@@ -178,6 +178,9 @@ export function createPilotOperatingLoop({
         return operatingResult({ input, decision, decisionId, assignment: null, activation: 'shadow_only', receipt: null });
       }
       await appendDecision(ledgerRepository, input, decision, decisionId, assignment, 'confirmed');
+      if (input.activationMode === 'sandbox_review') {
+        return operatingResult({ input, decision, decisionId, assignment, activation: 'review_required', receipt: null });
+      }
 
       const reservation = await deliveryRepository.reserve({
         tenantId: input.tenantId,
@@ -191,6 +194,20 @@ export function createPilotOperatingLoop({
         requestedAt: input.runAt,
       });
       if (!reservation.shouldDeliver) {
+        if (reservation.record.status === 'delivered' || reservation.record.status === 'failed') {
+          await appendActivationReceipt({
+            ledgerRepository,
+            tenantId: input.tenantId,
+            caseId: input.caseId,
+            householdToken: input.householdToken,
+            growthPlayId: decision.growthPlayId,
+            policyVersion: input.policyVersion,
+            decisionId,
+            connector: decision.connector,
+            destination: decision.destination,
+            receipt: reservation.record,
+          });
+        }
         return operatingResult({
           input,
           decision,
@@ -213,25 +230,119 @@ export function createPilotOperatingLoop({
         errorCode: delivered.errorCode ?? null,
         completedAt: delivered.completedAt,
       });
-      await appendLedger(ledgerRepository, input, {
-        stage: 'activation',
-        eventType: 'activation',
-        status: delivered.status === 'delivered' ? 'confirmed' : 'failed',
+      await appendActivationReceipt({
+        ledgerRepository,
+        tenantId: input.tenantId,
+        caseId: input.caseId,
+        householdToken: input.householdToken,
         growthPlayId: decision.growthPlayId,
-        payload: {
-          decision_id: decisionId,
-          activation_id: reservation.record.delivery_id,
-          connector: decision.connector,
-          destination: decision.destination,
-          external_receipt_id: delivered.externalReceiptId ?? null,
-          delivery_status: delivered.status,
-        },
+        policyVersion: input.policyVersion,
+        decisionId,
+        connector: decision.connector,
+        destination: decision.destination,
+        receipt: completed.record,
       });
       return operatingResult({
         input,
         decision,
         decisionId,
         assignment,
+        activation: delivered.status,
+        receipt: completed.record,
+      });
+    },
+
+    async activatePreparedDecision(input) {
+      validatePreparedActivationInput(input);
+      assert.equal(
+        typeof ledgerRepository.loadPreparedDecision,
+        'function',
+        'ledgerRepository.loadPreparedDecision is required for reviewed activation',
+      );
+      const prepared = await ledgerRepository.loadPreparedDecision({
+        tenantId: input.tenantId,
+        decisionId: input.decisionId,
+      });
+      validatePreparedDecision(prepared, input);
+      await protocolRegistry.requireApproved({
+        tenantId: input.tenantId,
+        decisionProtocolId: prepared.payload.decision_protocol_id,
+        businessLine: prepared.payload.business_line,
+        at: input.activatedAt,
+      });
+
+      const reservation = await deliveryRepository.reserve({
+        tenantId: input.tenantId,
+        idempotencyKey: `${input.decisionId}:${input.decision.connector}:${input.decision.destination}`,
+        connector: input.decision.connector,
+        destination: input.decision.destination,
+        decisionId: input.decisionId,
+        actionId: input.decision.actionId,
+        sessionId: input.sessionId,
+        payload: input.decision.deliveryPayload,
+        requestedAt: input.activatedAt,
+      });
+      if (!reservation.shouldDeliver) {
+        if (reservation.record.status === 'delivered' || reservation.record.status === 'failed') {
+          await appendActivationReceipt({
+            ledgerRepository,
+            tenantId: input.tenantId,
+            caseId: prepared.payload.case_id,
+            householdToken: prepared.householdToken,
+            growthPlayId: prepared.growthPlayId,
+            policyVersion: prepared.policyVersion,
+            decisionId: input.decisionId,
+            connector: input.decision.connector,
+            destination: input.decision.destination,
+            receipt: reservation.record,
+          });
+        }
+        return preparedActivationResult({
+          prepared,
+          input,
+          activation: reservation.reconciliationRequired ? 'reconciliation_required' : reservation.record.status,
+          receipt: reservation.record,
+        });
+      }
+
+      const deliveryInput = {
+        tenantId: input.tenantId,
+        caseId: prepared.payload.case_id,
+        householdToken: prepared.householdToken,
+        sessionId: input.sessionId,
+        runAt: input.activatedAt,
+      };
+      const delivered = await deliver({
+        input: deliveryInput,
+        decision: { ...input.decision, decisionId: input.decisionId },
+        reservation: reservation.record,
+      });
+      validateDeliveryCallback(delivered);
+      const completed = await deliveryRepository.complete({
+        tenantId: input.tenantId,
+        deliveryId: reservation.record.delivery_id,
+        status: delivered.status,
+        sessionId: input.sessionId,
+        externalReceiptId: delivered.externalReceiptId ?? null,
+        externalReceiptUrl: delivered.externalReceiptUrl ?? null,
+        errorCode: delivered.errorCode ?? null,
+        completedAt: delivered.completedAt,
+      });
+      await appendActivationReceipt({
+        ledgerRepository,
+        tenantId: input.tenantId,
+        caseId: prepared.payload.case_id,
+        householdToken: prepared.householdToken,
+        growthPlayId: prepared.growthPlayId,
+        policyVersion: prepared.policyVersion,
+        decisionId: input.decisionId,
+        connector: input.decision.connector,
+        destination: input.decision.destination,
+        receipt: completed.record,
+      });
+      return preparedActivationResult({
+        prepared,
+        input,
         activation: delivered.status,
         receipt: completed.record,
       });
@@ -347,7 +458,7 @@ function validateRunInput(input) {
   assert.ok(Date.parse(input.eligibilityReceipt.evaluatedAt) <= Date.parse(input.experiment.assignedAt), 'eligibility must predate assignment');
   assert.ok(Date.parse(input.experiment.assignedAt) <= Date.parse(input.runAt), 'assignment must predate the run');
   assertIdentifier(input.sessionId, 'sessionId');
-  if (input.activationMode === 'sandbox_assisted') {
+  if (input.activationMode === 'sandbox_review' || input.activationMode === 'sandbox_assisted') {
     assert.equal(input.destinationEnvironment, 'sandbox', 'sandbox activation requires a sandbox destination');
     assert.notEqual(input.sourceReceipt.evidenceClass, 'synthetic', 'synthetic evidence cannot activate a connector');
   }
@@ -420,10 +531,14 @@ async function appendDecision(repository, input, decision, decisionId, assignmen
     policyVersion: input.policyVersion,
     payload: {
       decision_id: decisionId,
+      case_id: input.caseId,
+      business_line: input.growthPlay.business_line,
+      evidence_class: input.sourceReceipt.evidenceClass,
       growth_play_version: input.growthPlay.version,
       decision_protocol_id: input.growthPlay.decision_protocol_id,
       cohort: decision.cohort ?? 'suppressed',
       action: decision.actionId ?? 'abstain',
+      connector: decision.connector ?? 'none',
       channel: decision.destination ?? 'none',
       owner_role: decision.ownerRole ?? null,
       confidence: decision.confidence,
@@ -433,6 +548,7 @@ async function appendDecision(repository, input, decision, decisionId, assignmen
       abstain_reason: decision.abstainReason ?? null,
       experiment_id: assignment?.experimentId ?? null,
       arm: assignment?.arm ?? null,
+      decision_digest: decisionFingerprint(decision),
     },
   });
 }
@@ -457,6 +573,118 @@ function validateDeliveryCallback(result) {
   assertIsoDate(result.completedAt, 'delivery.completedAt');
   if (result.status === 'delivered') assertIdentifier(result.externalReceiptId, 'delivery.externalReceiptId');
   else assertIdentifier(result.errorCode, 'delivery.errorCode');
+}
+
+async function appendActivationReceipt({
+  ledgerRepository,
+  tenantId,
+  caseId,
+  householdToken,
+  growthPlayId,
+  policyVersion,
+  decisionId,
+  connector,
+  destination,
+  receipt,
+}) {
+  const occurredAt = receipt.completed_at ?? receipt.completedAt;
+  assertIsoDate(occurredAt, 'delivery receipt completedAt');
+  assert.ok(receipt.status === 'delivered' || receipt.status === 'failed', 'delivery receipt must be terminal');
+  assertIdentifier(receipt.delivery_id ?? receipt.deliveryId, 'delivery receipt deliveryId');
+  return ledgerRepository.append({
+    tenantId,
+    idempotencyKey: `${caseId}:activation`,
+    eventType: 'activation',
+    householdToken,
+    growthPlayId,
+    policyVersion,
+    status: receipt.status === 'delivered' ? 'confirmed' : 'failed',
+    occurredAt,
+    payload: {
+      decision_id: decisionId,
+      activation_id: receipt.delivery_id ?? receipt.deliveryId,
+      connector,
+      destination,
+      external_receipt_id: receipt.external_receipt_id ?? receipt.externalReceiptId ?? null,
+      delivery_status: receipt.status,
+    },
+  });
+}
+
+function validatePreparedActivationInput(input) {
+  assert.ok(input && typeof input === 'object' && !Array.isArray(input), 'activation input must be an object');
+  validateTenantId(input.tenantId);
+  assertIdentifier(input.decisionId, 'decisionId');
+  assertIdentifier(input.sessionId, 'sessionId');
+  assertIsoDate(input.activatedAt, 'activatedAt');
+  assert.ok(input.decision && typeof input.decision === 'object' && !Array.isArray(input.decision), 'decision is required');
+  for (const field of ['growthPlayId', 'actionId', 'ownerRole', 'connector', 'destination', 'cohort']) {
+    assertIdentifier(input.decision[field], `decision.${field}`);
+  }
+  assert.equal(input.decision.abstain, false, 'abstaining decision cannot be activated');
+  assert.ok(input.decision.deliveryPayload && typeof input.decision.deliveryPayload === 'object', 'decision.deliveryPayload is required');
+  assertNoDirectPiiKeys(input.decision.deliveryPayload);
+}
+
+function validatePreparedDecision(prepared, input) {
+  assert.ok(prepared && typeof prepared === 'object', 'prepared decision was not found');
+  assert.equal(prepared.eventType, 'decision', 'prepared event must be a decision');
+  assert.equal(prepared.status, 'confirmed', 'prepared decision is not approved for review');
+  assert.match(prepared.householdToken, /^tok_[A-Za-z0-9_-]{8,120}$/, 'prepared household token must be opaque');
+  assert.ok(Date.parse(prepared.occurredAt) <= Date.parse(input.activatedAt), 'activation cannot predate the decision');
+  assert.equal(prepared.payload.decision_id, input.decisionId, 'prepared decision reference does not match');
+  assert.equal(prepared.payload.action, input.decision.actionId, 'prepared action does not match');
+  assert.equal(prepared.payload.connector, input.decision.connector, 'prepared connector does not match');
+  assert.equal(prepared.payload.channel, input.decision.destination, 'prepared destination does not match');
+  assert.equal(prepared.payload.abstain, false, 'prepared abstention cannot be activated');
+  assert.equal(prepared.payload.arm, 'treatment', 'only a prepared treatment decision can be activated');
+  assert.equal(prepared.payload.decision_digest, decisionFingerprint(input.decision), 'prepared decision content does not match');
+}
+
+function decisionFingerprint(decision) {
+  return sha256(canonicalize({
+    growthPlayId: decision.growthPlayId,
+    abstain: decision.abstain,
+    abstainReason: decision.abstainReason ?? null,
+    confidence: decision.confidence,
+    evidence: decision.evidence,
+    actionId: decision.actionId,
+    ownerRole: decision.ownerRole,
+    connector: decision.connector,
+    destination: decision.destination,
+    cohort: decision.cohort,
+    deliveryPayload: decision.deliveryPayload,
+  }));
+}
+
+function canonicalize(value) {
+  if (value === undefined) return 'null';
+  if (Array.isArray(value)) return `[${value.map((item) => canonicalize(item)).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalize(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+function preparedActivationResult({ prepared, input, activation, receipt }) {
+  return {
+    tenantId: input.tenantId,
+    caseId: prepared.payload.case_id,
+    householdToken: prepared.householdToken,
+    evidenceClass: prepared.payload.evidence_class,
+    growthPlayId: prepared.growthPlayId,
+    growthPlayVersion: prepared.payload.growth_play_version,
+    decisionProtocolId: prepared.payload.decision_protocol_id,
+    decisionId: input.decisionId,
+    decision: input.decision,
+    assignment: {
+      experimentId: prepared.payload.experiment_id,
+      arm: prepared.payload.arm,
+    },
+    activation,
+    receipt,
+    businessClaimAllowed: false,
+  };
 }
 
 function operatingResult({ input, decision, decisionId, assignment, activation, receipt }) {

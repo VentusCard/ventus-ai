@@ -15,6 +15,8 @@ import { Construct } from 'constructs';
 
 export const VENTUS_DATABASE_SECRET_ID =
   'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
+export const VENTUS_DATABASE_KMS_KEY_ARN =
+  'arn:aws:kms:us-east-2:373633008995:key/9ddf7da1-1156-4d44-87c7-81023f19160d';
 
 /**
  * CDK skeleton for documenting/importing existing production resources.

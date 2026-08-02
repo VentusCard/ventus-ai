@@ -9,6 +9,7 @@ const slasPath = join(backendRoot, 'config', 'pipeline-slas.json');
 const stuckJobsSqlPath = join(backendRoot, 'sql', 'stuck-pipeline-runs.sql');
 const operatingLoopPath = join(backendRoot, 'shared', 'pilot-operating-loop.mjs');
 const standaloneRuntimePath = resolve(backendRoot, '..', 'api', 'standalone-pilot-run.ts');
+const standaloneActivationPath = resolve(backendRoot, '..', 'api', 'standalone-pilot-activate.ts');
 const outcomeRuntimePath = resolve(backendRoot, '..', 'api', 'pilot-outcomes.ts');
 
 const REQUIRED_STAGES = [
@@ -108,9 +109,17 @@ function validateStandaloneRuntime(source) {
   assert.match(source, /scope: "growth_play_run", destination: businessLine/, 'runtime session must be business-line scoped');
   assert.match(source, /protocolRegistry\.requireApproved/, 'runtime must load the tenant-approved protocol');
   assert.match(source, /experimentId: `exp_\$\{decisionProtocolId/, 'experiment identity must derive from the approved protocol');
-  assert.match(source, /activationMode !== "shadow" && activationMode !== "sandbox_assisted"/, 'production activation must remain closed');
+  assert.match(source, /activationMode !== "shadow" && activationMode !== "sandbox_review" && activationMode !== "sandbox_assisted"/, 'production activation must remain closed');
   assert.match(source, /assertNonBypassRole/, 'durable runtime must reject privileged database roles');
   assert.match(source, /pilot delivery webhook must use HTTPS/, 'assisted delivery must require HTTPS');
+}
+
+function validateStandaloneActivation(source) {
+  assert.match(source, /ENABLE_STANDALONE_PILOT_RUNTIME/, 'reviewed activation must be default-off');
+  assert.match(source, /scope: "growth_play_activate"/, 'reviewed activation must use a dedicated signed scope');
+  assert.match(source, /destination: businessLine/, 'reviewed activation must be business-line scoped');
+  assert.match(source, /activatePreparedDecision/, 'reviewed activation must use the persisted operating-loop decision');
+  assert.match(source, /deliveryConfigured/, 'reviewed activation must fail closed without a delivery receiver');
 }
 
 function validateOutcomeRuntime(source) {
@@ -129,6 +138,7 @@ validateSlas(config);
 validateStuckJobsSql(readFileSync(stuckJobsSqlPath, 'utf8'), config);
 validateOperatingLoop(readFileSync(operatingLoopPath, 'utf8'));
 validateStandaloneRuntime(readFileSync(standaloneRuntimePath, 'utf8'));
+validateStandaloneActivation(readFileSync(standaloneActivationPath, 'utf8'));
 validateOutcomeRuntime(readFileSync(outcomeRuntimePath, 'utf8'));
 
 console.log(`Pipeline readiness checks passed: ${config.stages.length} stages, ${Object.keys(config.alarms).length} alarms, authenticated decision and outcome runtimes`);

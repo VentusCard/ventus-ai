@@ -9,6 +9,7 @@ import type {
   OpportunityPolicyContext,
   PlaidTransaction,
 } from "../src/lib/plaid.js";
+import { authorizeScenarioDecision } from "../backend/shared/console-authorization.mjs";
 
 export const maxDuration = 10;
 
@@ -27,12 +28,12 @@ export async function POST(request: Request): Promise<Response> {
 
   const scenario = parseScenario(raw.scenario);
   if (!scenario) return Response.json({ error: "valid scenario required" }, { status: 400 });
-  const requiredEntitlement = scenario === "deposit-retention" ? "consumer_demo" : "wealth_demo";
-  if (
-    !principal.entitlements.includes("growth_console")
-    || !principal.entitlements.includes(requiredEntitlement)
-  ) {
-    return Response.json({ error: "scenario is not entitled for this operator" }, { status: 403 });
+  const authorization = authorizeScenarioDecision(principal, scenario);
+  if (!authorization.allowed) {
+    return Response.json(
+      { error: "operator role and business-line access are required for this scenario" },
+      { status: 403 },
+    );
   }
 
   const transactions = parseTransactions(raw.transactions);

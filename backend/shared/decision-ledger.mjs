@@ -4,7 +4,7 @@ import { beginTenantTransaction, validateTenantId } from './tenant-context.mjs';
 
 const EVENT_TYPES = new Set([
   'signal', 'enrich', 'score', 'gate', 'decision', 'policy',
-  'activation', 'outcome', 'counterfactual', 'skill',
+  'activation', 'outcome', 'counterfactual', 'skill', 'response',
 ]);
 const STATUSES = new Set(['pending', 'confirmed', 'simulated', 'suppressed', 'failed']);
 const GENESIS_HASH = '0'.repeat(64);
@@ -48,8 +48,9 @@ export function verifyLedgerChain(rows) {
 export function createDecisionLedgerRepository({ getDB }) {
   assert.equal(typeof getDB, 'function', 'getDB is required');
   return {
-    async append(draft) {
+    async append(draft, { beforeInsert } = {}) {
       validateDraft(draft);
+      assert.ok(beforeInsert === undefined || typeof beforeInsert === 'function', 'beforeInsert must be a function');
       const db = await getDB();
       await db.connect();
       try {
@@ -74,6 +75,7 @@ export function createDecisionLedgerRepository({ getDB }) {
           await db.query('COMMIT');
           return { inserted: false, record: duplicate.rows[0] };
         }
+        if (beforeInsert) await beforeInsert(db);
 
         const latest = await db.query(
           `SELECT sequence_number, event_hash FROM decision_ledger_events
@@ -169,6 +171,32 @@ export function createDecisionLedgerRepository({ getDB }) {
           activationId: activation?.activation_id ?? null,
           deliveryStatus: activation?.delivery_status ?? null,
         };
+      } catch (error) {
+        await db.query('ROLLBACK').catch(() => {});
+        throw error;
+      } finally {
+        await db.end();
+      }
+    },
+
+    async loadPreparedDecision({ tenantId, decisionId }) {
+      validateTenantId(tenantId);
+      assertIdentifier(decisionId, 'decisionId');
+      const db = await getDB();
+      await db.connect();
+      try {
+        await beginTenantTransaction(db, tenantId);
+        const result = await db.query(
+          `SELECT * FROM decision_ledger_events
+           WHERE tenant_id = $1
+             AND event_type = 'decision'
+             AND payload->>'decision_id' = $2
+           ORDER BY sequence_number DESC LIMIT 1`,
+          [tenantId, decisionId],
+        );
+        assert.equal(result.rows.length, 1, 'prepared decision was not found');
+        await db.query('COMMIT');
+        return normalizeRow(result.rows[0]);
       } catch (error) {
         await db.query('ROLLBACK').catch(() => {});
         throw error;

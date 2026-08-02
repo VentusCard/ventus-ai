@@ -1,13 +1,18 @@
 import * as cdk from 'aws-cdk-lib';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
 
+const DEFAULT_COGNITO_USER_POOL_ID = 'us-east-2_M9Ipbusin';
+const DEFAULT_DEMO_TENANT_ID = 'ventus';
 const DEFAULT_ORIGINS = [
   'https://demo.ventusai.com',
+  'https://dev.d1gaewa028qzng.amplifyapp.com',
+  'https://staging.d1gaewa028qzng.amplifyapp.com',
 ];
 
 export class VentusDemoConnectorsStack extends cdk.Stack {
@@ -15,6 +20,28 @@ export class VentusDemoConnectorsStack extends cdk.Stack {
     super(scope, id, props);
 
     const allowedOrigins = parseOrigins(this.node.tryGetContext('demoAllowedOrigins'));
+    const cognitoUserPoolId = String(
+      this.node.tryGetContext('demoCognitoUserPoolId') ?? DEFAULT_COGNITO_USER_POOL_ID,
+    ).trim();
+    if (!/^us-east-2_[A-Za-z0-9]+$/.test(cognitoUserPoolId)) {
+      throw new Error('demoCognitoUserPoolId must be a valid us-east-2 Cognito user pool ID');
+    }
+    const demoTenantId = String(
+      this.node.tryGetContext('demoTenantId') ?? DEFAULT_DEMO_TENANT_ID,
+    ).trim();
+    if (!/^[A-Za-z0-9][A-Za-z0-9_-]{1,127}$/.test(demoTenantId)) {
+      throw new Error('demoTenantId must be a valid tenant identifier');
+    }
+    const userPool = cognito.UserPool.fromUserPoolId(
+      this,
+      'GrowthConsoleUserPool',
+      cognitoUserPoolId,
+    );
+    const sessionAuthorizer = new apigateway.CognitoUserPoolsAuthorizer(
+      this,
+      'VentusDemoSessionAuthorizer',
+      { cognitoUserPools: [userPool] },
+    );
     const connectorSecret = new secretsmanager.Secret(this, 'VentusDemoConnectorSecret', {
       secretName: 'ventus/staging/demo-connectors',
       description: 'Sandbox-only Plaid and Salesforce credentials for the protected Ventus live demo.',
@@ -41,7 +68,7 @@ export class VentusDemoConnectorsStack extends cdk.Stack {
 
     const connectorFunction = new lambda.Function(this, 'VentusDemoConnectorFunction', {
       functionName: 'ventus-demo-connectors',
-      description: 'Sandbox-only Plaid pull and Salesforce Task delivery for the protected executive demo.',
+      description: 'Sandbox-only Plaid and Salesforce FSC workflow connector for the protected executive demo.',
       runtime: lambda.Runtime.NODEJS_22_X,
       architecture: lambda.Architecture.ARM_64,
       handler: 'index.handler',
@@ -54,7 +81,7 @@ export class VentusDemoConnectorsStack extends cdk.Stack {
         ENABLE_LIVE_CONNECTORS: 'true',
         VENTUS_ENABLE_DEMO_CONNECTOR_SESSION: 'true',
         VENTUS_DEMO_CONNECTOR_SECRET_ID: connectorSecret.secretArn,
-        VENTUS_DEMO_TENANT_ID: 'demo_bank',
+        VENTUS_DEMO_TENANT_ID: demoTenantId,
         VENTUS_ALLOWED_ORIGINS: allowedOrigins.join(','),
         PLAID_ENV: 'sandbox',
       },
@@ -83,9 +110,16 @@ export class VentusDemoConnectorsStack extends cdk.Stack {
 
     const integration = new apigateway.LambdaIntegration(connectorFunction, { proxy: true });
     const demo = api.root.addResource('v1').addResource('demo');
-    demo.addResource('session').addMethod('POST', integration);
+    demo.addResource('session').addMethod('POST', integration, {
+      authorizer: sessionAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+      authorizationScopes: ['openid'],
+    });
     demo.addResource('plaid-transactions').addMethod('POST', integration);
     demo.addResource('salesforce-task').addMethod('POST', integration);
+    demo.addResource('salesforce-onboarding').addMethod('POST', integration);
+    demo.addResource('salesforce-deliver').addMethod('POST', integration);
+    demo.addResource('salesforce-outcomes').addMethod('POST', integration);
 
     new cloudwatch.Alarm(this, 'VentusDemoConnectorErrorsAlarm', {
       alarmName: 'ventus-demo-connectors-errors',

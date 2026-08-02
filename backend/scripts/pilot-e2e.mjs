@@ -130,7 +130,13 @@ function deliveryRepo(state) {
     },
     async complete(result) {
       const record = state.receipts.find((x) => x.tenant_id === result.tenantId && x.delivery_id === result.deliveryId);
-      if (record && record.status === 'pending') { record.status = result.status; record.external_receipt_id = result.externalReceiptId; }
+      if (record && record.status === 'pending') {
+        record.status = result.status;
+        record.external_receipt_id = result.externalReceiptId;
+        record.external_receipt_url = result.externalReceiptUrl;
+        record.error_code = result.errorCode;
+        record.completed_at = result.completedAt;
+      }
       return { updated: true, record };
     },
   };

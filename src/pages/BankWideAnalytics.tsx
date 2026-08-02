@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ScrollReveal from "@/components/ScrollReveal";
@@ -40,7 +41,7 @@ const BankWideAnalytics = () => {
 
   return (
     <div>
-      <SEO title="Bank-Wide Analytics — Ventus AI" description="Portfolio-wide lifestyle, life event, and wallet-share analytics for banks and credit unions." path="/analytics" />
+      <SEO title="Bank-Wide Behavioral Analytics — Ventus AI" description="Portfolio-wide lifestyle, life event, and wallet-share analytics for banks and credit unions, built from enriched transaction data." path="/analytics" keywords="bank customer analytics, wallet share analysis, portfolio life event analytics, credit union behavioral analytics" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Bank-Wide Analytics", path: "/analytics" }])} />
       <main>
         {/* SECTION 1 — HERO */}
         <section className="min-h-screen flex items-center pt-16" style={{ background: "#0a0f1e" }}>

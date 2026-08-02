@@ -14,6 +14,10 @@ export type ConnectorPrincipal = {
   sessionId: string;
   expiresAt: number;
   authMode: "session" | "legacy_bearer" | "local_demo";
+  sessionKind: "presenter" | "console" | "service";
+  role: string | null;
+  businessLineScopes: string[];
+  queueScopes: string[];
 };
 
 type ConnectorSessionClaims = {
@@ -26,6 +30,10 @@ type ConnectorSessionClaims = {
   jti: string;
   iat: number;
   exp: number;
+  session_kind?: "presenter" | "console" | "service";
+  role?: string;
+  business_line_scopes?: string[];
+  queue_scopes?: string[];
 };
 
 export function liveConnectorsEnabled(): boolean {
@@ -58,6 +66,10 @@ export function authorizeConnector(
       sessionId: "legacy_bearer",
       expiresAt: 0,
       authMode: "legacy_bearer",
+      sessionKind: "service",
+      role: null,
+      businessLineScopes: [],
+      queueScopes: [],
     };
     if (principalAllowed(principal, requirements)) return principal;
   }
@@ -75,6 +87,10 @@ export function authorizeConnector(
       sessionId: "local_demo",
       expiresAt: 0,
       authMode: "local_demo",
+      sessionKind: "presenter",
+      role: null,
+      businessLineScopes: [],
+      queueScopes: [],
     };
     if (principalAllowed(principal, requirements)) return principal;
   }
@@ -92,6 +108,10 @@ export function issueConnectorSession({
   scopes,
   destinations,
   sessionId,
+  sessionKind = "service",
+  role,
+  businessLineScopes = [],
+  queueScopes = [],
   ttlSeconds = 5 * 60,
   now = Math.floor(Date.now() / 1000),
 }: {
@@ -101,6 +121,10 @@ export function issueConnectorSession({
   scopes: string[];
   destinations: string[];
   sessionId: string;
+  sessionKind?: "presenter" | "console" | "service";
+  role?: string;
+  businessLineScopes?: string[];
+  queueScopes?: string[];
   ttlSeconds?: number;
   now?: number;
 }): string {
@@ -110,6 +134,12 @@ export function issueConnectorSession({
   validateOpaqueId(sessionId, "sessionId");
   validateEntitlements(scopes, "scopes");
   validateEntitlements(destinations, "destinations");
+  if (!["presenter", "console", "service"].includes(sessionKind)) {
+    throw new Error("sessionKind is invalid");
+  }
+  if (role !== undefined) validateOpaqueId(role, "role");
+  validateOptionalEntitlements(businessLineScopes, "businessLineScopes");
+  validateOptionalEntitlements(queueScopes, "queueScopes");
   if (!Number.isInteger(ttlSeconds) || ttlSeconds < 30 || ttlSeconds > MAX_SESSION_SECONDS) {
     throw new Error(`ttlSeconds must be 30-${MAX_SESSION_SECONDS}`);
   }
@@ -124,6 +154,10 @@ export function issueConnectorSession({
     jti: sessionId,
     iat: now,
     exp: now + ttlSeconds,
+    session_kind: sessionKind,
+    ...(role ? { role } : {}),
+    ...(businessLineScopes.length ? { business_line_scopes: [...new Set(businessLineScopes)] } : {}),
+    ...(queueScopes.length ? { queue_scopes: [...new Set(queueScopes)] } : {}),
   };
   const payload = encodeJson(claims);
   const unsigned = `${header}.${payload}`;
@@ -151,6 +185,11 @@ export function verifyConnectorSession(
     validateOpaqueId(claims.jti, "jti");
     validateEntitlements(claims.scopes, "scopes");
     validateEntitlements(claims.destinations, "destinations");
+    const sessionKind = claims.session_kind ?? "service";
+    if (!["presenter", "console", "service"].includes(sessionKind)) return null;
+    if (claims.role !== undefined) validateOpaqueId(claims.role, "role");
+    validateOptionalEntitlements(claims.business_line_scopes ?? [], "business_line_scopes");
+    validateOptionalEntitlements(claims.queue_scopes ?? [], "queue_scopes");
     if (!Number.isInteger(claims.iat) || !Number.isInteger(claims.exp)) return null;
     if (claims.iat > now + 60 || claims.exp <= now) return null;
     if (claims.exp - claims.iat > MAX_SESSION_SECONDS || claims.exp - claims.iat < 30) return null;
@@ -162,6 +201,10 @@ export function verifyConnectorSession(
       sessionId: claims.jti,
       expiresAt: claims.exp,
       authMode: "session",
+      sessionKind,
+      role: claims.role ?? null,
+      businessLineScopes: [...new Set(claims.business_line_scopes ?? [])],
+      queueScopes: [...new Set(claims.queue_scopes ?? [])],
     };
   } catch {
     return null;
@@ -195,6 +238,12 @@ function validateOpaqueId(value: string, label: string): void {
 
 function validateEntitlements(values: string[], label: string): void {
   if (!Array.isArray(values) || values.length === 0 || values.some((value) => typeof value !== "string" || !OPAQUE_ID.test(value))) {
+    throw new Error(`${label} must contain opaque identifiers`);
+  }
+}
+
+function validateOptionalEntitlements(values: string[], label: string): void {
+  if (!Array.isArray(values) || values.some((value) => typeof value !== "string" || !OPAQUE_ID.test(value))) {
     throw new Error(`${label} must contain opaque identifiers`);
   }
 }

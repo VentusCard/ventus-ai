@@ -78,6 +78,16 @@
     },
     "source_system": { "type": "string", "minLength": 2, "maxLength": 80 },
     "source_record_id": { "type": ["string", "null"], "maxLength": 128 },
-    "reason_code": { "type": ["string", "null"], "maxLength": 128 }
+    "reason_code": { "type": ["string", "null"], "maxLength": 128 },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_version", "observed_at", "correction_sequence"],
+      "properties": {
+        "source_version": { "type": "string", "minLength": 2, "maxLength": 128 },
+        "observed_at": { "type": "string", "format": "date-time" },
+        "correction_sequence": { "type": "integer", "minimum": 0 }
+      }
+    }
   }
 }

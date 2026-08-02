@@ -1,12 +1,11 @@
-declare const process: { env: Record<string, string | undefined> };
-import { authenticateConsoleUser } from "./_consoleAuth.js";
+import { authenticateConsoleUser, consoleAuthProvider } from "./_consoleAuth.js";
 
 export const maxDuration = 10;
 
 export async function POST(request: Request): Promise<Response> {
   const principal = await authenticateConsoleUser(request);
   if (!principal) {
-    return Response.json({ error: "authenticated, confirmed user required" }, { status: 401 });
+    return Response.json({ error: "active Console access required" }, { status: 401 });
   }
 
   const response = Response.json({
@@ -17,7 +16,9 @@ export async function POST(request: Request): Promise<Response> {
     role: principal.role,
     status: principal.status,
     entitlements: principal.entitlements,
-    authProvider: process.env.VENTUS_AUTH_PROVIDER?.trim() || "supabase",
+    businessLineScopes: principal.businessLineScopes,
+    queueScopes: principal.queueScopes,
+    authProvider: consoleAuthProvider(),
   });
   response.headers.set("Cache-Control", "no-store");
   return response;

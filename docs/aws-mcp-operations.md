@@ -27,7 +27,7 @@ Set `AWS_PROFILE=ventus-mcp` for the Codex desktop app and restart Codex so the 
 3. Attach `infra/iam/ventus-mcp-operator-policy.json` as an inline policy.
 4. Confirm CloudTrail is recording the role's calls.
 
-The policy only authorizes calls forwarded by the AWS-managed MCP Server. It can inspect the isolated demo stack, Lambda/API health, secret metadata, Amplify deployment jobs, logs, alarms, and costs. It can start an existing `staging` or `demo` Amplify branch deployment, but not `main`. It cannot read Amplify environment variables or secret values, administer IAM, alter DNS, or delete infrastructure.
+The policy only authorizes calls forwarded by the AWS-managed MCP Server. It can inspect the isolated demo stack, Lambda/API health, secret metadata, Amplify deployment jobs, logs, alarms, and costs. It can start an existing `dev` or `staging` deployment for the canonical Amplify app `d1gaewa028qzng` in `us-east-1`, but not `main`. It cannot create Amplify branches, read Amplify environment variables or secret values, administer IAM, alter DNS, or delete infrastructure.
 
 ## Operating split
 
@@ -38,6 +38,8 @@ Once the role is active, Codex can:
 - verify Lambda, API Gateway, CloudWatch alarms, and logs;
 - check that the demo secret exists and has a current version without reading it;
 - inspect deployment jobs or restart an existing Amplify branch deployment without reading its environment variables;
+- invoke the private evidence-store migrator in read-only status mode or with its
+  exact confirmation-gated migration payload;
 - run the Plaid-to-Salesforce smoke test and report evidence;
 - monitor AWS spend and anomalies.
 
@@ -48,6 +50,7 @@ An administrator still owns these intentional control points:
 - creating or changing IAM roles and policies;
 - entering Plaid and Salesforce credential values directly in Secrets Manager;
 - approving the protected GitHub `staging` environment when required;
+- creating the one-time Amplify `dev` branch connection and configuring its non-secret build variables;
 - creating or changing `demo.ventusai.com` DNS and certificate ownership.
 
 These are one-time or high-impact actions, not recurring engineering work. After they are complete, routine deployment, verification, troubleshooting, and billing checks can be led through Codex.

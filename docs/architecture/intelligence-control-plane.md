@@ -18,7 +18,12 @@ PR #178 initially serves this contract with `plaid-rules-v1`, the deterministic 
 ## Runtime Direction
 
 - **Now:** Plaid and fixtures enter a server-side deterministic runtime. The result explicitly records `modelInvocation: null`.
-- **Next:** The runtime is hosted behind the AWS API and writes decisions to the durable tenant-isolated ledger.
+- **Now:** The model-free decision baseline is hosted behind the authenticated AWS
+  Console API and writes tokenized decision evidence to the durable tenant-isolated
+  ledger. The Console displays the returned ledger sequence and hash.
+- **Next:** Move reviewed activation and outcome ingestion behind the same AWS
+  boundary so the complete operating loop is durable without relying on a local or
+  platform-specific API runtime.
 - **Evaluation:** Candidate models run in shadow against the same input and contract. They cannot alter activation.
 - **Promotion:** A model route can become assisted only after quality, policy, fairness, cost, latency, and holdout gates pass.
 
