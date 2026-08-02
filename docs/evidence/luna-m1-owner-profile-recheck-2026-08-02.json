@@ -1,0 +1,103 @@
+{
+  "schemaVersion": "ventus_luna_m1_owner_profile_recheck/v1",
+  "recordedAt": "2026-08-02T18:28:19Z",
+  "evidenceClass": "live_read_only_supporting",
+  "releaseReference": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "candidateManifestUri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/release-manifest-2026-08-01.json"
+  },
+  "execution": {
+    "credentialProfile": "ventus-owner",
+    "account": "373633008995",
+    "principal": "arn:aws:iam::373633008995:user/yusheng_chen",
+    "secretValuesRead": false
+  },
+  "amplify": {
+    "region": "us-east-1",
+    "appId": "d1gaewa028qzng",
+    "appName": "ventus-ai",
+    "defaultDomain": "d1gaewa028qzng.amplifyapp.com",
+    "appEnvironmentVariableKeys": [
+      "VITE_SUPABASE_PROJECT_ID",
+      "VITE_SUPABASE_PUBLISHABLE_KEY",
+      "VITE_SUPABASE_URL"
+    ],
+    "branch": {
+      "name": "staging",
+      "stage": "BETA",
+      "activeJobId": "15",
+      "latestJobId": null,
+      "branchEnvironmentVariablesPresent": false,
+      "autoBuild": true
+    },
+    "job15": {
+      "commitId": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+      "status": "SUCCEED",
+      "buildStatus": "SUCCEED",
+      "deployStatus": "SUCCEED",
+      "startedAt": "2026-08-02T14:36:52.624Z",
+      "completedAt": "2026-08-02T14:39:44.940Z"
+    }
+  },
+  "cognito": {
+    "region": "us-east-2",
+    "userPoolId": "us-east-2_M9Ipbusin",
+    "groups": [
+      {
+        "name": "ventus-platform-admin",
+        "precedence": 10,
+        "roleArnPresent": false
+      },
+      {
+        "name": "institution-admin",
+        "precedence": 20,
+        "roleArnPresent": false
+      },
+      {
+        "name": "growth-play-owner",
+        "precedence": 30,
+        "roleArnPresent": false
+      },
+      {
+        "name": "bank-operator",
+        "precedence": 40,
+        "roleArnPresent": false
+      },
+      {
+        "name": "risk-reviewer",
+        "precedence": 50,
+        "roleArnPresent": false
+      },
+      {
+        "name": "executive-viewer",
+        "precedence": 60,
+        "roleArnPresent": false
+      }
+    ],
+    "releaseBoundUserProjection": false,
+    "deniedOperationReceipt": false,
+    "fourEyesReceipt": false
+  },
+  "rds": {
+    "region": "us-east-2",
+    "clusterId": "ventus-bofa-cluster",
+    "status": "available",
+    "deletionProtection": true,
+    "engine": "aurora-postgresql",
+    "engineVersion": "17.7"
+  },
+  "stagingObservation": {
+    "url": "https://staging.d1gaewa028qzng.amplifyapp.com/app/login",
+    "result": "blocked_external_dependency",
+    "observation": "The deployed login page states that console authentication is not configured in this environment. No role, denial, tenant-context, or four-eyes acceptance was inferred."
+  },
+  "result": {
+    "status": "supporting_not_release_bound",
+    "canonicalPublicConfigurationBound": false,
+    "releaseBoundM1Complete": false,
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "reason": "Amplify job 15 and backend identity metadata are observed, but the public Console identity/configuration path and authenticated release-bound acceptance receipts are absent."
+  }
+}
