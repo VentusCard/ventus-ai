@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:22:00Z",
+  "recordedAt": "2026-08-02T17:26:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -190,6 +190,13 @@
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m4-skill-verification-2026-08-02.json",
         "digest": "sha256:4b19950e79a2138fb3727bf718a68a5fcc6aefd4eea5e2ab1d09d086daba2019",
         "observation": "Model gateway readiness passes for seven routed tasks; governance 16/16 and briefing/control 39/39 pass; employee brief remains unfrozen pending independent review, and intervention ranking has no production influence."
+      },
+      {
+        "id": "expanded-critical-slice-suite",
+        "result": "pass_sandbox_external_review_open",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m4-critical-slice-verification-2026-08-02.json",
+        "digest": "sha256:a31bf11a5cf0159d1741b717767add00f4d42c9d98ccc4bae313346ff8df6cab",
+        "observation": "Expanded deterministic/control suite passes 63/63, including fabricated-evidence rejection, policy/holdout boundaries, blind-review integrity, benchmark freeze gating, and non-shadow route rejection. Privacy/prompt-injection review, independent freeze, sanctioned cost/latency, and approvals remain open."
       }
     ],
     "openAcceptance": [
@@ -297,7 +304,7 @@
       "status": "evaluation_only_external_review_required",
       "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m4-skill-verification-2026-08-02.json",
       "digest": "sha256:4b19950e79a2138fb3727bf718a68a5fcc6aefd4eea5e2ab1d09d086daba2019",
-      "evidence": "fallback/control tests pass; frozen independent benchmark and three approvals absent"
+      "evidence": "fallback/control tests pass; frozen independent benchmark and three approvals absent; expanded 63/63 critical/control suite passes, but privacy/prompt-injection, independent freeze, cost/latency, and approvals remain open"
     },
     {
       "id": "A12",
