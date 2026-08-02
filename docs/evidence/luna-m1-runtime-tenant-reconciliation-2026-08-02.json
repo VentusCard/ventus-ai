@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "ventus_luna_m1_runtime_tenant_receipt/v1",
+  "recordedAt": "2026-08-02T17:12:00Z",
+  "evidenceClass": "supporting",
+  "releaseReference": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "environment": "bank_review_staging"
+  },
+  "target": {
+    "account": "373633008995",
+    "region": "us-east-2",
+    "clusterIdentifier": "ventus-bofa-cluster",
+    "database": "ventus_bofa",
+    "schema": "ventus_evidence",
+    "runtimeRole": "ventus_evidence_app_v1",
+    "roleMetadata": {
+      "rolbypassrls": false,
+      "rolsuper": false
+    },
+    "forcedRlsTables": 17,
+    "policyCount": 17
+  },
+  "execution": {
+    "setupCredential": "managed administrative reference; secret value not read",
+    "setupRole": "ventusadmin",
+    "roleSwitch": "SET LOCAL ROLE ventus_evidence_app_v1 succeeded",
+    "tenantContextLengths": [
+      19,
+      19
+    ],
+    "tenantContextDigests": [
+      "c7be88648d5d4db03fc1d29ca3428043",
+      "26d0aebbca12425b1bac79d53c5fa613"
+    ],
+    "transactionRollback": "complete",
+    "writesPerformed": false,
+    "rawSubjectRowsRead": false,
+    "secretValuesRead": false
+  },
+  "visibility": {
+    "tenantA": {
+      "institutions": 1,
+      "memberships": 1,
+      "ledger": 4,
+      "deliveries": 0,
+      "outcomes": 0
+    },
+    "tenantB": {
+      "institutions": 1,
+      "memberships": 1,
+      "ledger": 4,
+      "deliveries": 0,
+      "outcomes": 0
+    },
+    "tenantAViewingTenantB": {
+      "institutions": 0,
+      "memberships": 0,
+      "ledger": 0,
+      "deliveries": 0,
+      "outcomes": 0
+    },
+    "tenantBViewingTenantA": {
+      "institutions": 0,
+      "memberships": 0,
+      "ledger": 0,
+      "deliveries": 0,
+      "outcomes": 0
+    }
+  },
+  "result": {
+    "tenantIsolation": "pass_supporting_runtime_role",
+    "forcedRls": "pass_supporting_metadata_and_runtime_role",
+    "releaseBoundAcceptance": "open",
+    "reason": "The role and tenant policies were exercised in a controlled Data API transaction established by an administrative credential; the deployed frontend/API authentication path, six-role projection, denied-operation receipt, and four-eyes approval remain unbound.",
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false
+  }
+}
