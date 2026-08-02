@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "ventus_luna_m4_critical_slice_verification/v1",
+  "recordedAt": "2026-08-02T17:26:00Z",
+  "evidenceClass": "sandbox",
+  "releaseReference": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "releaseBound": false
+  },
+  "sourceCheckout": "ventus-ai-terra-t1",
+  "command": "node --test backend/shared/briefing-delivery.test.mjs backend/shared/intervention-planner.test.mjs backend/shared/intervention-benchmark.test.mjs backend/shared/intervention-review.test.mjs backend/shared/model-gateway.test.mjs backend/shared/evidence-taxonomy.test.mjs backend/shared/console-api.test.mjs backend/shared/enterprise-control-plane.test.mjs",
+  "result": {
+    "tests": 63,
+    "passed": 63,
+    "failed": 0
+  },
+  "covered": {
+    "employeeBriefDeterministicFallback": true,
+    "typedBriefingAndControlContracts": true,
+    "fabricatedEvidenceRejection": true,
+    "approvedActionAndPolicyBoundaries": true,
+    "holdoutAndConsentBoundaries": true,
+    "missingEvidenceAbstention": true,
+    "blindReviewPacketIntegrity": true,
+    "benchmarkFreezeRequiresTwoMatchingReviews": true,
+    "reviewDisagreementBlocksFreeze": true,
+    "shadowOnlyRouteEnforced": true,
+    "runtimePromotionRejected": true,
+    "interventionRankingProductionInfluence": false
+  },
+  "notCoveredOrOpen": {
+    "privacyPromptInjection": "not covered by this suite; independent critical-slice review required",
+    "employeeBriefIndependentFreeze": true,
+    "independentReviewers": 2,
+    "sanctionedShadowCostLatency": "not observed",
+    "threeApprovalSubjects": "not bound"
+  },
+  "claimBoundary": {
+    "promotionAllowed": false,
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false
+  }
+}
