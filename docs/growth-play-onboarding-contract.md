@@ -65,8 +65,16 @@ run. A later-arriving outcome must remain inside the protocol's approved measure
 
 The first real-bank onboarding is bounded to one non-production tenant, business line, Growth Play,
 sanctioned source, employee workflow destination, and authoritative outcome return. It must pass
-institution, identity, evidence, workflow, outcome, and Growth Play gates in that order. It does
-not require cross-business data or a bulk employee rollout.
+institution, identity, evidence, workflow, outcome, and Growth Play gates before real assignment.
+Commercial readiness work begins with an outcome-feasibility preflight for Gate 5 before custom
+workflow integration, then completes the six control gates without bypassing their dependencies.
+It does not require cross-business data or a bulk employee rollout.
+
+The paid engagement has two bounded phases. Phase A is paid readiness and integration: confirm the
+Gate 5 two-arm outcome path, complete Gates 1 through 5, and prepare Gate 6 shadow proof with
+fixture or partner-sandbox claims only. Phase B is the paid sanctioned pilot: begin only after all
+six gate artifacts, four-eyes approvals, assignment design, capacity, stop conditions, and analysis
+freeze pass. Payment does not imply positive lift or claim approval.
 
 ## First-bank profile: Consumer Deposit Primacy
 
@@ -132,8 +140,11 @@ demo or a Salesforce sandbox can display it. A bank owner must approve the mappi
 The repository proves compilation, tamper detection, tenant-isolated approval resolution,
 revocation enforcement, runtime allow-list enforcement, household routing integrity, and
 outcome-boundary checks on synthetic and sandbox fixtures. The registry and Evidence Store
-deployment infrastructure is deployed in dev, but the migration and forced-RLS runtime receipt
-are still pending. Internal identity-bound RBAC is tested, but bank SSO claim mapping is not
-implemented. A repository approval event does not prove that a bank owner actually
+deployment infrastructure is deployed. The 2026-08-01 staging acceptance record verifies twelve
+migration digests, the forced-RLS non-bypass runtime role, zero cross-tenant visibility, ledger
+integrity, runtime write denial, and idempotent assignment/exposure for its recorded backend
+revision. Internal identity-bound RBAC and the six-role dev UI are tested, but the frontend and
+backend evidence are not yet bound in one bank-review release manifest, and bank SSO claim mapping
+is not implemented. A repository approval event does not prove that a bank owner actually
 approved the configuration, that a source mapping is correct for sanctioned data, or that the
 selected action creates economic lift.
