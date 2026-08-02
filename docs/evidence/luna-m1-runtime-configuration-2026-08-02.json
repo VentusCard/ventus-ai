@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "ventus_luna_m1_runtime_configuration_receipt/v1",
+  "recordedAt": "2026-08-02T17:42:00Z",
+  "evidenceClass": "supporting",
+  "releaseReference": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "environment": "bank_review_staging"
+  },
+  "source": {
+    "account": "373633008995",
+    "region": "us-east-2",
+    "functionName": "ventus-console-api",
+    "lastModified": "2026-08-02T14:47:02Z",
+    "secretValuesRead": false
+  },
+  "nonSecretConfigurationDigests": {
+    "allowedOriginsDigest": "sha256:bace441f7146144742e62cdcae440a83c422fb9d69b5c6775ba90fb41227f3fd",
+    "consoleUrlDigest": "sha256:569f526d7cfbce8a6925b297f2539bb04d285189f5fb65e336152943a7062b90",
+    "cognitoIssuerDigest": "sha256:6e0668531eac91db7595c34a94c018757c317a5754158f753506454ac6984ad7",
+    "cognitoClientIdDigest": "sha256:f09da5ceea6f8301e681424e424fc8181f26a54b83eff11ff1b8db4b5f38efe7",
+    "outcomeTenantsDigest": "sha256:f38d46ca5a94a1565b215a2b26c19decba43f3431e0f2e559ac01089a1dbc7bc",
+    "outcomeRoleDigest": "sha256:1176b0d7af965f4a6e824a3bd3bdb0bde3a57bb39e97a9f3b69b84e6e03c880d",
+    "configurationDigest": "sha256:04a0e03a57c9375acc0e5c8cc03f4d370431f766bd0bedf77622dea1f49595b2"
+  },
+  "observations": {
+    "backendConfigured": true,
+    "frontendAmplifyBranchEnvironmentKeys": null,
+    "frontendAppEnvironmentKeys": [
+      "VITE_SUPABASE_PROJECT_ID",
+      "VITE_SUPABASE_PUBLISHABLE_KEY",
+      "VITE_SUPABASE_URL"
+    ],
+    "traceabilityFinding": "Backend Lambda has staging/dev origin and Cognito/outcome-role configuration; Amplify staging has no branch environment variables and app-level variables are legacy Supabase keys."
+  },
+  "result": {
+    "status": "supporting_backend_config_frontend_binding_open",
+    "canonicalPublicConfigurationBound": false,
+    "releaseBound": false,
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false
+  }
+}
