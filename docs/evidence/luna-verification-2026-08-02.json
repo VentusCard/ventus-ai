@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:42:00Z",
+  "recordedAt": "2026-08-02T17:43:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -62,7 +62,7 @@
         "id": "runtime-configuration-traceability",
         "result": "pass_supporting_backend_frontend_binding_open",
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-runtime-configuration-2026-08-02.json",
-        "digest": "sha256:",
+        "digest": "sha256:374b192e69930ce1e86935486ea1f774639394943110a91307ed89fec9177199",
         "observation": "Non-secret Lambda configuration digests bind allowed origins, console URL, Cognito issuer/client, and outcome reconciler scope; Amplify staging has no branch variables and retains only legacy Supabase app variables, so canonical public configuration remains unbound."
       }
     ],
@@ -237,7 +237,7 @@
       "id": "A1",
       "control": "release_identity",
       "status": "open",
-      "evidence": "manifest status not_bank_review_ready; known frontend/configuration/integration/reviewer gaps; live aggregate verifies the canonical schema's forced-RLS metadata but was queried administratively and does not bind runtime identity/tenant context; CI #783 and infra diff #226 pass, but manifest remains not_bank_review_ready and deployment is skipped"
+      "evidence": "manifest status not_bank_review_ready; known frontend/configuration/integration/reviewer gaps; live aggregate verifies the canonical schema's forced-RLS metadata but was queried administratively and does not bind runtime identity/tenant context; CI #783 and infra diff #226 pass, but manifest remains not_bank_review_ready and deployment is skipped; backend non-secret configuration is digest-bound, but frontend public configuration/identity target remains absent"
     },
     {
       "id": "A2",
