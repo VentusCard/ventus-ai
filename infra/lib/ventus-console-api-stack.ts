@@ -2,6 +2,7 @@ import * as cdk from 'aws-cdk-lib';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as cloudwatch from 'aws-cdk-lib/aws-cloudwatch';
 import * as ec2 from 'aws-cdk-lib/aws-ec2';
+import * as events from 'aws-cdk-lib/aws-events';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
@@ -17,6 +18,9 @@ const PRODUCT_CONNECTOR_SECRET_NAME = 'ventus/staging/product-connectors';
 const COWORKER_CONNECTOR_SECRET_NAME = 'ventus/staging/coworker-connectors';
 const DEMO_CONNECTOR_SECRET_NAME = 'ventus/staging/demo-connectors';
 const EXPERIMENT_ASSIGNMENT_SECRET_NAME = 'ventus/staging/experiment-assignment';
+const OUTCOME_RECONCILIATION_EVENT_SOURCE = 'ventus.console';
+const OUTCOME_RECONCILIATION_EVENT_TYPE = 'fsc_outcome_reconciliation_requested';
+const OUTCOME_RECONCILIATION_TENANTS = ['ventus'];
 const RDS_HOST =
   'ventus-bofa-cluster.cluster-chm2goicq5dx.us-east-2.rds.amazonaws.com';
 const DEFAULT_ORIGINS = [
@@ -106,7 +110,7 @@ export class VentusConsoleApiStack extends cdk.Stack {
         RDS_DATABASE: 'ventus_bofa',
         VENTUS_ALLOWED_ORIGINS: allowedOrigins.join(','),
         VENTUS_OUTCOME_RECONCILIATION_ROLE_ARN: outcomeReconciliationRole.roleArn,
-        VENTUS_OUTCOME_RECONCILIATION_TENANTS: 'ventus',
+        VENTUS_OUTCOME_RECONCILIATION_TENANTS: OUTCOME_RECONCILIATION_TENANTS.join(','),
       },
     });
     const runtimeSecretArn = this.formatArn({
@@ -261,6 +265,31 @@ export class VentusConsoleApiStack extends cdk.Stack {
       actions: ['execute-api:Invoke'],
       resources: [api.arnForExecuteApi('POST', '/v1/console/internal/outcomes/salesforce-sync', 'staging')],
     }));
+    // Explicit reconciliation requests are the only EventBridge entry point.
+    // Keep the existing IAM service identity and API authorization boundary;
+    // the producer must be separately permissioned to publish this event.
+    new events.CfnRule(this, 'FscOutcomeReconciliationRequestRule', {
+      name: 'ventus-fsc-outcome-reconciliation-requests',
+      description: 'Routes tenant-scoped FSC reconciliation requests to the IAM-protected Console API route.',
+      state: 'ENABLED',
+      eventPattern: {
+        source: [OUTCOME_RECONCILIATION_EVENT_SOURCE],
+        'detail-type': [OUTCOME_RECONCILIATION_EVENT_TYPE],
+        detail: { tenantId: OUTCOME_RECONCILIATION_TENANTS },
+      },
+      targets: [{
+        id: 'FscOutcomeReconciliationApi',
+        arn: api.arnForExecuteApi('POST', '/v1/console/internal/outcomes/salesforce-sync', 'staging'),
+        roleArn: outcomeReconciliationRole.roleArn,
+        inputTransformer: {
+          inputPathsMap: {
+            tenantId: '$.detail.tenantId',
+            decisionId: '$.detail.decisionId',
+          },
+          inputTemplate: '{"tenantId": "<tenantId>", "decisionId": "<decisionId>"}',
+        },
+      }],
+    });
     const moments = consoleApi.addResource('moments');
     moments.addMethod('GET', integration);
     const moment = moments.addResource('{decision_id}');
