@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T16:34:00Z",
+  "recordedAt": "2026-08-02T16:38:38Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -36,6 +36,13 @@
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-release-reconciliation-2026-08-02.json",
         "digest": "sha256:4c382c776933d791e9bea0efa2a7a06034493e8521e897c168b4e4c4cb203702",
         "observation": "Standalone digest recomputation matches the manifest; CI manifest check and AWS preservation probes pass. Release-bound six-role, denial, four-eyes, and canonical public identity receipts remain open."
+      },
+      {
+        "id": "live-database-aggregate",
+        "result": "pass_supporting_boundary_open",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-live-database-aggregate-2026-08-02.json",
+        "digest": "sha256:af000fd46500e8c9f06ef2731c4d5d6b084570090abd33a71eaae37232acba78",
+        "observation": "Read-only Data API aggregate targeted Lambda-configured database ventus_bofa: 21 public tables, no public-table RLS or forced-RLS flags, and a legacy schema rowset. This is supporting evidence only; it does not prove the manifest runtime role or canonical evidence database."
       }
     ],
     "openAcceptance": [
@@ -47,7 +54,7 @@
       "A11",
       "A12"
     ],
-    "claimBoundary": "No release-bound six-role, denied-operation, or independent approval claim.",
+    "claimBoundary": "No release-bound six-role, denied-operation, independent approval, or runtime-role/RLS claim.",
     "independentDigest": {
       "expected": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
       "actual": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
@@ -95,7 +102,8 @@
       "release-bound FSC treatment reconciliation",
       "negative holdout destination trace",
       "Decision Package v1.2 cross-surface digest receipt",
-      "Results evidence from the deployed release"
+      "Results evidence from the deployed release",
+      "canonical evidence database/schema and runtime-role alignment"
     ],
     "rehearsal": {
       "tests": 78,
@@ -181,7 +189,8 @@
     "Luna A1-A13 matrix with artifact links, digests, timestamps, reviewers, and external owners",
     "release-bound M2 receipt and bank-owned treatment/holdout outcome return",
     "signed pilot pack and selected proof institution",
-    "independent employee-brief benchmark freeze and approval receipts"
+    "independent employee-brief benchmark freeze and approval receipts",
+    "canonical evidence database/schema and runtime-role alignment with forced-RLS receipt"
   ],
   "claimBoundary": {
     "businessClaimAllowed": false,
@@ -193,7 +202,7 @@
       "id": "A1",
       "control": "release_identity",
       "status": "open",
-      "evidence": "manifest status not_bank_review_ready; known frontend/configuration/integration/reviewer gaps"
+      "evidence": "manifest status not_bank_review_ready; known frontend/configuration/integration/reviewer gaps; live aggregate is supporting only and shows the configured database/schema does not carry the asserted runtime RLS flags"
     },
     {
       "id": "A2",
