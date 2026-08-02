@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "ventus_luna_m1_verification/v1",
+  "recordedAt": "2026-08-02T17:04:00Z",
+  "release": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/release-manifest-2026-08-01.json",
+    "manifestGitBlobSha": "0bc64e821a9e23bf3c1f9dbb3b254fd993c94236",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "status": "not_bank_review_ready"
+  },
+  "independentDigest": {
+    "method": "standalone Node crypto SHA-256 over canonical JSON with manifestDigest removed",
+    "expected": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "actual": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "match": true,
+    "executedBy": "local independent verifier",
+    "commandBoundary": "does not import or invoke release-evidence-manifest.mjs"
+  },
+  "ciValidation": {
+    "workflowRunId": 30756567564,
+    "jobId": 91519644594,
+    "conclusion": "success",
+    "manifestCheckOutput": "not_bank_review_ready",
+    "cdkDiffArtifactSha256": "sha256:7c61eeb1ca1fc82041e4f6d7d095cc252cd70348a7973a57504f891cb28d5d93",
+    "deployStagingStack": "skipped"
+  },
+  "awsReaudit": {
+    "account": "373633008995",
+    "region": "us-east-2",
+    "profileIdentity": "arn:aws:iam::373633008995:user/yusheng_chen",
+    "servingCluster": {
+      "identifier": "ventus-bofa-cluster",
+      "status": "available",
+      "deletionProtection": true
+    },
+    "approvedSnapshot": {
+      "identifier": "rds:ventus-bofa-cluster-2026-08-02-07-10",
+      "status": "available",
+      "encrypted": true
+    },
+    "isolatedRestoreTarget": {
+      "status": "not_found",
+      "interpretation": "cleaned up after verification"
+    },
+    "isolatedSecurityGroup": {
+      "name": "ventus-evidence-restore-isolated-20260802-151522",
+      "status": "not_found",
+      "interpretation": "cleaned up after verification"
+    }
+  },
+  "releaseBoundAcceptance": {
+    "sixRole": "open_external_dependency",
+    "deniedOperations": "open_external_dependency",
+    "tenantIsolation": "open_release_bound",
+    "forcedRls": "supporting_receipt_pass_not_release_bound",
+    "ledger": "supporting_receipt_pass_not_release_bound",
+    "fourEyes": "open_external_dependency",
+    "secretBoundary": "supporting_ci_baseline_pass_not_release_bound"
+  },
+  "configurationReaudit": {
+    "amplifyStagingEnvironmentKeys": null,
+    "amplifyAppEnvironmentKeys": [
+      "VITE_SUPABASE_PROJECT_ID",
+      "VITE_SUPABASE_PUBLISHABLE_KEY",
+      "VITE_SUPABASE_URL"
+    ],
+    "canonicalConsoleIdentityDigest": null,
+    "canonicalConfigurationDigest": null,
+    "secretValuesRead": false
+  },
+  "claimBoundary": {
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "releaseBoundM1Complete": false,
+    "reason": "Independent manifest integrity and AWS preservation checks pass, but release-bound identity, role, denial, four-eyes, and canonical public configuration receipts remain absent."
+  }
+}
