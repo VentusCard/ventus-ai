@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:12:00Z",
+  "recordedAt": "2026-08-02T17:18:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -102,6 +102,13 @@
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/authoritative-outcome-rehearsal-2026-08-02.json",
         "digest": "sha256:bafce22d997f1871e4b363fd072d70b09f816bc8bf49467ee8b9e68d237cbcef",
         "observation": "Both arms include explicit zero and non-zero observations, one append-only correction, complete coverage, and an inconclusive rehearsal difference; claim flags remain false."
+      },
+      {
+        "id": "live-sandbox-aggregate",
+        "result": "pass_sandbox_receipts_external_outcome_open",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-live-sandbox-aggregate-2026-08-02.json",
+        "digest": "sha256:6c470508a238ae82f2042793b4dcefef0f08722fa4f776bef19145b364cffdd2",
+        "observation": "Canonical staging aggregates show active Salesforce FSC mapping v1, one passing and one failing mapping test, five delivery receipts, two not-opened observation receipts, 17 approved protocol events, and zero authoritative outcome_events. No treatment/holdout economic claim is permitted."
       }
     ],
     "openAcceptance": [
@@ -236,7 +243,7 @@
       "status": "conditional_sandbox",
       "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-outcome-verification-2026-08-02.json",
       "digest": "sha256:b1493ca178936fe6dd3b0f00dc5d50dc9d361de078f8d410df8e4f9dd2323a28",
-      "evidence": "FSC workflow contract pass; live treatment reconciliation remains external"
+      "evidence": "FSC workflow contract pass; live treatment reconciliation remains external; live staging aggregate shows FSC sandbox mapping/delivery receipts, but workflow-owner reconciliation and employee response/completion/timing evidence remain external"
     },
     {
       "id": "A5",
@@ -252,7 +259,7 @@
       "status": "conditional_sandbox_external_source_open",
       "artifact": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/authoritative-outcome-rehearsal-2026-08-02.json",
       "digest": "sha256:bafce22d997f1871e4b363fd072d70b09f816bc8bf49467ee8b9e68d237cbcef",
-      "evidence": "two-arm rehearsal pass; bank-owned source/return absent"
+      "evidence": "two-arm rehearsal pass; bank-owned source/return absent; live canonical schema has zero outcome_events and two not-opened observations, so bank-owned two-arm return is absent"
     },
     {
       "id": "A7",
@@ -266,7 +273,7 @@
       "id": "A8",
       "control": "decision_package_v12",
       "status": "open_release_bound",
-      "evidence": "contract tests pass; cross-surface digest and deployed Results receipt absent"
+      "evidence": "contract tests pass; cross-surface digest and deployed Results receipt absent; 17 approved protocol events are supporting only; cross-surface DP v1.2 digest and independent approval remain absent"
     },
     {
       "id": "A9",
