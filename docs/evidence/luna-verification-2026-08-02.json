@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:26:00Z",
+  "recordedAt": "2026-08-02T17:30:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -107,8 +107,8 @@
         "id": "live-sandbox-aggregate",
         "result": "pass_sandbox_receipts_external_outcome_open",
         "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m2-live-sandbox-aggregate-2026-08-02.json",
-        "digest": "sha256:d55db01f34fc47f8d3cc8a5b65979d8777dcc79b6c6294ba966d0b98306eadf6",
-        "observation": "Canonical staging aggregates show active Salesforce FSC mapping v1, one passing and one failing mapping test, five delivery receipts, five payloads with core decision/idempotency keys (three with decision_package_v12), two not-opened observation receipts, 17 approved protocol events, and zero authoritative outcome_events. No treatment/holdout economic claim is permitted."
+        "digest": "sha256:2be26c661811245536aa9cb7e8c7eef68ae9c432cb84df55161443db63435124",
+        "observation": "Canonical staging aggregates show active FSC mapping v1, one passing and one failing mapping test, five delivery receipts, five payloads with core keys (three with decision_package_v12), two not-opened observations, 17 protocols with one approved event each, zero protocols with two deciders, and zero authoritative outcome_events. No treatment/holdout or four-eyes claim is permitted."
       }
     ],
     "openAcceptance": [
