@@ -1,0 +1,142 @@
+{
+  "schemaVersion": "ventus_luna_m4_verification/v1",
+  "recordedAt": "2026-08-02T16:28:00Z",
+  "release": {
+    "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
+    "manifestDigest": "sha256:35c220c51d5f944e4beacebaef056b9d64a289a48df1cf6c6435c14534cfc9e6",
+    "evidenceClass": "sandbox",
+    "releaseBound": false
+  },
+  "decision": {
+    "firstPromotableSkill": "employee_brief",
+    "moatTrack": "intervention_ranking",
+    "momentQualification": "deterministic_and_authoritative",
+    "modelMayChangeQualificationRankingAssignmentActionDelivery": false,
+    "status": "evaluation_only"
+  },
+  "employeeBrief": {
+    "scope": "post-decision projection of an approved Decision Package v1.2",
+    "allowed": [
+      "compress or order already approved evidence",
+      "explain the already selected action",
+      "cite supplied evidence identifiers",
+      "preserve limitations"
+    ],
+    "prohibited": [
+      "qualify the Moment",
+      "rank actions",
+      "add evidence",
+      "alter policy",
+      "expose holdout",
+      "deliver action",
+      "change assignment or claim fields"
+    ],
+    "deterministicFallback": {
+      "testCommand": "node --test backend/shared/briefing-delivery.test.mjs backend/shared/console-api.test.mjs backend/shared/enterprise-control-plane.test.mjs",
+      "result": "pass",
+      "tests": 39,
+      "passed": 39,
+      "failed": 0
+    },
+    "frozenBenchmark": {
+      "status": "not_frozen",
+      "independentReviewComplete": false,
+      "reviewersRequired": 2,
+      "reason": "No independent business and risk/model reviewers have adjudicated a task-specific employee-brief benchmark.",
+      "requiredBeforePromotion": [
+        "freeze cases and expectations hash",
+        "two independent blind reviews and adjudication",
+        "three approval subjects bound to one Skill/Decision Package digest",
+        "sanctioned shadow receipts",
+        "critical-slice safety and privacy results",
+        "registered cost/latency budget and fallback evidence"
+      ]
+    },
+    "criticalSlices": {
+      "schemaValidity": "covered_by_typed_contract_tests",
+      "fabricatedEvidence": "covered_in_shadow_planner_contract; employee_brief_specific_receipt_open",
+      "policyAndConsent": "covered_by_deterministic_fallback/control tests",
+      "holdoutLeakage": "covered_as_control_boundary; release-bound brief receipt open",
+      "missingEvidence": "covered_by_deterministic_abstention; employee_brief_specific receipt open",
+      "privacyAndPromptInjection": "not_covered_external_review_required",
+      "businessLineAndTenant": "covered_by_server authorization tests; release-bound receipt open",
+      "ambiguityAndVulnerability": "partial_in_planner_contract; employee_brief critical-slice score open"
+    }
+  },
+  "interventionRanking": {
+    "status": "shadow_only",
+    "benchmark": {
+      "id": "ventus_intervention_seed_v1",
+      "source": "backend/fixtures/evaluation/intervention-planning-benchmark.json",
+      "status": "draft",
+      "cases": 21,
+      "expectationsSha256": "8ff36a6f8d15c026393c77da262b97b0bc49aad0ac1a7f455512dcaa90df11eb",
+      "independentReviewComplete": false,
+      "baselinePassRate": 0.8571,
+      "baselineScore": 0.8917
+    },
+    "preparation": {
+      "command": "VENTUS_INTERVENTION_REVIEW_DIR=/private/tmp/ventus-intervention-review-2026-08-02 VENTUS_INTERVENTION_REVIEWERS=2 node backend/scripts/prepare-intervention-review.mjs",
+      "packetsPrepared": 2,
+      "candidatePredictionsIncluded": false,
+      "packetDigests": [
+        "sha256:91c48993bde8cbaa3717d75de3eb9402714cc788f2575bbb22d7c52ac56a1493",
+        "sha256:9307f23c324ee7bcb7256bb0813196a7fc3e5a6068a33e439a5e6f6b4424f454"
+      ],
+      "adjudicationComplete": false
+    },
+    "noProductionInfluence": {
+      "readiness": "pass",
+      "governanceTests": "16/16 pass",
+      "checks": [
+        "shadow_only route required",
+        "non-shadow route rejected",
+        "runtimePromotionAllowed remains false",
+        "baseline comparison required",
+        "qualification, active recommendation, assignment, UI action, and delivery remain deterministic"
+      ],
+      "evidenceClass": "sandbox"
+    },
+    "costLatencyFallback": {
+      "candidateRun": "not_available",
+      "modelCost": "not_observed",
+      "p95Latency": "not_observed",
+      "deterministicFallback": "available",
+      "registeredThresholds": false
+    }
+  },
+  "commands": [
+    {
+      "command": "node ../backend/scripts/check-model-gateway-readiness.mjs",
+      "result": "pass",
+      "summary": "7 routed tasks; production tasks migrated; judge and intervention planner shadow-only"
+    },
+    {
+      "command": "node --test backend/shared/model-gateway.test.mjs backend/shared/intervention-planner.test.mjs backend/shared/evidence-taxonomy.test.mjs",
+      "result": "pass",
+      "tests": 16
+    },
+    {
+      "command": "node backend/scripts/qa-intervention-planner.mjs",
+      "result": "pass",
+      "summary": "draft packet and deterministic baseline validated; no candidate predictions"
+    },
+    {
+      "command": "node --test backend/shared/briefing-delivery.test.mjs backend/shared/console-api.test.mjs backend/shared/enterprise-control-plane.test.mjs",
+      "result": "pass",
+      "tests": 39
+    }
+  ],
+  "openAcceptance": [
+    "A11",
+    "A12"
+  ],
+  "claimBoundary": {
+    "benchmarkFrozen": false,
+    "promotionAllowed": false,
+    "productionInfluence": false,
+    "businessClaimAllowed": false,
+    "causalClaimAllowed": false,
+    "reason": "Employee brief remains a low-risk candidate pending independent freeze/approval; intervention ranking remains shadow-only and has no production influence."
+  }
+}
