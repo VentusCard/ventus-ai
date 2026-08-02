@@ -759,6 +759,7 @@ type DecisionPackageV12 = Omit<
 - Recommended and alternative actions come from the approved action catalog.
 - Holdout packages cannot be delivered as treatment actions.
 - `packageDigest` covers the canonical package before the digest field is added.
+- `packageDigest` and the Growth Play `protocol_digest` are separate identities: the former covers the immutable Decision Package v1.2 and the latter covers the normalized Growth Play contract. Cross-surface verification compares the same `packageDigest` across Ventus, FSC, and enabled Coworker surfaces, while separately binding `growthPlay.protocolId` to the registered and approved protocol; equality between the two hashes is not required.
 - The server seals the package before it is shown to a user or connector.
 - Response receipts reference the package digest and server-verified actor.
 - Delivery receipts are idempotent per package, approved action, and
