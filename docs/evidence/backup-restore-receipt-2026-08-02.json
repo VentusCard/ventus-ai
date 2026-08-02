@@ -1,0 +1,88 @@
+{
+  "schemaVersion": "ventus_evidence_backup_restore_receipt/v1",
+  "receiptId": "backup_restore_2026_08_02",
+  "recordedAt": "2026-08-02T15:42:11Z",
+  "environment": "staging",
+  "mode": "isolated_non_serving",
+  "source": {
+    "clusterIdentifier": "ventus-bofa-cluster",
+    "snapshotIdentifier": "rds:ventus-bofa-cluster-2026-08-02-07-10",
+    "snapshotTime": "2026-08-02T07:11:16.593Z",
+    "latestRestorableTime": "2026-08-02T15:10:06.937Z",
+    "engine": "aurora-postgresql",
+    "engineVersion": "17.7",
+    "encrypted": true,
+    "servingEndpointUnchanged": true
+  },
+  "restore": {
+    "targetIdentifier": "ventus-bofa-restore-20260802-151522",
+    "targetInstanceIdentifier": "ventus-bofa-restore-20260802-151522-1",
+    "isolated": true,
+    "serving": false,
+    "securityGroup": "ventus-evidence-restore-isolated-20260802-151522",
+    "startedAt": "2026-08-02T15:16:19.182Z",
+    "completedAt": "2026-08-02T15:23:34.890Z",
+    "observedRtoSeconds": 435.708,
+    "observedRpoSeconds": 29102.589,
+    "rpoBasis": "restore_start_minus_automated_snapshot_time",
+    "cleanupDisposition": "removed_after_verification",
+    "cleanupCompletedAt": "2026-08-02T15:53:31Z"
+  },
+  "migrationInventory": [
+    { "file": "decision-ledger.sql", "sha256": "0694489c5e40fcc8d4f7120744b152554e146c2c54454aaa77ced3f104be204c" },
+    { "file": "experiment-measurement.sql", "sha256": "69594dce9e17952c5b34ca052bf42302ec8f77d59013d772f98209519d1f0f54" },
+    { "file": "connected-expansion-measurement.sql", "sha256": "de6edd75ead8398c72255e298ff8790defe127c36adb43cd1ec7c4b939997c98" },
+    { "file": "growth-play-registry.sql", "sha256": "8ac40cc000911a3b1f75317e79463aeaa7cab03e0ba7aafeeb04ac5848dc5e04" },
+    { "file": "tenant-isolation.sql", "sha256": "a8d3479930e7b474c637801a92f252d8e22ca5402eebc26108e0388a669b99c4" },
+    { "file": "institution-access.sql", "sha256": "b85e8018b7cb3ff2f5e804902dfc9ecc333a1b84adf0bcb705e5fc046f11a800" },
+    { "file": "enterprise-access-phase0.sql", "sha256": "55af23accbe19113e7e0dd932fe37b43fb3ad0cca35b6aa1598180c35354e2c6" },
+    { "file": "connector-delivery.sql", "sha256": "e5abcf88d9a1e03e77109dcfcfd31c815d59fa629bf772f296ca26ce6718bab7" },
+    { "file": "enterprise-console-journey.sql", "sha256": "d4b5c02c8de090ccfafff3339f2f995718754afea2243dbd2f02b261d03afb93" },
+    { "file": "enterprise-product-control-plane.sql", "sha256": "9e2a8e944faefd0f740da97501ccf8b9fee632329537976ab63f2d9fcb4c40b9" },
+    { "file": "enterprise-skill-governance.sql", "sha256": "ab86a299feb79f8cd318d123825f4ff3d2139ca26bb716aa79fd2c41bc49416f" },
+    { "file": "enterprise-protocol-writer.sql", "sha256": "37cc984b592d777ca58dfed1fb8958085073bfceb65b92a96b4946ba48021401" }
+  ],
+  "schemaProbe": {
+    "status": "pass",
+    "schema": "ventus_evidence",
+    "tableCount": 17,
+    "forcedRlsTableCount": 17,
+    "engineVersion": "17.7",
+    "dataApiEnabledOnTarget": true
+  },
+  "tenantRlsProbe": {
+    "status": "pass",
+    "runtimeRole": "ventus_evidence_app_v1",
+    "crossTenantRows": 0,
+    "nonBypass": true,
+    "ownTenantRows": 26,
+    "otherTenantRows": 0,
+    "servingEndpointUnchanged": true
+  },
+  "ledger": {
+    "status": "verified",
+    "verified": true,
+    "verificationMethod": "source_restore_rowset_sha256_and_head_hash",
+    "eventCount": 26,
+    "sourceHeadHash": "aaf164aff558ce067e929c8d3048d1473bea84c26e6e7f8153f37d00b11b38ac",
+    "restoredHeadHash": "aaf164aff558ce067e929c8d3048d1473bea84c26e6e7f8153f37d00b11b38ac",
+    "sourceRowsetSha256": "c699244121c6a14f89f7120725ae2c3e4f1f77c6565d60dc1acf253feb213f2f",
+    "restoredRowsetSha256": "c699244121c6a14f89f7120725ae2c3e4f1f77c6565d60dc1acf253feb213f2f",
+    "sequenceContiguous": true,
+    "crossTenantVisibility": 0,
+    "historicalReplayNote": "Five pre-existing activation rows (sequences 5, 7, 19, 22, 26) do not replay under the current canonicalizer; source and restored rowsets are byte-for-byte equivalent and no new divergence was observed. This receipt does not assert cryptographic chain validity for those historical rows."
+  },
+  "cleanup": {
+    "targetClusterDeleted": true,
+    "targetInstanceDeleted": true,
+    "isolatedSecurityGroupDeleted": true,
+    "sourceClusterDeleted": false,
+    "sourceSnapshotDeleted": false
+  },
+  "status": "completed",
+  "claimBoundary": {
+    "resilienceClaimAllowed": false,
+    "reason": "This is a dated isolated restore-equivalence receipt only; it does not authorize a bank continuity SLA, production recovery claim, or economic outcome claim."
+  },
+  "dependencies": []
+}
