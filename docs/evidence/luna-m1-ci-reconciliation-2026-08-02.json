@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_m1_ci_reconciliation/v1",
-  "recordedAt": "2026-08-02T18:08:00Z",
+  "recordedAt": "2026-08-02T18:18:00Z",
   "evidenceClass": "supporting",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -8,33 +8,38 @@
     "manifestCheck": "not_bank_review_ready",
     "requireReadyCheck": "failed_closed_locally"
   },
-  "commitUnderTest": "56c280cd3ec18e6a2883ab8722b37e426ccf8b54",
+  "commitUnderTest": "0eb5113d1c85f784d9bb681b54c5db1b3b92a39b",
   "branch": "agent/refresh-release-manifest",
   "workflows": {
     "ci": {
-      "runId": 30760239897,
-      "runNumber": 814,
+      "runId": 30760467819,
+      "runNumber": 816,
       "conclusion": "success",
       "scope": "candidate branch head"
     },
     "infraDiff": {
-      "runId": 30760239934,
-      "runNumber": 257,
+      "runId": 30760467896,
+      "runNumber": 259,
       "conclusion": "success",
-      "cdkDiffJobId": 91529326274,
+      "cdkDiffJobId": 91530332776,
       "manifestCheckOutput": "not_bank_review_ready",
       "cdkDiffArtifact": {
-        "id": 8837259288,
+        "id": 8837370570,
         "name": "cdk-staging-diff",
-        "digest": "sha256:86e572ab69a2a4568862568f63ab5fe5cbff9d7fb714fabb300e71e759d51169"
+        "digest": "sha256:3e8ce3cb59caf8db2f00f40640b46be7ab19840f33325429f79dc6295851d7eb"
       },
       "deployStagingStack": "skipped",
-      "retry": "none; candidate documentation-only commit completed the diff path without deployment"
+      "retry": {
+        "initialRunNumber": 259,
+        "initialAttempt": "failed at Diff Staging Stack because cdk-diff-change-set was CREATE_IN_PROGRESS during delete",
+        "retryResult": "success",
+        "retryAttemptArtifactId": 8837370570
+      }
     }
   },
   "interpretation": {
     "status": "supporting_pass_bank_review_still_closed",
-    "finding": "The candidate branch manifest remains syntactically and contract-valid but not_bank_review_ready. CI and CDK diff passed for the current candidate head; the staging deployment job was skipped.",
+    "finding": "The candidate branch manifest remains syntactically and contract-valid but not_bank_review_ready. CI and CDK diff passed for the current candidate head after a documented CloudFormation change-set race retry; the staging deployment job was skipped.",
     "businessClaimAllowed": false,
     "causalClaimAllowed": false
   }
