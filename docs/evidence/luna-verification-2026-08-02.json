@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_verification/v1",
-  "recordedAt": "2026-08-02T17:42:00Z",
+  "recordedAt": "2026-08-02T17:52:00Z",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
     "manifestUri": "https://github.com/VentusCard/ventus-ai/blob/staging/docs/evidence/release-manifest-2026-08-01.json",
@@ -31,11 +31,11 @@
         "observation": "The deployed staging login states that console authentication is not configured in this environment; no role or denial receipt was inferred."
       },
       {
-        "id": "luna-m1-independent-release-reconciliation",
-        "result": "pass_integrity_external_acceptance_open",
-        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-release-reconciliation-2026-08-02.json",
-        "digest": "sha256:4c382c776933d791e9bea0efa2a7a06034493e8521e897c168b4e4c4cb203702",
-        "observation": "Standalone digest recomputation matches the manifest; CI manifest check and AWS preservation probes pass. Release-bound six-role, denial, four-eyes, and canonical public identity receipts remain open."
+        "id": "ci-reconciliation",
+        "result": "pass_supporting_manifest_closed",
+        "uri": "https://github.com/VentusCard/ventus-ai/blob/agent/refresh-release-manifest/docs/evidence/luna-m1-ci-reconciliation-2026-08-02.json",
+        "digest": "sha256:93666786b7902b9d40fa2ce6a158e0266686f20fbcb226effdc67630aa153040",
+        "observation": "Current branch head 77840662b48807f62ab0ae7790ea5a80016e2261 passed CI #810 and infrastructure diff #253; the manifest check returned not_bank_review_ready, the CDK diff artifact was captured, and the staging deployment job was skipped after a change-set race retry."
       },
       {
         "id": "live-database-aggregate",
