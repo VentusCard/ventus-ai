@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import test from 'node:test';
 import { readFileSync } from 'node:fs';
 import {
@@ -40,6 +41,16 @@ test('release manifest rejects secret-bearing fields and digest tampering', () =
   const manifest = buildReleaseEvidenceManifest(completeCandidate());
   manifest.claims.knownLimitations.push('tampered');
   assert.throws(() => validateReleaseEvidenceManifest(manifest), /digest does not match/);
+});
+
+test('release manifest cannot self-declare readiness when a component is still unknown', () => {
+  const manifest = buildReleaseEvidenceManifest(completeCandidate());
+  manifest.frontend.amplify.jobId = null;
+  manifest.status = 'bank_review_ready';
+  manifest.claims.claimStatus = 'bank_review_ready';
+  assert.throws(() => validateReleaseEvidenceManifest(manifest), /digest does not match/);
+  manifest.manifestDigest = manifestDigestWithoutMutation(manifest);
+  assert.throws(() => validateReleaseEvidenceManifest(manifest), /readiness was not derived/);
 });
 
 test('schema names the required release sections and readiness state', () => {
@@ -92,4 +103,10 @@ function completeCandidate() {
     independentReviewer: { actor: 'independent_reviewer', receiptId: 'approval-independent', approvedAt: candidate.release.createdAt },
   };
   return candidate;
+}
+
+function manifestDigestWithoutMutation(manifest) {
+  const copy = JSON.parse(JSON.stringify(manifest));
+  delete copy.manifestDigest;
+  return `sha256:${createHash('sha256').update(JSON.stringify(copy)).digest('hex')}`;
 }

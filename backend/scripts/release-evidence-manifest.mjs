@@ -149,6 +149,10 @@ export function validateReleaseEvidenceManifest(manifest, { requireReady = false
   assert.match(manifest.manifestDigest, /^sha256:[a-f0-9]{64}$/, 'manifest digest is invalid');
   assert.equal(manifest.manifestDigest, digest(withoutDigest(manifest)), 'manifest digest does not match contents');
   assert.ok(['bank_review_ready', 'not_bank_review_ready'].includes(manifest.status), 'manifest status is invalid');
+  assert.equal(manifest.claims?.claimStatus, manifest.status, 'claim status does not match manifest status');
+  const derived = buildReleaseEvidenceManifest(withoutDigest(manifest));
+  assert.equal(manifest.status, derived.status, 'manifest readiness was not derived from its components');
+  assert.deepEqual(manifest.exceptions, derived.exceptions, 'manifest exceptions do not match its components');
   if (requireReady) assert.equal(manifest.status, 'bank_review_ready', 'manifest is not bank-review ready');
   return manifest;
 }
