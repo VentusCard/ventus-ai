@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_luna_m1_ci_reconciliation/v1",
-  "recordedAt": "2026-08-02T17:50:00Z",
+  "recordedAt": "2026-08-02T18:08:00Z",
   "evidenceClass": "supporting",
   "release": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -8,32 +8,33 @@
     "manifestCheck": "not_bank_review_ready",
     "requireReadyCheck": "failed_closed_locally"
   },
-  "commitUnderTest": "77840662b48807f62ab0ae7790ea5a80016e2261",
+  "commitUnderTest": "56c280cd3ec18e6a2883ab8722b37e426ccf8b54",
+  "branch": "agent/refresh-release-manifest",
   "workflows": {
     "ci": {
-      "runId": 30759377411,
-      "runNumber": 810,
+      "runId": 30760239897,
+      "runNumber": 814,
       "conclusion": "success",
-      "scope": "release-evidence branch head"
+      "scope": "candidate branch head"
     },
     "infraDiff": {
-      "runId": 30759377416,
-      "runNumber": 253,
+      "runId": 30760239934,
+      "runNumber": 257,
       "conclusion": "success",
-      "cdkDiffJobId": 91527465505,
+      "cdkDiffJobId": 91529326274,
       "manifestCheckOutput": "not_bank_review_ready",
       "cdkDiffArtifact": {
-        "id": 8837049451,
+        "id": 8837259288,
         "name": "cdk-staging-diff",
-        "digest": "sha256:11469087a0105867c768d6ed9cba2bb8e324c9ee4f96af55d2b68e07f4ef12bc"
+        "digest": "sha256:86e572ab69a2a4568862568f63ab5fe5cbff9d7fb714fabb300e71e759d51169"
       },
       "deployStagingStack": "skipped",
-      "retry": "A prior attempt hit a CloudFormation change-set ClientToken race; only the failed job was rerun."
+      "retry": "none; candidate documentation-only commit completed the diff path without deployment"
     }
   },
   "interpretation": {
     "status": "supporting_pass_bank_review_still_closed",
-    "finding": "The exact release manifest is syntactically and contract-valid, but correctly remains not_bank_review_ready. CI and CDK diff passed on the current branch head; the staging deployment job was skipped.",
+    "finding": "The candidate branch manifest remains syntactically and contract-valid but not_bank_review_ready. CI and CDK diff passed for the current candidate head; the staging deployment job was skipped.",
     "businessClaimAllowed": false,
     "causalClaimAllowed": false
   }
