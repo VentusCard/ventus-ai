@@ -1,6 +1,6 @@
 {
   "schemaVersion": "ventus_live_database_aggregate_receipt/v1",
-  "recordedAt": "2026-08-02T16:38:38Z",
+  "recordedAt": "2026-08-02T17:06:00Z",
   "evidenceClass": "supporting",
   "releaseReference": {
     "reviewedCommit": "d225e3482004fccc1127f36b02cd9a4dd8180110",
@@ -17,7 +17,8 @@
     "queryMode": "read_only_aggregate",
     "credentialReference": "managed RDS credential reference; ARN withheld",
     "secretValuesRead": false,
-    "rawSubjectRowsRead": false
+    "rawSubjectRowsRead": false,
+    "canonicalSchema": "ventus_evidence"
   },
   "observations": {
     "publicTableCount": 21,
@@ -49,12 +50,40 @@
       "publicTablesWithRowSecurity": 0,
       "publicTablesWithForcedRowSecurity": 0,
       "result": "all 21 inspected public tables reported relrowsecurity=false and relforcerowsecurity=false"
+    },
+    "canonicalEvidenceSchema": {
+      "tableCount": 17,
+      "forcedRlsTableCount": 17,
+      "policyCount": 17,
+      "runtimeRole": "ventus_evidence_app_v1",
+      "runtimeRoleNonBypass": true,
+      "runtimeRoleSuper": false,
+      "executorRole": "ventusadmin (administrative read; credential value not read)",
+      "exactAggregateRowCounts": {
+        "connected_exposure_events": 16,
+        "connector_delivery_receipts": 5,
+        "connector_mapping_test_receipts": 2,
+        "connector_mapping_versions": 3,
+        "decision_ledger_events": 90,
+        "experiment_assignments": 19,
+        "growth_play_drafts": 1,
+        "growth_play_protocol_approval_events": 17,
+        "growth_play_protocols": 28,
+        "institution_identity_providers": 18,
+        "institution_memberships": 24,
+        "institutions": 18,
+        "outcome_events": 0,
+        "outcome_observation_receipts": 2,
+        "skill_shadow_approval_receipts": 0,
+        "skill_shadow_registry": 0,
+        "skill_shadow_transition_receipts": 0
+      }
     }
   },
   "interpretation": {
-    "status": "release_binding_blocked",
-    "finding": "The configured ventus_bofa database exposes a legacy public schema and no row-level-security or forced-row-security flags on its 21 public tables. This does not reconcile to the manifest's asserted runtime-role/forced-RLS receipt.",
-    "requiredFollowup": "Identify and query the canonical evidence database/schema with the runtime role under the release-bound deployment; do not promote this administrative aggregate to bank-review acceptance.",
+    "status": "supporting_schema_verified_release_binding_open",
+    "finding": "The Lambda-configured ventus_bofa database contains both a legacy public schema (without RLS flags) and the canonical ventus_evidence schema (17 tables, 17 forced-RLS tables, 17 policies, and a non-bypass runtime role). This reconciles the schema inventory but remains supporting evidence because the query used an administrative role and does not prove release-bound six-role, denial, four-eyes, or tenant-context execution.",
+    "requiredFollowup": "Bind the canonical schema/runtime role and current frontend/API configuration to the release receipt, then attach release-bound role/denial/tenant/four-eyes probes. Keep live FSC, bank-owned outcome, Decision Package, and Results evidence external until returned.",
     "businessClaimAllowed": false,
     "causalClaimAllowed": false,
     "bankReviewReady": false
