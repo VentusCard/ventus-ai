@@ -1,129 +1,81 @@
 import { useState, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { LayoutDashboard, User, Briefcase } from "lucide-react";
+import { Briefcase, Mail, Inbox, Building2 } from "lucide-react";
 import { TabHeader } from "./TabHeader";
-import { AdvisorConsole } from "@/components/tepilot/advisor-console/AdvisorConsole";
-import { LifeEventsAlertDashboard } from "@/components/tepilot/advisor-console/LifeEventsAlertDashboard";
+import { AdvisorNotificationsView } from "@/components/tepilot/advisor-console/AdvisorNotificationsView";
+import { LeadershipNotificationsView } from "@/components/tepilot/advisor-console/LeadershipNotificationsView";
+import { CoworkerInboxView } from "@/components/tepilot/coworker-inbox/CoworkerInboxView";
 import { generateDashboardClients } from "@/lib/randomProfileGenerator";
-import { DashboardClient, EventPreparationData } from "@/types/dashboardClient";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { buildEventPreparationPrompt } from "@/lib/eventPreparationPromptBuilder";
 
-type ViewMode = "dashboard" | "client";
+type ViewMode = "inbox" | "advisor" | "leadership";
 
 export function BankwideWMCopilotView() {
-  const [viewMode, setViewMode] = useState<ViewMode>("dashboard");
-  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [pendingVentusMessage, setPendingVentusMessage] = useState<string | null>(null);
+  const [viewMode, setViewMode] = useState<ViewMode>("inbox");
 
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
 
-  const selectedClient = useMemo(() => {
-    if (!selectedClientId) return null;
-    return dashboardClients.find(c => c.id === selectedClientId) || null;
-  }, [selectedClientId, dashboardClients]);
-
-  const handleOpenClient = useCallback((clientId: string) => {
-    const client = dashboardClients.find(c => c.id === clientId);
-    if (client) {
-      sessionStorage.setItem("tepilot_client_profile", JSON.stringify(client.profile));
-      sessionStorage.setItem("tepilot_detected_events", JSON.stringify(client.detectedEvents));
-      setSelectedClientId(clientId);
-      setViewMode("client");
-    }
-  }, [dashboardClients]);
-
-  const handleScheduleCall = useCallback((clientId: string) => {
-    const client = dashboardClients.find(c => c.id === clientId);
-    toast.success(`Scheduling call with ${client?.profile.name || 'client'}...`);
-  }, [dashboardClients]);
-
-  const handleBackToDashboard = useCallback(() => {
-    sessionStorage.removeItem("tepilot_detected_events");
-    setViewMode("dashboard");
-    setSelectedClientId(null);
-    setPendingVentusMessage(null);
+  const handleOpenClient = useCallback(() => {
+    toast.info("Client detail view is disabled in this demo.");
   }, []);
 
-  const handlePrepareWithVentus = useCallback((data: EventPreparationData) => {
-    sessionStorage.setItem("tepilot_client_profile", JSON.stringify(data.client.profile));
-    sessionStorage.setItem("tepilot_detected_events", JSON.stringify(data.client.detectedEvents));
-    sessionStorage.setItem("tepilot_event_preparation", JSON.stringify(data));
-    const prompt = buildEventPreparationPrompt(data);
-    setPendingVentusMessage(prompt);
-    setSelectedClientId(data.client.id);
-    setViewMode("client");
+  const handlePrepareWithVentus = useCallback(() => {
+    toast.info("Client detail view is disabled in this demo.");
   }, []);
+
+  const toggles: { key: ViewMode; label: string; icon: React.ReactNode }[] = [
+    { key: "inbox", label: "Coworker Dashboard", icon: <Inbox className="h-4 w-4 mr-2" /> },
+    { key: "advisor", label: "Advisor Conv. Demo", icon: <Mail className="h-4 w-4 mr-2" /> },
+    { key: "leadership", label: "Leadership Conv. Demo", icon: <Building2 className="h-4 w-4 mr-2" /> },
+  ];
 
   return (
     <div className="flex flex-col h-full">
       <TabHeader
         icon={<Briefcase className="w-4 h-4" />}
-        title="WM Copilot"
-        subtitle="Real-time HNW client triggers and AI-powered advisor preparation"
-        howItWorks="Ventus continuously monitors HNW client transactions for life events, risk signals, and opportunity triggers, surfacing them to advisors in real time."
-        whyItMatters="Advisors spend less time on research and more on relationship building, with AI-powered preparation for every client interaction."
+        title="WM Coworker"
+        subtitle="An email-based Ventus AI teammate for advisors and wealth leadership"
+        howItWorks="Ventus AI is an email-based coworker to the wealth team. It continuously scans behavior across 3M+ households, sends personalized signal briefs to individual advisors, delivers portfolio-wide trends and campaign recommendations to leadership, and replies instantly when anyone writes back."
+        whyItMatters="Enterprise-scale coverage without adding headcount. Every advisor gets a personal research assistant, every leader gets a real-time chief of staff — inside the tool they already use."
       />
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setViewMode("dashboard")}
-            className={cn(
-              "h-8 px-3 rounded-md",
-              viewMode === "dashboard"
-                ? "bg-white shadow-sm text-slate-900"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <LayoutDashboard className="h-4 w-4 mr-2" />
-            Dashboard
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setViewMode("client")}
-            className={cn(
-              "h-8 px-3 rounded-md",
-              viewMode === "client"
-                ? "bg-white shadow-sm text-slate-900"
-                : "text-slate-600 hover:text-slate-900"
-            )}
-          >
-            <User className="h-4 w-4 mr-2" />
-            Client View
-          </Button>
+          {toggles.map((t) => (
+            <Button
+              key={t.key}
+              variant="ghost"
+              size="sm"
+              onClick={() => setViewMode(t.key)}
+              className={cn(
+                "h-8 px-3 rounded-md",
+                viewMode === t.key
+                  ? "bg-white shadow-sm text-slate-900"
+                  : "text-slate-600 hover:text-slate-900"
+              )}
+            >
+              {t.icon}
+              {t.label}
+            </Button>
+          ))}
         </div>
         <span className="text-sm text-slate-500 ml-2">
-          Wealth Management Copilot
+          Wealth Management Coworker
         </span>
       </div>
 
       {/* Content */}
       <div className="flex-1 min-h-0">
-        {viewMode === "dashboard" ? (
-          <LifeEventsAlertDashboard
+        {viewMode === "inbox" && <CoworkerInboxView />}
+        {viewMode === "advisor" && (
+          <AdvisorNotificationsView
             clients={dashboardClients}
             onOpenClient={handleOpenClient}
-            onScheduleCall={handleScheduleCall}
             onPrepareWithVentus={handlePrepareWithVentus}
           />
-        ) : (
-          <AdvisorConsole
-            enrichedTransactions={[]}
-            aiInsights={null}
-            isLoadingInsights={false}
-            onBackToDashboard={handleBackToDashboard}
-            initialPendingMessage={pendingVentusMessage}
-            onPendingMessageConsumed={() => setPendingVentusMessage(null)}
-            selectedClientProfile={selectedClient?.profile}
-            selectedDashboardEvents={selectedClient?.detectedEvents}
-          />
         )}
+        {viewMode === "leadership" && <LeadershipNotificationsView />}
       </div>
     </div>
   );

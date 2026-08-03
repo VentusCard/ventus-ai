@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw, FileJson } from "lucide-react";
+import { Activity, CalendarHeart, TrendingUp, Sparkles, Layers, ChevronLeft, ChevronRight, RefreshCw, FileJson, Users } from "lucide-react";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
@@ -10,6 +10,13 @@ import {
 } from "@/lib/campaignCatalogVariants";
 import { buildMessageCards, type MessageCard } from "./buildMessageCards";
 import { buildSamplePayload } from "./buildSamplePayload";
+
+function formatReach(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n >= 10_000 ? 1 : 1)}K`;
+  return n.toLocaleString();
+}
+
 
 
 
@@ -51,8 +58,15 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
   const [revealedCount, setRevealedCount] = useState(0);
   const [featuredIdx, setFeaturedIdx] = useState(0);
   const [regenSeed, setRegenSeed] = useState(0);
+  const [isSpinning, setIsSpinning] = useState(false);
   const [sampleOpen, setSampleOpen] = useState(false);
 
+  const handleRegenerate = () => {
+    setRegenSeed((s) => s + 1);
+    setFeaturedIdx(0);
+    setIsSpinning(true);
+    window.setTimeout(() => setIsSpinning(false), 400);
+  };
 
   // Reset seed when product changes
   useEffect(() => { setRegenSeed(0); }, [productName]);
@@ -113,11 +127,11 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
         <p className="text-sm font-semibold text-slate-900">Micro-Segment Personalized Campaign Output</p>
         <button
           type="button"
-          onClick={() => setRegenSeed((s) => s + 1)}
+          onClick={handleRegenerate}
           disabled={!product}
           className="ml-auto inline-flex items-center gap-1 rounded-md border border-slate-200 bg-white px-2 py-1 text-[11px] font-medium text-slate-600 hover:text-slate-900 hover:border-slate-300 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          <RefreshCw className="w-3.5 h-3.5" />
+          <RefreshCw className={cn("w-3.5 h-3.5 transition-transform", isSpinning && "animate-spin")} />
           Regenerate
         </button>
       </div>
@@ -201,6 +215,16 @@ export function MessagePreviewsSection({ product, variants, offers = [], campaig
             <p className="text-[10px] text-slate-500 leading-snug mt-1">
               shown below
             </p>
+            {featuredCard?.estimatedReach ? (
+              <div className="mt-2 flex items-center gap-1 text-slate-700">
+                <Users className="w-3 h-3 text-slate-400" />
+                <span className="text-[12px] font-semibold tabular-nums">
+                  ~{formatReach(featuredCard.estimatedReach)}
+                </span>
+                <span className="text-[10px] text-slate-500">customers</span>
+              </div>
+            ) : null}
+
           </div>
         </div>
 
@@ -351,7 +375,17 @@ function FannedDeck({
               >
                 {card.anchor}
               </span>
+              {card.estimatedReach ? (
+                <span
+                  className="ml-auto inline-flex items-center gap-1 text-[10px] font-semibold text-slate-700 px-1.5 py-0.5 rounded border border-slate-200 bg-white tabular-nums"
+                  title="Estimated eligible customers"
+                >
+                  <Users className="w-3 h-3 text-slate-400" />
+                  ~{formatReach(card.estimatedReach)} reach
+                </span>
+              ) : null}
             </div>
+
 
             <div className="rounded-md border border-slate-100 bg-slate-50 px-3 py-2 mb-2">
               <p className="text-[9px] uppercase tracking-wider text-slate-500 font-semibold">Subject</p>

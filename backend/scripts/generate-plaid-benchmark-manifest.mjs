@@ -27,7 +27,7 @@ const ACCOUNT_TEMPLATES = {
 const PERSONAS = [
   persona('consumer_baseline', 'qa_plaid_benchmark_consumer_01', ['checking', 'credit', 'savings'], [
     group('food_drink'), group('groceries_retail'), group('utilities_rent'), group('income_basic'),
-    group('p2p_transfer'), group('subscriptions'),
+    group('p2p_transfer'), group('subscriptions'), group('pets'),
   ]),
   persona('affluent_travel', 'qa_plaid_benchmark_travel_01', ['checking', 'credit', 'savings'], [
     group('travel_air_hotel'), group('transportation'), group('luxury_retail'), group('dining'),
@@ -39,7 +39,7 @@ const PERSONAS = [
   ]),
   persona('family_life_event', 'qa_plaid_benchmark_family_01', ['checking', 'credit', 'savings'], [
     group('child_family'), group('medical'), group('home_move'), group('utilities_rent'),
-    group('travel_air_hotel'), group('groceries_retail'),
+    group('travel_air_hotel'), group('groceries_retail'), group('pets'),
   ]),
   persona('medical_pharmacy', 'qa_plaid_benchmark_medical_01', ['checking', 'credit', 'savings'], [
     group('medical'), group('personal_care'), group('insurance'), group('income_basic'),
@@ -188,6 +188,11 @@ const GROUPS = {
   personal_care: [
     tx('DRYBAR #102', 55, 'PERSONAL_CARE', 'card_personal_care', 'card', 'debit', {}, 1, 1, 'salon'),
     tx('EQUINOX GYM MEMBERSHIP', 220, 'PERSONAL_CARE', 'card_personal_care', 'card', 'debit', {}, 2, 1, 'fitness membership'),
+  ],
+  pets: [
+    tx('CHEWY.COM', 64.5, 'GENERAL_MERCHANDISE', 'card_retail', 'card', 'debit', {}, 1, 1, 'pet supplies ecommerce'),
+    tx('PETCO #1452', 38.2, 'GENERAL_MERCHANDISE', 'card_retail', 'card', 'debit', {}, 2, 2, 'pet retail vs general merchandise'),
+    tx('BANFIELD PET HOSPITAL', 145, 'GENERAL_MERCHANDISE', 'card_retail', 'card', 'debit', {}, 2, 2, 'veterinary care; must map to Pets, not Health & Wellness'),
   ],
   insurance: [
     tx('BLUE CROSS BLUE SHIELD', 330, 'MEDICAL', 'ach_medical', 'ach', 'debit', {}, 2, 1, 'health insurance premium'),

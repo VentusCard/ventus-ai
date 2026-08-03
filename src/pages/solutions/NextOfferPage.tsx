@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import StepFlow from "@/components/solutions/StepFlow";
@@ -72,7 +73,7 @@ const NextOfferPage = () => {
 
   return (
     <main className="bg-white min-h-screen">
-      <SEO title="Offer Intelligence — Ventus AI" description="Generate the next-best offer for every customer using transaction intelligence, intent signals, and lifestyle context." path="/solutions/offer-intelligence" />
+      <SEO title="Next Best Offer for Banks — Ventus AI Offer Intelligence" description="Generate the next-best offer for every customer using transaction intelligence, intent signals, and lifestyle context, with personalized value math attached." path="/solutions/offer-intelligence" keywords="next best offer banking, card linked offers personalization, offer intelligence for banks" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Offer Intelligence", path: "/solutions/offer-intelligence" }])} />
       {/* Hero */}
       <section ref={hero.ref} className="pt-40 sm:pt-40 pb-16 sm:pb-20 px-6 min-h-[80vh] sm:min-h-screen flex items-center">
         <div className="max-w-3xl mx-auto text-center">

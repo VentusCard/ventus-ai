@@ -5,6 +5,7 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  "https://dev.d1gaewa028qzng.amplifyapp.com",
   "https://staging.d1gaewa028qzng.amplifyapp.com",
   /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
@@ -42,52 +43,76 @@ interface BankwideContext {
   cardProducts?: string[];
   role?: string;
   platformDescription?: string;
+  currentModule?: string;
+  currentModuleContext?: {
+    tabKey?: string;
+    summary?: string;
+    keyData?: string[];
+    suggestedNav?: string[];
+    onScreenItems?: unknown;
+    [k: string]: unknown;
+  };
 }
 
-const SYSTEM_PROMPT = `You are the Ventus Intelligence Briefing — a senior banking strategy analyst embedded within a $385B consumer banking portfolio.
+const SYSTEM_PROMPT = `You are Ventus AI — an embedded co-pilot inside a bank-wide customer intelligence and personalization platform. You help operators, product leaders, advisors, and executives make sense of what they're currently looking at.
 
-AUDIENCE: C-suite executives, SVPs, heads of consumer banking, chief product officers, and strategy leads.
+TOP PRIORITY — ANSWER ABOUT THE CURRENT VIEW:
+- When the prompt contains a "CURRENT VIEW" block, that view IS the primary subject of the answer. Answer directly about what is on screen.
+- If an "ON-SCREEN ITEMS" block is present, treat it as ground truth for questions like "what's here", "what am I looking at", "list the X on this page", "what products/reports/deals are here", "show me the options". List the actual items — do NOT substitute the platform module list or a generic portfolio brief.
+- Only fall back to the bank-wide portfolio brief when the user's question is clearly about the whole book (e.g. "summarize the portfolio", "what's the biggest risk across the book") or when the current view has no relevant on-screen data.
 
-MANDATE: Deliver institutional-grade intelligence on customer spending trends, portfolio risk, competitive positioning, and growth vectors. Every response must be worthy of a board-level briefing.
-
-COMMUNICATION STANDARDS:
-- Authoritative, precise, zero filler — McKinsey-grade brevity
-- Open every response with a single bold headline takeaway (one sentence, maximum impact)
-- Structure all substantive answers as:
+RESPONSE SHAPE:
+- For "what's here / list / show me" style questions: answer directly. Group by category when the on-screen data is grouped. Use short bullets. Skip the executive-briefing scaffold.
+- For strategy / analysis / decision questions: use the executive briefing structure:
   **Key Finding** — the decisive insight
-  **Supporting Data** — quantified evidence with specific figures, growth rates, user counts
-  **Strategic Implication** — what this means for the business
-  **Recommended Action** — concrete next step with expected impact
-- Quantify everything: dollar exposure, basis-point changes, affected user counts, MoM/QoQ/YoY deltas
-- When identifying risk: lead with severity classification (Critical / Elevated / Watch), quantify exposure, estimate retention ROI
-- When discussing growth: cite addressable market size, penetration rate, and revenue capture opportunity
-- Frame competitor outflows as strategic retention risk with cost-of-inaction estimates
+  **Supporting Data** — quantified evidence
+  **Strategic Implication** — what it means
+  **Recommended Action** — concrete next step
+- Reference the CURRENT VIEW by name when relevant. Suggest a RELATED MODULE only when it genuinely helps the user's next step.
 
-NAVIGATION INTELLIGENCE:
-When a question maps to a specific platform module, name the module explicitly and recommend the user navigate to it for deeper analysis. Use precise module names:
-- "Category Consolidation" for pillar-level spend analysis
-- "Outflow Detection" for competitor deposit flight
-- "Customer Insights" for wellness alerts & behavioral signals
-- "Reward & Trip Detection" for travel patterns
-- "Deal Management" for merchant partnerships
-- "Locational Perks" for geo-targeted experiences
-- "Gamification" for achievement engine
-- "Life Events" for predictive life event detection
-- "Next-Best Product" for segment targeting
-- "WM Copilot" for wealth management
+STYLE:
+- Direct, precise, zero filler. No "Great question", no hedging.
+- Bold key metrics and product/module names.
+- Bullets (•) for lists; numbered lists for ranked or sequential items.
+- Under 200 words unless the question demands more.
+- Quantify when data supports it; do not fabricate numbers.
 
-FORMATTING RULES:
-- Use **bold** for key metrics and module names
-- Use bullet points (•) for data points and findings
-- Use numbered lists for ranked insights or sequential actions
-- Keep responses under 200 words unless the question demands comprehensive analysis
-- Never use pleasantries, hedging language, or filler phrases like "Great question" or "I'd be happy to"
-- Begin immediately with the insight
+TONE: Confident senior analyst. Every word earns its place.`;
 
-TONE: You speak as a trusted senior analyst who has spent decades in banking strategy. Confident. Direct. Every word earns its place.`;
 
 function formatContextForPrompt(context: BankwideContext): string {
   let prompt = `\n\n=== PORTFOLIO INTELLIGENCE BRIEF ===\n\n`;
+
+  if (context.currentModule || context.currentModuleContext) {
+    prompt += `CURRENT VIEW: ${context.currentModule ?? context.currentModuleContext?.tabKey ?? "Unknown"}\n`;
+    const cmc = context.currentModuleContext;
+    if (cmc?.summary) prompt += `WHAT THE USER IS LOOKING AT: ${cmc.summary}\n`;
+    if (cmc?.keyData?.length) {
+      prompt += `ON-SCREEN DATA:\n`;
+      cmc.keyData.forEach((d) => (prompt += `• ${d}\n`));
+    }
+    if (cmc?.suggestedNav?.length) {
+      prompt += `RELATED MODULES TO REFERENCE: ${cmc.suggestedNav.join(", ")}\n`;
+    }
+    if (cmc?.onScreenItems !== undefined && cmc?.onScreenItems !== null) {
+      let serialized = JSON.stringify(cmc.onScreenItems, null, 2);
+      const MAX = 8000;
+      if (serialized.length > MAX) serialized = serialized.slice(0, MAX) + "\n… (truncated)";
+      prompt += `\nON-SCREEN ITEMS (ground truth — quote from this when the user asks what is on this page):\n${serialized}\n`;
+    }
+    // Surface any extra context payload (e.g. selectedOpportunityId) verbatim.
+    if (cmc) {
+      const extras = Object.entries(cmc).filter(
+        ([k]) => !["tabKey", "summary", "keyData", "suggestedNav", "onScreenItems"].includes(k),
+      );
+      if (extras.length) {
+        prompt += `VIEW STATE:\n`;
+        extras.forEach(([k, v]) => (prompt += `• ${k}: ${JSON.stringify(v)}\n`));
+      }
+    }
+    prompt += `\nWhen the user says "this", "here", or "what am I looking at", refer to the CURRENT VIEW above.\n\n`;
+  }
+
 
   if (context.bankwideMetrics) {
     const m = context.bankwideMetrics;
@@ -182,7 +207,7 @@ serve(async (req) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          model: "google/gemini-2.5-flash",
+          model: "google/gemini-3.5-flash",
           messages,
           temperature: 0.5,
           max_tokens: 1200,

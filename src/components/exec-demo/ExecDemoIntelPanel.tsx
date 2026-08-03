@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useEffect, useState } from "react";
-import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info } from "lucide-react";
+import { BarChart3, Gift, Users, CreditCard, ChevronDown, ChevronUp, Cpu, Info, Briefcase, Satellite } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Portal as TooltipPortal } from "@radix-ui/react-tooltip";
 import type { ExecIntelligence, ExecPersona, IntelCard, SignalEntry } from "./execDemoData";
@@ -11,6 +11,7 @@ import type { RollupOfferGroup } from "./NextOfferRationale";
 import type { LifeEvent } from "@/types/lifestyle-signals";
 import type { ProductCard } from "./ProductCardsPhoneView";
 import ExecDemoEnrichmentTable from "./ExecDemoEnrichmentTable";
+import type { ExternalIntelSignal } from "@/lib/externalIntelligenceSignals";
 
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
@@ -25,8 +26,38 @@ export interface PillarRollup {
   totalSpend?: number;
 }
 
+export interface FinancialSignal {
+  id: string;
+  product_family: string;
+  label: string;
+  servicer?: string;
+  monthly_amount_band?: string;
+  cadence?: string;
+  transaction_indices: number[];
+  talking_points?: string[];
+  source?: "external" | "llm";
+  provider?: string;
+  detail?: string;
+}
+
+export interface DemographicShift {
+  id: string;
+  category: "income_trajectory" | "wealth_tier_migration" | "household_composition" | "geography_relocation";
+  label: string;
+  direction: "up" | "down" | "lateral";
+  confidence: number;
+  magnitude_band?: string;
+  evidence_summary?: string;
+  transaction_indices: number[];
+  source?: "external" | "llm";
+  provider?: string;
+}
+
+
 export interface PersonaSynthesis {
   pillarRollups?: PillarRollup[];
+  financialSignals?: FinancialSignal[];
+  demographicShifts?: DemographicShift[];
 }
 
 interface Props {
@@ -57,11 +88,10 @@ interface Props {
   actionsLoading?: boolean;
   riskFlags?: { flags: any[]; summary: string } | null;
   riskLoading?: boolean;
-  creditAssessment?: import("./NextProductRationale").CreditAssessment | null;
-  creditLoading?: boolean;
   productDeliveryChannel?: import("./ProductDeliveryChannelCard").ProductDeliveryChannel;
   onProductDeliveryChannelChange?: (channel: import("./ProductDeliveryChannelCard").ProductDeliveryChannel) => void;
   onOpenWMCopilot?: (firstName: string, signal: SelectedSignal | null) => void;
+  onCloseWMCopilot?: () => void;
   onOpenAIAssistant?: (firstName: string, signal: SelectedSignal | null) => void;
   onAIPromptDispatch?: (prompt: string, kind?: "lifestyle" | "lifeEvent" | "risk", signalContext?: string) => void;
   assistantOpen?: boolean;
@@ -80,6 +110,8 @@ interface Props {
   onClearHighlight?: () => void;
   /** Called when a Pillar pill inside the enrichment table is clicked. */
   onEnrichmentPillarClick?: (pillar: string) => void;
+  /** External Intelligence signals to render as extra rows at the bottom of the enrichment table. */
+  externalSignals?: ExternalIntelSignal[];
 }
 
 const TAB_META: Record<TabKey, { icon: typeof BarChart3; label: string }> = {
@@ -157,6 +189,15 @@ export function getColor(pillar: string) {
   return PILLAR_COLORS[pillar] || DEFAULT_COLOR;
 }
 
+// Strip issuer/brand prefixes so signal pills read as generic products.
+// e.g. "Chase Auto Loan" -> "Auto Loan", "Wells Fargo Mortgage" -> "Mortgage".
+const BRAND_PATTERN = /^(chase|wells fargo|wells|bank of america|bofa|boa|citi|citibank|capital one|us bank|u\.s\. bank|pnc|td|td bank|ally|discover|amex|american express|hsbc|barclays|synchrony|goldman|marcus|sofi|fidelity|schwab|vanguard|robinhood|e\*trade|etrade|morgan stanley|jpmorgan|jp morgan|santander|regions|truist|bmo|key bank|keybank|fifth third)\s+/i;
+
+function stripBrand(label: string): string {
+  if (!label) return label;
+  return label.replace(BRAND_PATTERN, "").trim();
+}
+
 interface ChipData {
   pillar: string;
   category: string;
@@ -203,6 +244,21 @@ function formatSpend(amount: number): string {
   return `$${Math.round(amount)}`;
 }
 
+/**
+ * Robust amount coercion. Transactions from buildLocalProfile store `amount`
+ * as a display-formatted string (e.g. "$685.00", "($685.00)") even though
+ * the type declares `number` — Number() on those returns NaN, which is why
+ * pill sums used to collapse to $0. Strip currency chars then parse.
+ */
+function toAmount(v: unknown): number {
+  if (typeof v === "number") return isFinite(v) ? Math.abs(v) : 0;
+  if (typeof v === "string") {
+    const n = parseFloat(v.replace(/[^0-9.\-]/g, ""));
+    return isFinite(n) ? Math.abs(n) : 0;
+  }
+  return 0;
+}
+
 export default function ExecDemoIntelPanel({
   persona,
   intelligence,
@@ -231,11 +287,10 @@ export default function ExecDemoIntelPanel({
   actionsLoading,
   riskFlags,
   riskLoading,
-  creditAssessment,
-  creditLoading,
   productDeliveryChannel = "mobile",
   onProductDeliveryChannelChange,
   onOpenWMCopilot,
+  onCloseWMCopilot,
   onOpenAIAssistant,
   onAIPromptDispatch,
   assistantOpen = false,
@@ -248,6 +303,7 @@ export default function ExecDemoIntelPanel({
   activePillLabel,
   onClearHighlight,
   onEnrichmentPillarClick,
+  externalSignals,
 }: Props) {
   const [pillsExpanded, setPillsExpanded] = useState(false);
   const showProfile = phase !== "idle";
@@ -294,14 +350,123 @@ export default function ExecDemoIntelPanel({
     );
   }, [chips, rollups]);
 
+  // ---- Cross-row dedup (the final classifier still wins) ----
+  // The final LLM decides bucket placement. We only prevent a single item from
+  // appearing in two rows simultaneously, using its own IDs / transaction indices.
+  // Ladder: Life Event > Financial Signal > Demographic > Pillar Rollup.
+  // Pet vocab must live ONLY in Spending Habits. Strip pet-themed pills from LE/FS/Demo.
+  const PET_VOCAB_RE = /pet|chewy|petco|petsmart|banfield|barkbox|rover|\bvet\b|veterinar|groom|dog\s?walk/i;
+  const rawFinancialSignals = useMemo(
+    () => (personaSynthesis?.financialSignals || []).filter((f: any) => {
+      const blob = `${f?.label || ""} ${f?.product_family || ""} ${f?.servicer || ""} ${f?.evidence_summary || ""}`;
+      return !PET_VOCAB_RE.test(blob);
+    }),
+    [personaSynthesis?.financialSignals],
+  );
+  const rawDemographicShifts = personaSynthesis?.demographicShifts || [];
+  const canonicalLifeEventKey = (name: string): string => {
+    return (name || "")
+      .toLowerCase()
+      .replace(/\s*\/\s*transition\b/g, "")
+      .replace(/\s+for\s+dependent\b/g, "")
+      .replace(/\s+cycle\b/g, "")
+      .replace(/\s+planning\b/g, "")
+      .replace(/\bprep\b/g, "preparation")
+      .replace(/[^a-z0-9\s]/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+  };
+  const filteredDetectedLifeEvents = useMemo(
+    () => {
+      const petFiltered = (detectedLifeEvents || []).filter((e) => {
+        const evBlob = (e.evidence || []).map((ev) => `${ev.merchant || ""} ${ev.relevance || ""}`).join(" ");
+        return !PET_VOCAB_RE.test(`${e.event_name || ""} ${evBlob}`);
+      });
+      // Dedupe by canonicalized name — keep highest confidence, prefer shorter display name.
+      const byKey = new Map<string, typeof petFiltered[number]>();
+      for (const e of petFiltered) {
+        const key = canonicalLifeEventKey(e.event_name || "");
+        if (!key) continue;
+        const existing = byKey.get(key);
+        if (!existing) {
+          byKey.set(key, e);
+          continue;
+        }
+        const eConf = e.confidence > 1 ? e.confidence / 100 : e.confidence;
+        const exConf = existing.confidence > 1 ? existing.confidence / 100 : existing.confidence;
+        const eEv = e.evidence?.length ?? 0;
+        const exEv = existing.evidence?.length ?? 0;
+        const eBetter =
+          eConf > exConf ||
+          (eConf === exConf && eEv > exEv) ||
+          (eConf === exConf && eEv === exEv && (e.event_name || "").length < (existing.event_name || "").length);
+        if (eBetter) byKey.set(key, e);
+      }
+      return Array.from(byKey.values());
+    },
+    [detectedLifeEvents],
+  );
+
+  const lifeEventNameSet = useMemo(() => {
+    const s = new Set<string>();
+    (detectedLifeEvents || []).forEach((e) => {
+      if (e?.event_name) s.add(e.event_name.trim().toLowerCase());
+    });
+    return s;
+  }, [detectedLifeEvents]);
+
+  const financialTxSet = useMemo(() => {
+    const s = new Set<number>();
+    rawFinancialSignals.forEach((f) => (f.transaction_indices || []).forEach((ti) => s.add(ti)));
+    return s;
+  }, [rawFinancialSignals]);
+
+  // Client-side dedup only: drop demographic pills that duplicate a life-event name.
+  // Vocabulary / unclaimed-index / financial-owned filtering all live in synthesize-persona.
+  const filteredDemographicShifts = useMemo(() => {
+    return rawDemographicShifts
+      .map((d) => {
+        let label = (d.label || "").trim();
+        if (/kid\s*(?:→|->|to)\s*college/i.test(label)) label = "College Preparation";
+        let magnitude_band = (d.magnitude_band || "").trim();
+        if (magnitude_band && label && magnitude_band.toLowerCase() === label.toLowerCase()) {
+          magnitude_band = "";
+        }
+        return { ...d, label, magnitude_band };
+      })
+      .filter((d) => {
+        if (d?.label && lifeEventNameSet.has(d.label.trim().toLowerCase())) return false;
+        if (d?.label && /college/i.test(d.label)) {
+          for (const nm of lifeEventNameSet) {
+            if (/college|tuition|university/i.test(nm)) return false;
+          }
+        }
+        return true;
+      });
+  }, [rawDemographicShifts, lifeEventNameSet]);
+
+
+  const demographicTxSet = useMemo(() => {
+    const s = new Set<number>();
+    filteredDemographicShifts.forEach((d) => (d.transaction_indices || []).forEach((ti) => s.add(ti)));
+    return s;
+  }, [filteredDemographicShifts]);
+
   // Use pre-computed stats from rollups directly — no re-derivation from chips.
   // Sort by total spend (descending) so highest-dollar lifestyle behaviors lead.
+  // Also drop any rollup whose transactions are entirely owned by a higher-tier row.
   const rollupStats = useMemo(() => {
     return rollups
       .filter((r) => (r.totalCount ?? 0) > 0)
+      .filter((r) => {
+        const idx = r.txIndices || [];
+        if (idx.length === 0) return true;
+        const allClaimed = idx.every((ti) => financialTxSet.has(ti) || demographicTxSet.has(ti));
+        return !allClaimed;
+      })
       .slice()
       .sort((a, b) => (b.totalSpend ?? 0) - (a.totalSpend ?? 0));
-  }, [rollups]);
+  }, [rollups, financialTxSet, demographicTxSet]);
 
   // Derive current description from milestone keys
   const currentDescription = useMemo(() => {
@@ -347,7 +512,7 @@ export default function ExecDemoIntelPanel({
 
   const availableSignals = useMemo<SelectedSignal[]>(() => {
     const out: SelectedSignal[] = [];
-    (detectedLifeEvents || []).forEach((evt) => {
+    filteredDetectedLifeEvents.forEach((evt) => {
       out.push({ kind: "lifeEvent", label: evt.event_name });
     });
     if (riskFlags && riskFlags.flags) {
@@ -415,6 +580,36 @@ export default function ExecDemoIntelPanel({
   // Risk pills should only be visually muted on the Next-Offer tab.
   // On Next-Product, keep them colored & clickable since the rationale panel surfaces risk as "Additional Tools".
   const riskPillsMuted = activeTab === "analytics";
+
+  // If the active pill (life-event OR financial-signal) corresponds to an external
+  // intelligence signal, surface that external row alongside the matched transactions.
+  const activeExternalSignalId = useMemo(() => {
+    if (!activeTriggerLabel || !externalSignals || externalSignals.length === 0) return null;
+    const label = activeTriggerLabel.toLowerCase();
+    // Direct match: if the currently active pill's underlying financial signal
+    // has source === "external", find the external record whose event_name matches.
+    const finList: any[] = (personaSynthesis?.financialSignals || []) as any[];
+    const activeFin = finList.find((f) => f.label === activeTriggerLabel);
+    if (activeFin?.source === "external" && activeFin?.id) {
+      const byId = externalSignals.find((s) => s.id === activeFin.id);
+      if (byId) return byId.id;
+    }
+    const match = externalSignals.find((s) => {
+      if (s.event_name === activeTriggerLabel) return true;
+      if (s.event_name.toLowerCase() === label) return true;
+      // Financial-signal pills come from the LLM synthesis (e.g. "Auto Loan · VW Credit").
+      // Match by product family or servicer so they still light up the external row.
+      const family = s.product_family?.replace(/_/g, " ").toLowerCase();
+      if (family && label.includes(family)) return true;
+      const servicer = s.servicer?.toLowerCase();
+      if (servicer && label.includes(servicer)) return true;
+      return false;
+    });
+    return match?.id ?? null;
+  }, [activeTriggerLabel, externalSignals, personaSynthesis?.financialSignals]);
+
+
+
 
   return (
     <div className={`flex flex-col h-full overflow-hidden ${fullWidthEnrichment ? "pt-2 pb-1 px-6" : "py-3 px-5"}`}>
@@ -484,7 +679,7 @@ export default function ExecDemoIntelPanel({
                         : activeTab === "product"
                           ? {
                               title: "3.2 Next Financial Product",
-                              sub: "Behavioral signals surface the right product to grow AUM",
+                              sub: "Hyper-personalize the right product at the right to grow AUM",
                             }
                           : activeTab === "relationship"
                             ? {
@@ -551,7 +746,7 @@ export default function ExecDemoIntelPanel({
                       for (const idx of r.txIndices) {
                         const tx: any = enrichedTransactions[idx];
                         if (!tx) continue;
-                        const bucket = tx.subcategory || tx.category || "Other";
+                        const bucket = tx.category || tx.subcategory || "Other";
                         const amt =
                           typeof tx.amount === "number"
                             ? Math.abs(tx.amount)
@@ -569,7 +764,7 @@ export default function ExecDemoIntelPanel({
                             `${name} $${Math.round(v.total)} (${v.count}x, ${[...v.merchants].slice(0, 3).join(", ")})`,
                         );
                       if (buckets.length)
-                        categoryBreakdown = ` Breakdown by enriched subcategory: ${buckets.join("; ")}.`;
+                        categoryBreakdown = ` Breakdown by enriched category: ${buckets.join("; ")}.`;
                     }
                     // Only dispatch AI chat prompts on the Next-Conversation (relationship) tab.
                     // On Next-Offer / Next-Product, pill clicks should only filter the deal/product collection.
@@ -618,44 +813,67 @@ export default function ExecDemoIntelPanel({
                       <span className="h-6 w-28 rounded-full bg-amber-100 animate-pulse" />
                       <span className="h-6 w-24 rounded-full bg-amber-100 animate-pulse" />
                     </>
-                  ) : detectedLifeEvents && detectedLifeEvents.length > 0 ? (
-                    detectedLifeEvents.map((evt, i) => {
+                  ) : filteredDetectedLifeEvents && filteredDetectedLifeEvents.length > 0 ? (
+                    filteredDetectedLifeEvents.map((evt, i) => {
                       const isActive = activeTriggerLabel === evt.event_name;
-                      const evidenceMerchants = evt.evidence?.map((e) => e.merchant.toLowerCase()) || [];
-                      const matchedIndices = transactions
-                        ? transactions
-                            .map((tx, idx) => {
-                              const m = (tx.merchant || "").toLowerCase();
-                              return evidenceMerchants.some((em) => m.includes(em) || em.includes(m)) ? idx : -1;
-                            })
-                            .filter((idx) => idx !== -1)
-                        : [];
+                      const isExternal = !!externalSignals?.some((s) => s.event_name === evt.event_name);
+                      // Trust backend attribution: transaction_indices are already cleaned
+                      // by synthesize-persona's ownership ladder. No frontend fuzzy match.
+                      const matchedIndices: number[] = isExternal
+                        ? []
+                        : Array.isArray((evt as any).transaction_indices)
+                          ? (evt as any).transaction_indices
+                          : [];
                       const confidence =
                         evt.confidence > 1 ? Math.round(evt.confidence) : Math.round(evt.confidence * 100);
-                      const evCount = evt.evidence?.length ?? 0;
+                      const txCountLE = matchedIndices.length;
+                      const spendLE = matchedIndices.reduce(
+                        (s, idx) => s + toAmount(transactions?.[idx]?.amount),
+                        0,
+                      );
+                      const externalDetail = (evt as any).detail || (evt as any).monthly_amount_band;
+                      const borderLE = isExternal ? "#7c3aed" : "#f59e0b";
                       return (
                         <span
                           key={evt.event_name}
                           onClick={() => handleLifeEventForRel(evt.event_name, matchedIndices)}
+                          title={`${confidence}% confidence`}
                           className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full cursor-pointer transition-all duration-200 whitespace-nowrap shrink-0`}
                           style={{
                             background: isActive
                               ? "linear-gradient(135deg, rgba(245,158,11,.30), rgba(245,158,11,.18))"
                               : "linear-gradient(135deg, rgba(245,158,11,.18), rgba(245,158,11,.08))",
                             color: "#92400e",
-                            border: "1.5px solid #f59e0b",
+                            border: `1.5px solid ${borderLE}`,
                             animation: `rollup-entrance 0.5s ease-out ${0.8 + i * 0.15}s both, rollup-glow 1s ease-out ${1.3 + i * 0.15}s both`,
                             boxShadow: isActive ? "0 0 14px rgba(245,158,11,.35)" : "0 2px 8px rgba(245,158,11,.2)",
                           }}
                         >
-                          <span style={{ color: "#f59e0b" }}>✦</span>
+                          {isExternal ? (
+                            <span
+                              className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                              style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                            >
+                              <Satellite className="w-2.5 h-2.5" />
+                              Ext
+                            </span>
+                          ) : (
+                            <span style={{ color: "#f59e0b" }}>✦</span>
+                          )}
                           {evt.event_name}
                           <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
-                            {confidence}% · {evCount} txn{evCount !== 1 ? "s" : ""}
+                            {isExternal
+                              ? (externalDetail || `${evt.evidence?.length ?? 0} signal${(evt.evidence?.length ?? 0) !== 1 ? "s" : ""}`)
+                              : txCountLE === 0
+                                ? `${evt.evidence?.length ?? 0} signal${(evt.evidence?.length ?? 0) !== 1 ? "s" : ""}`
+                                : spendLE > 0
+                                  ? `${txCountLE} txn${txCountLE !== 1 ? "s" : ""} · ${formatSpend(spendLE)}`
+                                  : `${txCountLE} txn${txCountLE !== 1 ? "s" : ""}`}
                           </span>
                         </span>
                       );
                     })
+
                   ) : !isCollapsed ? (
                     <p className="text-[11px] text-slate-400 italic">No significant life events detected</p>
                   ) : null;
@@ -770,7 +988,7 @@ export default function ExecDemoIntelPanel({
                           title={
                             riskPillsMuted
                               ? "Not applicable for offer targeting"
-                              : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged`
+                              : `${txCount} transaction${txCount !== 1 ? "s" : ""} flagged · ${rollup.severity} severity`
                           }
                           className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full whitespace-nowrap shrink-0 ${isClickable ? "cursor-pointer" : riskPillsMuted ? "cursor-not-allowed pointer-events-none" : ""} transition-all duration-200`}
                           style={{
@@ -801,7 +1019,7 @@ export default function ExecDemoIntelPanel({
                           </span>
                           {flagLabel}
                           <span className={`text-[11.5px] opacity-60 tabular-nums font-normal`}>
-                            {txCount} txn{txCount !== 1 ? "s" : ""} · {rollup.severity}
+                            {txCount} txn{txCount !== 1 ? "s" : ""} · {formatSpend(matchedIndices.reduce((s, idx) => s + (toAmount(transactions?.[idx]?.amount)), 0))}
                           </span>
                         </span>
                       );
@@ -822,13 +1040,176 @@ export default function ExecDemoIntelPanel({
                     </span>
                   );
 
-                  // Always render the three labeled rows so headers are retained
-                  // on Next-Offer / Next-Product / Next-Conversation tabs. When a
-                  // tab is active (collapsed), use tighter dimensions to fit.
+                  // On the three Next-* tabs (isCollapsed), we compile every pill
+                  // family into a single header-less strip. When fully expanded,
+                  // we keep the five labeled rows (Spending / Life Event /
+                  // Financial / Demographic / Risk).
                   const labelWidth = isCollapsed ? "w-[140px]" : "w-[185px]";
                   const labelTextSize = isCollapsed ? "text-[12px]" : "text-[13px]";
                   const rowGap = isCollapsed ? "mt-2.5" : "mt-2.5";
-                  const pillRowClass = "flex-1 min-w-0 flex flex-nowrap gap-2.5 overflow-x-auto exec-light-scroll py-0.5";
+                  const pillRowClass = "flex-1 min-w-0 flex flex-wrap gap-2.5 py-0.5";
+
+                  // Grey out Financial pills on Next-Offer only (matches risk muting).
+                  const financialPillsMuted = activeTab === "analytics";
+
+                  const financialPillNodes = (rawFinancialSignals || []).map((fs: any, i: number) => {
+                    const isActive = activeTriggerLabel === fs.label;
+                    const indices = fs.transaction_indices || [];
+                    const isExternal = fs.source === "external";
+                    const muted = financialPillsMuted;
+                    const borderColor = isExternal ? "#7c3aed" : "#6366f1";
+                    const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(99,102,241,.35)";
+                    const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(99,102,241,.18)";
+                    const pill = (
+                      <span
+                        key={fs.id}
+                        onClick={muted ? undefined : () => onTriggerPillClick?.(fs.label, indices, "#6366f1", "lifeEvent")}
+                        title={muted ? "Not applicable for offer targeting" : undefined}
+                        className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full transition-all duration-200 whitespace-nowrap shrink-0 ${muted ? "cursor-not-allowed pointer-events-none" : "cursor-pointer"}`}
+                        style={{
+                          background: muted
+                            ? "#e2e8f0"
+                            : isActive
+                              ? "linear-gradient(135deg, rgba(99,102,241,.30), rgba(99,102,241,.18))"
+                              : "linear-gradient(135deg, rgba(99,102,241,.16), rgba(99,102,241,.06))",
+                          color: muted ? "#94a3b8" : "#3730a3",
+                          border: muted ? "1.5px solid #cbd5e1" : `1.5px solid ${borderColor}`,
+                          animation: `rollup-entrance 0.5s ease-out ${1.0 + i * 0.12}s both`,
+                          boxShadow: muted ? "none" : isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
+                          opacity: muted ? 0.65 : 1,
+                          filter: muted ? "grayscale(1)" : "none",
+                          textDecoration: muted ? "line-through" : "none",
+                          textDecorationColor: muted ? "#94a3b8" : undefined,
+                          textDecorationThickness: muted ? "1.5px" : undefined,
+                        }}
+                      >
+                        {isExternal && !muted ? (
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                            style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                          >
+                            <Satellite className="w-2.5 h-2.5" />
+                            Ext
+                          </span>
+                        ) : (
+                          <span style={{ color: muted ? "#94a3b8" : "#6366f1", textDecoration: "none" }}>
+                            {muted ? "✕" : "◆"}
+                          </span>
+                        )}
+                        {stripBrand(fs.label)}
+                        {(() => {
+                          if (isExternal) {
+                            const sub = fs.detail || fs.monthly_amount_band;
+                            return sub ? (
+                              <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                                {sub}
+                              </span>
+                            ) : null;
+                          }
+
+                          const spend = indices.reduce((s: number, idx: number) => s + (toAmount(transactions?.[idx]?.amount)), 0);
+                          return (
+                            <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                              {indices.length} txn{indices.length !== 1 ? "s" : ""} · {formatSpend(spend)}
+                            </span>
+                          );
+                        })()}
+                      </span>
+                    );
+                    if (!isExternal || muted) return pill;
+                    return (
+                      <Tooltip key={fs.id}>
+                        <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                        <TooltipPortal>
+                          <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
+                            <div className="font-semibold text-violet-700 mb-1">External Intelligence · {fs.provider || "Bureau"}</div>
+                            <div>{fs.detail || fs.label}</div>
+                          </TooltipContent>
+                        </TooltipPortal>
+                      </Tooltip>
+                    );
+                  });
+
+                  const demographicPillNodes = (filteredDemographicShifts || []).map((ds: any, i: number) => {
+                    const isActive = activeTriggerLabel === ds.label;
+                    const indices = ds.transaction_indices || [];
+                    const clickable = indices.length > 0;
+                    const isExternal = ds.source === "external";
+                    const borderColor = isExternal ? "#7c3aed" : "#0d9488";
+                    const glowColor = isExternal ? "rgba(124,58,237,.35)" : "rgba(13,148,136,.35)";
+                    const shadowColor = isExternal ? "rgba(124,58,237,.22)" : "rgba(13,148,136,.18)";
+                    const pill = (
+                      <span
+                        key={ds.id}
+                        onClick={clickable ? () => onTriggerPillClick?.(ds.label, indices, "#0d9488", "lifeEvent") : undefined}
+                        className={`inline-flex items-center gap-2 text-[12.5px] px-3.5 py-2 font-semibold rounded-full transition-all duration-200 whitespace-nowrap shrink-0 ${clickable ? "cursor-pointer" : "cursor-default"}`}
+                        style={{
+                          background: isActive
+                            ? "linear-gradient(135deg, rgba(13,148,136,.30), rgba(13,148,136,.18))"
+                            : "linear-gradient(135deg, rgba(13,148,136,.16), rgba(13,148,136,.06))",
+                          color: "#0f766e",
+                          border: `1.5px solid ${borderColor}`,
+                          animation: `rollup-entrance 0.5s ease-out ${1.2 + i * 0.12}s both`,
+                          boxShadow: isActive ? `0 0 14px ${glowColor}` : `0 2px 8px ${shadowColor}`,
+                        }}
+                      >
+                        {isExternal ? (
+                          <span
+                            className="inline-flex items-center gap-1 px-1.5 py-px rounded-full text-[9.5px] font-bold uppercase tracking-wider"
+                            style={{ background: "rgba(124,58,237,.14)", color: "#6d28d9", border: "1px solid rgba(124,58,237,.35)" }}
+                          >
+                            <Satellite className="w-2.5 h-2.5" />
+                            Ext
+                          </span>
+                        ) : (
+                          <span style={{ color: "#0d9488" }}>✦</span>
+                        )}
+                        {stripBrand(ds.label)}
+                        {(() => {
+                          if (isExternal) {
+                            const parts = [(ds as any).detail, ds.magnitude_band].filter(Boolean);
+                            return parts.length ? (
+                              <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                                {parts.join(" · ")}
+                              </span>
+                            ) : null;
+                          }
+                          const spend = indices.reduce((s: number, idx: number) => s + (toAmount(transactions?.[idx]?.amount)), 0);
+                          return (
+                            <span className="text-[11.5px] opacity-60 tabular-nums font-normal">
+                              {indices.length} txn{indices.length !== 1 ? "s" : ""} · {formatSpend(spend)}
+                            </span>
+                          );
+                        })()}
+                      </span>
+                    );
+                    if (!isExternal) return pill;
+                    return (
+                      <Tooltip key={ds.id}>
+                        <TooltipTrigger asChild>{pill}</TooltipTrigger>
+                        <TooltipPortal>
+                          <TooltipContent side="bottom" align="start" className="max-w-sm bg-white border border-violet-200 text-slate-700 text-xs leading-relaxed shadow-lg p-3 z-[9999]">
+                            <div className="font-semibold text-violet-700 mb-1">External Intelligence · {ds.provider || "Bureau"}</div>
+                            <div>{ds.evidence_summary || ds.label}</div>
+                          </TooltipContent>
+                        </TooltipPortal>
+                      </Tooltip>
+                    );
+                  });
+
+                  if (isCollapsed) {
+                    return (
+                      <TooltipProvider delayDuration={150}>
+                        <div className={pillRowClass}>
+                          {rollupPills}
+                          {lifeEventPills}
+                          {financialPillNodes}
+                          {demographicPillNodes}
+                          {riskPills}
+                        </div>
+                      </TooltipProvider>
+                    );
+                  }
 
                   return (
                     <>
@@ -860,7 +1241,7 @@ export default function ExecDemoIntelPanel({
                             <p
                               className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-amber-700 cursor-help inline-flex items-center gap-1.5`}
                             >
-                              Life Event Detection:
+                              LIFE EVENTS:
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
@@ -872,16 +1253,64 @@ export default function ExecDemoIntelPanel({
                         </Tooltip>
                         <div className={pillRowClass}>{lifeEventPills}</div>
                       </div>
+                      {financialPillNodes.length > 0 && (
+                        <div
+                          className={`flex items-center gap-3 ${rowGap}`}
+                          style={{ animation: "fade-in 0.5s ease-out 0.3s both" }}
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p
+                                className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
+                                style={{ color: "#3730a3" }}
+                              >
+                                FINANCIAL:
+                                <Info className="w-3 h-3 opacity-70" />
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipPortal>
+                              <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                                Recurring large-financial-product relationships — auto loans, mortgages, leases, brokerage & retirement contributions, insurance premiums. Bigger than spending and shown separately so they don't get repackaged as lifestyle habits.
+                              </TooltipContent>
+                            </TooltipPortal>
+                          </Tooltip>
+                          <div className={pillRowClass}>{financialPillNodes}</div>
+                        </div>
+                      )}
+                      {demographicPillNodes.length > 0 && (
+                        <div
+                          className={`flex items-center gap-3 ${rowGap}`}
+                          style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
+                        >
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <p
+                                className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider cursor-help inline-flex items-center gap-1.5`}
+                                style={{ color: "#0f766e" }}
+                              >
+                                Demographic:
+                                <Info className="w-3 h-3 opacity-70" />
+                              </p>
+                            </TooltipTrigger>
+                            <TooltipPortal>
+                              <TooltipContent side="bottom" align="start" className="max-w-lg bg-white border border-slate-200 text-slate-700 text-sm leading-relaxed shadow-lg p-3.5 z-[9999]">
+                                Inferred changes to the customer's life stage, household, income, wealth tier, or geography — detected from transaction patterns before the customer self-reports. Static baseline attributes (age, ZIP, current income band) are intentionally excluded; only genuine shifts appear here.
+                              </TooltipContent>
+                            </TooltipPortal>
+                          </Tooltip>
+                          <div className={pillRowClass}>{demographicPillNodes}</div>
+                        </div>
+                      )}
                       <div
                         className={`flex items-center gap-3 ${rowGap}`}
-                        style={{ animation: "fade-in 0.5s ease-out 0.4s both" }}
+                        style={{ animation: "fade-in 0.5s ease-out 0.5s both" }}
                       >
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <p
                               className={`shrink-0 ${labelWidth} ${labelTextSize} font-bold uppercase tracking-wider text-red-600 cursor-help inline-flex items-center gap-1.5`}
                             >
-                              Risk Factors:
+                              RISK:
                               <Info className="w-3 h-3 opacity-70" />
                             </p>
                           </TooltipTrigger>
@@ -944,6 +1373,8 @@ export default function ExecDemoIntelPanel({
                     activePillLabel={activePillLabel}
                     onClearHighlight={onClearHighlight}
                     onPillarClick={onEnrichmentPillarClick}
+                    externalSignals={externalSignals}
+                    activeExternalSignalId={activeExternalSignalId}
                   />
                 )}
               </div>
@@ -1001,7 +1432,7 @@ export default function ExecDemoIntelPanel({
               />
             ) : activeTab === "product" ? (
               <NextProductRationale
-                lifeEvents={detectedLifeEvents || null}
+                lifeEvents={filteredDetectedLifeEvents}
                 loading={!!productsLoading}
                 productCards={productCards}
                 transactions={transactions}
@@ -1011,13 +1442,58 @@ export default function ExecDemoIntelPanel({
                 actionsLoading={actionsLoading}
                 pillarRollups={rollupStats}
                 riskFlags={riskFlags}
-                creditAssessment={creditAssessment}
-                creditLoading={creditLoading}
+                financialSignals={personaSynthesis?.financialSignals || []}
                 deliveryChannel={productDeliveryChannel}
                 onDeliveryChannelChange={onProductDeliveryChannelChange}
               />
             ) : activeTab === "relationship" ? (
               <div className="h-full flex flex-col min-h-0">
+                {/* Audience toggle sliver — drives both the card below and the tablet mockup on the right */}
+                <div className="shrink-0 mb-2 grid grid-cols-2 gap-1.5 p-1 rounded-lg bg-slate-100 border border-slate-200">
+                  {(() => {
+                    const audience: "customer" | "rm" = wmCopilotOpen ? "rm" : "customer";
+                    const baseBtn =
+                      "inline-flex items-center justify-center gap-1.5 text-[11px] font-bold rounded-md px-3 py-1.5 transition-all";
+                    return (
+                      <>
+                        <button
+                          type="button"
+                          onClick={() => onCloseWMCopilot?.()}
+                          className={`${baseBtn} ${
+                            audience === "customer"
+                              ? "bg-white text-blue-700 shadow-sm border border-blue-200"
+                              : "text-slate-500 hover:text-slate-700"
+                          }`}
+                        >
+                          <Users className="w-3.5 h-3.5" />
+                          Customers
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const lifeEventSignal: SelectedSignal | null =
+                              selectedSignal && selectedSignal.kind === "lifeEvent"
+                                ? selectedSignal
+                                : (availableSignals.find((s) => s.kind === "lifeEvent" && /college/i.test(s.label)) ??
+                                  availableSignals.find((s) => s.kind === "lifeEvent") ?? {
+                                    kind: "lifeEvent",
+                                    label: "College Preparation for Dependent",
+                                  });
+                            onOpenWMCopilot?.(customerFirstName, lifeEventSignal);
+                          }}
+                          className={`${baseBtn} ${
+                            audience === "rm"
+                              ? "bg-white text-purple-700 shadow-sm border border-purple-200"
+                              : "text-slate-500 hover:text-slate-700"
+                          }`}
+                        >
+                          <Briefcase className="w-3.5 h-3.5" />
+                          Ventus AI Coworker
+                        </button>
+                      </>
+                    );
+                  })()}
+                </div>
                 <div className="flex-1 min-h-0">
                   <NextConversationRationale
                     selectedSignal={selectedSignal}
@@ -1027,8 +1503,8 @@ export default function ExecDemoIntelPanel({
                     actionsLoading={actionsLoading}
                     productCards={productCards}
                     onSelectSignal={(s) => setSelectedSignal(s)}
+                    audience={wmCopilotOpen ? "rm" : "customer"}
                     onOpenWMCopilot={() => {
-                      // WM CoPilot subject must always be a life event — never risk/gambling
                       const lifeEventSignal: SelectedSignal | null =
                         selectedSignal && selectedSignal.kind === "lifeEvent"
                           ? selectedSignal

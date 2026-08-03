@@ -3,6 +3,7 @@ import { Sparkles, ChevronLeft, ChevronRight, Search, X, Loader2, TrendingUp, Cl
 import type { RollupOfferGroup } from "./NextOfferRationale";
 import { getColor } from "./ExecDemoIntelPanel";
 import { useSemanticDealSearch } from "@/hooks/useSemanticDealSearch";
+import { availableDeals as AVAILABLE_DEALS } from "@/lib/availableDealsData";
 
 // ── Merchant lookup: dealId → merchant name (mirrors edge function catalog) ──
 const MERCHANT_LOOKUP: Record<string, string> = {
@@ -165,6 +166,15 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
     return set;
   }, [matchingDealIds, searchQuery]);
 
+  const catalogSearchDeals = useMemo(() => {
+    if (!searchQuery.trim() || matchingDealIds.length === 0) return [];
+    const dealById = new Map(AVAILABLE_DEALS.map(deal => [deal.id, deal]));
+    return matchingDealIds
+      .map(id => dealById.get(id))
+      .filter((deal): deal is NonNullable<typeof deal> => Boolean(deal))
+      .slice(0, 12);
+  }, [matchingDealIds, searchQuery]);
+
   // Filter groups based on search
   const allGroups = useMemo(() => {
     const base = offerGroups.filter(g => g.deals.filter(d => d.signal !== "suppress").length > 0);
@@ -178,6 +188,36 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   }, [offerGroups, matchingMerchants]);
 
   const isSearchActive = searchQuery.trim().length > 0;
+
+  useEffect(() => {
+    if (isSearchActive && expandedGroup) {
+      setExpandedGroup(null);
+    }
+  }, [isSearchActive, expandedGroup]);
+
+  const searchFooter = (
+    <div className="shrink-0 px-3 py-2 border-t border-slate-100 bg-white space-y-1.5">
+      <div className="relative">
+        <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => handleSearchChange(e.target.value)}
+          placeholder="Search deals..."
+          className="w-full pl-6 pr-7 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
+        />
+        {isSearching && (
+          <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400 animate-spin" />
+        )}
+        {!isSearching && searchQuery && (
+          <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2">
+            <X className="w-3 h-3 text-slate-400 hover:text-slate-600" />
+          </button>
+        )}
+      </div>
+    </div>
+
+  );
 
   // Stable savings number
   const yearlySavings = (offerGroups.length * 145) + (firstName.length * 12);
@@ -217,7 +257,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
   if (offerGroups.length === 0) return null;
 
   // ── Deal Detail View ──
-  if (expandedGroup) {
+  if (expandedGroup && !isSearchActive) {
     const deals = expandedGroup.deals.filter(d => d.signal !== "suppress");
     const imgSrc = getCollectionImage(expandedGroup);
     const c = getColor(expandedGroup.pillar || "");
@@ -253,6 +293,14 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
                 <p className="text-[12px] font-bold text-slate-800 leading-snug">{deal.merchant}</p>
                 {deal.product && <p className="text-[11px] text-slate-500 leading-snug">{deal.product}</p>}
                 {deal.message && <p className="text-[10.5px] text-slate-500 mt-1 leading-snug">{deal.message}</p>}
+                {deal.valueLine && (
+                  <p
+                    className="text-[10.5px] font-semibold text-slate-900 mt-1 leading-snug bg-emerald-50 border border-emerald-100 rounded px-1.5 py-0.5"
+                    title={deal.valueMath || undefined}
+                  >
+                    <span className="text-emerald-600 mr-0.5">$</span>{deal.valueLine}
+                  </p>
+                )}
               </div>
               <div className="flex flex-col items-end justify-between gap-1.5 shrink-0">
                 {deal.rewardValue ? (
@@ -271,6 +319,8 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           ))}
         </div>
 
+        {searchFooter}
+
         <style>{`
           @keyframes detail-slide-in {
             from { opacity: 0; transform: translateX(30px); }
@@ -280,6 +330,78 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
       </div>
     );
   }
+
+  // ── Dedicated Search Results View ──
+  if (isSearchActive) {
+    return (
+      <div className="flex flex-col h-full" style={{ scrollbarWidth: "none" }}>
+        <div className="shrink-0 px-3 pt-3 pb-2 flex items-center justify-between gap-2 border-b border-slate-100">
+          <div className="min-w-0">
+            <p className="text-[11px] font-bold text-slate-800 truncate">
+              Results for "{searchQuery}"
+            </p>
+            <p className="text-[9px] text-slate-400">
+              {isSearching ? "Searching…" : `${catalogSearchDeals.length} deal${catalogSearchDeals.length === 1 ? "" : "s"} found`}
+            </p>
+          </div>
+          <button
+            onClick={clearSearch}
+            className="text-[10px] font-semibold text-slate-500 hover:text-slate-700 shrink-0"
+          >
+            Clear
+          </button>
+        </div>
+
+        <div className="flex-1 min-h-0 overflow-y-auto px-3 py-3" style={{ scrollbarWidth: "none" }}>
+          {isSearching && catalogSearchDeals.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-4 h-4 text-blue-400 animate-spin" />
+            </div>
+          ) : catalogSearchDeals.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-[11px] text-slate-400">No matching deals found</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-1.5">
+              {catalogSearchDeals.map((deal, i) => {
+                const c = getColor(deal.category || "");
+                return (
+                  <div
+                    key={deal.id}
+                    className="rounded-xl border border-slate-100 bg-white p-2.5 flex flex-col gap-1.5 animate-fade-in"
+                    style={{ animationDelay: `${i * 35}ms` }}
+                  >
+                    <div className="flex items-start justify-between gap-1.5">
+                      <div className="min-w-0">
+                        <p className="text-[11px] font-bold text-slate-800 truncate">{deal.merchantName}</p>
+                        <p className="text-[8px] text-slate-400 truncate">{deal.subcategory}</p>
+                      </div>
+                      <span
+                        className="text-[8px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                        style={{ background: c.bg, color: c.text, border: `1px solid ${c.border}` }}
+                      >
+                        {deal.rewardValue}
+                      </span>
+                    </div>
+                    <p className="text-[9px] leading-snug text-slate-500 line-clamp-2">{deal.dealDescription}</p>
+                    <button
+                      className="mt-auto text-[9px] font-semibold px-2 py-1 rounded-full border transition-colors"
+                      style={{ borderColor: c.border, color: c.text, background: c.bg }}
+                    >
+                      View Deal
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {searchFooter}
+      </div>
+    );
+  }
+
 
   // ── Main View ──
   const groups = allGroups;
@@ -334,7 +456,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         </div>
 
         {/* ── Top Pick For You ── */}
-        {topPick && (
+        {!isSearchActive && topPick && (
           <div
             className="rounded-xl border p-3 cursor-pointer hover:shadow-md transition-shadow"
             style={{
@@ -372,7 +494,7 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         )}
 
         {/* ── Expiring Soon ── */}
-        {expiringSoon.length > 0 && (
+        {!isSearchActive && expiringSoon.length > 0 && (
           <div>
             <div className="flex items-center gap-1 mb-1.5">
               <Clock className="w-3 h-3 text-red-500" />
@@ -404,8 +526,9 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
         </>
         )}
 
+
         {/* ── Collection Carousel ── */}
-        {groups.length > 0 && active && (
+        {!isSearchActive && groups.length > 0 && active && (
           <>
             <div className="flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5 text-amber-500" />
@@ -475,41 +598,10 @@ export default function GeneratedOffersPhoneView({ offerGroups, customerName, fo
           </>
         )}
 
-        {/* ── No results state ── */}
-        {isSearchActive && !isSearching && groups.length === 0 && (
-          <div className="text-center py-4">
-            <p className="text-[11px] text-slate-400">No matching deals found</p>
-          </div>
-        )}
       </div>
 
       {/* ── Semantic Search Bar (pinned bottom) ── */}
-      <div className="shrink-0 px-3 py-2 border-t border-slate-100 bg-white space-y-1.5">
-        <div className="relative">
-          <Search className="absolute left-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-400" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            placeholder="Search deals..."
-            className="w-full pl-6 pr-7 py-1.5 rounded-lg border border-slate-200 bg-white text-[10px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-300 focus:border-blue-300"
-          />
-          {isSearching && (
-            <Loader2 className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-blue-400 animate-spin" />
-          )}
-          {!isSearching && searchQuery && (
-            <button onClick={clearSearch} className="absolute right-2 top-1/2 -translate-y-1/2">
-              <X className="w-3 h-3 text-slate-400 hover:text-slate-600" />
-            </button>
-          )}
-        </div>
-        {searchReasoning && (
-          <div className="flex items-start gap-1 px-2 py-1.5 rounded-lg bg-blue-50">
-            <Sparkles className="w-2.5 h-2.5 text-blue-500 mt-0.5 shrink-0" />
-            <p className="text-[9px] text-blue-700 leading-snug">{searchReasoning}</p>
-          </div>
-        )}
-      </div>
+      {searchFooter}
 
       <style>{`
         @keyframes collection-slide-right {

@@ -104,7 +104,7 @@ export function LocationExperienceManager() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-3">
       {/* Header */}
       <TabHeader
         icon={<MapPin className="w-4 h-4" />}
@@ -113,15 +113,8 @@ export function LocationExperienceManager() {
         howItWorks="Ventus maps customer home/work/travel geo-patterns from transaction locations to match city-level perks to the right audiences."
         whyItMatters="Drives foot traffic and engagement by surfacing hyper-local experiences to customers who will actually use them."
       />
-      <div className="flex items-start justify-end">
-        <Button onClick={openCreate} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
-          <Plus className="h-4 w-4 mr-1.5" />
-          Add Experience
-        </Button>
-      </div>
-
       {/* Filters */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
           <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search experiences, partners..." className="pl-9 h-9 text-sm bg-white border-slate-200 !text-slate-900" />
@@ -140,6 +133,11 @@ export function LocationExperienceManager() {
             {(Object.keys(CATEGORY_CONFIG) as PerkCategory[]).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
           </SelectContent>
         </Select>
+        <div className="flex-1 min-w-[20px]" />
+        <Button onClick={openCreate} size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Plus className="h-4 w-4 mr-1.5" />
+          Add Experience
+        </Button>
       </div>
 
       {/* City Groups */}

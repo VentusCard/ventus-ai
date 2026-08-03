@@ -13,6 +13,11 @@ import * as sns from 'aws-cdk-lib/aws-sns';
 import * as subscriptions from 'aws-cdk-lib/aws-sns-subscriptions';
 import { Construct } from 'constructs';
 
+export const VENTUS_DATABASE_SECRET_ID =
+  'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022';
+export const VENTUS_DATABASE_KMS_KEY_ARN =
+  'arn:aws:kms:us-east-2:373633008995:key/9ddf7da1-1156-4d44-87c7-81023f19160d';
+
 /**
  * CDK skeleton for documenting/importing existing production resources.
  *
@@ -32,8 +37,7 @@ export class VentusExistingInfraStack extends cdk.Stack {
       databaseClusterIdentifier: 'ventus-bofa-cluster',
       databaseName: 'ventus_bofa',
       databaseKmsAliasName: 'alias/ventus/database-secrets',
-      databaseSecretId:
-        'rds-db-credentials/cluster-YOWTEC3WNTPF6ARWDMCUJGSOL4/ventusadmin/1771815186022',
+      databaseSecretId: VENTUS_DATABASE_SECRET_ID,
       databaseSecretRotationFunctionName: 'ventus-db-credential-rotation',
       databaseSecretRotationApplicationId:
         'arn:aws:serverlessrepo:us-east-1:297356227824:applications/SecretsManagerRDSPostgreSQLRotationSingleUser',

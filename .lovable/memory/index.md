@@ -10,8 +10,10 @@ Updated: 3h ago
 - Demos require desktop (>=1024px); enforce with 'Desktop Required' message.
 - AI Tone: "Vaguely specific" behavioral labels. NO specific transaction counts or exact spend amounts.
 - Avoid stress/risk terminology in customer copy; frame as opportunity/optimization.
+- Domain is **ventusai.com** — never `ventus.ai` in copy, emails, or URLs.
 
 ## Memories
+- [External Consumer Intelligence](mem://reference/external-consumer-intelligence) — Third-party enrichment source: 8 sources, 175+ attributes, 300M+ consumers / 125M+ households
 - [Travel Enrichment Logic](mem://technical/data-processing/travel-enrichment-logic) — Trip label rules, price heuristics, and fare matching
 - [Deal Personalization](mem://features/deal-personalization/implementation) — Copywriting rules for lifestyle-driven marketing messages
 - [Product Narrative](mem://strategy/product-narrative) — 4-act structure for product value proposition
@@ -71,6 +73,7 @@ Updated: 3h ago
 - [Product Cards Engine](mem://technical/edge-functions/product-card-generation) — Generic "Our Bank" product naming (no real brands)
 - [Risk Detection](mem://technical/edge-functions/risk-detection-logic) — Categories for Fraud/AML/Vice analysis
 - [Landing Page Structure](mem://site/landing-page-structure) — Section order and CTA standardization
+- [Company Description](mem://company/description-positioning) — Canonical boilerplate, 3 signal families, data sources, 4 outcomes
 - [Phone Mockup Rewards](mem://features/executive-demo/phone-mockup-rewards) — Auto-rotating collection cards design
 - [Integration Partners](mem://features/integration/partners) — List of 6 authorized partner logos to display
 - [Integration Section](mem://site/integration-section) — 3-step vertical scroll UI on homepage

@@ -5,6 +5,7 @@ import pdfParse from "https://esm.sh/pdf-parse@1.1.1";
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  "https://dev.d1gaewa028qzng.amplifyapp.com",
   "https://staging.d1gaewa028qzng.amplifyapp.com",
   /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
@@ -83,7 +84,7 @@ serve(async (req) => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-3.5-flash",
         messages: [
           {
             role: "system",

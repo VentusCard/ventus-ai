@@ -45,12 +45,19 @@ jobs:
           node --check backend/scripts/check-api-cors-readiness.mjs
           node --check backend/scripts/check-relative-imports.mjs
           node --check backend/scripts/check-pipeline-readiness.mjs
+          node --check backend/scripts/check-persistence-readiness.mjs
           node --check backend/scripts/package-monitors.mjs
           node --check backend/scripts/qa-enrichment-contract.mjs
           node --check backend/scripts/qa-golden-enrichment.mjs
           node --check backend/scripts/qa-model-output-report.mjs
+          node --check backend/scripts/qa-intervention-planner.mjs
           node --check backend/scripts/qa-partner-ingest.mjs
           node --check backend/scripts/qa-live-pipeline.mjs
+          node --check backend/scripts/qa-growth-play-cohorts.mjs
+          node --check backend/scripts/qa-outcome-feed-contract.mjs
+          node --check backend/scripts/benchmark-growth-play-pipeline.mjs
+          node --check backend/scripts/generate-plaid-mvp-manifests.mjs
+          node --check backend/scripts/lib/growth-play-cohorts.mjs
           node --check backend/scripts/lib/qa-validators.mjs
           node --check infra/scripts/audit-live-db-rotation-preflight.mjs
           node --check infra/scripts/audit-live-secrets-cutover.mjs
@@ -89,15 +96,33 @@ jobs:
       - name: Check Pipeline Readiness Config
         run: npm run --prefix backend check:pipeline-readiness
 
+      - name: Check Tenant-Isolated Persistence
+        run: npm run --prefix backend check:persistence
+
       - name: Check Enrichment QA Contracts
         run: npm run --prefix backend qa:enrichment
 
       - name: Check Golden Enrichment Expectations
         run: npm run --prefix backend qa:golden
 
+      - name: Run Backend Contract Tests
+        run: npm test --prefix backend
+
+      - name: Check Model Gateway Readiness
+        run: npm run --prefix backend check:model-gateway
+
+      - name: Check Intervention Benchmark
+        run: npm run --prefix backend qa:interventions
+
+      - name: Install Connector Test Dependencies
+        run: npm ci --ignore-scripts
+
+      - name: Check Connector Sessions
+        run: npm run test:connector-sessions
+
       - name: Validate Lambda Entrypoints
         run: |
-          find backend/functions backend/shared -name '*.mjs' -print0 | xargs -0 -n1 node --check
+          find backend/functions backend/shared backend/monitors -name '*.mjs' -print0 | xargs -0 -n1 node --check
 
   infra:
     name: Infra CDK Checks
@@ -152,6 +177,18 @@ jobs:
         run: npm run synth
         working-directory: infra
 
+      - name: Synthesize Isolated Evidence Store Plan
+        run: npm run synth -- VentusEvidenceStoreStack -c enableEvidenceStoreMigrator=true
+        working-directory: infra
+
+      - name: Synthesize AWS Identity Foundation
+        run: npx cdk synth VentusIdentityStack -c enableIdentityFoundation=true --quiet
+        working-directory: infra
+
+      - name: Synthesize Growth Console API
+        run: npx cdk synth VentusConsoleApiStack -c enableConsoleApi=true --quiet
+        working-directory: infra
+
   frontend:
     name: Frontend Build And Lint
     runs-on: ubuntu-latest
@@ -172,6 +209,21 @@ jobs:
       - name: Lint Advisory
         continue-on-error: true
         run: npm run lint
+
+      - name: Check MVP Growth Play Contracts
+        run: npm run test:mvp-cohorts
+
+      - name: Compile Executable Growth Play Contracts
+        run: npm run test:growth-plays
+
+      - name: Check Plaid Source To Growth Play Mapping
+        run: npm run test:plaid-source
+
+      - name: Run Fixture Pilot End To End
+        run: npm run pilot:e2e
+
+      - name: Check Outcome Feed Contract
+        run: npm run test:outcomes
 
       - name: Build
         run: npm run build

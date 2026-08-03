@@ -219,8 +219,6 @@ export const SAMPLE_CUSTOMER_6: ClientProfileData = {
 
 export const SAMPLE_CSV = `transaction_id,merchant_name,description,mcc,amount,date,zip_code,source
 txn_005,HAWAIIAN AIRLINES HNL,Round trip SFO to LIH (advance booking),4511,865.00,2025-07-16,94102,Premium Card
-txn_p017,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2025-08-01,,ACH
-txn_r017,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2025-08-01,,ACH
 txn_003,HAYES VALLEY GENERAL STORE,Assorted home and gift goods,5999,84.00,2025-08-02,94102,Cashback Card
 txn_050,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-08-10,94102,Cashback Card
 txn_l017,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2025-08-15,,ACH
@@ -232,14 +230,9 @@ txn_011,BUDGET RENT-A-CAR LIH,Jeep rental Lihue airport,7512,578.00,2025-08-25,9
 txn_001,NA PALI CATAMARAN TOUR,Na Pali coast snorkel sail,7999,245.00,2025-08-26,96714,Cashback Card
 txn_012,BEACH HOUSE RESTAURANT KAUAI,Sunset oceanfront dinner,5812,228.00,2025-08-26,96756,Premium Card
 txn_013,LUAU KALAMAKU KAUAI,Traditional luau for two,5812,358.00,2025-08-27,96766,Premium Card
-txn_p018,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2025-09-01,,ACH
-txn_r018,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2025-09-01,,ACH
 txn_052,SF TENNIS CLUB,Summer league fee,7941,125.00,2025-09-06,94102,Cashback Card
-txn_053,STAKE.COM*PROC LV,Online wager processor,6051,185.00,2025-09-13,,Premium Card
 txn_l018,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2025-09-15,,ACH
 txn_054,CHEWY.COM,Monthly dog food delivery,5995,69.50,2025-09-20,94102,Cashback Card
-txn_p019,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2025-10-01,,ACH
-txn_r019,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2025-10-01,,ACH
 txn_055,ADMISSIONS CONSULTING GRP,College admissions package,,2500.00,2025-10-05,,Checks
 txn_056,EPIC PASS VAIL RESORTS,Annual ski season pass renewal,7941,1149.00,2025-10-12,81657,Premium Card
 txn_l019,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2025-10-15,,ACH
@@ -253,21 +246,16 @@ txn_017,VAIL RESORTS LIFT TKT,Ski day pass,7941,189.00,2025-10-27,81657,Premium 
 txn_004,SF TENNIS CLUB,Annual membership dues,,350.00,2025-10-28,,Checks
 txn_019,STARBUCKS COFFEE #1234,Morning coffee,5814,6.75,2025-10-31,94102,Cashback Card
 txn_020,PETCO,Dog food and treats,5995,43.20,2025-11-01,94103,Cashback Card
-txn_p020,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2025-11-01,,ACH
-txn_r020,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2025-11-01,,ACH
 txn_021,EVO.COM,All-mountain skis with bindings,5941,1249.00,2025-11-03,98101,Premium Card
 txn_022,PALISADES TAHOE Ski LODGE,Ski weekend lodge stay,7011,485.00,2025-11-05,96146,Premium Card
 txn_008,MARIA G,Dogsitting,,150.00,2025-11-07,,Zelle
 txn_023,TARGET STORES,Holiday gifts and groceries,5411,214.56,2025-11-09,94103,Cashback Card
-txn_024,DRAFTKINGS SPORTSBOOK,Sportsbook deposit,7995,250.00,2025-11-15,,Premium Card
 txn_l020,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2025-11-15,,ACH
 txn_025,COSTCO WHOLESALE,Bulk household shopping,5411,198.76,2025-11-18,94102,Cashback Card
 txn_059,BACKCOUNTRY.COM,Ski helmet and goggles,5941,389.00,2025-11-20,84097,Premium Card
 txn_026,PALISADES TAHOE LIFT,New Year ski day,7941,169.00,2025-11-21,96146,Premium Card
 txn_027,CHEWY.COM,Monthly dog food delivery,5995,67.89,2025-11-24,94102,Cashback Card
 txn_028,UBER TRIP,Ride to downtown,4121,23.50,2025-11-30,94102,Cashback Card
-txn_p021,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2025-12-01,,ACH
-txn_r021,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2025-12-01,,ACH
 txn_029,COLLEGEBOARD SAT,SAT registration fee,,68.00,2025-12-03,,Checks
 txn_030,PETCO,Pet grooming supplies,5995,38.50,2025-12-06,94103,Cashback Card
 txn_031,SPOTIFY PREMIUM,Music subscription,4899,10.99,2025-12-09,,Cashback Card
@@ -279,10 +267,7 @@ txn_046,HAWAIIAN AIRLINES HNL,Round trip SFO to OGG (advance booking),4511,892.0
 txn_035,PETCO,Flea and tick prevention,5995,45.99,2025-12-25,94103,Cashback Card
 txn_036,SF TENNIS CLUB,Spring membership renewal,,350.00,2025-12-27,,Checks
 txn_037,WILSON SPORTING GOODS,Tennis racket purchase,5941,229.00,2025-12-29,94102,Premium Card
-txn_038,BELLAGIO CASINO LV,Casino floor charge,7995,480.00,2025-12-31,89109,Premium Card
 txn_039,CVS PHARMACY,Prescription refill,5912,28.50,2026-01-01,94102,Cashback Card
-txn_p022,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2026-01-01,,ACH
-txn_r022,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2026-01-01,,ACH
 txn_040,STANFORD VISITOR PARKING,College campus tour,7523,25.00,2026-01-06,94305,Cashback Card
 txn_041,NORDSTROM,Spring clothing,5651,178.90,2026-01-09,94102,Premium Card
 txn_060,ZILLOW MORTGAGE APP FEE,Mortgage application,,500.00,2026-01-10,,Checks
@@ -293,32 +278,20 @@ txn_061,PALISADES TAHOE LIFT,Winter ski day,7941,179.00,2026-01-17,96146,Premium
 txn_044,SF TENNIS CLUB,Court rental fee,7941,45.00,2026-01-22,94102,Cashback Card
 txn_062,REI CO-OP SF,Ski boots and base layers,5941,725.00,2026-01-22,94102,Premium Card
 txn_045,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-01-25,94102,Cashback Card
-txn_p023,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2026-02-01,,ACH
-txn_r023,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2026-02-01,,ACH
 txn_047,GRAND WAILEA RESORT,Maui resort 5 nights,7011,2450.00,2026-02-02,96753,Premium Card
 txn_048,BOSS FROG SNORKEL TOUR,Molokini snorkel excursion,7999,189.00,2026-02-03,96753,Cashback Card
 txn_049,MAMA'S FISH HOUSE MAUI,Beachside dinner,5812,215.00,2026-02-03,96779,Premium Card
 txn_063,CHEWY.COM,Monthly dog food delivery,5995,67.89,2026-02-08,94102,Cashback Card
 txn_l023,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2026-02-15,,ACH
-txn_p024,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2026-03-01,,ACH
-txn_r024,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2026-03-01,,ACH
 txn_064,BAY AREA HOME INSPECT,Pre-purchase inspection,,650.00,2026-03-15,,Checks
 txn_l024,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2026-03-15,,ACH
-txn_p025,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2026-04-01,,ACH
-txn_r025,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2026-04-01,,ACH
 txn_065,FIRST AMERICAN TITLE,Title and escrow fees,,1850.00,2026-04-02,,Checks
 txn_067,HAWAIIAN AIRLINES HNL,Round trip SFO to KOA (advance booking),4511,948.00,2026-04-05,94102,Premium Card
 txn_010,DOWN PAYMENT TRANSFER,Home down payment,,85000.00,2026-04-10,,Wire
 txn_l025,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2026-04-15,,ACH
 txn_066,JANE DOE,Kitchen remodel deposit,,5000.00,2026-05-01,,Zelle
-txn_p026,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2026-05-01,,ACH
-txn_r026,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2026-05-01,,ACH
 txn_l026,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2026-05-15,,ACH
-txn_p027,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2026-06-01,,ACH
-txn_r027,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2026-06-01,,ACH
 txn_l027,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2026-06-15,,ACH
-txn_p028,MERIDIAN CAPITAL DES:PAYROLL,,,9500.00,2026-07-01,,ACH
-txn_r028,PACIFIC HEIGHTS APT DES:RENT,,,2800.00,2026-07-01,,ACH
 txn_068,HILTON WAIKOLOA VILLAGE,Big Island resort 5 nights,7011,2680.00,2026-07-06,96738,Premium Card
 txn_l028,VW CREDIT INC DES:AUTO DEBIT,,,685.00,2026-07-15,,ACH
 `;
@@ -353,7 +326,6 @@ txn_s021,AUSTIN ROCK GYM,Day pass and gear rental,7997,45.00,2025-02-14,,Cashbac
 txn_s022,ROGUE FITNESS AUSTIN,Kettlebells and yoga mat,5941,267.80,2025-02-18,78701,Cashback Card
 txn_s023,ELEMENTS MASSAGE,Deep tissue massage 90min,7298,145.00,2025-02-22,,Premium Card
 txn_s024,WHOLE FOODS MARKET,Supplements and protein bars,5411,78.90,2025-02-26,78701,Cashback Card
-txn_s130,DRAFTKINGS SPORTSBOOK,Sportsbook deposit,7995,200.00,2025-02-28,,Premium Card
 txn_s025,ORANGE THEORY FITNESS,Monthly membership,7997,189.00,2025-03-06,,Premium Card
 txn_s026,PATAGONIA AUSTIN,Running jacket and shorts,5655,198.50,2025-03-11,,Premium Card
 txn_s110,AUSTIN MORTGAGE BROKERS,"Mortgage application fee",,450.00,2025-03-12,,Checks
@@ -691,7 +663,6 @@ txn_sf109,SF PARKING GARAGE,Monthly parking,,225.00,2025-05-01,94102,Checking
 txn_sf305,WSJ DIGITAL,Wall Street Journal subscription,4899,39.00,2025-05-02,,Cashback Card
 txn_sf110,CHEVRON,Gas fill-up,5541,71.30,2025-05-05,94102,Cashback Card
 txn_sf302,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-05-05,,ACH
-txn_sf340,BELLAGIO CASINO LV,Casino floor charge,7995,750.00,2025-05-11,89109,Premium Card
 txn_sf111,TRADER JOES,Weekly shopping,5411,167.89,2025-05-12,94102,Cashback Card
 txn_sf112,WHOLE FOODS MARKET,Organic groceries,5411,234.67,2025-05-19,94102,Cashback Card
 txn_sf113,CHEVRON,Gas station,5541,70.50,2025-05-22,94102,Cashback Card
@@ -707,7 +678,6 @@ txn_sf303,OLYMPIC CLUB DUES,"Monthly golf club dues",,385.00,2025-06-05,,ACH
 txn_sf122,SAFEWAY,Weekly groceries,5411,178.90,2025-06-09,94102,Cashback Card
 txn_sf202,UC BERKELEY PARKING,Campus visit parking,,20.00,2025-06-14,94720,Checking
 txn_sf123,TRADER JOES,Shopping,5411,156.78,2025-06-16,94102,Cashback Card
-txn_sf341,STAKE.COM*PROC LV,Online wager processor,6051,320.00,2025-06-17,,Premium Card
 txn_sf124,CHEVRON,Gas fill-up,5541,71.20,2025-06-19,94102,Cashback Card
 txn_sf125,WHOLE FOODS MARKET,Weekly shopping,5411,234.56,2025-06-23,94102,Cashback Card
 txn_sf126,SAFEWAY,Groceries,5411,189.34,2025-06-30,94102,Cashback Card
@@ -940,7 +910,6 @@ txn_ny133,WHOLE FOODS UNION SQ,Weekly shopping,5411,142.78,2025-05-12,10003,Cash
 txn_ny134,WEST ELM,Throw pillows,5712,98.00,2025-05-13,10003,Premium Card
 txn_ny135,VITAMIN SHOPPE,Summer supplements,5499,72.40,2025-05-14,10003,Cashback Card
 txn_ny136,SEAMLESS,Dinner delivery,5814,38.90,2025-05-15,10003,Cashback Card
-txn_ny330,DRAFTKINGS NJ,Sportsbook deposit,7995,400.00,2025-05-18,,Premium Card
 txn_ny137,TRADER JOES,Weekly groceries,5411,95.67,2025-05-19,10003,Cashback Card
 txn_ny138,NIKE STORE NYC,Running accessories,5661,56.80,2025-05-20,10001,Cashback Card
 txn_ny139,CONED,Electric bill,,87.23,2025-05-21,10003,Checking
@@ -1256,7 +1225,6 @@ txn_ch163,WHOLE FOODS CHICAGO,Organic groceries,5411,138.67,2025-06-16,60610,Cas
 txn_ch164,MASSAGE ENVY,Deep tissue massage,7298,95.00,2025-06-17,60610,Premium Card
 txn_ch165,LULULEMON CHICAGO,Athletic wear,5655,134.00,2025-06-18,60610,Premium Card
 txn_ch166,GNC CHICAGO,Pre-workout,5499,58.90,2025-06-19,60610,Cashback Card
-txn_ch340,BELLAGIO CASINO LV,Casino floor charge,7995,1200.00,2025-06-21,89109,Premium Card
 txn_ch167,TRADER JOES,Weekly shopping,5411,87.56,2025-06-23,60610,Cashback Card
 txn_ch168,TENNIS PRO SHOP,New grip tape,5941,34.00,2025-06-24,60610,Cashback Card
 txn_ch169,CHIPOTLE,Quick dinner,5814,14.50,2025-06-25,60610,Cashback Card
@@ -1274,7 +1242,6 @@ txn_ch178,RESTORE HYPER WELLNESS,Cryotherapy,7298,75.00,2025-07-15,60610,Premium
 txn_ch179,VITAMIN SHOPPE,Summer supplements,5499,82.70,2025-07-16,60610,Cashback Card
 txn_ch180,COMED,Electric bill,,145.89,2025-07-17,60610,Checking
 txn_ch181,ATHLETA CHICAGO,Tennis outfit,5655,167.00,2025-07-18,60610,Premium Card
-txn_ch341,BET365 EU PROC,Offshore wager processor,6051,400.00,2025-07-18,,Premium Card
 txn_ch182,WHOLE FOODS CHICAGO,Organic groceries,5411,156.78,2025-07-21,60610,Cashback Card
 txn_ch183,MASSAGE ENVY,Sports massage,7298,95.00,2025-07-22,60610,Premium Card
 txn_ch184,GNC CHICAGO,Protein and BCAAs,5499,89.60,2025-07-23,60610,Cashback Card

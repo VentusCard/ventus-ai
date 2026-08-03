@@ -1,9 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
-import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown } from "lucide-react";
+import { Pencil, Copy, Check, ArrowLeft, Play, ChevronDown, Sparkles } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { DEMO_CUSTOMERS, buildCustomerPrompt, parseUnifiedOutput } from "@/lib/demoData";
 import { MCC_DESCRIPTIONS } from "@/lib/sampleData";
 import { getFlow, formatAccounting, isIncome } from "@/lib/transactionFlow";
+import { getExternalSignalsFor } from "@/lib/externalIntelligenceSignals";
 import { toast } from "sonner";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import ventusLogo from "@/assets/ventus-ai-wordmark.png";
@@ -65,6 +66,7 @@ interface Props {
   onRunAnalysis: () => void;
   onLoadCustomCsv?: (csv: string, name: string) => void;
   embedded?: boolean;
+  onBack?: () => void;
 }
 
 const DEFAULT_PERSONA =
@@ -78,6 +80,7 @@ export default function ExecDemoSelectionDialog({
   onRunAnalysis,
   onLoadCustomCsv,
   embedded = false,
+  onBack,
 }: Props) {
   const [showCustomFlow, setShowCustomFlow] = useState(false);
   const [personaInput, setPersonaInput] = useState(DEFAULT_PERSONA);
@@ -170,6 +173,15 @@ export default function ExecDemoSelectionDialog({
         {/* Header */}
         <div className="px-8 py-3 border-b border-slate-100 shrink-0">
           <div className="flex items-center gap-2">
+            {embedded && onBack && (
+              <button
+                onClick={onBack}
+                className="mr-1 flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition-colors"
+                aria-label="Back to Bank Demo"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" /> Back
+              </button>
+            )}
             <img src={ventusLogo} alt="Ventus AI" className="h-9 w-auto" />
             <span className="text-sm text-slate-400">·</span>
             <h2 className="text-lg font-semibold text-slate-800 tracking-tight">Select a Customer Profile</h2>
@@ -349,72 +361,6 @@ export default function ExecDemoSelectionDialog({
                   )}
                 </div>
 
-                {/* Income card — counts all inflows regardless of source */}
-                {(() => {
-                  const incomeOpen = !!openSources["__income__"];
-                  const fmtIncome = `$${incomeTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
-                  return (
-                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
-                      <button
-                        onClick={() => setOpenSources((p) => ({ ...p, __income__: !p["__income__"] }))}
-                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
-                      >
-                        <div className="flex items-center gap-3">
-                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-teal-100 text-teal-800">
-                            Income
-                          </span>
-                          <span className="text-base font-semibold text-slate-700">{incomeRows.length} txns</span>
-                          <span className="text-sm text-slate-400">·</span>
-                          <span className="text-sm font-mono tabular-nums text-slate-500">{fmtIncome}</span>
-                          <span className="text-xs text-slate-400">all sources</span>
-                        </div>
-                        <ChevronDown
-                          className={`w-4 h-4 text-slate-400 transition-transform ${incomeOpen ? "rotate-180" : ""}`}
-                        />
-                      </button>
-                      {incomeOpen && (
-                        <div className="border-t border-slate-100">
-                          {incomeRows.length === 0 ? (
-                            <div className="px-4 py-3 text-sm text-slate-500">No income detected in this profile.</div>
-                          ) : (
-                            <table className="w-full text-left border-collapse">
-                              <thead>
-                                <tr className="bg-slate-50/60 border-b border-slate-200">
-                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Source</th>
-                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Date</th>
-                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Merchant</th>
-                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">Amount</th>
-                                </tr>
-                              </thead>
-                              <tbody>
-                                {incomeRows.map((row, i) => {
-                                  const amt = parseFloat(row.amount);
-                                  const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, "income");
-                                  return (
-                                    <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
-                                      <td className="px-3 py-1">
-                                        <span className={`inline-block px-2 py-0.5 rounded text-[12px] font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
-                                          {row.source || "—"}
-                                        </span>
-                                      </td>
-                                      <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
-                                      <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[420px] truncate" title={row.merchant_name}>
-                                        {row.merchant_name}
-                                      </td>
-                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-teal-800">
-                                        {fmtAmt}
-                                      </td>
-                                    </tr>
-                                  );
-                                })}
-                              </tbody>
-                            </table>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })()}
 
                 {sourceGroups.map(({ source, rows }) => {
                   const isOpen = !!openSources[source];
@@ -523,20 +469,118 @@ export default function ExecDemoSelectionDialog({
                   );
                 })}
 
-                {/* Digital Telemetry — Coming soon */}
-                <div className="rounded-xl border border-dashed border-slate-200 bg-slate-50/60 overflow-hidden opacity-70 cursor-not-allowed">
-                  <div className="w-full flex items-center justify-between px-4 py-3">
-                    <div className="flex items-center gap-3">
-                      <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-slate-200 text-slate-500">
-                        Digital Telemetry
-                      </span>
-                      <span className="text-base font-semibold text-slate-400">Coming soon</span>
-                      <span className="text-sm text-slate-400">·</span>
-                      <span className="text-sm text-slate-400">App, web & device signals</span>
+                {/* Income card — counts all inflows regardless of source */}
+                {(() => {
+                  const incomeOpen = !!openSources["__income__"];
+                  const fmtIncome = `$${incomeTotal.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                  return (
+                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, __income__: !p["__income__"] }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-teal-100 text-teal-800">
+                            Income
+                          </span>
+                          <span className="text-base font-semibold text-slate-700">{incomeRows.length} txns</span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm font-mono tabular-nums text-slate-500">{fmtIncome}</span>
+                          <span className="text-xs text-slate-400">all sources</span>
+                        </div>
+                        <ChevronDown
+                          className={`w-4 h-4 text-slate-400 transition-transform ${incomeOpen ? "rotate-180" : ""}`}
+                        />
+                      </button>
+                      {incomeOpen && (
+                        <div className="border-t border-slate-100">
+                          {incomeRows.length === 0 ? (
+                            <div className="px-4 py-3 text-sm text-slate-500">No income detected in this profile.</div>
+                          ) : (
+                            <table className="w-full text-left border-collapse">
+                              <thead>
+                                <tr className="bg-slate-50/60 border-b border-slate-200">
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Source</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Date</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap">Merchant</th>
+                                  <th className="text-slate-600 text-[13px] font-semibold uppercase tracking-wider px-3 py-1.5 whitespace-nowrap text-right">Amount</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {incomeRows.map((row, i) => {
+                                  const amt = parseFloat(row.amount);
+                                  const fmtAmt = isNaN(amt) ? row.amount : formatAccounting(amt, "income");
+                                  return (
+                                    <tr key={i} className="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/60 transition-colors">
+                                      <td className="px-3 py-1">
+                                        <span className={`inline-block px-2 py-0.5 rounded text-[12px] font-medium whitespace-nowrap ${SOURCE_COLORS[row.source] || "bg-slate-50 text-slate-500"}`}>
+                                          {row.source || "—"}
+                                        </span>
+                                      </td>
+                                      <td className="px-3 py-1 text-sm text-slate-600 tabular-nums whitespace-nowrap">{row.date}</td>
+                                      <td className="px-3 py-1 text-sm font-medium text-slate-900 max-w-[420px] truncate" title={row.merchant_name}>
+                                        {row.merchant_name}
+                                      </td>
+                                      <td className="px-3 py-1 text-sm font-mono tabular-nums whitespace-nowrap text-right text-teal-800">
+                                        {fmtAmt}
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
+                              </tbody>
+                            </table>
+                          )}
+                        </div>
+                      )}
                     </div>
-                    <ChevronDown className="w-4 h-4 text-slate-300" />
-                  </div>
-                </div>
+                  );
+                })()}
+
+                {/* External Intelligence — dynamic signals from bureau + third-party enrichment */}
+                {(() => {
+                  const extSignals = getExternalSignalsFor(customer.id);
+                  if (extSignals.length === 0) return null;
+                  const extOpen = openSources["__external__"] ?? true;
+                  return (
+                    <div className="rounded-xl border border-slate-200 bg-white overflow-hidden">
+                      <button
+                        onClick={() => setOpenSources((p) => ({ ...p, __external__: !(p["__external__"] ?? true) }))}
+                        className="w-full flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors"
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="inline-block px-2 py-0.5 rounded text-sm font-medium whitespace-nowrap bg-violet-50 text-violet-700">
+                            External Intelligence
+                          </span>
+                          <span className="text-base font-semibold text-slate-700">
+                            {extSignals.length} signal{extSignals.length === 1 ? "" : "s"}
+                          </span>
+                          <span className="text-sm text-slate-400">·</span>
+                          <span className="text-sm text-slate-500">Bureau + third-party enrichment</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${extOpen ? "rotate-180" : ""}`} />
+                      </button>
+                      {extOpen && (
+                        <div className="border-t border-slate-100 divide-y divide-slate-100">
+                          {extSignals.map((s) => (
+                            <div key={s.id} className="flex items-center gap-3 px-4 py-2.5">
+                              <Sparkles className="w-4 h-4 text-violet-500 shrink-0" />
+                              <div className="flex-1 min-w-0">
+                                <div className="text-sm font-semibold text-slate-800 truncate">{s.headline}</div>
+                                <div className="text-[12px] text-slate-500 truncate">{s.detail}</div>
+                              </div>
+                              <span className="inline-block px-2 py-0.5 rounded text-[11px] font-medium whitespace-nowrap bg-slate-100 text-slate-600 shrink-0">
+                                {s.provider}
+                              </span>
+                              <span className="text-[11px] font-mono tabular-nums text-violet-600 shrink-0">
+                                {Math.round(s.confidence * 100)}%
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
 
               {rawRows.length === 0 && (

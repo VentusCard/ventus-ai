@@ -4,6 +4,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  "https://dev.d1gaewa028qzng.amplifyapp.com",
   "https://staging.d1gaewa028qzng.amplifyapp.com",
   /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
@@ -582,7 +583,7 @@ RESPOND WITH JSON ONLY:
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'google/gemini-2.5-flash',
+          model: 'google/gemini-3.5-flash',
           messages: [
             { 
               role: 'system', 

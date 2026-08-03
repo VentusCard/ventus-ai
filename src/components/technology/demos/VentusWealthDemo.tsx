@@ -921,7 +921,7 @@ export default function VentusWealthDemo() {
                     </div>
                     <div className="vwm-row-last-contact">
                       <div className="vwm-row-last-label">Last contact</div>
-                      <div className="vwm-row-last-val">1 months ago</div>
+                      <div className="vwm-row-last-val">1 month ago</div>
                     </div>
                     <div className="vwm-row-actions">
                       {DETAILS[`${event.clientId}-${event.eventType}`] && (

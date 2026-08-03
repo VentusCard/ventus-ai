@@ -82,8 +82,8 @@ export function generateRandomPsychologicalInsights(persona?: Persona): Psycholo
   ];
 }
 
-const firstNames = ['Sarah', 'James', 'Michelle', 'Robert', 'Emily', 'David', 'Jennifer', 'Michael', 'Amanda', 'Christopher', 'Jessica', 'Daniel', 'Ashley', 'Matthew', 'Lauren'];
-const lastNames = ['Mitchell', 'Patterson', 'Wong', 'Thompson', 'Garcia', 'Johnson', 'Williams', 'Chen', 'Anderson', 'Martinez', 'Taylor', 'Lee', 'Harris', 'Clark', 'Robinson'];
+const firstNames = ['Sarah', 'James', 'Michelle', 'Robert', 'Emily', 'David', 'Jennifer', 'Michael', 'Amanda', 'Christopher', 'Jessica', 'Daniel', 'Ashley', 'Matthew', 'Lauren', 'Priya', 'Marcus', 'Elena', 'Rafael', 'Yuki', 'Diane', 'Nadia', 'Charles', 'Peter', 'Sofia', 'Thomas', 'Rachel', 'Andre', 'Beatrice', 'Kenji', 'Olivia', 'Nathan', 'Camille', 'Julian', 'Isla', 'Vikram', 'Naomi', 'Grace', 'Ethan', 'Miriam'];
+const lastNames = ['Mitchell', 'Patterson', 'Wong', 'Thompson', 'Garcia', 'Johnson', 'Williams', 'Chen', 'Anderson', 'Martinez', 'Taylor', 'Lee', 'Harris', 'Clark', 'Robinson', "O'Brien", 'Kim', 'Rossi', 'Vasquez', 'Nakamura', 'Freeman', 'Ito', 'Alvarez', 'Henderson', 'Nguyen', 'Okafor', 'Sorensen', 'Blackwood', 'Delgado', 'Petrov', 'Bhatia', 'Rivera', 'Whitman', 'Ross', 'Sato', 'Larsen', 'Gomez', 'Novak', 'Fischer', 'Ashford'];
 
 const cities = [
   { city: 'San Francisco', state: 'CA', zip: '94102' },

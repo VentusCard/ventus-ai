@@ -64,23 +64,31 @@ const HOT_TRENDS = [
 ];
 
 const SUGGESTED_PROMPTS = [
-  "What are the hot spending trends right now?",
-  "Key risks I should know about today",
-  "Which customer segments need attention?",
-  "Summarize all platform capabilities",
+  "Grow net new assets this quarter",
+  "Where are deposits leaking to competitors?",
+  "Which households are ready for wealth advice?",
+  "Who's financially vulnerable and should be protected?",
 ];
 
-const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: React.ElementType }[] = [
-  { tab: "dashboard", label: "Category Consolidation", description: "Pillar-level spend analysis & budgeting", icon: BarChart3 },
-  { tab: "wallet-share", label: "Outflow Detection", description: "Competitor deposit flight tracking", icon: Wallet },
-  { tab: "customer-insights", label: "Customer Insights", description: "Wellness alerts & behavioral signals", icon: Heart },
-  { tab: "rewards-intelligence", label: "Reward & Trip Detection", description: "Travel patterns & reward optimization", icon: Sparkles },
-  { tab: "deal-management", label: "Deal Management", description: "Merchant partnership pipeline", icon: Package },
-  { tab: "location-experience", label: "Locational Perks", description: "Geo-targeted experience aggregation", icon: MapPin },
-  { tab: "gamification", label: "Gamification", description: "Achievement engine & engagement lift", icon: Gamepad2 },
-  { tab: "life-events", label: "Life Events", description: "Predictive life event detection", icon: CalendarHeart },
-  { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route },
-  { tab: "wm-copilot", label: "WM Copilot", description: "Wealth management AI assistant", icon: Briefcase },
+type NavGroup = "featured" | "grow" | "protect" | "operate";
+const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: React.ElementType; group: NavGroup }[] = [
+  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "featured" },
+  { tab: "life-events", label: "Life Events", description: "Predictive life-event detection", icon: CalendarHeart, group: "grow" },
+  { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route, group: "grow" },
+  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "grow" },
+  { tab: "rewards-intelligence", label: "Reward & Trip Detection", description: "Travel patterns & reward optimization", icon: Sparkles, group: "grow" },
+  { tab: "wallet-share", label: "Outflow Detection", description: "Competitor deposit-flight tracking", icon: Wallet, group: "protect" },
+  { tab: "customer-insights", label: "Customer Insights", description: "Wellness alerts & behavioral signals", icon: Heart, group: "protect" },
+  { tab: "dashboard", label: "Category Consolidation", description: "Pillar-level spend analysis", icon: BarChart3, group: "operate" },
+  { tab: "deal-management", label: "Deal Management", description: "Merchant partnership pipeline", icon: Package, group: "operate" },
+  { tab: "location-experience", label: "Locational Perks", description: "Geo-targeted experiences", icon: MapPin, group: "operate" },
+  { tab: "gamification", label: "Gamification", description: "Engagement & achievement engine", icon: Gamepad2, group: "operate" },
+];
+
+const NAV_GROUPS: { key: NavGroup; label: string }[] = [
+  { key: "grow", label: "Grow — acquire & deepen" },
+  { key: "protect", label: "Protect — retain & manage risk" },
+  { key: "operate", label: "Operate — run the book" },
 ];
 
 const PLATFORM_CONTEXT = {
@@ -113,6 +121,7 @@ const PLATFORM_CONTEXT = {
     lifeEvents: "Predictive life event detection (home purchase, new baby, retirement, etc.) with proactive product recommendations.",
     nextBestProduct: "Segment builder with demographic, lifestyle, and product targeting for next-best-offer campaigns.",
     wmCopilot: "Wealth management AI assistant for advisor-level client analysis and portfolio intelligence.",
+    wealthIntelligence: "Book-level wealth intelligence that combines money movement, life events, targeting, and campaign activation.",
   },
   cardProducts: [
     "Cashback Card (38.5M accounts, top pillar: Food & Dining)",
@@ -151,15 +160,15 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
           {/* Header */}
           <div className="flex items-center gap-3 mb-2">
             <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-blue-500/20 border border-blue-400/30">
-              <span className="text-lg font-black text-blue-400 leading-none">V</span>
+              <span className="text-lg font-black text-blue-400 leading-tight">V</span>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-white tracking-tight">Ventus AI</h1>
-              <p className="text-sm text-blue-200/70">Your Intelligent Banking Co-Pilot</p>
+              <p className="text-sm text-blue-200/70">Banking intelligence — ask an objective, jump to a desk</p>
             </div>
           </div>
           <p className="text-sm text-slate-400 mt-1 max-w-2xl">
-            Real-time intelligence across 120M accounts and 75M users. Ask anything about spending trends, customer segments, or platform capabilities.
+            State an objective in plain language, or jump straight to a desk below.
           </p>
 
           {/* Hot Trends Strip */}
@@ -255,7 +264,7 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
-                placeholder="Ask about trends, segments, risks, or capabilities..."
+                placeholder="Tell Ventus an objective — or ask about trends, segments, risk…"
                 className="flex-1 text-sm px-4 py-2.5 rounded-lg border border-slate-200 bg-slate-50 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-300 placeholder:text-slate-400"
                 disabled={isLoading}
               />
@@ -275,33 +284,59 @@ export function VentusAIWelcomeView({ onNavigate }: VentusAIWelcomeViewProps) {
       {/* Navigation Grid */}
       <div className="px-8 pt-6 pb-8 bg-slate-50">
         <div className="max-w-5xl mx-auto">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="text-sm font-bold text-slate-800">Platform Modules</h2>
-              <p className="text-xs text-slate-400">Jump to any intelligence module</p>
-            </div>
-          </div>
-          <div className="grid grid-cols-5 gap-3">
-            {NAV_CARDS.map((card) => {
-              const Icon = card.icon;
-              return (
-                <button
-                  key={card.tab}
-                  onClick={() => onNavigate(card.tab)}
-                  className="group text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
-                      <Icon className="w-4 h-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
-                    </div>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-400 transition-colors" />
+          {/* Flagship */}
+          {(() => {
+            const w = NAV_CARDS.find((c) => c.group === "featured");
+            if (!w) return null;
+            const Icon = w.icon;
+            return (
+              <button
+                onClick={() => onNavigate(w.tab)}
+                className="group mb-5 flex w-full items-center gap-4 rounded-2xl border-2 border-blue-200 bg-white p-5 text-left transition hover:shadow-md"
+              >
+                <div className="flex h-11 w-11 flex-none items-center justify-center rounded-xl bg-blue-600 text-white">
+                  <Icon className="h-5 w-5" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-2">
+                    <p className="text-base font-bold text-slate-900">{w.label}</p>
+                    <span className="rounded-full bg-blue-50 px-2 py-0.5 text-[10px] font-semibold text-blue-700">Flagship</span>
                   </div>
-                  <p className="text-xs font-semibold text-slate-800 group-hover:text-blue-700 transition-colors leading-tight">{card.label}</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">{card.description}</p>
-                </button>
-              );
-            })}
-          </div>
+                  <p className="text-xs text-slate-500">{w.description}</p>
+                </div>
+                <span className="flex flex-none items-center gap-1 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-semibold text-white">
+                  Open <ArrowRight className="h-3.5 w-3.5" />
+                </span>
+              </button>
+            );
+          })()}
+
+          {NAV_GROUPS.map((g) => (
+            <div key={g.key} className="mb-4">
+              <h2 className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-500">{g.label}</h2>
+              <div className="grid grid-cols-4 gap-3">
+                {NAV_CARDS.filter((c) => c.group === g.key).map((card) => {
+                  const Icon = card.icon;
+                  return (
+                    <button
+                      key={card.tab}
+                      onClick={() => onNavigate(card.tab)}
+                      className="group text-left p-4 rounded-xl border border-slate-200 bg-white hover:border-blue-300 hover:shadow-md transition-all duration-200"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-8 h-8 rounded-lg bg-slate-100 group-hover:bg-blue-50 flex items-center justify-center transition-colors">
+                          <Icon className="w-4 h-4 text-slate-500 group-hover:text-blue-600 transition-colors" />
+                        </div>
+                        <ArrowRight className="w-3.5 h-3.5 text-slate-300 group-hover:text-blue-400 transition-colors" />
+                      </div>
+                      <p className="text-xs font-semibold text-slate-800 group-hover:text-blue-700 transition-colors leading-tight">{card.label}</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5 leading-snug">{card.description}</p>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

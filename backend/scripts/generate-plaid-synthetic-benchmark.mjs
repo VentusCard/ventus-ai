@@ -117,6 +117,10 @@ const CANONICAL_MERCHANT_NAMES = [
   [/^INTUIT/i, 'Intuit QuickBooks'],
   [/^AMC THEATRES/i, 'AMC Theatres'],
   [/^STEAM/i, 'Steam'],
+  [/^CHEWY/i, 'Chewy'],
+  [/^PETCO/i, 'Petco'],
+  [/^PETSMART/i, 'PetSmart'],
+  [/^BANFIELD/i, 'Banfield Pet Hospital'],
 ];
 
 const MERCHANT_CATEGORY_RULES = [
@@ -139,6 +143,7 @@ const MERCHANT_CATEGORY_RULES = [
   [/SHELL OIL/i, 'Gas Stations', ['Gas']],
   [/LYFT/i, 'Rideshare', ['Taxi & Rideshare']],
   [/PARKING/i, 'Parking', []],
+  [/CHEWY|PETCO|PETSMART|BANFIELD|PET HOSPITAL/i, 'Pet Supplies & Veterinary', ['Retail', 'Medical & Healthcare']],
   [/NORDSTROM|SAKS FIFTH AVENUE|DRYBAR|EQUINOX/i, 'Personal Care & Lifestyle', ['Personal Care']],
   [/LEGALZOOM/i, 'Legal Services', []],
   [/INTUIT|AMAZON WEB SERVICES|TWILIO|TYPEFORM|OPENAI|GUSTO PAYROLL FEES|ADP PAYROLL/i, 'Business Software & Services', ['Business Services']],
@@ -417,6 +422,19 @@ function lifestyleCategory(row) {
     return categoryWithAliases('Home & Living', ['Miscellaneous & Unclassified']);
   }
   if (row.intended_pfc_primary === 'FOOD_AND_DRINK') return categoryWithAliases('Food & Dining');
+  // Production's 12-pillar taxonomy splits fitness, apparel/beauty, and pets into
+  // their own pillars instead of collapsing them into Health & Wellness / Misc.
+  // Mirror those boundaries so benchmark expectations score against production.
+  // Legacy labels are kept as accepted aliases until the labels are human-reviewed.
+  if (/CHEWY|PETCO|PETSMART|BANFIELD|VETERINAR|\bVET\b|PET HOSPITAL|PET SUPPL/i.test(rawMerchantName)) {
+    return categoryWithAliases('Pets', ['Miscellaneous & Unclassified', 'Health & Wellness']);
+  }
+  if (/EQUINOX|\bGYM\b|FITNESS|LULULEMON|\bREI\b/i.test(rawMerchantName)) {
+    return categoryWithAliases('Sports & Active Living', ['Health & Wellness']);
+  }
+  if (/DRYBAR|\bSALON\b|SEPHORA|ULTA|NORDSTROM|SAKS|\bMACY'?S\b/i.test(rawMerchantName)) {
+    return categoryWithAliases('Style & Beauty', ['Health & Wellness', 'Miscellaneous & Unclassified', 'Home & Living']);
+  }
   if (row.intended_pfc_primary === 'MEDICAL' || row.intended_pfc_primary === 'PERSONAL_CARE') {
     return categoryWithAliases('Health & Wellness');
   }

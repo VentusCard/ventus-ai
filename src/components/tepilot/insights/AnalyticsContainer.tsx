@@ -1,33 +1,57 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { BankwideView } from "./BankwideView";
-import { AvailableDealsGrid } from "@/components/tepilot/rewards-pipeline/AvailableDealsGrid";
+import { DealsAndPerksView } from "./DealsAndPerksView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
+
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { GamificationManagement } from "./GamificationManagement";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
-import { LocationExperienceManager } from "./LocationExperienceManager";
-import { BankwideLifeEventsView } from "./BankwideLifeEventsView";
+
+import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
+import { BankContextView } from "./BankContextView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
+import EnterpriseGrowthDemoPage from "@/pages/EnterpriseGrowthDemoPage";
+
+import { ReportsLibrary } from "./reports/ReportsLibrary";
+import { QueryConsoleView } from "./QueryConsoleView";
+import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
+import { PillarDeepDiveReport } from "./reports/pages/PillarDeepDiveReport";
+import { CrossSellReport } from "./reports/pages/CrossSellReport";
+import { RegionalSpendReport } from "./reports/pages/RegionalSpendReport";
+import { OutflowCompetitorReport } from "./reports/pages/OutflowCompetitorReport";
+import { TopMerchantOutflowReport } from "./reports/pages/TopMerchantOutflowReport";
+import { SubscriptionChurnReport } from "./reports/pages/SubscriptionChurnReport";
+import { CohortRetentionReport } from "./reports/pages/CohortRetentionReport";
+import { LifeEventVolumeReport } from "./reports/pages/LifeEventVolumeReport";
+import { FviSummaryReport } from "./reports/pages/FviSummaryReport";
+import { TierMigrationReport } from "./reports/pages/TierMigrationReport";
+import { LifeEventFunnelReport } from "./reports/pages/LifeEventFunnelReport";
+import { WalletShareReport } from "./reports/pages/WalletShareReport";
+import { TravelTripsReport } from "./reports/pages/TravelTripsReport";
+import { NextConversationReport } from "./reports/pages/NextConversationReport";
+import { PriorityOpportunityReport } from "./reports/pages/PriorityOpportunityReport";
+import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles,
+  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
-  Zap, Megaphone, Layers, Presentation
+  Zap, Megaphone, Layers, Presentation, Terminal, LogOut, Gem
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { toast } from "@/hooks/use-toast";
-import { VentusAIWelcomeView } from "./VentusAIWelcomeView";
+import { VentusAIDashboardView } from "./VentusAIDashboardView";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
@@ -36,7 +60,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-type TabValue = 'ventus-ai' | 'capabilities' | 'exec-demo' | 'ai-assistant-activity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'wealth-growth' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -48,46 +72,55 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Home",
     items: [
-      { value: "ventus-ai", label: "Ventus AI", icon: ({ className }: { className?: string }) => <span className={cn("inline-flex items-center justify-center font-black leading-none text-[14px]", className)}>V</span> },
       { value: "capabilities", label: "System", icon: Layers },
+      { value: "products", label: "Bank\u00A0Context", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
     ],
   },
   {
     label: "Analytics",
     items: [
-      { value: "dashboard", label: "Lifestyle Analysis", icon: BarChart3 },
-      { value: "wallet-share", label: "Outflow Analysis", icon: Wallet },
-      { value: "subscription-analytics", label: "Subscription Analytics", icon: CreditCard },
+      {
+        value: "ventus-ai-dashboard",
+        label: "Ventus AI Dashboard",
+        icon: ({ className }: { className?: string }) => (
+          <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
+            V
+          </span>
+        ),
+      },
+      { value: "query", label: "Query", icon: Terminal },
+      { value: "reports", label: "Reports", icon: FileBarChart },
     ],
   },
   {
-    label: "Targeting",
+    label: "Product & Growth",
     items: [
+      
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
-      { value: "targeting", label: "Next-product", icon: Route },
+      { value: "targeting", label: "Next Product", icon: Route },
     ],
   },
   {
-    label: "Rewards",
+    label: "Deals & Rewards",
     items: [
       { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
-      { value: "deal-management", label: "Deal Management", icon: Package },
-      { value: "location-experience", label: "Locational Perk Aggregation", icon: MapPin },
+      { value: "deal-management", label: "Deals & Perks", icon: Package },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
     ],
   },
   {
-    label: "Relationship",
+    label: "WEALTH & RELATIONSHIP",
     items: [
-      { value: "life-events", label: "Life Event Detection", icon: CalendarHeart },
+      { value: "wealth-growth", label: "Merrill Growth Desk", icon: Briefcase },
+      { value: "life-events", label: "Relationship Intelligence", icon: Gem },
       { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
-      { value: "wm-copilot", label: "WM Copilot", icon: Briefcase },
+      { value: "wm-copilot", label: "WM Coworker", icon: Briefcase },
     ],
   },
   {
-    label: "Health",
+    label: "Risk",
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
@@ -105,11 +138,26 @@ interface AnalyticsContainerProps {
   enabledModules?: Set<ModuleKey>;
 }
 
-export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
+export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographics, lifestyleSignals, onBack, enabledModules }: AnalyticsContainerProps) {
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
-  const [chatOpen, setChatOpen] = useState(true);
+  const [chatOpen, setChatOpen] = useState(false);
+  const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
+  const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
+
+  const openInQuery = (sql: string) => {
+    setPendingQuery(sql);
+    setActiveTab('query');
+  };
+
+  const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
+    if (id === 'priority-opportunity') {
+      setSelectedOpportunityId(payload?.opportunityId ?? null);
+      setActiveTab('report-priority-opportunity');
+    }
+  };
+
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
@@ -121,11 +169,11 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Health/Others/Targeting groups follow Analytics (always on since Analytics is always enabled)
+    // Risk/Others/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
-      allowedLabels.add("Health");
+      allowedLabels.add("Risk");
       allowedLabels.add("Others");
-      allowedLabels.add("Targeting");
+      allowedLabels.add("Product & Growth");
     }
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
@@ -134,10 +182,31 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
   const validTabs = useMemo(() => {
     const set = new Set<TabValue>();
     filteredNavGroups.forEach(g => g.items.forEach(i => set.add(i.value)));
-    set.add('settings'); // footer-anchored, always available
-    set.add('feedback'); // footer-anchored, always available
+    // Footer-anchored, always available
+    set.add('settings');
+    set.add('feedback');
+    // Deep-linked report pages (not in sidebar) — reachable from Reports library
+    // or from cards on other pages. Always valid so the auto-reset effect doesn't
+    // bounce the user back.
+    set.add('report-lifestyle-pillars');
+    set.add('report-pillar-deep-dive');
+    set.add('report-cross-sell');
+    set.add('report-regional-spend');
+    set.add('report-outflow');
+    set.add('report-top-merchants');
+    set.add('report-subscription');
+    set.add('report-cohort-retention');
+    set.add('report-life-events');
+    set.add('report-fvi');
+    set.add('report-tier-migration');
+    set.add('report-life-event-funnel');
+    set.add('report-wallet-share');
+    set.add('report-travel-trips');
+    set.add('report-next-conversation');
+    set.add('report-priority-opportunity');
     return set;
   }, [filteredNavGroups]);
+
 
   // Auto-reset tab if it became hidden
   useEffect(() => {
@@ -150,30 +219,70 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
     contentRef.current?.scrollTo(0, 0);
     if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
+
+  // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
+  const activeGroupLabel = useMemo(
+    () => filteredNavGroups.find((g) => g.items.some((i) => i.value === activeTab))?.label,
+    [filteredNavGroups, activeTab],
+  );
+  const [openGroups, setOpenGroups] = useState<Set<string>>(
+    () => new Set(activeGroupLabel ? [activeGroupLabel] : []),
+  );
+  useEffect(() => {
+    setOpenGroups(new Set(activeGroupLabel ? [activeGroupLabel] : []));
+  }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   const renderContent = () => {
     switch (activeTab) {
-      case 'ventus-ai': return <VentusAIWelcomeView onNavigate={setActiveTab} />;
-      case 'capabilities': return <CapabilitiesView />;
-      case 'exec-demo': return (
-        <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <ExecDemoPage embedded />
-        </div>
-      );
+      case 'ventus-ai-dashboard':
+      case 'ventus-ai':
+      case 'analytics-dashboard':
+        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
+      case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
+      case 'products': return <BankContextView />;
+      // 'exec-demo' is rendered as a persistent mount outside renderContent so
+      // its state (enrichment, persona, offers, product cards) survives tab
+      // switches. See the always-mounted block below.
+      case 'exec-demo': return null;
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
+      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} onOpenInteractiveReport={openInteractiveReport} />;
+      case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
+      case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
+      case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
+      case 'report-regional-spend': return <RegionalSpendReport onBack={() => setActiveTab('reports')} />;
+      case 'report-outflow': return <OutflowCompetitorReport onBack={() => setActiveTab('reports')} />;
+      case 'report-top-merchants': return <TopMerchantOutflowReport onBack={() => setActiveTab('reports')} />;
+      case 'report-subscription': return <SubscriptionChurnReport onBack={() => setActiveTab('reports')} />;
+      case 'report-cohort-retention': return <CohortRetentionReport onBack={() => setActiveTab('reports')} />;
+      case 'report-life-events': return <LifeEventVolumeReport onBack={() => setActiveTab('reports')} />;
+      case 'report-fvi': return <FviSummaryReport onBack={() => setActiveTab('reports')} />;
+      case 'report-tier-migration': return <TierMigrationReport onBack={() => setActiveTab('reports')} />;
+      case 'report-life-event-funnel': return <LifeEventFunnelReport onBack={() => setActiveTab('reports')} />;
+      case 'report-wallet-share': return <WalletShareReport onBack={() => setActiveTab('reports')} />;
+      case 'report-travel-trips': return <TravelTripsReport onBack={() => setActiveTab('reports')} />;
+      case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
+      case 'report-priority-opportunity': return <PriorityOpportunityReport opportunityId={selectedOpportunityId} onBack={() => setActiveTab('reports')} onNavigate={setActiveTab} onSelectOpportunity={setSelectedOpportunityId} />;
       case 'dashboard': return <BankwideView />;
       case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
       case 'targeting': return <SegmentTargetingView />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
+      
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'gamification': return <GamificationManagement />;
-      case 'deal-management': return <AvailableDealsGrid />;
-      case 'location-experience': return <LocationExperienceManager />;
-      case 'life-events': return <BankwideLifeEventsView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} />;
+      case 'deal-management': return <DealsAndPerksView defaultTab="shopping" />;
+      case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
+      case 'life-events': return <RelationshipIntelligenceView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
+      case 'wealth-growth': return (
+        <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
+          <EnterpriseGrowthDemoPage embedded audience="leadership" />
+        </div>
+      );
       case 'wm-copilot': return <BankwideWMCopilotView />;
+      
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
       case 'fraud-aml': return (
@@ -218,10 +327,34 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[11px] text-slate-400">Last updated: {today}</span>
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-50 border border-slate-200">
-            <Sparkles className="w-3 h-3 text-blue-500" />
-            <span className="text-[11px] font-medium text-slate-600">Powered by Ventus AI</span>
-          </div>
+          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
+            <button
+              onClick={() => setChatOpen(true)}
+              className="ventus-ai-badge ventus-ai-badge-interactive"
+              title="Open Ventus AI"
+              aria-label="Open Ventus AI"
+            >
+              <span className="ventus-ai-live-dot" aria-hidden="true" />
+              Ventus AI
+            </button>
+          )}
+          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || chatOpen) && (
+            <div className="ventus-ai-badge" aria-label="Ventus AI is active">
+              <span className="ventus-ai-live-dot" aria-hidden="true" />
+              <span>Ventus AI</span>
+            </div>
+          )}
+          <button
+            onClick={() => {
+              sessionStorage.clear();
+              window.location.href = "/bankdemo";
+            }}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-slate-200 bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+            title="Exit demo"
+          >
+            <LogOut className="w-3 h-3" />
+            Exit
+          </button>
         </div>
       </div>
 
@@ -241,40 +374,76 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
         </button>
 
         <nav className="flex-1 py-1 overflow-y-auto">
-          {filteredNavGroups.map((group) => (
-            <Collapsible key={group.label} defaultOpen>
+          {filteredNavGroups.map((group) => {
+            const isHome = group.label === "Home";
+            const isOpen = collapsed || isHome ? true : openGroups.has(group.label);
+            const ownsActive = group.label === activeGroupLabel;
+            const renderItems = () => group.items.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.value;
+              return (
+                <button
+                  key={item.value}
+                  onClick={() => setActiveTab(item.value)}
+                  title={collapsed ? item.label : undefined}
+                  className={cn(
+                    "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+                    collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+                    isActive
+                      ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
+                  )}
+                >
+                  <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+                  {!collapsed && <span className="truncate">{item.label}</span>}
+                </button>
+              );
+            });
+
+            if (isHome) {
+              return (
+                <div key={group.label}>
+                  {!collapsed && (
+                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                      {group.label}
+                    </div>
+                  )}
+                  {renderItems()}
+                  {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200" />}
+                </div>
+              );
+            }
+
+            return (
+            <Collapsible
+              key={group.label}
+              open={isOpen}
+              onOpenChange={(next) => {
+                if (collapsed) return;
+                // Don't allow collapsing the group that owns the active tab
+                if (!next && ownsActive) return;
+                setOpenGroups((prev) => {
+                  const out = new Set(prev);
+                  if (next) out.add(group.label);
+                  else out.delete(group.label);
+                  return out;
+                });
+              }}
+            >
               {!collapsed && (
                 <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
                   {group.label}
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-0" : "-rotate-90")} />
                 </CollapsibleTrigger>
               )}
               <CollapsibleContent>
-                {group.items.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = activeTab === item.value;
-                  return (
-                    <button
-                      key={item.value}
-                      onClick={() => setActiveTab(item.value)}
-                      title={collapsed ? item.label : undefined}
-                      className={cn(
-                        "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
-                        collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
-                        isActive
-                          ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
-                      )}
-                    >
-                      <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
-                      {!collapsed && <span className="truncate">{item.label}</span>}
-                    </button>
-                  );
-                })}
+                {renderItems()}
               </CollapsibleContent>
               {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
             </Collapsible>
-          ))}
+            );
+          })}
+
         </nav>
 
         <div className="mt-auto border-t border-slate-200 py-1">
@@ -313,20 +482,34 @@ export function AnalyticsContainer({ defaultTab = 'ventus-ai', userDemographics,
           </div>
         )}
         {renderContent()}
-        {activeTab !== 'ventus-ai' && !chatOpen && (
-          <button
-            onClick={() => setChatOpen(true)}
-            className="fixed top-[120px] right-4 z-30 flex items-center justify-center w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 shadow-lg transition-all hover:scale-105"
-            title="Open Ventus AI"
-          >
-            <span className="text-base font-black text-white leading-none">V</span>
-          </button>
-        )}
+
+        {/*
+          Persistent Demo mount — kept alive across tab switches so the
+          pre-fired enrichment pipeline (classification, persona, offers,
+          product cards) is ready the moment the user clicks the Demo tab.
+          Hidden via CSS instead of unmounting so React state is preserved.
+        */}
+        <div
+          className={cn(
+            "-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white",
+            activeTab === 'exec-demo' ? "block" : "hidden",
+          )}
+        >
+          <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
+        </div>
       </div>
 
       {/* Chat Panel */}
-      {chatOpen && activeTab !== 'ventus-ai' && (
-        <VentusAIChatPanel activeTab={activeTab} onClose={() => setChatOpen(false)} />
+      {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && (
+        <VentusAIChatPanel
+          activeTab={activeTab}
+          onClose={() => setChatOpen(false)}
+          contextExtras={
+            activeTab === 'report-priority-opportunity' && selectedOpportunityId
+              ? { selectedOpportunityId }
+              : undefined
+          }
+        />
       )}
       </div>
     </div>

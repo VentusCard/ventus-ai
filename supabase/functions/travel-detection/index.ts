@@ -6,14 +6,15 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const MAX_RETRIES = 2;
 const BASE_DELAY_MS = 1000;
 
-// Models — flash primary for speed, gpt-5-mini fallback for reliability
-const PRIMARY_MODEL = "google/gemini-2.5-flash";
-const FALLBACK_MODEL = "openai/gpt-5-mini";
+// Models — flash primary for speed, flash-lite fallback (Gemini only, no OpenAI).
+const PRIMARY_MODEL = "google/gemini-3.5-flash";
+const FALLBACK_MODEL = "google/gemini-3.1-flash-lite";
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  "https://dev.d1gaewa028qzng.amplifyapp.com",
   "https://staging.d1gaewa028qzng.amplifyapp.com",
   /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,

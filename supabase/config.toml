@@ -1,4 +1,4 @@
-project_id = "theaknjrmfsyauxxvhmk"
+project_id = "qopysdercrqgwcrawndl"
 
 [functions.classify-transactions]
 verify_jwt = false
@@ -57,5 +57,6 @@ verify_jwt = false
 [functions.generate-product-actions]
 verify_jwt = false
 
-[functions.assess-creditworthiness]
+
+[functions.summarize-query-result]
 verify_jwt = false

@@ -1,4 +1,5 @@
 import SEO from "@/components/SEO";
+import { breadcrumbSchema } from "@/lib/seoSchema";
 import { useState, useMemo } from "react";
 import { Link } from "react-router-dom";
 import { insightsPosts } from "@/lib/insightsData";
@@ -36,7 +37,7 @@ const Insights = () => {
 
   return (
     <main className="bg-white min-h-screen">
-      <SEO title="Insights — Ventus AI" description="Research, product updates, and industry perspectives from the Ventus AI team on transaction intelligence and banking personalization." path="/insights" />
+      <SEO title="Insights — Behavioral Intelligence for Banking" description="Research, product updates, and industry perspectives from the Ventus AI team on transaction enrichment, behavioral intelligence, and banking personalization." path="/insights" keywords="banking personalization research, transaction intelligence insights, behavioral intelligence banking blog" jsonLd={breadcrumbSchema([{ name: "Home", path: "/" }, { name: "Insights", path: "/insights" }])} />
       {/* Hero — white, centered */}
       <section className="pt-48 pb-12 px-6">
         <div className="max-w-3xl mx-auto text-center">
@@ -56,21 +57,21 @@ const Insights = () => {
           {/* Sidebar */}
           <aside className="space-y-10">
             <div>
-              <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Search</p>
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-500 mb-3">Search</p>
               <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
                 <input
                   type="text"
                   placeholder="Search posts"
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-400 focus:outline-none focus:border-gray-400 transition"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 bg-white text-sm text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-gray-400 transition"
                 />
               </div>
             </div>
 
             <div>
-              <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-400 mb-3">Categories</p>
+              <p className="text-[11px] font-semibold tracking-widest uppercase text-gray-500 mb-3">Categories</p>
               <ul className="space-y-1">
                 {ALL_CATEGORIES.map((cat) => {
                   const isActive = activeCategory === cat;
@@ -117,7 +118,7 @@ const Insights = () => {
                       <p className="mt-3 text-sm text-gray-500 leading-relaxed line-clamp-2">
                         {post.excerpt}
                       </p>
-                      <div className="mt-5 flex items-center gap-3 text-xs text-gray-400">
+                      <div className="mt-5 flex items-center gap-3 text-xs text-gray-500">
                         <span>{post.date}</span>
                         <span>·</span>
                         <span>{post.readTime}</span>

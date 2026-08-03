@@ -10,6 +10,7 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
 - Confirm the account is CDK-bootstrapped in `us-east-2` with `/cdk-bootstrap/hnb659fds/version` present before relying on GitHub Actions deploys.
 - Confirm no Lovable-generated code is bypassing GitHub review.
 - Confirm `cdk synth` has been reviewed before any `cdk deploy`.
+- Confirm `VentusDemoConnectorsStack` remains isolated from the existing production backend and accepts only reviewed HTTPS demo origins.
 
 ## Change Review
 
@@ -34,6 +35,8 @@ Use this checklist before any Ventus CDK deployment. The default posture is synt
 - Confirm SNS publish is scoped to the alert topic.
 - Confirm cost guardrail permissions are alert-only and do not introduce budget actions that can stop services.
 - Confirm no broad write access to core production infrastructure is introduced.
+- Confirm the staging deploy role includes the exact `VentusDemoConnectorsStack` CloudFormation ARN before attempting the first connector deployment.
+- Confirm the staging deploy role includes the exact `VentusConsoleApiStack` CloudFormation ARN before attempting the first Console API deployment.
 
 ## Network Review
 

@@ -4,23 +4,7 @@ import ReactMarkdown from "react-markdown";
 import { X, Send, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
-const TAB_QUICK_ACTIONS: Record<string, string[]> = {
-  dashboard: ["Top spending pillars", "Budget variance alerts", "Pillar growth trends", "Segment spending breakdown"],
-  "wallet-share": ["Outflow summary", "Top competitor threats", "Deposit flight trends", "Win-back opportunities"],
-  "subscription-analytics": ["Subscription churn risk", "Revenue by subscription tier", "Trending subscriptions", "Cancellation patterns"],
-  "rewards-intelligence": ["Seasonal deal opportunities", "Category extension gaps", "Top merchant partnerships", "Timing recommendations"],
-  "deal-management": ["Pipeline status overview", "Expiring deals this month", "Top performing deals", "New deal recommendations"],
-  "location-experience": ["Top geo-targeted perks", "Underserved regions", "Location engagement rates", "New perk opportunities"],
-  gamification: ["Achievement completion rates", "Most popular badges", "Engagement lift from gamification", "New achievement ideas"],
-  "life-events": ["Upcoming life event alerts", "Home purchase signals", "Retirement planning signals", "Product recommendations by event"],
-  targeting: ["Top cross-sell opportunities", "Segment performance", "Next-best-offer gaps", "Campaign ROI summary"],
-  "wm-copilot": ["High-value client risks", "Portfolio rebalancing alerts", "Advisor workload summary", "Client meeting prep"],
-  "customer-insights": ["Wellness alert summary", "At-risk customers", "Behavioral stress signals", "Intervention recommendations"],
-  "fvi-dashboard": ["Vulnerability cohort overview", "Rising risk segments", "Sensitivity drivers", "Policy impact analysis"],
-  "fraud-aml": ["Fraud alert summary", "Suspicious activity trends"],
-  "ai-assistant-activity": ["Top topics today", "Rising intents", "Unresolved questions", "Life-event signals from chat"],
-};
+import { getTabContext } from "@/lib/ventusAiTabContext";
 
 const PLATFORM_CONTEXT = {
   role: "Ventus AI Banking Intelligence Co-Pilot",
@@ -56,35 +40,30 @@ const PLATFORM_CONTEXT = {
   },
 };
 
-const TAB_LABELS: Record<string, string> = {
-  dashboard: "Lifestyle Analysis",
-  "wallet-share": "Outflow Analysis",
-  "subscription-analytics": "Subscription Analytics",
-  "rewards-intelligence": "Next-Deal Intelligence",
-  "deal-management": "Deal Management",
-  "location-experience": "Locational Perk Aggregation",
-  gamification: "Gamification",
-  "life-events": "Life Event Detection",
-  targeting: "Next-Best Product Engine",
-  "wm-copilot": "WM Copilot",
-  "customer-insights": "Customer Insights",
-  "fvi-dashboard": "Financial Vulnerability",
-  "fraud-aml": "Fraud/AML",
-  "ai-assistant-activity": "AI Banking Assistant ",
-};
-
 interface VentusAIChatPanelProps {
   activeTab: string;
   onClose: () => void;
+  /** Optional extra context specific to the current view (e.g. selected opportunity id). */
+  contextExtras?: Record<string, unknown>;
 }
 
-export function VentusAIChatPanel({ activeTab, onClose }: VentusAIChatPanelProps) {
+export function VentusAIChatPanel({ activeTab, onClose, contextExtras }: VentusAIChatPanelProps) {
   const [input, setInput] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const tabContext = getTabContext(activeTab);
+
   const context = {
     ...PLATFORM_CONTEXT,
-    currentModule: TAB_LABELS[activeTab] || activeTab,
+    currentModule: tabContext.label,
+    currentModuleContext: {
+      tabKey: activeTab,
+      summary: tabContext.summary,
+      keyData: tabContext.keyData,
+      suggestedNav: tabContext.suggestedNav,
+      onScreenItems: tabContext.onScreenItems,
+      ...(contextExtras ?? {}),
+    },
   };
 
   const { messages, isLoading, sendMessage } = useAdvisorChat({
@@ -108,13 +87,16 @@ export function VentusAIChatPanel({ activeTab, onClose }: VentusAIChatPanelProps
     sendMessage(prompt);
   };
 
+  const quickActions = tabContext.quickActions ?? [];
+  const currentLabel = tabContext.label;
+
   return (
     <div className="w-[260px] shrink-0 border-l border-slate-200 bg-white flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2.5 border-b border-slate-200 bg-slate-50">
         <div className="flex items-center gap-2">
           <div className="flex items-center justify-center w-6 h-6 rounded-md bg-slate-900">
-            <span className="text-[10px] font-black text-white leading-none">V</span>
+            <span className="text-[10px] font-black text-white leading-tight">V</span>
           </div>
           <span className="text-xs font-semibold text-slate-700">Ventus AI</span>
         </div>
@@ -134,7 +116,7 @@ export function VentusAIChatPanel({ activeTab, onClose }: VentusAIChatPanelProps
               Quick actions
             </p>
             <div className="flex flex-wrap gap-1.5">
-              {(TAB_QUICK_ACTIONS[activeTab] || []).map((action) => (
+              {quickActions.map((action) => (
                 <button
                   key={action}
                   onClick={() => handleQuickAction(action)}
@@ -146,7 +128,7 @@ export function VentusAIChatPanel({ activeTab, onClose }: VentusAIChatPanelProps
               ))}
             </div>
             <p className="text-[11px] text-slate-400 mt-3">
-              Viewing: <span className="font-medium text-slate-500">{TAB_LABELS[activeTab] || activeTab}</span>
+              Viewing: <span className="font-medium text-slate-500">{currentLabel}</span>
             </p>
           </div>
         )}

@@ -6,19 +6,20 @@ const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 const MAX_RETRIES = 3;
 const BASE_DELAY_MS = 1000;
 
-// Model configuration
-const FAST_MODEL = "google/gemini-2.5-flash";
-const FALLBACK_MODEL = "openai/gpt-5-mini";
+// Model configuration — Gemini only. No OpenAI fallback here.
+const FAST_MODEL = "google/gemini-3.5-flash";
+const FALLBACK_MODEL = "google/gemini-3.1-flash-lite";
 
 // Concurrency configuration
 const CONCURRENCY_LIMIT = 4;
-const BATCH_SIZE = 24;
-const SUB_BATCH_SIZE = 8;
+const BATCH_SIZE = 12;
+const SUB_BATCH_SIZE = 6;
 
 // Allowed origins for CORS
 const ALLOWED_ORIGINS = [
   "https://ventuscard.com",
   "https://ventusai.com",
+  "https://dev.d1gaewa028qzng.amplifyapp.com",
   "https://staging.d1gaewa028qzng.amplifyapp.com",
   /^https:\/\/.*\.ventusai\.com$/,
   /^https:\/\/.*\.lovable\.app$/,
@@ -525,30 +526,35 @@ async function callClassificationAPI(
   model: string,
   batchNum: number,
   attempt: number,
-): Promise<{ classifications: any[]; rawResponse?: string }> {
+): Promise<{ classifications: any[]; rawResponse?: string; fatal?: boolean }> {
+  const body: Record<string, unknown> = {
+    model,
+    messages: [
+      { role: "system", content: CLASSIFICATION_PROMPT },
+      { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
+    ],
+    tools: CLASSIFICATION_TOOL,
+    tool_choice: { type: "function", function: { name: "classify_batch" } },
+    max_tokens: 8000,
+    temperature: 0,
+  };
+  if (!isOpenAiGpt5) {
+
   const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${LOVABLE_API_KEY}`,
     },
-    body: JSON.stringify({
-      model,
-      messages: [
-        { role: "system", content: CLASSIFICATION_PROMPT },
-        { role: "user", content: `Classify these ${batch.length} transactions:\n${JSON.stringify(batch, null, 2)}` },
-      ],
-      tools: CLASSIFICATION_TOOL,
-      tool_choice: { type: "function", function: { name: "classify_batch" } },
-      temperature: 0,
-      max_tokens: 4000,
-    }),
+    body: JSON.stringify(body),
   });
 
   if (!response.ok) {
     const errorText = await response.text().catch(() => "");
     console.error(`[BATCH ${batchNum}] API error (${response.status}): ${errorText.slice(0, 200)}`);
-    return { classifications: [], rawResponse: errorText };
+    // Deterministic 4xx (not rate-limit) — signal caller to escalate to fallback model, don't retry same model.
+    const fatal = response.status >= 400 && response.status < 500 && response.status !== 429;
+    return { classifications: [], rawResponse: errorText, fatal };
   }
 
   const data = await response.json();
@@ -599,10 +605,15 @@ async function classifyBatch(
     });
 
     try {
-      const { classifications } = await callClassificationAPI(batch, model, batchNum, attempt);
+      const { classifications, fatal } = await callClassificationAPI(batch, model, batchNum, attempt);
 
       if (classifications.length === 0) {
         console.warn(`[BATCH ${batchNum}] Empty classifications (attempt ${attempt}, model ${model})`);
+        // Deterministic 4xx on the primary model — jump straight to the fallback attempt.
+        if (fatal && attempt < MAX_RETRIES) {
+          console.warn(`[BATCH ${batchNum}] Fatal 4xx on ${model} — escalating to fallback model.`);
+          attempt = MAX_RETRIES - 1; // next iteration becomes MAX_RETRIES → FALLBACK_MODEL
+        }
         continue;
       }
 

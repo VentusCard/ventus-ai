@@ -35,6 +35,7 @@ The machine-readable copy lives at `infra/iam/github-oidc-trust-policy.json`.
           "token.actions.githubusercontent.com:sub": [
             "repo:VentusCard/ventus-ai:pull_request",
             "repo:VentusCard/ventus-ai:ref:refs/heads/main",
+            "repo:VentusCard/ventus-ai:ref:refs/heads/dev",
             "repo:VentusCard/ventus-ai:ref:refs/heads/staging",
             "repo:VentusCard/ventus-ai:environment:staging"
           ]
@@ -52,9 +53,11 @@ If the OIDC provider does not exist yet, create it in IAM:
 
 ## Minimum Role Shape
 
-The staging role needs enough permission to synthesize, diff, and deploy the additive monitor stack. In practice that means permissions for:
+The staging role needs enough permission to synthesize, diff, and deploy the reviewed isolated stacks. In practice that means permissions for:
 
-- CloudFormation stack read/write for `VentusExistingInfraStack`
+- CloudFormation stack read/write for `VentusExistingInfraStack`,
+  `VentusEvidenceStoreStack`, `VentusDemoConnectorsStack`, and
+  `VentusIdentityStack`
 - CDK bootstrap asset bucket read/write
 - Lambda create/update for `ventus-stuck-job-monitor`
 - IAM role/policy creation for the monitor Lambda execution role
@@ -92,7 +95,12 @@ The machine-readable copy lives at `infra/iam/github-staging-deploy-policy.json`
         "cloudformation:GetTemplateSummary",
         "cloudformation:UpdateStack"
       ],
-      "Resource": "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*"
+      "Resource": [
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusExistingInfraStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusEvidenceStoreStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusDemoConnectorsStack/*",
+        "arn:aws:cloudformation:us-east-2:373633008995:stack/VentusIdentityStack/*"
+      ]
     },
     {
       "Sid": "CdkBootstrapAssets",
@@ -244,6 +252,8 @@ It can:
 
 - Run `cdk diff` on relevant pull requests.
 - Run `cdk diff` manually through `workflow_dispatch`.
+- Use a template-only diff for an undeployed stack so review does not create an empty
+  `REVIEW_IN_PROGRESS` CloudFormation stack.
 - Deploy only when manually dispatched with:
   - `action`: `deploy`
   - `confirm_deploy`: `deploy-staging`
