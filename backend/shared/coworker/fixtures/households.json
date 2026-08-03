@@ -1,0 +1,206 @@
+{
+  "version": 1,
+  "note": "Synthetic wealth-management portfolio for the AI Coworker v0. Deterministic, anonymized. No real customer data. Every household is built around a clear product-opportunity narrative so audience-building and prep tasks have material to reason over.",
+  "institution": {
+    "id": "inst_demo_growth_desk",
+    "name": "Growth Desk (Demo)",
+    "domain": "ventusai.com"
+  },
+  "advisors": [
+    {
+      "id": "adv_okoro",
+      "name": "Dana Okoro",
+      "email": "dana.okoro@ventusai.com",
+      "title": "Senior Wealth Advisor",
+      "household_ids": ["hh_okafor", "hh_bianchi", "hh_nakamura", "hh_alvarez"]
+    },
+    {
+      "id": "adv_reyes",
+      "name": "Marcus Reyes",
+      "email": "marcus.reyes@ventusai.com",
+      "title": "Wealth Advisor",
+      "household_ids": ["hh_petrov", "hh_sharma", "hh_delgado", "hh_kim"]
+    },
+    {
+      "id": "adv_zoheb",
+      "name": "Zoheb Akhtar",
+      "email": "zoheb@ventusai.com",
+      "title": "Test Advisor",
+      "household_ids": [
+        "hh_okafor",
+        "hh_bianchi",
+        "hh_nakamura",
+        "hh_alvarez",
+        "hh_petrov",
+        "hh_sharma",
+        "hh_delgado",
+        "hh_kim"
+      ]
+    }
+  ],
+  "households": [
+    {
+      "id": "hh_okafor",
+      "advisor_id": "adv_okoro",
+      "name": "Okafor Household",
+      "primary_contact": "Ada Okafor",
+      "segment": "affluent",
+      "age_band": "38-45",
+      "region": { "city": "Austin", "state": "TX", "zip": "78704", "cost_of_living": "high" },
+      "relationship": {
+        "tenure_years": 6,
+        "products_held": ["everyday-checking", "flat-cashback-card"],
+        "aum_usd": 210000,
+        "wallet_share": 0.42
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 48200 },
+        { "type": "brokerage", "balance_usd": 161800 }
+      ],
+      "goals": ["Travel more without carrying balances", "Put idle cash to work"]
+    },
+    {
+      "id": "hh_bianchi",
+      "advisor_id": "adv_okoro",
+      "name": "Bianchi Household",
+      "primary_contact": "Luca Bianchi",
+      "segment": "mass_affluent",
+      "age_band": "31-37",
+      "region": { "city": "Denver", "state": "CO", "zip": "80206", "cost_of_living": "average" },
+      "relationship": {
+        "tenure_years": 3,
+        "products_held": ["everyday-checking", "core-savings"],
+        "aum_usd": 84000,
+        "wallet_share": 0.55
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 12400 },
+        { "type": "savings", "balance_usd": 71600 }
+      ],
+      "goals": ["Get ready for a first child", "Start saving for education"]
+    },
+    {
+      "id": "hh_nakamura",
+      "advisor_id": "adv_okoro",
+      "name": "Nakamura Household",
+      "primary_contact": "Kenji Nakamura",
+      "segment": "hnw",
+      "age_band": "52-60",
+      "region": { "city": "Seattle", "state": "WA", "zip": "98112", "cost_of_living": "high" },
+      "relationship": {
+        "tenure_years": 12,
+        "products_held": ["relationship-checking", "mortgage", "managed-portfolio"],
+        "aum_usd": 1850000,
+        "wallet_share": 0.71
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 63000 },
+        { "type": "managed_portfolio", "balance_usd": 1787000 },
+        { "type": "mortgage", "balance_usd": -420000, "home_value_usd": 1450000 }
+      ],
+      "goals": ["Fund a major home renovation", "Avoid selling appreciated positions"]
+    },
+    {
+      "id": "hh_alvarez",
+      "advisor_id": "adv_okoro",
+      "name": "Alvarez Household",
+      "primary_contact": "Sofia Alvarez",
+      "segment": "mass_affluent",
+      "age_band": "27-33",
+      "region": { "city": "Miami", "state": "FL", "zip": "33137", "cost_of_living": "high" },
+      "relationship": {
+        "tenure_years": 2,
+        "products_held": ["everyday-checking"],
+        "aum_usd": 21000,
+        "wallet_share": 0.30
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 1850 },
+        { "type": "brokerage", "balance_usd": 19150 }
+      ],
+      "goals": ["Smooth out irregular income", "Stop overdrafting"]
+    },
+    {
+      "id": "hh_petrov",
+      "advisor_id": "adv_reyes",
+      "name": "Petrov Household",
+      "primary_contact": "Irina Petrov",
+      "segment": "affluent",
+      "age_band": "34-40",
+      "region": { "city": "Raleigh", "state": "NC", "zip": "27607", "cost_of_living": "average" },
+      "relationship": {
+        "tenure_years": 4,
+        "products_held": ["everyday-checking", "high-yield-savings", "flat-cashback-card"],
+        "aum_usd": 156000,
+        "wallet_share": 0.60
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 22100 },
+        { "type": "savings", "balance_usd": 133900 }
+      ],
+      "goals": ["Buy a first home after relocating", "Keep the down-payment fund earning"]
+    },
+    {
+      "id": "hh_sharma",
+      "advisor_id": "adv_reyes",
+      "name": "Sharma Household",
+      "primary_contact": "Ravi Sharma",
+      "segment": "hnw",
+      "age_band": "58-65",
+      "region": { "city": "Chicago", "state": "IL", "zip": "60614", "cost_of_living": "high" },
+      "relationship": {
+        "tenure_years": 15,
+        "products_held": ["relationship-checking", "managed-portfolio"],
+        "aum_usd": 3200000,
+        "wallet_share": 0.64
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 512000 },
+        { "type": "managed_portfolio", "balance_usd": 2688000 }
+      ],
+      "goals": ["Deploy a recent estate inflow", "Set up a legacy structure"]
+    },
+    {
+      "id": "hh_delgado",
+      "advisor_id": "adv_reyes",
+      "name": "Delgado Household",
+      "primary_contact": "Mateo Delgado",
+      "segment": "mass_affluent",
+      "age_band": "29-35",
+      "region": { "city": "Columbus", "state": "OH", "zip": "43215", "cost_of_living": "low" },
+      "relationship": {
+        "tenure_years": 3,
+        "products_held": ["everyday-checking", "core-savings"],
+        "aum_usd": 47000,
+        "wallet_share": 0.51
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 9800 },
+        { "type": "savings", "balance_usd": 37200 },
+        { "type": "student_loan", "balance_usd": -68000 }
+      ],
+      "goals": ["Lower monthly student-loan cost", "Build an emergency fund"]
+    },
+    {
+      "id": "hh_kim",
+      "advisor_id": "adv_reyes",
+      "name": "Kim Household",
+      "primary_contact": "Grace Kim",
+      "segment": "affluent",
+      "age_band": "46-52",
+      "region": { "city": "San Jose", "state": "CA", "zip": "95125", "cost_of_living": "high" },
+      "relationship": {
+        "tenure_years": 9,
+        "products_held": ["everyday-checking", "high-yield-savings", "brokerage"],
+        "aum_usd": 640000,
+        "wallet_share": 0.58
+      },
+      "accounts": [
+        { "type": "checking", "balance_usd": 31000 },
+        { "type": "savings", "balance_usd": 90000 },
+        { "type": "brokerage", "balance_usd": 519000 }
+      ],
+      "goals": ["Maximize retirement runway", "Automate long-horizon investing"]
+    }
+  ]
+}
