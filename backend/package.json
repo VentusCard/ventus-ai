@@ -50,6 +50,7 @@
     "check:model-gateway-deploy": "node ./scripts/check-model-gateway-deploy-readiness.mjs",
     "check:pipeline-readiness": "node ./scripts/check-pipeline-readiness.mjs",
     "check:persistence": "node ./scripts/check-persistence-readiness.mjs",
+    "coworker:test": "node --test \"./shared/coworker/*.test.mjs\"",
     "test": "node --test \"./shared/*.test.mjs\""
   }
 }

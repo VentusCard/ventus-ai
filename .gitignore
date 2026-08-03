@@ -28,4 +28,5 @@ backend/artifacts/
 .env
 .env.*
 !.env.example
+.cursor/mcp.json
 .vercel

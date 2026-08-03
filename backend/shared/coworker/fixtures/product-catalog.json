@@ -1,0 +1,123 @@
+{
+  "version": 1,
+  "note": "Compact product catalog for the Coworker's audience-building task. Seeded from src/lib/productCatalogExtras.ts (anonymized copy, industry-shape numbers). target_signals drive fit; disqualifiers are hard risk/underwriting gates that must suppress a household regardless of fit.",
+  "products": [
+    {
+      "id": "travel-card",
+      "name": "Travel Rewards Card",
+      "category": "Cards",
+      "tagline": "1.5x points everywhere, 3x on travel and dining.",
+      "key_terms": "$95 annual fee (waived first year); 3x travel & dining; no foreign transaction fees.",
+      "target_signals": ["Travel-heavy spend", "Pays card in full", "dining spend"],
+      "disqualifiers": ["nsf_overdraft_cluster", "thin_credit_file", "aml_review"]
+    },
+    {
+      "id": "high-yield-savings",
+      "name": "High-Yield Savings",
+      "category": "Deposits",
+      "tagline": "4.25% APY on every dollar, no tiers, no caps.",
+      "key_terms": "No monthly fee, $0 minimum; same-day transfers; FDIC-insured.",
+      "target_signals": ["idle_cash", "Recurring savings transfers", "Accelerating savings velocity"],
+      "disqualifiers": ["low_liquidity_buffer"]
+    },
+    {
+      "id": "529-plan",
+      "name": "529 Education Savings",
+      "category": "Wealth",
+      "tagline": "Tax-advantaged education savings with age-based glide-paths.",
+      "key_terms": "No account fee; state tax deduction where applicable; beneficiary transferable.",
+      "target_signals": ["new_child_expected", "Rising family spend"],
+      "disqualifiers": ["low_liquidity_buffer", "no_monthly_surplus"]
+    },
+    {
+      "id": "life-insurance",
+      "name": "Term Life Insurance",
+      "category": "Insurance",
+      "tagline": "Term and permanent life coverage sized to dependents and debt.",
+      "key_terms": "Premium by age/coverage/health; 10/20/30-year level term; convertible.",
+      "target_signals": ["new_child_expected", "home_purchase_intent"],
+      "disqualifiers": []
+    },
+    {
+      "id": "heloc",
+      "name": "Home Equity Line of Credit",
+      "category": "Lending",
+      "tagline": "Draw against home equity, pay interest only on what you use.",
+      "key_terms": "No annual fee; 10-year draw / 20-year repayment; convertible to fixed sub-loans.",
+      "target_signals": ["home_renovation", "home_equity", "Large discretionary outlays"],
+      "disqualifiers": ["ltv_above_80", "recent_late_mortgage", "listing_active"]
+    },
+    {
+      "id": "managed-portfolio",
+      "name": "Advisor-Managed Portfolio",
+      "category": "Wealth",
+      "tagline": "Advisor-managed portfolios with planning conversations included.",
+      "key_terms": "0.85% advisory fee tiered by balance; annual planning review.",
+      "target_signals": ["estate_inflow", "Idle cash spike", "idle_cash", "retirement_horizon"],
+      "disqualifiers": ["liquid_below_min"]
+    },
+    {
+      "id": "trust-account",
+      "name": "Trust Account",
+      "category": "Wealth",
+      "tagline": "Professional trust administration for estate and legacy plans.",
+      "key_terms": "Annual administration fee tiered by trust value; corporate or co-trustee.",
+      "target_signals": ["estate_inflow"],
+      "disqualifiers": ["liquid_below_min"]
+    },
+    {
+      "id": "mortgage",
+      "name": "Home Mortgage",
+      "category": "Lending",
+      "tagline": "Fixed-rate purchase and refinance with on-app rate lock.",
+      "key_terms": "30-yr 6.75% / 15-yr 6.05%; soft-pull pre-approval; relationship fee waiver.",
+      "target_signals": ["home_purchase_intent", "relocation"],
+      "disqualifiers": ["dti_high", "down_payment_short", "residency_short"]
+    },
+    {
+      "id": "home-insurance",
+      "name": "Homeowner Insurance",
+      "category": "Insurance",
+      "tagline": "Homeowner coverage bundled with auto for a multi-policy discount.",
+      "key_terms": "Replacement-cost dwelling coverage; multi-policy discount; 24/7 claims.",
+      "target_signals": ["home_purchase_intent"],
+      "disqualifiers": ["address_flux"]
+    },
+    {
+      "id": "student-loan-refi",
+      "name": "Student Loan Refinance",
+      "category": "Lending",
+      "tagline": "Refinance federal and private student debt into one fixed payment.",
+      "key_terms": "Fixed 5.49%-9.99% by profile; 5-20 yr terms; no origination fee.",
+      "target_signals": ["student_loan_balance", "Steady student-loan servicing"],
+      "disqualifiers": ["income_instability", "recent_delinquency"]
+    },
+    {
+      "id": "ira",
+      "name": "Individual Retirement Account",
+      "category": "Wealth",
+      "tagline": "Traditional, Roth, and Rollover IRAs in one account flow.",
+      "key_terms": "$0 account fee; auto contribution scheduler; catch-up unlocks at 50.",
+      "target_signals": ["retirement_horizon", "Automated investing"],
+      "disqualifiers": ["retirement_cap_met"]
+    },
+    {
+      "id": "robo-advisor",
+      "name": "Automated Investing (Robo)",
+      "category": "Wealth",
+      "tagline": "Automated, diversified portfolio matched to your goal and horizon.",
+      "key_terms": "0.25% advisory fee; auto rebalancing and tax-loss harvesting; no minimum.",
+      "target_signals": ["Idle cash accumulation", "Automated investing", "idle_cash"],
+      "disqualifiers": []
+    },
+    {
+      "id": "overdraft-protection",
+      "name": "Overdraft Protection",
+      "category": "Deposits",
+      "tagline": "Link a savings or line of credit to cover the occasional shortfall.",
+      "key_terms": "$0 transfer fee from linked savings; decline-instead option; low-balance alerts.",
+      "target_signals": ["nsf_overdraft_cluster", "Volatile income", "low_liquidity_buffer"],
+      "disqualifiers": []
+    }
+  ]
+}
