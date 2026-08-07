@@ -237,8 +237,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       // switches. See the always-mounted block below.
       case 'exec-demo': return null;
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
-      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} onOpenInteractiveReport={openInteractiveReport} />;
-      case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
+      case 'reports': return <ReportsAndQueryView onOpenInteractiveReport={openInteractiveReport} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
