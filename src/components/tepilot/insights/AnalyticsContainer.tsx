@@ -20,6 +20,7 @@ import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
 import { BankContextView } from "./BankContextView";
 import { SettingsContainer } from "./SettingsContainer";
+import { GovernanceView } from "../governance/GovernanceView";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
 import { ReportsLibrary } from "./reports/ReportsLibrary";
@@ -46,7 +47,7 @@ import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, Terminal, LogOut, Gem
+  Zap, Megaphone, Layers, Presentation, Terminal, LogOut, Gem, ShieldCheck
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { toast } from "@/hooks/use-toast";
@@ -59,7 +60,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance';
 
 interface NavItem {
   value: TabValue;
@@ -74,6 +75,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "capabilities", label: "System", icon: Layers },
       { value: "products", label: "Bank\u00A0Context", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
+      { value: "governance", label: "Governance", icon: ShieldCheck },
     ],
   },
   {
@@ -277,6 +279,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
+      case 'governance': return <GovernanceView />;
       case 'settings': return <SettingsContainer />;
       case 'feedback': return <FeedbackPage />;
     }
