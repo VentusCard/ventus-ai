@@ -356,9 +356,21 @@ const SUBTITLE: Record<SubTab, string> = {
 export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQueryViewProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
-  const [subTab, setSubTab] = useState<SubTab>("templates");
+  const [subTab, setSubTab] = useState<SubTab>(() => {
+    try {
+      const saved = sessionStorage.getItem("bankdemo-reports-subtab");
+      if (saved === "briefings" || saved === "templates" || saved === "console") return saved;
+    } catch { /* ignore */ }
+    return "templates";
+  });
   const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
   const hasInteractive = !!onOpenInteractiveReport && INTERACTIVE_REPORTS.length > 0;
+
+  useEffect(() => {
+    try {
+      sessionStorage.setItem("bankdemo-reports-subtab", subTab);
+    } catch { /* ignore */ }
+  }, [subTab]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
