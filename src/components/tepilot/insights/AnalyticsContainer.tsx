@@ -23,8 +23,7 @@ import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
-import { ReportsLibrary } from "./reports/ReportsLibrary";
-import { QueryConsoleView } from "./QueryConsoleView";
+import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
 import { PillarDeepDiveReport } from "./reports/pages/PillarDeepDiveReport";
 import { CrossSellReport } from "./reports/pages/CrossSellReport";
@@ -47,7 +46,7 @@ import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, Terminal, LogOut, Gem, ShieldCheck
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { toast } from "@/hooks/use-toast";
@@ -60,7 +59,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance';
 
 interface NavItem {
   value: TabValue;
@@ -98,8 +97,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      { value: "query", label: "Query", icon: Terminal },
-      { value: "reports", label: "Reports", icon: FileBarChart },
+      { value: "reports", label: "Reports & Query", icon: FileBarChart },
     ],
   },
   {
@@ -141,14 +139,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  const openInQuery = (sql: string) => {
-    setPendingQuery(sql);
-    setActiveTab('query');
-  };
 
   const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
     if (id === 'priority-opportunity') {
@@ -245,8 +237,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       // switches. See the always-mounted block below.
       case 'exec-demo': return null;
       case 'ai-assistant-activity': return <AIAssistantActivityView />;
-      case 'reports': return <ReportsLibrary onOpenQuery={openInQuery} onOpenInteractiveReport={openInteractiveReport} />;
-      case 'query': return <QueryConsoleView initialQuery={pendingQuery} />;
+      case 'reports': return <ReportsAndQueryView onOpenInteractiveReport={openInteractiveReport} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
