@@ -402,11 +402,6 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
       "Sensitivity drivers",
     ],
   },
-  "fraud-aml": {
-    label: "Fraud / AML (Coming Soon)",
-    summary: "Transaction anomaly and AML pattern detection. Currently placeholder.",
-    quickActions: ["What will this cover?", "Timeline for launch"],
-  },
   "wallet-share": {
     label: "Outflow Analysis",
     summary:

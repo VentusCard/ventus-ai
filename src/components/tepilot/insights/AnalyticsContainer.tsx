@@ -45,7 +45,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
-  Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, AlertTriangle, Users,
+  Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
   Zap, Megaphone, Layers, Presentation, Terminal, LogOut, Gem
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
@@ -59,7 +59,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -81,7 +81,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
-      { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
     ],
   },
   {
@@ -278,21 +277,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'fvi-dashboard': return <FVIDashboard />;
-      case 'fraud-aml': return (
-        <div className="space-y-6">
-          <TabHeader
-            icon={<AlertTriangle className="w-4 h-4" />}
-            title="Fraud / AML Detection"
-            subtitle="Transaction anomaly detection and suspicious pattern flagging"
-            howItWorks="Ventus monitors transaction velocity, geo-anomalies, and behavioral deviations to flag suspicious activity patterns in real time."
-            whyItMatters="Reduces fraud losses and strengthens AML compliance with behavioral intelligence layered on top of traditional rule engines."
-          />
-          <div className="flex flex-col items-center justify-center h-48 text-slate-400">
-            <AlertTriangle className="w-10 h-10 mb-3 text-slate-300" />
-            <p className="text-sm">Coming Soon</p>
-          </div>
-        </div>
-      );
       case 'settings': return <SettingsContainer />;
       case 'feedback': return <FeedbackPage />;
     }
