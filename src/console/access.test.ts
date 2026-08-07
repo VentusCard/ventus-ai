@@ -10,13 +10,16 @@ import type { ConsoleAccessProfile } from "./state";
 
 function access(role: ConsoleAccessProfile["role"]): ConsoleAccessProfile {
   return {
+    userId: "user-ventus-operator",
     tenantId: "ventus",
+    organizationId: "org-ventus",
     email: "operator@ventusai.com",
     role,
     status: "active",
     entitlements: ["growth_console"],
     businessLineScopes: ["consumer-banking", "wealth"],
     queueScopes: [],
+    authProvider: "email",
   };
 }
 
