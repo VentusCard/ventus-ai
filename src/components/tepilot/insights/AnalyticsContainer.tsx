@@ -77,8 +77,9 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Analytics",
+    label: "Intelligence",
     items: [
+
       {
         value: "ventus-ai-dashboard",
         label: "Ventus AI Dashboard",
