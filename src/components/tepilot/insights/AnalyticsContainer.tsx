@@ -97,8 +97,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      { value: "query", label: "Query", icon: Terminal },
-      { value: "reports", label: "Reports", icon: FileBarChart },
+      { value: "reports", label: "Reports & Query", icon: FileBarChart },
     ],
   },
   {
