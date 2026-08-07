@@ -46,7 +46,7 @@ import {
   BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, Terminal, LogOut, Gem, ShieldCheck
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck
 } from "lucide-react";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { toast } from "@/hooks/use-toast";
