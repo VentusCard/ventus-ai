@@ -157,7 +157,8 @@ export async function decisionPackageV12FromV11(
     outcomeSourceSystems?: string[];
   },
 ): Promise<DecisionPackageV12> {
-  const confidenceBand = decision.moment.confidence >= 80 ? "high" : decision.moment.confidence >= 60 ? "medium" : "low";
+  const confidenceBand: DecisionPackageV12["moment"]["confidenceBand"] =
+    decision.moment.confidence >= 80 ? "high" : decision.moment.confidence >= 60 ? "medium" : "low";
   const immutable = {
     schemaVersion: DECISION_PACKAGE_V12_VERSION,
     decisionId: decision.decisionId,
@@ -181,11 +182,11 @@ export async function decisionPackageV12FromV11(
       ...decision.governance,
       policyVersion: null,
       protocolApprovalId: additions.protocolApprovalId ?? null,
-      approvalStatus: additions.protocolApprovalId ? "approved" : "not_attested",
-      exceptionStatus: "none",
+      approvalStatus: (additions.protocolApprovalId ? "approved" : "not_attested") as DecisionPackageV12["governance"]["approvalStatus"],
+      exceptionStatus: "none" as DecisionPackageV12["governance"]["exceptionStatus"],
     },
     decisionMethod: {
-      runtimeType: decision.decisionMethod.active === "model-assisted" ? "model_assisted" : "deterministic",
+      runtimeType: (decision.decisionMethod.active === "model-assisted" ? "model_assisted" : "deterministic") as DecisionPackageV12["decisionMethod"]["runtimeType"],
       runtimeVersion: additions.runtimeVersion ?? "console-runtime-v1",
       skillVersions: [`${decision.growthPlay.id}:${decision.growthPlay.protocolId}`],
     },

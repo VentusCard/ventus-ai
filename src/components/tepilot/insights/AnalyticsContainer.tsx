@@ -77,6 +77,14 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
+    label: "Customers",
+    items: [
+      { value: "customer-insights", label: "Customer Insights", icon: Heart },
+      { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
+      { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
+    ],
+  },
+  {
     label: "Intelligence",
     items: [
 
@@ -118,15 +126,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "wm-copilot", label: "WM Coworker", icon: Briefcase },
     ],
   },
-  {
-    label: "Risk",
-    items: [
-      { value: "customer-insights", label: "Customer Insights", icon: Heart },
-      { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
-      { value: "fraud-aml", label: "Fraud/AML (Coming Soon)", icon: AlertTriangle },
-    ],
-  },
-
 ];
 
 interface AnalyticsContainerProps {
@@ -168,9 +167,9 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Risk/Others/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
+    // Customers/Intelligence/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
-      allowedLabels.add("Risk");
+      allowedLabels.add("Customers");
       allowedLabels.add("Others");
       allowedLabels.add("Product & Growth");
     }
