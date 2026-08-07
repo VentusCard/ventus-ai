@@ -91,6 +91,24 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
     onScreenItems: PRODUCTS_ON_SCREEN,
   },
+  governance: {
+    label: "Governance — Personalization Controls",
+    summary:
+      "Where bank leaders set the personalization level, enable signal families, upload compliance and brand documents, and configure operating guardrails.",
+    keyData: [
+      "Four personalization stages: Conservative, Balanced, Personalized, Segment of One",
+      "Signal families: Spending Habits, Life Events, Financial, Demographic, Risk",
+      "Policy documents constrain generated copy and targeting",
+      "Guardrails: frequency cap, quiet hours, cooling-off, product eligibility, autonomy",
+    ],
+    suggestedNav: ["Demo", "Bank Context", "Settings"],
+    quickActions: [
+      "What changes if we move to Segment of One?",
+      "Which signal families are off right now?",
+      "What do the uploaded policies control?",
+      "Explain the autonomy threshold",
+    ],
+  },
   "exec-demo": {
     label: "Live Demo — Semantic Enrichment",
     summary:
