@@ -23,8 +23,7 @@ import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
-import { ReportsLibrary } from "./reports/ReportsLibrary";
-import { QueryConsoleView } from "./QueryConsoleView";
+import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
 import { PillarDeepDiveReport } from "./reports/pages/PillarDeepDiveReport";
 import { CrossSellReport } from "./reports/pages/CrossSellReport";
