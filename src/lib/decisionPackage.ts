@@ -157,7 +157,8 @@ export async function decisionPackageV12FromV11(
     outcomeSourceSystems?: string[];
   },
 ): Promise<DecisionPackageV12> {
-  const confidenceBand = decision.moment.confidence >= 80 ? "high" : decision.moment.confidence >= 60 ? "medium" : "low";
+  const confidenceBand: DecisionPackageV12["moment"]["confidenceBand"] =
+    decision.moment.confidence >= 80 ? "high" : decision.moment.confidence >= 60 ? "medium" : "low";
   const immutable = {
     schemaVersion: DECISION_PACKAGE_V12_VERSION,
     decisionId: decision.decisionId,
