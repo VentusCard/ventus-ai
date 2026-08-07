@@ -80,7 +80,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "Customers",
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
-      { value: "fvi-dashboard", label: "Financial Vulnerability", icon: ShieldAlert },
+      { value: "fvi-dashboard", label: "Risk Signals", icon: ShieldAlert },
     ],
   },
   {
