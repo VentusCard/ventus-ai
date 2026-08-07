@@ -167,9 +167,9 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Risk/Others/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
+    // Customers/Intelligence/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
-      allowedLabels.add("Risk");
+      allowedLabels.add("Customers");
       allowedLabels.add("Others");
       allowedLabels.add("Product & Growth");
     }
