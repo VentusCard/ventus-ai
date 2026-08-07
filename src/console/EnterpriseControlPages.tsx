@@ -116,7 +116,7 @@ export function ResultsPage() {
           }
         }));
         setHoldoutProtection(Object.fromEntries(entries.map(([experimentId, value]) => [experimentId, value.protection])));
-        setEvidenceSummary(Object.fromEntries(entries.map(([experimentId, value]) => [experimentId, value.summary])));
+        setEvidenceSummary(Object.fromEntries(entries.map(([experimentId, value]) => [experimentId, value.summary])) as Record<string, EvidenceSummary>);
       } else {
         setHoldoutProtection({});
         setEvidenceSummary({});
