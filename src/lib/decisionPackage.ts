@@ -182,8 +182,8 @@ export async function decisionPackageV12FromV11(
       ...decision.governance,
       policyVersion: null,
       protocolApprovalId: additions.protocolApprovalId ?? null,
-      approvalStatus: additions.protocolApprovalId ? "approved" : "not_attested",
-      exceptionStatus: "none",
+      approvalStatus: (additions.protocolApprovalId ? "approved" : "not_attested") as DecisionPackageV12["governance"]["approvalStatus"],
+      exceptionStatus: "none" as DecisionPackageV12["governance"]["exceptionStatus"],
     },
     decisionMethod: {
       runtimeType: decision.decisionMethod.active === "model-assisted" ? "model_assisted" : "deterministic",
