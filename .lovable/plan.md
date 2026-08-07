@@ -4,9 +4,8 @@ Extend the **Demographic** signal card in the /bankdemo System tab with attribut
 
 ## New signals to add
 
-- **Business owner / self-employed** — merchant-services deposits (Stripe, Square, Toast), payroll-provider outflows (Gusto, ADP), quarterly estimated tax payments
-- **Small business banking activity** — commercial insurance, wholesale suppliers, business software subscriptions on the same household
-- **Gig / 1099 income** — irregular platform inflows (Uber, DoorDash, Upwork) with no single employer ACH
+- **Self-employed / 1099 household** — quarterly estimated tax payments, irregular platform inflows (Uber, DoorDash, Upwork), no single employer ACH
+- **Small business owner** — business banking deposits, merchant-services volume (Stripe, Square, Toast), commercial insurance, wholesale suppliers
 - **Multi-property household** — two or more distinct mortgage/HOA/property-tax streams
 - **Rental income earner** — recurring inbound rent deposits or property-management payouts
 - **Household with dependents in college** — bursar/tuition outflows plus 529 distributions
