@@ -186,7 +186,7 @@ export async function decisionPackageV12FromV11(
       exceptionStatus: "none" as DecisionPackageV12["governance"]["exceptionStatus"],
     },
     decisionMethod: {
-      runtimeType: decision.decisionMethod.active === "model-assisted" ? "model_assisted" : "deterministic",
+      runtimeType: (decision.decisionMethod.active === "model-assisted" ? "model_assisted" : "deterministic") as DecisionPackageV12["decisionMethod"]["runtimeType"],
       runtimeVersion: additions.runtimeVersion ?? "console-runtime-v1",
       skillVersions: [`${decision.growthPlay.id}:${decision.growthPlay.protocolId}`],
     },
