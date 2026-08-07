@@ -15,7 +15,7 @@ function access(role: ConsoleAccessProfile["role"]): ConsoleAccessProfile {
     role,
     status: "active",
     entitlements: ["growth_console"],
-    businessLines: ["consumer-banking", "wealth"],
+    businessLineScopes: ["consumer-banking", "wealth"],
     queueScopes: [],
   };
 }

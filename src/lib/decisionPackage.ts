@@ -163,7 +163,7 @@ export async function decisionPackageV12FromV11(
     decisionId: decision.decisionId,
     tenantId: decision.tenantId,
     createdAt: decision.createdAt,
-    evidenceClass: decision.evidenceClass === "fixture" ? "fixture" : decision.evidenceClass === "sanctioned" ? "sanctioned_pilot" : "partner_sandbox",
+    evidenceClass: (decision.evidenceClass === "fixture" ? "fixture" : decision.evidenceClass === "sanctioned" ? "sanctioned_pilot" : "partner_sandbox") as DecisionPackageV12["evidenceClass"],
     growthPlay: decision.growthPlay,
     subject: { ...decision.subject, scope: additions.subjectScope },
     moment: {
