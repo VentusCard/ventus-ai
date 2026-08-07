@@ -139,14 +139,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
-  const [pendingQuery, setPendingQuery] = useState<string | undefined>(undefined);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const contentRef = useRef<HTMLDivElement>(null);
-
-  const openInQuery = (sql: string) => {
-    setPendingQuery(sql);
-    setActiveTab('query');
-  };
 
   const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
     if (id === 'priority-opportunity') {
