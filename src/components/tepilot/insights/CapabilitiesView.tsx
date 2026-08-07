@@ -158,12 +158,8 @@ const SIGNALS: SignalDetail[] = [
     color: "bg-violet-500",
     tint: "bg-violet-50 text-violet-700 border-violet-200",
     dot: "bg-violet-500",
-    description: "Household and life-stage attributes inferred from spend patterns, going beyond KYC fields.",
+    description: "Behaviorally inferred household and life-stage attributes with direct product and timing implications.",
     items: [
-      { label: "Age range", sublabel: "18–24 · 25–34 · 35–44 · 45–54 · 55–64 · 65+" },
-      { label: "Income band", sublabel: "<$50K · $50–100K · $100–150K · $150K+ (payroll + spend volume)" },
-      { label: "Region", sublabel: "Northeast · Southeast · Midwest · Southwest · West · Northwest" },
-      { label: "Account tenure", sublabel: "New (<1y), Established (1–5y), Loyal (5+y)" },
       { label: "Likely homeowner", sublabel: "Mortgage, Home Depot/Lowe's, HOA fees" },
       { label: "Parent of young children", sublabel: "Daycare, pediatric, Carter's, infant formula volume" },
       { label: "Parent of school-age", sublabel: "Tuition, kids activities, SAT/ACT prep" },
