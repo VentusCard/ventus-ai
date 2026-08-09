@@ -44,7 +44,7 @@ export function PersonalizedDealsView() {
         label="Next-Deal Intelligence"
         description="Seasonal spend curves, category gaps, and timing intelligence for merchant partnerships."
       >
-        <RewardsAnalyticsDashboard />
+        <RewardsAnalyticsDashboard hideHeader />
       </Section>
 
       <Section
@@ -60,7 +60,7 @@ export function PersonalizedDealsView() {
         label="Gamification"
         description="Achievement programs, badges, and engagement lift tracking."
       >
-        <GamificationManagement />
+        <GamificationManagement hideHeader />
       </Section>
     </div>
   );
