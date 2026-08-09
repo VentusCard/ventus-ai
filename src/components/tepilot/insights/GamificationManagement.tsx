@@ -46,7 +46,11 @@ function rewardLabel(a: ManagedAchievement): string {
   return `$${r.value} custom`;
 }
 
-export function GamificationManagement() {
+interface GamificationManagementProps {
+  hideHeader?: boolean;
+}
+
+export function GamificationManagement({ hideHeader = false }: GamificationManagementProps) {
   const initial = getGamificationMetrics();
   const [achievements, setAchievements] = useState<ManagedAchievement[]>(initial.achievements);
   const [editorOpen, setEditorOpen] = useState(false);
