@@ -3,7 +3,7 @@ import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import ReactMarkdown from "react-markdown";
 import {
   Sparkles, TrendingUp, TrendingDown, AlertTriangle, DollarSign, Users,
-  BarChart3, Wallet, Heart, Gamepad2, Package, MapPin, CalendarHeart,
+  BarChart3, Wallet, Heart, CalendarHeart,
   Route, Briefcase, Send, Loader2, ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
