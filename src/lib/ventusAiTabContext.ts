@@ -57,6 +57,24 @@ const REPORTS_ON_SCREEN = {
   ],
 };
 
+const PERSONALIZED_DEALS_CONTEXT: TabContext = {
+  label: "Personalized Deals",
+  summary:
+    "Unified surface for deal intelligence, merchant activation, location perks, and gamified engagement programs.",
+  keyData: [
+    "Seasonal spend heatmaps highlight over-indexed lifestyle pillars",
+    "Merchant partnership pipeline with active deals and location perks",
+    "Achievement and badge engine for financial wellness engagement",
+  ],
+  suggestedNav: ["Automated Flows", "Campaign Builder", "Next Product"],
+  quickActions: [
+    "Seasonal deal opportunities",
+    "Top performing deals",
+    "Most popular badges",
+    "Engagement lift from gamification",
+  ],
+};
+
 export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
   // ---------- Home ----------
   capabilities: {
