@@ -8,7 +8,11 @@ import { Flame, Puzzle, Calendar, Sparkles } from "lucide-react";
 import type { BankwideFilters } from "@/types/bankwide";
 import { TabHeader } from "./TabHeader";
 
-export function RewardsAnalyticsDashboard() {
+interface RewardsAnalyticsDashboardProps {
+  hideHeader?: boolean;
+}
+
+export function RewardsAnalyticsDashboard({ hideHeader = false }: RewardsAnalyticsDashboardProps) {
   const [filters, setFilters] = useState<BankwideFilters>({
     cardProducts: [],
     regions: [],
