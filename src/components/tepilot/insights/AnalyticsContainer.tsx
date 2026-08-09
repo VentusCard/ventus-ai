@@ -138,6 +138,39 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     }
   };
 
+  const MIN_SIDEBAR_WIDTH = 220;
+  const MAX_SIDEBAR_WIDTH = 420;
+
+  const handleResizeStart = (e: React.PointerEvent) => {
+    if (collapsed) return;
+    e.preventDefault();
+    setIsResizing(true);
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = sidebarWidth;
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  };
+
+  const handleResizeMove = (e: PointerEvent) => {
+    if (!isResizing) return;
+    const delta = e.clientX - dragStartX.current;
+    const nextWidth = Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, dragStartWidth.current + delta));
+    setSidebarWidth(nextWidth);
+  };
+
+  const handleResizeEnd = () => {
+    setIsResizing(false);
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+    window.addEventListener('pointermove', handleResizeMove);
+    window.addEventListener('pointerup', handleResizeEnd);
+    return () => {
+      window.removeEventListener('pointermove', handleResizeMove);
+      window.removeEventListener('pointerup', handleResizeEnd);
+    };
+  }, [isResizing]);
+
 
   // Filter nav groups based on enabled modules
   const filteredNavGroups = useMemo(() => {
