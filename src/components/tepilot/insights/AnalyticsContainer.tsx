@@ -124,7 +124,12 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [isResizing, setIsResizing] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const dragStartX = useRef(0);
+  const dragStartWidth = useRef(280);
 
   const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
     if (id === 'priority-opportunity') {
