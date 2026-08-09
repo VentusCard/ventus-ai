@@ -9,12 +9,13 @@ Restructure the sidebar navigation in `/bankdemo` so related items are grouped u
    - Contains: Customer Insights, Risk Signals, Ventus AI Dashboard, Reports & Query.
 
 2. **New "Personalization Orchestration" section**
-   - Contains the next three menu items after the merged Customer Intelligence block: Next-Deal Intelligence, Deals & Perks, Gamification.
+   - Merges the current **Deals & Rewards**, **Product & Growth**, and **WEALTH & RELATIONSHIP** groups.
+   - Contains, in order: Next-Deal Intelligence, Deals & Perks, Gamification, Automated Flows, Campaign Builder, Next Product, Relationship Intelligence, AI Banking Assistant, WM Coworker.
 
-3. **Unchanged sections**
+3. **Unchanged section**
    - Home (System, Bank Context, Demo, Governance)
-   - Product & Growth (Automated Flows, Campaign Builder, Next Product)
-   - WEALTH & RELATIONSHIP (Relationship Intelligence, AI Banking Assistant, WM Coworker)
+
+Result: three sidebar sections total — Home, Customer Intelligence, Personalization Orchestration.
 
 ## Files to update
 
@@ -22,7 +23,8 @@ Restructure the sidebar navigation in `/bankdemo` so related items are grouped u
   - Rebuild `NAV_GROUPS` with the two new section labels and item order.
   - Update the module-filter fallback logic that hardcodes allowed group labels for the always-on Analytics module.
 - `src/types/demo.ts`
-  - Update `MODULE_NAV_GROUP_MAP` so Analytics maps to `"Customer Intelligence"` and Rewards maps to `"Personalization Orchestration"`.
+  - Update `MODULE_NAV_GROUP_MAP` so Analytics maps to `"Customer Intelligence"`, and Rewards/Relationship map to `"Personalization Orchestration"`.
+
 
 ## Validation
 
