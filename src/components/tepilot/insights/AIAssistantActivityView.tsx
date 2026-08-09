@@ -120,7 +120,7 @@ export function AIAssistantActivityView({ hideHeader }: { hideHeader?: boolean }
 
   return (
     <div className="space-y-6">
-      <TabHeader
+      {!hideHeader && <TabHeader
         icon={<MessagesSquare className="w-4 h-4" />}
         title="AI Banking Assistant "
         subtitle="What customers are asking the assistant — by volume, intent, and trend"
