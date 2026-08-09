@@ -69,7 +69,7 @@ interface NavItem {
 
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
-    label: "Home",
+    label: "VENTUS AI",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
       { value: "products", label: "Bank\u00A0Context", icon: Package },
@@ -139,7 +139,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     if (!enabledModules) return NAV_GROUPS;
 
     // Build set of allowed group labels from enabled modules
-    const allowedLabels = new Set<string>(["Home"]);
+    const allowedLabels = new Set<string>(["VENTUS AI"]);
     for (const mod of enabledModules) {
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
@@ -330,7 +330,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
         <nav className="flex-1 py-1 overflow-y-auto">
           {filteredNavGroups.map((group) => {
-            const isHome = group.label === "Home";
+            const isHome = group.label === "VENTUS AI";
             const isOpen = collapsed || isHome ? true : openGroups.has(group.label);
             const ownsActive = group.label === activeGroupLabel;
             const renderItems = () => group.items.map((item) => {
