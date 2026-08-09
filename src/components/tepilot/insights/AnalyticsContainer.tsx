@@ -360,6 +360,14 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           collapsed ? "w-[52px] transition-all duration-200" : !isResizing && "transition-all duration-200"
         )}
       >
+        <div
+          onPointerDown={handleResizeStart}
+          className={cn(
+            "absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize transition-colors",
+            isResizing ? "bg-blue-400" : "bg-transparent hover:bg-blue-300/50"
+          )}
+          title="Drag to resize sidebar"
+        />
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center justify-center h-8 border-b border-slate-200 hover:bg-slate-100 transition-colors"
