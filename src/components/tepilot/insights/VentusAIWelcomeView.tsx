@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'life-events' | 'wm-copilot';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'personalized-relationship';
 
 interface VentusAIWelcomeViewProps {
   onNavigate: (tab: TabValue) => void;
@@ -72,10 +72,9 @@ const SUGGESTED_PROMPTS = [
 
 type NavGroup = "featured" | "grow" | "protect" | "operate";
 const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: React.ElementType; group: NavGroup }[] = [
-  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "featured" },
-  { tab: "life-events", label: "Life Events", description: "Predictive life-event detection", icon: CalendarHeart, group: "grow" },
+  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Life events, assistant activity, and WM Coworker", icon: Briefcase, group: "featured" },
   { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route, group: "grow" },
-  { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "grow" },
+  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Life events, assistant activity, and WM Coworker", icon: CalendarHeart, group: "grow" },
   { tab: "personalized-deals", label: "Personalized Deals", description: "Deals, perks, and engagement programs", icon: Sparkles, group: "grow" },
   { tab: "wallet-share", label: "Outflow Detection", description: "Competitor deposit-flight tracking", icon: Wallet, group: "protect" },
   { tab: "customer-insights", label: "Customer Insights", description: "Wellness alerts & behavioral signals", icon: Heart, group: "protect" },

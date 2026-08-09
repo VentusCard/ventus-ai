@@ -73,7 +73,7 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, TabValue>> = {
   outflow: "wallet-share",
   travel: "personalized-deals",
   locational: "personalized-deals",
-  lifeEventIntel: "life-events",
+  lifeEventIntel: "personalized-relationship",
   lifeEvents: "targeting",
   dealPersonalization: "personalized-deals",
   aiFinancialInsights: "customer-insights",
