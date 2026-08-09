@@ -353,9 +353,11 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
       <div className="flex flex-1 min-h-0">
       <div
+        ref={sidebarRef}
+        style={collapsed ? undefined : { width: sidebarWidth }}
         className={cn(
-          "shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex flex-col",
-          collapsed ? "w-[52px]" : "w-[240px]"
+          "relative shrink-0 border-r border-slate-200 bg-slate-50/80 flex flex-col",
+          collapsed ? "w-[52px] transition-all duration-200" : !isResizing && "transition-all duration-200"
         )}
       >
         <button
