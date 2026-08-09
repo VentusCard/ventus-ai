@@ -98,9 +98,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Personalization Orchestration",
     items: [
-      { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
-      { value: "deal-management", label: "Deals & Perks", icon: Package },
-      { value: "gamification", label: "Gamification", icon: Gamepad2 },
+      { value: "personalized-deals", label: "Personalized Deals", icon: Sparkles },
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
       { value: "targeting", label: "Next Product", icon: Route },
