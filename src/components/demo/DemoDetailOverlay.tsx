@@ -71,11 +71,11 @@ const CARD_DESCRIPTIONS: Record<string, string> = {
 const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, TabValue>> = {
   analytics: "dashboard",
   outflow: "wallet-share",
-  travel: "rewards-intelligence",
-  locational: "location-experience",
+  travel: "personalized-deals",
+  locational: "personalized-deals",
   lifeEventIntel: "life-events",
   lifeEvents: "targeting",
-  dealPersonalization: "deal-management",
+  dealPersonalization: "personalized-deals",
   aiFinancialInsights: "customer-insights",
 };
 
