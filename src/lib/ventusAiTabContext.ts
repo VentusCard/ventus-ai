@@ -319,41 +319,91 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
   },
 
-  // ---------- Deals & Rewards ----------
-  "rewards-intelligence": {
-    label: "Next-Deal Intelligence",
+  // ---------- Personalized Deals ----------
+  "personalized-deals": {
+    label: "Personalized Deals",
     summary:
-      "Analytics for deal-generation: seasonal opportunities, category gaps, top merchant partnerships, timing.",
+      "Unified surface for deal intelligence, merchant activation, location perks, and gamified engagement programs.",
     keyData: [
-      "Heatmaps highlight over-indexed lifestyle pillars",
-      "Excludes competitor payment rails from partnership scoring",
+      "Seasonal spend heatmaps highlight over-indexed lifestyle pillars",
+      "Merchant partnership pipeline with active deals and location perks",
+      "Achievement and badge engine for financial wellness engagement",
     ],
-    suggestedNav: ["Deals & Perks", "Locational Perks"],
+    suggestedNav: ["Automated Flows", "Campaign Builder", "Next Product"],
     quickActions: [
       "Seasonal deal opportunities",
-      "Top merchant partnership candidates",
-      "Category gaps to fill",
+      "Top performing deals",
+      "Most popular badges",
+      "Engagement lift from gamification",
+    ],
+  },
+  "rewards-intelligence": {
+    label: "Personalized Deals",
+    summary:
+      "Unified surface for deal intelligence, merchant activation, location perks, and gamified engagement programs.",
+    keyData: [
+      "Seasonal spend heatmaps highlight over-indexed lifestyle pillars",
+      "Merchant partnership pipeline with active deals and location perks",
+      "Achievement and badge engine for financial wellness engagement",
+    ],
+    suggestedNav: ["Automated Flows", "Campaign Builder", "Next Product"],
+    quickActions: [
+      "Seasonal deal opportunities",
+      "Top performing deals",
+      "Most popular badges",
+      "Engagement lift from gamification",
     ],
   },
   "deal-management": {
-    label: "Deals & Perks",
-    summary: "Merchant partnership pipeline, active deals, and deal performance.",
-    quickActions: ["Deals expiring this month", "Top performing deals", "Pipeline status"],
+    label: "Personalized Deals",
+    summary:
+      "Unified surface for deal intelligence, merchant activation, location perks, and gamified engagement programs.",
+    keyData: [
+      "Seasonal spend heatmaps highlight over-indexed lifestyle pillars",
+      "Merchant partnership pipeline with active deals and location perks",
+      "Achievement and badge engine for financial wellness engagement",
+    ],
+    suggestedNav: ["Automated Flows", "Campaign Builder", "Next Product"],
+    quickActions: [
+      "Seasonal deal opportunities",
+      "Top performing deals",
+      "Most popular badges",
+      "Engagement lift from gamification",
+    ],
   },
   "location-experience": {
-    label: "Locational Perks",
+    label: "Personalized Deals",
     summary:
-      "City-based perks management with wealth-tier segmentation. Aggregates location experiences per market.",
+      "Unified surface for deal intelligence, merchant activation, location perks, and gamified engagement programs.",
+    keyData: [
+      "Seasonal spend heatmaps highlight over-indexed lifestyle pillars",
+      "Merchant partnership pipeline with active deals and location perks",
+      "Achievement and badge engine for financial wellness engagement",
+    ],
+    suggestedNav: ["Automated Flows", "Campaign Builder", "Next Product"],
     quickActions: [
-      "Top perks by city",
-      "Underserved regions",
-      "New location opportunities",
+      "Seasonal deal opportunities",
+      "Top performing deals",
+      "Most popular badges",
+      "Engagement lift from gamification",
     ],
   },
   gamification: {
-    label: "Gamification",
-    summary: "Achievement and badge engine for financial wellness engagement.",
-    quickActions: ["Most popular badges", "Engagement lift from gamification", "New achievement ideas"],
+    label: "Personalized Deals",
+    summary:
+      "Unified surface for deal intelligence, merchant activation, location perks, and gamified engagement programs.",
+    keyData: [
+      "Seasonal spend heatmaps highlight over-indexed lifestyle pillars",
+      "Merchant partnership pipeline with active deals and location perks",
+      "Achievement and badge engine for financial wellness engagement",
+    ],
+    suggestedNav: ["Automated Flows", "Campaign Builder", "Next Product"],
+    quickActions: [
+      "Seasonal deal opportunities",
+      "Top performing deals",
+      "Most popular badges",
+      "Engagement lift from gamification",
+    ],
   },
 
   // ---------- Wealth & Relationship ----------
