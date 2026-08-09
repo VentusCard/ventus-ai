@@ -330,7 +330,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
         <nav className="flex-1 py-1 overflow-y-auto">
           {filteredNavGroups.map((group) => {
-            const isHome = group.label === "Home";
+            const isHome = group.label === "VENTUS AI";
             const isOpen = collapsed || isHome ? true : openGroups.has(group.label);
             const ownsActive = group.label === activeGroupLabel;
             const renderItems = () => group.items.map((item) => {
