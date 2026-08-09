@@ -78,16 +78,10 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Customers",
+    label: "Customer Intelligence",
     items: [
       { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Risk Signals", icon: ShieldAlert },
-    ],
-  },
-  {
-    label: "Intelligence",
-    items: [
-
       {
         value: "ventus-ai-dashboard",
         label: "Ventus AI Dashboard",
@@ -101,31 +95,21 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Deals & Rewards",
+    label: "Personalization Orchestration",
     items: [
       { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
       { value: "deal-management", label: "Deals & Perks", icon: Package },
       { value: "gamification", label: "Gamification", icon: Gamepad2 },
-    ],
-  },
-  {
-    label: "Product & Growth",
-    items: [
-      
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
       { value: "targeting", label: "Next Product", icon: Route },
-    ],
-  },
-  {
-    label: "WEALTH & RELATIONSHIP",
-    items: [
       { value: "life-events", label: "Relationship Intelligence", icon: Gem },
-      { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
+      { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
       { value: "wm-copilot", label: "WM Coworker", icon: Briefcase },
     ],
   },
 ];
+
 
 interface AnalyticsContainerProps {
   defaultTab?: TabValue;
@@ -160,12 +144,12 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Customers/Intelligence/Product & Growth groups follow Analytics (always on since Analytics is always enabled)
+    // Both consolidated groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
-      allowedLabels.add("Customers");
-      allowedLabels.add("Others");
-      allowedLabels.add("Product & Growth");
+      allowedLabels.add("Customer Intelligence");
+      allowedLabels.add("Personalization Orchestration");
     }
+
     return NAV_GROUPS.filter(g => allowedLabels.has(g.label));
   }, [enabledModules]);
 
