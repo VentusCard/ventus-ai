@@ -46,7 +46,11 @@ function rewardLabel(a: ManagedAchievement): string {
   return `$${r.value} custom`;
 }
 
-export function GamificationManagement() {
+interface GamificationManagementProps {
+  hideHeader?: boolean;
+}
+
+export function GamificationManagement({ hideHeader = false }: GamificationManagementProps) {
   const initial = getGamificationMetrics();
   const [achievements, setAchievements] = useState<ManagedAchievement[]>(initial.achievements);
   const [editorOpen, setEditorOpen] = useState(false);
@@ -79,13 +83,15 @@ export function GamificationManagement() {
 
   return (
     <div className="space-y-6">
-      <TabHeader
-        icon={<Gamepad2 className="w-4 h-4" />}
-        title="Gamification Program"
-        subtitle="Achievement management and engagement metrics"
-        howItWorks="Ventus tracks spending milestones, category exploration, and behavioral streaks to trigger achievement unlocks automatically."
-        whyItMatters="Increases transaction frequency and card-top-of-wallet status through behavioral reinforcement loops."
-      />
+      {!hideHeader && (
+        <TabHeader
+          icon={<Gamepad2 className="w-4 h-4" />}
+          title="Gamification Program"
+          subtitle="Achievement management and engagement metrics"
+          howItWorks="Ventus tracks spending milestones, category exploration, and behavioral streaks to trigger achievement unlocks automatically."
+          whyItMatters="Increases transaction frequency and card-top-of-wallet status through behavioral reinforcement loops."
+        />
+      )}
       <div className="flex items-center justify-end">
         <Button
           size="sm"

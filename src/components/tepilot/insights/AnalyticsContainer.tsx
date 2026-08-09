@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { BankwideView } from "./BankwideView";
-import { DealsAndPerksView } from "./DealsAndPerksView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
@@ -8,8 +7,6 @@ import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderV
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 import { WalletShareView } from "./WalletShareView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
-import { GamificationManagement } from "./GamificationManagement";
-import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 
 import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
@@ -24,6 +21,7 @@ import { GovernanceView } from "../governance/GovernanceView";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
+import { PersonalizedDealsView } from "./PersonalizedDealsView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
 import { PillarDeepDiveReport } from "./reports/pages/PillarDeepDiveReport";
 import { CrossSellReport } from "./reports/pages/CrossSellReport";
@@ -43,8 +41,8 @@ import { PriorityOpportunityReport } from "./reports/pages/PriorityOpportunityRe
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Gamepad2, Sparkles, FileBarChart,
-  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, MapPin, Package,
+  BarChart3, Route, Wallet, Heart, Sparkles, FileBarChart,
+  CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
   Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck
 } from "lucide-react";
@@ -59,7 +57,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance';
 
 interface NavItem {
   value: TabValue;
@@ -97,9 +95,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Personalization Orchestration",
     items: [
-      { value: "rewards-intelligence", label: "Next-Deal Intelligence", icon: Sparkles },
-      { value: "deal-management", label: "Deals & Perks", icon: Package },
-      { value: "gamification", label: "Gamification", icon: Gamepad2 },
+      { value: "personalized-deals", label: "Personalized Deals", icon: Sparkles },
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
       { value: "targeting", label: "Next Product", icon: Route },
@@ -277,16 +273,18 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
       case 'report-priority-opportunity': return <PriorityOpportunityReport opportunityId={selectedOpportunityId} onBack={() => setActiveTab('reports')} onNavigate={setActiveTab} onSelectOpportunity={setSelectedOpportunityId} />;
       case 'dashboard': return <BankwideView />;
-      case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
+      case 'personalized-deals':
+      case 'rewards-intelligence':
+      case 'deal-management':
+      case 'gamification':
+      case 'location-experience':
+        return <PersonalizedDealsView />;
       case 'targeting': return <SegmentTargetingView />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
-      case 'gamification': return <GamificationManagement />;
-      case 'deal-management': return <DealsAndPerksView defaultTab="shopping" />;
-      case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
       case 'life-events': return <RelationshipIntelligenceView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
       
