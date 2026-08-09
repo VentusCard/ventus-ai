@@ -69,7 +69,7 @@ interface NavItem {
 
 const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
-    label: "Home",
+    label: "VENTUS AI",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
       { value: "products", label: "Bank\u00A0Context", icon: Package },
