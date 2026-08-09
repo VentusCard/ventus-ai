@@ -75,6 +75,25 @@ const PERSONALIZED_DEALS_CONTEXT: TabContext = {
   ],
 };
 
+const PERSONALIZED_RELATIONSHIP_CONTEXT: TabContext = {
+  label: "Personalized Relationship",
+  summary:
+    "Unified relationship surface: predictive life-event and relationship intelligence, customer-facing AI Banking Assistant activity, and the email-based WM Coworker for advisors and leadership.",
+  keyData: [
+    "Life events carry 3-5 transaction evidence items each",
+    "Money-transfer merchants (Zelle, Wire) excluded from life-event evidence unless described",
+    "Assistant activity shows live topics, rising intents, and unresolved questions",
+    "Coworker digests are capped and resolve to a specific product recommendation",
+  ],
+  suggestedNav: ["Next Product", "Campaign Builder", "Personalized Deals"],
+  quickActions: [
+    "Upcoming home purchase signals",
+    "Retirement planning candidates",
+    "Top assistant topics today",
+    "High-value client risks",
+  ],
+};
+
 export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
   // ---------- Home ----------
   capabilities: {
@@ -344,49 +363,11 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
   "location-experience": PERSONALIZED_DEALS_CONTEXT,
   gamification: PERSONALIZED_DEALS_CONTEXT,
 
-  // ---------- Wealth & Relationship ----------
-  "life-events": {
-    label: "Relationship Intelligence",
-    summary:
-      "Predictive life-event detection (home purchase, new child, relocation, retirement, tuition, etc.) with 3–5 transaction evidence items per event.",
-    keyData: [
-      "Money-transfer merchants (Zelle, Wire) excluded from life-event evidence unless described",
-      "Big-box general merchandise routes into Home & Living",
-    ],
-    suggestedNav: ["WM Coworker", "Next Product", "Campaign Builder"],
-    quickActions: [
-      "Upcoming home purchase signals",
-      "Retirement planning candidates",
-      "Product recommendations by event",
-    ],
-  },
-  "ai-assistant-activity": {
-    label: "AI Banking Assistant Activity",
-    summary:
-      "Live topics, rising intents, and unresolved questions from the customer-facing AI Banking Assistant.",
-    quickActions: [
-      "Top topics today",
-      "Rising intents",
-      "Unresolved questions",
-      "Life-event signals from chat",
-    ],
-  },
-  "wm-copilot": {
-    label: "WM Coworker",
-    summary:
-      "Wealth management AI coworker (wmcoworker@ventusai.com). Runs daily digest of client signals, drafts advisor prep, and generates cohort lists for campaigns (e.g. premium travel card candidates).",
-    keyData: [
-      "Digest capped at 3/3/2 rows per section",
-      "Every recommendation resolves to a specific product (529, jumbo mortgage, premium travel card, etc.)",
-      "Confidence levels are calibrated (not inflated)",
-    ],
-    suggestedNav: ["Relationship Intelligence", "Bank Context"],
-    quickActions: [
-      "High-value client risks",
-      "Prep for a jumbo mortgage conversation",
-      "Premium travel card candidates",
-    ],
-  },
+  // ---------- Personalized Relationship ----------
+  "personalized-relationship": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "life-events": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "ai-assistant-activity": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "wm-copilot": PERSONALIZED_RELATIONSHIP_CONTEXT,
 
   // ---------- Risk ----------
   "customer-insights": {

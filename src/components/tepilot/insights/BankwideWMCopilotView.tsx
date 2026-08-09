@@ -11,7 +11,7 @@ import { toast } from "sonner";
 
 type ViewMode = "inbox" | "advisor" | "leadership";
 
-export function BankwideWMCopilotView() {
+export function BankwideWMCopilotView({ hideHeader }: { hideHeader?: boolean } = {}) {
   const [viewMode, setViewMode] = useState<ViewMode>("inbox");
 
   const dashboardClients = useMemo(() => generateDashboardClients(60), []);
@@ -32,13 +32,13 @@ export function BankwideWMCopilotView() {
 
   return (
     <div className="flex flex-col h-full">
-      <TabHeader
+      {!hideHeader && <TabHeader
         icon={<Briefcase className="w-4 h-4" />}
         title="WM Coworker"
         subtitle="An email-based Ventus AI teammate for advisors and wealth leadership"
         howItWorks="Ventus AI is an email-based coworker to the wealth team. It continuously scans behavior across 3M+ households, sends personalized signal briefs to individual advisors, delivers portfolio-wide trends and campaign recommendations to leadership, and replies instantly when anyone writes back."
         whyItMatters="Enterprise-scale coverage without adding headcount. Every advisor gets a personal research assistant, every leader gets a real-time chief of staff — inside the tool they already use."
-      />
+      />}
       {/* View Toggle */}
       <div className="flex items-center gap-2 mb-4">
         <div className="flex items-center gap-1 p-1 bg-slate-100 rounded-lg">
