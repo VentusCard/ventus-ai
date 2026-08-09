@@ -9,7 +9,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot';
+type TabValue = 'dashboard' | 'targeting' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'life-events' | 'wm-copilot';
 
 interface VentusAIWelcomeViewProps {
   onNavigate: (tab: TabValue) => void;
