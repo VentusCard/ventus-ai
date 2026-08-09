@@ -276,16 +276,18 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'report-next-conversation': return <NextConversationReport onBack={() => setActiveTab('reports')} />;
       case 'report-priority-opportunity': return <PriorityOpportunityReport opportunityId={selectedOpportunityId} onBack={() => setActiveTab('reports')} onNavigate={setActiveTab} onSelectOpportunity={setSelectedOpportunityId} />;
       case 'dashboard': return <BankwideView />;
-      case 'rewards-intelligence': return <RewardsAnalyticsDashboard />;
+      case 'personalized-deals':
+      case 'rewards-intelligence':
+      case 'deal-management':
+      case 'gamification':
+      case 'location-experience':
+        return <PersonalizedDealsView />;
       case 'targeting': return <SegmentTargetingView />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       
       case 'wallet-share': return <WalletShareView />;
       case 'customer-insights': return <WellnessAlertsDashboard />;
-      case 'gamification': return <GamificationManagement />;
-      case 'deal-management': return <DealsAndPerksView defaultTab="shopping" />;
-      case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
       case 'life-events': return <RelationshipIntelligenceView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
       case 'wm-copilot': return <BankwideWMCopilotView />;
       
