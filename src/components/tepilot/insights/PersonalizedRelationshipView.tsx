@@ -5,7 +5,8 @@ import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { cn } from "@/lib/utils";
 import type { ClientProfileData } from "@/types/clientProfile";
-import type { AIInsights } from "@/types/insights";
+import type { AIInsights } from "@/types/lifestyle-signals";
+import type { TabValue } from "./AnalyticsContainer";
 
 interface SectionProps {
   icon: React.ReactNode;
@@ -33,7 +34,7 @@ function Section({ icon, label, description, children, className }: SectionProps
 interface PersonalizedRelationshipViewProps {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
-  onNavigate?: (tab: string) => void;
+  onNavigate?: (tab: TabValue) => void;
 }
 
 export function PersonalizedRelationshipView({
