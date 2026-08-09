@@ -124,7 +124,12 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
+  const [sidebarWidth, setSidebarWidth] = useState(280);
+  const [isResizing, setIsResizing] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
+  const sidebarRef = useRef<HTMLDivElement>(null);
+  const dragStartX = useRef(0);
+  const dragStartWidth = useRef(280);
 
   const openInteractiveReport = (id: InteractiveReportId, payload?: { opportunityId?: string }) => {
     if (id === 'priority-opportunity') {
@@ -132,6 +137,39 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       setActiveTab('report-priority-opportunity');
     }
   };
+
+  const MIN_SIDEBAR_WIDTH = 220;
+  const MAX_SIDEBAR_WIDTH = 420;
+
+  const handleResizeStart = (e: React.PointerEvent) => {
+    if (collapsed) return;
+    e.preventDefault();
+    setIsResizing(true);
+    dragStartX.current = e.clientX;
+    dragStartWidth.current = sidebarWidth;
+    (e.target as Element).setPointerCapture?.(e.pointerId);
+  };
+
+  const handleResizeMove = (e: PointerEvent) => {
+    if (!isResizing) return;
+    const delta = e.clientX - dragStartX.current;
+    const nextWidth = Math.min(MAX_SIDEBAR_WIDTH, Math.max(MIN_SIDEBAR_WIDTH, dragStartWidth.current + delta));
+    setSidebarWidth(nextWidth);
+  };
+
+  const handleResizeEnd = () => {
+    setIsResizing(false);
+  };
+
+  useEffect(() => {
+    if (!isResizing) return;
+    window.addEventListener('pointermove', handleResizeMove);
+    window.addEventListener('pointerup', handleResizeEnd);
+    return () => {
+      window.removeEventListener('pointermove', handleResizeMove);
+      window.removeEventListener('pointerup', handleResizeEnd);
+    };
+  }, [isResizing]);
 
 
   // Filter nav groups based on enabled modules
@@ -315,11 +353,21 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
       <div className="flex flex-1 min-h-0">
       <div
+        ref={sidebarRef}
+        style={collapsed ? undefined : { width: sidebarWidth }}
         className={cn(
-          "shrink-0 border-r border-slate-200 bg-slate-50/80 transition-all duration-200 flex flex-col",
-          collapsed ? "w-[52px]" : "w-[240px]"
+          "relative shrink-0 border-r border-slate-200 bg-slate-50/80 flex flex-col",
+          collapsed ? "w-[52px] transition-all duration-200" : !isResizing && "transition-all duration-200"
         )}
       >
+        <div
+          onPointerDown={handleResizeStart}
+          className={cn(
+            "absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize transition-colors",
+            isResizing ? "bg-blue-400" : "bg-transparent hover:bg-blue-300/50"
+          )}
+          title="Drag to resize sidebar"
+        />
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="flex items-center justify-center h-8 border-b border-slate-200 hover:bg-slate-100 transition-colors"
