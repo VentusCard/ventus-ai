@@ -42,9 +42,10 @@ interface Props {
   userDemographics?: ClientProfileData | null;
   lifestyleSignals?: AIInsights | null;
   onNavigate?: (tab: TabValue) => void;
+  hideHeader?: boolean;
 }
 
-export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals, onNavigate }: Props) {
+export function RelationshipIntelligenceView({ userDemographics, lifestyleSignals, onNavigate, hideHeader }: Props) {
   const [activeModule, setActiveModule] = useState<ModuleKey>('lifeevents');
   const [prepareDialogOpen, setPrepareDialogOpen] = useState(false);
   const [prepareData, setPrepareData] = useState<EventPreparationData | null>(null);
