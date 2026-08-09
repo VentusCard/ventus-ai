@@ -76,13 +76,10 @@ const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: Reac
   { tab: "life-events", label: "Life Events", description: "Predictive life-event detection", icon: CalendarHeart, group: "grow" },
   { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route, group: "grow" },
   { tab: "wm-copilot", label: "WM Copilot", description: "Advisor AI assistant", icon: Briefcase, group: "grow" },
-  { tab: "rewards-intelligence", label: "Reward & Trip Detection", description: "Travel patterns & reward optimization", icon: Sparkles, group: "grow" },
+  { tab: "personalized-deals", label: "Personalized Deals", description: "Deals, perks, and engagement programs", icon: Sparkles, group: "grow" },
   { tab: "wallet-share", label: "Outflow Detection", description: "Competitor deposit-flight tracking", icon: Wallet, group: "protect" },
   { tab: "customer-insights", label: "Customer Insights", description: "Wellness alerts & behavioral signals", icon: Heart, group: "protect" },
   { tab: "dashboard", label: "Category Consolidation", description: "Pillar-level spend analysis", icon: BarChart3, group: "operate" },
-  { tab: "deal-management", label: "Deal Management", description: "Merchant partnership pipeline", icon: Package, group: "operate" },
-  { tab: "location-experience", label: "Locational Perks", description: "Geo-targeted experiences", icon: MapPin, group: "operate" },
-  { tab: "gamification", label: "Gamification", description: "Engagement & achievement engine", icon: Gamepad2, group: "operate" },
 ];
 
 const NAV_GROUPS: { key: NavGroup; label: string }[] = [
