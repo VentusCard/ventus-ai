@@ -139,7 +139,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     if (!enabledModules) return NAV_GROUPS;
 
     // Build set of allowed group labels from enabled modules
-    const allowedLabels = new Set<string>(["Home"]);
+    const allowedLabels = new Set<string>(["VENTUS AI"]);
     for (const mod of enabledModules) {
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
