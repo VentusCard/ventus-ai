@@ -361,7 +361,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[11px] text-slate-400">Last updated: {today}</span>
-          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
+          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && !chatOpen && (
             <button
               onClick={() => setChatOpen(true)}
               className="ventus-ai-badge ventus-ai-badge-interactive"
@@ -372,7 +372,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               Ventus AI
             </button>
           )}
-          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || chatOpen) && (
+          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || activeTab === 'ventus-chat' || chatOpen) && (
             <div className="ventus-ai-badge" aria-label="Ventus AI is active">
               <span className="ventus-ai-live-dot" aria-hidden="true" />
               <span>Ventus AI</span>
@@ -554,7 +554,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       </div>
 
       {/* Chat Panel */}
-      {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && (
+      {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && (
         <VentusAIChatPanel
           activeTab={activeTab}
           onClose={() => setChatOpen(false)}
