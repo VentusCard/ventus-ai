@@ -1,9 +1,0 @@
-# Hobby-plan deployments allow 12 serverless functions. Tests never ship, and
-# the four model-eval routes are evaluation-locked (404 unless
-# ENABLE_INTERNAL_MODEL_EVAL) — excluding them changes nothing observable on
-# the public POC. Remove these lines on a Pro-plan/team deployment.
-api/*.test.ts
-api/model-route.ts
-api/meeting-prep.ts
-api/prioritize.ts
-api/strategy-route.ts

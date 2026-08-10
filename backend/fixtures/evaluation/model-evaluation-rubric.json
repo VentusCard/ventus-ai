@@ -74,29 +74,6 @@
         "changes_production_output_while_shadow_only",
         "approves_fabricated_evidence"
       ]
-    },
-    "intervention_planning_shadow": {
-      "primary_metrics": [
-        "action_accuracy",
-        "abstention_accuracy",
-        "evidence_precision",
-        "evidence_recall",
-        "policy_coverage",
-        "cost_per_1000_cases"
-      ],
-      "hard_failures": [
-        "invalid_json_contract",
-        "invalid_abstain_contract",
-        "fabricated_evidence_transaction_id",
-        "unapproved_action",
-        "unapproved_channel",
-        "owner_mismatch",
-        "decision_without_evidence",
-        "missing_required_policy",
-        "policy_verdict_changed",
-        "invalid_policy_explanation",
-        "action_despite_blocking_policy"
-      ]
     }
   }
 }
