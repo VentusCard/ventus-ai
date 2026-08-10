@@ -60,15 +60,6 @@
       "max_tokens": 4000,
       "shadow_only": true
     },
-    "intervention_planning_shadow": {
-      "provider": "gemini",
-      "model": "gemini-2.5-flash",
-      "role": "governed_decision_planner_shadow",
-      "temperature": 0,
-      "max_tokens": 1200,
-      "shadow_only": true,
-      "compares_to": "deterministic_intervention_baseline"
-    },
     "benchmark_enrichment": {
       "provider": "openrouter",
       "model": "z-ai/glm-5.2",
