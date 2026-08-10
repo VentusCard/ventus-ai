@@ -5,7 +5,6 @@ import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsVie
 import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderView";
 
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
-import { WalletShareView } from "./WalletShareView";
 
 import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
 
@@ -108,7 +107,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
       { value: "growth-merchant-partnerships", label: "Merchant Partnerships", icon: Handshake },
-      { value: "wallet-share", label: "Wallet Share & Win-Back", icon: Wallet },
     ],
   },
 
@@ -305,7 +303,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'growth-merchant-partnerships': return <MerchantPartnershipsView onLaunchCampaign={launchCampaignFor} />;
 
       
-      case 'wallet-share': return <WalletShareView variant="growth" onLaunchCampaign={launchCampaignFor} />;
+      case 'wallet-share': return <ProductCampaignBuilderView initialMode="outflow" />;
       case 'personalized-relationship':
       case 'customer-insights':
       case 'life-events':

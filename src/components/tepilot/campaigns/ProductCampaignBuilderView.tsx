@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Megaphone, Package, Wand2 } from "lucide-react";
+import { Megaphone, Package, Wand2, Wallet } from "lucide-react";
 import { TabHeader } from "@/components/tepilot/insights/TabHeader";
 import { PRODUCT_CATALOG } from "@/lib/campaignStudioData";
 import { adaptCatalogProduct } from "@/lib/catalogProductAdapter";
@@ -8,13 +8,14 @@ import { ProductPickerSection } from "./sections/ProductPickerSection";
 import { ExclusionFunnelSection } from "./sections/ExclusionFunnelSection";
 import { MessagePreviewsSection } from "./sections/MessagePreviewsSection";
 import { SignalStudioView } from "./SignalStudioView";
+import { WalletShareView } from "@/components/tepilot/insights/WalletShareView";
 
-type BuilderMode = "product" | "signals";
+export type BuilderMode = "product" | "signals" | "outflow";
 
 const DEFAULT_CAMPAIGN_LINK = "https://www.ventusai.com";
 
-export function ProductCampaignBuilderView() {
-  const [mode, setMode] = useState<BuilderMode>("product");
+export function ProductCampaignBuilderView({ initialMode = "product" }: { initialMode?: BuilderMode } = {}) {
+  const [mode, setMode] = useState<BuilderMode>(initialMode);
   const [productName, setProductName] = useState<string>("");
   const [offers, setOffers] = useState<string[]>([]);
   const [campaignLink, setCampaignLink] = useState<string>(DEFAULT_CAMPAIGN_LINK);
@@ -42,6 +43,14 @@ export function ProductCampaignBuilderView() {
       /* ignore */
     }
   }, []);
+
+  const handleLaunchFromOutflow = (name: string, nextOffers: string[]) => {
+    setMode("product");
+    setProductName(name);
+    setOffers(nextOffers);
+    setCampaignLink(DEFAULT_CAMPAIGN_LINK);
+    setVisibleStep(3);
+  };
 
   const handleSelectProduct = (name: string) => {
     setProductName(name);
@@ -93,9 +102,15 @@ export function ProductCampaignBuilderView() {
           <Wand2 className="w-3.5 h-3.5" />
           Start from signals
         </button>
+        <button type="button" className={toggleBtn(mode === "outflow")} onClick={() => setMode("outflow")}>
+          <Wallet className="w-3.5 h-3.5" />
+          Start from outflow
+        </button>
       </div>
 
-      {mode === "signals" ? (
+      {mode === "outflow" ? (
+        <WalletShareView variant="growth" onLaunchCampaign={handleLaunchFromOutflow} />
+      ) : mode === "signals" ? (
         <SignalStudioView embedded />
       ) : (
         <>
