@@ -21,7 +21,7 @@ import ExecDemoPage from "@/pages/ExecDemoPage";
 import { MerchantPartnershipsView } from "./MerchantPartnershipsView";
 import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
 
-import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
+
 import { PersonalizedDealsView } from "./PersonalizedDealsView";
 import { PersonalizedProductView } from "./PersonalizedProductView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
