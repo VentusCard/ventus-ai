@@ -1,11 +1,13 @@
 import { Badge } from "@/components/ui/badge";
-import { RotateCcw, Users, Lightbulb, Target, TrendingUp, TrendingDown, Minus, DollarSign, Clock, CheckCircle2, User } from "lucide-react";
+import { RotateCcw, Users, Lightbulb, Target, TrendingUp, TrendingDown, Minus, DollarSign, Clock, CheckCircle2, User, Megaphone } from "lucide-react";
 import { formatCurrency, formatNumber } from "@/lib/formatHelper";
 import type { WinBackRecommendation } from "@/types/bankwide";
 
 interface Props {
   data: WinBackRecommendation[];
+  onLaunchCampaign?: (productName: string, offers: string[]) => void;
 }
+
 
 function TrendIcon({ trend }: { trend: 'growing' | 'stable' | 'declining' }) {
   if (trend === 'growing') return <TrendingUp className="w-3.5 h-3.5 text-red-400" />;
