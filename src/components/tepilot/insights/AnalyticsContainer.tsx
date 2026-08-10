@@ -90,7 +90,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      
+      { value: "ventus-chat", label: "Ask Ventus AI", icon: MessagesSquare },
       
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
