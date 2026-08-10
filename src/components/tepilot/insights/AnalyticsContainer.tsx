@@ -18,7 +18,9 @@ import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
+import { MerchantPartnershipsView } from "./MerchantPartnershipsView";
 import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
+
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { PersonalizedDealsView } from "./PersonalizedDealsView";
 import { PersonalizedProductView } from "./PersonalizedProductView";
@@ -44,8 +46,9 @@ import {
   BarChart3, Route, Wallet, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake
 } from "lucide-react";
+
 import { toast } from "@/hooks/use-toast";
 import { VentusAIDashboardView } from "./VentusAIDashboardView";
 import { ClientProfileData } from "@/types/clientProfile";
@@ -104,8 +107,11 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
+      { value: "growth-merchant-partnerships", label: "Merchant Partnerships", icon: Handshake },
+      { value: "wallet-share", label: "Wallet Share & Win-Back", icon: Wallet },
     ],
   },
+
 ];
 
 
