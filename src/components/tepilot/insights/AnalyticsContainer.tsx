@@ -10,7 +10,7 @@ import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
-import { FVIDashboard } from "./fvi/FVIDashboard";
+
 import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
 import { BankContextView } from "./BankContextView";
