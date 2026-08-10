@@ -7,6 +7,7 @@ import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderV
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 
 import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
+import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
@@ -91,6 +92,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       { value: "customers", label: "Customers", icon: Users },
       { value: "reports", label: "Reports & Query", icon: FileBarChart },
       { value: "fvi-dashboard", label: "Risk", icon: ShieldAlert },
+      { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
     ],
   },
   {
@@ -305,12 +307,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
       
       case 'wallet-share': return <ProductCampaignBuilderView initialMode="outflow" />;
+      case 'wm-copilot': return <BankwideWMCopilotView />;
       case 'personalized-relationship':
       case 'customer-insights':
       case 'life-events':
       case 'ai-assistant-activity':
-      case 'wm-copilot':
         return <PersonalizedRelationshipView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
+      
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'customers': return <CustomersDirectoryView />;
