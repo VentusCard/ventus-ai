@@ -583,10 +583,6 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
         )}
       </div>
 
-      {/* SQL Console */}
-      <div className={cn(subTab === "console" ? "block" : "hidden")}>
-        <QueryConsoleView initialQuery={consoleQuery} />
-      </div>
     </div>
   );
 }
