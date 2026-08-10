@@ -276,8 +276,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'deal-management':
       case 'gamification':
       case 'location-experience':
-        return <PersonalizedDealsView />;
-      case 'targeting': return <SegmentTargetingView />;
+        return <PersonalizedDealsView onNavigate={setActiveTab} />;
+      case 'targeting': return <PersonalizedProductView onNavigate={setActiveTab} />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       
