@@ -58,7 +58,7 @@ export function CategoryExtensionOpportunities({ onLaunchCampaign }: CategoryExt
       <div className="grid grid-cols-4 gap-3">
         {[
           { label: 'Opportunities', value: formatNumber(summary.totalOpportunities), icon: Target },
-          { label: 'Est. Revenue', value: formatCurrency(summary.totalEstimatedRevenue), icon: DollarSign },
+          { label: 'Est. GMV', value: formatCurrency(summary.totalEstimatedRevenue), icon: DollarSign },
           { label: 'Addressable Users', value: `${(summary.totalAddressableUsers / 1_000_000).toFixed(1)}M`, icon: Users },
           { label: 'Avg Confidence', value: `${summary.avgConfidenceScore}%`, icon: TrendingUp },
         ].map(s => (
