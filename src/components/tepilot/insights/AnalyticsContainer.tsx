@@ -278,7 +278,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       // its state (enrichment, persona, offers, product cards) survives tab
       // switches. See the always-mounted block below.
       case 'exec-demo': return null;
-      case 'reports': return <ReportsAndQueryView onOpenInteractiveReport={openInteractiveReport} />;
+      case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
