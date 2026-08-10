@@ -392,8 +392,7 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
     ],
   },
   "wallet-share": {
-
-    label: "Outflow Analysis",
+    label: "Wallet Share & Win-Back",
     summary:
       "$4.2B annual deposit flight to neobanks with severity classification, exposure, and retention ROI.",
     quickActions: [
