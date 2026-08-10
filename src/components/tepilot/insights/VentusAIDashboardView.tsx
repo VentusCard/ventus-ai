@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
+import { FVIDashboard } from "./fvi/FVIDashboard";
+import { SubTabBar, type SubTabItem } from "./SubTabBar";
+import { ShieldAlert, LayoutDashboard } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
+
+const DASHBOARD_SECTIONS: SubTabItem[] = [
+  { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
+  { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
+];
 
 const LEADERSHIP_CONTEXT = {
   role: "Ventus AI briefing analyst for bank executive leadership",
