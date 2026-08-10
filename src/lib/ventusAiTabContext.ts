@@ -368,17 +368,9 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
   "life-events": PERSONALIZED_RELATIONSHIP_CONTEXT,
   "ai-assistant-activity": PERSONALIZED_RELATIONSHIP_CONTEXT,
   "wm-copilot": PERSONALIZED_RELATIONSHIP_CONTEXT,
+  "customer-insights": PERSONALIZED_RELATIONSHIP_CONTEXT,
 
   // ---------- Risk ----------
-  "customer-insights": {
-    label: "Customer Insights (Wellness)",
-    summary: "Behavioral stress and wellness alerts across the book with intervention recommendations.",
-    quickActions: [
-      "At-risk customers",
-      "Behavioral stress signals",
-      "Intervention recommendations",
-    ],
-  },
   "fvi-dashboard": {
     label: "Financial Vulnerability",
     summary:
