@@ -91,7 +91,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "Personalization Orchestration",
+    label: "BANKING PERSONALIZATION\u00A0",
     items: [
       { value: "personalized-deals", label: "Personalized Deals", icon: Sparkles },
       { value: "targeting", label: "Next Product", icon: Route },
