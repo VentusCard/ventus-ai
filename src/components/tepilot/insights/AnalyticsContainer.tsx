@@ -250,7 +250,20 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+  const launchCampaignFor = (productName: string, offers: string[]) => {
+    try {
+      sessionStorage.setItem(
+        'ventus.campaignBuilder.prefill',
+        JSON.stringify({ productName, offers }),
+      );
+    } catch {
+      /* ignore */
+    }
+    setActiveTab('targeting-campaign-builder');
+  };
+
   const renderContent = () => {
+
     switch (activeTab) {
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
