@@ -49,7 +49,7 @@ const STATUS_STYLES: Record<string, string> = {
   resolved: "bg-emerald-100 text-emerald-700 border-emerald-200",
 };
 
-export function WellnessAlertsDashboard() {
+export function WellnessAlertsDashboard({ hideHeader = false }: { hideHeader?: boolean } = {}) {
   const kpis = useMemo(() => getWellnessKPIs(), []);
   const allInsights = useMemo(() => generateMockCustomerInsights(), []);
   const allAlerts = useMemo(() => generateMockAlerts(), []);
