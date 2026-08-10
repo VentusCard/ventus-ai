@@ -154,9 +154,7 @@ export function CustomersDirectoryView() {
         onClear={clearAll}
       />
 
-      {selected ? (
-        <CustomerDetailPanel customer={selected} onBack={() => setSelectedId(null)} />
-      ) : !hasFilters ? (
+      {!hasFilters && !selected ? (
         <div className="border border-slate-200 rounded-lg bg-white p-8 text-center">
           <div className="inline-flex items-center justify-center w-9 h-9 rounded-full bg-slate-100 text-slate-400 mb-2.5">
             <Search className="w-4 h-4" />
@@ -181,26 +179,37 @@ export function CustomersDirectoryView() {
           </div>
         </div>
       ) : (
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-              {filtered.length} {filtered.length === 1 ? "customer" : "customers"} ·{" "}
-              {filtered.reduce((n, c) => n + totalSignals(c), 0)} signals
-            </span>
-            <button
-              onClick={clearAll}
-              className="text-[10px] font-medium text-slate-400 hover:text-slate-700 underline underline-offset-2"
-            >
-              Clear all
-            </button>
+        <div
+          className={cn(
+            "grid grid-cols-1 gap-3",
+            selected && "xl:grid-cols-[minmax(0,1fr)_420px]",
+          )}
+        >
+          <div className="space-y-2 min-w-0">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                {filtered.length} {filtered.length === 1 ? "customer" : "customers"} ·{" "}
+                {filtered.reduce((n, c) => n + totalSignals(c), 0)} signals
+              </span>
+              <button
+                onClick={clearAll}
+                className="text-[10px] font-medium text-slate-400 hover:text-slate-700 underline underline-offset-2"
+              >
+                Clear all
+              </button>
+            </div>
+            <CustomerResultsTable
+              customers={filtered}
+              sortKey={sortKey}
+              sortDir={sortDir}
+              onSort={handleSort}
+              onSelect={openCustomer}
+              selectedId={selectedId}
+            />
           </div>
-          <CustomerResultsTable
-            customers={filtered}
-            sortKey={sortKey}
-            sortDir={sortDir}
-            onSort={handleSort}
-            onSelect={openCustomer}
-          />
+          {selected && (
+            <CustomerDetailPanel customer={selected} onBack={() => setSelectedId(null)} />
+          )}
         </div>
       )}
     </div>
