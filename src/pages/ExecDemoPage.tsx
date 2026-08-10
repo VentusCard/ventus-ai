@@ -1362,6 +1362,32 @@ export default function ExecDemoPage({ embedded = false, active = true, onBack, 
   const demoCustomer = DEMO_CUSTOMERS[selectedIdx];
   const externalSignals = useMemo(() => getExternalSignalsFor(demoCustomer?.id), [demoCustomer?.id]);
 
+  // Publish the live demo session so the Personalized pages can mirror the customer mockup.
+  useEffect(() => {
+    publishExecDemoSession({
+      hasRun: Boolean(generatedOffers || productCards || enrichedTxs),
+      customer: demoCustomer ?? null,
+      generatedOffers,
+      productCards,
+      detectedLifeEvents,
+      enrichedTxs: enrichedTxs ?? classifiedRef.current ?? null,
+      riskFlags,
+      activeRollupLabel: activeTriggerPill?.label || activeRollup?.label || null,
+      activeRollupPillar: activeTriggerPill ? "Life Event" : activeRollup?.pillar || null,
+    });
+  }, [
+    demoCustomer,
+    generatedOffers,
+    productCards,
+    detectedLifeEvents,
+    enrichedTxs,
+    riskFlags,
+    activeTriggerPill,
+    activeRollup,
+  ]);
+
+
+
   // Click any Pillar pill inside the enrichment table → bring all txns in that pillar to the top.
   const handleEnrichmentPillarClick = useCallback(
     (pillar: string) => {
