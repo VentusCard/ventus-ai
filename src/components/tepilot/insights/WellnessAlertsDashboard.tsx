@@ -88,13 +88,15 @@ export function WellnessAlertsDashboard({ hideHeader = false }: { hideHeader?: b
 
   return (
     <div className="space-y-6">
-      <TabHeader
-        icon={<HeartIcon className="w-4 h-4" />}
-        title="Customer Insights"
-        subtitle="Behavioral wellness scores and proactive intervention signals"
-        howItWorks="Ventus generates behavioral wellness scores from spending patterns, detecting financial stress, lifestyle changes, and intervention opportunities."
-        whyItMatters="Enables proactive customer care, reducing attrition and building trust through timely, personalized outreach."
-      />
+      {!hideHeader && (
+        <TabHeader
+          icon={<HeartIcon className="w-4 h-4" />}
+          title="Customer Insights"
+          subtitle="Behavioral wellness scores and proactive intervention signals"
+          howItWorks="Ventus generates behavioral wellness scores from spending patterns, detecting financial stress, lifestyle changes, and intervention opportunities."
+          whyItMatters="Enables proactive customer care, reducing attrition and building trust through timely, personalized outreach."
+        />
+      )}
 
       {/* Loop diagram removed */}
 
