@@ -128,6 +128,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(280);
   const [isResizing, setIsResizing] = useState(false);
