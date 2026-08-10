@@ -117,7 +117,7 @@ export function CustomerDetailPanel({ customer, onBack }: Props) {
                 {signals.length === 0 ? (
                   <p className="text-[11px] text-slate-400 italic">No signals detected</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {signals.map((s) => (
                       <div key={s.label} className={cn("border rounded-md px-2.5 py-2", m.chip)}>
                         <div className="flex items-center justify-between gap-2">
