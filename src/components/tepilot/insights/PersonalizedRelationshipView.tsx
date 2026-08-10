@@ -1,8 +1,9 @@
-import { Users, Gem, MessagesSquare, Briefcase } from "lucide-react";
+import { Users, Gem, MessagesSquare, Briefcase, Heart } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
+import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { cn } from "@/lib/utils";
 import type { ClientProfileData } from "@/types/clientProfile";
 import type { AIInsights } from "@/types/lifestyle-signals";
@@ -47,10 +48,18 @@ export function PersonalizedRelationshipView({
       <TabHeader
         icon={<Users className="w-4 h-4" />}
         title="Personalized Relationship"
-        subtitle="Relationship signals, assistant conversations, and the AI coworker in one surface"
+        subtitle="Customer insights, relationship signals, assistant conversations, and the AI coworker in one surface"
         howItWorks="Ventus enriches every transaction into relationship signals, surfaces what customers are asking the banking assistant, and delivers the same intelligence to advisors and leadership through an email-based AI coworker."
         whyItMatters="One coordinated view of every relationship touchpoint — so growth, protection, and outreach all run off the same behavioral evidence."
       />
+
+      <Section
+        icon={<Heart className="w-4 h-4 text-rose-500" />}
+        label="Customer Insights"
+        description="Behavioral wellness and engagement signals across the customer base."
+      >
+        <WellnessAlertsDashboard hideHeader />
+      </Section>
 
       <Section
         icon={<Gem className="w-4 h-4 text-violet-500" />}
