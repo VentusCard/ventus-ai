@@ -136,7 +136,14 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity }: VentusA
 
   return (
     <>
-      <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
+      <div className="space-y-4">
+        <SubTabBar items={DASHBOARD_SECTIONS} value={section} onChange={setSection} />
+        {section === "overview" ? (
+          <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
+        ) : (
+          <FVIDashboard />
+        )}
+      </div>
 
       {expanded && (
         <div className="fixed inset-0 z-50 flex flex-col bg-slate-50">
