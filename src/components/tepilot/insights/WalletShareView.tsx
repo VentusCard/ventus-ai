@@ -53,7 +53,7 @@ export function WalletShareView({ variant = "outflow", onLaunchCampaign }: Walle
       <CompetitorOutflowTable data={outflows} />
 
       {/* Win-back recommendations */}
-      <WinBackRecommendations data={winBacks} />
+      <WinBackRecommendations data={winBacks} onLaunchCampaign={onLaunchCampaign} />
     </div>
   );
 }
