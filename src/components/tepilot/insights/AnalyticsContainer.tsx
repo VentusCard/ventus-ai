@@ -6,7 +6,6 @@ import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderV
 
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 import { WalletShareView } from "./WalletShareView";
-import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 
 import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
 

@@ -72,9 +72,9 @@ const SUGGESTED_PROMPTS = [
 
 type NavGroup = "featured" | "grow" | "protect" | "operate";
 const NAV_CARDS: { tab: TabValue; label: string; description: string; icon: React.ElementType; group: NavGroup }[] = [
-  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Life events, assistant activity, and WM Coworker", icon: Briefcase, group: "featured" },
+  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Customer insights, life events, assistant activity, and WM Coworker", icon: Briefcase, group: "featured" },
   { tab: "targeting", label: "Next-Best Product", description: "Segment-level product recommendations", icon: Route, group: "grow" },
-  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Life events, assistant activity, and WM Coworker", icon: CalendarHeart, group: "grow" },
+  { tab: "personalized-relationship", label: "Personalized Relationship", description: "Customer insights, life events, assistant activity, and WM Coworker", icon: CalendarHeart, group: "grow" },
   { tab: "personalized-deals", label: "Personalized Deals", description: "Deals, perks, and engagement programs", icon: Sparkles, group: "grow" },
   { tab: "wallet-share", label: "Outflow Detection", description: "Competitor deposit-flight tracking", icon: Wallet, group: "protect" },
   { tab: "dashboard", label: "Category Consolidation", description: "Pillar-level spend analysis", icon: BarChart3, group: "operate" },
