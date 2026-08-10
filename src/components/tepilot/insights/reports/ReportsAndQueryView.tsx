@@ -350,20 +350,18 @@ const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retent
 const SUBTITLE: Record<SubTab, string> = {
   briefings: "Read end-to-end — narrative, numbers, graphs, and recommended next steps",
   templates: "Prebuilt SQL templates analysts can run, schedule, and export",
-  console: "Write, run, and generate SQL over Ventus tables",
 };
 
-export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQueryViewProps) {
+export function ReportsAndQueryView({ onOpenInteractiveReport, onRunInConsole }: ReportsAndQueryViewProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
   const [subTab, setSubTab] = useState<SubTab>(() => {
     try {
       const saved = sessionStorage.getItem("bankdemo-reports-subtab");
-      if (saved === "briefings" || saved === "templates" || saved === "console") return saved;
+      if (saved === "briefings" || saved === "templates") return saved;
     } catch { /* ignore */ }
     return "templates";
   });
-  const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
   const hasInteractive = !!onOpenInteractiveReport && INTERACTIVE_REPORTS.length > 0;
 
   useEffect(() => {
@@ -386,8 +384,7 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
   }, [query, category]);
 
   const openTemplate = (sql: string) => {
-    setConsoleQuery(sql);
-    setSubTab("console");
+    onRunInConsole?.(sql);
   };
 
   return (
@@ -397,7 +394,7 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
         <div>
           <div className="flex items-center gap-2">
             <FileBarChart className="w-4 h-4 text-slate-500" />
-            <h2 className="text-[15px] font-semibold text-slate-900">Reports & Query</h2>
+            <h2 className="text-[15px] font-semibold text-slate-900">Reports</h2>
             <span className="text-[11px] text-slate-400">{SUBTITLE[subTab]}</span>
           </div>
         </div>
