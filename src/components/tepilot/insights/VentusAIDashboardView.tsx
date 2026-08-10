@@ -7,11 +7,16 @@ import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
-import { ShieldAlert, LayoutDashboard } from "lucide-react";
+import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
+import { QueryConsoleView } from "./QueryConsoleView";
+import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
+import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
 
 const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
+  { value: "reports", label: "Reports", icon: <FileBarChart className="w-3.5 h-3.5" /> },
+  { value: "query", label: "Query", icon: <Terminal className="w-3.5 h-3.5" /> },
   { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
 ];
 
