@@ -1,40 +1,20 @@
 import * as cdk from 'aws-cdk-lib';
-import * as ec2 from 'aws-cdk-lib/aws-ec2';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import * as kms from 'aws-cdk-lib/aws-kms';
-import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as logs from 'aws-cdk-lib/aws-logs';
 import * as secretsmanager from 'aws-cdk-lib/aws-secretsmanager';
 import { Construct } from 'constructs';
-import {
-  VENTUS_DATABASE_KMS_KEY_ARN,
-  VENTUS_DATABASE_SECRET_ID,
-} from './ventus-existing-infra-stack.ts';
 
 /**
- * Isolated, additive stack for the durable Ventus decision/outcome evidence store.
- * It imports the existing private network and Aurora credentials but cannot replace or
- * remove the application, monitoring, rotation, alerting, or billing resources.
+ * Retirement shell for the Evidence Store migrator.
+ *
+ * The existing runtime secret and migrator log group retain their construct and
+ * physical names for a reviewed rollback. No migration Lambda or database
+ * access policy remains, so this shell cannot mutate the evidence database.
  */
 export class VentusEvidenceStoreStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-    const vpc = ec2.Vpc.fromVpcAttributes(this, 'ExistingVentusVpc', {
-      vpcId: 'vpc-0d4cf689a4fed7f31',
-      availabilityZones: ['us-east-2a', 'us-east-2b'],
-      privateSubnetIds: ['subnet-057aa09eef4545099', 'subnet-00958cfa806e7e363'],
-    });
-    const lambdaSubnets = [
-      ec2.Subnet.fromSubnetId(this, 'EvidenceLambdaSubnetA', 'subnet-057aa09eef4545099'),
-      ec2.Subnet.fromSubnetId(this, 'EvidenceLambdaSubnetB', 'subnet-00958cfa806e7e363'),
-    ];
-    const databaseSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(
-      this,
-      'ExistingDatabaseSecurityGroup',
-      'sg-08836ed15d778ecd6',
-      { mutable: false },
-    );
     const databaseSecretsKey = kms.Alias.fromAliasName(
       this,
       'ExistingDatabaseSecretsKey',
@@ -57,57 +37,12 @@ export class VentusEvidenceStoreStack extends cdk.Stack {
     cdk.Tags.of(runtimeSecret).add('SecretClass', 'database_credentials');
     cdk.Tags.of(runtimeSecret).add('Environment', 'staging');
 
-    const migratorLogGroup = new logs.LogGroup(this, 'VentusEvidenceStoreMigratorLogGroup', {
+    new logs.LogGroup(this, 'VentusEvidenceStoreMigratorLogGroup', {
       logGroupName: '/aws/lambda/ventus-evidence-store-migrator',
       retention: logs.RetentionDays.SIX_MONTHS,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
     });
-    const migrator = new lambda.Function(this, 'VentusEvidenceStoreMigrator', {
-      functionName: 'ventus-evidence-store-migrator',
-      description: 'Manual, confirmation-gated migration and RLS verifier for the Ventus evidence store.',
-      runtime: lambda.Runtime.NODEJS_20_X,
-      architecture: lambda.Architecture.ARM_64,
-      handler: 'index.handler',
-      code: lambda.Code.fromAsset('../backend/dist/monitors/evidence-store-migrator.zip'),
-      vpc,
-      vpcSubnets: { subnets: lambdaSubnets },
-      securityGroups: [databaseSecurityGroup],
-      memorySize: 512,
-      timeout: cdk.Duration.minutes(5),
-      logGroup: migratorLogGroup,
-      environment: {
-        VENTUS_ENVIRONMENT: 'staging',
-        RDS_SECRET_ID: VENTUS_DATABASE_SECRET_ID,
-        RDS_DATABASE: 'ventus_bofa',
-        EVIDENCE_RUNTIME_SECRET_ID: runtimeSecret.secretName,
-        EVIDENCE_SCHEMA: 'ventus_evidence',
-      },
-    });
-    const databaseSecretArn = this.formatArn({
-      service: 'secretsmanager',
-      resource: 'secret',
-      resourceName: `${VENTUS_DATABASE_SECRET_ID}*`,
-      arnFormat: cdk.ArnFormat.COLON_RESOURCE_NAME,
-    });
-    migrator.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['secretsmanager:GetSecretValue'],
-      resources: [databaseSecretArn],
-    }));
-    runtimeSecret.grantRead(migrator);
-    migrator.addToRolePolicy(new iam.PolicyStatement({
-      actions: ['kms:Decrypt', 'kms:DescribeKey'],
-      resources: [VENTUS_DATABASE_KMS_KEY_ARN],
-      conditions: {
-        StringEquals: {
-          'kms:ViaService': 'secretsmanager.us-east-2.amazonaws.com',
-          'kms:CallerAccount': this.account,
-        },
-      },
-    }));
 
-    new cdk.CfnOutput(this, 'EvidenceStoreMigratorFunctionName', {
-      value: migrator.functionName,
-    });
     new cdk.CfnOutput(this, 'EvidenceStoreRuntimeSecretName', {
       value: runtimeSecret.secretName,
     });
