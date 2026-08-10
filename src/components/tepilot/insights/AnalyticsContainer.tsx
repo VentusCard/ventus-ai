@@ -42,7 +42,7 @@ import { PriorityOpportunityReport } from "./reports/pages/PriorityOpportunityRe
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import {
-  BarChart3, Route, Wallet, Heart, Sparkles, FileBarChart,
+  BarChart3, Route, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
   Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake
