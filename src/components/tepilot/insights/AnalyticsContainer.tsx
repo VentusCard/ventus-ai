@@ -305,7 +305,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'growth-merchant-partnerships': return <MerchantPartnershipsView onLaunchCampaign={launchCampaignFor} />;
 
       
-      case 'wallet-share': return <WalletShareView />;
+      case 'wallet-share': return <WalletShareView variant="growth" onLaunchCampaign={launchCampaignFor} />;
       case 'personalized-relationship':
       case 'customer-insights':
       case 'life-events':
