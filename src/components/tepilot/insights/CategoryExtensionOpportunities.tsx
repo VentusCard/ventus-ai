@@ -134,11 +134,14 @@ function OpportunityCard({
   opportunity: o,
   isExpanded,
   onToggle,
+  onLaunchCampaign,
 }: {
   opportunity: CategoryExtensionOpportunity;
   isExpanded: boolean;
   onToggle: () => void;
+  onLaunchCampaign?: (productName: string, offers: string[]) => void;
 }) {
+
   const priorityStyles = {
     high: 'bg-red-50 text-red-700 border-red-200',
     medium: 'bg-amber-50 text-amber-700 border-amber-200',
