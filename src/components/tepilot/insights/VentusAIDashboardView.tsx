@@ -56,11 +56,13 @@ const SLIVER_CHIPS = QUICK_ACTIONS.slice(0, 2);
 interface VentusAIDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
   onOpenOpportunity?: (opportunityId: string) => void;
-  initialSection?: "overview" | "risk";
+  onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
+  initialSection?: "overview" | "reports" | "query" | "risk";
 }
 
-export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, initialSection = "overview" }: VentusAIDashboardViewProps) {
+export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInteractiveReport, initialSection = "overview" }: VentusAIDashboardViewProps) {
   const [section, setSection] = useState<string>(initialSection);
+  const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
   useEffect(() => { setSection(initialSection); }, [initialSection]);
 
   const [input, setInput] = useState("");
