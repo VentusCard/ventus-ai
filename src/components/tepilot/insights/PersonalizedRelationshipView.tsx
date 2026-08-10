@@ -1,9 +1,8 @@
 import { useState } from "react";
-import { Users, Gem, MessagesSquare, Briefcase, Heart, Smartphone } from "lucide-react";
+import { Users, Gem, MessagesSquare, Heart, Smartphone } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { RelationshipIntelligenceView } from "./RelationshipIntelligenceView";
 import { AIAssistantActivityView } from "./AIAssistantActivityView";
-import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 import { CustomerMockupPanel } from "./CustomerMockupPanel";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
@@ -16,7 +15,6 @@ const TABS: SubTabItem[] = [
   { value: "insights", label: "Customer Insights", icon: <Heart className="w-3.5 h-3.5" /> },
   { value: "relationship", label: "Relationship Intelligence", icon: <Gem className="w-3.5 h-3.5" /> },
   { value: "assistant", label: "AI Banking Assistant", icon: <MessagesSquare className="w-3.5 h-3.5" /> },
-  { value: "coworker", label: "WM Coworker", icon: <Briefcase className="w-3.5 h-3.5" /> },
 ];
 
 interface PersonalizedRelationshipViewProps {
@@ -37,8 +35,8 @@ export function PersonalizedRelationshipView({
       <TabHeader
         icon={<Users className="w-4 h-4" />}
         title="Personalized Relationship"
-        subtitle="Customer insights, relationship signals, assistant conversations, and the AI coworker in one surface"
-        howItWorks="Ventus enriches every transaction into relationship signals, surfaces what customers are asking the banking assistant, and delivers the same intelligence to advisors and leadership through an email-based AI coworker."
+        subtitle="Customer insights, relationship signals, and assistant conversations in one surface"
+        howItWorks="Ventus enriches every transaction into relationship signals and surfaces what customers are asking the banking assistant."
         whyItMatters="One coordinated view of every relationship touchpoint — so growth, protection, and outreach all run off the same behavioral evidence."
       />
 
@@ -63,11 +61,6 @@ export function PersonalizedRelationshipView({
       {active === "assistant" && (
         <div className="border border-slate-200 rounded-lg bg-white p-4">
           <AIAssistantActivityView hideHeader />
-        </div>
-      )}
-      {active === "coworker" && (
-        <div className="border border-slate-200 rounded-lg bg-white p-4">
-          <BankwideWMCopilotView hideHeader />
         </div>
       )}
     </div>
