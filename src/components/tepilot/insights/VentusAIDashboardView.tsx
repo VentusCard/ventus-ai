@@ -7,11 +7,16 @@ import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
-import { ShieldAlert, LayoutDashboard } from "lucide-react";
+import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
+import { QueryConsoleView } from "./QueryConsoleView";
+import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
+import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
 
 const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
+  { value: "reports", label: "Reports", icon: <FileBarChart className="w-3.5 h-3.5" /> },
+  { value: "query", label: "Query", icon: <Terminal className="w-3.5 h-3.5" /> },
   { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
 ];
 
@@ -51,11 +56,13 @@ const SLIVER_CHIPS = QUICK_ACTIONS.slice(0, 2);
 interface VentusAIDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
   onOpenOpportunity?: (opportunityId: string) => void;
-  initialSection?: "overview" | "risk";
+  onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
+  initialSection?: "overview" | "reports" | "query" | "risk";
 }
 
-export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, initialSection = "overview" }: VentusAIDashboardViewProps) {
+export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInteractiveReport, initialSection = "overview" }: VentusAIDashboardViewProps) {
   const [section, setSection] = useState<string>(initialSection);
+  const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
   useEffect(() => { setSection(initialSection); }, [initialSection]);
 
   const [input, setInput] = useState("");
@@ -149,11 +156,17 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, initialSe
     <>
       <div className="space-y-4">
         <SubTabBar items={DASHBOARD_SECTIONS} value={section} onChange={setSection} />
-        {section === "overview" ? (
+        {section === "overview" && (
           <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
-        ) : (
-          <FVIDashboard />
         )}
+        {section === "reports" && (
+          <ReportsAndQueryView
+            onOpenInteractiveReport={onOpenInteractiveReport}
+            onRunInConsole={(sql) => { setConsoleQuery(sql); setSection("query"); }}
+          />
+        )}
+        {section === "query" && <QueryConsoleView initialQuery={consoleQuery} />}
+        {section === "risk" && <FVIDashboard />}
       </div>
 
       {expanded && (
