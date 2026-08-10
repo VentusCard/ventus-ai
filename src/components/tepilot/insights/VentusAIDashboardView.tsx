@@ -6,15 +6,17 @@ import { cn } from "@/lib/utils";
 import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
+import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
 import { SubTabBar, type SubTabItem } from "./SubTabBar";
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { QueryConsoleView } from "./QueryConsoleView";
 import type { InteractiveReportId } from "./reports/interactiveReportsRegistry";
-import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal } from "lucide-react";
+import { ShieldAlert, LayoutDashboard, FileBarChart, Terminal, Users } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
 
 const DASHBOARD_SECTIONS: SubTabItem[] = [
   { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
+  { value: "customers", label: "Customers", icon: <Users className="w-3.5 h-3.5" /> },
   { value: "reports", label: "Reports", icon: <FileBarChart className="w-3.5 h-3.5" /> },
   { value: "query", label: "Query", icon: <Terminal className="w-3.5 h-3.5" /> },
   { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
@@ -57,7 +59,7 @@ interface VentusAIDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
   onOpenOpportunity?: (opportunityId: string) => void;
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
-  initialSection?: "overview" | "reports" | "query" | "risk";
+  initialSection?: "overview" | "customers" | "reports" | "query" | "risk";
 }
 
 export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInteractiveReport, initialSection = "overview" }: VentusAIDashboardViewProps) {
@@ -159,6 +161,7 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, onOpenInt
         {section === "overview" && (
           <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
         )}
+        {section === "customers" && <CustomersDirectoryView />}
         {section === "reports" && (
           <ReportsAndQueryView
             onOpenInteractiveReport={onOpenInteractiveReport}
