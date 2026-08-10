@@ -184,9 +184,10 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Both consolidated groups follow Analytics (always on since Analytics is always enabled)
+    // All consolidated groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
       allowedLabels.add("Customer Intelligence");
+      allowedLabels.add("Growth Opportunities");
       allowedLabels.add("BANKING PERSONALIZATION\u00A0");
     }
 
