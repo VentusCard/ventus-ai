@@ -283,6 +283,26 @@ function OpportunityCard({
               ))}
             </div>
           </div>
+
+          {onLaunchCampaign && (
+            <div className="flex justify-end pt-1">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onLaunchCampaign(o.extensionProduct, [
+                    `${o.extensionMerchant} — ${o.extensionProduct}`,
+                    o.whyItFits,
+                  ]);
+                }}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border border-blue-600 bg-blue-600 text-white hover:bg-blue-700 hover:border-blue-700 transition-colors"
+              >
+                <Megaphone className="w-3.5 h-3.5" />
+                Launch campaign
+              </button>
+            </div>
+          )}
+
         </div>
       )}
     </Card>
