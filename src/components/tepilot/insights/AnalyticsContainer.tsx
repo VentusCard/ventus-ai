@@ -18,7 +18,9 @@ import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
+import { MerchantPartnershipsView } from "./MerchantPartnershipsView";
 import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
+
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { PersonalizedDealsView } from "./PersonalizedDealsView";
 import { PersonalizedProductView } from "./PersonalizedProductView";
@@ -44,8 +46,9 @@ import {
   BarChart3, Route, Wallet, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake
 } from "lucide-react";
+
 import { toast } from "@/hooks/use-toast";
 import { VentusAIDashboardView } from "./VentusAIDashboardView";
 import { ClientProfileData } from "@/types/clientProfile";
@@ -56,7 +59,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
+export type TabValue = 'ventus-ai-dashboard' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
 
 interface NavItem {
   value: TabValue;
@@ -104,8 +107,11 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
+      { value: "growth-merchant-partnerships", label: "Merchant Partnerships", icon: Handshake },
+      { value: "wallet-share", label: "Wallet Share & Win-Back", icon: Wallet },
     ],
   },
+
 ];
 
 
@@ -244,7 +250,20 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+  const launchCampaignFor = (productName: string, offers: string[]) => {
+    try {
+      sessionStorage.setItem(
+        'ventus.campaignBuilder.prefill',
+        JSON.stringify({ productName, offers }),
+      );
+    } catch {
+      /* ignore */
+    }
+    setActiveTab('targeting-campaign-builder');
+  };
+
   const renderContent = () => {
+
     switch (activeTab) {
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
@@ -283,8 +302,10 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'targeting': return <PersonalizedProductView onNavigate={setActiveTab} />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
+      case 'growth-merchant-partnerships': return <MerchantPartnershipsView onLaunchCampaign={launchCampaignFor} />;
+
       
-      case 'wallet-share': return <WalletShareView />;
+      case 'wallet-share': return <WalletShareView variant="growth" onLaunchCampaign={launchCampaignFor} />;
       case 'personalized-relationship':
       case 'customer-insights':
       case 'life-events':
