@@ -85,6 +85,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
+      { value: "customers", label: "Customers", icon: Users },
       { value: "reports", label: "Reports & Query", icon: FileBarChart },
       { value: "fvi-dashboard", label: "Risk", icon: ShieldAlert },
     ],
