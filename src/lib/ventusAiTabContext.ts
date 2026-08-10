@@ -381,7 +381,18 @@ export const VENTUS_AI_TAB_CONTEXT: Record<string, TabContext> = {
       "Sensitivity drivers",
     ],
   },
+  "growth-merchant-partnerships": {
+    label: "Merchant Partnerships",
+    summary:
+      "Behaviorally adjacent product extensions with addressable audience, estimated revenue, confidence, and merchant partners per opportunity.",
+    quickActions: [
+      "Highest revenue partnership",
+      "Best deployment windows",
+      "Which pillars extend furthest?",
+    ],
+  },
   "wallet-share": {
+
     label: "Outflow Analysis",
     summary:
       "$4.2B annual deposit flight to neobanks with severity classification, exposure, and retention ROI.",
