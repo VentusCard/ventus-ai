@@ -82,7 +82,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     items: [
       {
         value: "ventus-ai-dashboard",
-        label: "Dashboard",
+        label: "Intelligence Dashboard",
         icon: ({ className }: { className?: string }) => (
           <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
             V
