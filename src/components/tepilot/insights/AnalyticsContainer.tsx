@@ -7,6 +7,7 @@ import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderV
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 
 import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
+import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 import { FVIDashboard } from "./fvi/FVIDashboard";
