@@ -24,12 +24,22 @@ export function CustomerPortfolioStats() {
     return { count: book.length, withLifeEvent, withFinancial, withRisk, signals, byFamily };
   }, []);
 
+  // Enterprise-scale book (national retail + preferred footprint).
+  // The 15 records below are a sampled slice of this population.
+  const SCALE = 68_200_000 / Math.max(stats.count, 1);
+  const fmt = (n: number) => {
+    if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
+    if (n >= 1_000) return `${(n / 1_000).toFixed(0)}K`;
+    return `${Math.round(n)}`;
+  };
+  const scaled = (n: number) => fmt(n * SCALE);
+
   const tiles = [
-    { label: "Customers in book", value: stats.count, note: "Enriched and signal-ready" },
-    { label: "Active life events", value: stats.withLifeEvent, note: "Time-sensitive conversations" },
-    { label: "Financial obligations", value: stats.withFinancial, note: "Loans, leases, investments" },
-    { label: "Carrying risk signals", value: stats.withRisk, note: "Monitor before outreach" },
-    { label: "Signals detected", value: stats.signals, note: "Across five families" },
+    { label: "Customers in book", value: "68.2M", note: "Enriched and signal-ready" },
+    { label: "Active life events", value: scaled(stats.withLifeEvent), note: "Time-sensitive conversations" },
+    { label: "Financial obligations", value: scaled(stats.withFinancial), note: "Loans, leases, investments" },
+    { label: "Carrying risk signals", value: scaled(stats.withRisk), note: "Monitor before outreach" },
+    { label: "Signals detected", value: scaled(stats.signals), note: "Across five families" },
   ];
 
   return (
@@ -53,7 +63,7 @@ export function CustomerPortfolioStats() {
           <span className="text-[9px] font-semibold uppercase tracking-wider text-slate-400">
             Signal distribution across the book
           </span>
-          <span className="text-[10px] text-slate-400">{stats.signals} total</span>
+          <span className="text-[10px] text-slate-400">{scaled(stats.signals)} total</span>
         </div>
         <div className="flex h-1.5 rounded-full overflow-hidden bg-slate-100">
           {stats.byFamily.map((f) => (
@@ -69,7 +79,7 @@ export function CustomerPortfolioStats() {
             <span key={f.key} className="inline-flex items-center gap-1.5 text-[10px] text-slate-500">
               <span className={cn("w-1.5 h-1.5 rounded-full", f.dot)} />
               {f.label}
-              <span className="text-slate-800 font-semibold tabular-nums">{f.count}</span>
+              <span className="text-slate-800 font-semibold tabular-nums">{scaled(f.count)}</span>
             </span>
           ))}
         </div>
