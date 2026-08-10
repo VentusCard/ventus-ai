@@ -5,8 +5,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { CATEGORY_EXTENSION_OPPORTUNITIES, getCategoryExtensionSummary } from "@/lib/categoryExtensionData";
 import { formatCurrency, formatNumber } from "@/lib/formatHelper";
 import {
-  ArrowRight, Users, DollarSign, TrendingUp, Calendar, Target, ChevronDown, ExternalLink
+  ArrowRight, Users, DollarSign, TrendingUp, Calendar, Target, ChevronDown, ExternalLink, Megaphone
 } from "lucide-react";
+
 import type { CategoryExtensionOpportunity } from "@/types/bankwide";
 
 type SortKey = 'estimatedRevenue' | 'confidenceScore' | 'priority';
