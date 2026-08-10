@@ -90,7 +90,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
         ),
       },
       { value: "customers", label: "Customers", icon: Users },
-      { value: "reports", label: "Reports & Query", icon: FileBarChart },
+      
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
     ],
