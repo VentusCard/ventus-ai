@@ -115,7 +115,9 @@ export function CategoryExtensionOpportunities({ onLaunchCampaign }: CategoryExt
             opportunity={opp}
             isExpanded={expandedId === opp.id}
             onToggle={() => setExpandedId(expandedId === opp.id ? null : opp.id)}
+            onLaunchCampaign={onLaunchCampaign}
           />
+
         ))}
       </div>
 
