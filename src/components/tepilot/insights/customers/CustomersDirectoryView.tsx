@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Users, Gem, CalendarHeart, ShieldAlert, Search } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { TabHeader } from "../TabHeader";
 import { CustomerPortfolioStats } from "./CustomerPortfolioStats";
 import { CustomerSearchBar } from "./CustomerSearchBar";
