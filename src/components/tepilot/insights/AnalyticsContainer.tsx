@@ -289,6 +289,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       // its state (enrichment, persona, offers, product cards) survives tab
       // switches. See the always-mounted block below.
       case 'exec-demo': return null;
+      // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
+      case 'ventus-chat': return null;
       case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
@@ -539,6 +541,16 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         >
           <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
         </div>
+
+        {/* Persistent Ventus AI chat mount — keeps the conversation across tab switches. */}
+        <div className={cn("h-full", activeTab === 'ventus-chat' ? "block" : "hidden")}>
+          <VentusAIChatPage
+            active={activeTab === 'ventus-chat'}
+            pendingPrompt={activeTab === 'ventus-chat' ? pendingChatPrompt : null}
+            onPendingPromptConsumed={() => setPendingChatPrompt(null)}
+          />
+        </div>
+
       </div>
 
       {/* Chat Panel */}
