@@ -302,6 +302,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'targeting': return <PersonalizedProductView onNavigate={setActiveTab} />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
+      case 'growth-merchant-partnerships': return <MerchantPartnershipsView onLaunchCampaign={launchCampaignFor} />;
+
       
       case 'wallet-share': return <WalletShareView />;
       case 'personalized-relationship':
