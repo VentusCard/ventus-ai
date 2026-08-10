@@ -271,7 +271,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
       case 'analytics-dashboard':
-        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />
+        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
       // 'exec-demo' is rendered as a persistent mount outside renderContent so
