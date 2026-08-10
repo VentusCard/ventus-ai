@@ -20,6 +20,7 @@ import ExecDemoPage from "@/pages/ExecDemoPage";
 
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { PersonalizedDealsView } from "./PersonalizedDealsView";
+import { PersonalizedProductView } from "./PersonalizedProductView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
 import { PillarDeepDiveReport } from "./reports/pages/PillarDeepDiveReport";
 import { CrossSellReport } from "./reports/pages/CrossSellReport";
@@ -276,8 +277,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'deal-management':
       case 'gamification':
       case 'location-experience':
-        return <PersonalizedDealsView />;
-      case 'targeting': return <SegmentTargetingView />;
+        return <PersonalizedDealsView onNavigate={setActiveTab} />;
+      case 'targeting': return <PersonalizedProductView onNavigate={setActiveTab} />;
       case 'targeting-automated-flows': return <ProductAutomatedFlowsView />;
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       

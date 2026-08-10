@@ -1,36 +1,29 @@
-import { Sparkles, Package, Gamepad2 } from "lucide-react";
+import { useState } from "react";
+import { Sparkles, Package, Gamepad2, Smartphone } from "lucide-react";
 import { TabHeader } from "./TabHeader";
 import { RewardsAnalyticsDashboard } from "./RewardsAnalyticsDashboard";
 import { DealsAndPerksView } from "./DealsAndPerksView";
 import { GamificationManagement } from "./GamificationManagement";
-import { cn } from "@/lib/utils";
+import { CustomerMockupPanel } from "./CustomerMockupPanel";
+import { SubTabBar, type SubTabItem } from "./SubTabBar";
+import type { TabValue } from "./AnalyticsContainer";
 
-interface SectionProps {
-  icon: React.ReactNode;
-  label: string;
-  description: string;
-  children: React.ReactNode;
-  className?: string;
+const TABS: SubTabItem[] = [
+  { value: "customer", label: "Customer View", icon: <Smartphone className="w-3.5 h-3.5" /> },
+  { value: "next-deal", label: "Next-Deal Intelligence", icon: <Sparkles className="w-3.5 h-3.5" /> },
+  { value: "deals", label: "Deals & Perks", icon: <Package className="w-3.5 h-3.5" /> },
+  { value: "gamification", label: "Gamification", icon: <Gamepad2 className="w-3.5 h-3.5" /> },
+];
+
+interface PersonalizedDealsViewProps {
+  onNavigate?: (tab: TabValue) => void;
 }
 
-function Section({ icon, label, description, children, className }: SectionProps) {
-  return (
-    <section className={cn("border border-slate-200 rounded-lg bg-white overflow-hidden", className)}>
-      <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/60">
-        <div className="flex items-center gap-2">
-          {icon}
-          <h2 className="text-sm font-semibold text-slate-900">{label}</h2>
-        </div>
-        <p className="text-[11px] text-slate-500 mt-0.5 ml-6">{description}</p>
-      </div>
-      <div className="p-4">{children}</div>
-    </section>
-  );
-}
+export function PersonalizedDealsView({ onNavigate }: PersonalizedDealsViewProps) {
+  const [active, setActive] = useState("customer");
 
-export function PersonalizedDealsView() {
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <TabHeader
         icon={<Sparkles className="w-4 h-4" />}
         title="Personalized Deals"
@@ -39,29 +32,24 @@ export function PersonalizedDealsView() {
         whyItMatters="Grows share-of-wallet by matching the right deal or perk to the right customer at the right time — then sustaining engagement with achievement-driven rewards."
       />
 
-      <Section
-        icon={<Sparkles className="w-4 h-4 text-violet-500" />}
-        label="Next-Deal Intelligence"
-        description="Seasonal spend curves, category gaps, and timing intelligence for merchant partnerships."
-      >
-        <RewardsAnalyticsDashboard hideHeader />
-      </Section>
+      <SubTabBar items={TABS} value={active} onChange={setActive} />
 
-      <Section
-        icon={<Package className="w-4 h-4 text-blue-500" />}
-        label="Deals & Perks"
-        description="Active merchant discounts and geo-targeted location perks."
-      >
-        <DealsAndPerksView defaultTab="shopping" />
-      </Section>
-
-      <Section
-        icon={<Gamepad2 className="w-4 h-4 text-emerald-500" />}
-        label="Gamification"
-        description="Achievement programs, badges, and engagement lift tracking."
-      >
-        <GamificationManagement hideHeader />
-      </Section>
+      {active === "customer" && <CustomerMockupPanel surface="rewards" onNavigate={onNavigate} />}
+      {active === "next-deal" && (
+        <div className="border border-slate-200 rounded-lg bg-white p-4">
+          <RewardsAnalyticsDashboard hideHeader />
+        </div>
+      )}
+      {active === "deals" && (
+        <div className="border border-slate-200 rounded-lg bg-white p-4">
+          <DealsAndPerksView defaultTab="shopping" />
+        </div>
+      )}
+      {active === "gamification" && (
+        <div className="border border-slate-200 rounded-lg bg-white p-4">
+          <GamificationManagement hideHeader />
+        </div>
+      )}
     </div>
   );
 }
