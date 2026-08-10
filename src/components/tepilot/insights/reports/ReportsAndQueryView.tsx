@@ -23,13 +23,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { INTERACTIVE_REPORTS, type InteractiveReportId } from "./interactiveReportsRegistry";
-import { QueryConsoleView } from "../QueryConsoleView";
 
 interface ReportsAndQueryViewProps {
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
+  onRunInConsole?: (query: string) => void;
 }
 
-type SubTab = "briefings" | "templates" | "console";
+type SubTab = "briefings" | "templates";
 type Category = "Lifestyle" | "Outflow" | "Retention" | "Risk" | "Opportunities";
 
 interface ReportTemplate {
@@ -350,20 +350,18 @@ const CATEGORIES: ("All" | Category)[] = ["All", "Lifestyle", "Outflow", "Retent
 const SUBTITLE: Record<SubTab, string> = {
   briefings: "Read end-to-end — narrative, numbers, graphs, and recommended next steps",
   templates: "Prebuilt SQL templates analysts can run, schedule, and export",
-  console: "Write, run, and generate SQL over Ventus tables",
 };
 
-export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQueryViewProps) {
+export function ReportsAndQueryView({ onOpenInteractiveReport, onRunInConsole }: ReportsAndQueryViewProps) {
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState<"All" | Category>("All");
   const [subTab, setSubTab] = useState<SubTab>(() => {
     try {
       const saved = sessionStorage.getItem("bankdemo-reports-subtab");
-      if (saved === "briefings" || saved === "templates" || saved === "console") return saved;
+      if (saved === "briefings" || saved === "templates") return saved;
     } catch { /* ignore */ }
     return "templates";
   });
-  const [consoleQuery, setConsoleQuery] = useState<string | undefined>(undefined);
   const hasInteractive = !!onOpenInteractiveReport && INTERACTIVE_REPORTS.length > 0;
 
   useEffect(() => {
@@ -386,8 +384,7 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
   }, [query, category]);
 
   const openTemplate = (sql: string) => {
-    setConsoleQuery(sql);
-    setSubTab("console");
+    onRunInConsole?.(sql);
   };
 
   return (
@@ -397,7 +394,7 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
         <div>
           <div className="flex items-center gap-2">
             <FileBarChart className="w-4 h-4 text-slate-500" />
-            <h2 className="text-[15px] font-semibold text-slate-900">Reports & Query</h2>
+            <h2 className="text-[15px] font-semibold text-slate-900">Reports</h2>
             <span className="text-[11px] text-slate-400">{SUBTITLE[subTab]}</span>
           </div>
         </div>
@@ -445,18 +442,6 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
           <Layers className="w-3.5 h-3.5" />
           Templates
           <span className="text-[10px] opacity-60">{TEMPLATES.length}</span>
-        </button>
-        <button
-          onClick={() => setSubTab("console")}
-          className={cn(
-            "px-3 h-8 text-[12px] font-medium border-b-2 -mb-px transition inline-flex items-center gap-1.5",
-            subTab === "console"
-              ? "border-blue-600 text-slate-900"
-              : "border-transparent text-slate-500 hover:text-slate-700",
-          )}
-        >
-          <Terminal className="w-3.5 h-3.5" />
-          SQL Console
         </button>
       </div>
 
@@ -583,10 +568,6 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
         )}
       </div>
 
-      {/* SQL Console */}
-      <div className={cn(subTab === "console" ? "block" : "hidden")}>
-        <QueryConsoleView initialQuery={consoleQuery} />
-      </div>
     </div>
   );
 }
