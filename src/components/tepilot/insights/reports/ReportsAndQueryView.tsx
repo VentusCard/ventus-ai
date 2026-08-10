@@ -446,18 +446,6 @@ export function ReportsAndQueryView({ onOpenInteractiveReport }: ReportsAndQuery
           Templates
           <span className="text-[10px] opacity-60">{TEMPLATES.length}</span>
         </button>
-        <button
-          onClick={() => setSubTab("console")}
-          className={cn(
-            "px-3 h-8 text-[12px] font-medium border-b-2 -mb-px transition inline-flex items-center gap-1.5",
-            subTab === "console"
-              ? "border-blue-600 text-slate-900"
-              : "border-transparent text-slate-500 hover:text-slate-700",
-          )}
-        >
-          <Terminal className="w-3.5 h-3.5" />
-          SQL Console
-        </button>
       </div>
 
       {/* Briefings */}
