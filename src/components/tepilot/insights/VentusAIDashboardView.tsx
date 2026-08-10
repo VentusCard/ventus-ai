@@ -5,7 +5,15 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAdvisorChat } from "@/hooks/useAdvisorChat";
 import { AnalystDashboardView } from "./dashboard/AnalystDashboardView";
+import { FVIDashboard } from "./fvi/FVIDashboard";
+import { SubTabBar, type SubTabItem } from "./SubTabBar";
+import { ShieldAlert, LayoutDashboard } from "lucide-react";
 import type { TabValue } from "./AnalyticsContainer";
+
+const DASHBOARD_SECTIONS: SubTabItem[] = [
+  { value: "overview", label: "Overview", icon: <LayoutDashboard className="w-3.5 h-3.5" /> },
+  { value: "risk", label: "Risk", icon: <ShieldAlert className="w-3.5 h-3.5" /> },
+];
 
 const LEADERSHIP_CONTEXT = {
   role: "Ventus AI briefing analyst for bank executive leadership",
@@ -43,9 +51,12 @@ const SLIVER_CHIPS = QUICK_ACTIONS.slice(0, 2);
 interface VentusAIDashboardViewProps {
   onNavigate: (tab: TabValue) => void;
   onOpenOpportunity?: (opportunityId: string) => void;
+  initialSection?: "overview" | "risk";
 }
 
-export function VentusAIDashboardView({ onNavigate, onOpenOpportunity }: VentusAIDashboardViewProps) {
+export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, initialSection = "overview" }: VentusAIDashboardViewProps) {
+  const [section, setSection] = useState<string>(initialSection);
+  useEffect(() => { setSection(initialSection); }, [initialSection]);
 
   const [input, setInput] = useState("");
   const [expanded, setExpanded] = useState(false);
@@ -136,7 +147,14 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity }: VentusA
 
   return (
     <>
-      <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
+      <div className="space-y-4">
+        <SubTabBar items={DASHBOARD_SECTIONS} value={section} onChange={setSection} />
+        {section === "overview" ? (
+          <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
+        ) : (
+          <FVIDashboard />
+        )}
+      </div>
 
       {expanded && (
         <div className="fixed inset-0 z-50 flex flex-col bg-slate-50">

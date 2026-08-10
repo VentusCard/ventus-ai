@@ -10,7 +10,7 @@ import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
 import { BankwideWMCopilotView } from "./BankwideWMCopilotView";
 
 import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
-import { FVIDashboard } from "./fvi/FVIDashboard";
+
 import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
 import { BankContextView } from "./BankContextView";
@@ -91,7 +91,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
       },
       { value: "customers", label: "Customers", icon: Users },
       { value: "reports", label: "Reports & Query", icon: FileBarChart },
-      { value: "fvi-dashboard", label: "Risk", icon: ShieldAlert },
+      
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
     ],
   },
@@ -203,6 +203,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     // Footer-anchored, always available
     set.add('settings');
     set.add('feedback');
+    // Risk now lives as a sub-tab of the Intelligence Dashboard; keep deep links valid.
+    set.add('fvi-dashboard');
     // Deep-linked report pages (not in sidebar) — reachable from Reports library
     // or from cards on other pages. Always valid so the auto-reset effect doesn't
     // bounce the user back.
@@ -317,7 +319,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'customers': return <CustomersDirectoryView />;
-      case 'fvi-dashboard': return <FVIDashboard />;
+      case 'fvi-dashboard': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="risk" />;
       case 'governance': return <GovernanceView />;
       case 'settings': return <SettingsContainer />;
       case 'feedback': return <FeedbackPage />;
