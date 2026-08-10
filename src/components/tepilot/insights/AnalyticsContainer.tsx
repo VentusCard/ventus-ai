@@ -75,10 +75,9 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Customer Intelligence",
     items: [
-      { value: "fvi-dashboard", label: "Risk Signals", icon: ShieldAlert },
       {
         value: "ventus-ai-dashboard",
-        label: "Ventus AI Dashboard",
+        label: "Dashboard",
         icon: ({ className }: { className?: string }) => (
           <span className={cn("inline-flex items-center justify-center font-black text-[12px]", className)} style={{ lineHeight: "16px" }}>
             V
@@ -86,6 +85,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
         ),
       },
       { value: "reports", label: "Reports & Query", icon: FileBarChart },
+      { value: "fvi-dashboard", label: "Risk", icon: ShieldAlert },
     ],
   },
   {
