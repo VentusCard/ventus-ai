@@ -21,7 +21,7 @@ import ExecDemoPage from "@/pages/ExecDemoPage";
 import { MerchantPartnershipsView } from "./MerchantPartnershipsView";
 import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
 
-
+import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { PersonalizedDealsView } from "./PersonalizedDealsView";
 import { PersonalizedProductView } from "./PersonalizedProductView";
 import { LifestylePillarReport } from "./reports/pages/LifestylePillarReport";
@@ -90,7 +90,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
         ),
       },
       { value: "customers", label: "Customers", icon: Users },
-      
+      { value: "reports", label: "Reports & Query", icon: FileBarChart },
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
     ],
@@ -205,7 +205,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     set.add('feedback');
     // Risk now lives as a sub-tab of the Intelligence Dashboard; keep deep links valid.
     set.add('fvi-dashboard');
-    set.add('reports');
     // Deep-linked report pages (not in sidebar) — reachable from Reports library
     // or from cards on other pages. Always valid so the auto-reset effect doesn't
     // bounce the user back.
@@ -272,14 +271,14 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
       case 'analytics-dashboard':
-        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
+        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
       // 'exec-demo' is rendered as a persistent mount outside renderContent so
       // its state (enrichment, persona, offers, product cards) survives tab
       // switches. See the always-mounted block below.
       case 'exec-demo': return null;
-      case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
+      case 'reports': return <ReportsAndQueryView onOpenInteractiveReport={openInteractiveReport} />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
