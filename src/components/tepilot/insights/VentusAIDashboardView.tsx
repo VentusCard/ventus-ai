@@ -149,11 +149,17 @@ export function VentusAIDashboardView({ onNavigate, onOpenOpportunity, initialSe
     <>
       <div className="space-y-4">
         <SubTabBar items={DASHBOARD_SECTIONS} value={section} onChange={setSection} />
-        {section === "overview" ? (
+        {section === "overview" && (
           <AnalystDashboardView onNavigate={onNavigate} onOpenOpportunity={onOpenOpportunity} renderVentusSliver={renderSliver} />
-        ) : (
-          <FVIDashboard />
         )}
+        {section === "reports" && (
+          <ReportsAndQueryView
+            onOpenInteractiveReport={onOpenInteractiveReport}
+            onRunInConsole={(sql) => { setConsoleQuery(sql); setSection("query"); }}
+          />
+        )}
+        {section === "query" && <QueryConsoleView initialQuery={consoleQuery} />}
+        {section === "risk" && <FVIDashboard />}
       </div>
 
       {expanded && (
