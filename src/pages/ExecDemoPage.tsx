@@ -36,6 +36,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { getBankPromptContext } from "@/lib/demoBankConfig";
 
 import type { SelectedSignal } from "@/components/exec-demo/NextConversationRationale";
+import { publishExecDemoSession } from "@/lib/execDemoSessionStore";
+
 
 type TabKey = "analytics" | "rewards" | "product" | "relationship";
 type Phase = "idle" | "scroll" | "cardScan" | "cardCycle" | "hold";
