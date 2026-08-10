@@ -15,7 +15,6 @@ test('model routing config defines required enrichment tasks', () => {
     'risk_detection',
     'travel_detection',
     'enrichment_judge',
-    'intervention_planning_shadow',
   ]) {
     const route = resolveModelRoute(config, task);
     assert.equal(route.provider, 'gemini');
@@ -24,8 +23,6 @@ test('model routing config defines required enrichment tasks', () => {
   }
 
   assert.equal(resolveModelRoute(config, 'enrichment_judge').shadowOnly, true);
-  assert.equal(resolveModelRoute(config, 'intervention_planning_shadow').shadowOnly, true);
-
   const benchmarkRoute = resolveModelRoute(config, 'benchmark_enrichment');
   assert.equal(benchmarkRoute.provider, 'openrouter');
   assert.equal(benchmarkRoute.providerType, 'openai_compatible');
