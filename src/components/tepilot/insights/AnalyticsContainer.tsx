@@ -306,12 +306,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
       
       case 'wallet-share': return <ProductCampaignBuilderView initialMode="outflow" />;
+      case 'wm-copilot': return <BankwideWMCopilotView />;
       case 'personalized-relationship':
       case 'customer-insights':
       case 'life-events':
       case 'ai-assistant-activity':
-      case 'wm-copilot':
         return <PersonalizedRelationshipView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
+      
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'customers': return <CustomersDirectoryView />;
