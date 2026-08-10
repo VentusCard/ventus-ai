@@ -18,7 +18,7 @@ import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
 import ExecDemoPage from "@/pages/ExecDemoPage";
 
-import { CustomersDirectoryView } from "./CustomersDirectoryView";
+import { CustomersDirectoryView } from "./customers/CustomersDirectoryView";
 import { ReportsAndQueryView } from "./reports/ReportsAndQueryView";
 import { PersonalizedDealsView } from "./PersonalizedDealsView";
 import { PersonalizedProductView } from "./PersonalizedProductView";
