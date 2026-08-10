@@ -68,7 +68,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "VENTUS AI",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
-      { value: "products", label: "Bank\u00A0Context", icon: Package },
+      { value: "products", label: "Context", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
       { value: "governance", label: "Governance", icon: ShieldCheck },
     ],
