@@ -51,6 +51,7 @@ import {
 
 import { toast } from "@/hooks/use-toast";
 import { VentusAIDashboardView } from "./VentusAIDashboardView";
+import { VentusAIChatPage } from "./VentusAIChatPage";
 import { ClientProfileData } from "@/types/clientProfile";
 import { AIInsights } from "@/types/lifestyle-signals";
 import { cn } from "@/lib/utils";
@@ -59,7 +60,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-chat' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
 
 interface NavItem {
   value: TabValue;
@@ -89,7 +90,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      
+      { value: "ventus-chat", label: "Ask Ventus AI", icon: MessagesSquare },
       
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
@@ -127,6 +128,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   const [activeTab, setActiveTab] = useState<TabValue>(defaultTab);
   const [collapsed, setCollapsed] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [pendingChatPrompt, setPendingChatPrompt] = useState<string | null>(null);
   const [selectedOpportunityId, setSelectedOpportunityId] = useState<string | null>(null);
   const [sidebarWidth, setSidebarWidth] = useState(280);
   const [isResizing, setIsResizing] = useState(false);
@@ -141,6 +143,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       setActiveTab('report-priority-opportunity');
     }
   };
+
+  const openVentusChat = (prompt?: string) => {
+    if (prompt) setPendingChatPrompt(prompt);
+    setActiveTab('ventus-chat');
+  };
+
+
 
   const MIN_SIDEBAR_WIDTH = 220;
   const MAX_SIDEBAR_WIDTH = 420;
@@ -273,14 +282,16 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'ventus-ai-dashboard':
       case 'ventus-ai':
       case 'analytics-dashboard':
-        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
+        return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
       // 'exec-demo' is rendered as a persistent mount outside renderContent so
       // its state (enrichment, persona, offers, product cards) survives tab
       // switches. See the always-mounted block below.
       case 'exec-demo': return null;
-      case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
+      // 'ventus-chat' is rendered as a persistent mount below so the thread survives tab switches.
+      case 'ventus-chat': return null;
+      case 'reports': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="reports" />;
       case 'report-lifestyle-pillars': return <LifestylePillarReport onBack={() => setActiveTab('reports')} />;
       case 'report-pillar-deep-dive': return <PillarDeepDiveReport onBack={() => setActiveTab('reports')} />;
       case 'report-cross-sell': return <CrossSellReport onBack={() => setActiveTab('reports')} />;
@@ -320,8 +331,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
-      case 'customers': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="customers" />;
-      case 'fvi-dashboard': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="risk" />;
+      case 'customers': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="customers" />;
+      case 'fvi-dashboard': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="risk" />;
       case 'governance': return <GovernanceView />;
       case 'settings': return <SettingsContainer />;
       case 'feedback': return <FeedbackPage />;
@@ -350,7 +361,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
         <div className="flex items-center gap-4">
           <span className="text-[11px] text-slate-400">Last updated: {today}</span>
-          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && !chatOpen && (
+          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && !chatOpen && (
             <button
               onClick={() => setChatOpen(true)}
               className="ventus-ai-badge ventus-ai-badge-interactive"
@@ -361,7 +372,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               Ventus AI
             </button>
           )}
-          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || chatOpen) && (
+          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || activeTab === 'ventus-chat' || chatOpen) && (
             <div className="ventus-ai-badge" aria-label="Ventus AI is active">
               <span className="ventus-ai-live-dot" aria-hidden="true" />
               <span>Ventus AI</span>
@@ -530,10 +541,20 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         >
           <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
         </div>
+
+        {/* Persistent Ventus AI chat mount — keeps the conversation across tab switches. */}
+        <div className={cn("h-full", activeTab === 'ventus-chat' ? "block" : "hidden")}>
+          <VentusAIChatPage
+            active={activeTab === 'ventus-chat'}
+            pendingPrompt={activeTab === 'ventus-chat' ? pendingChatPrompt : null}
+            onPendingPromptConsumed={() => setPendingChatPrompt(null)}
+          />
+        </div>
+
       </div>
 
       {/* Chat Panel */}
-      {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && (
+      {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && (
         <VentusAIChatPanel
           activeTab={activeTab}
           onClose={() => setChatOpen(false)}
