@@ -1,4 +1,4 @@
-import { ArrowLeft } from "lucide-react";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   SIGNAL_FAMILY_META,
@@ -19,23 +19,26 @@ interface Props {
 
 export function CustomerDetailPanel({ customer, onBack }: Props) {
   return (
-    <div className="space-y-3">
-      <button
-        onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-[11px] font-medium text-slate-500 hover:text-slate-800"
-      >
-        <ArrowLeft className="w-3.5 h-3.5" />
-        Back to results
-      </button>
-
+    <div className="xl:sticky xl:top-3 xl:max-h-[calc(100vh-6rem)] xl:overflow-y-auto">
       <div className="border border-slate-200 rounded-lg bg-white overflow-hidden">
-        <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/60 grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
+        <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/60 space-y-3">
+          <div className="flex items-start justify-between gap-2">
+            <div>
+              <h3 className="text-[16px] font-bold text-slate-900 leading-tight">{customer.name}</h3>
+              <p className="text-[11px] text-slate-500 mt-0.5">
+                {customer.email} · {customer.city}
+              </p>
+            </div>
+            <button
+              onClick={onBack}
+              aria-label="Close customer profile"
+              className="shrink-0 p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-100"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
           <div>
-            <h3 className="text-[16px] font-bold text-slate-900 leading-tight">{customer.name}</h3>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              {customer.email} · {customer.city}
-            </p>
-            <div className="flex flex-wrap gap-x-5 gap-y-2 mt-2.5">
+            <div className="flex flex-wrap gap-x-5 gap-y-2">
               {[
                 ["Tier", customer.tier],
                 ["Age", customer.ageBand],
@@ -114,7 +117,7 @@ export function CustomerDetailPanel({ customer, onBack }: Props) {
                 {signals.length === 0 ? (
                   <p className="text-[11px] text-slate-400 italic">No signals detected</p>
                 ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2">
+                  <div className="grid grid-cols-1 gap-2">
                     {signals.map((s) => (
                       <div key={s.label} className={cn("border rounded-md px-2.5 py-2", m.chip)}>
                         <div className="flex items-center justify-between gap-2">
