@@ -203,6 +203,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     // Footer-anchored, always available
     set.add('settings');
     set.add('feedback');
+    // Risk now lives as a sub-tab of the Intelligence Dashboard; keep deep links valid.
+    set.add('fvi-dashboard');
     // Deep-linked report pages (not in sidebar) — reachable from Reports library
     // or from cards on other pages. Always valid so the auto-reset effect doesn't
     // bounce the user back.
