@@ -317,7 +317,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
       case 'customers': return <CustomersDirectoryView />;
-      case 'fvi-dashboard': return <FVIDashboard />;
+      case 'fvi-dashboard': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="risk" />;
       case 'governance': return <GovernanceView />;
       case 'settings': return <SettingsContainer />;
       case 'feedback': return <FeedbackPage />;
