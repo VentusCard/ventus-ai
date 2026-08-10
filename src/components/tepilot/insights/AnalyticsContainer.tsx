@@ -144,6 +144,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     }
   };
 
+  const openVentusChat = (prompt?: string) => {
+    if (prompt) setPendingChatPrompt(prompt);
+    setActiveTab('ventus-chat');
+  };
+
+
+
   const MIN_SIDEBAR_WIDTH = 220;
   const MAX_SIDEBAR_WIDTH = 420;
 
