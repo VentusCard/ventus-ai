@@ -89,7 +89,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      { value: "customers", label: "Customers", icon: Users },
+      
       
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
@@ -206,6 +206,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     // Risk now lives as a sub-tab of the Intelligence Dashboard; keep deep links valid.
     set.add('fvi-dashboard');
     set.add('reports');
+    set.add('customers');
     // Deep-linked report pages (not in sidebar) — reachable from Reports library
     // or from cards on other pages. Always valid so the auto-reset effect doesn't
     // bounce the user back.
