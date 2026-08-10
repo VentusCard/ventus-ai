@@ -27,12 +27,17 @@ const PILLAR_FILTERS = [
 
 const PRIORITY_ORDER: Record<string, number> = { high: 0, medium: 1, low: 2 };
 
-export function CategoryExtensionOpportunities() {
+interface CategoryExtensionOpportunitiesProps {
+  onLaunchCampaign?: (productName: string, offers: string[]) => void;
+}
+
+export function CategoryExtensionOpportunities({ onLaunchCampaign }: CategoryExtensionOpportunitiesProps = {}) {
   const [sortBy, setSortBy] = useState<SortKey>('estimatedRevenue');
   const [pillarFilter, setPillarFilter] = useState('All');
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const summary = useMemo(() => getCategoryExtensionSummary(), []);
+
 
   const filtered = useMemo(() => {
     let items = [...CATEGORY_EXTENSION_OPPORTUNITIES];
