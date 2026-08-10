@@ -21,7 +21,6 @@ import { CapabilitiesView } from "./CapabilitiesView";
 import { BankContextView } from "./BankContextView";
 import { SettingsContainer } from "./SettingsContainer";
 import ExecDemoPage from "@/pages/ExecDemoPage";
-import EnterpriseGrowthDemoPage from "@/pages/EnterpriseGrowthDemoPage";
 
 import { ReportsLibrary } from "./reports/ReportsLibrary";
 import { QueryConsoleView } from "./QueryConsoleView";
@@ -60,7 +59,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'wealth-growth' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'query' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'wallet-share' | 'customer-insights' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'fraud-aml' | 'settings' | 'feedback';
 
 interface NavItem {
   value: TabValue;
@@ -113,7 +112,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "WEALTH & RELATIONSHIP",
     items: [
-      { value: "wealth-growth", label: "Merrill Growth Desk", icon: Briefcase },
       { value: "life-events", label: "Relationship Intelligence", icon: Gem },
       { value: "ai-assistant-activity", label: "AI Banking Assistant ", icon: MessagesSquare },
       { value: "wm-copilot", label: "WM Coworker", icon: Briefcase },
@@ -276,11 +274,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'deal-management': return <DealsAndPerksView defaultTab="shopping" />;
       case 'location-experience': return <DealsAndPerksView defaultTab="perks" />;
       case 'life-events': return <RelationshipIntelligenceView userDemographics={userDemographics} lifestyleSignals={lifestyleSignals} onNavigate={setActiveTab} />;
-      case 'wealth-growth': return (
-        <div className="-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white">
-          <EnterpriseGrowthDemoPage embedded audience="leadership" />
-        </div>
-      );
       case 'wm-copilot': return <BankwideWMCopilotView />;
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
