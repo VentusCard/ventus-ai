@@ -89,7 +89,7 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
           </span>
         ),
       },
-      { value: "customers", label: "Customers", icon: Users },
+      
       
       
       { value: "wm-copilot", label: "AI Coworker", icon: Briefcase },
@@ -206,6 +206,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     // Risk now lives as a sub-tab of the Intelligence Dashboard; keep deep links valid.
     set.add('fvi-dashboard');
     set.add('reports');
+    set.add('customers');
     // Deep-linked report pages (not in sidebar) — reachable from Reports library
     // or from cards on other pages. Always valid so the auto-reset effect doesn't
     // bounce the user back.
@@ -319,7 +320,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       
       
       case 'subscription-analytics': return <SubscriptionAnalyticsView />;
-      case 'customers': return <CustomersDirectoryView />;
+      case 'customers': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="customers" />;
       case 'fvi-dashboard': return <VentusAIDashboardView onNavigate={setActiveTab} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} initialSection="risk" />;
       case 'governance': return <GovernanceView />;
       case 'settings': return <SettingsContainer />;
