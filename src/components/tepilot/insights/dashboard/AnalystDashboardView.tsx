@@ -153,7 +153,7 @@ export function AnalystDashboardView({ onNavigate, onOpenOpportunity, renderVent
       value: `${metrics.activeAccountRate.toFixed(1)}%`,
       seriesScale: metrics.activeAccountRate,
       hint: "30-day active",
-      onOpenDetail: () => onNavigate("customer-insights"),
+      onOpenDetail: () => onNavigate("personalized-relationship"),
     },
     {
       key: "wallet",

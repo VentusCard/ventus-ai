@@ -6,7 +6,6 @@ import { ProductCampaignBuilderView } from "../campaigns/ProductCampaignBuilderV
 
 import { AutonomousActivityFeed } from "../campaigns/AutonomousActivityFeed";
 import { WalletShareView } from "./WalletShareView";
-import { WellnessAlertsDashboard } from "./WellnessAlertsDashboard";
 
 import { PersonalizedRelationshipView } from "./PersonalizedRelationshipView";
 
@@ -76,7 +75,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
   {
     label: "Customer Intelligence",
     items: [
-      { value: "customer-insights", label: "Customer Insights", icon: Heart },
       { value: "fvi-dashboard", label: "Risk Signals", icon: ShieldAlert },
       {
         value: "ventus-ai-dashboard",
@@ -284,8 +282,8 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'targeting-campaign-builder': return <ProductCampaignBuilderView />;
       
       case 'wallet-share': return <WalletShareView />;
-      case 'customer-insights': return <WellnessAlertsDashboard />;
       case 'personalized-relationship':
+      case 'customer-insights':
       case 'life-events':
       case 'ai-assistant-activity':
       case 'wm-copilot':

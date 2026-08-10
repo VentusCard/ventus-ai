@@ -76,7 +76,7 @@ const BANK_WIDE_TAB_MAP: Partial<Record<DemoNodeType, TabValue>> = {
   lifeEventIntel: "personalized-relationship",
   lifeEvents: "targeting",
   dealPersonalization: "personalized-deals",
-  aiFinancialInsights: "customer-insights",
+  aiFinancialInsights: "personalized-relationship",
 };
 
 const CONSUMER_NODES = new Set<DemoNodeType>(["engagement", "rewards", "wealth"]);
