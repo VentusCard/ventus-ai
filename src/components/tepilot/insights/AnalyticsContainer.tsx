@@ -94,19 +94,19 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     ],
   },
   {
-    label: "BANKING PERSONALIZATION\u00A0",
-    items: [
-      { value: "personalized-deals", label: "Personalized Deals", icon: Sparkles },
-      { value: "targeting", label: "Personalized Product", icon: Route },
-      { value: "personalized-relationship", label: "Personalized Relationship", icon: Users },
-    ],
-  },
-  {
     label: "Growth Opportunities",
     items: [
       { value: "targeting-automated-flows", label: "Automated Flows", icon: Zap },
       { value: "targeting-campaign-builder", label: "Campaign Builder", icon: Megaphone },
       { value: "growth-merchant-partnerships", label: "Merchant Partnerships", icon: Handshake },
+    ],
+  },
+  {
+    label: "BANKING PERSONALIZATION\u00A0",
+    items: [
+      { value: "personalized-deals", label: "Personalized Deals", icon: Sparkles },
+      { value: "targeting", label: "Personalized Product", icon: Route },
+      { value: "personalized-relationship", label: "Personalized Relationship", icon: Users },
     ],
   },
 
@@ -184,9 +184,10 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       const groups = MODULE_NAV_GROUP_MAP[mod];
       if (groups) groups.forEach(g => allowedLabels.add(g));
     }
-    // Both consolidated groups follow Analytics (always on since Analytics is always enabled)
+    // All consolidated groups follow Analytics (always on since Analytics is always enabled)
     if (enabledModules.has("Analytics")) {
       allowedLabels.add("Customer Intelligence");
+      allowedLabels.add("Growth Opportunities");
       allowedLabels.add("BANKING PERSONALIZATION\u00A0");
     }
 
