@@ -23,13 +23,13 @@ import {
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { INTERACTIVE_REPORTS, type InteractiveReportId } from "./interactiveReportsRegistry";
-import { QueryConsoleView } from "../QueryConsoleView";
 
 interface ReportsAndQueryViewProps {
   onOpenInteractiveReport?: (id: InteractiveReportId, payload?: { opportunityId?: string }) => void;
+  onRunInConsole?: (query: string) => void;
 }
 
-type SubTab = "briefings" | "templates" | "console";
+type SubTab = "briefings" | "templates";
 type Category = "Lifestyle" | "Outflow" | "Retention" | "Risk" | "Opportunities";
 
 interface ReportTemplate {
