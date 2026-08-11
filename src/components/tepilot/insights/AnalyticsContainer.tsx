@@ -274,17 +274,20 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
 
-  // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
+  // All nav groups stay expanded by default; active group is always visible.
   const activeGroupLabel = useMemo(
     () => filteredNavGroups.find((g) => g.items.some((i) => i.value === activeTab))?.label,
     [filteredNavGroups, activeTab],
   );
   const [openGroups, setOpenGroups] = useState<Set<string>>(
-    () => new Set(activeGroupLabel ? [activeGroupLabel] : []),
+    () => new Set(filteredNavGroups.map((g) => g.label)),
   );
+  // Keep all groups expanded by default; only sync if the active group is newly added.
   useEffect(() => {
-    setOpenGroups(new Set(activeGroupLabel ? [activeGroupLabel] : []));
-  }, [activeTab, activeGroupLabel]);
+    if (activeGroupLabel && !openGroups.has(activeGroupLabel)) {
+      setOpenGroups((prev) => new Set([...prev, activeGroupLabel]));
+    }
+  }, [activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   // Global header: breadcrumb label, workspace search, notifications
