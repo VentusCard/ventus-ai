@@ -47,7 +47,7 @@ import {
   BarChart3, Route, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake, GitBranch
 } from "lucide-react";
 
 import { toast } from "@/hooks/use-toast";
