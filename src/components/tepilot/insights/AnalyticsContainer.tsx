@@ -494,15 +494,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             )}
-            <div className="flex items-center gap-2.5">
-              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
-                <Building2 className="w-4 h-4 text-white" />
-              </div>
-              <div>
-                <h1 className="text-sm font-bold text-slate-900 leading-tight">Our Bank</h1>
-                <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
-              </div>
-            </div>
           </div>
           <div className="flex items-center gap-4">
             <span className="text-[11px] text-slate-400">Last updated: {today}</span>
