@@ -274,7 +274,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     if (activeTab === 'ventus-ai') setChatOpen(false);
   }, [activeTab]);
 
-  // Accordion-style group expansion: only the group containing the active tab stays open after navigation.
+  // All nav groups stay expanded by default; active group is always visible.
   const activeGroupLabel = useMemo(
     () => filteredNavGroups.find((g) => g.items.some((i) => i.value === activeTab))?.label,
     [filteredNavGroups, activeTab],
