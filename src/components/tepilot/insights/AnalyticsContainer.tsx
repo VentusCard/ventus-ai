@@ -271,6 +271,43 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
+  // Global header: breadcrumb label, workspace search, notifications
+  const activeTabLabel = useMemo(() => {
+    for (const g of filteredNavGroups) {
+      const hit = g.items.find((i) => i.value === activeTab);
+      if (hit) return hit.label;
+    }
+    if (activeTab === 'settings') return 'Settings';
+    if (activeTab === 'feedback') return 'Feedback & Ideas';
+    return 'Workspace';
+  }, [filteredNavGroups, activeTab]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return filteredNavGroups
+      .flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })))
+      .filter((i) => i.label.toLowerCase().includes(q) || i.group.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [filteredNavGroups, searchQuery]);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (searchRef.current && !searchRef.current.contains(t)) setSearchOpen(false);
+      if (notifRef.current && !notifRef.current.contains(t)) setNotifOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, []);
+
+
   const launchCampaignFor = (productName: string, offers: string[]) => {
     try {
       sessionStorage.setItem(
