@@ -7,7 +7,18 @@ import {
   chipClass,
 } from "./CapabilitiesView";
 import { cn } from "@/lib/utils";
-import { Database, Cpu, Layers, Users, Send, GitBranch, X } from "lucide-react";
+import {
+  Database,
+  Cpu,
+  Layers,
+  Users,
+  Send,
+  GitBranch,
+  X,
+  ArrowDown,
+  Smartphone,
+  Globe,
+} from "lucide-react";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 import { useExecDemoSession } from "@/lib/execDemoSessionStore";
 
@@ -15,20 +26,50 @@ type Selection = { stage: string; key: string } | null;
 type Status = "live" | "partial" | "idle";
 
 const ENGINE_STEPS = [
-  { label: "Ingest", sublabel: "Multi-rail streams normalized", readout: "streaming" },
-  { label: "Resolve", sublabel: "Identity + merchant resolution", readout: "sub-second" },
-  { label: "Classify", sublabel: "3-tier taxonomy assignment", readout: "3-tier" },
-  { label: "Enrich", sublabel: "Signal synthesis across 5 layers", readout: "5 layers" },
-  { label: "Score", sublabel: "Confidence, recency, evidence", readout: "scored" },
+  { label: "Ingest", readout: "streaming" },
+  { label: "Resolve", readout: "sub-second" },
+  { label: "Classify", readout: "3-tier" },
+  { label: "Enrich", readout: "5 layers" },
+  { label: "Score", readout: "confidence" },
 ];
 
-const STAGE_VALUE: Record<string, string> = {
-  sources: "Bank-native rails you already run",
-  engine: "Raw strings become resolved, classified, scored behavior",
-  signals: "Five signal families per customer",
-  teams: "Every team reads the same canonical signal",
-  destinations: "Activated in the systems of record you already use",
+const WHY: Record<string, string> = {
+  sources: "You already own this data — no new collection, no new consent surface",
+  engine: "Raw strings become resolved, classified, scored behavior — the layer no bank wants to build",
+  signals: "One canonical customer picture instead of five team-specific guesses",
+  teams: "Every team acts on the same signal, so the customer sees one bank",
+  destinations: "Lands in the systems your teams already work in — no new console to adopt",
 };
+
+const SOURCE_BUCKETS: {
+  key: string;
+  label: string;
+  caption: string;
+  icon: React.ElementType;
+  providers: string[];
+}[] = [
+  {
+    key: "internal",
+    label: "Internal Bank Data",
+    caption: "KYC · Transactions · Product Holdings",
+    icon: Database,
+    providers: ["KYC", "Transactions", "Product Holdings"],
+  },
+  {
+    key: "digital",
+    label: "Digital Engagement",
+    caption: "App & web telemetry",
+    icon: Smartphone,
+    providers: ["Digital Banking"],
+  },
+  {
+    key: "context",
+    label: "Context & External",
+    caption: "Catalog, locations, tiers · off-bank signals",
+    icon: Globe,
+    providers: ["Bank Context", "External Intelligence"],
+  },
+];
 
 const DOT: Record<Status, string> = {
   live: "bg-emerald-500",
@@ -87,49 +128,72 @@ function Chip({
   );
 }
 
+function Connector({ label }: { label: string }) {
+  return (
+    <div className="shrink-0 h-5 flex items-center justify-center gap-1.5" aria-hidden>
+      <span className="h-full w-px bg-slate-200" />
+      <span className="flex items-center gap-1 text-[9px] uppercase tracking-wide text-slate-400">
+        <ArrowDown className="w-2.5 h-2.5" />
+        {label}
+      </span>
+      <span className="h-full w-px bg-slate-200" />
+    </div>
+  );
+}
+
 function Stage({
   index,
   title,
-  value,
+  why,
   icon: Icon,
   meta,
+  emphasis = "normal",
   children,
-  last,
 }: {
   index: number;
   title: string;
-  value: string;
+  why: string;
   icon: React.ElementType;
   meta: string;
+  emphasis?: "normal" | "muted" | "anchor";
   children: React.ReactNode;
-  last?: boolean;
 }) {
   return (
-    <>
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm flex items-stretch min-h-0 flex-1">
-        <div className="flex flex-col items-center justify-center gap-1 px-2 border-r border-slate-100 bg-slate-50/70 rounded-l-lg shrink-0 w-9">
-          <span className="text-[10px] font-bold text-slate-900">{index}</span>
-          <Icon className="w-3 h-3 text-slate-400" />
-        </div>
-        <div className="min-w-0 flex-1 p-2 flex flex-col justify-center">
-          <div className="flex items-baseline justify-between gap-3 mb-1.5">
-            <div className="min-w-0 flex items-baseline gap-2">
-              <span className="text-[11px] font-bold uppercase tracking-wide text-slate-900 shrink-0">
-                {title}
-              </span>
-              <span className="text-[10px] text-slate-500 truncate">{value}</span>
-            </div>
-            <span className="text-[9.5px] font-mono text-slate-400 shrink-0">{meta}</span>
-          </div>
-          {children}
-        </div>
-      </div>
-      {!last && (
-        <div className="shrink-0 h-3 flex justify-center" aria-hidden>
-          <div className="w-px h-full bg-slate-300" />
-        </div>
+    <div
+      className={cn(
+        "rounded-lg border shadow-sm flex items-stretch min-h-0",
+        emphasis === "anchor"
+          ? "border-slate-300 bg-slate-50 flex-[1.25] ring-1 ring-slate-900/5"
+          : emphasis === "muted"
+            ? "border-slate-200 bg-white/70 flex-1"
+            : "border-slate-200 bg-white flex-1",
       )}
-    </>
+    >
+      <div
+        className={cn(
+          "flex flex-col items-center justify-center gap-1 px-2 border-r rounded-l-lg shrink-0 w-9",
+          emphasis === "anchor" ? "border-slate-200 bg-white/70" : "border-slate-100 bg-slate-50/70",
+        )}
+      >
+        <span className="text-[10px] font-bold text-slate-900">{index}</span>
+        <Icon className="w-3 h-3 text-slate-400" />
+      </div>
+      <div className="min-w-0 flex-1 p-2 flex flex-col justify-center">
+        <div className="flex items-baseline justify-between gap-3 mb-1.5">
+          <div className="min-w-0 flex items-baseline gap-2">
+            <span className="text-[11px] font-bold uppercase tracking-wide text-slate-900 shrink-0">
+              {title}
+            </span>
+            <span className="text-[10px] text-slate-600 truncate">
+              <span className="text-slate-400 font-medium">Why it matters — </span>
+              {why}
+            </span>
+          </div>
+          <span className="text-[9.5px] font-mono text-slate-400 shrink-0">{meta}</span>
+        </div>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -164,6 +228,11 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
   const [selection, setSelection] = useState<Selection>(null);
   const session = useExecDemoSession();
 
+  const buckets = SOURCE_BUCKETS.map((b) => {
+    const groups = sourceGroups.filter((g) => b.providers.includes(g.provider));
+    return { ...b, groups, inputs: groups.reduce((n, g) => n + g.inputs.length, 0) };
+  });
+
   const hasRun = session.hasRun;
   const liveSignalLabels = new Set<string>();
   if (hasRun) {
@@ -182,8 +251,7 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
   const toggle = (stage: string, key: string) =>
     setSelection((cur) => (cur && cur.stage === stage && cur.key === key ? null : { stage, key }));
 
-  const activeSource =
-    selection?.stage === "source" ? sourceGroups.find((g) => g.provider === selection.key) : undefined;
+  const activeBucket = selection?.stage === "bucket" ? buckets.find((b) => b.key === selection.key) : undefined;
   const activeSignal =
     selection?.stage === "signal" ? SIGNALS.find((s) => s.label === selection.key) : undefined;
   const activeTeam = selection?.stage === "team" ? TEAMS.find((t) => t.label === selection.key) : undefined;
@@ -213,34 +281,37 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Header: thesis + outcome rail */}
-      <div className="shrink-0 flex items-center justify-between gap-4 pb-2 mb-2 border-b border-slate-100">
-        <div className="flex items-center gap-2.5 min-w-0">
-          <GitBranch className="w-4 h-4 text-slate-500 shrink-0" />
-          <div className="min-w-0">
+      {/* Header */}
+      <div className="shrink-0 pb-2 mb-2 border-b border-slate-100">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <GitBranch className="w-4 h-4 text-slate-500 shrink-0" />
             <h2 className="text-base font-bold text-slate-900 leading-tight">System Flow</h2>
-            <p className="text-[11px] text-slate-500 leading-tight mt-0.5 truncate">
-              One enrichment layer turns the rails you already run into customer intelligence every team
-              activates — no bespoke pipeline per destination.
-            </p>
+          </div>
+          <div className="hidden lg:flex items-stretch gap-2 shrink-0">
+            {[
+              { k: "Pipeline", v: hasRun ? "Live session" : "Standing by", s: runStatus },
+              {
+                k: "Signal layers",
+                v: `${liveSignalLabels.size}/${SIGNALS.length} firing`,
+                s: (hasRun ? "live" : "idle") as Status,
+              },
+              { k: "Activation", v: `${DESTINATIONS.length} destinations`, s: "live" as Status },
+            ].map((m) => (
+              <div key={m.k} className="rounded-md border border-slate-200 bg-white px-2.5 py-1">
+                <div className="text-[9px] uppercase tracking-wide text-slate-400 leading-none">{m.k}</div>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <StatusDot status={m.s} />
+                  <span className="text-[11px] font-semibold text-slate-800 leading-none">{m.v}</span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
-        <div className="hidden lg:flex items-stretch gap-2 shrink-0">
-          {[
-            { k: "Pipeline", v: hasRun ? "Live session" : "Standing by", s: runStatus },
-            { k: "Providers", v: `${sourceGroups.length} connected`, s: "live" as Status },
-            { k: "Signal layers", v: `${liveSignalLabels.size || 0}/${SIGNALS.length} firing`, s: hasRun ? "live" : "idle" as Status },
-            { k: "Activation", v: `${DESTINATIONS.length} destinations`, s: "live" as Status },
-          ].map((m) => (
-            <div key={m.k} className="rounded-md border border-slate-200 bg-white px-2.5 py-1">
-              <div className="text-[9px] uppercase tracking-wide text-slate-400 leading-none">{m.k}</div>
-              <div className="flex items-center gap-1.5 mt-1">
-                <StatusDot status={m.s} />
-                <span className="text-[11px] font-semibold text-slate-800 leading-none">{m.v}</span>
-              </div>
-            </div>
-          ))}
-        </div>
+        <p className="text-[11px] text-slate-500 leading-snug mt-1.5">
+          One enrichment layer turns the rails you already run into customer intelligence every team
+          activates — no bespoke pipeline per destination.
+        </p>
       </div>
 
       {/* Body */}
@@ -248,35 +319,44 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
         <div className="min-h-0 flex flex-col">
           <Stage
             index={1}
-            title="Data Sources"
-            value={STAGE_VALUE.sources}
+            title="Your Data"
+            why={WHY.sources}
             icon={Database}
+            emphasis="muted"
             meta={`${sourceGroups.length} providers · ${totalInputs} inputs`}
           >
-            <div className="grid grid-cols-3 xl:grid-cols-6 gap-1.5">
-              {sourceGroups.map((group) => (
+            <div className="grid grid-cols-3 gap-1.5">
+              {buckets.map((b) => (
                 <Chip
-                  key={group.provider}
-                  label={group.provider}
-                  readout={`${group.inputs.length} inputs · live`}
-                  icon={group.icon}
+                  key={b.key}
+                  label={b.label}
+                  readout={`${b.caption} · ${b.inputs} inputs`}
+                  icon={b.icon}
                   status="live"
-                  active={selection?.stage === "source" && selection.key === group.provider}
-                  onClick={() => toggle("source", group.provider)}
+                  active={selection?.stage === "bucket" && selection.key === b.key}
+                  onClick={() => toggle("bucket", b.key)}
                 />
               ))}
             </div>
           </Stage>
 
+          <Connector label="ingested" />
+
           <Stage
             index={2}
             title="Ventus AI Engine"
-            value={STAGE_VALUE.engine}
+            why={WHY.engine}
             icon={Cpu}
+            emphasis="anchor"
             meta={hasRun ? "processing session" : "idle · ready"}
           >
             <div className="flex items-center gap-2">
-              <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto shrink-0" />
+              <div className="flex items-center gap-1.5 shrink-0">
+                <img src={ventusLogoTransparent} alt="Ventus AI" className="h-4 w-auto" />
+                <span className="hidden xl:inline text-[9px] uppercase tracking-wide text-slate-500 font-semibold">
+                  The only new layer
+                </span>
+              </div>
               <div className="grid grid-cols-5 gap-1.5 flex-1 min-w-0">
                 {ENGINE_STEPS.map((step) => (
                   <Chip
@@ -284,17 +364,19 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
                     label={step.label}
                     readout={step.readout}
                     status={runStatus}
-                    tint="bg-slate-50 text-slate-700 border-slate-200"
+                    tint="bg-white text-slate-700 border-slate-200"
                   />
                 ))}
               </div>
             </div>
           </Stage>
 
+          <Connector label="enriched" />
+
           <Stage
             index={3}
             title="Signal Layers"
-            value={STAGE_VALUE.signals}
+            why={WHY.signals}
             icon={Layers}
             meta={`${SIGNALS.length} families per customer`}
           >
@@ -315,13 +397,9 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
             </div>
           </Stage>
 
-          <Stage
-            index={4}
-            title="Bank Teams"
-            value={STAGE_VALUE.teams}
-            icon={Users}
-            meta={`${TEAMS.length} teams`}
-          >
+          <Connector label="shared" />
+
+          <Stage index={4} title="Bank Teams" why={WHY.teams} icon={Users} meta={`${TEAMS.length} teams`}>
             <div className="grid grid-cols-3 gap-1.5">
               {TEAMS.map((team) => (
                 <Chip
@@ -339,13 +417,15 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
             </div>
           </Stage>
 
+          <Connector label="activated" />
+
           <Stage
             index={5}
             title="Destinations"
-            value={STAGE_VALUE.destinations}
+            why={WHY.destinations}
             icon={Send}
+            emphasis="muted"
             meta={`${DESTINATIONS.length} channels of record`}
-            last
           >
             <div className="grid grid-cols-3 xl:grid-cols-6 gap-1.5">
               {DESTINATIONS.map((dest) => (
@@ -365,9 +445,7 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
         {selection && (
           <div className="min-h-0 rounded-lg border border-slate-200 bg-slate-50/70 flex flex-col">
             <div className="flex items-center justify-between px-3 py-2 border-b border-slate-200 shrink-0">
-              <span className="text-[10px] uppercase tracking-wide font-semibold text-slate-500">
-                Detail
-              </span>
+              <span className="text-[10px] uppercase tracking-wide font-semibold text-slate-500">Detail</span>
               <button
                 type="button"
                 onClick={() => setSelection(null)}
@@ -377,13 +455,22 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto p-3">
-              {activeSource && (
-                <DetailList
-                  title={activeSource.provider}
-                  description={activeSource.description}
-                  items={activeSource.inputs}
-                />
+            <div className="flex-1 min-h-0 overflow-y-auto p-3 space-y-4">
+              {activeBucket && (
+                <>
+                  <div>
+                    <div className="text-[12px] font-semibold text-slate-900">{activeBucket.label}</div>
+                    <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">{activeBucket.caption}</p>
+                  </div>
+                  {activeBucket.groups.map((group) => (
+                    <DetailList
+                      key={group.provider}
+                      title={group.provider}
+                      description={group.description}
+                      items={group.inputs}
+                    />
+                  ))}
+                </>
               )}
               {activeSignal && (
                 <DetailList
