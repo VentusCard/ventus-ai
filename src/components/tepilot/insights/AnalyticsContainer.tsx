@@ -46,8 +46,15 @@ import {
   BarChart3, Route, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake, Search, Bell
 } from "lucide-react";
+
+const HEADER_NOTIFICATIONS: { title: string; detail: string; time: string; tab?: string }[] = [
+  { title: "12 new life events detected", detail: "Home purchase and new-child signals ready for outreach.", time: "8m ago", tab: "targeting" },
+  { title: "Campaign approval pending", detail: "Premium Travel Card segment awaiting sign-off.", time: "1h ago", tab: "targeting-campaign-builder" },
+  { title: "Wallet share alert", detail: "Outbound transfers up 6% in the affluent cohort.", time: "3h ago", tab: "growth-merchant-partnerships" },
+];
+
 
 import { toast } from "@/hooks/use-toast";
 import { VentusAIDashboardView } from "./VentusAIDashboardView";
@@ -263,6 +270,43 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     setOpenGroups(new Set(activeGroupLabel ? [activeGroupLabel] : []));
   }, [activeTab, activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+  // Global header: breadcrumb label, workspace search, notifications
+  const activeTabLabel = useMemo(() => {
+    for (const g of filteredNavGroups) {
+      const hit = g.items.find((i) => i.value === activeTab);
+      if (hit) return hit.label;
+    }
+    if (activeTab === 'settings') return 'Settings';
+    if (activeTab === 'feedback') return 'Feedback & Ideas';
+    return 'Workspace';
+  }, [filteredNavGroups, activeTab]);
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [notifOpen, setNotifOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const searchResults = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return [];
+    return filteredNavGroups
+      .flatMap((g) => g.items.map((i) => ({ ...i, group: g.label })))
+      .filter((i) => i.label.toLowerCase().includes(q) || i.group.toLowerCase().includes(q))
+      .slice(0, 8);
+  }, [filteredNavGroups, searchQuery]);
+
+  useEffect(() => {
+    const onDown = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (searchRef.current && !searchRef.current.contains(t)) setSearchOpen(false);
+      if (notifRef.current && !notifRef.current.contains(t)) setNotifOpen(false);
+    };
+    document.addEventListener('mousedown', onDown);
+    return () => document.removeEventListener('mousedown', onDown);
+  }, []);
+
 
   const launchCampaignFor = (productName: string, offers: string[]) => {
     try {
@@ -486,17 +530,63 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
       {/* Main area */}
       <div className="flex-1 flex flex-col min-h-0">
-        {/* Professional Header */}
-        <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200 shrink-0">
-          <div className="flex items-center gap-3">
+        {/* Consistent global header: breadcrumb · search · notifications · exit */}
+        <div className="flex items-center justify-between gap-4 px-5 py-2.5 bg-white border-b border-slate-200 shrink-0">
+          {/* Breadcrumb */}
+          <div className="flex items-center gap-2 min-w-0">
             {onBack && (
               <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
                 <ArrowLeft className="w-4 h-4" />
               </Button>
             )}
+            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-[12px] min-w-0">
+              <span className="text-slate-400">Our Bank</span>
+              {activeGroupLabel && (
+                <>
+                  <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
+                  <span className="text-slate-400 capitalize truncate">{activeGroupLabel.toLowerCase()}</span>
+                </>
+              )}
+              <ChevronRight className="w-3 h-3 text-slate-300 shrink-0" />
+              <span className="font-semibold text-slate-900 truncate">{activeTabLabel}</span>
+            </nav>
           </div>
-          <div className="flex items-center gap-4">
-            <span className="text-[11px] text-slate-400">Last updated: {today}</span>
+
+          <div className="flex items-center gap-2">
+            {/* Search */}
+            <div className="relative" ref={searchRef}>
+              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <input
+                value={searchQuery}
+                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                onFocus={() => setSearchOpen(true)}
+                placeholder="Search workspace…"
+                aria-label="Search workspace"
+                className="w-56 h-8 pl-8 pr-3 rounded-md border border-slate-200 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 focus:bg-white"
+              />
+              {searchOpen && searchQuery.trim() && (
+                <div className="absolute right-0 mt-1 w-72 max-h-72 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg z-50 py-1">
+                  {searchResults.length === 0 && (
+                    <div className="px-3 py-2 text-[12px] text-slate-400">No matches</div>
+                  )}
+                  {searchResults.map((r) => {
+                    const Icon = r.icon;
+                    return (
+                      <button
+                        key={r.value}
+                        onClick={() => { setActiveTab(r.value); setSearchQuery(""); setSearchOpen(false); }}
+                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-slate-50"
+                      >
+                        <Icon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                        <span className="text-[12px] text-slate-700 truncate">{r.label}</span>
+                        <span className="ml-auto text-[10px] text-slate-400 truncate">{r.group}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
             {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && !chatOpen && (
               <button
                 onClick={() => setChatOpen(true)}
@@ -514,19 +604,59 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                 <span>Ventus AI</span>
               </div>
             )}
+
+            {/* Notifications */}
+            <div className="relative" ref={notifRef}>
+              <button
+                onClick={() => setNotifOpen((v) => !v)}
+                className="relative h-8 w-8 flex items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors"
+                title="Notifications"
+                aria-label="Notifications"
+              >
+                <Bell className="w-4 h-4" />
+                {HEADER_NOTIFICATIONS.length > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[15px] h-[15px] px-1 rounded-full bg-indigo-600 text-white text-[9px] font-semibold flex items-center justify-center">
+                    {HEADER_NOTIFICATIONS.length}
+                  </span>
+                )}
+              </button>
+              {notifOpen && (
+                <div className="absolute right-0 mt-1 w-80 rounded-md border border-slate-200 bg-white shadow-lg z-50">
+                  <div className="px-3 py-2 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    Notifications
+                  </div>
+                  <div className="max-h-72 overflow-y-auto py-1">
+                    {HEADER_NOTIFICATIONS.map((n) => (
+                      <button
+                        key={n.title}
+                        onClick={() => { setNotifOpen(false); if (n.tab) setActiveTab(n.tab as TabValue); }}
+                        className="w-full text-left px-3 py-2 hover:bg-slate-50"
+                      >
+                        <div className="text-[12px] font-medium text-slate-900">{n.title}</div>
+                        <div className="text-[11px] text-slate-500 leading-snug">{n.detail}</div>
+                        <div className="text-[10px] text-slate-400 mt-0.5">{n.time}</div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Exit */}
             <button
               onClick={() => {
                 sessionStorage.clear();
                 window.location.href = "/bankdemo";
               }}
-              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-slate-200 bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+              className="h-8 w-8 flex items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 hover:text-slate-900 hover:border-slate-300 transition-colors"
               title="Exit demo"
+              aria-label="Exit demo"
             >
-              <LogOut className="w-3 h-3" />
-              Exit
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
+
 
         {/* Content + Chat Panel */}
         <div className="flex flex-1 min-h-0">
