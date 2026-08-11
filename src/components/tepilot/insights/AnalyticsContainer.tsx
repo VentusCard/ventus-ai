@@ -374,15 +374,28 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           )}
           title="Drag to resize sidebar"
         />
-        <button
-          onClick={() => setCollapsed(!collapsed)}
-          className="relative z-10 flex items-center justify-center h-8 border-b border-white/10 hover:bg-white/5 transition-colors"
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-        >
-          {collapsed ? <ChevronRight className="w-4 h-4 text-indigo-200" /> : <ChevronLeft className="w-4 h-4 text-indigo-200" />}
-        </button>
+        <div className="relative z-10 flex h-14 items-center justify-between border-b border-white/10 px-3">
+          <div className="flex items-center gap-2.5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-indigo-500/20">
+              <Building2 className="h-4 w-4 text-white" />
+            </div>
+            {!collapsed && (
+              <div>
+                <h1 className="text-sm font-bold leading-tight text-white">Our Bank</h1>
+                <p className="text-[10px] leading-tight text-indigo-200/70">Customer Intelligence Platform</p>
+              </div>
+            )}
+          </div>
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="flex h-6 w-6 items-center justify-center rounded-md text-indigo-200 transition-colors hover:bg-white/10 hover:text-white"
+            title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          </button>
+        </div>
 
-        <nav className="relative z-10 flex-1 py-1 overflow-y-auto">
+        <nav className="relative z-10 flex-1 overflow-y-auto py-1">
           {filteredNavGroups.map((group) => {
             const isHome = group.label === "VENTUS AI";
             const isOpen = collapsed || isHome ? true : openGroups.has(group.label);
