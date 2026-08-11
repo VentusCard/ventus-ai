@@ -680,6 +680,11 @@ export function createSourceGroups(onOpenProducts?: () => void): SourceGroup[] {
       ],
     },
   ];
+}
+
+export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
+  const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  const sourceGroups = createSourceGroups(onOpenProducts);
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
   const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);
