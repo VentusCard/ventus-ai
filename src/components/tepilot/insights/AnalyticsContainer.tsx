@@ -572,7 +572,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
             {/* Ask Ventus AI omnibox — search and AI are the same entry point */}
             <div className="relative" ref={searchRef}>
               <span className="ventus-ai-live-dot absolute left-2.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" aria-hidden="true" />
-              <div className="w-72 h-8 rounded-md p-[1px] bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.18)]">
+              <div className="w-72 h-8 rounded-lg p-[1px] bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.18)]">
                 <input
                   value={searchQuery}
                   onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
@@ -587,7 +587,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                   }}
                   placeholder="Ask Ventus AI or search…"
                   aria-label="Ask Ventus AI or search the workspace"
-                  className="w-full h-full pl-7 pr-3 rounded-[5px] border-0 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:bg-white"
+                  className="w-full h-full pl-7 pr-3 rounded-[6px] border-0 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:bg-white"
                 />
               </div>
               {searchOpen && (
