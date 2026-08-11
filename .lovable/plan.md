@@ -1,15 +1,10 @@
-# System tab: vertical flow view
+# New tab: System Flow (vertical pipeline)
 
-Add a second view to the **System** tab in /bankdemo that presents the same architecture as a top-to-bottom pipeline instead of the current left-to-right wired diagram.
+Add a **separate top-level tab** in the /bankdemo sidebar — next to the existing "System" tab — that renders the same architecture as a top-to-bottom vertical flow. The existing System tab is left completely untouched.
 
 ## What the user sees
 
-The System page gets a sub-tab bar at the top:
-
-- **Architecture** — the existing horizontal diagram (unchanged, default).
-- **Flow** — the new vertical version.
-
-The Flow view stacks the pipeline as numbered stages, each a full-width band with a connector arrow between them:
+New sidebar item **"System Flow"** (directly under "System"). It shows the pipeline as numbered full-width stages with connectors between them:
 
 ```text
   1  DATA SOURCES        6 providers · 39 inputs   [KYC][Transactions][Holdings][Digital][Context][External]
@@ -24,13 +19,12 @@ The Flow view stacks the pipeline as numbered stages, each a full-width band wit
 ```
 
 Behavior:
-- Each stage band is expandable — clicking a chip opens the same detail content (inputs, signal items, team workflow steps) that the current diagram shows, rendered inline under that stage instead of in a side panel.
-- Selecting a signal or team highlights the related chips in the stages above and below it, so the path through the pipeline is visible.
-- Same light theme, same colors per signal/team, same copy and data — no new content invented.
+- Clicking a chip in any stage expands its detail inline under that stage — provider inputs, signal items, or the team's workflow steps — using the same copy that the current diagram shows.
+- Selecting a signal or team highlights the related chips in the stages above and below, making the path through the pipeline visible.
+- Same light theme and the same per-signal / per-team colors. No new content invented.
 
 ## Technical notes
 
-- Reuse the existing `SIGNALS`, `TEAMS`, `DESTINATIONS`, and `sourceGroups` data in `CapabilitiesView.tsx`; extract them into a shared module (`src/components/tepilot/insights/capabilities/capabilitiesData.ts`) so both views read one source of truth. `sourceGroups` currently lives inside the component because it depends on `onOpenProducts`; it becomes a factory function taking that callback.
-- New component `src/components/tepilot/insights/capabilities/SystemFlowView.tsx` renders the vertical stages.
-- `CapabilitiesView.tsx` keeps `TabHeader`, adds `SubTabBar` (existing component) with `architecture` / `flow`, and renders the current diagram body or the new flow view.
-- No routing or sidebar changes — this stays inside the existing `capabilities` tab.
+- New tab value `capabilities-flow` added to `TabValue` and to the same sidebar group as `capabilities` in `AnalyticsContainer.tsx`, with a `case` returning the new view.
+- New component `src/components/tepilot/insights/SystemFlowView.tsx`.
+- Data (`SIGNALS`, `TEAMS`, `DESTINATIONS`, the source groups) is extracted from `CapabilitiesView.tsx` into `src/components/tepilot/insights/capabilities/capabilitiesData.ts` so both tabs read one source of truth. The source groups become a factory function since they depend on the `onOpenProducts` callback. `CapabilitiesView` then imports from that module; its rendering is unchanged.
