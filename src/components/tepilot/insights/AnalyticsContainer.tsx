@@ -571,23 +571,25 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           <div className="flex items-center gap-2">
             {/* Ask Ventus AI omnibox — search and AI are the same entry point */}
             <div className="relative" ref={searchRef}>
-              <span className="ventus-ai-live-dot absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
-              <input
-                value={searchQuery}
-                onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
-                onFocus={() => setSearchOpen(true)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && searchQuery.trim()) {
-                    e.preventDefault();
-                    askVentus(searchQuery);
-                  } else if (e.key === 'Escape') {
-                    setSearchOpen(false);
-                  }
-                }}
-                placeholder="Ask Ventus AI or search…"
-                aria-label="Ask Ventus AI or search the workspace"
-                className="w-72 h-8 pl-7 pr-3 rounded-md border border-slate-200 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 focus:bg-white"
-              />
+              <span className="ventus-ai-live-dot absolute left-2.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" aria-hidden="true" />
+              <div className="w-72 h-8 rounded-md p-[1px] bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 transition-shadow focus-within:shadow-[0_0_0_3px_rgba(99,102,241,0.18)]">
+                <input
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
+                  onFocus={() => setSearchOpen(true)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && searchQuery.trim()) {
+                      e.preventDefault();
+                      askVentus(searchQuery);
+                    } else if (e.key === 'Escape') {
+                      setSearchOpen(false);
+                    }
+                  }}
+                  placeholder="Ask Ventus AI or search…"
+                  aria-label="Ask Ventus AI or search the workspace"
+                  className="w-full h-full pl-7 pr-3 rounded-[5px] border-0 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:bg-white"
+                />
+              </div>
               {searchOpen && (
                 <div className="absolute right-0 mt-1 w-80 max-h-80 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg z-50 py-1">
                   {searchQuery.trim() ? (
