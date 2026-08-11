@@ -487,7 +487,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                       <img
                         src={ventusAiWordmarkWhite}
                         alt="Ventus AI"
-                        className="h-4 w-auto object-contain brightness-0 invert"
+                        className="h-4 w-auto object-contain"
                         loading="lazy"
                       />
                     </div>
