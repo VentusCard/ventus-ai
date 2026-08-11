@@ -588,9 +588,8 @@ function SourceGroupCard({
   );
 }
 
-export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
-  const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
-  const sourceGroups: SourceGroup[] = [
+export function createSourceGroups(onOpenProducts?: () => void): SourceGroup[] {
+  return [
     {
       provider: "KYC",
       sublabel: "Identity & compliance",
