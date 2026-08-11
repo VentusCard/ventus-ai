@@ -14,7 +14,7 @@ export default function BankAnalyticsDashboard() {
   };
 
   return (
-    <SimplePasswordGate tagline="Behavioral intelligence and personalization engine for banks.">
+    <SimplePasswordGate tagline="Customer intelligence and personalization system for banks">
       <div className="tepilot-theme h-screen bg-white flex flex-col overflow-hidden">
         <AnalyticsContainer />
       </div>
