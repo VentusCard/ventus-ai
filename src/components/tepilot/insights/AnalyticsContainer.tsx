@@ -48,6 +48,11 @@ import {
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
   Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake, Search, Bell
 } from "lucide-react";
+import { PROMPT_GROUPS } from "./ventus-chat/PromptRail";
+
+// First question from each Ventus AI prompt theme — shown in the header omnibox when empty.
+const SUGGESTED_VENTUS_PROMPTS = PROMPT_GROUPS.map((g) => g.prompts[0]).filter(Boolean);
+
 
 const HEADER_NOTIFICATIONS: { title: string; detail: string; time: string; tab?: string }[] = [
   { title: "12 new life events detected", detail: "Home purchase and new-child signals ready for outreach.", time: "8m ago", tab: "targeting" },
