@@ -125,8 +125,8 @@ function Stage({
         </div>
       </div>
       {!last && (
-        <div className="flex justify-center" aria-hidden>
-          <div className="w-px h-2 bg-slate-300" />
+        <div className="flex-1 min-h-[10px] flex justify-center" aria-hidden>
+          <div className="w-px h-full bg-gradient-to-b from-slate-300 to-slate-200" />
         </div>
       )}
     </>
@@ -245,7 +245,7 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
 
       {/* Body */}
       <div className={cn("flex-1 min-h-0 grid gap-3", selection ? "grid-cols-[1fr_300px]" : "grid-cols-1")}>
-        <div className="min-h-0 flex flex-col justify-between">
+        <div className="min-h-0 flex flex-col">
           <Stage
             index={1}
             title="Data Sources"
