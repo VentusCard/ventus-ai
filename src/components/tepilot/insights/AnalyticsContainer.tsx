@@ -442,7 +442,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
             {!collapsed && (
               <div>
                 <h1 className="text-base font-bold leading-tight text-white">Our Bank</h1>
-                <p className="text-xs leading-tight text-indigo-200/70">Customer Intelligence Platform</p>
               </div>
             )}
           </div>
