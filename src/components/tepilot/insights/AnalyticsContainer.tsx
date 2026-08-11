@@ -553,57 +553,83 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Search */}
+            {/* Ask Ventus AI omnibox — search and AI are the same entry point */}
             <div className="relative" ref={searchRef}>
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <span className="ventus-ai-live-dot absolute left-2.5 top-1/2 -translate-y-1/2 pointer-events-none" aria-hidden="true" />
               <input
                 value={searchQuery}
                 onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
                 onFocus={() => setSearchOpen(true)}
-                placeholder="Search workspace…"
-                aria-label="Search workspace"
-                className="w-56 h-8 pl-8 pr-3 rounded-md border border-slate-200 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 focus:bg-white"
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && searchQuery.trim()) {
+                    e.preventDefault();
+                    askVentus(searchQuery);
+                  } else if (e.key === 'Escape') {
+                    setSearchOpen(false);
+                  }
+                }}
+                placeholder="Ask Ventus AI or search…"
+                aria-label="Ask Ventus AI or search the workspace"
+                className="w-72 h-8 pl-7 pr-3 rounded-md border border-slate-200 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-300 focus:bg-white"
               />
-              {searchOpen && searchQuery.trim() && (
-                <div className="absolute right-0 mt-1 w-72 max-h-72 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg z-50 py-1">
-                  {searchResults.length === 0 && (
-                    <div className="px-3 py-2 text-[12px] text-slate-400">No matches</div>
-                  )}
-                  {searchResults.map((r) => {
-                    const Icon = r.icon;
-                    return (
+              {searchOpen && (
+                <div className="absolute right-0 mt-1 w-80 max-h-80 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg z-50 py-1">
+                  {searchQuery.trim() ? (
+                    <>
                       <button
-                        key={r.value}
-                        onClick={() => { setActiveTab(r.value); setSearchQuery(""); setSearchOpen(false); }}
-                        className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-slate-50"
+                        onClick={() => askVentus(searchQuery)}
+                        className="w-full flex items-start gap-2 px-3 py-2 text-left bg-indigo-50/60 hover:bg-indigo-50"
                       >
-                        <Icon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                        <span className="text-[12px] text-slate-700 truncate">{r.label}</span>
-                        <span className="ml-auto text-[10px] text-slate-400 truncate">{r.group}</span>
+                        <Sparkles className="w-3.5 h-3.5 text-indigo-500 shrink-0 mt-0.5" />
+                        <span className="min-w-0">
+                          <span className="block text-[12px] font-medium text-slate-900 truncate">Ask Ventus AI: “{searchQuery.trim()}”</span>
+                          <span className="block text-[10px] text-slate-500">Press Enter to run this question</span>
+                        </span>
                       </button>
-                    );
-                  })}
+                      {searchResults.length > 0 && (
+                        <div className="px-3 pt-2 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Go to</div>
+                      )}
+                      {searchResults.map((r) => {
+                        const Icon = r.icon;
+                        return (
+                          <button
+                            key={r.value}
+                            onClick={() => { setActiveTab(r.value); setSearchQuery(""); setSearchOpen(false); }}
+                            className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-slate-50"
+                          >
+                            <Icon className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                            <span className="text-[12px] text-slate-700 truncate">{r.label}</span>
+                            <span className="ml-auto text-[10px] text-slate-400 truncate">{r.group}</span>
+                          </button>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <>
+                      <div className="px-3 pt-1 pb-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">Suggested questions</div>
+                      {SUGGESTED_VENTUS_PROMPTS.map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => askVentus(p)}
+                          className="w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-slate-50"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
+                          <span className="text-[12px] text-slate-700 truncate">{p}</span>
+                        </button>
+                      ))}
+                    </>
+                  )}
                 </div>
               )}
             </div>
 
-            {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && !chatOpen && (
-              <button
-                onClick={() => setChatOpen(true)}
-                className="ventus-ai-badge ventus-ai-badge-interactive"
-                title="Open Ventus AI"
-                aria-label="Open Ventus AI"
-              >
-                <span className="ventus-ai-live-dot" aria-hidden="true" />
-                Ventus AI
-              </button>
-            )}
             {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || activeTab === 'ventus-chat' || chatOpen) && (
               <div className="ventus-ai-badge" aria-label="Ventus AI is active">
                 <span className="ventus-ai-live-dot" aria-hidden="true" />
                 <span>Ventus AI</span>
               </div>
             )}
+
 
             {/* Notifications */}
             <div className="relative" ref={notifRef}>
