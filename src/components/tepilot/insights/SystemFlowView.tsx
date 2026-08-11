@@ -169,7 +169,7 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
   if (hasRun) {
     if ((session.detectedLifeEvents?.length ?? 0) > 0) liveSignalLabels.add("Life Event");
     if ((session.enrichedTxs?.length ?? 0) > 0) {
-      liveSignalLabels.add("Spending Habits");
+      liveSignalLabels.add("Behavioral");
       liveSignalLabels.add("Financial");
       liveSignalLabels.add("Demographic");
     }
