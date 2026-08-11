@@ -51,8 +51,8 @@ import {
 
 const HEADER_NOTIFICATIONS: { title: string; detail: string; time: string; tab?: string }[] = [
   { title: "12 new life events detected", detail: "Home purchase and new-child signals ready for outreach.", time: "8m ago", tab: "targeting" },
-  { title: "Campaign approval pending", detail: "Premium Travel Card segment awaiting sign-off.", time: "1h ago", tab: "campaign-builder" },
-  { title: "Wallet share alert", detail: "Outbound transfers up 6% in the affluent cohort.", time: "3h ago", tab: "merchant-partnerships" },
+  { title: "Campaign approval pending", detail: "Premium Travel Card segment awaiting sign-off.", time: "1h ago", tab: "targeting-campaign-builder" },
+  { title: "Wallet share alert", detail: "Outbound transfers up 6% in the affluent cohort.", time: "3h ago", tab: "growth-merchant-partnerships" },
 ];
 
 
