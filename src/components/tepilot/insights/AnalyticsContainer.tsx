@@ -46,7 +46,7 @@ import {
   BarChart3, Route, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake, Search, Bell
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake, Search, Bell, Lightbulb
 } from "lucide-react";
 import { PROMPT_GROUPS } from "./ventus-chat/PromptRail";
 
