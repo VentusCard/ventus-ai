@@ -407,7 +407,7 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               return (
                 <div key={group.label}>
                   {!collapsed && (
-                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-200/70">
+                    <div className="px-3 py-1.5 text-[12px] font-semibold uppercase tracking-wider text-indigo-100/90">
                       {group.label}
                     </div>
                   )}
