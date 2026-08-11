@@ -572,9 +572,20 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
 
           <div className="flex items-center gap-2">
             {/* Ask Ventus AI omnibox — search and AI are the same entry point */}
-            <div className="relative" ref={searchRef}>
-              <span className="ventus-ai-live-dot absolute left-2.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none" aria-hidden="true" />
-              <div className="w-72 h-8 rounded-xl p-[2px] bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 transition-shadow focus-within:shadow-[0_0_0_4px_rgba(99,102,241,0.22),0_0_20px_rgba(99,102,241,0.12)]">
+            <div className="relative group" ref={searchRef}>
+              {/* Animated gradient outer glow */}
+              <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-r from-indigo-500 via-violet-500 to-cyan-400 blur-md opacity-30 group-hover:opacity-60 transition duration-1000 group-hover:duration-200" />
+              {/* The omnibox */}
+              <div className="relative flex items-center w-72 h-9 bg-slate-900/90 backdrop-blur-2xl border border-white/10 rounded-xl px-3 shadow-2xl ring-1 ring-white/5">
+                {/* AI icon with live indicator */}
+                <div className="flex-shrink-0 mr-2.5 relative">
+                  <Lightbulb className="w-4 h-4 text-indigo-400" />
+                  <span className="absolute -top-0.5 -right-0.5 flex h-1.5 w-1.5">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75" />
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500" />
+                  </span>
+                </div>
+                {/* Input field */}
                 <input
                   value={searchQuery}
                   onChange={(e) => { setSearchQuery(e.target.value); setSearchOpen(true); }}
@@ -589,8 +600,18 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                   }}
                   placeholder="Ask Ventus AI or search…"
                   aria-label="Ask Ventus AI or search the workspace"
-                  className="w-full h-full pl-7 pr-3 rounded-[10px] border-0 bg-slate-50 text-[12px] text-slate-700 placeholder:text-slate-400 focus:outline-none focus:bg-white"
+                  className="flex-1 min-w-0 bg-transparent border-0 text-[13px] font-medium text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-0"
                 />
+                {/* Right badges */}
+                <div className="flex items-center gap-2 ml-3 flex-shrink-0">
+                  <span className="hidden sm:inline-flex items-center px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-[10px] font-medium text-slate-400 uppercase tracking-widest">
+                    ⌘K
+                  </span>
+                  <div className="h-3.5 w-px bg-white/10" />
+                  <span className="flex items-center text-[10px] font-semibold bg-gradient-to-br from-indigo-500 to-purple-600 text-white px-2 py-0.5 rounded-md shadow-lg shadow-indigo-500/20">
+                    AI
+                  </span>
+                </div>
               </div>
               {searchOpen && (
                 <div className="absolute right-0 mt-1 w-80 max-h-80 overflow-y-auto rounded-md border border-slate-200 bg-white shadow-lg z-50 py-1">
