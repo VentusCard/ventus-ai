@@ -46,8 +46,15 @@ import {
   BarChart3, Route, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake, Search, Bell
 } from "lucide-react";
+
+const HEADER_NOTIFICATIONS: { title: string; detail: string; time: string; tab?: string }[] = [
+  { title: "12 new life events detected", detail: "Home purchase and new-child signals ready for outreach.", time: "8m ago", tab: "targeting" },
+  { title: "Campaign approval pending", detail: "Premium Travel Card segment awaiting sign-off.", time: "1h ago", tab: "campaign-builder" },
+  { title: "Wallet share alert", detail: "Outbound transfers up 6% in the affluent cohort.", time: "3h ago", tab: "merchant-partnerships" },
+];
+
 
 import { toast } from "@/hooks/use-toast";
 import { VentusAIDashboardView } from "./VentusAIDashboardView";
