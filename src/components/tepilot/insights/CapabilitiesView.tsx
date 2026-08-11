@@ -65,7 +65,7 @@ type SourceInput = {
   fcra?: boolean;
 };
 
-type SourceGroup = {
+export type SourceGroup = {
   provider: string;
   sublabel: string;
   icon: React.ElementType;
@@ -75,14 +75,14 @@ type SourceGroup = {
   openLabel?: string;
 };
 
-type Destination = {
+export type Destination = {
   label: string;
   sublabel: string;
   icon: React.ElementType;
 };
 
 
-type SignalDetail = {
+export type SignalDetail = {
   label: string;
   icon: React.ElementType;
   color: string;
@@ -92,7 +92,7 @@ type SignalDetail = {
   items: { label: string; sublabel: string; icon?: React.ElementType }[];
 };
 
-const SIGNALS: SignalDetail[] = [
+export const SIGNALS: SignalDetail[] = [
   {
     label: "Life Event",
     icon: CalendarHeart,
@@ -202,10 +202,10 @@ const SIGNALS: SignalDetail[] = [
 ];
 
 type WorkflowChipKind = "signal" | "destination" | "product" | "system";
-type WorkflowChip = { label: string; kind: WorkflowChipKind };
-type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
+export type WorkflowChip = { label: string; kind: WorkflowChipKind };
+export type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
 
-type TeamDetail = {
+export type TeamDetail = {
   label: string;
   shortLabel?: string;
   icon: React.ElementType;
@@ -230,12 +230,12 @@ const CHIP_KIND_TINTS: Record<WorkflowChipKind, string> = {
   product: "bg-indigo-50 text-indigo-700 border-indigo-200",
   system: "bg-zinc-100 text-zinc-700 border-zinc-200",
 };
-function chipClass(chip: WorkflowChip) {
+export function chipClass(chip: WorkflowChip) {
   if (chip.kind === "signal" && SIGNAL_CHIP_TINTS[chip.label]) return SIGNAL_CHIP_TINTS[chip.label];
   return CHIP_KIND_TINTS[chip.kind];
 }
 
-const TEAMS: TeamDetail[] = [
+export const TEAMS: TeamDetail[] = [
   {
     label: "Product & Growth",
     icon: TrendingUp,
@@ -386,7 +386,7 @@ const TEAMS: TeamDetail[] = [
   },
 ];
 
-const DESTINATIONS: Destination[] = [
+export const DESTINATIONS: Destination[] = [
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
   { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
