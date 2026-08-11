@@ -65,7 +65,7 @@ type SourceInput = {
   fcra?: boolean;
 };
 
-export type SourceGroup = {
+type SourceGroup = {
   provider: string;
   sublabel: string;
   icon: React.ElementType;
@@ -75,14 +75,14 @@ export type SourceGroup = {
   openLabel?: string;
 };
 
-export type Destination = {
+type Destination = {
   label: string;
   sublabel: string;
   icon: React.ElementType;
 };
 
 
-export type SignalDetail = {
+type SignalDetail = {
   label: string;
   icon: React.ElementType;
   color: string;
@@ -92,7 +92,7 @@ export type SignalDetail = {
   items: { label: string; sublabel: string; icon?: React.ElementType }[];
 };
 
-export const SIGNALS: SignalDetail[] = [
+const SIGNALS: SignalDetail[] = [
   {
     label: "Life Event",
     icon: CalendarHeart,
@@ -202,10 +202,10 @@ export const SIGNALS: SignalDetail[] = [
 ];
 
 type WorkflowChipKind = "signal" | "destination" | "product" | "system";
-export type WorkflowChip = { label: string; kind: WorkflowChipKind };
-export type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
+type WorkflowChip = { label: string; kind: WorkflowChipKind };
+type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
 
-export type TeamDetail = {
+type TeamDetail = {
   label: string;
   shortLabel?: string;
   icon: React.ElementType;
@@ -230,12 +230,12 @@ const CHIP_KIND_TINTS: Record<WorkflowChipKind, string> = {
   product: "bg-indigo-50 text-indigo-700 border-indigo-200",
   system: "bg-zinc-100 text-zinc-700 border-zinc-200",
 };
-export function chipClass(chip: WorkflowChip) {
+function chipClass(chip: WorkflowChip) {
   if (chip.kind === "signal" && SIGNAL_CHIP_TINTS[chip.label]) return SIGNAL_CHIP_TINTS[chip.label];
   return CHIP_KIND_TINTS[chip.kind];
 }
 
-export const TEAMS: TeamDetail[] = [
+const TEAMS: TeamDetail[] = [
   {
     label: "Product & Growth",
     icon: TrendingUp,
@@ -386,7 +386,7 @@ export const TEAMS: TeamDetail[] = [
   },
 ];
 
-export const DESTINATIONS: Destination[] = [
+const DESTINATIONS: Destination[] = [
   { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
   { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
   { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
@@ -588,8 +588,9 @@ function SourceGroupCard({
   );
 }
 
-export function createSourceGroups(onOpenProducts?: () => void): SourceGroup[] {
-  return [
+export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
+  const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
+  const sourceGroups: SourceGroup[] = [
     {
       provider: "KYC",
       sublabel: "Identity & compliance",
@@ -680,11 +681,6 @@ export function createSourceGroups(onOpenProducts?: () => void): SourceGroup[] {
       ],
     },
   ];
-}
-
-export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
-  const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
-  const sourceGroups = createSourceGroups(onOpenProducts);
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
   const [activeTeamLabel, setActiveTeamLabel] = useState<string | null>(null);

@@ -13,7 +13,6 @@ import { SubscriptionAnalyticsView } from "./SubscriptionAnalyticsView";
 
 import { TabHeader } from "./TabHeader";
 import { CapabilitiesView } from "./CapabilitiesView";
-import { SystemFlowView } from "./SystemFlowView";
 import { BankContextView } from "./BankContextView";
 import { SettingsContainer } from "./SettingsContainer";
 import { GovernanceView } from "../governance/GovernanceView";
@@ -47,7 +46,7 @@ import {
   BarChart3, Route, Heart, Sparkles, FileBarChart,
   CalendarHeart, Briefcase, ChevronLeft, ChevronRight, ChevronDown, Package,
   Building2, ArrowLeft, Bot, MessageSquare, MessagesSquare, Settings, CreditCard, ShieldAlert, Users,
-  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake, GitBranch
+  Zap, Megaphone, Layers, Presentation, LogOut, Gem, ShieldCheck, Handshake
 } from "lucide-react";
 
 import { toast } from "@/hooks/use-toast";
@@ -61,7 +60,7 @@ import { VentusAIChatPanel } from "./VentusAIChatPanel";
 import { FeedbackPage } from "./FeedbackPage";
 import { MODULE_NAV_GROUP_MAP, type ModuleKey } from "@/types/demo";
 
-export type TabValue = 'ventus-ai-dashboard' | 'ventus-chat' | 'customers' | 'ventus-ai' | 'capabilities' | 'capabilities-flow' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
+export type TabValue = 'ventus-ai-dashboard' | 'ventus-chat' | 'customers' | 'ventus-ai' | 'capabilities' | 'products' | 'exec-demo' | 'ai-assistant-activity' | 'analytics-dashboard' | 'reports' | 'report-lifestyle-pillars' | 'report-pillar-deep-dive' | 'report-cross-sell' | 'report-regional-spend' | 'report-outflow' | 'report-top-merchants' | 'report-subscription' | 'report-cohort-retention' | 'report-life-events' | 'report-fvi' | 'report-tier-migration' | 'report-life-event-funnel' | 'report-wallet-share' | 'report-travel-trips' | 'report-next-conversation' | 'report-priority-opportunity' | 'dashboard' | 'targeting' | 'targeting-automated-flows' | 'targeting-campaign-builder' | 'growth-merchant-partnerships' | 'wallet-share' | 'customer-insights' | 'personalized-deals' | 'gamification' | 'rewards-intelligence' | 'location-experience' | 'life-events' | 'deal-management' | 'wm-copilot' | 'subscription-analytics' | 'fvi-dashboard' | 'settings' | 'feedback' | 'governance' | 'personalized-relationship';
 
 interface NavItem {
   value: TabValue;
@@ -74,7 +73,6 @@ const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
     label: "VENTUS AI",
     items: [
       { value: "capabilities", label: "System", icon: Layers },
-      { value: "capabilities-flow", label: "System Flow", icon: GitBranch },
       { value: "products", label: "Context", icon: Package },
       { value: "exec-demo", label: "Demo", icon: Presentation },
       { value: "governance", label: "Governance", icon: ShieldCheck },
@@ -286,7 +284,6 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
       case 'analytics-dashboard':
         return <VentusAIDashboardView onNavigate={setActiveTab} onOpenChat={openVentusChat} onOpenInteractiveReport={openInteractiveReport} onOpenOpportunity={(id) => openInteractiveReport('priority-opportunity', { opportunityId: id })} />;
       case 'capabilities': return <CapabilitiesView onOpenProducts={() => setActiveTab('products')} />;
-      case 'capabilities-flow': return <SystemFlowView onOpenProducts={() => setActiveTab('products')} />;
       case 'products': return <BankContextView />;
       // 'exec-demo' is rendered as a persistent mount outside renderContent so
       // its state (enrichment, persona, offers, product cards) survives tab
