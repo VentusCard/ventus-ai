@@ -8,7 +8,7 @@ import {
   chipClass,
 } from "./CapabilitiesView";
 import { cn } from "@/lib/utils";
-import { ChevronDown, Database, Cpu, Layers, Users, Send } from "lucide-react";
+import { ChevronDown, Database, Cpu, Layers, Users, Send, GitBranch } from "lucide-react";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
 
 type Selection = { stage: string; key: string } | null;
