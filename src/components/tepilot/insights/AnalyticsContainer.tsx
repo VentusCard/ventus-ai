@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import ventusAiWordmarkWhite from "@/assets/ventus-ai-wordmark-white.png";
 import { BankwideView } from "./BankwideView";
 import { SegmentTargetingView } from "../campaigns/SegmentTargetingView";
 import { ProductAutomatedFlowsView } from "../campaigns/ProductAutomatedFlowsView";
@@ -482,8 +483,13 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               return (
                 <div key={group.label}>
                   {!collapsed && (
-                    <div className="px-3 py-1.5 text-[12px] font-semibold uppercase tracking-wider text-indigo-100/90">
-                      {group.label}
+                    <div className="flex items-center px-3 py-2">
+                      <img
+                        src={ventusAiWordmarkWhite}
+                        alt="Ventus AI"
+                        className="h-4 w-auto object-contain"
+                        loading="lazy"
+                      />
                     </div>
                   )}
                   {renderItems()}
