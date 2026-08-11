@@ -106,12 +106,12 @@ function Stage({
 }) {
   return (
     <>
-      <div className="rounded-lg border border-slate-200 bg-white shadow-sm flex min-h-0">
+      <div className="rounded-lg border border-slate-200 bg-white shadow-sm flex items-stretch min-h-0 flex-1">
         <div className="flex flex-col items-center justify-center gap-1 px-2 border-r border-slate-100 bg-slate-50/70 rounded-l-lg shrink-0 w-9">
           <span className="text-[10px] font-bold text-slate-900">{index}</span>
           <Icon className="w-3 h-3 text-slate-400" />
         </div>
-        <div className="min-w-0 flex-1 p-2">
+        <div className="min-w-0 flex-1 p-2 flex flex-col justify-center">
           <div className="flex items-baseline justify-between gap-3 mb-1.5">
             <div className="min-w-0 flex items-baseline gap-2">
               <span className="text-[11px] font-bold uppercase tracking-wide text-slate-900 shrink-0">
@@ -125,8 +125,8 @@ function Stage({
         </div>
       </div>
       {!last && (
-        <div className="flex-1 min-h-[10px] flex justify-center" aria-hidden>
-          <div className="w-px h-full bg-gradient-to-b from-slate-300 to-slate-200" />
+        <div className="shrink-0 h-3 flex justify-center" aria-hidden>
+          <div className="w-px h-full bg-slate-300" />
         </div>
       )}
     </>
