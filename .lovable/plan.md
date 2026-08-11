@@ -1,8 +1,23 @@
 # System Flow as a single-screen status board
 
-Rework the **System Flow** tab so the whole pipeline fits in one viewport with no page scrolling, and every element doubles as a live system status chip.
+Rework the **System Flow** tab so the whole pipeline fits in one viewport with no page scrolling, every element doubles as a live system status chip, and the board reads as the Ventus value proposition at a glance.
+
+## Value proposition framing
+
+The one-pager should answer, without scrolling: *what goes in, what Ventus does to it, and what the bank gets out.*
+
+- Header line states the thesis: one enrichment layer turns the bank's existing rails into customer intelligence that every team activates — no bespoke pipeline per destination.
+- Each stage carries a short outcome caption alongside its status, consistent with the rest of /bankdemo:
+  - Data Sources — "Bank-native rails you already run" (cores, processors, digital, bureau).
+  - Ventus AI Engine — "Raw strings become resolved, classified, scored behavior."
+  - Signal Layers — "Five signal families per customer: life event, spending habits, financial, demographic, risk."
+  - Bank Teams — "Product & Growth, Wealth & Relationship, Deals & Rewards read the same canonical signal."
+  - Destinations — "Activated in the systems of record the bank already uses."
+- A right-edge outcome rail on the header row shows the payoff metrics the demo already claims elsewhere (personalization lift vs. generic, coverage of customers with at least one live signal, time from transaction to activated signal) — reusing existing demo copy, no new claims invented.
+- Copy stays inside the house rules: vaguely specific behavioral language, no exact spend amounts or transaction counts, opportunity framing rather than risk framing, no backend infrastructure or competitor names.
 
 ## What changes
+
 
 **One screen, no scroll**
 - The view becomes a fixed-height column that fills the available panel height (`h-full`, `overflow-hidden`), with the five stages sized to share that height instead of stacking past the fold.
