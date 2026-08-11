@@ -178,8 +178,11 @@ export function SystemFlowView({ onOpenProducts }: { onOpenProducts?: () => void
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <TabHeader
+        icon={<GitBranch className="w-4 h-4" />}
         title="System Flow"
-        subtitle="The full pipeline top to bottom — sources, engine, signal layers, the teams that consume them, and where output lands."
+        subtitle="The full pipeline top to bottom — sources, engine, signal layers, teams, destinations."
+        howItWorks="Each stage feeds the next: raw inputs from six providers are normalized and enriched by the engine, synthesized into five signal layers, consumed by bank teams, and delivered into the systems the bank already runs. Click any chip to expand its detail."
+        whyItMatters="One vertical view of the whole architecture makes it obvious where a signal comes from, who acts on it, and which channel the customer finally sees it in."
       />
 
       <div className="mt-6">
