@@ -339,85 +339,50 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     }
   };
 
-  return (
-    <div className="w-full h-full flex flex-col border border-slate-200 overflow-hidden bg-white">
-      {/* Professional Header */}
-      <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200">
-        <div className="flex items-center gap-3">
-          {onBack && (
-            <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
-              <ArrowLeft className="w-4 h-4" />
-            </Button>
-          )}
-          <div className="flex items-center gap-2.5">
-            <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
-              <Building2 className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <h1 className="text-sm font-bold text-slate-900 leading-tight">Our Bank</h1>
-              <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
-            </div>
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <span className="text-[11px] text-slate-400">Last updated: {today}</span>
-          {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && !chatOpen && (
-            <button
-              onClick={() => setChatOpen(true)}
-              className="ventus-ai-badge ventus-ai-badge-interactive"
-              title="Open Ventus AI"
-              aria-label="Open Ventus AI"
-            >
-              <span className="ventus-ai-live-dot" aria-hidden="true" />
-              Ventus AI
-            </button>
-          )}
-          {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || activeTab === 'ventus-chat' || chatOpen) && (
-            <div className="ventus-ai-badge" aria-label="Ventus AI is active">
-              <span className="ventus-ai-live-dot" aria-hidden="true" />
-              <span>Ventus AI</span>
-            </div>
-          )}
-          <button
-            onClick={() => {
-              sessionStorage.clear();
-              window.location.href = "/bankdemo";
-            }}
-            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-slate-200 bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
-            title="Exit demo"
-          >
-            <LogOut className="w-3 h-3" />
-            Exit
-          </button>
-        </div>
-      </div>
+  const navButtonClasses = (isActive: boolean, collapsed: boolean) => cn(
+    "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
+    collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
+    isActive
+      ? "bg-white/10 text-white border-l-2 border-indigo-400 font-medium shadow-[0_0_12px_rgba(79,70,229,0.15)]"
+      : "text-indigo-100/80 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
+  );
 
-      <div className="flex flex-1 min-h-0">
+  const navIconClasses = (isActive: boolean) => cn(
+    "w-4 h-4 shrink-0",
+    isActive ? "text-indigo-400" : "text-indigo-200/60"
+  );
+
+  return (
+    <div className="w-full h-full flex border border-slate-200 overflow-hidden bg-white">
+      {/* Sidebar */}
       <div
         ref={sidebarRef}
         style={collapsed ? undefined : { width: sidebarWidth }}
         className={cn(
-          "relative shrink-0 border-r border-slate-200 bg-slate-50/80 flex flex-col",
+          "relative shrink-0 h-full flex flex-col",
+          "bg-gradient-to-b from-[#0a0a1a] via-[#141432] to-[#1e1e5a]",
           collapsed ? "w-[52px] transition-all duration-200" : !isResizing && "transition-all duration-200"
         )}
       >
+        {/* Ambient intelligent glow */}
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_0%,rgba(79,70,229,0.18),transparent_45%)]" />
         <div
           onPointerDown={handleResizeStart}
           className={cn(
             "absolute top-0 right-0 z-10 h-full w-1.5 cursor-col-resize transition-colors",
-            isResizing ? "bg-blue-400" : "bg-transparent hover:bg-blue-300/50"
+            isResizing ? "bg-indigo-400" : "bg-transparent hover:bg-white/20"
           )}
           title="Drag to resize sidebar"
         />
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center justify-center h-8 border-b border-slate-200 hover:bg-slate-100 transition-colors"
+          className="relative z-10 flex items-center justify-center h-8 border-b border-white/10 hover:bg-white/5 transition-colors"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? <ChevronRight className="w-4 h-4 text-slate-500" /> : <ChevronLeft className="w-4 h-4 text-slate-500" />}
+          {collapsed ? <ChevronRight className="w-4 h-4 text-indigo-200" /> : <ChevronLeft className="w-4 h-4 text-indigo-200" />}
         </button>
 
-        <nav className="flex-1 py-1 overflow-y-auto">
+        <nav className="relative z-10 flex-1 py-1 overflow-y-auto">
           {filteredNavGroups.map((group) => {
             const isHome = group.label === "VENTUS AI";
             const isOpen = collapsed || isHome ? true : openGroups.has(group.label);
@@ -430,15 +395,9 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                   key={item.value}
                   onClick={() => setActiveTab(item.value)}
                   title={collapsed ? item.label : undefined}
-                  className={cn(
-                    "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
-                    collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
-                    isActive
-                      ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
-                  )}
+                  className={navButtonClasses(isActive, collapsed)}
                 >
-                  <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+                  <Icon className={navIconClasses(isActive)} />
                   {!collapsed && <span className="truncate">{item.label}</span>}
                 </button>
               );
@@ -448,12 +407,12 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               return (
                 <div key={group.label}>
                   {!collapsed && (
-                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+                    <div className="px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-200/70">
                       {group.label}
                     </div>
                   )}
                   {renderItems()}
-                  {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200" />}
+                  {!collapsed && <div className="mx-3 my-0.5 border-b border-white/10" />}
                 </div>
               );
             }
@@ -475,22 +434,22 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
               }}
             >
               {!collapsed && (
-                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-slate-400 hover:text-slate-600">
+                <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-1.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-200/70 hover:text-white">
                   {group.label}
-                  <ChevronDown className={cn("w-3 h-3 transition-transform", isOpen ? "rotate-0" : "-rotate-90")} />
+                  <ChevronDown className={cn("w-3 h-3 transition-transform text-indigo-200/70", isOpen ? "rotate-0" : "-rotate-90")} />
                 </CollapsibleTrigger>
               )}
               <CollapsibleContent>
                 {renderItems()}
               </CollapsibleContent>
-              {!collapsed && <div className="mx-3 my-0.5 border-b border-slate-200 last:hidden" />}
+              {!collapsed && <div className="mx-3 my-0.5 border-b border-white/10 last:hidden" />}
             </Collapsible>
             );
           })}
 
         </nav>
 
-        <div className="mt-auto border-t border-slate-200 py-1">
+        <div className="relative z-10 mt-auto border-t border-white/10 py-1">
           {[
             { label: "Feedback & Ideas", icon: MessageSquare, tab: 'feedback' as const },
             { label: "Settings", icon: Settings, tab: 'settings' as const },
@@ -502,15 +461,9 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
                 key={item.label}
                 onClick={() => setActiveTab(item.tab)}
                 title={collapsed ? item.label : undefined}
-                className={cn(
-                  "w-full flex items-center gap-2.5 text-left text-[13px] transition-colors",
-                  collapsed ? "justify-center px-0 py-1.5" : "px-3 py-1.5",
-                  isActive
-                    ? "bg-blue-50 text-blue-700 border-l-2 border-blue-600 font-medium"
-                    : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 border-l-2 border-transparent"
-                )}
+                className={navButtonClasses(isActive, collapsed)}
               >
-                <Icon className={cn("w-4 h-4 shrink-0", isActive ? "text-blue-600" : "text-slate-400")} />
+                <Icon className={navIconClasses(isActive)} />
                 {!collapsed && <span className="truncate">{item.label}</span>}
               </button>
             );
@@ -518,54 +471,110 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
         </div>
       </div>
 
-      {/* Content */}
-      <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
-        {(activeTab === 'targeting' || activeTab === 'targeting-automated-flows') && (
-          <div className="mb-4">
-            <AutonomousActivityFeed />
+      {/* Main area */}
+      <div className="flex-1 flex flex-col min-h-0">
+        {/* Professional Header */}
+        <div className="flex items-center justify-between px-5 py-3 bg-white border-b border-slate-200 shrink-0">
+          <div className="flex items-center gap-3">
+            {onBack && (
+              <Button variant="ghost" size="icon" className="text-slate-500 hover:bg-slate-100 hover:text-slate-900 shrink-0 h-8 w-8" onClick={onBack}>
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+            )}
+            <div className="flex items-center gap-2.5">
+              <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-slate-900">
+                <Building2 className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-sm font-bold text-slate-900 leading-tight">Our Bank</h1>
+                <p className="text-[11px] text-slate-400 leading-tight">Customer Intelligence and Personalization Platform</p>
+              </div>
+            </div>
           </div>
-        )}
-        {renderContent()}
+          <div className="flex items-center gap-4">
+            <span className="text-[11px] text-slate-400">Last updated: {today}</span>
+            {activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && !chatOpen && (
+              <button
+                onClick={() => setChatOpen(true)}
+                className="ventus-ai-badge ventus-ai-badge-interactive"
+                title="Open Ventus AI"
+                aria-label="Open Ventus AI"
+              >
+                <span className="ventus-ai-live-dot" aria-hidden="true" />
+                Ventus AI
+              </button>
+            )}
+            {(activeTab === 'ventus-ai' || activeTab === 'ventus-ai-dashboard' || activeTab === 'ventus-chat' || chatOpen) && (
+              <div className="ventus-ai-badge" aria-label="Ventus AI is active">
+                <span className="ventus-ai-live-dot" aria-hidden="true" />
+                <span>Ventus AI</span>
+              </div>
+            )}
+            <button
+              onClick={() => {
+                sessionStorage.clear();
+                window.location.href = "/bankdemo";
+              }}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium border border-slate-200 bg-white text-slate-500 hover:text-slate-700 hover:border-slate-300 transition-colors"
+              title="Exit demo"
+            >
+              <LogOut className="w-3 h-3" />
+              Exit
+            </button>
+          </div>
+        </div>
 
-        {/*
-          Persistent Demo mount — kept alive across tab switches so the
-          pre-fired enrichment pipeline (classification, persona, offers,
-          product cards) is ready the moment the user clicks the Demo tab.
-          Hidden via CSS instead of unmounting so React state is preserved.
-        */}
-        <div
-          className={cn(
-            "-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white",
-            activeTab === 'exec-demo' ? "block" : "hidden",
+        {/* Content + Chat Panel */}
+        <div className="flex flex-1 min-h-0">
+          {/* Content */}
+          <div ref={contentRef} className="flex-1 min-w-0 overflow-y-auto p-4 relative">
+            {(activeTab === 'targeting' || activeTab === 'targeting-automated-flows') && (
+              <div className="mb-4">
+                <AutonomousActivityFeed />
+              </div>
+            )}
+            {renderContent()}
+
+            {/*
+              Persistent Demo mount — kept alive across tab switches so the
+              pre-fired enrichment pipeline (classification, persona, offers,
+              product cards) is ready the moment the user clicks the Demo tab.
+              Hidden via CSS instead of unmounting so React state is preserved.
+            */}
+            <div
+              className={cn(
+                "-m-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] overflow-hidden bg-white",
+                activeTab === 'exec-demo' ? "block" : "hidden",
+              )}
+            >
+              <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
+            </div>
+
+            {/* Persistent Ventus AI chat mount — keeps the conversation across tab switches. */}
+            <div className={cn("h-full", activeTab === 'ventus-chat' ? "block" : "hidden")}>
+              <VentusAIChatPage
+                active={activeTab === 'ventus-chat'}
+                pendingPrompt={activeTab === 'ventus-chat' ? pendingChatPrompt : null}
+                onPendingPromptConsumed={() => setPendingChatPrompt(null)}
+                onNavigate={(tab) => setActiveTab(tab as TabValue)}
+              />
+            </div>
+
+          </div>
+
+          {/* Chat Panel */}
+          {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && (
+            <VentusAIChatPanel
+              activeTab={activeTab}
+              onClose={() => setChatOpen(false)}
+              contextExtras={
+                activeTab === 'report-priority-opportunity' && selectedOpportunityId
+                  ? { selectedOpportunityId }
+                  : undefined
+              }
+            />
           )}
-        >
-          <ExecDemoPage embedded prefireOnMount active={activeTab === 'exec-demo'} onBack={() => setActiveTab('ventus-ai-dashboard')} />
         </div>
-
-        {/* Persistent Ventus AI chat mount — keeps the conversation across tab switches. */}
-        <div className={cn("h-full", activeTab === 'ventus-chat' ? "block" : "hidden")}>
-          <VentusAIChatPage
-            active={activeTab === 'ventus-chat'}
-            pendingPrompt={activeTab === 'ventus-chat' ? pendingChatPrompt : null}
-            onPendingPromptConsumed={() => setPendingChatPrompt(null)}
-            onNavigate={(tab) => setActiveTab(tab as TabValue)}
-          />
-        </div>
-
-      </div>
-
-      {/* Chat Panel */}
-      {chatOpen && activeTab !== 'ventus-ai' && activeTab !== 'ventus-ai-dashboard' && activeTab !== 'ventus-chat' && (
-        <VentusAIChatPanel
-          activeTab={activeTab}
-          onClose={() => setChatOpen(false)}
-          contextExtras={
-            activeTab === 'report-priority-opportunity' && selectedOpportunityId
-              ? { selectedOpportunityId }
-              : undefined
-          }
-        />
-      )}
       </div>
     </div>
   );
