@@ -280,11 +280,14 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     [filteredNavGroups, activeTab],
   );
   const [openGroups, setOpenGroups] = useState<Set<string>>(
-    () => new Set(activeGroupLabel ? [activeGroupLabel] : []),
+    () => new Set(filteredNavGroups.map((g) => g.label)),
   );
+  // Keep all groups expanded by default; only sync if the active group is newly added.
   useEffect(() => {
-    setOpenGroups(new Set(activeGroupLabel ? [activeGroupLabel] : []));
-  }, [activeTab, activeGroupLabel]);
+    if (activeGroupLabel && !openGroups.has(activeGroupLabel)) {
+      setOpenGroups((prev) => new Set([...prev, activeGroupLabel]));
+    }
+  }, [activeGroupLabel]);
   const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 
   // Global header: breadcrumb label, workspace search, notifications
