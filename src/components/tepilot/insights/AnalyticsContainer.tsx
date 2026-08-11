@@ -156,6 +156,17 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
     setActiveTab('ventus-chat');
   };
 
+  // Header omnibox: search and "Ask Ventus AI" are the same entry point.
+  const askVentus = (question: string) => {
+    const q = question.trim();
+    if (!q) return;
+    setSearchQuery("");
+    setSearchOpen(false);
+    setChatOpen(false);
+    openVentusChat(q);
+  };
+
+
 
 
   const MIN_SIDEBAR_WIDTH = 220;
