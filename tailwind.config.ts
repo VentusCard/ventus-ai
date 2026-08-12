@@ -294,6 +294,7 @@ export default {
 			// Animations
 			animation: {
 				// Core Animations
+				'rollup': 'rollup 0.45s cubic-bezier(0.22, 1, 0.36, 1)',
 				'accordion-down': 'accordion-down 0.3s cubic-bezier(0.87, 0, 0.13, 1)',
 				'accordion-up': 'accordion-up 0.3s cubic-bezier(0.87, 0, 0.13, 1)',
 				'collapsible-down': 'collapsible-down 0.2s ease-out',
