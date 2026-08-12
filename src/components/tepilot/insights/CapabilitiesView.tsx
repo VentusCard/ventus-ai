@@ -476,6 +476,7 @@ function SourceGroupCard({
   onSelect: () => void;
 }) {
   const Icon = group.icon;
+  const isExternal = /external/i.test(group.provider);
   return (
     <button
       type="button"
@@ -487,7 +488,12 @@ function SourceGroupCard({
           : "border-slate-100 hover:border-slate-200",
       )}
     >
-      <div className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+      <div
+        className={cn(
+          "flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg",
+          isExternal ? "bg-amber-50 text-amber-600" : "bg-sky-50 text-sky-600",
+        )}
+      >
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
@@ -498,10 +504,16 @@ function SourceGroupCard({
           {group.sublabel} · {group.inputs.length}
         </div>
       </div>
+      {isExternal && (
+        <span className="flex-none rounded border border-amber-200 px-1.5 py-px font-mono text-[9px] uppercase tracking-wide text-amber-600">
+          Modeled
+        </span>
+      )}
       <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
     </button>
   );
 }
+
 
 
 const SIGNAL_BASIS: Record<string, "First-party" | "Both" | "Modeled"> = {
