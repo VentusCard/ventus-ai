@@ -1023,7 +1023,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             </span>
                             <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
                               <span className="min-w-0 truncate">
-                                {t.items.length} workflows
+                                {t.items.length} flows
                               </span>
                               <span className="ml-auto flex-none rounded bg-white/[0.06] px-1.5 py-px text-[9px] tracking-wide text-slate-300">
                                 {destCount} dest
