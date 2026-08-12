@@ -267,22 +267,22 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
   {
     team: "Bank Leadership",
     items: [
-      { label: "Intelligence Dashboard", sublabel: "Customer intelligence + risk", icon: BarChart3 },
-      { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
+      { label: "Intelligence Dashboard", sublabel: "Access reports, query & API", icon: BarChart3 },
+      { label: "Ventus AI Coworker", sublabel: "Intelligence for very colleague, 24/7", icon: Briefcase },
     ],
   },
   {
     team: "Product & Growth",
     items: [
-      { label: "Campaign Builder", sublabel: "Segment-of-one campaigns", icon: Megaphone },
-      { label: "Personalized Product", sublabel: "Next-product routing", icon: Route },
+      { label: "Automations Campaign", sublabel: "Signal-driven personalized campaigns", icon: Megaphone },
+      { label: "Custom Product Builder", sublabel: "Hyper-personalized campaigns", icon: Route },
     ],
   },
   {
     team: "Rewards and Deals",
     items: [
-      { label: "Personalized Deals", sublabel: "Next-deal + perks", icon: Sparkles },
-      { label: "Digital Banking App", sublabel: "Mobile + web delivery", icon: Smartphone },
+      { label: "Personalized Reward Program", sublabel: "Hyper-personalized CLO program", icon: Sparkles },
+      { label: "Local Merchant Deals\u00a0", sublabel: "AI assisted local deal capture", icon: Smartphone },
     ],
   },
 ];
