@@ -393,6 +393,99 @@ const BASIS_BADGE_DARK: Record<string, string> = {
   Modeled: "bg-amber-400/15 text-amber-200",
 };
 
+const DETECTION_BASIS_CLASS: Record<Detection["basis"], string> = {
+  "1P": "bg-sky-400/15 text-sky-200",
+  Ext: "bg-amber-400/15 text-amber-200",
+  Both: "bg-white/[0.08] text-slate-200",
+};
+
+/* A single standing signal section with a rolling detection ticker. */
+function SignalSection({
+  signal,
+  count,
+  isActive,
+  startDelay,
+  interval,
+  onSelect,
+}: {
+  signal: SignalDetail;
+  count: string;
+  isActive: boolean;
+  startDelay: number;
+  interval: number;
+  onSelect: () => void;
+}) {
+  const [idx, setIdx] = useState(0);
+  const trackRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) return;
+    let id: number;
+    const start = window.setTimeout(() => {
+      id = window.setInterval(() => {
+        setIdx((i) => (i + 1) % signal.examples.length);
+      }, interval);
+    }, startDelay);
+    return () => {
+      window.clearTimeout(start);
+      window.clearInterval(id);
+    };
+  }, [signal.examples.length, startDelay, interval]);
+
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    el.classList.remove("animate-rollup");
+    void el.offsetWidth;
+    el.classList.add("animate-rollup");
+  }, [idx]);
+
+  const e = signal.examples[idx];
+
+  return (
+    <button
+      type="button"
+      onClick={onSelect}
+      className={cn(
+        "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
+        "border-white/[0.08] bg-white/[0.045]",
+        isActive ? "border-white/25 bg-white/[0.11]" : "hover:bg-white/[0.08]",
+      )}
+    >
+      <span className={cn("absolute inset-y-0 left-0 w-[3px]", signal.color)} />
+      <span className="mb-0.5 flex items-center gap-2">
+        <span
+          className={cn("h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10", signal.dot)}
+        />
+        <span className="text-[12.5px] font-semibold tracking-tight text-slate-100">{signal.label}</span>
+        <span className="ml-auto font-mono text-[11px] tabular-nums text-slate-400">
+          <b className="font-semibold text-slate-200">{count}</b> · 24h
+        </span>
+      </span>
+      <span className="relative mt-0.5 block h-5 overflow-hidden">
+        <div ref={trackRef} className="absolute inset-x-0 top-0">
+          <div className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
+            <span className="truncate font-medium text-slate-200">{e.ev}</span>
+            <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
+            <span className="truncate text-slate-400">{e.to}</span>
+            <span
+              className={cn(
+                "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+                DETECTION_BASIS_CLASS[e.basis],
+              )}
+            >
+              {e.basis}
+            </span>
+          </div>
+        </div>
+      </span>
+    </button>
+  );
+}
+
+
+
 function Sparkline({ points, stroke }: { points: string; stroke: string }) {
   return (
     <svg className="absolute right-4 top-4" width="60" height="22" viewBox="0 0 60 22" fill="none" aria-hidden>
