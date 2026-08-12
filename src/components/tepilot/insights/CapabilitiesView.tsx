@@ -351,7 +351,7 @@ function NodeCard({
       {badge ? (
         <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
           <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 align-middle" />
-          [{badge}]
+          {badge}
         </span>
       ) : null}
     </div>
