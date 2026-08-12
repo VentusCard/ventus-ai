@@ -492,9 +492,9 @@ function SignalSection({
       <span className="relative mt-0.5 block h-5 overflow-hidden">
         <div ref={trackRef} className="absolute inset-x-0 top-0">
           <div className="flex h-5 items-center gap-2 text-[11.5px] leading-none text-slate-300">
-            <span className="truncate font-medium text-slate-200">{e.ev}</span>
+            <span className="truncate font-medium text-slate-200">{e.to}</span>
             <span className="flex-none text-[10px] text-slate-500">&rarr;</span>
-            <span className="truncate text-slate-400">{e.to}</span>
+            <span className="truncate text-slate-400">{e.ev}</span>
             <span
               className={cn(
                 "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
