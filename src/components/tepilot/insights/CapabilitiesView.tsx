@@ -1299,8 +1299,111 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           </div>
         )}
 
+      </div>
 
+      {/* Lower grid: signal detection + system health */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.5fr_1fr]">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="flex items-center justify-between border-b border-slate-100 px-[18px] py-[15px]">
+            <h3 className="text-[13.5px] font-semibold text-slate-900">Signal detection · last 24 hours</h3>
+            <span className="font-mono text-[11.5px] text-slate-400">
+              confidence = external proposed, first-party confirmed
+            </span>
+          </div>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                {["Signal family", "Basis", "Detected", "Confirmation"].map((h, i) => (
+                  <th
+                    key={h}
+                    className={cn(
+                      "border-b border-slate-100 bg-slate-50/50 px-[18px] py-2.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-400",
+                      i === 2 ? "text-right" : "text-left",
+                    )}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {signalRows.map((r) => (
+                <tr
+                  key={r.label}
+                  className="cursor-pointer hover:bg-slate-50/60"
+                  onClick={() => selectSignal(r.label)}
+                >
+                  <td className="border-b border-slate-100 px-[18px] py-3 text-[13px] text-slate-900">
+                    <span className="flex items-center gap-2.5 font-medium">
+                      <span className={cn("h-[9px] w-[9px] flex-none rounded-[3px]", r.dot)} />
+                      {r.label}
+                    </span>
+                  </td>
+                  <td className="border-b border-slate-100 px-[18px] py-3">
+                    <span className={cn("rounded px-1.5 py-0.5 font-mono text-[10px] font-medium", BASIS_BADGE[r.basis])}>
+                      {r.basis}
+                    </span>
+                  </td>
+                  <td className="border-b border-slate-100 px-[18px] py-3 text-right font-mono text-[12.5px] tabular-nums text-slate-500">
+                    {r.detected.toLocaleString()}
+                  </td>
+                  <td className="border-b border-slate-100 px-[18px] py-3">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-[5px] w-[54px] overflow-hidden rounded-[3px] bg-slate-100">
+                        <span
+                          className="block h-full rounded-[3px]"
+                          style={{
+                            width: `${r.confidence}%`,
+                            background: r.confidence >= 70 ? "#1E9E6A" : "#B4722A",
+                          }}
+                        />
+                      </span>
+                      <span className="w-[30px] font-mono text-[11.5px] text-slate-500">{r.confidence}%</span>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="border-t border-slate-100 bg-slate-50/50 px-[18px] py-3 text-[11.5px] leading-relaxed text-slate-400">
+            Modeled attributes are proposed by external enrichment and only promoted once first-party transaction
+            evidence confirms them.
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="flex items-center justify-between border-b border-slate-100 px-[18px] py-[15px]">
+            <h3 className="text-[13.5px] font-semibold text-slate-900">System health</h3>
+            <span className="font-mono text-[11.5px] text-slate-400">all regions</span>
+          </div>
+          <div className="mx-3.5 mb-1 mt-3 flex items-center gap-2.5 rounded-[10px] border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+            <span className="flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-emerald-500 text-white">
+              <BadgeCheck className="h-4 w-4" />
+            </span>
+            <div className="flex flex-col leading-tight">
+              <b className="text-[13px] font-semibold text-emerald-800">All systems operational</b>
+              <span className="text-[11.5px] text-emerald-700/80">
+                Every source ingesting, every destination delivering
+              </span>
+            </div>
+          </div>
+          <div className="p-3.5 pt-2">
+            {sourceGroups.map((g) => (
+              <div
+                key={g.provider}
+                className="mb-2 flex items-center gap-2.5 rounded-[10px] border border-slate-100 px-2.5 py-2 last:mb-0"
+              >
+                <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
+                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-slate-700">{g.provider}</span>
+                <span className="flex-none font-mono text-[11px] text-slate-400">
+                  {g.inputs.length} inputs · live
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
