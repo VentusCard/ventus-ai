@@ -825,10 +825,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   Behavioral Intelligence &amp; Personalization Core
                 </p>
               </div>
-              <p className="mb-4 mt-1 text-[11.5px] leading-relaxed text-slate-400">
-                Every input is resolved, enriched, and scored into five signal families, then routed to
-                every activation channel.
-              </p>
 
               {/* Signals column */}
               <div className="flex flex-col min-w-0">
