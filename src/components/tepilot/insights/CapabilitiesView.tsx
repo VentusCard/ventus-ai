@@ -530,6 +530,12 @@ const BASIS_BADGE: Record<string, string> = {
   Modeled: "bg-amber-50 text-amber-600",
 };
 
+const BASIS_BADGE_DARK: Record<string, string> = {
+  "First-party": "bg-sky-400/15 text-sky-200",
+  Both: "bg-white/[0.08] text-slate-200",
+  Modeled: "bg-amber-400/15 text-amber-200",
+};
+
 function Sparkline({ points, stroke }: { points: string; stroke: string }) {
   return (
     <svg className="absolute right-4 top-4" width="60" height="22" viewBox="0 0 60 22" fill="none" aria-hidden>
