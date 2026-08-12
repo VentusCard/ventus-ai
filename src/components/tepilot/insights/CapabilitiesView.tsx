@@ -735,7 +735,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               99<span className="text-sm font-medium text-slate-400">%</span>
             </>
           }
-          foot={<span>Rail-agnostic behavioral transaction enrichment</span>}
+          foot={<span>Rail-agnostic behavioral enrichment</span>}
         />
         <Kpi
           label="Active signals (24h)"
