@@ -7,18 +7,14 @@ Rework the "Activation destinations" column in the System tab so it lists the sa
 ```text
 BANK LEADERSHIP
   Intelligence Dashboard   customer intelligence + risk
-  Ask Ventus AI            natural-language analytics
   AI Coworker              every team, 24/7
 
 PRODUCT & GROWTH
-  Automated Flows          lifecycle triggers
   Campaign Builder         segment-of-one campaigns
-  Merchant Partnerships    category extension
   Personalized Product     next-product routing
 
 REWARDS & DEALS
   Personalized Deals       next-deal + perks
-  Rewards Provider         Kard, etc
   Digital Banking App      mobile + web delivery
 ```
 
