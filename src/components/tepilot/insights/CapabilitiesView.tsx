@@ -82,6 +82,8 @@ type Destination = {
 };
 
 
+type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
+
 type SignalDetail = {
   label: string;
   icon: React.ElementType;
@@ -89,6 +91,7 @@ type SignalDetail = {
   tint: string;
   dot: string;
   description: string;
+  examples: Detection[];
   items: { label: string; sublabel: string; icon?: React.ElementType }[];
 };
 
