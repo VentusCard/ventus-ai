@@ -81,6 +81,7 @@ type Destination = {
   label: string;
   sublabel: string;
   icon: React.ElementType;
+  badge: string;
 };
 
 
