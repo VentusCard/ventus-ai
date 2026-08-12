@@ -884,6 +884,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       icon={d.icon}
                       label={d.label}
                       sublabel={d.sublabel}
+                      badge={d.badge}
                       accent="indigo"
                       side="right"
                     />
