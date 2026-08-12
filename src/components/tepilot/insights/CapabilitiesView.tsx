@@ -268,24 +268,24 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
   {
     team: "Bank Leadership",
     items: [
-      { label: "Intelligence Database", sublabel: "Access reports, query & API", icon: BarChart3, badge: "Ventus" },
-      { label: "Ventus AI Coworker", sublabel: "Intelligence for very colleague, 24/7", icon: Briefcase, badge: "Email" },
+      { label: "Intelligence Database", sublabel: "", icon: BarChart3, badge: "Ventus" },
+      { label: "Ventus AI Coworker", sublabel: "", icon: Briefcase, badge: "Email" },
       { label: "Personalized Relationship", sublabel: "", icon: Users, badge: "Ventus" },
     ],
   },
   {
     team: "Product & Growth",
     items: [
-      { label: "Automations Campaign", sublabel: "Signal-driven personalized campaigns", icon: Megaphone, badge: "CRM" },
-      { label: "Custom Product Builder", sublabel: "Hyper-personalized campaigns", icon: Route, badge: "CRM" },
+      { label: "Automations Campaign", sublabel: "", icon: Megaphone, badge: "CRM" },
+      { label: "Custom Product Builder", sublabel: "", icon: Route, badge: "CRM" },
       { label: "Personalized Product Offer", sublabel: "", icon: Gift, badge: "CRM" },
     ],
   },
   {
     team: "Rewards and Deals",
     items: [
-      { label: "Personalized Reward Program", sublabel: "Hyper-personalized CLO program", icon: Sparkles, badge: "Digital Banking" },
-      { label: "Local Merchant Deals\u00a0", sublabel: "AI assisted local deal capture", icon: Smartphone, badge: "Ventus" },
+      { label: "Personalized Reward Program", sublabel: "", icon: Sparkles, badge: "Digital Banking" },
+      { label: "Local Merchant Deals\u00a0", sublabel: "", icon: Smartphone, badge: "Ventus" },
       { label: "Royalty and Retention", sublabel: "", icon: Crown, badge: "Digital Banking" },
     ],
   },
