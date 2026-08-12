@@ -827,38 +827,20 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         )}
       </div>
 
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 lg:p-6">
-        {/* Column headers */}
-        <div className="grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 mb-4">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 truncate">
-              Data sources
-            </span>
-            <span className="ml-auto font-mono text-[11px] text-slate-400">
-              {sourceGroups.length} groups · {totalSourceInputs}
-            </span>
-          </div>
-          <div className="text-center min-w-0">
-            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
-              Ventus AI intelligence core
-            </span>
-          </div>
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 truncate">
-              Activation destinations
-            </span>
-            <span className="ml-auto font-mono text-[11px] text-slate-400">{DESTINATIONS.length}</span>
-          </div>
-        </div>
-
-
-        {/* Network canvas */}
-        <div className="relative">
-          <NetworkWires leftCount={sourceGroups.length} rightCount={visibleDestinations.length} centered={!!activeTeamLabel} />
-
-          <div className="relative z-10 grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 items-stretch overflow-hidden">
-            {/* Sources */}
-            <div className="flex min-w-0 flex-col gap-2 justify-around px-1">
+      <div className="bg-white border border-slate-200 rounded-2xl p-1.5">
+        {/* Pipeline board */}
+        <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
+          {/* Sources */}
+          <div className="min-w-0 p-4">
+            <div className="mb-3.5 flex items-center gap-2">
+              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
+                Data sources
+              </span>
+              <span className="ml-auto font-mono text-[11px] text-slate-400">
+                {sourceGroups.length} groups · {totalSourceInputs}
+              </span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-2">
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
@@ -868,27 +850,24 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 />
               ))}
             </div>
+          </div>
 
-            {/* Core */}
-            <div className="flex min-w-0 items-center justify-center overflow-hidden">
-              <div
-                className="w-full max-w-[520px] rounded-2xl border-2 border-blue-900 bg-gradient-to-br from-blue-900 to-indigo-900 p-4 shadow-xl mx-auto overflow-hidden"
-                style={{
-                  boxShadow:
-                    "0 0 0 6px rgba(99,102,241,0.08), 0 25px 60px -15px rgba(30,58,138,0.5), 0 0 80px rgba(99,102,241,0.25)",
-                }}
-              >
-                <div className="flex flex-col items-center text-center pb-4 border-b border-white/15">
-                  <img
-                    src={ventusLogoTransparent}
-                    alt="Ventus"
-                    className="h-6 w-auto brightness-0 invert opacity-95"
-                  />
-                  <p className="text-[15px] font-bold text-white mt-2">Behavioral Intelligence & Personalization Core</p>
-                  <p className="text-[10px] text-blue-200/80 mt-1">
-                    &nbsp;
-                  </p>
-                </div>
+          <Connector />
+
+          {/* Core */}
+          <div className="min-w-0 p-1.5">
+            <div className="h-full overflow-hidden rounded-xl bg-gradient-to-b from-[#0E1626] to-[#131E31] p-4">
+              <div className="flex items-center gap-2.5 pb-3 border-b border-white/[0.08]">
+                <img
+                  src={ventusLogoTransparent}
+                  alt="Ventus"
+                  className="h-4 w-auto brightness-0 invert opacity-95"
+                />
+                <p className="text-sm font-semibold tracking-tight text-white">
+                  Behavioral Intelligence &amp; Personalization Core
+                </p>
+              </div>
+
 
                 {/* Inner 2-band grid: signals → applications */}
                 <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
