@@ -914,7 +914,9 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                                   BASIS_BADGE_DARK[row?.basis ?? "First-party"],
                                 )}
                               >
-                                {row?.basis ?? "First-party"}
+                                {(row?.basis ?? "First-party") === "First-party"
+                                  ? "1P"
+                                  : row?.basis ?? "First-party"}
                               </span>
                             </span>
                           </button>
