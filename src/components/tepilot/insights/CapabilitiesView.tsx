@@ -289,7 +289,7 @@ function Connector({ amber }: { amber?: boolean }) {
         height="20"
         viewBox="0 0 52 20"
         fill="none"
-        className="opacity-60 max-lg:rotate-90"
+        className="opacity-70 max-lg:rotate-90"
       >
         <path
           d="M2 10H43"
@@ -297,6 +297,15 @@ function Connector({ amber }: { amber?: boolean }) {
           strokeWidth="1.3"
           strokeLinecap="round"
           strokeDasharray="3 3"
+          className="animate-flow-dash motion-reduce:animate-none"
+        />
+        <circle
+          cx="3"
+          cy="10"
+          r="1.9"
+          fill={stroke}
+          className="animate-flow-pulse motion-reduce:hidden"
+          style={{ animationDelay: amber ? "0.5s" : "0s" }}
         />
         <path
           d="M40 5.5L46.5 10L40 14.5"
