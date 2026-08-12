@@ -361,7 +361,7 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "flex w-full items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
+        "flex min-h-[52px] w-full flex-1 items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
         isActive
           ? "border-sky-300 ring-1 ring-sky-200"
           : "border-slate-100 hover:border-slate-200",
@@ -781,7 +781,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
         {/* Pipeline board */}
         <div className="grid grid-cols-1 items-stretch lg:grid-cols-[1fr_52px_1.35fr_52px_1fr]">
           {/* Sources */}
-          <div className="min-w-0 p-4">
+          <div className="flex h-full min-w-0 flex-col p-4">
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Data sources
@@ -790,7 +790,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 {sourceGroups.length} groups · {totalSourceInputs}
               </span>
             </div>
-            <div className="flex min-w-0 flex-col gap-2">
+            <div className="flex min-w-0 flex-1 flex-col gap-2">
+
               {sourceGroups.map((g) => (
                 <SourceGroupCard
                   key={g.provider}
@@ -846,7 +847,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           <Connector amber />
 
           {/* Destinations */}
-          <div className="min-w-0 p-4">
+          <div className="flex h-full min-w-0 flex-col p-4">
             <div className="mb-3.5 flex items-center gap-2">
               <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
                 Activation destinations
