@@ -205,18 +205,6 @@ type WorkflowChipKind = "signal" | "destination" | "product" | "system";
 type WorkflowChip = { label: string; kind: WorkflowChipKind };
 type WorkflowStep = { stage: string; text: string; chips?: WorkflowChip[] };
 
-type TeamDetail = {
-  label: string;
-  shortLabel?: string;
-  icon: React.ElementType;
-  color: string;
-  tint: string;
-  dot: string;
-  description: string;
-  items: { label: string; sublabel: string; icon?: React.ElementType }[];
-  workflow?: WorkflowStep[];
-};
-
 const SIGNAL_CHIP_TINTS: Record<string, string> = {
   "Life Event": "bg-amber-50 text-amber-700 border-amber-200",
   Behavioral: "bg-blue-50 text-blue-700 border-blue-200",
