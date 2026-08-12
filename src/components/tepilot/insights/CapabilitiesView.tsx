@@ -81,6 +81,7 @@ type Destination = {
   label: string;
   sublabel: string;
   icon: React.ElementType;
+  badge: string;
 };
 
 
@@ -267,22 +268,22 @@ const DESTINATION_GROUPS: DestinationGroup[] = [
   {
     team: "Bank Leadership",
     items: [
-      { label: "Intelligence Dashboard", sublabel: "Access reports, query & API", icon: BarChart3 },
-      { label: "Ventus AI Coworker", sublabel: "Intelligence for very colleague, 24/7", icon: Briefcase },
+      { label: "Intelligence Database", sublabel: "Access reports, query & API", icon: BarChart3, badge: "Ventus" },
+      { label: "Ventus AI Coworker", sublabel: "Intelligence for very colleague, 24/7", icon: Briefcase, badge: "Email" },
     ],
   },
   {
     team: "Product & Growth",
     items: [
-      { label: "Automations Campaign", sublabel: "Signal-driven personalized campaigns", icon: Megaphone },
-      { label: "Custom Product Builder", sublabel: "Hyper-personalized campaigns", icon: Route },
+      { label: "Automations Campaign", sublabel: "Signal-driven personalized campaigns", icon: Megaphone, badge: "CRM" },
+      { label: "Custom Product Builder", sublabel: "Hyper-personalized campaigns", icon: Route, badge: "CRM" },
     ],
   },
   {
     team: "Rewards and Deals",
     items: [
-      { label: "Personalized Reward Program", sublabel: "Hyper-personalized CLO program", icon: Sparkles },
-      { label: "Local Merchant Deals\u00a0", sublabel: "AI assisted local deal capture", icon: Smartphone },
+      { label: "Personalized Reward Program", sublabel: "Hyper-personalized CLO program", icon: Sparkles, badge: "Digital Banking" },
+      { label: "Local Merchant Deals\u00a0", sublabel: "AI assisted local deal capture", icon: Smartphone, badge: "Ventus" },
     ],
   },
 ];
@@ -324,10 +325,12 @@ function NodeCard({
   icon: Icon,
   label,
   sublabel,
+  badge,
 }: {
   icon: React.ElementType;
   label: string;
   sublabel: string;
+  badge?: string;
   accent?: "slate" | "indigo";
   side?: "left" | "right";
 }) {
@@ -340,9 +343,12 @@ function NodeCard({
         <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{label}</div>
         <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
       </div>
-      <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
-        Live
-      </span>
+      {badge ? (
+        <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
+          <span className="mr-1 inline-block h-1.5 w-1.5 rounded-full bg-emerald-500 align-middle" />
+          [{badge}]
+        </span>
+      ) : null}
     </div>
   );
 }
@@ -878,6 +884,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       icon={d.icon}
                       label={d.label}
                       sublabel={d.sublabel}
+                      badge={d.badge}
                       accent="indigo"
                       side="right"
                     />
