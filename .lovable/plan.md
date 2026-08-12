@@ -7,24 +7,20 @@ Rework the "Activation destinations" column in the System tab so it lists the sa
 ```text
 BANK LEADERSHIP
   Intelligence Dashboard   customer intelligence + risk
-  Ask Ventus AI            natural-language analytics
   AI Coworker              every team, 24/7
 
 PRODUCT & GROWTH
-  Automated Flows          lifecycle triggers
   Campaign Builder         segment-of-one campaigns
-  Merchant Partnerships    category extension
   Personalized Product     next-product routing
 
 REWARDS & DEALS
   Personalized Deals       next-deal + perks
-  Rewards Provider         Kard, etc
   Digital Banking App      mobile + web delivery
 ```
 
 Each group gets a small uppercase mono team label with a divider, then the existing NodeCard rows underneath. The count chip in the column header shows the total destination count across all three groups.
 
-The channels currently listed that are systems of record rather than teams (Marketing Automation, CRM, AI Banking Assistant) fold into the group they serve: Marketing Automation and CRM under Product & Growth, AI Banking Assistant under Rewards & Deals delivery — nothing is dropped.
+The other channels currently listed (Marketing Automation, CRM, AI Banking Assistant, Ask Ventus AI, Rewards Provider, Merchant Partnerships) are dropped from this column to keep the destination list focused on the two primary activation surfaces each team uses.
 
 ## Technical notes
 
