@@ -1,4 +1,4 @@
-import { useId, useState } from "react";
+import { useState } from "react";
 
 import {
   Layers,
@@ -408,95 +408,36 @@ function getTeamDestinations(teamLabel: string): string[] {
   return Array.from(dests);
 }
 
-function NetworkWires({ leftCount, rightCount, centered }: { leftCount: number; rightCount: number; centered?: boolean }) {
-  const gradId = useId().replace(/:/g, "");
-  const SRC_X = 0;
-  const CORE_LEFT = 38;
-  const CORE_RIGHT = 62;
-  const DST_X = 100;
-
-  const leftYs = Array.from({ length: leftCount }, (_, i) => ((i + 0.5) / leftCount) * 100);
-  let rightYs: number[];
-  if (centered && rightCount > 0) {
-    const blockHeight = Math.min(72, Math.max(24, rightCount * 12));
-    const startY = (100 - blockHeight) / 2;
-    rightYs = Array.from({ length: rightCount }, (_, i) => startY + ((i + 0.5) / rightCount) * blockHeight);
-  } else {
-    rightYs = Array.from({ length: rightCount }, (_, i) => ((i + 0.5) / rightCount) * 100);
-  }
-
+function Connector({ amber }: { amber?: boolean }) {
+  const stroke = amber ? "#D9A441" : "#94A3B8";
   return (
-    <svg
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      viewBox="0 0 100 100"
-      preserveAspectRatio="none"
-      aria-hidden
-    >
-      <defs>
-        <linearGradient id={`flow-${gradId}`} x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#c7d2fe" />
-          <stop offset="50%" stopColor="#6366f1" />
-          <stop offset="100%" stopColor="#a5b4fc" />
-        </linearGradient>
-      </defs>
-
-      {leftYs.map((y, i) => (
-        <g key={`L${i}`}>
-          <path
-            d={`M ${SRC_X} ${y} C ${(SRC_X + CORE_LEFT) / 2} ${y}, ${(SRC_X + CORE_LEFT) / 2} 50, ${CORE_LEFT} 50`}
-            fill="none"
-            stroke={`url(#flow-${gradId})`}
-            strokeWidth="0.7"
-            strokeLinecap="round"
-            strokeDasharray="1.4 1.8"
-            opacity="0.85"
-            vectorEffect="non-scaling-stroke"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="0"
-              to="-12"
-              dur="2.6s"
-              begin={`${(i * 0.18).toFixed(2)}s`}
-              repeatCount="indefinite"
-            />
-          </path>
-        </g>
-      ))}
-
-      {rightYs.map((y, i) => (
-        <g key={`R${i}`}>
-          <path
-            d={`M ${CORE_RIGHT} 50 C ${(CORE_RIGHT + DST_X) / 2} 50, ${(CORE_RIGHT + DST_X) / 2} ${y}, ${DST_X} ${y}`}
-            fill="none"
-            stroke={`url(#flow-${gradId})`}
-            strokeWidth="0.7"
-            strokeLinecap="round"
-            strokeDasharray="1.4 1.8"
-            opacity="0.85"
-            vectorEffect="non-scaling-stroke"
-          >
-            <animate
-              attributeName="stroke-dashoffset"
-              from="0"
-              to="-12"
-              dur="2.6s"
-              begin={`${(i * 0.22 + 0.4).toFixed(2)}s`}
-              repeatCount="indefinite"
-            />
-          </path>
-        </g>
-      ))}
-
-      {leftYs.map((y, i) => (
-        <circle key={`pl${i}`} cx={CORE_LEFT} cy={50} r="0.5" fill="#6366f1" vectorEffect="non-scaling-stroke" />
-      ))}
-      {rightYs.map((y, i) => (
-        <circle key={`pr${i}`} cx={CORE_RIGHT} cy={50} r="0.5" fill="#6366f1" vectorEffect="non-scaling-stroke" />
-      ))}
-    </svg>
+    <div className="flex items-center justify-center py-3 lg:py-0" aria-hidden>
+      <svg
+        width="52"
+        height="20"
+        viewBox="0 0 52 20"
+        fill="none"
+        className="opacity-60 max-lg:rotate-90"
+      >
+        <path
+          d="M2 10H43"
+          stroke={stroke}
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeDasharray="3 3"
+        />
+        <path
+          d="M40 5.5L46.5 10L40 14.5"
+          stroke={stroke}
+          strokeWidth="1.3"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </svg>
+    </div>
   );
 }
+
 
 function NodeCard({
   icon: Icon,
