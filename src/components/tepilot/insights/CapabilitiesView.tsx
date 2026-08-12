@@ -1041,11 +1041,19 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
               </div>
             </div>
 
-            {/* Destinations */}
-            <div className={cn(
-              "flex min-w-0 flex-col gap-2 px-1",
-              activeTeamLabel ? "justify-center" : "justify-around"
-            )}>
+          <Connector amber />
+
+          {/* Destinations */}
+          <div className="min-w-0 p-4">
+            <div className="mb-3.5 flex items-center gap-2">
+              <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
+                Activation destinations
+              </span>
+              <span className="ml-auto font-mono text-[11px] text-slate-400">
+                {visibleDestinations.length}
+              </span>
+            </div>
+            <div className="flex min-w-0 flex-col gap-2">
               {visibleDestinations.map((d) => (
                 <NodeCard
                   key={d.label}
@@ -1059,6 +1067,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </div>
           </div>
         </div>
+
 
         {/* Shared detail panel — signal or application */}
         {activeDetail && ActiveIcon && (
