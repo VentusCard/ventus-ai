@@ -6,16 +6,16 @@ Rework the "Activation destinations" column in the System tab so it lists the sa
 
 ```text
 BANK LEADERSHIP
-  Intelligence Dashboard   customer intelligence + risk
-  AI Coworker              every team, 24/7
+  Intelligence Analytics   customer intelligence + risk
+  Ventus AI Coworker              every team, 24/7
 
 PRODUCT & GROWTH
-  Campaign Builder         segment-of-one campaigns
-  Personalized Product     next-product routing
+  Campaign Automations         segment-of-one campaigns
+  Personalized Campgains     next-product routing
 
 REWARDS & DEALS
-  Personalized Deals       next-deal + perks
-  Digital Banking App      mobile + web delivery
+  Personalized Deals       Digital Banking
+  Merchant Growth Console      mobile + web delivery
 ```
 
 Each group gets a small uppercase mono team label with a divider, then the existing NodeCard rows underneath. The count chip in the column header shows the total destination count across all three groups.

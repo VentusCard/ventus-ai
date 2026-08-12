@@ -53,6 +53,8 @@ import {
   Bell,
   Car,
   Zap,
+  BarChart3,
+  Route,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import ventusLogoTransparent from "@/assets/ventus-logo-transparent.png";
@@ -256,14 +258,36 @@ function chipClass(chip: WorkflowChip) {
   return CHIP_KIND_TINTS[chip.kind];
 }
 
-const DESTINATIONS: Destination[] = [
-  { label: "Digital Banking App", sublabel: "Mobile + Web", icon: Smartphone },
-  { label: "Marketing Automation", sublabel: "Marketing Cloud / Braze", icon: Megaphone },
-  { label: "CRM", sublabel: "Salesforce Financial Cloud", icon: Users },
-  { label: "Rewards Provider", sublabel: "Kard, etc", icon: Gift },
-  { label: "AI Banking Assistant", sublabel: "In-app Copilot", icon: Bot },
-  { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
+interface DestinationGroup {
+  team: string;
+  items: Destination[];
+}
+
+const DESTINATION_GROUPS: DestinationGroup[] = [
+  {
+    team: "Bank Leadership",
+    items: [
+      { label: "Intelligence Dashboard", sublabel: "Customer intelligence + risk", icon: BarChart3 },
+      { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
+    ],
+  },
+  {
+    team: "Product & Growth",
+    items: [
+      { label: "Campaign Builder", sublabel: "Segment-of-one campaigns", icon: Megaphone },
+      { label: "Personalized Product", sublabel: "Next-product routing", icon: Route },
+    ],
+  },
+  {
+    team: "Rewards and Deals",
+    items: [
+      { label: "Personalized Deals", sublabel: "Next-deal + perks", icon: Sparkles },
+      { label: "Digital Banking App", sublabel: "Mobile + web delivery", icon: Smartphone },
+    ],
+  },
 ];
+
+const ALL_DESTINATIONS = DESTINATION_GROUPS.flatMap((g) => g.items);
 
 function Connector({ amber }: { amber?: boolean }) {
   const stroke = amber ? "#D9A441" : "#94A3B8";
@@ -642,7 +666,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   const activeDetailKind = activeSignal ? "Signal family" : activeSource ? "Source" : null;
   const activeDetailCountNoun = activeSignal ? "detections" : activeSource ? "inputs" : "";
   const ActiveIcon = activeDetail?.icon;
-  const visibleDestinations = DESTINATIONS;
+  const visibleDestinations = ALL_DESTINATIONS;
   const selectSignal = (label: string) => {
     setActiveSourceLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
@@ -843,16 +867,26 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 {visibleDestinations.length}
               </span>
             </div>
-            <div className="flex min-w-0 flex-col gap-2">
-              {visibleDestinations.map((d) => (
-                <NodeCard
-                  key={d.label}
-                  icon={d.icon}
-                  label={d.label}
-                  sublabel={d.sublabel}
-                  accent="indigo"
-                  side="right"
-                />
+            <div className="flex min-w-0 flex-col gap-5">
+              {DESTINATION_GROUPS.map((group) => (
+                <div key={group.team} className="flex min-w-0 flex-col gap-2">
+                  <div className="mb-1 flex items-center gap-2">
+                    <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                      {group.team}
+                    </span>
+                    <span className="h-px flex-1 bg-slate-100" />
+                  </div>
+                  {group.items.map((d) => (
+                    <NodeCard
+                      key={d.label}
+                      icon={d.icon}
+                      label={d.label}
+                      sublabel={d.sublabel}
+                      accent="indigo"
+                      side="right"
+                    />
+                  ))}
+                </div>
               ))}
             </div>
           </div>
