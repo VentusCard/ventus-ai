@@ -116,6 +116,10 @@ export default {
 
 			// Keyframes
 			keyframes: {
+				'rollup': {
+					from: { transform: 'translateY(110%)', opacity: '0' },
+					to: { transform: 'translateY(0)', opacity: '1' }
+				},
 				// Accordion Animations
 				'accordion-down': {
 					from: { height: '0', opacity: '0' },
