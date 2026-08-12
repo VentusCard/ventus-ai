@@ -843,18 +843,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 </p>
               </div>
 
-
-                {/* Inner 2-band grid: signals → applications */}
-                <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
-                  {/* Signals column — cool indigo "what we detect" */}
-                  <div className="flex flex-col min-w-0 rounded-lg bg-gradient-to-b from-indigo-500/15 to-transparent p-2 -m-1">
-                    <div className="flex items-center justify-center gap-1.5 mb-2">
-                      <span className="w-1.5 h-1.5 rounded-full bg-indigo-300" />
-                      <p className="text-[9.5px] font-semibold uppercase tracking-wider text-indigo-200">
-                        Signals · what we detect
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-1 gap-1.5 px-1">
+              {/* Inner 2-band grid: signals → teams */}
+              <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
+                {/* Signals column */}
+                <div className="flex flex-col min-w-0">
+                  <div className="mb-2.5 font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
+                    Signals · what we detect
+                  </div>
+                  <div className="grid grid-cols-1 gap-2">
                       {SIGNALS.map((s) => {
                         const Icon = s.icon;
                         const isActive = s.label === activeSignalLabel;
@@ -864,19 +860,20 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex items-center gap-1.5 px-2 py-1.5 rounded-md border text-left transition-all min-w-0 w-full",
-                              "bg-white/5 border-indigo-300/25 text-indigo-50",
+                              "flex w-full min-w-0 items-center gap-2 rounded-[9px] border px-2.5 py-2 text-left transition-colors",
+                              "border-white/[0.08] bg-white/[0.045] text-white",
                               isActive
-                                ? "ring-2 ring-indigo-200/70 bg-white/10 shadow-lg scale-[1.02]"
-                                : "opacity-85 hover:opacity-100 hover:bg-white/10",
+                                ? "border-white/25 bg-white/[0.11]"
+                                : "hover:bg-white/[0.08]",
                             )}
                           >
                             <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", s.color)}>
                               <Icon className="w-2.5 h-2.5 text-white" />
                             </div>
-                            <span className="min-w-0 text-[11px] font-semibold flex-1 truncate">{s.label}</span>
+                            <span className="min-w-0 text-[11.5px] font-medium flex-1 truncate">{s.label}</span>
                           </button>
                         );
+
                       })}
                     </div>
                   </div>
