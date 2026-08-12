@@ -232,19 +232,6 @@ const DESTINATIONS: Destination[] = [
   { label: "AI Coworker", sublabel: "Every team, 24/7", icon: Briefcase },
 ];
 
-function getTeamDestinations(teamLabel: string): string[] {
-  const team = TEAMS.find((t) => t.label === teamLabel);
-  if (!team || !team.workflow) return [];
-  const dests = new Set<string>();
-  for (const step of team.workflow) {
-    for (const chip of step.chips ?? []) {
-      if (chip.kind === "destination") dests.add(chip.label);
-    }
-  }
-  dests.add("Digital Banking App");
-  return Array.from(dests);
-}
-
 function Connector({ amber }: { amber?: boolean }) {
   const stroke = amber ? "#D9A441" : "#94A3B8";
   return (
