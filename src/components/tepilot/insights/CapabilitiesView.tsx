@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import { TabHeader } from "./TabHeader";
+
 import {
   Layers,
   CreditCard,
@@ -588,7 +588,56 @@ function SourceGroupCard({
   );
 }
 
+const SIGNAL_BASIS: Record<string, "First-party" | "Both" | "Modeled"> = {
+  "Life Event": "Both",
+  Behavioral: "First-party",
+  Financial: "Both",
+  Demographic: "Modeled",
+  Risk: "First-party",
+};
+
+const BASIS_BADGE: Record<string, string> = {
+  "First-party": "bg-sky-50 text-sky-600",
+  Both: "border border-slate-200 bg-gradient-to-r from-sky-50 to-amber-50 text-slate-600",
+  Modeled: "bg-amber-50 text-amber-600",
+};
+
+function Sparkline({ points, stroke }: { points: string; stroke: string }) {
+  return (
+    <svg className="absolute right-4 top-4" width="60" height="22" viewBox="0 0 60 22" fill="none" aria-hidden>
+      <path d={points} stroke={stroke} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function Kpi({
+  label,
+  dot,
+  value,
+  foot,
+  spark,
+}: {
+  label: string;
+  dot: string;
+  value: React.ReactNode;
+  foot: React.ReactNode;
+  spark?: { points: string; stroke: string };
+}) {
+  return (
+    <div className="relative rounded-2xl border border-slate-200 bg-white p-4">
+      <div className="mb-2.5 flex items-center gap-2 text-xs font-medium text-slate-400">
+        <span className="h-1.5 w-1.5 rounded-full" style={{ background: dot }} />
+        {label}
+      </div>
+      <div className="text-[27px] font-semibold leading-none tracking-tight tabular-nums text-slate-900">{value}</div>
+      <div className="mt-2.5 font-mono text-[11.5px] text-slate-400">{foot}</div>
+      {spark && <Sparkline points={spark.points} stroke={spark.stroke} />}
+    </div>
+  );
+}
+
 export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => void } = {}) {
+
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
     {
@@ -744,37 +793,123 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     setActiveSourceLabel((prev) => (prev === label ? null : label));
   };
 
+  const signalRows = SIGNALS.map((s, i) => ({
+    label: s.label,
+    dot: s.dot,
+    basis: SIGNAL_BASIS[s.label] ?? "First-party",
+    detected: 640 + s.items.length * 187 + i * 53,
+    confidence: [88, 76, 71, 64, 82][i % 5],
+  }));
+  const totalDetections = signalRows.reduce((n, r) => n + r.detected, 0);
+
   return (
     <div className="space-y-6">
-      <TabHeader
-        icon={<Layers className="w-4 h-4" />}
-        title="System"
-        subtitle="Network view: bank-native sources flow through Ventus and are surfaced to internal teams for activation"
-        howItWorks="Ventus wires into the cores, processors, and digital channels your bank already runs. Transactions, KYC, telemetry, and bureau data stream into the Behavioral Intelligence Core, get classified into five signal families, and then surface to three internal teams — Product & Growth, Wealth Management, and Deals & Rewards — who activate through CRM, rewards provider, digital banking, marketing automation, and advisor consoles."
-        whyItMatters="One enrichment layer feeds every channel of record. No bespoke pipelines per destination — each team reads from the same canonical customer signal."
-      />
+      {/* Page head */}
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0">
+          <h1 className="flex items-center gap-3 text-2xl font-semibold tracking-tight text-slate-900">
+            System
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2.5 py-1 font-mono text-[11px] font-medium text-emerald-600">
+              <span className="h-[7px] w-[7px] animate-pulse rounded-full bg-emerald-500" />
+              Live
+            </span>
+          </h1>
+          <p className="mt-1.5 max-w-[78ch] text-[13.5px] text-slate-500">
+            Every data source, the intelligence core, and every activation destination in one view. One enrichment
+            layer feeds every channel of record — each team reads from the same canonical customer signal.
+          </p>
+        </div>
+        <div className="flex flex-none items-center gap-2.5">
+          <span className="font-mono text-[11px] text-slate-400">Updated 12s ago</span>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 py-2 text-[13px] font-medium text-slate-700 hover:bg-slate-50"
+          >
+            <RefreshCw className="h-3.5 w-3.5" /> Refresh
+          </button>
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 rounded-lg bg-[#0C1322] px-3.5 py-2 text-[13px] font-medium text-white hover:bg-[#1a2438]"
+          >
+            Export
+          </button>
+        </div>
+      </div>
 
-      <div className="bg-white border border-slate-200 rounded-xl p-6 lg:p-8">
+      {/* KPI strip */}
+      <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2 lg:grid-cols-4">
+        <Kpi
+          label="Connected sources"
+          dot="#2563EB"
+          value={String(totalSourceInputs)}
+          foot={`${sourceGroups.length} provider groups`}
+          spark={{ points: "M1 17L10 15L19 16L28 11L37 12L46 6L59 3", stroke: "#2563EB" }}
+        />
+        <Kpi
+          label="Signal families"
+          dot="#1E9E6A"
+          value={String(SIGNALS.length)}
+          foot="life event · behavioral · financial · demographic · risk"
+        />
+        <Kpi
+          label="Detections (24h)"
+          dot="#1E9E6A"
+          value={totalDetections.toLocaleString()}
+          foot="classified across all rails"
+          spark={{ points: "M1 14L10 16L19 9L28 12L37 7L46 9L59 4", stroke: "#1E9E6A" }}
+        />
+        <Kpi
+          label="Activation destinations"
+          dot="#6D4AD4"
+          value={String(DESTINATIONS.length)}
+          foot={`${TEAMS.length} internal teams activating`}
+          spark={{ points: "M1 15L10 13L19 14L28 9L37 10L46 5L59 4", stroke: "#6D4AD4" }}
+        />
+      </div>
+
+      {/* Section head */}
+      <div className="flex items-center justify-between">
+        <h2 className="flex items-center gap-2.5 text-sm font-semibold text-slate-900">
+          Intelligence pipeline
+          <span className="rounded-full bg-slate-100 px-2 py-0.5 font-mono text-[11px] font-medium text-slate-400">
+            real-time
+          </span>
+        </h2>
+        {onOpenProducts && (
+          <button
+            type="button"
+            onClick={onOpenProducts}
+            className="flex items-center gap-1.5 text-[12.5px] font-medium text-sky-600 hover:text-sky-700"
+          >
+            Configure sources →
+          </button>
+        )}
+      </div>
+
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 lg:p-6">
         {/* Column headers */}
         <div className="grid grid-cols-[220px_minmax(360px,1fr)_220px] gap-5 mb-4">
-          <div className="flex items-center gap-1.5 min-w-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
-              {totalSourceInputs} Internal & External Sources
-            </p>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+              Data sources
+            </span>
+            <span className="ml-auto font-mono text-[11px] text-slate-400">
+              {sourceGroups.length} groups · {totalSourceInputs}
+            </span>
           </div>
           <div className="text-center min-w-0">
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700">
-              Ventus AI System
-            </p>
+            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400">
+              Ventus AI intelligence core
+            </span>
           </div>
-          <div className="flex items-center justify-end gap-1.5 min-w-0">
-            <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-            <p className="text-[10px] font-bold uppercase tracking-[0.14em] text-slate-700 truncate">
-              {DESTINATIONS.length} Activation Destinations
-            </p>
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="font-mono text-[10.5px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+              Activation destinations
+            </span>
+            <span className="ml-auto font-mono text-[11px] text-slate-400">{DESTINATIONS.length}</span>
           </div>
         </div>
+
 
         {/* Network canvas */}
         <div className="relative">
@@ -1164,8 +1299,111 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           </div>
         )}
 
+      </div>
 
+      {/* Lower grid: signal detection + system health */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1.5fr_1fr]">
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="flex items-center justify-between border-b border-slate-100 px-[18px] py-[15px]">
+            <h3 className="text-[13.5px] font-semibold text-slate-900">Signal detection · last 24 hours</h3>
+            <span className="font-mono text-[11.5px] text-slate-400">
+              confidence = external proposed, first-party confirmed
+            </span>
+          </div>
+          <table className="w-full border-collapse">
+            <thead>
+              <tr>
+                {["Signal family", "Basis", "Detected", "Confirmation"].map((h, i) => (
+                  <th
+                    key={h}
+                    className={cn(
+                      "border-b border-slate-100 bg-slate-50/50 px-[18px] py-2.5 font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-400",
+                      i === 2 ? "text-right" : "text-left",
+                    )}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {signalRows.map((r) => (
+                <tr
+                  key={r.label}
+                  className="cursor-pointer hover:bg-slate-50/60"
+                  onClick={() => selectSignal(r.label)}
+                >
+                  <td className="border-b border-slate-100 px-[18px] py-3 text-[13px] text-slate-900">
+                    <span className="flex items-center gap-2.5 font-medium">
+                      <span className={cn("h-[9px] w-[9px] flex-none rounded-[3px]", r.dot)} />
+                      {r.label}
+                    </span>
+                  </td>
+                  <td className="border-b border-slate-100 px-[18px] py-3">
+                    <span className={cn("rounded px-1.5 py-0.5 font-mono text-[10px] font-medium", BASIS_BADGE[r.basis])}>
+                      {r.basis}
+                    </span>
+                  </td>
+                  <td className="border-b border-slate-100 px-[18px] py-3 text-right font-mono text-[12.5px] tabular-nums text-slate-500">
+                    {r.detected.toLocaleString()}
+                  </td>
+                  <td className="border-b border-slate-100 px-[18px] py-3">
+                    <span className="inline-flex items-center gap-2">
+                      <span className="h-[5px] w-[54px] overflow-hidden rounded-[3px] bg-slate-100">
+                        <span
+                          className="block h-full rounded-[3px]"
+                          style={{
+                            width: `${r.confidence}%`,
+                            background: r.confidence >= 70 ? "#1E9E6A" : "#B4722A",
+                          }}
+                        />
+                      </span>
+                      <span className="w-[30px] font-mono text-[11.5px] text-slate-500">{r.confidence}%</span>
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="border-t border-slate-100 bg-slate-50/50 px-[18px] py-3 text-[11.5px] leading-relaxed text-slate-400">
+            Modeled attributes are proposed by external enrichment and only promoted once first-party transaction
+            evidence confirms them.
+          </div>
+        </div>
+
+        <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+          <div className="flex items-center justify-between border-b border-slate-100 px-[18px] py-[15px]">
+            <h3 className="text-[13.5px] font-semibold text-slate-900">System health</h3>
+            <span className="font-mono text-[11.5px] text-slate-400">all regions</span>
+          </div>
+          <div className="mx-3.5 mb-1 mt-3 flex items-center gap-2.5 rounded-[10px] border border-emerald-200 bg-emerald-50 px-3 py-2.5">
+            <span className="flex h-7 w-7 flex-none items-center justify-center rounded-lg bg-emerald-500 text-white">
+              <BadgeCheck className="h-4 w-4" />
+            </span>
+            <div className="flex flex-col leading-tight">
+              <b className="text-[13px] font-semibold text-emerald-800">All systems operational</b>
+              <span className="text-[11.5px] text-emerald-700/80">
+                Every source ingesting, every destination delivering
+              </span>
+            </div>
+          </div>
+          <div className="p-3.5 pt-2">
+            {sourceGroups.map((g) => (
+              <div
+                key={g.provider}
+                className="mb-2 flex items-center gap-2.5 rounded-[10px] border border-slate-100 px-2.5 py-2 last:mb-0"
+              >
+                <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
+                <span className="min-w-0 flex-1 truncate text-[12.5px] font-medium text-slate-700">{g.provider}</span>
+                <span className="flex-none font-mono text-[11px] text-slate-400">
+                  {g.inputs.length} inputs · live
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );
 }
+
