@@ -530,6 +530,12 @@ const BASIS_BADGE: Record<string, string> = {
   Modeled: "bg-amber-50 text-amber-600",
 };
 
+const BASIS_BADGE_DARK: Record<string, string> = {
+  "First-party": "bg-sky-400/15 text-sky-200",
+  Both: "bg-white/[0.08] text-slate-200",
+  Modeled: "bg-amber-400/15 text-amber-200",
+};
+
 function Sparkline({ points, stroke }: { points: string; stroke: string }) {
   return (
     <svg className="absolute right-4 top-4" width="60" height="22" viewBox="0 0 60 22" fill="none" aria-hidden>
@@ -844,7 +850,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           {/* Core */}
           <div className="min-w-0 p-1.5">
             <div className="h-full overflow-hidden rounded-xl bg-gradient-to-b from-[#0E1626] to-[#131E31] p-4">
-              <div className="flex items-center gap-2.5 pb-3 border-b border-white/[0.08]">
+              <div className="flex items-center gap-2.5">
                 <img
                   src={ventusLogoTransparent}
                   alt="Ventus"
@@ -854,35 +860,65 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                   Behavioral Intelligence &amp; Personalization Core
                 </p>
               </div>
+              <p className="mb-4 mt-1 text-[11.5px] leading-relaxed text-slate-400">
+                Every input is resolved, enriched, and scored into five signal families, then routed to
+                the teams that act on them.
+              </p>
 
               {/* Inner 2-band grid: signals → teams */}
-              <div className="relative mt-4 grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
+              <div className="relative grid grid-cols-[minmax(0,1fr)_48px_minmax(0,1fr)] gap-1 items-stretch">
                 {/* Signals column */}
                 <div className="flex flex-col min-w-0">
                   <div className="mb-2.5 whitespace-nowrap font-mono text-[9.5px] uppercase tracking-wider text-slate-500">
                     Signals detected
                   </div>
-                  <div className="grid grid-cols-1 gap-2">
+                  <div className="flex flex-col gap-2">
                       {SIGNALS.map((s) => {
-                        const Icon = s.icon;
                         const isActive = s.label === activeSignalLabel;
+                        const row = signalRows.find((r) => r.label === s.label);
                         return (
                           <button
                             type="button"
                             key={s.label}
                             onClick={() => selectSignal(s.label)}
                             className={cn(
-                              "flex w-full min-w-0 items-center gap-2 rounded-[9px] border px-2.5 py-2 text-left transition-colors",
+                              "relative w-full min-w-0 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
                               "border-white/[0.08] bg-white/[0.045] text-white",
                               isActive
                                 ? "border-white/25 bg-white/[0.11]"
                                 : "hover:bg-white/[0.08]",
                             )}
                           >
-                            <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", s.color)}>
-                              <Icon className="w-2.5 h-2.5 text-white" />
-                            </div>
-                            <span className="min-w-0 text-[11.5px] font-medium flex-1 truncate">{s.label}</span>
+                            <span className={cn("absolute inset-y-0 left-0 w-[3px]", s.color)} />
+                            <span className="mb-1 flex items-center gap-2">
+                              <span
+                                className={cn(
+                                  "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
+                                  s.dot,
+                                )}
+                              />
+                              <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
+                                {s.label}
+                              </span>
+                            </span>
+                            <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
+                              <span className="flex-none tabular-nums">
+                                <b className="font-semibold text-slate-200">
+                                  {row ? row.detected.toLocaleString() : "—"}
+                                </b>{" "}
+                                · 24h
+                              </span>
+                              <span
+                                className={cn(
+                                  "ml-auto flex-none rounded px-1.5 py-px text-[9px] tracking-wide",
+                                  BASIS_BADGE_DARK[row?.basis ?? "First-party"],
+                                )}
+                              >
+                                {(row?.basis ?? "First-party") === "First-party"
+                                  ? "1P"
+                                  : row?.basis ?? "First-party"}
+                              </span>
+                            </span>
                           </button>
                         );
 
@@ -898,28 +934,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                       preserveAspectRatio="none"
                       aria-hidden
                     >
-                      <defs>
-                        <linearGradient id="core-bus-in" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="rgba(165,180,252,0.55)" />
-                          <stop offset="100%" stopColor="rgba(224,231,255,0.85)" />
-                        </linearGradient>
-                        <linearGradient id="core-bus-out" x1="0" y1="0" x2="1" y2="0">
-                          <stop offset="0%" stopColor="rgba(253,230,138,0.85)" />
-                          <stop offset="100%" stopColor="rgba(252,211,77,0.55)" />
-                        </linearGradient>
-                        <linearGradient id="core-bus-bar" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stopColor="rgba(165,180,252,0.8)" />
-                          <stop offset="100%" stopColor="rgba(252,211,77,0.8)" />
-                        </linearGradient>
-                        <filter id="bus-glow" x="-50%" y="-50%" width="200%" height="200%">
-                          <feGaussianBlur stdDeviation="1.2" result="blur" />
-                          <feMerge>
-                            <feMergeNode in="blur" />
-                            <feMergeNode in="SourceGraphic" />
-                          </feMerge>
-                        </filter>
-                      </defs>
-
                       {/* Inbound stubs: signal row → bus (x=50) */}
                       {SIGNALS.map((s, i) => {
                         const y = ((i + 0.5) / SIGNALS.length) * 100;
@@ -930,8 +944,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={`in-${i}`}
                             d={`M 0 ${y} C 28 ${y}, 28 50, 50 50`}
                             fill="none"
-                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus-in)"}
-                            strokeWidth={active ? 1.75 : 1}
+                            stroke={active ? "rgba(255,255,255,0.8)" : "rgba(148,163,184,0.35)"}
+                            strokeWidth={active ? 1.3 : 1}
                             strokeLinecap="round"
                             vectorEffect="non-scaling-stroke"
                             style={{ transition: "stroke 200ms, stroke-width 200ms" }}
@@ -945,24 +959,14 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                         y1="10"
                         x2="50"
                         y2="90"
-                        stroke="url(#core-bus-bar)"
-                        strokeWidth="1.5"
+                        stroke="rgba(148,163,184,0.45)"
+                        strokeWidth="1.2"
                         strokeLinecap="round"
                         vectorEffect="non-scaling-stroke"
-                        filter="url(#bus-glow)"
                       />
-                      {/* (removed flowing dashed overlay) */}
-
 
                       {/* Center hub */}
-                      <circle cx="50" cy="50" r="2.2" fill="rgba(255,255,255,0.95)" filter="url(#bus-glow)">
-                        <animate
-                          attributeName="r"
-                          values="2.2;2.8;2.2"
-                          dur="2.4s"
-                          repeatCount="indefinite"
-                        />
-                      </circle>
+                      <circle cx="50" cy="50" r="2.2" fill="rgba(226,232,240,0.9)" />
 
                       {/* Outbound stubs: bus → team row */}
                       {TEAMS.map((t, j) => {
@@ -974,8 +978,8 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             key={`out-${j}`}
                             d={`M 50 50 C 72 ${y}, 72 ${y}, 100 ${y}`}
                             fill="none"
-                            stroke={active ? "rgba(255,255,255,0.95)" : "url(#core-bus-out)"}
-                            strokeWidth={active ? 1.75 : 1}
+                            stroke={active ? "rgba(255,255,255,0.8)" : "rgba(217,164,65,0.4)"}
+                            strokeWidth={active ? 1.3 : 1}
                             strokeLinecap="round"
                             vectorEffect="non-scaling-stroke"
                             style={{ transition: "stroke 200ms, stroke-width 200ms" }}
@@ -992,27 +996,40 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                     </div>
                     <div className="flex flex-col gap-2 flex-1">
                       {TEAMS.map((t) => {
-                        const Icon = t.icon;
                         const isActive = t.label === activeTeamLabel;
+                        const destCount = getTeamDestinations(t.label).length;
                         return (
                           <button
                             type="button"
                             key={t.label}
                             onClick={() => selectTeam(t.label)}
                             className={cn(
-                              "flex w-full min-w-0 flex-1 items-center gap-2 rounded-[9px] border px-2.5 py-2 text-left transition-colors",
+                              "relative w-full min-w-0 flex-1 overflow-hidden rounded-[9px] border py-2.5 pl-3 pr-3 text-left transition-colors",
                               "border-white/[0.08] bg-white/[0.045] text-white",
                               isActive
                                 ? "border-white/25 bg-white/[0.11]"
                                 : "hover:bg-white/[0.08]",
                             )}
                           >
-
-                            <div className={cn("flex items-center justify-center w-5 h-5 rounded shrink-0", t.color)}>
-                              <Icon className="w-2.5 h-2.5 text-white" />
-                            </div>
-                            <span className="min-w-0 text-[11px] font-semibold flex-1 truncate">
-                              {t.shortLabel ?? t.label}
+                            <span className={cn("absolute inset-y-0 left-0 w-[3px]", t.color)} />
+                            <span className="mb-0.5 flex items-center gap-2">
+                              <span
+                                className={cn(
+                                  "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
+                                  t.dot,
+                                )}
+                              />
+                              <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
+                                {t.shortLabel ?? t.label}
+                              </span>
+                            </span>
+                            <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
+                              <span className="min-w-0 truncate">
+                                {t.items.length} flows
+                              </span>
+                              <span className="ml-auto flex-none rounded bg-white/[0.06] px-1.5 py-px text-[9px] tracking-wide text-slate-300">
+                                {destCount} dest
+                              </span>
                             </span>
                           </button>
                         );
