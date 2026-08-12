@@ -443,42 +443,25 @@ function NodeCard({
   icon: Icon,
   label,
   sublabel,
-  accent = "slate",
-  side,
 }: {
   icon: React.ElementType;
   label: string;
   sublabel: string;
   accent?: "slate" | "indigo";
-  side: "left" | "right";
+  side?: "left" | "right";
 }) {
-  const accentClass =
-    accent === "indigo"
-      ? "bg-indigo-50 text-indigo-600 border-indigo-100"
-      : "bg-slate-100 text-slate-600 border-slate-200";
-  const hoverBorder = accent === "indigo" ? "hover:border-indigo-300" : "hover:border-emerald-300";
-
   return (
-    <div
-      className={cn(
-        "relative flex items-center gap-2.5 px-3 py-2.5 rounded-lg border border-slate-200 bg-white shadow-sm transition-colors",
-        hoverBorder,
-      )}
-    >
-      <div className={cn("flex items-center justify-center w-7 h-7 rounded-md shrink-0 border", accentClass)}>
-        <Icon className="w-3.5 h-3.5" />
+    <div className="flex items-center gap-2.5 rounded-[10px] border border-slate-100 bg-white px-2.5 py-2.5 transition-colors hover:border-slate-200">
+      <div className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg bg-violet-50 text-violet-600">
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">{label}</div>
-        <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">{sublabel}</div>
+        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">{label}</div>
+        <div className="mt-px truncate font-mono text-[11px] text-slate-400">{sublabel}</div>
       </div>
-      <span
-        className={cn(
-          "absolute top-1.5 w-1.5 h-1.5 rounded-full",
-          side === "left" ? "right-2 bg-emerald-500" : "left-2 bg-emerald-500",
-          "animate-pulse",
-        )}
-      />
+      <span className="flex-none rounded bg-emerald-50 px-1.5 py-0.5 font-mono text-[10px] text-emerald-600">
+        Live
+      </span>
     </div>
   );
 }
@@ -498,36 +481,28 @@ function SourceGroupCard({
       type="button"
       onClick={onSelect}
       className={cn(
-        "relative w-full flex items-center gap-2.5 px-3 py-2.5 text-left rounded-lg border bg-white shadow-sm transition-all",
+        "flex w-full items-center gap-2.5 rounded-[10px] border bg-white px-2.5 py-2.5 text-left transition-colors",
         isActive
-          ? "border-emerald-400 ring-2 ring-emerald-200 shadow-md scale-[1.01]"
-          : "border-slate-200 hover:border-emerald-300",
+          ? "border-sky-300 ring-1 ring-sky-200"
+          : "border-slate-100 hover:border-slate-200",
       )}
     >
-      <div
-        className={cn(
-          "flex items-center justify-center w-7 h-7 rounded-md shrink-0 border",
-          isActive
-            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-            : "bg-slate-100 text-slate-600 border-slate-200",
-        )}
-      >
-        <Icon className="w-3.5 h-3.5" />
+      <div className="flex h-[30px] w-[30px] flex-none items-center justify-center rounded-lg bg-sky-50 text-sky-600">
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-[13px] font-semibold text-slate-900 leading-tight truncate">
+        <div className="truncate text-[13px] font-medium leading-tight text-slate-900">
           {group.provider}
         </div>
-        <div className="text-[10.5px] text-slate-500 leading-tight truncate mt-0.5">
-          {group.sublabel} · {group.inputs.length} input{group.inputs.length === 1 ? "" : "s"}
+        <div className="mt-px truncate font-mono text-[11px] text-slate-400">
+          {group.sublabel} · {group.inputs.length}
         </div>
       </div>
-      <span className="absolute top-1.5 right-2 flex items-center justify-center w-5 h-5 rounded-full bg-emerald-500 text-white text-[10px] font-bold shadow-sm">
-        {group.inputs.length}
-      </span>
+      <span className="h-2 w-2 flex-none rounded-full bg-emerald-500" />
     </button>
   );
 }
+
 
 const SIGNAL_BASIS: Record<string, "First-party" | "Both" | "Modeled"> = {
   "Life Event": "Both",
