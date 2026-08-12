@@ -403,16 +403,16 @@ export function AnalyticsContainer({ defaultTab = 'capabilities', userDemographi
   };
 
   const navButtonClasses = (isActive: boolean, collapsed: boolean) => cn(
-    "w-full flex items-center gap-3 text-left text-[14px] transition-colors",
+    "w-full flex items-center gap-3 text-left transition-colors",
     collapsed ? "justify-center px-0 py-2" : "px-3 py-2",
     isActive
-      ? "bg-white/10 text-white border-l-2 border-indigo-400 font-medium shadow-[0_0_12px_rgba(79,70,229,0.15)]"
-      : "text-indigo-50/90 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
+      ? "text-[15px] font-semibold text-white bg-white/10 border-l-2 border-indigo-400 shadow-[0_0_12px_rgba(79,70,229,0.15)]"
+      : "text-[14px] font-medium text-indigo-100/80 hover:bg-white/5 hover:text-white border-l-2 border-transparent"
   );
 
   const navIconClasses = (isActive: boolean) => cn(
     "w-4 h-4 shrink-0",
-    isActive ? "text-indigo-400" : "text-indigo-200/60"
+    isActive ? "text-teal-400" : "text-indigo-200/60"
   );
 
   return (
