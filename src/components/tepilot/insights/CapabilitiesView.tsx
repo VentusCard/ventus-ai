@@ -595,7 +595,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           label="Activation destinations"
           dot="#6D4AD4"
           value={String(DESTINATIONS.length)}
-          foot={`${TEAMS.length} internal teams activating`}
+          foot="personalized across every channel"
           spark={{ points: "M1 15L10 13L19 14L28 9L37 10L46 5L59 4", stroke: "#6D4AD4" }}
         />
       </div>
