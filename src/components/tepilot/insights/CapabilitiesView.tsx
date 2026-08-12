@@ -77,12 +77,14 @@ type SourceGroup = {
   openLabel?: string;
 };
 
+type TeamKey = "leadership" | "growth" | "rewards";
+
 type Destination = {
-  label: string;
-  sublabel: string;
-  icon: React.ElementType;
-  badge: string;
+  name: string;
+  channel: string;
+  team: TeamKey;
 };
+
 
 
 type Detection = { ev: string; to: string; basis: "1P" | "Ext" | "Both" };
@@ -259,39 +261,24 @@ function chipClass(chip: WorkflowChip) {
   return CHIP_KIND_TINTS[chip.kind];
 }
 
-interface DestinationGroup {
-  team: string;
-  items: Destination[];
-}
+const TEAMS: Record<TeamKey, { label: string; color: string }> = {
+  leadership: { label: "Bank Leadership", color: "#2563EB" },
+  growth: { label: "Product & Growth", color: "#37B389" },
+  rewards: { label: "Rewards & Deals", color: "#B4722A" },
+};
 
-const DESTINATION_GROUPS: DestinationGroup[] = [
-  {
-    team: "Bank Leadership",
-    items: [
-      { label: "Intelligence Database", sublabel: "", icon: BarChart3, badge: "Ventus" },
-      { label: "Ventus AI Coworker", sublabel: "", icon: Briefcase, badge: "Email" },
-      { label: "Personalized Relationship", sublabel: "", icon: Users, badge: "Ventus" },
-    ],
-  },
-  {
-    team: "Product & Growth",
-    items: [
-      { label: "Automations Campaign", sublabel: "", icon: Megaphone, badge: "CRM" },
-      { label: "Custom Product Builder", sublabel: "", icon: Route, badge: "CRM" },
-      { label: "Personalized Product Offer", sublabel: "", icon: Gift, badge: "CRM" },
-    ],
-  },
-  {
-    team: "Rewards and Deals",
-    items: [
-      { label: "Personalized Reward Program", sublabel: "", icon: Sparkles, badge: "Digital Banking" },
-      { label: "Local Merchant Deals\u00a0", sublabel: "", icon: Smartphone, badge: "Ventus" },
-      { label: "Royalty and Retention", sublabel: "", icon: Crown, badge: "Digital Banking" },
-    ],
-  },
+const DESTINATIONS: Destination[] = [
+  { name: "Intelligence Database", channel: "Ventus", team: "leadership" },
+  { name: "Ventus AI Coworker", channel: "Email", team: "leadership" },
+  { name: "Personalized Relationship", channel: "Ventus", team: "growth" },
+  { name: "Automations Campaign", channel: "CRM", team: "growth" },
+  { name: "Custom Product Builder", channel: "CRM", team: "growth" },
+  { name: "Personalized Product Offer", channel: "CRM", team: "growth" },
+  { name: "Personalized Reward Program", channel: "Digital Banking", team: "rewards" },
+  { name: "Local Merchant Deals", channel: "Ventus", team: "rewards" },
+  { name: "Loyalty & Retention", channel: "Digital Banking", team: "rewards" },
 ];
 
-const ALL_DESTINATIONS = DESTINATION_GROUPS.flatMap((g) => g.items);
 
 function Connector({ amber }: { amber?: boolean }) {
   const stroke = amber ? "#D9A441" : "#94A3B8";
@@ -560,38 +547,23 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   const [activeSignalLabel, setActiveSignalLabel] = useState<string | null>(null);
   const sourceGroups: SourceGroup[] = [
     {
-      provider: "KYC",
-      sublabel: "Identity & compliance",
-      icon: UserCircle,
-      description: "Verified identity, contact, and compliance attributes collected at onboarding and refreshed through periodic KYC review.",
+      provider: "Banking Core",
+      sublabel: "accounts · transactions · ledger",
+      icon: Landmark,
+      description:
+        "The bank's system-of-record spine — verified identity, every payment rail, and the full product portfolio the customer holds today.",
       inputs: [
         { label: "Name, DOB, SSN", sublabel: "Core identity tuple used for identity resolution across systems", icon: UserCircle },
         { label: "Address & contact", sublabel: "Residential address, phone, and email of record", icon: MapPin },
         { label: "Document verification — ID / passport", sublabel: "Government ID scan + liveness check outcome", icon: FileCheck },
         { label: "Sanctions, PEP & watchlists", sublabel: "OFAC, PEP, and adverse-media screening status", icon: ShieldCheck },
         { label: "Employer & occupation", sublabel: "Self-reported employer and occupation from onboarding forms", icon: Briefcase },
-      ],
-    },
-    {
-      provider: "Transactions",
-      sublabel: "Card, ACH, wire & digital payments",
-      icon: ArrowLeftRight,
-      description: "Real-time and settled payment streams across every rail the bank runs — the primary substrate for behavioral enrichment.",
-      inputs: [
         { label: "Card auth & posted", sublabel: "Live authorization stream and settled postings from the card processor", icon: CreditCard },
         { label: "ACH debit / credit", sublabel: "NACHA-cleared debits and credits including recurring payroll", icon: ArrowLeftRight },
         { label: "Wires in / out", sublabel: "Domestic and international wire activity with counterparty detail", icon: Landmark },
         { label: "Zelle", sublabel: "P2P transfers with contact-level counterparties", icon: Send },
         { label: "RTP / FedNow", sublabel: "Real-time payment rails, 24/7 clearing", icon: Zap },
         { label: "Bill pay & checks", sublabel: "Scheduled bill pay and posted paper/e-check activity", icon: Receipt },
-      ],
-    },
-    {
-      provider: "Product Holdings",
-      sublabel: "Customer portfolio",
-      icon: Database,
-      description: "Every product the customer currently holds with the bank, balances, and statement history — the portfolio view of the relationship.",
-      inputs: [
         { label: "Checking & savings", sublabel: "Deposit accounts, balances, and interest posture", icon: Wallet },
         { label: "Credit & debit cards", sublabel: "Card products held, limits, and utilization", icon: CreditCard },
         { label: "Loans & mortgage", sublabel: "Auto, personal, HELOC, and mortgage servicing", icon: Home },
@@ -601,7 +573,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     },
     {
       provider: "Digital Banking",
-      sublabel: "App & web telemetry",
+      sublabel: "app + web telemetry",
       icon: Smartphone,
       description: "Behavioral telemetry from the mobile app and web banking — how customers engage with the bank's digital surface.",
       inputs: [
@@ -614,7 +586,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
     },
     {
       provider: "Bank Context",
-      sublabel: "Products, locations, org & tiers",
+      sublabel: "products · locations · org",
       icon: Package,
       description: `The bank's operational context — products, locations, organizational structure, and customer tiers — that shapes what Ventus can recommend and to whom. ${BANK_PRODUCT_TOTAL} products across the catalog.`,
       onOpen: onOpenProducts,
@@ -629,17 +601,25 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       ],
     },
     {
-      provider: "External Intelligence",
-      sublabel: "Credit bureau & third-party enrichment",
+      provider: "External Intelligence 1",
+      sublabel: "national data partnerships",
       icon: Gauge,
-      description: "Credit bureau file plus third-party consumer enrichment covering wealth, property, demographics, auto, employment, life events, and loans & payments.",
-        inputs: [
+      description: "Credit bureau file plus household wealth, property, and demographic enrichment from national data partnerships.",
+      inputs: [
         { label: "Credit File", sublabel: "Bureau tradelines, utilization, and score", icon: Gauge, fcra: true },
         { label: "Wealth Data", sublabel: "Estimated household investable assets and net-worth tier", icon: PiggyBank, fcra: false },
         { label: "Loans & Payments", sublabel: "Auto loans, mortgage history, HELOC, and personal loan servicing", icon: Receipt, fcra: false },
         { label: "Property Data", sublabel: "Property ownership, valuation, and equity estimate", icon: Home, fcra: false },
-        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart, fcra: false },
         { label: "Demographics Data", sublabel: "Household composition, age, income band, life stage", icon: Users, fcra: false },
+      ],
+    },
+    {
+      provider: "External Intelligence 2",
+      sublabel: "national data partnerships",
+      icon: Sparkles,
+      description: "Lifestyle, vehicle, life-event, and firmographic enrichment from national data partnerships.",
+      inputs: [
+        { label: "Interests & hobbies", sublabel: "Cooking, travel, apparel, outdoor, luxury affinities from surveys and subscriptions", icon: Heart, fcra: false },
         { label: "Auto & VIN", sublabel: "Registered vehicles, make/model, and ownership tenure", icon: Car, fcra: false },
         { label: "Life events", sublabel: "Marriage, new child, home purchase, relocation flags", icon: Sparkles, fcra: false },
         { label: "Public records", sublabel: "Bankruptcies, liens, judgments, and UCC filings", icon: FileText, fcra: false },
@@ -649,6 +629,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
       ],
     },
   ];
+
   const totalSourceInputs = sourceGroups.reduce((n, g) => n + g.inputs.length, 0);
   const [activeSourceLabel, setActiveSourceLabel] = useState<string | null>(null);
   const activeSignal = activeSignalLabel ? SIGNALS.find((s) => s.label === activeSignalLabel) ?? null : null;
@@ -677,7 +658,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
   const activeDetailKind = activeSignal ? "Signal family" : activeSource ? "Source" : null;
   const activeDetailCountNoun = activeSignal ? "detections" : activeSource ? "inputs" : "";
   const ActiveIcon = activeDetail?.icon;
-  const visibleDestinations = ALL_DESTINATIONS;
+  const visibleDestinations = DESTINATIONS;
   const selectSignal = (label: string) => {
     setActiveSourceLabel(null);
     setActiveSignalLabel((prev) => (prev === label ? null : label));
@@ -871,32 +852,38 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                 Activation destinations
               </span>
               <span className="ml-auto font-mono text-[11px] text-slate-400">
-                {visibleDestinations.length}
+                3 teams · {visibleDestinations.length}
               </span>
             </div>
-            <div className="flex min-w-0 flex-col gap-5">
-              {DESTINATION_GROUPS.map((group) => (
-                <div key={group.team} className="flex min-w-0 flex-col gap-2">
-                  <div className="mb-1 flex items-center gap-2">
-                    <span className="font-mono text-[10px] font-semibold uppercase tracking-wider text-slate-400">
-                      {group.team}
-                    </span>
-                    <span className="h-px flex-1 bg-slate-100" />
-                  </div>
-                  {group.items.map((d) => (
-                    <NodeCard
-                      key={d.label}
-                      icon={d.icon}
-                      label={d.label}
-                      sublabel={d.sublabel}
-                      badge={d.badge}
-                      accent="indigo"
-                      side="right"
+            <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+              {visibleDestinations.map((d) => {
+                const team = TEAMS[d.team];
+                return (
+                  <div
+                    key={d.name}
+                    className="relative flex min-h-[34px] flex-1 items-center gap-2 overflow-hidden rounded-lg border border-slate-100 pl-3 pr-2"
+                  >
+                    <span
+                      className="absolute inset-y-0 left-0 w-[3px]"
+                      style={{ background: team.color }}
                     />
-                  ))}
-                </div>
-              ))}
+                    <span
+                      className="flex-none rounded px-1.5 py-px text-[9.5px] font-medium leading-none"
+                      style={{ background: `${team.color}14`, color: team.color }}
+                    >
+                      {team.label}
+                    </span>
+                    <span className="truncate text-[12.5px] font-medium leading-tight text-slate-800">
+                      {d.name}
+                    </span>
+                    <span className="ml-auto flex-none rounded bg-slate-100 px-1.5 py-px font-mono text-[9.5px] leading-none text-slate-500">
+                      {d.channel}
+                    </span>
+                  </div>
+                );
+              })}
             </div>
+
           </div>
         </div>
 
