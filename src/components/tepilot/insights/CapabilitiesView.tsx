@@ -890,7 +890,7 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                             )}
                           >
                             <span className={cn("absolute inset-y-0 left-0 w-[3px]", s.color)} />
-                            <span className="mb-0.5 flex items-center gap-2">
+                            <span className="mb-1 flex items-center gap-2">
                               <span
                                 className={cn(
                                   "h-[7px] w-[7px] flex-none rounded-full ring-[3px] ring-white/10",
@@ -900,20 +900,17 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
                               <span className="min-w-0 truncate text-[12.5px] font-semibold tracking-tight text-slate-100">
                                 {s.label}
                               </span>
-                              <span className="ml-auto flex-none font-mono text-[11px] tabular-nums text-slate-400">
+                            </span>
+                            <span className="flex items-center gap-2 font-mono text-[10.5px] leading-none text-slate-400">
+                              <span className="flex-none tabular-nums">
                                 <b className="font-semibold text-slate-200">
                                   {row ? row.detected.toLocaleString() : "—"}
                                 </b>{" "}
                                 · 24h
                               </span>
-                            </span>
-                            <span className="flex items-center gap-2 text-[11.5px] leading-none text-slate-400">
-                              <span className="min-w-0 truncate">
-                                {s.items.length} detectors
-                              </span>
                               <span
                                 className={cn(
-                                  "ml-auto flex-none rounded px-1.5 py-px font-mono text-[9px] tracking-wide",
+                                  "ml-auto flex-none rounded px-1.5 py-px text-[9px] tracking-wide",
                                   BASIS_BADGE_DARK[row?.basis ?? "First-party"],
                                 )}
                               >
