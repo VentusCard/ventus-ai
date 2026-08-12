@@ -728,6 +728,16 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
           spark={{ points: "M1 17L10 15L19 16L28 11L37 12L46 6L59 3", stroke: "#2563EB" }}
         />
         <Kpi
+          label="Enrichment coverage"
+          dot="#1E9E6A"
+          value={
+            <>
+              99<span className="text-sm font-medium text-slate-400">%</span>
+            </>
+          }
+          foot={<span>of transactions enriched with category, merchant, and intent</span>}
+        />
+        <Kpi
           label="Active signals (24h)"
           dot="#1E9E6A"
           value={totalDetections.toLocaleString()}
@@ -737,16 +747,6 @@ export function CapabilitiesView({ onOpenProducts }: { onOpenProducts?: () => vo
             </span>
           }
           spark={{ points: "M1 14L10 16L19 9L28 12L37 7L46 9L59 4", stroke: "#1E9E6A" }}
-        />
-        <Kpi
-          label="Enrichment coverage"
-          dot="#1E9E6A"
-          value={
-            <>
-              99<span className="text-sm font-medium text-slate-400">%</span>
-            </>
-          }
-          foot={<span>of transactions enriched with category, merchant, and intent</span>}
         />
         <Kpi
           label="Activations routed (24h)"
